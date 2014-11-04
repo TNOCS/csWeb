@@ -1,0 +1,98 @@
+﻿.btn-filter-delete {
+    position: relative;
+    right: 0;
+    margin-top: 2px;
+}
+
+.filter-text {
+    width: 200px;
+}
+
+.style-title {
+    font-size: 14px;    
+}
+
+.style-settings {
+    position: relative;
+    right: 5px;
+}
+
+.style-aspect {
+ background-size: 18px;
+    width: 18px;
+    height: 18px;   
+}
+
+.style-fillColor {
+    background-image: url('../includes/images/fillcolor.png');
+    
+}
+
+.style-strokeColor {
+    background-image: url('../includes/images/bordercolor.png');    
+}
+
+.style-strokeWidth {
+    background-image: url('../includes/images/line-width.png');    
+}
+
+.popover {
+    min-width: 250px;
+}
+
+.popover-content {
+    margin-left: 10px;
+}
+
+.legendItem {
+    clear: both;
+    padding-top: 10px;
+}
+
+.legendImage {
+    width:25px;
+    height:25px;    
+}
+
+.makeNarrow {
+    margin-left: -2px;
+    margin-right: -4px;
+}
+
+.legendIcon {
+    background: none;
+    border-color: black;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 15%;
+    float:left;
+    width:30px;
+    height:30px;
+    margin:5px
+}
+
+.table > td {
+    border: none;
+}
+
+.legendText {
+    overflow-wrap: break-word;
+    margin-top: 3px;
+    
+float: inherit;
+position: absolute;
+width: 200px;
+}
+
+.filter-group-count {
+    margin-left: 13px;
+}
+
+.popup-title {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.feature-prop-active-filter {
+    
+}

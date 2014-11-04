@@ -1,0 +1,13 @@
+﻿<div style="position: relative;">
+    <h4 class="leftpanel-header">Legenda</h4>    
+    <div >
+        <div ng-repeat="(key, val) in vm.$layerService.featureTypes" class="legendItem">
+            <div class="legendIcon">
+                <img ng-src="{{legendImage(val)}}" class="legendImage"  />
+            </div><span class="legendText">
+                {{legendName(key,val)}}
+            </span>
+        </div>
+
+    </div>
+</div>
