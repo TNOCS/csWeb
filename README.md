@@ -4,7 +4,7 @@
 
 **csWeb (version 0.1)**, or the **Common Sense Web application**, is a web-based open source GIS application, written in Typescript, with a focus on usability and connectivity, be it connecting and sharing information with other users or connecting to services or calculation simulations and models. 
 
-Note, however, that this repository only contain the back-end functionality for the above-mentioned web application. You need [https://github.com/TNOCS/csMap](csMap) as a starting point for creating the actual web-based application. 
+Note, however, that this repository only contain the back-end functionality for the above-mentioned web application. You need [csMap](https://github.com/TNOCS/csMap) as a starting point for creating the actual web-based application. 
 
 This repository consists of two projects, csComp, a library containing client side functionality, and csServerComp, for server side components, Both libraries generate a JavaScript file that can be used by the actual map application.
 
