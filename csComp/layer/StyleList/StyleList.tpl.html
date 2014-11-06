@@ -1,6 +1,6 @@
 ﻿<div>
-    <h4 class="leftpanel-header">Stijlen</h4>
-    <div ng-show="vm.$layerService.noStyles">Momenteel zijn er geen stijlen geselecteerd. Wil je zelf een stijl toevoegen, dan kan dat. Overal waar het het stijl icoontje (<i class="fa fa-eye"></i>) staat kan je er op drukken en wordt er een stijl aangemaakt.</div>
+    <h4 class="leftpanel-header" translate="STYLES"></h4>
+    <div ng-show="vm.$layerService.noStyles" translate="STYLE_INFO"></div>
     <div data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px">
         <div ng-show="group.styles.length">
             <div style="float:left;margin-left: -10px; margin-top: 5px" data-toggle="collapse" data-target="#stylegroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>

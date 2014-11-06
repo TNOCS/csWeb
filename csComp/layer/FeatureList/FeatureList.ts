@@ -8,7 +8,7 @@
       * Module
       */
     export var myModule;
-    try {
+    try { 
         myModule = angular.module(moduleName);
     } catch (err) {
         // named module does not exist, so create one

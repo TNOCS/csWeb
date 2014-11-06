@@ -31,7 +31,10 @@
             $scope.numberOfItems = 10;  // This is being reset in the directive upon receiving a resize.
             $scope.legendImage = (ft: csComp.GeoJson.IFeatureType) => {
                 if (ft.style != null && ft.style.drawingMode.toLowerCase() != "point") {
-                    return "includes/images/polygon.png";
+                    if (ft.style.iconUri && ft.style.iconUri.indexOf('_Media') < 0)
+                        return ft.style.iconUri;
+                    else
+                        return "includes/images/polygon.png";
                 }
                 else if (ft.style != null && ft.style.iconUri != null) {
                     return ft.style.iconUri;     
