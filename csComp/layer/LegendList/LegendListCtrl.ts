@@ -1,9 +1,13 @@
 ﻿module LegendList {
+    export interface ILegendItem {
+        title: string;
+        uri : string;
+    }
+
     export interface ILegendListScope extends ng.IScope {
-        vm: LegendListCtrl;
+        vm           : LegendListCtrl;
         numberOfItems: number;
-        legendImage: Function;
-        legendName : Function;
+        legendItems  : Function;
     }
 
     export class LegendListCtrl {
@@ -26,32 +30,48 @@
             private $layerService: csComp.Services.LayerService,
             private $mapService  : csComp.Services.MapService
             ) {
-            $scope.vm = this;   
+            $scope.vm = this;
+
+            $scope.legendItems = () => {
+                var legendItems: Array<ILegendItem> = [];
+                var existingItems: Array<String> = [];
+                for (var key in $layerService.featureTypes) {
+                    var ft = $layerService.featureTypes[key];
+                    var uri = this.getImageUri(ft);
+                    var title = this.getName(key, ft);
+                    var existingItem = name + uri;
+                    if (existingItems.indexOf(existingItem) < 0) {
+                        existingItems.push(existingItem);
+                        legendItems.push({ "title": title, "uri": uri });
+                    }
+                }
+                return legendItems;
+            };
 
             $scope.numberOfItems = 10;  // This is being reset in the directive upon receiving a resize.
-            $scope.legendImage = (ft: csComp.GeoJson.IFeatureType) => {
-                if (ft.style != null && ft.style.drawingMode.toLowerCase() != "point") {
-                    if (ft.style.iconUri && ft.style.iconUri.indexOf('_Media') < 0)
-                        return ft.style.iconUri;
-                    else
-                        return "includes/images/polygon.png";
-                }
-                else if (ft.style != null && ft.style.iconUri != null) {
-                    return ft.style.iconUri;     
-                }
-                else
-                {
-                    return "includes/images/marker.png";
-                }
-            }
+        }
 
-            $scope.legendName = (key : string, ft: csComp.GeoJson.IFeatureType) => {
-                if (ft.name != null) {
-                    return ft.name;
-                }
-                else {
-                    return key;
-                }
+        private getImageUri(ft: csComp.GeoJson.IFeatureType): string {
+            if (ft.style != null && ft.style.drawingMode.toLowerCase() != "point") {
+                if (ft.style.iconUri && ft.style.iconUri.indexOf('_Media') < 0)
+                    return ft.style.iconUri;
+                else
+                    return "includes/images/polygon.png";
+            }
+            else if (ft.style != null && ft.style.iconUri != null) {
+                return ft.style.iconUri;
+            }
+            else {
+                return "includes/images/marker.png";
+            }
+        }
+
+        private getName(key: string, ft: csComp.GeoJson.IFeatureType): string {
+            if (ft.name != null) {
+                return ft.name;
+            }
+            else {
+                return key;
             }
         }
 
