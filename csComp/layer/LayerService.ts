@@ -117,7 +117,7 @@
         constructor() {
             this.availableAspects = ["strokeColor", "fillColor", "strokeWidth"];
             this.colorScales = {
-                "wit - root"  : ["white", "red"],
+                "wit - rood"  : ["white", "red"],
                 "rood - wit"  : ["red", "white"],
                 "groen - rood"  : ["green", "red"],
                 "rood - groen"  : ["red", "green"],
@@ -125,7 +125,7 @@
                 "blauw - wit" : ["blue", "white"],
                 "wit - groen": ["white", "green"],
                 "groen - wit": ["green", "white"],
-                "wit - orangje": ["white", "orange"],
+                "wit - oranje": ["white", "orange"],
                 "oranje - wit": ["orange", "white"],
             }
         }
