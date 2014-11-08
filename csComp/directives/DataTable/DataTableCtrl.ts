@@ -1,6 +1,6 @@
 ﻿module DataTable {
     import IGeoJsonFile = csComp.GeoJson.IGeoJsonFile;
-    import IMetaInfo    = csComp.GeoJson.IMetaInfo;
+    import IPropertyType = csComp.GeoJson.IPropertyType;
     import IFeature     = csComp.GeoJson.IFeature;
     import ProjectLayer = csComp.Services.ProjectLayer;
     import StringExt    = csComp.StringExt;
@@ -28,7 +28,7 @@
         public numberOfItems  : number = 10;
         public selectedLayerId: string;
         public layerOptions   : Array<any> = [];
-        public metaInfos      : Array<IMetaInfo> = [];
+        public metaInfos: Array<IPropertyType> = [];
         public headers        : Array<string> = [];
         public sortingColumn  : number;
         public rows           : Array<Array<TableField>> = [];
@@ -154,7 +154,7 @@
             this.headers   = [];
             this.rows      = [];
             var titles: Array<string> = [];
-            var mis: Array<IMetaInfo> = [];
+            var mis: Array<IPropertyType> = [];
             // Push the Name, so it always appears on top.
             mis.push({
                 label           : "Name",
@@ -224,8 +224,8 @@
          * Returns the data rows that are relevant for the current selection.
          */
         public getRows(): Array<Array<TableField>> {
-            var meta: Array<IMetaInfo> = [this.headers.length];
-            this.metaInfos.forEach((mi: IMetaInfo) => {
+            var meta: Array<IPropertyType> = [this.headers.length];
+            this.metaInfos.forEach((mi: IPropertyType) => {
                 // Keep headers and mi in the right order
                 var index = this.headers.indexOf(mi.title);
                 if (index >= 0) meta[index] = mi;

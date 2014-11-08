@@ -80,7 +80,7 @@
         text
     }
 
-    export interface IMetaInfo {
+    export interface IPropertyType {
         label?: string;
         title?: string;
         description?: string;
@@ -112,7 +112,7 @@
     export interface IFeatureType {
         name?: string;
         style?: IFeatureTypeStyle;
-        metaInfoData?: IMetaInfo[];
+        metaInfoData?: IPropertyType[];
         /**
          * Optional list of MetaInfo keys, separated by semi-colons. 
          * The keys can be resolved in the project's metaInfoData dictionary, or in the local metaInfoData.

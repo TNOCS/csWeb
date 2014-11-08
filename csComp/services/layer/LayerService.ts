@@ -2,7 +2,7 @@
     import IFeature        = GeoJson.IFeature;
     import IFeatureType    = GeoJson.IFeatureType;
     import DrawingModeType = GeoJson.DrawingModeType;
-    import IMetaInfo = GeoJson.IMetaInfo;
+    import IPropertyType = GeoJson.IPropertyType;
 
     declare var String;
 
@@ -47,7 +47,7 @@
         public map : Services.MapService;
         
         public featureTypes : { [key: string]: IFeatureType; };
-        public metaInfoData : { [key: string]: IMetaInfo; };
+        public metaInfoData: { [key: string]: IPropertyType; };
           
         public project : Project;
         
@@ -730,7 +730,7 @@
             type.metaInfoData = [];
 
             for (var key in feature.properties) {
-                var metaInfo: IMetaInfo   = [];
+                var metaInfo: IPropertyType   = [];
                 metaInfo.label            = key;
                 metaInfo.title            = key.replace("_", " ");
                 metaInfo.isSearchable     = true;
@@ -914,7 +914,7 @@
 
                 if (this.project.metaInfoData) {
                     for (var key in this.project.metaInfoData) {
-                        var metaInfo: IMetaInfo = this.project.metaInfoData[key];
+                        var metaInfo: IPropertyType = this.project.metaInfoData[key];
                         this.metaInfoData[key] = metaInfo;
                     }
                 }

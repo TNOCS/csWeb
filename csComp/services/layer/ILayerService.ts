@@ -16,6 +16,6 @@
         map          : Services.MapService;
         layerGroup   : L.LayerGroup<L.ILayer>;
         featureTypes : { [key: string]: GeoJson.IFeatureType; };
-        metaInfoData : { [key: string]: GeoJson.IMetaInfo; };
+        metaInfoData: { [key: string]: GeoJson.IPropertyType; };
     }
 }

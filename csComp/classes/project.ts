@@ -1,9 +1,9 @@
 ﻿module csComp.Services {
 
-    import IFeature = GeoJson.IFeature;
-    import IFeatureType = GeoJson.IFeatureType;
+    import IFeature        = GeoJson.IFeature;
+    import IFeatureType    = GeoJson.IFeatureType;
     import DrawingModeType = GeoJson.DrawingModeType;
-    import IMetaInfo = GeoJson.IMetaInfo;
+    import IPropertyType   = GeoJson.IPropertyType;
 
     /**
      * Represents to the overall solution class. A solution can contain multiple project.
@@ -30,7 +30,7 @@
         description  : string;
         logo         : string;
         featureTypes : { [id: string]: IFeatureType }
-        metaInfoData : { [id: string]: IMetaInfo }
+        metaInfoData: { [id: string]: IPropertyType }
         groups       : Array<ProjectGroup>;
         startposition: Coordinates;
         features     : IFeature[];

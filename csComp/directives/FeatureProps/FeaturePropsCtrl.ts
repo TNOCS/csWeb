@@ -1,7 +1,7 @@
 ﻿module FeatureProps {   
     import IFeature     = csComp.GeoJson.IFeature;
     import IFeatureType = csComp.GeoJson.IFeatureType;
-    import IMetaInfo    = csComp.GeoJson.IMetaInfo;
+    import IPropertyType = csComp.GeoJson.IPropertyType;
     import StringExt    = csComp.StringExt;
 
     class FeaturePropsOptions implements L.SidebarOptions {
@@ -33,24 +33,24 @@
         canStyle    : boolean;
         feature     : IFeature;
         description?: string;
-        meta?: IMetaInfo;
+        meta?: IPropertyType;
         isFilter : boolean;
     }
 
     export class CallOutProperty implements ICallOutProperty {
-        constructor(public key: string, public value: string, public property: string, public canFilter: boolean, public canStyle: boolean, public feature: IFeature, public isFilter: boolean, public description?: string, public meta? : IMetaInfo ) {}
+        constructor(public key: string, public value: string, public property: string, public canFilter: boolean, public canStyle: boolean, public feature: IFeature, public isFilter: boolean, public description?: string, public meta?: IPropertyType ) {}
     }
 
     export interface ICallOutSection {
-        metaInfos  : { [label: string]: IMetaInfo }; // Probably not needed
+        metaInfos: { [label: string]: IPropertyType }; // Probably not needed
         properties : Array<ICallOutProperty>;
         sectionIcon: string;
-        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter : boolean, description?: string, meta? : IMetaInfo) : void;
+        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType) : void;
         hasProperties(): boolean;
     }
 
     export class CallOutSection implements ICallOutSection {
-        public metaInfos  : { [label: string]: IMetaInfo };
+        public metaInfos: { [label: string]: IPropertyType };
         public properties : Array<ICallOutProperty>;
         public sectionIcon: string;
 
@@ -62,7 +62,7 @@
 
         public showSectionIcon(): boolean { return !StringExt.isNullOrEmpty(this.sectionIcon); }
 
-        public addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter : boolean,description?: string, meta?: IMetaInfo ): void {
+        public addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {
             
             if (description)
                 this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter,description,meta));
@@ -81,7 +81,7 @@
         public title: string;
         public sections: { [title: string]: ICallOutSection; };
 
-        constructor(private type: IFeatureType, private feature: IFeature, private metaInfoData: { [key: string] : IMetaInfo} ) {
+        constructor(private type: IFeatureType, private feature: IFeature, private metaInfoData: { [key: string]: IPropertyType} ) {
             this.sections = {};
             //if (type == null) this.createDefaultType();
             this.setTitle();
@@ -90,7 +90,7 @@
             var searchCallOutSection = new CallOutSection('fa-filter');
             var displayValue: string;
             if (type != null) {
-                var metaInfos: Array<IMetaInfo> = [];
+                var metaInfos: Array<IPropertyType> = [];
                 if (type.metaInfoKeys != null) {
                     var keys = type.metaInfoKeys.split(';');
                     keys.forEach((key) => {
@@ -103,7 +103,7 @@
                 } else if (type.metaInfoData != null) {
                     metaInfos = type.metaInfoData;
                 }
-                metaInfos.forEach((mi: IMetaInfo) => {
+                metaInfos.forEach((mi: IPropertyType) => {
                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                     callOutSection.metaInfos[mi.label] = mi;
                     var text = feature.properties[mi.label];

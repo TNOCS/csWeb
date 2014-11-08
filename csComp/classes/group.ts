@@ -3,7 +3,7 @@
     import IFeature = GeoJson.IFeature;
     import IFeatureType = GeoJson.IFeatureType;
     import DrawingModeType = GeoJson.DrawingModeType;
-    import IMetaInfo = GeoJson.IMetaInfo;
+    import IPropertyType = GeoJson.IPropertyType;
 
     /** a project group contains a list of layers that can be grouped together. 
      * Filters, styles can clustering is always defined on the group level. 
@@ -50,26 +50,26 @@
         value      : any;
         stringValue: string;
         rangex     : number[];
-        meta       : IMetaInfo;
+        meta       : IPropertyType;
     }
 
     /**
      * Styles can determine how features are shown on the map
      */
     export class GroupStyle {
-        id: string;
-        title: string;
-        enabled: boolean;
-        layers: string[];
-        visualAspect: string;
-        property: string;
-        colors: string[];
-        group: ProjectGroup;
+        id              : string;
+        title           : string;
+        enabled         : boolean;
+        layers          : string[];
+        visualAspect    : string;
+        property        : string;
+        colors          : string[];
+        group           : ProjectGroup;
         availableAspects: string[];
-        canSelectColor: boolean;
-        colorScales: any;
-        info: PropertyInfo;
-        meta: IMetaInfo;
+        canSelectColor  : boolean;
+        colorScales     : any;
+        info            : PropertyInfo;
+        meta            : IPropertyType;
 
         constructor($translate: ng.translate.ITranslateService) {
 
