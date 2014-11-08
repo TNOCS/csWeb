@@ -45,6 +45,7 @@
     <TypeScriptCompile Include="layer\StyleList\StyleList.tpl.ts" />
     <TypeScriptCompile Include="layer\StyleList\StyleList.ts" />
     <TypeScriptCompile Include="layer\StyleList\StyleListCtrl.ts" />
+    <TypeScriptCompile Include="Scripts\typings\angular-translate\angular-translate.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\angularLocalStorage\angularLocalStorage.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\async\async.d.ts" />

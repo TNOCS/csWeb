@@ -109,25 +109,46 @@
         colors          : string[];
         group           : ProjectGroup;
         availableAspects: string[];
-        canSelectColor: boolean;
-        colorScales: any;
-        info: PropertyInfo;
-        meta: IMetaInfo;
+        canSelectColor  : boolean;
+        colorScales     : any;
+        info            : PropertyInfo;
+        meta            : IMetaInfo;
 
-        constructor() {
+        constructor($translate: ng.translate.ITranslateService) {
+
             this.availableAspects = ["strokeColor", "fillColor", "strokeWidth"];
-            this.colorScales = {
-                "wit - rood"  : ["white", "red"],
-                "rood - wit"  : ["red", "white"],
-                "groen - rood"  : ["green", "red"],
-                "rood - groen"  : ["red", "green"],
-                "wit - blauw" : ["white", "blue"],
-                "blauw - wit" : ["blue", "white"],
-                "wit - groen": ["white", "green"],
-                "groen - wit": ["green", "white"],
-                "wit - oranje": ["white", "orange"],
-                "oranje - wit": ["orange", "white"],
-            }
+            this.colorScales = {};
+            
+            $translate('WHITE_RED').then((translation) => {
+                this.colorScales[translation] = ["white", "red"];
+            });
+            $translate('RED_WHITE').then((translation) => {
+                this.colorScales[translation] = ["red", "white"];
+            });
+            $translate('GREEN_RED').then((translation) => {
+                this.colorScales[translation] = ["green", "red"];
+            });
+            $translate('RED_GREEN').then((translation) => {
+                this.colorScales[translation] = ["red", "green"];
+            });
+            $translate('WHITE_BLUE').then((translation) => {
+                this.colorScales[translation] = ["white", "blue"];
+            });
+            $translate('BLUE_WHITE').then((translation) => {
+                this.colorScales[translation] = ["blue", "white"];
+            });
+            $translate('WHITE_GREEN').then((translation) => {
+                this.colorScales[translation] = ["white", "green"];
+            });
+            $translate('GREEN_WHITE').then((translation) => {
+                this.colorScales[translation] = ["green", "white"];
+            });
+            $translate('WHITE_ORANGE').then((translation) => {
+                this.colorScales[translation] = ["white", "orange"];
+            });
+            $translate('ORANGE_WHITE').then((translation) => {
+                this.colorScales[translation] = ["orange", "white"];
+            });
         }
     }
 
@@ -163,6 +184,7 @@
 
         public static $inject = [
             '$location',
+            '$translate',
             'messageBusService',
             'mapService'
         ];
@@ -188,8 +210,10 @@
 
         constructor(
             private $location          : ng.ILocationService,
+            private $translate         : ng.translate.ITranslateService,
             private $messageBusService : Services.MessageBusService,
             private $mapService        : Services.MapService) {
+            //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb             = $messageBusService;
             this.map            = $mapService;
@@ -708,7 +732,7 @@
             if (f != null) {
                 this.noStyles = false;
                 var layer = this.findLayer(f.layerId);
-                var gs = new GroupStyle();
+                var gs = new GroupStyle(this.$translate);
                 gs.id = this.getGuid();
                 gs.title = property.key;
                 gs.visualAspect = "fillColor";
