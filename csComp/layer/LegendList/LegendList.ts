@@ -52,7 +52,7 @@
                     scope.onResizeFunction();
 
                     angular.element($window).bind('resize', () => {
-                        scope.onResizeFunction();
+                        scope.onFunction();
                         scope.$apply();
                     });
                 },

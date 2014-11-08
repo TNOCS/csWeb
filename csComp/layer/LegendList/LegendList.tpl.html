@@ -1,12 +1,12 @@
 ﻿<div style="position: relative;">
     <h4 class="leftpanel-header" translate="LEGEND"></h4>    
-    <div >
-        <div ng-repeat="legendItem in legendItems()" class="legendItem">
+    <div>
+        <div ng-repeat="legendItem in legendItems" class="legendItem">
             <div class="legendIcon">
                 <img ng-src="{{legendItem.uri}}" class="legendImage" />
             </div><span class="legendText">
                 {{legendItem.title}}
             </span>
-        </div> 
+        </div>
     </div>
 </div>
