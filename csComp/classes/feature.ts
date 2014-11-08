@@ -1,6 +1,24 @@
 ﻿module csComp.GeoJson {
 
-    export class Feature implements IFeature {
+    export interface IFeature {
+        id: string;
+        layerId: string;
+        type: string;
+        geometry: IGeoJsonGeometry;
+        properties: Array<IStringToString>;
+        isSelected: boolean;
+        htmlStyle: string;
+        featureTypeName: string;
+        fType: IFeatureType;
+        isInitialized: boolean;
+    }
+
+    /** 
+     * A feature is a single object that is show on a map (e.g. point, polyline, etc)
+     * Features are part of a layer and filtered and styled using group filters and styles
+     * 
+     */
+    export class Feature {
         public id: string;
         public layerId: string;
         public type: string;
@@ -18,21 +36,8 @@
     }
 
     export interface IGeoJsonGeometry {
-        type       : string;
+        type: string;
         coordinates: any;
-    }
-
-    export interface IFeature {
-        id              : string;
-        layerId         : string;
-        type            : string;
-        geometry        : IGeoJsonGeometry;
-        properties      : Array<IStringToString>;
-        isSelected      : boolean;  
-        htmlStyle       : string;  
-        featureTypeName : string;
-        fType           : IFeatureType; 
-        isInitialized   : boolean;              
     }
 
     export enum DrawingModeType {
@@ -76,37 +81,37 @@
     }
 
     export interface IMetaInfo {
-        label?           : string;
-        title?           : string;
-        description?     : string;
-        type?            : string;
-        section?         : string;
-        stringFormat?    : string;
+        label?: string;
+        title?: string;
+        description?: string;
+        type?: string;
+        section?: string;
+        stringFormat?: string;
         visibleInCallOut?: boolean;
-        canEdit?         : boolean;        
-        filterType?      : string;
-        isSearchable?    : boolean;
-        minValue?        : number;
-        maxValue?        : number;
-        defaultValue?    : number;
+        canEdit?: boolean;
+        filterType?: string;
+        isSearchable?: boolean;
+        minValue?: number;
+        maxValue?: number;
+        defaultValue?: number;
     }
 
     export interface IFeatureTypeStyle {
-        nameLabel?         : string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
-        fillColor?         : string;
-        strokeColor?       : string;
-        drawingMode?       : string;
-        strokeWidth?       : number;
-        iconWidth?         : number;
-        iconHeight?        : number;
-        iconUri?           : string;
+        nameLabel?: string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
+        fillColor?: string;
+        strokeColor?: string;
+        drawingMode?: string;
+        strokeWidth?: number;
+        iconWidth?: number;
+        iconHeight?: number;
+        iconUri?: string;
         maxTitleResolution?: string;
-        analysisMetaInfo?  : any;
+        analysisMetaInfo?: any;
     }
 
     export interface IFeatureType {
-        name?        : string;
-        style?       : IFeatureTypeStyle;
+        name?: string;
+        style?: IFeatureTypeStyle;
         metaInfoData?: IMetaInfo[];
         /**
          * Optional list of MetaInfo keys, separated by semi-colons. 
@@ -117,8 +122,8 @@
 
     export interface IGeoJsonFile {
         poiTypes?: { [key: string]: IFeatureType };
-        type     : string;
-        features : Array<Feature>;
+        type: string;
+        features: Array<Feature>;
     }
 
     //export class Feature implements IFeature {
@@ -127,4 +132,4 @@
     //    geometry  : IGeoJsonGeometry;
     //    properties: Array<IStringToString>;
     //}
-}
+} 

@@ -6,54 +6,11 @@
 
     declare var String;
 
-    export class SolutionProject {
-        title: string;
-        url  : string;
-    }
+   
+
+  
 
     
-
-    export interface IBaseLayer {
-        id         : string;
-        title      : string;
-        isDefault  : boolean;
-        subtitle   : string;
-        preview    : string;
-        url        : string;
-        maxZoom    : number;
-        minZoom    : number;
-        subdomains : Array<string>;
-        attribution: string;
-        test       : string;
-    }
-
-    export interface IBoundingBox {
-        southWest: L.LatLng;
-        northEast: L.LatLng;
-    }
-
-    /**
-     * Represents to the overall projects class.
-     */
-    export class Solution {
-        title     : string;
-        maxBounds : IBoundingBox;
-        viewBounds: IBoundingBox;
-        baselayers: Array<IBaseLayer>;
-        projects  : Array<SolutionProject>;
-    }
-    
-    export class Project {
-        title        : string;
-        description  : string;
-        logo         : string;
-        featureTypes : { [id: string] : IFeatureType }
-        metaInfoData : { [id: string] : IMetaInfo }
-        groups       : Array<ProjectGroup>;
-        startposition: Coordinates;
-        features     : IFeature[];
-        markers = {};
-    }
 
 
     export class PropertyInfo {
@@ -67,115 +24,9 @@
         sdMin   : number;
     }
 
-    export class ProjectLayer {
-        title      : string;
-        description: string;
-        type       : string;
-        url        : string;
-        styleurl   : string;
-        enabled    : boolean;
-        opacity    : number;
-        isLoading  : boolean;
-        isSublayer : boolean;
-        mapLayer   : L.LayerGroup<L.ILayer>;
-        group      : ProjectGroup;
-        /** Internal ID, e.g. for the Excel service */
-        id         : string;
-        /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */
-        reference  : string;
-    }
+    
 
-    export class GroupFilter {
-        id          : string;
-        title       : string;
-        enabled     : boolean;
-        filterType  : string;
-        property    : string;
-        criteria    : string;
-        dimension   : any;
-        value       : any;
-        stringValue : string;
-        rangex      : number[];
-        meta        : IMetaInfo;
-    }
-
-    export class GroupStyle {
-        id              : string;
-        title           : string;
-        enabled         : boolean;
-        layers          : string[];
-        visualAspect    : string;
-        property        : string;        
-        colors          : string[];
-        group           : ProjectGroup;
-        availableAspects: string[];
-        canSelectColor  : boolean;
-        colorScales     : any;
-        info            : PropertyInfo;
-        meta            : IMetaInfo;
-
-        constructor($translate: ng.translate.ITranslateService) {
-
-            this.availableAspects = ["strokeColor", "fillColor", "strokeWidth"];
-            this.colorScales = {};
-            
-            $translate('WHITE_RED').then((translation) => {
-                this.colorScales[translation] = ["white", "red"];
-            });
-            $translate('RED_WHITE').then((translation) => {
-                this.colorScales[translation] = ["red", "white"];
-            });
-            $translate('GREEN_RED').then((translation) => {
-                this.colorScales[translation] = ["green", "red"];
-            });
-            $translate('RED_GREEN').then((translation) => {
-                this.colorScales[translation] = ["red", "green"];
-            });
-            $translate('WHITE_BLUE').then((translation) => {
-                this.colorScales[translation] = ["white", "blue"];
-            });
-            $translate('BLUE_WHITE').then((translation) => {
-                this.colorScales[translation] = ["blue", "white"];
-            });
-            $translate('WHITE_GREEN').then((translation) => {
-                this.colorScales[translation] = ["white", "green"];
-            });
-            $translate('GREEN_WHITE').then((translation) => {
-                this.colorScales[translation] = ["green", "white"];
-            });
-            $translate('WHITE_ORANGE').then((translation) => {
-                this.colorScales[translation] = ["white", "orange"];
-            });
-            $translate('ORANGE_WHITE').then((translation) => {
-                this.colorScales[translation] = ["orange", "white"];
-            });
-        }
-    }
-
-    export class ProjectGroup {
-        id            : string;
-        title         : string;
-        description   : string;
-        layers        : Array<ProjectLayer>;
-        filters       : Array<GroupFilter>;
-        styles        : Array<GroupStyle>;
-        showTitle     : boolean;
-        cluster       : L.MarkerClusterGroup;
-        vectors       : L.LayerGroup<L.ILayer>;
-        /** Turn on the leaflet markercluster */
-        clustering    : boolean;
-        /** If set, at this zoom level and below markers will not be clustered. This defaults to disabled */
-        clusterLevel: number;
-        /**  The maximum radius that a cluster will cover from the central marker (in pixels). Default 80. Decreasing will make more smaller clusters. You can also use a function that accepts the current map zoom and returns the maximum cluster radius in pixels. */
-        maxClusterRadius: number;
-        clusterFunction : Function;
-        /** Creates radio buttons instead of checkboxes in the level */
-        oneLayerActive: boolean;
-        ndx           : any;
-        filterResult  : IFeature[];
-        public markers: any;
-        styleProperty : string;
-    }
+   
 
     declare var jsonld;
 
