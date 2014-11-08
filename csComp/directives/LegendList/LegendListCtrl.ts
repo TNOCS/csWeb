@@ -7,7 +7,7 @@
     export interface ILegendListScope extends ng.IScope {
         vm           : LegendListCtrl;
         numberOfItems: number;
-        legendItems  : Function;
+        legendItems  : ILegendItem[];
     }
 
     export class LegendListCtrl {
@@ -20,7 +20,8 @@
         public static $inject = [
             '$scope',
             'layerService',
-            'mapService'
+            'mapService',
+            'messageBusService'
         ];
 
         // dependencies are injected via AngularJS $injector 
@@ -28,27 +29,47 @@
         constructor(
             private $scope: ILegendListScope,
             private $layerService: csComp.Services.LayerService,
-            private $mapService  : csComp.Services.MapService
+            private $mapService  : csComp.Services.MapService,
+            private $messageBusService: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
+            
+            $messageBusService.subscribe('project', () => {
+                // Update the legend when a project is loaded.
+                this.updateLegendItems();
+            });
 
-            $scope.legendItems = () => {
-                var legendItems: Array<ILegendItem> = [];
-                var existingItems: Array<String> = [];
-                for (var key in $layerService.featureTypes) {
-                    var ft = $layerService.featureTypes[key];
-                    var uri = this.getImageUri(ft);
-                    var title = this.getName(key, ft);
-                    var existingItem = name + uri;
-                    if (existingItems.indexOf(existingItem) < 0) {
-                        existingItems.push(existingItem);
-                        legendItems.push({ "title": title, "uri": uri });
-                    }
-                }
-                return legendItems;
-            };
+            $messageBusService.subscribe('layer', () => {
+                // Update the legend when a layer is added or removed.
+                this.updateLegendItems();
+            });
+
+            this.updateLegendItems();
+
+            $scope.legendItems = [];
 
             $scope.numberOfItems = 10;  // This is being reset in the directive upon receiving a resize.
+        }
+
+        private updateLegendItems() {
+            var legendItems: Array<ILegendItem> = [];
+            var existingItems: Array<String> = [];
+            for (var key in this.$layerService.featureTypes) {
+                var ft = this.$layerService.featureTypes[key];
+                var uri = this.getImageUri(ft);
+                var title = this.getName(key, ft);
+                var existingItem = name + uri;
+                if (existingItems.indexOf(existingItem) < 0) {
+                    existingItems.push(existingItem);
+                    legendItems.push({ "title": title, "uri": uri });
+                }
+            }
+            legendItems.sort((a: ILegendItem, b: ILegendItem) => {
+                if (a.title > b.title) return 1;
+                if (a.title < b.title) return -1;
+                return 0;
+            });
+            this.$scope.legendItems = legendItems;
         }
 
         private getImageUri(ft: csComp.GeoJson.IFeatureType): string {
