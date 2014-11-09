@@ -201,12 +201,12 @@
         public project : Project;
         
         public layerGroup = new L.LayerGroup();
-        public dimension : any;
-        public info = new L.Control();
-        public noFilters: boolean;
-        public noStyles: boolean;
+        public info       = new L.Control();
+        public dimension           : any;
+        public noFilters           : boolean;
+        public noStyles            : boolean;
         public lastSelectedFeature : GeoJson.IFeature;
-        public selectedLayerId: string;
+        public selectedLayerId     : string;
 
         constructor(
             private $location          : ng.ILocationService,
