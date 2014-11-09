@@ -54,7 +54,7 @@
         MultiPolygon
     }
 
-    //export enum MetaInfoType {
+    //export enum propertyTypeType {
     //    Text,
     //    TextArea,
     //    Rating,
@@ -106,18 +106,18 @@
         iconHeight?: number;
         iconUri?: string;
         maxTitleResolution?: string;
-        analysisMetaInfo?: any;
+        analysispropertyType?: any;
     }
 
     export interface IFeatureType {
         name?: string;
         style?: IFeatureTypeStyle;
-        metaInfoData?: IPropertyType[];
+        propertyTypeData?: IPropertyType[];
         /**
-         * Optional list of MetaInfo keys, separated by semi-colons. 
-         * The keys can be resolved in the project's metaInfoData dictionary, or in the local metaInfoData.
+         * Optional list of propertyType keys, separated by semi-colons. 
+         * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.
          */
-        metaInfoKeys?: string;
+        propertyTypeKeys?: string;
     }
 
     export interface IGeoJsonFile {

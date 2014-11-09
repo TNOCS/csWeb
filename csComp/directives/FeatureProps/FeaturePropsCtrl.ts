@@ -42,7 +42,7 @@
     }
 
     export interface ICallOutSection {
-        metaInfos: { [label: string]: IPropertyType }; // Probably not needed
+        propertyTypes: { [label: string]: IPropertyType }; // Probably not needed
         properties : Array<ICallOutProperty>;
         sectionIcon: string;
         addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType) : void;
@@ -50,12 +50,12 @@
     }
 
     export class CallOutSection implements ICallOutSection {
-        public metaInfos: { [label: string]: IPropertyType };
+        public propertyTypes: { [label: string]: IPropertyType };
         public properties : Array<ICallOutProperty>;
         public sectionIcon: string;
 
         constructor(sectionIcon?: string) {
-            this.metaInfos   = {};
+            this.propertyTypes   = {};
             this.properties  = [];
             this.sectionIcon = sectionIcon;
         }
@@ -81,7 +81,7 @@
         public title: string;
         public sections: { [title: string]: ICallOutSection; };
 
-        constructor(private type: IFeatureType, private feature: IFeature, private metaInfoData: { [key: string]: IPropertyType} ) {
+        constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: { [key: string]: IPropertyType} ) {
             this.sections = {};
             //if (type == null) this.createDefaultType();
             this.setTitle();
@@ -90,22 +90,22 @@
             var searchCallOutSection = new CallOutSection('fa-filter');
             var displayValue: string;
             if (type != null) {
-                var metaInfos: Array<IPropertyType> = [];
-                if (type.metaInfoKeys != null) {
-                    var keys = type.metaInfoKeys.split(';');
+                var propertyTypes: Array<IPropertyType> = [];
+                if (type.propertyTypeKeys != null) {
+                    var keys = type.propertyTypeKeys.split(';');
                     keys.forEach((key) => {
-                        if (key in metaInfoData) metaInfos.push(metaInfoData[key]);
-                        else if (type.metaInfoData != null) {
-                            var result = $.grep(type.metaInfoData, e => e.label === key);
-                            if (result.length >= 1) metaInfos.push(result);
+                        if (key in propertyTypeData) propertyTypes.push(propertyTypeData[key]);
+                        else if (type.propertyTypeData != null) {
+                            var result = $.grep(type.propertyTypeData, e => e.label === key);
+                            if (result.length >= 1) propertyTypes.push(result);
                         }
                     });
-                } else if (type.metaInfoData != null) {
-                    metaInfos = type.metaInfoData;
+                } else if (type.propertyTypeData != null) {
+                    propertyTypes = type.propertyTypeData;
                 }
-                metaInfos.forEach((mi: IPropertyType) => {
+                propertyTypes.forEach((mi: IPropertyType) => {
                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
-                    callOutSection.metaInfos[mi.label] = mi;
+                    callOutSection.propertyTypes[mi.label] = mi;
                     var text = feature.properties[mi.label];
                     if (!StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
                         text = text.replace(/&amp;/g, '&');
@@ -157,15 +157,15 @@
         //private createDefaultType(): void {
         //    this.type              = [];
         //    this.type.style        = { nameLabel: "Name", iconHeight: 30, iconWidth: 30 };
-        //    this.type.metaInfoData = [];
+        //    this.type.propertyTypeData = [];
 
         //    for (var kvp in this.feature.properties) {
-        //        var metaInfo: IMetaInfo = [];
-        //        metaInfo.label          = kvp.key;
-        //        metaInfo.title          = kvp.key.replace("_", " ");
-        //        metaInfo.isSearchable   = true;
-        //        metaInfo.type           = MetaInfoType.Text;
-        //        this.type.metaInfoData.push(metaInfo);
+        //        var propertyType: IpropertyType = [];
+        //        propertyType.label          = kvp.key;
+        //        propertyType.title          = kvp.key.replace("_", " ");
+        //        propertyType.isSearchable   = true;
+        //        propertyType.type           = propertyTypeType.Text;
+        //        this.type.propertyTypeData.push(propertyType);
         //    }
         //}
 
@@ -348,7 +348,7 @@
 
         private displayFeature(feature: IFeature) : void {
             var featureType     = this.$layerService.featureTypes[feature.featureTypeName];
-            this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.metaInfoData);
+            this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData);
             // Probably not needed
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                 this.$scope.$apply();

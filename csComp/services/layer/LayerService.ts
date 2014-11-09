@@ -47,7 +47,7 @@
         public map : Services.MapService;
         
         public featureTypes : { [key: string]: IFeatureType; };
-        public metaInfoData: { [key: string]: IPropertyType; };
+        public propertyTypeData: { [key: string]: IPropertyType; };
           
         public project : Project;
         
@@ -72,7 +72,7 @@
             this.title          = "";
             this.layerGroup     = new L.LayerGroup();
             this.featureTypes   = {};
-            this.metaInfoData   = {};
+            this.propertyTypeData   = {};
             this.map.map.addLayer(this.layerGroup);
             this.noStyles = true;
         }
@@ -727,26 +727,26 @@
         private createDefaultType(feature: IFeature): IFeatureType {
             var type : IFeatureType = {};
             type.style = { nameLabel: "Name" };
-            type.metaInfoData = [];
+            type.propertyTypeData = [];
 
             for (var key in feature.properties) {
-                var metaInfo: IPropertyType   = [];
-                metaInfo.label            = key;
-                metaInfo.title            = key.replace("_", " ");
-                metaInfo.isSearchable     = true;
-                metaInfo.visibleInCallOut = true;
-                metaInfo.canEdit = false;
+                var propertyType: IPropertyType   = [];
+                propertyType.label            = key;
+                propertyType.title            = key.replace("_", " ");
+                propertyType.isSearchable     = true;
+                propertyType.visibleInCallOut = true;
+                propertyType.canEdit = false;
                 var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
                 if (StringExt.isNumber(value))
-                    metaInfo.type = "number";
+                    propertyType.type = "number";
                 else if (StringExt.isBoolean(value))
-                    metaInfo.type = "boolean";
+                    propertyType.type = "boolean";
                 else if (StringExt.isBbcode(value))
-                    metaInfo.type = "bbcode";
+                    propertyType.type = "bbcode";
                 else
-                    metaInfo.type = "text";
+                    propertyType.type = "text";
 
-                type.metaInfoData.push(metaInfo);
+                type.propertyTypeData.push(propertyType);
             }
             return type;
         }
@@ -912,10 +912,10 @@
                     }
                 }
 
-                if (this.project.metaInfoData) {
-                    for (var key in this.project.metaInfoData) {
-                        var metaInfo: IPropertyType = this.project.metaInfoData[key];
-                        this.metaInfoData[key] = metaInfo;
+                if (this.project.propertyTypeData) {
+                    for (var key in this.project.propertyTypeData) {
+                        var propertyType: IPropertyType = this.project.propertyTypeData[key];
+                        this.propertyTypeData[key] = propertyType;
                     }
                 }
 
@@ -1005,8 +1005,8 @@
             if (r.max < r.sdMax) r.sdMax = r.max;
             if (r.sdMin == NaN) r.sdMin = r.min;
             if (r.sdMax == NaN) r.sdMax = r.max;
-            if (this.metaInfoData.hasOwnProperty(property)) {
-                var mid = this.metaInfoData[property];
+            if (this.propertyTypeData.hasOwnProperty(property)) {
+                var mid = this.propertyTypeData[property];
                 if (mid.maxValue != null) r.sdMax = mid.maxValue;
                 if (mid.minValue != null) r.sdMin = mid.minValue;
             }

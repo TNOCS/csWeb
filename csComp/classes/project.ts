@@ -30,7 +30,7 @@
         description  : string;
         logo         : string;
         featureTypes : { [id: string]: IFeatureType }
-        metaInfoData: { [id: string]: IPropertyType }
+        propertyTypeData: { [id: string]: IPropertyType }
         groups       : Array<ProjectGroup>;
         startposition: Coordinates;
         features     : IFeature[];

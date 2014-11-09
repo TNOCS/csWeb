@@ -13,7 +13,7 @@
 
     /**
      * Represents a field in the table. 
-     * The value is the actual displayValue shown, the type is the metainfo type (e.g. number or text, useful when aligning the data), and the header is used for sorting.
+     * The value is the actual displayValue shown, the type is the propertyType type (e.g. number or text, useful when aligning the data), and the header is used for sorting.
      */
     export class TableField {
         constructor(public displayValue: string, public originalValue: any, public type: string, public header: string) {}
@@ -28,7 +28,7 @@
         public numberOfItems  : number = 10;
         public selectedLayerId: string;
         public layerOptions   : Array<any> = [];
-        public metaInfos: Array<IPropertyType> = [];
+        public propertyTypes: Array<IPropertyType> = [];
         public headers        : Array<string> = [];
         public sortingColumn  : number;
         public rows           : Array<Array<TableField>> = [];
@@ -114,7 +114,7 @@
                             data.poiTypes[f.featureTypeName] = this.$layerService.featureTypes[f.featureTypeName];
                     });
 
-                    this.updateMetaInfo(data);
+                    this.updatepropertyType(data);
                 }).
                 error((data, status, headers, config) => {
                     this.$messageBusService.notify("ERROR opening " + selectedLayer.title, "Could not get the data.");
@@ -146,11 +146,11 @@
             });
 
             this.dataset = data;
-            this.updateMetaInfo(data);            
+            this.updatepropertyType(data);            
         }
 
-        private updateMetaInfo(data: IGeoJsonFile) : void {
-            this.metaInfos = [];
+        private updatepropertyType(data: IGeoJsonFile) : void {
+            this.propertyTypes = [];
             this.headers   = [];
             this.rows      = [];
             var titles: Array<string> = [];
@@ -167,23 +167,23 @@
             var featureType: csComp.GeoJson.IFeatureType;
             for (var key in data.poiTypes) {
                 featureType = data.poiTypes[key];
-                if (featureType.metaInfoKeys != null) {
-                    var keys: Array<string> = featureType.metaInfoKeys.split(';');
+                if (featureType.propertyTypeKeys != null) {
+                    var keys: Array<string> = featureType.propertyTypeKeys.split(';');
                     keys.forEach((k) => {
-                        if (k in this.$layerService.metaInfoData)
-                            mis.push(this.$layerService.metaInfoData[k]);
-                        else if (featureType.metaInfoData != null) {
-                            var result = $.grep(featureType.metaInfoData, e => e.label === k);
+                        if (k in this.$layerService.propertyTypeData)
+                            mis.push(this.$layerService.propertyTypeData[k]);
+                        else if (featureType.propertyTypeData != null) {
+                            var result = $.grep(featureType.propertyTypeData, e => e.label === k);
                             if (result.length >= 1) mis.push(result);
                         }
                     });
-                } else if (featureType.metaInfoData != null) {
-                    featureType.metaInfoData.forEach((mi) => mis.push(mi));
+                } else if (featureType.propertyTypeData != null) {
+                    featureType.propertyTypeData.forEach((mi) => mis.push(mi));
                 }
                 mis.forEach((mi) => {
                     if ((mi.visibleInCallOut || mi.label === "Name") && titles.indexOf(mi.title) < 0) {
                         titles.push(mi.title);
-                        this.metaInfos.push(mi);
+                        this.propertyTypes.push(mi);
                     }
                 });
             }
@@ -195,15 +195,15 @@
             this.rows = this.getRows();
         }
 
-        public toggleSelection(metaInfoTitle: string) {
-            var idx = this.headers.indexOf(metaInfoTitle);
+        public toggleSelection(propertyTypeTitle: string) {
+            var idx = this.headers.indexOf(propertyTypeTitle);
             // is currently selected
             if (idx > -1) {
                 this.headers.splice(idx, 1);
             }
             // is newly selected
             else {
-                this.headers.push(metaInfoTitle);
+                this.headers.push(propertyTypeTitle);
             }
             this.rows = this.getRows();
         }
@@ -225,7 +225,7 @@
          */
         public getRows(): Array<Array<TableField>> {
             var meta: Array<IPropertyType> = [this.headers.length];
-            this.metaInfos.forEach((mi: IPropertyType) => {
+            this.propertyTypes.forEach((mi: IPropertyType) => {
                 // Keep headers and mi in the right order
                 var index = this.headers.indexOf(mi.title);
                 if (index >= 0) meta[index] = mi;
