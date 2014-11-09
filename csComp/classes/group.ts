@@ -1,9 +1,5 @@
 ﻿module csComp.Services {
 
-    import IFeature = GeoJson.IFeature;
-    import IFeatureType = GeoJson.IFeatureType;
-    import DrawingModeType = GeoJson.DrawingModeType;
-    import IPropertyType = GeoJson.IPropertyType;
 
     /** a project group contains a list of layers that can be grouped together. 
      * Filters, styles can clustering is always defined on the group level. 

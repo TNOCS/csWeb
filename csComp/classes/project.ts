@@ -1,9 +1,6 @@
 ﻿module csComp.Services {
 
-    import IFeature        = GeoJson.IFeature;
-    import IFeatureType    = GeoJson.IFeatureType;
-    import DrawingModeType = GeoJson.DrawingModeType;
-    import IPropertyType   = GeoJson.IPropertyType;
+    
 
     /**
      * Represents to the overall solution class. A solution can contain multiple project.

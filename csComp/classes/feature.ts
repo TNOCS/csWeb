@@ -1,4 +1,4 @@
-﻿module csComp.GeoJson {
+﻿module csComp.Services {
 
     export interface IFeature {
         id: string;

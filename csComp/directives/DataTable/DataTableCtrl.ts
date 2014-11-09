@@ -1,7 +1,7 @@
 ﻿module DataTable {
-    import IGeoJsonFile = csComp.GeoJson.IGeoJsonFile;
-    import IPropertyType = csComp.GeoJson.IPropertyType;
-    import IFeature     = csComp.GeoJson.IFeature;
+    import IGeoJsonFile = csComp.Services.IGeoJsonFile;
+    import IPropertyType = csComp.Services.IPropertyType;
+    import IFeature = csComp.Services.IFeature;
     import ProjectLayer = csComp.Services.ProjectLayer;
     import StringExt    = csComp.StringExt;
 
@@ -24,7 +24,7 @@
     export class DataTableCtrl {
         public mapLabel       : string = "map";
         public dataset        : IGeoJsonFile;
-        public selectedType   : csComp.GeoJson.IFeatureType;
+        public selectedType   : csComp.Services.IFeatureType;
         public numberOfItems  : number = 10;
         public selectedLayerId: string;
         public layerOptions   : Array<any> = [];
@@ -164,7 +164,7 @@
                 filterType      : "text",
                 isSearchable    : true
             });
-            var featureType: csComp.GeoJson.IFeatureType;
+            var featureType: csComp.Services.IFeatureType;
             for (var key in data.poiTypes) {
                 featureType = data.poiTypes[key];
                 if (featureType.propertyTypeKeys != null) {

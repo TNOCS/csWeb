@@ -1,15 +1,24 @@
 ﻿module csComp.Services {
-    import IFeature        = GeoJson.IFeature;
-    import IFeatureType    = GeoJson.IFeatureType;
-    import DrawingModeType = GeoJson.DrawingModeType;
-    import IPropertyType = GeoJson.IPropertyType;
-
+    
     declare var String;
 
    
 
   
+    export interface ILayerService {
+        title: string;
+        accentColor: string;
+        project: Project;
+        maxBounds: IBoundingBox;
+        findLayer(id: string): ProjectLayer;
+        selectFeature(feature: Services.IFeature);
 
+        mb: Services.MessageBusService;
+        map: Services.MapService;
+        layerGroup: L.LayerGroup<L.ILayer>;
+        featureTypes: { [key: string]: Services.IFeatureType; };
+        propertyTypeData: { [key: string]: Services.IPropertyType; };
+    }
     
 
 
@@ -56,7 +65,7 @@
         public info = new L.Control();
         public noFilters: boolean;
         public noStyles: boolean;
-        public lastSelectedFeature : GeoJson.IFeature;
+        public lastSelectedFeature : IFeature;
         public selectedLayerId: string;
 
         constructor(
@@ -216,7 +225,7 @@
          */
         public showFeatureTooltip(e, group : ProjectGroup) {
             var layer = e.target;
-            var feature = <csComp.GeoJson.Feature>layer.feature;
+            var feature = <Feature>layer.feature;
 
             var content = "<span class='popup-title'>" + layer.feature.properties.Name + " </span>";
 
@@ -757,7 +766,7 @@
             dc.redrawAll();
         }
 
-        private getGroupFeatures(g: ProjectGroup) : Array<GeoJson.Feature> {
+        private getGroupFeatures(g: ProjectGroup) : Array<Feature> {
             
             // find active layers
             var ls = [];

@@ -1,7 +1,7 @@
 ﻿module FeatureProps {   
-    import IFeature     = csComp.GeoJson.IFeature;
-    import IFeatureType = csComp.GeoJson.IFeatureType;
-    import IPropertyType = csComp.GeoJson.IPropertyType;
+    import IFeature = csComp.Services.IFeature;
+    import IFeatureType = csComp.Services.IFeatureType;
+    import IPropertyType = csComp.Services.IPropertyType;
     import StringExt    = csComp.StringExt;
 
     class FeaturePropsOptions implements L.SidebarOptions {
