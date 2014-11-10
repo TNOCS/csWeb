@@ -44,6 +44,7 @@
     }
     
     export class Project {
+        viewBounds   : IBoundingBox;
         title        : string;
         description  : string;
         logo         : string;
@@ -198,7 +199,8 @@
         public featureTypes : { [key: string]: IFeatureType; };
         public metaInfoData : { [key: string]: IMetaInfo; };
           
-        public project : Project;
+        public project: Project;
+        public solution: Solution;
         
         public layerGroup = new L.LayerGroup();
         public dimension : any;
@@ -998,8 +1000,9 @@
          * Open solution file with references to available baselayers and projects
          * @params url: URL of the solution
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
+         * @params initialProject: Optionally provide a project name that should be loaded, if omitted the first project in the definition will be loaded
          */
-        public openSolution(url: string, layers?: string): void {
+        public openSolution(url: string, layers?: string, initialProject?: string): void {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
 
             $.getJSON(url, (solution : Solution) => {
@@ -1030,8 +1033,15 @@
                 });
                 //$scope.projects = projects.projects;
                 if (solution.projects.length > 0) {
-                    this.openProject(solution.projects[0].url, layers);
+                    var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title == initialProject; })[0];
+                    if (p != null) {
+                        this.openProject(p.url, layers);
+                    } else {
+                        this.openProject(solution.projects[0].url, layers);
+                    }
                 }
+
+                this.solution = solution;
             });
         }
 
@@ -1054,6 +1064,11 @@
 
             $.getJSON(url, (data: Project) => {
                 this.project = data;
+
+                if (this.project.viewBounds) {
+                    this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
+                }
+
                 if (this.project.featureTypes) {
                     for (var typeName in this.project.featureTypes) {
                         var featureType: IFeatureType = this.project.featureTypes[typeName];
