@@ -73,7 +73,7 @@
         }
 
         private getImageUri(ft: csComp.Services.IFeatureType): string {
-            if (ft.style != null && ft.style.drawingMode.toLowerCase() != "point") {
+            if (ft.style != null && ft.style.drawingMode!=null && ft.style.drawingMode.toLowerCase() != "point") {
                 if (ft.style.iconUri && ft.style.iconUri.indexOf('_Media') < 0)
                     return ft.style.iconUri;
                 else

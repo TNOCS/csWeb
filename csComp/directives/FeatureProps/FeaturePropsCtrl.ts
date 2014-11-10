@@ -107,21 +107,21 @@
                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                     callOutSection.propertyTypes[mi.label] = mi;
                     var text = feature.properties[mi.label];
-                    if (!StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
+                    if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
                         text = text.replace(/&amp;/g, '&');
                     //if (mi.stringFormat)
                     //    text = StringExt.format(mi.stringFormat, text);
-                    if (StringExt.isNullOrEmpty(text)) return;
+                    if (csComp.StringExt.isNullOrEmpty(text)) return;
                     switch (mi.type) {
                         case "bbcode":
-                            if (!StringExt.isNullOrEmpty(mi.stringFormat))
+                            if (!csComp.StringExt.isNullOrEmpty(mi.stringFormat))
                                 text = String.format(mi.stringFormat, text);
                             displayValue = XBBCODE.process({ text: text }).html;
                         break;
                     case "number":
                         if (!$.isNumeric(text))
                             displayValue = text;
-                        else if (StringExt.isNullOrEmpty(mi.stringFormat))
+                        else if (csComp.StringExt.isNullOrEmpty(mi.stringFormat))
                             displayValue = text.toString();
                         else
                             displayValue = String.format(mi.stringFormat, parseFloat(text));
@@ -131,7 +131,7 @@
                         break;
                     }
                     // Skip empty, non-editable values
-                    if (!mi.canEdit && StringExt.isNullOrEmpty(displayValue)) return;
+                    if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
 
 
                     var canFilter = (mi.type == "number" || mi.type == "text");
@@ -170,7 +170,7 @@
         //}
 
         private getOrCreateCallOutSection(sectionTitle: string): ICallOutSection {
-            if (StringExt.isNullOrEmpty(sectionTitle)) {
+            if (!sectionTitle) {
                 return null;
             }
             if (sectionTitle in this.sections)
@@ -184,11 +184,13 @@
          */
         private setTitle() {
             var title: string;
-            if (this.type == null || this.type.style == null || StringExt.isNullOrEmpty(this.type.style.nameLabel))
-                title = this.feature.properties['Name'];
-            else
+            if (this.type != null && this.type.style != null && this.type.style.nameLabel)
                 title = this.feature.properties[this.type.style.nameLabel];
-            if (!StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
+            else {
+                if (this.feature.hasOwnProperty('Name')) title = this.feature.properties['Name'];
+                if (this.feature.hasOwnProperty('name')) title = this.feature.properties['name'];
+            }
+            if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
                 this.title = title.replace(/&amp;/g, '&');
         }
     }

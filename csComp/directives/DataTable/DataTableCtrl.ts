@@ -107,11 +107,11 @@
             this.$http.get(selectedLayer.url).
                 success((data: IGeoJsonFile) => {
                     this.dataset = data;
-                    if (data.poiTypes == null) data.poiTypes = {};
+                    if (data.featureTypes == null) data.featureTypes = {};
                     data.features.forEach((f: IFeature) => {
-                        f.featureTypeName = f.properties['PoiTypeId'];
-                        if (!(f.featureTypeName in data.poiTypes))
-                            data.poiTypes[f.featureTypeName] = this.$layerService.featureTypes[f.featureTypeName];
+                        f.featureTypeName = f.properties['FeatureTypeId'];
+                        if (!(f.featureTypeName in data.featureTypes))
+                            data.featureTypes[f.featureTypeName] = this.$layerService.featureTypes[f.featureTypeName];
                     });
 
                     this.updatepropertyType(data);
@@ -129,7 +129,7 @@
             var data: IGeoJsonFile = {
                 type: '',
                 features: [],
-                poiTypes: {}
+                featureTypes: {}
             };
             // If we are filtering, load the filter results
             this.$layerService.project.groups.forEach((group) => {
@@ -141,8 +141,8 @@
                 data.features = this.$layerService.project.features;
 
             data.features.forEach((f: IFeature) => {
-                if (!(f.featureTypeName in data.poiTypes))
-                    data.poiTypes[f.featureTypeName] = this.$layerService.featureTypes[f.featureTypeName];
+                if (!(f.featureTypeName in data.featureTypes))
+                    data.featureTypes[f.featureTypeName] = this.$layerService.featureTypes[f.featureTypeName];
             });
 
             this.dataset = data;
@@ -165,8 +165,8 @@
                 isSearchable    : true
             });
             var featureType: csComp.Services.IFeatureType;
-            for (var key in data.poiTypes) {
-                featureType = data.poiTypes[key];
+            for (var key in data.featureTypes) {
+                featureType = data.featureTypes[key];
                 if (featureType.propertyTypeKeys != null) {
                     var keys: Array<string> = featureType.propertyTypeKeys.split(';');
                     keys.forEach((k) => {

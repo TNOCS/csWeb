@@ -121,7 +121,7 @@
     }
 
     export interface IGeoJsonFile {
-        poiTypes?: { [key: string]: IFeatureType };
+        featureTypes?: { [key: string]: IFeatureType };
         type: string;
         features: Array<Feature>;
     }

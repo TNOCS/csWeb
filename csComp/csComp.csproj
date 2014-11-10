@@ -21,7 +21,6 @@
     <TypeScriptCompile Include="classes\feature.ts" />
     <TypeScriptCompile Include="classes\group.ts" />
     <TypeScriptCompile Include="classes\project.ts" />
-    <TypeScriptCompile Include="helpers\Extensions.ts" />
     <TypeScriptCompile Include="helpers\MessageBus.ts" />
     <TypeScriptCompile Include="helpers\Resize.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.tpl.ts" />
@@ -33,7 +32,7 @@
     <TypeScriptCompile Include="directives\FilterList\FilterList.tpl.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterList.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterListCtrl.ts" />
-    <TypeScriptCompile Include="services\layer\ILayerService.ts" />
+    <None Include="services\layer\StringExt.ts2" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.tpl.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirectiveCtrl.ts" />

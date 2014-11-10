@@ -1,5 +1,11 @@
 ﻿module csComp.Services {
 
+    export enum LayerType {
+        GeoJson,
+        Kml
+    }
+
+
 
     /** a project group contains a list of layers that can be grouped together. 
      * Filters, styles can clustering is always defined on the group level. 
