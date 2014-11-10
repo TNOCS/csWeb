@@ -19,6 +19,7 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="helpers\Extensions.ts" />
+    <TypeScriptCompile Include="helpers\Helpers.ts" />
     <TypeScriptCompile Include="helpers\MessageBus.ts" />
     <TypeScriptCompile Include="classes\csClasses.ts" />
     <TypeScriptCompile Include="helpers\Resize.ts" />
