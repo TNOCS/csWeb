@@ -148,7 +148,7 @@
                 });
             }
             if (infoCallOutSection  .properties.length > 0) this.sections['AAA Info']   = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
-            if (searchCallOutSection.properties.length > 0) this.sections['ZZZ Search'] = searchCallOutSection;
+            if (searchCallOutSection.properties.length > 0) this.sections['Zzz Search'] = searchCallOutSection;
         }
 
         ///**                                         
