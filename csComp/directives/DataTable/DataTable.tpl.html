@@ -42,7 +42,6 @@
 
             <!--Download to CSV option-->
             <a href="" data-ng-click="vm.downloadCsv()" alt="Download CSV" style="margin-top: 5px; margin-right: 1em; float: right;"><i class="fa fa-download fa-2x"></i></a>
-            <iframe id="csvDownloadFrame" style="display:none"></iframe>
 
             <!-- Specify how many items to show -->
             <select data-ng-model="vm.numberOfItems" style="margin-bottom: 1em; margin-right: 10px; float: left; width: 16%; min-width: 200px;" class="form-control tt-input">
@@ -59,7 +58,7 @@
             <!-- Data table -->
             <table class="table table-striped table-condensed">
                 <tr>
-                    <th data-ng-repeat="header in vm.headers">
+                    <th data-ng-repeat="header in vm.headers track by $index">
                         {{header}}&nbsp;
                         <a data-ng-click="reverseSort = !reverseSort; vm.orderBy($index, reverseSort);"><i data-ng-class="vm.sortOrderClass($index, reverseSort)">&nbsp;&nbsp;</i></a>
                     </th>
