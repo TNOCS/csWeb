@@ -8,9 +8,11 @@
         title      : string;
         accentColor: string;
         project    : Project;
+        solution   : Solution;
         maxBounds  : IBoundingBox;
         findLayer(id: string): ProjectLayer;
         selectFeature(feature: GeoJson.IFeature);
+        openSolution(url: string, layers?: string, initialProject?: string): void;
 
         mb           : Services.MessageBusService;
         map          : Services.MapService;

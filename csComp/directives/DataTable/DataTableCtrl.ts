@@ -22,18 +22,17 @@
     declare var String;
 
     export class DataTableCtrl {
-        public mapLabel       : string = "map";
-        public dataset        : IGeoJsonFile;
-        public selectedType   : csComp.GeoJson.IFeatureType;
-        public numberOfItems  : number = 10;
-        public selectedLayerId: string;
-        public layerOptions   : Array<any> = [];
-        public metaInfos      : Array<IMetaInfo> = [];
-        public headers        : Array<string> = [];
-        public sortingColumn  : number;
-        public rows           : Array<Array<TableField>> = [];
-
-        private mapFeatureTitle: string = 'Map Features';
+        public mapLabel        : string = "map";
+        public dataset         : IGeoJsonFile;
+        public selectedType    : csComp.GeoJson.IFeatureType;
+        public numberOfItems   : number = 10;
+        public selectedLayerId : string;
+        public layerOptions    : Array<any> = [];
+        public metaInfos       : Array<IMetaInfo> = [];
+        public headers         : Array<string> = [];
+        public sortingColumn   : number;
+        public rows            : Array<Array<TableField>> = [];
+        private mapFeatureTitle: string;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -63,8 +62,9 @@
             // 'vm' stands for 'view model'. We're adding a reference to the controller to the scope
             // for its methods to be accessible from view / HTML
             $scope.vm = this;
-            $translate('MAP_FEATURES').then((translation) => {
-                this.mapFeatureTitle = translation;
+
+            $translate('MAP_FEATURES').then(translation => {
+                this.layerOptions[0].title = translation;
             });
 
             this.bindToStorage('vm.numberOfItems', 10);
@@ -310,7 +310,7 @@
                 csvRows.push(this.rows[i].map((f) => { return f.originalValue; }).join(';'));
             }
 
-            var csvString = csvRows.join("\r\n");
+            var csvString = csvRows.join('\r\n');
 
             var filename = this.mapLabel;
             if (this.selectedLayerId !== this.mapLabel) {
@@ -318,45 +318,31 @@
                 if (layer) filename = layer.title.replace(' ', '_');
             }
             this.saveData(csvString, filename + '.csv');
-            //if (navigator.userAgent != 'Microsoft Internet Explorer') {
-            //    var a: any = document.createElement('a');
-            //    a.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvString);
-            //    //a.href = 'data:attachment/csv,' + csvString;
-            //    a.target = '_blank';
-            //    var filename = this.mapLabel;
-            //    if (this.selectedLayerId !== this.mapLabel) {
-            //        var layer = this.findLayerById(this.selectedLayerId);
-            //        if (layer) filename = layer.title.replace(' ', '_');
-            //    }
-
-            //    a.download = filename + '.csv';
-            //    //document.body.appendChild(a);
-            //    a.click();
-            //} else {
-            //    var popup = window.open('', 'csv', '');
-            //    popup.document.body.innerHTML = '<pre>' + csvString + '</pre>';
-            //}
         }
 
         private saveData(csvData: string, filename: string) {
-            if (!csComp.Helpers.supportsDataUri()) {
-                var iframe: any = document.getElementById('csvDownloadFrame');
-                iframe = iframe.contentWindow || iframe.contentDocument;
-
-                //csvData = 'sep=,%0A' + csvData;
-
-                iframe.document.open("text/html", "replace");
-                iframe.document.write(csvData);
-                iframe.document.close();
-                iframe.focus();
-                iframe.document.execCommand('SaveAs', true, filename);
-           } else {
+            if (navigator.msSaveBlob) { 
+                // IE 10+
+                var link: any = document.createElement('a');
+                link.addEventListener("click", event => {
+                    var blob = new Blob([csvData], {"type": "text/csv;charset=utf-8;"});
+                    navigator.msSaveBlob(blob, filename);
+                }, false);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else if (!csComp.Helpers.supportsDataUri()) {
+                // Older versions of IE: show the data in a new window
+                var popup = window.open('', 'csv', '');
+                popup.document.body.innerHTML = '<pre>' + csvData + '</pre>';
+            } else {
+                // Support for browsers that support the data uri.
                 var a: any = document.createElement('a');
                 a.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvData);
                 a.target = '_blank';
-
                 a.download = filename;
                 a.click();
+                document.body.removeChild(a);
             }
         }
 
