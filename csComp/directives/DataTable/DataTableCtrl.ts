@@ -3,7 +3,6 @@
     import IMetaInfo    = csComp.GeoJson.IMetaInfo;
     import IFeature     = csComp.GeoJson.IFeature;
     import ProjectLayer = csComp.Services.ProjectLayer;
-    import StringExt    = csComp.StringExt;
 
     export interface IDataTableViewScope extends ng.IScope {
         vm             : DataTableCtrl;
