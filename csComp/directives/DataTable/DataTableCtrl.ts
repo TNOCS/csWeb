@@ -236,7 +236,7 @@
                 var row: Array<TableField> = [];
                 meta.forEach((mi) => {
                     var text = f.properties[mi.label];
-                    if (StringExt.isNullOrEmpty(text))
+                    if (!text)
                         text = ' ';
                     else if (!$.isNumeric(text))
                         text = text.replace(/&amp;/g, '&');
@@ -246,7 +246,7 @@
                             break;
                         case "number":
                             if (!$.isNumeric(text)) displayValue ='??';
-                            else if (StringExt.isNullOrEmpty(mi.stringFormat))
+                            else if (!mi.stringFormat)
                                 displayValue = text.toString();
                             else
                                 displayValue = String.format(mi.stringFormat, parseFloat(text));
@@ -297,27 +297,46 @@
         public downloadCsv() {
             var csvRows: Array<string> = [];
 
-            csvRows.push(this.headers.join(';'))
+            csvRows.push(this.headers.join(';'));
 
             for (var i = 0; i < this.rows.length; i++) {
                 csvRows.push(this.rows[i].map((f) => { return f.originalValue; }).join(';'));
             }
 
-            var csvString = csvRows.join("%0A");
-            var a : any = document.createElement('a');
-            a.href = 'data:text/csv;charset=utf-8,' + csvString;
-            //a.href = 'data:attachment/csv,' + csvString;
-            a.target = '_blank';
+            var csvString = csvRows.join('\r\n');
+
             var filename = this.mapLabel;
             if (this.selectedLayerId !== this.mapLabel) {
                 var layer = this.findLayerById(this.selectedLayerId);
                 if (layer) filename = layer.title.replace(' ', '_');
             }
+            this.saveData(csvString, filename + '.csv');
+        }
 
-            a.download =  filename + '.csv';
-
-            document.body.appendChild(a);
-            a.click();
+        private saveData(csvData: string, filename: string) {
+            if (navigator.msSaveBlob) { 
+                // IE 10+
+                var link: any = document.createElement('a');
+                link.addEventListener("click", event => {
+                    var blob = new Blob([csvData], {"type": "text/csv;charset=utf-8;"});
+                    navigator.msSaveBlob(blob, filename);
+                }, false);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else if (!csComp.Helpers.supportsDataUri()) {
+                // Older versions of IE: show the data in a new window
+                var popup = window.open('', 'csv', '');
+                popup.document.body.innerHTML = '<pre>' + csvData + '</pre>';
+            } else {
+                // Support for browsers that support the data uri.
+                var a: any = document.createElement('a');
+                a.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvData);
+                a.target = '_blank';
+                a.download = filename;
+                a.click();
+                document.body.removeChild(a);
+            }
         }
 
         /**

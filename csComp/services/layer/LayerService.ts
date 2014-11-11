@@ -45,11 +45,10 @@
 
 module csComp.Services {
     
+
     declare var String;
 
-   
 
-  
     export interface ILayerService {
         title: string;
         accentColor: string;
@@ -65,21 +64,6 @@ module csComp.Services {
         propertyTypeData: { [key: string]: Services.IPropertyType; };
     }
     
-
-
-    export class PropertyInfo {
-        max     : number;
-        min     : number;
-        count   : number;
-        mean    : number;
-        varience: number;
-        sd      : number;
-        sdMax   : number;
-        sdMin   : number;
-    }
-
-    
-
    
 
     declare var jsonld;
@@ -103,7 +87,8 @@ module csComp.Services {
         public featureTypes : { [key: string]: IFeatureType; };
         public propertyTypeData: { [key: string]: IPropertyType; };
           
-        public project : Project;
+        public project: Project;
+        public solution: Solution;
         
         public layerGroup = new L.LayerGroup();
         public dimension : any;
@@ -216,7 +201,7 @@ module csComp.Services {
                                                 mouseover: (a) => this.showFeatureTooltip(a,layer.group),
                                                 mouseout: (s) => this.hideFeatureTooltip(s),
                                                 mousemove: (d) => this.updateFeatureTooltip(d),
-                                                click    : () => { this.selectFeature(feature); }
+                                               // click    : () => { this.selectFeature(feature); }
                                             });
                                         },
                                         style: (f: IFeature, m) => {
@@ -903,8 +888,9 @@ module csComp.Services {
          * Open solution file with references to available baselayers and projects
          * @params url: URL of the solution
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
+         * @params initialProject: Optionally provide a project name that should be loaded, if omitted the first project in the definition will be loaded
          */
-        public openSolution(url: string, layers?: string): void {
+        public openSolution(url: string, layers?: string, initialProject?: string): void {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
 
             $.getJSON(url, (solution : Solution) => {
@@ -935,8 +921,15 @@ module csComp.Services {
                 });
                 //$scope.projects = projects.projects;
                 if (solution.projects.length > 0) {
-                    this.openProject(solution.projects[0].url, layers);
+                    var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title == initialProject; })[0];
+                    if (p != null) {
+                        this.openProject(p.url, layers);
+                    } else {
+                        this.openProject(solution.projects[0].url, layers);
+                    }
                 }
+
+                this.solution = solution;
             });
         }
 
@@ -959,6 +952,11 @@ module csComp.Services {
 
             $.getJSON(url, (data: Project) => {
                 this.project = data;
+
+                if (this.project.viewBounds) {
+                    this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
+                }
+
                 if (this.project.featureTypes) {
                     for (var typeName in this.project.featureTypes) {
                         var featureType: IFeatureType = this.project.featureTypes[typeName];

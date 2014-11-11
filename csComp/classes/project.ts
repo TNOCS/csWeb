@@ -32,6 +32,7 @@
         startposition: Coordinates;
         features     : IFeature[];
         markers = {};
+        viewBounds: IBoundingBox;
     }
 
     /** bouding box to specify a region. */

@@ -129,6 +129,19 @@
         features: Array<Feature>;
     }
 
+    export class PropertyInfo {
+        max: number;
+        min: number;
+        count: number;
+        mean: number;
+        varience: number;
+        sd: number;
+        sdMax: number;
+        sdMin: number;
+    }
+
+
+
     //export class Feature implements IFeature {
     //    layerId   : string;
     //    type      : string;

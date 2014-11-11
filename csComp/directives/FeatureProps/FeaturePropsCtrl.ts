@@ -20,7 +20,9 @@
         vm       : FeaturePropsCtrl;
         showMenu : boolean;
         poi      : IFeature;
-        callOut  : CallOut;
+        callOut: CallOut;
+        tabs: JQuery;
+        tabScrollDelta: number;
         featureTabActivated(sectionTitle: string, section: CallOutSection);
         autocollapse(init: boolean):void;
     }
@@ -148,7 +150,7 @@
                 });
             }
             if (infoCallOutSection  .properties.length > 0) this.sections['AAA Info']   = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
-            if (searchCallOutSection.properties.length > 0) this.sections['ZZZ Search'] = searchCallOutSection;
+            if (searchCallOutSection.properties.length > 0) this.sections['Zzz Search'] = searchCallOutSection;
         }
 
         ///**                                         
@@ -268,19 +270,21 @@
             };
 
             $scope.autocollapse(true); // when document first loads
+            $scope.tabs = $('#featureTabs');
+            $scope.tabScrollDelta = $scope.tabs.outerWidth();
 
             $('#leftArr').click(function () {
-                console.log('leftArr');
-                var tabs = $('#featureTabs');
-                var current = parseFloat(tabs.css('margin-left'));
+                //console.log('leftArr');
+                //var tabs = $('#featureTabs');
+                var current = parseFloat($scope.tabs.css('margin-left'));
                 var min = 20;
-                var step = 40;
+                var nextPos = $scope.tabScrollDelta;
 
-                if (current - step < min) {
-                    step = current - min;
+                if (current + nextPos > min) {
+                    nextPos = min - current;
                 }
 
-                tabs.animate({ 'margin-left': '-=' + step + 'px' }, 'slow', function () {
+                $scope.tabs.animate({ 'margin-left': '+=' + nextPos + 'px' }, 'slow', function () {
                     //                    console.log('rightarr hide');
                     $('#rightArr').show();
                     $('#leftArr').show();
@@ -289,9 +293,13 @@
             });
 
             $('#rightArr').click(function () {
-                var tabs = $('#featureTabs');
-                var diff = widthOfList() - tabs.outerWidth() + 30;
-                tabs.animate({ 'margin-left': '-=' + diff + 'px' }, 'slow', function () {
+                //var tabs = $('#featureTabs');
+                var max = widthOfList() - $scope.tabs.outerWidth() + 30;
+                var current = Math.abs(parseFloat($scope.tabs.css('margin-left')));
+                var nextPos = $scope.tabScrollDelta;
+                nextPos = Math.min(max, nextPos);
+
+                $scope.tabs.animate({ 'margin-left': '-=' + nextPos + 'px' }, 'slow', function () {
                     $('#leftArr').show();
                     $('#rightArr').show();
 
