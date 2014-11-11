@@ -52,7 +52,8 @@
         isLoading                   : boolean;
         isSublayer                  : boolean;
         mapLayer                    : L.LayerGroup<L.ILayer>;
-        group                       : ProjectGroup;
+        group: ProjectGroup;
+        timestamps : number[];
         /** Internal ID, e.g. for the Excel service */
         id                          : string;
         /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */

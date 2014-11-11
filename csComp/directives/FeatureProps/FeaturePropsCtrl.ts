@@ -60,7 +60,7 @@
             this.sectionIcon = sectionIcon;
         }
 
-        public showSectionIcon(): boolean { return !StringExt.isNullOrEmpty(this.sectionIcon); }
+        public showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
         public addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {
             

@@ -279,7 +279,7 @@ module csComp.Services {
                 group.filters.forEach((f: GroupFilter) => {
                     if (feature.properties.hasOwnProperty(f.property)) {
                         var value = feature.properties[f.property];
-                        if (f.meta != null && !StringExt.isNullOrEmpty(f.meta.stringFormat)) {
+                        if (f.meta != null && !csComp.StringExt.isNullOrEmpty(f.meta.stringFormat)) {
                             value = String.format(f.meta.stringFormat, parseFloat(value));
                         }
                         content += "<br><img src='includes/images/filter-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + f.title + ":<b>" + value + "</b>";
@@ -293,7 +293,7 @@ module csComp.Services {
                     if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property == s.property; }).length == 0) {
                         if (feature.properties.hasOwnProperty(s.property)) {
                             var value = feature.properties[s.property];
-                            //if (f.meta != null && !StringExt.isNullOrEmpty(s.meta.stringFormat)) {
+                            //if (f.meta != null && !csComp.StringExt.isNullOrEmpty(s.meta.stringFormat)) {
                             //    value = String.format(s.meta.stringFormat, parseFloat(value));
                             //}
 

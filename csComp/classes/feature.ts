@@ -11,6 +11,8 @@
         featureTypeName: string;
         fType: IFeatureType;
         isInitialized: boolean;
+        sensors: { [id: string]: any[]}
+        
     }
 
     /** 
@@ -29,6 +31,7 @@
         public featureTypeName: string;
         public fType: IFeatureType;
         public isInitialized: boolean;
+        public sensors: { [id: string]: any[] }
     }
 
     export interface IStringToString {
