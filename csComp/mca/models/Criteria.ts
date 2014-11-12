@@ -12,6 +12,11 @@
         /** Applicable feature ids as a string[]. */
         public featureIds     : string[] = [];
 
+        constructor() {
+            super();
+            this.weight = 1;
+        }
+
         //public calculateWeights(criteria?: Criterion[]): void {
         //    if (!criteria) criteria = this.criteria;
         //    if (criteria.length === 0) return;
@@ -78,7 +83,7 @@
 
         /** 
          * Update the piecewise linear approximation (PLA) of the scoring (a.k.a. user) function, 
-         * which translates a property value to a MCA value in the range [0,1].
+         * which translates a property value to a MCA value in the range [0,1] using all features.
          */
         private updatePla(features: GeoJson.Feature[]) {
             if (this.isPlaUpdated) return;
@@ -119,42 +124,72 @@
             this.isPlaUpdated = true;
         }
 
-        public getScores(features: GeoJson.Feature[], criterion?: Criterion): number[] {
+        public getScore(feature: GeoJson.Feature, criterion?: Criterion): number {
+            if (!this.isPlaUpdated)
+                throw('Error: PLA must be updated!');
             if (!criterion) criterion = this;
-            var resultingScores: number[] = Array<number>(features.length);
             if (criterion.criteria.length == 0) {
-                this.updatePla(features);
                 // End point: compute the score for each feature
-                features.forEach((feature: GeoJson.Feature) => {
-                    var y = 0;
-                    if (this.label in feature.properties) {
-                        // The property is available
-                        var x = feature.properties[this.label];
-                        for (var k in this.x) {
-                            if (x < this.x[k]) {
-                                // Found relative position of x in this.x
-                                y = this.y[Math.max(0, k - 1)];
-                                break;
-                            }
-                            y = this.y[this.y.length - 1];
+                var y = 0;
+                if (this.label in feature.properties) {
+                    // The property is available
+                    var x = feature.properties[this.label];
+                    for (var k in this.x) {
+                        if (x < this.x[k]) {
+                            // Found relative position of x in this.x
+                            // TODO Use linear interpolation
+                            return this.y[Math.max(0, k - 1)];
                         }
-                    } else {
-                        y = 0; 
+                        return this.y[this.y.length - 1];
                     }
-                    resultingScores.push(this.weight * y);
-                });
-                return resultingScores;
+                } else {
+                    return 0; 
+                }
             } else {
                 // Sum all the sub-criteria.
-                var finalScores: number[] = Array<number>(features.length);
+                var finalScore: number = 0;
                 this.criteria.forEach((crit) => {
-                    var weightedScores = this.getScore(features, crit);
-                    for (var k in weightedScores) {
-                        finalScores[k] += this.weight + weightedScores[k];
-                    }
+                    finalScore += crit.weight * this.getScore(feature, crit);
                 });
-                return finalScores;
+                return this.weight * finalScore;
             }
         }
+        //public getScores(features: GeoJson.Feature[], criterion?: Criterion): number[] {
+        //    if (!criterion) criterion = this;
+        //    var resultingScores: number[] = Array<number>(features.length);
+        //    if (criterion.criteria.length == 0) {
+        //        this.updatePla(features);
+        //        // End point: compute the score for each feature
+        //        features.forEach((feature: GeoJson.Feature) => {
+        //            var y = 0;
+        //            if (this.label in feature.properties) {
+        //                // The property is available
+        //                var x = feature.properties[this.label];
+        //                for (var k in this.x) {
+        //                    if (x < this.x[k]) {
+        //                        // Found relative position of x in this.x
+        //                        y = this.y[Math.max(0, k - 1)];
+        //                        break;
+        //                    }
+        //                    y = this.y[this.y.length - 1];
+        //                }
+        //            } else {
+        //                y = 0; 
+        //            }
+        //            resultingScores.push(this.weight * y);
+        //        });
+        //        return resultingScores;
+        //    } else {
+        //        // Sum all the sub-criteria.
+        //        var finalScores: number[] = Array<number>(features.length);
+        //        this.criteria.forEach((crit) => {
+        //            var weightedScores = this.getScore(features, crit);
+        //            for (var k in weightedScores) {
+        //                finalScores[k] += this.weight + weightedScores[k];
+        //            }
+        //        });
+        //        return finalScores;
+        //    }
+        //}
     }
 } 

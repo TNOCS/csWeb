@@ -19,24 +19,33 @@
             ) {
             $scope.vm = this;
 
-            this.mca.title         = 'Rekenmandje';
-            this.mca.description   = 'Analyse van de financiële toestand van een concern.';
-            this.mca.label         = 'mca_rekenmandje';
+            this.mca.title         = 'Zelfredzaamheid';
+            this.mca.description   = 'Analyse van de zelfredzaamheid van een gemeente.';
+            this.mca.label         = 'mca_zelfredzaamheid';
             this.mca.stringFormat  = '{0:0.0%}';
             this.mca.rankTitle     = 'Rang';
             this.mca.rankFormat    = '{0} van {1}';
             this.mca.userWeightMax = 10;
-            this.mca.layerIds      = 'gemeente;';
-            var criterion = new Models.Criterion();
-            criterion.label = 'p_00_14';
-            criterion.color = 'green';
-            criterion.scores = '[0,0 0.2,1]';
+            this.mca.featureIds    = ['cities.default'];
+
+            var criterion          = new Models.Criterion();
+            criterion.label        = 'p_00_14_jr';
+            criterion.color        = 'green';
+            criterion.scores       = '[0,0 0.2,1]';
+            criterion.userWeight   = 1;
             this.mca.criteria.push(criterion);
-            criterion = new Models.Criterion();
-            criterion.label = 'p_65_eo';
-            criterion.color = 'red';
-            criterion.scores = '[0,0 0.2,1]';
+
+            criterion              = new Models.Criterion();
+            criterion.label        = 'p_65_eo_jr';
+            criterion.color        = 'red';
+            criterion.scores       = '[0,0 0.25,1]';
+            criterion.userWeight   = 3;
             this.mca.criteria.push(criterion);
+        }
+
+        public calculateMca() {
+            if (!(this.mca.featureIds[0] in this.$layerService.featureTypes)) return;
+
         }
     }
 } 
