@@ -1,5 +1,25 @@
 ﻿module csComp.Services {
 
+
+    export class DateRange {
+        start : number;
+        end: number;
+        focus: number;
+
+        public setFocus(d: Date) {
+            this.focus = d.getUTCMilliseconds();
+
+        }
+
+        constructor() {
+            if (!focus) this.setFocus(new Date());
+        }
+
+        startDate = () => { return new Date(this.start); }
+        focusDate = () => { return new Date(this.start); }
+        endDate = () => { return new Date(this.start); }
+
+    }
     
 
     /**
@@ -30,9 +50,12 @@
         propertyTypeData: { [id: string]: IPropertyType }
         groups       : Array<ProjectGroup>;
         startposition: Coordinates;
-        features     : IFeature[];
-        markers = {};
+        features: IFeature[];
+        timeLine: DateRange;
+        
         viewBounds: IBoundingBox;
+        markers = {};
+
     }
 
     /** bouding box to specify a region. */

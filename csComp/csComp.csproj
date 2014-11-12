@@ -21,6 +21,9 @@
     <TypeScriptCompile Include="classes\feature.ts" />
     <TypeScriptCompile Include="classes\group.ts" />
     <TypeScriptCompile Include="classes\project.ts" />
+    <TypeScriptCompile Include="directives\Timeline\Timeline.tpl.ts" />
+    <TypeScriptCompile Include="directives\Timeline\Timeline.ts" />
+    <TypeScriptCompile Include="directives\Timeline\TimelineCtrl.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
     <TypeScriptCompile Include="helpers\MessageBus.ts" />
     <TypeScriptCompile Include="helpers\Resize.ts" />
@@ -67,8 +70,10 @@
     <TypeScriptCompile Include="directives\DataTable\DataTableCtrl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTable.tpl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTable.ts" />
+    <TypeScriptCompile Include="services\time\TimeService.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="directives\Timeline\Timeline.tpl.html" />
     <Content Include="includes\csStyles.css" />
     <Content Include="includes\images\bordercolor.png" />
     <Content Include="includes\images\fillcolor.png" />

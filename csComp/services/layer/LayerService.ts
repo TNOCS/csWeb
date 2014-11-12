@@ -62,9 +62,10 @@ module csComp.Services {
         layerGroup: L.LayerGroup<L.ILayer>;
         featureTypes: { [key: string]: Services.IFeatureType; };
         propertyTypeData: { [key: string]: Services.IPropertyType; };
+
+
     }
-    
-   
+
 
     declare var jsonld;
 
@@ -201,7 +202,7 @@ module csComp.Services {
                                                 mouseover: (a) => this.showFeatureTooltip(a,layer.group),
                                                 mouseout: (s) => this.hideFeatureTooltip(s),
                                                 mousemove: (d) => this.updateFeatureTooltip(d),
-                                               // click    : () => { this.selectFeature(feature); }
+                                                //click    : () => { this.selectFeature(feature); }
                                             });
                                         },
                                         style: (f: IFeature, m) => {
