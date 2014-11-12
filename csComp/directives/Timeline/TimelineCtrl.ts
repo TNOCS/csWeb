@@ -48,7 +48,7 @@
             $scope.timeline = new links.Timeline(document.getElementById('timeline'), options);
 
             $scope.timeline.draw();
-            links.events.addListener($scope.timeline, 'rangechange', ((prop) => this.onRangeChanged(prop)));
+            links.events.addListener($scope.timeline, 'rangechanged', ((prop) => this.onRangeChanged(prop)));
             (<any>$("#focustimeContainer")).draggable({
                 axis: "x", containment: "parent", drag: () => {
                     this.updateFocusTime();
@@ -70,10 +70,11 @@
 
             this.focusDate = new Date(this.$scope.timeline.screenToTime(centerX));
 
-            //this.$layerService.project.timeLine.setFocus(this.focusDate);
+            if (this.$layerService.project != null && this.$layerService.project.timeLine != null)
+                this.$layerService.project.timeLine.setFocus(this.focusDate);
             this.$messageBusService.publish("timeline", "focusChange", this.focusDate);
             //this.$layerService.focusTime = new Date(this.timelineCtrl.screenToTime(centerX));
-            this.$scope.$apply();
+            //this.$scope.$apply();
 
 
         }

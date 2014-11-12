@@ -7,7 +7,7 @@
         focus: number;
 
         public setFocus(d: Date) {
-            this.focus = d.getUTCMilliseconds();
+            this.focus = d.getTime();
 
         }
 
@@ -77,7 +77,7 @@
         isSublayer                  : boolean;
         mapLayer                    : L.LayerGroup<L.ILayer>;
         group: ProjectGroup;
-        timestamps : number[];
+        timestamps : any[];
         /** Internal ID, e.g. for the Excel service */
         id                          : string;
         /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */

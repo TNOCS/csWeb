@@ -113,7 +113,7 @@
                         text = text.replace(/&amp;/g, '&');
                     //if (mi.stringFormat)
                     //    text = StringExt.format(mi.stringFormat, text);
-                    if (csComp.StringExt.isNullOrEmpty(text)) return;
+                    //if (csComp.StringExt.isNullOrEmpty(text)) return;
                     switch (mi.type) {
                         case "bbcode":
                             if (!csComp.StringExt.isNullOrEmpty(mi.stringFormat))
@@ -137,7 +137,7 @@
 
 
                     var canFilter = (mi.type == "number" || mi.type == "text");
-                    var canStyle = (mi.type == "number");
+                    var canStyle = (mi.type == "number" || mi.type=="color");
                     if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
 
                     var isFilter = false;
@@ -343,12 +343,15 @@
         private featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("featureMessageReceived");
             switch (title) {
-                case "onFeatureSelect":
-                    //console.log(feature);
+                case "onFeatureSelect":                    
                     this.displayFeature(feature);
                     this.$scope.poi = feature;
                     this.$scope.autocollapse(true);
-                    break; 
+                    break;
+                case "onFeatureUpdated":
+                    this.displayFeature(this.$layerService.lastSelectedFeature);                    
+                    this.$scope.poi = this.$layerService.lastSelectedFeature;
+                break;
                default:
             }
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
@@ -356,7 +359,8 @@
             }
         }
 
-        private displayFeature(feature: IFeature) : void {
+        private displayFeature(feature: IFeature): void {
+            if (!feature) return;
             var featureType     = this.$layerService.featureTypes[feature.featureTypeName];
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData);
             // Probably not needed

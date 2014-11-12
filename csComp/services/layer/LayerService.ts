@@ -115,6 +115,48 @@ module csComp.Services {
             this.propertyTypeData   = {};
             this.map.map.addLayer(this.layerGroup);
             this.noStyles = true;
+
+            this.$messageBusService.subscribe("timeline", (trigger: string) => {
+                switch (trigger) {
+
+                case "focusChange":
+                    this.updateSensorData();
+                    break;
+
+                }
+            });
+        }
+
+        public updateSensorData() {
+            if (this.project == null || this.project.timeLine==null) return;
+            var date = this.project.timeLine.focus;
+            this.project.features.forEach((f: IFeature) => {
+                    var l = this.findLayer(f.layerId);
+                    if (l == null) return;
+                    if (f.sensors != null) {
+                        if (l.timestamps) {
+                            for (var i = 0; i < l.timestamps.length; i++) {
+                                var dt = l.timestamps[i];
+                                if (dt > date) {
+                                    for (var sensorTitle in f.sensors) {
+                                        var sensor = f.sensors[sensorTitle];
+                                        var value = sensor[i];
+                                        //console.log(sensorTitle + ":" + value);
+                                        f.properties[sensorTitle] = value;
+                                    }
+                                    this.updateFeatureIcon(f, l);
+                                    break;
+                                }
+
+                            }
+                        }
+                    }
+                }
+            );
+            this.$messageBusService.publish("feature", "onFeatureUpdated");
+
+            
+            
         }
 
         /** 
@@ -174,6 +216,8 @@ module csComp.Services {
 
                                     //console.log(JSON.stringify(poiType, null, 2));
                                 }
+                            if (data.timestamps) layer.timestamps = data.timestamps;
+
 
                                 if (layer.group.clustering) {
                                     var markers = L.geoJson(data, {
@@ -493,11 +537,17 @@ module csComp.Services {
                 
                 layer.group.styles.forEach((gs: GroupStyle) => {
                     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {                        
-                        var v = feature.properties[gs.property];                                                
+                        var v = feature.properties[gs.property];  
+                                                                      
                         switch (gs.visualAspect) {
                             case "fillColor":
-                                var bezInterpolator = chroma.interpolate.bezier(gs.colors);
-                                props["background-color"] = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
+                                if (gs.meta.type == "color") {
+                                    props["background-color"] = v;
+                                } else {
+                                    var bezInterpolator = chroma.interpolate.bezier(gs.colors);
+                                    props["background-color"] = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();    
+                                }
+                                
                             break;
                         }
                         
@@ -634,8 +684,10 @@ module csComp.Services {
                 
                 gs.enabled = true;
                 gs.group = layer.group;
-                
+                gs.meta = property.meta;
                 var ft = this.getFeatureType(f);
+                
+                
                 if (ft.style && ft.style.fillColor) {
                     gs.colors = ['white', 'orange'];
                 } else {
@@ -953,6 +1005,10 @@ module csComp.Services {
 
             $.getJSON(url, (data: Project) => {
                 this.project = data;
+
+                if (!this.project.timeLine) {
+                    this.project.timeLine = new DateRange();
+                }
 
                 if (this.project.viewBounds) {
                     this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
