@@ -83,12 +83,28 @@
         section?         : string;
         stringFormat?    : string;
         visibleInCallOut?: boolean;
-        canEdit?         : boolean;        
+        canEdit?         : boolean;
         filterType?      : string;
         isSearchable?    : boolean;
         minValue?        : number;
         maxValue?        : number;
         defaultValue?    : number;
+    }
+
+    export class MetaInfo {
+        public label           : string;
+        public title           : string;
+        public description     : string;
+        public type            : string;
+        public section         : string;
+        public stringFormat    : string;
+        public visibleInCallOut: boolean = true;
+        public canEdit         : boolean = false;
+        public filterType      : string;
+        public isSearchable    : boolean = true;
+        public minValue        : number;
+        public maxValue        : number;
+        public defaultValue    : number;
     }
 
     export interface IFeatureTypeStyle {
