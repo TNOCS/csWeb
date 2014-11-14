@@ -62,6 +62,7 @@
             // 'vm' stands for 'view model'. We're adding a reference to the controller to the scope
             // for its methods to be accessible from view / HTML
             $scope.vm = this;
+
             $translate('MAP_FEATURES').then(translation => {
                 this.layerOptions[0].title = translation;
             });

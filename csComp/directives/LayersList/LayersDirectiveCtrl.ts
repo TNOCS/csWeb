@@ -18,7 +18,7 @@
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope: ILayersDirectiveScope,
+            private $scope       : ILayersDirectiveScope,
             private $layerService: csComp.Services.LayerService
             ) {
             $scope.vm = this;

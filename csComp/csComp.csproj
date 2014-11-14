@@ -32,6 +32,8 @@
     <TypeScriptCompile Include="directives\FilterList\FilterList.tpl.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterList.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterListCtrl.ts" />
+    <TypeScriptCompile Include="mca\McaCtrl.ts" />
+    <TypeScriptCompile Include="mca\models\Criteria.ts" />
     <TypeScriptCompile Include="services\layer\ILayerService.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.tpl.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
