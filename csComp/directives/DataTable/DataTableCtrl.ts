@@ -22,16 +22,17 @@
     declare var String;
 
     export class DataTableCtrl {
-        public mapLabel       : string = "map";
-        public dataset        : IGeoJsonFile;
-        public selectedType   : csComp.GeoJson.IFeatureType;
-        public numberOfItems  : number = 10;
-        public selectedLayerId: string;
-        public layerOptions   : Array<any> = [];
-        public metaInfos      : Array<IMetaInfo> = [];
-        public headers        : Array<string> = [];
-        public sortingColumn  : number;
-        public rows           : Array<Array<TableField>> = [];
+        public mapLabel        : string = "map";
+        public dataset         : IGeoJsonFile;
+        public selectedType    : csComp.GeoJson.IFeatureType;
+        public numberOfItems   : number = 10;
+        public selectedLayerId : string;
+        public layerOptions    : Array<any> = [];
+        public metaInfos       : Array<IMetaInfo> = [];
+        public headers         : Array<string> = [];
+        public sortingColumn   : number;
+        public rows            : Array<Array<TableField>> = [];
+        private mapFeatureTitle: string;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -41,6 +42,7 @@
             '$scope',
             '$http',
             '$sce',
+            '$translate',
             'layerService',
             'localStorageService',
             'messageBusService'
@@ -52,6 +54,7 @@
             private $scope               : IDataTableViewScope,
             private $http                : ng.IHttpService,
             private $sce                 : ng.ISCEService,              
+            private $translate           : ng.translate.ITranslateService,              
             private $layerService        : csComp.Services.LayerService,
             private $localStorageService : ng.localStorage.ILocalStorageService,
             private $messageBusService   : csComp.Services.MessageBusService
@@ -59,6 +62,9 @@
             // 'vm' stands for 'view model'. We're adding a reference to the controller to the scope
             // for its methods to be accessible from view / HTML
             $scope.vm = this;
+            $translate('MAP_FEATURES').then(translation => {
+                this.layerOptions[0].title = translation;
+            });
 
             this.bindToStorage('vm.numberOfItems', 10);
             this.numberOfItems = $localStorageService.get('vm.numberOfItems');
@@ -85,7 +91,7 @@
             this.layerOptions.push({
                 "group" : '',
                 "id"    : this.mapLabel,
-                "title" : "Kaartfeatures"
+                "title" : this.mapFeatureTitle
             });
             if (this.$layerService.project == null || this.$layerService.project.groups == null) return;
             this.$layerService.project.groups.forEach((group) => {

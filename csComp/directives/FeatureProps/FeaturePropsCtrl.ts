@@ -4,26 +4,26 @@
     import IMetaInfo    = csComp.GeoJson.IMetaInfo;
 
     class FeaturePropsOptions implements L.SidebarOptions {
-        public position: string;
+        public position   : string;
         public closeButton: boolean;
-        public autoPan: boolean;
+        public autoPan    : boolean;
 
         constructor(position: string) {
-            this.position = position;
+            this.position    = position;
             this.closeButton = true;
-            this.autoPan = true;            
+            this.autoPan     = true;            
         }
     }
 
     export interface IFeaturePropsScope extends ng.IScope {
-        vm       : FeaturePropsCtrl;
-        showMenu : boolean;
-        poi      : IFeature;
-        callOut: CallOut;
-        tabs: JQuery;
-        tabScrollDelta: number;
+        vm                              : FeaturePropsCtrl;
+        showMenu                        : boolean;
+        poi                             : IFeature;
+        callOut                         : CallOut;
+        tabs                            : JQuery;
+        tabScrollDelta                  : number;
         featureTabActivated(sectionTitle: string, section: CallOutSection);
-        autocollapse(init: boolean):void;
+        autocollapse(init               : boolean):void;
     }
 
     export interface ICallOutProperty {
@@ -34,8 +34,8 @@
         canStyle    : boolean;
         feature     : IFeature;
         description?: string;
-        meta?: IMetaInfo;
-        isFilter : boolean;
+        meta?       : IMetaInfo;
+        isFilter    : boolean;
     }
 
     export class CallOutProperty implements ICallOutProperty {
@@ -43,9 +43,9 @@
     }
 
     export interface ICallOutSection {
-        metaInfos  : { [label: string]: IMetaInfo }; // Probably not needed
-        properties : Array<ICallOutProperty>;
-        sectionIcon: string;
+        metaInfos      : { [label: string]: IMetaInfo }; // Probably not needed
+        properties     : Array<ICallOutProperty>;
+        sectionIcon    : string;
         addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter : boolean, description?: string, meta? : IMetaInfo) : void;
         hasProperties(): boolean;
     }
@@ -111,7 +111,7 @@
                     if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
                         text = text.replace(/&amp;/g, '&');
                     //if (mi.stringFormat)
-                    //    text = StringExt.format(mi.stringFormat, text);
+                    //    text = csComp.StringExt.format(mi.stringFormat, text);
                     if (csComp.StringExt.isNullOrEmpty(text)) return;
                     switch (mi.type) {
                         case "bbcode":
