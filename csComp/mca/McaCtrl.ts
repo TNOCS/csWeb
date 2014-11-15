@@ -19,9 +19,6 @@
             private messageBusService : csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
-            console.log('McaCtrl');
-
-
 
             var mca = new Models.Mca();
             mca.title         = 'Zelfredzaamheid';
@@ -55,7 +52,11 @@
             var availableMcas: Models.Mca[] = [];
             this.mcas.forEach((m) => {
                 m.featureIds.forEach((featureId: string) => {
-                    if (featureId in this.$layerService.featureTypes) availableMcas.push(m);
+                    if (availableMcas.indexOf(m) < 0 && featureId in this.$layerService.featureTypes) {
+                        availableMcas.push(m);
+                        var featureType = this.$layerService.featureTypes[featureId];
+                        this.applyPropertyInfoToCriteria(m, featureType);
+                    }
                 });
             });
             if (availableMcas.length > 0) this.mca = availableMcas[0];
@@ -80,7 +81,18 @@
                 });
                 
             });
+        }
 
+        private applyPropertyInfoToCriteria(mca: Models.Mca, featureType: csComp.GeoJson.IFeatureType) {
+            mca.criteria.forEach((criterion) => {
+                var label = criterion.label;
+                featureType.metaInfoData.forEach((propInfo) => {
+                    if (propInfo.label === label) {
+                        criterion.title = propInfo.title;
+                        criterion.description = propInfo.description;                      
+                    }
+                });
+            });
         }
 
         private addPropertyInfo(featureId: string, mca: Models.Mca) {
