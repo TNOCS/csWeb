@@ -1,20 +1,22 @@
 ﻿module csComp.Mca.Models {
     export class Criterion {
+        public title      : string;
+        public description: string;
         /** 
         * Top level label will be used to add a property to a feature, mca_LABELNAME, with the MCA value. 
         * Lower level children will be used to obtain the property value. 
         */
-        public label     : string;
+        public label      : string;
         /** Color of the pie chart */
-        public color     : string;
+        public color      : string;
         /** Specified weight by the user */
-        public userWeight: number = 1;
+        public userWeight : number = 1;
         /** Derived weight based on the fact that the sum of weights in a group of criteria needs to be 1. */
-        public weight    : number;
+        public weight     : number;
         /** Scoring function y = f(x), which translates a specified measurement x to a value y, where y in [0,1].
          * Format [x1,y1 x2,y2], and may contain special characters, such as min or max to define the minimum or maximum.
          */
-        public scores    : string;
+        public scores     : string;
 
         public criteria: Criterion[] = [];
         /** Piece-wise linear approximation of the scoring function by a set of x and y points */
@@ -29,6 +31,11 @@
 
         private requiresMaximum(): boolean {
             return this.scores && this.scores.indexOf('max') >= 0;
+        }
+
+        public getTitle() {
+            if (this.title) return this.title;
+            return this.label;
         }
 
         /** 
@@ -165,7 +172,6 @@
 
     // NOTE: When extending a base class, make sure that the base class has been defined already.
     export class Mca extends Criterion {
-        public title          : string;
         /** Section of the callout */
         public section        : string;
         public description    : string;
