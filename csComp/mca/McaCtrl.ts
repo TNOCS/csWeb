@@ -1,11 +1,14 @@
 ﻿module csComp.Mca {
+    import Plot = csComp.Helpers.Plot;
+
     export interface IMcaScope extends ng.IScope {
         vm: McaCtrl;
     }
 
     export class McaCtrl {
-        private mca : Models.Mca;
-        private mcas: Models.Mca[] = [];
+        public mca          : Models.Mca;
+        public mcas         : Models.Mca[] = [];
+        public availableMcas: Models.Mca[] = [];
 
         public static $inject = [
             '$scope',
@@ -20,6 +23,12 @@
             ) {
             $scope.vm = this;
 
+            messageBusService.subscribe('layer', (title, layer: csComp.Services.ProjectLayer) => {
+                console.log(title);
+                console.log(layer.title);
+                this.availableMca();
+            });
+
             var mca = new Models.Mca();
             mca.title         = 'Zelfredzaamheid';
             mca.description   = 'Analyse van de zelfredzaamheid van een gemeente.';
@@ -27,7 +36,7 @@
             mca.stringFormat  = '{0:0.0}';
             mca.rankTitle     = 'Rang';
             mca.rankFormat    = '{0} van {1}';
-            mca.userWeightMax = 10;
+            mca.userWeightMax = 5;
             mca.featureIds    = ['cities_Default'];
 
             var criterion          = new Models.Criterion();
@@ -44,23 +53,75 @@
             criterion.userWeight   = 3;
             mca.criteria.push(criterion);
             this.mcas.push(mca);
+
+            mca               = new Models.Mca();
+            mca.title         = 'test';
+            mca.label         = 'mca_test';
+            mca.stringFormat  = '{0:0.0}';
+            mca.rankTitle     = 'Rang';
+            mca.rankFormat    = '{0} van {1}';
+            mca.userWeightMax = 3;
+            mca.featureIds    = ['cities_Default'];
+
+            criterion            = new Models.Criterion();
+            criterion.label      = 'p_15_24_jr';
+            criterion.color      = 'green';
+            criterion.scores     = '[0,0 20,1]';
+            criterion.userWeight = 1;
+            mca.criteria.push(criterion);
+
+            criterion            = new Models.Criterion();
+            criterion.label      = 'p_65_eo_jr';
+            criterion.color      = 'red';
+            criterion.scores     = '[0,0 25,1]';
+            criterion.userWeight = 3;
+            mca.criteria.push(criterion);
+            this.mcas.push(mca);
+
+            $scope.$watch('vm.mca', (d) => {
+                if (this.mca) this.drawPieChart();
+                // console.log(JSON.stringify(d));
+            }, true);
+        }
+
+        public drawPieChart(criterion?: Models.Criterion) {
+            var currentLevel: Models.Criterion[];
+            this.mca.update();
+            if (typeof criterion === 'undefined' || this.mca.criteria.indexOf(criterion) >= 0) {
+                currentLevel = this.mca.criteria;
+            } else {
+                this.mca.criteria.forEach((c) => {
+                    if (c.criteria.indexOf(criterion) >= 0)
+                        currentLevel = c.criteria;
+                });
+            }
+            if (!currentLevel) return;
+            var data: Plot.PieData[] = [];
+            var i = 0;
+            currentLevel.forEach((c) => {
+                var pieData = new csComp.Helpers.PieData();
+                pieData.id = i++;
+                pieData.label = c.getTitle();
+                pieData.weight = c.weight;
+                data.push(pieData);
+            });
+            Plot.drawPie(100, data, 'Reds', 'mcaPieChart');
         }
 
         /** Based on the currently loaded features, which MCA can we use */
         public availableMca() {
             this.mca = null;
-            var availableMcas: Models.Mca[] = [];
+            this.availableMcas = [];
             this.mcas.forEach((m) => {
                 m.featureIds.forEach((featureId: string) => {
-                    if (availableMcas.indexOf(m) < 0 && featureId in this.$layerService.featureTypes) {
-                        availableMcas.push(m);
+                    if (this.availableMcas.indexOf(m) < 0 && featureId in this.$layerService.featureTypes) {
+                        this.availableMcas.push(m);
                         var featureType = this.$layerService.featureTypes[featureId];
                         this.applyPropertyInfoToCriteria(m, featureType);
                     }
                 });
             });
-            if (availableMcas.length > 0) this.mca = availableMcas[0];
-            return availableMcas;
+            if (this.availableMcas.length > 0) this.mca = this.availableMcas[0];
         }
 
         public calculateMca() {
@@ -74,12 +135,11 @@
                     features.push(feature);
                 });
                 mca.updatePla(features);
-                mca.calculateWeights();
+                mca.update();
                 this.$layerService.project.features.forEach((feature) => {
                     var score = mca.getScore(feature);
                     feature.properties[mca.label] = score;
                 });
-                
             });
         }
 
@@ -93,6 +153,10 @@
                     }
                 });
             });
+        }
+
+        public createMca() {
+            
         }
 
         private addPropertyInfo(featureId: string, mca: Models.Mca) {

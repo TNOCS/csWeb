@@ -59,6 +59,10 @@ declare module D3 {
 
     export interface Base extends Selectors {
         /**
+        * EV
+        */
+        tip: any;
+        /**
         * Create a behavior
         */
         behavior: Behavior.Behavior;

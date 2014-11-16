@@ -209,8 +209,12 @@
         //        c.weight = c.userWeight / totalWeight;
         //    });
         //}
+        public update() {
+            this.calculateWeights();
+            this.setColors();
+        }
 
-        public calculateWeights(criteria?: Criterion[]): void {
+        private calculateWeights(criteria?: Criterion[]): void {
             if (!criteria) criteria = this.criteria;
             var totalWeight = 0;
             for (var k in criteria) {
@@ -225,6 +229,24 @@
                     critj.weight = critj.userWeight / totalWeight;
                 }
             }
+        }
+
+        /** Set the colors of all criteria and sub-criteria */
+        private setColors(): void {
+            var redColors = chroma.scale('Reds').domain([0, this.criteria.length - 1], this.criteria.length);
+            var totalSubcrit = 0;
+            var i = 0;
+            this.criteria.forEach((c) => {
+                totalSubcrit += c.criteria.length;
+                c.color = redColors(i++).hex();
+            });
+            var blueColors = chroma.scale('Blues').domain([0, totalSubcrit - 1], totalSubcrit);
+            i = 0;
+            this.criteria.forEach((c) => {
+                c.criteria.forEach((crit) => {
+                    crit.color = blueColors(i++).hex();
+                });
+            });
         }
 
     }
