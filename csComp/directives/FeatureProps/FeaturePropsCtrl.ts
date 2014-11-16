@@ -63,8 +63,7 @@
 
         public showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
-        public addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter : boolean,description?: string, meta?: IMetaInfo ): void {
-            
+        public addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter : boolean,description?: string, meta?: IMetaInfo ): void {            
             if (description)
                 this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter,description,meta));
             else
@@ -108,41 +107,14 @@
                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                     callOutSection.metaInfos[mi.label] = mi;
                     var text = feature.properties[mi.label];
-                    if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
-                        text = text.replace(/&amp;/g, '&');
-                    //if (mi.stringFormat)
-                    //    text = csComp.StringExt.format(mi.stringFormat, text);
-                    if (csComp.StringExt.isNullOrEmpty(text)) return;
-                    switch (mi.type) {
-                        case "bbcode":
-                            if (!csComp.StringExt.isNullOrEmpty(mi.stringFormat))
-                                text = String.format(mi.stringFormat, text);
-                            displayValue = XBBCODE.process({ text: text }).html;
-                        break;
-                    case "number":
-                        if (!$.isNumeric(text))
-                            displayValue = text;
-                        else if (csComp.StringExt.isNullOrEmpty(mi.stringFormat))
-                            displayValue = text.toString();
-                        else
-                            displayValue = String.format(mi.stringFormat, parseFloat(text));
-                        break;
-                    default:
-                        displayValue = text;
-                        break;
-                    }
+                    displayValue = CallOut.convertPropertyInfo(mi, text);
                     // Skip empty, non-editable values
                     if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
-
 
                     var canFilter = (mi.type == "number" || mi.type == "text");
                     var canStyle = (mi.type == "number");
                     if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
-
                     var isFilter = false;
-
-                    
-
                     if (mi.visibleInCallOut)
                         callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, isFilter, mi.description, mi);
                     searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, isFilter, mi.description);
@@ -150,6 +122,32 @@
             }
             if (infoCallOutSection  .properties.length > 0) this.sections['AAA Info']   = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
             if (searchCallOutSection.properties.length > 0) this.sections['Zzz Search'] = searchCallOutSection;
+        }
+
+        public static convertPropertyInfo(mi: IMetaInfo, text: string): string {
+            var displayValue: string;
+            if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
+                text = text.replace(/&amp;/g, '&');
+            if (csComp.StringExt.isNullOrEmpty(text)) return '';
+            switch (mi.type) {
+                case "bbcode":
+                    if (!csComp.StringExt.isNullOrEmpty(mi.stringFormat))
+                        text = String.format(mi.stringFormat, text);
+                    displayValue = XBBCODE.process({ text: text }).html;
+                    break;
+                case "number":
+                    if (!$.isNumeric(text))
+                        displayValue = text;
+                    else if (csComp.StringExt.isNullOrEmpty(mi.stringFormat))
+                        displayValue = text.toString();
+                    else
+                        displayValue = String.format(mi.stringFormat, parseFloat(text));
+                    break;
+                default:
+                    displayValue = text;
+                    break;
+            }
+            return displayValue;
         }
 
         ///**                                         
@@ -184,13 +182,25 @@
          * Set the title of the callout to the title of the feature.
          */
         private setTitle() {
+            this.title = CallOut.title(this.type, this.feature);
+            //var title: string;
+            //if (this.type == null || this.type.style == null || csComp.StringExt.isNullOrEmpty(this.type.style.nameLabel))
+            //    title = this.feature.properties['Name'];
+            //else
+            //    title = this.feature.properties[this.type.style.nameLabel];
+            //if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
+            //    this.title = title.replace(/&amp;/g, '&');
+        }
+
+        public static title(type: IFeatureType, feature: IFeature): string {
             var title: string;
-            if (this.type == null || this.type.style == null || csComp.StringExt.isNullOrEmpty(this.type.style.nameLabel))
-                title = this.feature.properties['Name'];
+            if (type == null || type.style == null || csComp.StringExt.isNullOrEmpty(type.style.nameLabel))
+                title = feature.properties['Name'];
             else
-                title = this.feature.properties[this.type.style.nameLabel];
+                title = feature.properties[type.style.nameLabel];
             if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
-                this.title = title.replace(/&amp;/g, '&');
+                title = title.replace(/&amp;/g, '&');
+            return title;
         }
     }
 
@@ -338,7 +348,7 @@
         }
 
         private featureMessageReceived = (title: string, feature: IFeature): void => {
-            //console.log("featureMessageReceived");
+            //console.log("FPC: featureMessageReceived");
             switch (title) {
                 case "onFeatureSelect":
                     //console.log(feature);

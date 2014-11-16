@@ -60,7 +60,6 @@ module csComp.Helpers {
                 .attr("d", arc)
                 .on('mouseover', (d, i) => {
                     tip.show(d, i);
-                    console.log(i);
                 })
                 .on('mouseout', tip.hide);
 

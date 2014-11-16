@@ -6,6 +6,9 @@
     }
 
     export class McaCtrl {
+        public selectedFeature: csComp.GeoJson.IFeature;
+        public selectedProperty: FeatureProps.CallOutProperty;
+
         public mca          : Models.Mca;
         public mcas         : Models.Mca[] = [];
         public availableMcas: Models.Mca[] = [];
@@ -24,10 +27,10 @@
             $scope.vm = this;
 
             messageBusService.subscribe('layer', (title, layer: csComp.Services.ProjectLayer) => {
-                console.log(title);
-                console.log(layer.title);
                 this.availableMca();
             });
+
+            messageBusService.subscribe("feature", this.featureMessageReceived);
 
             var mca = new Models.Mca();
             mca.title         = 'Zelfredzaamheid';
@@ -82,6 +85,41 @@
                 if (this.mca) this.drawPieChart();
                 // console.log(JSON.stringify(d));
             }, true);
+        }
+        
+        private featureMessageReceived = (title: string, feature: csComp.GeoJson.IFeature): void => {
+            //console.log("MC: featureMessageReceived");
+            switch (title) {
+                case "onFeatureSelect":
+                    this.updateSelectedFeature(feature);
+                    break;
+                case "onFeatureDeselect":
+                    this.selectedFeature = null;
+                    break;
+                default:
+                    console.log(title);
+                    break;
+            }
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                this.$scope.$apply();
+            }
+        }
+
+        private updateSelectedFeature(feature: csComp.GeoJson.Feature) {
+            if (typeof feature === 'undefined' || feature == null) return;
+            this.selectedFeature = feature;
+            if (this.mca.label in feature.properties) {
+                var mi = new csComp.GeoJson.MetaInfo();
+                mi.label = this.mca.label;
+                mi.title = this.mca.title;
+                mi.type = 'number';
+                mi.stringFormat = this.mca.stringFormat;
+                mi.description = this.mca.description;
+                var displayValue = FeatureProps.CallOut.convertPropertyInfo(mi, feature.properties[mi.label]);
+                this.selectedProperty = new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description);
+                //console.log(feature);
+                //this.displayFeature(feature);
+            }
         }
 
         public drawPieChart(criterion?: Models.Criterion) {
@@ -138,9 +176,10 @@
                 mca.update();
                 this.$layerService.project.features.forEach((feature) => {
                     var score = mca.getScore(feature);
-                    feature.properties[mca.label] = score;
+                    feature.properties[mca.label] = score * 100;
                 });
             });
+            this.updateSelectedFeature(this.selectedFeature);
         }
 
         private applyPropertyInfoToCriteria(mca: Models.Mca, featureType: csComp.GeoJson.IFeatureType) {
