@@ -96,3 +96,24 @@ width: 200px;
 .feature-prop-active-filter {
     
 }
+
+.leftpanel-header-button {
+    float: right;
+margin-right: 10px;
+border: 0;
+background: transparent;     
+}
+
+.dashboard-item {
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.widget-edit {
+    float: right;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    opacity: 0.75;
+    cursor: pointer;
+}

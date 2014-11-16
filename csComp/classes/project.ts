@@ -43,17 +43,18 @@
 
     /** project configuration. */
     export class Project {
-        title        : string;
-        description  : string;
-        logo         : string;
-        featureTypes : { [id: string]: IFeatureType }
+        title           : string;
+        description     : string;
+        logo            : string;
+        featureTypes    : { [id: string]: IFeatureType }
         propertyTypeData: { [id: string]: IPropertyType }
-        groups       : Array<ProjectGroup>;
-        startposition: Coordinates;
-        features: IFeature[];
-        timeLine: DateRange;
-        
-        viewBounds: IBoundingBox;
+        groups          : Array<ProjectGroup>;
+        startposition   : Coordinates;
+        features        : IFeature[];
+        timeLine        : DateRange;
+        dashboards      : { [id: string]: Dashboard };
+        dataSets        : DataSet[];
+        viewBounds      : IBoundingBox;
         markers = {};
 
     }

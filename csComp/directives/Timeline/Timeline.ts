@@ -5,7 +5,7 @@
     var moduleName = 'csWeb.timeline';   
 
     /**                            
-      * Module
+      * Module   
       */
     export var myModule;
     try {

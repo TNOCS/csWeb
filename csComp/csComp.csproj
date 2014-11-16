@@ -18,6 +18,7 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="classes\dashboard.ts" />
     <TypeScriptCompile Include="classes\feature.ts" />
     <TypeScriptCompile Include="classes\group.ts" />
     <TypeScriptCompile Include="classes\project.ts" />
@@ -40,6 +41,7 @@
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.tpl.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirectiveCtrl.ts" />
+    <TypeScriptCompile Include="Scripts\typings\underscore\underscore.d.ts" />
     <TypeScriptCompile Include="services\layer\LayerService.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.tpl.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.ts" />
@@ -75,7 +77,9 @@
   <ItemGroup>
     <Content Include="directives\Timeline\Timeline.tpl.html" />
     <Content Include="includes\csStyles.css" />
+    <Content Include="includes\images\bar-chart-5-32.png" />
     <Content Include="includes\images\bordercolor.png" />
+    <Content Include="includes\images\database-32.png" />
     <Content Include="includes\images\fillcolor.png" />
     <Content Include="includes\images\filter-black.png" />
     <Content Include="includes\images\layers-black.png" />

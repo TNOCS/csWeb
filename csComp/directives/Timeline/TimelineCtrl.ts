@@ -1,6 +1,7 @@
 ﻿module Timeline {
 
     declare var links;
+    
    
     export interface ITimelineScope extends ng.IScope {
         vm: TimelineCtrl;
@@ -48,17 +49,17 @@
             $scope.timeline = new links.Timeline(document.getElementById('timeline'), options);
 
             $scope.timeline.draw();
-            links.events.addListener($scope.timeline, 'rangechanged', ((prop) => this.onRangeChanged(prop)));
+            links.events.addListener($scope.timeline, 'rangechange', _.throttle((prop) => this.onRangeChanged(prop),200));
             (<any>$("#focustimeContainer")).draggable({
-                axis: "x", containment: "parent", drag: () => {
-                    this.updateFocusTime();
-                }
-            });
+                axis: "x",
+                containment: "parent",
+                drag: _.throttle(() => this.updateFocusTime(), 200)
+        });
 
             this.updateFocusTime();
         }
 
-        public onRangeChanged(properties) {
+        public onRangeChanged(properties) {            
             this.updateFocusTime();
 
         }

@@ -130,25 +130,33 @@ module csComp.Services {
         public updateSensorData() {
             if (this.project == null || this.project.timeLine==null) return;
             var date = this.project.timeLine.focus;
+            var timepos = {};
             this.project.features.forEach((f: IFeature) => {
-                    var l = this.findLayer(f.layerId);
-                    if (l == null) return;
-                    if (f.sensors != null) {
-                        if (l.timestamps) {
-                            for (var i = 0; i < l.timestamps.length; i++) {
-                                var dt = l.timestamps[i];
-                                if (dt > date) {
-                                    for (var sensorTitle in f.sensors) {
-                                        var sensor = f.sensors[sensorTitle];
-                                        var value = sensor[i];
-                                        //console.log(sensorTitle + ":" + value);
-                                        f.properties[sensorTitle] = value;
-                                    }
-                                    this.updateFeatureIcon(f, l);
-                                    break;
-                                }
+                var l = this.findLayer(f.layerId);
 
+                if (l != null)
+                    {
+                    if (!timepos.hasOwnProperty(f.layerId)) {
+                        for (var i = 1; i < l.timestamps.length; i++) {                            
+                            if (l.timestamps[i] > date) {
+                                timepos[f.layerId] = i;
+                                break;
                             }
+                        }
+                    }
+
+                        if (f.sensors != null) {
+                            
+                                        for (var sensorTitle in f.sensors) {
+                                            var sensor = f.sensors[sensorTitle];
+                                            var value = sensor[timepos[f.layerId]];
+                                            //console.log(sensorTitle + ":" + value);
+                                            f.properties[sensorTitle] = value;
+                                        }
+                                        this.updateFeatureIcon(f, l);
+                             
+                                    
+
                         }
                     }
                 }
@@ -493,7 +501,7 @@ module csComp.Services {
         //if (!feature.isInitialized) 
         {
                 feature.isInitialized = true;
-                if (feature.id == null) feature.id = this.getGuid();
+            if (feature.id == null) feature.id = Helpers.getGuid();
                 feature.layerId = layer.id;
                 this.project.features.push(feature); // list of features
                 layer.group.ndx.add([feature]);
@@ -674,7 +682,7 @@ module csComp.Services {
                 this.noStyles = false;
                 var layer = this.findLayer(f.layerId);
                 var gs = new GroupStyle(this.$translate);
-                gs.id = this.getGuid();
+                gs.id = Helpers.getGuid();
                 gs.title = property.key;
                 gs.visualAspect = "fillColor";
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
@@ -928,14 +936,9 @@ module csComp.Services {
             this.rebuildFilters(g);
         }
 
-        public S4() {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        }
+       
 
-        public getGuid() {
-            var guid = (this.S4() + this.S4() + "-" + this.S4() + "-4" + this.S4().substr(0, 3) + "-" + this.S4() + "-" + this.S4() + this.S4() + this.S4()).toLowerCase();
-            return guid;
-        }
+        
 
         /***
          * Open solution file with references to available baselayers and projects
@@ -1000,11 +1003,15 @@ module csComp.Services {
             }
             //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
 
+
             this.layerGroup.clearLayers();
             this.featureTypes = {};
 
             $.getJSON(url, (data: Project) => {
                 this.project = data;
+
+                
+                
 
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
@@ -1031,7 +1038,7 @@ module csComp.Services {
                 this.project.features = [];
 
                 this.project.groups.forEach((group: ProjectGroup) => {
-                    if (group.id == null) group.id = this.getGuid();
+                    if (group.id == null) group.id = Helpers.getGuid();
                     group.ndx = crossfilter([]);
                     if (group.styles == null) group.styles = [];
                     if (group.filters == null) group.filters = [];
@@ -1048,7 +1055,7 @@ module csComp.Services {
                         this.map.map.addLayer(group.vectors);
                     }
                     group.layers.forEach((layer: ProjectLayer) => {
-                        if (layer.reference == null) layer.reference = this.getGuid();
+                        if (layer.reference == null) layer.reference = Helpers.getGuid();
                         layer.group = group;
                         if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
                             layer.enabled = true;
@@ -1057,11 +1064,11 @@ module csComp.Services {
                     });
 
                     group.styles.forEach((style: GroupStyle) => {
-                        if (style.id != null) style.id = this.getGuid();
+                        if (style.id != null) style.id = Helpers.getGuid();
                     });
 
                     group.filters.forEach((filter: GroupFilter) => {
-                        if (filter.id != null) filter.id = this.getGuid();
+                        if (filter.id != null) filter.id = Helpers.getGuid();
                     });
 
                     if (data.startposition)
@@ -1174,7 +1181,7 @@ module csComp.Services {
          * Add text filter to list of filters
          */
         private addTextFilter(group: ProjectGroup, filter: GroupFilter) {            
-            filter.id = this.getGuid();
+            filter.id = Helpers.getGuid();
             var divid = "filter_" + filter.id;
 
             
@@ -1234,7 +1241,7 @@ module csComp.Services {
          * Add bar chart filter for filter number values
          */
         private addBarFilter(group : ProjectGroup,filter: GroupFilter) {
-            filter.id = this.getGuid();
+            filter.id = Helpers.getGuid();
             var info = this.calculatePropertyInfo(group, filter.property);
             
             var divid = "filter_" + filter.id;
