@@ -258,7 +258,7 @@ module csComp.Services {
                                             });
                                         },
                                         style: (f: IFeature, m) => {
-                                            this.initFeature(f, layer);
+                                            //this.initFeature(f, layer);
                                             layer.group.markers[f.id] = m;
                                             return this.style(f, layer);
                                         },
@@ -1034,6 +1034,16 @@ module csComp.Services {
                         this.propertyTypeData[key] = propertyType;
                     }
                 }
+
+                if (!this.project.dashboards) {
+                    this.project.dashboards = {};
+                    var d = new csComp.Services.Dashboard("1", this.project.title);
+                    d.widgets = [];
+                    this.project.dashboards[this.project.title] = d;
+                }
+
+                if (!this.project.dataSets)
+                    this.project.dataSets = [];
 
                 this.project.features = [];
 

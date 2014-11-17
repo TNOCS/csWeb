@@ -17,6 +17,8 @@
         background : string;
         init : Function;
         col: number; row: number; sizeY: number; sizeX: number; name: string; id: string;
+        properties: {};
+        dataSets : DataSet[];
     }
 
    
@@ -32,10 +34,14 @@
         public sizeY: number = 2;
         public sizeX: number = 4;
         public name: string; public id: string;
+        public properties: {};
+        public dataSets: DataSet[];
 
         constructor(title?: string, type?: string) {
             if (title) this.title = title;
             if (type) this.widgetType = type;
+            this.properties = {};
+            this.dataSets = [];
         }
 
         public init(sX: number, sY: number, c: number, r: number, id? : string) {
@@ -46,9 +52,10 @@
             this.background = "red";
             if (!id) id = "widget" + csComp.Helpers.getGuid().replace('-', '');
             this.id = id;
+            this.elementId = id;
 
         }
-        public renderer = () => { };
+        public renderer = ($scope: any) => { };
 
         public resize = () => {};
     }
@@ -68,10 +75,14 @@
 
 
     export class DataSet {
-        public id    : string;
-        public title : string;
         public color : string;
         public data: { [key: number]: number };
+
+        constructor(public id?: string, public title?: string) {
+            this.data = [];
+        }
+
+        
 
 
     }
