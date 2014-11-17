@@ -130,44 +130,6 @@
             }
             return 0;
         }
-
-        //public getScores(features: GeoJson.Feature[], criterion?: Criterion): number[] {
-        //    if (!criterion) criterion = this;
-        //    var resultingScores: number[] = Array<number>(features.length);
-        //    if (criterion.criteria.length == 0) {
-        //        this.updatePla(features);
-        //        // End point: compute the score for each feature
-        //        features.forEach((feature: GeoJson.Feature) => {
-        //            var y = 0;
-        //            if (this.label in feature.properties) {
-        //                // The property is available
-        //                var x = feature.properties[this.label];
-        //                for (var k in this.x) {
-        //                    if (x < this.x[k]) {
-        //                        // Found relative position of x in this.x
-        //                        y = this.y[Math.max(0, k - 1)];
-        //                        break;
-        //                    }
-        //                    y = this.y[this.y.length - 1];
-        //                }
-        //            } else {
-        //                y = 0; 
-        //            }
-        //            resultingScores.push(this.weight * y);
-        //        });
-        //        return resultingScores;
-        //    } else {
-        //        // Sum all the sub-criteria.
-        //        var finalScores: number[] = Array<number>(features.length);
-        //        this.criteria.forEach((crit) => {
-        //            var weightedScores = this.getScore(features, crit);
-        //            for (var k in weightedScores) {
-        //                finalScores[k] += this.weight + weightedScores[k];
-        //            }
-        //        });
-        //        return finalScores;
-        //    }
-        //}
     }
 
     // NOTE: When extending a base class, make sure that the base class has been defined already.
@@ -178,6 +140,7 @@
         public stringFormat   : string;
         /** Optionally, export the result also as a rank */
         public rankTitle      : string;
+        public rankDescription: string;
         /** Optionally, stringFormat for the ranked result */
         public rankFormat     : string;
         /** Maximum number of star ratings to use to set the weight */
@@ -197,18 +160,9 @@
             });
         }
 
-        //public calculateWeights(criteria?: Criterion[]): void {
-        //    if (!criteria) criteria = this.criteria;
-        //    if (criteria.length === 0) return;
-        //    var totalWeight = 0;
-        //    criteria.forEach((c) => {
-        //        totalWeight += c.userWeight;
-        //    });
-        //    if (totalWeight == 0) return;
-        //    criteria.forEach((c) => {
-        //        c.weight = c.userWeight / totalWeight;
-        //    });
-        //}
+        /** 
+        * Update the MCA by calculating the weights and setting the colors.
+        */
         public update() {
             this.calculateWeights();
             this.setColors();

@@ -143,6 +143,14 @@
                     else
                         displayValue = String.format(mi.stringFormat, parseFloat(text));
                     break;
+                case "rank":
+                    var rank = text.split(',');
+                    if (rank.length != 2) return text;
+                    if (mi.stringFormat)
+                        displayValue = String.format(mi.stringFormat, rank[0], rank[1]);
+                    else 
+                        displayValue = String.format("{0) / {1}", rank[0], rank[1]);
+                    break;
                 default:
                     displayValue = text;
                     break;
@@ -183,13 +191,6 @@
          */
         private setTitle() {
             this.title = CallOut.title(this.type, this.feature);
-            //var title: string;
-            //if (this.type == null || this.type.style == null || csComp.StringExt.isNullOrEmpty(this.type.style.nameLabel))
-            //    title = this.feature.properties['Name'];
-            //else
-            //    title = this.feature.properties[this.type.style.nameLabel];
-            //if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
-            //    this.title = title.replace(/&amp;/g, '&');
         }
 
         public static title(type: IFeatureType, feature: IFeature): string {
