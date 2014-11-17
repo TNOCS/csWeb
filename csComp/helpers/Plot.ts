@@ -96,7 +96,7 @@ module csComp.Helpers {
             var tip = d3.tip()
                 .attr('class', 'd3-tip')
                 .offset([0, 0])
-                .html(d => '<strong>' + d.data.label + ": </strong> <span style='color:orangered'>" + Math.round(d.data.weight * 100) + "% x " + Math.round(d.data.score) + ",&nbsp; = " + Math.round(d.data.weight * d.data.score) + "</span>");
+                .html(d => '<strong>' + d.data.label + ": </strong> <span style='color:orangered'>" + Math.round(d.data.weight * 100) + "% x " + Math.round(d.data.score) + "&nbsp; = " + Math.round(d.data.weight * d.data.score) + "</span>");
 
             var arc = d3.svg.arc()
                 .innerRadius(innerRadius)
