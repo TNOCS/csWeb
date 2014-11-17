@@ -86,6 +86,7 @@
 
             $scope.$watch('vm.mca', (d) => {
                 if (!this.mca) return;
+                this.calculateMca();
                 this.drawChart();
                 // console.log(JSON.stringify(d));
             }, true);
@@ -100,6 +101,7 @@
                 case "onFeatureDeselect":
                     this.showFeature = false;
                     this.selectedFeature = null;
+                    this.drawChart();
                     break;
                 default:
                     console.log(title);

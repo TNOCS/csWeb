@@ -233,14 +233,14 @@
 
         /** Set the colors of all criteria and sub-criteria */
         private setColors(): void {
-            var redColors = chroma.scale('Reds').domain([0, this.criteria.length - 1], this.criteria.length);
+            var redColors = chroma.scale('RdYlBu').domain([0, this.criteria.length - 1], this.criteria.length);
             var totalSubcrit = 0;
             var i = 0;
             this.criteria.forEach((c) => {
                 totalSubcrit += c.criteria.length;
                 c.color = redColors(i++).hex();
             });
-            var blueColors = chroma.scale('Blues').domain([0, totalSubcrit - 1], totalSubcrit);
+            var blueColors = chroma.scale('PRGn').domain([0, totalSubcrit - 1], totalSubcrit);
             i = 0;
             this.criteria.forEach((c) => {
                 c.criteria.forEach((crit) => {
