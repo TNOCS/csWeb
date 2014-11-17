@@ -22,6 +22,7 @@
     <TypeScriptCompile Include="helpers\Helpers.ts" />
     <TypeScriptCompile Include="helpers\MessageBus.ts" />
     <TypeScriptCompile Include="classes\csClasses.ts" />
+    <TypeScriptCompile Include="helpers\Plot.ts" />
     <TypeScriptCompile Include="helpers\Resize.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.tpl.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.ts" />

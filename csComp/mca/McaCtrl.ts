@@ -6,8 +6,9 @@
     }
 
     export class McaCtrl {
-        public selectedFeature: csComp.GeoJson.IFeature;
+        public selectedFeature : csComp.GeoJson.IFeature;
         public selectedProperty: FeatureProps.CallOutProperty;
+        public showFeature     : boolean;
 
         public mca          : Models.Mca;
         public mcas         : Models.Mca[] = [];
@@ -28,6 +29,8 @@
 
             messageBusService.subscribe('layer', (title, layer: csComp.Services.ProjectLayer) => {
                 this.availableMca();
+                this.calculateMca();
+                this.calculateMca();
             });
 
             messageBusService.subscribe("feature", this.featureMessageReceived);
@@ -82,7 +85,8 @@
             this.mcas.push(mca);
 
             $scope.$watch('vm.mca', (d) => {
-                if (this.mca) this.drawPieChart();
+                if (!this.mca) return;
+                this.drawChart();
                 // console.log(JSON.stringify(d));
             }, true);
         }
@@ -94,6 +98,7 @@
                     this.updateSelectedFeature(feature);
                     break;
                 case "onFeatureDeselect":
+                    this.showFeature = false;
                     this.selectedFeature = null;
                     break;
                 default:
@@ -109,41 +114,76 @@
             if (typeof feature === 'undefined' || feature == null) return;
             this.selectedFeature = feature;
             if (this.mca.label in feature.properties) {
-                var mi = new csComp.GeoJson.MetaInfo();
-                mi.label = this.mca.label;
-                mi.title = this.mca.title;
-                mi.type = 'number';
-                mi.stringFormat = this.mca.stringFormat;
-                mi.description = this.mca.description;
-                var displayValue = FeatureProps.CallOut.convertPropertyInfo(mi, feature.properties[mi.label]);
+                this.showFeature      = true;
+                var mi                = new csComp.GeoJson.MetaInfo();
+                mi.label              = this.mca.label;
+                mi.title              = this.mca.title;
+                mi.type               = 'number';
+                mi.stringFormat       = this.mca.stringFormat;
+                mi.description        = this.mca.description;
+                var displayValue      = FeatureProps.CallOut.convertPropertyInfo(mi, feature.properties[mi.label]);
                 this.selectedProperty = new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description);
+                this.drawChart();
                 //console.log(feature);
                 //this.displayFeature(feature);
             }
         }
 
-        public drawPieChart(criterion?: Models.Criterion) {
-            var currentLevel: Models.Criterion[];
+        public drawChart(criterion?: Models.Criterion) {
+            if (this.showFeature)
+                this.drawAsterPlot(criterion);
+            else
+                this.drawPieChart(criterion);
+        }
+
+        private getParentOfSelectedCriterion(criterion?: Models.Criterion) {
+            var parent: Models.Criterion[];
             this.mca.update();
             if (typeof criterion === 'undefined' || this.mca.criteria.indexOf(criterion) >= 0) {
-                currentLevel = this.mca.criteria;
+                parent = this.mca.criteria;
             } else {
                 this.mca.criteria.forEach((c) => {
                     if (c.criteria.indexOf(criterion) >= 0)
-                        currentLevel = c.criteria;
+                        parent = c.criteria;
                 });
             }
-            if (!currentLevel) return;
-            var data: Plot.PieData[] = [];
+            return parent;   
+        }
+
+        private drawAsterPlot(criterion?: Models.Criterion) {
+            if (!this.mca || !this.selectedFeature) return;
+            var currentLevel = this.getParentOfSelectedCriterion(criterion);
+            if (typeof currentLevel === 'undefined' || currentLevel == null) return;
+            var data: csComp.Helpers.AsterPieData[] = [];
             var i = 0;
             currentLevel.forEach((c) => {
-                var pieData = new csComp.Helpers.PieData();
-                pieData.id = i++;
-                pieData.label = c.getTitle();
+                var pieData    = new csComp.Helpers.AsterPieData();
+                pieData.id     = i++;
+                pieData.label  = c.getTitle();
                 pieData.weight = c.weight;
+                pieData.color  = c.color;
+                pieData.score  = c.getScore(this.selectedFeature, c) * 100;
                 data.push(pieData);
             });
-            Plot.drawPie(100, data, 'Reds', 'mcaPieChart');
+            Plot.drawAsterPlot(100, data, 'mcaPieChart');            
+        }
+
+
+        private drawPieChart(criterion?: Models.Criterion) {
+            if (!this.mca) return;
+            var currentLevel = this.getParentOfSelectedCriterion(criterion);
+            if (typeof currentLevel === 'undefined' || currentLevel == null) return;
+            var data: csComp.Helpers.PieData[] = [];
+            var i = 0;
+            currentLevel.forEach((c) => {
+                var pieData    = new csComp.Helpers.PieData();
+                pieData.id     = i++;
+                pieData.label  = c.getTitle();
+                pieData.weight = c.weight;
+                pieData.color  = c.color;
+                data.push(pieData);
+            });
+            Plot.drawPie(100, data, 'mcaPieChart');
         }
 
         /** Based on the currently loaded features, which MCA can we use */
