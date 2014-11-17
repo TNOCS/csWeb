@@ -8,11 +8,13 @@
     export class McaCtrl {
         public selectedFeature: csComp.GeoJson.IFeature;
         public properties     : FeatureProps.CallOutProperty[];
-        public showFeature    : boolean;
+        public showFeature: boolean;
 
         public mca          : Models.Mca;
         public mcas         : Models.Mca[] = [];
         public availableMcas: Models.Mca[] = [];
+
+        private groupStyle: csComp.Services.GroupStyle;
 
         public static $inject = [
             '$scope',
@@ -245,6 +247,7 @@
                 }
             });
             this.updateSelectedFeature(this.selectedFeature);
+            if (this.groupStyle) this.$layerService.updateStyle(this.groupStyle);
         }
 
         private applyPropertyInfoToCriteria(mca: Models.Mca, featureType: csComp.GeoJson.IFeatureType) {
@@ -257,10 +260,6 @@
                     }
                 });
             });
-        }
-
-        public createMca() {
-
         }
 
         private addPropertyInfo(featureId: string, mca: Models.Mca) {
@@ -276,6 +275,13 @@
             featureType.metaInfoData.push(mi);
         }
 
+        public setStyle(item: FeatureProps.CallOutProperty) {
+            if (this.groupStyle)
+                this.$layerService.updateStyle(this.groupStyle);
+            else
+                this.groupStyle = this.$layerService.setStyle(item);
+        }
+
         private static createMetaInfo(mca: Models.Mca): csComp.GeoJson.MetaInfo {
             var mi          = new csComp.GeoJson.MetaInfo();
             mi.title        = mca.title;
@@ -285,7 +291,7 @@
             mi.minValue     = 0;
             mi.description  = mca.description;
             mi.stringFormat = mca.stringFormat;
-            mi.section      = mca.section || 'Info';
+            mi.section      = mca.section || 'MCA';
             return mi;
         }
 
@@ -296,7 +302,7 @@
             mi.type         = 'rank';
             mi.description  = mca.rankDescription;
             mi.stringFormat = mca.rankFormat;
-            mi.section      = mca.section || 'Info';
+            mi.section      = mca.section || 'MCA';
             return mi;
         }
     }

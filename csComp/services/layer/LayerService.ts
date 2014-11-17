@@ -729,15 +729,15 @@
             return r;
         }
 
-        public setStyle(property: any) {            
+        public setStyle(property: any, openStyleTab = true): GroupStyle {            
             var f: IFeature = property.feature;
             if (f != null) {
-                this.noStyles = false;
-                var layer = this.findLayer(f.layerId);
-                var gs = new GroupStyle(this.$translate);
-                gs.id = this.getGuid();
-                gs.title = property.key;
-                gs.visualAspect = "fillColor";
+                this.noStyles     = false;
+                var layer         = this.findLayer(f.layerId);
+                var gs            = new GroupStyle(this.$translate);
+                gs.id             = this.getGuid();
+                gs.title          = property.key;
+                gs.visualAspect   = "fillColor";
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
                 
                 gs.property = property.property;
@@ -762,7 +762,8 @@
                 } else {
                     this.updateStyle(gs);
                 }
-                (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
+                if (openStyleTab)
+                    (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
                 return gs;
             }
         }
