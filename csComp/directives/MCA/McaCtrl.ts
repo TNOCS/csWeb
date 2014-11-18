@@ -246,6 +246,8 @@
                 }
             });
             this.updateSelectedFeature(this.selectedFeature);
+            if (this.selectedFeature)
+                this.messageBusService.publish('feature', 'onFeatureSelect', this.selectedFeature);
             if (this.groupStyle) this.$layerService.updateStyle(this.groupStyle);
         }
 

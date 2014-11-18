@@ -242,8 +242,8 @@
             };
             
             //console.log('SidebarCtrl: constructed');
-            this.$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
-            this.$messageBusService.subscribe("feature", this.featureMessageReceived);
+            $messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
+            $messageBusService.subscribe("feature", this.featureMessageReceived);
 
 
             var widthOfList = function () {
