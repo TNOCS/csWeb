@@ -114,16 +114,18 @@
                     var canFilter = (mi.type == "number" || mi.type == "text");
                     var canStyle = (mi.type == "number");
                     if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
-                    var isFilter = false;
                     if (mi.visibleInCallOut)
-                        callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, isFilter, mi.description, mi);
-                    searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, isFilter, mi.description);
+                        callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                    searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
                 });
             }
             if (infoCallOutSection  .properties.length > 0) this.sections['AAA Info']   = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
             if (searchCallOutSection.properties.length > 0) this.sections['Zzz Search'] = searchCallOutSection;
         }
 
+        /** 
+        * Convert a property value to a display value using the property info.
+        */
         public static convertPropertyInfo(mi: IMetaInfo, text: string): string {
             var displayValue: string;
             if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))

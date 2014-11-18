@@ -1,4 +1,6 @@
-﻿module csComp.Mca.Models {
+﻿module Mca.Models {
+    import GeoJson = csComp.GeoJson;
+
     export class Criterion {
         public title      : string;
         public description: string;

@@ -1,6 +1,4 @@
-﻿module csComp.Mca {
-    import Plot = csComp.Helpers.Plot;
-
+﻿module Mca {
     export interface IMcaScope extends ng.IScope {
         vm: McaCtrl;
     }
@@ -38,7 +36,7 @@
             messageBusService.subscribe("feature", this.featureMessageReceived);
 
             var mca             = new Models.Mca();
-            mca.title           = 'Zelfredzaamheid';
+            mca.title           = 'Mijn Zelfredzaamheid';
             mca.description     = 'Analyse van de zelfredzaamheid van een gemeente.';
             mca.label           = 'mca_zelfredzaamheid';
             mca.stringFormat    = '{0:0.0}';
@@ -171,7 +169,7 @@
                 pieData.score = c.getScore(this.selectedFeature, c) * 100;
                 data.push(pieData);
             });
-            Plot.drawAsterPlot(100, data, 'mcaPieChart');
+            csComp.Helpers.Plot.drawAsterPlot(100, data, 'mcaPieChart');
         }
 
 
@@ -189,7 +187,7 @@
                 pieData.color = c.color;
                 data.push(pieData);
             });
-            Plot.drawPie(100, data, 'mcaPieChart');
+            csComp.Helpers.Plot.drawPie(100, data, 'mcaPieChart');
         }
 
         /** Based on the currently loaded features, which MCA can we use */

@@ -18,6 +18,8 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="directives\MCA\Mca.tpl.ts" />
+    <TypeScriptCompile Include="directives\MCA\Mca.ts" />
     <TypeScriptCompile Include="helpers\Extensions.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
     <TypeScriptCompile Include="helpers\MessageBus.ts" />
@@ -33,8 +35,8 @@
     <TypeScriptCompile Include="directives\FilterList\FilterList.tpl.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterList.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterListCtrl.ts" />
-    <TypeScriptCompile Include="mca\McaCtrl.ts" />
-    <TypeScriptCompile Include="mca\models\Criteria.ts" />
+    <TypeScriptCompile Include="directives\MCA\McaCtrl.ts" />
+    <TypeScriptCompile Include="directives\MCA\models\Criteria.ts" />
     <TypeScriptCompile Include="services\layer\ILayerService.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.tpl.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
@@ -71,6 +73,7 @@
     <TypeScriptCompile Include="directives\DataTable\DataTable.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="directives\MCA\Mca.tpl.html" />
     <Content Include="includes\csStyles.css" />
     <Content Include="includes\images\bordercolor.png" />
     <Content Include="includes\images\fillcolor.png" />
