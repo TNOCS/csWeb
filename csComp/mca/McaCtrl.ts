@@ -229,6 +229,7 @@
                         tempScores.push(item);
                     }
                     feature.properties[mca.label] = score * 100;
+                    this.$layerService.updateFeature(feature);
                 });
                 if (mca.rankTitle) {
                     // Add rank information
@@ -278,8 +279,11 @@
         public setStyle(item: FeatureProps.CallOutProperty) {
             if (this.groupStyle)
                 this.$layerService.updateStyle(this.groupStyle);
-            else
-                this.groupStyle = this.$layerService.setStyle(item);
+            else {
+                this.groupStyle = this.$layerService.setStyle(item, false);
+                this.groupStyle.colors = ['red', 'green'];
+                this.$layerService.updateStyle(this.groupStyle);
+            }
         }
 
         private static createMetaInfo(mca: Models.Mca): csComp.GeoJson.MetaInfo {

@@ -360,8 +360,6 @@
             return result;
         }
 
-        
-
         /***
          * Show tooltip with name, styles & filters
          */
@@ -379,7 +377,7 @@
                         if (f.meta != null && !StringExt.isNullOrEmpty(f.meta.stringFormat)) {
                             value = String.format(f.meta.stringFormat, parseFloat(value));
                         }
-                        content += "<br><img src='includes/images/filter-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + f.title + ":<b>" + value + "</b>";
+                        content += "<br><kimg src='includes/images/filter-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + f.title + ":<b>" + value + "</b>";
                     }
                 });
             }
@@ -472,7 +470,7 @@
             }
         }
 
-        private updateFeature(feature: IFeature, group?: ProjectGroup) {
+        public updateFeature(feature: IFeature, group?: ProjectGroup) {
             if (feature.geometry.type == "Point") {
                 var layer = this.findLayer(feature.layerId);
                 if (layer != null) this.updateFeatureIcon(feature, layer);
