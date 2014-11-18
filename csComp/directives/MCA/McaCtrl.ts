@@ -3,6 +3,11 @@
         vm: McaCtrl;
     }
 
+    // TODO MCA Editor
+    // TODO Saving and uploading MCA definitions
+    // TODO Adding MCA definitions to the project file
+    // TODO Optimize me button.
+
     export class McaCtrl {
         public selectedFeature: csComp.GeoJson.IFeature;
         public properties     : FeatureProps.CallOutProperty[];
@@ -16,21 +21,28 @@
 
         public static $inject = [
             '$scope',
+            '$modal',
             'layerService',
             'messageBusService'
         ];
 
         constructor(
             private $scope: IMcaScope,
+            private $modal: any,
             private $layerService: csComp.Services.LayerService,
             private messageBusService: csComp.Services.MessageBusService
         ) {
             $scope.vm = this;
 
             messageBusService.subscribe('layer', (title, layer: csComp.Services.ProjectLayer) => {
-                this.availableMca();
-                this.calculateMca();
-                this.calculateMca();
+                switch (title) {
+                    case 'activated':
+                    case 'deactivate':
+                        this.availableMca();
+                        this.calculateMca();
+                        this.calculateMca();
+                        break;
+                }
             });
 
             messageBusService.subscribe("feature", this.featureMessageReceived);
@@ -309,5 +321,31 @@
             mi.section      = mca.section || 'MCA';
             return mi;
         }
+
+        public createNewMca() {
+            console.log('Create new MCA called at: ' + new Date());
+            var modalInstance = this.$modal.open({
+                template: McaEditor.html,
+                controller: 'mcaEditorCtrl',
+                size: 'lg',
+                resolve: {
+                    header: () => "Create a new solution"
+                }
+            });
+
+            modalInstance.result.then(() => {
+                console.log('Modal opened at: ' + new Date());
+                //if (!title) return;
+                //var solution = new Models.Solution();
+                //solution.title = title;
+                //this.projectService.project.solutions.push(solution);
+                //this.projectService.activeSolution = solution;
+                //this.$log.info(this.projectService.project.solutions);
+            }, () => {
+                console.log('Modal dismissed at: ' + new Date());
+            });
+        }
+
+
     }
 } 

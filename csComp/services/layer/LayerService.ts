@@ -937,7 +937,7 @@
          * deactivate layer
          */
         public removeLayer(layer: ProjectLayer) {
-            this.$messageBusService.publish("layer", "deactivate", layer);
+            this.$messageBusService.publish("layer", "deactivating", layer);
 
             var m: any;
             var g = layer.group;
@@ -956,8 +956,6 @@
                         try {
                             m.removeLayer(layer.group.markers[feature.id]);
                         delete layer.group.markers[feature.id];
-                            
-
                         } catch (error) {
                             
                         }
@@ -984,6 +982,7 @@
             }
 
             this.rebuildFilters(g);
+            this.$messageBusService.publish("layer", "deactivate", layer);
         }
 
         public S4() {

@@ -4,8 +4,29 @@
         <select data-ng-model="vm.mca"
                 data-ng-options="mca.title for mca in vm.availableMcas"
                 style="width: 85%; margin-bottom:10px;"></select>
-        <a href="" data-ng-click="vm.createMca()" class="pull-right" style="margin:0 10px;"><i class="fa fa-plus"></i></a>
+        <a href="" data-ng-click="vm.createNewMca()" class="pull-right" style="margin:0 10px;"><i class="fa fa-plus"></i></a>
     </div>
+    
+    <div>
+        <input type="checkbox" ng-model="showDialog"> Show
+        <div show-modal="showDialog" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Modal title</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>One fine body&hellip;</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div>
+    </div>
+
     <div data-ng-if="vm.mca">
         <ul class="list-unstyled">
             <li data-ng-repeat="criterion in vm.mca.criteria">

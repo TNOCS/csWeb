@@ -20,12 +20,14 @@
   <ItemGroup>
     <TypeScriptCompile Include="directives\MCA\Mca.tpl.ts" />
     <TypeScriptCompile Include="directives\MCA\Mca.ts" />
+    <TypeScriptCompile Include="directives\MCA\McaEditorCtrl.ts" />
+    <TypeScriptCompile Include="directives\MCA\McaEditor.tpl.ts" />
     <TypeScriptCompile Include="helpers\Extensions.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
     <TypeScriptCompile Include="helpers\MessageBus.ts" />
     <TypeScriptCompile Include="classes\csClasses.ts" />
     <TypeScriptCompile Include="helpers\Plot.ts" />
-    <TypeScriptCompile Include="helpers\Resize.ts" />
+    <TypeScriptCompile Include="directives\Resize\Resize.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.tpl.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendListCtrl.ts" />
@@ -37,6 +39,7 @@
     <TypeScriptCompile Include="directives\FilterList\FilterListCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\McaCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\models\Criteria.ts" />
+    <TypeScriptCompile Include="directives\ShowModal\ShowModal.ts" />
     <TypeScriptCompile Include="services\layer\ILayerService.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.tpl.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
@@ -74,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="directives\MCA\Mca.tpl.html" />
+    <Content Include="directives\MCA\McaEditor.tpl.html" />
     <Content Include="includes\csStyles.css" />
     <Content Include="includes\images\bordercolor.png" />
     <Content Include="includes\images\fillcolor.png" />
