@@ -1,6 +1,45 @@
 ﻿module Mca.Models {
     import GeoJson = csComp.GeoJson;
 
+    export enum ScoringFunctionType {
+        LinearIncreasing,
+        LinearDecreasing,
+        SigmoidIncreasing,
+        SigmoidDecreasing,
+        GaussianPeak,
+        GaussianValley
+    } 
+
+    /** 
+    * Scoring function creates a PLA of the scoring algorithm.
+    */
+    export class ScoringFunction {
+        public  type  : ScoringFunctionType;
+        public  scores: string;
+
+        get img(): string {
+            return '/includes/images/' + ScoringFunctionType[this.type] + '.png';
+        }
+
+        public static createScores(scoringFunctionType: ScoringFunctionType, start: number, end: number, ...params: number[]): ScoringFunction {
+            var scoringFunction = new ScoringFunction();
+            scoringFunction.type = scoringFunctionType;
+            switch (scoringFunctionType) {
+                case ScoringFunctionType.LinearIncreasing:
+                    scoringFunction.scores = '[' + start + ',0' + end + ',1]';
+                    break;
+                case ScoringFunctionType.LinearDecreasing:
+                    scoringFunction.scores = '[' + start + ',1' + end + ',0]';
+                    break;
+            }
+            return scoringFunction;
+        }
+    }
+
+    export class ScoringFunctions {
+        static scoringFunctions: ScoringFunctions[];
+    }
+
     export class Criterion {
         public title      : string;
         public description: string;

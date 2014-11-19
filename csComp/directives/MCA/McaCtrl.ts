@@ -4,14 +4,14 @@
     }
 
     // TODO MCA Editor
-    // TODO Saving and uploading MCA definitions
     // TODO Adding MCA definitions to the project file
     // TODO Optimize me button.
+    // TODO Save the project file
 
     export class McaCtrl {
         public selectedFeature: csComp.GeoJson.IFeature;
         public properties     : FeatureProps.CallOutProperty[];
-        public showFeature: boolean;
+        public showFeature    : boolean;
 
         public mca          : Models.Mca;
         public mcas         : Models.Mca[] = [];
@@ -111,9 +111,15 @@
         private mcaMessageReceived = (title: string, data: {mca: Models.Mca}): void => {
             switch (title) {
                 case "add":
-                    this.mcas.push(data.mca);
-                    this.mca = data.mca;
+                    var isExisting = false;
+                    for (var i=0; i < this.mcas.length; i++) {
+                        if (this.mcas[i].title != data.mca.title) continue;
+                        this.mcas[i] = data.mca;
+                        isExisting = true;
+                    }
+                    if (!isExisting) this.mcas.push(data.mca);
                     this.availableMca();
+                    this.mca = data.mca;
                     break;
                 case "delete":
                     break;

@@ -19,14 +19,14 @@
                     </div>
                     <div class="modal-body">
                         <input type="text" data-ng-model="vm.mcaTitle" placeholder="MCA title..." />
-                        <input type="checkbox" value="Has rank" data-ng-checked="vm.hasRank" />
+                        <span><input type="checkbox" data-ng-model="vm.hasRank" />&nbsp;&nbsp;Include rank</span>
                         <input type="text" data-ng-if="vm.hasRank" data-ng-model="vm.rankTitle" placeholder="Rank title..." />
-                        <p>Select the main feature.</p>
+                        <h4>Select the main feature</h4>
                         <select data-ng-model="vm.selectedFeatureType"
                                 data-ng-change="vm.loadPropertyTypes()"
                                 data-ng-options="item as item.name for (key, item) in vm.dataset.poiTypes"
                                 class="form-control tt-input"></select>
-                        <p>Select the properties.</p>
+                        <h4>Select the properties</h4>
                         <ul class="form-group" style="margin-top: 1em; margin-left: -2em; overflow-y: auto; overflow-x: hidden;"
                             resize resize-y="450">
                             <li ng-repeat="mi in vm.metaInfos" class="list-unstyled" style="white-space: nowrap; text-overflow: ellipsis">
@@ -42,7 +42,6 @@
                             </li>
                         </ul>
                     </div>
-                    <pre>{{vm.headers}}</pre>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-warning" data-dismiss="modal" data-ng-click="vm.cancel()">Cancel</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal" data-ng-click="vm.ok()">OK</button>

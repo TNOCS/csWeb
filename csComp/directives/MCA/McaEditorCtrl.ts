@@ -145,8 +145,11 @@
                 mca.rankTitle   = this.rankTitle || 'Rank';
                 mca.rankFormat  = '{0} / {1}';
             }
-            mca.userWeightMax   = 5;
-            mca.featureIds      = [this.selectedFeatureType.name];
+            mca.userWeightMax = 5;
+            for (var key in this.dataset.poiTypes) {
+                if (this.dataset.poiTypes[key] === this.selectedFeatureType)
+                    mca.featureIds = [key];
+            }
 
             var meta: Array<IMetaInfo> = [this.headers.length];
             this.metaInfos.forEach((mi: IMetaInfo) => {
