@@ -46,6 +46,7 @@
             });
 
             messageBusService.subscribe("feature", this.featureMessageReceived);
+            messageBusService.subscribe("mca"    , this.mcaMessageReceived);
 
             var mca             = new Models.Mca();
             mca.title           = 'Mijn Zelfredzaamheid';
@@ -105,6 +106,18 @@
                 this.drawChart();
                 // console.log(JSON.stringify(d));
             }, true);
+        }
+
+        private mcaMessageReceived = (title: string, data: {mca: Models.Mca}): void => {
+            switch (title) {
+                case "add":
+                    this.mcas.push(data.mca);
+                    this.mca = data.mca;
+                    this.availableMca();
+                    break;
+                case "delete":
+                    break;
+            }
         }
 
         private featureMessageReceived = (title: string, feature: csComp.GeoJson.IFeature): void => {

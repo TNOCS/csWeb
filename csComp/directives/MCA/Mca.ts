@@ -1,7 +1,7 @@
 ﻿module Mca {
     /**
       * Config
-      */
+      */ 
     var moduleName = 'csWeb.mca';
 
     /**                    
@@ -15,7 +15,7 @@
         myModule = angular.module(moduleName, []);
     }
 
-    /**
+    /**  
       * Directive to display the available map layers.
       */
     myModule.directive('mca', [
@@ -32,12 +32,12 @@
                         fn(scope);
                     };
                 },
-                replace: true,       // Remove the directive from the DOM
+                replace: true,       // Remove the directive from the DOM 
                 transclude: true,    // Add elements and attributes to the template
                 controller: McaCtrl
             }
         }
-    ]).directive('bsPopover', () => {
+    ]).directive('bsPopover', () => { 
             return (scope, element, attrs) => {
                 element.find("a[rel=popover]").popover({ placement: 'right', html: 'true' });
             };

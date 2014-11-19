@@ -8,6 +8,7 @@
     </div>
     
     <div>
+        <!--MCA EDITOR DIALOG-->
         <!--<input type="checkbox" ng-model="showDialog"> Show-->
         <div show-modal="showDialog" class="modal fade">
             <div class="modal-dialog" data-ng-controller="mcaEditorCtrl">
@@ -17,15 +18,34 @@
                         <h4 class="modal-title">MCA Editor</h4>
                     </div>
                     <div class="modal-body">
-                        <ul>
-                            <li data-ng-repeat="item in vm.metaInfos">{{item.title}}</li>
+                        <input type="text" data-ng-model="vm.mcaTitle" placeholder="MCA title..." />
+                        <input type="checkbox" value="Has rank" data-ng-checked="vm.hasRank" />
+                        <input type="text" data-ng-if="vm.hasRank" data-ng-model="vm.rankTitle" placeholder="Rank title..." />
+                        <p>Select the main feature.</p>
+                        <select data-ng-model="vm.selectedFeatureType"
+                                data-ng-change="vm.loadPropertyTypes()"
+                                data-ng-options="item as item.name for (key, item) in vm.dataset.poiTypes"
+                                class="form-control tt-input"></select>
+                        <p>Select the properties.</p>
+                        <ul class="form-group" style="margin-top: 1em; margin-left: -2em; overflow-y: auto; overflow-x: hidden;"
+                            resize resize-y="450">
+                            <li ng-repeat="mi in vm.metaInfos" class="list-unstyled" style="white-space: nowrap; text-overflow: ellipsis">
+                                <label>
+                                    <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}"
+                                           data-ng-checked="vm.headers.indexOf(mi.title) > -1"
+                                           data-ng-click="vm.toggleSelection(mi.title)">&nbsp;&nbsp;{{mi.title}}
+                                    <select class="form-control tt-input pull-right" data-ng-if="vm.headers.indexOf(mi.title) > -1">
+                                        <option value="0">More is better</option>
+                                        <option value="1">Less is better</option>
+                                    </select>
+                                </label>
+                            </li>
                         </ul>
-                        <button type="button" class="btn btn-default" data-ng-click="vm.sayHi()">Say hi</button>
                     </div>
+                    <pre>{{vm.headers}}</pre>
                     <div class="modal-footer">
-                        <button class="btn btn-primary" ng-click="ok()">OK</button>
-                        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-warning" data-dismiss="modal" data-ng-click="vm.cancel()">Cancel</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-ng-click="vm.ok()">OK</button>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
