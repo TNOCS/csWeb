@@ -322,30 +322,5 @@
             return mi;
         }
 
-        public createNewMca() {
-            console.log('Create new MCA called at: ' + new Date());
-            var modalInstance = this.$modal.open({
-                template: McaEditor.html,
-                controller: 'mcaEditorCtrl',
-                size: 'lg',
-                resolve: {
-                    header: () => "Create a new solution"
-                }
-            });
-
-            modalInstance.result.then(() => {
-                console.log('Modal opened at: ' + new Date());
-                //if (!title) return;
-                //var solution = new Models.Solution();
-                //solution.title = title;
-                //this.projectService.project.solutions.push(solution);
-                //this.projectService.activeSolution = solution;
-                //this.$log.info(this.projectService.project.solutions);
-            }, () => {
-                console.log('Modal dismissed at: ' + new Date());
-            });
-        }
-
-
     }
 } 

@@ -4,22 +4,27 @@
         <select data-ng-model="vm.mca"
                 data-ng-options="mca.title for mca in vm.availableMcas"
                 style="width: 85%; margin-bottom:10px;"></select>
-        <a href="" data-ng-click="vm.createNewMca()" class="pull-right" style="margin:0 10px;"><i class="fa fa-plus"></i></a>
+        <a href="" data-ng-click="showDialog=!showDialog" class="pull-right" style="margin:0 10px;"><i class="fa fa-plus"></i></a>
     </div>
     
     <div>
-        <input type="checkbox" ng-model="showDialog"> Show
+        <!--<input type="checkbox" ng-model="showDialog"> Show-->
         <div show-modal="showDialog" class="modal fade">
-            <div class="modal-dialog">
+            <div class="modal-dialog" data-ng-controller="mcaEditorCtrl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Modal title</h4>
+                        <h4 class="modal-title">MCA Editor</h4>
                     </div>
                     <div class="modal-body">
-                        <p>One fine body&hellip;</p>
+                        <ul>
+                            <li data-ng-repeat="item in vm.metaInfos">{{item.title}}</li>
+                        </ul>
+                        <button type="button" class="btn btn-default" data-ng-click="vm.sayHi()">Say hi</button>
                     </div>
                     <div class="modal-footer">
+                        <button class="btn btn-primary" ng-click="ok()">OK</button>
+                        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div><!-- /.modal-content -->

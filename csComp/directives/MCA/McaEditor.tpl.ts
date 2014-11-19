@@ -1,1 +1,0 @@
-module McaEditor { export var html = '<div>    <div class="modal-header">        <h3 class="modal-title">I\'m a modal!</h3>    </div>    <div class="modal-body">        Hello world    </div>    <div class="modal-footer">        <button class="btn btn-primary" ng-click="ok()">OK</button>        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>    </div></div>'; }

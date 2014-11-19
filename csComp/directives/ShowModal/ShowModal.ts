@@ -34,7 +34,7 @@
                         var myElem: any = $(elem);
 
                         if (visible)
-                            myElem.modal("show");
+                            myElem.appendTo('body').modal("show");
                         else
                             myElem.modal("hide");
                     }
@@ -46,7 +46,6 @@
 
                     //Update the visible value when the dialog is closed through UI actions (Ok, cancel, etc.)
                     $(element).bind("hide.bs.modal", () => {
-                        console.log('Modal: binding');
                         $parse(attrs.showModal).assign(scope, false);
                         if (!scope.$$phase && !scope.$root.$$phase)
                             scope.$apply();
