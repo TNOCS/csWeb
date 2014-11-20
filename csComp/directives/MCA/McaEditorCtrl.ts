@@ -1,9 +1,10 @@
 ﻿module Mca {
+    'use strict';
+
     import IGeoJsonFile = csComp.GeoJson.IGeoJsonFile;
     import IMetaInfo    = csComp.GeoJson.IMetaInfo;
     import IFeature     = csComp.GeoJson.IFeature;
     import IFeatureType = csComp.GeoJson.IFeatureType;
-    import ProjectLayer = csComp.Services.ProjectLayer;
 
     export interface IMcaEditorScope extends ng.IScope {
         vm: McaEditorCtrl;
@@ -33,7 +34,7 @@
         ) {
             $scope.vm = this;
             console.log("McaEditorCtlr");
-            messageBusService.subscribe('layer', (title, layer: csComp.Services.ProjectLayer) => {
+            messageBusService.subscribe('layer', (title: string, layer: csComp.Services.ProjectLayer) => {
                 switch (title) {
                     case 'activated':
                     case 'deactivate':

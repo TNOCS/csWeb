@@ -11,7 +11,13 @@
         url  : string;
     }
 
-    
+    /** 
+    * Implement this interface to make your object serializable 
+    * @see http://stackoverflow.com/a/22886730/319711
+    */
+    export interface ISerializable<T> {
+        deserialize(input: Object): T;
+    }
 
     export interface IBaseLayer {
         id         : string;
@@ -43,19 +49,37 @@
         projects  : Array<SolutionProject>;
     }
     
-    export class Project {
-        viewBounds   : IBoundingBox;
+    export class Project implements ISerializable<Project> {
         title        : string;
         description  : string;
         logo         : string;
+        viewBounds   : IBoundingBox;
+        startposition: Coordinates;
         featureTypes : { [id: string] : IFeatureType }
         metaInfoData : { [id: string] : IMetaInfo }
         groups       : Array<ProjectGroup>;
-        startposition: Coordinates;
+        mcas         : Mca.Models.Mca[];
         features     : IFeature[];
         markers = {};
-    }
 
+        public deserialize(input: Project): Project {
+            this.viewBounds    = input.viewBounds;
+            this.title         = input.title;
+            this.description   = input.description;
+            this.logo          = input.logo;
+            this.markers       = input.markers;
+            this.startposition = input.startposition;
+            this.features      = input.features;
+            this.featureTypes  = input.featureTypes;
+            this.metaInfoData  = input.metaInfoData;
+            this.groups        = input.groups;
+            this.mcas          = [];
+            for (var mca in input.mcas) {
+                this.mcas.push(new Mca.Models.Mca().deserialize(mca));
+            }
+            return this;
+        }
+    }
 
     export class PropertyInfo {
         max     : number;
@@ -1061,7 +1085,7 @@
             this.featureTypes = {};
 
             $.getJSON(url, (data: Project) => {
-                this.project = data;
+                this.project = new Project().deserialize(data);
 
                 if (this.project.viewBounds) {
                     this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));

@@ -136,7 +136,6 @@
             if (!criterion) criterion = this;
             if (criterion.criteria.length == 0) {
                 // End point: compute the score for each feature
-                var y = 0;
                 if (criterion.label in feature.properties) {
                     // The property is available
                     var x = feature.properties[criterion.label];
@@ -174,10 +173,9 @@
     }
 
     // NOTE: When extending a base class, make sure that the base class has been defined already.
-    export class Mca extends Criterion {
+    export class Mca extends Criterion implements csComp.Services.ISerializable<Mca> {
         /** Section of the callout */
         public section        : string;
-        public description    : string;
         public stringFormat   : string;
         /** Optionally, export the result also as a rank */
         public rankTitle      : string;
@@ -193,6 +191,24 @@
             super();
             this.weight = 1;
             this.isPlaUpdated = true;
+        }
+
+        public deserialize(input: Models.Mca): Models.Mca {
+            this.section         = input.section;
+            this.title           = input.title;
+            this.description     = input.description;
+            this.label           = input.label;
+            this.color           = input.color;
+            this.userWeight      = input.userWeight;
+            this.weight          = input.weight;
+            this.scores          = input.scores;
+            this.stringFormat    = input.stringFormat;
+            this.rankTitle       = input.rankTitle;
+            this.rankDescription = input.rankDescription;
+            this.rankFormat      = input.rankFormat;
+            this.userWeightMax   = input.userWeightMax;
+            this.featureIds      = input.featureIds;
+            return this;
         }
 
         public updatePla(features: GeoJson.Feature[]) {
