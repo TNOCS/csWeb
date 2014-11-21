@@ -62,6 +62,7 @@ module csComp.Services {
         layerGroup: L.LayerGroup<L.ILayer>;
         featureTypes: { [key: string]: Services.IFeatureType; };
         propertyTypeData: { [key: string]: Services.IPropertyType; };
+        timeline : any;
 
 
     }
@@ -98,6 +99,7 @@ module csComp.Services {
         public noStyles: boolean;
         public lastSelectedFeature : IFeature;
         public selectedLayerId: string;
+        public timeline: any;
 
         constructor(
             private $location          : ng.ILocationService,
@@ -200,7 +202,7 @@ module csComp.Services {
                                         }
                                 }
                                 callback(null, null);
-                            });
+                            });      
                         } else
                             callback(null, null);
                     }, (callback) => {
@@ -208,6 +210,21 @@ module csComp.Services {
                             if (error)
                                 this.$messageBusService.notify('ERROR loading' + layer.title, error);
                             else {
+
+                                if (data.events && this.timeline) {
+                                    layer.events = data.events;
+                                    var devents = [];
+                                    layer.events.forEach((e: Event) => {
+                                        if (!e.id) e.id = csComp.Helpers.getGuid();
+                                        devents.push({
+                                            'start': new Date(e.start), 
+                                            
+                                            'content': e.title
+                                        });
+                                    });
+                                    this.timeline.draw(devents);
+                                }
+
                                 for (var featureTypeName in data.featureTypes) {
                                     var featureType: IFeatureType = data.featureTypes[featureTypeName];
                                     featureTypeName = layer.id + '_' + featureTypeName;

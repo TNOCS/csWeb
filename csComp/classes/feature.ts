@@ -1,19 +1,39 @@
 ﻿module csComp.Services {
 
-    export interface IFeature {
-        id: string;
-        layerId: string;
-        type: string;
-        geometry: IGeoJsonGeometry;
-        properties: Array<IStringToString>;
-        isSelected: boolean;
-        htmlStyle: string;
-        featureTypeName: string;
-        fType: IFeatureType;
-        isInitialized: boolean;
-        sensors: { [id: string]: any[]}
+
+    export interface IEvent {
+        id   : string;
+        title: string;
+        color: string;
+        start: number;
+    }
+
+    export class Event implements IEvent {
+        public id: string;
+        public title: string;
+        public color: string;
+        public start: number;
+
+        public startDate = (): Date => { return new Date(this.start); } 
         
     }
+
+    export interface IFeature {
+        id             : string;
+        layerId        : string;
+        type           : string;
+        geometry       : IGeoJsonGeometry;
+        properties     : Array<IStringToString>;
+        isSelected     : boolean;
+        htmlStyle      : string;
+        featureTypeName: string;
+        fType          : IFeatureType;
+        isInitialized  : boolean;
+        sensors        : { [id: string]: any[]}
+        
+    }
+
+   
 
     /** 
      * A feature is a single object that is show on a map (e.g. point, polyline, etc)
@@ -21,17 +41,17 @@
      * 
      */
     export class Feature {
-        public id: string;
-        public layerId: string;
-        public type: string;
-        public geometry: IGeoJsonGeometry;
-        public properties: Array<IStringToString>;
-        public isSelected: boolean;
-        public htmlStyle: string;
+        public id             : string;
+        public layerId        : string;
+        public type           : string;
+        public geometry       : IGeoJsonGeometry;
+        public properties     : Array<IStringToString>;
+        public isSelected     : boolean;
+        public htmlStyle      : string;
         public featureTypeName: string;
-        public fType: IFeatureType;
-        public isInitialized: boolean;
-        public sensors: { [id: string]: any[] }
+        public fType          : IFeatureType;
+        public isInitialized  : boolean;
+        public sensors        : { [id: string]: any[] }
     }
 
     export interface IStringToString {

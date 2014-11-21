@@ -24,7 +24,9 @@
             'messageBusService'
         ];
 
-        public focusDate : Date;
+        public focusDate: Date;
+        public startDate: Date;
+        public endDate : Date;
 
         // dependencies are injected via AngularJS $injector 
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -47,6 +49,7 @@
             };
             
             $scope.timeline = new links.Timeline(document.getElementById('timeline'), options);
+            this.$layerService.timeline = $scope.timeline;
 
             $scope.timeline.draw();
             links.events.addListener($scope.timeline, 'rangechange', _.throttle((prop) => this.onRangeChanged(prop),200));
@@ -68,11 +71,16 @@
             var tc1 = $("#focustimeContainer").offset().left;
             var tc2 = $("#timelinecontainer").offset().left - 15; // + 55;
             var centerX = tc1 - tc2 + $("#focustimeContainer").width() / 2;
+            var end =  $("#timeline").width;
 
             this.focusDate = new Date(this.$scope.timeline.screenToTime(centerX));
+            this.startDate = new Date(this.$scope.timeline.screenToTime(0));
+            this.endDate = new Date(this.$scope.timeline.screenToTime(end));
 
-            if (this.$layerService.project != null && this.$layerService.project.timeLine != null)
-                this.$layerService.project.timeLine.setFocus(this.focusDate);
+
+            if (this.$layerService.project != null && this.$layerService.project.timeLine != null) {
+                this.$layerService.project.timeLine.setFocus(this.focusDate,this.startDate,this.endDate);
+            }
             this.$messageBusService.publish("timeline", "focusChange", this.focusDate);
             //this.$layerService.focusTime = new Date(this.timelineCtrl.screenToTime(centerX));
             //this.$scope.$apply();

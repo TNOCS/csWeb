@@ -84,6 +84,20 @@ position: absolute;
 width: 200px;
 }
 
+.widget-parent {
+    display: block;
+}
+
+.widget-parent:hover .widget-edit { 
+   /* This selector will apply styles to hotqcontent when parent_div will be hovered */
+   display: block;
+   /* Other styles goes here */
+}
+
+
+
+
+
 .filter-group-count {
     margin-left: 13px;
 }
@@ -126,13 +140,22 @@ margin-right: 10px;
     border-radius: 3px;
                     }
 
+.gridster-content {
+    pointer-events: all;
+}
+
 .widget-edit {
     float: right;
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 10px;
+     display: none;
+    right: 10px;
     opacity: 0.75;
     cursor: pointer;
+}
+
+.widget-button {
+    margin-right: 5px;
 }
 
 .widget-title {

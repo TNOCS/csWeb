@@ -18,7 +18,9 @@
         init : Function;
         col: number; row: number; sizeY: number; sizeX: number; name: string; id: string;
         properties: {};
-        dataSets : DataSet[];
+        dataSets: DataSet[];
+        range: csComp.Services.DateRange;
+        updateDateRange : Function;
     }
 
    
@@ -36,12 +38,16 @@
         public name: string; public id: string;
         public properties: {};
         public dataSets: DataSet[];
+        public range: csComp.Services.DateRange;
 
         constructor(title?: string, type?: string) {
             if (title) this.title = title;
             if (type) this.widgetType = type;
             this.properties = {};
             this.dataSets = [];
+
+           
+
         }
 
         public init(sX: number, sY: number, c: number, r: number, id? : string) {
@@ -57,7 +63,11 @@
         }
         public renderer = ($scope: any) => { };
 
-        public resize = () => {};
+        public updateDateRange(r: csComp.Services.DateRange) {
+            this.range = r;
+        }
+
+        public resize = (status: string) => {};
     }
 
 
@@ -66,7 +76,9 @@
 
     export class Dashboard {        
         widgets: IWidget[];
-        editMode : boolean;
+        editMode: boolean;
+        showMap : boolean;
+        background : string;
         constructor(public id: string, public name: string) {
             this.widgets = [];
         }

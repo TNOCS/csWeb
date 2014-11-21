@@ -6,8 +6,11 @@
         end: number;
         focus: number;
 
-        public setFocus(d: Date) {
+        public setFocus(d: Date,s? : Date, e? : Date) {
             this.focus = d.getTime();
+            if (s) this.start = s.getTime();
+            if (e) this.end = e.getTime();
+
 
         }
 
@@ -82,7 +85,8 @@
         /** Internal ID, e.g. for the Excel service */
         id                          : string;
         /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */
-        reference                   : string;
+        reference: string;
+        events  : Event[];
     }
 
     /**
