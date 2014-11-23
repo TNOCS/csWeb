@@ -16,8 +16,8 @@
     }
 
     /**  
-      * Directive to display an MCA control.
-      */
+      * Directive to display an MCA control. 
+      */ 
     myModule.directive('mca', [
         '$window', '$compile',
         function ($window, $compile): ng.IDirective {

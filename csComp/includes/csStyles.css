@@ -9,7 +9,7 @@
 }
 
 .style-title {
-    font-size: 14px;    
+    font-size: 14px;
 }
 
 .style-settings {
@@ -18,22 +18,21 @@
 }
 
 .style-aspect {
- background-size: 18px;
+    background-size: 18px;
     width: 18px;
-    height: 18px;   
+    height: 18px;
 }
 
 .style-fillColor {
     background-image: url('../includes/images/fillcolor.png');
-    
 }
 
 .style-strokeColor {
-    background-image: url('../includes/images/bordercolor.png');    
+    background-image: url('../includes/images/bordercolor.png');
 }
 
 .style-strokeWidth {
-    background-image: url('../includes/images/line-width.png');    
+    background-image: url('../includes/images/line-width.png');
 }
 
 .popover {
@@ -50,8 +49,8 @@
 }
 
 .legendImage {
-    width:25px;
-    height:25px;    
+    width: 25px;
+    height: 25px;
 }
 
 .makeNarrow {
@@ -61,14 +60,12 @@
 
 .legendIcon {
     background: none;
-    border-color: black;
-    border-width: 1px;
-    border-style: solid;
+    border: black 1px solid;
     border-radius: 15%;
-    float:left;
-    width:30px;
-    height:30px;
-    margin:5px
+    float: left;
+    width: 30px;
+    height: 30px;
+    margin: 5px;
 }
 
 .table > td {
@@ -78,10 +75,9 @@
 .legendText {
     overflow-wrap: break-word;
     margin-top: 3px;
-    
-float: inherit;
-position: absolute;
-width: 200px;
+    float: inherit;
+    position: absolute;
+    width: 200px;
 }
 
 .filter-group-count {
@@ -94,43 +90,104 @@ width: 200px;
 }
 
 .feature-prop-active-filter {
-    
 }
 
-.aster-score { 
-  line-height: 1;
-  font-weight: bold;
-  font-size: 100%;
+.aster-score {
+    line-height: 1;
+    font-weight: bold;
+    font-size: 100%;
 }
 
 .d3-tip {
-  line-height: 1;
-  font-weight: bold;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  border-radius: 4px;
-  z-index: 1000;
+    line-height: 1;
+    font-weight: bold;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border-radius: 4px;
+    z-index: 1000;
 }
 
-/* Creates a small triangle extender for the tooltip */
-.d3-tip:after {
-  box-sizing: border-box;
-  display: inline;
-  font-size: 10px;
-  width: 100%;
-  line-height: 1;
-  color: rgba(0, 0, 0, 0.8);
-  content: "\25BC";
-  position: absolute;
-  text-align: center;
-  z-index: 1000;
-}
+    /* Creates a small triangle extender for the tooltip */
+    .d3-tip:after {
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        display: inline;
+        font-size: 10px;
+        line-height: 1;
+        color: #000000;
+        color: rgba(0, 0, 0, 0.8);
+        content: "\25BC";
+        position: absolute;
+        text-align: center;
+        z-index: 1000;
+    }
 
 /* Style northward tooltips differently */
-.d3-tip.n:after {
-  margin: -1px 0 0 0;
-  top: 100%;
-  left: 0;
-  z-index: 1000;
+    .d3-tip.n:after {
+        margin: -1px 0 0 0;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+    }
+
+#scoringFunctions {
+    list-style-type: none;
+    margin: 0;
+    overflow: hidden;
+    padding: 2px 0;
 }
+    #scoringFunctions a,#scoringFunctions a:visited
+    {
+        color : #999;
+        text-decoration : none
+    }
+
+    #scoringFunctions a:hover
+    {
+        color : #000;
+        text-decoration : none
+    }
+
+    #scoringFunctions .ascending {
+        padding-left: 35px;
+        padding-top: 4px;
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFmSURBVEiJ7dY9axVBFAbg55WAFqkEEVJaiWCRSoSgSJogCBbaiKSS4Ecr6A+wCLY2FgErEQUbPyBoZa9dIIUWt/AX2FiIHosbIZF74+7dzU1hDky155xnZ4eZnVSV/YhD+6L+n3CS80lOTRsOBlivqpu9NU1O4CFmxqSsjHvQBZ3DexzGxri0XuEkR/FuC12oqsG43N7gJLNYx3Gc2w3tDU5yBK9wEheqavNfNZ3hJDN4jrNYqqpPTeo6wUmCJ7iIy1X1oWlt1xk/wjVcr6q3bQonhpM8wB3cqqpnk/QY4HFVaTpwF4X7ber+6tEOxo0tdHVStDWMq/jZ9guNGo3/TkmW8BQvcHuSNd0ejeAkC3hpeAYvV9WvPYeTzOMNPuJKVf3oirJtOyU5jcURL3YPX3Cpqr73ge6AcQarI3I+Gx6F3/pCd8BVtYa1PpvvFn9uILP4Oi2U4Yxf49g0UcjBhf4A3qv4DUN2PFHJY+YgAAAAAElFTkSuQmCC') no-repeat left top;/*images/plot_ascending.png*/;
+    }
+
+    #scoringFunctions .descending {
+        padding-left: 35px;
+        padding-top: 4px;
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAAzFBMVEX///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALedlLAAAAQ3RSTlMAqNDgmPhwsLi6/UofRz+XdSqFZ5VYAQL6d7L2Pghl8YcNyusoE9Xjixre2xcj5tERLO3GCzfzBkKktgQOT/Tsv5MyLFsrjgAAAIlJREFUeF7NycUCglAABdGrCEqG3d3d3e///0nBrdwtzGYWB2FmuZSlhJn0GhYCWE99UzU7gH+viyZjOKLEGGmRYYyslmOcPxV1wriUK1XCqD0bb8JotTtdwuj1BwZhjMaTKWHM5oslYazWmy1h7PbqgTCO8lnxu/5l3O6yn+ExS3rESXjFWIhuH1hSCtORBh32AAAAAElFTkSuQmCC') no-repeat left center;/*images/plot_descending.png*/;
+    }
+
+    #scoringFunctions .ascendingsigmoid {
+        padding-left: 35px;
+        padding-top: 4px;
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAF4SURBVEiJ7dbBi05RGMfxzzOmpGTHQhEbi/kLNBsWiiVFWfgDNLZSsrWhFNnInpUdi0k2CitZKBupsbAQOwYzDX4W9069infmvff1zsI89XQ79/Q73/N77rnnnEpiI2JqQ6j/J7iqDlXVzKTBhbeYT3J2LANW7cbsQO7TVHYLviTZC9PjgLXAKdzE3MDrn/iAFSzj62rHWMBVVbiD01jAXTzBsySf/qQZl+NzLfQFjiX5uJag96quqv24is84uR4o43F8Bdswl2RhvaJejqtqFqfwCrdH0fYt9bX2eT7Jj4mAq+oEDuJRkvlR9Z3A7T97uW1e7DJGV8dnMIN7SZ5PBFxVOzRuv+NSF2gnsGZb3IMbSV53BdMcEreSGJbtJK8jeImta2mG5dANpC3rYRzBURzAGxxPstzH7W+OcQGLWNJ8wwzkEh5gVx+nf3O8iPctdEVzjD3FQzxO8q2vy9UY+0VgVPB2vJskeBr3sXOSUKjNC/0m+F/FLzXD6L0asiqyAAAAAElFTkSuQmCC') no-repeat left center; /*images/plot_ascending_sigmoid.png*/;
+    }
+
+    #scoringFunctions .descendingsigmoid {
+        padding-left: 35px;
+        padding-top: 4px;
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAAz1BMVEX///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD6rQz2AAAARHRSTlMAqNDgmCr4xtrsl+P93nLqa6DIHQY+5Oh6P5ZcGNyALVULAcw8Rb5WMAeeeBnx92HWHOaRWiN//PnuDUR+uArS1cuTs3Jsz9QAAACQSURBVHhezclFDsIAFATQT0tVcHd3d9e5/5kIIeza2cLbPvmlvEZbDUvEyjpmvFgK6JiXieoAEknffkulKwYcza+/cjDrpKUAm/Wl7FZJSw1P1o0mWqSlDYO1dNBl3XO9PmkZYMh6NJ5opGWK2Zy02FgsV+vAls0WwE7X9/4th+PprFxv908zqqUQ8ggx8r9ewccOUbIqEcoAAAAASUVORK5CYII=') no-repeat left center;/*images/plot_descending_sigmoid.png*/;
+    }
+
+    #scoringFunctions .gaussianpeak {
+        padding-left: 35px;
+        padding-top: 4px;
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGzSURBVEiJ5dbPi01xGMfx1yNG6i5IFsKQlUhJSmmkcclCJkk2tlbKRtn7J9QsrJQVFjKa/NoQFiYlCyzkLqyQlYmh5rE439HtZtx7bnPdxTz19Ol8zznP+zzPec73OZGZhmErhkJdnuCIOBQRO4cBb2EyM9VxVbUmMFr33szsr9QR0cR73MaLiBirG6Pfd3wZW3ADa3F94OCI2IUxTGXmGVzDaETsHygY54pOFr1Z9HTdQC01mgtvMIuRcrwKX/EBMZDmioiN2IHHmfkTMvMX7mIb9vQaq26pDxd92LE+XfTYoMBHiz7oWL+P+UGCj+ATXrcvZuYXzOBARDSWFBwR49iEe/n3WTqNETSXFIyLRa8scv4WEpd6DdjS5XNSZTGPp12uW4Cf6uGz/De4QGfxAwe7BNuN78UnaoFV5d+Ok7hTMp3D8R43mCa+lcxncB7rFgNfVW2Br8rTZps/w3jNkblPtZXOtcX5jJeqibY3CviJarYG3hV/i0eZ+bzXZum0iFiPsziBrdiMNbjwp9RY3c9Ar+toZKaFjBv42G9m/dhKVQNt+J9Qyhgbhi3D/+plB/4N/AgMj4ynRG0AAAAASUVORK5CYII=') no-repeat left center;/*images/plot_gaussian_peak.png*/;
+    }
+
+    #scoringFunctions .gaussianvalley {
+        padding-left: 35px;
+        padding-top: 4px;
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAHZSURBVEiJ5dY7aFVBEAbgbySaiCJEUfAtCL7AQrATEUHBiGBhpaWFlb1aWCh2KbQRLASxsdI04gtjpQHRLmCslEQCamFsFBQJY3E2cLnceO+R5KbID8Ny9vw7/86wO7ORmRYCSxZEdXEKR8ShiNjTbeHAOJ5iCH/wPjO/zKlIRC82YjM24LEifA/ZYFMYwVWsy0x1DctxGk8w3eT/SmPEj7Afu7ELO9CL3xjMzMs1IryEi1hVhEYwhkl8woOZiG+12HEfzuFjWXy9w0gHC/8rrmH7LLzWwg2EtXhXnJ1vI3qq8MawqQ3338KFtB4/MIGeWTiBUdUBbRllo3V0jzPzM+5gS4mqFQawF3cz80M7n3UKyI0ynp3l/4ky3u7EWcfCJYpRHIyIvhaUAXzH2zkVLniuup8HGicjYie2YTgzp+dDeLiMR5vmj5XxWaeO6gq/VJ3aI03zx1XXaH6EM/Mn3mBfRKyGiOjHYbzOzMl5ES4YKuvOlO+TWIr7dR2Na1NAmgrFGvxSVadleKFK89Y6TaSn7i4z81tEDKk6zxRW4FVmTtTx878vkAu4qSqTw6p018a4GqluSnu/WWp3O5vpxytVvbJr6MFDVevrKmKmN3Ybi/BdveiE/wKeRN5mRVmz9AAAAABJRU5ErkJggg==') no-repeat left center;/*images/plot_gaussian_valley.png*/;
+    }
+
+    #scoringFunctions .manual {
+        padding-left: 35px;
+        padding-top: 5px;
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAACxQAAAsUBidZ/7wAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFUSURBVDiNndQ/S5xBEMfxz3NRE0Q5FIIgQdFSg4KkESFF3kDQJqQIKXw3FjZ2FhbaCBZCCrUQO8FCAnZilAhpQqJWVv4bC/dCfHzO5+4GBnZnme/+doZZEaEVx2vsYPRRvEVYLw4Q+IvxloGoYj/Ban6BdxGhonm7wnku1oPtLMsmm1HWiSX04yW+5VQGNhuFvcJ2SjrCG7Rj7T/YHrobgXVgI6fkBIN4gZVU02ppU9CG9YKnBU4xjAq6S7ucbl+tA/tXsyd5dWAVLJfADtFXCkSGxRLYMfoLxRQAF0pgpxioW6ocbK4E9gtDzzUyPyk/UmKR/caHiPhZ5/zBkrIpTKf1V9zmlP3BSENDkCDzuMantP+c9uFhbscaHtEEOEnJN/iSYjNJ2USTv5G3uefdYjYddjUDqzXlY66sZ3ifZVk1Ii6fbUCBZdjFHbaSf4+a9hbsHlixj6qGJsHqAAAAAElFTkSuQmCC') /*images/pen_small.png*/ no-repeat left center;/*images/pen_small.png*/;
+    }

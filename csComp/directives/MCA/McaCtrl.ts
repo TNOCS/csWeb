@@ -14,7 +14,6 @@
         public showFeature    : boolean;
 
         public mca          : Models.Mca;
-        public mcas         : Models.Mca[] = [];
         public availableMcas: Models.Mca[] = [];
 
         private groupStyle: csComp.Services.GroupStyle;
@@ -34,13 +33,23 @@
         ) {
             $scope.vm = this;
 
-            messageBusService.subscribe('layer', (title, layer: csComp.Services.ProjectLayer) => {
+            messageBusService.subscribe('layer', (title) => {//, layer: csComp.Services.ProjectLayer) => {
                 switch (title) {
                     case 'activated':
                     case 'deactivate':
-                        this.availableMca();
+                        this.updateAvailableMcas();
                         this.calculateMca();
                         this.calculateMca();
+                        break;
+                }
+            });
+
+            messageBusService.subscribe('project', (title) => {//, layer: csComp.Services.ProjectLayer) => {
+                switch (title) {
+                    case 'loaded':
+                        if (typeof $layerService.project.mcas === 'undefined' || $layerService.project.mcas == null)
+                            $layerService.project.mcas = [];
+                        this.createDummyMca();
                         break;
                 }
             });
@@ -48,59 +57,7 @@
             messageBusService.subscribe("feature", this.featureMessageReceived);
             messageBusService.subscribe("mca"    , this.mcaMessageReceived);
 
-            var mca             = new Models.Mca();
-            mca.title           = 'Mijn Zelfredzaamheid';
-            mca.description     = 'Analyse van de zelfredzaamheid van een gemeente.';
-            mca.label           = 'mca_zelfredzaamheid';
-            mca.stringFormat    = '{0:0.0}';
-            mca.rankTitle       = 'Positie';
-            mca.rankDescription = 'Relatieve positie in de lijst.';
-            mca.rankFormat      = '{0} van {1}';
-            mca.userWeightMax   = 5;
-            mca.featureIds      = ['cities_Default'];
-
-            var criterion        = new Models.Criterion();
-            criterion.label      = 'p_00_14_jr';
-            criterion.scores     = '[0,0 20,1]';
-            criterion.userWeight = 1;
-            mca.criteria.push(criterion);
-
-            criterion            = new Models.Criterion();
-            criterion.label      = 'p_15_24_jr';
-            criterion.scores     = '[0,0 20,1]';
-            criterion.userWeight = 1;
-            mca.criteria.push(criterion);
-
-            criterion            = new Models.Criterion();
-            criterion.label      = 'p_65_eo_jr';
-            criterion.scores     = '[0,0 25,1]';
-            criterion.userWeight = 3;
-            mca.criteria.push(criterion);
-            this.mcas.push(mca);
-
-            mca               = new Models.Mca();
-            mca.title         = 'test';
-            mca.label         = 'mca_test';
-            mca.stringFormat  = '{0:0.0}';
-            mca.rankTitle     = 'Rang';
-            mca.rankFormat    = '{0} van {1}';
-            mca.userWeightMax = 3;
-            mca.featureIds    = ['cities_Default'];
-
-            criterion            = new Models.Criterion();
-            criterion.label      = 'p_15_24_jr';
-            criterion.scores     = '[0,0 20,1]';
-            criterion.userWeight = 1;
-            mca.criteria.push(criterion);
-
-            criterion            = new Models.Criterion();
-            criterion.label      = 'p_65_eo_jr';
-            criterion.scores     = '[0,0 25,1]';
-            criterion.userWeight = 3;
-            mca.criteria.push(criterion);
-            this.mcas.push(mca);
-
-            $scope.$watch('vm.mca', (d) => {
+            $scope.$watch('vm.mca', () => {
                 if (!this.mca) return;
                 this.calculateMca();
                 this.drawChart();
@@ -108,20 +65,83 @@
             }, true);
         }
 
+        private createDummyMca() {
+            var mca = new Models.Mca();
+            mca.title = 'Mijn Zelfredzaamheid';
+            mca.description = 'Analyse van de zelfredzaamheid van een gemeente.';
+            mca.label = 'mca_zelfredzaamheid';
+            mca.stringFormat = '{0:0.0}';
+            mca.rankTitle = 'Positie';
+            mca.rankDescription = 'Relatieve positie in de lijst.';
+            mca.rankFormat = '{0} van {1}';
+            mca.userWeightMax = 5;
+            mca.featureIds = ['cities_Default'];
+
+            var criterion = new Models.Criterion();
+            criterion.label = 'p_00_14_jr';
+            criterion.scores = '[0,0 20,1]';
+            criterion.userWeight = 1;
+            mca.criteria.push(criterion);
+
+            criterion = new Models.Criterion();
+            criterion.label = 'p_15_24_jr';
+            criterion.scores = '[0,0 20,1]';
+            criterion.userWeight = 1;
+            mca.criteria.push(criterion);
+
+            criterion = new Models.Criterion();
+            criterion.label = 'p_65_eo_jr';
+            criterion.scores = '[0,0 25,1]';
+            criterion.userWeight = 3;
+            mca.criteria.push(criterion);
+            this.$layerService.project.mcas.push(mca);
+
+            mca = new Models.Mca();
+            mca.title = 'test';
+            mca.label = 'mca_test';
+            mca.stringFormat = '{0:0.0}';
+            mca.rankTitle = 'Rang';
+            mca.rankFormat = '{0} van {1}';
+            mca.userWeightMax = 3;
+            mca.featureIds = ['cities_Default'];
+
+            criterion = new Models.Criterion();
+            criterion.label = 'p_15_24_jr';
+            criterion.scores = '[0,0 20,1]';
+            criterion.userWeight = 1;
+            mca.criteria.push(criterion);
+
+            criterion = new Models.Criterion();
+            criterion.label = 'p_65_eo_jr';
+            criterion.scores = '[0,0 25,1]';
+            criterion.userWeight = 3;
+            mca.criteria.push(criterion);
+            this.$layerService.project.mcas.push(mca);
+        }
+
         private mcaMessageReceived = (title: string, data: {mca: Models.Mca}): void => {
+            var mcaIndex = -1;
+            var mcas = this.$layerService.project.mcas;
+            for (var i = 0; i < mcas.length; i++) {
+                if (mcas[i].title != data.mca.title) continue;
+                mcaIndex = i;
+                break;
+            }
             switch (title) {
                 case "add":
-                    var isExisting = false;
-                    for (var i=0; i < this.mcas.length; i++) {
-                        if (this.mcas[i].title != data.mca.title) continue;
-                        this.mcas[i] = data.mca;
-                        isExisting = true;
-                    }
-                    if (!isExisting) this.mcas.push(data.mca);
-                    this.availableMca();
+                    if (mcaIndex >= 0)
+                        mcas[mcaIndex] = data.mca;
+                    else
+                        mcas.push(data.mca);
+                    this.updateAvailableMcas();
                     this.mca = data.mca;
                     break;
                 case "delete":
+                    if (mcaIndex >= 0)
+                        mcas.splice(mcaIndex, 1);
+                    this.updateAvailableMcas();
+                    if (this.availableMcas.length > 0)
+                        this.mca = this.availableMcas[0];
                     break;
             }
         }
@@ -222,10 +242,10 @@
         }
 
         /** Based on the currently loaded features, which MCA can we use */
-        public availableMca() {
+        public updateAvailableMcas() {
             this.mca = null;
             this.availableMcas = [];
-            this.mcas.forEach((m) => {
+            this.$layerService.project.mcas.forEach((m) => {
                 m.featureIds.forEach((featureId: string) => {
                     if (this.availableMcas.indexOf(m) < 0 && featureId in this.$layerService.featureTypes) {
                         this.availableMcas.push(m);
@@ -254,8 +274,8 @@
                 this.$layerService.project.features.forEach((feature) => {
                     var score = mca.getScore(feature);
                     if (mca.rankTitle) {
-                        var item = { score: score, index: index++ };
-                        tempScores.push(item);
+                        var tempItem = { score: score, index: index++ };
+                        tempScores.push(tempItem);
                     }
                     feature.properties[mca.label] = score * 100;
                     this.$layerService.updateFeature(feature);

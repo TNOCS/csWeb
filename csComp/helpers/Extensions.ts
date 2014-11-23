@@ -1,4 +1,12 @@
 ﻿module csComp.StringExt {
+
+    export class Utils {
+        /** Convert a CamelCase string to one with underscores. */
+        public static toUnderscore(s: string) {
+            return s.replace(/([A-Z])/g, $1 => "_" + $1.toLowerCase());
+        }
+    }
+
     export function isNullOrEmpty(s: string): boolean {
         return !s;
     }

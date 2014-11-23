@@ -2,10 +2,11 @@
     import GeoJson = csComp.GeoJson;
 
     export enum ScoringFunctionType {
-        LinearIncreasing,
-        LinearDecreasing,
-        SigmoidIncreasing,
-        SigmoidDecreasing,
+        Manual,
+        Ascending,
+        Descending,
+        AscendingSigmoid,
+        DescendingSigmoid,
         GaussianPeak,
         GaussianValley
     } 
@@ -16,23 +17,57 @@
     export class ScoringFunction {
         public  type  : ScoringFunctionType;
         public  scores: string;
-
-        get img(): string {
-            return '/includes/images/' + ScoringFunctionType[this.type] + '.png';
+        
+        get cssClass(): string {
+            return ScoringFunctionType[this.type].toLowerCase();
         }
 
-        public static createScores(scoringFunctionType: ScoringFunctionType, start: number, end: number, ...params: number[]): ScoringFunction {
-            var scoringFunction = new ScoringFunction();
-            scoringFunction.type = scoringFunctionType;
-            switch (scoringFunctionType) {
-                case ScoringFunctionType.LinearIncreasing:
-                    scoringFunction.scores = '[' + start + ',0' + end + ',1]';
+        //get img(): string {
+        //    return '/includes/images/plot' + csComp.StringExt.Utils.toUnderscore(ScoringFunctionType[this.type]) + '.png';
+        //}
+
+        constructor(scoringFunctionType?: ScoringFunctionType) {
+            if (typeof scoringFunctionType != 'undefined' && scoringFunctionType != null) this.type = scoringFunctionType;
+        }
+
+
+        /**
+         * Create a score based on the type, in which x in [0,10] and y in [0.1].
+         * Before applying it, you need to scale the x-axis based on your actual range.
+         * Typically, you would map x=0 to the min(x)+0.1*range(x) and x(10)-0.1*range(x) to max(x), 
+         * i.e. x' = ax+b, where a=100/(8r) and b=-100(min+0.1r)/(8r) and r=max-min
+         */
+        public static createScores(type: ScoringFunctionType): string {
+            var scores: string;
+            switch (type) {
+                default:
+                case ScoringFunctionType.Ascending:
+                    scores = '[0,0 10,1]';
                     break;
-                case ScoringFunctionType.LinearDecreasing:
-                    scoringFunction.scores = '[' + start + ',1' + end + ',0]';
+                case ScoringFunctionType.Descending:
+                    scores = '[0,1 10,0]';
+                    break;
+                case ScoringFunctionType.AscendingSigmoid:
+                    // http://mathnotepad.com/: f(x) = (3.5+2*atan(x-5))/7
+                    // f([0,1,2,3,4,5,6,7,8,9,10])
+                    // round(100*f([0,1,2,3,4,5,6,7,8,9,10]))/100
+                    // [0.11 0.12 0.14 0.18 0.28 0.5 0.72 0.82 0.86 0.88 0.89]
+                    scores = '[0,0.11 1,0.12 2,0.14 3,0.18 4,0.28 5,0.5 6,0.72 7,0.82 8,0.86 9,0.88 10,0.89]';
+                    break;
+                case ScoringFunctionType.DescendingSigmoid:
+                    // 1-f(x)
+                    scores = '[0,0.89 1,0.88 2,0.86 3,0.82 4,0.72 5,0.5 6,0.28 7,0.18 8,0.14 9,0.12 10,0.11]';
+                    break;
+                case ScoringFunctionType.GaussianPeak:
+                    // h(x)=3*exp(-((x-u)^2)/(2s^2))/(s*sqrt(2pi))
+                    scores = '[0,0 2,0.04 3,0.25 4,0.7 5,1 6,0.7 7,0.25 8,0.04 9,0]';
+                    break;
+                case ScoringFunctionType.GaussianValley:
+                    // 1-h(x)
+                    scores = '[0,1 2,0.96 3,0.75 4,0.3 5,0 6,0.3 7,0.75 8,0.96 9,0]';
                     break;
             }
-            return scoringFunction;
+            return scores;
         }
     }
 
@@ -62,6 +97,8 @@
         public criteria: Criterion[] = [];
         /** Piece-wise linear approximation of the scoring function by a set of x and y points */
         public isPlaUpdated: boolean = false;
+        /** Piece-wise linear approximation must be scaled:x' = ax+b, where a=100/(8r) and b=-100(min+0.1r)/(8r) and r=max-min */
+        public isPlaScaled : boolean = false;
         private x: number[] = [];
         private y: number[] = [];
 
@@ -96,7 +133,7 @@
                 return;
             }
             var propValues: Array<Number> = [];
-            if (this.requiresMaximum() || this.requiresMinimum()) {
+            if (this.requiresMaximum() || this.requiresMinimum() || this.isPlaScaled) {
                 features.forEach((feature: GeoJson.Feature) => {
                     if (this.label in feature.properties) {
                         // The property is available
@@ -104,30 +141,46 @@
                     }
                 });
             }
-            if (this.requiresMaximum()) {
-                scores.replace('max', Math.max.apply(null, propValues));
+            var max = 0,
+                min = 0;
+            if (this.isPlaScaled || this.requiresMaximum()) {
+                max = Math.max.apply(null, propValues);
+                scores.replace('max', max.toPrecision(3));
             }
-            if (this.requiresMinimum()) {
-                scores.replace('min', Math.min.apply(null, propValues));
+            if (this.isPlaScaled || this.requiresMinimum()) {
+                min = Math.min.apply(null, propValues);
+                scores.replace('min', min.toPrecision(3));
             }
             // Regex to split the scores: [^\d\.]+ and remove empty entries
             var pla = scores.split(/[^\d\.]+/).filter(item => item.length > 0);
             // Test that we have an equal number of x and y, 
+            var range = max - min,
+                a = 0.08 * range,
+                b = min + 0.1 * range;
+
             if (pla.length % 2 != 0)
                 throw Error(this.label + ' does not have an even (x,y) pair in scores.');
-            // and that y in [0, 1].
             for (var i = 0; i < pla.length / 2; i++) {
                 var x = parseFloat(pla[2*i]);
+                if (this.isPlaScaled) {
+                    // Scale x, i.e. x'=ax+b with x'(0)=min+0.1r and x'(10)=max-0.1r, r=max-min
+                    // min+0.1r=b
+                    // max-0.1r=10a+b=10a+min+0.1r <=> max-min-0.2r=10a <=> 0.8r=10a <=> a=0.08r
+                    x = a * x + b;
+                }
                 if (i > 0 && this.x[i - 1] > x)
                     throw Error(this.label + ': x should increment continuously.');
                 this.x.push(x);
-
+                // Test that y in [0, 1].
                 var y = parseFloat(pla[2*i+1]);
                 if (y < 0) y = 0;
                 else if (y > 1) y = 1;
                 this.y.push(y);
             }
             this.isPlaUpdated = true;
+            console.log('PLA: [' + min + ',' + max + ']');
+            console.log('x: ' + this.x.join(', '));
+            console.log('y: ' + this.y.join(', '));
         }
 
         public getScore(feature: GeoJson.Feature, criterion?: Criterion): number {

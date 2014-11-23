@@ -10,14 +10,23 @@
         vm: McaEditorCtrl;
     }
 
+    export interface IExtendedPropertyInfo extends csComp.GeoJson.IMetaInfo {
+        isSelected?         : boolean;
+        category?           : string;  
+        scores?             : string;  
+        scoringFunctionType?: Models.ScoringFunctionType;
+    }
+
     export class McaEditorCtrl {
         public dataset            : IGeoJsonFile;
-        public metaInfos          : Array<IMetaInfo> = [];
+        public metaInfos          : Array<IExtendedPropertyInfo> = [];
         public headers            : Array<string> = [];
         public selectedFeatureType: IFeatureType;
         public mcaTitle           : string;
         public rankTitle          : string;
         public hasRank            : boolean;
+
+        public scoringFunctions: Models.ScoringFunction[] = [];
 
         public static $inject = [
             '$scope',
@@ -33,8 +42,16 @@
             private messageBusService: csComp.Services.MessageBusService
         ) {
             $scope.vm = this;
-            console.log("McaEditorCtlr");
-            messageBusService.subscribe('layer', (title: string, layer: csComp.Services.ProjectLayer) => {
+
+            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Ascending));
+            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Descending));
+            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.AscendingSigmoid));
+            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.DescendingSigmoid));
+            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.GaussianPeak));
+            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.GaussianValley));
+            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Manual));
+
+            messageBusService.subscribe('layer', (title: string) => {//, layer: csComp.Services.ProjectLayer) => {
                 switch (title) {
                     case 'activated':
                     case 'deactivate':
@@ -43,10 +60,6 @@
                 }
             });
 
-        }
-
-        public sayHi() {
-            alert('Hello ' + this.$scope.$parent);
         }
 
         public loadPropertyTypes() {
@@ -86,25 +99,26 @@
 
         private updateMetaInfo(featureType: IFeatureType): void {
             this.metaInfos = [];
-            this.headers = [];
-            var titles: Array<string> = [];
-            var mis: Array<IMetaInfo> = [];
+            this.headers   = [];
+            var titles: Array<string>                = [];
+            var mis   : Array<IExtendedPropertyInfo> = [];
             // Push the Name, so it always appears on top.
             mis.push({
-                label: "Name",
-                visibleInCallOut: true,
-                title: "Naam",
-                type: "text",
-                filterType: "text",
-                isSearchable: true
+                label                     : "Name",
+                visibleInCallOut          : true,
+                title                     : "Naam",
+                type                      : "text",
+                filterType                : "text",
+                isSelected                : false,
+                scoringFunctionType       : this.scoringFunctions[0].type,
             });
             if (featureType.metaInfoKeys != null) {
-                var keys: Array<string> = featureType.metaInfoKeys.split(';');
-                keys.forEach((k) => {
+                var keys                  : Array<string>             = featureType.metaInfoKeys.split(';');
+                keys.forEach((k)                    => {
                     if (k in this.$layerService.metaInfoData)
                         mis.push(this.$layerService.metaInfoData[k]);
                     else if (featureType.metaInfoData != null) {
-                        var result = $.grep(featureType.metaInfoData, e => e.label === k);
+                        var result                  = $.grep(featureType.metaInfoData, e => e.label === k);
                         if (result.length >= 1) mis.push(result);
                     }
                 });
@@ -132,10 +146,17 @@
             }
         }
 
+        public isDisabled(): boolean {
+            if (typeof this.mcaTitle === 'undefined' || this.mcaTitle.length === 0) return true;
+            if (this.hasRank && this.rankTitle.length === 0) return true;
+            if (!this.metaInfos.reduce((p,c) => { return p || c.isSelected; })) return true;
+            return false;
+        }
+
         /**
          * Create a new MCA criterion
          */
-        public ok() {
+        public save() {
             console.log("McaEditorCtrl says OK");
 
             var mca             = new Models.Mca();
@@ -152,20 +173,21 @@
                     mca.featureIds = [key];
             }
 
-            var meta: Array<IMetaInfo> = [this.headers.length];
-            this.metaInfos.forEach((mi: IMetaInfo) => {
-                // Keep headers and mi in the right order
-                var index = this.headers.indexOf(mi.title);
-                if (index >= 0) meta[index] = mi;
-            });
-
-            meta.forEach((mi) => {
+            this.metaInfos.forEach((mi) => {
+                if (!mi.isSelected) return;
                 var criterion         = new Models.Criterion();
                 criterion.label       = mi.label;
                 criterion.title       = mi.title;
+                criterion.isPlaScaled = true;
                 criterion.description = mi.description;
-                criterion.scores      = '[0,0 20,1]';
                 criterion.userWeight  = 1;
+
+                if (mi.scoringFunctionType === Models.ScoringFunctionType.Manual) {
+                    criterion.scores = mi.scores;
+                } else {
+                    criterion.scores = Models.ScoringFunction.createScores(mi.scoringFunctionType);
+                    criterion.isPlaScaled = true;
+                }
                 mca.criteria.push(criterion);               
             });
             this.messageBusService.publish('mca', 'add', { mca: mca });

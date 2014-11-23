@@ -15,11 +15,11 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">MCA Editor</h4>
+                        <h3 class="modal-title">MCA Editor</h3>
                     </div>
                     <div class="modal-body">
                         <input type="text" data-ng-model="vm.mcaTitle" placeholder="MCA title..." />
-                        <span><input type="checkbox" data-ng-model="vm.hasRank" />&nbsp;&nbsp;Include rank</span>
+                        <span><input type="checkbox" data-ng-model="vm.hasRank" style="margin-left: 10px;" />&nbsp;&nbsp;Include rank</span>
                         <input type="text" data-ng-if="vm.hasRank" data-ng-model="vm.rankTitle" placeholder="Rank title..." />
                         <h4>Select the main feature</h4>
                         <select data-ng-model="vm.selectedFeatureType"
@@ -30,21 +30,32 @@
                         <ul class="form-group" style="margin-top: 1em; margin-left: -2em; overflow-y: auto; overflow-x: hidden;"
                             resize resize-y="450">
                             <li ng-repeat="mi in vm.metaInfos" class="list-unstyled" style="white-space: nowrap; text-overflow: ellipsis">
-                                <label>
-                                    <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}"
-                                           data-ng-checked="vm.headers.indexOf(mi.title) > -1"
-                                           data-ng-click="vm.toggleSelection(mi.title)">&nbsp;&nbsp;{{mi.title}}
-                                    <select class="form-control tt-input pull-right" data-ng-if="vm.headers.indexOf(mi.title) > -1">
-                                        <option value="0">More is better</option>
-                                        <option value="1">Less is better</option>
-                                    </select>
-                                </label>
+                                <div>
+                                    <span>
+                                        <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}"
+                                               data-ng-checked="mi.isSelected"
+                                               data-ng-click="mi.isSelected = !mi.isSelected">&nbsp;&nbsp;{{mi.title}}
+                                        <span data-ng-if="mi.isSelected" style="margin-left: 10px;">
+                                            <input type="checkbox" data-ng-model="specifyCategory" /><span>&nbsp;&nbsp;Use category:&nbsp;</span>
+                                            <input type="text" data-ng-if="specifyCategory" data-ng-model="mi.category" placeholder="..." />
+                                        </span>
+                                    </span>
+                                    <form data-ng-if="mi.isSelected" name="myForm" style="margin-left: 20px;">
+                                        <label id="scoringFunctions" data-ng-repeat="sf in vm.scoringFunctions">
+                                            <input type="radio" data-ng-model="mi.scoringFunctionType" value="{{sf.type}}">
+                                            <a data-ng-href="" data-ng-class="sf.cssClass" data-ng-click="mi.isSelected = !mi.isSelected"></a>
+                                        </label>
+                                    </form>
+                                    <div data-ng-if="mi.scoringFunctionType == 0" style="margin-left: 20px;">
+                                        input -> score:&nbsp;<input type="text" data-ng-model="mi.scores" placeholder="[x0,y0 x1,y1 ...]" />
+                                    </div>
+                                </div>
                             </li>
                         </ul>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-warning" data-dismiss="modal" data-ng-click="vm.cancel()">Cancel</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-ng-click="vm.ok()">OK</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-ng-disabled="vm.isDisabled()" data-ng-click="vm.save()">OK</button>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
