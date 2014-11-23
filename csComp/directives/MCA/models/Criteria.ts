@@ -216,7 +216,7 @@
             } else {
                 // Sum all the sub-criteria.
                 var finalScore: number = 0;
-                this.criteria.forEach((crit) => {
+                criterion.criteria.forEach((crit) => {
                     finalScore += crit.weight * this.getScore(feature, crit);
                 });
                 return this.weight * finalScore;

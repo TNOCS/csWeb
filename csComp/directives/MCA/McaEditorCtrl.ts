@@ -157,8 +157,6 @@
          * Create a new MCA criterion
          */
         public save() {
-            console.log("McaEditorCtrl says OK");
-
             var mca             = new Models.Mca();
             mca.title           = this.mcaTitle || 'New MCA criterion';
             mca.label           = 'mca_' + mca.title.replace(' ', '_');
@@ -188,7 +186,24 @@
                     criterion.scores = Models.ScoringFunction.createScores(mi.scoringFunctionType);
                     criterion.isPlaScaled = true;
                 }
-                mca.criteria.push(criterion);               
+                if (mi.category) {
+                    var parent: Models.Criterion;
+                    for (var i in mca.criteria) {
+                        var c = mca.criteria[i];
+                        if (c.title != mi.category) continue;
+                        parent = c;
+                        break;
+                    }
+                    if (parent == null) {
+                        parent = new Models.Criterion;
+                        parent.title = mi.category;
+                        parent.isPlaUpdated = true;
+                        mca.criteria.push(parent);
+                    }
+                    parent.criteria.push(criterion);
+                } else {
+                    mca.criteria.push(criterion);
+                }               
             });
             this.messageBusService.publish('mca', 'add', { mca: mca });
         }

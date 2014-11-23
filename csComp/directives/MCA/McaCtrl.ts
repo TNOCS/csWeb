@@ -57,12 +57,12 @@
             messageBusService.subscribe("feature", this.featureMessageReceived);
             messageBusService.subscribe("mca"    , this.mcaMessageReceived);
 
-            $scope.$watch('vm.mca', () => {
-                if (!this.mca) return;
-                this.calculateMca();
-                this.drawChart();
-                // console.log(JSON.stringify(d));
-            }, true);
+            //$scope.$watch('vm.mca', () => {
+            //    if (!this.mca) return;
+            //    this.calculateMca();
+            //    this.drawChart();
+            //    // console.log(JSON.stringify(d));
+            //}, true);
         }
 
         private createDummyMca() {
@@ -119,6 +119,11 @@
             this.$layerService.project.mcas.push(mca);
         }
 
+        public weightUpdated(criterion: Models.Criterion) {
+            this.calculateMca();
+            this.drawChart(criterion);
+        }
+
         private mcaMessageReceived = (title: string, data: {mca: Models.Mca}): void => {
             var mcaIndex = -1;
             var mcas = this.$layerService.project.mcas;
@@ -144,6 +149,8 @@
                         this.mca = this.availableMcas[0];
                     break;
             }
+            this.calculateMca();
+            this.drawPieChart();
         }
 
         private featureMessageReceived = (title: string, feature: csComp.GeoJson.IFeature): void => {
