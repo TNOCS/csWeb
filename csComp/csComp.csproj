@@ -73,6 +73,7 @@
     <TypeScriptCompile Include="directives\DataTable\DataTableCtrl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTable.tpl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTable.ts" />
+    <TypeScriptCompile Include="translations\locale-en.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="directives\MCA\Mca.tpl.html" />
