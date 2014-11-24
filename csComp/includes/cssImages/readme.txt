@@ -1,0 +1,1 @@
+This folder consists of images and (optionally) svg files that have been used as image in the application. However, due to their small size, we have used base64 encoding and included them in csStyles.css. In this way, we don't have to load these images on every visit.
