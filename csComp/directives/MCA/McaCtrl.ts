@@ -13,6 +13,8 @@
 
     export class McaCtrl {
         private static mcas = 'MCAs';
+        private static confirmationMsg1: string;
+        private static confirmationMsg2: string;
 
         public selectedFeature: csComp.GeoJson.IFeature;
         public properties     : FeatureProps.CallOutProperty[];
@@ -29,6 +31,7 @@
         public static $inject = [
             '$scope',
             '$modal',
+            '$translate',
             'localStorageService',
             'layerService',
             'messageBusService'
@@ -37,6 +40,7 @@
         constructor(
             private $scope              : IMcaScope,
             private $modal              : any,
+            private $translate          : ng.translate.ITranslateService,              
             private $localStorageService: ng.localStorage.ILocalStorageService,
             private $layerService       : csComp.Services.LayerService,
             private messageBusService   : csComp.Services.MessageBusService
@@ -69,7 +73,15 @@
             });
 
             messageBusService.subscribe("feature", this.featureMessageReceived);
-            messageBusService.subscribe("mca"    , this.mcaMessageReceived);
+            messageBusService.subscribe("mca", this.mcaMessageReceived);
+
+            $translate('MCA_DELETE_MSG').then(translation => {
+                McaCtrl.confirmationMsg1 = translation;
+            });
+             $translate('MCA_DELETE_MSG2').then(translation => {
+                McaCtrl.confirmationMsg2 = translation;
+            });
+            
         }
 
         private createDummyMca() {
@@ -156,6 +168,7 @@
 
         public removeMca(mca: Models.Mca) {
             if (!mca) return;
+            var title = String.format(McaCtrl.confirmationMsg1, mca.title);
             this.messageBusService.confirm('Delete MCA "'+ mca.title + '"', 'Are you sure?', (result) => {
                 if (result) this.deleteMca(mca);
             });
