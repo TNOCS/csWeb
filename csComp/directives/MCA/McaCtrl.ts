@@ -3,33 +3,42 @@
         vm: McaCtrl;
     }
 
-    // TODO MCA Editor
-    // TODO Adding MCA definitions to the project file
+    // DONE MCA Editor
+    // DONE Adding MCA definitions to the project file
+    // TODO Localize
+    // TODO Edit and delete an MCA
+    // TODO Save MCA after changing a value
     // TODO Optimize me button.
     // TODO Save the project file
 
     export class McaCtrl {
+        private static mcas = 'MCAs';
+
         public selectedFeature: csComp.GeoJson.IFeature;
         public properties     : FeatureProps.CallOutProperty[];
         public showFeature    : boolean;
+        public showChart      : boolean;
 
-        public mca          : Models.Mca;
-        public availableMcas: Models.Mca[] = [];
+        public mca              : Models.Mca;
+        public selectedCriterion: Models.Criterion;
+        public availableMcas    : Models.Mca[] = [];
 
         private groupStyle: csComp.Services.GroupStyle;
 
         public static $inject = [
             '$scope',
             '$modal',
+            'localStorageService',
             'layerService',
             'messageBusService'
         ];
 
         constructor(
-            private $scope: IMcaScope,
-            private $modal: any,
-            private $layerService: csComp.Services.LayerService,
-            private messageBusService: csComp.Services.MessageBusService
+            private $scope              : IMcaScope,
+            private $modal              : any,
+            private $localStorageService: ng.localStorage.ILocalStorageService,
+            private $layerService       : csComp.Services.LayerService,
+            private messageBusService   : csComp.Services.MessageBusService
         ) {
             $scope.vm = this;
 
@@ -38,7 +47,6 @@
                     case 'activated':
                     case 'deactivate':
                         this.updateAvailableMcas();
-                        this.calculateMca();
                         this.calculateMca();
                         break;
                 }
@@ -49,7 +57,12 @@
                     case 'loaded':
                         if (typeof $layerService.project.mcas === 'undefined' || $layerService.project.mcas == null)
                             $layerService.project.mcas = [];
-                        this.createDummyMca();
+                        var mcas = this.$localStorageService.get(McaCtrl.mcas);
+                        if (typeof mcas === 'undefined' || mcas === null) return;
+                        mcas.forEach((mca) => {
+                            $layerService.project.mcas.push(new Models.Mca().deserialize(mca));
+                        });
+                        //this.createDummyMca();
                         break;
                 }
             });
@@ -134,16 +147,19 @@
             }
             switch (title) {
                 case "add":
-                    if (mcaIndex >= 0)
+                    if (mcaIndex >= 0) {
                         mcas[mcaIndex] = data.mca;
-                    else
+                    } else {
                         mcas.push(data.mca);
+                        this.addMcaToLocalStorage(data.mca);
+                    }
                     this.updateAvailableMcas();
                     this.mca = data.mca;
                     break;
                 case "delete":
                     if (mcaIndex >= 0)
                         mcas.splice(mcaIndex, 1);
+                    this.removeMcaFromLocalStorage(data.mca);
                     this.updateAvailableMcas();
                     if (this.availableMcas.length > 0)
                         this.mca = this.availableMcas[0];
@@ -151,6 +167,28 @@
             }
             this.calculateMca();
             this.drawPieChart();
+        }
+
+        private addMcaToLocalStorage(mca: Models.Mca) {
+            var mcas: Models.Mca[] = this.$localStorageService.get(McaCtrl.mcas);
+            if (typeof mcas === 'undefined' || mcas === null) mcas = [];
+            this.removeMcaFromLocalStorage(mca);
+            mcas.push(mca);
+            this.$localStorageService.set(McaCtrl.mcas, mcas); // You first need to set the key
+        }
+
+        private removeMcaFromLocalStorage(mca: Models.Mca) {
+            var mcas: Models.Mca[] = this.$localStorageService.get(McaCtrl.mcas);
+            if (typeof mcas === 'undefined' || mcas === null) return;
+            var mcaIndex = -1;
+            for (var i = 0; i < mcas.length; i++) {
+                if (mcas[i].title != mca.title) continue;
+                mcaIndex = i;
+                break;
+            }
+            if (mcaIndex < 0) return;
+            mcas.splice(mcaIndex, 1);
+            this.$localStorageService.set(McaCtrl.mcas, mcas); // You first need to set the key
         }
 
         private featureMessageReceived = (title: string, feature: csComp.GeoJson.IFeature): void => {
@@ -192,6 +230,7 @@
         }
 
         public drawChart(criterion?: Models.Criterion) {
+            this.showChart = true;
             if (this.showFeature)
                 this.drawAsterPlot(criterion);
             else
@@ -202,11 +241,14 @@
             var parent: Models.Criterion[];
             this.mca.update();
             if (typeof criterion === 'undefined' || this.mca.criteria.indexOf(criterion) >= 0) {
+                this.selectedCriterion = null;
                 parent = this.mca.criteria;
             } else {
                 this.mca.criteria.forEach((c) => {
-                    if (c.criteria.indexOf(criterion) >= 0)
+                    if (c.criteria.indexOf(criterion) >= 0) {
+                        this.selectedCriterion = c;
                         parent = c.criteria;
+                    }
                 });
             }
             return parent;
@@ -224,12 +266,11 @@
                 pieData.label = c.getTitle();
                 pieData.weight = c.weight;
                 pieData.color = c.color;
-                pieData.score = c.getScore(this.selectedFeature, c) * 100;
+                pieData.score = c.getScore(this.selectedFeature) * 100;
                 data.push(pieData);
             });
             csComp.Helpers.Plot.drawAsterPlot(100, data, 'mcaPieChart');
         }
-
 
         private drawPieChart(criterion?: Models.Criterion) {
             if (!this.mca) return;
@@ -250,8 +291,10 @@
 
         /** Based on the currently loaded features, which MCA can we use */
         public updateAvailableMcas() {
-            this.mca = null;
+            this.showChart     = false;
+            this.mca           = null;
             this.availableMcas = [];
+
             this.$layerService.project.mcas.forEach((m) => {
                 m.featureIds.forEach((featureId: string) => {
                     if (this.availableMcas.indexOf(m) < 0 && featureId in this.$layerService.featureTypes) {

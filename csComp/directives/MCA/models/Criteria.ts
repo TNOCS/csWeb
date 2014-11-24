@@ -102,6 +102,20 @@
         private x: number[] = [];
         private y: number[] = [];
 
+        public deserialize(input: Models.Criterion): Models.Criterion {
+            this.title       = input.title;
+            this.description = input.description;
+            this.label       = input.label;
+            this.color       = input.color;
+            this.userWeight  = input.userWeight;
+            this.weight      = input.weight;
+            this.isPlaScaled = input.isPlaScaled;
+            this.scores      = input.scores;
+            input.criteria.forEach((c) => {
+                this.criteria.push(new Models.Criterion().deserialize(c));
+            });
+            return this;
+        }
 
         private requiresMinimum(): boolean {
             return this.scores && this.scores.indexOf('min') >= 0;
@@ -122,16 +136,15 @@
          */
         public updatePla(features: GeoJson.Feature[]) {
             if (this.isPlaUpdated) return;
-            // Replace min and max by their values:
-            var scores = this.scores;
-            if (!scores) {
-                if (this.criteria.length > 0) {
-                    this.criteria.forEach((criterion) => {
-                         criterion.updatePla(features);
-                    });
-                }
+            if (this.criteria.length > 0) {
+                this.criteria.forEach((c) => { 
+                    c.updatePla(features);
+                });
+                this.isPlaUpdated = true;
                 return;
             }
+            // Replace min and max by their values:
+            var scores = this.scores;
             var propValues: Array<Number> = [];
             if (this.requiresMaximum() || this.requiresMinimum() || this.isPlaScaled) {
                 features.forEach((feature: GeoJson.Feature) => {
@@ -178,35 +191,27 @@
                 this.y.push(y);
             }
             this.isPlaUpdated = true;
-            console.log('PLA: [' + min + ',' + max + ']');
-            console.log('x: ' + this.x.join(', '));
-            console.log('y: ' + this.y.join(', '));
         }
 
-        public getScore(feature: GeoJson.Feature, criterion?: Criterion): number {
+        public getScore(feature: GeoJson.Feature): number {
             if (!this.isPlaUpdated)
-                throw ('Error: PLA must be updated!');
-            if (!criterion) criterion = this;
-            if (criterion.criteria.length == 0) {
+                throw ('Error: PLA must be updated for criterion ' + this.title + '!');
+            if (this.criteria.length == 0) {
                 // End point: compute the score for each feature
-                if (criterion.label in feature.properties) {
+                if (this.label in feature.properties) {
                     // The property is available
-                    var x = feature.properties[criterion.label];
-                    if (x < criterion.x[0]) return criterion.y[0];
-                    var last = criterion.x.length-1;
-                    if (x > criterion.x[last]) return criterion.y[last];
-                    for (var k in criterion.x) {
-                        if (x < criterion.x[k]) {
-                            // Found relative position of x in criterion.x
-                            // TODO Use linear interpolation
-                            var x0 = criterion.x[k - 1];
-                            var x1 = criterion.x[k];
-                            var y0 = criterion.y[k - 1];
-                            var y1 = criterion.y[k];
-                            //var x0 = criterion.x[Math.max(0, k - 1)];
-                            //var x1 = criterion.x[Math.min(last, k)];
-                            //var y0 = criterion.y[Math.max(0, k - 1)];
-                            //var y1 = criterion.y[Math.min(last, k)];
+                    var x = feature.properties[this.label];
+                    if (x < this.x[0]) return this.y[0];
+                    var last = this.x.length-1;
+                    if (x > this.x[last]) return this.y[last];
+                    for (var k in this.x) {
+                        if (x < this.x[k]) {
+                            // Found relative position of x in this.x
+                            var x0 = this.x[k - 1];
+                            var x1 = this.x[k];
+                            var y0 = this.y[k - 1];
+                            var y1 = this.y[k];
+                            // Use linear interpolation
                             return (y1 - y0) * (x - x0) / (x1 - x0);
                         }
                     }
@@ -216,8 +221,8 @@
             } else {
                 // Sum all the sub-criteria.
                 var finalScore: number = 0;
-                criterion.criteria.forEach((crit) => {
-                    finalScore += crit.weight * this.getScore(feature, crit);
+                this.criteria.forEach((crit) => {
+                    finalScore += crit.weight * crit.getScore(feature);
                 });
                 return this.weight * finalScore;
             }
@@ -243,32 +248,21 @@
         constructor() {
             super();
             this.weight = 1;
-            this.isPlaUpdated = true;
+            this.isPlaUpdated = false;
         }
 
         public deserialize(input: Models.Mca): Models.Mca {
             this.section         = input.section;
-            this.title           = input.title;
-            this.description     = input.description;
-            this.label           = input.label;
-            this.color           = input.color;
-            this.userWeight      = input.userWeight;
-            this.weight          = input.weight;
-            this.scores          = input.scores;
             this.stringFormat    = input.stringFormat;
             this.rankTitle       = input.rankTitle;
             this.rankDescription = input.rankDescription;
             this.rankFormat      = input.rankFormat;
             this.userWeightMax   = input.userWeightMax;
             this.featureIds      = input.featureIds;
+            super.deserialize(input);
             return this;
         }
 
-        public updatePla(features: GeoJson.Feature[]) {
-            this.criteria.forEach((criterion) => {
-                criterion.updatePla(features);
-            });
-        }
 
         /** 
         * Update the MCA by calculating the weights and setting the colors.
@@ -302,13 +296,15 @@
             var i = 0;
             this.criteria.forEach((c) => {
                 totalSubcrit += c.criteria.length;
-                c.color = redColors(i++).hex();
+                if (!c.color)
+                    c.color = redColors(i++).hex();
             });
             var blueColors = chroma.scale('PRGn').domain([0, totalSubcrit - 1], totalSubcrit);
             i = 0;
             this.criteria.forEach((c) => {
                 c.criteria.forEach((crit) => {
-                    crit.color = blueColors(i++).hex();
+                    if (!crit.color)
+                        crit.color = blueColors(i++).hex();
                 });
             });
         }

@@ -148,7 +148,7 @@
 
         public isDisabled(): boolean {
             if (typeof this.mcaTitle === 'undefined' || this.mcaTitle.length === 0) return true;
-            if (this.hasRank && this.rankTitle.length === 0) return true;
+            if (this.hasRank && this.rankTitle && this.rankTitle.length === 0) return true;
             if (!this.metaInfos.reduce((p,c) => { return p || c.isSelected; })) return true;
             return false;
         }
@@ -197,7 +197,7 @@
                     if (parent == null) {
                         parent = new Models.Criterion;
                         parent.title = mi.category;
-                        parent.isPlaUpdated = true;
+                        parent.isPlaUpdated = false;
                         mca.criteria.push(parent);
                     }
                     parent.criteria.push(criterion);

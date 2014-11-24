@@ -67,7 +67,7 @@
             <li data-ng-repeat="criterion in vm.mca.criteria">
                 <div data-ng-style="{\'display\': \'inline-block\', \'width\':\'10px\', \'height\':\'10px\', \'border\':\'solid 1px black\', \'background-color\': criterion.color}">
                 </div>
-                <div style="display: inline-block;">{{criterion.getTitle() | limitTo: 22}}</div>
+                <div style="display: inline-block;">{{criterion.getTitle() | limitTo: 26}}</div>
                 <rating class="pull-right" style="margin:0 10px;" ng-model="criterion.userWeight" max="{{vm.mca.userWeightMax}}" readonly="isReadonly"
                         state-on="\'fa fa-circle\'" state-off="\'fa fa-circle-o\'"
                         data-ng-click="vm.weightUpdated(criterion)"
@@ -76,7 +76,7 @@
                     <li data-ng-repeat="crit in criterion.criteria">
                         <div data-ng-style="{\'display\': \'inline-block\', \'width\':\'10px\', \'height\':\'10px\', \'border\':\'solid 1px black\', \'background-color\': crit.color}">
                         </div>
-                        <div style="display: inline-block;">{{crit.getTitle() | limitTo: 20}}</div>
+                        <div style="display: inline-block;">{{crit.getTitle() | limitTo: 28}}</div>
                         <rating class="pull-right" style="margin:0 10px;" ng-model="crit.userWeight" max="{{vm.mca.userWeightMax}}" readonly="isReadonly"
                                 state-on="\'fa fa-circle\'" state-off="\'fa fa-circle-o\'"
                                 data-ng-click="vm.weightUpdated(crit)"
@@ -88,7 +88,10 @@
 
         <!--<a href="" style="display: inline-block; width: 100%; text-transform: uppercase"
            data-ng-click="vm.calculateMca()" translate="MCA_COMPUTE_MGS" translate-values="{ mcaTitle: vm.mca.title }"></a>-->
-
+        <h4 data-ng-if="vm.showChart">
+            <a href="" data-ng-click="vm.weightUpdated(vm.mca)">Total results</a>
+            <a href="" data-ng-if="vm.selectedCriterion">&nbsp;&gt;&nbsp;{{vm.selectedCriterion.title}}</a>
+        </h4>
         <div style="margin-top: 5px; margin-left: 70px;" id="mcaPieChart"></div>
 
         <div data-ng-if="vm.showFeature">
