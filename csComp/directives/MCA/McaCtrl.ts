@@ -16,6 +16,7 @@
 
         public selectedFeature: csComp.GeoJson.IFeature;
         public properties     : FeatureProps.CallOutProperty[];
+        public showDialog     : boolean = false;
         public showFeature    : boolean;
         public showChart      : boolean;
 
@@ -62,20 +63,13 @@
                         mcas.forEach((mca) => {
                             $layerService.project.mcas.push(new Models.Mca().deserialize(mca));
                         });
-                        //this.createDummyMca();
+                        this.createDummyMca();
                         break;
                 }
             });
 
             messageBusService.subscribe("feature", this.featureMessageReceived);
             messageBusService.subscribe("mca"    , this.mcaMessageReceived);
-
-            //$scope.$watch('vm.mca', () => {
-            //    if (!this.mca) return;
-            //    this.calculateMca();
-            //    this.drawChart();
-            //    // console.log(JSON.stringify(d));
-            //}, true);
         }
 
         private createDummyMca() {
@@ -137,36 +131,71 @@
             this.drawChart(criterion);
         }
 
-        private mcaMessageReceived = (title: string, data: {mca: Models.Mca}): void => {
+        /** Add or delete the received MCA model. */
+        private mcaMessageReceived = (title: string, data: { mca: Models.Mca }): void => {
+            if (!data || !data.mca) return;
+            switch (title) {
+                case "add":
+                    this.addMca(data.mca);
+                    break;
+                case "delete":
+                    this.deleteMca(data.mca);
+                    break;
+            }
+        }
+
+        public editMca(mca: Models.Mca) {
+            this.messageBusService.publish('mca', 'edit', { mca: mca });
+            this.showDialog = true;
+        }
+
+        public createMca() {
+            this.messageBusService.publish('mca', 'create');
+            this.showDialog = true;
+        }
+
+        public removeMca(mca: Models.Mca) {
+            if (!mca) return;
+            this.messageBusService.confirm('Delete MCA "'+ mca.title + '"', 'Are you sure?', (result) => {
+                if (result) this.deleteMca(mca);
+            });
+        }
+
+        private getMcaIndex(mca: Models.Mca): number {
             var mcaIndex = -1;
             var mcas = this.$layerService.project.mcas;
             for (var i = 0; i < mcas.length; i++) {
-                if (mcas[i].title != data.mca.title) continue;
+                if (mcas[i].title != mca.title) continue;
                 mcaIndex = i;
                 break;
             }
-            switch (title) {
-                case "add":
-                    if (mcaIndex >= 0) {
-                        mcas[mcaIndex] = data.mca;
-                    } else {
-                        mcas.push(data.mca);
-                        this.addMcaToLocalStorage(data.mca);
-                    }
-                    this.updateAvailableMcas();
-                    this.mca = data.mca;
-                    break;
-                case "delete":
-                    if (mcaIndex >= 0)
-                        mcas.splice(mcaIndex, 1);
-                    this.removeMcaFromLocalStorage(data.mca);
-                    this.updateAvailableMcas();
-                    if (this.availableMcas.length > 0)
-                        this.mca = this.availableMcas[0];
-                    break;
-            }
+            return mcaIndex;
+        }
+
+        private addMca(mca: Models.Mca) {
+            if (!mca) return;
+            this.deleteMca(mca);
+            this.$layerService.project.mcas.push(mca);
+            this.addMcaToLocalStorage(mca);
+            this.updateAvailableMcas();
+            this.mca = mca;
             this.calculateMca();
             this.drawPieChart();
+        }
+
+        private deleteMca(mca: Models.Mca) {
+            if (!mca) return;
+            var mcaIndex = this.getMcaIndex(mca);
+            var mcas = this.$layerService.project.mcas;
+            if (mcaIndex >= 0)
+                mcas.splice(mcaIndex, 1);
+            this.removeMcaFromLocalStorage(mca);
+            this.updateAvailableMcas();
+            if (this.availableMcas.length > 0) {
+                this.mca = this.availableMcas[0];
+                this.calculateMca();
+                this.drawPieChart();
+            }
         }
 
         private addMcaToLocalStorage(mca: Models.Mca) {

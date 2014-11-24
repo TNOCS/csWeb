@@ -3,14 +3,16 @@
     <div>
         <select data-ng-model="vm.mca"
                 data-ng-options="mca.title for mca in vm.availableMcas"
-                style="width: 85%; margin-bottom:10px;"></select>
-        <a href="" data-ng-click="showDialog=!showDialog" class="pull-right" style="margin:0 10px;"><i class="fa fa-plus"></i></a>
+                style="width: 75%; margin-bottom:10px;"></select>
+        <a href="" data-ng-click="vm.createMca()" class="pull-right" style="margin-right:5px;"><i class="fa fa-plus"></i></a>
+        <a href="" data-ng-click="vm.removeMca(vm.mca)" class="pull-right" style="margin-right:5px;"><i class="fa fa-trash"></i></a>
+        <a href="" data-ng-click="vm.editMca(vm.mca)" class="pull-right" style="margin-right:5px;"><i class="fa fa-edit"></i></a>
     </div>
     
     <!--MCA EDITOR DIALOG-->
     <div id="mcaEditorView">
         <!--<input type="checkbox" ng-model="showDialog"> Show-->
-        <div show-modal="showDialog" class="modal fade">
+        <div show-modal="vm.showDialog" class="modal fade">
             <div class="modal-dialog" data-ng-controller="mcaEditorCtrl">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -89,7 +91,7 @@
         <!--<a href="" style="display: inline-block; width: 100%; text-transform: uppercase"
            data-ng-click="vm.calculateMca()" translate="MCA_COMPUTE_MGS" translate-values="{ mcaTitle: vm.mca.title }"></a>-->
         <h4 data-ng-if="vm.showChart">
-            <a href="" data-ng-click="vm.weightUpdated(vm.mca)">Total results</a>
+            <a href="" data-ng-click="vm.weightUpdated(vm.mca)" translate="MCA_TOTAL_RESULT"></a>
             <a href="" data-ng-if="vm.selectedCriterion">&nbsp;&gt;&nbsp;{{vm.selectedCriterion.title}}</a>
         </h4>
         <div style="margin-top: 5px; margin-left: 70px;" id="mcaPieChart"></div>

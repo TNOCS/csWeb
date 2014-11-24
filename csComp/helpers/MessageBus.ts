@@ -45,6 +45,38 @@
             var pn = new PNotify(options);            
         }
 
+		/** 
+		 * Show a confirm dialog
+         * @title           : the title of the notification
+         * @text            : the contents of the notification
+         * @callback        : the callback that will be called after the confirmation has been answered.
+		 */
+        public confirm(title: string, text: string, callback: (result: boolean) => any) {
+            var options = {
+                title       : title,
+                text        : text,
+                hide        : false,
+                confirm     : {
+                    confirm : true
+                },
+                buttons     : {
+                    closer  : false,
+                    sticker : false
+                },
+                history     : {
+                    history : false
+                },
+                icon        : 'fa fa-question-circle',
+                cornerclass : 'ui-pnotify-sharp',
+                addclass    : "stack-topright",
+                stack       : { "dir1": "down", "dir2": "left", "firstpos1": 25, "firstpos2": 25 }
+            };
+
+            var pn = new PNotify(options).get()
+                .on('pnotify.confirm', () => { callback(true); })
+                .on('pnotify.cancel', () => { callback(false); });
+        }
+
         public notifyBottom(title: string, text: string) {
             var stack_bar_bottom = { "dir1": "up", "dir2": "right", "spacing1": 0, "spacing2": 0 };
             var options = {

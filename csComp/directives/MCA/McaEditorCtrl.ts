@@ -26,7 +26,7 @@
         public rankTitle          : string;
         public hasRank            : boolean;
 
-        public scoringFunctions: Models.ScoringFunction[] = [];
+        public scoringFunctions   : Models.ScoringFunction[] = [];
 
         public static $inject = [
             '$scope',
@@ -60,6 +60,42 @@
                 }
             });
 
+            messageBusService.subscribe('mca', (title: string, data: { mca: Models.Mca }) => {
+                switch (title) {
+                    case 'edit':
+                        var mca                  = data.mca;
+                        this.mcaTitle            = mca.title;
+                        this.rankTitle           = mca.rankTitle;
+                        this.hasRank             = this.rankTitle != '';
+                        this.selectedFeatureType = this.dataset.poiTypes[mca.featureIds[0]];
+                        this.updateMetaInfo(this.selectedFeatureType);
+                        this.updateMetaInfoUponEdit(mca);
+                        break;
+                    case 'create':
+                        this.mcaTitle            = '';
+                        this.rankTitle           = '';
+                        this.hasRank             = false;
+                        this.selectedFeatureType = null;
+                        this.loadMapLayers();
+                        break;
+                }
+            });
+        }
+
+        private updateMetaInfoUponEdit(criterion: Models.Criterion, category?: string) {
+            criterion.criteria.forEach((c) => {
+                if (c.label) {
+                    for (var i in this.metaInfos) {
+                        var mi = this.metaInfos[i];
+                        if (mi.label === c.label) continue;
+                        mi.isSelected = true;
+                        mi.category   = category;
+                        break;
+                    }
+                } else {
+                    this.updateMetaInfoUponEdit(c, c.title);
+                }
+            });
         }
 
         public loadPropertyTypes() {
