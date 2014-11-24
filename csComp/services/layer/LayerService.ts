@@ -11,7 +11,13 @@
         url  : string;
     }
 
-    
+    /** 
+    * Implement this interface to make your object serializable 
+    * @see http://stackoverflow.com/a/22886730/319711
+    */
+    export interface ISerializable<T> {
+        deserialize(input: Object): T;
+    }
 
     export interface IBaseLayer {
         id         : string;
@@ -43,19 +49,37 @@
         projects  : Array<SolutionProject>;
     }
     
-    export class Project {
-        viewBounds   : IBoundingBox;
+    export class Project implements ISerializable<Project> {
         title        : string;
         description  : string;
         logo         : string;
+        viewBounds   : IBoundingBox;
+        startposition: Coordinates;
         featureTypes : { [id: string] : IFeatureType }
         metaInfoData : { [id: string] : IMetaInfo }
         groups       : Array<ProjectGroup>;
-        startposition: Coordinates;
+        mcas         : Mca.Models.Mca[];
         features     : IFeature[];
         markers = {};
-    }
 
+        public deserialize(input: Project): Project {
+            this.viewBounds    = input.viewBounds;
+            this.title         = input.title;
+            this.description   = input.description;
+            this.logo          = input.logo;
+            this.markers       = input.markers;
+            this.startposition = input.startposition;
+            this.features      = input.features;
+            this.featureTypes  = input.featureTypes;
+            this.metaInfoData  = input.metaInfoData;
+            this.groups        = input.groups;
+            this.mcas          = [];
+            for (var mca in input.mcas) {
+                this.mcas.push(new Mca.Models.Mca().deserialize(mca));
+            }
+            return this;
+        }
+    }
 
     export class PropertyInfo {
         max     : number;
@@ -360,8 +384,6 @@
             return result;
         }
 
-        
-
         /***
          * Show tooltip with name, styles & filters
          */
@@ -379,7 +401,7 @@
                         if (f.meta != null && !StringExt.isNullOrEmpty(f.meta.stringFormat)) {
                             value = String.format(f.meta.stringFormat, parseFloat(value));
                         }
-                        content += "<br><img src='includes/images/filter-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + f.title + ":<b>" + value + "</b>";
+                        content += "<br><kimg src='includes/images/filter-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + f.title + ":<b>" + value + "</b>";
                     }
                 });
             }
@@ -472,7 +494,7 @@
             }
         }
 
-        private updateFeature(feature: IFeature, group?: ProjectGroup) {
+        public updateFeature(feature: IFeature, group?: ProjectGroup) {
             if (feature.geometry.type == "Point") {
                 var layer = this.findLayer(feature.layerId);
                 if (layer != null) this.updateFeatureIcon(feature, layer);
@@ -729,15 +751,15 @@
             return r;
         }
 
-        public setStyle(property: any) {            
+        public setStyle(property: any, openStyleTab = true): GroupStyle {            
             var f: IFeature = property.feature;
             if (f != null) {
-                this.noStyles = false;
-                var layer = this.findLayer(f.layerId);
-                var gs = new GroupStyle(this.$translate);
-                gs.id = this.getGuid();
-                gs.title = property.key;
-                gs.visualAspect = "fillColor";
+                this.noStyles     = false;
+                var layer         = this.findLayer(f.layerId);
+                var gs            = new GroupStyle(this.$translate);
+                gs.id             = this.getGuid();
+                gs.title          = property.key;
+                gs.visualAspect   = "fillColor";
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
                 
                 gs.property = property.property;
@@ -762,7 +784,8 @@
                 } else {
                     this.updateStyle(gs);
                 }
-                (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
+                if (openStyleTab)
+                    (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
                 return gs;
             }
         }
@@ -938,7 +961,7 @@
          * deactivate layer
          */
         public removeLayer(layer: ProjectLayer) {
-            this.$messageBusService.publish("layer", "deactivate", layer);
+            this.$messageBusService.publish("layer", "deactivating", layer);
 
             var m: any;
             var g = layer.group;
@@ -957,8 +980,6 @@
                         try {
                             m.removeLayer(layer.group.markers[feature.id]);
                         delete layer.group.markers[feature.id];
-                            
-
                         } catch (error) {
                             
                         }
@@ -985,6 +1006,7 @@
             }
 
             this.rebuildFilters(g);
+            this.$messageBusService.publish("layer", "deactivate", layer);
         }
 
         public S4() {
@@ -1063,7 +1085,7 @@
             this.featureTypes = {};
 
             $.getJSON(url, (data: Project) => {
-                this.project = data;
+                this.project = new Project().deserialize(data);
 
                 if (this.project.viewBounds) {
                     this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));

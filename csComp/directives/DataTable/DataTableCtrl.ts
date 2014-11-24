@@ -242,25 +242,26 @@
                 var row: Array<TableField> = [];
                 meta.forEach((mi) => {
                     var text = f.properties[mi.label];
-                    if (!text)
-                        text = ' ';
-                    else if (!$.isNumeric(text))
-                        text = text.replace(/&amp;/g, '&');
-                    switch (mi.type) {
-                        case "bbcode":
-                            displayValue = XBBCODE.process({ text: text }).html;
-                            break;
-                        case "number":
-                            if (!$.isNumeric(text)) displayValue ='??';
-                            else if (!mi.stringFormat)
-                                displayValue = text.toString();
-                            else
-                                displayValue = String.format(mi.stringFormat, parseFloat(text));
-                            break;
-                        default:
-                            displayValue = text;
-                            break;
-                    }
+                    displayValue = FeatureProps.CallOut.convertPropertyInfo(mi, text);
+                    //if (!text)
+                    //    text = ' ';
+                    //else if (!$.isNumeric(text))
+                    //    text = text.replace(/&amp;/g, '&');
+                    //switch (mi.type) {
+                    //    case "bbcode":
+                    //        displayValue = XBBCODE.process({ text: text }).html;
+                    //        break;
+                    //    case "number":
+                    //        if (!$.isNumeric(text)) displayValue ='??';
+                    //        else if (!mi.stringFormat)
+                    //            displayValue = text.toString();
+                    //        else
+                    //            displayValue = String.format(mi.stringFormat, parseFloat(text));
+                    //        break;
+                    //    default:
+                    //        displayValue = text;
+                    //        break;
+                    //}
                     row.push(new TableField(displayValue, text, mi.type, mi.title));
                 });
                 props.push(row);

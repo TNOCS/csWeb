@@ -1,5 +1,4 @@
 ﻿module csComp.GeoJson {
-
     export class Feature implements IFeature {
         public id: string;
         public layerId: string;

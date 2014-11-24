@@ -47,7 +47,6 @@
             this.map.invalidateSize();
         }
 
-
         /**
          * Zoom to a location on the map.
          */

@@ -18,11 +18,15 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="directives\MCA\Mca.tpl.ts" />
+    <TypeScriptCompile Include="directives\MCA\Mca.ts" />
+    <TypeScriptCompile Include="directives\MCA\McaEditorCtrl.ts" />
     <TypeScriptCompile Include="helpers\Extensions.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
     <TypeScriptCompile Include="helpers\MessageBus.ts" />
     <TypeScriptCompile Include="classes\csClasses.ts" />
-    <TypeScriptCompile Include="helpers\Resize.ts" />
+    <TypeScriptCompile Include="helpers\Plot.ts" />
+    <TypeScriptCompile Include="directives\Resize\Resize.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.tpl.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendListCtrl.ts" />
@@ -32,8 +36,9 @@
     <TypeScriptCompile Include="directives\FilterList\FilterList.tpl.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterList.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterListCtrl.ts" />
-    <TypeScriptCompile Include="mca\McaCtrl.ts" />
-    <TypeScriptCompile Include="mca\models\Criteria.ts" />
+    <TypeScriptCompile Include="directives\MCA\McaCtrl.ts" />
+    <TypeScriptCompile Include="directives\MCA\models\Criteria.ts" />
+    <TypeScriptCompile Include="directives\ShowModal\ShowModal.ts" />
     <TypeScriptCompile Include="services\layer\ILayerService.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.tpl.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
@@ -70,20 +75,30 @@
     <TypeScriptCompile Include="directives\DataTable\DataTable.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="directives\MCA\Mca.tpl.html" />
     <Content Include="includes\csStyles.css" />
-    <Content Include="includes\images\bordercolor.png" />
-    <Content Include="includes\images\fillcolor.png" />
-    <Content Include="includes\images\filter-black.png" />
-    <Content Include="includes\images\layers-black.png" />
-    <Content Include="includes\images\line-width.png" />
-    <Content Include="includes\images\map-black.png" />
-    <Content Include="includes\images\marker-black.png" />
-    <Content Include="includes\images\minus.png" />
-    <Content Include="includes\images\plus-white.png" />
-    <Content Include="includes\images\plus.png" />
-    <Content Include="includes\images\settings.png" />
-    <Content Include="includes\images\style-black.png" />
-    <Content Include="includes\jqueryinjectCSS.js" />
+    <None Include="includes\images\bordercolor.png" />
+    <None Include="includes\images\fillcolor.png" />
+    <None Include="includes\images\filter-black.png" />
+    <None Include="includes\images\layers-black.png" />
+    <None Include="includes\images\line-width.png" />
+    <None Include="includes\images\map-black.png" />
+    <None Include="includes\images\marker-black.png" />
+    <None Include="includes\images\minus.png" />
+    <None Include="includes\images\pen.png" />
+    <None Include="includes\images\pen_small.png" />
+    <None Include="includes\images\plot_ascending.png" />
+    <None Include="includes\images\plot_ascending_sigmoid.png" />
+    <None Include="includes\images\plot_descending.png" />
+    <None Include="includes\images\plot_descending_sigmoid.png" />
+    <None Include="includes\images\plot_gaussian_peak.png" />
+    <None Include="includes\images\plot_gaussian_valley.png" />
+    <None Include="includes\images\plus-white.png" />
+    <None Include="includes\images\plus.png" />
+    <None Include="includes\images\polygon.png" />
+    <None Include="includes\images\settings.png" />
+    <None Include="includes\images\sliders.png" />
+    <None Include="includes\images\style-black.png" />
     <Content Include="directives\LegendList\LegendList.tpl.html" />
     <Content Include="directives\DataTable\DataTable.tpl.html" />
     <None Include="directives\FeatureProps\FeatureProps.tpl.html" />
@@ -92,8 +107,6 @@
     <None Include="directives\LayersList\LayersDirective.tpl.html" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="includes\dashboard.js" />
-    <Content Include="includes\pnotify.custom.js" />
     <Content Include="includes\pnotify.custom.min.css" />
     <Content Include="directives\FeatureList\FeatureList.tpl.html" />
     <Content Include="directives\FilterList\FilterList.tpl.html" />
