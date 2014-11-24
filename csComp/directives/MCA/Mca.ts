@@ -13,11 +13,11 @@
     } catch (err) {
         // named module does not exist, so create one
         myModule = angular.module(moduleName, []);
-    }
+    } 
 
     /**  
       * Directive to display an MCA control. 
-      */ 
+      */  
     myModule.directive('mca', [
         '$window', '$compile',
         function ($window, $compile): ng.IDirective {

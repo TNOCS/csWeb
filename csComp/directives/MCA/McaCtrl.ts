@@ -3,6 +3,8 @@
         vm: McaCtrl;
     }
 
+    declare var String: csComp.StringExt.IStringExt;
+
     // DONE MCA Editor
     // DONE Adding MCA definitions to the project file
     // TODO Localize
@@ -10,7 +12,7 @@
     // TODO Save MCA after changing a value
     // TODO Optimize me button.
     // TODO Save the project file
-
+    
     export class McaCtrl {
         private static mcas = 'MCAs';
         private static confirmationMsg1: string;
@@ -139,6 +141,7 @@
         }
 
         public weightUpdated(criterion: Models.Criterion) {
+            this.addMca(this.mca);
             this.calculateMca();
             this.drawChart(criterion);
         }
@@ -169,7 +172,7 @@
         public removeMca(mca: Models.Mca) {
             if (!mca) return;
             var title = String.format(McaCtrl.confirmationMsg1, mca.title);
-            this.messageBusService.confirm('Delete MCA "'+ mca.title + '"', 'Are you sure?', (result) => {
+            this.messageBusService.confirm(title, McaCtrl.confirmationMsg2, (result) => {
                 if (result) this.deleteMca(mca);
             });
         }

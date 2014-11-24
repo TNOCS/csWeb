@@ -1,4 +1,7 @@
 ﻿module csComp.StringExt {
+    export interface IStringExt extends String {
+        format(s: string, ...args: string[]): string;
+    }
 
     export class Utils {
         /** Convert a CamelCase string to one with underscores. */

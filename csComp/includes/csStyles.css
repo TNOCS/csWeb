@@ -191,3 +191,10 @@
         padding-top: 5px;
         background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAACxQAAAsUBidZ/7wAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFUSURBVDiNndQ/S5xBEMfxz3NRE0Q5FIIgQdFSg4KkESFF3kDQJqQIKXw3FjZ2FhbaCBZCCrUQO8FCAnZilAhpQqJWVv4bC/dCfHzO5+4GBnZnme/+doZZEaEVx2vsYPRRvEVYLw4Q+IvxloGoYj/Ban6BdxGhonm7wnku1oPtLMsmm1HWiSX04yW+5VQGNhuFvcJ2SjrCG7Rj7T/YHrobgXVgI6fkBIN4gZVU02ppU9CG9YKnBU4xjAq6S7ucbl+tA/tXsyd5dWAVLJfADtFXCkSGxRLYMfoLxRQAF0pgpxioW6ocbK4E9gtDzzUyPyk/UmKR/caHiPhZ5/zBkrIpTKf1V9zmlP3BSENDkCDzuMantP+c9uFhbscaHtEEOEnJN/iSYjNJ2USTv5G3uefdYjYddjUDqzXlY66sZ3ifZVk1Ii6fbUCBZdjFHbaSf4+a9hbsHlixj6qGJsHqAAAAAElFTkSuQmCC') /*images/pen_small.png*/ no-repeat left center;/*images/pen_small.png*/;
     }
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    -moz-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+}
