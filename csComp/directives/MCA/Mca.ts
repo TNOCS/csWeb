@@ -13,7 +13,7 @@
     } catch (err) {
         // named module does not exist, so create one
         myModule = angular.module(moduleName, []);
-    } 
+    }
 
     /**  
       * Directive to display an MCA control. 

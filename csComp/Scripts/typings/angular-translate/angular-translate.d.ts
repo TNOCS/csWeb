@@ -14,7 +14,7 @@ declare module ng.translate {
     }
   
     interface ITranslationTable {
-        [key: string]: string;
+        [key: string]: any;
     }
 
     interface ILanguageKeyAlias {

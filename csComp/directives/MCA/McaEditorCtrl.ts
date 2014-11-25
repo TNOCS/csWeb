@@ -12,6 +12,7 @@
 
     export interface IExtendedPropertyInfo extends csComp.GeoJson.IMetaInfo {
         isSelected?         : boolean;
+        hasCategory?        : boolean;
         category?           : string;  
         scores?             : string;  
         scoringFunctionType?: Models.ScoringFunctionType;
@@ -87,9 +88,12 @@
                 if (c.label) {
                     for (var i in this.metaInfos) {
                         var mi = this.metaInfos[i];
-                        if (mi.label === c.label) continue;
+                        if (mi.label != c.label) continue;
                         mi.isSelected = true;
-                        mi.category   = category;
+                        if (category) {
+                            mi.hasCategory = true;
+                            mi.category    = category;
+                        }
                         break;
                     }
                 } else {

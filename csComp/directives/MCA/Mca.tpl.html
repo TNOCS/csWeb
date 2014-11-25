@@ -17,18 +17,18 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h3 class="modal-title">MCA Editor</h3>
+                        <h3 class="modal-title" translate>MCA.EDITOR_TITLE</h3>
                     </div>
                     <div class="modal-body">
-                        <input type="text" data-ng-model="vm.mcaTitle" placeholder="MCA title..." />
-                        <span><input type="checkbox" data-ng-model="vm.hasRank" style="margin-left: 10px;" />&nbsp;&nbsp;Include rank</span>
-                        <input type="text" data-ng-if="vm.hasRank" data-ng-model="vm.rankTitle" placeholder="Rank title..." />
-                        <h4>Select the main feature</h4>
+                        <input type="text" data-ng-model="vm.mcaTitle" placeholder="{{ \'MCA.TITLE\' | translate }}" />
+                        <span><input type="checkbox" data-ng-model="vm.hasRank" style="margin-left: 10px;" /><span translate>MCA.INCLUDE_RANK</span></span>
+                        <input type="text" data-ng-if="vm.hasRank" data-ng-model="vm.rankTitle" placeholder="{{ \'MCA.RANK_TITLE\' | translate }}" />
+                        <h4 translate>MCA.MAIN_FEATURE</h4>
                         <select data-ng-model="vm.selectedFeatureType"
                                 data-ng-change="vm.loadPropertyTypes()"
                                 data-ng-options="item as item.name for (key, item) in vm.dataset.poiTypes"
                                 class="form-control"></select>
-                        <h4>Select the properties</h4>
+                        <h4 translate>MCA.PROPERTIES</h4>
                         <ul class="form-group" style="margin-top: 1em; margin-left: -2em; overflow-y: auto; overflow-x: hidden;"
                             resize resize-y="450">
                             <li ng-repeat="mi in vm.metaInfos" class="list-unstyled" style="white-space: nowrap; -moz-text-overflow: ellipsis; text-overflow: ellipsis">
@@ -38,8 +38,8 @@
                                                data-ng-checked="mi.isSelected"
                                                data-ng-click="mi.isSelected = !mi.isSelected">&nbsp;&nbsp;{{mi.title}}
                                         <span data-ng-if="mi.isSelected" style="margin-left: 10px;">
-                                            <input type="checkbox" data-ng-model="specifyCategory" /><span>&nbsp;&nbsp;Use category:&nbsp;</span>
-                                            <input type="text" data-ng-if="specifyCategory" data-ng-model="mi.category" placeholder="..." />
+                                            <input type="checkbox" data-ng-model="mi.hasCategory" /><span translate>MCA.HAS_CATEGORY</span>
+                                            <input type="text" data-ng-if="mi.hasCategory" data-ng-model="mi.category" placeholder="..." />
                                         </span>
                                     </span>
                                     <form data-ng-if="mi.isSelected" name="myForm" style="margin-left: 20px;">
@@ -56,8 +56,8 @@
                         </ul>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-warning" data-dismiss="modal" data-ng-click="vm.cancel()">Cancel</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-ng-disabled="vm.isDisabled()" data-ng-click="vm.save()">OK</button>
+                        <button type="button" class="btn btn-warning" data-dismiss="modal" data-ng-click="vm.cancel()" translate>CANCEL_BTN</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-ng-disabled="vm.isDisabled()" data-ng-click="vm.save()" translate>OK_BTN</button>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
@@ -88,9 +88,9 @@
         </ul>
 
         <!--<a href="" style="display: inline-block; width: 100%; text-transform: uppercase"
-           data-ng-click="vm.calculateMca()" translate="MCA_COMPUTE_MGS" translate-values="{ mcaTitle: vm.mca.title }"></a>-->
+           data-ng-click="vm.calculateMca()" translate="MCA.COMPUTE_MGS" translate-values="{ mcaTitle: vm.mca.title }"></a>-->
         <h4 data-ng-if="vm.showChart">
-            <a href="" data-ng-click="vm.weightUpdated(vm.mca)" translate="MCA_TOTAL_RESULT"></a>
+            <a href="" data-ng-click="vm.weightUpdated(vm.mca)" translate="MCA.TOTAL_RESULT"></a>
             <a href="" data-ng-if="vm.selectedCriterion">&gt;&nbsp;{{vm.selectedCriterion.title}}</a>
         </h4>
         <div style="margin-top: 5px; margin-left: 70px;" id="mcaPieChart"></div>
@@ -110,6 +110,6 @@
                 </tr>
             </table>
         </div>
-        <i data-ng-if="!vm.showFeature"><div translate="SHOW_FEATURE_MSG"></div></i>
+        <i data-ng-if="!vm.showFeature"><div translate="MCA.SHOW_FEATURE_MSG"></div></i>
     </div>
 </div>
