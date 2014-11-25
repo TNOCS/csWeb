@@ -1,6 +1,6 @@
 ﻿module csComp.StringExt {
     export interface IStringExt extends String {
-        format(s: string, ...args: string[]): string;
+        format(s: string, ...args: any[]): string;
     }
 
     export class Utils {

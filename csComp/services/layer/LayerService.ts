@@ -262,15 +262,15 @@
                 async.series([
                     (callback) => {
                         // If oneLayerActive: close other group layer
-                       if (layer.group.oneLayerActive) {
-                           layer.group.layers.forEach((l: ProjectLayer) => {
-                               if (l != layer && l.enabled) {                                   
-                                   disableLayers.push(l);
-                               }
-                           });
-                       }
-                        callback(null,null);
-                    } ,
+                        if (layer.group.oneLayerActive) {
+                            layer.group.layers.forEach((l: ProjectLayer) => {
+                                if (l != layer && l.enabled) {
+                                    disableLayers.push(l);
+                                }
+                            });
+                        }
+                        callback(null, null);
+                    },
                     (callback) => {
                         if (layer.styleurl) {
                             d3.json(layer.styleurl, (err, dta) => {
@@ -318,8 +318,8 @@
                                             //this.initFeature(feature, layer);
                                             layer.group.markers[feature.id] = lay;
                                             lay.on({
-                                                mouseover: (a) => this.showFeatureTooltip(a,layer.group),
-                                                mouseout: (s) => this.hideFeatureTooltip(s),                                                
+                                                mouseover: (a) => this.showFeatureTooltip(a, layer.group),
+                                                mouseout: (s) => this.hideFeatureTooltip(s),
                                             });
                                         }
                                     });
@@ -328,16 +328,16 @@
                                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                                     this.map.map.addLayer(layer.mapLayer);
 
-                                    var v = L.geoJson(data, {                                        
+                                    var v = L.geoJson(data, {
                                         onEachFeature: (feature: IFeature, lay) => {
                                             //We do not need to init the feature here: already done in style.
                                             //this.initFeature(feature, layer);
                                             layer.group.markers[feature.id] = lay;
                                             lay.on({
-                                                mouseover: (a) => this.showFeatureTooltip(a,layer.group),
+                                                mouseover: (a) => this.showFeatureTooltip(a, layer.group),
                                                 mouseout: (s) => this.hideFeatureTooltip(s),
                                                 mousemove: (d) => this.updateFeatureTooltip(d),
-                                                click    : () => { this.selectFeature(feature); }
+                                                click: () => { this.selectFeature(feature); }
                                             });
                                         },
                                         style: (f: IFeature, m) => {
@@ -345,7 +345,7 @@
                                             layer.group.markers[f.id] = m;
                                             return this.style(f, layer);
                                         },
-                                        pointToLayer : (feature, latlng) => this.addFeature(feature, latlng, layer)
+                                        pointToLayer: (feature, latlng) => this.addFeature(feature, latlng, layer)
                                     });
                                     this.project.features.forEach((f: IFeature) => {
                                         if (f.layerId != layer.id) return;
@@ -398,9 +398,11 @@
                 group.filters.forEach((f: GroupFilter) => {
                     if (feature.properties.hasOwnProperty(f.property)) {
                         var value = feature.properties[f.property];
-                        if (f.meta != null && !StringExt.isNullOrEmpty(f.meta.stringFormat)) {
-                            value = String.format(f.meta.stringFormat, parseFloat(value));
-                        }
+                        if (f.meta != null)
+                            value = Helpers.convertPropertyInfo(f.meta, value);
+                        //if (f.meta != null && !StringExt.isNullOrEmpty(f.meta.stringFormat)) {
+                        //    value = String.format(f.meta.stringFormat, parseFloat(value));
+                        //}
                         content += "<br><kimg src='includes/images/filter-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + f.title + ":<b>" + value + "</b>";
                     }
                 });

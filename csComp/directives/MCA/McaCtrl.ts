@@ -264,11 +264,11 @@
                 this.showFeature = true;
                 this.properties = [];
                 var mi = McaCtrl.createMetaInfo(this.mca);
-                var displayValue = FeatureProps.CallOut.convertPropertyInfo(mi, feature.properties[mi.label]);
+                var displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
                 this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description));
                 if (this.mca.rankTitle) {
                     mi = McaCtrl.createMetaInfoRank(this.mca);
-                    displayValue = FeatureProps.CallOut.convertPropertyInfo(mi, feature.properties[mi.label]);
+                    displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
                     this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description));
                 }
                 this.drawChart();

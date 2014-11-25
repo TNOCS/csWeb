@@ -242,7 +242,7 @@
                 var row: Array<TableField> = [];
                 meta.forEach((mi) => {
                     var text = f.properties[mi.label];
-                    displayValue = FeatureProps.CallOut.convertPropertyInfo(mi, text);
+                    displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
                     //if (!text)
                     //    text = ' ';
                     //else if (!$.isNumeric(text))

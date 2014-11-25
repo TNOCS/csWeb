@@ -107,7 +107,7 @@
                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                     callOutSection.metaInfos[mi.label] = mi;
                     var text = feature.properties[mi.label];
-                    displayValue = CallOut.convertPropertyInfo(mi, text);
+                    displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
                     // Skip empty, non-editable values
                     if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
 
@@ -123,42 +123,42 @@
             if (searchCallOutSection.properties.length > 0) this.sections['Zzz Search'] = searchCallOutSection;
         }
 
-        /** 
-        * Convert a property value to a display value using the property info.
-        */
-        public static convertPropertyInfo(mi: IMetaInfo, text: string): string {
-            var displayValue: string;
-            if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
-                text = text.replace(/&amp;/g, '&');
-            if (csComp.StringExt.isNullOrEmpty(text)) return '';
-            switch (mi.type) {
-                case "bbcode":
-                    if (!csComp.StringExt.isNullOrEmpty(mi.stringFormat))
-                        text = String.format(mi.stringFormat, text);
-                    displayValue = XBBCODE.process({ text: text }).html;
-                    break;
-                case "number":
-                    if (!$.isNumeric(text))
-                        displayValue = text;
-                    else if (csComp.StringExt.isNullOrEmpty(mi.stringFormat))
-                        displayValue = text.toString();
-                    else
-                        displayValue = String.format(mi.stringFormat, parseFloat(text));
-                    break;
-                case "rank":
-                    var rank = text.split(',');
-                    if (rank.length != 2) return text;
-                    if (mi.stringFormat)
-                        displayValue = String.format(mi.stringFormat, rank[0], rank[1]);
-                    else 
-                        displayValue = String.format("{0) / {1}", rank[0], rank[1]);
-                    break;
-                default:
-                    displayValue = text;
-                    break;
-            }
-            return displayValue;
-        }
+        ///** 
+        //* Convert a property value to a display value using the property info.
+        //*/
+        //public static convertPropertyInfo(mi: IMetaInfo, text: string): string {
+        //    var displayValue: string;
+        //    if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
+        //        text = text.replace(/&amp;/g, '&');
+        //    if (csComp.StringExt.isNullOrEmpty(text)) return '';
+        //    switch (mi.type) {
+        //        case "bbcode":
+        //            if (!csComp.StringExt.isNullOrEmpty(mi.stringFormat))
+        //                text = String.format(mi.stringFormat, text);
+        //            displayValue = XBBCODE.process({ text: text }).html;
+        //            break;
+        //        case "number":
+        //            if (!$.isNumeric(text))
+        //                displayValue = text;
+        //            else if (csComp.StringExt.isNullOrEmpty(mi.stringFormat))
+        //                displayValue = text.toString();
+        //            else
+        //                displayValue = String.format(mi.stringFormat, parseFloat(text));
+        //            break;
+        //        case "rank":
+        //            var rank = text.split(',');
+        //            if (rank.length != 2) return text;
+        //            if (mi.stringFormat)
+        //                displayValue = String.format(mi.stringFormat, rank[0], rank[1]);
+        //            else 
+        //                displayValue = String.format("{0) / {1}", rank[0], rank[1]);
+        //            break;
+        //        default:
+        //            displayValue = text;
+        //            break;
+        //    }
+        //    return displayValue;
+        //}
 
         ///**                                         
         // * In case we are dealing with a regular JSON file without type information, create a default type.
@@ -320,7 +320,12 @@
         }
 
         public toTrusted(html: string) {
-            return this.$sce.trustAsHtml(html);
+            try {
+                return this.$sce.trustAsHtml(html.toString());
+            } catch (e) {
+                console.log(e + ': ' + html);
+                return '';
+            }
         }
 
         /** 
@@ -370,9 +375,9 @@
             var featureType     = this.$layerService.featureTypes[feature.featureTypeName];
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.metaInfoData);
             // Probably not needed
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-                this.$scope.$apply();
-            }
+            //if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+            //    this.$scope.$apply();
+            //}
         }
     }
 }
