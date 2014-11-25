@@ -238,6 +238,7 @@
 
         private featureMessageReceived = (title: string, feature: csComp.GeoJson.IFeature): void => {
             //console.log("MC: featureMessageReceived");
+            if (this.mca == null) return;
             switch (title) {
             case "onFeatureSelect":
                 this.updateSelectedFeature(feature);
