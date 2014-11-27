@@ -180,6 +180,18 @@
         //    }
         //}
 
+        public sectionCount(): number {
+            return Object.keys(this.sections).length;
+        }
+
+        public firstSection(): ICallOutSection {
+            return this.sections[Object.keys(this.sections)[this.sectionCount() - 2]];
+        }
+
+        public lastSection(): ICallOutSection {
+            return this.sections[Object.keys(this.sections)[this.sectionCount()-1]];
+        }
+
         private getOrCreateCallOutSection(sectionTitle: string): ICallOutSection {
             if (!sectionTitle) {
                 return null;

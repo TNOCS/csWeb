@@ -456,7 +456,7 @@
         /**
          * init feature (add to feature list, crossfilter)
          */
-        private initFeature(feature: IFeature, layer: ProjectLayer): IFeatureType {
+        public initFeature(feature: IFeature, layer: ProjectLayer): IFeatureType {
             //if (!feature.isInitialized) 
             {
                 feature.isInitialized = true;
@@ -1041,6 +1041,17 @@
                 });
 
                 this.$messageBusService.publish("project", "loaded");
+            });
+        }
+
+        public closeProject() {
+            if (this.project == null) return;
+            this.project.groups.forEach((group: ProjectGroup) => {
+                group.layers.forEach((layer: ProjectLayer) => {
+                    if (layer.enabled) {
+                        this.removeLayer(layer);
+                    }
+                });
             });
         }
 

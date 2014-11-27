@@ -3,8 +3,8 @@
         <img data-ng-if="callOut.icon" data-ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" />
         &nbsp;&nbsp;{{callOut.title}}
     </h4>    
-    <div class="container-fluid rightpanel-tabs" style="position: relative">    
-        <div class="row" style="overflow:hidden">
+    <div class="container-fluid rightpanel-tabs" style="position: relative">
+        <div class="row" style="overflow:hidden" ng-if="callOut.sectionCount() <= 8">
             <!-- Nav tabs -->
             <span id="leftArr" style="display:block;padding:10px;margin-top:5px;position:absolute;background-color:transparent;z-index:2">
                 <i class="glyphicon glyphicon-chevron-left"></i>
@@ -19,7 +19,29 @@
                 </li>
             </ul>
         </div>
+        
+        
+        <div class="row" ng-if="callOut.sectionCount() > 8">
+            <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
+                <li data-toggle="tab" class="active" ng-init="firstCallOutsection=callOut.firstSection()">
+                    <a ng-href="#rp-0" data-toggle="tab" data-ng-if="firstCallOutsection.showSectionIcon()" ><i class="fa {{firstCallOutsection.sectionIcon}}"></i></a>                    
+                </li>
+                <li class="dropdown" ng-init="selectedSection.title=\'Kies een categorie\'">
+                    <a style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"/></a>
+                    <ul class="dropdown-menu">
+                        <li data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="!$last && !$first"><a ng-href="#rp-{{$index}}" ng-click="selectedSection.title = sectionTitle" data-toggle="tab">{{sectionTitle}}</a></li>
+                    </ul>
+                </li>
+                <li data-toggle="tab" ng-init="lastCallOutsection=callOut.lastSection()">
+                    <a ng-href="#rp-{{callOut.sectionCount()-1}}" data-toggle="tab" data-ng-if="lastCallOutsection.showSectionIcon()"><i class="fa {{lastCallOutsection.sectionIcon}}"></i></a>                    
+                </li>
+                
+            </ul>
+        </div>
+
+
     </div>
+    
     <div class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
         <div data-ng-if="!$last" class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="(sectionTitle, section) in callOut.sections">
             <table class="table table-condensed">
