@@ -349,8 +349,13 @@
         /**
          * Convert to trusted html string.
          */
-        public toTrusted(html: string) : string {
-            return this.$sce.trustAsHtml(html);
+        public toTrusted(html: string) {
+            try {
+                return this.$sce.trustAsHtml(html.toString());
+            } catch (e) {
+                console.log(e + ': ' + html);
+                return '';
+            }
         }
     }
 }
