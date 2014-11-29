@@ -338,6 +338,7 @@
             } else {
                 // Support for browsers that support the data uri.
                 var a: any = document.createElement('a');
+                document.body.appendChild(a);
                 a.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvData);
                 a.target = '_blank';
                 a.download = filename;
