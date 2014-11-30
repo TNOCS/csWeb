@@ -11,7 +11,7 @@
         vm: McaEditorCtrl;
     }
 
-    export interface IExtendedPropertyInfo extends IPropertyType {
+    export interface IExtendedPropertyInfo extends csComp.Services.IPropertyType {
         isSelected?         : boolean;
         hasCategory?        : boolean;
         category?           : string;  
@@ -111,10 +111,10 @@
          * Load the features as visible on the map.
          */
         private loadMapLayers(): void {
-            var data: IGeoJsonFile = {
-                type: '',
-                features: [],
-                poiTypes: {}
+            var data         : IGeoJsonFile = {
+                type         : '',
+                features     : [],
+                featureTypes : {}
             };
             // If we are filtering, load the filter results
             this.$layerService.project.groups.forEach((group) => {
@@ -126,7 +126,7 @@
                 data.features = this.$layerService.project.features;
 
             data.features.forEach((f: IFeature) => {
-                if (!(f.featureTypeName in data.featureTypes))
+                if (!(data.featureTypes.hasOwnProperty(f.featureTypeName)))
                     data.featureTypes[f.featureTypeName] = this.$layerService.featureTypes[f.featureTypeName];
             });
 

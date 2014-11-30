@@ -16,8 +16,6 @@
             this.focus = d.getTime();
             if (s) this.start = s.getTime();
             if (e) this.end = e.getTime();
-
-
         }
 
         constructor() {
@@ -26,7 +24,7 @@
 
         startDate = () => { return new Date(this.start); }
         focusDate = () => { return new Date(this.start); }
-        endDate = () => { return new Date(this.start); }
+        endDate   = () => { return new Date(this.start); }
     }
 
     /**

@@ -153,13 +153,4 @@
         sdMax   : number;
         sdMin   : number;
     }
-
-
-
-    //export class Feature implements IFeature {
-    //    layerId   : string;
-    //    type      : string;
-    //    geometry  : IGeoJsonGeometry;
-    //    properties: Array<IStringToString>;
-    //}
 } 

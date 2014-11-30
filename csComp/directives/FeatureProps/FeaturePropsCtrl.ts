@@ -244,7 +244,6 @@
                 $messageBusService.publish('FeatureTab', 'activated', { sectionTitle: sectionTitle, section: section });
             };
             
-            console.log('SidebarCtrl: constructed');
             $messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
             $messageBusService.subscribe("feature", this.featureMessageReceived);
 
