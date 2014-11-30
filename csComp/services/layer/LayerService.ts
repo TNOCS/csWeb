@@ -1,206 +1,72 @@
-﻿module csComp.Services {
-    import IFeature        = GeoJson.IFeature;
-    import IFeatureType    = GeoJson.IFeatureType;
-    import DrawingModeType = GeoJson.DrawingModeType;
-    import IMetaInfo = GeoJson.IMetaInfo;
-
-    declare var String;
-
-    export class SolutionProject {
-        title: string;
-        url  : string;
-    }
-
-    /** 
-    * Implement this interface to make your object serializable 
-    * @see http://stackoverflow.com/a/22886730/319711
-    */
-    export interface ISerializable<T> {
-        deserialize(input: Object): T;
-    }
-
-    export interface IBaseLayer {
-        id         : string;
-        title      : string;
-        isDefault  : boolean;
-        subtitle   : string;
-        preview    : string;
-        url        : string;
-        maxZoom    : number;
-        minZoom    : number;
-        subdomains : Array<string>;
-        attribution: string;
-        test       : string;
-    }
-
-    export interface IBoundingBox {
-        southWest: L.LatLng;
-        northEast: L.LatLng;
+﻿module csComp.StringExt {
+    export function isNullOrEmpty(s: string): boolean {
+        return !s;
     }
 
     /**
-     * Represents to the overall projects class.
+     * String formatting
+     * 'Added {0} by {1} to your collection'.f(title, artist)
+     * 'Your balance is {0} USD'.f(77.7)
      */
-    export class Solution {
-        title     : string;
-        maxBounds : IBoundingBox;
-        viewBounds: IBoundingBox;
-        baselayers: Array<IBaseLayer>;
-        projects  : Array<SolutionProject>;
+    export function format(s: string, ...args: string[]): string {
+        var i = args.length;
+             
+        while (i--) {
+            // "gm" = RegEx options for Global search (more than one instance) and for Multiline search
+            s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), args[i]);
+        }
+        return s;
+    };
+
+    /*
+     * Returns true if we are dealing with a number, false otherwise.
+     */
+    export function isNumber(n: any): boolean {
+        return !isNaN(parseFloat(n)) && isFinite(n);
     }
+
+    /*
+     * Returns true if we are dealing with a boolean, false otherwise.
+     */
+    export function isBoolean(s: any): boolean {
+        return s === 'true' || s === 'false';
+    }
+
+    /*
+     * Returns true if we are dealing with a bbcode, false otherwise.
+     */
+    export function isBbcode(s: any): boolean {
+        return false;
+        if (s == null) return false;
+        return s.indexOf("[b]") > 0 || s.indexOf("[i]") > 0 || s.indexOf("[url") > 0;
+    }
+}
+
+
+module csComp.Services {
     
-    export class Project implements ISerializable<Project> {
-        title        : string;
-        description  : string;
-        logo         : string;
-        viewBounds   : IBoundingBox;
-        startposition: Coordinates;
-        featureTypes : { [id: string] : IFeatureType }
-        metaInfoData : { [id: string] : IMetaInfo }
-        groups       : Array<ProjectGroup>;
-        mcas         : Mca.Models.Mca[];
-        features     : IFeature[];
-        markers = {};
 
-        public deserialize(input: Project): Project {
-            this.viewBounds    = input.viewBounds;
-            this.title         = input.title;
-            this.description   = input.description;
-            this.logo          = input.logo;
-            this.markers       = input.markers;
-            this.startposition = input.startposition;
-            this.features      = input.features;
-            this.featureTypes  = input.featureTypes;
-            this.metaInfoData  = input.metaInfoData;
-            this.groups        = input.groups;
-            this.mcas          = [];
-            for (var mca in input.mcas) {
-                this.mcas.push(new Mca.Models.Mca().deserialize(mca));
-            }
-            return this;
-        }
+    declare var String;
+
+
+    export interface ILayerService {
+        title: string;
+        accentColor: string;
+        project: Project;
+        maxBounds: IBoundingBox;
+        findLayer(id: string): ProjectLayer;
+        selectFeature(feature: Services.IFeature);
+
+        mb: Services.MessageBusService;
+        map: Services.MapService;
+        layerGroup: L.LayerGroup<L.ILayer>;
+        featureTypes: { [key: string]: Services.IFeatureType; };
+        propertyTypeData: { [key: string]: Services.IPropertyType; };
+        timeline : any;
+
+
     }
 
-    export class PropertyInfo {
-        max     : number;
-        min     : number;
-        count   : number;
-        mean    : number;
-        varience: number;
-        sd      : number;
-        sdMax   : number;
-        sdMin   : number;
-    }
-
-    export class ProjectLayer {
-        title      : string;
-        description: string;
-        type       : string;
-        url        : string;
-        styleurl   : string;
-        enabled    : boolean;
-        opacity    : number;
-        isLoading  : boolean;
-        isSublayer : boolean;
-        mapLayer   : L.LayerGroup<L.ILayer>;
-        group      : ProjectGroup;
-        /** Internal ID, e.g. for the Excel service */
-        id         : string;
-        /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */
-        reference  : string;
-    }
-
-    export class GroupFilter {
-        id          : string;
-        title       : string;
-        enabled     : boolean;
-        filterType  : string;
-        property    : string;
-        criteria    : string;
-        dimension   : any;
-        value       : any;
-        stringValue : string;
-        rangex      : number[];
-        meta        : IMetaInfo;
-    }
-
-    export class GroupStyle {
-        id              : string;
-        title           : string;
-        enabled         : boolean;
-        layers          : string[];
-        visualAspect    : string;
-        property        : string;        
-        colors          : string[];
-        group           : ProjectGroup;
-        availableAspects: string[];
-        canSelectColor  : boolean;
-        colorScales     : any;
-        info            : PropertyInfo;
-        meta            : IMetaInfo;
-
-        constructor($translate: ng.translate.ITranslateService) {
-
-            this.availableAspects = ["strokeColor", "fillColor", "strokeWidth"];
-            this.colorScales = {};
-            
-            $translate('WHITE_RED').then((translation) => {
-                this.colorScales[translation] = ["white", "red"];
-            });
-            $translate('RED_WHITE').then((translation) => {
-                this.colorScales[translation] = ["red", "white"];
-            });
-            $translate('GREEN_RED').then((translation) => {
-                this.colorScales[translation] = ["green", "red"];
-            });
-            $translate('RED_GREEN').then((translation) => {
-                this.colorScales[translation] = ["red", "green"];
-            });
-            $translate('WHITE_BLUE').then((translation) => {
-                this.colorScales[translation] = ["white", "blue"];
-            });
-            $translate('BLUE_WHITE').then((translation) => {
-                this.colorScales[translation] = ["blue", "white"];
-            });
-            $translate('WHITE_GREEN').then((translation) => {
-                this.colorScales[translation] = ["white", "green"];
-            });
-            $translate('GREEN_WHITE').then((translation) => {
-                this.colorScales[translation] = ["green", "white"];
-            });
-            $translate('WHITE_ORANGE').then((translation) => {
-                this.colorScales[translation] = ["white", "orange"];
-            });
-            $translate('ORANGE_WHITE').then((translation) => {
-                this.colorScales[translation] = ["orange", "white"];
-            });
-        }
-    }
-
-    export class ProjectGroup {
-        id            : string;
-        title         : string;
-        description   : string;
-        layers        : Array<ProjectLayer>;
-        filters       : Array<GroupFilter>;
-        styles        : Array<GroupStyle>;
-        showTitle     : boolean;
-        cluster       : L.MarkerClusterGroup;
-        vectors       : L.LayerGroup<L.ILayer>;
-        /** Turn on the leaflet markercluster */
-        clustering    : boolean;
-        /** If set, at this zoom level and below markers will not be clustered. This defaults to disabled */
-        clusterLevel: number;
-        /**  The maximum radius that a cluster will cover from the central marker (in pixels). Default 80. Decreasing will make more smaller clusters. You can also use a function that accepts the current map zoom and returns the maximum cluster radius in pixels. */
-        maxClusterRadius: number;
-        clusterFunction : Function;
-        /** Creates radio buttons instead of checkboxes in the level */
-        oneLayerActive: boolean;
-        ndx           : any;
-        filterResult  : IFeature[];
-        public markers: any;
-        styleProperty : string;
-    }
 
     declare var jsonld;
 
@@ -221,18 +87,19 @@
         public map : Services.MapService;
         
         public featureTypes : { [key: string]: IFeatureType; };
-        public metaInfoData : { [key: string]: IMetaInfo; };
+        public propertyTypeData: { [key: string]: IPropertyType; };
           
         public project: Project;
         public solution: Solution;
         
         public layerGroup = new L.LayerGroup();
-        public info       = new L.Control();
-        public dimension           : any;
-        public noFilters           : boolean;
-        public noStyles            : boolean;
-        public lastSelectedFeature : GeoJson.IFeature;
-        public selectedLayerId     : string;
+        public dimension : any;
+        public info = new L.Control();
+        public noFilters: boolean;
+        public noStyles: boolean;
+        public lastSelectedFeature : IFeature;
+        public selectedLayerId: string;
+        public timeline: any;
 
         constructor(
             private $location          : ng.ILocationService,
@@ -247,9 +114,59 @@
             this.title          = "";
             this.layerGroup     = new L.LayerGroup();
             this.featureTypes   = {};
-            this.metaInfoData   = {};
+            this.propertyTypeData   = {};
             this.map.map.addLayer(this.layerGroup);
             this.noStyles = true;
+
+            this.$messageBusService.subscribe("timeline", (trigger: string) => {
+                switch (trigger) {
+
+                case "focusChange":
+                    this.updateSensorData();
+                    break;
+
+                }
+            });
+        }
+
+        public updateSensorData() {
+            if (this.project == null || this.project.timeLine==null) return;
+            var date = this.project.timeLine.focus;
+            var timepos = {};
+            this.project.features.forEach((f: IFeature) => {
+                var l = this.findLayer(f.layerId);
+
+                if (l != null)
+                    {
+                    if (!timepos.hasOwnProperty(f.layerId)) {
+                        for (var i = 1; i < l.timestamps.length; i++) {                            
+                            if (l.timestamps[i] > date) {
+                                timepos[f.layerId] = i;
+                                break;
+                            }
+                        }
+                    }
+
+                        if (f.sensors != null) {
+                            
+                                        for (var sensorTitle in f.sensors) {
+                                            var sensor = f.sensors[sensorTitle];
+                                            var value = sensor[timepos[f.layerId]];
+                                            //console.log(sensorTitle + ":" + value);
+                                            f.properties[sensorTitle] = value;
+                                        }
+                                        this.updateFeatureIcon(f, l);
+                             
+                                    
+
+                        }
+                    }
+                }
+            );
+            this.$messageBusService.publish("feature", "onFeatureUpdated");
+
+            
+            
         }
 
         /** 
@@ -262,30 +179,30 @@
                 async.series([
                     (callback) => {
                         // If oneLayerActive: close other group layer
-                        if (layer.group.oneLayerActive) {
-                            layer.group.layers.forEach((l: ProjectLayer) => {
-                                if (l != layer && l.enabled) {
-                                    disableLayers.push(l);
-                                }
-                            });
-                        }
-                        callback(null, null);
-                    },
+                       if (layer.group.oneLayerActive) {
+                           layer.group.layers.forEach((l: ProjectLayer) => {
+                               if (l != layer && l.enabled) {                                   
+                                   disableLayers.push(l);
+                               }
+                           });
+                       }
+                        callback(null,null);
+                    } ,
                     (callback) => {
                         if (layer.styleurl) {
                             d3.json(layer.styleurl, (err, dta) => {
                                 if (err)
                                     this.$messageBusService.notify('ERROR loading' + layer.title, err);
                                 else {
-                                    if (dta.poiTypes)
-                                        for (var featureTypeName in dta.poiTypes) {
-                                            var featureType: IFeatureType = dta.poiTypes[featureTypeName];
+                                    if (dta.featureTypes)
+                                        for (var featureTypeName in dta.featureTypes) {
+                                            var featureType: IFeatureType = dta.featureTypes[featureTypeName];
                                             featureTypeName = layer.id + '_' + featureTypeName;
                                             this.featureTypes[featureTypeName] = featureType;
                                         }
                                 }
                                 callback(null, null);
-                            });
+                            });      
                         } else
                             callback(null, null);
                     }, (callback) => {
@@ -293,8 +210,23 @@
                             if (error)
                                 this.$messageBusService.notify('ERROR loading' + layer.title, error);
                             else {
-                                for (var featureTypeName in data.poiTypes) {
-                                    var featureType: IFeatureType = data.poiTypes[featureTypeName];
+
+                                if (data.events && this.timeline) {
+                                    layer.events = data.events;
+                                    var devents = [];
+                                    layer.events.forEach((e: Event) => {
+                                        if (!e.id) e.id = csComp.Helpers.getGuid();
+                                        devents.push({
+                                            'start': new Date(e.start), 
+                                            
+                                            'content': e.title
+                                        });
+                                    });
+                                    this.timeline.draw(devents);
+                                }
+
+                                for (var featureTypeName in data.featureTypes) {
+                                    var featureType: IFeatureType = data.featureTypes[featureTypeName];
                                     featureTypeName = layer.id + '_' + featureTypeName;
                                     this.featureTypes[featureTypeName] = featureType;
                                     var pt = "." + featureTypeName;
@@ -309,6 +241,8 @@
 
                                     //console.log(JSON.stringify(poiType, null, 2));
                                 }
+                            if (data.timestamps) layer.timestamps = data.timestamps;
+
 
                                 if (layer.group.clustering) {
                                     var markers = L.geoJson(data, {
@@ -318,8 +252,8 @@
                                             //this.initFeature(feature, layer);
                                             layer.group.markers[feature.id] = lay;
                                             lay.on({
-                                                mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout: (s) => this.hideFeatureTooltip(s),
+                                                mouseover: (a) => this.showFeatureTooltip(a,layer.group),
+                                                mouseout: (s) => this.hideFeatureTooltip(s),                                                
                                             });
                                         }
                                     });
@@ -328,24 +262,24 @@
                                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                                     this.map.map.addLayer(layer.mapLayer);
 
-                                    var v = L.geoJson(data, {
+                                    var v = L.geoJson(data, {                                        
                                         onEachFeature: (feature: IFeature, lay) => {
                                             //We do not need to init the feature here: already done in style.
                                             //this.initFeature(feature, layer);
                                             layer.group.markers[feature.id] = lay;
                                             lay.on({
-                                                mouseover: (a) => this.showFeatureTooltip(a, layer.group),
+                                                mouseover: (a) => this.showFeatureTooltip(a,layer.group),
                                                 mouseout: (s) => this.hideFeatureTooltip(s),
                                                 mousemove: (d) => this.updateFeatureTooltip(d),
-                                                click: () => { this.selectFeature(feature); }
+                                                //click    : () => { this.selectFeature(feature); }
                                             });
                                         },
                                         style: (f: IFeature, m) => {
-                                            this.initFeature(f, layer);
+                                            //this.initFeature(f, layer);
                                             layer.group.markers[f.id] = m;
                                             return this.style(f, layer);
                                         },
-                                        pointToLayer: (feature, latlng) => this.addFeature(feature, latlng, layer)
+                                        pointToLayer : (feature, latlng) => this.addFeature(feature, latlng, layer)
                                     });
                                     this.project.features.forEach((f: IFeature) => {
                                         if (f.layerId != layer.id) return;
@@ -384,58 +318,53 @@
             return result;
         }
 
+        
+
         /***
-         * Show tooltip with name, styles & filters.
+         * Show tooltip with name, styles & filters
          */
         public showFeatureTooltip(e, group : ProjectGroup) {
             var layer = e.target;
-            var feature = <csComp.GeoJson.Feature>layer.feature;
-            // add title
-            var title = layer.feature.properties.Name;
-            var rowLength = title.length;
-            var content = "<td colspan='3'>" + title + "</td></tr>";
+            var feature = <Feature>layer.feature;
+
+            var content = "<span class='popup-title'>" + layer.feature.properties.Name + " </span>";
+
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
                     if (feature.properties.hasOwnProperty(f.property)) {
                         var value = feature.properties[f.property];
-                        var valueLength = value.toString().length;
-                        if (f.meta != null) {
-                            value = Helpers.convertPropertyInfo(f.meta, value);
-                            if (f.meta.type != 'bbcode') valueLength = value.toString().length;
+                        if (f.meta != null && !csComp.StringExt.isNullOrEmpty(f.meta.stringFormat)) {
+                            value = String.format(f.meta.stringFormat, parseFloat(value));
                         }
-                        rowLength = Math.max(rowLength, valueLength + f.title.length);
-                        content += "<tr><td><div class='smallFilterIcon'></td><td>" + f.title + "</td><td>" + value + "</td></tr>";
+                        content += "<br><img src='includes/images/filter-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + f.title + ":<b>" + value + "</b>";
                     }
                 });
             }
 
-            // add style values, only in case they haven't been added already as filter
+            // add style values
             if (group.styles != null && group.styles.length > 0) {
                 group.styles.forEach((s: GroupStyle) => {
                     if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property == s.property; }).length == 0) {
                         if (feature.properties.hasOwnProperty(s.property)) {
                             var value = feature.properties[s.property];
-                            var valueLength = value.toString().length;
-                            if (s.meta != null) {
-                                value = Helpers.convertPropertyInfo(s.meta, value);
-                                if (s.meta.type != 'bbcode') valueLength = value.toString().length;
-                            }
-                            rowLength = Math.max(rowLength, valueLength + s.title.length);
-                            content += "<tr><td><div class='smallStyleIcon'></td><td>" + s.title + "</td><td>" + value + "</td></tr>";
+                            //if (f.meta != null && !csComp.StringExt.isNullOrEmpty(s.meta.stringFormat)) {
+                            //    value = String.format(s.meta.stringFormat, parseFloat(value));
+                            //}
+
+                            content += "<br><img src='includes/images/style-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + s.title + ":<b>" + value + "</b>";
                         }
                     }
                 });
             }
-            var widthInPixels = Math.min(rowLength * 7 +     15, 250);
-            content = "<table style='width:" + widthInPixels + "px;'>" + content + "</table>";
 
-            this.popup = L.popup({
-                offset: new L.Point(-widthInPixels/2 - 40, -5),
-                closeOnClick: true,
-                autoPan: false,
-                className: 'featureTooltip'
-            }).setLatLng(e.latlng).setContent(content).openOn(this.map.map);
+
+            this.popup = L.popup(
+                {
+                    offset: new L.Point(0, -10),
+                    closeOnClick: true,
+                    autoPan: false
+                }).setLatLng(e.latlng).setContent(content).openOn(this.map.map);
         }
 
         public hideFeatureTooltip(e) {
@@ -501,7 +430,7 @@
             }
         }
 
-        public updateFeature(feature: IFeature, group?: ProjectGroup) {
+        private updateFeature(feature: IFeature, group?: ProjectGroup) {
             if (feature.geometry.type == "Point") {
                 var layer = this.findLayer(feature.layerId);
                 if (layer != null) this.updateFeatureIcon(feature, layer);
@@ -589,7 +518,7 @@
         //if (!feature.isInitialized) 
         {
                 feature.isInitialized = true;
-                if (feature.id == null) feature.id = this.getGuid();
+            if (feature.id == null) feature.id = Helpers.getGuid();
                 feature.layerId = layer.id;
                 this.project.features.push(feature); // list of features
                 layer.group.ndx.add([feature]);
@@ -633,11 +562,17 @@
                 
                 layer.group.styles.forEach((gs: GroupStyle) => {
                     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {                        
-                        var v = feature.properties[gs.property];                                                
+                        var v = feature.properties[gs.property];  
+                                                                      
                         switch (gs.visualAspect) {
                             case "fillColor":
-                                var bezInterpolator = chroma.interpolate.bezier(gs.colors);
-                                props["background-color"] = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
+                                if (gs.meta.type == "color") {
+                                    props["background-color"] = v;
+                                } else {
+                                    var bezInterpolator = chroma.interpolate.bezier(gs.colors);
+                                    props["background-color"] = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();    
+                                }
+                                
                             break;
                         }
                         
@@ -758,16 +693,15 @@
             return r;
         }
 
-        public setStyle(property: any, openStyleTab = true): GroupStyle {            
+        public setStyle(property: any) {            
             var f: IFeature = property.feature;
             if (f != null) {
-                this.noStyles     = false;
-                var layer         = this.findLayer(f.layerId);
-                var gs            = new GroupStyle(this.$translate);
-                gs.id             = this.getGuid();
-                gs.title          = property.key;
-                gs.meta           = property.meta;
-                gs.visualAspect   = "fillColor";
+                this.noStyles = false;
+                var layer = this.findLayer(f.layerId);
+                var gs = new GroupStyle(this.$translate);
+                gs.id = Helpers.getGuid();
+                gs.title = property.key;
+                gs.visualAspect = "fillColor";
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
                 
                 gs.property = property.property;
@@ -775,8 +709,10 @@
                 
                 gs.enabled = true;
                 gs.group = layer.group;
-                
+                gs.meta = property.meta;
                 var ft = this.getFeatureType(f);
+                
+                
                 if (ft.style && ft.style.fillColor) {
                     gs.colors = ['white', 'orange'];
                 } else {
@@ -792,8 +728,7 @@
                 } else {
                     this.updateStyle(gs);
                 }
-                if (openStyleTab)
-                    (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
+                (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
                 return gs;
             }
         }
@@ -891,7 +826,7 @@
          * In case both fail, create a default feature type at the layer level.
          */
         public getFeatureType(feature: IFeature): IFeatureType {
-            var projectFeatureTypeName = feature.properties['PoiTypeId'] || "Default";
+            var projectFeatureTypeName = feature.properties['FeatureTypeId'] || "Default";
             var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
             if (!(featureTypeName in this.featureTypes)) {
                 if (projectFeatureTypeName in this.featureTypes)
@@ -909,26 +844,26 @@
         private createDefaultType(feature: IFeature): IFeatureType {
             var type : IFeatureType = {};
             type.style = { nameLabel: "Name" };
-            type.metaInfoData = [];
+            type.propertyTypeData = [];
 
             for (var key in feature.properties) {
-                var metaInfo: IMetaInfo   = [];
-                metaInfo.label            = key;
-                metaInfo.title            = key.replace("_", " ");
-                metaInfo.isSearchable     = true;
-                metaInfo.visibleInCallOut = true;
-                metaInfo.canEdit = false;
+                var propertyType: IPropertyType   = [];
+                propertyType.label            = key;
+                propertyType.title            = key.replace("_", " ");
+                propertyType.isSearchable     = true;
+                propertyType.visibleInCallOut = true;
+                propertyType.canEdit = false;
                 var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
                 if (StringExt.isNumber(value))
-                    metaInfo.type = "number";
+                    propertyType.type = "number";
                 else if (StringExt.isBoolean(value))
-                    metaInfo.type = "boolean";
+                    propertyType.type = "boolean";
                 else if (StringExt.isBbcode(value))
-                    metaInfo.type = "bbcode";
+                    propertyType.type = "bbcode";
                 else
-                    metaInfo.type = "text";
+                    propertyType.type = "text";
 
-                type.metaInfoData.push(metaInfo);
+                type.propertyTypeData.push(propertyType);
             }
             return type;
         }
@@ -939,7 +874,7 @@
             dc.redrawAll();
         }
 
-        private getGroupFeatures(g: ProjectGroup) : Array<GeoJson.Feature> {
+        private getGroupFeatures(g: ProjectGroup) : Array<Feature> {
             
             // find active layers
             var ls = [];
@@ -969,7 +904,7 @@
          * deactivate layer
          */
         public removeLayer(layer: ProjectLayer) {
-            this.$messageBusService.publish("layer", "deactivating", layer);
+            this.$messageBusService.publish("layer", "deactivate", layer);
 
             var m: any;
             var g = layer.group;
@@ -988,6 +923,8 @@
                         try {
                             m.removeLayer(layer.group.markers[feature.id]);
                         delete layer.group.markers[feature.id];
+                            
+
                         } catch (error) {
                             
                         }
@@ -1014,17 +951,11 @@
             }
 
             this.rebuildFilters(g);
-            this.$messageBusService.publish("layer", "deactivate", layer);
         }
 
-        public S4() {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        }
+       
 
-        public getGuid() {
-            var guid = (this.S4() + this.S4() + "-" + this.S4() + "-4" + this.S4().substr(0, 3) + "-" + this.S4() + "-" + this.S4() + this.S4() + this.S4()).toLowerCase();
-            return guid;
-        }
+        
 
         /***
          * Open solution file with references to available baselayers and projects
@@ -1089,11 +1020,19 @@
             }
             //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
 
+
             this.layerGroup.clearLayers();
             this.featureTypes = {};
 
             $.getJSON(url, (data: Project) => {
-                this.project = new Project().deserialize(data);
+                this.project = data;
+
+                
+                
+
+                if (!this.project.timeLine) {
+                    this.project.timeLine = new DateRange();
+                }
 
                 if (this.project.viewBounds) {
                     this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
@@ -1106,17 +1045,27 @@
                     }
                 }
 
-                if (this.project.metaInfoData) {
-                    for (var key in this.project.metaInfoData) {
-                        var metaInfo: IMetaInfo = this.project.metaInfoData[key];
-                        this.metaInfoData[key] = metaInfo;
+                if (this.project.propertyTypeData) {
+                    for (var key in this.project.propertyTypeData) {
+                        var propertyType: IPropertyType = this.project.propertyTypeData[key];
+                        this.propertyTypeData[key] = propertyType;
                     }
                 }
+
+                if (!this.project.dashboards) {
+                    this.project.dashboards = {};
+                    var d = new csComp.Services.Dashboard("1", this.project.title);
+                    d.widgets = [];
+                    this.project.dashboards[this.project.title] = d;
+                }
+
+                if (!this.project.dataSets)
+                    this.project.dataSets = [];
 
                 this.project.features = [];
 
                 this.project.groups.forEach((group: ProjectGroup) => {
-                    if (group.id == null) group.id = this.getGuid();
+                    if (group.id == null) group.id = Helpers.getGuid();
                     group.ndx = crossfilter([]);
                     if (group.styles == null) group.styles = [];
                     if (group.filters == null) group.filters = [];
@@ -1133,7 +1082,7 @@
                         this.map.map.addLayer(group.vectors);
                     }
                     group.layers.forEach((layer: ProjectLayer) => {
-                        if (layer.reference == null) layer.reference = this.getGuid();
+                        if (layer.reference == null) layer.reference = Helpers.getGuid();
                         layer.group = group;
                         if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
                             layer.enabled = true;
@@ -1142,11 +1091,11 @@
                     });
 
                     group.styles.forEach((style: GroupStyle) => {
-                        if (style.id != null) style.id = this.getGuid();
+                        if (style.id != null) style.id = Helpers.getGuid();
                     });
 
                     group.filters.forEach((filter: GroupFilter) => {
-                        if (filter.id != null) filter.id = this.getGuid();
+                        if (filter.id != null) filter.id = Helpers.getGuid();
                     });
 
                     if (data.startposition)
@@ -1199,8 +1148,8 @@
             if (r.max < r.sdMax) r.sdMax = r.max;
             if (r.sdMin == NaN) r.sdMin = r.min;
             if (r.sdMax == NaN) r.sdMax = r.max;
-            if (this.metaInfoData.hasOwnProperty(property)) {
-                var mid = this.metaInfoData[property];
+            if (this.propertyTypeData.hasOwnProperty(property)) {
+                var mid = this.propertyTypeData[property];
                 if (mid.maxValue != null) r.sdMax = mid.maxValue;
                 if (mid.minValue != null) r.sdMin = mid.minValue;
             }
@@ -1259,7 +1208,7 @@
          * Add text filter to list of filters
          */
         private addTextFilter(group: ProjectGroup, filter: GroupFilter) {            
-            filter.id = this.getGuid();
+            filter.id = Helpers.getGuid();
             var divid = "filter_" + filter.id;
 
             
@@ -1319,7 +1268,7 @@
          * Add bar chart filter for filter number values
          */
         private addBarFilter(group : ProjectGroup,filter: GroupFilter) {
-            filter.id = this.getGuid();
+            filter.id = Helpers.getGuid();
             var info = this.calculatePropertyInfo(group, filter.property);
             
             var divid = "filter_" + filter.id;

@@ -70,8 +70,8 @@
             this.$scope.legendItems = legendItems;
         }
 
-        private getImageUri(ft: csComp.GeoJson.IFeatureType): string {
-            if (ft.style != null && ft.style.drawingMode.toLowerCase() != "point") {
+        private getImageUri(ft: csComp.Services.IFeatureType): string {
+            if (ft.style != null && ft.style.drawingMode!=null && ft.style.drawingMode.toLowerCase() != "point") {
                 if (ft.style.iconUri && ft.style.iconUri.indexOf('_Media') < 0)
                     return ft.style.iconUri;
                 else
@@ -85,7 +85,7 @@
             }
         }
 
-        private getName(key: string, ft: csComp.GeoJson.IFeatureType): string {
+        private getName(key: string, ft: csComp.Services.IFeatureType): string {
             if (ft.name != null) {
                 return ft.name;
             }

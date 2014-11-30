@@ -21,10 +21,15 @@
     <TypeScriptCompile Include="directives\MCA\Mca.tpl.ts" />
     <TypeScriptCompile Include="directives\MCA\Mca.ts" />
     <TypeScriptCompile Include="directives\MCA\McaEditorCtrl.ts" />
-    <TypeScriptCompile Include="helpers\Extensions.ts" />
+    <TypeScriptCompile Include="classes\dashboard.ts" />
+    <TypeScriptCompile Include="classes\feature.ts" />
+    <TypeScriptCompile Include="classes\group.ts" />
+    <TypeScriptCompile Include="classes\project.ts" />
+    <TypeScriptCompile Include="directives\Timeline\Timeline.tpl.ts" />
+    <TypeScriptCompile Include="directives\Timeline\Timeline.ts" />
+    <TypeScriptCompile Include="directives\Timeline\TimelineCtrl.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
     <TypeScriptCompile Include="helpers\MessageBus.ts" />
-    <TypeScriptCompile Include="classes\csClasses.ts" />
     <TypeScriptCompile Include="helpers\Plot.ts" />
     <TypeScriptCompile Include="directives\Resize\Resize.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.tpl.ts" />
@@ -39,10 +44,10 @@
     <TypeScriptCompile Include="directives\MCA\McaCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\models\Criteria.ts" />
     <TypeScriptCompile Include="directives\ShowModal\ShowModal.ts" />
-    <TypeScriptCompile Include="services\layer\ILayerService.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.tpl.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirectiveCtrl.ts" />
+    <TypeScriptCompile Include="Scripts\typings\underscore\underscore.d.ts" />
     <TypeScriptCompile Include="services\layer\LayerService.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.tpl.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.ts" />
@@ -73,11 +78,13 @@
     <TypeScriptCompile Include="directives\DataTable\DataTableCtrl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTable.tpl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTable.ts" />
+    <TypeScriptCompile Include="services\time\TimeService.ts" />
     <TypeScriptCompile Include="translations\locale-en.ts" />
     <TypeScriptCompile Include="translations\locale-nl.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="directives\MCA\Mca.tpl.html" />
+    <Content Include="directives\Timeline\Timeline.tpl.html" />
     <None Include="includes\cssImages\filter-black.png" />
     <None Include="includes\cssImages\layers-black.png" />
     <None Include="includes\cssImages\legend.png" />
@@ -103,9 +110,11 @@
     <None Include="includes\cssImages\style-black.png" />
     <Content Include="includes\cssImages\style-black-small.png" />
     <Content Include="includes\csStyles.css" />
+    <Content Include="includes\images\bar-chart-5-32.png" />
     <None Include="includes\images\bordercolor.png" />
     <None Include="includes\images\fillcolor.png" />
     <None Include="includes\images\line-width.png" />
+    <Content Include="includes\images\database-32.png" />
     <None Include="includes\images\minus.png" />
     <None Include="includes\images\plus-white.png" />
     <None Include="includes\images\plus.png" />
@@ -134,24 +143,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
-  <ProjectExtensions>
-    <VisualStudio>
-      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
-        <WebProjectProperties>
-          <UseIIS>True</UseIIS>
-          <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>51319</DevelopmentServerPort>
-          <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:51319/</IISUrl>
-          <NTLMAuthentication>False</NTLMAuthentication>
-          <UseCustomServer>False</UseCustomServer>
-          <CustomServerUrl>
-          </CustomServerUrl>
-          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
-        </WebProjectProperties>
-      </FlavorProperties>
-    </VisualStudio>
-  </ProjectExtensions>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>False</TypeScriptSourceMap>
@@ -169,4 +160,22 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:55679/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

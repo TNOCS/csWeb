@@ -1,8 +1,7 @@
 ﻿module csComp.Services {
     'use strict';
 
-    import IFeature = csComp.GeoJson.IFeature;
-
+ 
     /*
      * Singleton service that holds a reference to the map. 
      * In case other controllers need access to the map, they can inject this service. 

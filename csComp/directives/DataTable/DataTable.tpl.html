@@ -9,7 +9,7 @@
             <!-- List of headers -->
             <ul class="form-group" style="margin-top: 1em; margin-left: -2em; overflow-y: auto; overflow-x: hidden;"
                 resize resize-y="150">
-                <li ng-repeat="mi in vm.metaInfos" class="list-unstyled" style="white-space: nowrap; text-overflow: ellipsis">
+                <li ng-repeat="mi in vm.propertyTypes" class="list-unstyled" style="white-space: nowrap; text-overflow: ellipsis">
                     <label>
                         <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}"
                                data-ng-checked="vm.headers.indexOf(mi.title) > -1"

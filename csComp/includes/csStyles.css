@@ -80,6 +80,20 @@
     width: 200px;
 }
 
+.widget-parent {
+    display: block;
+}
+
+.widget-parent:hover .widget-edit { 
+   /* This selector will apply styles to hotqcontent when parent_div will be hovered */
+   display: block;
+   /* Other styles goes here */
+}
+
+
+
+
+
 .filter-group-count {
     margin-left: 13px;
 }
@@ -368,4 +382,62 @@
    width: 0;
    text-align: right;
    font-weight: bold;
+}
+
+.leftpanel-header-button {
+    float: right;
+border: 0;
+background: transparent;     
+}
+
+.leftpanel-header-button-container {
+    float: right;
+margin-right: 10px;
+}
+
+.dashboard-name {
+    font-size: 18px;
+    cursor: pointer;
+    
+
+}
+
+.dashboard-item {
+    margin-right: 5px;
+    padding: 3px;
+}
+
+.dashboard-selected {
+    background: black;
+    color: white;
+    border-radius: 3px;
+                    }
+
+.gridster-content {
+    pointer-events: all;
+}
+
+.widget-edit {
+    float: right;
+    position: absolute;
+    top: 10px;
+     display: none;
+    right: 10px;
+    opacity: 0.75;
+    cursor: pointer;
+}
+
+.widget-button {
+    margin-right: 5px;
+}
+
+.widget-title {
+    font-size: 18px;
+position: absolute;
+font-weight: bold;
+margin: 4px;
+}
+
+.widget-container {
+    
 }
