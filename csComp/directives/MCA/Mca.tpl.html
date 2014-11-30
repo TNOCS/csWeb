@@ -26,12 +26,12 @@
                         <h4 translate>MCA.MAIN_FEATURE</h4>
                         <select data-ng-model="vm.selectedFeatureType"
                                 data-ng-change="vm.loadPropertyTypes()"
-                                data-ng-options="item as item.name for (key, item) in vm.dataset.poiTypes"
+                                data-ng-options="item as item.name for (key, item) in vm.dataset.featureTypes"
                                 class="form-control"></select>
                         <h4 translate>MCA.PROPERTIES</h4>
                         <ul class="form-group" style="margin-top: 1em; margin-left: -2em; overflow-y: auto; overflow-x: hidden;"
                             resize resize-y="450">
-                            <li ng-repeat="mi in vm.metaInfos" class="list-unstyled" style="white-space: nowrap; -moz-text-overflow: ellipsis; text-overflow: ellipsis">
+                            <li ng-repeat="mi in vm.propInfos" class="list-unstyled" style="white-space: nowrap; -moz-text-overflow: ellipsis; text-overflow: ellipsis">
                                 <div>
                                     <span>
                                         <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}"

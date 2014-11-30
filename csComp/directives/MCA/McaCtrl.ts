@@ -74,10 +74,10 @@
             messageBusService.subscribe("feature", this.featureMessageReceived);
             messageBusService.subscribe("mca", this.mcaMessageReceived);
 
-            $translate('MCA_DELETE_MSG').then(translation => {
+            $translate('MCA.DELETE_MSG').then(translation => {
                 McaCtrl.confirmationMsg1 = translation;
             });
-             $translate('MCA_DELETE_MSG2').then(translation => {
+             $translate('MCA.DELETE_MSG2').then(translation => {
                 McaCtrl.confirmationMsg2 = translation;
             });
             
@@ -348,6 +348,7 @@
                 });
             });
             if (this.availableMcas.length > 0) this.mca = this.availableMcas[0];
+            this.$scope.$apply()
         }
 
         public calculateMca() {

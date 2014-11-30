@@ -21,7 +21,7 @@
 
     export class McaEditorCtrl {
         public dataset            : IGeoJsonFile;
-        public metaInfos          : Array<IExtendedPropertyInfo> = [];
+        public propInfos          : Array<IExtendedPropertyInfo> = [];
         public headers            : Array<string> = [];
         public selectedFeatureType: IFeatureType;
         public mcaTitle           : string;
@@ -70,8 +70,8 @@
                         this.rankTitle           = mca.rankTitle;
                         this.hasRank             = this.rankTitle != '';
                         this.selectedFeatureType = this.dataset.featureTypes[mca.featureIds[0]];
-                        this.updateMetaInfo(this.selectedFeatureType);
-                        this.updateMetaInfoUponEdit(mca);
+                        this.updatePropertyInfo(this.selectedFeatureType);
+                        this.updatePropertyInfoUponEdit(mca);
                         break;
                     case 'create':
                         this.mcaTitle            = '';
@@ -84,11 +84,11 @@
             });
         }
 
-        private updateMetaInfoUponEdit(criterion: Models.Criterion, category?: string) {
+        private updatePropertyInfoUponEdit(criterion: Models.Criterion, category?: string) {
             criterion.criteria.forEach((c) => {
                 if (c.label) {
-                    for (var i in this.metaInfos) {
-                        var mi = this.metaInfos[i];
+                    for (var i in this.propInfos) {
+                        var mi = this.propInfos[i];
                         if (mi.label != c.label) continue;
                         mi.isSelected = true;
                         if (category) {
@@ -98,7 +98,7 @@
                         break;
                     }
                 } else {
-                    this.updateMetaInfoUponEdit(c, c.title);
+                    this.updatePropertyInfoUponEdit(c, c.title);
                 }
             });
         }
@@ -133,44 +133,44 @@
             this.dataset = data;
             for (var key in data.featureTypes) {
                 this.selectedFeatureType = data.featureTypes[key];
-                this.updateMetaInfo(this.selectedFeatureType);
+                this.updatePropertyInfo(this.selectedFeatureType);
                 return;
             }
         }
 
-        private updateMetaInfo(featureType: IFeatureType): void {
-            this.metaInfos = [];
+        private updatePropertyInfo(featureType: IFeatureType): void {
+            this.propInfos = [];
             this.headers   = [];
             var titles: Array<string>                = [];
-            var mis   : Array<IExtendedPropertyInfo> = [];
+            var pis   : Array<IExtendedPropertyInfo> = [];
             // Push the Name, so it always appears on top.
-            mis.push({
-                label                     : "Name",
-                visibleInCallOut          : true,
-                title                     : "Naam",
-                type                      : "text",
-                filterType                : "text",
-                isSelected                : false,
-                scoringFunctionType       : this.scoringFunctions[0].type,
+            pis.push({
+                label               : "Name",
+                visibleInCallOut    : true,
+                title               : "Naam",
+                type                : "text",
+                filterType          : "text",
+                isSelected          : false,
+                scoringFunctionType : this.scoringFunctions[0].type,
             });
             if (featureType.propertyTypeKeys != null) {
                 var keys : Array<string> = featureType.propertyTypeKeys.split(';');
-                keys.forEach((k)                    => {
-                    if (k in this.$layerService.propertyTypeData)
-                        mis.push(this.$layerService.propertyTypeData[k]);
+                keys.forEach((k) => {
+                    if (this.$layerService.propertyTypeData.hasOwnProperty(k))
+                        pis.push(this.$layerService.propertyTypeData[k]);
                     else if (featureType.propertyTypeData != null) {
                         var result = $.grep(featureType.propertyTypeData, e => e.label === k);
-                        if (result.length >= 1) mis.push(result);
+                        if (result.length >= 1) pis.push(result);
                     }
                 });
             } else if (featureType.propertyTypeData != null) {
-                featureType.propertyTypeData.forEach((mi) => mis.push(mi));
+                featureType.propertyTypeData.forEach((mi) => pis.push(mi));
             }
-            mis.forEach((mi) => {
+            pis.forEach((pi) => {
                 // TODO Later, we could also include categories and not only numbers, where each category represents a certain value.
-                if (mi.visibleInCallOut && mi.type === 'number' && mi.label.indexOf("mca_") < 0 && titles.indexOf(mi.title) < 0) {
-                    titles.push(mi.title);
-                    this.metaInfos.push(mi);
+                if (pi.visibleInCallOut && pi.type === 'number' && pi.label.indexOf("mca_") < 0 && titles.indexOf(pi.title) < 0) {
+                    titles.push(pi.title);
+                    this.propInfos.push(pi);
                 }
             });
         }
@@ -190,7 +190,7 @@
         public isDisabled(): boolean {
             if (typeof this.mcaTitle === 'undefined' || this.mcaTitle.length === 0) return true;
             if (this.hasRank && this.rankTitle && this.rankTitle.length === 0) return true;
-            if (!this.metaInfos.reduce((p,c) => { return p || c.isSelected; })) return true;
+            if (this.propInfos.length === 0 || !this.propInfos.reduce((p,c) => { return p || c.isSelected; })) return true;
             return false;
         }
 
@@ -212,7 +212,7 @@
                     mca.featureIds = [key];
             }
 
-            this.metaInfos.forEach((mi) => {
+            this.propInfos.forEach((mi) => {
                 if (!mi.isSelected) return;
                 var criterion         = new Models.Criterion();
                 criterion.label       = mi.label;
