@@ -101,6 +101,7 @@
     <None Include="includes\cssImages\readme.txt" />
     <None Include="includes\cssImages\sliders.png" />
     <None Include="includes\cssImages\style-black.png" />
+    <Content Include="includes\cssImages\style-black-small.png" />
     <Content Include="includes\csStyles.css" />
     <None Include="includes\images\bordercolor.png" />
     <None Include="includes\images\fillcolor.png" />

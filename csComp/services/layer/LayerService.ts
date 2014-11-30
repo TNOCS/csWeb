@@ -385,52 +385,57 @@
         }
 
         /***
-         * Show tooltip with name, styles & filters
+         * Show tooltip with name, styles & filters.
          */
         public showFeatureTooltip(e, group : ProjectGroup) {
             var layer = e.target;
             var feature = <csComp.GeoJson.Feature>layer.feature;
-
-            var content = "<span class='popup-title'>" + layer.feature.properties.Name + " </span>";
-
+            // add title
+            var title = layer.feature.properties.Name;
+            var rowLength = title.length;
+            var content = "<td colspan='3'>" + title + "</td></tr>";
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
                     if (feature.properties.hasOwnProperty(f.property)) {
                         var value = feature.properties[f.property];
-                        if (f.meta != null)
+                        var valueLength = value.toString().length;
+                        if (f.meta != null) {
                             value = Helpers.convertPropertyInfo(f.meta, value);
-                        //if (f.meta != null && !StringExt.isNullOrEmpty(f.meta.stringFormat)) {
-                        //    value = String.format(f.meta.stringFormat, parseFloat(value));
-                        //}
-                        content += "<br><kimg src='includes/images/filter-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + f.title + ":<b>" + value + "</b>";
+                            if (f.meta.type != 'bbcode') valueLength = value.toString().length;
+                        }
+                        rowLength = Math.max(rowLength, valueLength + f.title.length);
+                        content += "<tr><td><div class='smallFilterIcon'></td><td>" + f.title + "</td><td>" + value + "</td></tr>";
                     }
                 });
             }
 
-            // add style values
+            // add style values, only in case they haven't been added already as filter
             if (group.styles != null && group.styles.length > 0) {
                 group.styles.forEach((s: GroupStyle) => {
                     if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property == s.property; }).length == 0) {
                         if (feature.properties.hasOwnProperty(s.property)) {
                             var value = feature.properties[s.property];
-                            //if (f.meta != null && !StringExt.isNullOrEmpty(s.meta.stringFormat)) {
-                            //    value = String.format(s.meta.stringFormat, parseFloat(value));
-                            //}
-
-                            content += "<br><img src='includes/images/style-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + s.title + ":<b>" + value + "</b>";
+                            var valueLength = value.toString().length;
+                            if (s.meta != null) {
+                                value = Helpers.convertPropertyInfo(s.meta, value);
+                                if (s.meta.type != 'bbcode') valueLength = value.toString().length;
+                            }
+                            rowLength = Math.max(rowLength, valueLength + s.title.length);
+                            content += "<tr><td><div class='smallStyleIcon'></td><td>" + s.title + "</td><td>" + value + "</td></tr>";
                         }
                     }
                 });
             }
+            var widthInPixels = Math.min(rowLength * 7 +     15, 250);
+            content = "<table style='width:" + widthInPixels + "px;'>" + content + "</table>";
 
-
-            this.popup = L.popup(
-                {
-                    offset: new L.Point(0, -10),
-                    closeOnClick: true,
-                    autoPan: false
-                }).setLatLng(e.latlng).setContent(content).openOn(this.map.map);
+            this.popup = L.popup({
+                offset: new L.Point(-widthInPixels/2 - 40, -5),
+                closeOnClick: true,
+                autoPan: false,
+                className: 'featureTooltip'
+            }).setLatLng(e.latlng).setContent(content).openOn(this.map.map);
         }
 
         public hideFeatureTooltip(e) {
@@ -761,6 +766,7 @@
                 var gs            = new GroupStyle(this.$translate);
                 gs.id             = this.getGuid();
                 gs.title          = property.key;
+                gs.meta           = property.meta;
                 gs.visualAspect   = "fillColor";
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
                 
