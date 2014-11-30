@@ -1,24 +1,21 @@
 ﻿module Mca {
+    import Feature       = csComp.Services.Feature;
+    import IFeature      = csComp.Services.IFeature;
+    import IFeatureType  = csComp.Services.IFeatureType;
+    import IPropertyType = csComp.Services.IPropertyType;
+
     export interface IMcaScope extends ng.IScope {
         vm: McaCtrl;
     }
 
-    declare var String: csComp.StringExt.IStringExt;
-
-    // DONE MCA Editor
-    // DONE Adding MCA definitions to the project file
-    // TODO Localize
-    // TODO Edit and delete an MCA
-    // TODO Save MCA after changing a value
-    // TODO Optimize me button.
-    // TODO Save the project file
+    declare var String;//: csComp.StringExt.IStringExt;
     
     export class McaCtrl {
         private static mcas = 'MCAs';
         private static confirmationMsg1: string;
         private static confirmationMsg2: string;
 
-        public selectedFeature: csComp.GeoJson.IFeature;
+        public selectedFeature: IFeature;
         public properties     : FeatureProps.CallOutProperty[];
         public showDialog     : boolean = false;
         public showFeature    : boolean;
@@ -236,7 +233,7 @@
             this.$localStorageService.set(McaCtrl.mcas, mcas); // You first need to set the key
         }
 
-        private featureMessageReceived = (title: string, feature: csComp.GeoJson.IFeature): void => {
+        private featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("MC: featureMessageReceived");
             if (this.mca == null) return;
             switch (title) {
@@ -257,7 +254,7 @@
             }
         }
 
-        private updateSelectedFeature(feature: csComp.GeoJson.Feature) {
+        private updateSelectedFeature(feature: Feature) {
             if (typeof feature === 'undefined' || feature == null) return;
             this.selectedFeature = feature;
             if (this.mca.label in feature.properties) {
@@ -359,7 +356,7 @@
             mca.featureIds.forEach((featureId: string) => {
                 if (!(featureId in this.$layerService.featureTypes)) return;
                 this.addPropertyInfo(featureId, mca);
-                var features: csComp.GeoJson.IFeature[] = [];
+                var features: IFeature[] = [];
                 this.$layerService.project.features.forEach((feature) => {
                     features.push(feature);
                 });
@@ -398,10 +395,10 @@
             if (this.groupStyle) this.$layerService.updateStyle(this.groupStyle);
         }
 
-        private applyPropertyInfoToCriteria(mca: Models.Mca, featureType: csComp.GeoJson.IFeatureType) {
+        private applyPropertyInfoToCriteria(mca: Models.Mca, featureType: IFeatureType) {
             mca.criteria.forEach((criterion) => {
                 var label = criterion.label;
-                featureType.metaInfoData.forEach((propInfo) => {
+                featureType.propertyTypeData.forEach((propInfo) => {
                     if (propInfo.label === label) {
                         criterion.title = propInfo.title;
                         criterion.description = propInfo.description;
@@ -412,15 +409,15 @@
 
         private addPropertyInfo(featureId: string, mca: Models.Mca) {
             var featureType = this.$layerService.featureTypes[featureId];
-            if (featureType.metaInfoData.reduce((prevValue, curItem) => { return prevValue || (curItem.label === mca.label); }, false))
+            if (featureType.propertyTypeData.reduce((prevValue, curItem) => { return prevValue || (curItem.label === mca.label); }, false))
                 return;
 
             var mi = McaCtrl.createMetaInfo(mca);
-            featureType.metaInfoData.push(mi);
+            featureType.propertyTypeData.push(mi);
 
             if (!mca.rankTitle) return;
             mi = McaCtrl.createMetaInfoRank(mca);
-            featureType.metaInfoData.push(mi);
+            featureType.propertyTypeData.push(mi);
         }
 
         public setStyle(item: FeatureProps.CallOutProperty) {
@@ -433,27 +430,29 @@
             }
         }
 
-        private static createMetaInfo(mca: Models.Mca): csComp.GeoJson.MetaInfo {
-            var mi          = new csComp.GeoJson.MetaInfo();
-            mi.title        = mca.title;
-            mi.label        = mca.label;
-            mi.type         = 'number';
-            mi.maxValue     = 1;
-            mi.minValue     = 0;
-            mi.description  = mca.description;
-            mi.stringFormat = mca.stringFormat;
-            mi.section      = mca.section || 'MCA';
+        private static createMetaInfo(mca: Models.Mca): IPropertyType {
+            var mi: IPropertyType = {
+                title        : mca.title,
+                label        : mca.label,
+                type         : 'number',
+                maxValue     : 1,
+                minValue     : 0,
+                description  : mca.description,
+                stringFormat : mca.stringFormat,
+                section      : mca.section || 'MCA'
+            };
             return mi;
         }
 
-        private static createMetaInfoRank(mca: Models.Mca): csComp.GeoJson.MetaInfo {
-            var mi          = new csComp.GeoJson.MetaInfo();
-            mi.title        = mca.rankTitle;
-            mi.label        = mca.label + '#';
-            mi.type         = 'rank';
-            mi.description  = mca.rankDescription;
-            mi.stringFormat = mca.rankFormat;
-            mi.section      = mca.section || 'MCA';
+        private static createMetaInfoRank(mca: Models.Mca): IPropertyType {
+            var mi : IPropertyType = {
+                title        : mca.rankTitle,
+                label        : mca.label + '#',
+                type         : 'rank',
+                description  : mca.rankDescription,
+                stringFormat : mca.rankFormat,
+                section      : mca.section || 'MCA'
+            };
             return mi;
         }
 

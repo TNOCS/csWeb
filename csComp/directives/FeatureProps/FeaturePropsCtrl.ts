@@ -197,14 +197,16 @@
         }
 
         public static title(type: IFeatureType, feature: IFeature): string {
-            var title: string;
-            if (this.type != null && this.type.style != null && this.type.style.nameLabel)
+            var title = '';
+            if (type != null && type.style != null && type.style.nameLabel)
                 title = feature.properties[type.style.nameLabel];
             else {
-                if (this.feature.hasOwnProperty('Name')) title = this.feature.properties['Name'];
-                if (this.feature.hasOwnProperty('name')) title = this.feature.properties['name'];
+                if (feature.hasOwnProperty('Name')) title = feature.properties['Name'];
+                else if (feature.hasOwnProperty('name')) title = feature.properties['name'];
             }
             if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
+                title = title.replace(/&amp;/g, '&');
+            return title;
         }
     }
 
@@ -306,14 +308,13 @@
             $('#rightArr').click(function () {
                 //var tabs = $('#featureTabs');
                 var max = widthOfList() - $scope.tabs.outerWidth() + 30;
-                var current = Math.abs(parseFloat($scope.tabs.css('margin-left')));
+                //var current = Math.abs(parseFloat($scope.tabs.css('margin-left')));
                 var nextPos = $scope.tabScrollDelta;
                 nextPos = Math.min(max, nextPos);
 
                 $scope.tabs.animate({ 'margin-left': '-=' + nextPos + 'px' }, 'slow', function () {
                     $('#leftArr').show();
                     $('#rightArr').show();
-
 
                     $scope.autocollapse(false);
                 });

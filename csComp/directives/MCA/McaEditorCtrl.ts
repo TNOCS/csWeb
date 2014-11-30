@@ -1,16 +1,17 @@
 ﻿module Mca {
     'use strict';
 
-    import IGeoJsonFile = csComp.GeoJson.IGeoJsonFile;
-    import IMetaInfo    = csComp.GeoJson.IMetaInfo;
-    import IFeature     = csComp.GeoJson.IFeature;
-    import IFeatureType = csComp.GeoJson.IFeatureType;
+    import Feature       = csComp.Services.Feature;
+    import IFeature      = csComp.Services.IFeature;
+    import IFeatureType  = csComp.Services.IFeatureType;
+    import IPropertyType = csComp.Services.IPropertyType;
+    import IGeoJsonFile  = csComp.Services.IGeoJsonFile;
 
     export interface IMcaEditorScope extends ng.IScope {
         vm: McaEditorCtrl;
     }
 
-    export interface IExtendedPropertyInfo extends csComp.GeoJson.IMetaInfo {
+    export interface IExtendedPropertyInfo extends IPropertyType {
         isSelected?         : boolean;
         hasCategory?        : boolean;
         category?           : string;  
@@ -68,7 +69,7 @@
                         this.mcaTitle            = mca.title;
                         this.rankTitle           = mca.rankTitle;
                         this.hasRank             = this.rankTitle != '';
-                        this.selectedFeatureType = this.dataset.poiTypes[mca.featureIds[0]];
+                        this.selectedFeatureType = this.dataset.featureTypes[mca.featureIds[0]];
                         this.updateMetaInfo(this.selectedFeatureType);
                         this.updateMetaInfoUponEdit(mca);
                         break;
@@ -125,13 +126,13 @@
                 data.features = this.$layerService.project.features;
 
             data.features.forEach((f: IFeature) => {
-                if (!(f.featureTypeName in data.poiTypes))
-                    data.poiTypes[f.featureTypeName] = this.$layerService.featureTypes[f.featureTypeName];
+                if (!(f.featureTypeName in data.featureTypes))
+                    data.featureTypes[f.featureTypeName] = this.$layerService.featureTypes[f.featureTypeName];
             });
 
             this.dataset = data;
-            for (var key in data.poiTypes) {
-                this.selectedFeatureType = data.poiTypes[key];
+            for (var key in data.featureTypes) {
+                this.selectedFeatureType = data.featureTypes[key];
                 this.updateMetaInfo(this.selectedFeatureType);
                 return;
             }
@@ -152,18 +153,18 @@
                 isSelected                : false,
                 scoringFunctionType       : this.scoringFunctions[0].type,
             });
-            if (featureType.metaInfoKeys != null) {
-                var keys                  : Array<string>             = featureType.metaInfoKeys.split(';');
+            if (featureType.propertyTypeKeys != null) {
+                var keys : Array<string> = featureType.propertyTypeKeys.split(';');
                 keys.forEach((k)                    => {
-                    if (k in this.$layerService.metaInfoData)
-                        mis.push(this.$layerService.metaInfoData[k]);
-                    else if (featureType.metaInfoData != null) {
-                        var result                  = $.grep(featureType.metaInfoData, e => e.label === k);
+                    if (k in this.$layerService.propertyTypeData)
+                        mis.push(this.$layerService.propertyTypeData[k]);
+                    else if (featureType.propertyTypeData != null) {
+                        var result = $.grep(featureType.propertyTypeData, e => e.label === k);
                         if (result.length >= 1) mis.push(result);
                     }
                 });
-            } else if (featureType.metaInfoData != null) {
-                featureType.metaInfoData.forEach((mi) => mis.push(mi));
+            } else if (featureType.propertyTypeData != null) {
+                featureType.propertyTypeData.forEach((mi) => mis.push(mi));
             }
             mis.forEach((mi) => {
                 // TODO Later, we could also include categories and not only numbers, where each category represents a certain value.
@@ -206,8 +207,8 @@
                 mca.rankFormat  = '{0} / {1}';
             }
             mca.userWeightMax = 5;
-            for (var key in this.dataset.poiTypes) {
-                if (this.dataset.poiTypes[key] === this.selectedFeatureType)
+            for (var key in this.dataset.featureTypes) {
+                if (this.dataset.featureTypes[key] === this.selectedFeatureType)
                     mca.featureIds = [key];
             }
 

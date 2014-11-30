@@ -1,53 +1,5 @@
-﻿module csComp.StringExt {
-    export function isNullOrEmpty(s: string): boolean {
-        return !s;
-    }
-
-    /**
-     * String formatting
-     * 'Added {0} by {1} to your collection'.f(title, artist)
-     * 'Your balance is {0} USD'.f(77.7)
-     */
-    export function format(s: string, ...args: string[]): string {
-        var i = args.length;
-             
-        while (i--) {
-            // "gm" = RegEx options for Global search (more than one instance) and for Multiline search
-            s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), args[i]);
-        }
-        return s;
-    };
-
-    /*
-     * Returns true if we are dealing with a number, false otherwise.
-     */
-    export function isNumber(n: any): boolean {
-        return !isNaN(parseFloat(n)) && isFinite(n);
-    }
-
-    /*
-     * Returns true if we are dealing with a boolean, false otherwise.
-     */
-    export function isBoolean(s: any): boolean {
-        return s === 'true' || s === 'false';
-    }
-
-    /*
-     * Returns true if we are dealing with a bbcode, false otherwise.
-     */
-    export function isBbcode(s: any): boolean {
-        return false;
-        if (s == null) return false;
-        return s.indexOf("[b]") > 0 || s.indexOf("[i]") > 0 || s.indexOf("[url") > 0;
-    }
-}
-
-
-module csComp.Services {
-    
-
+﻿module csComp.Services {
     declare var String;
-
 
     export interface ILayerService {
         title: string;
@@ -63,8 +15,6 @@ module csComp.Services {
         featureTypes: { [key: string]: Services.IFeatureType; };
         propertyTypeData: { [key: string]: Services.IPropertyType; };
         timeline : any;
-
-
     }
 
 
@@ -318,53 +268,58 @@ module csComp.Services {
             return result;
         }
 
-        
-
         /***
-         * Show tooltip with name, styles & filters
+         * Show tooltip with name, styles & filters.
          */
-        public showFeatureTooltip(e, group : ProjectGroup) {
+        public showFeatureTooltip(e, group: ProjectGroup) {
             var layer = e.target;
             var feature = <Feature>layer.feature;
-
-            var content = "<span class='popup-title'>" + layer.feature.properties.Name + " </span>";
-
+            // add title
+            var title = layer.feature.properties.Name;
+            var rowLength = title.length;
+            var content = "<td colspan='3'>" + title + "</td></tr>";
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
                     if (feature.properties.hasOwnProperty(f.property)) {
                         var value = feature.properties[f.property];
-                        if (f.meta != null && !csComp.StringExt.isNullOrEmpty(f.meta.stringFormat)) {
-                            value = String.format(f.meta.stringFormat, parseFloat(value));
+                        var valueLength = value.toString().length;
+                        if (f.meta != null) {
+                            value = Helpers.convertPropertyInfo(f.meta, value);
+                            if (f.meta.type != 'bbcode') valueLength = value.toString().length;
                         }
-                        content += "<br><img src='includes/images/filter-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + f.title + ":<b>" + value + "</b>";
+                        rowLength = Math.max(rowLength, valueLength + f.title.length);
+                        content += "<tr><td><div class='smallFilterIcon'></td><td>" + f.title + "</td><td>" + value + "</td></tr>";
                     }
                 });
             }
 
-            // add style values
+            // add style values, only in case they haven't been added already as filter
             if (group.styles != null && group.styles.length > 0) {
                 group.styles.forEach((s: GroupStyle) => {
                     if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property == s.property; }).length == 0) {
                         if (feature.properties.hasOwnProperty(s.property)) {
                             var value = feature.properties[s.property];
-                            //if (f.meta != null && !csComp.StringExt.isNullOrEmpty(s.meta.stringFormat)) {
-                            //    value = String.format(s.meta.stringFormat, parseFloat(value));
-                            //}
-
-                            content += "<br><img src='includes/images/style-black.png' style='width:12px; height:12px; margin-top:4px;float:left; margin-right:4px'/>" + s.title + ":<b>" + value + "</b>";
+                            var valueLength = value.toString().length;
+                            if (s.meta != null) {
+                                value = Helpers.convertPropertyInfo(s.meta, value);
+                                if (s.meta.type != 'bbcode') valueLength = value.toString().length;
+                            }
+                            rowLength = Math.max(rowLength, valueLength + s.title.length);
+                            content += "<tr><td><div class='smallStyleIcon'></td><td>" + s.title + "</td><td>" + value + "</td></tr>";
                         }
                     }
                 });
             }
+            var widthInPixels = Math.min(rowLength * 7 + 15, 250);
+            content = "<table style='width:" + widthInPixels + "px;'>" + content + "</table>";
 
-
-            this.popup = L.popup(
-                {
-                    offset: new L.Point(0, -10),
-                    closeOnClick: true,
-                    autoPan: false
-                }).setLatLng(e.latlng).setContent(content).openOn(this.map.map);
+            this.popup = L.popup({
+                offset: new L.Point(-widthInPixels / 2 - 40, -5),
+                closeOnClick: true,
+                autoPan: false,
+                className: 'featureTooltip'
+            }).setLatLng(e.latlng).setContent(content).openOn(this.map.map);
         }
 
         public hideFeatureTooltip(e) {
@@ -430,7 +385,7 @@ module csComp.Services {
             }
         }
 
-        private updateFeature(feature: IFeature, group?: ProjectGroup) {
+        public updateFeature(feature: IFeature, group?: ProjectGroup) {
             if (feature.geometry.type == "Point") {
                 var layer = this.findLayer(feature.layerId);
                 if (layer != null) this.updateFeatureIcon(feature, layer);
@@ -693,15 +648,15 @@ module csComp.Services {
             return r;
         }
 
-        public setStyle(property: any) {            
+        public setStyle(property: any, openStyleTab = true) {            
             var f: IFeature = property.feature;
             if (f != null) {
-                this.noStyles = false;
-                var layer = this.findLayer(f.layerId);
-                var gs = new GroupStyle(this.$translate);
-                gs.id = Helpers.getGuid();
-                gs.title = property.key;
-                gs.visualAspect = "fillColor";
+                this.noStyles     = false;
+                var layer         = this.findLayer(f.layerId);
+                var gs            = new GroupStyle(this.$translate);
+                gs.id             = Helpers.getGuid();
+                gs.title          = property.key;
+                gs.visualAspect   = "fillColor";
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
                 
                 gs.property = property.property;
@@ -711,7 +666,6 @@ module csComp.Services {
                 gs.group = layer.group;
                 gs.meta = property.meta;
                 var ft = this.getFeatureType(f);
-                
                 
                 if (ft.style && ft.style.fillColor) {
                     gs.colors = ['white', 'orange'];
@@ -728,7 +682,9 @@ module csComp.Services {
                 } else {
                     this.updateStyle(gs);
                 }
-                (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
+
+                if (openStyleTab)
+                    (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
                 return gs;
             }
         }

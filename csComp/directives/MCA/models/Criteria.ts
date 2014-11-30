@@ -1,5 +1,5 @@
 ﻿module Mca.Models {
-    import GeoJson = csComp.GeoJson;
+    import Feature = csComp.Services.Feature;
 
     export enum ScoringFunctionType {
         Manual,
@@ -134,7 +134,7 @@
          * Update the piecewise linear approximation (PLA) of the scoring (a.k.a. user) function, 
          * which translates a property value to a MCA value in the range [0,1] using all features.
          */
-        public updatePla(features: GeoJson.Feature[]) {
+        public updatePla(features: Feature[]) {
             if (this.isPlaUpdated) return;
             if (this.criteria.length > 0) {
                 this.criteria.forEach((c) => { 
@@ -147,7 +147,7 @@
             var scores = this.scores;
             var propValues: Array<Number> = [];
             if (this.requiresMaximum() || this.requiresMinimum() || this.isPlaScaled) {
-                features.forEach((feature: GeoJson.Feature) => {
+                features.forEach((feature: Feature) => {
                     if (this.label in feature.properties) {
                         // The property is available
                         propValues.push(feature.properties[this.label]);
@@ -193,7 +193,7 @@
             this.isPlaUpdated = true;
         }
 
-        public getScore(feature: GeoJson.Feature): number {
+        public getScore(feature: Feature): number {
             if (!this.isPlaUpdated)
                 throw ('Error: PLA must be updated for criterion ' + this.title + '!');
             if (this.criteria.length == 0) {
