@@ -327,8 +327,10 @@
             });
         }
 
-        public toTrusted(html: string) {
+        public toTrusted(html: string): string {
             try {
+                if (html === undefined || html === null)
+                    return this.$sce.trustAsHtml(html);
                 return this.$sce.trustAsHtml(html.toString());
             } catch (e) {
                 console.log(e + ': ' + html);

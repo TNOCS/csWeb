@@ -352,6 +352,8 @@
          */
         public toTrusted(html: string) {
             try {
+                if (html === undefined || html === null)
+                    return this.$sce.trustAsHtml(html);
                 return this.$sce.trustAsHtml(html.toString());
             } catch (e) {
                 console.log(e + ': ' + html);
