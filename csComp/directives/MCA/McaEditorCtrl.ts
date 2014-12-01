@@ -65,6 +65,7 @@
             messageBusService.subscribe('mca', (title: string, data: { mca: Models.Mca }) => {
                 switch (title) {
                     case 'edit':
+                        if (data.mca == null) return;
                         var mca                  = data.mca;
                         this.mcaTitle            = mca.title;
                         this.rankTitle           = mca.rankTitle;

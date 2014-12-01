@@ -7,7 +7,7 @@
     /**
       * Module       
       */
-    export var myModule;
+    export var myModule; 
     try {
         myModule = angular.module(moduleName);
     } catch (err) {
@@ -15,7 +15,7 @@
         myModule = angular.module(moduleName, []);   
     }                                                                                                    
 
-    /**            
+    /**
       * Directive to display a feature's properties in a panel.
       * 
       * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ

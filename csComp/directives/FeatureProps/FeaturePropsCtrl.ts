@@ -78,13 +78,15 @@
     declare var String;
 
     export class CallOut {
-        public title: string;
+        public title   : string;
+        public icon    : string;
         public sections: { [title: string]: ICallOutSection; };
 
         constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: { [key: string]: IPropertyType} ) {
             this.sections = {};
             //if (type == null) this.createDefaultType();
             this.setTitle();
+            this.setIcon();
 
             var infoCallOutSection   = new CallOutSection('fa-info');
             var searchCallOutSection = new CallOutSection('fa-filter');
@@ -195,13 +197,19 @@
             this.title = CallOut.title(this.type, this.feature);
         }
 
+        private setIcon() {
+            this.icon = (this.type == null || this.type.style == null || !this.type.style.hasOwnProperty('iconUri') || this.type.style.iconUri.toLowerCase().indexOf('_media') >= 0) 
+                ? ''
+                : this.type.style.iconUri;
+        }
+
         public static title(type: IFeatureType, feature: IFeature): string {
             var title = '';
             if (type != null && type.style != null && type.style.nameLabel)
                 title = feature.properties[type.style.nameLabel];
             else {
-                if (feature.hasOwnProperty('Name')) title = feature.properties['Name'];
-                else if (feature.hasOwnProperty('name')) title = feature.properties['name'];
+                if (feature.properties.hasOwnProperty('Name')) title = feature.properties['Name'];
+                else if (feature.properties.hasOwnProperty('name')) title = feature.properties['name'];
             }
             if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
                 title = title.replace(/&amp;/g, '&');
