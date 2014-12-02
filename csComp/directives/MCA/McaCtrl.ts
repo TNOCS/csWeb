@@ -347,8 +347,7 @@
                     }
                 });
             });
-            if (this.availableMcas.length > 0) this.mca = this.availableMcas[0];
-            this.$scope.$apply()
+            if (this.availableMcas.length >= 0) this.mca = this.availableMcas[0];
         }
 
         public calculateMca() {

@@ -248,6 +248,7 @@
                 }               
             });
             this.messageBusService.publish('mca', 'add', { mca: mca });
+            (<IMcaScope>this.$scope.$parent).vm.showDialog = false;
         }
 
         public cancel() {
@@ -255,6 +256,7 @@
             this.hasRank = false;
             this.rankTitle = '';
             this.headers = [];
+            (<IMcaScope>this.$scope.$parent).vm.showDialog = false;
         }
     }
 } 
