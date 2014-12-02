@@ -40,12 +40,12 @@
 
             // Zoom in/out layer control (above, I've turned it off, as the default location is top left).
             L.control.zoom({
-                position: "bottomright"
+                position: "bottomleft"
             }).addTo(map);
 
             // GPS enabled geolocation control set to follow the user's location 
             L.control.locate({
-                position:                "bottomright",
+                position:                "bottomleft",
                 drawCircle:              true,
                 follow:                  true,
                 setView:                 true,

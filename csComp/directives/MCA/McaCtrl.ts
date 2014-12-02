@@ -22,6 +22,8 @@
         public showChart      : boolean;
         public featureIcon    : string;
 
+        public expertMode : boolean = true;
+
         public mca              : Models.Mca;
         public selectedCriterion: Models.Criterion;
         public availableMcas    : Models.Mca[] = [];
@@ -280,19 +282,22 @@
             this.featureIcon = this.selectedFeature.fType != null && this.selectedFeature.fType.style != null
                 ? this.selectedFeature.fType.style.iconUri
                 : '';
-            if (this.mca.label in feature.properties) {
-                this.showFeature = true;
-                this.properties = [];
-                var mi = McaCtrl.createPropertyType(this.mca);
-                var displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
-                this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description));
-                if (this.mca.rankTitle) {
-                    mi = McaCtrl.createRankPropertyType(this.mca);
-                    displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
-                    this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description));
-                }
-                this.drawChart();
+            if (!feature.properties.hasOwnProperty(this.mca.label)) return;
+
+            this.showFeature = true;
+            this.properties = [];
+            var mi = McaCtrl.createPropertyType(this.mca);
+            var displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
+            this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description));
+            if (this.mca.rankTitle) {
+                mi = McaCtrl.createRankPropertyType(this.mca);
+                displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
+                this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description));
             }
+            this.drawChart();
+
+            if (!this.expertMode) return;
+
         }
 
         public drawChart(criterion?: Models.Criterion) {
