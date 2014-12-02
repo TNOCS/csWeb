@@ -148,9 +148,10 @@
             var propValues: Array<Number> = [];
             if (this.requiresMaximum() || this.requiresMinimum() || this.isPlaScaled) {
                 features.forEach((feature: Feature) => {
-                    if (this.label in feature.properties) {
+                    if (feature.properties.hasOwnProperty(this.label)) {
                         // The property is available
-                        propValues.push(feature.properties[this.label]);
+                        var prop = feature.properties[this.label];
+                        if ($.isNumeric(prop)) propValues.push(prop);
                     }
                 });
             }

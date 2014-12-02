@@ -55,6 +55,8 @@
             this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.GaussianValley));
             this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Manual));
 
+            this.propInfos = [];
+            this.headers   = [];
             this.loadMapLayers();
 
             this.mcaTitle            = mca.title;
@@ -236,17 +238,14 @@
                 }               
             });
             this.$modalInstance.close(mca);
-            //this.messageBusService.publish('mca', 'add', { mca: mca });
-            //(<IMcaScope>this.$scope.$parent).vm.showDialog = false;
         }
 
         public cancel() {
-            this.mcaTitle = '';
-            this.hasRank = false;
+            this.mcaTitle  = '';
+            this.hasRank   = false;
             this.rankTitle = '';
-            this.headers = [];
+            this.headers   = [];
             this.$modalInstance.dismiss('cancel');
-            //(<IMcaScope>this.$scope.$parent).vm.showDialog = false;
         }
     }
 } 
