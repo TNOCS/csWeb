@@ -2,19 +2,19 @@
     'use strict';
 
     export interface ILayerService {
-        title: string;
-        accentColor: string;
-        project: Project;
-        maxBounds: IBoundingBox;
-        findLayer(id: string): ProjectLayer;
+        title                : string;
+        accentColor          : string;
+        project              : Project;
+        maxBounds            : IBoundingBox;
+        findLayer(id         : string): ProjectLayer;
         selectFeature(feature: Services.IFeature);
 
-        mb: Services.MessageBusService;
-        map: Services.MapService;
-        layerGroup: L.LayerGroup<L.ILayer>;
-        featureTypes: { [key: string]: Services.IFeatureType; };
+        mb              : Services.MessageBusService;
+        map             : Services.MapService;
+        layerGroup      : L.LayerGroup<L.ILayer>;
+        featureTypes    : { [key: string]: Services.IFeatureType; };
         propertyTypeData: { [key: string]: Services.IPropertyType; };
-        timeline : any;
+        timeline        : any;
     }
     
     declare var jsonld;
@@ -190,7 +190,7 @@
                                             layer.group.markers[feature.id] = lay;
                                             lay.on({
                                                 mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout: (s) => this.hideFeatureTooltip(s),
+                                                mouseout : (s) => this.hideFeatureTooltip(s),
                                             });
                                         }
                                     });

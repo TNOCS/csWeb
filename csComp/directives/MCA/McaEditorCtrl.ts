@@ -32,16 +32,18 @@
 
         public static $inject = [
             '$scope',
-            '$modal',
+            '$modalInstance',
             'layerService',
-            'messageBusService'
+            'messageBusService',
+            'mca'
         ];
 
         constructor(
             private $scope           : IMcaEditorScope,
-            private $modal           : any,
+            private $modalInstance   : any,
             private $layerService    : csComp.Services.LayerService,
-            private messageBusService: csComp.Services.MessageBusService
+            private messageBusService: csComp.Services.MessageBusService,
+            private mca?             : Models.Mca
         ) {
             $scope.vm = this;
 
@@ -53,36 +55,18 @@
             this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.GaussianValley));
             this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Manual));
 
-            messageBusService.subscribe('layer', (title: string) => {//, layer: csComp.Services.ProjectLayer) => {
-                switch (title) {
-                    case 'activated':
-                    case 'deactivate':
-                        this.loadMapLayers();
-                        break;
-                }
-            });
+            this.loadMapLayers();
 
-            messageBusService.subscribe('mca', (title: string, data: { mca: Models.Mca }) => {
-                switch (title) {
-                    case 'edit':
-                        if (data.mca == null) return;
-                        var mca                  = data.mca;
-                        this.mcaTitle            = mca.title;
-                        this.rankTitle           = mca.rankTitle;
-                        this.hasRank             = this.rankTitle != '';
-                        this.selectedFeatureType = this.dataset.featureTypes[mca.featureIds[0]];
-                        this.updatePropertyInfo(this.selectedFeatureType);
-                        this.updatePropertyInfoUponEdit(mca);
-                        break;
-                    case 'create':
-                        this.mcaTitle            = '';
-                        this.rankTitle           = '';
-                        this.hasRank             = false;
-                        this.selectedFeatureType = null;
-                        this.loadMapLayers();
-                        break;
-                }
-            });
+            this.mcaTitle            = mca.title;
+            this.rankTitle           = mca.rankTitle;
+            this.hasRank             = !(typeof this.rankTitle === 'undefined' || this.rankTitle == null);
+            this.selectedFeatureType = mca.featureIds.length === 0 ? '' : this.dataset.featureTypes[mca.featureIds[0]];
+            if (this.selectedFeatureType) {
+                this.updatePropertyInfo(this.selectedFeatureType);
+                this.updatePropertyInfoUponEdit(mca);
+            } else {
+                this.selectFirstFeatureType();
+            }
         }
 
         private updatePropertyInfoUponEdit(criterion: Models.Criterion, category?: string) {
@@ -132,8 +116,12 @@
             });
 
             this.dataset = data;
-            for (var key in data.featureTypes) {
-                this.selectedFeatureType = data.featureTypes[key];
+            this.selectFirstFeatureType();
+        }
+
+        private selectFirstFeatureType() {
+            for (var key in this.dataset.featureTypes) {
+                this.selectedFeatureType = this.dataset.featureTypes[key];
                 this.updatePropertyInfo(this.selectedFeatureType);
                 return;
             }
@@ -247,8 +235,9 @@
                     mca.criteria.push(criterion);
                 }               
             });
-            this.messageBusService.publish('mca', 'add', { mca: mca });
-            (<IMcaScope>this.$scope.$parent).vm.showDialog = false;
+            this.$modalInstance.close(mca);
+            //this.messageBusService.publish('mca', 'add', { mca: mca });
+            //(<IMcaScope>this.$scope.$parent).vm.showDialog = false;
         }
 
         public cancel() {
@@ -256,7 +245,8 @@
             this.hasRank = false;
             this.rankTitle = '';
             this.headers = [];
-            (<IMcaScope>this.$scope.$parent).vm.showDialog = false;
+            this.$modalInstance.dismiss('cancel');
+            //(<IMcaScope>this.$scope.$parent).vm.showDialog = false;
         }
     }
 } 

@@ -25,6 +25,7 @@
     <TypeScriptCompile Include="classes\feature.ts" />
     <TypeScriptCompile Include="classes\group.ts" />
     <TypeScriptCompile Include="classes\project.ts" />
+    <TypeScriptCompile Include="directives\MCA\McaEditorView.tpl.ts" />
     <TypeScriptCompile Include="directives\Timeline\Timeline.tpl.ts" />
     <TypeScriptCompile Include="directives\Timeline\Timeline.ts" />
     <TypeScriptCompile Include="directives\Timeline\TimelineCtrl.ts" />
@@ -85,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="directives\MCA\Mca.tpl.html" />
+    <Content Include="directives\MCA\McaEditorView.tpl.html" />
     <Content Include="directives\Timeline\Timeline.tpl.html" />
     <None Include="includes\cssImages\filter-black.png" />
     <None Include="includes\cssImages\layers-black.png" />

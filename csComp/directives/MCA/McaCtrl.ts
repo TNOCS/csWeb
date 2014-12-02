@@ -72,7 +72,6 @@
             });
 
             messageBusService.subscribe("feature", this.featureMessageReceived);
-            messageBusService.subscribe("mca", this.mcaMessageReceived);
 
             $translate('MCA.DELETE_MSG').then(translation => {
                 McaCtrl.confirmationMsg1 = translation;
@@ -143,27 +142,43 @@
             this.drawChart(criterion);
         }
 
-        /** Add or delete the received MCA model. */
-        private mcaMessageReceived = (title: string, data: { mca: Models.Mca }): void => {
-            if (!data || !data.mca) return;
-            switch (title) {
-                case "add":
-                    this.addMca(data.mca);
-                    break;
-                case "delete":
-                    this.deleteMca(data.mca);
-                    break;
-            }
-        }
+        ///** Add or delete the received MCA model. */
+        //private mcaMessageReceived = (title: string, data: { mca: Models.Mca }): void => {
+        //    if (!data || !data.mca) return;
+        //    switch (title) {
+        //        case "add":
+        //            this.addMca(data.mca);
+        //            break;
+        //        case "delete":
+        //            this.deleteMca(data.mca);
+        //            break;
+        //    }
+        //}
 
         public editMca(mca: Models.Mca) {
-            this.messageBusService.publish('mca', 'edit', { mca: mca });
-            this.showDialog = true;
+            this.showMcaEditor(mca);
+            //this.messageBusService.publish('mca', 'edit', { mca: mca });
+            //this.showDialog = true;
         }
 
         public createMca() {
-            this.messageBusService.publish('mca', 'create');
-            this.showDialog = true;
+            this.showMcaEditor(new Models.Mca());
+        }
+
+        private showMcaEditor(newMca: Models.Mca): void {
+            var modalInstance = this.$modal.open({
+                templateUrl: 'mcaEditorView.html',
+                controller: McaEditorCtrl,
+                resolve: {
+                    mca: () => newMca
+                }
+            });
+            modalInstance.result.then((mca: Models.Mca) => {
+                this.addMca(mca);
+                console.log(JSON.stringify(mca, null, 2));
+            }, () => {
+                console.log('Modal dismissed at: ' + new Date());
+            });
         }
 
         public removeMca(mca: Models.Mca) {
@@ -199,6 +214,7 @@
         private deleteMca(mca: Models.Mca) {
             if (!mca) return;
             var mcaIndex = this.getMcaIndex(mca);
+            if (mcaIndex < 0) return;
             var mcas = this.$layerService.project.mcas;
             if (mcaIndex >= 0)
                 mcas.splice(mcaIndex, 1);
