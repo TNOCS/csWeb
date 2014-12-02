@@ -12,7 +12,7 @@
     <!--MCA EDITOR DIALOG-->
     <div id="mcaEditorView">
         <!--<input type="checkbox" ng-model="showDialog"> Show-->
-        <div show-modal="vm.showDialog" class="modal fade">
+        <div data-ng-if="vm.showDialog" class="modal fade in" style="display:block; display:block; margin-top: 50px">
             <div class="modal-dialog" data-ng-controller="mcaEditorCtrl">
                 <div class="modal-content">
                     <div class="modal-header">
