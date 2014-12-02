@@ -41,7 +41,9 @@
         <div style="margin-top: 5px; margin-left: 70px;" id="mcaPieChart"></div>
 
         <div data-ng-if="vm.showFeature">
-            <h4>{{vm.selectedFeature.properties[\'Name\']}}</h4>
+            <h4>
+                <img data-ng-if="vm.featureIcon" data-ng-src="{{vm.featureIcon}}" width="24" height="24" style="margin:0 5px" alt="Icon" />
+                {{vm.selectedFeature.properties[\'Name\']}}</h4>
             <table class="table table-condensed">
                 <tr data-ng-repeat="item in vm.properties"
                     popover="{{item.description}}"

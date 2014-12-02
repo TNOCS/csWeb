@@ -20,6 +20,7 @@
         public showDialog     : boolean = false;
         public showFeature    : boolean;
         public showChart      : boolean;
+        public featureIcon    : string;
 
         public mca              : Models.Mca;
         public selectedCriterion: Models.Criterion;
@@ -271,16 +272,22 @@
         }
 
         private updateSelectedFeature(feature: Feature) {
-            if (typeof feature === 'undefined' || feature == null) return;
+            if (typeof feature === 'undefined' || feature == null) {
+                this.featureIcon = '';
+                return;
+            }
             this.selectedFeature = feature;
+            this.featureIcon = this.selectedFeature.fType != null && this.selectedFeature.fType.style != null
+                ? this.selectedFeature.fType.style.iconUri
+                : '';
             if (this.mca.label in feature.properties) {
                 this.showFeature = true;
                 this.properties = [];
-                var mi = McaCtrl.createMetaInfo(this.mca);
+                var mi = McaCtrl.createPropertyType(this.mca);
                 var displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
                 this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description));
                 if (this.mca.rankTitle) {
-                    mi = McaCtrl.createMetaInfoRank(this.mca);
+                    mi = McaCtrl.createRankPropertyType(this.mca);
                     displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
                     this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description));
                 }
@@ -428,12 +435,12 @@
             if (featureType.propertyTypeData.reduce((prevValue, curItem) => { return prevValue || (curItem.label === mca.label); }, false))
                 return;
 
-            var mi = McaCtrl.createMetaInfo(mca);
-            featureType.propertyTypeData.push(mi);
+            var pi = McaCtrl.createPropertyType(mca);
+            featureType.propertyTypeData.push(pi);
 
             if (!mca.rankTitle) return;
-            mi = McaCtrl.createMetaInfoRank(mca);
-            featureType.propertyTypeData.push(mi);
+            pi = McaCtrl.createRankPropertyType(mca);
+            featureType.propertyTypeData.push(pi);
         }
 
         public setStyle(item: FeatureProps.CallOutProperty) {
@@ -446,7 +453,7 @@
             }
         }
 
-        private static createMetaInfo(mca: Models.Mca): IPropertyType {
+        private static createPropertyType(mca: Models.Mca): IPropertyType {
             var mi: IPropertyType = {
                 title        : mca.title,
                 label        : mca.label,
@@ -460,7 +467,7 @@
             return mi;
         }
 
-        private static createMetaInfoRank(mca: Models.Mca): IPropertyType {
+        private static createRankPropertyType(mca: Models.Mca): IPropertyType {
             var mi : IPropertyType = {
                 title        : mca.rankTitle,
                 label        : mca.label + '#',
