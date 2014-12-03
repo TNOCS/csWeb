@@ -1,4 +1,13 @@
 ﻿module Mca {
+    'use strict';
+
+    // TODO Add advanced option: in advanced mode, you can create, update, delete MCA criteria, and inspect sparklines.
+    // TODO Add advanced option: add canCreate, canUpdate, canDelete options, can Inspect to MCA.
+    // TODO Add sparkline (under weight, in case canInspect==true and expertMode==true.
+    // TODO Add scores to sparkline 
+    // TODO Add current (selectedFeature) value to sparkline
+    // TODO Add score * weight result to d3-tip.
+
     import Feature       = csComp.Services.Feature;
     import IFeature      = csComp.Services.IFeature;
     import IFeatureType  = csComp.Services.IFeatureType;
@@ -21,6 +30,8 @@
         public showFeature    : boolean;
         public showChart      : boolean;
         public featureIcon    : string;
+
+        public expertMode     : boolean = true;
 
         public mca              : Models.Mca;
         public selectedCriterion: Models.Criterion;
@@ -280,19 +291,29 @@
             this.featureIcon = this.selectedFeature.fType != null && this.selectedFeature.fType.style != null
                 ? this.selectedFeature.fType.style.iconUri
                 : '';
-            if (this.mca.label in feature.properties) {
-                this.showFeature = true;
-                this.properties = [];
-                var mi = McaCtrl.createPropertyType(this.mca);
-                var displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
-                this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description));
-                if (this.mca.rankTitle) {
-                    mi = McaCtrl.createRankPropertyType(this.mca);
-                    displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
-                    this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description));
-                }
-                this.drawChart();
+            if (!feature.properties.hasOwnProperty(this.mca.label)) return;
+
+            this.showFeature = true;
+            this.properties = [];
+            var mi = McaCtrl.createPropertyType(this.mca);
+            var displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
+            this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description));
+            if (this.mca.rankTitle) {
+                mi = McaCtrl.createRankPropertyType(this.mca);
+                displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
+                this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description));
             }
+            this.drawChart();
+
+            if (!this.expertMode) return;
+
+            this.mca.criteria.forEach((crit) => {
+                if (crit.criteria.length > 0) {
+                    crit.criteria.forEach((c) => {
+                        csComp.Helpers.Plot.drawHistogram(c.propValues, {});
+                    });
+                }
+            });
         }
 
         public drawChart(criterion?: Models.Criterion) {
