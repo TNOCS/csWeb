@@ -9,24 +9,31 @@
         <a href="" data-ng-click="vm.editMca(vm.mca)" class="pull-right" style="margin-right:5px;"><i class="fa fa-edit"></i></a>
     </div>
 
-    <div data-ng-if="vm.mca">
+    <div data-ng-if="vm.mca" style="overflow-y: auto; overflow-x: hidden" resize resize-y="120">
         <ul class="list-unstyled">
             <li data-ng-repeat="criterion in vm.mca.criteria">
-                <div data-ng-style="{\'display\': \'inline-block\', \'margin-bottom\': \'6px\', \'width\':\'10px\', \'height\':\'10px\', \'border\':\'solid 1px black\', \'background-color\': criterion.color}"></div>
-                <div class="truncate" style="display: inline-block; width: 170px;">{{criterion.getTitle()}}</div>
-                <div rating class="pull-right" style="margin:0 10px;" ng-model="criterion.userWeight" max="{{vm.mca.userWeightMax}}" readonly="isReadonly"
+        <!--        <div data-ng-style="{\'display\': \'inline-block\', \'margin-bottom\': \'6px\', \'width\':\'10px\', \'height\':\'10px\', \'border\':\'solid 1px black\', \'background-color\': criterion.color}"></div>-->
+                <div class="truncate" style="display: inline-block; width: 150px;">{{criterion.getTitle()}}</div>
+                <div rating class="pull-right"
+                     data-ng-style="{\'margin\': \'0 10px\', \'background\':\'rgba(0, 0, 0, 0.1)\', \'border-radius\': \'8px\', \'padding\': \'0 4px\', \'color\': criterion.color}"
+                     ng-model="criterion.userWeight" max="{{vm.mca.userWeightMax}}" readonly="isReadonly"
                      state-on="\'fa fa-circle\'" state-off="\'fa fa-circle-o\'"
                      data-ng-click="vm.weightUpdated(criterion)"
                      on-hover="hoveringOver(value)" on-leave="overStar = null"></div>
+                <div data-ng-if="criterion.criteria.length == 0" style="margin-top: 5px;" id="histogram_{{$index}}"></div>
+                <!--<div data-ng-if="vm.expertMode && criterion.criteria.length == 0" style="margin-top: 5px; margin-left: 10px;" id="histogram_{{$index}}"></div>-->
                 <ul class="list-unstyled" style="margin-left: 10px;" data-ng-if="criterion.criteria.length > 0">
                     <li data-ng-repeat="crit in criterion.criteria">
-                        <div data-ng-style="{\'display\': \'inline-block\', \'margin-bottom\': \'6px\', \'width\':\'10px\', \'height\':\'10px\', \'border\':\'solid 1px black\', \'background-color\': crit.color}">
-                        </div>
-                        <div class="truncate" style="display: inline-block; width: 150px;">{{crit.getTitle()}}</div>
-                        <div rating class="pull-right" style="margin:0 10px;" ng-model="crit.userWeight" max="{{vm.mca.userWeightMax}}" readonly="isReadonly"
+                        <!--<div data-ng-style="{\'display\': \'inline-block\', \'margin-bottom\': \'6px\', \'width\':\'10px\', \'height\':\'10px\', \'border\':\'solid 1px black\', \'background-color\': crit.color}"></div>-->
+                        <div class="truncate" style="display: inline-block; width: 130px;">{{crit.getTitle()}}</div>
+                        <div rating class="pull-right"
+                             data-ng-style="{\'margin\': \'0 10px\', \'background\':\'rgba(0, 0, 0, 0.1)\', \'border-radius\': \'8px\', \'padding\': \'0 4px\', \'color\': crit.color}"
+                             ng-model="crit.userWeight" max="{{vm.mca.userWeightMax}}" readonly="isReadonly"
                              state-on="\'fa fa-circle\'" state-off="\'fa fa-circle-o\'"
                              data-ng-click="vm.weightUpdated(crit)"
                              on-hover="hoveringOver(value)" on-leave="overStar = null"></div>
+                        <div style="margin-top: 5px;" id="histogram_{{$parent.$index}}_{{$index}}"></div>
+                        <!--<div data-ng-if="vm.expertMode" style="margin-top: 5px; margin-left: 20px;" id="histogram_{{$parent.$index}}_{{$index}}"></div>-->
                     </li>
                 </ul>
             </li>
@@ -43,7 +50,8 @@
         <div data-ng-if="vm.showFeature">
             <h4>
                 <img data-ng-if="vm.featureIcon" data-ng-src="{{vm.featureIcon}}" width="24" height="24" style="margin:0 5px" alt="Icon" />
-                {{vm.selectedFeature.properties[\'Name\']}}</h4>
+                {{vm.selectedFeature.properties[\'Name\']}}
+            </h4>
             <table class="table table-condensed">
                 <tr data-ng-repeat="item in vm.properties"
                     popover="{{item.description}}"

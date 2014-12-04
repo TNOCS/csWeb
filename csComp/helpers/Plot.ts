@@ -10,7 +10,90 @@ module csComp.Helpers {
         score: number;
     }
 
+    export interface IHistogramOptions {
+        id?          : string;
+        numberOfBins?: number;
+        width?       : number;
+        height?      : number;
+        xLabel?      : string;
+        yLabel?      : string;
+    }
+
     export class Plot {
+
+        public static drawHistogram(values: number[], options?: IHistogramOptions) {
+            var id           = (options != null && options.hasOwnProperty('id'))           ? options.id           : 'myHistogram';
+            var numberOfBins = (options != null && options.hasOwnProperty('numberOfBins')) ? options.numberOfBins : 10;
+            var width        = (options != null && options.hasOwnProperty('width'))        ? options.width        : 200;
+            var height       = (options != null && options.hasOwnProperty('height'))       ? options.height       : 150;
+            var xLabel       = (options != null && options.hasOwnProperty('xLabel'))       ? options.xLabel       : 'data';
+            var yLabel       = (options != null && options.hasOwnProperty('yLabel'))       ? options.yLabel       : '#';
+
+            var margin = { top: 0, right: 6, bottom: 24, left: 6 };
+            width     -= margin.left + margin.right,
+            height    -= margin.top + margin.bottom;
+
+            var svgId = id + "_histogram";
+
+            Plot.clearSvg(svgId);
+
+            // A formatter for counts.
+            var formatCount = d3.format(",.0f");
+
+            var max = Math.max.apply(null, values);
+            var min = Math.min.apply(null, values);
+
+            var tempScale = d3.scale.linear().domain([0, numberOfBins]).range([min, max]);
+            var tickArray = d3.range(numberOfBins + 1).map(tempScale);
+            var x = d3.scale.linear()
+                .domain([min, max])
+                .range([0, width]);
+
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .tickValues(tickArray)
+                .orient("bottom");
+
+            // Generate a histogram using numberOfBins uniformly-spaced bins.
+            var data = d3.layout.histogram().bins(numberOfBins)(values);
+
+            var y = d3.scale.linear()
+                .domain([0, d3.max(data, d => d.y)])
+                .range([height, 0]);
+
+            var svg = d3.select("#" + id)
+                .append("svg")
+                .attr("id", svgId)
+                .attr("width" , width  + margin.left + margin.right)
+                .attr("height", height + margin.top  + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var bar = svg.selectAll(".bar")
+                .data(data)
+                .enter().append("g")
+                .attr("class", "bar")
+                .attr("transform", d => "translate(" + x(d.x) + "," + y(d.y) + ")");
+
+            bar.append("rect")
+                .attr("x", 1)
+                .attr("width", x(min + data[0].dx) - 1)
+                .attr("height", d => height - y(d.y));
+
+            bar.append("text")
+                .attr("dy", ".75em")
+                .attr("y", 6)
+                .attr("x", x(min + data[0].dx) / 2)
+                .attr("text-anchor", "middle")
+                .text(d => formatCount(d.y));
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+        }
+
+
         public static pieColors = ["#fff7ec", "#fee8c8", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#b30000", "#7f0000"];
 
         /**

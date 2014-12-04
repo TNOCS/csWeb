@@ -1,5 +1,5 @@
 ﻿module LayersDirective {
-    /**
+    /**  
       * Config
       */
     var moduleName = 'csWeb.layersDirective';
@@ -15,7 +15,7 @@
         myModule = angular.module(moduleName, []);
     }
     
-    /**
+    /**  
       * Directive to display the available map layers.
       */
     myModule.directive('layersDirective', [

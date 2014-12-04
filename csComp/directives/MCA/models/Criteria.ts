@@ -93,6 +93,7 @@
          * Format [x1,y1 x2,y2], and may contain special characters, such as min or max to define the minimum or maximum.
          */
         public scores     : string;
+        public propValues : Array<number> = [];
 
         public criteria: Criterion[] = [];
         /** Piece-wise linear approximation of the scoring function by a set of x and y points */
@@ -145,24 +146,24 @@
             }
             // Replace min and max by their values:
             var scores = this.scores;
-            var propValues: Array<Number> = [];
+            this.propValues = [];
             if (this.requiresMaximum() || this.requiresMinimum() || this.isPlaScaled) {
                 features.forEach((feature: Feature) => {
                     if (feature.properties.hasOwnProperty(this.label)) {
                         // The property is available
                         var prop = feature.properties[this.label];
-                        if ($.isNumeric(prop)) propValues.push(prop);
+                        if ($.isNumeric(prop)) this.propValues.push(prop);
                     }
                 });
             }
             var max = 0,
                 min = 0;
             if (this.isPlaScaled || this.requiresMaximum()) {
-                max = Math.max.apply(null, propValues);
+                max = Math.max.apply(null, this.propValues);
                 scores.replace('max', max.toPrecision(3));
             }
             if (this.isPlaScaled || this.requiresMinimum()) {
-                min = Math.min.apply(null, propValues);
+                min = Math.min.apply(null, this.propValues);
                 scores.replace('min', min.toPrecision(3));
             }
             // Regex to split the scores: [^\d\.]+ and remove empty entries

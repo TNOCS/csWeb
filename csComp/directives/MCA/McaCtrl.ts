@@ -1,4 +1,13 @@
 ﻿module Mca {
+    'use strict';
+
+    // TODO Add advanced option: in advanced mode, you can create, update, delete MCA criteria, and inspect sparklines.
+    // TODO Add advanced option: add canCreate, canUpdate, canDelete options, can Inspect to MCA.
+    // TODO Add sparkline (under weight, in case canInspect==true and expertMode==true.
+    // TODO Add scores to sparkline 
+    // TODO Add current (selectedFeature) value to sparkline
+    // TODO Add score * weight result to d3-tip.
+
     import Feature       = csComp.Services.Feature;
     import IFeature      = csComp.Services.IFeature;
     import IFeatureType  = csComp.Services.IFeatureType;
@@ -22,7 +31,7 @@
         public showChart      : boolean;
         public featureIcon    : string;
 
-        public expertMode : boolean = true;
+        public expertMode     : boolean = true;
 
         public mca              : Models.Mca;
         public selectedCriterion: Models.Criterion;
@@ -295,9 +304,6 @@
                 this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description));
             }
             this.drawChart();
-
-            if (!this.expertMode) return;
-
         }
 
         public drawChart(criterion?: Models.Criterion) {
@@ -306,6 +312,30 @@
                 this.drawAsterPlot(criterion);
             else
                 this.drawPieChart(criterion);
+
+            if (!this.expertMode) return;
+
+            var i = 0;
+            this.mca.criteria.forEach((crit) => {
+                var id = "histogram_" + i++;
+                if (crit.criteria.length === 0) {
+                    csComp.Helpers.Plot.drawHistogram(crit.propValues, {
+                        id: id,
+                        width: 220,
+                        height: 70
+                    });                    
+                } else {
+                    var j = 0;
+                    crit.criteria.forEach((c) => {
+                        csComp.Helpers.Plot.drawHistogram(c.propValues, {
+                            id: id + "_" + j++,
+                            width: 220,
+                            height: 70
+                        });
+                    });
+                }
+            });
+
         }
 
         private getParentOfSelectedCriterion(criterion?: Models.Criterion) {
