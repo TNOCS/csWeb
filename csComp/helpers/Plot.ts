@@ -16,7 +16,7 @@ module csComp.Helpers {
         width?       : number;
         height?      : number;
         xLabel?      : string;
-        yLabel?      : string;
+        //yLabel?      : string;
     }
 
     export class Plot {
@@ -27,7 +27,7 @@ module csComp.Helpers {
             var width        = (options != null && options.hasOwnProperty('width'))        ? options.width        : 200;
             var height       = (options != null && options.hasOwnProperty('height'))       ? options.height       : 150;
             var xLabel       = (options != null && options.hasOwnProperty('xLabel'))       ? options.xLabel       : 'data';
-            var yLabel       = (options != null && options.hasOwnProperty('yLabel'))       ? options.yLabel       : '#';
+            //var yLabel       = (options != null && options.hasOwnProperty('yLabel'))       ? options.yLabel       : '#';
 
             var margin = { top: 0, right: 6, bottom: 24, left: 6 };
             width     -= margin.left + margin.right,
@@ -43,6 +43,17 @@ module csComp.Helpers {
             var max = Math.max.apply(null, values);
             var min = Math.min.apply(null, values);
 
+            // Scale the x-range, so we don't have such long numbers
+            var range = max - min;
+            var scale = d3.round(range, 0).toString().length - 2;
+            if (scale >= 2)
+                xLabel += " (x10^" + scale + ")";
+            var tickFormatter = (value: number) => {
+                return scale < 2
+                    ? value.toString()
+                    : (d3.round(value/Math.pow(10,scale), 0).toString());
+            }
+
             var tempScale = d3.scale.linear().domain([0, numberOfBins]).range([min, max]);
             var tickArray = d3.range(numberOfBins + 1).map(tempScale);
             var x = d3.scale.linear()
@@ -52,6 +63,7 @@ module csComp.Helpers {
             var xAxis = d3.svg.axis()
                 .scale(x)
                 .tickValues(tickArray)
+                .tickFormat(tickFormatter)
                 .orient("bottom");
 
             // Generate a histogram using numberOfBins uniformly-spaced bins.
@@ -80,12 +92,27 @@ module csComp.Helpers {
                 .attr("width", x(min + data[0].dx) - 1)
                 .attr("height", d => height - y(d.y));
 
+            var conditionalFormatCounter = (value: number) => {
+                return (height - y(value) > 6) 
+                    ? formatCount(value)
+                    : '';
+            };
+
+            // Text (count) inside the bins
             bar.append("text")
                 .attr("dy", ".75em")
                 .attr("y", 6)
                 .attr("x", x(min + data[0].dx) / 2)
                 .attr("text-anchor", "middle")
-                .text(d => formatCount(d.y));
+                .text(d => conditionalFormatCounter(d.y));
+
+            // x-label
+            svg.append("text")
+                .attr("class", "x label")
+                .attr("text-anchor", "end")
+                .attr("x", width)
+                .attr("y", height - 6)
+                .text(xLabel);
 
             svg.append("g")
                 .attr("class", "x axis")
