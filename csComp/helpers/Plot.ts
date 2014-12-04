@@ -22,16 +22,18 @@ module csComp.Helpers {
     export class Plot {
 
         public static drawHistogram(values: number[], options?: IHistogramOptions) {
-            var svgId        = (options != null && options.hasOwnProperty('id'))           ? options.id           : 'myHistogram';
+            var id           = (options != null && options.hasOwnProperty('id'))           ? options.id           : 'myHistogram';
             var numberOfBins = (options != null && options.hasOwnProperty('numberOfBins')) ? options.numberOfBins : 10;
             var width        = (options != null && options.hasOwnProperty('width'))        ? options.width        : 200;
-            var height       = (options != null && options.hasOwnProperty('height'))       ? options.height       : 200;
+            var height       = (options != null && options.hasOwnProperty('height'))       ? options.height       : 150;
             var xLabel       = (options != null && options.hasOwnProperty('xLabel'))       ? options.xLabel       : 'data';
             var yLabel       = (options != null && options.hasOwnProperty('yLabel'))       ? options.yLabel       : '#';
 
-            var margin = { top: 10, right: 30, bottom: 30, left: 30 };
-            width      = 960 - margin.left - margin.right,
-            height     = 500 - margin.top - margin.bottom;
+            var margin = { top: 0, right: 6, bottom: 24, left: 6 };
+            width     -= margin.left + margin.right,
+            height    -= margin.top + margin.bottom;
+
+            var svgId = id + "_histogram";
 
             Plot.clearSvg(svgId);
 
@@ -41,24 +43,29 @@ module csComp.Helpers {
             var max = Math.max.apply(null, values);
             var min = Math.min.apply(null, values);
 
+            var tempScale = d3.scale.linear().domain([0, numberOfBins]).range([min, max]);
+            var tickArray = d3.range(numberOfBins + 1).map(tempScale);
             var x = d3.scale.linear()
-                .domain([min, max])  // TODO Use floor/ceil to round them off?
+                .domain([min, max])
                 .range([0, width]);
 
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .tickValues(tickArray)
+                .orient("bottom");
+
             // Generate a histogram using numberOfBins uniformly-spaced bins.
-            var data = d3.layout.histogram().bins(x.ticks(numberOfBins))(values);
+            var data = d3.layout.histogram().bins(numberOfBins)(values);
 
             var y = d3.scale.linear()
                 .domain([0, d3.max(data, d => d.y)])
                 .range([height, 0]);
 
-            var xAxis = d3.svg.axis()
-                .scale(x)
-                .orient("bottom");
-
-            var svg = d3.select("body").append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
+            var svg = d3.select("#" + id)
+                .append("svg")
+                .attr("id", svgId)
+                .attr("width" , width  + margin.left + margin.right)
+                .attr("height", height + margin.top  + margin.bottom)
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -70,13 +77,13 @@ module csComp.Helpers {
 
             bar.append("rect")
                 .attr("x", 1)
-                .attr("width", x(data[0].dx) - 1)
+                .attr("width", x(min + data[0].dx) - 1)
                 .attr("height", d => height - y(d.y));
 
             bar.append("text")
                 .attr("dy", ".75em")
                 .attr("y", 6)
-                .attr("x", x(data[0].dx) / 2)
+                .attr("x", x(min + data[0].dx) / 2)
                 .attr("text-anchor", "middle")
                 .text(d => formatCount(d.y));
 

@@ -1,5 +1,5 @@
 ﻿module LayersDirective {
-    /**
+    /**  
       * Config
       */
     var moduleName = 'csWeb.layersDirective';

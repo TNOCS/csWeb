@@ -304,16 +304,6 @@
                 this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description));
             }
             this.drawChart();
-
-            if (!this.expertMode) return;
-
-            this.mca.criteria.forEach((crit) => {
-                if (crit.criteria.length > 0) {
-                    crit.criteria.forEach((c) => {
-                        csComp.Helpers.Plot.drawHistogram(c.propValues, {});
-                    });
-                }
-            });
         }
 
         public drawChart(criterion?: Models.Criterion) {
@@ -322,6 +312,30 @@
                 this.drawAsterPlot(criterion);
             else
                 this.drawPieChart(criterion);
+
+            if (!this.expertMode) return;
+
+            var i = 0;
+            this.mca.criteria.forEach((crit) => {
+                var id = "histogram_" + i++;
+                if (crit.criteria.length === 0) {
+                    csComp.Helpers.Plot.drawHistogram(crit.propValues, {
+                        id: id,
+                        width: 220,
+                        height: 70
+                    });                    
+                } else {
+                    var j = 0;
+                    crit.criteria.forEach((c) => {
+                        csComp.Helpers.Plot.drawHistogram(c.propValues, {
+                            id: id + "_" + j++,
+                            width: 220,
+                            height: 70
+                        });
+                    });
+                }
+            });
+
         }
 
         private getParentOfSelectedCriterion(criterion?: Models.Criterion) {
