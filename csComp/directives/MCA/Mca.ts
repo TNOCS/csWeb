@@ -19,7 +19,7 @@
       * Directive to display an MCA control. 
       */ 
     myModule
-        .directive('mca', [      
+        .directive('mca', [
             '$window', '$compile', '$templateCache', 
             function ($window, $compile, $templateCache): ng.IDirective {
                 return {   

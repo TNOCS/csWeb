@@ -156,8 +156,12 @@
 
         public weightUpdated(criterion: Models.Criterion) {
             this.addMca(this.mca);
+            this.updateMca(criterion);
+        }
+
+        public updateMca(criterion?: Models.Criterion) {
             this.calculateMca();
-            this.drawChart(criterion);
+            this.drawChart(criterion);            
         }
 
         ///** Add or delete the received MCA model. */
@@ -193,6 +197,7 @@
             });
             modalInstance.result.then((mca: Models.Mca) => {
                 this.addMca(mca);
+                this.updateMca();
                 console.log(JSON.stringify(mca, null, 2));
             }, () => {
                 console.log('Modal dismissed at: ' + new Date());
@@ -203,7 +208,9 @@
             if (!mca) return;
             var title = String.format(McaCtrl.confirmationMsg1, mca.title);
             this.messageBusService.confirm(title, McaCtrl.confirmationMsg2, (result) => {
-                if (result) this.deleteMca(mca);
+                if (!result) return;
+                this.deleteMca(mca);
+                if (this.mca) this.updateMca();
             });
         }
 
@@ -225,8 +232,6 @@
             this.addMcaToLocalStorage(mca);
             this.updateAvailableMcas();
             this.mca = mca;
-            this.calculateMca();
-            this.drawPieChart();
         }
 
         private deleteMca(mca: Models.Mca) {
@@ -240,8 +245,6 @@
             this.updateAvailableMcas();
             if (this.availableMcas.length > 0) {
                 this.mca = this.availableMcas[0];
-                this.calculateMca();
-                this.drawPieChart();
             }
         }
 

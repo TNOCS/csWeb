@@ -224,9 +224,11 @@
                 // Sum all the sub-criteria.
                 var finalScore: number = 0;
                 this.criteria.forEach((crit) => {
-                    finalScore += crit.weight * crit.getScore(feature);
+                    finalScore += Math.abs(crit.weight) * crit.getScore(feature);
                 });
-                return this.weight * finalScore;
+                return this.weight > 0 
+                    ? this.weight * finalScore
+                    : this.weight * (1 - finalScore);
             }
             return 0;
         }
@@ -281,7 +283,7 @@
                 var crit = criteria[k];
                 if (crit.criteria.length > 0)
                     this.calculateWeights(crit.criteria);
-                 totalWeight += crit.userWeight;
+                 totalWeight += Math.abs(crit.userWeight);
             }
             if (totalWeight > 0) {
                 for (var j in criteria) {

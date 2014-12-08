@@ -19,22 +19,32 @@
     /**  
       * Directive to display an MCA control. 
       */
-    myModule.directive('voting', [(): ng.IDirective => {
+    myModule.directive('voting', ['$timeout', ($timeout: ng.ITimeoutService): ng.IDirective => {
                 return {
                     restrict: 'EA',  // E = elements, other options are A=attributes and C=CSS classes
+                    require : '^ngModel',
                     scope: {
-                        min  : '=',
-                        max  : '=',
-                        value: '='
+                        min     : '=',
+                        max     : '=',
+                        ngModel : "=",
+                        ngChange: "&"
                     }, 
                     template: '<div style="line-height: 12px; vertical-align: top; margin: 0; background: rgba(0, 0, 0, 0.1); border-radius: 6px; padding: 4px 6px;">' +
-                        '<a href="" data-ng-click="decrement()" data-ng-disabled="value <= min" style="float: left;"><i class="fa" data-ng-class="{true: \'fa-minus-square\', false: \'fa-minus-square-o\'}[value > min]"></i></a>' +
-                        '<span style="float: left; width:25px; text-align: center;">{{value}}</span>' +
-                        '<a href="" data-ng-click="increment()" data-ng-disabled="value >= max"><i class="fa" data-ng-class="{true: \'fa-plus-square\' , false: \'fa-plus-square-o\' }[value < max]"></i></a>' +
+                        '<a href="" data-ng-click="decrement()" data-ng-disabled="ngModel <= min" style="float: left;"><i class="fa" data-ng-class="{true: \'fa-minus-square\', false: \'fa-minus-square-o\'}[ngModel > min]"></i></a>' +
+                        '<span style="float: left; width:25px; text-align: center;">{{ngModel}}</span>' +
+                        '<a href="" data-ng-click="increment()" data-ng-disabled="ngModel >= max"><i class="fa" data-ng-class="{true: \'fa-plus-square\' , false: \'fa-plus-square-o\' }[ngModel < max]"></i></a>' +
                         '</div>',
-                    controller: ($scope) => {
-                        $scope.increment = () => { if ($scope.value < $scope.max) $scope.value = $scope.value + 1; }; 
-                        $scope.decrement = () => { if ($scope.value > $scope.min) $scope.value = $scope.value - 1; }; 
+                    link: ($scope: any) => {
+                        $scope.increment = () => {
+                            if ($scope.ngModel >= $scope.max) return;
+                            $scope.ngModel++;
+                            $timeout($scope.ngChange, 0);
+                        }; 
+                        $scope.decrement = () => {
+                            if ($scope.ngModel <= $scope.min) return;
+                            $scope.ngModel--;
+                            $timeout($scope.ngChange, 0);
+                        }; 
                     }
                 }
             }
