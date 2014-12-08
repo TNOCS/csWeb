@@ -29,6 +29,7 @@
     <TypeScriptCompile Include="directives\Timeline\Timeline.tpl.ts" />
     <TypeScriptCompile Include="directives\Timeline\Timeline.ts" />
     <TypeScriptCompile Include="directives\Timeline\TimelineCtrl.ts" />
+    <TypeScriptCompile Include="directives\Voting\Voting.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
     <TypeScriptCompile Include="helpers\MessageBus.ts" />
     <TypeScriptCompile Include="helpers\Plot.ts" />

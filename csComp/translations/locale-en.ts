@@ -26,6 +26,9 @@
             WHITE_ORANGE         : 'white - orange',
             ORANGE_WHITE         : 'orange - white',
             MCA                  : {
+                DESCRIPTION      : '<h4>Multi-Criteria Analysis</h4><p  style="text-align: left; margin-left:5px;">MCA, is a method that combines multiple properties of a feature on the map into a new property. It achieves this by:<ol><li>Scaling each property to a range between 0 (no value) and 1 (maximum value).</li><li>Weighing each property relative to the others, where a weight less than 0 indicates you wish to avoid it, 0 is ignored, and a value greater than 0 is prefered.</li></ol> In fact, it is a kind of linear regression.',
+                INFO             : 'At the moment, no map layers are loaded that contain a multi-criteria analysis. Open another map layer to see it.',
+                INFO_EXPERT      : 'At the moment, no map layers are loaded that contain a multi-criteria analysis. Open another map layer to use it, or create a new MCA using the wizard.',
                 SHOW_FEATURE_MSG : 'Select a feature on the map to see the effects of the Multi-Criteria Analysis (MCA).',
                 TOTAL_RESULT     : 'Combined result',
                 DELETE_MSG       : 'Delete "{0}"',

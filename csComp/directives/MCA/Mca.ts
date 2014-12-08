@@ -8,8 +8,8 @@
       * Module
       */
     export var myModule;
-    try {
-        myModule = angular.module(moduleName);
+    try {   
+        myModule = angular.module(moduleName);     
     } catch (err) {
         // named module does not exist, so create one
         myModule = angular.module(moduleName, []);
@@ -19,10 +19,10 @@
       * Directive to display an MCA control. 
       */ 
     myModule
-        .directive('mca', [
+        .directive('mca', [      
             '$window', '$compile', '$templateCache', 
             function ($window, $compile, $templateCache): ng.IDirective {
-                return { 
+                return {   
                     terminal: true,  // do not compile any other internal directives 
                     restrict: 'EA',  // E = elements, other options are A=attributes and C=CSS classes
                     scope: {},       // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.

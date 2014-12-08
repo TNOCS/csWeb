@@ -15,6 +15,7 @@
 
     export interface IMcaScope extends ng.IScope {
         vm: McaCtrl;
+        ratingStates: any;
     }
 
     declare var String;//: csComp.StringExt.IStringExt;
@@ -88,10 +89,15 @@
             $translate('MCA.DELETE_MSG').then(translation => {
                 McaCtrl.confirmationMsg1 = translation;
             });
-             $translate('MCA.DELETE_MSG2').then(translation => {
+            $translate('MCA.DELETE_MSG2').then(translation => {
                 McaCtrl.confirmationMsg2 = translation;
-            });
-            
+            });     
+        }
+
+        private getVotingClass(criterion: Models.Criterion) {
+            if (criterion == null || this.mca == null || criterion.userWeight == 0 || criterion.userWeight < -this.mca.userWeightMax || criterion.userWeight > this.mca.userWeightMax)
+                return 'disabledMca';
+            return criterion.userWeight > 0 ? 'prefer' : 'avoid';
         }
 
         private createDummyMca() {
