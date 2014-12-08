@@ -45,13 +45,18 @@ module csComp.Helpers {
 
             // Scale the x-range, so we don't have such long numbers
             var range = max - min;
-            var scale = d3.round(range, 0).toString().length - 2;
-            if (scale >= 2)
+            var scale = range > 0 
+                ? Math.max(d3.round(range, 0), d3.round(max, 0)).toString().length - 2 // 100 -> 1
+                : -2;
+            var scaleFactor = 0;
+            if (Math.abs(scale) > 1) {
                 xLabel += " (x10^" + scale + ")";
+                scaleFactor = Math.pow(10, scale);
+            }
             var tickFormatter = (value: number) => {
-                return scale < 2
-                    ? value.toString()
-                    : (d3.round(value/Math.pow(10,scale), 0).toString());
+                return scaleFactor > 0
+                    ? d3.round(value / scaleFactor, 0).toString()
+                    : d3.round(value, 0).toString();
             }
 
             var tempScale = d3.scale.linear().domain([0, numberOfBins]).range([min, max]);

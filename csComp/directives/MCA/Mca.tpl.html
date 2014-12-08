@@ -23,7 +23,7 @@
         <div data-ng-if="!vm.expertMode" translate>MCA.INFO</div>
     </div>
 
-    <div data-ng-if="vm.mca" style="overflow-y: auto; overflow-x: hidden" resize resize-y="120">
+    <div data-ng-if="vm.mca" style="overflow-y: auto; overflow-x: hidden; margin-left: -5px;" resize resize-y="120">
         <div data-ng-repeat="criterion in vm.mca.criteria">
             <div data-ng-if="criterion.criteria.length > 0 && criterion.userWeight != 0" class="pull-left" style="margin: 0 5px 0 0" data-toggle="collapse" data-target="#criterion_{{$index}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
             <div data-ng-style="{\'display\': \'inline-block\', \'margin-bottom\': \'6px\', \'width\':\'10px\', \'height\':\'10px\', \'border\':\'solid 1px black\', \'background-color\': criterion.color}"></div>
@@ -37,7 +37,7 @@
                     ng-model="criterion.userWeight"
                     style="margin-right: 5px; margin-bottom: 3px;"></voting>
 
-            <div data-ng-if="criterion.criteria.length == 0" style="margin-top: 5px;" id="histogram_{{$index}}"></div>
+            <div data-ng-show="vm.expertMode && criterion.criteria.length == 0" style="margin-top: 5px;" id="histogram_{{$index}}"></div>
             <!--<div data-ng-if="vm.expertMode && criterion.criteria.length == 0" style="margin-top: 5px; margin-left: 10px;" id="histogram_{{$index}}"></div>-->
             <div data-ng-if="criterion.criteria.length > 0" id="criterion_{{$parent.$index}}" class="collapse out" style="margin-left: 19px">
                 <div data-ng-repeat="crit in criterion.criteria">
@@ -51,8 +51,7 @@
                             max="vm.mca.userWeightMax"
                             ng-model="crit.userWeight"
                             style="margin-right: 5px;"></voting>
-                    <div style="margin-top: 5px;" id="histogram_{{$parent.$index}}_{{$index}}"></div>
-                    <!--<div data-ng-if="vm.expertMode" style="margin-top: 5px; margin-left: 20px;" id="histogram_{{$parent.$index}}_{{$index}}"></div>-->
+                    <div data-ng-show="vm.expertMode" style="margin-top: 5px;" id="histogram_{{$parent.$index}}_{{$index}}"></div>
                 </div>
             </div>
         </div>

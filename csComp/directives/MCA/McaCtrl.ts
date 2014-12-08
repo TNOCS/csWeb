@@ -1,10 +1,10 @@
-﻿module Mca {
+module Mca {
     'use strict';
 
     // TODO Add advanced option: in advanced mode, you can create, update, delete MCA criteria, and inspect sparklines.
     // TODO Add advanced option: add canCreate, canUpdate, canDelete options, can Inspect to MCA.
     // TODO Add sparkline (under weight, in case canInspect==true and expertMode==true.
-    // TODO Add scores to sparkline 
+    // TODO Add scores to sparkline
     // TODO Add current (selectedFeature) value to sparkline
     // TODO Add score * weight result to d3-tip.
 
@@ -19,7 +19,7 @@
     }
 
     declare var String;//: csComp.StringExt.IStringExt;
-    
+
     export class McaCtrl {
         private static mcas = 'MCAs';
         private static confirmationMsg1: string;
@@ -52,7 +52,7 @@
         constructor(
             private $scope              : IMcaScope,
             private $modal              : any,
-            private $translate          : ng.translate.ITranslateService,              
+            private $translate          : ng.translate.ITranslateService,
             private $localStorageService: ng.localStorage.ILocalStorageService,
             private $layerService       : csComp.Services.LayerService,
             private messageBusService   : csComp.Services.MessageBusService
@@ -91,7 +91,7 @@
             });
             $translate('MCA.DELETE_MSG2').then(translation => {
                 McaCtrl.confirmationMsg2 = translation;
-            });     
+            });
         }
 
         private getVotingClass(criterion: Models.Criterion) {
@@ -161,7 +161,7 @@
 
         public updateMca(criterion?: Models.Criterion) {
             this.calculateMca();
-            this.drawChart(criterion);            
+            this.drawChart(criterion);
         }
 
         ///** Add or delete the received MCA model. */
@@ -332,7 +332,7 @@
                         id: id,
                         width: 220,
                         height: 70
-                    });                    
+                    });
                 } else {
                     var j = 0;
                     crit.criteria.forEach((c) => {
@@ -371,12 +371,13 @@
             var data: csComp.Helpers.AsterPieData[] = [];
             var i = 0;
             currentLevel.forEach((c) => {
-                var pieData = new csComp.Helpers.AsterPieData();
-                pieData.id = i++;
-                pieData.label = c.getTitle();
-                pieData.weight = c.weight;
-                pieData.color = c.color;
-                pieData.score = c.getScore(this.selectedFeature) * 100;
+                var rawScore   = c.getScore(this.selectedFeature);
+                var pieData    = new csComp.Helpers.AsterPieData();
+                pieData.id     = i++;
+                pieData.label  = c.getTitle();
+                pieData.weight = Math.abs(c.weight);
+                pieData.color  = c.color;
+                pieData.score  = (c.weight > 0 ? rawScore : 1-rawScore) * 100;
                 data.push(pieData);
             });
             csComp.Helpers.Plot.drawAsterPlot(100, data, 'mcaPieChart');
@@ -389,11 +390,11 @@
             var data: csComp.Helpers.PieData[] = [];
             var i = 0;
             currentLevel.forEach((c) => {
-                var pieData = new csComp.Helpers.PieData();
-                pieData.id = i++;
-                pieData.label = c.getTitle();
-                pieData.weight = c.weight;
-                pieData.color = c.color;
+                var pieData    = new csComp.Helpers.PieData();
+                pieData.id     = i++;
+                pieData.label  = c.getTitle();
+                pieData.weight = Math.abs(c.weight);
+                pieData.color  = c.color;
                 data.push(pieData);
             });
             csComp.Helpers.Plot.drawPie(100, data, 'mcaPieChart');
@@ -524,4 +525,4 @@
         }
 
     }
-} 
+}

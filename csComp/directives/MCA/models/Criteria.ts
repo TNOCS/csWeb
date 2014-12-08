@@ -198,15 +198,16 @@
         public getScore(feature: Feature): number {
             if (!this.isPlaUpdated)
                 throw ('Error: PLA must be updated for criterion ' + this.title + '!');
-            if (this.criteria.length == 0) {
+            if (this.criteria.length === 0) {
                 // End point: compute the score for each feature
-                if (this.label in feature.properties) {
+                if (feature.properties.hasOwnProperty(this.label)) {
                     // The property is available
                     var x = feature.properties[this.label];
                     if (x < this.x[0]) return this.y[0];
                     var last = this.x.length-1;
                     if (x > this.x[last]) return this.y[last];
-                    for (var k in this.x) {
+                    //for (var k in this.x) {
+                    for (var k=0; k<this.x.length; k++) {
                         if (x < this.x[k]) {
                             // Found relative position of x in this.x
                             var x0 = this.x[k - 1];
@@ -222,13 +223,15 @@
                 }
             } else {
                 // Sum all the sub-criteria.
-                var finalScore: number = 0;
+                var finalScore = 0;
                 this.criteria.forEach((crit) => {
-                    finalScore += Math.abs(crit.weight) * crit.getScore(feature);
+                    finalScore += crit.weight > 0
+                        ? crit.weight * crit.getScore(feature)
+                        : Math.abs(crit.weight) * (1 - crit.getScore(feature));
                 });
                 return this.weight > 0 
                     ? this.weight * finalScore
-                    : this.weight * (1 - finalScore);
+                    : Math.abs(this.weight) * (1 - finalScore);
             }
             return 0;
         }
