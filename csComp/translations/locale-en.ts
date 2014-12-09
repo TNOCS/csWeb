@@ -19,6 +19,8 @@
             RED_WHITE            : 'red - white',
             GREEN_RED            : 'green - red',
             RED_GREEN            : 'red - green',
+            BLUE_RED             : 'blue - red',
+            RED_BLUE             : 'red - blue',
             WHITE_BLUE           : 'white - blue',
             BLUE_WHITE           : 'blue - white',
             WHITE_GREEN          : 'white - green',

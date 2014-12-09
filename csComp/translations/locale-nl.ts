@@ -19,6 +19,8 @@
             RED_WHITE           : 'rood - wit',
             GREEN_RED           : 'groen - rood',
             RED_GREEN           : 'rood - groen',
+            BLUE_RED            : 'blauw - rood',
+            RED_BLUE            : 'rood - blauw',
             WHITE_BLUE          : 'wit - blauw',
             BLUE_WHITE          : 'wit - groen',
             WHITE_GREEN         : 'wit - groen',

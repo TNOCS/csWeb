@@ -1,4 +1,4 @@
-module Mca {
+﻿module Mca {
     'use strict';
 
     // TODO Add advanced option: in advanced mode, you can create, update, delete MCA criteria, and inspect sparklines.
@@ -161,8 +161,7 @@ module Mca {
 
         updateMca(criterion?: Models.Criterion) {
             this.calculateMca();
-            if (!this.selectedFeature)
-                this.drawChart(criterion);
+            this.drawChart(criterion);
         }
 
         editMca(mca: Models.Mca) {
@@ -261,7 +260,7 @@ module Mca {
             if (this.mca == null) return;
             switch (title) {
             case "onFeatureSelect":
-                this.updateSelectedFeature(feature);
+                this.updateSelectedFeature(feature, true);
                 break;
             case "onFeatureDeselect":
                 this.showFeature = false;
@@ -277,7 +276,7 @@ module Mca {
             }
         }
 
-        private updateSelectedFeature(feature: Feature) {
+        private updateSelectedFeature(feature: Feature, drawCharts = false) {
             if (typeof feature === "undefined" || feature == null) {
                 this.featureIcon = "";
                 return;
@@ -298,7 +297,7 @@ module Mca {
                 displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
                 this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description));
             }
-            this.drawChart();
+            if (drawCharts) this.drawChart();
         }
 
         drawChart(criterion?: Models.Criterion) {
@@ -447,7 +446,7 @@ module Mca {
                     }
                 }
             });
-            this.updateSelectedFeature(this.selectedFeature);
+            this.updateSelectedFeature(this.selectedFeature, false);
             if (this.selectedFeature) {
                 this.messageBusService.publish('feature', 'onFeatureSelect', this.selectedFeature);
             }
@@ -484,7 +483,7 @@ module Mca {
                 this.$layerService.updateStyle(this.groupStyle);
             else {
                 this.groupStyle = this.$layerService.setStyle(item, false);
-                this.groupStyle.colors = ['red', 'green'];
+                this.groupStyle.colors = ['red', 'blue'];
                 this.$layerService.updateStyle(this.groupStyle);
             }
         }
