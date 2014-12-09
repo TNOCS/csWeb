@@ -76,34 +76,33 @@
     }
 
     export class Criterion {
-        public title      : string;
-        public description: string;
+        title      : string;
+        description: string;
         /** 
         * Top level label will be used to add a property to a feature, mca_LABELNAME, with the MCA value. 
         * Lower level children will be used to obtain the property value. 
         */
-        public label      : string;
+        label      : string;
         /** Color of the pie chart */
-        public color      : string;
+        color      : string;
         /** Specified weight by the user */
-        public userWeight : number = 1;
+        userWeight = 1;
         /** Derived weight based on the fact that the sum of weights in a group of criteria needs to be 1. */
-        public weight     : number;
+        weight     : number;
         /** Scoring function y = f(x), which translates a specified measurement x to a value y, where y in [0,1].
          * Format [x1,y1 x2,y2], and may contain special characters, such as min or max to define the minimum or maximum.
          */
-        public scores     : string;
-        public propValues : Array<number> = [];
-
-        public criteria: Criterion[] = [];
+        scores     : string;
+        propValues : Array<number> = [];
+        criteria: Criterion[] = [];
         /** Piece-wise linear approximation of the scoring function by a set of x and y points */
-        public isPlaUpdated: boolean = false;
+        isPlaUpdated = false;
         /** Piece-wise linear approximation must be scaled:x' = ax+b, where a=100/(8r) and b=-100(min+0.1r)/(8r) and r=max-min */
-        public isPlaScaled : boolean = false;
-        private x: number[] = [];
-        private y: number[] = [];
+        isPlaScaled = false;
+        x: number[] = [];
+        y: number[] = [];
 
-        public deserialize(input: Models.Criterion): Models.Criterion {
+        deserialize(input: Models.Criterion): Models.Criterion {
             this.title       = input.title;
             this.description = input.description;
             this.label       = input.label;
@@ -126,7 +125,7 @@
             return this.scores && this.scores.indexOf('max') >= 0;
         }
 
-        public getTitle() {
+        getTitle() {
             if (this.title) return this.title;
             return this.label;
         }
@@ -135,7 +134,7 @@
          * Update the piecewise linear approximation (PLA) of the scoring (a.k.a. user) function, 
          * which translates a property value to a MCA value in the range [0,1] using all features.
          */
-        public updatePla(features: Feature[]) {
+        updatePla(features: Feature[]) {
             if (this.isPlaUpdated) return;
             if (this.criteria.length > 0) {
                 this.criteria.forEach((c) => { 
@@ -160,11 +159,16 @@
                 min = 0;
             if (this.isPlaScaled || this.requiresMaximum()) {
                 max = Math.max.apply(null, this.propValues);
-                scores.replace('max', max.toPrecision(3));
+                scores.replace("max", max.toPrecision(3));
             }
             if (this.isPlaScaled || this.requiresMinimum()) {
                 min = Math.min.apply(null, this.propValues);
-                scores.replace('min', min.toPrecision(3));
+                scores.replace("min", min.toPrecision(3));
+            }
+            if (this.isPlaScaled) {
+                var stats = csComp.Helpers.standardDeviation(this.propValues);
+                max = Math.min(max, stats.avg + 2 * stats.stdDev);
+                min = Math.max(min, stats.avg - 2 * stats.stdDev);
             }
             // Regex to split the scores: [^\d\.]+ and remove empty entries
             var pla = scores.split(/[^\d\.]+/).filter(item => item.length > 0);
@@ -173,8 +177,8 @@
                 a = 0.08 * range,
                 b = min + 0.1 * range;
 
-            if (pla.length % 2 != 0)
-                throw Error(this.label + ' does not have an even (x,y) pair in scores.');
+            if (pla.length % 2 !== 0)
+                throw Error(this.label + " does not have an even (x,y) pair in scores.");
             for (var i = 0; i < pla.length / 2; i++) {
                 var x = parseFloat(pla[2*i]);
                 if (this.isPlaScaled) {
@@ -184,7 +188,7 @@
                     x = a * x + b;
                 }
                 if (i > 0 && this.x[i - 1] > x)
-                    throw Error(this.label + ': x should increment continuously.');
+                    throw Error(this.label + ": x should increment continuously.");
                 this.x.push(x);
                 // Test that y in [0, 1].
                 var y = parseFloat(pla[2*i+1]);

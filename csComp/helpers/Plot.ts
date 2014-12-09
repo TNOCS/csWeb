@@ -18,15 +18,27 @@ module csComp.Helpers {
         xLabel?      : string;
         //yLabel?      : string;
     }
+    
+    export interface IMcaPlotOptions extends IHistogramOptions {
+        /** Scoring function x,y points */
+        xy?: {
+            x: number[];
+            y: number[];
+        };
+        /** Value of the feature, i.e. the point that we wish to highlight */
+        featureValue? : number;
+    }
 
     export class Plot {
-
+        /**
+         * Draw a histogram, and, if xy is specified, a line plot of x versus y (e.g. a scoring function).
+         */
         public static drawHistogram(values: number[], options?: IHistogramOptions) {
-            var id           = (options != null && options.hasOwnProperty('id'))           ? options.id           : 'myHistogram';
-            var numberOfBins = (options != null && options.hasOwnProperty('numberOfBins')) ? options.numberOfBins : 10;
-            var width        = (options != null && options.hasOwnProperty('width'))        ? options.width        : 200;
-            var height       = (options != null && options.hasOwnProperty('height'))       ? options.height       : 150;
-            var xLabel       = (options != null && options.hasOwnProperty('xLabel'))       ? options.xLabel       : 'data';
+            var id           = (options != null && options.hasOwnProperty("id"))           ? options.id           : "myHistogram";
+            var numberOfBins = (options != null && options.hasOwnProperty("numberOfBins")) ? options.numberOfBins : 10;
+            var width        = (options != null && options.hasOwnProperty("width"))        ? options.width        : 200;
+            var height       = (options != null && options.hasOwnProperty("height"))       ? options.height       : 150;
+            var xLabel       = (options != null && options.hasOwnProperty("xLabel"))       ? options.xLabel       : "data";
             //var yLabel       = (options != null && options.hasOwnProperty('yLabel'))       ? options.yLabel       : '#';
 
             var margin = { top: 0, right: 6, bottom: 24, left: 6 };
@@ -61,7 +73,7 @@ module csComp.Helpers {
 
             var tempScale = d3.scale.linear().domain([0, numberOfBins]).range([min, max]);
             var tickArray = d3.range(numberOfBins + 1).map(tempScale);
-            var x = d3.scale.linear()
+            var x: any = d3.scale.linear()
                 .domain([min, max])
                 .range([0, width]);
 
@@ -74,7 +86,7 @@ module csComp.Helpers {
             // Generate a histogram using numberOfBins uniformly-spaced bins.
             var data = d3.layout.histogram().bins(numberOfBins)(values);
 
-            var y = d3.scale.linear()
+            var y: any = d3.scale.linear()
                 .domain([0, d3.max(data, d => d.y)])
                 .range([height, 0]);
 
@@ -100,7 +112,7 @@ module csComp.Helpers {
             var conditionalFormatCounter = (value: number) => {
                 return (height - y(value) > 6) 
                     ? formatCount(value)
-                    : '';
+                    : "";
             };
 
             // Text (count) inside the bins
@@ -123,6 +135,149 @@ module csComp.Helpers {
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + height + ")")
                 .call(xAxis);
+        }
+
+        public static drawMcaPlot(values: number[], options?: IMcaPlotOptions) {
+            var id             = (options != null && options.hasOwnProperty("id"))           ? options.id : "myHistogram";
+            var numberOfBins   = (options != null && options.hasOwnProperty("numberOfBins")) ? options.numberOfBins : 10;
+            var width          = (options != null && options.hasOwnProperty("width"))        ? options.width : 200;
+            var height         = (options != null && options.hasOwnProperty("height"))       ? options.height : 150;
+            var xLabel         = (options != null && options.hasOwnProperty("xLabel"))       ? options.xLabel : "data";
+            var xyData         = (options != null && options.hasOwnProperty("xy"))           ? options.xy : null;
+            var featureValue   = (options != null && options.hasOwnProperty("featureValue")) ? options.featureValue : null;
+            
+            //var yLabel       = (options != null && options.hasOwnProperty('yLabel'))       ? options.yLabel       : '#';
+
+            var margin = { top: 0, right: 6, bottom: 24, left: 6 };
+            width      -= margin.left + margin.right,
+            height     -= margin.top + margin.bottom;
+
+            var svgId = id + "_histogram";
+
+            Plot.clearSvg(svgId);
+
+            // A formatter for counts.
+            var formatCount = d3.format(",.0f");
+
+            var max = Math.max.apply(null, values);
+            var min = Math.min.apply(null, values);
+
+            // Scale the x-range, so we don't have such long numbers
+            var range = max - min;
+            var scale = range > 0
+                ? Math.max(d3.round(range, 0), d3.round(max, 0)).toString().length - 2 // 100 -> 1
+                : -2;
+            var scaleFactor = 0;
+            if (Math.abs(scale) > 1) {
+                xLabel += " (x10^" + scale + ")";
+                scaleFactor = Math.pow(10, scale);
+            }
+            var tickFormatter = (value: number) => {
+                return scaleFactor > 0
+                    ? d3.round(value / scaleFactor, 0).toString()
+                    : d3.round(value, 0).toString();
+            }
+
+            var tempScale = d3.scale.linear().domain([0, numberOfBins]).range([min, max]);
+            var tickArray = d3.range(numberOfBins + 1).map(tempScale);
+            var x: any = d3.scale.linear()
+                .domain([min, max])
+                .range([0, width]);
+
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .tickValues(tickArray)
+                .tickFormat(tickFormatter)
+                .orient("bottom");
+
+            // Generate a histogram using numberOfBins uniformly-spaced bins.
+            var data = d3.layout.histogram().bins(numberOfBins)(values);
+
+            var y: any = d3.scale.linear()
+                .domain([0, d3.max(data, d => d.y)])
+                .range([height, 0]);
+
+            var svg = d3.select("#" + id)
+                .append("svg")
+                .attr("id", svgId)
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var bar = svg.selectAll(".bar")
+                .data(data)
+                .enter().append("g")
+                .attr("class", "bar")
+                .attr("transform", d => "translate(" + x(d.x) + "," + y(d.y) + ")");
+
+            bar.append("rect")
+                .attr("x", 1)
+                .attr("width", x(min + data[0].dx) - 1)
+                .attr("height", d => height - y(d.y));
+
+            var conditionalFormatCounter = (value: number) => {
+                return (height - y(value) > 6)
+                    ? formatCount(value)
+                    : "";
+            };
+
+            // Text (count) inside the bins
+            bar.append("text")
+                .attr("dy", ".75em")
+                .attr("y", 6)
+                .attr("x", x(min + data[0].dx) / 2)
+                .attr("text-anchor", "middle")
+                .text(d => conditionalFormatCounter(d.y));
+
+            // x-label
+            svg.append("text")
+                .attr("class", "x label")
+                .attr("text-anchor", "end")
+                .attr("x", width)
+                .attr("y", height - 6)
+                .text(xLabel);
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+            if (xyData == null) return;
+            // Draw line chart
+            var xy = [];
+            xy.push({ x: min, y: xyData.y[0] });
+            for (var i = 0; i < xyData.x.length; i++) {
+                xy.push({ x: xyData.x[i], y: xyData.y[i] });
+            }
+            xy.push({ x: max, y: xyData.y[xyData.y.length - 1] });
+
+            var y2: any = d3.scale.linear()
+                .domain([0, d3.max(xy, d => d.y)])
+                .range([height - 1, 1]);
+
+            var lineFunc = d3.svg.line()
+                .x((d) => x(d.x))
+                .y((d) => y2(d.y))
+                .interpolate("linear");
+
+            svg.append("svg:path")
+                .attr("d", lineFunc(xy))
+                .attr("stroke", "red")
+                .attr("stroke-width", 2)
+                .attr("fill", "none");
+
+            if (featureValue == null) return;
+            // Draw feature on the score
+            xy = [];
+            xy.push({ x: featureValue, y: 0 });
+            xy.push({ x: featureValue, y: height });
+            
+            svg.append("svg:path")
+                .attr("d", lineFunc(xy))
+                .attr("stroke", "blue")
+                .attr("stroke-width", 2)
+                .attr("fill", "none");
         }
 
 

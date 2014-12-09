@@ -154,36 +154,22 @@ module Mca {
             this.$layerService.project.mcas.push(mca);
         }
 
-        public weightUpdated(criterion: Models.Criterion) {
+        weightUpdated(criterion: Models.Criterion) {
             this.addMca(this.mca);
             this.updateMca(criterion);
         }
 
-        public updateMca(criterion?: Models.Criterion) {
+        updateMca(criterion?: Models.Criterion) {
             this.calculateMca();
-            this.drawChart(criterion);
+            if (!this.selectedFeature)
+                this.drawChart(criterion);
         }
 
-        ///** Add or delete the received MCA model. */
-        //private mcaMessageReceived = (title: string, data: { mca: Models.Mca }): void => {
-        //    if (!data || !data.mca) return;
-        //    switch (title) {
-        //        case "add":
-        //            this.addMca(data.mca);
-        //            break;
-        //        case "delete":
-        //            this.deleteMca(data.mca);
-        //            break;
-        //    }
-        //}
-
-        public editMca(mca: Models.Mca) {
+        editMca(mca: Models.Mca) {
             this.showMcaEditor(mca);
-            //this.messageBusService.publish('mca', 'edit', { mca: mca });
-            //this.showDialog = true;
         }
 
-        public createMca() {
+        createMca() {
             this.showMcaEditor(new Models.Mca());
         }
 
@@ -204,7 +190,7 @@ module Mca {
             });
         }
 
-        public removeMca(mca: Models.Mca) {
+        removeMca(mca: Models.Mca) {
             if (!mca) return;
             var title = String.format(McaCtrl.confirmationMsg1, mca.title);
             this.messageBusService.confirm(title, McaCtrl.confirmationMsg2, (result) => {
@@ -258,10 +244,10 @@ module Mca {
 
         private removeMcaFromLocalStorage(mca: Models.Mca) {
             var mcas: Models.Mca[] = this.$localStorageService.get(McaCtrl.mcas);
-            if (typeof mcas === 'undefined' || mcas === null) return;
+            if (typeof mcas === "undefined" || mcas === null) return;
             var mcaIndex = -1;
             for (var i = 0; i < mcas.length; i++) {
-                if (mcas[i].title != mca.title) continue;
+                if (mcas[i].title !== mca.title) continue;
                 mcaIndex = i;
                 break;
             }
@@ -286,20 +272,20 @@ module Mca {
                 console.log(title);
                 break;
             }
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+            if (this.$scope.$root.$$phase !== "$apply" && this.$scope.$root.$$phase !== "$digest") {
                 this.$scope.$apply();
             }
         }
 
         private updateSelectedFeature(feature: Feature) {
-            if (typeof feature === 'undefined' || feature == null) {
-                this.featureIcon = '';
+            if (typeof feature === "undefined" || feature == null) {
+                this.featureIcon = "";
                 return;
             }
             this.selectedFeature = feature;
             this.featureIcon = this.selectedFeature.fType != null && this.selectedFeature.fType.style != null
                 ? this.selectedFeature.fType.style.iconUri
-                : '';
+                : "";
             if (!feature.properties.hasOwnProperty(this.mca.label)) return;
 
             this.showFeature = true;
@@ -315,7 +301,7 @@ module Mca {
             this.drawChart();
         }
 
-        public drawChart(criterion?: Models.Criterion) {
+        drawChart(criterion?: Models.Criterion) {
             this.showChart = true;
             if (this.showFeature)
                 this.drawAsterPlot(criterion);
@@ -328,18 +314,22 @@ module Mca {
             this.mca.criteria.forEach((crit) => {
                 var id = "histogram_" + i++;
                 if (crit.criteria.length === 0) {
-                    csComp.Helpers.Plot.drawHistogram(crit.propValues, {
-                        id: id,
-                        width: 220,
-                        height: 70
+                    csComp.Helpers.Plot.drawMcaPlot(crit.propValues, {
+                        id              : id,
+                        width           : 220,
+                        height          : 70,
+                        xy              : { x: crit.x, y: crit.y },
+                        featureValue    : this.selectedFeature ? this.selectedFeature.properties[crit.label] : null
                     });
                 } else {
                     var j = 0;
                     crit.criteria.forEach((c) => {
-                        csComp.Helpers.Plot.drawHistogram(c.propValues, {
-                            id: id + "_" + j++,
-                            width: 220,
-                            height: 70
+                        csComp.Helpers.Plot.drawMcaPlot(c.propValues, {
+                            id          : id + "_" + j++,
+                            width       : 220,
+                            height      : 70,
+                            xy          : { x: c.x, y: c.y },
+                            featureValue: this.selectedFeature ? this.selectedFeature.properties[c.label] : null
                         });
                     });
                 }
@@ -422,7 +412,7 @@ module Mca {
             if (!this.mca) return;
             var mca = this.mca;
             mca.featureIds.forEach((featureId: string) => {
-                if (!(featureId in this.$layerService.featureTypes)) return;
+                if (!(this.$layerService.featureTypes.hasOwnProperty(featureId))) return;
                 this.addPropertyInfo(featureId, mca);
                 var features: IFeature[] = [];
                 this.$layerService.project.features.forEach((feature) => {
@@ -453,13 +443,14 @@ module Mca {
                         if (item.score != prevScore)
                             rank = i + 1;
                         prevScore = item.score;
-                        this.$layerService.project.features[item.index].properties[mca.label + '#'] = rank + ',' + length;
+                        this.$layerService.project.features[item.index].properties[mca.label + "#"] = rank + ',' + length;
                     }
                 }
             });
             this.updateSelectedFeature(this.selectedFeature);
-            if (this.selectedFeature)
+            if (this.selectedFeature) {
                 this.messageBusService.publish('feature', 'onFeatureSelect', this.selectedFeature);
+            }
             if (this.groupStyle) this.$layerService.updateStyle(this.groupStyle);
         }
 

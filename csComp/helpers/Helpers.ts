@@ -8,6 +8,26 @@
         return !(isOldIE || isIE11);  //Return true if not any IE
     }
 
+    export function standardDeviation(values: number[]) {
+        var avg = average(values);
+
+        var squareDiffs = values.map(value => {
+            var diff = value - avg;
+            var sqrDiff = diff * diff;
+            return sqrDiff;
+        });
+
+        var avgSquareDiff = average(squareDiffs);
+
+        var stdDev = Math.sqrt(avgSquareDiff);
+        return { avg: avg, stdDev: stdDev };
+    }
+
+    export function average(data: number[]) {
+        var sum = data.reduce((accumulatedSum, value) => (accumulatedSum + value), 0);
+        var avg = sum / data.length;
+        return avg;
+    }
 
     /**
      * Convert a property value to a display value using the property info.

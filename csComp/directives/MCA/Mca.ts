@@ -1,12 +1,14 @@
 ﻿module Mca {
+    "use strict";
+
     /**
-      * Config
-      */
+     * Config
+     */
     var moduleName = 'csWeb.mca';
 
     /**                    
-      * Module
-      */
+     * Module
+     */
     export var myModule;
     try {   
         myModule = angular.module(moduleName);     
@@ -15,9 +17,9 @@
         myModule = angular.module(moduleName, []);
     }
 
-    /**  
-      * Directive to display an MCA control. 
-      */ 
+    /** 
+     * Directive to display an MCA control. 
+     */
     myModule
         .directive("mca", [
             "$window", "$compile", "$templateCache", 
