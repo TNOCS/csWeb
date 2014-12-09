@@ -258,7 +258,7 @@
         /***
          * Show tooltip with name, styles & filters.
          */
-        public showFeatureTooltip(e, group: ProjectGroup) {
+        showFeatureTooltip(e, group: ProjectGroup) {
             var layer = e.target;
             var feature = <Feature>layer.feature;
             // add title
@@ -273,7 +273,7 @@
                         var valueLength = value.toString().length;
                         if (f.meta != null) {
                             value = Helpers.convertPropertyInfo(f.meta, value);
-                            if (f.meta.type != 'bbcode') valueLength = value.toString().length;
+                            if (f.meta.type !== "bbcode") valueLength = value.toString().length;
                         }
                         rowLength = Math.max(rowLength, valueLength + f.title.length);
                         content += "<tr><td><div class='smallFilterIcon'></td><td>" + f.title + "</td><td>" + value + "</td></tr>";
@@ -290,7 +290,7 @@
                             var valueLength = value.toString().length;
                             if (s.meta != null) {
                                 value = Helpers.convertPropertyInfo(s.meta, value);
-                                if (s.meta.type != 'bbcode') valueLength = value.toString().length;
+                                if (s.meta.type !== "bbcode") valueLength = value.toString().length;
                             }
                             rowLength = Math.max(rowLength, valueLength + s.title.length);
                             content += "<tr><td><div class='smallStyleIcon'></td><td>" + s.title + "</td><td>" + value + "</td></tr>";
@@ -298,7 +298,7 @@
                     }
                 });
             }
-            var widthInPixels = Math.min(rowLength * 7 + 15, 250);
+            var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
             content = "<table style='width:" + widthInPixels + "px;'>" + content + "</table>";
 
             this.popup = L.popup({

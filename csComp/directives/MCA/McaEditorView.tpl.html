@@ -16,17 +16,12 @@
         <ul class="form-group" style="margin-top: 1em; margin-left: -2em; overflow-y: auto; overflow-x: hidden;"
             resize resize-y="450">
             <li ng-repeat="mi in vm.propInfos" class="list-unstyled" style="white-space: nowrap; -moz-text-overflow: ellipsis; text-overflow: ellipsis">
-                <div>
-                    <span>
-                        <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}"
-                               data-ng-checked="mi.isSelected"
-                               data-ng-click="mi.isSelected = !mi.isSelected">&nbsp;&nbsp;{{mi.title}}
-                        <span data-ng-if="mi.isSelected" style="margin-left: 10px;">
-                            <input type="checkbox" data-ng-model="mi.hasCategory" /><span translate>MCA.HAS_CATEGORY</span>
-                            <input type="text" data-ng-if="mi.hasCategory" data-ng-model="mi.category" placeholder="..." />
-                        </span>
-                    </span>
-                    <form data-ng-if="mi.isSelected" name="myForm" style="margin-left: 20px;">
+                <div style="padding: 5px 0;">
+                    <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}"
+                            data-ng-checked="mi.isSelected"
+                            data-ng-click="mi.isSelected = !mi.isSelected">&nbsp;&nbsp;{{mi.title}}
+                    <input type="text" data-ng-if="mi.isSelected" style="margin: -2px 5px -2px 0;" class="pull-right" data-ng-model="mi.category" placeholder="{{\'MCA.CATEGORY_MSG\' | translate}}" />
+                    <!--<form data-ng-if="mi.isSelected" name="myForm" style="margin-left: 20px;">
                         <label id="scoringFunctions" data-ng-repeat="sf in vm.scoringFunctions">
                             <input type="radio" data-ng-model="mi.scoringFunctionType" value="{{sf.type}}">
                             <a data-ng-href="" data-ng-class="sf.cssClass" data-ng-click="mi.isSelected = !mi.isSelected"></a>
@@ -34,7 +29,7 @@
                     </form>
                     <div data-ng-if="mi.scoringFunctionType == 0" style="margin-left: 20px;">
                         input -> score:&nbsp;<input type="text" data-ng-model="mi.scores" placeholder="[x0,y0 x1,y1 ...]" />
-                    </div>
+                    </div>-->
                 </div>
             </li>
         </ul>

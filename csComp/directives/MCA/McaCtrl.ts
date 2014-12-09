@@ -1,12 +1,8 @@
 ﻿module Mca {
-    'use strict';
+    "use strict";
 
     // TODO Add advanced option: in advanced mode, you can create, update, delete MCA criteria, and inspect sparklines.
     // TODO Add advanced option: add canCreate, canUpdate, canDelete options, can Inspect to MCA.
-    // TODO Add sparkline (under weight, in case canInspect==true and expertMode==true.
-    // TODO Add scores to sparkline
-    // TODO Add current (selectedFeature) value to sparkline
-    // TODO Add score * weight result to d3-tip.
 
     import Feature       = csComp.Services.Feature;
     import IFeature      = csComp.Services.IFeature;
@@ -21,32 +17,33 @@
     declare var String;//: csComp.StringExt.IStringExt;
 
     export class McaCtrl {
-        private static mcas = 'MCAs';
+        private static mcas = "MCAs";
         private static confirmationMsg1: string;
         private static confirmationMsg2: string;
 
-        public selectedFeature: IFeature;
-        public properties     : FeatureProps.CallOutProperty[];
-        public showDialog     : boolean = false;
-        public showFeature    : boolean;
-        public showChart      : boolean;
-        public featureIcon    : string;
+        selectedFeature: IFeature;
+        properties     : FeatureProps.CallOutProperty[];
+        showFeature    : boolean;
+        showChart      : boolean;
+        featureIcon    : string;
 
-        public expertMode     : boolean = true;
+        mca              : Models.Mca;
+        selectedCriterion: Models.Criterion;
+        availableMcas    : Models.Mca[] = [];
 
-        public mca              : Models.Mca;
-        public selectedCriterion: Models.Criterion;
-        public availableMcas    : Models.Mca[] = [];
+        showDialog    = false;
+        expertMode    = false;
+        showSparkline = false;
 
         private groupStyle: csComp.Services.GroupStyle;
 
-        public static $inject = [
-            '$scope',
-            '$modal',
-            '$translate',
-            'localStorageService',
-            'layerService',
-            'messageBusService'
+        static $inject = [
+            "$scope",
+            "$modal",
+            "$translate",
+            "localStorageService",
+            "layerService",
+            "messageBusService"
         ];
 
         constructor(
@@ -56,26 +53,32 @@
             private $localStorageService: ng.localStorage.ILocalStorageService,
             private $layerService       : csComp.Services.LayerService,
             private messageBusService   : csComp.Services.MessageBusService
-        ) {
+            ) {
             $scope.vm = this;
 
-            messageBusService.subscribe('layer', (title) => {//, layer: csComp.Services.ProjectLayer) => {
+            messageBusService.subscribe("layer", (title) => {//, layer: csComp.Services.ProjectLayer) => {
                 switch (title) {
-                    case 'activated':
-                    case 'deactivate':
+                    case "activated":
+                    case "deactivate":
                         this.updateAvailableMcas();
                         this.calculateMca();
                         break;
                 }
             });
 
-            messageBusService.subscribe('project', (title) => {//, layer: csComp.Services.ProjectLayer) => {
+            messageBusService.subscribe("project", (title) => {//, layer: csComp.Services.ProjectLayer) => {
                 switch (title) {
-                    case 'loaded':
-                        if (typeof $layerService.project.mcas === 'undefined' || $layerService.project.mcas == null)
+                    case "loaded":
+                        this.expertMode = $layerService.project != null
+                            && $layerService.project.hasOwnProperty("userPrivileges")
+                            && $layerService.project.userPrivileges.hasOwnProperty("mca")
+                            && $layerService.project.userPrivileges.mca.hasOwnProperty("expertMode")
+                            && $layerService.project.userPrivileges.mca.expertMode;
+
+                       if (typeof $layerService.project.mcas === "undefined" || $layerService.project.mcas == null)
                             $layerService.project.mcas = [];
                         var mcas = this.$localStorageService.get(McaCtrl.mcas);
-                        if (typeof mcas === 'undefined' || mcas === null) return;
+                        if (typeof mcas === "undefined" || mcas === null) return;
                         mcas.forEach((mca) => {
                             $layerService.project.mcas.push(new Models.Mca().deserialize(mca));
                         });
@@ -86,72 +89,77 @@
 
             messageBusService.subscribe("feature", this.featureMessageReceived);
 
-            $translate('MCA.DELETE_MSG').then(translation => {
+            $translate("MCA.DELETE_MSG").then(translation => {
                 McaCtrl.confirmationMsg1 = translation;
             });
-            $translate('MCA.DELETE_MSG2').then(translation => {
+            $translate("MCA.DELETE_MSG2").then(translation => {
                 McaCtrl.confirmationMsg2 = translation;
             });
         }
 
         private getVotingClass(criterion: Models.Criterion) {
-            if (criterion == null || this.mca == null || criterion.userWeight == 0 || criterion.userWeight < -this.mca.userWeightMax || criterion.userWeight > this.mca.userWeightMax)
-                return 'disabledMca';
-            return criterion.userWeight > 0 ? 'prefer' : 'avoid';
+            if (criterion == null || this.mca == null || criterion.userWeight === 0 || criterion.userWeight < -this.mca.userWeightMax || criterion.userWeight > this.mca.userWeightMax)
+                return "disabledMca";
+            return criterion.userWeight > 0 ? "prefer" : "avoid";
         }
 
         private createDummyMca() {
             var mca = new Models.Mca();
-            mca.title = 'Mijn Zelfredzaamheid';
-            mca.description = 'Analyse van de zelfredzaamheid van een gemeente.';
-            mca.label = 'mca_zelfredzaamheid';
-            mca.stringFormat = '{0:0.0}';
-            mca.rankTitle = 'Positie';
-            mca.rankDescription = 'Relatieve positie in de lijst.';
-            mca.rankFormat = '{0} van {1}';
+            mca.title = "Mijn Zelfredzaamheid";
+            mca.description = "Analyse van de zelfredzaamheid van een gemeente.";
+            mca.label = "mca_zelfredzaamheid";
+            mca.stringFormat = "{0:0.0}";
+            mca.rankTitle = "Positie";
+            mca.rankDescription = "Relatieve positie in de lijst.";
+            mca.rankFormat = "{0} van {1}";
             mca.userWeightMax = 5;
-            mca.featureIds = ['cities_Default'];
+            mca.featureIds = ["cities_Default"];
 
             var criterion = new Models.Criterion();
-            criterion.label = 'p_00_14_jr';
-            criterion.scores = '[0,0 20,1]';
+            criterion.label = "p_00_14_jr";
+            criterion.scores = "[0,0 20,1]";
             criterion.userWeight = 1;
             mca.criteria.push(criterion);
 
             criterion = new Models.Criterion();
-            criterion.label = 'p_15_24_jr';
-            criterion.scores = '[0,0 20,1]';
+            criterion.label = "p_15_24_jr";
+            criterion.scores = "[0,0 20,1]";
             criterion.userWeight = 1;
             mca.criteria.push(criterion);
 
             criterion = new Models.Criterion();
-            criterion.label = 'p_65_eo_jr';
-            criterion.scores = '[0,0 25,1]';
+            criterion.label = "p_65_eo_jr";
+            criterion.scores = "[0,0 25,1]";
             criterion.userWeight = 3;
             mca.criteria.push(criterion);
             this.$layerService.project.mcas.push(mca);
 
             mca = new Models.Mca();
-            mca.title = 'test';
-            mca.label = 'mca_test';
-            mca.stringFormat = '{0:0.0}';
-            mca.rankTitle = 'Rang';
-            mca.rankFormat = '{0} van {1}';
+            mca.title = "test";
+            mca.label = "mca_test";
+            mca.stringFormat = "{0:0.0}";
+            mca.rankTitle = "Rang";
+            mca.rankFormat = "{0} van {1}";
             mca.userWeightMax = 3;
-            mca.featureIds = ['cities_Default'];
+            mca.featureIds = ["cities_Default"];
 
             criterion = new Models.Criterion();
-            criterion.label = 'p_15_24_jr';
-            criterion.scores = '[0,0 20,1]';
+            criterion.label = "p_15_24_jr";
+            criterion.scores = "[0,0 20,1]";
             criterion.userWeight = 1;
             mca.criteria.push(criterion);
 
             criterion = new Models.Criterion();
-            criterion.label = 'p_65_eo_jr';
-            criterion.scores = '[0,0 25,1]';
+            criterion.label = "p_65_eo_jr";
+            criterion.scores = "[0,0 25,1]";
             criterion.userWeight = 3;
             mca.criteria.push(criterion);
             this.$layerService.project.mcas.push(mca);
+        }
+
+        toggleSparkline() {
+            this.showSparkline = !this.showSparkline;
+            if (this.showSparkline) this.drawChart();
         }
 
         weightUpdated(criterion: Models.Criterion) {
@@ -174,7 +182,7 @@
 
         private showMcaEditor(newMca: Models.Mca): void {
             var modalInstance = this.$modal.open({
-                templateUrl: 'mcaEditorView.html',
+                templateUrl: "mcaEditorView.html",
                 controller: McaEditorCtrl,
                 resolve: {
                     mca: () => newMca
@@ -185,7 +193,7 @@
                 this.updateMca();
                 console.log(JSON.stringify(mca, null, 2));
             }, () => {
-                console.log('Modal dismissed at: ' + new Date());
+                console.log("Modal dismissed at: " + new Date());
             });
         }
 
@@ -197,13 +205,14 @@
                 this.deleteMca(mca);
                 if (this.mca) this.updateMca();
             });
+            this.scopeApply();
         }
 
         private getMcaIndex(mca: Models.Mca): number {
             var mcaIndex = -1;
             var mcas = this.$layerService.project.mcas;
             for (var i = 0; i < mcas.length; i++) {
-                if (mcas[i].title != mca.title) continue;
+                if (mcas[i].title !== mca.title) continue;
                 mcaIndex = i;
                 break;
             }
@@ -235,7 +244,7 @@
 
         private addMcaToLocalStorage(mca: Models.Mca) {
             var mcas: Models.Mca[] = this.$localStorageService.get(McaCtrl.mcas);
-            if (typeof mcas === 'undefined' || mcas === null) mcas = [];
+            if (typeof mcas === "undefined" || mcas === null) mcas = [];
             this.removeMcaFromLocalStorage(mca);
             mcas.push(mca);
             this.$localStorageService.set(McaCtrl.mcas, mcas); // You first need to set the key
@@ -271,6 +280,10 @@
                 console.log(title);
                 break;
             }
+            this.scopeApply();
+        }
+
+        private scopeApply() {
             if (this.$scope.$root.$$phase !== "$apply" && this.$scope.$root.$$phase !== "$digest") {
                 this.$scope.$apply();
             }
@@ -307,7 +320,7 @@
             else
                 this.drawPieChart(criterion);
 
-            if (!this.expertMode) return;
+            if (!this.showSparkline) return;
 
             var i = 0;
             this.mca.criteria.forEach((crit) => {
@@ -339,7 +352,7 @@
         private getParentOfSelectedCriterion(criterion?: Models.Criterion) {
             var parent: Models.Criterion[];
             this.mca.update();
-            if (typeof criterion === 'undefined' || this.mca.criteria.indexOf(criterion) >= 0) {
+            if (typeof criterion === "undefined" || this.mca.criteria.indexOf(criterion) >= 0) {
                 this.selectedCriterion = null;
                 parent = this.mca.criteria;
             } else {
@@ -356,7 +369,7 @@
         private drawAsterPlot(criterion?: Models.Criterion) {
             if (!this.mca || !this.selectedFeature) return;
             var currentLevel = this.getParentOfSelectedCriterion(criterion);
-            if (typeof currentLevel === 'undefined' || currentLevel == null) return;
+            if (typeof currentLevel === "undefined" || currentLevel == null) return;
             var data: csComp.Helpers.AsterPieData[] = [];
             var i = 0;
             currentLevel.forEach((c) => {
@@ -369,13 +382,13 @@
                 pieData.score  = (c.weight > 0 ? rawScore : 1-rawScore) * 100;
                 data.push(pieData);
             });
-            csComp.Helpers.Plot.drawAsterPlot(100, data, 'mcaPieChart');
+            csComp.Helpers.Plot.drawAsterPlot(100, data, "mcaPieChart");
         }
 
         private drawPieChart(criterion?: Models.Criterion) {
             if (!this.mca) return;
             var currentLevel = this.getParentOfSelectedCriterion(criterion);
-            if (typeof currentLevel === 'undefined' || currentLevel == null) return;
+            if (typeof currentLevel === "undefined" || currentLevel == null) return;
             var data: csComp.Helpers.PieData[] = [];
             var i = 0;
             currentLevel.forEach((c) => {
@@ -386,18 +399,18 @@
                 pieData.color  = c.color;
                 data.push(pieData);
             });
-            csComp.Helpers.Plot.drawPie(100, data, 'mcaPieChart');
+            csComp.Helpers.Plot.drawPie(100, data, "mcaPieChart");
         }
 
         /** Based on the currently loaded features, which MCA can we use */
-        public updateAvailableMcas() {
+        updateAvailableMcas() {
             this.showChart     = false;
             this.mca           = null;
             this.availableMcas = [];
 
             this.$layerService.project.mcas.forEach((m) => {
                 m.featureIds.forEach((featureId: string) => {
-                    if (this.availableMcas.indexOf(m) < 0 && featureId in this.$layerService.featureTypes) {
+                    if (this.availableMcas.indexOf(m) < 0 && this.$layerService.featureTypes.hasOwnProperty(featureId)) {
                         this.availableMcas.push(m);
                         var featureType = this.$layerService.featureTypes[featureId];
                         this.applyPropertyInfoToCriteria(m, featureType);
@@ -407,7 +420,7 @@
             if (this.availableMcas.length >= 0) this.mca = this.availableMcas[0];
         }
 
-        public calculateMca() {
+        calculateMca() {
             if (!this.mca) return;
             var mca = this.mca;
             mca.featureIds.forEach((featureId: string) => {
@@ -439,16 +452,16 @@
                     for (var i = 0; i < length; i++) {
                         var item = tempScores[i];
                         // Assign items with the same value the same rank.
-                        if (item.score != prevScore)
+                        if (item.score !== prevScore)
                             rank = i + 1;
                         prevScore = item.score;
-                        this.$layerService.project.features[item.index].properties[mca.label + "#"] = rank + ',' + length;
+                        this.$layerService.project.features[item.index].properties[mca.label + "#"] = rank + "," + length;
                     }
                 }
             });
             this.updateSelectedFeature(this.selectedFeature, false);
             if (this.selectedFeature) {
-                this.messageBusService.publish('feature', 'onFeatureSelect', this.selectedFeature);
+                this.messageBusService.publish("feature", "onFeatureSelect", this.selectedFeature);
             }
             if (this.groupStyle) this.$layerService.updateStyle(this.groupStyle);
         }
@@ -483,7 +496,7 @@
                 this.$layerService.updateStyle(this.groupStyle);
             else {
                 this.groupStyle = this.$layerService.setStyle(item, false);
-                this.groupStyle.colors = ['red', 'blue'];
+                this.groupStyle.colors = ["red", "blue"];
                 this.$layerService.updateStyle(this.groupStyle);
             }
         }
@@ -492,12 +505,12 @@
             var mi: IPropertyType = {
                 title        : mca.title,
                 label        : mca.label,
-                type         : 'number',
+                type         : "number",
                 maxValue     : 1,
                 minValue     : 0,
                 description  : mca.description,
                 stringFormat : mca.stringFormat,
-                section      : mca.section || 'MCA'
+                section      : mca.section || "MCA"
             };
             return mi;
         }
@@ -505,11 +518,11 @@
         private static createRankPropertyType(mca: Models.Mca): IPropertyType {
             var mi : IPropertyType = {
                 title        : mca.rankTitle,
-                label        : mca.label + '#',
-                type         : 'rank',
+                label        : mca.label + "#",
+                type         : "rank",
                 description  : mca.rankDescription,
                 stringFormat : mca.rankFormat,
-                section      : mca.section || 'MCA'
+                section      : mca.section || "MCA"
             };
             return mi;
         }

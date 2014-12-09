@@ -46,11 +46,19 @@
         url  : string;
     }
 
+    export interface IPrivileges {
+        mca: {
+            expertMode: boolean;
+        }
+    }
+
     /** project configuration. */
     export class Project implements ISerializable<Project> {
         title           : string;
         description     : string;
         logo            : string;
+        url             : string;
+        baselayers      : IBaseLayer[];
         featureTypes    : { [id: string]: IFeatureType }
         propertyTypeData: { [id: string]: IPropertyType }
         groups          : Array<ProjectGroup>;
@@ -61,22 +69,28 @@
         dashboards      : { [id: string]: Dashboard };
         dataSets        : DataSet[];
         viewBounds      : IBoundingBox;
+        userPrivileges  : IPrivileges;
         markers = {};
 
-        public deserialize(input: Project): Project {
+        deserialize(input: Project): Project {
             this.viewBounds       = input.viewBounds;
             this.title            = input.title;
             this.description      = input.description;
             this.logo             = input.logo;
+            this.url              = input.url;
+            this.baselayers       = input.baselayers;
             this.markers          = input.markers;
             this.startposition    = input.startposition;
             this.features         = input.features;
             this.featureTypes     = input.featureTypes;
             this.propertyTypeData = input.propertyTypeData;
             this.groups           = input.groups;
+            this.userPrivileges   = input.userPrivileges;
             this.mcas             = [];
             for (var mca in input.mcas) {
-                this.mcas.push(new Mca.Models.Mca().deserialize(mca));
+                if (input.mcas.hasOwnProperty(mca)) {
+                    this.mcas.push(new Mca.Models.Mca().deserialize(mca));
+                }
             }
             return this;
         }

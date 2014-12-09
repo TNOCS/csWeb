@@ -144,6 +144,7 @@
                 return;
             }
             // Replace min and max by their values:
+            if (this.scores == null) return;
             var scores = this.scores;
             this.propValues = [];
             if (this.requiresMaximum() || this.requiresMinimum() || this.isPlaScaled) {
