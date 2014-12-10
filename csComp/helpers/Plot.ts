@@ -33,7 +33,7 @@ module csComp.Helpers {
         /**
          * Draw a histogram, and, if xy is specified, a line plot of x versus y (e.g. a scoring function).
          */
-        public static drawHistogram(values: number[], options?: IHistogramOptions) {
+        static drawHistogram(values: number[], options?: IHistogramOptions) {
             var id           = (options != null && options.hasOwnProperty("id"))           ? options.id           : "myHistogram";
             var numberOfBins = (options != null && options.hasOwnProperty("numberOfBins")) ? options.numberOfBins : 10;
             var width        = (options != null && options.hasOwnProperty("width"))        ? options.width        : 200;
@@ -137,12 +137,17 @@ module csComp.Helpers {
                 .call(xAxis);
         }
 
-        public static getScale(min: number, max: number) {
-
-            return 2;
+        static getScale(stepSize: number, max: number) {
+            for (var sf = -5; sf < 5; sf++) {
+                var scale = Math.pow(10, sf);
+                var ls = d3.round(stepSize / scale, 0);
+                var lm = d3.round(max      / scale, 0);
+                if (0 < ls && ls < 10 && 0 < lm && lm < 100) return sf;
+            }
+            return 0;
         }
 
-        public static drawMcaPlot(values: number[], options?: IMcaPlotOptions) {
+        static drawMcaPlot(values: number[], options?: IMcaPlotOptions) {
             var id             = (options != null && options.hasOwnProperty("id"))           ? options.id : "myHistogram";
             var numberOfBins   = (options != null && options.hasOwnProperty("numberOfBins")) ? options.numberOfBins : 10;
             var width          = (options != null && options.hasOwnProperty("width"))        ? options.width : 200;
@@ -179,11 +184,12 @@ module csComp.Helpers {
             }
 
             // Scale the x-range, so we don't have such long numbers
-            var scale = range >= 10
-                ? Math.max(d3.round(range, 0), d3.round(max, 0)).toString().length - 2 // 100 -> 1
-                : -2;
+            var scale = Plot.getScale(range / numberOfBins, max);
+            //var scale = range >= 10
+            //    ? Math.max(d3.round(range, 0), d3.round(max, 0)).toString().length - 2 // 100 -> 1
+            //    : -2;
             var scaleFactor = 0;
-            if (Math.abs(scale) > 1) {
+            if (Math.abs(scale) > 0) {
                 xLabel += " (x10^" + scale + ")";
                 scaleFactor = Math.pow(10, scale);
             }
@@ -250,7 +256,7 @@ module csComp.Helpers {
                 .attr("class", "x label")
                 .attr("text-anchor", "end")
                 .attr("x", width)
-                .attr("y", height - 6)
+                .attr("y", 12)
                 .text(xLabel);
 
             svg.append("g")
