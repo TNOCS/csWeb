@@ -1,7 +1,8 @@
 ﻿module FeatureProps {   
-    import IFeature = csComp.Services.IFeature;
-    import IFeatureType = csComp.Services.IFeatureType;
-    import IPropertyType = csComp.Services.IPropertyType;
+    import IFeature          = csComp.Services.IFeature;
+    import IFeatureType      = csComp.Services.IFeatureType;
+    import IPropertyType     = csComp.Services.IPropertyType;
+    import IPropertyTypeData = csComp.Services.IPropertyTypeData;
 
     class FeaturePropsOptions implements L.SidebarOptions {
         public position   : string;
@@ -82,7 +83,7 @@
         public icon    : string;
         public sections: { [title: string]: ICallOutSection; };
 
-        constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: { [key: string]: IPropertyType} ) {
+        constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: IPropertyTypeData ) {
             this.sections = {};
             //if (type == null) this.createDefaultType();
             this.setTitle();
@@ -92,19 +93,20 @@
             var searchCallOutSection = new CallOutSection('fa-filter');
             var displayValue: string;
             if (type != null) {
-                var propertyTypes: Array<IPropertyType> = [];
-                if (type.propertyTypeKeys != null) {
-                    var keys = type.propertyTypeKeys.split(';');
-                    keys.forEach((key) => {
-                        if (key in propertyTypeData) propertyTypes.push(propertyTypeData[key]);
-                        else if (type.propertyTypeData != null) {
-                            var result = $.grep(type.propertyTypeData, e => e.label === key);
-                            if (result.length >= 1) propertyTypes.push(result);
-                        }
-                    });
-                } else if (type.propertyTypeData != null) {
-                    propertyTypes = type.propertyTypeData;
-                }
+                var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
+                //var propertyTypes: Array<IPropertyType> = [];
+                //if (type.propertyTypeKeys != null) {
+                //    var keys = type.propertyTypeKeys.split(';');
+                //    keys.forEach((key) => {
+                //        if (key in propertyTypeData) propertyTypes.push(propertyTypeData[key]);
+                //        else if (type.propertyTypeData != null) {
+                //            var result = $.grep(type.propertyTypeData, e => e.label === key);
+                //            if (result.length >= 1) propertyTypes.push(result);
+                //        }
+                //    });
+                //} else if (type.propertyTypeData != null) {
+                //    propertyTypes = type.propertyTypeData;
+                //}
                 propertyTypes.forEach((mi: IPropertyType) => {
                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                     callOutSection.propertyTypes[mi.label] = mi;

@@ -467,9 +467,11 @@
         }
 
         private applyPropertyInfoToCriteria(mca: Models.Mca, featureType: IFeatureType) {
+            var propertyTypes = csComp.Helpers.getPropertyTypes(featureType, this.$layerService.propertyTypeData);
+            if (propertyTypes.length === 0) return;
             mca.criteria.forEach((criterion) => {
                 var label = criterion.label;
-                featureType.propertyTypeData.forEach((propInfo) => {
+                propertyTypes.forEach((propInfo) => {
                     if (propInfo.label === label) {
                         criterion.title = propInfo.title;
                         criterion.description = propInfo.description;
@@ -480,15 +482,17 @@
 
         private addPropertyInfo(featureId: string, mca: Models.Mca) {
             var featureType = this.$layerService.featureTypes[featureId];
-            if (featureType.propertyTypeData.reduce((prevValue, curItem) => { return prevValue || (curItem.label === mca.label); }, false))
+            var propertyTypes = csComp.Helpers.getPropertyTypes(featureType, this.$layerService.propertyTypeData);
+            if (propertyTypes.reduce((prevValue, curItem) => { return prevValue || (curItem.label === mca.label); }, false))
                 return;
 
-            var pi = McaCtrl.createPropertyType(mca);
-            featureType.propertyTypeData.push(pi);
+            var pt = McaCtrl.createPropertyType(mca);
+            if (typeof featureType.propertyTypeData === "undefined" || featureType.propertyTypeData == null) featureType.propertyTypeData = [];
+            featureType.propertyTypeData.push(pt);
 
             if (!mca.rankTitle) return;
-            pi = McaCtrl.createRankPropertyType(mca);
-            featureType.propertyTypeData.push(pi);
+            pt = McaCtrl.createRankPropertyType(mca);
+            featureType.propertyTypeData.push(pt);
         }
 
         public setStyle(item: FeatureProps.CallOutProperty) {

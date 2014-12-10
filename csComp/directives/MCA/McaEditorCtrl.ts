@@ -216,7 +216,6 @@
                     criterion.scores = mi.scores;
                 } else {
                     criterion.scores = Models.ScoringFunction.createScores(mi.scoringFunctionType);
-                    criterion.isPlaScaled = true;
                 }
                 if (mi.category) {
                     var parent: Models.Criterion;
@@ -227,8 +226,8 @@
                         break;
                     }
                     if (parent == null) {
-                        parent = new Models.Criterion;
-                        parent.title = mi.category;
+                        parent              = new Models.Criterion;
+                        parent.title        = mi.category;
                         parent.isPlaUpdated = false;
                         mca.criteria.push(parent);
                     }

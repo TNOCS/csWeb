@@ -137,6 +137,11 @@ module csComp.Helpers {
                 .call(xAxis);
         }
 
+        public static getScale(min: number, max: number) {
+
+            return 2;
+        }
+
         public static drawMcaPlot(values: number[], options?: IMcaPlotOptions) {
             var id             = (options != null && options.hasOwnProperty("id"))           ? options.id : "myHistogram";
             var numberOfBins   = (options != null && options.hasOwnProperty("numberOfBins")) ? options.numberOfBins : 10;
@@ -159,12 +164,22 @@ module csComp.Helpers {
             // A formatter for counts.
             var formatCount = d3.format(",.0f");
 
-            var max = Math.max.apply(null, values);
-            var min = Math.min.apply(null, values);
+            var max: number, min: number, range: number;
+            if (xyData != null) {
+                max = xyData.x[xyData.x.length - 1];
+                min = xyData.x[0];
+                range = max - min;
+                max += range / 10;
+                min -= range / 10;
+                range = max - min;
+            } else {
+                max = Math.max.apply(null, values);
+                min = Math.min.apply(null, values);
+                range = max - min;
+            }
 
             // Scale the x-range, so we don't have such long numbers
-            var range = max - min;
-            var scale = range > 0
+            var scale = range >= 10
                 ? Math.max(d3.round(range, 0), d3.round(max, 0)).toString().length - 2 // 100 -> 1
                 : -2;
             var scaleFactor = 0;

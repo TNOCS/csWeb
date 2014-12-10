@@ -113,6 +113,10 @@
         defaultValue?    : number;
     }
 
+    export interface IPropertyTypeData {
+        [key: string]: IPropertyType;
+    }
+
     export interface IFeatureTypeStyle {
         nameLabel?           : string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
         fillColor?           : string;
