@@ -212,7 +212,7 @@ module csComp.Helpers {
                 .orient("bottom");
 
             // Generate a histogram using numberOfBins uniformly-spaced bins.
-            var data = d3.layout.histogram().bins(numberOfBins)(values);
+            var data = d3.layout.histogram().bins(numberOfBins)(values.filter(value => (min <= value && value <= max)));
 
             var y: any = d3.scale.linear()
                 .domain([0, d3.max(data, d => d.y)])
@@ -256,7 +256,7 @@ module csComp.Helpers {
                 .attr("class", "x label")
                 .attr("text-anchor", "end")
                 .attr("x", width)
-                .attr("y", 12)
+                .attr("y", 10)
                 .text(xLabel);
 
             svg.append("g")
