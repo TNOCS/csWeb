@@ -302,10 +302,10 @@
             content = "<table style='width:" + widthInPixels + "px;'>" + content + "</table>";
 
             this.popup = L.popup({
-                offset: new L.Point(-widthInPixels / 2 - 40, -5),
+                offset      : new L.Point(-widthInPixels / 2 - 40, -5),
                 closeOnClick: true,
-                autoPan: false,
-                className: 'featureTooltip'
+                autoPan     : false,
+                className   : 'featureTooltip'
             }).setLatLng(e.latlng).setContent(content).openOn(this.map.map);
         }
 
@@ -493,13 +493,13 @@
 
                 if (ft.style.fillColor == null && ft.style.iconUri == null) ft.style.fillColor = "lightgray";
 
-                props["background"] = ft.style.fillColor;
-                props["width"] = "32px";
-                props["height"] = "32px";
+                props["background"]    = ft.style.fillColor;
+                props["width"]         = "32px";
+                props["height"]        = "32px";
                 props["border-radius"] = "20%";
-                props["border-style"] = "solid";
-                props["border-color"] = "black";
-                props["border-width"] = "0";
+                props["border-style"]  = "solid";
+                props["border-color"]  = "black";
+                props["border-width"]  = "0";
 
                 layer.group.styles.forEach((gs: GroupStyle) => {
                     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {

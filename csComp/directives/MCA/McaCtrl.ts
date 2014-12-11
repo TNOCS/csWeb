@@ -506,27 +506,29 @@
         }
 
         private static createPropertyType(mca: Models.Mca): IPropertyType {
-            var mi: IPropertyType = {
-                title        : mca.title,
-                label        : mca.label,
-                type         : "number",
-                maxValue     : 1,
-                minValue     : 0,
-                description  : mca.description,
-                stringFormat : mca.stringFormat,
-                section      : mca.section || "MCA"
+            var mi : IPropertyType = {
+                title            : mca.title,
+                label            : mca.label,
+                type             : "number",
+                maxValue         : 1,
+                minValue         : 0,
+                description      : mca.description,
+                stringFormat     : mca.stringFormat,
+                visibleInCallOut : true,
+                section          : mca.section || "MCA"
             };
             return mi;
         }
 
         private static createRankPropertyType(mca: Models.Mca): IPropertyType {
             var mi : IPropertyType = {
-                title        : mca.rankTitle,
-                label        : mca.label + "#",
-                type         : "rank",
-                description  : mca.rankDescription,
-                stringFormat : mca.rankFormat,
-                section      : mca.section || "MCA"
+                title            : mca.rankTitle,
+                label            : mca.label + "#",
+                type             : "rank",
+                description      : mca.rankDescription,
+                stringFormat     : mca.rankFormat,
+                visibleInCallOut : true,
+                section          : mca.section || "MCA"
             };
             return mi;
         }

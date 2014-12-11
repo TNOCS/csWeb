@@ -46,8 +46,11 @@
                     if (result.length >= 1) propertyTypes.push(result);
                 }
             });
-        } else if (type.propertyTypeData != null) {
-            propertyTypes = type.propertyTypeData;
+        }
+        if (type.propertyTypeData != null) {
+            type.propertyTypeData.forEach((pt) => {
+                propertyTypes.push(pt);
+            });
         }
 
         return propertyTypes;
