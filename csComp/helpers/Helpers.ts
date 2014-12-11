@@ -33,19 +33,22 @@
      * Collect all the property types that are referenced by a feature type.
      */
     export function getPropertyTypes(type: csComp.Services.IFeatureType, propertyTypeData: csComp.Services.IPropertyTypeData) {
-        var propertyTypes = type.propertyTypeData == null ? [] : type.propertyTypeData;
-        if (type.propertyTypeKeys == null || type.propertyTypeKeys == null || type.propertyTypeKeys.length === 0) return propertyTypes;
+        var propertyTypes: Array<csComp.Services.IPropertyType> = [];
 
-        var keys = type.propertyTypeKeys.split(';');
-        keys.forEach((key) => {
-            // First, lookup key in global propertyTypeData
-            if (key in propertyTypeData) propertyTypes.push(propertyTypeData[key]);
-            // If you cannot find it there, look it up in the featureType's propertyTypeData.
-            else if (type.propertyTypeData != null) {
-                var result = $.grep(type.propertyTypeData, e => e.label === key);
-                if (result.length >= 1) propertyTypes.push(result);
-            }
-        });
+        if (type.propertyTypeKeys != null) {
+            var keys = type.propertyTypeKeys.split(';');
+            keys.forEach((key) => {
+                // First, lookup key in global propertyTypeData
+                if (propertyTypeData.hasOwnProperty(key)) propertyTypes.push(propertyTypeData[key]);
+                // If you cannot find it there, look it up in the featureType's propertyTypeData.
+                else if (type.propertyTypeData != null) {
+                    var result = $.grep(type.propertyTypeData, e => e.label === key);
+                    if (result.length >= 1) propertyTypes.push(result);
+                }
+            });
+        } else if (type.propertyTypeData != null) {
+            propertyTypes = type.propertyTypeData;
+        }
 
         return propertyTypes;
     }

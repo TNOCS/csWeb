@@ -38,7 +38,7 @@ module csComp.Helpers {
             var numberOfBins = (options != null && options.hasOwnProperty("numberOfBins")) ? options.numberOfBins : 10;
             var width        = (options != null && options.hasOwnProperty("width"))        ? options.width        : 200;
             var height       = (options != null && options.hasOwnProperty("height"))       ? options.height       : 150;
-            var xLabel       = (options != null && options.hasOwnProperty("xLabel"))       ? options.xLabel       : "data";
+            var xLabel       = (options != null && options.hasOwnProperty("xLabel"))       ? options.xLabel       : "";
             //var yLabel       = (options != null && options.hasOwnProperty('yLabel'))       ? options.yLabel       : '#';
 
             var margin = { top: 0, right: 6, bottom: 24, left: 6 };
@@ -54,14 +54,15 @@ module csComp.Helpers {
 
             var max = Math.max.apply(null, values);
             var min = Math.min.apply(null, values);
+            var range = max - min;
 
             // Scale the x-range, so we don't have such long numbers
-            var range = max - min;
-            var scale = range > 0 
-                ? Math.max(d3.round(range, 0), d3.round(max, 0)).toString().length - 2 // 100 -> 1
-                : -2;
+            var scale = Plot.getScale(range / numberOfBins, max);
+            //var scale = range >= 10
+            //    ? Math.max(d3.round(range, 0), d3.round(max, 0)).toString().length - 2 // 100 -> 1
+            //    : -2;
             var scaleFactor = 0;
-            if (Math.abs(scale) > 1) {
+            if (Math.abs(scale) > 0) {
                 xLabel += " (x10^" + scale + ")";
                 scaleFactor = Math.pow(10, scale);
             }
@@ -128,7 +129,7 @@ module csComp.Helpers {
                 .attr("class", "x label")
                 .attr("text-anchor", "end")
                 .attr("x", width)
-                .attr("y", height - 6)
+                .attr("y", height / 2 - 6)
                 .text(xLabel);
 
             svg.append("g")
@@ -147,14 +148,14 @@ module csComp.Helpers {
             return 0;
         }
 
-        static drawMcaPlot(values: number[], options?: IMcaPlotOptions) {
-            var id             = (options != null && options.hasOwnProperty("id"))           ? options.id : "myHistogram";
-            var numberOfBins   = (options != null && options.hasOwnProperty("numberOfBins")) ? options.numberOfBins : 10;
-            var width          = (options != null && options.hasOwnProperty("width"))        ? options.width : 200;
-            var height         = (options != null && options.hasOwnProperty("height"))       ? options.height : 150;
-            var xLabel         = (options != null && options.hasOwnProperty("xLabel"))       ? options.xLabel : "data";
-            var xyData         = (options != null && options.hasOwnProperty("xy"))           ? options.xy : null;
-            var featureValue   = (options != null && options.hasOwnProperty("featureValue")) ? options.featureValue : null;
+        static drawMcaPlot(values : number[], options?: IMcaPlotOptions) {
+            var id           = (options != null && options.hasOwnProperty("id"))           ? options.id           : "myHistogram";
+            var numberOfBins = (options != null && options.hasOwnProperty("numberOfBins")) ? options.numberOfBins : 10;
+            var width        = (options != null && options.hasOwnProperty("width"))        ? options.width        : 200;
+            var height       = (options != null && options.hasOwnProperty("height"))       ? options.height       : 150;
+            var xLabel       = (options != null && options.hasOwnProperty("xLabel"))       ? options.xLabel       : "";
+            var xyData       = (options != null && options.hasOwnProperty("xy"))           ? options.xy           : null;
+            var featureValue = (options != null && options.hasOwnProperty("featureValue")) ? options.featureValue : null;
             
             //var yLabel       = (options != null && options.hasOwnProperty('yLabel'))       ? options.yLabel       : '#';
 
@@ -189,8 +190,9 @@ module csComp.Helpers {
             //    ? Math.max(d3.round(range, 0), d3.round(max, 0)).toString().length - 2 // 100 -> 1
             //    : -2;
             var scaleFactor = 0;
+            xLabel += " (";
             if (Math.abs(scale) > 0) {
-                xLabel += " (x10^" + scale + ")";
+                xLabel += "x10^" + scale;
                 scaleFactor = Math.pow(10, scale);
             }
             var tickFormatter = (value: number) => {
@@ -212,7 +214,25 @@ module csComp.Helpers {
                 .orient("bottom");
 
             // Generate a histogram using numberOfBins uniformly-spaced bins.
-            var data = d3.layout.histogram().bins(numberOfBins)(values.filter(value => (min <= value && value <= max)));
+            var valuesInRange = values.filter(value => (min <= value && value <= max));
+            if (valuesInRange.length < 3) {
+                var svg1 = d3.select("#" + id)
+                    .append("svg")
+                    .attr("id", svgId)
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                svg1.append("text")
+                    .attr("class", "x label")
+                    .attr("text-anchor", "center")
+                    .attr("x", width  / 2)
+                    .attr("y", height / 2 + 6)
+                    .text("\u03A7 NO DATA IN RANGE");
+                return;
+            }
+            xLabel += " \u03A3" + valuesInRange.length;
+            var data = d3.layout.histogram().bins(numberOfBins)(valuesInRange);
 
             var y: any = d3.scale.linear()
                 .domain([0, d3.max(data, d => d.y)])
@@ -252,11 +272,12 @@ module csComp.Helpers {
                 .text(d => conditionalFormatCounter(d.y));
 
             // x-label
+            xLabel += ")";
             svg.append("text")
                 .attr("class", "x label")
                 .attr("text-anchor", "end")
                 .attr("x", width)
-                .attr("y", 10)
+                .attr("y", height / 2 - 6)
                 .text(xLabel);
 
             svg.append("g")
