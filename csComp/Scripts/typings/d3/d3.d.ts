@@ -2549,7 +2549,9 @@ declare module D3 {
         export interface GenericScale<S> {
             (value: any): any;
             domain: {
-                (values: any[]): S;
+                // EDIT EV The following line indicated an error in VS (although it works fine in JavaScript)
+                //(values: any[]): S;
+                (values: any[]): GenericScale<S>;
                 (): any[];
             };
             range: {
