@@ -26,12 +26,12 @@
                     scope: {
                         min     : '=',
                         max     : '=',
-                        ngModel : "=",
-                        ngChange: "&"
+                        ngModel : '=',
+                        ngChange: '&'
                     }, 
                     template: '<div style="line-height: 12px; vertical-align: top; margin: 0; background: rgba(0, 0, 0, 0.1); border-radius: 6px; padding: 4px 6px;">' +
                         '<a href="" data-ng-click="decrement()" data-ng-disabled="ngModel <= min" style="float: left;"><i class="fa" data-ng-class="{true: \'fa-minus-square\', false: \'fa-minus-square-o\'}[ngModel > min]"></i></a>' +
-                        '<span style="float: left; width:25px; text-align: center;">{{ngModel}}</span>' +
+                        '<span style="float: left; width:28px; text-align: center;">{{ngModel}}</span>' +
                         '<a href="" data-ng-click="increment()" data-ng-disabled="ngModel >= max"><i class="fa" data-ng-class="{true: \'fa-plus-square\' , false: \'fa-plus-square-o\' }[ngModel < max]"></i></a>' +
                         '</div>',
                     link: ($scope: any) => {
