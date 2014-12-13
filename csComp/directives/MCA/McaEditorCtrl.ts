@@ -1,5 +1,5 @@
 ﻿module Mca {
-    "use strict";
+    'use strict';
 
     import IFeature      = csComp.Services.IFeature;
     import IFeatureType  = csComp.Services.IFeatureType;
@@ -29,11 +29,11 @@
         scoringFunctions   : Models.ScoringFunction[] = [];
 
         static $inject = [
-            "$scope",
-            "$modalInstance",
-            "layerService",
-            "messageBusService",
-            "mca"
+            '$scope',
+            '$modalInstance',
+            'layerService',
+            'messageBusService',
+            'mca'
         ];
 
         constructor(
@@ -46,21 +46,19 @@
             $scope.vm = this;
 
             this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Ascending));
-            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Descending));
-            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.AscendingSigmoid));
-            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.DescendingSigmoid));
-            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.GaussianPeak));
-            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.GaussianValley));
-            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Manual));
+            //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Descending));
+            //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.AscendingSigmoid));
+            //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.DescendingSigmoid));
+            //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.GaussianPeak));
+            //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.GaussianValley));
+            //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Manual));
 
-            this.propInfos = [];
-            this.headers   = [];
             this.loadMapLayers();
 
             this.mcaTitle            = mca.title;
             this.rankTitle           = mca.rankTitle;
-            this.hasRank             = !(typeof this.rankTitle === "undefined" || this.rankTitle == null);
-            this.selectedFeatureType = mca.featureIds.length === 0 ? "" : this.dataset.featureTypes[mca.featureIds[0]];
+            this.hasRank             = !(typeof this.rankTitle === 'undefined' || this.rankTitle == null);
+            this.selectedFeatureType = mca.featureIds.length === 0 ? '' : this.dataset.featureTypes[mca.featureIds[0]];
             if (this.selectedFeatureType) {
                 this.updatePropertyInfo(this.selectedFeatureType);
                 this.updatePropertyInfoUponEdit(mca);
@@ -91,7 +89,7 @@
         }
 
        loadPropertyTypes() {
-            console.log("loadPropertyTypes");
+            console.log('loadPropertyTypes');
         }
 
         /** 
@@ -99,7 +97,7 @@
          */
         private loadMapLayers(): void {
             var data         : IGeoJsonFile = {
-                type         : "",
+                type         : '',
                 features     : [],
                 featureTypes : {}
             };
@@ -118,7 +116,6 @@
             });
 
             this.dataset = data;
-            this.selectFirstFeatureType();
         }
 
         private selectFirstFeatureType() {
@@ -138,16 +135,16 @@
             var pis   : Array<IExtendedPropertyInfo> = [];
             // Push the Name, so it always appears on top.
             pis.push({
-                label               : "Name",
+                label               : 'Name',
                 visibleInCallOut    : true,
-                title               : "Naam",
-                type                : "text",
-                filterType          : "text",
+                title               : 'Naam',
+                type                : 'text',
+                filterType          : 'text',
                 isSelected          : false,
                 scoringFunctionType : this.scoringFunctions[0].type
             });
             if (featureType.propertyTypeKeys != null) {
-                var keys = featureType.propertyTypeKeys.split(";");
+                var keys = featureType.propertyTypeKeys.split(';');
                 keys.forEach((k) => {
                     if (this.$layerService.propertyTypeData.hasOwnProperty(k))
                         pis.push(this.$layerService.propertyTypeData[k]);
@@ -161,9 +158,19 @@
             }
             pis.forEach((pi) => {
                 // TODO Later, we could also include categories and not only numbers, where each category represents a certain value.
-                if (pi.visibleInCallOut && pi.type === "number" && pi.label.indexOf("mca_") < 0 && titles.indexOf(pi.title) < 0) {
+                if (pi.visibleInCallOut && pi.type === 'number' && pi.label.indexOf('mca_') < 0 && titles.indexOf(pi.title) < 0) {
                     titles.push(pi.title);
-                    this.propInfos.push(pi);
+                    // Clone object inline. See http://stackoverflow.com/a/122704/319711
+                    this.propInfos.push({
+                        title       : pi.title,
+                        label       : pi.label,
+                        stringFormat: pi.stringFormat,
+                        isSelected  : false,
+                        maxValue    : pi.maxValue,
+                        minValue    : pi.minValue,
+                        defaultValue: pi.defaultValue,
+                        description : pi.description
+                    }); 
                 }
             });
         }
@@ -181,7 +188,7 @@
         }
 
         public isDisabled(): boolean {
-            if (typeof this.mcaTitle === "undefined" || this.mcaTitle.length === 0) return true;
+            if (typeof this.mcaTitle === 'undefined' || this.mcaTitle.length === 0) return true;
             if (this.hasRank && this.rankTitle && this.rankTitle.length === 0) return true;
             if (this.propInfos.length === 0 || !this.propInfos.reduce((p,c) => { return p || c.isSelected; })) return true;
             return false;
@@ -192,12 +199,12 @@
          */
         public save() {
             var mca             = new Models.Mca();
-            mca.title           = this.mcaTitle || "New MCA criterion";
-            mca.label           = "mca_" + mca.title.replace(" ", "_");
-            mca.stringFormat    = "{0:0.0}";
+            mca.title           = this.mcaTitle || 'New MCA criterion';
+            mca.label           = 'mca_' + mca.title.replace(' ', '_');
+            mca.stringFormat    = '{0:0.0}';
             if (this.hasRank) {
-                mca.rankTitle   = this.rankTitle || "Rank";
-                mca.rankFormat  = "{0} / {1}";
+                mca.rankTitle   = this.rankTitle || 'Rank';
+                mca.rankFormat  = '{0} / {1}';
             }
             mca.userWeightMax = 5;
             var featureTypes = this.dataset.featureTypes;
@@ -245,11 +252,11 @@
         }
 
         public cancel() {
-            this.mcaTitle  = "";
+            this.mcaTitle  = '';
             this.hasRank   = false;
-            this.rankTitle = "";
+            this.rankTitle = '';
             this.headers   = [];
-            this.$modalInstance.dismiss("cancel");
+            this.$modalInstance.dismiss('cancel');
         }
     }
 } 
