@@ -20,35 +20,29 @@
     declare var jsonld;
 
     export class LayerService implements ILayerService {
-        public maxBounds: IBoundingBox;
-
-        public static $inject = [
+        maxBounds: IBoundingBox;
+        static $inject = [
             '$location',
             '$translate',
             'messageBusService',
             'mapService'
         ];
-
-        public title      : string;
-        public accentColor: string;        
-        
-        public mb  : Services.MessageBusService;
-        public map : Services.MapService;
-        
-        public featureTypes : { [key: string]: IFeatureType; };
-        public propertyTypeData: { [key: string]: IPropertyType; };
-          
-        public project: Project;
-        public solution: Solution;
-        
-        public layerGroup = new L.LayerGroup();
-        public dimension           : any;
-        public info = new L.Control();
-        public noFilters           : boolean;
-        public noStyles            : boolean;
-        public lastSelectedFeature : IFeature;
-        public selectedLayerId     : string;
-        public timeline            : any;
+        title      : string;
+        accentColor: string;
+        mb  : Services.MessageBusService;
+        map : Services.MapService;
+        featureTypes : { [key: string]: IFeatureType; };
+        propertyTypeData: { [key: string]: IPropertyType; };
+        project: Project;
+        solution: Solution;
+        layerGroup = new L.LayerGroup<L.ILayer>();
+        dimension           : any;
+        info = new L.Control();
+        noFilters           : boolean;
+        noStyles            : boolean;
+        lastSelectedFeature : IFeature;
+        selectedLayerId     : string;
+        timeline            : any;
 
         constructor(
             private $location          : ng.ILocationService,
@@ -57,20 +51,20 @@
             private $mapService        : Services.MapService) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
-            this.mb             = $messageBusService;
-            this.map            = $mapService;
-            this.accentColor    = "";
-            this.title          = "";
-            this.layerGroup     = new L.LayerGroup();
-            this.featureTypes   = {};
-            this.propertyTypeData   = {};
+            this.mb               = $messageBusService;
+            this.map              = $mapService;
+            this.accentColor      = '';
+            this.title            = '';
+            this.layerGroup       = new L.LayerGroup<L.ILayer>();
+            this.featureTypes     = {};
+            this.propertyTypeData = {};
             this.map.map.addLayer(this.layerGroup);
             this.noStyles = true;
 
-            this.$messageBusService.subscribe("timeline", (trigger: string) => {
+            this.$messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
 
-                case "focusChange":
+                case 'focusChange':
                     this.updateSensorData();
                     break;
 
@@ -78,7 +72,7 @@
             });
         }
 
-        public updateSensorData() {
+        updateSensorData() {
             if (this.project == null || this.project.timeLine == null) return;
             var date = this.project.timeLine.focus;
             var timepos = {};
@@ -97,6 +91,7 @@
 
                         if (f.sensors != null) {
                             for (var sensorTitle in f.sensors) {
+                                if (!f.sensors.hasOwnProperty(sensorTitle)) continue;
                                 var sensor = f.sensors[sensorTitle];
                                 var value = sensor[timepos[f.layerId]];
                                 //console.log(sensorTitle + ":" + value);
@@ -107,16 +102,16 @@
                     }
                 }
             );
-            this.$messageBusService.publish("feature", "onFeatureUpdated");
+            this.$messageBusService.publish('feature', 'onFeatureUpdated');
         }
 
         /** 
          * Add a layer
          */
-        public addLayer(layer: ProjectLayer) {
+        addLayer(layer: ProjectLayer) {
             var disableLayers = [];
             switch (layer.type) {
-            case "GeoJson":
+            case 'GeoJson':
                 async.series([
                     (callback) => {
                         // If oneLayerActive: close other group layer
@@ -165,16 +160,17 @@
                                 }
 
                                 for (var featureTypeName in data.featureTypes) {
+                                    if (!data.featureTypes.hasOwnProperty(featureTypeName)) continue;
                                     var featureType: IFeatureType = data.featureTypes[featureTypeName];
                                     featureTypeName = layer.id + '_' + featureTypeName;
                                     this.featureTypes[featureTypeName] = featureType;
                                     //var pt = "." + featureTypeName;
                                     //var icon = featureType.style.iconUri;
-                                    var t = "{\".style" + featureTypeName + "\":";
+                                    var t = '{".style' + featureTypeName + '":';
                                     if (featureType.style.iconUri != null) {
-                                        t += " { \"background\": \"url(" + featureType.style.iconUri + ") no-repeat right center\",";
+                                        t += ' { "background": "url(' + featureType.style.iconUri + ') no-repeat right center",';
                                     };
-                                    t += " \"background-size\": \"100% 100%\",\"border-style\": \"none\"} }";
+                                    t += ' "background-size": "100% 100%","border-style": "none"} }';
                                     var json = $.parseJSON(t);
                                     (<any>$).injectCSS(json);
 
@@ -219,14 +215,14 @@
                                         pointToLayer : (feature, latlng) => this.addFeature(feature, latlng, layer)
                                     });
                                     this.project.features.forEach((f : IFeature) => {
-                                        if (f.layerId != layer.id) return;
+                                        if (f.layerId !== layer.id) return;
                                         var ft = this.getFeatureType(f);
                                         f.properties['Name'] = f.properties[ft.style.nameLabel];
                                     });
                                     layer.mapLayer.addLayer(v);
                                 }
                             }
-                            this.$messageBusService.publish("layer", "activated", layer);
+                            this.$messageBusService.publish('layer', 'activated', layer);
 
                             callback(null, null);
                             this.updateFilters();
@@ -264,7 +260,7 @@
             // add title
             var title = layer.feature.properties.Name;
             var rowLength = title.length;
-            var content = "<td colspan='3'>" + title + "</td></tr>";
+            var content = '<td colspan=\'3\'>' + title + '</td></tr>';
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
@@ -273,10 +269,10 @@
                         var valueLength = value.toString().length;
                         if (f.meta != null) {
                             value = Helpers.convertPropertyInfo(f.meta, value);
-                            if (f.meta.type !== "bbcode") valueLength = value.toString().length;
+                            if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
                         }
                         rowLength = Math.max(rowLength, valueLength + f.title.length);
-                        content += "<tr><td><div class='smallFilterIcon'></td><td>" + f.title + "</td><td>" + value + "</td></tr>";
+                        content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
                     }
                 });
             }
@@ -290,16 +286,16 @@
                             var valueLength = value.toString().length;
                             if (s.meta != null) {
                                 value = Helpers.convertPropertyInfo(s.meta, value);
-                                if (s.meta.type !== "bbcode") valueLength = value.toString().length;
+                                if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
                             }
                             rowLength = Math.max(rowLength, valueLength + s.title.length);
-                            content += "<tr><td><div class='smallStyleIcon'></td><td>" + s.title + "</td><td>" + value + "</td></tr>";
+                            content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
                         }
                     }
                 });
             }
             var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
-            content = "<table style='width:" + widthInPixels + "px;'>" + content + "</table>";
+            content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
 
             this.popup = L.popup({
                 offset      : new L.Point(-widthInPixels / 2 - 40, -5),
@@ -309,7 +305,7 @@
             }).setLatLng(e.latlng).setContent(content).openOn(this.map.map);
         }
 
-        public hideFeatureTooltip(e) {
+        hideFeatureTooltip(e) {
             if (this.popup && this.map.map) {
                 (<any>this.map.map).closePopup(this.popup);
                 //this.map.map.closePopup(this.popup);
@@ -317,16 +313,17 @@
             }
         }
         private popup: L.Popup;
-        public updateFeatureTooltip(e) {
+
+        updateFeatureTooltip(e) {
             if (this.popup!=null && e.latlng!=null) this.popup.setLatLng(e.latlng);
         }
 
        
 
         //Highlight polyline features on event
-        public highlightFeature(e) {
+        highlightFeature(e) {
             var highlightStyle = {
-                "weight": 7,
+                "weight": 7
             };
             var layer = e.target;
 
@@ -345,15 +342,15 @@
         }
 
         //Reset polyline style
-        public resetHighlight(e) {
+        resetHighlight(e) {
             var defaultStyle = {
-                "weight": 1,
+                "weight": 1
             };
             var layer = e.target;
             layer.setStyle(defaultStyle);
         }
 
-        public removeStyle(style: GroupStyle) {
+        removeStyle(style: GroupStyle) {
             //console.log('update style ' + style.title);
 
             var g = style.group;
@@ -362,7 +359,7 @@
             this.updateGroupFeatures(g);
         }
 
-        public updateStyle(style: GroupStyle) {
+        updateStyle(style: GroupStyle) {
             //console.log('update style ' + style.title);
             if (style == null) return;
             if (style.group != null) {
@@ -372,8 +369,8 @@
             }
         }
 
-        public updateFeature(feature: IFeature, group?: ProjectGroup) {
-            if (feature.geometry.type == "Point") {
+        updateFeature(feature: IFeature, group?: ProjectGroup) {
+            if (feature.geometry.type === 'Point') {
                 var layer = this.findLayer(feature.layerId);
                 if (layer != null) this.updateFeatureIcon(feature, layer);
             } else {
@@ -411,7 +408,7 @@
             return r;
         }
 
-        public style(feature: IFeature, layer: ProjectLayer) {
+        style(feature: IFeature, layer: ProjectLayer) {
             var s = {
                 fillColor   : 'red',
                 weight      : 2,
@@ -422,9 +419,9 @@
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
-                if (ft.style.fillColor != null) s["fillColor"] = ft.style.fillColor;
-                if (ft.style.strokeColor != null) s["strokeColor"] = ft.style.strokeColor;
-                if (ft.style.strokeWidth != null) s["weight"] = ft.style.strokeWidth;
+                if (ft.style.fillColor   != null) s['fillColor']   = ft.style.fillColor;
+                if (ft.style.strokeColor != null) s['strokeColor'] = ft.style.strokeColor;
+                if (ft.style.strokeWidth != null) s['weight']      = ft.style.strokeWidth;
             }
 
             //var layer = this.findLayer(feature.layerId);
@@ -432,14 +429,14 @@
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     var v = Number(feature.properties[gs.property]);
                     switch (gs.visualAspect) {
-                        case "strokeColor":                            
-                            s["color"] = this.getColor(v, gs);                            
+                        case 'strokeColor':                            
+                            s['color'] = this.getColor(v, gs);                            
                             break;
-                        case "fillColor":
+                        case 'fillColor':
                             s[gs.visualAspect] = this.getColor(v, gs);
                             break;
-                        case "strokeWidth":
-                            s["weight"] = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
+                        case 'strokeWidth':
+                            s['weight'] = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
                             break;
                     }
                     //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);      
@@ -447,8 +444,8 @@
             });
 
             if (feature.isSelected) {
-                s["weight"] = 7;
-                s["color"] = "blue";
+                s['weight'] = 7;
+                s['color'] = 'blue';
             }
             return s;
         }
@@ -456,7 +453,7 @@
         /**
          * init feature (add to feature list, crossfilter)
          */
-        public initFeature(feature: IFeature, layer: ProjectLayer): IFeatureType {
+        initFeature(feature: IFeature, layer: ProjectLayer): IFeatureType {
             //if (!feature.isInitialized) 
             {
                 feature.isInitialized = true;
@@ -469,15 +466,15 @@
             return feature.type;
         }
 
-        public removeFeature(feature: IFeature, layer: ProjectLayer) {
+        removeFeature(feature: IFeature, layer: ProjectLayer) {
             
         }
 
         /**
          * create icon based of feature style
          */
-        public getPointIcon(feature: IFeature, layer: ProjectLayer): any {
-            var icon;
+        getPointIcon(feature: IFeature, layer: ProjectLayer): any {
+            var icon: L.DivIcon;
             if (feature.htmlStyle != null) {
                 icon = new L.DivIcon({
                     className: '',
@@ -485,33 +482,33 @@
                     html: feature.htmlStyle
                 });
             } else {
-                var html = "<div ";
+                var html = '<div ';
                 var props = {};
                 var ft = this.getFeatureType(feature);
 
                 //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
 
-                if (ft.style.fillColor == null && ft.style.iconUri == null) ft.style.fillColor = "lightgray";
+                if (ft.style.fillColor == null && ft.style.iconUri == null) ft.style.fillColor = 'lightgray';
 
-                props["background"]    = ft.style.fillColor;
-                props["width"]         = "32px";
-                props["height"]        = "32px";
-                props["border-radius"] = "20%";
-                props["border-style"]  = "solid";
-                props["border-color"]  = "black";
-                props["border-width"]  = "0";
+                props['background']    = ft.style.fillColor;
+                props['width']         = '32px';
+                props['height']        = '32px';
+                props['border-radius'] = '20%';
+                props['border-style']  = 'solid';
+                props['border-color']  = 'black';
+                props['border-width']  = '0';
 
                 layer.group.styles.forEach((gs: GroupStyle) => {
                     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                         var v = feature.properties[gs.property];
 
                         switch (gs.visualAspect) {
-                        case "fillColor":
-                            if (gs.meta.type == "color") {
-                                props["background-color"] = v;
+                        case 'fillColor':
+                            if (gs.meta.type === 'color') {
+                                props['background-color'] = v;
                             } else {
                                 var bezInterpolator = chroma.interpolate.bezier(gs.colors);
-                                props["background-color"] = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
+                                props['background-color'] = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
                             }
 
                             break;
@@ -520,19 +517,20 @@
                     }
                 });
                 if (feature.isSelected) {
-                    props["border-width"] = "3px";
+                    props['border-width'] = '3px';
                 }
 
-                html += " style='display: inline-block;vertical-align: middle;text-align: center;";
+                html += ' style=\'display: inline-block;vertical-align: middle;text-align: center;';
                 for (var key in props) {
-                    html += key + ":" + props[key] + ";";
+                    if (!props.hasOwnProperty(key)) continue;
+                    html += key + ':' + props[key] + ';';
                 }
 
-                html += "'>";
+                html += '\'>';
                 if (ft.style.iconUri != null) {
-                    html += "<img src=" + ft.style.iconUri + " style='width:" + (ft.style.iconWidth - 2) + "px;height:" + (ft.style.iconHeight - 2) + "px' />";
+                    html += '<img src=' + ft.style.iconUri + ' style=\'width:' + (ft.style.iconWidth - 2) + 'px;height:' + (ft.style.iconHeight - 2) + 'px\' />';
                 }
-                html += "</div>";
+                html += '</div>';
 
                 icon = new L.DivIcon({
                     className: '',
@@ -550,7 +548,7 @@
         /**
          * Update icon for features
          */
-        public updateFeatureIcon(feature: IFeature, layer: ProjectLayer): any {
+        updateFeatureIcon(feature: IFeature, layer: ProjectLayer): any {
             var marker = <L.Marker>layer.group.markers[feature.id];
             if (marker!=null) marker.setIcon(this.getPointIcon(feature,layer));
         }
@@ -558,12 +556,12 @@
         /** 
          * add a feature
          */
-        public addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {            
+        addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {            
             var type = this.initFeature(feature,layer);
-            var style = type.style;
+            //var style = type.style;
             var marker;
             switch (feature.geometry.type) {
-            case "Point"          :
+            case 'Point'          :
                 var icon = this.getPointIcon(feature,layer);
                 marker = new L.Marker(latlng, { icon: icon });
                 marker.on('click', () => {
@@ -573,7 +571,7 @@
                 break;
                 default:
                     var polyoptions = {                        
-                        fillColor: "Green",                        
+                        fillColor: 'Green',                        
                     };
                     marker = L.multiPolygon(latlng, polyoptions);
                 break;
@@ -583,12 +581,9 @@
             return marker;
         }
 
-        public selectFeature(feature: IFeature) {
-
+        selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
-            // hide sidebar when unselect item 
-            
             this.updateFeature(feature);
 
             // deselect last feature and also update
@@ -600,11 +595,11 @@
 
             
             if (!feature.isSelected) {
-                this.$messageBusService.publish("sidebar", "hide");
-                this.$messageBusService.publish("feature", "onFeatureDeselect");
+                this.$messageBusService.publish('sidebar', 'hide');
+                this.$messageBusService.publish('feature', 'onFeatureDeselect');
             } else {
-                this.$messageBusService.publish("sidebar", "show");
-                this.$messageBusService.publish("feature", "onFeatureSelect", feature);
+                this.$messageBusService.publish('sidebar', 'show');
+                this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
             }
         }
 
@@ -621,7 +616,7 @@
         /** 
          * find a layer with a specific id
          */
-        public findLayer(id: string): ProjectLayer {
+        findLayer(id: string): ProjectLayer {
             var r: ProjectLayer;
             this.project.groups.forEach(g => {
                 g.layers.forEach(l => {
@@ -631,7 +626,7 @@
             return r;
         }
 
-        public setStyle(property: any, openStyleTab = true) {            
+        setStyle(property: any, openStyleTab = true) {            
             var f: IFeature = property.feature;
             if (f != null) {
                 this.noStyles     = false;
@@ -640,7 +635,7 @@
                 gs.id             = Helpers.getGuid();
                 gs.title          = property.key;
                 gs.meta           = property.meta;
-                gs.visualAspect   = "fillColor";
+                gs.visualAspect   = 'fillColor';
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
                 
                 gs.property = property.property;
@@ -657,7 +652,7 @@
                     gs.colors = ['white', 'orange'];
                 }
                 this.saveStyle(layer.group, gs);
-                if (f.geometry.type.toLowerCase() == "point") {
+                if (f.geometry.type.toLowerCase() == 'point') {
                     this.project.features.forEach((fe: IFeature) => {
                         if (layer.group.markers.hasOwnProperty(fe.id)) {
                             this.updateFeatureIcon(fe, layer);
@@ -684,7 +679,7 @@
             group.styles.push(style);
         }
 
-        public addFilter(group: ProjectGroup, prop: string) {
+        addFilter(group: ProjectGroup, prop: string) {
             var filter = this.findFilter(group, prop);
             if (filter == null) {
 
@@ -707,7 +702,7 @@
          /** 
          * enable a filter for a specific property
          */
-        public setFilter(property: FeatureProps.CallOutProperty) {
+        setFilter(property: FeatureProps.CallOutProperty) {
             var prop = property.property;
             var f = <IFeature>property.feature;
             if (f != null) {
@@ -718,17 +713,17 @@
                         var gf = new GroupFilter();
                         gf.property = prop;
                         gf.meta = property.meta;
-                        gf.filterType = "bar";
+                        gf.filterType = 'bar';
                         if (gf.meta != null) {
                             if (gf.meta.filterType != null) {
                                 gf.filterType = gf.meta.filterType;
                             } else {
                                 switch (gf.meta.type) {
-                                case "number":
-                                    gf.filterType = "bar";
+                                case 'number':
+                                    gf.filterType = 'bar';
                                     break;
                                 default:
-                                    gf.filterType = "text";
+                                    gf.filterType = 'text';
                                     gf.stringValue = property.value;
                                     gf.value = property.value;
                                     break;
@@ -739,13 +734,13 @@
                         gf.title = property.key;
                         gf.rangex = [0, 1];
 
-                        if (gf.filterType == "text") {
-                            var old = layer.group.filters.filter((f: GroupFilter) => f.filterType == "text");
+                        if (gf.filterType == 'text') {
+                            var old = layer.group.filters.filter((f: GroupFilter) => f.filterType == 'text');
                             old.forEach((groupFilter: GroupFilter) => {
                                 groupFilter.dimension.filterAll();
                                 groupFilter.dimension.dispose();
                             });
-                            layer.group.filters = layer.group.filters.filter((f: GroupFilter) => f.filterType != "text");
+                            layer.group.filters = layer.group.filters.filter((f: GroupFilter) => f.filterType != 'text');
                         }
                         // add filter
                         layer.group.filters.push(gf);
@@ -765,8 +760,8 @@
          * First, look for a layer specific feature type, otherwise, look for a project-specific feature type.
          * In case both fail, create a default feature type at the layer level.
          */
-        public getFeatureType(feature: IFeature): IFeatureType {
-            var projectFeatureTypeName = feature.properties['FeatureTypeId'] || "Default";
+        getFeatureType(feature: IFeature): IFeatureType {
+            var projectFeatureTypeName = feature.properties['FeatureTypeId'] || 'Default';
             var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
             if (!(this.featureTypes.hasOwnProperty(featureTypeName))) {
                 if (this.featureTypes.hasOwnProperty(projectFeatureTypeName))
@@ -783,32 +778,32 @@
          */
         private createDefaultType(feature: IFeature): IFeatureType {
             var type : IFeatureType = {};
-            type.style = { nameLabel: "Name" };
+            type.style = { nameLabel: 'Name' };
             type.propertyTypeData = [];
 
             for (var key in feature.properties) {
                 var propertyType: IPropertyType   = [];
                 propertyType.label            = key;
-                propertyType.title            = key.replace("_", " ");
+                propertyType.title            = key.replace('_', ' ');
                 propertyType.isSearchable     = true;
                 propertyType.visibleInCallOut = true;
                 propertyType.canEdit = false;
                 var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
                 if (StringExt.isNumber(value))
-                    propertyType.type = "number";
+                    propertyType.type = 'number';
                 else if (StringExt.isBoolean(value))
-                    propertyType.type = "boolean";
+                    propertyType.type = 'boolean';
                 else if (StringExt.isBbcode(value))
-                    propertyType.type = "bbcode";
+                    propertyType.type = 'bbcode';
                 else
-                    propertyType.type = "text";
+                    propertyType.type = 'text';
 
                 type.propertyTypeData.push(propertyType);
             }
             return type;
         }
 
-        public resetFilters() {
+        resetFilters() {
 
             dc.filterAll();
             dc.redrawAll();
@@ -825,7 +820,7 @@
             return r;
         }
 
-        public rebuildFilters(g: ProjectGroup) {
+        rebuildFilters(g: ProjectGroup) {
 
             // remove all data from crossfilter group
             g.ndx = crossfilter([]);
@@ -843,16 +838,14 @@
         /** 
          * deactivate layer
          */
-        public removeLayer(layer: ProjectLayer) {
-            this.$messageBusService.publish("layer", "deactivate", layer);
-
+        removeLayer(layer: ProjectLayer) {
             var m: any;
             var g = layer.group;
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId == layer.id) {
                 this.lastSelectedFeature = null;
-                this.$messageBusService.publish("sidebar", "hide");
-                this.$messageBusService.publish("feature", "onFeatureDeselect");
+                this.$messageBusService.publish('sidebar', 'hide');
+                this.$messageBusService.publish('feature', 'onFeatureDeselect');
             }
 
             //m = layer.group.vectors;
@@ -877,20 +870,21 @@
             
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId != layer.id);
             var layerName = layer.id + '_';
-            for (var poiTypeName in this.featureTypes) {
-                if (poiTypeName.lastIndexOf(layerName, 0) === 0) delete this.featureTypes[poiTypeName];
+            var featureTypes = this.featureTypes;
+            for (var poiTypeName in featureTypes) {
+                if (!featureTypes.hasOwnProperty(poiTypeName)) continue;
+                if (poiTypeName.lastIndexOf(layerName, 0) === 0) delete featureTypes[poiTypeName];
             }
 
             // check if there are no more active layers in group and remove filters/styles
             if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length == 0) {
                 g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
                 g.filters = [];
-
                 g.styles = [];                
-
             }
 
             this.rebuildFilters(g);
+            this.$messageBusService.publish('layer', 'deactivate', layer);
         }
 
         /***
@@ -899,7 +893,7 @@
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
          * @params initialProject: Optionally provide a project name that should be loaded, if omitted the first project in the definition will be loaded
          */
-        public openSolution(url: string, layers?: string, initialProject?: string): void {
+        openSolution(url: string, layers?: string, initialProject?: string): void {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
 
             $.getJSON(url, (solution : Solution) => {
@@ -916,13 +910,13 @@
 
                 solution.baselayers.forEach(b => {
                     var options: L.TileLayerOptions = {};                    
-                    options["subtitle"] = b.subtitle;
-                    options["preview"] = b.preview;
-                    if (b.subdomains != null) options["subdomains"] = b.subdomains;
+                    options['subtitle'] = b.subtitle;
+                    options['preview'] = b.preview;
+                    if (b.subdomains != null) options['subdomains'] = b.subdomains;
                     if (b.maxZoom != null) options.maxZoom = b.maxZoom;
                     if (b.minZoom != null) options.minZoom = b.minZoom;                    
                     if (b.attribution != null) options.attribution = b.attribution;
-                    if (b.id != null) options["id"] = b.id;
+                    if (b.id != null) options['id'] = b.id;
                     var layer = L.tileLayer(b.url, options);
                     this.$mapService.baseLayers[b.title] = layer;
                     if (b.isDefault) 
@@ -947,7 +941,7 @@
          * @params url: URL of the project
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
          */
-        public openProject(url: string, layers?: string): void {
+        openProject(url: string, layers?: string): void {
             //console.log('layers (openProject): ' + JSON.stringify(layers));
             var layerIds: Array<string>;
             layerIds = [];
@@ -990,7 +984,7 @@
 
                 if (!this.project.dashboards) {
                     this.project.dashboards = {};
-                    var d = new csComp.Services.Dashboard("1", this.project.title);
+                    var d = new csComp.Services.Dashboard('1', this.project.title);
                     d.widgets = [];
                     this.project.dashboards[this.project.title] = d;
                 }
@@ -1040,11 +1034,11 @@
                     this.updateFilters();
                 });
 
-                this.$messageBusService.publish("project", "loaded");
+                this.$messageBusService.publish('project', 'loaded');
             });
         }
 
-        public closeProject() {
+        closeProject() {
             if (this.project == null) return;
             this.project.groups.forEach((group: ProjectGroup) => {
                 group.layers.forEach((layer: ProjectLayer) => {
@@ -1104,21 +1098,21 @@
         }
 
         private updateFilters() {
-            var fmain = $("#filterChart");
+            var fmain = $('#filterChart');
             fmain.empty();
             this.noFilters = true;
             
             this.project.groups.forEach((group: ProjectGroup) => {
                 if (group.filters != null && group.filters.length>0) {
-                    $("<div style='float:left;margin-left: -10px; margin-top: 5px' data-toggle='collapse' data-target='#filters_" + group.id + "'><i class='fa fa-chevron-down togglebutton toggle-arrow-down'></i><i class='fa fa-chevron-up togglebutton toggle-arrow-up'></i></div><div class='group-title' >" + group.title + "</div><div id='filtergroupcount_" + group.id + "'  class='filter-group-count' /><div class='collapse in' id='filters_" + group.id + "'></div>").appendTo("#filterChart");
+                    $('<div style=\'float:left;margin-left: -10px; margin-top: 5px\' data-toggle=\'collapse\' data-target=\'#filters_' + group.id + '\'><i class=\'fa fa-chevron-down togglebutton toggle-arrow-down\'></i><i class=\'fa fa-chevron-up togglebutton toggle-arrow-up\'></i></div><div class=\'group-title\' >' + group.title + '</div><div id=\'filtergroupcount_' + group.id + '\'  class=\'filter-group-count\' /><div class=\'collapse in\' id=\'filters_' + group.id + '\'></div>').appendTo('#filterChart');
                     group.filters.forEach((filter: GroupFilter) => {
                         if (filter.dimension != null) filter.dimension.dispose();
                         this.noFilters = false;
                         switch (filter.filterType) {
-                            case "text":
+                            case 'text':
                                 this.addTextFilter(group, filter);
                             break;
-                            case "bar":
+                            case 'bar':
                                 this.addBarFilter(group, filter);
                             break;
                         }
@@ -1148,7 +1142,7 @@
 
         private updateFilterGroupCount(group: ProjectGroup) {
             if (group.filterResult != null)
-                $("#filtergroupcount_" + group.id).text(group.filterResult.length + " objecten geselecteerd");
+                $('#filtergroupcount_' + group.id).text(group.filterResult.length + ' objecten geselecteerd');
         }
 
         /***
@@ -1156,7 +1150,7 @@
          */
         private addTextFilter(group: ProjectGroup, filter: GroupFilter) {            
             filter.id = Helpers.getGuid();
-            var divid = "filter_" + filter.id;
+            var divid = 'filter_' + filter.id;
 
             
             var dcDim = group.ndx.dimension(d => {
@@ -1171,16 +1165,16 @@
             });
 
             this.updateTextFilter(group, dcDim, filter.stringValue);
-            var fid = "filtertext" + filter.id;
-            $("<h4>" + filter.title + "</h4><input type='text' value='" + filter.stringValue + "' class='filter-text' id='" + fid + "'/><a class='btn' value=" + filter.value + " id='remove" + filter.id + "'><i class='fa fa-times'></i></a>").appendTo("#filters_" + group.id);
+            var fid = 'filtertext' + filter.id;
+            $('<h4>' + filter.title + '</h4><input type=\'text\' value=\'' + filter.stringValue + '\' class=\'filter-text\' id=\'' + fid + '\'/><a class=\'btn\' value=' + filter.value + ' id=\'remove' + filter.id + '\'><i class=\'fa fa-times\'></i></a>').appendTo('#filters_' + group.id);
             //$("<h4>" + filter.title + "</h4><input type='text' class='filter-text' id='" + fid + "'/></div><a class='btn btn-filter-delete' value=" + filter.value + " id='remove" + filter.id + "'><i class='fa fa-remove'></i></a>").appendTo("#filterChart");
-            $("#" + fid).keyup(() => {
-                filter.stringValue = $("#" + fid).val();
+            $('#' + fid).keyup(() => {
+                filter.stringValue = $('#' + fid).val();
                 this.updateTextFilter(group, dcDim, filter.stringValue);
                 this.updateFilterGroupCount(group);
                 //alert('text change');
             });
-            $("#remove" + filter.id).on('click', () => {
+            $('#remove' + filter.id).on('click', () => {
                 var pos = group.filters.indexOf(filter);
 
                 filter.dimension.filterAll();
@@ -1195,8 +1189,8 @@
         }
 
         private updateChartRange(chart: dc.IBarchart, filter: GroupFilter) {
-            var filterFrom = $("#fsfrom_" + filter.id);
-            var filterTo = $("#fsto_" + filter.id); 
+            var filterFrom = $('#fsfrom_' + filter.id);
+            var filterTo = $('#fsto_' + filter.id); 
             var extent = (<any>chart).brush().extent();
             if (extent !=null && extent.length == 2) {
                 if (extent[0] != extent[1]) {
@@ -1206,8 +1200,8 @@
                     filterTo.val(extent[1]);
                 }
             } else {
-                filterFrom.val("0");
-                filterTo.val("1");
+                filterFrom.val('0');
+                filterTo.val('1');
             }
         }
 
@@ -1218,27 +1212,27 @@
             filter.id = Helpers.getGuid();
             var info = this.calculatePropertyInfo(group, filter.property);
             
-            var divid = "filter_" + filter.id;
+            var divid = 'filter_' + filter.id;
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
-            $("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <span id='fsfrom_" + filter.id + "'/> to <span id='fsto_" + filter.id + "'/></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
-            var filterFrom = $("#fsfrom_" + filter.id); 
-            var filterTo = $("#fsto_" + filter.id);
-            var filterRange = $("#fdrange_" + filter.id);
-            $("#remove" + filter.id).on('click', () => {
+            $('<h4>' + filter.title + '</h4><div id=\'' + divid + '\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div><a class=\'btn\' id=\'remove' + filter.id + '\'>remove</a>').appendTo('#filterChart');
+            var filterFrom = $('#fsfrom_' + filter.id); 
+            var filterTo = $('#fsto_' + filter.id);
+            var filterRange = $('#fdrange_' + filter.id);
+            $('#remove' + filter.id).on('click', () => {
                 var pos = group.filters.indexOf(filter);
-                if (pos != -1) group.filters.splice(pos, 1);
+                if (pos !== -1) group.filters.splice(pos, 1);
                 filter.dimension.dispose();
                 this.updateFilters();
                 
                 this.resetMapFilter(group);
             });
 
-            var dcChart = <any>dc.barChart("#" + divid);
+            var dcChart = <any>dc.barChart('#' + divid);
 
-            var n_bins = 20;
+            var nBins = 20;
             
-            var binWidth = (info.sdMax - info.sdMin) / n_bins;
+            var binWidth = (info.sdMax - info.sdMin) / nBins;
 
             var dcDim = group.ndx.dimension(d => {
                 if (d.properties.hasOwnProperty(filter.property)) {
@@ -1264,9 +1258,9 @@
                 .centerBar(true)                
                     .gap(5) //d3.scale.quantize().domain([0, 10]).range(d3.range(1, 4));                
                     .elasticY(true)                
-                    .x(d3.scale.linear().domain([info.sdMin, info.sdMax]).range([-1, n_bins + 1])) 
+                    .x(d3.scale.linear().domain([info.sdMin, info.sdMax]).range([-1, nBins + 1])) 
                 .filterPrinter(function (filters) {
-                    var s = "";
+                    var s = '';
                     if (filters.length > 0) {
                         var filter = filters[0];
                         
@@ -1278,7 +1272,7 @@
 
                     return s;
                 })  
-                    .on("filtered", (e) => {
+                    .on('filtered', (e) => {
                                       var fil = e.hasFilter();
                                       if (fil) {
                                           filterRange.show();                                          
