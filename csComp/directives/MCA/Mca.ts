@@ -4,13 +4,13 @@
     /**
      * Config
      */
-    var moduleName = 'csWeb.mca';
+    var moduleName = "csWeb.mca";
 
     /**                    
      * Module
      */
-    export var myModule;
-    try {   
+    export var myModule : ng.IModule;
+    try {
         myModule = angular.module(moduleName);     
     } catch (err) { 
         // named module does not exist, so create one
@@ -22,7 +22,7 @@
      */
     myModule
         .directive("mca", [
-            "$window", "$compile", "$templateCache", 
+            "$window", "$compile", "$templateCache",  
             function ($window, $compile, $templateCache): ng.IDirective {
                 return {   
                     terminal: true,  // do not compile any other internal directives 
