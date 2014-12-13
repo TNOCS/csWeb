@@ -1,10 +1,8 @@
 ﻿module Mca {
-    'use strict';
+    "use strict";
 
-    import Feature       = csComp.Services.Feature;
     import IFeature      = csComp.Services.IFeature;
     import IFeatureType  = csComp.Services.IFeatureType;
-    import IPropertyType = csComp.Services.IPropertyType;
     import IGeoJsonFile  = csComp.Services.IGeoJsonFile;
 
     export interface IMcaEditorScope extends ng.IScope {
@@ -20,22 +18,22 @@
     }
 
     export class McaEditorCtrl {
-        public dataset            : IGeoJsonFile;
-        public propInfos          : Array<IExtendedPropertyInfo> = [];
-        public headers            : Array<string> = [];
-        public selectedFeatureType: IFeatureType;
-        public mcaTitle           : string;
-        public rankTitle          : string;
-        public hasRank            : boolean;
+        dataset            : IGeoJsonFile;
+        propInfos          : Array<IExtendedPropertyInfo> = [];
+        headers            : Array<string> = [];
+        selectedFeatureType: IFeatureType;
+        mcaTitle           : string;
+        rankTitle          : string;
+        hasRank            : boolean;
 
-        public scoringFunctions   : Models.ScoringFunction[] = [];
+        scoringFunctions   : Models.ScoringFunction[] = [];
 
-        public static $inject = [
-            '$scope',
-            '$modalInstance',
-            'layerService',
-            'messageBusService',
-            'mca'
+        static $inject = [
+            "$scope",
+            "$modalInstance",
+            "layerService",
+            "messageBusService",
+            "mca"
         ];
 
         constructor(
@@ -61,8 +59,8 @@
 
             this.mcaTitle            = mca.title;
             this.rankTitle           = mca.rankTitle;
-            this.hasRank             = !(typeof this.rankTitle === 'undefined' || this.rankTitle == null);
-            this.selectedFeatureType = mca.featureIds.length === 0 ? '' : this.dataset.featureTypes[mca.featureIds[0]];
+            this.hasRank             = !(typeof this.rankTitle === "undefined" || this.rankTitle == null);
+            this.selectedFeatureType = mca.featureIds.length === 0 ? "" : this.dataset.featureTypes[mca.featureIds[0]];
             if (this.selectedFeatureType) {
                 this.updatePropertyInfo(this.selectedFeatureType);
                 this.updatePropertyInfoUponEdit(mca);
@@ -74,13 +72,15 @@
         private updatePropertyInfoUponEdit(criterion: Models.Criterion, category?: string) {
             criterion.criteria.forEach((c) => {
                 if (c.label) {
-                    for (var i in this.propInfos) {
-                        var mi = this.propInfos[i];
-                        if (mi.label != c.label) continue;
+                    var propInfos = this.propInfos;
+                    for (var i in propInfos) {
+                        if (!propInfos.hasOwnProperty(i)) continue;
+                        var mi = propInfos[i];
+                        if (mi.label !== c.label) continue;
                         mi.isSelected = true;
                         if (category) {
                             mi.hasCategory = true;
-                            mi.category    = category;
+                            mi.category = category;
                         }
                         break;
                     }
@@ -90,7 +90,7 @@
             });
         }
 
-        public loadPropertyTypes() {
+       loadPropertyTypes() {
             console.log("loadPropertyTypes");
         }
 
@@ -99,7 +99,7 @@
          */
         private loadMapLayers(): void {
             var data         : IGeoJsonFile = {
-                type         : '',
+                type         : "",
                 features     : [],
                 featureTypes : {}
             };
@@ -122,8 +122,10 @@
         }
 
         private selectFirstFeatureType() {
-            for (var key in this.dataset.featureTypes) {
-                this.selectedFeatureType = this.dataset.featureTypes[key];
+            var featureTypes = this.dataset.featureTypes;
+            for (var key in featureTypes) {
+                if (!featureTypes.hasOwnProperty(key)) continue;
+                this.selectedFeatureType = featureTypes[key];
                 this.updatePropertyInfo(this.selectedFeatureType);
                 return;
             }
@@ -142,10 +144,10 @@
                 type                : "text",
                 filterType          : "text",
                 isSelected          : false,
-                scoringFunctionType : this.scoringFunctions[0].type,
+                scoringFunctionType : this.scoringFunctions[0].type
             });
             if (featureType.propertyTypeKeys != null) {
-                var keys : Array<string> = featureType.propertyTypeKeys.split(';');
+                var keys = featureType.propertyTypeKeys.split(";");
                 keys.forEach((k) => {
                     if (this.$layerService.propertyTypeData.hasOwnProperty(k))
                         pis.push(this.$layerService.propertyTypeData[k]);
@@ -159,7 +161,7 @@
             }
             pis.forEach((pi) => {
                 // TODO Later, we could also include categories and not only numbers, where each category represents a certain value.
-                if (pi.visibleInCallOut && pi.type === 'number' && pi.label.indexOf("mca_") < 0 && titles.indexOf(pi.title) < 0) {
+                if (pi.visibleInCallOut && pi.type === "number" && pi.label.indexOf("mca_") < 0 && titles.indexOf(pi.title) < 0) {
                     titles.push(pi.title);
                     this.propInfos.push(pi);
                 }
@@ -179,7 +181,7 @@
         }
 
         public isDisabled(): boolean {
-            if (typeof this.mcaTitle === 'undefined' || this.mcaTitle.length === 0) return true;
+            if (typeof this.mcaTitle === "undefined" || this.mcaTitle.length === 0) return true;
             if (this.hasRank && this.rankTitle && this.rankTitle.length === 0) return true;
             if (this.propInfos.length === 0 || !this.propInfos.reduce((p,c) => { return p || c.isSelected; })) return true;
             return false;
@@ -190,16 +192,18 @@
          */
         public save() {
             var mca             = new Models.Mca();
-            mca.title           = this.mcaTitle || 'New MCA criterion';
-            mca.label           = 'mca_' + mca.title.replace(' ', '_');
-            mca.stringFormat    = '{0:0.0}';
+            mca.title           = this.mcaTitle || "New MCA criterion";
+            mca.label           = "mca_" + mca.title.replace(" ", "_");
+            mca.stringFormat    = "{0:0.0}";
             if (this.hasRank) {
-                mca.rankTitle   = this.rankTitle || 'Rank';
-                mca.rankFormat  = '{0} / {1}';
+                mca.rankTitle   = this.rankTitle || "Rank";
+                mca.rankFormat  = "{0} / {1}";
             }
             mca.userWeightMax = 5;
-            for (var key in this.dataset.featureTypes) {
-                if (this.dataset.featureTypes[key] === this.selectedFeatureType)
+            var featureTypes = this.dataset.featureTypes;
+            for (var key in featureTypes) {
+                if (!featureTypes.hasOwnProperty(key)) continue;
+                if (featureTypes[key] === this.selectedFeatureType)
                     mca.featureIds = [key];
             }
 
@@ -220,8 +224,9 @@
                 if (mi.category) {
                     var parent: Models.Criterion;
                     for (var i in mca.criteria) {
+                        if (!mca.criteria.hasOwnProperty(i)) continue;
                         var c = mca.criteria[i];
-                        if (c.title != mi.category) continue;
+                        if (c.title !== mi.category) continue;
                         parent = c;
                         break;
                     }
@@ -240,11 +245,11 @@
         }
 
         public cancel() {
-            this.mcaTitle  = '';
+            this.mcaTitle  = "";
             this.hasRank   = false;
-            this.rankTitle = '';
+            this.rankTitle = "";
             this.headers   = [];
-            this.$modalInstance.dismiss('cancel');
+            this.$modalInstance.dismiss("cancel");
         }
     }
 } 

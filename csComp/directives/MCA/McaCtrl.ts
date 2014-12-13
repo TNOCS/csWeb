@@ -58,8 +58,8 @@
 
             messageBusService.subscribe("layer", (title) => {//, layer: csComp.Services.ProjectLayer) => {
                 switch (title) {
-                    case "activated":
                     case "deactivate":
+                    case "activated":
                         this.updateAvailableMcas();
                         this.calculateMca();
                         break;
