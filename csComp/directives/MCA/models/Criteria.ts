@@ -15,8 +15,8 @@
     * Scoring function creates a PLA of the scoring algorithm.
     */
     export class ScoringFunction {
-        public  type  : ScoringFunctionType;
-        public  scores: string;
+        type  : ScoringFunctionType;
+        scores: string;
         
         get cssClass(): string {
             return ScoringFunctionType[this.type].toLowerCase();
@@ -37,7 +37,7 @@
          * Typically, you would map x=0 to the min(x)+0.1*range(x) and x(10)-0.1*range(x) to max(x), 
          * i.e. x' = ax+b, where a=100/(8r) and b=-100(min+0.1r)/(8r) and r=max-min
          */
-        public static createScores(type: ScoringFunctionType): string {
+        static createScores(type: ScoringFunctionType): string {
             var scores: string;
             switch (type) {
                 default:
@@ -102,7 +102,7 @@
         x: number[] = [];
         y: number[] = [];
 
-        deserialize(input: Models.Criterion): Models.Criterion {
+        deserialize(input: Criterion): Criterion {
             this.title       = input.title;
             this.description = input.description;
             this.label       = input.label;
@@ -112,7 +112,7 @@
             this.isPlaScaled = input.isPlaScaled;
             this.scores      = input.scores;
             input.criteria.forEach((c) => {
-                this.criteria.push(new Models.Criterion().deserialize(c));
+                this.criteria.push(new Criterion().deserialize(c));
             });
             return this;
         }
@@ -160,11 +160,11 @@
                 min = 0;
             if (this.isPlaScaled || this.requiresMaximum()) {
                 max = Math.max.apply(null, this.propValues);
-                scores.replace("max", max.toPrecision(3));
+                scores.replace('max', max.toPrecision(3));
             }
             if (this.isPlaScaled || this.requiresMinimum()) {
                 min = Math.min.apply(null, this.propValues);
-                scores.replace("min", min.toPrecision(3));
+                scores.replace('min', min.toPrecision(3));
             }
             if (this.isPlaScaled) {
                 var stats = csComp.Helpers.standardDeviation(this.propValues);
@@ -179,7 +179,7 @@
                 b = min + 0.1 * range;
 
             if (pla.length % 2 !== 0)
-                throw Error(this.label + " does not have an even (x,y) pair in scores.");
+                throw Error(this.label + ' does not have an even (x,y) pair in scores.');
             for (var i = 0; i < pla.length / 2; i++) {
                 var x = parseFloat(pla[2*i]);
                 if (this.isPlaScaled) {
@@ -189,7 +189,7 @@
                     x = a * x + b;
                 }
                 if (i > 0 && this.x[i - 1] > x)
-                    throw Error(this.label + ": x should increment continuously.");
+                    throw Error(this.label + ': x should increment continuously.');
                 this.x.push(x);
                 // Test that y in [0, 1].
                 var y = parseFloat(pla[2*i+1]);
@@ -200,7 +200,7 @@
             this.isPlaUpdated = true;
         }
 
-        public getScore(feature: Feature): number {
+        getScore(feature: Feature): number {
             if (!this.isPlaUpdated)
                 throw ('Error: PLA must be updated for criterion ' + this.title + '!');
             if (this.criteria.length === 0) {
@@ -245,17 +245,17 @@
     // NOTE: When extending a base class, make sure that the base class has been defined already.
     export class Mca extends Criterion implements csComp.Services.ISerializable<Mca> {
         /** Section of the callout */
-        public section        : string;
-        public stringFormat   : string;
+        section        : string;
+        stringFormat   : string;
         /** Optionally, export the result also as a rank */
-        public rankTitle      : string;
-        public rankDescription: string;
+        rankTitle      : string;
+        rankDescription: string;
         /** Optionally, stringFormat for the ranked result */
-        public rankFormat     : string;
+        rankFormat     : string;
         /** Maximum number of star ratings to use to set the weight */
-        public userWeightMax  : number = 5;
+        userWeightMax  : number = 5;
         /** Applicable feature ids as a string[]. */
-        public featureIds     : string[] = [];
+        featureIds     : string[] = [];
 
         constructor() {
             super();
@@ -263,7 +263,7 @@
             this.isPlaUpdated = false;
         }
 
-        public deserialize(input: Models.Mca): Models.Mca {
+        deserialize(input: Mca): Mca {
             this.section         = input.section;
             this.stringFormat    = input.stringFormat;
             this.rankTitle       = input.rankTitle;
@@ -275,11 +275,10 @@
             return this;
         }
 
-
         /** 
         * Update the MCA by calculating the weights and setting the colors.
         */
-        public update() {
+        update() {
             this.calculateWeights();
             this.setColors();
         }
@@ -288,13 +287,15 @@
             if (!criteria) criteria = this.criteria;
             var totalWeight = 0;
             for (var k in criteria) {
+                if (!criteria.hasOwnProperty(k)) continue;
                 var crit = criteria[k];
                 if (crit.criteria.length > 0)
                     this.calculateWeights(crit.criteria);
-                 totalWeight += Math.abs(crit.userWeight);
+                totalWeight += Math.abs(crit.userWeight);
             }
             if (totalWeight > 0) {
                 for (var j in criteria) {
+                    if (!criteria.hasOwnProperty(j)) continue;
                     var critj = criteria[j];
                     critj.weight = critj.userWeight / totalWeight;
                 }
