@@ -40,7 +40,16 @@
     }
 
     export class CallOutProperty implements ICallOutProperty {
-        constructor(public key: string, public value: string, public property: string, public canFilter: boolean, public canStyle: boolean, public feature: IFeature, public isFilter: boolean, public description?: string, public meta?: IPropertyType ) {}
+        constructor(
+            public key         : string,
+            public value       : string,
+            public property    : string,
+            public canFilter   : boolean,
+            public canStyle    : boolean,
+            public feature     : IFeature,
+            public isFilter    : boolean,
+            public description?: string,
+            public meta?       : IPropertyType) { }
     }
 
     export interface ICallOutSection {
@@ -53,13 +62,13 @@
 
     export class CallOutSection implements ICallOutSection {
         public propertyTypes: { [label: string]: IPropertyType };
-        public properties : Array<ICallOutProperty>;
-        public sectionIcon: string;
+        public properties   : Array<ICallOutProperty>;
+        public sectionIcon  : string;
 
         constructor(sectionIcon?: string) {
             this.propertyTypes   = {};
-            this.properties  = [];
-            this.sectionIcon = sectionIcon;
+            this.properties      = [];
+            this.sectionIcon     = sectionIcon;
         }
 
         public showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }

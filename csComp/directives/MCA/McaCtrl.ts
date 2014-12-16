@@ -1,5 +1,5 @@
 ﻿module Mca {
-    "use strict";
+    'use strict';
 
     // TODO Add advanced option: in advanced mode, you can create, update, delete MCA criteria, and inspect sparklines.
     // TODO Add advanced option: add canCreate, canUpdate, canDelete options, can Inspect to MCA.
@@ -304,11 +304,11 @@
             this.properties = [];
             var mi = McaCtrl.createPropertyType(this.mca);
             var displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
-            this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description));
+            this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description, mi));
             if (this.mca.rankTitle) {
                 mi = McaCtrl.createRankPropertyType(this.mca);
                 displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
-                this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description));
+                this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description, mi));
             }
             if (drawCharts) this.drawChart();
         }
@@ -500,7 +500,7 @@
                 this.$layerService.updateStyle(this.groupStyle);
             else {
                 this.groupStyle = this.$layerService.setStyle(item, false);
-                this.groupStyle.colors = ["red", "blue"];
+                this.groupStyle.colors = ["#D08E7B", "#6BABD9"];
                 this.$layerService.updateStyle(this.groupStyle);
             }
         }
