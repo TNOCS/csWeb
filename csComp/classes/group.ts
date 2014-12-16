@@ -91,10 +91,10 @@
                 this.colorScales[translation] = ["red", "green"];
             });
             $translate('BLUE_RED').then((translation) => {
-                this.colorScales[translation] = ["blue", "red"];
+                this.colorScales[translation] = ["#6BABD9", "#D08E7B"];
             });
             $translate('RED_BLUE').then((translation) => {
-                this.colorScales[translation] = ["red", "blue"];
+                this.colorScales[translation] = ["#D08E7B", "#6BABD9"];
             });
             $translate('WHITE_BLUE').then((translation) => {
                 this.colorScales[translation] = ["white", "blue"];
