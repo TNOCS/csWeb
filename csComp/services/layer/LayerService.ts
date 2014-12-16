@@ -623,7 +623,7 @@
             return r;
         }
 
-        public setStyle(property: FeatureProps.CallOutProperty, openStyleTab = true) {            
+        public setStyle(property: any, openStyleTab = true) {            
             var f: IFeature = property.feature;
             if (f != null) {
                 this.noStyles     = false;
