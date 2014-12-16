@@ -264,33 +264,30 @@
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
-                    if (feature.properties.hasOwnProperty(f.property)) {
-                        var value = feature.properties[f.property];
-                        var valueLength = value.toString().length;
-                        if (f.meta != null) {
-                            value = Helpers.convertPropertyInfo(f.meta, value);
-                            if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
-                        }
-                        rowLength = Math.max(rowLength, valueLength + f.title.length);
-                        content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
+                    if (!feature.properties.hasOwnProperty(f.property)) return;
+                    var value = feature.properties[f.property];
+                    var valueLength = value.toString().length;
+                    if (f.meta != null) {
+                        value = Helpers.convertPropertyInfo(f.meta, value);
+                        if (f.meta.type !== "bbcode") valueLength = value.toString().length;
                     }
+                    rowLength = Math.max(rowLength, valueLength + f.title.length);
+                    content += "<tr><td><div class='smallFilterIcon'></td><td>" + f.title + "</td><td>" + value + "</td></tr>";
                 });
             }
 
             // add style values, only in case they haven't been added already as filter
             if (group.styles != null && group.styles.length > 0) {
                 group.styles.forEach((s: GroupStyle) => {
-                    if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property == s.property; }).length == 0) {
-                        if (feature.properties.hasOwnProperty(s.property)) {
-                            var value = feature.properties[s.property];
-                            var valueLength = value.toString().length;
-                            if (s.meta != null) {
-                                value = Helpers.convertPropertyInfo(s.meta, value);
+                    if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property == s.property; }).length == 0 && feature.properties.hasOwnProperty(s.property)) {
+                        var value = feature.properties[s.property];
+                        var valueLength = value.toString().length;
+                        if (s.meta != null) {
+                            value = Helpers.convertPropertyInfo(s.meta, value);
                                 if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
-                            }
-                            rowLength = Math.max(rowLength, valueLength + s.title.length);
-                            content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
                         }
+                        rowLength = Math.max(rowLength, valueLength + s.title.length);
+                            content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
                     }
                 });
             }
@@ -626,7 +623,7 @@
             return r;
         }
 
-        setStyle(property: any, openStyleTab = true) {            
+        public setStyle(property: FeatureProps.CallOutProperty, openStyleTab = true) {            
             var f: IFeature = property.feature;
             if (f != null) {
                 this.noStyles     = false;
