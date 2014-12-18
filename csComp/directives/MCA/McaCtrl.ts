@@ -1,7 +1,6 @@
 ﻿module Mca {
     'use strict';
 
-    // TODO Use scaling info: when absent, use relative position, otherwise scale between min and max.
     // TODO Use cut-off min/max value when provided for computing the MCA.
     // TODO Ignore MCA calculation when too many criteria are out of (cut-off) range or not present. ???
     // TODO When the weight is negative, redraw the score function (1-score).
@@ -216,9 +215,9 @@
             modalInstance.result.then((mca: Models.Mca) => {
                 this.addMca(mca);
                 this.updateMca();
-                console.log(JSON.stringify(mca, null, 2));
+                //console.log(JSON.stringify(mca, null, 2));
             }, () => {
-                console.log('Modal dismissed at: ' + new Date());
+                //console.log('Modal dismissed at: ' + new Date());
             });
         }
 
@@ -300,7 +299,7 @@
                 this.drawChart();
                 break;
             default:
-                console.log(title);
+                //console.log(title);
                 break;
             }
             this.scopeApply();
@@ -470,6 +469,12 @@
                     // Add rank information
                     tempScores.sort((a, b) => { return b.score - a.score; });
                     var length = this.$layerService.project.features.length;
+                    var scaleRange = mca.scaleMinValue ? Math.abs(mca.scaleMaxValue - mca.scaleMinValue) + 1 : length;
+                    var rankFunction = mca.scaleMinValue
+                        ? mca.scaleMaxValue > mca.scaleMinValue
+                            ? (position: number) => { return mca.scaleMaxValue - Math.round(position / scaleRange); }
+                            : (position: number) => { return mca.scaleMinValue + Math.round(position / scaleRange); }
+                        : (position: number) => { return position};
                     var prevScore = -1;
                     var rank: number = 1;
                     for (var i = 0; i < length; i++) {
@@ -478,7 +483,7 @@
                         if (item.score !== prevScore)
                             rank = i + 1;
                         prevScore = item.score;
-                        this.$layerService.project.features[item.index].properties[mca.label + '#'] = rank + ',' + length;
+                        this.$layerService.project.features[item.index].properties[mca.label + '#'] = rankFunction(rank) + ',' + scaleRange;
                     }
                 }
             });

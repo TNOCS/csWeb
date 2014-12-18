@@ -270,6 +270,8 @@
         userWeightMax  : number = 5;
         /** Applicable feature ids as a string[]. */
         featureIds     : string[] = [];
+        scaleMaxValue  : number;
+        scaleMinValue  : number;
 
         constructor() {
             super();

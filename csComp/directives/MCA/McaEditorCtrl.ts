@@ -28,7 +28,6 @@
         selectedFeatureType: IFeatureType;
         mcaTitle           : string;
         rankTitle          : string;
-        hasRank            : boolean;
         scoringFunctions   : Models.ScoringFunction[] = [];
 
         showItem           : number;
@@ -77,7 +76,8 @@
 
             this.mcaTitle            = mca.title;
             this.rankTitle           = mca.rankTitle;
-            this.hasRank             = !(typeof this.rankTitle === 'undefined' || this.rankTitle == null);
+            this.scaleMin            = mca.scaleMinValue;
+            this.scaleMax            = mca.scaleMaxValue;
             this.selectedFeatureType = mca.featureIds.length === 0 ? '' : this.dataset.featureTypes[mca.featureIds[0]];
             if (this.selectedFeatureType) {
                 this.updatePropertyInfo(this.selectedFeatureType);
@@ -209,7 +209,6 @@
 
         isDisabled(): boolean {
             if (typeof this.mcaTitle === 'undefined' || this.mcaTitle.length === 0) return true;
-            if (this.hasRank && this.rankTitle && this.rankTitle.length === 0) return true;
             if (this.propInfos.length === 0 || !this.propInfos.reduce((p,c) => { return p || c.isSelected; })) return true;
             return false;
         }
@@ -222,9 +221,13 @@
             mca.title           = this.mcaTitle || 'New MCA criterion';
             mca.label           = 'mca_' + mca.title.replace(' ', '_');
             mca.stringFormat    = '{0:0.0}';
-            if (this.hasRank) {
+            if (this.rankTitle) {
                 mca.rankTitle   = this.rankTitle || 'Rank';
                 mca.rankFormat  = '{0} / {1}';
+            }
+            if (this.scaleMin && this.scaleMax) {
+                mca.scaleMinValue = this.scaleMin;
+                mca.scaleMaxValue = this.scaleMax;
             }
             mca.userWeightMax = 5;
             var featureTypes = this.dataset.featureTypes;
@@ -273,7 +276,6 @@
 
         cancel() {
             this.mcaTitle  = '';
-            this.hasRank   = false;
             this.rankTitle = '';
             this.headers   = [];
             this.$modalInstance.dismiss('cancel');
