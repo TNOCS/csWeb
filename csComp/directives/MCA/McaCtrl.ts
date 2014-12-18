@@ -1,7 +1,6 @@
 ﻿module Mca {
     'use strict';
 
-    // TODO Use cut-off min/max value when provided for computing the MCA.
     // TODO Ignore MCA calculation when too many criteria are out of (cut-off) range or not present. ???
     // TODO When the weight is negative, redraw the score function (1-score).
     // TODO Add an option to toggle the Aster plot with a histogram (default = histogram)

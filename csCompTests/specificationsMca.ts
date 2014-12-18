@@ -47,7 +47,8 @@
                 properties: { 'test': 3 }
             }
         ];
-        var selectedFeature   = features[1];
+        var selectedFeature = features[1];
+
         var criterion         = new Mca.Models.Criterion();
         criterion.label       = 'test';
         criterion.scores      = Mca.Models.ScoringFunction.createScores(Mca.Models.ScoringFunctionType.Ascending);
@@ -69,6 +70,56 @@
         result                = criterion.getScore(selectedFeature);
 
         expect(result).toBe(0.4);
+    });
+
+    it('should return a result of 0 when the value is outside the cut-off range.', () => {
+        var features : csComp.Services.IFeature[] = [
+            {
+                layerId: '',
+                type: '',
+                geometry: null,
+                properties: { 'test': 9 }
+            },
+            {
+                layerId: '',
+                type: '',
+                geometry: null,
+                properties: { 'test': 5 }
+            },
+            {
+                layerId: '',
+                type: '',
+                geometry: null,
+                properties: { 'test': 3 }
+            }
+        ];
+        var selectedFeature   = features[0];
+
+        var criterion         = new Mca.Models.Criterion();
+        criterion.label       = 'test';
+        criterion.userWeight  = 1;
+        criterion.isPlaScaled = true;
+        criterion.scores      = Mca.Models.ScoringFunction.createScores(Mca.Models.ScoringFunctionType.Ascending);
+
+        criterion.minValue    = 2;
+        criterion.maxValue    = 7;
+        criterion.updatePla(features);
+        var result            = criterion.getScore(selectedFeature);
+        expect(result).toBe(1);
+
+        criterion.maxCutoffValue = 8;
+        result = criterion.getScore(selectedFeature);
+        expect(result).toBe(0);
+
+        selectedFeature = features[2];
+        criterion.minValue = 1;
+        criterion.maxValue = 11;
+        criterion.updatePla(features);
+        criterion.maxCutoffValue = null;
+        criterion.minCutoffValue = 4;
+        criterion.updatePla(features);
+        result = criterion.getScore(selectedFeature);
+        expect(result).toBe(0);
     });
 
 });

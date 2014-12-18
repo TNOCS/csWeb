@@ -221,7 +221,8 @@
                 // End point: compute the score for each feature
                 if (feature.properties.hasOwnProperty(this.label)) {
                     // The property is available
-                    var x = <any>feature.properties[this.label];
+                    var x = feature.properties[this.label];
+                    if (this.maxCutoffValue <= x || x <= this.minCutoffValue) return 0;
                     if (x < this.x[0]) return this.y[0];
                     var last = this.x.length-1;
                     if (x > this.x[last]) return this.y[last];
