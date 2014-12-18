@@ -26,4 +26,49 @@
         expect(this.mca.criteria[2].color != null).toBe(true);
     });
 
+    it('should use the minValue and maxValue when provided for computing the PLA', () => {
+        var features : csComp.Services.IFeature[] = [
+            {
+                layerId: '',
+                type: '',
+                geometry: null,
+                properties: { 'test': 9 }
+            },
+            {
+                layerId: '',
+                type: '',
+                geometry: null,
+                properties: { 'test': 5 }
+            },
+            {
+                layerId: '',
+                type: '',
+                geometry: null,
+                properties: { 'test': 3 }
+            }
+        ];
+        var selectedFeature   = features[1];
+        var criterion         = new Mca.Models.Criterion();
+        criterion.label       = 'test';
+        criterion.scores      = Mca.Models.ScoringFunction.createScores(Mca.Models.ScoringFunctionType.Ascending);
+        criterion.userWeight  = 1;
+        criterion.isPlaScaled = true;
+        criterion.updatePla(features);
+        var result            = Math.round(criterion.getScore(selectedFeature)*1000);
+
+        expect(result).toBe(292);
+
+        criterion             = new Mca.Models.Criterion();
+        criterion.label       = 'test';
+        criterion.scores      = Mca.Models.ScoringFunction.createScores(Mca.Models.ScoringFunctionType.Ascending);
+        criterion.minValue    = 1;
+        criterion.maxValue    = 11;
+        criterion.userWeight  = 1;
+        criterion.isPlaScaled = true;
+        criterion.updatePla(features);
+        result                = criterion.getScore(selectedFeature);
+
+        expect(result).toBe(0.4);
+    });
+
 });

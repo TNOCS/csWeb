@@ -497,7 +497,7 @@
 
                 layer.group.styles.forEach((gs: GroupStyle) => {
                     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
-                        var v = feature.properties[gs.property];
+                        var v = <any>feature.properties[gs.property];
 
                         switch (gs.visualAspect) {
                         case 'fillColor':
@@ -806,7 +806,7 @@
             dc.redrawAll();
         }
 
-        private getGroupFeatures(g: ProjectGroup) : Array<Feature> {
+        private getGroupFeatures(g: ProjectGroup) : Array<IFeature> {
             
             // find active layers
             var ls = [];

@@ -1,5 +1,6 @@
 ﻿module Mca.Models {
-    import Feature = csComp.Services.Feature;
+    import IFeature = csComp.Services.IFeature;
+    import Feature  = csComp.Services.Feature;
 
     export enum ScoringFunctionType {
         Manual,
@@ -78,31 +79,35 @@
     }
 
     export class Criterion {
-        title      : string;
-        description: string;
+        title                                             : string;
+        description                                       : string;
         /** 
         * Top level label will be used to add a property to a feature, mca_LABELNAME, with the MCA value. 
         * Lower level children will be used to obtain the property value. 
         */
-        label      : string;
+        label                                             : string;
         /** Color of the pie chart */
-        color      : string;
+        color                                             : string;
         /** Specified weight by the user */
         userWeight = 1;
         /** Derived weight based on the fact that the sum of weights in a group of criteria needs to be 1. */
-        weight     : number;
+        weight                                            : number;
         /** Scoring function y = f(x), which translates a specified measurement x to a value y, where y in [0,1].
          * Format [x1,y1 x2,y2], and may contain special characters, such as min or max to define the minimum or maximum.
          */
-        scores     : string;
-        propValues : Array<number> = [];
-        criteria: Criterion[] = [];
+        scores                                            : string;
+        propValues                                        : number[] = [];
+        criteria                                          : Criterion[] = [];
         /** Piece-wise linear approximation of the scoring function by a set of x and y points */
         isPlaUpdated = false;
         /** Piece-wise linear approximation must be scaled:x' = ax+b, where a=100/(8r) and b=-100(min+0.1r)/(8r) and r=max-min */
         isPlaScaled = false;
-        x: number[] = [];
-        y: number[] = [];
+        minValue                                          : number;
+        maxValue                                          : number;
+        minCutoffValue                                    : number;
+        maxCutoffValue                                    : number;
+        x                                                 : number[] = [];
+        y                                                 : number[] = [];
 
         deserialize(input: Criterion): Criterion {
             this.title       = input.title;
@@ -136,7 +141,7 @@
          * Update the piecewise linear approximation (PLA) of the scoring (a.k.a. user) function, 
          * which translates a property value to a MCA value in the range [0,1] using all features.
          */
-        updatePla(features: Feature[]) {
+        updatePla(features: IFeature[]) {
             if (this.isPlaUpdated) return;
             if (this.criteria.length > 0) {
                 this.criteria.forEach((c) => { 
@@ -152,33 +157,40 @@
             if (this.requiresMaximum() || this.requiresMinimum() || this.isPlaScaled) {
                 features.forEach((feature: Feature) => {
                     if (feature.properties.hasOwnProperty(this.label)) {
-                        // The property is available
+                        // The property is available. I use the '+' to convert the string value to a number. 
                         var prop = feature.properties[this.label];
                         if ($.isNumeric(prop)) this.propValues.push(prop);
                     }
                 });
             }
-            var max = 0,
-                min = 0;
+            var max = this.maxValue,
+                min = this.minValue;
             if (this.isPlaScaled || this.requiresMaximum()) {
-                max = Math.max.apply(null, this.propValues);
+                max = max || Math.max.apply(null, this.propValues);
                 scores.replace('max', max.toPrecision(3));
             }
             if (this.isPlaScaled || this.requiresMinimum()) {
-                min = Math.min.apply(null, this.propValues);
+                min = min || Math.min.apply(null, this.propValues);
                 scores.replace('min', min.toPrecision(3));
             }
             if (this.isPlaScaled) {
                 var stats = csComp.Helpers.standardDeviation(this.propValues);
-                max = Math.min(max, stats.avg + 2 * stats.stdDev);
-                min = Math.max(min, stats.avg - 2 * stats.stdDev);
+                max = max || Math.min(max, stats.avg + 2 * stats.stdDev);
+                min = min || Math.max(min, stats.avg - 2 * stats.stdDev);
             }
             // Regex to split the scores: [^\d\.]+ and remove empty entries
             var pla = scores.split(/[^\d\.]+/).filter(item => item.length > 0);
             // Test that we have an equal number of x and y, 
             var range = max - min,
+                a: number,
+                b: number;
+            if (this.minValue != null || this.maxValue != null) {
+                a = range / 10;
+                b = min;
+            } else {              
                 a = 0.08 * range,
                 b = min + 0.1 * range;
+            }
 
             if (pla.length % 2 !== 0)
                 throw Error(this.label + ' does not have an even (x,y) pair in scores.');
@@ -202,14 +214,14 @@
             this.isPlaUpdated = true;
         }
 
-        getScore(feature: Feature): number {
+        getScore(feature: IFeature): number {
             if (!this.isPlaUpdated)
                 throw ('Error: PLA must be updated for criterion ' + this.title + '!');
             if (this.criteria.length === 0) {
                 // End point: compute the score for each feature
                 if (feature.properties.hasOwnProperty(this.label)) {
                     // The property is available
-                    var x = feature.properties[this.label];
+                    var x = <any>feature.properties[this.label];
                     if (x < this.x[0]) return this.y[0];
                     var last = this.x.length-1;
                     if (x > this.x[last]) return this.y[last];

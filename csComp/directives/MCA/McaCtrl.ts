@@ -1,9 +1,11 @@
 ﻿module Mca {
     'use strict';
 
-    // TODO Add Heatmap option: 
-    // TODO - Use MCA as is, but instead of a scoring function, use a distance function (each selected feature on the map has an area of influence)
-    // TODO - Add the (Gaussian-shaped) influence areas and create a heatmap (see also: geotrellis.io)
+    // TODO Use scaling info: when absent, use relative position, otherwise scale between min and max.
+    // TODO Use cut-off min/max value when provided for computing the MCA.
+    // TODO Ignore MCA calculation when too many criteria are out of (cut-off) range or not present. ???
+    // TODO When the weight is negative, redraw the score function (1-score).
+    // TODO Add an option to toggle the Aster plot with a histogram (default = histogram)
     
     // TODO Add MCA properties to tooltip
     
@@ -11,15 +13,16 @@
     // TODO - hide the legend icon when not in use
     // TODO - send a message which feature ids are in use
     // TODO - McaCtrl should remove all MCA that are not in use.
+
+    // TODO Add Heatmap option: 
+    // TODO - Use MCA as is, but instead of a scoring function, use a distance function (each selected feature on the map has an area of influence)
+    // TODO - Add the (Gaussian-shaped) influence areas and create a heatmap (see also: geotrellis.io)
     
     // TODO Add an option to compare your score with other scores (Set filter: +- 5%).
     
-    // TODO Add an option to toggle the Aster plot with a histogram (default = histogram)
-    
-    // TODO When the weight is negative, redraw the score function (1-score).
-
     // TODO?? Add sensitivity analysis
     
+    // TODO Add a propertyType that links to another GeoJSON file, e.g. click on Den Haag in gemeente.json, show option to load DenHaagWijken.json.
     // TODO Disable/unload a layer when outside a zoom range, and load it when inside a zoom range.
     // TODO Create a function that determines which geojson to load based on the current extent and zoom level.
 
@@ -309,7 +312,7 @@
             }
         }
 
-        private updateSelectedFeature(feature: Feature, drawCharts = false) {
+        private updateSelectedFeature(feature: IFeature, drawCharts = false) {
             if (typeof feature === 'undefined' || feature == null) {
                 this.featureIcon = '';
                 return;
@@ -351,7 +354,7 @@
                         width           : 220,
                         height          : 70,
                         xy              : { x: crit.x, y: crit.y },
-                        featureValue    : this.selectedFeature ? this.selectedFeature.properties[crit.label] : null
+                        featureValue    : this.selectedFeature ? <any>this.selectedFeature.properties[crit.label] : null
                     });
                 } else {
                     var j = 0;
@@ -361,7 +364,7 @@
                             width       : 220,
                             height      : 70,
                             xy          : { x: c.x, y: c.y },
-                            featureValue: this.selectedFeature ? this.selectedFeature.properties[c.label] : null
+                            featureValue: this.selectedFeature ? <any>this.selectedFeature.properties[c.label] : null
                         });
                     });
                 }
@@ -460,7 +463,7 @@
                         var tempItem = { score: score, index: index++ };
                         tempScores.push(tempItem);
                     }
-                    feature.properties[mca.label] = score * 100;
+                    feature.properties[mca.label] = <any>(score * 100);
                     this.$layerService.updateFeature(feature);
                 });
                 if (mca.rankTitle) {

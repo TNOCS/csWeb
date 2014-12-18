@@ -11,7 +11,7 @@
             <input type="text" class="pull-left" data-ng-model="vm.scaleMin" style="width: 100px; margin: 0 5px" placeholder="{{ \'MCA.SCALE_MAX_TITLE\' | translate }}" />
             <input type="text" class="pull-left" data-ng-model="vm.scaleMax" style="width: 100px; margin: 0 5px" placeholder="{{ \'MCA.SCALE_MIN_TITLE\' | translate }}" />
         </div>
-        <h4 class="row-fluid" translate>MCA.MAIN_FEATURE</h4>
+        <h4 class="row-fluid" style="margin-top: 5px;" translate>MCA.MAIN_FEATURE</h4>
         <select data-ng-model="vm.selectedFeatureType"
                 data-ng-change="vm.loadPropertyTypes()"
                 data-ng-options="item as item.name for (key, item) in vm.dataset.featureTypes"

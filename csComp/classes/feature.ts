@@ -16,17 +16,17 @@
     }
 
     export interface IFeature {
-        id             : string;
-        layerId        : string;
-        type           : string;
-        geometry       : IGeoJsonGeometry;
-        properties     : Array<IStringToString>;
-        isSelected     : boolean;
-        htmlStyle      : string;
-        featureTypeName: string;
-        fType          : IFeatureType;
-        isInitialized  : boolean;
-        sensors        : { [id: string]: any[]}
+        id?             : string;
+        layerId         : string;
+        type?           : string;
+        geometry        : IGeoJsonGeometry;
+        properties      : IStringToAny;
+        isSelected?     : boolean;
+        htmlStyle?      : string;
+        featureTypeName?: string;
+        fType?          : IFeatureType;
+        isInitialized?  : boolean;
+        sensors?        : { [id: string]: any[]}
     }
 
     /** 
@@ -34,12 +34,12 @@
      * Features are part of a layer and filtered and styled using group filters and styles
      * 
      */
-    export class Feature {
+    export class Feature implements IFeature {
         public id             : string;
         public layerId        : string;
         public type           : string;
         public geometry       : IGeoJsonGeometry;
-        public properties     : Array<IStringToString>;
+        public properties     : IStringToAny;
         public isSelected     : boolean;
         public htmlStyle      : string;
         public featureTypeName: string;
@@ -48,8 +48,8 @@
         public sensors        : { [id: string]: any[] }
     }
 
-    export interface IStringToString {
-        [key: string]: string;
+    export interface IStringToAny {
+        [key: string]: any;
     }
 
     export interface IGeoJsonGeometry {
@@ -144,7 +144,7 @@
     export interface IGeoJsonFile {
         featureTypes?: { [key: string]: IFeatureType };
         type         : string;
-        features     : Array<Feature>;
+        features     : Array<IFeature>;
     }
 
     export class PropertyInfo {
