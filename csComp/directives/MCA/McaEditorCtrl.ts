@@ -11,7 +11,6 @@
 
     export interface IExtendedPropertyInfo extends csComp.Services.IPropertyType {
         isSelected?         : boolean;
-        hasCategory?        : boolean;
         category?           : string;  
         scores?             : string;  
         scoringFunctionType?: Models.ScoringFunctionType;
@@ -19,6 +18,7 @@
         minCutoffValue?     : number;
         /** The data is considered invalid when above this value */
         maxCutoffValue?     : number;
+        userWeight?         : number;
     }
 
     export class McaEditorCtrl {
@@ -96,8 +96,12 @@
                         var mi = propInfos[i];
                         if (mi.label !== c.label) continue;
                         mi.isSelected = true;
+                        mi.minCutoffValue = c.minCutoffValue;
+                        mi.maxCutoffValue = c.maxCutoffValue;
+                        mi.minValue       = c.minValue;
+                        mi.maxValue       = c.maxValue;
+                        mi.userWeight     = c.userWeight;
                         if (category) {
-                            mi.hasCategory = true;
                             mi.category = category;
                         }
                         break;
@@ -244,7 +248,12 @@
                 criterion.title       = mi.title;
                 criterion.isPlaScaled = true;
                 criterion.description = mi.description;
-                criterion.userWeight  = 1;
+                criterion.userWeight  = mi.userWeight || 1;
+
+                criterion.minCutoffValue = +mi.minCutoffValue;
+                criterion.maxCutoffValue = +mi.maxCutoffValue;
+                criterion.minValue       = +mi.minValue;
+                criterion.maxValue       = +mi.maxValue;
 
                 if (mi.scoringFunctionType === Models.ScoringFunctionType.Manual) {
                     criterion.scores = mi.scores;

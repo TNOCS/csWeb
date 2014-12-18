@@ -347,22 +347,26 @@
             this.mca.criteria.forEach((crit) => {
                 var id = 'histogram_' + i++;
                 if (crit.criteria.length === 0) {
+                    var y1 = crit.y;
+                    if (crit.userWeight < 0) y1 = y1.map((v) => 1 - v);
                     csComp.Helpers.Plot.drawMcaPlot(crit.propValues, {
                         id              : id,
                         width           : 220,
                         height          : 70,
-                        xy              : { x: crit.x, y: crit.y },
-                        featureValue    : this.selectedFeature ? <any>this.selectedFeature.properties[crit.label] : null
+                        xy              : { x: crit.x, y: y1 },
+                        featureValue    : this.selectedFeature ? this.selectedFeature.properties[crit.label] : null
                     });
                 } else {
                     var j = 0;
                     crit.criteria.forEach((c) => {
+                        var y2 = c.y;
+                        if (crit.userWeight < 0) y2 = y2.map((v) => 1 - v);
                         csComp.Helpers.Plot.drawMcaPlot(c.propValues, {
                             id          : id + '_' + j++,
                             width       : 220,
                             height      : 70,
-                            xy          : { x: c.x, y: c.y },
-                            featureValue: this.selectedFeature ? <any>this.selectedFeature.properties[c.label] : null
+                            xy          : { x: c.x, y: y2 },
+                            featureValue: this.selectedFeature ? this.selectedFeature.properties[c.label] : null
                         });
                     });
                 }
