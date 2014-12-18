@@ -4,9 +4,11 @@
         <h3 class="modal-title" translate>MCA.EDITOR_TITLE</h3>
     </div>
     <div class="modal-body">
-        <input type="text" data-ng-model="vm.mcaTitle" placeholder="{{ \'MCA.TITLE\' | translate }}" />
-        <span><input type="checkbox" data-ng-model="vm.hasRank" style="margin-left: 10px;" /><span translate>MCA.INCLUDE_RANK</span></span>
-        <input type="text" data-ng-if="vm.hasRank" data-ng-model="vm.rankTitle" placeholder="{{ \'MCA.RANK_TITLE\' | translate }}" />
+        <input type="text" class="pull-left" data-ng-model="vm.mcaTitle"  placeholder="{{ \'MCA.TITLE\' | translate }}" />
+<!--        <span><input type="checkbox" data-ng-model="vm.hasRank" style="margin-left: 10px;" /><span translate>MCA.INCLUDE_RANK</span></span>-->
+        <input type="text" class="pull-left" data-ng-model="vm.rankTitle" placeholder="{{ \'MCA.RANK_TITLE\' | translate }}" />
+        <input type="text" class="pull-left" data-ng-model="vm.scaleMin" placeholder="{{ \'MCA.SCALE_MAX_TITLE\' | translate }}" />
+        <input type="text" class="pull-left" data-ng-model="vm.scaleMax" placeholder="{{ \'MCA.SCALE_MIN_TITLE\' | translate }}" />
         <h4 translate>MCA.MAIN_FEATURE</h4>
         <select data-ng-model="vm.selectedFeatureType"
                 data-ng-change="vm.loadPropertyTypes()"

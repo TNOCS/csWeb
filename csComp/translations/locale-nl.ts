@@ -44,6 +44,8 @@
                 TITLE           : "Titel...",
                 CATEGORY_MSG    : "Optionele categorie...",
                 TOGGLE_SPARKLINE: "Toon of verberg de histogram en score functie.",
+                SCALE_MIN_TITLE : "[Min. schaal waarde]",
+                SCALE_MAX_TITLE : "[Max. schaal waarde]",
                 ADD_MCA         : "Maak een nieuwe MCA.",
                 DELETE_MCA      : "Verwijder de MCA.",
                 EDIT_MCA        : "Bewerk de MCA."

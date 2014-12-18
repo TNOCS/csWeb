@@ -45,6 +45,8 @@
                 TITLE            : "Title...",
                 CATEGORY_MSG     : "Optional category...",
                 TOGGLE_SPARKLINE : "Show or hide bar charts and scoring function.",
+                SCALE_MIN_TITLE  : "[Min. scale value]",
+                SCALE_MAX_TITLE  : "[Max. scale value]",
                 ADD_MCA          : "Add a new MCA.",
                 DELETE_MCA       : "Delete the MCA.",
                 EDIT_MCA         : "Edit the MCA."

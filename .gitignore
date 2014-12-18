@@ -1,8 +1,8 @@
 csServerComp/obj/
 csComp/obj/
 csComp/dist/
-csCompTests/bower_components/
-csCompTests/node_modules/
 csCompTests/obj/
-csCompTests/bin/
+csCompTests/dist/
+csCompTests/node_modules/
+csCompTests/bower_components/
 csCompTests/csComp/
