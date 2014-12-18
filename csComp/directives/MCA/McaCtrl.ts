@@ -1,8 +1,28 @@
 ﻿module Mca {
     'use strict';
 
-    // TODO Add advanced option: in advanced mode, you can create, update, delete MCA criteria, and inspect sparklines.
-    // TODO Add advanced option: add canCreate, canUpdate, canDelete options, can Inspect to MCA.
+    // TODO Add Heatmap option: 
+    // TODO - Use MCA as is, but instead of a scoring function, use a distance function (each selected feature on the map has an area of influence)
+    // TODO - Add the (Gaussian-shaped) influence areas and create a heatmap (see also: geotrellis.io)
+    
+    // TODO Add MCA properties to tooltip
+    
+    // TODO Add message in LegendCtrl to check whether a FeatureId is still in use:
+    // TODO - hide the legend icon when not in use
+    // TODO - send a message which feature ids are in use
+    // TODO - McaCtrl should remove all MCA that are not in use.
+    
+    // TODO Add an option to compare your score with other scores (Set filter: +- 5%).
+    
+    // TODO Add an option to toggle the Aster plot with a histogram (default = histogram)
+    
+    // TODO When the weight is negative, redraw the score function (1-score).
+
+    // TODO?? Add sensitivity analysis
+    
+    // TODO Disable/unload a layer when outside a zoom range, and load it when inside a zoom range.
+    // TODO Create a function that determines which geojson to load based on the current extent and zoom level.
+
 
     import Feature       = csComp.Services.Feature;
     import IFeature      = csComp.Services.IFeature;

@@ -1,10 +1,8 @@
 ﻿module Mca {
     'use strict';
 
-    import Feature       = csComp.Services.Feature;
     import IFeature      = csComp.Services.IFeature;
     import IFeatureType  = csComp.Services.IFeatureType;
-    import IPropertyType = csComp.Services.IPropertyType;
     import IGeoJsonFile  = csComp.Services.IGeoJsonFile;
 
     export interface IMcaEditorScope extends ng.IScope {
@@ -17,20 +15,27 @@
         category?           : string;  
         scores?             : string;  
         scoringFunctionType?: Models.ScoringFunctionType;
+        /** The data is considered invalid when below this value */
+        minCutoffValue?     : number;
+        /** The data is considered invalid when above this value */
+        maxCutoffValue?     : number;
     }
 
     export class McaEditorCtrl {
-        public dataset            : IGeoJsonFile;
-        public propInfos          : Array<IExtendedPropertyInfo> = [];
-        public headers            : Array<string> = [];
-        public selectedFeatureType: IFeatureType;
-        public mcaTitle           : string;
-        public rankTitle          : string;
-        public hasRank            : boolean;
+        dataset            : IGeoJsonFile;
+        propInfos          : Array<IExtendedPropertyInfo> = [];
+        headers            : Array<string> = [];
+        selectedFeatureType: IFeatureType;
+        mcaTitle           : string;
+        rankTitle          : string;
+        hasRank            : boolean;
+        scoringFunctions   : Models.ScoringFunction[] = [];
 
-        public scoringFunctions   : Models.ScoringFunction[] = [];
+        scaleMax           : number;
+        scaleMin           : number;
 
-        public static $inject = [
+
+        static $inject = [
             '$scope',
             '$modalInstance',
             'layerService',
@@ -74,13 +79,15 @@
         private updatePropertyInfoUponEdit(criterion: Models.Criterion, category?: string) {
             criterion.criteria.forEach((c) => {
                 if (c.label) {
-                    for (var i in this.propInfos) {
-                        var mi = this.propInfos[i];
-                        if (mi.label != c.label) continue;
+                    var propInfos = this.propInfos;
+                    for (var i in propInfos) {
+                        if (!propInfos.hasOwnProperty(i)) continue;
+                        var mi = propInfos[i];
+                        if (mi.label !== c.label) continue;
                         mi.isSelected = true;
                         if (category) {
                             mi.hasCategory = true;
-                            mi.category    = category;
+                            mi.category = category;
                         }
                         break;
                     }
@@ -90,7 +97,7 @@
             });
         }
 
-        public loadPropertyTypes() {
+        loadPropertyTypes() {
             console.log("loadPropertyTypes");
         }
 
@@ -122,8 +129,10 @@
         }
 
         private selectFirstFeatureType() {
-            for (var key in this.dataset.featureTypes) {
-                this.selectedFeatureType = this.dataset.featureTypes[key];
+            var featureTypes = this.dataset.featureTypes;
+            for (var key in featureTypes) {
+                if (!featureTypes.hasOwnProperty(key)) continue;
+                this.selectedFeatureType = featureTypes[key];
                 this.updatePropertyInfo(this.selectedFeatureType);
                 return;
             }
@@ -142,10 +151,10 @@
                 type                : "text",
                 filterType          : "text",
                 isSelected          : false,
-                scoringFunctionType : this.scoringFunctions[0].type,
+                scoringFunctionType: this.scoringFunctions[0].type
             });
             if (featureType.propertyTypeKeys != null) {
-                var keys : Array<string> = featureType.propertyTypeKeys.split(';');
+                var keys = featureType.propertyTypeKeys.split(';');
                 keys.forEach((k) => {
                     if (this.$layerService.propertyTypeData.hasOwnProperty(k))
                         pis.push(this.$layerService.propertyTypeData[k]);
@@ -166,7 +175,7 @@
             });
         }
 
-        public toggleSelection(metaInfoTitle: string) {
+        toggleSelection(metaInfoTitle: string) {
             var idx = this.headers.indexOf(metaInfoTitle);
             // is currently selected
             if (idx > -1) {
@@ -178,7 +187,7 @@
             }
         }
 
-        public isDisabled(): boolean {
+        isDisabled(): boolean {
             if (typeof this.mcaTitle === 'undefined' || this.mcaTitle.length === 0) return true;
             if (this.hasRank && this.rankTitle && this.rankTitle.length === 0) return true;
             if (this.propInfos.length === 0 || !this.propInfos.reduce((p,c) => { return p || c.isSelected; })) return true;
@@ -188,7 +197,7 @@
         /**
          * Create a new MCA criterion
          */
-        public save() {
+        save() {
             var mca             = new Models.Mca();
             mca.title           = this.mcaTitle || 'New MCA criterion';
             mca.label           = 'mca_' + mca.title.replace(' ', '_');
@@ -198,8 +207,10 @@
                 mca.rankFormat  = '{0} / {1}';
             }
             mca.userWeightMax = 5;
-            for (var key in this.dataset.featureTypes) {
-                if (this.dataset.featureTypes[key] === this.selectedFeatureType)
+            var featureTypes = this.dataset.featureTypes;
+            for (var key in featureTypes) {
+                if (!featureTypes.hasOwnProperty(key)) continue;
+                if (featureTypes[key] === this.selectedFeatureType)
                     mca.featureIds = [key];
             }
 
@@ -220,8 +231,9 @@
                 if (mi.category) {
                     var parent: Models.Criterion;
                     for (var i in mca.criteria) {
+                        if (!mca.criteria.hasOwnProperty(i)) continue;
                         var c = mca.criteria[i];
-                        if (c.title != mi.category) continue;
+                        if (c.title !== mi.category) continue;
                         parent = c;
                         break;
                     }
@@ -239,7 +251,7 @@
             this.$modalInstance.close(mca);
         }
 
-        public cancel() {
+        cancel() {
             this.mcaTitle  = '';
             this.hasRank   = false;
             this.rankTitle = '';
