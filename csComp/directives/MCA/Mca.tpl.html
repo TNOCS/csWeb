@@ -60,7 +60,7 @@
                             style="margin-right: 5px;"></voting>
                     <div id="histogram_{{$parent.$index}}_{{$index}}" data-ng-show="vm.showSparkline" style="margin-top: 5px;"></div>
                 </div>
-</div>
+            </div>
         </div>
 
         <!--<a href="" style="display: inline-block; width: 100%; text-transform: uppercase"
@@ -69,6 +69,11 @@
             <a href="" data-ng-click="vm.weightUpdated(vm.mca)" translate="MCA.TOTAL_RESULT"></a>
             <a href="" data-ng-if="vm.selectedCriterion">&gt;&nbsp;{{vm.selectedCriterion.title}}</a>
         </h4>
+        
+        <a href="" data-ng-if="vm.showFeature" class="pull-right" data-ng-click="vm.showAsterChart = !vm.showAsterChart" style="margin-right: 10px">
+            <i class="fa" data-ng-class="{false: \'fa-bar-chart\', true: \'fa-pie-chart\'}[vm.showAsterChart]"></i>
+        </a>
+
         <div style="margin-top: 5px; margin-left: 70px;" id="mcaPieChart"></div>
 
         <div data-ng-if="vm.showFeature">

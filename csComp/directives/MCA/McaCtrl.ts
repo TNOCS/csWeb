@@ -52,9 +52,10 @@
         selectedCriterion: Models.Criterion;
         availableMcas    : Models.Mca[] = [];
 
-        showDialog    = false;
-        expertMode    = false;
-        showSparkline = false;
+        showAsterChart = false;  // When true, show a pie chart, when false, show a bar chart.
+        showDialog     = false;
+        expertMode     = false;
+        showSparkline  = false;
 
         private groupStyle: csComp.Services.GroupStyle;
 
@@ -212,6 +213,7 @@
                 }
             });
             modalInstance.result.then((mca: Models.Mca) => {
+                this.showSparkline = false;
                 this.addMca(mca);
                 this.updateMca();
                 //console.log(JSON.stringify(mca, null, 2));
@@ -337,7 +339,11 @@
         drawChart(criterion?: Models.Criterion) {
             this.showChart = true;
             if (this.showFeature)
-                this.drawAsterPlot(criterion);
+                if (this.showAsterChart)
+                    this.drawAsterPlot(criterion);
+                else {
+                    this.drawHistogram(criterion);
+                }
             else
                 this.drawPieChart(criterion);
 
@@ -389,6 +395,11 @@
                 });
             }
             return parent;
+        }
+
+        private drawHistogram(criterion?: Models.Criterion) {
+            if (!this.mca || !this.selectedFeature) return;
+            
         }
 
         private drawAsterPlot(criterion?: Models.Criterion) {
