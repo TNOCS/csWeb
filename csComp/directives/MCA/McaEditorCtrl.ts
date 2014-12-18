@@ -15,6 +15,10 @@
         category?           : string;  
         scores?             : string;  
         scoringFunctionType?: Models.ScoringFunctionType;
+        /** The data is considered invalid when below this value */
+        minCutoffValue?     : number;
+        /** The data is considered invalid when above this value */
+        maxCutoffValue?     : number;
     }
 
     export class McaEditorCtrl {
@@ -25,8 +29,11 @@
         mcaTitle           : string;
         rankTitle          : string;
         hasRank            : boolean;
-
         scoringFunctions   : Models.ScoringFunction[] = [];
+
+        scaleMax           : number;
+        scaleMin           : number;
+
 
         static $inject = [
             '$scope',
@@ -88,7 +95,7 @@
             });
         }
 
-       loadPropertyTypes() {
+        loadPropertyTypes() {
             console.log('loadPropertyTypes');
         }
 
@@ -175,7 +182,7 @@
             });
         }
 
-        public toggleSelection(metaInfoTitle: string) {
+        toggleSelection(metaInfoTitle: string) {
             var idx = this.headers.indexOf(metaInfoTitle);
             // is currently selected
             if (idx > -1) {
@@ -187,7 +194,7 @@
             }
         }
 
-        public isDisabled(): boolean {
+        isDisabled(): boolean {
             if (typeof this.mcaTitle === 'undefined' || this.mcaTitle.length === 0) return true;
             if (this.hasRank && this.rankTitle && this.rankTitle.length === 0) return true;
             if (this.propInfos.length === 0 || !this.propInfos.reduce((p,c) => { return p || c.isSelected; })) return true;
@@ -197,7 +204,7 @@
         /**
          * Create a new MCA criterion
          */
-        public save() {
+        save() {
             var mca             = new Models.Mca();
             mca.title           = this.mcaTitle || 'New MCA criterion';
             mca.label           = 'mca_' + mca.title.replace(' ', '_');
@@ -251,7 +258,7 @@
             this.$modalInstance.close(mca);
         }
 
-        public cancel() {
+        cancel() {
             this.mcaTitle  = '';
             this.hasRank   = false;
             this.rankTitle = '';

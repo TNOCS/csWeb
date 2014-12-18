@@ -22,7 +22,7 @@
      */
     myModule
         .directive('mca', [
-            '$window', '$compile', '$templateCache',  
+            '$window', '$compile', '$templateCache', 
             function ($window, $compile, $templateCache): ng.IDirective {
                 return {   
                     terminal: true,  // do not compile any other internal directives 
