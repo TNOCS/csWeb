@@ -15,6 +15,7 @@
     * Scoring function creates a PLA of the scoring algorithm.
     */
     export class ScoringFunction {
+        title : string;
         type  : ScoringFunctionType;
         scores: string;
         
@@ -28,6 +29,7 @@
 
         constructor(scoringFunctionType?: ScoringFunctionType) {
             if (typeof scoringFunctionType != 'undefined' && scoringFunctionType != null) this.type = scoringFunctionType;
+            this.title = ScoringFunctionType[scoringFunctionType].toString();
         }
 
 

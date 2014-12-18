@@ -31,6 +31,7 @@
         hasRank            : boolean;
         scoringFunctions   : Models.ScoringFunction[] = [];
 
+        showItem           : number;
         scaleMax           : number;
         scaleMin           : number;
 
@@ -39,6 +40,7 @@
             '$scope',
             '$modalInstance',
             'layerService',
+            '$translate',
             'messageBusService',
             'mca'
         ];
@@ -47,6 +49,7 @@
             private $scope           : IMcaEditorScope,
             private $modalInstance   : any,
             private $layerService    : csComp.Services.LayerService,
+            private $translate       : ng.translate.ITranslateService,
             private messageBusService: csComp.Services.MessageBusService,
             private mca?             : Models.Mca
         ) {
@@ -54,11 +57,21 @@
 
             this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Ascending));
             //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Descending));
-            //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.AscendingSigmoid));
+            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.AscendingSigmoid));
             //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.DescendingSigmoid));
-            //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.GaussianPeak));
+            this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.GaussianPeak));
             //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.GaussianValley));
             //this.scoringFunctions.push(new Models.ScoringFunction(Models.ScoringFunctionType.Manual));
+
+            $translate('MCA.LINEAR').then(translation => {
+                this.scoringFunctions[0].title = translation;
+            });
+            $translate('MCA.SIGMOID').then(translation => {
+                this.scoringFunctions[1].title = translation;
+            });
+            $translate('MCA.GAUSSIAN').then(translation => {
+                this.scoringFunctions[2].title = translation;
+            });
 
             this.loadMapLayers();
 
@@ -265,5 +278,10 @@
             this.headers   = [];
             this.$modalInstance.dismiss('cancel');
         }
+
+        toggleItemDetails(index: number) {
+            this.showItem = this.showItem == index ? -1 : index;
+        }
+
     }
 } 
