@@ -70,11 +70,11 @@
             <a href="" data-ng-if="vm.selectedCriterion">&gt;&nbsp;{{vm.selectedCriterion.title}}</a>
         </h4>
         
-        <a href="" data-ng-if="vm.showFeature" class="pull-right" data-ng-click="vm.showAsterChart = !vm.showAsterChart" style="margin-right: 10px">
-            <i class="fa" data-ng-class="{false: \'fa-bar-chart\', true: \'fa-pie-chart\'}[vm.showAsterChart]"></i>
+        <a href="" data-ng-if="vm.showFeature" class="pull-right" data-ng-click="vm.toggleMcaChartType();" style="margin-right: 10px">
+            <i class="fa" data-ng-class="{true: \'fa-bar-chart\', false: \'fa-pie-chart\'}[vm.showAsterChart]"></i>
         </a>
 
-        <div style="margin-top: 5px; margin-left: 70px;" id="mcaPieChart"></div>
+        <div style="margin-top: 5px; margin-left: auto; margin-right: auto; width: 95%;" id="mcaChart"></div>
 
         <div data-ng-if="vm.showFeature">
             <h4>

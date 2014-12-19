@@ -1,9 +1,8 @@
 ﻿module Mca {
     'use strict';
 
+    // TODO Saving the new properties of the MCA
     // TODO Ignore MCA calculation when too many criteria are out of (cut-off) range or not present. ???
-    // TODO When the weight is negative, redraw the score function (1-score).
-    // TODO Add an option to toggle the Aster plot with a histogram (default = histogram)
     
     // TODO Add MCA properties to tooltip
     
@@ -38,9 +37,12 @@
     declare var String;//: csComp.StringExt.IStringExt;
 
     export class McaCtrl {
+        private static mcaChartId = 'mcaChart';
         private static mcas = 'MCAs';
         private static confirmationMsg1: string;
         private static confirmationMsg2: string;
+
+        features: IFeature[] = [];
 
         selectedFeature: IFeature;
         properties     : FeatureProps.CallOutProperty[];
@@ -181,17 +183,25 @@
             this.$layerService.project.mcas.push(mca);
         }
 
+        toggleMcaChartType() {
+            this.showAsterChart = !this.showAsterChart;
+            this.drawChart(this.mca.criteria[0]);
+        }
+
         toggleSparkline() {
             this.showSparkline = !this.showSparkline;
             if (this.showSparkline) this.drawChart();
         }
 
         weightUpdated(criterion: Models.Criterion) {
+            this.selectedCriterion = criterion;
             this.addMca(this.mca);
             this.updateMca(criterion);
         }
 
         updateMca(criterion?: Models.Criterion) {
+            this.selectedCriterion = criterion;
+            this.features = [];
             this.calculateMca();
             this.drawChart(criterion);
         }
@@ -337,13 +347,14 @@
         }
 
         drawChart(criterion?: Models.Criterion) {
+            this.selectedCriterion = criterion;
             this.showChart = true;
             if (this.showFeature)
                 if (this.showAsterChart)
                     this.drawAsterPlot(criterion);
-                else {
+                else
                     this.drawHistogram(criterion);
-                }
+
             else
                 this.drawPieChart(criterion);
 
@@ -399,7 +410,26 @@
 
         private drawHistogram(criterion?: Models.Criterion) {
             if (!this.mca || !this.selectedFeature) return;
-            
+
+            var currentLevel = this.getParentOfSelectedCriterion(criterion);
+            if (typeof currentLevel === 'undefined' || currentLevel == null) return;
+            var data         : number[] = [];
+            var options      : csComp.Helpers.IHistogramOptions = {
+                id           : McaCtrl.mcaChartId,
+                numberOfBins : 10,
+                width        : 240,
+                height       : 100,
+                selectedValue: this.selectedFeature.properties[this.mca.label]
+            };
+            this.features.forEach((feature: Feature) => {
+                if (feature.properties.hasOwnProperty(this.mca.label)) {
+                    // The property is available. I use the '+' to convert the string value to a number. 
+                    var prop = feature.properties[this.mca.label];
+                    if ($.isNumeric(prop)) data.push(prop);
+                }
+            });
+
+            csComp.Helpers.Plot.drawHistogram(data, options);
         }
 
         private drawAsterPlot(criterion?: Models.Criterion) {
@@ -418,7 +448,7 @@
                 pieData.score  = (c.weight > 0 ? rawScore : 1-rawScore) * 100;
                 data.push(pieData);
             });
-            csComp.Helpers.Plot.drawAsterPlot(100, data, 'mcaPieChart');
+            csComp.Helpers.Plot.drawAsterPlot(100, data, McaCtrl.mcaChartId);
         }
 
         private drawPieChart(criterion?: Models.Criterion) {
@@ -435,7 +465,7 @@
                 pieData.color  = c.color;
                 data.push(pieData);
             });
-            csComp.Helpers.Plot.drawPie(100, data, 'mcaPieChart');
+            csComp.Helpers.Plot.drawPie(100, data, McaCtrl.mcaChartId);
         }
 
         /** Based on the currently loaded features, which MCA can we use */
@@ -461,33 +491,35 @@
             var mca = this.mca;
             mca.featureIds.forEach((featureId: string) => {
                 if (!(this.$layerService.featureTypes.hasOwnProperty(featureId))) return;
-                this.addPropertyInfo(featureId, mca);
-                var features: IFeature[] = [];
                 this.$layerService.project.features.forEach((feature) => {
-                    features.push(feature);
+                    if (feature.featureTypeName != null && feature.featureTypeName === featureId)
+                        this.features.push(feature);
                 });
-                mca.updatePla(features);
+                if (this.features.length == 0) return;
+                this.addPropertyInfo(featureId, mca);
+                mca.updatePla(this.features);
                 mca.update();
                 var tempScores: { score: number; index: number; }[] = [];
                 var index = 0;
-                this.$layerService.project.features.forEach((feature) => {
+                this.features.forEach((feature) => {
                     var score = mca.getScore(feature);
                     if (mca.rankTitle) {
                         var tempItem = { score: score, index: index++ };
                         tempScores.push(tempItem);
                     }
-                    feature.properties[mca.label] = <any>(score * 100);
+                    feature.properties[mca.label] = score * 100;
                     this.$layerService.updateFeature(feature);
                 });
                 if (mca.rankTitle) {
                     // Add rank information
                     tempScores.sort((a, b) => { return b.score - a.score; });
-                    var length = this.$layerService.project.features.length;
+                    var length = this.features.length;
                     var scaleRange = mca.scaleMinValue ? Math.abs(mca.scaleMaxValue - mca.scaleMinValue) + 1 : length;
+                    var scaleFactor = Math.ceil(length / scaleRange);
                     var rankFunction = mca.scaleMinValue
                         ? mca.scaleMaxValue > mca.scaleMinValue
-                            ? (position: number) => { return mca.scaleMaxValue - Math.round(position / scaleRange); }
-                            : (position: number) => { return mca.scaleMinValue + Math.round(position / scaleRange); }
+                            ? (position: number) => { return mca.scaleMaxValue - Math.round(position / scaleFactor); }
+                            : (position: number) => { return mca.scaleMinValue + Math.round(position / scaleFactor); }
                         : (position: number) => { return position};
                     var prevScore = -1;
                     var rank: number = 1;
@@ -497,7 +529,7 @@
                         if (item.score !== prevScore)
                             rank = i + 1;
                         prevScore = item.score;
-                        this.$layerService.project.features[item.index].properties[mca.label + '#'] = rankFunction(rank) + ',' + scaleRange;
+                        this.features[item.index].properties[mca.label + '#'] = rankFunction(rank) + ',' + scaleRange;
                     }
                 }
             });

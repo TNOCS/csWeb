@@ -11,12 +11,12 @@ module csComp.Helpers {
     }
 
     export interface IHistogramOptions {
-        id?          : string;
-        numberOfBins?: number;
-        width?       : number;
-        height?      : number;
-        xLabel?      : string;
-        //yLabel?      : string;
+        id?            : string;
+        numberOfBins?  : number;
+        width?         : number;
+        height?        : number;
+        xLabel?        : string;
+        selectedValue? : number;
     }
     
     export interface IMcaPlotOptions extends IHistogramOptions {
@@ -34,20 +34,23 @@ module csComp.Helpers {
          * Draw a histogram, and, if xy is specified, a line plot of x versus y (e.g. a scoring function).
          */
         static drawHistogram(values: number[], options?: IHistogramOptions) {
-            var id           = (options != null && options.hasOwnProperty("id"))           ? options.id           : "myHistogram";
-            var numberOfBins = (options != null && options.hasOwnProperty("numberOfBins")) ? options.numberOfBins : 10;
-            var width        = (options != null && options.hasOwnProperty("width"))        ? options.width        : 200;
-            var height       = (options != null && options.hasOwnProperty("height"))       ? options.height       : 150;
-            var xLabel       = (options != null && options.hasOwnProperty("xLabel"))       ? options.xLabel       : "";
-            //var yLabel       = (options != null && options.hasOwnProperty('yLabel'))       ? options.yLabel       : '#';
+            var id             = (options != null && options.hasOwnProperty("id"))            ? options.id            : "myHistogram";
+            var numberOfBins   = (options != null && options.hasOwnProperty("numberOfBins"))  ? options.numberOfBins  : 10;
+            var width          = (options != null && options.hasOwnProperty("width"))         ? options.width         : 200;
+            var height         = (options != null && options.hasOwnProperty("height"))        ? options.height        : 150;
+            var xLabel         = (options != null && options.hasOwnProperty("xLabel"))        ? options.xLabel        : "";
+            var selectedValue  = (options != null && options.hasOwnProperty("selectedValue")) ? options.selectedValue : null;
+            //var yLabel       = (options != null && options.hasOwnProperty('yLabel'))        ? options.yLabel        : '#';
 
             var margin = { top: 0, right: 6, bottom: 24, left: 6 };
             width     -= margin.left + margin.right,
             height    -= margin.top + margin.bottom;
 
-            var svgId = id + "_histogram";
+            var svgId = 'the_SVG_ID';
 
             Plot.clearSvg(svgId);
+
+            if (values.length < numberOfBins) return;
 
             // A formatter for counts.
             var formatCount = d3.format(",.0f");
@@ -96,13 +99,18 @@ module csComp.Helpers {
                 .attr("id", svgId)
                 .attr("width" , width  + margin.left + margin.right)
                 .attr("height", height + margin.top  + margin.bottom)
+                .attr("style", "display: block; margin: 0 auto;")
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
             var bar = svg.selectAll(".bar")
                 .data(data)
                 .enter().append("g")
-                .attr("class", "bar")
+                .attr("class", (d, i) => {
+                    return selectedValue != null && (d.x < selectedValue && selectedValue < d.x + data[i].dx)
+                        ? "bar highlight"
+                        : "bar";
+                })
                 .attr("transform", d => "translate(" + x(d.x) + "," + y(d.y) + ")");
 
             bar.append("rect")
@@ -243,6 +251,7 @@ module csComp.Helpers {
                 .attr("id", svgId)
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
+                .attr("style", "display: block; margin: 0 auto;")
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -360,6 +369,7 @@ module csComp.Helpers {
                 .attr("id", svgId)
                 .attr("width", width)
                 .attr("height", height)
+                .attr("style", "display: block; margin: 0 auto;")
                 .append("g")
                 .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
@@ -423,6 +433,7 @@ module csComp.Helpers {
                 .attr("id", svgId)
                 .attr("width", width)
                 .attr("height", height)
+                .attr("style", "display: block; margin: 0 auto;")
                 .append("g")
                 .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
@@ -471,7 +482,7 @@ module csComp.Helpers {
                 .text(Math.round(totalScore / totalWeight));
         }
 
-        public static clearSvg(svgId: string) {
+        private static clearSvg(svgId: string) {
             var svgElement = d3.select('#' + svgId);
             if (svgElement) svgElement.remove();
         }
