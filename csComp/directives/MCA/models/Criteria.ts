@@ -110,14 +110,19 @@
         y                                                 : number[] = [];
 
         deserialize(input: Criterion): Criterion {
-            this.title       = input.title;
-            this.description = input.description;
-            this.label       = input.label;
-            this.color       = input.color;
-            this.userWeight  = input.userWeight;
-            this.weight      = input.weight;
-            this.isPlaScaled = input.isPlaScaled;
-            this.scores      = input.scores;
+            this.title          = input.title;
+            this.description    = input.description;
+            this.label          = input.label;
+            this.color          = input.color;
+            this.userWeight     = input.userWeight;
+            this.weight         = input.weight;
+            this.isPlaScaled    = input.isPlaScaled;
+            this.scores         = input.scores;
+            this.minCutoffValue = input.minCutoffValue;
+            this.maxCutoffValue = input.maxCutoffValue;
+            this.minValue       = input.minValue;
+            this.maxValue       = input.maxValue;
+
             input.criteria.forEach((c) => {
                 this.criteria.push(new Criterion().deserialize(c));
             });
@@ -268,11 +273,15 @@
         /** Optionally, stringFormat for the ranked result */
         rankFormat     : string;
         /** Maximum number of star ratings to use to set the weight */
-        userWeightMax  : number = 5;
+        userWeightMax = 5;
         /** Applicable feature ids as a string[]. */
         featureIds     : string[] = [];
         scaleMaxValue  : number;
         scaleMinValue  : number;
+
+        get rankLabel() {
+            return this.label + '#';
+        }
 
         constructor() {
             super();
@@ -288,6 +297,12 @@
             this.rankFormat      = input.rankFormat;
             this.userWeightMax   = input.userWeightMax;
             this.featureIds      = input.featureIds;
+            this.minCutoffValue  = input.minCutoffValue;
+            this.maxCutoffValue  = input.maxCutoffValue;
+            this.minValue        = input.minValue;
+            this.maxValue        = input.maxValue;
+            this.scaleMinValue   = input.scaleMinValue;
+            this.scaleMaxValue   = input.scaleMaxValue;
             super.deserialize(input);
             return this;
         }

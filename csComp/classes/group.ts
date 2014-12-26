@@ -75,44 +75,44 @@
 
         constructor($translate: ng.translate.ITranslateService) {
 
-            this.availableAspects = ["strokeColor", "fillColor", "strokeWidth"];
+            this.availableAspects = ['strokeColor', 'fillColor', 'strokeWidth'];
             this.colorScales = {};
 
             $translate('WHITE_RED').then((translation) => {
-                this.colorScales[translation] = ["white", "red"];
+                this.colorScales[translation] = ['white', 'red'];
             });
             $translate('RED_WHITE').then((translation) => {
-                this.colorScales[translation] = ["red", "white"];
+                this.colorScales[translation] = ['red', 'white'];
             });
             $translate('GREEN_RED').then((translation) => {
-                this.colorScales[translation] = ["green", "red"];
+                this.colorScales[translation] = ['green', 'red'];
             });
             $translate('RED_GREEN').then((translation) => {
-                this.colorScales[translation] = ["red", "green"];
+                this.colorScales[translation] = ['red', 'green'];
             });
             $translate('BLUE_RED').then((translation) => {
-                this.colorScales[translation] = ["#6BABD9", "#D08E7B"];
+                this.colorScales[translation] = ['#F04030', '#3040F0'];
             });
             $translate('RED_BLUE').then((translation) => {
-                this.colorScales[translation] = ["#D08E7B", "#6BABD9"];
+                this.colorScales[translation] = ['#3040F0', '#F04030'];
             });
             $translate('WHITE_BLUE').then((translation) => {
-                this.colorScales[translation] = ["white", "blue"];
+                this.colorScales[translation] = ['white', 'blue'];
             });
             $translate('BLUE_WHITE').then((translation) => {
-                this.colorScales[translation] = ["blue", "white"];
+                this.colorScales[translation] = ['blue', 'white'];
             });
             $translate('WHITE_GREEN').then((translation) => {
-                this.colorScales[translation] = ["white", "green"];
+                this.colorScales[translation] = ['white', 'green'];
             });
             $translate('GREEN_WHITE').then((translation) => {
-                this.colorScales[translation] = ["green", "white"];
+                this.colorScales[translation] = ['green', 'white'];
             });
             $translate('WHITE_ORANGE').then((translation) => {
-                this.colorScales[translation] = ["white", "orange"];
+                this.colorScales[translation] = ['white', 'orange'];
             });
             $translate('ORANGE_WHITE').then((translation) => {
-                this.colorScales[translation] = ["orange", "white"];
+                this.colorScales[translation] = ['orange', 'white'];
             });
         }
     }

@@ -7,12 +7,11 @@
     }
 
     export class Event implements IEvent {
-        public id   : string;
-        public title: string;
-        public color: string;
-        public start: number;
-
-        public startDate = (): Date => { return new Date(this.start); } 
+        id   : string;
+        title: string;
+        color: string;
+        start: number;
+        startDate = (): Date => { return new Date(this.start); } 
     }
 
     export interface IFeature {
@@ -20,7 +19,7 @@
         layerId         : string;
         type?           : string;
         geometry        : IGeoJsonGeometry;
-        properties      : IStringToAny;
+        properties?     : IStringToAny;
         isSelected?     : boolean;
         htmlStyle?      : string;
         featureTypeName?: string;

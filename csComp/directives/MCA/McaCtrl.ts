@@ -495,7 +495,7 @@
                     if (feature.featureTypeName != null && feature.featureTypeName === featureId)
                         this.features.push(feature);
                 });
-                if (this.features.length == 0) return;
+                if (this.features.length === 0) return;
                 this.addPropertyInfo(featureId, mca);
                 mca.updatePla(this.features);
                 mca.update();
@@ -556,25 +556,31 @@
 
         private addPropertyInfo(featureId: string, mca: Models.Mca) {
             var featureType = this.$layerService.featureTypes[featureId];
-            var propertyTypes = csComp.Helpers.getPropertyTypes(featureType, this.$layerService.propertyTypeData);
-            if (propertyTypes.reduce((prevValue, curItem) => { return prevValue || (curItem.label === mca.label); }, false))
-                return;
-
-            var pt = McaCtrl.createPropertyType(mca);
-            if (typeof featureType.propertyTypeData === 'undefined' || featureType.propertyTypeData == null) featureType.propertyTypeData = [];
-            featureType.propertyTypeData.push(pt);
-
+            var propertyTypes = featureType.propertyTypeData;
+            //var propertyTypes = csComp.Helpers.getPropertyTypes(featureType, this.$layerService.propertyTypeData);
+            if (propertyTypes.reduce((prevValue, curItem) => { return prevValue || (curItem.label === mca.label); }, false)) {
+                var pt = McaCtrl.createPropertyType(mca);
+                if (typeof featureType.propertyTypeData === 'undefined' || featureType.propertyTypeData == null) featureType.propertyTypeData = [];
+                featureType.propertyTypeData.push(pt);
+            }
             if (!mca.rankTitle) return;
-            pt = McaCtrl.createRankPropertyType(mca);
-            featureType.propertyTypeData.push(pt);
+            if (propertyTypes.reduce((prevValue, curItem) => { return prevValue || (curItem.label === mca.rankLabel); }, false)) {
+                pt = McaCtrl.createRankPropertyType(mca);
+                featureType.propertyTypeData.push(pt);
+            }
         }
 
-        public setStyle(item: FeatureProps.CallOutProperty) {
-            if (this.groupStyle)
+        setStyle(item: FeatureProps.CallOutProperty) {
+            // If groupStyle has been set, we have called it before.
+            // However, make sure that not another filter has set the fillColor too, overwriting our label.
+            if (this.groupStyle
+                && this.groupStyle.group != null
+                && this.groupStyle.group.styles != null
+                && this.groupStyle.group.styles.filter((s) => { return s.visualAspect === 'fillColor'; })[0].property === this.mca.label)
                 this.$layerService.updateStyle(this.groupStyle);
             else {
                 this.groupStyle = this.$layerService.setStyle(item, false);
-                this.groupStyle.colors = ["#D08E7B", "#6BABD9"];
+                this.groupStyle.colors = ['#F04030', '#3040F0'];
                 this.$layerService.updateStyle(this.groupStyle);
             }
         }
@@ -597,7 +603,7 @@
         private static createRankPropertyType(mca: Models.Mca): IPropertyType {
             var mi : IPropertyType = {
                 title            : mca.rankTitle,
-                label            : mca.label + '#',
+                label            : mca.rankLabel,
                 type             : 'rank',
                 description      : mca.rankDescription,
                 stringFormat     : mca.rankFormat,

@@ -117,7 +117,7 @@
                         // If oneLayerActive: close other group layer
                         if (layer.group.oneLayerActive) {
                             layer.group.layers.forEach((l: ProjectLayer) => {
-                                if (l != layer && l.enabled) {
+                                if (l !== layer && l.enabled) {
                                     disableLayers.push(l);
                                 }
                             });
@@ -132,6 +132,7 @@
                                 else {
                                     if (dta.featureTypes)
                                         for (var featureTypeName in dta.featureTypes) {
+                                        if (!dta.featureTypes.hasOwnProperty(featureTypeName)) continue;
                                             var featureType: IFeatureType = dta.featureTypes[featureTypeName];
                                             featureTypeName = layer.id + '_' + featureTypeName;
                                             this.featureTypes[featureTypeName] = featureType;
@@ -150,7 +151,7 @@
                                     layer.events = data.events;
                                     var devents = [];
                                     layer.events.forEach((e: Event) => {
-                                        if (!e.id) e.id = csComp.Helpers.getGuid();
+                                        if (!e.id) e.id = Helpers.getGuid();
                                         devents.push({
                                             'start': new Date(e.start),
                                             'content': e.title
@@ -186,7 +187,7 @@
                                             layer.group.markers[feature.id] = lay;
                                             lay.on({
                                                 mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout : (s) => this.hideFeatureTooltip(s),
+                                                mouseout : (s) => this.hideFeatureTooltip(s)
                                             });
                                         }
                                     });
@@ -228,7 +229,8 @@
                             this.updateFilters();
                         });
                     },
-                    (callback) => {
+                    // Callback
+                    () => {
                         disableLayers.forEach((l) => {
                             this.removeLayer(l);
                             l.enabled = false;
@@ -269,17 +271,17 @@
                     var valueLength = value.toString().length;
                     if (f.meta != null) {
                         value = Helpers.convertPropertyInfo(f.meta, value);
-                        if (f.meta.type !== "bbcode") valueLength = value.toString().length;
+                        if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
                     }
                     rowLength = Math.max(rowLength, valueLength + f.title.length);
-                    content += "<tr><td><div class='smallFilterIcon'></td><td>" + f.title + "</td><td>" + value + "</td></tr>";
+                    content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
                 });
             }
 
             // add style values, only in case they haven't been added already as filter
             if (group.styles != null && group.styles.length > 0) {
                 group.styles.forEach((s: GroupStyle) => {
-                    if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property == s.property; }).length == 0 && feature.properties.hasOwnProperty(s.property)) {
+                    if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property === s.property; }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
                         var value = feature.properties[s.property];
                         var valueLength = value.toString().length;
                         if (s.meta != null) {
@@ -351,7 +353,7 @@
             //console.log('update style ' + style.title);
 
             var g = style.group;
-            g.styles = g.styles.filter((s: GroupStyle) => s.id != style.id);
+            g.styles = g.styles.filter((s: GroupStyle) => s.id !== style.id);
 
             this.updateGroupFeatures(g);
         }
@@ -452,14 +454,12 @@
          */
         initFeature(feature: IFeature, layer: ProjectLayer): IFeatureType {
             //if (!feature.isInitialized) 
-            {
-                feature.isInitialized = true;
-                if (feature.id == null) feature.id = Helpers.getGuid();
-                feature.layerId = layer.id;
-                this.project.features.push(feature); // list of features
-                layer.group.ndx.add([feature]);
-                feature.fType = this.getFeatureType(feature);
-            }
+            feature.isInitialized = true;
+            if (feature.id == null) feature.id = Helpers.getGuid();
+            feature.layerId = layer.id;
+            this.project.features.push(feature);
+            layer.group.ndx.add([feature]);
+            feature.fType = this.getFeatureType(feature);
             return feature.type;
         }
 
@@ -497,7 +497,7 @@
 
                 layer.group.styles.forEach((gs: GroupStyle) => {
                     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
-                        var v = <any>feature.properties[gs.property];
+                        var v = feature.properties[gs.property];
 
                         switch (gs.visualAspect) {
                         case 'fillColor':
@@ -554,7 +554,7 @@
          * add a feature
          */
         addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {            
-            var type = this.initFeature(feature,layer);
+            this.initFeature(feature,layer);
             //var style = type.style;
             var marker;
             switch (feature.geometry.type) {
@@ -568,7 +568,7 @@
                 break;
                 default:
                     var polyoptions = {                        
-                        fillColor: 'Green',                        
+                        fillColor: 'Green'                        
                     };
                     marker = L.multiPolygon(latlng, polyoptions);
                 break;
@@ -584,7 +584,7 @@
             this.updateFeature(feature);
 
             // deselect last feature and also update
-            if (this.lastSelectedFeature != null && this.lastSelectedFeature!=feature) {
+            if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature) {
                 this.lastSelectedFeature.isSelected = false;
                 this.updateFeature(this.lastSelectedFeature);
             }
@@ -605,7 +605,7 @@
          */
         private findFilter(group: ProjectGroup, property: string): GroupFilter {
             if (group.filters == null) group.filters = [];
-            var r = group.filters.filter((f: GroupFilter) => f.property == property);
+            var r = group.filters.filter((f: GroupFilter) => f.property === property);
             if (r.length > 0) return r[0];
             return null;
         }
@@ -617,13 +617,13 @@
             var r: ProjectLayer;
             this.project.groups.forEach(g => {
                 g.layers.forEach(l => {
-                    if (l.id == id) r = l;
+                    if (l.id === id) r = l;
                 });
             });
             return r;
         }
 
-        public setStyle(property: any, openStyleTab = true) {            
+        setStyle(property: any, openStyleTab = true) {            
             var f: IFeature = property.feature;
             if (f != null) {
                 this.noStyles     = false;
@@ -649,7 +649,7 @@
                     gs.colors = ['white', 'orange'];
                 }
                 this.saveStyle(layer.group, gs);
-                if (f.geometry.type.toLowerCase() == 'point') {
+                if (f.geometry.type.toLowerCase() === 'point') {
                     this.project.features.forEach((fe: IFeature) => {
                         if (layer.group.markers.hasOwnProperty(fe.id)) {
                             this.updateFeatureIcon(fe, layer);
@@ -663,11 +663,12 @@
                     (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
                 return gs;
             }
+            return null;
         }
 
         private saveStyle(group: ProjectGroup, style: GroupStyle) {
             // check if there are other styles that affect the same visual aspect, remove them
-            var oldStyles = group.styles.filter((s: GroupStyle) => s.visualAspect == style.visualAspect);
+            var oldStyles = group.styles.filter((s: GroupStyle) => s.visualAspect === style.visualAspect);
 
             if (oldStyles.length > 0) {
                 var pos = group.styles.indexOf(oldStyles[0]);
@@ -689,7 +690,7 @@
                 // add filter
             } else {
                 var pos = group.filters.indexOf(filter);
-                if (pos != -1) group.filters.slice(pos, 1);
+                if (pos !== -1) group.filters.slice(pos, 1);
 
             }
             this.updateFilters();
@@ -701,7 +702,7 @@
          */
         setFilter(property: FeatureProps.CallOutProperty) {
             var prop = property.property;
-            var f = <IFeature>property.feature;
+            var f = property.feature;
             if (f != null) {
                 var layer = this.findLayer(f.layerId);
                 if (layer != null) {
@@ -731,19 +732,19 @@
                         gf.title = property.key;
                         gf.rangex = [0, 1];
 
-                        if (gf.filterType == 'text') {
-                            var old = layer.group.filters.filter((f: GroupFilter) => f.filterType == 'text');
+                        if (gf.filterType === 'text') {
+                            var old = layer.group.filters.filter((f: GroupFilter) => f.filterType === 'text');
                             old.forEach((groupFilter: GroupFilter) => {
                                 groupFilter.dimension.filterAll();
                                 groupFilter.dimension.dispose();
                             });
-                            layer.group.filters = layer.group.filters.filter((f: GroupFilter) => f.filterType != 'text');
+                            layer.group.filters = layer.group.filters.filter((groupFilter: GroupFilter) => groupFilter.filterType !== 'text');
                         }
                         // add filter
                         layer.group.filters.push(gf);
                     } else {
                         var pos = layer.group.filters.indexOf(filter);
-                        if (pos != -1)
+                        if (pos !== -1)
                             layer.group.filters.slice(pos, 1);
                     }
                 }
@@ -779,10 +780,11 @@
             type.propertyTypeData = [];
 
             for (var key in feature.properties) {
-                var propertyType: IPropertyType   = [];
-                propertyType.label            = key;
-                propertyType.title            = key.replace('_', ' ');
-                propertyType.isSearchable     = true;
+                if (!feature.properties.hasOwnProperty(key)) continue;
+                var propertyType: IPropertyType = [];
+                propertyType.label = key;
+                propertyType.title = key.replace('_', ' ');
+                propertyType.isSearchable = true;
                 propertyType.visibleInCallOut = true;
                 propertyType.canEdit = false;
                 var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
@@ -828,9 +830,7 @@
 
             // redraw charts            
             this.updateFilters();
-
         }
-       
 
         /** 
          * deactivate layer
@@ -839,7 +839,7 @@
             var m: any;
             var g = layer.group;
 
-            if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId == layer.id) {
+            if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
                 this.$messageBusService.publish('sidebar', 'hide');
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
@@ -849,7 +849,7 @@
             if (g.clustering) {
                 m = g.cluster;
                 this.project.features.forEach((feature: IFeature) => {
-                    if (feature.layerId == layer.id) {
+                    if (feature.layerId === layer.id) {
                         try {
                             m.removeLayer(layer.group.markers[feature.id]);
                         delete layer.group.markers[feature.id];
@@ -859,13 +859,12 @@
                             
                         }
                     }
-                });
-                
+                });                
             } else {
                 this.map.map.removeLayer(layer.mapLayer);
             }
             
-            this.project.features = this.project.features.filter((k: IFeature) => k.layerId != layer.id);
+            this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
             var layerName = layer.id + '_';
             var featureTypes = this.featureTypes;
             for (var poiTypeName in featureTypes) {
@@ -874,7 +873,7 @@
             }
 
             // check if there are no more active layers in group and remove filters/styles
-            if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length == 0) {
+            if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0) {
                 g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
                 g.filters = [];
                 g.styles = [];                
@@ -921,7 +920,7 @@
                 });
                 //$scope.projects = projects.projects;
                 if (solution.projects.length > 0) {
-                    var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title == initialProject; })[0];
+                    var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title === initialProject; })[0];
                     if (p != null) {
                         this.openProject(p.url, layers);
                     } else {
@@ -940,22 +939,17 @@
          */
         openProject(url: string, layers?: string): void {
             //console.log('layers (openProject): ' + JSON.stringify(layers));
-            var layerIds: Array<string>;
-            layerIds = [];
+            var layerIds: Array<string> = [];
             if (layers) {
                 layers.split(';').forEach((layerId) => { layerIds.push(layerId.toLowerCase()); });
             }
             //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
-
 
             this.layerGroup.clearLayers();
             this.featureTypes = {};
 
             $.getJSON(url, (data: Project) => {
                 this.project = data;
-
-                
-                
 
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
@@ -964,24 +958,26 @@
                 if (this.project.viewBounds) {
                     this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
                 }
-
-                if (this.project.featureTypes) {
-                    for (var typeName in this.project.featureTypes) {
-                        var featureType: IFeatureType = this.project.featureTypes[typeName];
+                var featureTypes = this.project.featureTypes;
+                if (featureTypes) {
+                    for (var typeName in featureTypes) {
+                        if (!featureTypes.hasOwnProperty(typeName)) continue;
+                        var featureType: IFeatureType = featureTypes[typeName];
                         this.featureTypes[typeName] = featureType;
                     }
                 }
-
-                if (this.project.propertyTypeData) {
-                    for (var key in this.project.propertyTypeData) {
-                        var propertyType: IPropertyType = this.project.propertyTypeData[key];
+                var propertyTypeData = this.project.propertyTypeData;
+                if (propertyTypeData) {
+                    for (var key in propertyTypeData) {
+                        if (!propertyTypeData.hasOwnProperty(key)) continue;
+                        var propertyType: IPropertyType = propertyTypeData[key];
                         this.propertyTypeData[key] = propertyType;
                     }
                 }
 
                 if (!this.project.dashboards) {
                     this.project.dashboards = {};
-                    var d = new csComp.Services.Dashboard('1', this.project.title);
+                    var d = new Services.Dashboard('1', this.project.title);
                     d.widgets = [];
                     this.project.dashboards[this.project.title] = d;
                 }
@@ -1062,10 +1058,10 @@
             group.layers.forEach((l: ProjectLayer) => {
                 if (l.enabled) {
                     this.project.features.forEach((f: IFeature) => {
-                        if (f.layerId == l.id && f.properties.hasOwnProperty(property)) {
+                        if (f.layerId === l.id && f.properties.hasOwnProperty(property)) {
                             var s = f.properties[property];
                             var v = Number(s);
-                            if (v != NaN) {
+                            if (v !== NaN) {
                                 r.count += 1;
                                 sum = sum + v;
                                 sumsq = sumsq + v * v;
@@ -1075,7 +1071,6 @@
                         }
                     });
                 }
-
             });
             r.mean = sum / r.count;
             r.varience = sumsq / r.count - r.mean * r.mean;
@@ -1084,8 +1079,8 @@
             r.sdMin = r.mean - 3 * r.sd;
             if (r.min > r.sdMin) r.sdMin = r.min;
             if (r.max < r.sdMax) r.sdMax = r.max;
-            if (r.sdMin == NaN) r.sdMin = r.min;
-            if (r.sdMax == NaN) r.sdMax = r.max;
+            if (r.sdMin === NaN) r.sdMin = r.min;
+            if (r.sdMax === NaN) r.sdMax = r.max;
             if (this.propertyTypeData.hasOwnProperty(property)) {
                 var mid = this.propertyTypeData[property];
                 if (mid.maxValue != null) r.sdMax = mid.maxValue;
@@ -1123,7 +1118,7 @@
 
         private updateTextFilter(group: ProjectGroup, dcDim: any, value: string) {
             
-            if (value == null || value == '') {
+            if (value == null || value === '') {
                 dcDim.filterAll();
             } else {
                 dcDim.filterFunction((d: string) => {
@@ -1147,9 +1142,7 @@
          */
         private addTextFilter(group: ProjectGroup, filter: GroupFilter) {            
             filter.id = Helpers.getGuid();
-            var divid = 'filter_' + filter.id;
-
-            
+            //var divid = 'filter_' + filter.id;            
             var dcDim = group.ndx.dimension(d => {
                 if (d.properties.hasOwnProperty(filter.property)) {
                     return d.properties[filter.property];                    
@@ -1177,7 +1170,7 @@
                 filter.dimension.filterAll();
                 filter.dimension.dispose();
                 filter.dimension = null;
-                if (pos != -1) group.filters = group.filters.slice(pos - 1, pos);
+                if (pos !== -1) group.filters = group.filters.slice(pos - 1, pos);
                 dc.filterAll();
                 
                 this.updateFilters();
@@ -1189,8 +1182,8 @@
             var filterFrom = $('#fsfrom_' + filter.id);
             var filterTo = $('#fsto_' + filter.id); 
             var extent = (<any>chart).brush().extent();
-            if (extent !=null && extent.length == 2) {
-                if (extent[0] != extent[1]) {
+            if (extent !=null && extent.length === 2) {
+                if (extent[0] !== extent[1]) {
                     console.log(extent);
                     //if (extent.length == 2) {
                     filterFrom.val(extent[0]);
@@ -1205,15 +1198,15 @@
         /***
          * Add bar chart filter for filter number values
          */
-        private addBarFilter(group : ProjectGroup,filter: GroupFilter) {
+        private addBarFilter(group: ProjectGroup, filter: GroupFilter) {
             filter.id = Helpers.getGuid();
             var info = this.calculatePropertyInfo(group, filter.property);
-            
+
             var divid = 'filter_' + filter.id;
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
             $('<h4>' + filter.title + '</h4><div id=\'' + divid + '\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div><a class=\'btn\' id=\'remove' + filter.id + '\'>remove</a>').appendTo('#filterChart');
-            var filterFrom = $('#fsfrom_' + filter.id); 
+            var filterFrom = $('#fsfrom_' + filter.id);
             var filterTo = $('#fsto_' + filter.id);
             var filterRange = $('#fdrange_' + filter.id);
             $('#remove' + filter.id).on('click', () => {
@@ -1221,18 +1214,19 @@
                 if (pos !== -1) group.filters.splice(pos, 1);
                 filter.dimension.dispose();
                 this.updateFilters();
-                
+
                 this.resetMapFilter(group);
             });
 
             var dcChart = <any>dc.barChart('#' + divid);
 
             var nBins = 20;
-            
+
             var binWidth = (info.sdMax - info.sdMin) / nBins;
 
             var dcDim = group.ndx.dimension(d => {
-                if (d.properties.hasOwnProperty(filter.property)) {
+                if (!d.properties.hasOwnProperty(filter.property)) return null;
+                else {
                     if (d.properties[filter.property] != null) {
                         var a = parseInt(d.properties[filter.property]);
                         if (a >= info.sdMin && a <= info.sdMax) {
@@ -1241,49 +1235,50 @@
                             return null;
                         }
                     }
+                    return null;
                     //return a;
-                } else return null;
+                }
             });
             filter.dimension = dcDim;
             var dcGroup = dcDim.group();
-            
-            var scale = dcChart.width(275)
-                    .height(90)
-                    .dimension(dcDim)
-                    .group(dcGroup)
-                    .transitionDuration(100)
-                .centerBar(true)                
-                    .gap(5) //d3.scale.quantize().domain([0, 10]).range(d3.range(1, 4));                
-                    .elasticY(true)                
-                    .x(d3.scale.linear().domain([info.sdMin, info.sdMax]).range([-1, nBins + 1])) 
-                .filterPrinter(function (filters) {
+
+            //var scale =
+            dcChart.width(275)
+                .height(90)
+                .dimension(dcDim)
+                .group(dcGroup)
+                .transitionDuration(100)
+                .centerBar(true)
+                .gap(5) //d3.scale.quantize().domain([0, 10]).range(d3.range(1, 4));                
+                .elasticY(true)
+                .x(d3.scale.linear().domain([info.sdMin, info.sdMax]).range([-1, nBins + 1]))
+                .filterPrinter(filters => {
                     var s = '';
                     if (filters.length > 0) {
-                        var filter = filters[0];
-                        
-
-                        filterFrom.text(filter[0].toFixed(2));
-                        filterTo.text(filter[1].toFixed(2));
-                        s += filter[0];
-                    } 
+                        var localFilter = filters[0];
+                        filterFrom.text(localFilter[0].toFixed(2));
+                        filterTo.text(localFilter[1].toFixed(2));
+                        s += localFilter[0];
+                    }
 
                     return s;
-                })  
-                    .on('filtered', (e) => {
-                                      var fil = e.hasFilter();
-                                      if (fil) {
-                                          filterRange.show();                                          
-                                      } else { filterRange.hide(); }
-                        dc.events.trigger(() => {
-                            group.filterResult = dcDim.top(Infinity);
-                            this.updateFilterGroupCount(group);
-                            this.updateMapFilter(group);
-                        });
-                                      
+                })
+                .on('filtered', (e) => {
+                    var fil = e.hasFilter();
+                    if (fil) {
+                        filterRange.show();
+                    } else {
+                        filterRange.hide();
+                    }
+                    dc.events.trigger(() => {
+                        group.filterResult = dcDim.top(Infinity);
+                        this.updateFilterGroupCount(group);
+                        this.updateMapFilter(group);
                     });
+                });
 
-            (<any>dcChart).xUnits(() => { return 13; });
-            
+            dcChart.xUnits(() => { return 13; });
+
             filterFrom.on('change', () => {
                 if ($.isNumeric(filterFrom.val())) {
                     var min = parseInt(filterFrom.val());
@@ -1298,25 +1293,19 @@
                     }
                 }
             });
-                filterTo.on('change', () => {
-                    if ($.isNumeric(filterTo.val())) {
-                        var max = parseInt(filterTo.val());
-                        var filters = dcChart.filters();
-                        if (filters.length > 0) {
-                            filters[0][1] = max;
-                            dcChart.filter(filters[0]);
-                            dcDim.filter(filters[0]);
-                            dc.renderAll();
-                        }
-                        //dc.redrawAll();
-                     
+            filterTo.on('change', () => {
+                if ($.isNumeric(filterTo.val())) {
+                    var max = parseInt(filterTo.val());
+                    var filters = dcChart.filters();
+                    if (filters.length > 0) {
+                        filters[0][1] = max;
+                        dcChart.filter(filters[0]);
+                        dcDim.filter(filters[0]);
+                        dc.renderAll();
                     }
-
-
-//dcDim.filter([min, min + 100]);
-                
-                
-                
+                    //dc.redrawAll();
+                }
+//dcDim.filter([min, min + 100]);                
             });
 
             //if (filter.meta != null && filter.meta.minValue != null) {
@@ -1326,7 +1315,7 @@
             //    var dif = (propInfo.max - propInfo.min) / 100;
             //    dcChart.x(d3.scale.linear().domain([propInfo.min - dif, propInfo.max + dif]));
             //}
-                
+
             dcChart.yAxis().ticks(5);
             dcChart.xAxis().ticks(5);
             this.updateChartRange(dcChart, filter);
@@ -1341,7 +1330,7 @@
          */
         private updateMapFilter(group: ProjectGroup) {
             $.each(group.markers, (key, marker) => {
-                var included = group.filterResult.filter((f: IFeature) => f.id == key).length > 0;
+                var included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
                 if (group.clustering) {
                     var incluster = group.cluster.hasLayer(marker);
                     if (!included && incluster) group.cluster.removeLayer(marker);

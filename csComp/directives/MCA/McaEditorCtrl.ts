@@ -250,10 +250,10 @@
                 criterion.description = mi.description;
                 criterion.userWeight  = mi.userWeight || 1;
 
-                criterion.minCutoffValue = +mi.minCutoffValue;
-                criterion.maxCutoffValue = +mi.maxCutoffValue;
-                criterion.minValue       = +mi.minValue;
-                criterion.maxValue       = +mi.maxValue;
+                criterion.minCutoffValue = mi.minCutoffValue ? +mi.minCutoffValue : undefined;
+                criterion.maxCutoffValue = mi.maxCutoffValue ? +mi.maxCutoffValue : undefined;
+                criterion.minValue       = mi.minValue ? +mi.minValue : undefined;
+                criterion.maxValue       = mi.maxValue ? +mi.maxValue : undefined;
 
                 if (mi.scoringFunctionType === Models.ScoringFunctionType.Manual) {
                     criterion.scores = mi.scores;
