@@ -1,7 +1,6 @@
 ﻿module Mca {
     'use strict';
 
-    // TODO Saving the new properties of the MCA
     // TODO Ignore MCA calculation when too many criteria are out of (cut-off) range or not present. ???
     
     // TODO Add MCA properties to tooltip
