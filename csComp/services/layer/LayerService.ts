@@ -111,9 +111,9 @@
          */
         addLayer(layer: ProjectLayer) {
             var disableLayers = [];
-            switch (layer.type) {
-            case 'TopoJson':
-            case 'GeoJson':
+            switch (layer.type.toLowerCase()) {
+            case 'topojson':
+            case 'geojson':
                 async.series([
                     (callback) => {
                         // If oneLayerActive: close other group layer
@@ -152,7 +152,7 @@
                             if (error)
                                 this.$messageBusService.notify('ERROR loading' + layer.title, error);
                             else {
-                                if (layer.type === 'TopoJson')
+                                if (layer.type.toLowerCase() === 'topojson')
                                     data = this.convertTopoToGeoJson(data);
                                 if (data.events && this.timeline) {
                                     layer.events = data.events;
