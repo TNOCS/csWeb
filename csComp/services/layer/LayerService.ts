@@ -18,6 +18,7 @@
     }
     
     declare var jsonld;
+    declare var omnivore;
 
     export class LayerService implements ILayerService {
         maxBounds: IBoundingBox;
@@ -111,6 +112,7 @@
         addLayer(layer: ProjectLayer) {
             var disableLayers = [];
             switch (layer.type) {
+            case 'TopoJson':
             case 'GeoJson':
                 async.series([
                     (callback) => {
@@ -125,6 +127,7 @@
                         callback(null, null);
                     },
                     (callback) => {
+                        // Open a style file
                         if (layer.styleurl) {
                             d3.json(layer.styleurl, (err, dta) => {
                                 if (err)
@@ -132,7 +135,7 @@
                                 else {
                                     if (dta.featureTypes)
                                         for (var featureTypeName in dta.featureTypes) {
-                                        if (!dta.featureTypes.hasOwnProperty(featureTypeName)) continue;
+                                            if (!dta.featureTypes.hasOwnProperty(featureTypeName)) continue;
                                             var featureType: IFeatureType = dta.featureTypes[featureTypeName];
                                             featureTypeName = layer.id + '_' + featureTypeName;
                                             this.featureTypes[featureTypeName] = featureType;
@@ -142,11 +145,15 @@
                             });
                         } else
                             callback(null, null);
-                    }, (callback) => {
+                    },
+                    (callback) => {
+                        // Open a layer URL
                         d3.json(layer.url, (error, data) => {
                             if (error)
                                 this.$messageBusService.notify('ERROR loading' + layer.title, error);
                             else {
+                                if (layer.type === 'TopoJson')
+                                    data = this.convertTopoToGeoJson(data);
                                 if (data.events && this.timeline) {
                                     layer.events = data.events;
                                     var devents = [];
@@ -159,7 +166,6 @@
                                     });
                                     this.timeline.draw(devents);
                                 }
-
                                 for (var featureTypeName in data.featureTypes) {
                                     if (!data.featureTypes.hasOwnProperty(featureTypeName)) continue;
                                     var featureType: IFeatureType = data.featureTypes[featureTypeName];
@@ -187,7 +193,7 @@
                                             layer.group.markers[feature.id] = lay;
                                             lay.on({
                                                 mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout : (s) => this.hideFeatureTooltip(s)
+                                                mouseout: (s) => this.hideFeatureTooltip(s)
                                             });
                                         }
                                     });
@@ -197,25 +203,25 @@
                                     this.map.map.addLayer(layer.mapLayer);
 
                                     var v = L.geoJson(data, {
-                                        onEachFeature                                : (feature: IFeature, lay) => {
+                                        onEachFeature: (feature: IFeature, lay) => {
                                             //We do not need to init the feature here: already done in style.
                                             //this.initFeature(feature, layer);
                                             layer.group.markers[feature.id] = lay;
                                             lay.on({
-                                                mouseover : (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout  : (s) => this.hideFeatureTooltip(s),
-                                                mousemove : (d) => this.updateFeatureTooltip(d),
-                                                click     : () => { this.selectFeature(feature); }
+                                                mouseover: (a) => this.showFeatureTooltip(a, layer.group),
+                                                mouseout: (s) => this.hideFeatureTooltip(s),
+                                                mousemove: (d) => this.updateFeatureTooltip(d),
+                                                click: () => { this.selectFeature(feature); }
                                             });
                                         },
-                                        style : (f: IFeature, m) => {
+                                        style: (f: IFeature, m) => {
                                             this.initFeature(f, layer);
                                             layer.group.markers[f.id] = m;
                                             return this.style(f, layer);
                                         },
-                                        pointToLayer : (feature, latlng) => this.addFeature(feature, latlng, layer)
+                                        pointToLayer: (feature, latlng) => this.addFeature(feature, latlng, layer)
                                     });
-                                    this.project.features.forEach((f : IFeature) => {
+                                    this.project.features.forEach((f: IFeature) => {
                                         if (f.layerId !== layer.id) return;
                                         var ft = this.getFeatureType(f);
                                         f.properties['Name'] = f.properties[ft.style.nameLabel];
@@ -240,10 +246,22 @@
             }
         }
 
+        private convertTopoToGeoJson(data) {
+            // Convert topojson to geojson format
+            var topo = omnivore.topojson.parse(data);
+            var newData: any = {};
+            newData.featureTypes = data.featureTypes;
+            newData.features = [];
+            topo.eachLayer((l) => {
+                newData.features.push(l.feature);
+            });
+            return newData;
+        }
+
         /***
          * get list of properties that are part of the filter collection
          */
-        private filterProperties(group : ProjectGroup): string[] {
+        private filterProperties(group: ProjectGroup): string[] {
             var result = [];
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
