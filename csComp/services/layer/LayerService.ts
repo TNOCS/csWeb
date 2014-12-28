@@ -68,7 +68,6 @@
                 case 'focusChange':
                     this.updateSensorData();
                     break;
-
                 }
             });
         }
@@ -112,6 +111,18 @@
         addLayer(layer: ProjectLayer) {
             var disableLayers = [];
             switch (layer.type.toLowerCase()) {
+            case 'wms':
+                var wms: any = L.tileLayer.wms(layer.url, {
+                    layers: layer.wmsLayers,
+                    opacity: layer.opacity/100,
+                    format: 'image/png',
+                    transparent: true,
+                    attribution: layer.description
+                });
+                layer.mapLayer = new L.LayerGroup<L.ILayer>();
+                this.map.map.addLayer(layer.mapLayer);
+                layer.mapLayer.addLayer(wms);
+                break;
             case 'topojson':
             case 'geojson':
                 async.series([
@@ -870,18 +881,16 @@
                     if (feature.layerId === layer.id) {
                         try {
                             m.removeLayer(layer.group.markers[feature.id]);
-                        delete layer.group.markers[feature.id];
-                            
-
+                            delete layer.group.markers[feature.id];
                         } catch (error) {
-                            
+
                         }
                     }
-                });                
+                });
             } else {
                 this.map.map.removeLayer(layer.mapLayer);
             }
-            
+
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
             var layerName = layer.id + '_';
             var featureTypes = this.featureTypes;
@@ -894,7 +903,7 @@
             if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0) {
                 g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
                 g.filters = [];
-                g.styles = [];                
+                g.styles = [];
             }
 
             this.rebuildFilters(g);

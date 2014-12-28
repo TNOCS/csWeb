@@ -109,18 +109,19 @@
         type                        : string;
         url                         : string;
         styleurl                    : string;
+        wmsLayers                   : string;
         enabled                     : boolean;
         opacity                     : number;
         isLoading                   : boolean;
         isSublayer                  : boolean;
         mapLayer                    : L.LayerGroup<L.ILayer>;
-        group: ProjectGroup;
-        timestamps : any[];
+        group                       : ProjectGroup;
+        timestamps                  : any[];
         /** Internal ID, e.g. for the Excel service */
         id                          : string;
         /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */
-        reference: string;
-        events  : Event[];
+        reference                   : string;
+        events                      : Event[];
     }
 
     /**
