@@ -109,7 +109,9 @@
         isSearchable?    : boolean;
         minValue?        : number;
         maxValue?        : number;
-        defaultValue?    : number;
+        defaultValue?: number;
+        subject? : string;
+        target? : string;
     }
 
     export interface IPropertyTypeData {

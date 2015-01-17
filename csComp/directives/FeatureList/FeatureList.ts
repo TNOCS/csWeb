@@ -46,11 +46,9 @@
                         //scope.windowHeight          = $window.innerHeight;
                         //scope.windowWidth           = $window.innerWidth;
                         scope.numberOfItems         = Math.floor(($window.innerHeight - filterHeight - paginationCtrlHeight) / itemHeight);
-                    };
-                    
+                    };                    
                     // Call to the function when the page is first loaded
                     scope.onResizeFunction();
-
                     angular.element($window).bind('resize', () => {
                         scope.onResizeFunction();
                         scope.$apply();
