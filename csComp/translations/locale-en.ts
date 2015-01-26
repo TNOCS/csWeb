@@ -58,6 +58,10 @@
                 DELETE_MCA       : 'Delete the MCA.',
                 EDIT_MCA         : 'Edit the MCA.'
             },
+            PROJECTSETTINGS      : {
+                TITLE            : 'Project Settings',
+                DESCRIPTION      : 'Settings'
+            },
             SHOW5                : 'Show 5 items',
             SHOW10               : 'Show 10 items',
             SHOW15               : 'Show 15 items',

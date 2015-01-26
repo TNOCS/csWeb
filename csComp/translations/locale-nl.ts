@@ -57,6 +57,10 @@
                 DELETE_MCA      : 'Verwijder de MCA.',
                 EDIT_MCA        : 'Bewerk de MCA.'
             },
+            PROJECTSETTINGS     : {
+                TITLE           : 'Project instellingen',
+                DESCRIPTION     : 'Instellingen'
+            },
             SHOW5               : 'Toon 5 regels',
             SHOW10              : 'Toon 10 regels',
             SHOW15              : 'Toon 15 regels',
