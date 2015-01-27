@@ -6,8 +6,17 @@ a translation. you can add it easilyby taking the following steps:
 3. Add the XHTML Image string to the languagesProvider translations in app.ts.
 
     angular.module('csWebApp', [
+            'pascalprecht.translate',
             'csWeb.languageSwitch'
         ])
+        .config($translateProvider => {
+            // TODO ADD YOUR LOCAL TRANSLATIONS HERE, OR ALTERNATIVELY, CHECK OUT 
+            // http://angular-translate.github.io/docs/#/guide/12_asynchronous-loading
+            // Translations.English.locale['MAP_LABEL'] = 'MY AWESOME MAP';
+            $translateProvider.translations('en', Translations.English.locale);
+            $translateProvider.translations('nl', Translations.Dutch.locale);
+            $translateProvider.preferredLanguage('en');
+        })
         .config(languagesProvider => {
             // Defines the GUI languages that you wish to use in your project.
             // They will be available through a popup menu.
