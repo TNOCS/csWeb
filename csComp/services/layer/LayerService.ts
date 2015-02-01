@@ -214,25 +214,25 @@
                                     this.map.map.addLayer(layer.mapLayer);
 
                                     var v = L.geoJson(data, {
-                                        onEachFeature: (feature: IFeature, lay) => {
+                                        onEachFeature : (feature: IFeature, lay) => {
                                             //We do not need to init the feature here: already done in style.
                                             //this.initFeature(feature, layer);
                                             layer.group.markers[feature.id] = lay;
                                             lay.on({
-                                                mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout: (s) => this.hideFeatureTooltip(s),
-                                                mousemove: (d) => this.updateFeatureTooltip(d),
-                                                click: () => { this.selectFeature(feature); }
+                                                mouseover : (a) => this.showFeatureTooltip(a, layer.group),
+                                                mouseout  : (s) => this.hideFeatureTooltip(s),
+                                                mousemove : (d) => this.updateFeatureTooltip(d),
+                                                click     : ()  => { this.selectFeature(feature); }
                                             });
                                         },
-                                        style: (f: IFeature, m) => {
+                                        style : (f: IFeature, m) => {
                                             this.initFeature(f, layer);
                                             layer.group.markers[f.id] = m;
                                             return this.style(f, layer);
                                         },
-                                        pointToLayer: (feature, latlng) => this.addFeature(feature, latlng, layer)
+                                        pointToLayer                                 : (feature, latlng) => this.addFeature(feature, latlng, layer)
                                     });
-                                    this.project.features.forEach((f: IFeature) => {
+                                    this.project.features.forEach((f                 : IFeature) => {
                                         if (f.layerId !== layer.id) return;
                                         var ft = this.getFeatureType(f);
                                         f.properties['Name'] = f.properties[ft.style.nameLabel];
@@ -746,15 +746,15 @@
                                 gf.filterType = gf.meta.filterType;
                             } else {
                                 switch (gf.meta.type) {
-                                case 'number':
-                                case 'options':
-                                    gf.filterType = 'bar';
-                                    break;
-                                default:
-                                    gf.filterType = 'text';
-                                    gf.stringValue = property.value;
-                                    gf.value = property.value;
-                                    break;
+                                    case 'number':
+                                    case 'options':
+                                        gf.filterType = 'bar';
+                                        break;
+                                    default:
+                                        gf.filterType = 'text';
+                                        gf.stringValue = property.value;
+                                        gf.value = property.value;
+                                        break;
                                 }
                             }
                         }
@@ -763,7 +763,7 @@
                         gf.rangex = [0, 1];
 
                         if (gf.filterType === 'text') {
-                            var old = layer.group.filters.filter((f: GroupFilter) => f.filterType === 'text');
+                            var old = layer.group.filters.filter((flt: GroupFilter) => flt.filterType === 'text');
                             old.forEach((groupFilter: GroupFilter) => {
                                 groupFilter.dimension.filterAll();
                                 groupFilter.dimension.dispose();
