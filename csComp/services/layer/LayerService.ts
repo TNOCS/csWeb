@@ -747,6 +747,7 @@
                             } else {
                                 switch (gf.meta.type) {
                                 case 'number':
+                                case 'options':
                                     gf.filterType = 'bar';
                                     break;
                                 default:
