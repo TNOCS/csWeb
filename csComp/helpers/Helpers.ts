@@ -59,7 +59,7 @@
     /**
      * Convert a property value to a display value using the property info.
      */
-    export function convertPropertyInfo(pt: csComp.Services.IPropertyType, text: string): string {
+    export function convertPropertyInfo(pt: csComp.Services.IPropertyType, text: any): string {
         var displayValue: string;
         if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
             text = text.replace(/&amp;/g, '&');
@@ -78,6 +78,12 @@
                 else
                     displayValue = String.format(pt.stringFormat, parseFloat(text));
                 break;
+            case "options":
+                if (!$.isNumeric(text))
+                    displayValue = text;
+                else
+                    displayValue = pt.options[text];
+                    break;
             case "rank":
                 var rank = text.split(',');
                 if (rank.length != 2) return text;

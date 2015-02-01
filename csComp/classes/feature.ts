@@ -110,6 +110,7 @@
         minValue?        : number;
         maxValue?        : number;
         defaultValue?    : number;
+        options?         : string[];
     }
 
     export interface IPropertyTypeData {

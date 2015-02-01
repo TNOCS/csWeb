@@ -21,29 +21,29 @@
     declare var omnivore;
 
     export class LayerService implements ILayerService {
-        maxBounds: IBoundingBox;
+        maxBounds           : IBoundingBox;
         static $inject = [
             '$location',
             '$translate',
             'messageBusService',
             'mapService'
         ];
-        title      : string;
-        accentColor: string;
-        mb  : Services.MessageBusService;
-        map : Services.MapService;
-        featureTypes : { [key: string]: IFeatureType; };
-        propertyTypeData: { [key: string]: IPropertyType; };
-        project: Project;
-        solution: Solution;
-        layerGroup = new L.LayerGroup<L.ILayer>();
+        title               : string;
+        accentColor         : string;
+        mb                  : Services.MessageBusService;
+        map                 : Services.MapService;
+        featureTypes        : { [key: string]: IFeatureType; };
+        propertyTypeData    : { [key: string]: IPropertyType; };
+        project             : Project;
+        solution            : Solution;
         dimension           : any;
-        info = new L.Control();
         noFilters           : boolean;
         noStyles            : boolean;
         lastSelectedFeature : IFeature;
         selectedLayerId     : string;
         timeline            : any;
+        layerGroup = new L.LayerGroup<L.ILayer>();
+        info       = new L.Control();
 
         constructor(
             private $location          : ng.ILocationService,

@@ -61,9 +61,9 @@
     }
 
     export class CallOutSection implements ICallOutSection {
-        public propertyTypes: { [label: string]: IPropertyType };
-        public properties   : Array<ICallOutProperty>;
-        public sectionIcon  : string;
+        propertyTypes: { [label: string]: IPropertyType };
+        properties   : Array<ICallOutProperty>;
+        sectionIcon  : string;
 
         constructor(sectionIcon?: string) {
             this.propertyTypes   = {};
@@ -71,16 +71,13 @@
             this.sectionIcon     = sectionIcon;
         }
 
-        public showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
+        showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
-        public addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {            
-            if (description)
-                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter,description,meta));
-            else
-                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature,isFilter,null,meta));
+        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {            
+            this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, description ? description : null, meta));
         }
 
-        public hasProperties(): boolean {
+        hasProperties(): boolean {
             return this.properties != null && this.properties.length > 0;
         }
     }
@@ -103,19 +100,6 @@
             var displayValue: string;
             if (type != null) {
                 var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
-                //var propertyTypes: Array<IPropertyType> = [];
-                //if (type.propertyTypeKeys != null) {
-                //    var keys = type.propertyTypeKeys.split(';');
-                //    keys.forEach((key) => {
-                //        if (key in propertyTypeData) propertyTypes.push(propertyTypeData[key]);
-                //        else if (type.propertyTypeData != null) {
-                //            var result = $.grep(type.propertyTypeData, e => e.label === key);
-                //            if (result.length >= 1) propertyTypes.push(result);
-                //        }
-                //    });
-                //} else if (type.propertyTypeData != null) {
-                //    propertyTypes = type.propertyTypeData;
-                //}
                 propertyTypes.forEach((mi: IPropertyType) => {
                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                     callOutSection.propertyTypes[mi.label] = mi;
@@ -124,15 +108,15 @@
                     // Skip empty, non-editable values
                     if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
 
-                    var canFilter = (mi.type == "number" || mi.type == "text");
-                    var canStyle = (mi.type == "number" || mi.type=="color");
+                    var canFilter = (mi.type === "number" || mi.type === "text"   || mi.type === "options");
+                    var canStyle  = (mi.type === "number" || mi.type === "options"|| mi.type === "color");
                     if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
                     if (mi.visibleInCallOut)
-                        callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                        callOutSection  .addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
                     searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
                 });
             }
-            if (infoCallOutSection  .properties.length > 0) this.sections['AAA Info']   = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
+            if (infoCallOutSection  .properties.length > 0) this.sections['AAA Info'  ] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
             if (searchCallOutSection.properties.length > 0) this.sections['Zzz Search'] = searchCallOutSection;
         }
 
