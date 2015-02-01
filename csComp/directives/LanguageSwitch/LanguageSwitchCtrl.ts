@@ -21,7 +21,8 @@
         public static $inject = [
             '$scope',
             '$translate',
-            '$languages'
+            '$languages',
+            'messageBusService'
         ];
 
         // dependencies are injected via AngularJS $injector
@@ -29,7 +30,8 @@
         constructor(
             private $scope     : ILanguageSwitchScope,
             private $translate : any,
-            private $languages : ILanguage[]
+            private $languages : ILanguage[],
+            private $messageBus: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
 
@@ -43,6 +45,8 @@
         switchLanguage(language: ILanguage) {
             this.language = language;
             this.$translate.use(language.key);
+
+            this.$messageBus.publish('language', 'newLanguage', language.key);
         }
 
     }
