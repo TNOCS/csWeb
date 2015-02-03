@@ -436,6 +436,16 @@
             return r;
         }
 
+        /**
+        * Extract a valid color string, without transparency. 
+        */
+        private getColorString(color: string, defaultColor = '#f00') {
+            if (!color) return defaultColor;
+            if (color.length == 4 || color.length == 7) return color;
+            if (color.length == 9) return '#' + color.substr(3, 6);
+            return defaultColor;
+        }
+
         style(feature: IFeature, layer: ProjectLayer) {
             var s = {
                 fillColor   : 'red',
@@ -447,8 +457,8 @@
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
-                if (ft.style.fillColor   != null) s['fillColor']   = ft.style.fillColor;
-                if (ft.style.strokeColor != null) s['strokeColor'] = ft.style.strokeColor;
+                if (ft.style.fillColor   != null) s['fillColor']   = this.getColorString(ft.style.fillColor);
+                if (ft.style.strokeColor != null) s['strokeColor'] = this.getColorString(ft.style.strokeColor, '#000');
                 if (ft.style.strokeWidth != null) s['weight']      = ft.style.strokeWidth;
             }
 
@@ -489,6 +499,8 @@
             this.project.features.push(feature);
             layer.group.ndx.add([feature]);
             feature.fType = this.getFeatureType(feature);
+            if (!feature.properties.hasOwnProperty('Name'))
+                Helpers.setFeatureName(feature);
             return feature.type;
         }
 
