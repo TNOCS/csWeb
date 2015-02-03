@@ -116,15 +116,7 @@
         for (var i = 0; i < feature.fType.propertyTypeData.length; i++) {
             var propertyType = feature.fType.propertyTypeData[i];
             if (propertyType.label !== 'Name') continue;
-            var stringFormat = propertyType.stringFormat;
-            var openingBrackets = Helpers.indexes(stringFormat, '{'); 
-            var closingBrackets = Helpers.indexes(stringFormat, '}');
-            var convertedStringFormat = stringFormat;
-            for (var j = 0; j < openingBrackets.length; j++) {
-                var searchValue = stringFormat.substring(openingBrackets[j]+1, closingBrackets[j]);
-                convertedStringFormat = convertedStringFormat.replace('{' + searchValue + '}', feature.properties[searchValue]);
-            }
-            feature.properties['Name'] = convertedStringFormat;
+            feature.properties['Name'] = Helpers.convertStringFormat(feature, propertyType.stringFormat);
             return;
         }
         // If all else fails, use the first property
@@ -134,6 +126,22 @@
         }
         // Finally, just create a GUID.
         feature.properties['Name'] = Helpers.getGuid();
+    }
+
+    /**
+    * Convert a feature's stringFormat to a string.
+    * @param {Services.IFeature} feature
+    * @param {string} stringFormat
+    */
+    export function convertStringFormat(feature: Services.IFeature, stringFormat: string) {
+        var openingBrackets = Helpers.indexes(stringFormat, '{');
+        var closingBrackets = Helpers.indexes(stringFormat, '}');
+        var convertedStringFormat = stringFormat;
+        for (var j = 0; j < openingBrackets.length; j++) {
+            var searchValue = stringFormat.substring(openingBrackets[j] + 1, closingBrackets[j]);
+            convertedStringFormat = convertedStringFormat.replace('{' + searchValue + '}', feature.properties[searchValue]);
+        }
+        return convertedStringFormat;
     }
 
     /**

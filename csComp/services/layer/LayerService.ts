@@ -499,6 +499,7 @@
             this.project.features.push(feature);
             layer.group.ndx.add([feature]);
             feature.fType = this.getFeatureType(feature);
+            // Do we have a name?
             if (!feature.properties.hasOwnProperty('Name'))
                 Helpers.setFeatureName(feature);
             return feature.type;
@@ -525,9 +526,10 @@
                 var ft = this.getFeatureType(feature);
 
                 //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
+                var iconUri = ft.style.iconUri;
+                if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
 
-                if (ft.style.fillColor == null && ft.style.iconUri == null) ft.style.fillColor = 'lightgray';
-
+                // TODO refactor to object
                 props['background']    = ft.style.fillColor;
                 props['width']         = '32px';
                 props['height']        = '32px';
@@ -565,8 +567,11 @@
                 }
 
                 html += '\'>';
-                if (ft.style.iconUri != null) {
-                    html += '<img src=' + ft.style.iconUri + ' style=\'width:' + (ft.style.iconWidth - 2) + 'px;height:' + (ft.style.iconHeight - 2) + 'px\' />';
+                if (iconUri != null) {
+                    // Must the iconUri be formatted?
+                    if (iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
+
+                    html += '<img src=' + iconUri + ' style=\'width:' + (ft.style.iconWidth - 2) + 'px;height:' + (ft.style.iconHeight - 2) + 'px\' />';
                 }
                 html += '</div>';
 
