@@ -467,7 +467,9 @@
             csComp.Helpers.Plot.drawPie(100, data, McaCtrl.mcaChartId);
         }
 
-        /** Based on the currently loaded features, which MCA can we use */
+        /** 
+        * Based on the currently loaded features, which MCA can we use
+        */
         updateAvailableMcas(mca?: Models.Mca) {
             this.showChart = false;
             this.mca = mca;
@@ -482,7 +484,10 @@
                     }
                 });
             });
-            if (mca == null && this.availableMcas.length >= 0) this.mca = this.availableMcas[0];
+            if (mca == null && this.availableMcas.length >= 0) {
+                this.mca = this.availableMcas[0];
+                this.updateMca();
+            }
         }
 
         calculateMca() {
@@ -490,12 +495,12 @@
             var mca = this.mca;
             mca.featureIds.forEach((featureId: string) => {
                 if (!(this.$layerService.featureTypes.hasOwnProperty(featureId))) return;
+                this.addPropertyInfo(featureId, mca);
                 this.$layerService.project.features.forEach((feature) => {
                     if (feature.featureTypeName != null && feature.featureTypeName === featureId)
                         this.features.push(feature);
                 });
                 if (this.features.length === 0) return;
-                this.addPropertyInfo(featureId, mca);
                 mca.updatePla(this.features);
                 mca.update();
                 var tempScores: { score: number; index: number; }[] = [];
@@ -567,9 +572,9 @@
             if (forceUpdate || labelIndex < 0) {
                 var pt = McaCtrl.createPropertyType(mca);
                 if (labelIndex < 0)
-                    propertyTypes.push(pt);
+                    featureType.propertyTypeData.push(pt); // NOTE: propertyTypes refers to a new list, so you cannot add to it.
                 else 
-                    propertyTypes[labelIndex] = pt;
+                    propertyTypes[labelIndex] = pt;        // NOTE: but you should be able to overwrite an existing property.
             }
 
             if (!mca.rankTitle) return;
@@ -583,7 +588,7 @@
             if (forceUpdate || labelIndex < 0) {
                 pt = McaCtrl.createRankPropertyType(mca);
                 if (labelIndex < 0)
-                    propertyTypes.push(pt);
+                    featureType.propertyTypeData.push(pt);
                 else
                     propertyTypes[labelIndex] = pt;
             }

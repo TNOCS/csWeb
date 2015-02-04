@@ -747,36 +747,40 @@
          * enable a filter for a specific property
          */
         setFilter(property: FeatureProps.CallOutProperty) {
-            var prop = property.property;
-            var f = property.feature;
+            var prop                                   = property.property;
+            var f                                      = property.feature;
             if (f != null) {
-                var layer = this.findLayer(f.layerId);
+                var layer                              = this.findLayer(f.layerId);
                 if (layer != null) {
-                    var filter = this.findFilter(layer.group, prop);
-                    if (filter == null) {
-                        var gf = new GroupFilter();
-                        gf.property = prop;
-                        gf.meta = property.meta;
-                        gf.filterType = 'bar';
+                    var filter                         = this.findFilter(layer.group, prop);
+                    if (filter                         == null) {
+                        var gf                         = new GroupFilter();
+                        gf.property                    = prop;
+                        gf.meta                        = property.meta;
+                        gf.filterType                  = 'bar';
                         if (gf.meta != null) {
                             if (gf.meta.filterType != null) {
-                                gf.filterType = gf.meta.filterType;
+                                gf.filterType          = gf.meta.filterType;
                             } else {
                                 switch (gf.meta.type) {
                                     case 'number':
                                     case 'options':
-                                        gf.filterType = 'bar';
+                                        gf.filterType  = 'bar';
                                         break;
+                                    //case 'rank':
+                                    //    gf.filterType  = 'bar';
+                                    //    gf.value = property.value.split(',')[0];
+                                    //    break;
                                     default:
-                                        gf.filterType = 'text';
+                                        gf.filterType  = 'text';
                                         gf.stringValue = property.value;
-                                        gf.value = property.value;
+                                        gf.value       = property.value;
                                         break;
                                 }
                             }
                         }
 
-                        gf.title = property.key;
+                        gf.title  = property.key;
                         gf.rangex = [0, 1];
 
                         if (gf.filterType === 'text') {
