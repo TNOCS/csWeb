@@ -93,7 +93,7 @@
             this.sections = {};
             //if (type == null) this.createDefaultType();
             this.setTitle();
-            this.setIcon();
+            this.setIcon(feature);
 
             var infoCallOutSection   = new CallOutSection('fa-info');
             var searchCallOutSection = new CallOutSection('fa-filter');
@@ -204,10 +204,12 @@
             this.title = CallOut.title(this.type, this.feature);
         }
 
-        private setIcon() {
+        private setIcon(feature: csComp.Services.IFeature) {
             this.icon = (this.type == null || this.type.style == null || !this.type.style.hasOwnProperty('iconUri') || this.type.style.iconUri.toLowerCase().indexOf('_media') >= 0) 
                 ? ''
-                : this.type.style.iconUri;
+                : this.type.style.iconUri.indexOf('{') >= 0
+                    ? csComp.Helpers.convertStringFormat(feature, this.type.style.iconUri)
+                    : this.type.style.iconUri;
         }
 
         public static title(type: IFeatureType, feature: IFeature): string {
