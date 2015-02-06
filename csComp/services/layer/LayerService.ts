@@ -21,29 +21,29 @@
     declare var omnivore;
 
     export class LayerService implements ILayerService {
-        maxBounds: IBoundingBox;
+        maxBounds           : IBoundingBox;
         static $inject = [
             '$location',
             '$translate',
             'messageBusService',
             'mapService'
         ];
-        title      : string;
-        accentColor: string;
-        mb  : Services.MessageBusService;
-        map : Services.MapService;
-        featureTypes : { [key: string]: IFeatureType; };
-        propertyTypeData: { [key: string]: IPropertyType; };
-        project: Project;
-        solution: Solution;
-        layerGroup = new L.LayerGroup<L.ILayer>();
+        title               : string;
+        accentColor         : string;
+        mb                  : Services.MessageBusService;
+        map                 : Services.MapService;
+        featureTypes        : { [key: string]: IFeatureType; };
+        propertyTypeData    : { [key: string]: IPropertyType; };
+        project             : Project;
+        solution            : Solution;
         dimension           : any;
-        info = new L.Control();
         noFilters           : boolean;
         noStyles            : boolean;
         lastSelectedFeature : IFeature;
         selectedLayerId     : string;
         timeline            : any;
+        layerGroup = new L.LayerGroup<L.ILayer>();
+        info       = new L.Control();
 
         constructor(
             private $location          : ng.ILocationService,
@@ -214,25 +214,25 @@
                                     this.map.map.addLayer(layer.mapLayer);
 
                                     var v = L.geoJson(data, {
-                                        onEachFeature: (feature: IFeature, lay) => {
+                                        onEachFeature : (feature: IFeature, lay) => {
                                             //We do not need to init the feature here: already done in style.
                                             //this.initFeature(feature, layer);
                                             layer.group.markers[feature.id] = lay;
                                             lay.on({
-                                                mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout: (s) => this.hideFeatureTooltip(s),
-                                                mousemove: (d) => this.updateFeatureTooltip(d),
-                                                click: () => { this.selectFeature(feature); }
+                                                mouseover : (a) => this.showFeatureTooltip(a, layer.group),
+                                                mouseout  : (s) => this.hideFeatureTooltip(s),
+                                                mousemove : (d) => this.updateFeatureTooltip(d),
+                                                click     : ()  => { this.selectFeature(feature); }
                                             });
                                         },
-                                        style: (f: IFeature, m) => {
+                                        style : (f: IFeature, m) => {
                                             this.initFeature(f, layer);
                                             layer.group.markers[f.id] = m;
                                             return this.style(f, layer);
                                         },
-                                        pointToLayer: (feature, latlng) => this.addFeature(feature, latlng, layer)
+                                        pointToLayer                                 : (feature, latlng) => this.addFeature(feature, latlng, layer)
                                     });
-                                    this.project.features.forEach((f: IFeature) => {
+                                    this.project.features.forEach((f                 : IFeature) => {
                                         if (f.layerId !== layer.id) return;
                                         var ft = this.getFeatureType(f);
                                         f.properties['Name'] = f.properties[ft.style.nameLabel];
@@ -436,6 +436,16 @@
             return r;
         }
 
+        /**
+        * Extract a valid color string, without transparency. 
+        */
+        private getColorString(color: string, defaultColor = '#f00') {
+            if (!color) return defaultColor;
+            if (color.length == 4 || color.length == 7) return color;
+            if (color.length == 9) return '#' + color.substr(3, 6);
+            return defaultColor;
+        }
+
         style(feature: IFeature, layer: ProjectLayer) {
             var s = {
                 fillColor   : 'red',
@@ -447,8 +457,8 @@
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
-                if (ft.style.fillColor   != null) s['fillColor']   = ft.style.fillColor;
-                if (ft.style.strokeColor != null) s['strokeColor'] = ft.style.strokeColor;
+                if (ft.style.fillColor   != null) s['fillColor']   = this.getColorString(ft.style.fillColor);
+                if (ft.style.strokeColor != null) s['strokeColor'] = this.getColorString(ft.style.strokeColor, '#000');
                 if (ft.style.strokeWidth != null) s['weight']      = ft.style.strokeWidth;
             }
 
@@ -489,6 +499,9 @@
             this.project.features.push(feature);
             layer.group.ndx.add([feature]);
             feature.fType = this.getFeatureType(feature);
+            // Do we have a name?
+            if (!feature.properties.hasOwnProperty('Name'))
+                Helpers.setFeatureName(feature);
             return feature.type;
         }
 
@@ -513,9 +526,10 @@
                 var ft = this.getFeatureType(feature);
 
                 //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
+                var iconUri = ft.style.iconUri;
+                if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
 
-                if (ft.style.fillColor == null && ft.style.iconUri == null) ft.style.fillColor = 'lightgray';
-
+                // TODO refactor to object
                 props['background']    = ft.style.fillColor;
                 props['width']         = '32px';
                 props['height']        = '32px';
@@ -553,8 +567,11 @@
                 }
 
                 html += '\'>';
-                if (ft.style.iconUri != null) {
-                    html += '<img src=' + ft.style.iconUri + ' style=\'width:' + (ft.style.iconWidth - 2) + 'px;height:' + (ft.style.iconHeight - 2) + 'px\' />';
+                if (iconUri != null) {
+                    // Must the iconUri be formatted?
+                    if (iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
+
+                    html += '<img src=' + iconUri + ' style=\'width:' + (ft.style.iconWidth - 2) + 'px;height:' + (ft.style.iconHeight - 2) + 'px\' />';
                 }
                 html += '</div>';
 
@@ -730,39 +747,44 @@
          * enable a filter for a specific property
          */
         setFilter(property: FeatureProps.CallOutProperty) {
-            var prop = property.property;
-            var f = property.feature;
+            var prop                                   = property.property;
+            var f                                      = property.feature;
             if (f != null) {
-                var layer = this.findLayer(f.layerId);
+                var layer                              = this.findLayer(f.layerId);
                 if (layer != null) {
-                    var filter = this.findFilter(layer.group, prop);
-                    if (filter == null) {
-                        var gf = new GroupFilter();
-                        gf.property = prop;
-                        gf.meta = property.meta;
-                        gf.filterType = 'bar';
+                    var filter                         = this.findFilter(layer.group, prop);
+                    if (filter                         == null) {
+                        var gf                         = new GroupFilter();
+                        gf.property                    = prop;
+                        gf.meta                        = property.meta;
+                        gf.filterType                  = 'bar';
                         if (gf.meta != null) {
                             if (gf.meta.filterType != null) {
-                                gf.filterType = gf.meta.filterType;
+                                gf.filterType          = gf.meta.filterType;
                             } else {
                                 switch (gf.meta.type) {
-                                case 'number':
-                                    gf.filterType = 'bar';
-                                    break;
-                                default:
-                                    gf.filterType = 'text';
-                                    gf.stringValue = property.value;
-                                    gf.value = property.value;
-                                    break;
+                                    case 'number':
+                                    case 'options':
+                                        gf.filterType  = 'bar';
+                                        break;
+                                    //case 'rank':
+                                    //    gf.filterType  = 'bar';
+                                    //    gf.value = property.value.split(',')[0];
+                                    //    break;
+                                    default:
+                                        gf.filterType  = 'text';
+                                        gf.stringValue = property.value;
+                                        gf.value       = property.value;
+                                        break;
                                 }
                             }
                         }
 
-                        gf.title = property.key;
+                        gf.title  = property.key;
                         gf.rangex = [0, 1];
 
                         if (gf.filterType === 'text') {
-                            var old = layer.group.filters.filter((f: GroupFilter) => f.filterType === 'text');
+                            var old = layer.group.filters.filter((flt: GroupFilter) => flt.filterType === 'text');
                             old.forEach((groupFilter: GroupFilter) => {
                                 groupFilter.dimension.filterAll();
                                 groupFilter.dimension.dispose();

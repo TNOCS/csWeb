@@ -61,9 +61,9 @@
     }
 
     export class CallOutSection implements ICallOutSection {
-        public propertyTypes: { [label: string]: IPropertyType };
-        public properties   : Array<ICallOutProperty>;
-        public sectionIcon  : string;
+        propertyTypes: { [label: string]: IPropertyType };
+        properties   : Array<ICallOutProperty>;
+        sectionIcon  : string;
 
         constructor(sectionIcon?: string) {
             this.propertyTypes   = {};
@@ -71,16 +71,13 @@
             this.sectionIcon     = sectionIcon;
         }
 
-        public showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
+        showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
-        public addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {            
-            if (description)
-                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter,description,meta));
-            else
-                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature,isFilter,null,meta));
+        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {            
+            this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, description ? description : null, meta));
         }
 
-        public hasProperties(): boolean {
+        hasProperties(): boolean {
             return this.properties != null && this.properties.length > 0;
         }
     }
@@ -96,26 +93,13 @@
             this.sections = {};
             //if (type == null) this.createDefaultType();
             this.setTitle();
-            this.setIcon();
+            this.setIcon(feature);
 
             var infoCallOutSection   = new CallOutSection('fa-info');
             var searchCallOutSection = new CallOutSection('fa-filter');
             var displayValue: string;
             if (type != null) {
                 var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
-                //var propertyTypes: Array<IPropertyType> = [];
-                //if (type.propertyTypeKeys != null) {
-                //    var keys = type.propertyTypeKeys.split(';');
-                //    keys.forEach((key) => {
-                //        if (key in propertyTypeData) propertyTypes.push(propertyTypeData[key]);
-                //        else if (type.propertyTypeData != null) {
-                //            var result = $.grep(type.propertyTypeData, e => e.label === key);
-                //            if (result.length >= 1) propertyTypes.push(result);
-                //        }
-                //    });
-                //} else if (type.propertyTypeData != null) {
-                //    propertyTypes = type.propertyTypeData;
-                //}
                 propertyTypes.forEach((mi: IPropertyType) => {
                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                     callOutSection.propertyTypes[mi.label] = mi;
@@ -124,72 +108,17 @@
                     // Skip empty, non-editable values
                     if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
 
-                    var canFilter = (mi.type == "number" || mi.type == "text");
-                    var canStyle = (mi.type == "number" || mi.type=="color");
+                    var canFilter = (mi.type === "number" || mi.type === "text"    || mi.type === "options");
+                    var canStyle  = (mi.type === "number" || mi.type === "options" || mi.type === "color");
                     if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
                     if (mi.visibleInCallOut)
-                        callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                        callOutSection  .addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
                     searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
                 });
             }
-            if (infoCallOutSection  .properties.length > 0) this.sections['AAA Info']   = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
+            if (infoCallOutSection  .properties.length > 0) this.sections['AAA Info'  ] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
             if (searchCallOutSection.properties.length > 0) this.sections['Zzz Search'] = searchCallOutSection;
         }
-
-        ///** 
-        //* Convert a property value to a display value using the property info.
-        //*/
-        //public static convertPropertyInfo(mi: IMetaInfo, text: string): string {
-        //    var displayValue: string;
-        //    if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
-        //        text = text.replace(/&amp;/g, '&');
-        //    if (csComp.StringExt.isNullOrEmpty(text)) return '';
-        //    switch (mi.type) {
-        //        case "bbcode":
-        //            if (!csComp.StringExt.isNullOrEmpty(mi.stringFormat))
-        //                text = String.format(mi.stringFormat, text);
-        //            displayValue = XBBCODE.process({ text: text }).html;
-        //            break;
-        //        case "number":
-        //            if (!$.isNumeric(text))
-        //                displayValue = text;
-        //            else if (csComp.StringExt.isNullOrEmpty(mi.stringFormat))
-        //                displayValue = text.toString();
-        //            else
-        //                displayValue = String.format(mi.stringFormat, parseFloat(text));
-        //            break;
-        //        case "rank":
-        //            var rank = text.split(',');
-        //            if (rank.length != 2) return text;
-        //            if (mi.stringFormat)
-        //                displayValue = String.format(mi.stringFormat, rank[0], rank[1]);
-        //            else 
-        //                displayValue = String.format("{0) / {1}", rank[0], rank[1]);
-        //            break;
-        //        default:
-        //            displayValue = text;
-        //            break;
-        //    }
-        //    return displayValue;
-        //}
-
-        ///**                                         
-        // * In case we are dealing with a regular JSON file without type information, create a default type.
-        // */
-        //private createDefaultType(): void {
-        //    this.type              = [];
-        //    this.type.style        = { nameLabel: "Name", iconHeight: 30, iconWidth: 30 };
-        //    this.type.propertyTypeData = [];
-
-        //    for (var kvp in this.feature.properties) {
-        //        var propertyType: IpropertyType = [];
-        //        propertyType.label          = kvp.key;
-        //        propertyType.title          = kvp.key.replace("_", " ");
-        //        propertyType.isSearchable   = true;
-        //        propertyType.type           = propertyTypeType.Text;
-        //        this.type.propertyTypeData.push(propertyType);
-        //    }
-        //}
 
         public sectionCount(): number {
             return Object.keys(this.sections).length;
@@ -220,10 +149,12 @@
             this.title = CallOut.title(this.type, this.feature);
         }
 
-        private setIcon() {
+        private setIcon(feature: csComp.Services.IFeature) {
             this.icon = (this.type == null || this.type.style == null || !this.type.style.hasOwnProperty('iconUri') || this.type.style.iconUri.toLowerCase().indexOf('_media') >= 0) 
                 ? ''
-                : this.type.style.iconUri;
+                : this.type.style.iconUri.indexOf('{') >= 0
+                    ? csComp.Helpers.convertStringFormat(feature, this.type.style.iconUri)
+                    : this.type.style.iconUri;
         }
 
         public static title(type: IFeatureType, feature: IFeature): string {

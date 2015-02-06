@@ -22,7 +22,7 @@
       * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
       */
     myModule.directive('featureprops', [ '$compile',
-        function($compile): ng.IDirective {
+        function($compile): ng.IDirective {  
             return {
                 terminal  : true,       // do not compile any other internal directives 
                 restrict  : 'E',        // E = elements, other options are A=attributes and C=classes

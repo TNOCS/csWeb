@@ -3,7 +3,7 @@
 
     // TODO Ignore MCA calculation when too many criteria are out of (cut-off) range or not present. ???
     
-    // TODO Add MCA properties to tooltip
+    // TODO Add MCA properties to tooltip 
     
     // TODO Add message in LegendCtrl to check whether a FeatureId is still in use:
     // TODO - hide the legend icon when not in use
@@ -107,7 +107,7 @@
                         mcas.forEach((mca) => {
                             $layerService.project.mcas.push(new Models.Mca().deserialize(mca));
                         });
-                        this.createDummyMca();
+                        //this.createDummyMca();
                         break;
                 }
             });
@@ -467,7 +467,9 @@
             csComp.Helpers.Plot.drawPie(100, data, McaCtrl.mcaChartId);
         }
 
-        /** Based on the currently loaded features, which MCA can we use */
+        /** 
+        * Based on the currently loaded features, which MCA can we use
+        */
         updateAvailableMcas(mca?: Models.Mca) {
             this.showChart = false;
             this.mca = mca;
@@ -482,7 +484,10 @@
                     }
                 });
             });
-            if (mca == null && this.availableMcas.length >= 0) this.mca = this.availableMcas[0];
+            if (mca == null && this.availableMcas.length >= 0) {
+                this.mca = this.availableMcas[0];
+                this.updateMca();
+            }
         }
 
         calculateMca() {
@@ -490,12 +495,12 @@
             var mca = this.mca;
             mca.featureIds.forEach((featureId: string) => {
                 if (!(this.$layerService.featureTypes.hasOwnProperty(featureId))) return;
+                this.addPropertyInfo(featureId, mca);
                 this.$layerService.project.features.forEach((feature) => {
                     if (feature.featureTypeName != null && feature.featureTypeName === featureId)
                         this.features.push(feature);
                 });
                 if (this.features.length === 0) return;
-                this.addPropertyInfo(featureId, mca);
                 mca.updatePla(this.features);
                 mca.update();
                 var tempScores: { score: number; index: number; }[] = [];
@@ -553,19 +558,39 @@
             });
         }
 
-        private addPropertyInfo(featureId: string, mca: Models.Mca) {
+        private addPropertyInfo(featureId: string, mca: Models.Mca, forceUpdate = false) {
             var featureType = this.$layerService.featureTypes[featureId];
-            var propertyTypes = featureType.propertyTypeData;
-            //var propertyTypes = csComp.Helpers.getPropertyTypes(featureType, this.$layerService.propertyTypeData);
-            if (propertyTypes.reduce((prevValue, curItem) => { return prevValue || (curItem.label === mca.label); }, false)) {
-                var pt = McaCtrl.createPropertyType(mca);
-                if (typeof featureType.propertyTypeData === 'undefined' || featureType.propertyTypeData == null) featureType.propertyTypeData = [];
-                featureType.propertyTypeData.push(pt);
+            //var propertyTypes = featureType.propertyTypeData;
+            var propertyTypes = csComp.Helpers.getPropertyTypes(featureType, this.$layerService.propertyTypeData);
+            var labelIndex = -1;
+            for (var i = propertyTypes.length-1; i >= 0; i--) {
+                if (propertyTypes[i].label === mca.label) {
+                    labelIndex = i;
+                    break;
+                }
             }
+            if (forceUpdate || labelIndex < 0) {
+                var pt = McaCtrl.createPropertyType(mca);
+                if (labelIndex < 0)
+                    featureType.propertyTypeData.push(pt); // NOTE: propertyTypes refers to a new list, so you cannot add to it.
+                else 
+                    propertyTypes[labelIndex] = pt;        // NOTE: but you should be able to overwrite an existing property.
+            }
+
             if (!mca.rankTitle) return;
-            if (propertyTypes.reduce((prevValue, curItem) => { return prevValue || (curItem.label === mca.rankLabel); }, false)) {
+            labelIndex = -1;
+            for (i = propertyTypes.length - 1; i >= 0; i--) {
+                if (propertyTypes[i].label === mca.rankLabel) {
+                    labelIndex = i;
+                    break;
+                }
+            }
+            if (forceUpdate || labelIndex < 0) {
                 pt = McaCtrl.createRankPropertyType(mca);
-                featureType.propertyTypeData.push(pt);
+                if (labelIndex < 0)
+                    featureType.propertyTypeData.push(pt);
+                else
+                    propertyTypes[labelIndex] = pt;
             }
         }
 

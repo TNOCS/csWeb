@@ -1,4 +1,4 @@
-﻿var CsServerComp;
+var CsServerComp;
 (function (CsServerComp) {
     var Greeter = (function () {
         function Greeter() {

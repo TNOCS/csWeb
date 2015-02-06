@@ -112,6 +112,7 @@
         defaultValue?: number;
         subject? : string;
         target? : string;
+        options? : string[];
     }
 
     export interface IPropertyTypeData {

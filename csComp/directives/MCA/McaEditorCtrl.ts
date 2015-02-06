@@ -74,6 +74,10 @@
 
             this.loadMapLayers();
 
+            messageBusService.subscribe('layer',() => {
+                this.loadMapLayers();
+            });
+
             this.mcaTitle            = mca.title;
             this.rankTitle           = mca.rankTitle;
             this.scaleMin            = mca.scaleMinValue;
@@ -113,7 +117,7 @@
         }
 
         loadPropertyTypes() {
-            console.log('loadPropertyTypes');
+            this.updatePropertyInfo(this.selectedFeatureType);
         }
 
         /** 
@@ -135,8 +139,11 @@
                 data.features = this.$layerService.project.features;
 
             data.features.forEach((f: IFeature) => {
-                if (!(data.featureTypes.hasOwnProperty(f.featureTypeName)))
-                    data.featureTypes[f.featureTypeName] = this.$layerService.featureTypes[f.featureTypeName];
+                if (!(data.featureTypes.hasOwnProperty(f.featureTypeName))) {
+                    var featureType = this.$layerService.featureTypes[f.featureTypeName];
+                    if (!featureType.name) featureType.name = f.featureTypeName.replace('_Default', '');
+                    data.featureTypes[f.featureTypeName] = featureType;
+                }
             });
 
             this.dataset = data;

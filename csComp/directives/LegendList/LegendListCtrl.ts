@@ -25,9 +25,9 @@
         // dependencies are injected via AngularJS $injector 
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope: ILegendListScope,
-            private $layerService: csComp.Services.LayerService,
-            private $mapService  : csComp.Services.MapService,
+            private $scope            : ILegendListScope,
+            private $layerService     : csComp.Services.LayerService,
+            private $mapService       : csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
@@ -51,11 +51,11 @@
 
         private updateLegendItems() {
             var legendItems: Array<ILegendItem> = [];
-            var existingItems: Array<String> = [];
+            var existingItems: Array<String>    = [];
             for (var key in this.$layerService.featureTypes) {
-                var ft = this.$layerService.featureTypes[key];
-                var uri = this.getImageUri(ft);
-                var title = this.getName(key, ft);
+                var ft           = this.$layerService.featureTypes[key];
+                var uri          = this.getImageUri(ft);
+                var title        = this.getName(key, ft);
                 var existingItem = name + uri;
                 if (existingItems.indexOf(existingItem) < 0) {
                     existingItems.push(existingItem);
@@ -71,14 +71,17 @@
         }
 
         private getImageUri(ft: csComp.Services.IFeatureType): string {
+            var iconUri = ft.style.iconUri;
+            if (iconUri.indexOf('{') >= 0) iconUri = iconUri.replace('{', '').replace('}', '');
+            
             if (ft.style != null && ft.style.drawingMode!=null && ft.style.drawingMode.toLowerCase() != "point") {
-                if (ft.style.iconUri && ft.style.iconUri.indexOf('_Media') < 0)
-                    return ft.style.iconUri;
+                if (iconUri && iconUri.indexOf('_Media') < 0)
+                    return iconUri;
                 else
                     return "includes/images/polygon.png";
             }
-            else if (ft.style != null && ft.style.iconUri != null) {
-                return ft.style.iconUri;
+            else if (ft.style != null && iconUri != null) {
+                return iconUri;
             }
             else {
                 return "includes/images/marker.png";
@@ -86,12 +89,7 @@
         }
 
         private getName(key: string, ft: csComp.Services.IFeatureType): string {
-            if (ft.name != null) {
-                return ft.name;
-            }
-            else {
-                return key;
-            }
+            return ft.name || key.replace('_Default', '');
         }
 
     }

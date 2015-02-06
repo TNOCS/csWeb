@@ -1,5 +1,5 @@
-﻿declare module CsServerComp {
+declare module CsServerComp {
     class Greeter {
-        public sayHello(): string;
+        sayHello(): string;
     }
 }
