@@ -764,7 +764,7 @@
                             } else {
                                 switch (gf.meta.type) {
                                     case 'number':
-                                    case 'options':
+                                    case 'options':       
                                         gf.filterType  = 'bar';
                                         break;
                                     //case 'rank':
@@ -1244,6 +1244,8 @@
             }
         }
 
+        
+
         /***
          * Add bar chart filter for filter number values
          */
@@ -1322,8 +1324,18 @@
                     dc.events.trigger(() => {
                         group.filterResult = dcDim.top(Infinity);
                         this.updateFilterGroupCount(group);
+                        
+                        
+
+
+                    }, 0);
+                    dc.events.trigger(() => {
+                        
                         this.updateMapFilter(group);
-                    });
+
+
+
+                    }, 100);
                 });
 
             dcChart.xUnits(() => { return 13; });
