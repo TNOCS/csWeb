@@ -26,7 +26,8 @@
             '$location',
             '$translate',
             'messageBusService',
-            'mapService'
+            'mapService',
+            '$rootScope'
         ];
         title               : string;
         accentColor         : string;
@@ -49,7 +50,8 @@
             private $location          : ng.ILocationService,
             private $translate         : ng.translate.ITranslateService,
             private $messageBusService : Services.MessageBusService,
-            private $mapService        : Services.MapService) {
+            private $mapService        : Services.MapService,
+            private $rootScope : any) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb               = $messageBusService;
@@ -122,6 +124,18 @@
                 layer.mapLayer = new L.LayerGroup<L.ILayer>();
                 this.map.map.addLayer(layer.mapLayer);
                 layer.mapLayer.addLayer(wms);
+                wms.on('loading',  (event) => {
+                    layer.isLoading = true;
+                    this.$rootScope.$apply();
+                    if (this.$rootScope.$$phase != '$apply' && this.$rootScope.$$phase != '$digest') { this.$rootScope.$apply(); }
+                });
+                wms.on('load', (event) => {
+                    layer.isLoading = false;
+                    if (this.$rootScope.$$phase != '$apply' && this.$rootScope.$$phase != '$digest') { this.$rootScope.$apply(); }
+                });
+                layer.isLoading = true;
+                //this.$rootScope.$apply();
+
                 break;
             case 'topojson':
             case 'geojson':
@@ -137,7 +151,7 @@
                         }
                         callback(null, null);
                     },
-                    (callback) => {                        
+                    (callback) => {
                         // Open a style file
                         if (layer.styleurl) {
                             d3.json(layer.styleurl, (err, dta) => {

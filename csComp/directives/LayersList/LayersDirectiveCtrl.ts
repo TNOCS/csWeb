@@ -13,7 +13,7 @@
         public static $inject = [
             '$scope',
             'layerService'
-        ];
+        ]; 
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -39,4 +39,4 @@
             }
         }
     }
-} 
+}
