@@ -1,22 +1,42 @@
 ﻿module csComp.Services {
-    /** 
-    * Implement this interface to make your object serializable 
+    /**
+    * Implement this interface to make your object serializable
     * @see http://stackoverflow.com/a/22886730/319711
     */
     export interface ISerializable<T> {
         deserialize(input: Object): T;
     }
 
-    export class DateRange {
-        start : number;
-        end: number;
-        focus: number;
+    var availableZoomLevels = [{ title: "decades", value: 315360000000 },
+      { title: "years", value: 31536000000 }, { title: "weeks", value: 604800000 }, { title: "days", value: 86400000 }, { title: "hours", value: 3600000 }, { title: "quarters", value: 900000 }, { title: "minutes", value: 60000 }, { title: "seconds", value: 1000 }, { title: "milliseconds", value: 1 }
+  ];
+
+
+  export class DateRange {
+    start : number;
+    end: number;
+    focus: number;
+    range: number; // total time range in ms
+    zoomLevel: number;
+    zoomLevelName: string;
+    isLive: boolean;
+
 
         public setFocus(d: Date,s? : Date, e? : Date) {
             this.focus = d.getTime();
             if (s) this.start = s.getTime();
             if (e) this.end = e.getTime();
+            var newRange = this.end - this.start;
+            if (this.range !== newRange) {
+                this.range = newRange;
+                availableZoomLevels.some((tl) => {
+                    this.zoomLevel = tl.value;
+                    this.zoomLevelName = tl.title;
+                    return (tl.value < (this.range / 10));
+                });
+            }
         }
+
 
         constructor() {
             if (!focus) this.setFocus(new Date());

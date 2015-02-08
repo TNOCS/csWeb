@@ -98,6 +98,8 @@
     <Content Include="directives\MCA\McaEditorView.tpl.html" />
     <Content Include="directives\ProjectSettings\ProjectSettings.tpl.html" />
     <Content Include="directives\Timeline\Timeline.tpl.html" />
+    <Content Include="includes\timeline.css" />
+    <Content Include="includes\timeline.js" />
     <None Include="includes\cssImages\filter-black.png" />
     <None Include="includes\cssImages\layers-black.png" />
     <None Include="includes\cssImages\legend.png" />

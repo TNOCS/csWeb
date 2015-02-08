@@ -11,7 +11,7 @@
     }
 
     export class LegendListCtrl {
-        // $inject annotation.   
+        // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
         // it is better to have it close to the constructor, because the parameters must match in count and type.
         // See http://docs.angularjs.org/guide/di
@@ -22,7 +22,7 @@
             'messageBusService'
         ];
 
-        // dependencies are injected via AngularJS $injector 
+        // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope            : ILegendListScope,
@@ -31,7 +31,7 @@
             private $messageBusService: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
-            
+
             $messageBusService.subscribe('project', () => {
                 // Update the legend when a project is loaded.
                 this.updateLegendItems();
@@ -72,10 +72,11 @@
 
         private getImageUri(ft: csComp.Services.IFeatureType): string {
             var iconUri = ft.style.iconUri;
+            if (iconUri==null) iconUri="includes/images/marker.png";
             if (iconUri.indexOf('{') >= 0) iconUri = iconUri.replace('{', '').replace('}', '');
-            
+ 
             if (ft.style != null && ft.style.drawingMode!=null && ft.style.drawingMode.toLowerCase() != "point") {
-                if (iconUri && iconUri.indexOf('_Media') < 0)
+                if (iconUri.indexOf('_Media') < 0)
                     return iconUri;
                 else
                     return "includes/images/polygon.png";
@@ -93,4 +94,4 @@
         }
 
     }
-} 
+}

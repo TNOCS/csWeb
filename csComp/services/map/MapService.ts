@@ -1,10 +1,10 @@
 ﻿module csComp.Services {
     'use strict';
 
- 
+
     /*
-     * Singleton service that holds a reference to the map. 
-     * In case other controllers need access to the map, they can inject this service. 
+     * Singleton service that holds a reference to the map.
+     * In case other controllers need access to the map, they can inject this service.
      */
     export class MapService {
         public static $inject = [
@@ -15,6 +15,9 @@
 
         public baseLayers: any;
         private activeBaseLayer: L.ILayer;
+        public isVisible: boolean = true;
+        public timelineVisible : boolean = true;
+
 
         constructor(private $messageBusService: csComp.Services.MessageBusService) {
             //this.map = L.map("map", {
@@ -72,7 +75,7 @@
                         bb = [Math.min(bb[0], b[0]), Math.max(bb[1], b[1]), Math.min(bb[2], b[2]), Math.max(bb[3], b[3])];
                     });
                 }
-                var spacingLon = 0.05; // extra spacing left and right, where the menus are. 
+                var spacingLon = 0.05; // extra spacing left and right, where the menus are.
                 var southWest = L.latLng(Math.min(bb[2], bb[3]), Math.min(bb[0], bb[1]) - spacingLon);
                 var northEast = L.latLng(Math.max(bb[2], bb[3]), Math.max(bb[0], bb[1]) + spacingLon);
                 this.map.fitBounds(new L.LatLngBounds(southWest, northEast));
@@ -85,7 +88,7 @@
         //    return arr.reduce((x, y) => [x[0] + y[0] / arr.length, x[1] + y[1] / arr.length], [0, 0]);
         //}
 
-        /** 
+        /**
          * Compute the bounding box.
          * Returns [min_x, max_x, min_y, max_y]
          */

@@ -16,7 +16,7 @@
         propertyTypeData: { [key: string]: Services.IPropertyType; };
         timeline        : any;
     }
-    
+
     declare var jsonld;
     declare var omnivore;
 
@@ -105,7 +105,7 @@
             this.$messageBusService.publish('feature', 'onFeatureUpdated');
         }
 
-        /** 
+        /**
          * Add a layer
          */
         addLayer(layer: ProjectLayer) {
@@ -222,7 +222,7 @@
                                                 mouseover : (a) => this.showFeatureTooltip(a, layer.group),
                                                 mouseout  : (s) => this.hideFeatureTooltip(s),
                                                 mousemove : (d) => this.updateFeatureTooltip(d),
-                                                click     : ()  => { this.selectFeature(feature); }
+                                                click     : ()  => this.selectFeature(feature)
                                             });
                                         },
                                         style : (f: IFeature, m) => {
@@ -256,6 +256,7 @@
                 ]);
             }
         }
+
 
         private convertTopoToGeoJson(data) {
             // Convert topojson to geojson format
@@ -346,7 +347,7 @@
             if (this.popup!=null && e.latlng!=null) this.popup.setLatLng(e.latlng);
         }
 
-       
+
 
         //Highlight polyline features on event
         highlightFeature(e) {
@@ -414,7 +415,7 @@
 
         private updateGroupFeatures(group : ProjectGroup) {
             this.project.features.forEach((f: IFeature) => {
-                if (group.markers.hasOwnProperty(f.id)) {                    
+                if (group.markers.hasOwnProperty(f.id)) {
                     this.updateFeature(f,group);
                 }
             });
@@ -425,7 +426,7 @@
         private updatePolygonStyle(m: any, feature: IFeature) {
             var layer = this.findLayer(feature.layerId);
             var s = this.style(feature, layer);
-            m.setStyle(s);            
+            m.setStyle(s);
         }
 
         private getColor(v: number, gs: GroupStyle) {
@@ -437,7 +438,7 @@
         }
 
         /**
-        * Extract a valid color string, without transparency. 
+        * Extract a valid color string, without transparency.
         */
         private getColorString(color: string, defaultColor = '#f00') {
             if (!color) return defaultColor;
@@ -451,7 +452,7 @@
                 fillColor   : 'red',
                 weight      : 2,
                 opacity     : 1,
-                color       : 'black',                
+                color       : 'black',
                 fillOpacity : 0.7
             };
 
@@ -467,8 +468,8 @@
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     var v = Number(feature.properties[gs.property]);
                     switch (gs.visualAspect) {
-                        case 'strokeColor':                            
-                            s['color'] = this.getColor(v, gs);                            
+                        case 'strokeColor':
+                            s['color'] = this.getColor(v, gs);
                             break;
                         case 'fillColor':
                             s[gs.visualAspect] = this.getColor(v, gs);
@@ -477,7 +478,7 @@
                             s['weight'] = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
                             break;
                     }
-                    //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);      
+                    //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                 }
             });
 
@@ -492,7 +493,7 @@
          * init feature (add to feature list, crossfilter)
          */
         initFeature(feature: IFeature, layer: ProjectLayer): IFeatureType {
-            //if (!feature.isInitialized) 
+            //if (!feature.isInitialized)
             feature.isInitialized = true;
             if (feature.id == null) feature.id = Helpers.getGuid();
             feature.layerId = layer.id;
@@ -506,7 +507,7 @@
         }
 
         removeFeature(feature: IFeature, layer: ProjectLayer) {
-            
+
         }
 
         /**
@@ -553,7 +554,7 @@
 
                             break;
                         }
-                        //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);      
+                        //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                     }
                 });
                 if (feature.isSelected) {
@@ -569,7 +570,7 @@
                 html += '\'>';
                 if (iconUri != null) {
                     // Must the iconUri be formatted?
-                    if (iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
+                    if (iconUri!=null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
 
                     html += '<img src=' + iconUri + ' style=\'width:' + (ft.style.iconWidth - 2) + 'px;height:' + (ft.style.iconHeight - 2) + 'px\' />';
                 }
@@ -596,10 +597,10 @@
             if (marker!=null) marker.setIcon(this.getPointIcon(feature,layer));
         }
 
-        /** 
+        /**
          * add a feature
          */
-        addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {            
+        addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {
             this.initFeature(feature,layer);
             //var style = type.style;
             var marker;
@@ -613,14 +614,14 @@
                 //feature.marker = m;
                 break;
                 default:
-                    var polyoptions = {                        
-                        fillColor: 'Green'                        
+                    var polyoptions = {
+                        fillColor: 'Green'
                     };
                     marker = L.multiPolygon(latlng, polyoptions);
                 break;
             }
-            layer.group.markers[feature.id] = marker;   
-                          
+            layer.group.markers[feature.id] = marker;
+
             return marker;
         }
 
@@ -636,7 +637,7 @@
             }
             this.lastSelectedFeature = feature;
 
-            
+
             if (!feature.isSelected) {
                 this.$messageBusService.publish('sidebar', 'hide');
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
@@ -646,7 +647,7 @@
             }
         }
 
-        /** 
+        /**
          * find a filter for a specific group/property combination
          */
         private findFilter(group: ProjectGroup, property: string): GroupFilter {
@@ -656,7 +657,7 @@
             return null;
         }
 
-        /** 
+        /**
          * find a layer with a specific id
          */
         findLayer(id: string): ProjectLayer {
@@ -669,7 +670,7 @@
             return r;
         }
 
-        setStyle(property: any, openStyleTab = true) {            
+        setStyle(property: any, openStyleTab = true) {
             var f: IFeature = property.feature;
             if (f != null) {
                 this.noStyles     = false;
@@ -680,15 +681,15 @@
                 gs.meta           = property.meta;
                 gs.visualAspect   = 'fillColor';
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
-                
+
                 gs.property = property.property;
                 if (gs.info==null) gs.info = this.calculatePropertyInfo(layer.group, property.property);
-                
+
                 gs.enabled = true;
                 gs.group = layer.group;
                 gs.meta = property.meta;
                 var ft = this.getFeatureType(f);
-                
+
                 if (ft.style && ft.style.fillColor) {
                     gs.colors = ['white', 'orange'];
                 } else {
@@ -743,7 +744,7 @@
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
         }
 
-         /** 
+         /**
          * enable a filter for a specific property
          */
         setFilter(property: FeatureProps.CallOutProperty) {
@@ -764,7 +765,7 @@
                             } else {
                                 switch (gf.meta.type) {
                                     case 'number':
-                                    case 'options':       
+                                    case 'options':
                                         gf.filterType  = 'bar';
                                         break;
                                     //case 'rank':
@@ -804,7 +805,7 @@
             }
         }
 
-        /** 
+        /**
          * Return the feature style for a specific feature.
          * First, look for a layer specific feature type, otherwise, look for a project-specific feature type.
          * In case both fail, create a default feature type at the layer level.
@@ -860,7 +861,7 @@
         }
 
         private getGroupFeatures(g: ProjectGroup) : Array<IFeature> {
-            
+
             // find active layers
             var ls = [];
             g.layers.forEach((l: ProjectLayer) => { if (l.enabled) ls.push(l.id); });
@@ -876,14 +877,14 @@
             g.ndx = crossfilter([]);
 
             var features = this.getGroupFeatures(g);
-            
+
             g.ndx.add(features);
 
-            // redraw charts            
+            // redraw charts
             this.updateFilters();
         }
 
-        /** 
+        /**
          * deactivate layer
          */
         removeLayer(layer: ProjectLayer) {
@@ -954,17 +955,17 @@
                 //$scope.projects = [];
 
                 solution.baselayers.forEach(b => {
-                    var options: L.TileLayerOptions = {};                    
+                    var options: L.TileLayerOptions = {};
                     options['subtitle'] = b.subtitle;
                     options['preview'] = b.preview;
                     if (b.subdomains != null) options['subdomains'] = b.subdomains;
                     if (b.maxZoom != null) options.maxZoom = b.maxZoom;
-                    if (b.minZoom != null) options.minZoom = b.minZoom;                    
+                    if (b.minZoom != null) options.minZoom = b.minZoom;
                     if (b.attribution != null) options.attribution = b.attribution;
                     if (b.id != null) options['id'] = b.id;
                     var layer = L.tileLayer(b.url, options);
                     this.$mapService.baseLayers[b.title] = layer;
-                    if (b.isDefault) 
+                    if (b.isDefault)
                         this.$mapService.changeBaseLayer(layer);
                 });
                 //$scope.projects = projects.projects;
@@ -981,7 +982,7 @@
             });
         }
 
-        /** 
+        /**
          * Open project
          * @params url: URL of the project
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
@@ -1045,7 +1046,7 @@
                     if (group.clustering) {
                         group.cluster = new L.MarkerClusterGroup({
                             maxClusterRadius: group.maxClusterRadius || 80,
-                            disableClusteringAtZoom: group.clusterLevel || 0                           
+                            disableClusteringAtZoom: group.clusterLevel || 0
                         });
 
                         this.map.map.addLayer(group.cluster);
@@ -1096,7 +1097,7 @@
         }
 
         /**
-         * Calculate min/max/count for a specific property in a group 
+         * Calculate min/max/count for a specific property in a group
          */
         private calculatePropertyInfo(group: ProjectGroup, property: string) : PropertyInfo {
             var r = new PropertyInfo();
@@ -1142,7 +1143,7 @@
             var fmain = $('#filterChart');
             fmain.empty();
             this.noFilters = true;
-            
+
             this.project.groups.forEach((group: ProjectGroup) => {
                 if (group.filters != null && group.filters.length>0) {
                     $('<div style=\'float:left;margin-left: -10px; margin-top: 5px\' data-toggle=\'collapse\' data-target=\'#filters_' + group.id + '\'><i class=\'fa fa-chevron-down togglebutton toggle-arrow-down\'></i><i class=\'fa fa-chevron-up togglebutton toggle-arrow-up\'></i></div><div class=\'group-title\' >' + group.title + '</div><div id=\'filtergroupcount_' + group.id + '\'  class=\'filter-group-count\' /><div class=\'collapse in\' id=\'filters_' + group.id + '\'></div>').appendTo('#filterChart');
@@ -1166,19 +1167,19 @@
         }
 
         private updateTextFilter(group: ProjectGroup, dcDim: any, value: string) {
-            
+
             if (value == null || value === '') {
                 dcDim.filterAll();
             } else {
                 dcDim.filterFunction((d: string) => {
                     if (d != null) return (d.toLowerCase().indexOf(value.toLowerCase()) > -1);
                     return false;
-                });    
+                });
             }
 
             group.filterResult = dcDim.top(Infinity);
             this.updateMapFilter(group);
-            dc.renderAll();            
+            dc.renderAll();
         }
 
         private updateFilterGroupCount(group: ProjectGroup) {
@@ -1189,12 +1190,12 @@
         /***
          * Add text filter to list of filters
          */
-        private addTextFilter(group: ProjectGroup, filter: GroupFilter) {            
+        private addTextFilter(group: ProjectGroup, filter: GroupFilter) {
             filter.id = Helpers.getGuid();
-            //var divid = 'filter_' + filter.id;            
+            //var divid = 'filter_' + filter.id;
             var dcDim = group.ndx.dimension(d => {
                 if (d.properties.hasOwnProperty(filter.property)) {
-                    return d.properties[filter.property];                    
+                    return d.properties[filter.property];
                 } else return null;
             });
             filter.dimension = dcDim;
@@ -1221,7 +1222,7 @@
                 filter.dimension = null;
                 if (pos !== -1) group.filters = group.filters.slice(pos - 1, pos);
                 dc.filterAll();
-                
+
                 this.updateFilters();
                 this.resetMapFilter(group);
             });
@@ -1229,7 +1230,7 @@
 
         private updateChartRange(chart: dc.IBarchart, filter: GroupFilter) {
             var filterFrom = $('#fsfrom_' + filter.id);
-            var filterTo = $('#fsto_' + filter.id); 
+            var filterTo = $('#fsto_' + filter.id);
             var extent = (<any>chart).brush().extent();
             if (extent !=null && extent.length === 2) {
                 if (extent[0] !== extent[1]) {
@@ -1244,7 +1245,7 @@
             }
         }
 
-        
+
 
         /***
          * Add bar chart filter for filter number values
@@ -1300,7 +1301,7 @@
                 .group(dcGroup)
                 .transitionDuration(100)
                 .centerBar(true)
-                .gap(5) //d3.scale.quantize().domain([0, 10]).range(d3.range(1, 4));                
+                .gap(5) //d3.scale.quantize().domain([0, 10]).range(d3.range(1, 4));
                 .elasticY(true)
                 .x(d3.scale.linear().domain([info.sdMin, info.sdMax]).range([-1, nBins + 1]))
                 .filterPrinter(filters => {
@@ -1324,13 +1325,13 @@
                     dc.events.trigger(() => {
                         group.filterResult = dcDim.top(Infinity);
                         this.updateFilterGroupCount(group);
-                        
-                        
+
+
 
 
                     }, 0);
                     dc.events.trigger(() => {
-                        
+
                         this.updateMapFilter(group);
 
 
@@ -1366,7 +1367,7 @@
                     }
                     //dc.redrawAll();
                 }
-//dcDim.filter([min, min + 100]);                
+//dcDim.filter([min, min + 100]);
             });
 
             //if (filter.meta != null && filter.meta.minValue != null) {
@@ -1417,5 +1418,3 @@
         }
     }
 }
-
-
