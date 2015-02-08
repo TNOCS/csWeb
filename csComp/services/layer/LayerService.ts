@@ -137,10 +137,11 @@
                         }
                         callback(null, null);
                     },
-                    (callback) => {
+                    (callback) => {                        
                         // Open a style file
                         if (layer.styleurl) {
                             d3.json(layer.styleurl, (err, dta) => {
+
                                 if (err)
                                     this.$messageBusService.notify('ERROR loading' + layer.title, err);
                                 else {
@@ -159,7 +160,9 @@
                     },
                     (callback) => {
                         // Open a layer URL
+                        layer.isLoading = true;
                         d3.json(layer.url, (error, data) => {
+                          layer.isLoading = false;
                             if (error)
                                 this.$messageBusService.notify('ERROR loading' + layer.title, error);
                             else {
