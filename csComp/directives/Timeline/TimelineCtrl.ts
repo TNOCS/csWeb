@@ -1,16 +1,11 @@
 ﻿module Timeline {
-
     declare var links;
 
-
     export interface ITimelineScope extends ng.IScope {
-        vm: TimelineCtrl;
-        numberOfItems: number;
-        timeline: any;
-
+        vm            : TimelineCtrl;
+        numberOfItems : number;
+        timeline      : any;
     }
- 
-
 
     export class TimelineCtrl {
         private scope: ITimelineScope;
@@ -27,24 +22,22 @@
         ];
 
         public focusDate: Date;
-        public line1: string;
-        public line2 : string;
+        public line1    : string;
+        public line2    : string;
         public startDate: Date;
-        public endDate: Date;
+        public endDate  : Date;
 
-        public timer: any;
-        public isPlaying: boolean;
+        public timer       : any;
+        public isPlaying   : boolean;
         public showControl : boolean;
-        public isPinned : boolean;
-
-
+        public isPinned    : boolean;
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope: ITimelineScope,
-            private $layerService: csComp.Services.LayerService,
-            private $mapService  : csComp.Services.MapService,
+            private $scope            : ITimelineScope,
+            private $layerService     : csComp.Services.LayerService,
+            private $mapService       : csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
@@ -62,10 +55,10 @@
 
             // Options voor de timeline
             var options = {
-                'width': '100%',
-                'height': '100px',
+                'width'   : '100%'  ,
+                'height'  : '100px',
                 'editable': false,
-                'layout': 'box'
+                'layout'  : 'box'
             };
 
             $scope.timeline = new links.Timeline(document.getElementById('timeline'), options);
@@ -73,22 +66,17 @@
 
             $scope.timeline.draw();
             links.events.addListener($scope.timeline, 'rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
-            links.events.addListener($scope.timeline, 'rangechange', (prop) => {
+            links.events.addListener($scope.timeline, 'rangechange', () => {
                 if (this.$layerService.project && this.$layerService.project.timeLine.isLive) {
                     this.myTimer();
                 }
             });
 
-
             this.updateDragging();
-
             this.updateFocusTime();
-
-
         }
 
         public updateDragging() {
-
             if (this.$layerService.project && this.$layerService.project.timeLine.isLive) {
                 (<any>$("#focustimeContainer")).draggable('disable');
             } else {
@@ -99,13 +87,11 @@
                 });
                 (<any>$("#focustimeContainer")).draggable('enable');
             }
-
         }
 
 
         public onRangeChanged(properties) {
             this.updateFocusTime();
-
         }
 
         public start() {
@@ -113,12 +99,9 @@
             this.isPlaying = true;
             if (this.timer) this.timer = null;
             this.timer = setInterval(()=> { this.myTimer(); }, 500);
-
-
         }
 
         public toggleLive() {
-
             if (!this.$layerService.project) return;
             this.stop();
             this.$layerService.project.timeLine.isLive = !this.$layerService.project.timeLine.isLive;
@@ -141,8 +124,6 @@
                 tl.move(0.005);
                 this.updateFocusTime();
             }
-
-
         }
 
         public mouseEnter() {
@@ -151,7 +132,6 @@
 
         public mouseLeave() {
             if (!this.isPlaying) this.showControl = false;
-
         }
 
         public pinToNow() {
@@ -172,17 +152,15 @@
             var tc1 = $("#focustimeContainer").offset().left;
             var tc2 = $("#timelinecontainer").offset().left - 15; // + 55;
             var centerX = tc1 - tc2 + $("#focustimeContainer").width() / 2;
-            var end = $("#timeline").width;
+            //var end = $("#timeline").width;
 
             var range = this.$scope.timeline.getVisibleChartRange();
             //tl.calcConversionFactor();
-
 
             this.focusDate = new Date(this.$scope.timeline.screenToTime(centerX));
 
             this.startDate = range.start; //new Date(range.start); //this.$scope.timeline.screenToTime(0));
             this.endDate = range.end; //new Date(this.$scope.timeline.screenToTime(end));
-
 
             if (this.$layerService.project != null && this.$layerService.project.timeLine != null) {
                 var projecttime = this.$layerService.project.timeLine;
@@ -193,11 +171,9 @@
                     case "decades":
                         this.line1 = this.focusDate.getFullYear().toString();
                         this.line2 = "";
-
                         break;
                     case "years":
                         this.line1 = this.focusDate.getFullYear().toString();
-                        var locale = "en-us";
                         this.line2 = month;
                         break;
                     case "weeks" :
@@ -208,28 +184,14 @@
                         this.line1 = moment(this.focusDate).format('MM - DD - YYYY');
                         this.line2 = moment(this.focusDate).format('HH:mm:ss.SSS');
                         break;
-
                     default:
                         this.line1 = moment(this.focusDate).format('MM - DD - YYYY');
                         this.line2 = moment(this.focusDate).format('HH:mm:ss');
                 }
-
-
-
-
             }
             this.$messageBusService.publish("timeline", "focusChange", this.focusDate);
-
-
-
             //this.$layerService.focusTime = new Date(this.timelineCtrl.screenToTime(centerX));
                 //this.$scope.$apply();
-
-
             }
-
-
-
-
     }
 }

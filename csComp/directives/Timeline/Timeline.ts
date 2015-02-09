@@ -1,4 +1,4 @@
-﻿module Timeline {
+  ﻿module Timeline {
     /**
       * Config
       */
