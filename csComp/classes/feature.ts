@@ -26,6 +26,7 @@
         fType?          : IFeatureType;
         isInitialized?  : boolean;
         sensors?        : { [id: string]: any[]}
+        languages?      : { [key: string]: ILocalisedData }
     }
 
     /** 
@@ -113,10 +114,11 @@
         subject?         : string;
         target?          : string;
         options?         : string[];
-        languages?       : { [key: string] : ILocalisedPropertyTypeData }
+        languages?       : { [key: string]: ILocalisedData }
     }
 
-    export interface ILocalisedPropertyTypeData {
+    export interface ILocalisedData {
+        name?       : string;
         title?      : string;
         description?: string;
         section?    : string;
@@ -149,6 +151,7 @@
          * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.
          */
         propertyTypeKeys?: string;
+        languages?       : { [key: string]: ILocalisedData }
     }
 
     export interface IGeoJsonFile {
