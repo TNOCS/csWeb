@@ -78,6 +78,7 @@
         description     : string;
         logo            : string;
         url             : string;
+        activeDashboard : Dashboard;
         baselayers      : IBaseLayer[];
         featureTypes    : { [id: string]: IFeatureType }
         propertyTypeData: { [id: string]: IPropertyType }
