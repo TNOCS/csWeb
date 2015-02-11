@@ -2,14 +2,15 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "declaration": false,
+        "declaration": true,
         "noImplicitAny": false,
-        "removeComments": true,
+        "removeComments": false,
         "noLib": false,
         "out": "dist/csComp.js"
     },
     "filesGlob": [
         "./**/*.ts",
+        "!dist/*.ts",
         "!node_modules/**/*.ts"
     ],
     "files": [
@@ -25,6 +26,7 @@
         "./Scripts/typings/jquery/jquery.d.ts",
         "./Scripts/typings/leaflet/control-sidebar.d.ts",
         "./Scripts/typings/leaflet/leaflet.d.ts",
+        "./Scripts/typings/moment/moment.d.ts",
         "./Scripts/typings/pnotify/jquery.pnotify.d.ts",
         "./Scripts/typings/q/Q.d.ts",
         "./Scripts/typings/underscore/underscore.d.ts",
@@ -78,7 +80,6 @@
         "./directives/Timeline/TimelineCtrl.ts",
         "./directives/Voting/Voting.ts",
         "./dist/csComp.d.ts",
-        "./dist/directives/Dashboard/Widgets/BasicWidgets.d.ts",
         "./helpers/Extensions.ts",
         "./helpers/Helpers.ts",
         "./helpers/MessageBus.ts",
