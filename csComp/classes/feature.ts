@@ -34,17 +34,17 @@
      * 
      */
     export class Feature implements IFeature {
-        public id             : string;
-        public layerId        : string;
-        public type           : string;
-        public geometry       : IGeoJsonGeometry;
-        public properties     : IStringToAny;
-        public isSelected     : boolean;
-        public htmlStyle      : string;
-        public featureTypeName: string;
-        public fType          : IFeatureType;
-        public isInitialized  : boolean;
-        public sensors        : { [id: string]: any[] }
+        id             : string;
+        layerId        : string;
+        type           : string;
+        geometry       : IGeoJsonGeometry;
+        properties     : IStringToAny;
+        isSelected     : boolean;
+        htmlStyle      : string;
+        featureTypeName: string;
+        fType          : IFeatureType;
+        isInitialized  : boolean;
+        sensors        : { [id: string]: any[] }
     }
 
     export interface IStringToAny {
@@ -109,10 +109,18 @@
         isSearchable?    : boolean;
         minValue?        : number;
         maxValue?        : number;
-        defaultValue?: number;
-        subject? : string;
-        target? : string;
-        options? : string[];
+        defaultValue?    : number;
+        subject?         : string;
+        target?          : string;
+        options?         : string[];
+        languages?       : { [key: string] : ILocalisedPropertyTypeData }
+    }
+
+    export interface ILocalisedPropertyTypeData {
+        title?      : string;
+        description?: string;
+        section?    : string;
+        options?    : string[];
     }
 
     export interface IPropertyTypeData {
