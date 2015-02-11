@@ -22,13 +22,6 @@
 
     export class LayerService implements ILayerService {
         maxBounds           : IBoundingBox;
-        static $inject = [
-            '$location',
-            '$translate',
-            'messageBusService',
-            'mapService',
-            '$rootScope'
-        ];
         title               : string;
         accentColor         : string;
         mb                  : Services.MessageBusService;
@@ -43,8 +36,17 @@
         lastSelectedFeature : IFeature;
         selectedLayerId     : string;
         timeline            : any;
-        layerGroup = new L.LayerGroup<L.ILayer>();
-        info       = new L.Control();
+        layerGroup    = new L.LayerGroup<L.ILayer>();
+        info          = new L.Control();
+        currentLocale = 'en';
+
+        static $inject = [
+            '$location',
+            '$translate',
+            'messageBusService',
+            'mapService',
+            '$rootScope'
+        ];
 
         constructor(
             private $location          : ng.ILocationService,
@@ -66,10 +68,16 @@
 
             this.$messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
-
-                case 'focusChange':
-                    this.updateSensorData();
-                    break;
+                    case 'focusChange':
+                        this.updateSensorData();
+                        break;
+                }
+            });
+            this.$messageBusService.subscribe('language', (title: string, language: string) => {
+                switch (title) {
+                    case 'newLanguage':
+                        this.currentLocale = language;
+                        break;
                 }
             });
         }
@@ -517,10 +525,38 @@
             this.project.features.push(feature);
             layer.group.ndx.add([feature]);
             feature.fType = this.getFeatureType(feature);
+            this.initPropertyTypes(feature.fType);
             // Do we have a name?
             if (!feature.properties.hasOwnProperty('Name'))
                 Helpers.setFeatureName(feature);
             return feature.type;
+        }
+
+        /**
+        * Initialize the property type by setting default property values, and by localizing it.
+        */
+        private initPropertyTypes(ft: IFeatureType) {
+            if (ft.propertyTypeData.length == 0) return;
+            ft.propertyTypeData.forEach((pt) => {
+                this.setDefaultPropertyType(pt);
+                if (pt.languages != null) this.localizePropertyType(pt);
+            });
+        }
+
+        private setDefaultPropertyType(pt: IPropertyType) {
+            if (typeof pt.visibleInCallOut == 'undefined'                      ) pt.visibleInCallOut = true;
+            if (typeof pt.canEdit          == 'undefined'                      ) pt.canEdit = false;
+            if (typeof pt.isSearchable     == 'undefined' && pt.type === 'text') pt.isSearchable = true;
+        }
+
+        private localizePropertyType(pt: IPropertyType) {
+            if (pt.languages != null && this.currentLocale in pt.languages) {
+                var locale = pt.languages[this.currentLocale];
+                if (locale.title) pt.title = locale.title;
+                if (locale.description) pt.description = locale.description;
+                if (locale.section) pt.section = locale.section;
+                if (locale.options != null) pt.options = locale.options;
+            };
         }
 
         removeFeature(feature: IFeature, layer: ProjectLayer) {
