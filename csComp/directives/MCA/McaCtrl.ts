@@ -296,7 +296,7 @@
             this.$localStorageService.set(McaCtrl.mcas, mcas); // You first need to set the key
         }
 
-        private featureMessageReceived = (title: string, feature: IFeature): void => {
+        public featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("MC: featureMessageReceived");
             if (this.mca == null) return;
             switch (title) {
