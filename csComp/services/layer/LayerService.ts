@@ -82,15 +82,25 @@
             });
         }
 
+        public selectDashboard(dashboard : csComp.Services.Dashboard) {
+           this.project.activeDashboard = dashboard;
+           this.$messageBusService.publish("dashboard", "activated", dashboard);
+       }
+
         updateSensorData() {
             if (this.project == null || this.project.timeLine == null) return;
+
             var date = this.project.timeLine.focus;
             var timepos = {};
-            this.project.features.forEach((f: IFeature) => {
+
+
+              this.project.features.forEach((f: IFeature) => {
                     var l = this.findLayer(f.layerId);
 
-                    if (l != null) {
-                        if (!timepos.hasOwnProperty(f.layerId)) {
+                if (l != null)
+                {
+                        if (!l.timestamps) l.timestamps = [];
+                        if (!timepos.hasOwnProperty(f.layerId) && l.timestamps != null) {
                             for (var i = 1; i < l.timestamps.length; i++) {
                                 if (l.timestamps[i] > date) {
                                     timepos[f.layerId] = i;
@@ -101,10 +111,8 @@
 
                         if (f.sensors != null) {
                             for (var sensorTitle in f.sensors) {
-                                if (!f.sensors.hasOwnProperty(sensorTitle)) continue;
                                 var sensor = f.sensors[sensorTitle];
                                 var value = sensor[timepos[f.layerId]];
-                                //console.log(sensorTitle + ":" + value);
                                 f.properties[sensorTitle] = value;
                             }
                             this.updateFeatureIcon(f, l);
@@ -112,7 +120,8 @@
                     }
                 }
             );
-            this.$messageBusService.publish('feature', 'onFeatureUpdated');
+            this.$messageBusService.publish("feature", "onFeatureUpdated");
+
         }
 
         /**
@@ -246,8 +255,8 @@
                                             lay.on({
                                                 mouseover : (a) => this.showFeatureTooltip(a, layer.group),
                                                 mouseout  : (s) => this.hideFeatureTooltip(s),
-                                                mousemove : (d) => this.updateFeatureTooltip(d),
-                                                click     : ()  => this.selectFeature(feature)
+                                                mousemove : (d) => this.updateFeatureTooltip(d)
+                                                //click     : ()  => this.selectFeature(feature)
                                             });
                                         },
                                         style : (f: IFeature, m) => {
@@ -312,11 +321,12 @@
          * Show tooltip with name, styles & filters.
          */
         showFeatureTooltip(e, group: ProjectGroup) {
+
             var layer = e.target;
             var feature = <Feature>layer.feature;
             // add title
             var title = layer.feature.properties.Name;
-            var rowLength = title.length;
+            var rowLength = (title) ? title.length : 1;
             var content = '<td colspan=\'3\'>' + title + '</td></tr>';
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
@@ -1040,7 +1050,7 @@
          * @params url: URL of the project
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
          */
-        openProject(url: string, layers?: string): void {
+        public openProject(url: string, layers?: string): void {
             //console.log('layers (openProject): ' + JSON.stringify(layers));
             var layerIds: Array<string> = [];
             if (layers) {
@@ -1069,12 +1079,14 @@
                         this.featureTypes[typeName] = featureType;
                     }
                 }
-                var propertyTypeData = this.project.propertyTypeData;
-                if (propertyTypeData) {
-                    for (var key in propertyTypeData) {
-                        if (!propertyTypeData.hasOwnProperty(key)) continue;
-                        var propertyType: IPropertyType = propertyTypeData[key];
+                if (this.project.propertyTypeData) {
+                    for (var key in this.project.propertyTypeData) {
+                        var propertyType: IPropertyType = this.project.propertyTypeData[key];
+                        if (!propertyType.visibleInCallOut) propertyType.visibleInCallOut = true;
+                        if (!propertyType.label) propertyType.label = key;
+                        if (!propertyType.type) propertyType.type = "text";
                         this.propertyTypeData[key] = propertyType;
+
                     }
                 }
 
