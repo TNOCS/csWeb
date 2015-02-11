@@ -9,6 +9,7 @@
 
     export class TimelineCtrl {
         private scope: ITimelineScope;
+        private locale = "en-us";
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -165,8 +166,7 @@
             if (this.$layerService.project != null && this.$layerService.project.timeLine != null) {
                 var projecttime = this.$layerService.project.timeLine;
                 projecttime.setFocus(this.focusDate, this.startDate, this.endDate);
-                var locale = "en-us";
-                var month = (<any>this.focusDate).toLocaleString(locale, { month: "long" });
+                var month = (<any>this.focusDate).toLocaleString(this.locale, { month: "long" });
                 switch (projecttime.zoomLevelName) {
                     case "decades":
                         this.line1 = this.focusDate.getFullYear().toString();
