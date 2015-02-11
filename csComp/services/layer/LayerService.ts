@@ -29,6 +29,7 @@
         featureTypes        : { [key: string]: IFeatureType; };
         propertyTypeData    : { [key: string]: IPropertyType; };
         project             : Project;
+        projectUrl          : string; // URL of the current project
         solution            : Solution;
         dimension           : any;
         noFilters           : boolean;
@@ -60,23 +61,26 @@
             this.map              = $mapService;
             this.accentColor      = '';
             this.title            = '';
-            this.layerGroup       = new L.LayerGroup<L.ILayer>();
+            //this.layerGroup       = new L.LayerGroup<L.ILayer>();
             this.featureTypes     = {};
             this.propertyTypeData = {};
-            this.map.map.addLayer(this.layerGroup);
+            //this.map.map.addLayer(this.layerGroup);
             this.noStyles = true;
 
-            this.$messageBusService.subscribe('timeline', (trigger: string) => {
+            $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
                     case 'focusChange':
                         this.updateSensorData();
                         break;
                 }
             });
-            this.$messageBusService.subscribe('language', (title: string, language: string) => {
+
+            $messageBusService.subscribe('language', (title: string, language: string) => {
                 switch (title) {
                     case 'newLanguage':
                         this.currentLocale = language;
+                        $messageBusService.notify('Reloading...', 'A new language is selected');
+                        this.openProject(this.projectUrl);
                         break;
                 }
             });
@@ -85,7 +89,7 @@
         public selectDashboard(dashboard : csComp.Services.Dashboard) {
            this.project.activeDashboard = dashboard;
            this.$messageBusService.publish("dashboard", "activated", dashboard);
-       }
+        }
 
         updateSensorData() {
             if (this.project == null || this.project.timeLine == null) return;
@@ -93,9 +97,8 @@
             var date = this.project.timeLine.focus;
             var timepos = {};
 
-
-              this.project.features.forEach((f: IFeature) => {
-                    var l = this.findLayer(f.layerId);
+            this.project.features.forEach((f: IFeature) => {
+                var l = this.findLayer(f.layerId);
 
                 if (l != null)
                 {
@@ -121,20 +124,19 @@
                 }
             );
             this.$messageBusService.publish("feature", "onFeatureUpdated");
-
         }
 
         /**
          * Add a layer
          */
-        addLayer(layer: ProjectLayer) {
+        addLayer(layer : ProjectLayer) {
             var disableLayers = [];
             switch (layer.type.toLowerCase()) {
             case 'wms':
-                var wms: any = L.tileLayer.wms(layer.url, {
-                    layers: layer.wmsLayers,
-                    opacity: layer.opacity/100,
-                    format: 'image/png',
+                var wms        : any = L.tileLayer.wms(layer.url, {
+                    layers     : layer.wmsLayers,
+                    opacity    : layer.opacity/100,
+                    format     : 'image/png',
                     transparent: true,
                     attribution: layer.description
                 });
@@ -535,7 +537,7 @@
             this.project.features.push(feature);
             layer.group.ndx.add([feature]);
             feature.fType = this.getFeatureType(feature);
-            this.initPropertyTypes(feature.fType);
+            this.initFeatureType(feature.fType);
             // Do we have a name?
             if (!feature.properties.hasOwnProperty('Name'))
                 Helpers.setFeatureName(feature);
@@ -543,14 +545,22 @@
         }
 
         /**
-        * Initialize the property type by setting default property values, and by localizing it.
+        * Initialize the feature type and its property types by setting default property values, and by localizing it.
         */
-        private initPropertyTypes(ft: IFeatureType) {
-            if (ft.propertyTypeData.length == 0) return;
+        private initFeatureType(ft: IFeatureType) {
+            if (ft.languages != null && this.currentLocale in ft.languages) {
+                var locale = ft.languages[this.currentLocale];
+                if (locale.name) ft.name = locale.name;
+            }
+            if (ft.propertyTypeData == null || ft.propertyTypeData.length == 0) return;
             ft.propertyTypeData.forEach((pt) => {
-                this.setDefaultPropertyType(pt);
-                if (pt.languages != null) this.localizePropertyType(pt);
+                this.initPropertyType(pt);
             });
+        }
+
+        private initPropertyType(pt: IPropertyType) {
+            this.setDefaultPropertyType(pt);
+            if (pt.languages != null) this.localizePropertyType(pt);
         }
 
         private setDefaultPropertyType(pt: IPropertyType) {
@@ -569,9 +579,9 @@
             };
         }
 
-        removeFeature(feature: IFeature, layer: ProjectLayer) {
+        //removeFeature(feature: IFeature, layer: ProjectLayer) {
 
-        }
+        //}
 
         /**
          * create icon based of feature style
@@ -1051,14 +1061,24 @@
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
          */
         public openProject(url: string, layers?: string): void {
+            this.projectUrl = url;
             //console.log('layers (openProject): ' + JSON.stringify(layers));
             var layerIds: Array<string> = [];
             if (layers) {
                 layers.split(';').forEach((layerId) => { layerIds.push(layerId.toLowerCase()); });
             }
             //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
-
-            this.layerGroup.clearLayers();
+            if (this.project != null && this.project.groups != null) {
+                this.project.groups.forEach((group) => {
+                    group.layers.forEach((layer: ProjectLayer) => {
+                        if (layer.enabled) {
+                            this.removeLayer(layer);
+                            layer.enabled = false;
+                        }
+                    });
+                });
+            }
+            //this.layerGroup.clearLayers();
             this.featureTypes = {};
 
             $.getJSON(url, (data: Project) => {
@@ -1076,17 +1096,18 @@
                     for (var typeName in featureTypes) {
                         if (!featureTypes.hasOwnProperty(typeName)) continue;
                         var featureType: IFeatureType = featureTypes[typeName];
+                        this.initFeatureType(featureType);
                         this.featureTypes[typeName] = featureType;
                     }
                 }
                 if (this.project.propertyTypeData) {
                     for (var key in this.project.propertyTypeData) {
                         var propertyType: IPropertyType = this.project.propertyTypeData[key];
+                        this.initPropertyType(propertyType);
                         if (!propertyType.visibleInCallOut) propertyType.visibleInCallOut = true;
                         if (!propertyType.label) propertyType.label = key;
                         if (!propertyType.type) propertyType.type = "text";
                         this.propertyTypeData[key] = propertyType;
-
                     }
                 }
 
@@ -1157,9 +1178,9 @@
             });
         }
 
-        private zoom(data: any) {
-            //var a = data;
-        }
+        //private zoom(data: any) {
+        //    //var a = data;
+        //}
 
         /**
          * Calculate min/max/count for a specific property in a group
@@ -1167,7 +1188,7 @@
         private calculatePropertyInfo(group: ProjectGroup, property: string) : PropertyInfo {
             var r = new PropertyInfo();
             r.count = 0;
-            var sum = 0;     // stores sum of elements
+            var sum = 0;   // stores sum of elements
             var sumsq = 0; // stores sum of squares
 
             group.layers.forEach((l: ProjectLayer) => {
@@ -1223,7 +1244,6 @@
                                 this.addBarFilter(group, filter);
                             break;
                         }
-                        //var datas = sterrenGroup.top(Infinity);
                     });
                 }
                 this.updateFilterGroupCount(group);
@@ -1390,17 +1410,9 @@
                     dc.events.trigger(() => {
                         group.filterResult = dcDim.top(Infinity);
                         this.updateFilterGroupCount(group);
-
-
-
-
                     }, 0);
                     dc.events.trigger(() => {
-
                         this.updateMapFilter(group);
-
-
-
                     }, 100);
                 });
 
