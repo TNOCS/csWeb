@@ -258,8 +258,8 @@
                                             lay.on({
                                                 mouseover : (a) => this.showFeatureTooltip(a, layer.group),
                                                 mouseout  : (s) => this.hideFeatureTooltip(s),
-                                                mousemove : (d) => this.updateFeatureTooltip(d)
-                                                //click     : ()  => this.selectFeature(feature)
+                                                mousemove : (d) => this.updateFeatureTooltip(d),
+                                                click     : ()  => this.selectFeature(feature)
                                             });
                                         },
                                         style : (f: IFeature, m) => {
@@ -682,9 +682,9 @@
             case 'Point'          :
                 var icon = this.getPointIcon(feature,layer);
                 marker = new L.Marker(latlng, { icon: icon });
-                marker.on('click', () => {
-                    this.selectFeature(feature);
-                });
+                //marker.on('click', () => {
+                //    this.selectFeature(feature);
+                //});
                 //feature.marker = m;
                 break;
                 default:
