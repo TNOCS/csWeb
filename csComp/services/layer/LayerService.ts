@@ -682,9 +682,9 @@
             case 'Point'          :
                 var icon = this.getPointIcon(feature,layer);
                 marker = new L.Marker(latlng, { icon: icon });
-                //marker.on('click', () => {
-                //    this.selectFeature(feature);
-                //});
+                marker.on('click', () => {
+                    this.selectFeature(feature);
+                });
                 //feature.marker = m;
                 break;
                 default:
