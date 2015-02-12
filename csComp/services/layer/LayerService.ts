@@ -1118,10 +1118,10 @@
                 }
 
                 if (!this.project.dashboards) {
-                    this.project.dashboards = {};
-                    var d = new Services.Dashboard('1', this.project.title);
+                    this.project.dashboards = [];
+                    var d = new Services.Dashboard();
                     d.widgets = [];
-                    this.project.dashboards[this.project.title] = d;
+                    this.project.dashboards.push(d);
                 }
 
                 if (!this.project.dataSets)

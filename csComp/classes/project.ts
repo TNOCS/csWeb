@@ -87,9 +87,7 @@
         features        : IFeature[];
         timeLine        : DateRange;
         mcas            : Mca.Models.Mca[];
-
-        dashboards: Dashboard[];
-        activeDashboard : Dashboard;
+        dashboards: Dashboard[];        
         dataSets        : DataSet[];
         viewBounds      : IBoundingBox;
         userPrivileges  : IPrivileges;
@@ -100,7 +98,7 @@
         public deserialize(input: Project): Project {
           var res = <Project>jQuery.extend(new Project(), input);
             if (input.dashboards) {
-                res.dashboards = [];
+                res.dashboards = [];  
                 input.dashboards.forEach((d: Dashboard) =>
                     res.dashboards.push(Dashboard.deserialize(d)));
             }
