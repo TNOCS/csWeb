@@ -91,6 +91,8 @@
         dataSets        : DataSet[];
         viewBounds      : IBoundingBox;
         userPrivileges  : IPrivileges;
+        languages       : ILanguageData;
+
         markers = {};
 
         deserialize(input: Project): Project {
@@ -143,6 +145,7 @@
         /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */
         reference                   : string;
         events                      : Event[];
+        languages                   : ILanguageData;
     }
 
     /**

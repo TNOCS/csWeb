@@ -97,6 +97,18 @@
         text
     }
 
+    export interface ILocalisedData {
+        name?       : string;
+        title?      : string;
+        description?: string;
+        section?    : string;
+        options?    : string[];
+    }
+
+    export interface ILanguageData {
+        [key: string]: ILocalisedData
+    }
+
     export interface IPropertyType {
         label?           : string;
         title?           : string;
@@ -114,15 +126,7 @@
         subject?         : string;
         target?          : string;
         options?         : string[];
-        languages?       : { [key: string]: ILocalisedData }
-    }
-
-    export interface ILocalisedData {
-        name?       : string;
-        title?      : string;
-        description?: string;
-        section?    : string;
-        options?    : string[];
+        languages?       : ILanguageData;
     }
 
     export interface IPropertyTypeData {
@@ -151,7 +155,7 @@
          * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.
          */
         propertyTypeKeys?: string;
-        languages?       : { [key: string]: ILocalisedData }
+        languages?       : ILanguageData;
     }
 
     export interface IGeoJsonFile {

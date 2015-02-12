@@ -36,6 +36,7 @@
         filterResult    : IFeature[];
         public markers  : any;
         styleProperty   : string;
+        languages       : ILanguageData;
     }
 
     /**

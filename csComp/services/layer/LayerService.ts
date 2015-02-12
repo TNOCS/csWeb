@@ -1,9 +1,13 @@
 ﻿module csComp.Services {
     'use strict';
 
+    declare var jsonld;
+    declare var omnivore;
+
     export interface ILayerService {
         title                : string;
         accentColor          : string;
+        solution             : Solution;
         project              : Project;
         maxBounds            : IBoundingBox;
         findLayer(id         : string): ProjectLayer;
@@ -16,9 +20,6 @@
         propertyTypeData: { [key: string]: Services.IPropertyType; };
         timeline        : any;
     }
-
-    declare var jsonld;
-    declare var omnivore;
 
     export class LayerService implements ILayerService {
         maxBounds           : IBoundingBox;
@@ -79,7 +80,7 @@
                 switch (title) {
                     case 'newLanguage':
                         this.currentLocale = language;
-                        $messageBusService.notify('Reloading...', 'A new language is selected');
+                        $messageBusService.notify('Reloading...', 'A new language is selected', NotifyLocation.TopRight);
                         this.openProject(this.projectUrl);
                         break;
                 }
@@ -1056,6 +1057,21 @@
         }
 
         /**
+        * Clear all layers.
+        */
+        private clearLayers() {
+            if (this.project == null || this.project.groups == null) return;
+            this.project.groups.forEach((group) => {
+                group.layers.forEach((layer: ProjectLayer) => {
+                    if (layer.enabled) {
+                        this.removeLayer(layer);
+                        layer.enabled = false;
+                    }
+                });
+            });
+        }
+
+        /**
          * Open project
          * @params url: URL of the project
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
@@ -1068,17 +1084,7 @@
                 layers.split(';').forEach((layerId) => { layerIds.push(layerId.toLowerCase()); });
             }
             //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
-            if (this.project != null && this.project.groups != null) {
-                this.project.groups.forEach((group) => {
-                    group.layers.forEach((layer: ProjectLayer) => {
-                        if (layer.enabled) {
-                            this.removeLayer(layer);
-                            layer.enabled = false;
-                        }
-                    });
-                });
-            }
-            //this.layerGroup.clearLayers();
+            this.clearLayers();
             this.featureTypes = {};
 
             $.getJSON(url, (data: Project) => {
@@ -1129,6 +1135,11 @@
                     if (group.styles == null) group.styles = [];
                     if (group.filters == null) group.filters = [];
                     group.markers = {};
+                    if (group.languages != null && this.currentLocale in group.languages) {
+                        var locale = group.languages[this.currentLocale];
+                        if (locale.title      ) group.title       = locale.title;  
+                        if (locale.description) group.description = locale.description;  
+                    }
                     if (group.clustering) {
                         group.cluster = new L.MarkerClusterGroup({
                             maxClusterRadius: group.maxClusterRadius || 80,
@@ -1142,6 +1153,11 @@
                     }
                     group.layers.forEach((layer: ProjectLayer) => {
                         if (layer.reference == null) layer.reference = Helpers.getGuid();
+                        if (layer.languages != null && this.currentLocale in layer.languages) {
+                            var locale = layer.languages[this.currentLocale];
+                            if (locale.title      ) layer.title       = locale.title;
+                            if (locale.description) layer.description = locale.description;
+                        }
                         layer.group = group;
                         if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
                             layer.enabled = true;

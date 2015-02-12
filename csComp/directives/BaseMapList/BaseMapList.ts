@@ -56,10 +56,5 @@
                 controller: BaseMapListCtrl
             }
         }
-    ]).directive('bsPopover', () => {
-            return (scope, element, attrs) => {
-                element.find("a[rel=popover]").popover({ placement: 'right', html: 'true' });
-            };
-        });
-
+    ]);
 }   
