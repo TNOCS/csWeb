@@ -80,7 +80,7 @@
                 switch (title) {
                     case 'newLanguage':
                         this.currentLocale = language;
-                        $messageBusService.notify('Reloading...', 'A new language is selected', NotifyLocation.TopRight);
+                        $messageBusService.notifyWithTranslation('LAYER_SERVICE.RELOAD_PROJECT_TITLE', 'LAYER_SERVICE.RELOAD_PROJECT_MSG');
                         this.openProject(this.projectUrl);
                         break;
                 }
@@ -155,7 +155,6 @@
                 });
                 layer.isLoading = true;
                 //this.$rootScope.$apply();
-
                 break;
             case 'topojson':
             case 'geojson':
@@ -294,7 +293,9 @@
             }
         }
 
-
+        /**
+        * Convert topojson data to geojson data.
+        */
         private convertTopoToGeoJson(data) {
             // Convert topojson to geojson format
             var topo = omnivore.topojson.parse(data);
@@ -324,7 +325,6 @@
          * Show tooltip with name, styles & filters.
          */
         showFeatureTooltip(e, group: ProjectGroup) {
-
             var layer = e.target;
             var feature = <Feature>layer.feature;
             // add title
@@ -559,6 +559,9 @@
             });
         }
 
+        /**
+        * Initialize the property type with default values, and, if applicable, localize it.
+        */
         private initPropertyType(pt: IPropertyType) {
             this.setDefaultPropertyType(pt);
             if (pt.languages != null) this.localizePropertyType(pt);

@@ -30,17 +30,35 @@
 	export class MessageBusService {
 		private static cache: { [topic: string]: Array<IMessageBusCallback> } = {};
 
-        constructor() {
+        static $inject = [
+            '$translate'
+        ];
+
+        constructor(private $translate: ng.translate.ITranslateService) {
             PNotify.prototype.options.styling = "fontawesome";
         }
 
 		/** 
-		 * Publish a notification
-         * @title:    the title of the notification
-         * @text:     the contents of the notification
-         * @location: the location on the screen where the notification is shown (default bottom right)
+		 * Publish a notification that needs to be translated
+         * @title:       the translation key of the notification's title
+         * @text:        the translation key of the notification's content
+         * @location:    the location on the screen where the notification is shown (default bottom right)
 		 */
-        public notify(title: string, text: string, location = NotifyLocation.BottomRight) {
+        notifyWithTranslation(title: string, text: string, location = NotifyLocation.BottomRight) {
+            this.$translate(title).then((translatedTitle) => {
+                this.$translate(text).then((translatedText) => {
+                    this.notify(translatedTitle, translatedText, location);
+                });
+            });
+        }
+
+		/** 
+		 * Publish a notification
+         * @title:       the title of the notification
+         * @text:        the contents of the notification
+         * @location:    the location on the screen where the notification is shown (default bottom right)
+		 */
+        notify(title: string, text: string, location = NotifyLocation.BottomRight) {
             var cssLocation: string,
                 dir1       : string,
                 dir2       : string;
