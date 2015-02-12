@@ -1069,7 +1069,7 @@
                     }
                 });
             });
-        }    
+        }
 
         /**
          * Open project
@@ -1118,10 +1118,10 @@
                 }
 
                 if (!this.project.dashboards) {
-                    this.project.dashboards = [];
-                    var d = new Services.Dashboard();
+                    this.project.dashboards = {};
+                    var d = new Services.Dashboard();                     
                     d.widgets = [];
-                    this.project.dashboards.push(d);
+                    this.project.dashboards["map"] = d;
                 }
 
                 if (!this.project.dataSets)

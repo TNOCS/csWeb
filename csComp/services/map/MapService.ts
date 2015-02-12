@@ -1,6 +1,6 @@
 ﻿module csComp.Services {
     'use strict';
-
+ 
 
     /*
      * Singleton service that holds a reference to the map.

@@ -13,8 +13,7 @@
 
     } catch (err) {
         // named module does not exist, so create one
-        myModule = angular.module(moduleName, []);
-
+        myModule = angular.module(moduleName, []); 
     }
 
 
@@ -51,7 +50,7 @@
                         scope.$apply();
                     });
 
-                    
+
                     //scope.dashboard = attrs.param;
                     //var s = jQuery.parseJSON(attrs.param);
                     scope.initDashboard();

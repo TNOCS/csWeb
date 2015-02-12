@@ -2,7 +2,7 @@ module csComp.Services {
 
     export class Widget {
         public content: Function;
-        constructor() {  
+        constructor() {
         }
     }
 
@@ -13,8 +13,8 @@ module csComp.Services {
         elementId: string;
         dashboard: csComp.Services.Dashboard;
         renderer: Function;
-        resize: Function; 
-        background : string;
+        resize: Function;
+        background : string; 
         init: Function;
         start : Function;
         col: number; row: number; sizeY: number; sizeX: number; name: string; id: string;

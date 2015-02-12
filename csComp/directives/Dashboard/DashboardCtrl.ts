@@ -123,11 +123,11 @@
 
         public checkMap() {
 
-            if (this.$scope.dashboard.showMap != this.$mapService.isVisble) {
+            if (this.$scope.dashboard.showMap != this.$mapService.isVisible) {
                 if (this.$scope.dashboard.showMap) {
-                    this.$mapService.isVisble = true;
+                    this.$mapService.isVisible = true; 
                 } else {
-                  this.$mapService.isVisble = false;
+                    this.$mapService.isVisible = false;
                 }
                 if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
             }
