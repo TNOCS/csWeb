@@ -72,6 +72,13 @@
         }
     }
 
+
+        /** bouding box to specify a region. */
+        export interface IBoundingBox {
+            southWest: L.LatLng;
+            northEast: L.LatLng;
+        }
+
     /** project configuration. */
     export class Project implements ISerializable<Project> {
         title           : string;
@@ -87,43 +94,35 @@
         features        : IFeature[];
         timeLine        : DateRange;
         mcas            : Mca.Models.Mca[];
-        dashboards      : { [id: string]: Dashboard };
+        dashboards      : { [id:string] : Dashboard };
         dataSets        : DataSet[];
         viewBounds      : IBoundingBox;
         userPrivileges  : IPrivileges;
         languages       : ILanguageData;
 
-        markers = {};
+        markers = {}; 
 
-        deserialize(input: Project): Project {
-            this.viewBounds       = input.viewBounds;
-            this.title            = input.title;
-            this.description      = input.description;
-            this.logo             = input.logo;
-            this.url              = input.url;
-            this.baselayers       = input.baselayers;
-            this.markers          = input.markers;
-            this.startposition    = input.startposition;
-            this.features         = input.features;
-            this.featureTypes     = input.featureTypes;
-            this.propertyTypeData = input.propertyTypeData;
-            this.groups           = input.groups;
-            this.userPrivileges   = input.userPrivileges;
-            this.mcas             = [];
+        public deserialize(input: Project): Project {
+          var res = <Project>jQuery.extend(new Project(), input);
+            if (input.dashboards) {
+                res.dashboards = {};
+                  for(var key  in input.dashboards)
+                  {
+                    res.dashboards[key] = Dashboard.deserialize(input.dashboards[key]);
+                  }
+
+
             for (var mca in input.mcas) {
                 if (input.mcas.hasOwnProperty(mca)) {
-                    this.mcas.push(new Mca.Models.Mca().deserialize(mca));
+                    res.mcas.push(new Mca.Models.Mca().deserialize(mca));
                 }
             }
-            return this;
+            return res;
+
         }
     }
+  }
 
-    /** bouding box to specify a region. */
-    export interface IBoundingBox {
-        southWest: L.LatLng;
-        northEast: L.LatLng;
-    }
 
     /** layer information. a layer is described in a project file and is always part of a group */
     export class ProjectLayer {

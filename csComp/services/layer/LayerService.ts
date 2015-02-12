@@ -257,8 +257,8 @@
                                             lay.on({
                                                 mouseover : (a) => this.showFeatureTooltip(a, layer.group),
                                                 mouseout  : (s) => this.hideFeatureTooltip(s),
-                                                mousemove : (d) => this.updateFeatureTooltip(d),
-                                                click     : ()  => this.selectFeature(feature)
+                                                mousemove : (d) => this.updateFeatureTooltip(d)
+                                                //click     : ()  => this.selectFeature(feature)
                                             });
                                         },
                                         style : (f: IFeature, m) => {
@@ -1129,9 +1129,9 @@
 
                 if (!this.project.dashboards) {
                     this.project.dashboards = {};
-                    var d = new Services.Dashboard('1', this.project.title);
+                    var d = new Services.Dashboard();                     
                     d.widgets = [];
-                    this.project.dashboards[this.project.title] = d;
+                    this.project.dashboards["map"] = d;
                 }
 
                 if (!this.project.dataSets)
@@ -1147,8 +1147,8 @@
                     group.markers = {};
                     if (group.languages != null && this.currentLocale in group.languages) {
                         var locale = group.languages[this.currentLocale];
-                        if (locale.title      ) group.title       = locale.title;  
-                        if (locale.description) group.description = locale.description;  
+                        if (locale.title      ) group.title       = locale.title;
+                        if (locale.description) group.description = locale.description;
                     }
                     if (group.clustering) {
                         group.cluster = new L.MarkerClusterGroup({

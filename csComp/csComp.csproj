@@ -18,6 +18,12 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.tpl.ts" />
+    <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.ts" />
+    <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelectionCtrl.ts" />
+    <TypeScriptCompile Include="directives\Dashboard\Dashboard.tpl.ts" />
+    <TypeScriptCompile Include="directives\Dashboard\Dashboard.ts" />
+    <TypeScriptCompile Include="directives\Dashboard\DashboardCtrl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
@@ -93,6 +99,8 @@
     <TypeScriptCompile Include="translations\locale-nl.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="directives\DashboardSelection\DashboardSelection.tpl.html" />
+    <Content Include="directives\Dashboard\Dashboard.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
     <Content Include="directives\LanguageSwitch\readme.md" />
     <Content Include="directives\MCA\Mca.tpl.html" />

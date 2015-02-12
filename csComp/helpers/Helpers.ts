@@ -113,11 +113,13 @@
             return;
         }
         // Case three: the feature has a Name property which specifies a string format, meaning that the Name is derived from several existing properties.
-        for (var i = 0; i < feature.fType.propertyTypeData.length; i++) {
-            var propertyType = feature.fType.propertyTypeData[i];
-            if (propertyType.label !== 'Name') continue;
-            feature.properties['Name'] = Helpers.convertStringFormat(feature, propertyType.stringFormat);
-            return;
+        if (feature.fType.propertyTypeData != null) {
+            for (var i = 0; i < feature.fType.propertyTypeData.length; i++) {
+                var propertyType = feature.fType.propertyTypeData[i];
+                if (propertyType.label !== 'Name') continue;
+                feature.properties['Name'] = Helpers.convertStringFormat(feature, propertyType.stringFormat);
+                return;
+            }
         }
         // If all else fails, use the first property
         for (var prop in feature.properties) {
