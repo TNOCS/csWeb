@@ -10,7 +10,7 @@
     },
     "filesGlob": [
         "./**/*.ts",
-        "!dist/*.ts",
+        "!./dist/csComp.d.ts",
         "!node_modules/**/*.ts"
     ],
     "files": [
@@ -79,7 +79,6 @@
         "./directives/Timeline/Timeline.ts",
         "./directives/Timeline/TimelineCtrl.ts",
         "./directives/Voting/Voting.ts",
-        "./dist/csComp.d.ts",
         "./helpers/Extensions.ts",
         "./helpers/Helpers.ts",
         "./helpers/MessageBus.ts",
