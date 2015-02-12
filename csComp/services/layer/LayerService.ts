@@ -564,10 +564,19 @@
             if (pt.languages != null) this.localizePropertyType(pt);
         }
 
+        /**
+        * Set default PropertyType's properties: 
+        * type              = text
+        * visibleInCallout  = true     
+        * canEdit           = false     
+        * isSearchable      = true     
+        */
         private setDefaultPropertyType(pt: IPropertyType) {
+            if (!pt.type) pt.type = "text";
+
+            if (typeof pt.canEdit          == 'undefined'                      ) pt.canEdit          = false;
             if (typeof pt.visibleInCallOut == 'undefined'                      ) pt.visibleInCallOut = true;
-            if (typeof pt.canEdit          == 'undefined'                      ) pt.canEdit = false;
-            if (typeof pt.isSearchable     == 'undefined' && pt.type === 'text') pt.isSearchable = true;
+            if (typeof pt.isSearchable     == 'undefined' && pt.type === 'text') pt.isSearchable     = true;
         }
 
         private localizePropertyType(pt: IPropertyType) {
@@ -1110,9 +1119,7 @@
                     for (var key in this.project.propertyTypeData) {
                         var propertyType: IPropertyType = this.project.propertyTypeData[key];
                         this.initPropertyType(propertyType);
-                        if (!propertyType.visibleInCallOut) propertyType.visibleInCallOut = true;
                         if (!propertyType.label) propertyType.label = key;
-                        if (!propertyType.type) propertyType.type = "text";
                         this.propertyTypeData[key] = propertyType;
                     }
                 }
