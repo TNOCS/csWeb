@@ -16,6 +16,13 @@
 		public callback: IMessageBusCallback;
 	}
 
+    export enum NotifyLocation {
+        BottomRight,
+        BottomLeft,
+        TopRight,
+        TopLeft
+    }
+
 	/** 
 	 * Simple message bus service, used for subscribing and unsubsubscribing to topics.
 	 * @see {@link https://gist.github.com/floatingmonkey/3384419}
@@ -29,17 +36,45 @@
 
 		/** 
 		 * Publish a notification
-         * @title: the title of the notification
-         * @text:  the contents of the notification
+         * @title:    the title of the notification
+         * @text:     the contents of the notification
+         * @location: the location on the screen where the notification is shown (default bottom right)
 		 */
-        public notify(title: string, text: string) {
+        public notify(title: string, text: string, location = NotifyLocation.BottomRight) {
+            var cssLocation: string,
+                dir1       : string,
+                dir2       : string;
+
+            switch (location) {
+                case NotifyLocation.BottomLeft:
+                    cssLocation = 'stack-bottomleft';
+                    dir1 = 'up';
+                    dir2 = 'right';
+                    break;
+                case NotifyLocation.TopRight:
+                    cssLocation = 'stack-topright';
+                    dir1 = 'down';
+                    dir2 = 'left';
+                    break;
+                case NotifyLocation.TopLeft:
+                    cssLocation = 'stack-topleft';
+                    dir1 = 'down';
+                    dir2 = 'right';
+                    break;
+                default:
+                    cssLocation = 'stack-bottomright';
+                    dir1 = 'up';
+                    dir2 = 'left';
+                    break;
+            }
+
             var options : pnotifyDefaults = {
                 title      : title,
                 text       : text,
                 icon       : 'fa fa-info',
                 cornerclass: 'ui-pnotify-sharp',
-                addclass   : "stack-bottomright",
-                stack      : { "dir1": "up", "dir2": "left", "firstpos1": 25, "firstpos2": 25 }
+                addclass   : cssLocation,
+                stack      : { "dir1": dir1, "dir2": dir2, "firstpos1": 25, "firstpos2": 25 }
             };
 
             var pn = new PNotify(options);            
