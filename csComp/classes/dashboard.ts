@@ -1,4 +1,4 @@
-﻿module csComp.Services {
+module csComp.Services {
 
     export class Widget {
         public content: Function;
@@ -8,95 +8,184 @@
     }
 
     export interface IWidget {
-        widgetType: string;
+        directive : string;
+        data : Object;
         title: string;
         elementId: string;
         dashboard: csComp.Services.Dashboard;
         renderer: Function;
         resize: Function;
         background : string;
-        init : Function;
+        init: Function;
+        start : Function;
         col: number; row: number; sizeY: number; sizeX: number; name: string; id: string;
         properties: {};
         dataSets: DataSet[];
         range: csComp.Services.DateRange;
-        updateDateRange : Function;
+        updateDateRange: Function;
+        collapse: boolean;
+        canCollapse : boolean;
+        width: number;
+        height: number;
+        allowFullscreen: boolean;
+        messageBusService: csComp.Services.MessageBusService;
+        layerService: csComp.Services.LayerService;
     }
 
-   
+
 
     export class BaseWidget implements IWidget {
-        public widgetType: string;
+        public directive : string;
         public title: string;
+        public data : {};
         public elementId: string;
         public dashboard: csComp.Services.Dashboard;
         public col: number;
         public row: number;
         public background : string;
-        public sizeY: number = 2;
-        public sizeX: number = 4;
+        public sizeY: number;
+        public sizeX: number;
         public name: string; public id: string;
         public properties: {};
         public dataSets: DataSet[];
         public range: csComp.Services.DateRange;
+        public collapse: boolean;
+        public canCollapse : boolean;
+        public width: number;
+        public height: number;
+        public allowFullscreen: boolean;
+        public messageBusService: csComp.Services.MessageBusService;
+        public layerService: csComp.Services.LayerService;
 
-        constructor(title?: string, type?: string) {
+        //public static deserialize(input: IWidget): IWidget {
+        //    var loader = new InstanceLoader(window);
+        //    var w = <IWidget>loader.getInstance(widget.widgetType);
+        //    var res = $.extend(new BaseWidget(), input);
+        //    return res;
+        //}
+
+        constructor(title? : string, type? : string) {
+
             if (title) this.title = title;
-            if (type) this.widgetType = type;
             this.properties = {};
             this.dataSets = [];
 
-           
+
 
         }
 
-        public init(sX: number, sY: number, c: number, r: number, id? : string) {
-            this.sizeX = sX;
-            this.sizeY = sY;
-            this.col = c;
-            this.row = r;
+
+
+        public start() {
+
+        }
+
+        public init() {
+            //if (!sizeX)
+            //this.sizeX = sX;
+            //this.sizeY = sY;
+            //this.col = c;
+            //this.row = r;
             this.background = "red";
-            if (!id) id = "widget" + csComp.Helpers.getGuid().replace('-', '');
-            this.id = id;
-            this.elementId = id;
+            if (!this.id) this.id = "widget" + csComp.Helpers.getGuid().replace('-', '');
+            //this.width = (width) ? width : 300;
+            //this.height = (height) ? height : 150;
+            //this.id = id;
+            this.elementId = this.id;
+            this.start();
 
         }
-        public renderer = ($scope: any) => { };
+        public renderer = ($compile : any,$scope: any) => { };
 
         public updateDateRange(r: csComp.Services.DateRange) {
             this.range = r;
         }
 
-        public resize = (status: string) => {};
+        public resize = (status: string, width : number, height : number) => {};
     }
 
 
 
-    
-
-    export class Dashboard {        
+    export class Dashboard {
         widgets: IWidget[];
         editMode: boolean;
-        showMap : boolean;
-        background : string;
-        constructor(public id: string, public name: string) {
+        showMap: boolean;
+        showTimeline: boolean = true;
+        draggable: boolean = true;
+        resizable: boolean = true;
+        background: string;
+        backgroundimage: string;
+        visiblelayers : string[];
+
+        viewBounds: IBoundingBox;
+        timeline: DateRange;
+        id: string;
+        name: string;
+
+        constructor() {
             this.widgets = [];
         }
+
+
+        public static deserialize(input: Dashboard): Dashboard {
+            var res = <Dashboard>$.extend(new Dashboard(), input);
+
+            res.widgets = [];
+            if (input.widgets) input.widgets.forEach((w: IWidget) => {
+                this.addNewWidget(w, res);
+            });
+            if (input.timeline) res.timeline = $.extend(new DateRange(), input.timeline);
+
+            return res;
+                        
+        }
+
+        public static addNewWidget(widget: IWidget, dashboard: Dashboard) : IWidget {
+          //var loader = new InstanceLoader(window);
+          //var w = <IWidget>loader.getInstance(widget.widgetType);
+          //w.messageBusService = this.$messageBusService;
+          //w.layerService = this.$layerService;
+          //w.init();
+          //var w = BaseWidget();
+          if (!widget.id) widget.id = csComp.Helpers.getGuid();
+          alert(widget.id);
+          widget.elementId = "widget-" + widget.id;
+          widget.dashboard = dashboard;
+          dashboard.widgets.push(widget);
+          /*if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+          setTimeout(() => {
+              //if (w != null) w.renderer(this.$compile, this.$rootScope);
+              this.updateWidget(widget);
+
+          }, 50);*/
+          //this.editWidget(w);
+          return widget;
+      }
+
     }
 
+    export class Timeline {
+        public id : string;
+        public timestamps : number[];
+    }
 
+    export class TimedDataSet {
+        public timeline: Timeline;
+        public timedata : number[];
+    }
 
     export class DataSet {
-        public color : string;
+        public color: string;
+
         public data: { [key: number]: number };
 
         constructor(public id?: string, public title?: string) {
             this.data = [];
         }
 
-        
+
 
 
     }
 
-} 
+}

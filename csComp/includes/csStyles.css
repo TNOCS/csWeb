@@ -562,3 +562,15 @@ top: 0;
     -webkit-transform: scale(1.0);
   }
 }
+
+/* dashboards */
+.dashboardactive {
+              border-bottom-color: white;
+              border-bottom-width: 4px;
+              border-bottom-style: solid;
+          }
+
+          .dashboardactivelink {
+              color: white;
+              margin-bottom: -4px;
+          }

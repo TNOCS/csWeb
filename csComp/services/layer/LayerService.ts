@@ -11,7 +11,7 @@
         project              : Project;
         maxBounds            : IBoundingBox;
         findLayer(id         : string): ProjectLayer;
-        selectFeature(feature: Services.IFeature);
+        selectFeature(feature: Services.IFeature) : void;
 
         mb              : Services.MessageBusService;
         map             : Services.MapService;
@@ -699,7 +699,7 @@
             return marker;
         }
 
-        selectFeature(feature: IFeature) {
+        public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
             this.updateFeature(feature);
@@ -1088,7 +1088,10 @@
             this.featureTypes = {};
 
             $.getJSON(url, (data: Project) => {
-                this.project = data;
+                //this.project = data;
+
+                this.project = csComp.Services.Project.deserialize(data);
+
 
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();

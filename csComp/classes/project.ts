@@ -87,7 +87,9 @@
         features        : IFeature[];
         timeLine        : DateRange;
         mcas            : Mca.Models.Mca[];
-        dashboards      : { [id: string]: Dashboard };
+
+        dashboards: Dashboard[];
+        activeDashboard : Dashboard;
         dataSets        : DataSet[];
         viewBounds      : IBoundingBox;
         userPrivileges  : IPrivileges;
@@ -95,27 +97,21 @@
 
         markers = {};
 
-        deserialize(input: Project): Project {
-            this.viewBounds       = input.viewBounds;
-            this.title            = input.title;
-            this.description      = input.description;
-            this.logo             = input.logo;
-            this.url              = input.url;
-            this.baselayers       = input.baselayers;
-            this.markers          = input.markers;
-            this.startposition    = input.startposition;
-            this.features         = input.features;
-            this.featureTypes     = input.featureTypes;
-            this.propertyTypeData = input.propertyTypeData;
-            this.groups           = input.groups;
-            this.userPrivileges   = input.userPrivileges;
-            this.mcas             = [];
+        public deserialize(input: Project): Project {
+          var res = <Project>jQuery.extend(new Project(), input);
+            if (input.dashboards) {
+                res.dashboards = [];
+                input.dashboards.forEach((d: Dashboard) =>
+                    res.dashboards.push(Dashboard.deserialize(d)));
+            }
+
             for (var mca in input.mcas) {
                 if (input.mcas.hasOwnProperty(mca)) {
-                    this.mcas.push(new Mca.Models.Mca().deserialize(mca));
+                    res.mcas.push(new Mca.Models.Mca().deserialize(mca));
                 }
             }
-            return this;
+            return res;
+
         }
     }
 
