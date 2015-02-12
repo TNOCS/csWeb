@@ -73,6 +73,8 @@
             if (this.$layerService.project == null || this.$layerService.project.groups == null) return;
             this.updateLayerOptions();
             this.loadLayer();
+
+            $messageBusService.publish('timeline', 'isEnabled', 'false');
         }
 
         /**

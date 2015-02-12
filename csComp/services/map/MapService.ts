@@ -27,6 +27,14 @@
             //this.activeBaseLayer;
             this.baseLayers = {};
             this.initMap();
+
+            $messageBusService.subscribe('timeline', (title: string, data) => {
+                switch (title) {
+                    case 'isEnabled':
+                        this.timelineVisible = data;
+                        break;
+                }
+            });
         }
 
         public initMap() {
