@@ -11,7 +11,7 @@
         project              : Project;
         maxBounds            : IBoundingBox;
         findLayer(id         : string): ProjectLayer;
-        selectFeature(feature: Services.IFeature) : void;
+        selectFeature(feature: Services.IFeature);
 
         mb              : Services.MessageBusService;
         map             : Services.MapService;
@@ -258,8 +258,8 @@
                                             lay.on({
                                                 mouseover : (a) => this.showFeatureTooltip(a, layer.group),
                                                 mouseout  : (s) => this.hideFeatureTooltip(s),
-                                                mousemove : (d) => this.updateFeatureTooltip(d),
-                                                click     : ()  => this.selectFeature(feature)
+                                                mousemove : (d) => this.updateFeatureTooltip(d)
+                                                //click     : ()  => this.selectFeature(feature)
                                             });
                                         },
                                         style : (f: IFeature, m) => {
@@ -682,9 +682,9 @@
             case 'Point'          :
                 var icon = this.getPointIcon(feature,layer);
                 marker = new L.Marker(latlng, { icon: icon });
-                //marker.on('click', () => {
-                //    this.selectFeature(feature);
-                //});
+                marker.on('click', () => {
+                    this.selectFeature(feature);
+                });
                 //feature.marker = m;
                 break;
                 default:
@@ -699,7 +699,7 @@
             return marker;
         }
 
-        public selectFeature(feature: IFeature) {
+        selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
             this.updateFeature(feature);
@@ -1069,7 +1069,7 @@
                     }
                 });
             });
-        }
+        }    
 
         /**
          * Open project
@@ -1088,10 +1088,7 @@
             this.featureTypes = {};
 
             $.getJSON(url, (data: Project) => {
-                //this.project = data;
-
-                this.project = csComp.Services.Project.deserialize(data);
-
+                this.project = data;
 
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
@@ -1140,8 +1137,8 @@
                     group.markers = {};
                     if (group.languages != null && this.currentLocale in group.languages) {
                         var locale = group.languages[this.currentLocale];
-                        if (locale.title      ) group.title       = locale.title;  
-                        if (locale.description) group.description = locale.description;  
+                        if (locale.title      ) group.title       = locale.title;
+                        if (locale.description) group.description = locale.description;
                     }
                     if (group.clustering) {
                         group.cluster = new L.MarkerClusterGroup({

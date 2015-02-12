@@ -2,8 +2,7 @@ module csComp.Services {
 
     export class Widget {
         public content: Function;
-        constructor() {
-
+        constructor() {  
         }
     }
 
@@ -14,7 +13,7 @@ module csComp.Services {
         elementId: string;
         dashboard: csComp.Services.Dashboard;
         renderer: Function;
-        resize: Function;
+        resize: Function; 
         background : string;
         init: Function;
         start : Function;
@@ -137,7 +136,7 @@ module csComp.Services {
             if (input.timeline) res.timeline = $.extend(new DateRange(), input.timeline);
 
             return res;
-                        
+
         }
 
         public static addNewWidget(widget: IWidget, dashboard: Dashboard) : IWidget {
