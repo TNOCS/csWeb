@@ -257,8 +257,8 @@
                                             lay.on({
                                                 mouseover : (a) => this.showFeatureTooltip(a, layer.group),
                                                 mouseout  : (s) => this.hideFeatureTooltip(s),
-                                                mousemove : (d) => this.updateFeatureTooltip(d)
-                                                //click     : ()  => this.selectFeature(feature)
+                                                mousemove : (d) => this.updateFeatureTooltip(d),
+                                                click     : ()  => this.selectFeature(feature)
                                             });
                                         },
                                         style : (f: IFeature, m) => {
