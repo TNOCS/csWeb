@@ -76,6 +76,7 @@
                 }
             });
 
+
             $messageBusService.subscribe('language', (title: string, language: string) => {
                 switch (title) {
                     case 'newLanguage':
@@ -87,9 +88,9 @@
             });
         }
 
-        public selectDashboard(dashboard : csComp.Services.Dashboard) {
+        public selectDashboard(dashboard: csComp.Services.Dashboard, container : string) {            
            this.project.activeDashboard = dashboard;
-           this.$messageBusService.publish("dashboard", "activated", dashboard);
+           this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
         }
 
         updateSensorData() {
@@ -1134,6 +1135,7 @@
                     this.project.dashboards["map"] = d;
                 }
 
+
                 if (!this.project.dataSets)
                     this.project.dataSets = [];
 
@@ -1190,6 +1192,7 @@
                 });
 
                 this.$messageBusService.publish('project', 'loaded');
+                this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
             });
         }
 

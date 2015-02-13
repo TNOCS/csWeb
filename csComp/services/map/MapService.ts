@@ -15,7 +15,7 @@
 
         public baseLayers: any;
         private activeBaseLayer: L.ILayer;
-        public isVisible: boolean = true;
+        public mapVisible: boolean = true;
         public timelineVisible : boolean = true;
 
 

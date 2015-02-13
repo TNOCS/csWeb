@@ -8,6 +8,7 @@
         vm: DashboardCtrl;
         gridsterOptions: any;
         dashboard: csComp.Services.Dashboard;
+        container : string;
         param: any;
         initDashboard: Function;
         minus: Function;
@@ -17,6 +18,7 @@
 
     export class DashboardCtrl {
         private scope: IDashboardScope;
+        private project : csComp.Services.Project;
 
         //public dashboard: csComp.Services.Dashboard;
 
@@ -44,8 +46,6 @@
         ) {
             $scope.vm = this;
 
-
-
             $scope.gridsterOptions = {
                 margins: [10, 10],
                 columns: 20,
@@ -68,34 +68,30 @@
                 }
             };
 
-            var project = $layerService.project;
+            
 
-
+           
             $scope.initDashboard = () => {
 
-                //$scope.$watch('dashboard', () => {
-                //    this.updateDashboard();
-                //});
+                
 
-                //alert($scope.param.name);
+                //alert(this.project.activeDashboard.id);
+                $messageBusService.subscribe("dashboard-" + $scope.container,(s: string, d: csComp.Services.Dashboard) => {
+                    switch (s) {
+                        case "activated":                            
+                            $scope.dashboard = d;
+                            this.updateDashboard();
+                            break;
+                    }
+                });
 
+                this.project = $layerService.project;
 
-
-                this.updateDashboard();
+                //this.updateDashboard();
                 //alert($scope.dashboard.name);
             };
 
-            $messageBusService.subscribe("dashboard", (s: string, d: csComp.Services.Dashboard) => {
-                switch (s) {
-                    case "activated":
-                    $scope.dashboard = d;
-
-
-                            this.updateDashboard();
-
-                    break;
-                }
-            });
+            
 
 
         }
@@ -107,10 +103,7 @@
 
         }
 
-        public selectDashboard(dashboard: Dashboard) {
-            this.scope.dashboard = dashboard;
-        }
-
+        
 
         public updateWidget(w: csComp.Services.IWidget) {
           //alert('updatewidget');
@@ -123,11 +116,11 @@
 
         public checkMap() {
 
-            if (this.$scope.dashboard.showMap != this.$mapService.isVisible) {
+            if (this.$scope.dashboard.showMap != this.$mapService.mapVisible) {
                 if (this.$scope.dashboard.showMap) {
-                    this.$mapService.isVisible = true; 
+                    this.$mapService.mapVisible = true; 
                 } else {
-                    this.$mapService.isVisible = false;
+                    this.$mapService.mapVisible = false;
                 }
                 if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
             }
@@ -135,17 +128,21 @@
 
 
         public updateDashboard() {
-            var dashboard = this.$scope.dashboard;
-            if (!dashboard) return;
-            if (dashboard && dashboard.widgets && dashboard.widgets.length > 0) {
+            var d = this.$scope.dashboard;
+            if (!d) return;
+            if (d.widgets && d.widgets.length > 0) {
             setTimeout(() => {
-                dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
+                d.widgets.forEach((w: csComp.Services.IWidget) => {
                     this.updateWidget(w);
-
-                    //w.renderer(this.$compile,this.$scope);
                 });
-            }, 100);
-        }
+                }, 100);
+
+            
+                
+
+            }
+            this.checkMap();
+            
 
     }
     }
