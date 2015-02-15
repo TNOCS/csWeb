@@ -31,7 +31,8 @@
             '$compile',
             'layerService',
             'mapService'           ,
-            'messageBusService'
+            'messageBusService',
+            '$templateCache'
         ];
 
 
@@ -42,12 +43,14 @@
             private $compile : any,
             private $layerService: csComp.Services.LayerService,
             private $mapService : csComp.Services.MapService,
-            private $messageBusService: csComp.Services.MessageBusService
-        ) {
+            private $messageBusService: csComp.Services.MessageBusService,
+            private $templateCache : any
+            ) {
+            
             $scope.vm = this;
 
             $scope.gridsterOptions = {
-                margins: [10, 10],
+                margins: [0, 0],
                 columns: 20,
                 rows: 20,
                 draggable: {
@@ -73,11 +76,11 @@
            
             $scope.initDashboard = () => {
 
-                
-
-                //alert(this.project.activeDashboard.id);
                 $messageBusService.subscribe("dashboard-" + $scope.container,(s: string, d: csComp.Services.Dashboard) => {
-                    switch (s) {
+                    this.project = $layerService.project;
+                    this.project.activeDashboard = d;
+                    //alert(this.project.activeDashboard.id);
+                    switch (s) {         
                         case "activated":                            
                             $scope.dashboard = d;
                             this.updateDashboard();
@@ -85,7 +88,7 @@
                     }
                 });
 
-                this.project = $layerService.project;
+                
 
                 //this.updateDashboard();
                 //alert($scope.dashboard.name);
@@ -102,16 +105,39 @@
             }
 
         }
-
+              
         
 
         public updateWidget(w: csComp.Services.IWidget) {
           //alert('updatewidget');
             //this.$dashboardService.updateWidget(w);
-            var newElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
-            var el = $("#" + w.elementId);
-            el.empty();
-            el.append(newElement);
+            //var newElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
+            var widgetElement;
+            if (w.template) {     
+                widgetElement = this.$compile(this.$templateCache.get(w.template))(this.$scope);
+            }
+            else if (w.url) {
+                widgetElement = this.$compile("<div>url</div>")(this.$scope);                
+            } else if (w.directive) {
+                widgetElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
+                
+            } else {
+                widgetElement = this.$compile("<h1>hoi</h1>")(this.$scope);
+            }
+            
+            
+            var resized = function () {
+                //alert('resize');
+                /* do something */
+            };
+            if (widgetElement) {
+                widgetElement.resize(resized);
+
+                //alert(w.elementId);
+                var el = $("#" + w.elementId);
+                el.empty();
+                el.append(widgetElement);
+            }
         }
 
         public checkMap() {
@@ -126,6 +152,18 @@
             }
         }
 
+        public checkTimeline() {
+
+            if (this.$scope.dashboard.showTimeline != this.$mapService.timelineVisible) {
+                if (this.$scope.dashboard.showTimeline) {
+                    this.$mapService.timelineVisible = true;
+                } else {
+                    this.$mapService.timelineVisible = false;
+                }
+                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+            }
+        }
+
 
         public updateDashboard() {
             var d = this.$scope.dashboard;
@@ -135,15 +173,14 @@
                 d.widgets.forEach((w: csComp.Services.IWidget) => {
                     this.updateWidget(w);
                 });
-                }, 100);
-
-            
-                
-
+                }, 100);      
             }
             this.checkMap();
+            this.checkTimeline();
+            this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
+
             
 
-    }
+        }
     }
 }

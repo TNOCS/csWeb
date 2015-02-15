@@ -7,54 +7,59 @@ module csComp.Services {
     }
 
     export interface IWidget {
-        directive : string;
-        data : Object;
-        title: string;
-        elementId: string;
-        dashboard: csComp.Services.Dashboard;
-        renderer: Function;
-        resize: Function;
-        background : string; 
-        init: Function;
-        start : Function;
-        col: number; row: number; sizeY: number; sizeX: number; name: string; id: string;
-        properties: {};
-        dataSets: DataSet[];
-        range: csComp.Services.DateRange;
-        updateDateRange: Function;
-        collapse: boolean;
-        canCollapse : boolean;
-        width: number;
-        height: number;
-        allowFullscreen: boolean;
+        
+        directive: string;  // name of the directive that should be used as widget
+        data: Object;           // json object that can hold parameters for the directive 
+        url: string;       // url of the html page that should be used as widget        
+        template : string;
+        title            : string;  // title of the widget
+        elementId        : string;
+        dashboard        : csComp.Services.Dashboard;
+        renderer         : Function;
+        resize           : Function;
+        background       : string; 
+        init             : Function;
+        start            : Function;
+        col              : number; row: number; sizeY: number; sizeX: number; name: string; id: string;
+        properties       : {};
+        dataSets         : DataSet[];
+        range            : csComp.Services.DateRange;
+        updateDateRange  : Function;
+        collapse         : boolean;
+        canCollapse      : boolean;
+        width            : number;
+        height           : number;
+        allowFullscreen  : boolean;
         messageBusService: csComp.Services.MessageBusService;
-        layerService: csComp.Services.LayerService;
+        layerService     : csComp.Services.LayerService;
     }
 
 
 
     export class BaseWidget implements IWidget {
-        public directive : string;
-        public title: string;
-        public data : {};
-        public elementId: string;
-        public dashboard: csComp.Services.Dashboard;
-        public col: number;
-        public row: number;
-        public background : string;
-        public sizeY: number;
-        public sizeX: number;
-        public name: string; public id: string;
-        public properties: {};
-        public dataSets: DataSet[];
-        public range: csComp.Services.DateRange;
-        public collapse: boolean;
-        public canCollapse : boolean;
-        public width: number;
-        public height: number;
-        public allowFullscreen: boolean;
+        public directive: string;
+        public template : string; 
+        public title            : string;
+        public data             : {};
+        public url              : string;
+        public elementId        : string;
+        public dashboard        : csComp.Services.Dashboard;
+        public col              : number;
+        public row              : number;
+        public background       : string;
+        public sizeY            : number;
+        public sizeX            : number;
+        public name             : string; public id: string;
+        public properties       : {};
+        public dataSets         : DataSet[];
+        public range            : csComp.Services.DateRange;
+        public collapse         : boolean;
+        public canCollapse      : boolean;
+        public width            : number;
+        public height           : number;
+        public allowFullscreen  : boolean;
         public messageBusService: csComp.Services.MessageBusService;
-        public layerService: csComp.Services.LayerService;
+        public layerService     : csComp.Services.LayerService;
 
         //public static deserialize(input: IWidget): IWidget {
         //    var loader = new InstanceLoader(window);
@@ -110,6 +115,7 @@ module csComp.Services {
         editMode: boolean;
         showMap: boolean;
         showTimeline: boolean = true;
+        showLeftmenu : boolean;
         draggable: boolean = true;
         resizable: boolean = true;
         background: string;
@@ -147,7 +153,7 @@ module csComp.Services {
           //w.init();
           //var w = BaseWidget();
           if (!widget.id) widget.id = csComp.Helpers.getGuid();
-          alert(widget.id);
+          //alert(widget.id);
           widget.elementId = "widget-" + widget.id;
           widget.dashboard = dashboard;
           dashboard.widgets.push(widget);

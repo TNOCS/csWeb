@@ -107,6 +107,13 @@
     <Content Include="directives\MCA\McaEditorView.tpl.html" />
     <Content Include="directives\ProjectSettings\ProjectSettings.tpl.html" />
     <Content Include="directives\Timeline\Timeline.tpl.html" />
+    <Content Include="includes\js\dashboard.min.js" />
+    <Content Include="includes\js\jquery.cookies.min.js" />
+    <Content Include="includes\js\jqueryinjectCSS.min.js" />
+    <Content Include="includes\js\pnotify.custom.min.js" />
+    <Content Include="includes\js\stringformat-1.09.min.min.js" />
+    <Content Include="includes\js\stringformat.nl-NL.min.js" />
+    <Content Include="includes\js\xbbcode.min.js" />
     <Content Include="includes\timeline.css" />
     <Content Include="includes\timeline.js" />
     <None Include="includes\cssImages\filter-black.png" />

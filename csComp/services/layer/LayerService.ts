@@ -1100,8 +1100,9 @@
             this.clearLayers();
             this.featureTypes = {};
 
-            $.getJSON(url, (data: Project) => {
-                this.project = data;
+            $.getJSON(url,(data: Project) => {
+                
+                this.project = new Project().deserialize(data);
 
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
@@ -1129,10 +1130,11 @@
                 }
 
                 if (!this.project.dashboards) {
-                    this.project.dashboards = {};
-                    var d = new Services.Dashboard();                     
+                    this.project.dashboards = [];
+                    var d = new Services.Dashboard();
+                    d.id = "map";
                     d.widgets = [];
-                    this.project.dashboards["map"] = d;
+                    this.project.dashboards.push(d);
                 }
 
 
