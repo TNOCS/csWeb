@@ -103,24 +103,22 @@
         markers = {}; 
 
         public deserialize(input: Project): Project {
-          var res = <Project>jQuery.extend(new Project(), input);
+            var res = <Project>jQuery.extend(new Project(), input);
             if (input.dashboards) {
                 res.dashboards = [];
                 input.dashboards.forEach((d) => {
                     res.dashboards.push(Dashboard.deserialize(d));
                 });
-                  
-            for (var mca in input.mcas) {
-                if (input.mcas.hasOwnProperty(mca)) {
-                    res.mcas.push(new Mca.Models.Mca().deserialize(mca));
+
+                for (var mca in input.mcas) {
+                    if (input.mcas.hasOwnProperty(mca)) {
+                        res.mcas.push(new Mca.Models.Mca().deserialize(mca));
+                    }
                 }
             }
             return res;
-
         }
     }
-  }
-
 
     /** layer information. a layer is described in a project file and is always part of a group */
     export class ProjectLayer {
