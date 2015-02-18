@@ -25,7 +25,7 @@
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
-            layer.enabled = !layer.enabled;
+            //layer.enabled = !layer.enabled;
             if (layer.enabled) {
                 this.$layerService.addLayer(layer);
             } else {
