@@ -24,6 +24,15 @@
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.tpl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.ts" />
     <TypeScriptCompile Include="directives\Dashboard\DashboardCtrl.ts" />
+    <TypeScriptCompile Include="directives\HeatMap\Heatmap.tpl.ts" />
+    <TypeScriptCompile Include="directives\HeatMap\Heatmap.ts" />
+    <TypeScriptCompile Include="directives\HeatMap\HeatmapCtrl.ts" />
+    <TypeScriptCompile Include="directives\HeatMap\HeatmapEditorCtrl.ts" />
+    <TypeScriptCompile Include="directives\HeatMap\HeatmapEditorView.tpl.ts" />
+    <TypeScriptCompile Include="directives\HeatMap\HeatmapItem.ts" />
+    <TypeScriptCompile Include="directives\HeatMap\HeatmapModel.ts" />
+    <TypeScriptCompile Include="directives\HeatMap\HeatSpot.ts" />
+    <TypeScriptCompile Include="directives\HeatMap\IdealityMeasure.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
@@ -101,6 +110,8 @@
   <ItemGroup>
     <Content Include="directives\DashboardSelection\DashboardSelection.tpl.html" />
     <Content Include="directives\Dashboard\Dashboard.tpl.html" />
+    <Content Include="directives\HeatMap\Heatmap.tpl.html" />
+    <Content Include="directives\HeatMap\HeatmapEditorView.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
     <Content Include="directives\LanguageSwitch\readme.md" />
     <Content Include="directives\MCA\Mca.tpl.html" />
