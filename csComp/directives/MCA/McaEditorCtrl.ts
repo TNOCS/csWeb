@@ -72,10 +72,10 @@
                 this.scoringFunctions[2].title = translation;
             });
 
-            this.loadMapLayers();
+            this.dataset = csComp.Helpers.loadMapLayers(this.$layerService);
 
             messageBusService.subscribe('layer',() => {
-                this.loadMapLayers();
+                this.dataset = csComp.Helpers.loadMapLayers(this.$layerService);
             });
 
             this.mcaTitle            = mca.title;
@@ -120,34 +120,34 @@
             this.updatePropertyInfo(this.selectedFeatureType);
         }
 
-        /** 
-         * Load the features as visible on the map.
-         */
-        private loadMapLayers(): void {
-            var data         : IGeoJsonFile = {
-                type         : '',
-                features     : [],
-                featureTypes : {}
-            };
-            // If we are filtering, load the filter results
-            this.$layerService.project.groups.forEach((group) => {
-                if (group.filterResult != null)
-                    group.filterResult.forEach((f) => data.features.push(f));
-            });
-            // Otherwise, take all loaded features
-            if (data.features.length === 0)
-                data.features = this.$layerService.project.features;
+        ///** 
+        // * Load the features as visible on the map.
+        // */
+        //private loadMapLayers(): void {
+        //    var data         : IGeoJsonFile = {
+        //        type         : '',
+        //        features     : [],
+        //        featureTypes : {}
+        //    };
+        //    // If we are filtering, load the filter results
+        //    this.$layerService.project.groups.forEach((group) => {
+        //        if (group.filterResult != null)
+        //            group.filterResult.forEach((f) => data.features.push(f));
+        //    });
+        //    // Otherwise, take all loaded features
+        //    if (data.features.length === 0)
+        //        data.features = this.$layerService.project.features;
 
-            data.features.forEach((f: IFeature) => {
-                if (!(data.featureTypes.hasOwnProperty(f.featureTypeName))) {
-                    var featureType = this.$layerService.featureTypes[f.featureTypeName];
-                    if (!featureType.name) featureType.name = f.featureTypeName.replace('_Default', '');
-                    data.featureTypes[f.featureTypeName] = featureType;
-                }
-            });
+        //    data.features.forEach((f: IFeature) => {
+        //        if (!(data.featureTypes.hasOwnProperty(f.featureTypeName))) {
+        //            var featureType = data.featureTypes[f.featureTypeName];
+        //            if (!featureType.name) featureType.name = f.featureTypeName.replace('_Default', '');
+        //            data.featureTypes[f.featureTypeName] = featureType;
+        //        }
+        //    });
 
-            this.dataset = data;
-        }
+        //    this.dataset = data;
+        //}
 
         private selectFirstFeatureType() {
             var featureTypes = this.dataset.featureTypes;

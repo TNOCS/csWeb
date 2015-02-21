@@ -1,5 +1,4 @@
 ﻿module csComp.Helpers {
-
     declare var String;//: StringExt.IStringExt;
 
     export function supportsDataUri() {
@@ -168,4 +167,34 @@
         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
     }
 
-} 
+    /**
+     * Load the features as visible on the map, effectively creating a virtual
+     * GeoJSON file that represents all visible items.
+     */
+     export function loadMapLayers(layerService: Services.LayerService) : Services.IGeoJsonFile {
+        var data         : Services.IGeoJsonFile = {
+            type         : '',
+            features     : [],
+            featureTypes : {}
+        };
+        // If we are filtering, load the filter results
+        layerService.project.groups.forEach((group) => {
+            if (group.filterResult != null)
+                group.filterResult.forEach((f) => data.features.push(f));
+        });
+        // Otherwise, take all loaded features
+        if (data.features.length === 0)
+            data.features = layerService.project.features;
+
+        data.features.forEach((f: Services.IFeature) => {
+            if (!(data.featureTypes.hasOwnProperty(f.featureTypeName))) {
+                var featureType = layerService.featureTypes[f.featureTypeName];
+                if (!featureType.name) featureType.name = f.featureTypeName.replace('_Default', '');
+                data.featureTypes[f.featureTypeName] = featureType;
+            }
+        });
+
+        return data;
+    }
+
+}
