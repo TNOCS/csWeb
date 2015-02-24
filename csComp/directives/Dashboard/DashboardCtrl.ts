@@ -50,7 +50,7 @@
             $scope.vm = this;
 
             $scope.gridsterOptions = {
-                margins: [0, 0],
+                margins: [10, 10],
                 columns: 20,
                 rows: 20,
                 draggable: {
@@ -152,6 +152,34 @@
             }
         }
 
+        public checkLayers() {
+            var db = this.$layerService.project.activeDashboard;
+            if (db.visiblelayers) {
+                this.$layerService.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
+                    g.layers.forEach((l: csComp.Services.ProjectLayer) => {
+                        if (l.enabled && db.visiblelayers.indexOf(l.reference) == -1) {
+                            this.$layerService.removeLayer(l);
+                            l.enabled = false;
+                        }
+                        if (!l.enabled && db.visiblelayers.indexOf(l.reference) >= 0) {
+                            this.$layerService.addLayer(l);
+                            l.enabled = true;
+                        }
+                    });
+
+                });
+            }
+
+        }
+
+
+        public checkViewbound() {
+            var db = this.$layerService.project.activeDashboard;
+            if (db.viewBounds) {
+                this.$mapService.map.fitBounds(new L.LatLngBounds(db.viewBounds.southWest, db.viewBounds.northEast));
+            }
+        }
+
         public checkTimeline() {
 
             if (this.$scope.dashboard.showTimeline != this.$mapService.timelineVisible) {
@@ -177,7 +205,10 @@
             }
             this.checkMap();
             this.checkTimeline();
+            this.checkLayers();
+            this.checkViewbound(); 
             this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
+            this.$mapService.rightMenuVisible = d.showRightmenu;
 
             
 
