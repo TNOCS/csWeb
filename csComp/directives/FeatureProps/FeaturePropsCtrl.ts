@@ -34,7 +34,7 @@
         canFilter   : boolean;
         canStyle    : boolean;
         feature     : IFeature;
-        description?: string;
+        description?: string;         
         meta?: IPropertyType;
         isFilter    : boolean;
     }
