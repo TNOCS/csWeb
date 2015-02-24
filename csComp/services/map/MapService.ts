@@ -16,7 +16,8 @@
         public baseLayers: any;
         private activeBaseLayer: L.ILayer;
         public mapVisible: boolean = true;
-        public timelineVisible : boolean = true;
+        public timelineVisible: boolean = true;
+        public rightMenuVisible: boolean = true;
 
 
         constructor(private $messageBusService: csComp.Services.MessageBusService) {
@@ -87,11 +88,11 @@
         /**
          * Zoom to a feature on the map.
          */
-        public zoomTo(feature: IFeature) {
+        public zoomTo(feature: IFeature,zoomLevel : number = 14) {
             var center: L.LatLng;
             if (feature.geometry.type.toUpperCase() == 'POINT') {
                 center = new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-                this.map.setView(center, 14);
+                this.map.setView(center, zoomLevel);
             } else {
                 var bb : Array<number>;
                 if (feature.geometry.type.toUpperCase().indexOf("MULTI") < 0)

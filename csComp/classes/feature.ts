@@ -25,7 +25,9 @@
         featureTypeName?: string;
         fType?          : IFeatureType;
         isInitialized?  : boolean;
-        sensors?        : { [id: string]: any[]}
+        sensors?: { [id: string]: any[] }
+        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        coordinates?: IGeoJsonGeometry[];          // used for temporal data
         languages?      : { [key: string]: ILocalisedData }
     }
 
@@ -45,7 +47,9 @@
         featureTypeName: string;
         fType          : IFeatureType;
         isInitialized  : boolean;
-        sensors        : { [id: string]: any[] }
+        sensors: { [id: string]: any[] }
+        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        coordinates: IGeoJsonGeometry[];          // used for temporal data
     }
 
     export interface IStringToAny {

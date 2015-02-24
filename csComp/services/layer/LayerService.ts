@@ -93,7 +93,7 @@
            this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
         }
 
-        updateSensorData() {
+        public updateSensorData() {
             if (this.project == null || this.project.timeLine == null) return;
 
             var date = this.project.timeLine.focus;
@@ -102,27 +102,54 @@
             this.project.features.forEach((f: IFeature) => {
                 var l = this.findLayer(f.layerId);
 
-                if (l != null)
-                {
-                        if (!l.timestamps) l.timestamps = [];
-                        if (!timepos.hasOwnProperty(f.layerId) && l.timestamps != null) {
-                            for (var i = 1; i < l.timestamps.length; i++) {
-                                if (l.timestamps[i] > date) {
-                                    timepos[f.layerId] = i;
-                                    break;
+                if (l != null) {
+                    if (f.sensors || f.coordinates)
+                    {
+                        var getIndex = (d: Number, timestamps: Number[]) => {
+                            for (var i = 1; i < timestamps.length; i++) {
+                                if (timestamps[i] > d) {
+                                    return i;                                    
                                 }
                             }
+                            return timestamps.length-1;
+                        }
+                        var pos = 0;
+                        if (f.timestamps) // check if feature contains timestamps
+                        { 
+                            pos = getIndex(date, f.timestamps);
+                        } else if (l.timestamps) {
+
+                            if (timepos.hasOwnProperty(f.layerId)) {
+                                pos = timepos[f.layerId];
+                            }
+                            else {
+                                pos = getIndex(date, l.timestamps);
+                                timepos[f.layerId] = pos;
+                            }
+                            
                         }
 
-                        if (f.sensors != null) {
+                        // check if a new coordinate is avaiable
+                        if (f.coordinates && f.coordinates.length>pos && f.coordinates[pos] != f.geometry.coordinates) {
+                            f.geometry.coordinates = f.coordinates[pos];
+                            // get marker
+                            if (l.group.markers.hasOwnProperty(f.id))
+                            {
+                                var m = l.group.markers[f.id]
+                                // update position
+                                m.setLatLng(new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]));
+                            }
+                        }
+                        if (f.sensors) {
                             for (var sensorTitle in f.sensors) {
                                 var sensor = f.sensors[sensorTitle];
-                                var value = sensor[timepos[f.layerId]];
+                                var value = sensor[pos];
                                 f.properties[sensorTitle] = value;
                             }
                             this.updateFeatureIcon(f, l);
                         }
                     }
+                }
                 }
             );
             this.$messageBusService.publish("feature", "onFeatureUpdated");
@@ -262,8 +289,10 @@
                                                 click     : ()  => this.selectFeature(feature)
                                             });
                                         },
-                                        style : (f: IFeature, m) => {
+                                        style: (f: IFeature, m) => {
+
                                             this.initFeature(f, layer);
+                                            //this.updateSensorData();
                                             layer.group.markers[f.id] = m;
                                             return this.style(f, layer);
                                         },
@@ -276,7 +305,8 @@
                                     });
                                     layer.mapLayer.addLayer(v);
                                 }
-                            }
+                          }
+                            this.updateSensorData();
                             this.$messageBusService.publish('layer', 'activated', layer);
 
                             callback(null, null);
@@ -337,13 +367,15 @@
                 group.filters.forEach((f: GroupFilter) => {
                     if (!feature.properties.hasOwnProperty(f.property)) return;
                     var value = feature.properties[f.property];
-                    var valueLength = value.toString().length;
-                    if (f.meta != null) {
-                        value = Helpers.convertPropertyInfo(f.meta, value);
-                        if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
+                    if (value) {
+                        var valueLength = value.toString().length;
+                        if (f.meta != null) {
+                            value = Helpers.convertPropertyInfo(f.meta, value);
+                            if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
+                        }
+                        rowLength = Math.max(rowLength, valueLength + f.title.length);
+                        content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
                     }
-                    rowLength = Math.max(rowLength, valueLength + f.title.length);
-                    content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
                 });
             }
 
@@ -831,6 +863,10 @@
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
         }
 
+
+        createScatter(property: FeatureProps.CallOutProperty) {
+            alert('scatter ' + property.property);
+        }
          /**
          * enable a filter for a specific property
          */
@@ -1166,7 +1202,9 @@
                         this.map.map.addLayer(group.vectors);
                     }
                     group.layers.forEach((layer: ProjectLayer) => {
-                        if (layer.reference == null) layer.reference = Helpers.getGuid();
+                        if (layer.id == null) layer.id = Helpers.getGuid();
+                        if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
+                        if (layer.title == null) layer.title = layer.id;
                         if (layer.languages != null && this.currentLocale in layer.languages) {
                             var locale = layer.languages[this.currentLocale];
                             if (locale.title      ) layer.title       = locale.title;
