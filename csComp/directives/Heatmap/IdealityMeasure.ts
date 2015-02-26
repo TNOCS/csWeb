@@ -21,6 +21,8 @@ module Heatmap {
          * @type {number}, range in meters
          */
         lostInterestDistance: number;
+
+        computeIdealityAtDistance(distance: number): { ideality: number; radius: number };
     }
 
     export class IdealityMeasure implements IIdealityMeasure {
@@ -39,5 +41,24 @@ module Heatmap {
          * @type {number}, range in meters
          */
         lostInterestDistance = 1000;
+         
+        computeIdealityAtDistance(distance: number): { ideality: number; radius: number } {
+            if (distance < this.idealDistance) {
+                return {
+                    ideality: this.atLocation + (1 - this.atLocation) * distance / this.idealDistance,
+                    radius  : distance / 20
+                };
+            } else if (distance < this.lostInterestDistance) {
+                return {
+                    ideality: 1 - (distance - this.idealDistance) / (this.lostInterestDistance - this.idealDistance),
+                    radius  : distance / 20
+                };
+            }
+            return {
+                ideality: 0,
+                radius  : 0
+            }
+        }
+
     }
 }

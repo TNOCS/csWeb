@@ -572,8 +572,10 @@
             if (forceUpdate || labelIndex < 0) {
                 var pt = McaCtrl.createPropertyType(mca);
                 if (labelIndex < 0)
+                {
+                    if (featureType.propertyTypeData === null) featureType.propertyTypeData = [];
                     featureType.propertyTypeData.push(pt); // NOTE: propertyTypes refers to a new list, so you cannot add to it.
-                else
+                } else
                     propertyTypes[labelIndex] = pt;        // NOTE: but you should be able to overwrite an existing property.
             }
 

@@ -15,28 +15,45 @@ module Heatmap {
         /**
          * Calculate the heatmap.
          */
-        calculate(layerService: csComp.Services.LayerService) {
+        calculate(layerService: csComp.Services.LayerService, heatmap) { //: L.TileLayer.WebGLHeatMap) {
             console.log('Calculating heatmap');
             var heatspots: IHeatspot[] = [];
             // Iterate over all applicable features on the map and add them to the list of heat spots.
             var dataset = csComp.Helpers.loadMapLayers(layerService);
+            heatmap.clearData();
             dataset.features.forEach((f) => {
                 this.heatmapItems.forEach((hi) => {
-                    var heatspot = hi.calculateHeatspot(f);
-                    if (heatspot) heatspots.push(heatspot);
+                    var heatspot = hi.calculateHeatspots(f);
+                    if (heatspot) {
+                        //heatspots = heatspots.concat(heatspot
+                        //console.log('Created ' + heatspot.length + ' heatspots');
+                        heatspot.forEach((hs) => {
+                            heatmap.addDataPoint(hs.latitude, hs.longitude, hs.intensity, hs.radius);
+                        });
+                    }
                 });
             });
-            console.log('Created ' + heatspots.length + ' heatspots');
+            //console.log('Created ' + heatspots.length + ' heatspots');
         }
 
         /**
          * Update the weights of all heatmap items.
          */
         updateWeights() {
-            var totalUserWeight = this.heatmapItems.reduce(
-                (curValue: number, item: IHeatmapItem) => { return item.userWeight; }, 0);
-            this.heatmapItems.forEach((item) => {
-                item.weight = item.userWeight / totalUserWeight;
+            var totalUserWeight = 0;
+            this.heatmapItems.forEach((hi) => {
+                if (hi.isSelected) totalUserWeight += Math.abs(hi.userWeight);
+            });
+            this.heatmapItems.forEach((hi) => {
+                if (hi.isSelected) {
+                    if (hi.userWeight !== 0)
+                    {
+                        hi.weight = hi.userWeight / totalUserWeight;
+                        hi.reset();
+                    }
+                    else
+                        hi.reset();
+                }
             });
         }
 

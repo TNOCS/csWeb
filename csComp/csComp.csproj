@@ -24,15 +24,14 @@
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.tpl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.ts" />
     <TypeScriptCompile Include="directives\Dashboard\DashboardCtrl.ts" />
-    <TypeScriptCompile Include="directives\HeatMap\Heatmap.tpl.ts" />
-    <TypeScriptCompile Include="directives\HeatMap\Heatmap.ts" />
-    <TypeScriptCompile Include="directives\HeatMap\HeatmapCtrl.ts" />
-    <TypeScriptCompile Include="directives\HeatMap\HeatmapEditorCtrl.ts" />
-    <TypeScriptCompile Include="directives\HeatMap\HeatmapEditorView.tpl.ts" />
-    <TypeScriptCompile Include="directives\HeatMap\HeatmapItem.ts" />
-    <TypeScriptCompile Include="directives\HeatMap\HeatmapModel.ts" />
-    <TypeScriptCompile Include="directives\HeatMap\HeatSpot.ts" />
-    <TypeScriptCompile Include="directives\HeatMap\IdealityMeasure.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\Heatspot.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapModel.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapCtrl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapItem.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\Heatmap.tpl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\Heatmap.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorCtrl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorView.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
@@ -51,8 +50,10 @@
     <TypeScriptCompile Include="directives\Timeline\Timeline.ts" />
     <TypeScriptCompile Include="directives\Timeline\TimelineCtrl.ts" />
     <TypeScriptCompile Include="directives\Voting\Voting.ts" />
+    <TypeScriptCompile Include="helpers\GeoExtensions.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
-    <TypeScriptCompile Include="helpers\MessageBus.ts" />
+    <TypeScriptCompile Include="helpers\Utils.ts" />
+    <TypeScriptCompile Include="services\bus\MessageBus.ts" />
     <TypeScriptCompile Include="helpers\Plot.ts" />
     <TypeScriptCompile Include="directives\Resize\Resize.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.tpl.ts" />
@@ -110,8 +111,8 @@
   <ItemGroup>
     <Content Include="directives\DashboardSelection\DashboardSelection.tpl.html" />
     <Content Include="directives\Dashboard\Dashboard.tpl.html" />
-    <Content Include="directives\HeatMap\Heatmap.tpl.html" />
-    <Content Include="directives\HeatMap\HeatmapEditorView.tpl.html" />
+    <Content Include="directives\Heatmap\Heatmap.tpl.html" />
+    <Content Include="directives\Heatmap\HeatmapEditorView.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
     <Content Include="directives\LanguageSwitch\readme.md" />
     <Content Include="directives\MCA\Mca.tpl.html" />

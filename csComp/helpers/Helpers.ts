@@ -169,7 +169,8 @@
 
     /**
      * Load the features as visible on the map, effectively creating a virtual
-     * GeoJSON file that represents all visible items.
+     * GeoJSON file that represents all visible items. 
+     * Also loads the keys into the featuretype's propertyTypeData collection. 
      */
      export function loadMapLayers(layerService: Services.LayerService) : Services.IGeoJsonFile {
         var data         : Services.IGeoJsonFile = {
@@ -191,6 +192,14 @@
                 var featureType = layerService.featureTypes[f.featureTypeName];
                 if (!featureType.name) featureType.name = f.featureTypeName.replace('_Default', '');
                 data.featureTypes[f.featureTypeName] = featureType;
+                if (featureType.propertyTypeKeys) {
+                    featureType.propertyTypeData = [];
+                    featureType.propertyTypeKeys.split(';').forEach((key) => {
+                        if (layerService.propertyTypeData.hasOwnProperty(key)) {
+                            featureType.propertyTypeData.push(layerService.propertyTypeData[key]);
+                        }
+                    });
+                }
             }
         });
 

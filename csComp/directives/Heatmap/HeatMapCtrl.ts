@@ -16,6 +16,7 @@ module Heatmap {
     export class HeatmapCtrl {
         private static confirmationMsg1: string;
         private static confirmationMsg2: string;
+        heatmap       : L.TileLayer.WebGLHeatMap;
         heatmapModel  : HeatmapModel;
         heatmapModels : HeatmapModel[] = [];
         expertMode                     = true;
@@ -33,6 +34,7 @@ module Heatmap {
           '$timeout',
           'localStorageService',
           'layerService',
+          'mapService',
           'messageBusService'
         ];
   
@@ -43,6 +45,7 @@ module Heatmap {
           private $timeout            : ng.ITimeoutService,
           private $localStorageService: ng.localStorage.ILocalStorageService,
           private $layerService       : csComp.Services.LayerService,
+          private $mapService         : csComp.Services.MapService,
           private messageBusService   : csComp.Services.MessageBusService
         ) {
           $scope.vm = this;
@@ -86,20 +89,9 @@ module Heatmap {
               $translate('HEATMAP.DELETE_MSG2').then(translation => {
                   HeatmapCtrl.confirmationMsg2 = translation;
               });
+
+              this.initializeHeatmap();
           }
-
-        /**
-         * Update the available pre-set heatmaps.
-         */
-        private updateHeatmap() {
-            this.heatmapModel.calculate(this.$layerService);
-        }
-
-        /**
-         * Update the list of items that can be used to generate a heatmap.
-         */
-        private updateHeatMapItems() {
-        }
 
         createHeatmap() {
             var heatmap = new HeatmapModel('Heatmap');
@@ -117,7 +109,7 @@ module Heatmap {
                 if (!result) return;
                 this.$timeout(() => {
                     this.deleteHeatmap(heatmap);
-                    if (this.heatmapModel) this.updateHeatmap();
+                    if (this.heatmap) this.$mapService.map.removeLayer(this.heatmap);
                 }, 0);
             });
             this.scopeApply();
@@ -152,7 +144,7 @@ module Heatmap {
                 var i = this.heatmapModels.indexOf(heatmap);
                 if (i >= 0) this.heatmapModels.splice(i, 1);
                 this.heatmapModels.push(heatmap);
-                heatmap.calculate(this.$layerService);
+                this.updateHeatmap();
                 //console.log(JSON.stringify(mca, null, 2));
             }, () => {
                 //console.log('Modal dismissed at: ' + new Date());
@@ -173,9 +165,35 @@ module Heatmap {
 
         weightUpdated() {
             if (!this.heatmapModel) return;
-            this.heatmapModel.updateWeights();
-            this.heatmapModel.calculate(this.$layerService);
+            this.updateHeatmap();
         }
 
+        /**
+         * Update the available pre-set heatmaps.
+         */
+        private updateHeatmap() {
+            this.heatmapModel.updateWeights();
+            this.heatmapModel.calculate(this.$layerService, this.heatmap);
+        }
+
+        /**
+        * Add a WebGL heatmap layer to the map.
+        */
+        private initializeHeatmap() {
+            csComp.Utils.loadJsCssfile('js/cs/webgl-heatmap.min.js', csComp.FileType.Js, (event: Event) => {
+                csComp.Utils.loadJsCssfile('js/cs/webgl-heatmap-leaflet.min.js', csComp.FileType.Js,(event: Event) => {
+                    //custom size for this example, and autoresize because map style has a percentage width
+                    this.heatmap = new L.TileLayer.WebGLHeatMap({ size: 50, autoresize: false });
+                    this.$mapService.map.addLayer(this.heatmap);
+                    //// dataPoints is an array of arrays: [[lat, lng, intensity]...]
+                    //this.$mapService.map.setView(new L.LatLng(44.65, -63.57), 12);
+                    //var dataPoints = [[44.6674, -63.5703, 37], [44.6826, -63.7552, 34], [44.6325, -63.5852, 41], [44.6467, -63.4696, 67], [44.6804, -63.487, 64], [44.6622, -63.5364, 40], [44.603, - 63.743, 52]];
+                    //for (var i = 0, len = dataPoints.length; i < len; i++) {
+                    //    var point = dataPoints[i];
+                    //    this.heatmap.addDataPoint(point[0], point[1], point[2]);
+                    //}
+                });
+            });
+        }
     }
 }
