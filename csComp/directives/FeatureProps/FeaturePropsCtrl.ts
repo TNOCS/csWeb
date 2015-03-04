@@ -214,7 +214,7 @@
                 $('#featureTabs>li').each(function () {
                     var itemWidth = $(this).outerWidth();
 
-                    itemsWidth += itemWidth;
+                    itemsWidth += itemWidth;                               
                 });
                 return itemsWidth;
             }
@@ -290,6 +290,18 @@
                 console.log(e + ': ' + html);
                 return '';
             }
+        }
+
+        public createScatter(property: FeatureProps.CallOutProperty) {
+            var sc = new csComp.Services.GroupFilter();
+            sc.property = property.property;
+            sc.property2 = "opp_land";
+            sc.id = csComp.Helpers.getGuid();
+            sc.filterType = "scatter";
+            sc.title = sc.property;
+            var l = this.$layerService.findLayer(this.$scope.poi.layerId);
+            this.$layerService.setFilter(sc,l.group);
+            //alert('scatter ' + property.property);
         }
 
         /** 
