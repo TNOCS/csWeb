@@ -41,6 +41,7 @@
     export class FeatureRelationsCtrl {
         private scope: IFeatureRelationsScope;
         relations: RelationGroup[] = [];
+        showRelations : boolean;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -91,6 +92,9 @@
                     if (rg.relations.length > 0) this.relations.push(rg);
                 }
             }
+            this.showRelations = this.relations.length > 0;
+            if (this.showRelations) { $("#relatedHeader").show(); } else { $("#relatedHeader").hide();}
+
         }
 
 
