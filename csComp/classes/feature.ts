@@ -30,7 +30,9 @@
         * at a certain point in time. Is often used with the layer's timestamp property in case all sensors have the same
         * number of measurements.
         */
-        sensors?        : { [id: string]: any[]}
+        sensors?: { [id: string]: any[] }
+        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        coordinates?: IGeoJsonGeometry[];          // used for temporal data
         /**
         * An optional language dictionary, where each key, e.g. 'en' for English, represents a localised data set. Each locale can overwrite 
         * the value of the title, description etc. of a feature.
@@ -54,7 +56,9 @@
         featureTypeName: string;
         fType          : IFeatureType;
         isInitialized  : boolean;
-        sensors        : { [id: string]: any[] }
+        sensors: { [id: string]: any[] }
+        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        coordinates: IGeoJsonGeometry[];          // used for temporal data
     }
 
     export interface IStringToAny {

@@ -8,7 +8,7 @@
       * Module
       */
     export var myModule;
-    try {                            
+    try {                             
     myModule = angular.module(moduleName);
 
     } catch (err) {
@@ -36,7 +36,7 @@
                     
                                                      
                     angular.element($window).bind('resize', () => {
-                        scope.onResizeFunction();
+                        //scope.onResizeFunction();
                         scope.$apply();    
                     });
 

@@ -52,9 +52,22 @@
                     popover-trigger="mouseenter"
                     popover-append-to-body="true"
                     data-ng-repeat="item in section.properties">
-                    <td><a class="fa fa-filter makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setFilter(item)" style="cursor: pointer"></a></td>
-                    <td><a class="fa fa-eye makeNarrow" data-ng-show="item.canStyle" data-ng-click="vm.$layerService.setStyle(item)" style="cursor: pointer"></a></td>
-                    <td>{{item.key}}</td>
+                    <!--<td> 
+                        <span class="dropdown">
+                            <a href class="fa fa-circle-o makeNarrow dropdown-toggle"></a>
+                            <ul class="dropdown-menu">
+                                <li><a data-ng-click="vm.$layerService.createScatter(item)">scatter plot</a></li>
+                                <li><a>add to dashboard</a></li>
+                            </ul>
+                        </span>
+
+                    </td>-->
+                    <td><a class="fa fa-filter makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a></td>
+                    <td><a class="fa fa-eyedropper makeNarrow" data-ng-show="item.canStyle" data-ng-click="vm.$layerService.setStyle(item)" style="cursor: pointer"></a></td>                    
+                    
+                    <td>
+                        {{item.key}}
+                    </td>
                     <td class="text-right" data-ng-bind-html="vm.toTrusted(item.value)"></td>
                 </tr>
             </table>

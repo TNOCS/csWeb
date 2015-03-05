@@ -30,7 +30,7 @@
             // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
             if (layer.group.oneLayerActive && this.$layerService.findLayer(layer.id)) layer.enabled = false;
             
-            if (layer.enabled) {
+            if (layer.enabled) {    
                 this.$layerService.addLayer(layer);
             } else {
                 this.$layerService.removeLayer(layer);

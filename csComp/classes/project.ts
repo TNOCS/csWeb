@@ -122,9 +122,10 @@
                     if (input.mcas.hasOwnProperty(mca)) {
                         res.mcas.push(new Mca.Models.Mca().deserialize(mca));
                     }
-                }
-            }
-            return res;
+            }            
+          }
+            if (!res.propertyTypeData) res.propertyTypeData = {};
+          return res;
         }
     }
 
