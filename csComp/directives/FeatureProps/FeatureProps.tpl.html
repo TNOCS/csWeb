@@ -24,10 +24,12 @@
         <div class="row" ng-if="callOut.sectionCount() >= 4">
             <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
                 <li data-toggle="tab" class="active" ng-init="firstCallOutsection=callOut.firstSection()">
-                    <a ng-href="#rp-0" data-toggle="tab" data-ng-if="firstCallOutsection.showSectionIcon()" ><i class="fa {{firstCallOutsection.sectionIcon}}"></i></a>                    
+                    <a ng-href="#rp-0" data-toggle="tab" data-ng-if="firstCallOutsection.showSectionIcon()" >
+                        <i class="fa {{firstCallOutsection.sectionIcon}}"></i>
+                    </a>                    
                 </li>
-                <li class="dropdown" ng-init="selectedSection.title=\'Kies een categorie\'">
-                    <a style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"/></a>
+                <li class="dropdown" ng-init="selectedSection.title=\'...\'">
+                    <a style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="!$last && !$first"><a ng-href="#rp-{{$index}}" ng-click="selectedSection.title = sectionTitle" data-toggle="tab">{{sectionTitle}}</a></li>
                     </ul>
@@ -63,8 +65,8 @@
             <div class="has-feedback" style="padding:0 4px 4px 4px;">
                 <span style="direction: ltr; position: static; display: block;">
                     <input id="searchbox" data-ng-model="search.key" type="text"
-                            placeholder="Filter" autocomplete="off" spellcheck="false"
-                            style="position: relative; vertical-align: top;" class="form-control tt-input">
+                           placeholder="Filter" autocomplete="off" spellcheck="false"
+                           style="position: relative; vertical-align: top;" class="form-control tt-input">
                 </span>
                 <span id="searchicon" class="fa form-control-feedback fa-filter"></span>
             </div>
@@ -81,6 +83,19 @@
                     <td class="text-right" data-ng-bind-html="vm.toTrusted(item.value)"></td>
                 </tr>
             </table>
+        </div>
+        
+        <!--SimpleTimeline component-->
+        <div data-ng-if="vm.showSimpleTimeline" style="margin-left: 10px">
+            <div class="btn-group" dropdown is-open="status.isopen">
+                <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle ng-disabled="disabled">
+                    {{vm.focusTime}} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li data-ng-repeat="ts in vm.timestamps" 
+                        data-ng-click="vm.setTime(ts)">{{ts.title}}</li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>

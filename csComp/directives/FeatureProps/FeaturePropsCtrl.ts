@@ -322,7 +322,8 @@
         private featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("FPC: featureMessageReceived");
             switch (title) {
-                case "onFeatureSelect":                    
+                case "onFeatureSelect":
+                    this.setShowSimpleTimeline();
                     this.displayFeature(feature);
                     this.$scope.poi = feature;
                     this.$scope.autocollapse(true);
@@ -346,6 +347,60 @@
             //if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
             //    this.$scope.$apply();
             //}
+        }
+        
+        timestamps = new Array<{ title: string; timestamp: number }>();
+        showSimpleTimeline: boolean;
+        focusTime         : string;
+
+        setShowSimpleTimeline() {
+            if (this.$mapService.timelineVisible
+                || typeof this.$layerService.lastSelectedFeature === 'undefined'
+                || this.$layerService.lastSelectedFeature == null) {
+                this.showSimpleTimeline = false;
+                return;
+            }
+            var layer = this.$layerService.findLayer(this.$layerService.lastSelectedFeature.layerId);
+            this.showSimpleTimeline = (typeof layer.timestamps !== 'undefined' && layer.timestamps !== null);
+            if (this.showSimpleTimeline) this.setTimestamps();
+        }
+
+        setTimestamps() {
+            var layer = this.$layerService.findLayer(this.$layerService.lastSelectedFeature.layerId);
+            if (typeof layer.timestamps === 'undefined' || layer.timestamps == null) return [];
+            var time = this.timestamps = new Array<{ title: string; timestamp: number }>();
+            layer.timestamps.forEach((ts) => {
+                var date = new Date(ts);
+                var dateString = String.format("{0}-{1:00}-{2:00}", date.getFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
+                if (date.getUTCHours() > 0 || date.getUTCMinutes() > 0)
+                    dateString += String.format(" {0:00}:{1:00}", date.getUTCHours(), date.getUTCMinutes());
+                time.push({ title: dateString, timestamp: ts} );
+            });
+
+            // Set focus time
+            var focus = this.$layerService.project.timeLine.focus;
+            if (focus > time[time.length - 1].timestamp) {
+                this.focusTime = time[time.length - 1].title;
+                this.setTime(time[time.length - 1]);
+            } else if (focus < time[0].timestamp) {
+                this.focusTime = time[0].title;
+                this.setTime(time[0]);
+            }
+            else {
+                for (var i = 1; i < time.length; i++) {
+                    if (focus > time[i].timestamp) continue;
+                    this.focusTime = time[i].title;
+                    this.setTime(time[i]);
+                    break;
+                }
+            }
+            return time;
+        }
+
+        setTime(time: { title: string; timestamp: number} ) {
+            this.focusTime = time.title;
+            this.$layerService.project.timeLine.setFocus(new Date(time.timestamp));
+            this.$messageBusService.publish("timeline", "focusChange", time.timestamp);
         }
     }
 }
