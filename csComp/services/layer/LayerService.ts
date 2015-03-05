@@ -118,7 +118,6 @@
                         {
                             pos = getIndex(date, f.timestamps);
                         } else if (l.timestamps) {
-
                             if (timepos.hasOwnProperty(f.layerId)) {
                                 pos = timepos[f.layerId];
                             }
@@ -126,7 +125,6 @@
                                 pos = getIndex(date, l.timestamps);
                                 timepos[f.layerId] = pos;
                             }
-
                         }
 
                         // check if a new coordinate is avaiable

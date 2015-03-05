@@ -24,7 +24,7 @@
         tabs                            : JQuery;
         tabScrollDelta                  : number;
         featureTabActivated(sectionTitle: string, section: CallOutSection);
-        autocollapse(init               : boolean):void;
+        autocollapse(init: boolean)     : void;
     }
 
     export interface ICallOutProperty {
@@ -208,7 +208,6 @@
             $messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
             $messageBusService.subscribe("feature", this.featureMessageReceived);
 
-
             var widthOfList = function () {
                 var itemsWidth = 0;
                 $('#featureTabs>li').each(function () {
@@ -355,10 +354,6 @@
             if (!feature) return;
             var featureType     = this.$layerService.featureTypes[feature.featureTypeName];
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData);
-            // Probably not needed
-            //if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-            //    this.$scope.$apply();
-            //}
         }
         
         timestamps = new Array<{ title: string; timestamp: number }>();
@@ -372,13 +367,14 @@
                 this.showSimpleTimeline = false;
                 return;
             }
-            var layer = this.$layerService.findLayer(this.$layerService.lastSelectedFeature.layerId);
-            this.showSimpleTimeline = (typeof layer.timestamps !== 'undefined' && layer.timestamps !== null);
+            var feature = this.$layerService.lastSelectedFeature;
+            this.showSimpleTimeline = (typeof feature.sensors !== 'undefined' && feature.sensors !== null);
             if (this.showSimpleTimeline) this.setTimestamps();
         }
 
         setTimestamps() {
-            var layer = this.$layerService.findLayer(this.$layerService.lastSelectedFeature.layerId);
+            var feature = this.$layerService.lastSelectedFeature;
+            var layer = this.$layerService.findLayer(feature.layerId);
             if (typeof layer.timestamps === 'undefined' || layer.timestamps == null) return [];
             var time = this.timestamps = new Array<{ title: string; timestamp: number }>();
             layer.timestamps.forEach((ts) => {

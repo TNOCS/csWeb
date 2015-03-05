@@ -20,7 +20,6 @@
             </ul>
         </div>
         
-        
         <div class="row" ng-if="callOut.sectionCount() >= 4">
             <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
                 <li data-toggle="tab" class="active" ng-init="firstCallOutsection=callOut.firstSection()">
@@ -31,21 +30,27 @@
                 <li class="dropdown" ng-init="selectedSection.title=\'...\'">
                     <a style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="!$last && !$first"><a ng-href="#rp-{{$index}}" ng-click="selectedSection.title = sectionTitle" data-toggle="tab">{{sectionTitle}}</a></li>
+                        <li data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="!$last">
+                            <a ng-href="#rp-{{$index}}"
+                               ng-click="selectedSection.title = sectionTitle"
+                               data-toggle="tab">{{sectionTitle}}</a>
+                        </li>
                     </ul>
                 </li>
                 <li data-toggle="tab" ng-init="lastCallOutsection=callOut.lastSection()">
-                    <a ng-href="#rp-{{callOut.sectionCount()-1}}" data-toggle="tab" data-ng-if="lastCallOutsection.showSectionIcon()"><i class="fa {{lastCallOutsection.sectionIcon}}"></i></a>                    
+                    <a ng-href="#rp-{{callOut.sectionCount()-1}}" data-toggle="tab" 
+                       data-ng-if="lastCallOutsection.showSectionIcon()">
+                        <i class="fa {{lastCallOutsection.sectionIcon}}"></i>
+                    </a>                    
                 </li>
-                
             </ul>
         </div>
-
-
     </div>
     
     <div class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
-        <div data-ng-if="!$last" class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="(sectionTitle, section) in callOut.sections">
+        <div data-ng-if="!$last" class="tab-pane" data-ng-class="{active : $first}" 
+             id="rp-{{$index}}" 
+             data-ng-repeat="(sectionTitle, section) in callOut.sections">
             <table class="table table-condensed">
                 <tr popover="{{(item.description) ? item.description : \'\'}}"
                     popover-placement="left"
@@ -63,7 +68,7 @@
 
                     </td>-->
                     <td><a class="fa fa-filter makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a></td>
-                    <td><a class="fa fa-eyedropper makeNarrow" data-ng-show="item.canStyle" data-ng-click="vm.$layerService.setStyle(item)" style="cursor: pointer"></a></td>                    
+                    <td><a class="fa fa-eye makeNarrow" data-ng-show="item.canStyle" data-ng-click="vm.$layerService.setStyle(item)" style="cursor: pointer"></a></td>                    
                     
                     <td>
                         {{item.key}}
