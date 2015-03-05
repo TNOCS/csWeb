@@ -38,6 +38,7 @@
         lastSelectedFeature : IFeature;
         selectedLayerId     : string;
         timeline            : any;
+        loadedLayers  = new csComp.Helpers.Dictionary<L.ILayer>();
         layerGroup    = new L.LayerGroup<L.ILayer>();
         info          = new L.Control();
         currentLocale = 'en';
@@ -104,28 +105,29 @@
 
                 if (l != null)
                 {
-                        if (!l.timestamps) l.timestamps = [];
-                        if (!timepos.hasOwnProperty(f.layerId) && l.timestamps != null) {
-                            for (var i = 1; i < l.timestamps.length; i++) {
-                                if (l.timestamps[i] > date) {
-                                    timepos[f.layerId] = i;
-                                    break;
-                                }
+                    if (!l.timestamps) l.timestamps = [];
+                    if (!timepos.hasOwnProperty(f.layerId) && l.timestamps != null) {
+                        var nrTimestamps = l.timestamps.length;
+                        timepos[f.layerId] = nrTimestamps - 1; // in case the focus time is later than the last timestamp, display the last timestamp's data.
+                        for (var i = 1; i < nrTimestamps; i++) {
+                            if (l.timestamps[i] > date) {
+                                timepos[f.layerId] = i;
+                                break;
                             }
-                        }
-
-                        if (f.sensors != null) {
-                            for (var sensorTitle in f.sensors) {
-                                var sensor = f.sensors[sensorTitle];
-                                var value = sensor[timepos[f.layerId]];
-                                f.properties[sensorTitle] = value;
-                            }
-                            this.updateFeatureIcon(f, l);
                         }
                     }
+
+                    if (f.sensors != null) {
+                        for (var sensorTitle in f.sensors) {
+                            var sensor = f.sensors[sensorTitle];
+                            var value = sensor[timepos[f.layerId]];
+                            f.properties[sensorTitle] = value;
+                        }
+                        this.updateFeatureIcon(f, l);
+                        if (f.isSelected) this.$messageBusService.publish("feature", "onFeatureUpdated", f);
+                    }
                 }
-            );
-            this.$messageBusService.publish("feature", "onFeatureUpdated");
+            });
         }
 
         /**
@@ -152,6 +154,8 @@
                 });
                 wms.on('load', (event) => {
                     layer.isLoading = false;
+                    if (!layer.id) layer.id = Helpers.getGuid();
+                    this.loadedLayers.add(layer.id, layer);
                     if (this.$rootScope.$$phase != '$apply' && this.$rootScope.$$phase != '$digest') { this.$rootScope.$apply(); }
                 });
                 layer.isLoading = true;
@@ -196,10 +200,12 @@
                         // Open a layer URL
                         layer.isLoading = true;
                         d3.json(layer.url, (error, data) => {
-                          layer.isLoading = false;
+                            layer.isLoading = false;
                             if (error)
                                 this.$messageBusService.notify('ERROR loading' + layer.title, error);
                             else {
+                                if (!layer.id) layer.id = Helpers.getGuid();
+                                this.loadedLayers.add(layer.id, layer);
                                 if (layer.type.toLowerCase() === 'topojson')
                                     data = this.convertTopoToGeoJson(data);
                                 if (data.events && this.timeline) {
@@ -267,9 +273,9 @@
                                             layer.group.markers[f.id] = m;
                                             return this.style(f, layer);
                                         },
-                                        pointToLayer                                 : (feature, latlng) => this.addFeature(feature, latlng, layer)
+                                        pointToLayer : (feature, latlng) => this.addFeature(feature, latlng, layer)
                                     });
-                                    this.project.features.forEach((f                 : IFeature) => {
+                                    this.project.features.forEach((f: IFeature) => {
                                         if (f.layerId !== layer.id) return;
                                         var ft = this.getFeatureType(f);
                                         f.properties['Name'] = f.properties[ft.style.nameLabel];
@@ -277,6 +283,7 @@
                                     layer.mapLayer.addLayer(v);
                                 }
                             }
+                            if (layer.timestamps) this.updateSensorData();
                             this.$messageBusService.publish('layer', 'activated', layer);
 
                             callback(null, null);
@@ -431,7 +438,7 @@
             //console.log('update style ' + style.title);
             if (style == null) return;
             if (style.group != null) {
-                    style.info = this.calculatePropertyInfo(style.group, style.property);
+                style.info = this.calculatePropertyInfo(style.group, style.property);
                 style.canSelectColor = style.visualAspect.toLowerCase().indexOf('color') > -1;
                 this.updateGroupFeatures(style.group);
             }
@@ -455,7 +462,7 @@
         private updateGroupFeatures(group : ProjectGroup) {
             this.project.features.forEach((f: IFeature) => {
                 if (group.markers.hasOwnProperty(f.id)) {
-                    this.updateFeature(f,group);
+                    this.updateFeature(f, group);
                 }
             });
         }
@@ -679,9 +686,19 @@
         /**
          * Update icon for features
          */
-        updateFeatureIcon(feature: IFeature, layer: ProjectLayer): any {
-            var marker = <L.Marker>layer.group.markers[feature.id];
-            if (marker!=null) marker.setIcon(this.getPointIcon(feature,layer));
+        updateFeatureIcon(feature: IFeature, layer: ProjectLayer) {
+            var geomType = feature.geometry.type.toLowerCase();
+            switch (geomType)
+            {
+                case "point":
+                   var marker = <L.Marker>layer.group.markers[feature.id];
+                   if (marker != null) marker.setIcon(this.getPointIcon(feature, layer));
+                   break;
+                case "polygon":
+                case "multipolygon":
+                    this.updateFeature(feature);
+                    break;
+            }
         }
 
         /**
@@ -745,16 +762,18 @@
         }
 
         /**
-         * find a layer with a specific id
+         * Find a layer with a specific id
          */
         findLayer(id: string): ProjectLayer {
-            var r: ProjectLayer;
-            this.project.groups.forEach(g => {
-                g.layers.forEach(l => {
-                    if (l.id === id) r = l;
-                });
-            });
-            return r;
+            if (this.loadedLayers.containsKey(id)) return this.loadedLayers[id];
+            return null;
+            //var r: ProjectLayer;
+            //this.project.groups.forEach(g => {
+            //    g.layers.forEach(l => {
+            //        if (l.id === id) r = l;
+            //    });
+            //});
+            //return r;
         }
 
         setStyle(property: any, openStyleTab = true) {
@@ -978,6 +997,8 @@
             var m: any;
             var g = layer.group;
 
+            this.loadedLayers.remove(layer.id);
+
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
                 this.$messageBusService.publish('sidebar', 'hide');
@@ -1028,6 +1049,7 @@
          */
         openSolution(url: string, layers?: string, initialProject?: string): void {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
+            this.loadedLayers.clear();
 
             $.getJSON(url, (solution : Solution) => {
                 //var projects = data;

@@ -22,7 +22,7 @@ module Heatmap {
          */
         lostInterestDistance: number;
 
-        computeIdealityAtDistance(distance: number): { ideality: number; radius: number };
+        computeIdealityAtDistance(distance: number): number;
     }
 
     export class IdealityMeasure implements IIdealityMeasure {
@@ -42,22 +42,13 @@ module Heatmap {
          */
         lostInterestDistance = 1000;
          
-        computeIdealityAtDistance(distance: number): { ideality: number; radius: number } {
+        computeIdealityAtDistance(distance: number): number {
             if (distance < this.idealDistance) {
-                return {
-                    ideality: this.atLocation + (1 - this.atLocation) * distance / this.idealDistance,
-                    radius  : distance / 20
-                };
+                return this.atLocation + (1 - this.atLocation) * distance / this.idealDistance;
             } else if (distance < this.lostInterestDistance) {
-                return {
-                    ideality: 1 - (distance - this.idealDistance) / (this.lostInterestDistance - this.idealDistance),
-                    radius  : distance / 20
-                };
+                return 1 - (distance - this.idealDistance) / (this.lostInterestDistance - this.idealDistance);
             }
-            return {
-                ideality: 0,
-                radius  : 0
-            }
+            return 0;
         }
 
     }
