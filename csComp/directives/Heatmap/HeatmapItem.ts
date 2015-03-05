@@ -40,7 +40,7 @@ module Heatmap {
 
         reset(): void;
         setScale(latitude: number, longitude: number): void;
-        calculateHeatspots(feature: csComp.Services.IFeature) : IHeatspot[];
+        calculateHeatspots(feature: csComp.Services.IFeature, deltaLatDegree: number, deltaLonDegree: number) : IHeatspot[];
     }
 
     export class HeatmapItem implements IHeatmapItem {
@@ -59,14 +59,14 @@ module Heatmap {
          * e.g. the property that determines what it represents like buildingFunction.
          * @type {string}
          */
-        propertyTitle   : string;
-        propertyLabel   : string;
+        propertyTitle       : string;
+        propertyLabel       : string;
         /**
          * When we are using an options property type, such as buildingFunction, we need
          * to indicate the particular option that we will evaluate.
          * @type {number}
          */
-        optionIndex    : number;
+        optionIndex         : number;
         /**
          * The user weight specifies how much you like this item, e.g. the maximum value.
          * @type {number}, range [-5..5].
@@ -82,9 +82,11 @@ module Heatmap {
          * distance.
          * @type {IIdealityMeasure}
          */
-        idealityMeasure : IIdealityMeasure = new IdealityMeasure();
-        heatspots: IHeatspot[] = [];
+        idealityMeasure     : IIdealityMeasure = new IdealityMeasure();
+        heatspots           : IHeatspot[] = [];
+        /** Represents the number of items that are needed to obtain an ideal location. */
         isSelected = false;
+        private intensityScale = 5;
         private static twoPi: number = Math.PI * 2;
 
         constructor(public title: string, public featureType: csComp.Services.IFeatureType) {
@@ -92,10 +94,10 @@ module Heatmap {
             this.setScale(52);
         }
 
-        calculateHeatspots(feature: csComp.Services.Feature) {
+        calculateHeatspots(feature: csComp.Services.Feature, cellSize: number) {
             // right type?
             if (!this.isSelected || this.featureType !== feature.fType) return null;
-            if (this.heatspots.length === 0 && this.weight > 0) this.calculateHeatspot();
+            if (this.heatspots.length === 0 && this.weight > 0) this.calculateHeatspot(cellSize);
             // create heatspot solely based on feature type?
             if (!this.propertyLabel) {
                 return this.pinHeatspotToLocation(feature);
@@ -110,20 +112,49 @@ module Heatmap {
 
         /**
         * Calculate the intensity around the location. 
-        * NOTE We are performing a relative computation around location (0,0).
+        * NOTE We are performing a relative computation around location (0,0) in a rectangular grid. 
         */
-        private calculateHeatspot() {
-            var count = 0;
-            while (count++ < 200) {
-                var radius    = Math.random() * this.idealityMeasure.lostInterestDistance;
-                var latRadius = radius * HeatmapItem.meterToLatDegree; 
-                var lonRadius = radius * HeatmapItem.meterToLonDegree; 
-                var angleRad  = Math.random() * HeatmapItem.twoPi;
-                var lat       = Math.sin(angleRad) * latRadius;
-                var lon       = Math.cos(angleRad) * lonRadius;
-                var intensity = this.idealityMeasure.computeIdealityAtDistance(radius);
-                this.heatspots.push(new Heatspot(lat, lon, this.weight * intensity.ideality, intensity.radius));
+        private calculateHeatspot(cellSize: number) {
+            var maxRadius    = this.idealityMeasure.lostInterestDistance;
+            var cells        = Math.floor(maxRadius / cellSize);
+            var sCellSize    = cellSize * cellSize;
+            var scaledWeight = this.weight * this.intensityScale;
+
+            this.heatspots = new Array<IHeatspot>(cells * cells + 1);
+            this.heatspots.push(new Heatspot(0, 0, scaledWeight * this.idealityMeasure.atLocation));
+
+            for (var i = 1; i <= cells; i++) {
+                for (var j = 1; j <= cells; j++) {
+                    var radius            = Math.sqrt(i * i * sCellSize + j * j * sCellSize);
+                    var weightedIntensity = scaledWeight * this.idealityMeasure.computeIdealityAtDistance(radius);
+                    this.heatspots.push(new Heatspot( i,  j, weightedIntensity));
+                    this.heatspots.push(new Heatspot( i, -j, weightedIntensity));
+                    this.heatspots.push(new Heatspot(-i,  j, weightedIntensity));
+                    this.heatspots.push(new Heatspot(-i, -j, weightedIntensity));
+                }
             }
+
+            //var latRadius = radius * HeatmapItem.meterToLatDegree; 
+            //var lonRadius = radius * HeatmapItem.meterToLonDegree; 
+            
+            //for (var lat = -latRadius; lat < latRadius; lat += deltaLatDegree) {
+            //    for (var lon = -lonRadius; lat < lonRadius; lat += deltaLonDegree) {
+            //        // TODO Compute radius
+            //        var intensity = this.idealityMeasure.computeIdealityAtDistance(radius);
+            //        this.heatspots.push(new Heatspot(lat, lon, this.weight * intensity.ideality));
+            //    }
+            //}
+            //var count = 0;
+            //while (count++ < 200) {
+            //    var radius    = Math.random() * this.idealityMeasure.lostInterestDistance;
+            //    var latRadius = radius * HeatmapItem.meterToLatDegree; 
+            //    var lonRadius = radius * HeatmapItem.meterToLonDegree; 
+            //    var angleRad  = Math.random() * HeatmapItem.twoPi;
+            //    var lat       = Math.sin(angleRad) * latRadius;
+            //    var lon       = Math.cos(angleRad) * lonRadius;
+            //    var intensity = this.idealityMeasure.computeIdealityAtDistance(radius);
+            //    this.heatspots.push(new Heatspot(lat, lon, this.weight * intensity.ideality, intensity.radius));
+            //}
 
             //var twoPi: number = Math.PI * 2;
             //var lat = 0,
@@ -174,7 +205,7 @@ module Heatmap {
             var lat = feature.geometry.coordinates[1];
             var lon = feature.geometry.coordinates[0];
             this.heatspots.forEach((hs) => {
-                actualHeatspots.push(hs.AddLocation(lat, lon));
+                //TODO actualHeatspots.push(hs.AddLocation(lat, lon));
             });
             return actualHeatspots;
         }

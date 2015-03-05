@@ -23,12 +23,12 @@ module Heatmap {
             heatmap.clearData();
             dataset.features.forEach((f) => {
                 this.heatmapItems.forEach((hi) => {
-                    var heatspot = hi.calculateHeatspots(f);
+                    var heatspot = hi.calculateHeatspots(f, 0.00001, 0.00001);
                     if (heatspot) {
-                        //heatspots = heatspots.concat(heatspot
+                        //heatspots = heatspots.concat(heatspot);
                         //console.log('Created ' + heatspot.length + ' heatspots');
                         heatspot.forEach((hs) => {
-                            heatmap.addDataPoint(hs.latitude, hs.longitude, hs.intensity, hs.radius);
+                            //heatmap.addDataPoint(hs.latitude, hs.longitude, hs.intensity);
                         });
                     }
                 });
@@ -46,13 +46,8 @@ module Heatmap {
             });
             this.heatmapItems.forEach((hi) => {
                 if (hi.isSelected) {
-                    if (hi.userWeight !== 0)
-                    {
-                        hi.weight = hi.userWeight / totalUserWeight;
-                        hi.reset();
-                    }
-                    else
-                        hi.reset();
+                    hi.weight = hi.userWeight / totalUserWeight;
+                    hi.reset();
                 }
             });
         }
