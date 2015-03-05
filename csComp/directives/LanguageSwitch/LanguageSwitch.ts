@@ -18,7 +18,7 @@
     /**
       * Directive to display the available map layers.
       */ 
-    myModule
+    myModule 
         .directive('languageSwitch', [
             '$compile',
             function ($compile): ng.IDirective {
