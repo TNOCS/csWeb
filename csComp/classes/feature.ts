@@ -25,7 +25,16 @@
         featureTypeName?: string;
         fType?          : IFeatureType;
         isInitialized?  : boolean;
+        /**
+        * An optional dictionary of sensors, where each sensor or measurement represents the value of the sensor 
+        * at a certain point in time. Is often used with the layer's timestamp property in case all sensors have the same
+        * number of measurements.
+        */
         sensors?        : { [id: string]: any[]}
+        /**
+        * An optional language dictionary, where each key, e.g. 'en' for English, represents a localised data set. Each locale can overwrite 
+        * the value of the title, description etc. of a feature.
+        */
         languages?      : { [key: string]: ILocalisedData }
     }
 
