@@ -128,33 +128,7 @@
 
 
 
-        public checkLayers() {
-            var db = this.$layerService.project.activeDashboard;
-            if (db.visiblelayers) {
-                this.$layerService.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
-                    g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                        if (l.enabled && db.visiblelayers.indexOf(l.reference) == -1) {
-                            this.$layerService.removeLayer(l);
-                            l.enabled = false;
-                        }
-                        if (!l.enabled && db.visiblelayers.indexOf(l.reference) >= 0) {
-                            this.$layerService.addLayer(l);
-                            l.enabled = true;
-                        }
-                    });
-
-                });
-            }
-
-        }
-
-
-        public checkViewbound() {
-            var db = this.$layerService.project.activeDashboard;
-            if (db.viewBounds) {
-                this.$mapService.map.fitBounds(new L.LatLngBounds(db.viewBounds.southWest, db.viewBounds.northEast));
-            }
-        }
+        
 
         /** publish a message that a new dashboard was selected */
         private publishDashboardUpdate() {
@@ -176,10 +150,10 @@
                 setTimeout(() => {
 
                     //this.$dashboardService.checkMap();
-                    this.checkTimeline();
-                    this.checkViewbound();
+                    //this.checkTimeline();
+                    //this.checkViewbound();
                     this.publishDashboardUpdate();
-                    this.checkLayers();
+                    //this.checkLayers();
                 }, 100);
 
                 // render all widgets

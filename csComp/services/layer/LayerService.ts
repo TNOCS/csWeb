@@ -93,7 +93,7 @@
            this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
         }
 
-        updateSensorData() {
+        public updateSensorData() {
             if (this.project == null || this.project.timeLine == null) return;
 
             var date = this.project.timeLine.focus;
@@ -102,27 +102,54 @@
             this.project.features.forEach((f: IFeature) => {
                 var l = this.findLayer(f.layerId);
 
-                if (l != null)
-                {
-                        if (!l.timestamps) l.timestamps = [];
-                        if (!timepos.hasOwnProperty(f.layerId) && l.timestamps != null) {
-                            for (var i = 1; i < l.timestamps.length; i++) {
-                                if (l.timestamps[i] > date) {
-                                    timepos[f.layerId] = i;
-                                    break;
+                if (l != null) {
+                    if (f.sensors || f.coordinates)
+                    {
+                        var getIndex = (d: Number, timestamps: Number[]) => {
+                            for (var i = 1; i < timestamps.length; i++) {
+                                if (timestamps[i] > d) {
+                                    return i;                                    
                                 }
                             }
+                            return timestamps.length-1;
+                        }
+                        var pos = 0;
+                        if (f.timestamps) // check if feature contains timestamps
+                        { 
+                            pos = getIndex(date, f.timestamps);
+                        } else if (l.timestamps) {
+
+                            if (timepos.hasOwnProperty(f.layerId)) {
+                                pos = timepos[f.layerId];
+                            }
+                            else {
+                                pos = getIndex(date, l.timestamps);
+                                timepos[f.layerId] = pos;
+                            }
+                            
                         }
 
-                        if (f.sensors != null) {
+                        // check if a new coordinate is avaiable
+                        if (f.coordinates && f.coordinates.length>pos && f.coordinates[pos] != f.geometry.coordinates) {
+                            f.geometry.coordinates = f.coordinates[pos];
+                            // get marker
+                            if (l.group.markers.hasOwnProperty(f.id))
+                            {
+                                var m = l.group.markers[f.id]
+                                // update position
+                                m.setLatLng(new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]));
+                            }
+                        }
+                        if (f.sensors) {
                             for (var sensorTitle in f.sensors) {
                                 var sensor = f.sensors[sensorTitle];
-                                var value = sensor[timepos[f.layerId]];
+                                var value = sensor[pos];
                                 f.properties[sensorTitle] = value;
                             }
                             this.updateFeatureIcon(f, l);
                         }
                     }
+                }
                 }
             );
             this.$messageBusService.publish("feature", "onFeatureUpdated");
@@ -262,8 +289,10 @@
                                                 click     : ()  => this.selectFeature(feature)
                                             });
                                         },
-                                        style : (f: IFeature, m) => {
+                                        style: (f: IFeature, m) => {
+
                                             this.initFeature(f, layer);
+                                            //this.updateSensorData();
                                             layer.group.markers[f.id] = m;
                                             return this.style(f, layer);
                                         },
@@ -276,7 +305,8 @@
                                     });
                                     layer.mapLayer.addLayer(v);
                                 }
-                            }
+                          }
+                            this.updateSensorData();
                             this.$messageBusService.publish('layer', 'activated', layer);
 
                             callback(null, null);
@@ -337,13 +367,15 @@
                 group.filters.forEach((f: GroupFilter) => {
                     if (!feature.properties.hasOwnProperty(f.property)) return;
                     var value = feature.properties[f.property];
-                    var valueLength = value.toString().length;
-                    if (f.meta != null) {
-                        value = Helpers.convertPropertyInfo(f.meta, value);
-                        if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
+                    if (value) {
+                        var valueLength = value.toString().length;
+                        if (f.meta != null) {
+                            value = Helpers.convertPropertyInfo(f.meta, value);
+                            if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
+                        }
+                        rowLength = Math.max(rowLength, valueLength + f.title.length);
+                        content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
                     }
-                    rowLength = Math.max(rowLength, valueLength + f.title.length);
-                    content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
                 });
             }
 
@@ -438,13 +470,14 @@
         }
 
         updateFeature(feature: IFeature, group?: ProjectGroup) {
+            var layer = this.findLayer(feature.layerId);
+            if (layer == null) return;
             if (feature.geometry.type === 'Point') {
-                var layer = this.findLayer(feature.layerId);
-                if (layer != null) this.updateFeatureIcon(feature, layer);
+                
+                this.updateFeatureIcon(feature, layer);
             } else {
                 if (group == null) {
-                    var l = this.findLayer(feature.layerId);
-                    group = l.group;
+                    group = layer.group;
                 }
                 if (group == null) return;
                 var m = group.markers[feature.id];
@@ -506,7 +539,8 @@
             layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     var v = Number(feature.properties[gs.property]);
-                    switch (gs.visualAspect) {
+                    if (!isNaN(v)) {
+                        switch (gs.visualAspect) {
                         case 'strokeColor':
                             s['color'] = this.getColor(v, gs);
                             break;
@@ -516,6 +550,7 @@
                         case 'strokeWidth':
                             s['weight'] = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
                             break;
+                        }
                     }
                     //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                 }
@@ -748,13 +783,16 @@
          * find a layer with a specific id
          */
         findLayer(id: string): ProjectLayer {
-            var r: ProjectLayer;
+            var r: ProjectLayer;           
             this.project.groups.forEach(g => {
                 g.layers.forEach(l => {
-                    if (l.id === id) r = l;
+                    if (l.id === id) {
+                        r = l;                        
+                    }
                 });
             });
             return r;
+
         }
 
         setStyle(property: any, openStyleTab = true) {
@@ -831,10 +869,22 @@
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
         }
 
+        /**
+         * enable a filter for a specific property
+         */
+        setFilter(filter: GroupFilter, group : csComp.Services.ProjectGroup) {
+            
+            group.filters.push(filter);
+            this.updateFilters();
+                (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+            
+        }
+
+       
          /**
          * enable a filter for a specific property
          */
-        setFilter(property: FeatureProps.CallOutProperty) {
+        setPropertyFilter(property: FeatureProps.CallOutProperty) {
             var prop                                   = property.property;
             var f                                      = property.feature;
             if (f != null) {
@@ -1166,7 +1216,9 @@
                         this.map.map.addLayer(group.vectors);
                     }
                     group.layers.forEach((layer: ProjectLayer) => {
-                        if (layer.reference == null) layer.reference = Helpers.getGuid();
+                        if (layer.id == null) layer.id = Helpers.getGuid();
+                        if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
+                        if (layer.title == null) layer.title = layer.id;
                         if (layer.languages != null && this.currentLocale in layer.languages) {
                             var locale = layer.languages[this.currentLocale];
                             if (locale.title      ) layer.title       = locale.title;
@@ -1228,7 +1280,7 @@
                         if (f.layerId === l.id && f.properties.hasOwnProperty(property)) {
                             var s = f.properties[property];
                             var v = Number(s);
-                            if (v !== NaN) {
+                            if (!isNaN(v)) {
                                 r.count += 1;
                                 sum = sum + v;
                                 sumsq = sumsq + v * v;
@@ -1239,15 +1291,20 @@
                     });
                 }
             });
-            r.mean = sum / r.count;
-            r.varience = sumsq / r.count - r.mean * r.mean;
-            r.sd = Math.sqrt(r.varience);
-            r.sdMax = r.mean + 3 * r.sd;
-            r.sdMin = r.mean - 3 * r.sd;
-            if (r.min > r.sdMin) r.sdMin = r.min;
-            if (r.max < r.sdMax) r.sdMax = r.max;
-            if (r.sdMin === NaN) r.sdMin = r.min;
-            if (r.sdMax === NaN) r.sdMax = r.max;
+            if (isNaN(sum) || r.count == 0) {
+                r.sdMax = r.max;
+                r.sdMin = r.min;
+            } else {                
+                r.mean = sum / r.count;
+                r.varience = sumsq / r.count - r.mean * r.mean;
+                r.sd = Math.sqrt(r.varience);
+                r.sdMax = r.mean + 3 * r.sd;
+                r.sdMin = r.mean - 3 * r.sd;
+                if (r.min > r.sdMin) r.sdMin = r.min;
+                if (r.max < r.sdMax) r.sdMax = r.max;
+                if (r.sdMin === NaN) r.sdMin = r.min;
+                if (r.sdMax === NaN) r.sdMax = r.max;
+            } 
             if (this.propertyTypeData.hasOwnProperty(property)) {
                 var mid = this.propertyTypeData[property];
                 if (mid.maxValue != null) r.sdMax = mid.maxValue;
@@ -1270,10 +1327,13 @@
                         switch (filter.filterType) {
                             case 'text':
                                 this.addTextFilter(group, filter);
-                            break;
+                                break;
                             case 'bar':
                                 this.addBarFilter(group, filter);
-                            break;
+                                break;
+                            case 'scatter':
+                                this.addScatterFilter(group, filter);
+                                break;
                         }
                     });
                 }
@@ -1361,7 +1421,97 @@
             }
         }
 
+        
+        private addScatterFilter(group: ProjectGroup, filter: GroupFilter) {
+            filter.id = Helpers.getGuid();
+            
+            var info = this.calculatePropertyInfo(group, filter.property);
+            var info2 = this.calculatePropertyInfo(group, filter.property2);
+            
 
+            var divid = 'filter_' + filter.id;
+            //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
+            //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
+            $('<h4>' + filter.title + '</h4><div id=\'' + divid + '\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div><a class=\'btn\' id=\'remove' + filter.id + '\'>remove</a>').appendTo('#filterChart');
+            
+            $('#remove' + filter.id).on('click',() => {
+                var pos = group.filters.indexOf(filter);
+                if (pos !== -1) group.filters.splice(pos, 1);
+                filter.dimension.dispose();
+                this.updateFilters();
+
+                this.resetMapFilter(group);
+            });
+
+            var dcChart = <any>dc.scatterPlot('#' + divid);
+
+           
+
+            var prop1 = group.ndx.dimension(d => {
+                if (!d.properties.hasOwnProperty(filter.property)) return null;
+                else {
+                    if (d.properties[filter.property] != null) {
+                        
+                        var a = parseInt(d.properties[filter.property]);
+                        var b = parseInt(d.properties[filter.property2]);
+                        if (a >= info.sdMin && a <= info.sdMax) {
+                            return [a, b];
+                            //return Math.floor(a / binWidth) * binWidth;
+                        } else {
+                            //return null;
+                        }
+                    }
+                    return [0,0];
+                    
+                    //return a;
+                }
+            });
+
+            
+
+            filter.dimension = prop1;
+            var dcGroup1 = prop1.group();           
+
+            //var scale =
+            dcChart.width(275)
+                .height(190)
+                .dimension(prop1)
+                .group(dcGroup1)
+                .x(d3.scale.linear().domain([info.sdMin, info.sdMax]))
+                .yAxisLabel(filter.property2)
+                .xAxisLabel(filter.property)
+                .on('filtered', (e) => {
+                    var fil = e.hasFilter();                    
+                    dc.events.trigger(() => {
+                        group.filterResult = prop1.top(Infinity);
+                        this.updateFilterGroupCount(group);
+                    }, 0);
+                    dc.events.trigger(() => {
+                        this.updateMapFilter(group);
+                    }, 100);
+                });
+                
+
+            dcChart.xUnits(() => { return 13; });
+
+            
+
+            //if (filter.meta != null && filter.meta.minValue != null) {
+            //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
+            //} else {
+            //    var propInfo = this.calculatePropertyInfo(group, filter.property);
+            //    var dif = (propInfo.max - propInfo.min) / 100;
+            //    dcChart.x(d3.scale.linear().domain([propInfo.min - dif, propInfo.max + dif]));
+            //}
+
+            dcChart.yAxis().ticks(15);
+            dcChart.xAxis().ticks(15);
+            //this.updateChartRange(dcChart, filter);
+            //.x(d3.scale.quantile().domain(dcGroup.all().map(function (d) {
+            //return d.key;
+            //   }))
+            //.range([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
+        }
 
         /***
          * Add bar chart filter for filter number values
@@ -1373,7 +1523,8 @@
             var divid = 'filter_' + filter.id;
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
-            $('<h4>' + filter.title + '</h4><div id=\'' + divid + '\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div><a class=\'btn\' id=\'remove' + filter.id + '\'>remove</a>').appendTo('#filterChart');
+
+            $('<div style=\'position:relative\'><h4>' + filter.title + '</h4><span class=\'dropdown\' dropdown><a href class=\'fa fa-circle-o makeNarrow dropdown-toggle\' dropdown-toggle > </a><ul class=\'dropdown-menu\' ><li><a>scatter plot</a></li><li><a>add to dashboard< /a></li ></ul></span><a class=\'btn fa fa-cog\' style=\'position:absolute;top:-5px;right:0\' id=\'remove' + filter.id + '\'></a><div id=\'' + divid + '\' style=\'float:none\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div></div>').appendTo('#filterChart');
             var filterFrom = $('#fsfrom_' + filter.id);
             var filterTo = $('#fsto_' + filter.id);
             var filterRange = $('#fdrange_' + filter.id);

@@ -115,7 +115,8 @@ module csComp.Services {
         editMode: boolean;
         showMap: boolean;
         showTimeline: boolean = true;
-        showLeftmenu : boolean;
+        showLeftmenu: boolean;
+        showRightmenu: boolean = true;
         draggable: boolean = true;
         resizable: boolean = true;
         background: string;

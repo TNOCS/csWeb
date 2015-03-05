@@ -372,8 +372,8 @@ module csComp.Helpers {
                 .attr("style", "display: block; margin: 0 auto;")
                 .append("g")
                 .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
-            svg.call(tip);
+               
+            //svg.call(tip);
 
             var colors = chroma.scale(colorScale).domain([0, data.length - 1], data.length);
             var path = svg.selectAll(".solidArc")

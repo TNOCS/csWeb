@@ -47,7 +47,8 @@
         title      : string;
         enabled    : boolean;
         filterType : string;
-        property   : string;
+        property    : string;
+        property2   : string;
         criteria   : string;
         dimension  : any;
         value      : any;

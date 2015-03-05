@@ -194,6 +194,8 @@ export interface ILegendwidget {
   export function bubbleChart(cssSel: string): IBubblechart;
   export function pieChart(cssSel: string): IPiechart;
   export function barChart(cssSel: string): IBarchart;
+  export function scatterPlot(cssSel : string) : any;
+    
   export function lineChart(cssSel: string): ILinechart;
   export function dataTable(cssSel: string): IDatachart;
   export function rowChart(cssSel: string): IRowchart;

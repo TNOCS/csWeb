@@ -28,6 +28,8 @@
         return avg;
     }
 
+    
+
     /**
      * Collect all the property types that are referenced by a feature type.
      */

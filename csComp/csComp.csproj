@@ -18,12 +18,16 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="classes\datasource.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.tpl.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelectionCtrl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.tpl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.ts" />
     <TypeScriptCompile Include="directives\Dashboard\DashboardCtrl.ts" />
+    <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.tpl.ts" />
+    <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.ts" />
+    <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelationsCtrl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
@@ -116,6 +120,7 @@
     <Content Include="includes\js\xbbcode.min.js" />
     <Content Include="includes\timeline.css" />
     <Content Include="includes\timeline.js" />
+    <None Include="directives\FeatureRelations\FeatureRelations.tpl.html" />
     <None Include="includes\cssImages\filter-black.png" />
     <None Include="includes\cssImages\layers-black.png" />
     <None Include="includes\cssImages\legend.png" />
