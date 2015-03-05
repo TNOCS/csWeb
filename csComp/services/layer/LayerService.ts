@@ -10,7 +10,7 @@
         solution             : Solution;
         project              : Project;
         maxBounds            : IBoundingBox;
-        findLayer(id         : string): ProjectLayer;
+        findLayer(id: string): ProjectLayer;
         selectFeature(feature: Services.IFeature);
 
         mb              : Services.MessageBusService;
@@ -104,19 +104,18 @@
                 var l = this.findLayer(f.layerId);
 
                 if (l != null) {
-                    if (f.sensors || f.coordinates)
-                    {
+                    if (f.sensors || f.coordinates) {
                         var getIndex = (d: Number, timestamps: Number[]) => {
                             for (var i = 1; i < timestamps.length; i++) {
                                 if (timestamps[i] > d) {
-                                    return i;                                    
+                                    return i;
                                 }
                             }
-                            return timestamps.length-1;
+                            return timestamps.length - 1;
                         }
                         var pos = 0;
                         if (f.timestamps) // check if feature contains timestamps
-                        { 
+                        {
                             pos = getIndex(date, f.timestamps);
                         } else if (l.timestamps) {
 
@@ -127,32 +126,31 @@
                                 pos = getIndex(date, l.timestamps);
                                 timepos[f.layerId] = pos;
                             }
-                            
+
                         }
 
                         // check if a new coordinate is avaiable
-                        if (f.coordinates && f.coordinates.length>pos && f.coordinates[pos] != f.geometry.coordinates) {
+                        if (f.coordinates && f.coordinates.length > pos && f.coordinates[pos] != f.geometry.coordinates) {
                             f.geometry.coordinates = f.coordinates[pos];
                             // get marker
-                            if (l.group.markers.hasOwnProperty(f.id))
-                            {
+                            if (l.group.markers.hasOwnProperty(f.id)) {
                                 var m = l.group.markers[f.id]
                                 // update position
                                 m.setLatLng(new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]));
                             }
                         }
                         if (f.sensors) {
-                        for (var sensorTitle in f.sensors) {
-                            var sensor = f.sensors[sensorTitle];
+                            for (var sensorTitle in f.sensors) {
+                                var sensor = f.sensors[sensorTitle];
                                 var value = sensor[pos];
-                            f.properties[sensorTitle] = value;
+                                f.properties[sensorTitle] = value;
+                            }
+                            this.updateFeatureIcon(f, l);
+                            if (f.isSelected) this.$messageBusService.publish("feature", "onFeatureUpdated", f);
                         }
-                        this.updateFeatureIcon(f, l);
-                        if (f.isSelected) this.$messageBusService.publish("feature", "onFeatureUpdated", f);
                     }
                 }
             });
-                }
         }
 
         /**
@@ -806,6 +804,15 @@
             //    });
             //});
             //return r;
+            var r: ProjectLayer;
+            this.project.groups.forEach(g => {
+                g.layers.forEach(l => {
+                    if (l.id === id) {
+                        r = l;
+                    }
+                });
+            });
+            return r;
         }
 
         setStyle(property: any, openStyleTab = true) {
