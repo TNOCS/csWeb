@@ -336,11 +336,11 @@
             this.properties = [];
             var mi = McaCtrl.createPropertyType(this.mca);
             var displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
-            this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description, mi));
+            this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, false, mi.description, mi));
             if (this.mca.rankTitle) {
                 mi = McaCtrl.createRankPropertyType(this.mca);
                 displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
-                this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description, mi));
+                this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, false, mi.description, mi));
             }
             if (drawCharts) this.drawChart();
         }

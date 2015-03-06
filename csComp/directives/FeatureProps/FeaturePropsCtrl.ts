@@ -48,6 +48,7 @@
             public canStyle    : boolean,
             public feature     : IFeature,
             public isFilter    : boolean,
+            public isSensor    : boolean,
             public description?: string,
             public meta?       : IPropertyType) { }
     }
@@ -74,7 +75,8 @@
         showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
         addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {            
-            this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, description ? description : null, meta));
+            var isSensor = typeof feature.sensors !== 'undefined' && feature.sensors.hasOwnProperty(property);
+            this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, meta));
         }
 
         hasProperties(): boolean {
@@ -375,9 +377,10 @@
         setTimestamps() {
             var feature = this.$layerService.lastSelectedFeature;
             var layer = this.$layerService.findLayer(feature.layerId);
-            if (typeof layer.timestamps === 'undefined' || layer.timestamps == null) return [];
+            if ((typeof layer.timestamps === 'undefined' || layer.timestamps == null) &&
+                (typeof feature.timestamps === 'undefined' || feature.timestamps == null)) return [];
             var time = this.timestamps = new Array<{ title: string; timestamp: number }>();
-            layer.timestamps.forEach((ts) => {
+            (layer.timestamps || feature.timestamps).forEach((ts) => {
                 var date = new Date(ts);
                 var dateString = String.format("{0}-{1:00}-{2:00}", date.getFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
                 if (date.getUTCHours() > 0 || date.getUTCMinutes() > 0)
