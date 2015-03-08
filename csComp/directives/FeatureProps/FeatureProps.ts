@@ -8,14 +8,14 @@
       * Module        
       */ 
     export var myModule;       
-    try {                         
+    try {            
          myModule = angular.module(moduleName);
-    } catch (err) {   
+    } catch (err) { 
         // named module does not exist, so create one                                             
         myModule = angular.module(moduleName, []);    
-    }                                                                    
+    }
 
-    /** 
+    /**
       * Directive to display a feature's properties in a panel.
       *
       * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ

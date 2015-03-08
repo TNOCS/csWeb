@@ -50,7 +50,9 @@
             public isFilter    : boolean,
             public isSensor    : boolean,
             public description?: string,
-            public meta?       : IPropertyType) { }
+            public meta?       : IPropertyType,
+            public timestamps? : number[],
+            public sensor?     : number[]) { }
     }
 
     export interface ICallOutSection {
@@ -76,7 +78,10 @@
 
         addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {            
             var isSensor = typeof feature.sensors !== 'undefined' && feature.sensors.hasOwnProperty(property);
-            this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, meta));
+            if (isSensor)
+                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, meta, feature.timestamps, feature.sensors[property]));
+            else
+                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, meta));
         }
 
         hasProperties(): boolean {
@@ -114,7 +119,9 @@
                     var canStyle  = (mi.type === "number" || mi.type === "options" || mi.type === "color");
                     if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
                     if (mi.visibleInCallOut)
-                        callOutSection  .addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                    {
+                        callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                    }
                     searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
                 });
             }
@@ -354,10 +361,17 @@
 
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
-            var featureType     = this.$layerService.featureTypes[feature.featureTypeName];
+            var featureType = this.$layerService.featureTypes[feature.featureTypeName];
+            // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
+            if (typeof feature.sensors !== 'undefined' && typeof feature.timestamps === 'undefined')
+                feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData);
         }
         
+        showSensorData(property: ICallOutProperty) {
+            console.log(property);
+        }
+
         timestamps = new Array<{ title: string; timestamp: number }>();
         showSimpleTimeline: boolean;
         focusTime         : string;

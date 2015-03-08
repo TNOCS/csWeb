@@ -570,3 +570,45 @@ top: 0;
     -webkit-transform: scale(1.0);
   }
 }
+.accordionIcon {
+    width: 12px;
+    margin: 0 2px;
+}
+.chart {
+    background: #eee;
+    padding: 3px;
+}
+ 
+.chart div {
+  width: 0;
+  transition: all 1s ease-out;
+  -moz-transition: all 1s ease-out;
+  -webkit-transition: all 1s ease-out;
+}
+ 
+.chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 5px;
+  color: white;
+  box-shadow: 2px 2px 2px #666;
+}
+.sparkline {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1px;
+}
+.sparkcircle-max {
+    fill: red;
+}
+.sparkcircle-min {
+    fill: green;
+}
+
+.sparkline-path {
+    stroke: steelblue;
+    stroke-width: 1;
+    fill: none;
+}
