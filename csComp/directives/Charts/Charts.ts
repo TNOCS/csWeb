@@ -319,14 +319,18 @@
                             // this would be the index suitable for insertion
                             var i = bisect(data, t0, 1);
 
-                            // now that we know where in the data the interpolated date would "fit"
-                            // between two values, pull them both back as temporaries
-                            var d0 = data[i - 1];
-                            var d1 = data[i];
+                            if (0 < i && i < data.length) { 
+                                // now that we know where in the data the interpolated date would "fit"
+                                // between two values, pull them both back as temporaries
+                                var d0 = data[i - 1];
+                                var d1 = data[i];
 
-                            // now, examine which of the two dates we are "closer" to
-                            // to do this, compare the delta values
-                            var d = t0 - d0.time > d1.time - t0 ? d1 : d0;
+                                // now, examine which of the two dates we are "closer" to
+                                // to do this, compare the delta values
+                                var d = t0 - d0.time > d1.time - t0 ? d1 : d0;
+                            }
+                            else if (i <= 0) d = data[0];
+                            else d = data[data.length - 1];
                             xpos = x(d.time);
 
                             // draw
