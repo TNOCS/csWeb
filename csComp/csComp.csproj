@@ -19,6 +19,7 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="classes\datasource.ts" />
+    <TypeScriptCompile Include="directives\Charts\Charts.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.tpl.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelectionCtrl.ts" />
