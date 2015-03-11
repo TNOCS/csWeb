@@ -196,6 +196,7 @@
       *
       * @seealso: http://odiseo.net/angularjs/proper-use-of-d3-js-with-angular-directives
       * @seealso: http://cmaurer.github.io/angularjs-nvd3-directives/sparkline.chart.html
+      * @seealso: http://www.tnoda.com/blog/2013-12-19
       */
     myModule.directive('sparklineChart', ['$filter',
         function ($filter): ng.IDirective {
