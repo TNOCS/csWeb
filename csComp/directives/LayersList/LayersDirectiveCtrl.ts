@@ -13,7 +13,7 @@
         public static $inject = [
             '$scope',
             'layerService'
-        ]; 
+        ];
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -26,10 +26,10 @@
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
             //layer.enabled = !layer.enabled;
-            if (layer.enabled) {    
-                this.$layerService.addLayer(layer);
+            if (layer.enabled) {
+                this.$layerService.enableLayer(layer);
             } else {
-                this.$layerService.removeLayer(layer);
+                this.$layerService.disableLayer(layer);
             }
 
             // NOTE EV: You need to call apply only when an event is received outside the angular scope.

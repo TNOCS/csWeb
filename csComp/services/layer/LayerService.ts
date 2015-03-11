@@ -4,6 +4,15 @@
     declare var jsonld;
     declare var omnivore;
 
+    export interface ILayerSource
+    {
+      title : string;
+      init(service : LayerService);
+      enableLayer(layer : ProjectLayer) : void;
+      disableLayer(layer : ProjectLayer) : void;
+    }
+
+
     export interface ILayerService {
         title                : string;
         accentColor          : string;
@@ -12,13 +21,13 @@
         maxBounds            : IBoundingBox;
         findLayer(id         : string): ProjectLayer;
         selectFeature(feature: Services.IFeature);
-
         mb              : Services.MessageBusService;
         map             : Services.MapService;
         layerGroup      : L.LayerGroup<L.ILayer>;
         featureTypes    : { [key: string]: Services.IFeatureType; };
         propertyTypeData: { [key: string]: Services.IPropertyType; };
         timeline        : any;
+        layerSources : { [ key : string] : ILayerSource;};
     }
 
     export class LayerService implements ILayerService {
@@ -38,6 +47,7 @@
         lastSelectedFeature : IFeature;
         selectedLayerId     : string;
         timeline            : any;
+        layerSources   : {[ key : string] : ILayerSource};
         layerGroup    = new L.LayerGroup<L.ILayer>();
         info          = new L.Control();
         currentLocale = 'en';
@@ -47,15 +57,17 @@
             '$translate',
             'messageBusService',
             'mapService',
-            '$rootScope'
+            '$rootScope',
+            '$compile'
         ];
 
         constructor(
             private $location          : ng.ILocationService,
-            private $translate         : ng.translate.ITranslateService,
-            private $messageBusService : Services.MessageBusService,
-            private $mapService        : Services.MapService,
-            private $rootScope : any) {
+            public $translate         : ng.translate.ITranslateService,
+            public $messageBusService : Services.MessageBusService,
+            public $mapService        : Services.MapService,
+            public $rootScope : any,
+            public $compile : any) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb               = $messageBusService;
@@ -67,6 +79,19 @@
             this.propertyTypeData = {};
             //this.map.map.addLayer(this.layerGroup);
             this.noStyles = true;
+
+            // init layer sources
+            this.layerSources = {};
+
+            // add a topo/geojson source
+            var geojsonsource = new GeoJsonSource();
+            geojsonsource.init(this);
+            this.layerSources["geojson"] = geojsonsource;
+            this.layerSources["topojson"] = geojsonsource;
+
+            // add wms source
+            this.layerSources["wms"] = new WmsSource();
+            this.layerSources["wms"].init(this);
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
@@ -86,9 +111,11 @@
                         break;
                 }
             });
+
+
         }
 
-        public selectDashboard(dashboard: csComp.Services.Dashboard, container : string) {            
+        public selectDashboard(dashboard: csComp.Services.Dashboard, container : string) {
            this.project.activeDashboard = dashboard;
            this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
         }
@@ -108,14 +135,14 @@
                         var getIndex = (d: Number, timestamps: Number[]) => {
                             for (var i = 1; i < timestamps.length; i++) {
                                 if (timestamps[i] > d) {
-                                    return i;                                    
+                                    return i;
                                 }
                             }
                             return timestamps.length-1;
                         }
                         var pos = 0;
                         if (f.timestamps) // check if feature contains timestamps
-                        { 
+                        {
                             pos = getIndex(date, f.timestamps);
                         } else if (l.timestamps) {
 
@@ -126,7 +153,7 @@
                                 pos = getIndex(date, l.timestamps);
                                 timepos[f.layerId] = pos;
                             }
-                            
+
                         }
 
                         // check if a new coordinate is avaiable
@@ -158,176 +185,62 @@
         /**
          * Add a layer
          */
-        addLayer(layer : ProjectLayer) {
+        enableLayer(layer : ProjectLayer) {
             var disableLayers = [];
+            async.series([
+              (callback)=>
+              {
+                // check if in this group only one layer can be active
+                // make sure all existising active layers are disabled
+                if (layer.group.oneLayerActive) {
+                    layer.group.layers.forEach((l: ProjectLayer) => {
+                        if (l !== layer && l.enabled) {
+                            disableLayers.push(l);
+                        }
+                    });
+                  }
+                callback(null,null);
+              },
+              (callback)=>
+              {
+                // find layer source, and activate layer
+                var layerSource = layer.type.toLowerCase();
+                if (this.layerSources.hasOwnProperty(layerSource))
+                {
+                  this.layerSources[layerSource].enableLayer(layer);
+                }
+                callback(null,null);
+              },
+              (callback)=>
+              {
+                // now remove the layers that need to be disabled
+                disableLayers.forEach((l) => {
+                    this.disableLayer(l);
+                    l.enabled = false;
+                });
+                callback(null,null);
+
+              }
+            ]);
+
+
+
+
+
             switch (layer.type.toLowerCase()) {
             case 'wms':
-                var wms        : any = L.tileLayer.wms(layer.url, {
-                    layers     : layer.wmsLayers,
-                    opacity    : layer.opacity/100,
-                    format     : 'image/png',
-                    transparent: true,
-                    attribution: layer.description
-                });
-                layer.mapLayer = new L.LayerGroup<L.ILayer>();
-                this.map.map.addLayer(layer.mapLayer);
-                layer.mapLayer.addLayer(wms);
-                wms.on('loading',  (event) => {
-                    layer.isLoading = true;
-                    this.$rootScope.$apply();
-                    if (this.$rootScope.$$phase != '$apply' && this.$rootScope.$$phase != '$digest') { this.$rootScope.$apply(); }
-                });
-                wms.on('load', (event) => {
-                    layer.isLoading = false;
-                    if (this.$rootScope.$$phase != '$apply' && this.$rootScope.$$phase != '$digest') { this.$rootScope.$apply(); }
-                });
-                layer.isLoading = true;
-                //this.$rootScope.$apply();
+
                 break;
             case 'topojson':
-            case 'geojson':
-                async.series([
-                    (callback) => {
-                        // If oneLayerActive: close other group layer
-                        if (layer.group.oneLayerActive) {
-                            layer.group.layers.forEach((l: ProjectLayer) => {
-                                if (l !== layer && l.enabled) {
-                                    disableLayers.push(l);
-                                }
-                            });
-                        }
-                        callback(null, null);
-                    },
-                    (callback) => {
-                        // Open a style file
-                        if (layer.styleurl) {
-                            d3.json(layer.styleurl, (err, dta) => {
-
-                                if (err)
-                                    this.$messageBusService.notify('ERROR loading' + layer.title, err);
-                                else {
-                                    if (dta.featureTypes)
-                                        for (var featureTypeName in dta.featureTypes) {
-                                            if (!dta.featureTypes.hasOwnProperty(featureTypeName)) continue;
-                                            var featureType: IFeatureType = dta.featureTypes[featureTypeName];
-                                            featureTypeName = layer.id + '_' + featureTypeName;
-                                            this.featureTypes[featureTypeName] = featureType;
-                                        }
-                                }
-                                callback(null, null);
-                            });
-                        } else
-                            callback(null, null);
-                    },
-                    (callback) => {
-                        // Open a layer URL
-                        layer.isLoading = true;
-                        d3.json(layer.url, (error, data) => {
-                          layer.isLoading = false;
-                            if (error)
-                                this.$messageBusService.notify('ERROR loading' + layer.title, error);
-                            else {
-                                if (layer.type.toLowerCase() === 'topojson')
-                                    data = this.convertTopoToGeoJson(data);
-                                if (data.events && this.timeline) {
-                                    layer.events = data.events;
-                                    var devents = [];
-                                    layer.events.forEach((e: Event) => {
-                                        if (!e.id) e.id = Helpers.getGuid();
-                                        devents.push({
-                                            'start': new Date(e.start),
-                                            'content': e.title
-                                        });
-                                    });
-                                    this.timeline.draw(devents);
-                                }
-                                for (var featureTypeName in data.featureTypes) {
-                                    if (!data.featureTypes.hasOwnProperty(featureTypeName)) continue;
-                                    var featureType: IFeatureType = data.featureTypes[featureTypeName];
-                                    featureTypeName = layer.id + '_' + featureTypeName;
-                                    this.featureTypes[featureTypeName] = featureType;
-                                    //var pt = "." + featureTypeName;
-                                    //var icon = featureType.style.iconUri;
-                                    var t = '{".style' + featureTypeName + '":';
-                                    if (featureType.style.iconUri != null) {
-                                        t += ' { "background": "url(' + featureType.style.iconUri + ') no-repeat right center",';
-                                    };
-                                    t += ' "background-size": "100% 100%","border-style": "none"} }';
-                                    var json = $.parseJSON(t);
-                                    (<any>$).injectCSS(json);
-
-                                    //console.log(JSON.stringify(poiType, null, 2));
-                                }
-                                if (data.timestamps) layer.timestamps = data.timestamps;
-                                if (layer.group.clustering) {
-                                    var markers = L.geoJson(data, {
-                                        pointToLayer: (feature, latlng) => this.addFeature(feature, latlng, layer),
-                                        onEachFeature: (feature: IFeature, lay) => {
-                                            //We do not need to init the feature here: already done in style.
-                                            //this.initFeature(feature, layer);
-                                            layer.group.markers[feature.id] = lay;
-                                            lay.on({
-                                                mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout: (s) => this.hideFeatureTooltip(s)
-                                            });
-                                        }
-                                    });
-                                    layer.group.cluster.addLayer(markers);
-                                } else {
-                                    layer.mapLayer = new L.LayerGroup<L.ILayer>();
-                                    this.map.map.addLayer(layer.mapLayer);
-
-                                    var v = L.geoJson(data, {
-                                        onEachFeature : (feature: IFeature, lay) => {
-                                            //We do not need to init the feature here: already done in style.
-                                            //this.initFeature(feature, layer);
-                                            layer.group.markers[feature.id] = lay;
-                                            lay.on({
-                                                mouseover : (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout  : (s) => this.hideFeatureTooltip(s),
-                                                mousemove : (d) => this.updateFeatureTooltip(d),
-                                                click     : ()  => this.selectFeature(feature)
-                                            });
-                                        },
-                                        style: (f: IFeature, m) => {
-
-                                            this.initFeature(f, layer);
-                                            //this.updateSensorData();
-                                            layer.group.markers[f.id] = m;
-                                            return this.style(f, layer);
-                                        },
-                                        pointToLayer                                 : (feature, latlng) => this.addFeature(feature, latlng, layer)
-                                    });
-                                    this.project.features.forEach((f                 : IFeature) => {
-                                        if (f.layerId !== layer.id) return;
-                                        var ft = this.getFeatureType(f);
-                                        f.properties['Name'] = f.properties[ft.style.nameLabel];
-                                    });
-                                    layer.mapLayer.addLayer(v);
-                                }
-                          }
-                            this.updateSensorData();
-                            this.$messageBusService.publish('layer', 'activated', layer);
-
-                            callback(null, null);
-                            this.updateFilters();
-                        });
-                    },
-                    // Callback
-                    () => {
-                        disableLayers.forEach((l) => {
-                            this.removeLayer(l);
-                            l.enabled = false;
-                        });
-                    }
-                ]);
+            case 'geojson2':
+                break;
             }
         }
 
         /**
         * Convert topojson data to geojson data.
         */
-        private convertTopoToGeoJson(data) {
+        public convertTopoToGeoJson(data) : {} {
             // Convert topojson to geojson format
             var topo = omnivore.topojson.parse(data);
             var newData: any = {};
@@ -473,7 +386,7 @@
             var layer = this.findLayer(feature.layerId);
             if (layer == null) return;
             if (feature.geometry.type === 'Point') {
-                
+
                 this.updateFeatureIcon(feature, layer);
             } else {
                 if (group == null) {
@@ -604,11 +517,11 @@
         }
 
         /**
-        * Set default PropertyType's properties: 
+        * Set default PropertyType's properties:
         * type              = text
-        * visibleInCallout  = true     
-        * canEdit           = false     
-        * isSearchable      = true     
+        * visibleInCallout  = true
+        * canEdit           = false
+        * isSearchable      = true
         */
         private setDefaultPropertyType(pt: IPropertyType) {
             if (!pt.type) pt.type = "text";
@@ -783,11 +696,11 @@
          * find a layer with a specific id
          */
         findLayer(id: string): ProjectLayer {
-            var r: ProjectLayer;           
+            var r: ProjectLayer;
             this.project.groups.forEach(g => {
                 g.layers.forEach(l => {
                     if (l.id === id) {
-                        r = l;                        
+                        r = l;
                     }
                 });
             });
@@ -873,14 +786,14 @@
          * enable a filter for a specific property
          */
         setFilter(filter: GroupFilter, group : csComp.Services.ProjectGroup) {
-            
+
             group.filters.push(filter);
             this.updateFilters();
                 (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
-            
+
         }
 
-       
+
          /**
          * enable a filter for a specific property
          */
@@ -1024,9 +937,15 @@
         /**
          * deactivate layer
          */
-        removeLayer(layer: ProjectLayer) {
+        disableLayer(layer: ProjectLayer) {
             var m: any;
             var g = layer.group;
+
+            var layerSource = layer.type.toLowerCase();
+            if (this.layerSources.hasOwnProperty(layerSource))
+            {
+              this.layerSources[layerSource].disableLayer(layer);
+            }
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
@@ -1127,7 +1046,7 @@
             this.project.groups.forEach((group) => {
                 group.layers.forEach((layer: ProjectLayer) => {
                     if (layer.enabled) {
-                        this.removeLayer(layer);
+                        this.disableLayer(layer);
                         layer.enabled = false;
                     }
                 });
@@ -1151,7 +1070,7 @@
             this.featureTypes = {};
 
             $.getJSON(url,(data: Project) => {
-                
+
                 this.project = new Project().deserialize(data);
 
                 if (!this.project.timeLine) {
@@ -1227,7 +1146,7 @@
                         layer.group = group;
                         if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
                             layer.enabled = true;
-                            this.addLayer(layer);
+                            this.enableLayer(layer);
                         }
                     });
 
@@ -1255,7 +1174,7 @@
             this.project.groups.forEach((group: ProjectGroup) => {
                 group.layers.forEach((layer: ProjectLayer) => {
                     if (layer.enabled) {
-                        this.removeLayer(layer);
+                        this.disableLayer(layer);
                     }
                 });
             });
@@ -1294,7 +1213,7 @@
             if (isNaN(sum) || r.count == 0) {
                 r.sdMax = r.max;
                 r.sdMin = r.min;
-            } else {                
+            } else {
                 r.mean = sum / r.count;
                 r.varience = sumsq / r.count - r.mean * r.mean;
                 r.sd = Math.sqrt(r.varience);
@@ -1304,7 +1223,7 @@
                 if (r.max < r.sdMax) r.sdMax = r.max;
                 if (r.sdMin === NaN) r.sdMin = r.min;
                 if (r.sdMax === NaN) r.sdMax = r.max;
-            } 
+            }
             if (this.propertyTypeData.hasOwnProperty(property)) {
                 var mid = this.propertyTypeData[property];
                 if (mid.maxValue != null) r.sdMax = mid.maxValue;
@@ -1313,7 +1232,7 @@
             return r;
         }
 
-        private updateFilters() {
+        public updateFilters() {
             var fmain = $('#filterChart');
             fmain.empty();
             this.noFilters = true;
@@ -1421,19 +1340,19 @@
             }
         }
 
-        
+
         private addScatterFilter(group: ProjectGroup, filter: GroupFilter) {
             filter.id = Helpers.getGuid();
-            
+
             var info = this.calculatePropertyInfo(group, filter.property);
             var info2 = this.calculatePropertyInfo(group, filter.property2);
-            
+
 
             var divid = 'filter_' + filter.id;
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
             $('<h4>' + filter.title + '</h4><div id=\'' + divid + '\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div><a class=\'btn\' id=\'remove' + filter.id + '\'>remove</a>').appendTo('#filterChart');
-            
+
             $('#remove' + filter.id).on('click',() => {
                 var pos = group.filters.indexOf(filter);
                 if (pos !== -1) group.filters.splice(pos, 1);
@@ -1445,13 +1364,13 @@
 
             var dcChart = <any>dc.scatterPlot('#' + divid);
 
-           
+
 
             var prop1 = group.ndx.dimension(d => {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
                 else {
                     if (d.properties[filter.property] != null) {
-                        
+
                         var a = parseInt(d.properties[filter.property]);
                         var b = parseInt(d.properties[filter.property2]);
                         if (a >= info.sdMin && a <= info.sdMax) {
@@ -1462,15 +1381,15 @@
                         }
                     }
                     return [0,0];
-                    
+
                     //return a;
                 }
             });
 
-            
+
 
             filter.dimension = prop1;
-            var dcGroup1 = prop1.group();           
+            var dcGroup1 = prop1.group();
 
             //var scale =
             dcChart.width(275)
@@ -1481,7 +1400,7 @@
                 .yAxisLabel(filter.property2)
                 .xAxisLabel(filter.property)
                 .on('filtered', (e) => {
-                    var fil = e.hasFilter();                    
+                    var fil = e.hasFilter();
                     dc.events.trigger(() => {
                         group.filterResult = prop1.top(Infinity);
                         this.updateFilterGroupCount(group);
@@ -1490,11 +1409,11 @@
                         this.updateMapFilter(group);
                     }, 100);
                 });
-                
+
 
             dcChart.xUnits(() => { return 13; });
 
-            
+
 
             //if (filter.meta != null && filter.meta.minValue != null) {
             //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
@@ -1513,6 +1432,43 @@
             //.range([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
         }
 
+        private createFilterMenu(group: ProjectGroup, filter : GroupFilter)
+        {
+          // init drop down menu
+          var res = "<span style=\'position:absolute;top:-5px;right:4px\' id=\'menu" + filter.id + "\' class=\'dropdown\' dropdown><a href class=\'fa fa-cog dropdown-toggle\' dropdown-toggle > </a><ul class=\'dropdown-menu\' >"
+
+          // check for scatter plots
+          if (filter.filterType == "bar")
+          {
+            group.filters.forEach((gf : GroupFilter)=>
+            {
+              if (gf!=filter && gf.filterType=="bar"){
+                var id = "scatter" + csComp.Helpers.getGuid();
+                res+="<li><a id='" + id + "'>scatter +" + gf.title + "</a></li>";
+                $("#" + id).on('click',()=>{alert('scatter')});
+              }
+            });
+          }
+
+
+          // remove
+          res +="<li><a id=\'removefilter" + filter.id + "\'><span class=\'fa fa-trash\'></span> remove</a></li >";
+
+          // finish up
+          res += "</ul></span>";
+          return res;
+        }
+
+        public createScatter()
+        {
+            alert('scatter');
+        }
+
+        public removeFilter(id : string)
+        {
+            alert(id);
+        }
+
         /***
          * Add bar chart filter for filter number values
          */
@@ -1524,11 +1480,18 @@
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
 
-            $('<div style=\'position:relative\'><h4>' + filter.title + '</h4><span class=\'dropdown\' dropdown><a href class=\'fa fa-circle-o makeNarrow dropdown-toggle\' dropdown-toggle > </a><ul class=\'dropdown-menu\' ><li><a>scatter plot</a></li><li><a>add to dashboard< /a></li ></ul></span><a class=\'btn fa fa-cog\' style=\'position:absolute;top:-5px;right:0\' id=\'remove' + filter.id + '\'></a><div id=\'' + divid + '\' style=\'float:none\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div></div>').appendTo('#filterChart');
+            //$('<div style=\'position:relative\'><h4>' + filter.title + '</h4><span class=\'dropdown\' dropdown><a href class=\'fa fa-circle-o makeNarrow dropdown-toggle\' dropdown-toggle > </a><ul class=\'dropdown-menu\' ><li><a>scatter plot</a></li><li><a>add to dashboard< /a></li ></ul></span><a class=\'btn fa fa-info\' style=\'position:absolute;top:-5px;right:0\' id=\'remove' + filter.id + '\'></a><div id=\'' + divid + '\' style=\'float:none\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div></div>').appendTo('#filterChart');
+            var el = $("#filterChart");
+            var b = angular.element("#filterChart");
+            var sc = b.controller("filterChart");
+            var s = this.$compile('<div style=\'position:relative\'><h4>' + filter.title + '</h4>' + this.createFilterMenu(group,filter) + '<div id=\'' + divid + '\' style=\'float:none\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div></div>')(this.$rootScope);
+
+            el.append(s);
+
             var filterFrom = $('#fsfrom_' + filter.id);
             var filterTo = $('#fsto_' + filter.id);
             var filterRange = $('#fdrange_' + filter.id);
-            $('#remove' + filter.id).on('click', () => {
+            $('#removefilter' + filter.id).on('click', () => {
                 var pos = group.filters.indexOf(filter);
                 if (pos !== -1) group.filters.splice(pos, 1);
                 filter.dimension.dispose();
