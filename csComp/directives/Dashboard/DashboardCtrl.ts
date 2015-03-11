@@ -46,7 +46,7 @@
             private $messageBusService: csComp.Services.MessageBusService,
             private $templateCache : any
             ) {
-            
+
             $scope.vm = this;
 
             $scope.gridsterOptions = {
@@ -71,30 +71,30 @@
                 }
             };
 
-            
 
-           
+
+
             $scope.initDashboard = () => {
 
                 $messageBusService.subscribe("dashboard-" + $scope.container,(s: string, d: csComp.Services.Dashboard) => {
                     this.project = $layerService.project;
                     this.project.activeDashboard = d;
                     //alert(this.project.activeDashboard.id);
-                    switch (s) {         
-                        case "activated":                            
+                    switch (s) {
+                        case "activated":
                             $scope.dashboard = d;
                             this.updateDashboard();
                             break;
                     }
                 });
 
-                
+
 
                 //this.updateDashboard();
                 //alert($scope.dashboard.name);
             };
 
-            
+
 
 
         }
@@ -105,27 +105,27 @@
             }
 
         }
-              
-        
+
+
 
         public updateWidget(w: csComp.Services.IWidget) {
           //alert('updatewidget');
             //this.$dashboardService.updateWidget(w);
             //var newElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
             var widgetElement;
-            if (w.template) {     
+            if (w.template) {
                 widgetElement = this.$compile(this.$templateCache.get(w.template))(this.$scope);
             }
             else if (w.url) {
-                widgetElement = this.$compile("<div>url</div>")(this.$scope);                
+                widgetElement = this.$compile("<div>url</div>")(this.$scope);
             } else if (w.directive) {
                 widgetElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
-                
+
             } else {
                 widgetElement = this.$compile("<h1>hoi</h1>")(this.$scope);
             }
-            
-            
+
+
             var resized = function () {
                 //alert('resize');
                 /* do something */
@@ -144,7 +144,7 @@
 
             if (this.$scope.dashboard.showMap != this.$mapService.mapVisible) {
                 if (this.$scope.dashboard.showMap) {
-                    this.$mapService.mapVisible = true; 
+                    this.$mapService.mapVisible = true;
                 } else {
                     this.$mapService.mapVisible = false;
                 }
@@ -158,11 +158,11 @@
                 this.$layerService.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
                     g.layers.forEach((l: csComp.Services.ProjectLayer) => {
                         if (l.enabled && db.visiblelayers.indexOf(l.reference) == -1) {
-                            this.$layerService.removeLayer(l);
+                            this.$layerService.disableLayer(l);
                             l.enabled = false;
                         }
                         if (!l.enabled && db.visiblelayers.indexOf(l.reference) >= 0) {
-                            this.$layerService.addLayer(l);
+                            this.$layerService.enableLayer(l);
                             l.enabled = true;
                         }
                     });
@@ -201,16 +201,16 @@
                 d.widgets.forEach((w: csComp.Services.IWidget) => {
                     this.updateWidget(w);
                 });
-                }, 100);      
+                }, 100);
             }
             this.checkMap();
             this.checkTimeline();
             this.checkLayers();
-            this.checkViewbound(); 
+            this.checkViewbound();
             this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
             this.$mapService.rightMenuVisible = d.showRightmenu;
 
-            
+
 
         }
     }

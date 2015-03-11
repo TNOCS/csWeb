@@ -17,28 +17,6 @@ module csComp.Services {
         async.series([
 
             (callback) => {
-
-                // Open a style file
-                if (layer.styleurl) {
-                    d3.json(layer.styleurl, (err, dta) => {
-
-                        if (err)
-                            this.service.$messageBusService.notify('ERROR loading' + layer.title, err);
-                        else {
-                            if (dta.featureTypes)
-                                for (var featureTypeName in dta.featureTypes) {
-                                    if (!dta.featureTypes.hasOwnProperty(featureTypeName)) continue;
-                                    var featureType: IFeatureType = dta.featureTypes[featureTypeName];
-                                    featureTypeName = layer.id + '_' + featureTypeName;
-                                    this.service.featureTypes[featureTypeName] = featureType;
-                                }
-                        }
-                        callback(null, null);
-                    });
-                } else
-                    callback(null, null);
-            },
-            (callback) => {
                 // Open a layer URL
                 layer.isLoading = true;
                 d3.json(layer.url, (error, data) => {
@@ -96,7 +74,7 @@ module csComp.Services {
                             layer.group.cluster.addLayer(markers);
                         } else {
                             layer.mapLayer = new L.LayerGroup<L.ILayer>();
-                            this.map.map.addLayer(layer.mapLayer);
+                            this.service.map.map.addLayer(layer.mapLayer);
 
                             var v = L.geoJson(data, {
                                 onEachFeature : (feature: IFeature, lay) => {

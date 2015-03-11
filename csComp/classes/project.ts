@@ -100,7 +100,7 @@
         userPrivileges  : IPrivileges;
         languages       : ILanguageData;
 
-        markers = {}; 
+        markers = {};
 
         public deserialize(input: Project): Project {
             var res = <Project>jQuery.extend(new Project(), input);
@@ -114,7 +114,7 @@
                     if (input.mcas.hasOwnProperty(mca)) {
                         res.mcas.push(new Mca.Models.Mca().deserialize(mca));
                     }
-            }            
+            }
           }
             if (!res.propertyTypeData) res.propertyTypeData = {};
           return res;
@@ -126,8 +126,7 @@
         title                       : string;
         description                 : string;
         type                        : string;
-        url                         : string;
-        styleurl                    : string;
+        url                         : string;        
         wmsLayers                   : string;
         enabled                     : boolean;
         opacity                     : number;

@@ -222,19 +222,6 @@
 
               }
             ]);
-
-
-
-
-
-            switch (layer.type.toLowerCase()) {
-            case 'wms':
-
-                break;
-            case 'topojson':
-            case 'geojson2':
-                break;
-            }
         }
 
         /**
