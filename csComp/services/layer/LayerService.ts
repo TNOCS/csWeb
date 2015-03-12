@@ -12,6 +12,7 @@
         maxBounds            : IBoundingBox;
         findLayer(id: string): ProjectLayer;
         selectFeature(feature: Services.IFeature);
+        currentLocale        : string;
 
         mb              : Services.MessageBusService;
         map             : Services.MapService;
@@ -38,10 +39,10 @@
         lastSelectedFeature : IFeature;
         selectedLayerId     : string;
         timeline            : any;
+        currentLocale       : string;
         loadedLayers  = new csComp.Helpers.Dictionary<L.ILayer>();
         layerGroup    = new L.LayerGroup<L.ILayer>();
         info          = new L.Control();
-        currentLocale = 'en';
 
         static $inject = [
             '$location',

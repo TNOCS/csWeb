@@ -19,7 +19,8 @@
             '$scope',
             'layerService',
             'mapService',
-            'messageBusService'
+            'messageBusService',
+            'TimelineService'
         ];
 
         public focusDate: Date;
@@ -36,11 +37,14 @@
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope            : ITimelineScope,
-            private $layerService     : csComp.Services.LayerService,
-            private $mapService       : csComp.Services.MapService,
-            private $messageBusService: csComp.Services.MessageBusService
+            private $scope             : ITimelineScope,
+            private $layerService      : csComp.Services.LayerService,
+            private $mapService        : csComp.Services.MapService,
+            private $messageBusService : csComp.Services.MessageBusService,
+            private TimelineService    : Timeline.ITimelineService
             ) {
+            this.loadLocales();
+
             $scope.vm = this;
 
             this.$messageBusService.subscribe("timeline", (s: string, data: any) => {
@@ -55,15 +59,10 @@
             //$scope.focusDate = $layerService.project.timeLine.focusDate();
 
             // Options voor de timeline
-            var options = {
-                'width'   : '100%'  ,
-                'height'  : '100px',
-                'editable': false,
-                'layout'  : 'box'
-            };
+            var options = TimelineService.getTimelineOptions();
+            options.locale = $layerService.currentLocale;
 
-            $scope.timeline = new links.Timeline(document.getElementById('timeline'), options);
-            this.$layerService.timeline = $scope.timeline;
+            this.$layerService.timeline = $scope.timeline = new links.Timeline(document.getElementById('timeline'), options);
 
             $scope.timeline.draw();
             links.events.addListener($scope.timeline, 'rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
@@ -75,6 +74,14 @@
 
             this.updateDragging();
             this.updateFocusTime();
+
+            this.$messageBusService.subscribe("language",(s: string, newLanguage: string) => {
+                switch (s) {
+                    case "newLanguage":
+                        this.$scope.timeline.locale = newLanguage;
+                        break;
+                }
+            });
         }
 
         public updateDragging() {
@@ -192,6 +199,85 @@
             this.$messageBusService.publish("timeline", "focusChange", this.focusDate);
             //this.$layerService.focusTime = new Date(this.timelineCtrl.screenToTime(centerX));
                 //this.$scope.$apply();
+        }
+
+        /** 
+        * Load the locales: instead of loading them from the original timeline-locales.js distribution, 
+        * add them here so you don't need to add another js dependency.
+        * @seealso: http://almende.github.io/chap-links-library/downloads.html
+        */
+        loadLocales() {
+            if (typeof links === 'undefined') {
+                links = {};
+                links.locales = {};
+            } else if (typeof links.locales === 'undefined') {
+                links.locales = {};
             }
+            // English ===================================================
+            links.locales['en'] = {
+                'MONTHS': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+                'MONTHS_SHORT': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                'DAYS': ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                'DAYS_SHORT': ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                'ZOOM_IN': "Zoom in",
+                'ZOOM_OUT': "Zoom out",
+                'MOVE_LEFT': "Move left",
+                'MOVE_RIGHT': "Move right",
+                'NEW': "New",
+                'CREATE_NEW_EVENT': "Create new event"
+            };
+
+            links.locales['en_US'] = links.locales['en'];
+            links.locales['en_UK'] = links.locales['en'];
+            // French ===================================================
+            links.locales['fr'] = {
+                'MONTHS': ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+                'MONTHS_SHORT': ["Jan", "Fev", "Mar", "Avr", "Mai", "Jun", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec"],
+                'DAYS': ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+                'DAYS_SHORT': ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+                'ZOOM_IN': "Zoomer",
+                'ZOOM_OUT': "Dézoomer",
+                'MOVE_LEFT': "Déplacer à gauche",
+                'MOVE_RIGHT': "Déplacer à droite",
+                'NEW': "Nouveau",
+                'CREATE_NEW_EVENT': "Créer un nouvel évènement"
+            };
+
+            links.locales['fr_FR'] = links.locales['fr'];
+            links.locales['fr_BE'] = links.locales['fr'];
+            links.locales['fr_CA'] = links.locales['fr'];
+            // German ===================================================
+            links.locales['de'] = {
+                'MONTHS': ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+                'MONTHS_SHORT': ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+                'DAYS': ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
+                'DAYS_SHORT': ["Son", "Mon", "Die", "Mit", "Don", "Fre", "Sam"],
+                'ZOOM_IN': "Vergrößern",
+                'ZOOM_OUT': "Verkleinern",
+                'MOVE_LEFT': "Nach links verschieben",
+                'MOVE_RIGHT': "Nach rechts verschieben",
+                'NEW': "Neu",
+                'CREATE_NEW_EVENT': "Neues Ereignis erzeugen"
+            };
+
+            links.locales['de_DE'] = links.locales['de'];
+            links.locales['de_CH'] = links.locales['de'];
+            // Dutch =====================================================
+            links.locales['nl'] = {
+                'MONTHS': ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"],
+                'MONTHS_SHORT': ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"],
+                'DAYS': ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"],
+                'DAYS_SHORT': ["zo", "ma", "di", "wo", "do", "vr", "za"],
+                'ZOOM_IN': "Inzoomen",
+                'ZOOM_OUT': "Uitzoomen",
+                'MOVE_LEFT': "Naar links",
+                'MOVE_RIGHT': "Naar rechts",
+                'NEW': "Nieuw",
+                'CREATE_NEW_EVENT': "Nieuwe gebeurtenis maken"
+            };
+
+            links.locales['nl_NL'] = links.locales['nl'];
+            links.locales['nl_BE'] = links.locales['nl'];
+        }
     }
 }

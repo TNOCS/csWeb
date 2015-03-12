@@ -87,6 +87,18 @@
         northEast: L.LatLng;
     }
 
+    export interface ITimelineOptions {
+        width?          : string;
+        height?         : string;
+        eventMargin?    : number;
+        eventMarginAxis?: number;
+        editable?       : boolean;
+        layout?         : string;
+        /** NOTE: For internal use only. Do not set it, as it will be overwritten by the $layerService.currentLocale. */
+        locale?         : string;
+        timeLine?       : DateRange;
+    }
+
     /** project configuration. */
     export class Project implements ISerializable<Project> {
         title           : string;
