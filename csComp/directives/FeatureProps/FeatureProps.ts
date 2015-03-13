@@ -1,4 +1,4 @@
-﻿module FeatureProps {
+﻿module FeatureProps { 
     /**
       * Config
       */

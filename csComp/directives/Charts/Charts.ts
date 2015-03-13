@@ -1,4 +1,5 @@
 ﻿module Charts {
+    'use strict'
     /**
       * Config
       */
@@ -17,174 +18,13 @@
 
     declare var String;
 
-    export class ChartHelpers {
-
-        /** 
-        * Returns the index and value of the maximum.
-        */
-        static max(arr: number[]) {
-            var max = arr[0];
-            var maxIndex = 0;
-
-            for (var i = 1; i < arr.length; i++) {
-                if (arr[i] > max) {
-                    maxIndex = i;
-                    max = arr[i];
-                }
-            }
-            return { maxIndex: maxIndex, max: max };
-        }
-
-        /** 
-        * Returns the index and value of the minimum.
-        */
-        static min(arr: number[]) {
-            var min = arr[0];
-            var minIndex = 0;
-
-            for (var i = 1; i < arr.length; i++) {
-                if (arr[i] < min) {
-                    minIndex = i;
-                    min = arr[i];
-                }
-            }
-            return { minIndex: minIndex, min: min };
-        }
-
-        /**
-        * Convert a timestamp to string. 
-        */
-        static timestampToString(ts: number) {
-            var date = new Date(ts);
-            var dateString = String.format("{0}-{1:00}-{2:00}", date.getFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
-            if (date.getUTCHours() > 0 || date.getUTCMinutes() > 0)
-                dateString += String.format(" {0:00}:{1:00}", date.getUTCHours(), date.getUTCMinutes());
-            return dateString;
-        }
-
-        // Easy way to bind multiple functions to window.onresize
-        // TODO: give a way to remove a function after its bound, other than removing all of them
-        static windowResize(fun) {
-            if (fun === undefined) return;
-            var oldresize = window.onresize;
-
-            window.onresize = function (e) {
-                if (typeof oldresize == 'function') oldresize(e);
-                fun(e);
-            }
-        } 
- 
-        static initializeMargin(scope, attrs) {
-            var margin = scope.$eval(attrs.margin) || {
-                left: 50,
-                top: 50,
-                bottom: 50,
-                right: 50
-            };
-            if (typeof margin !== 'object') {
-                // we were passed a vanilla int, convert to full margin object
-                margin = {
-                    left: margin,
-                    top: margin,
-                    bottom: margin,
-                    right: margin
-                };
-            }
-            scope.margin = margin;
-        }
-
-        static getD3Selector(attrs, element) {
-            if (!attrs.id) {
-                //if an id is not supplied, create a random id.
-                var dataAttributeChartID;
-                if (!attrs['data-chartid']) {
-                    dataAttributeChartID = 'chartid' + Math.floor(Math.random() * 1000000001);
-                    angular.element(element).attr('data-chartid', dataAttributeChartID);
-                } else {
-                    dataAttributeChartID = attrs['data-chartid'];
-                }
-                return '[data-chartid=' + dataAttributeChartID + ']';
-            } else {
-                return '#' + attrs.id;
-            }
-        }
-
-        static initializeLegendMargin(scope, attrs) {
-            var margin = (scope.$eval(attrs.legendmargin) || {
-                left: 0,
-                top: 5,
-                bottom: 5,
-                right: 0
-            });
-            if (typeof (margin) !== 'object') {
-                // we were passed a vanilla int, convert to full margin object
-                margin = {
-                    left: margin,
-                    top: margin,
-                    bottom: margin,
-                    right: margin
-                };
-            }
-            scope.legendmargin = margin;
-        }
-
-        static defaultColor() {
-            var colors = d3.scale.category20().range();
-            return function (d, i) { return d.color || colors[i % colors.length] };
-        }
-
-        static configureLegend(chart, scope, attrs) {
-            if (chart.legend && attrs.showlegend && (attrs.showlegend === 'true')) {
-                ChartHelpers.initializeLegendMargin(scope, attrs);
-                chart.legend.margin(scope.legendmargin);
-                chart.legend.width(attrs.legendwidth === undefined ? 400 : (+attrs.legendwidth));
-                chart.legend.height(attrs.legendheight === undefined ? 20 : (+attrs.legendheight));
-                chart.legend.key(attrs.legendkey === undefined ? function (d) {
-                    return d.key;
-                } : scope.legendkey());
-                chart.legend.color(attrs.legendcolor === undefined ? ChartHelpers.defaultColor() : scope.legendcolor());
-                chart.legend.align(attrs.legendalign === undefined ? true : (attrs.legendalign === 'true'));
-                chart.legend.rightAlign(attrs.legendrightalign === undefined ? true : (attrs.legendrightalign === 'true'));
-                chart.legend.updateState(attrs.legendupdatestate === undefined ? true : (attrs.legendupdatestate === 'true'));
-                chart.legend.radioButtonMode(attrs.legendradiobuttonmode === undefined ? false : (attrs.legendradiobuttonmode === 'true'));
-            }
-        }
-
-        static checkElementID(scope, attrs, element, chart, data) {
-            //ChartHelpers.configureXaxis(chart, scope, attrs);
-            //ChartHelpers.configureX2axis(chart, scope, attrs);
-            //ChartHelpers.configureYaxis(chart, scope, attrs);
-            //ChartHelpers.configureY1axis(chart, scope, attrs);
-            //ChartHelpers.configureY2axis(chart, scope, attrs);
-            ChartHelpers.configureLegend(chart, scope, attrs);
-            //ChartHelpers.processEvents(chart, scope);
-            var d3Select = ChartHelpers.getD3Selector(attrs, element);
-            if (angular.isArray(data) && data.length === 0) {
-                d3.select(d3Select + ' svg').remove();
-            }
-            if (d3.select(d3Select + ' svg').empty()) {
-                d3.select(d3Select).append('svg');
-            }
-            d3.select(d3Select + ' svg').attr('viewBox', '0 0 ' + scope.width + ' ' + scope.height).datum(data).transition().duration(attrs.transitionduration === undefined ? 250 : +attrs.transitionduration).call(chart);
-        }
-
-        static updateDimensions(scope, attrs, element, chart) {
-            if (chart) {
-                chart.width(scope.width).height(scope.height);
-                var d3Select = ChartHelpers.getD3Selector(attrs, element);
-                d3.select(d3Select + ' svg').attr('viewBox', '0 0 ' + scope.width + ' ' + scope.height);
-                ChartHelpers.windowResize(chart);
-                scope.chart.update();
-            }
-        }
-    }
-
     export interface ISparklineScope extends ng.IScope {
         timestamps: number[];
         sensor    : number[];
         width?    : number;
         height?   : number;
         margin?   : { top: number; right: number; bottom: number; left: number; };
+        showaxis? : boolean; 
     }
 
     export interface IBarchartScope extends ng.IScope {
@@ -198,15 +38,17 @@
       * @seealso: http://cmaurer.github.io/angularjs-nvd3-directives/sparkline.chart.html
       * @seealso: http://www.tnoda.com/blog/2013-12-19
       */
-    myModule.directive('sparklineChart', ['$filter',
+    myModule
+        .directive('sparklineChart', ['$filter',
         function ($filter): ng.IDirective {
             return {
                 terminal: true,       // do not compile any other internal directives 
                 restrict: 'EA',       // E = elements, other options are A=attributes and C=classes
                 scope: {
-                    timestamps: '=',
+                    timestamps: '=',  // = means that we use angular to evaluate the expression,
                     sensor    : '=',
-                    width     : '@',
+                    showaxis  : '=',
+                    width     : '@',  // the value is used as is
                     height    : '@',
                     margin    : '@'
                 },
@@ -221,17 +63,22 @@
                 //    }
                 //],
                 link: function (scope: ISparklineScope, element, attrs) {
-                    var margin           = scope.margin || { top: 10, right: 10, bottom: 10, left: 10 };
+                    var margin           = scope.margin || { top: 15, right: 5, bottom: 0, left: 10 };
                     var width            = scope.width || 100;
                     var height           = scope.height || 70;
-                    var cursorTextHeight = 20; // leave room for the cursor text (timestamp | measurement)
+                    var showAxis         = typeof scope.showaxis !== 'undefined' && scope.showaxis;
+                    var cursorTextHeight = 12;// + (showAxis ? 5 : 0); // leave room for the cursor text (timestamp | measurement)
                     var chart = d3.select(element[0])
                         .append('svg:svg')
                         .attr('width', width)
                         .attr('height', height);
 
-                    var x = d3.scale.linear().range([margin.left, width - margin.left - margin.right]);
-                    var y = d3.scale.linear().range([height - margin.bottom, margin.top + cursorTextHeight]);
+                    var marginAxis = showAxis
+                        ? { top: 0, right: 0, bottom: 20, left: 10 }
+                        : { top: 0, right: 0, bottom: 0, left: 0 };
+
+                    var x = d3.scale.linear().range([margin.left + marginAxis.left, width - margin.left - margin.right - marginAxis.left - marginAxis.right]);
+                    var y = d3.scale.linear().range([height - margin.bottom - marginAxis.bottom, margin.top + marginAxis.top + cursorTextHeight]);
                     var bisect = d3.bisector(function (d) { return d.time; }).left;
 
                     var line = d3.svg.line()
@@ -264,6 +111,78 @@
                         .attr('cx', x(data[min.minIndex].time))
                         .attr('cy', y(min.min))
                         .attr('r', 4);
+
+                    if (showAxis) {
+                        //var xAxis = d3.svg.axis()
+                        //    .scale(x)
+                        //    .orient("bottom")
+                        //    .ticks(d3.time.months, 2);  //Set rough # of ticks
+                        //chart.append("g")
+                        //    .attr("class", "sparkline-axis")
+                        //    .attr("transform", "translate(0," + (height - margin.bottom - marginAxis.bottom) + ")")
+                        //    .call(xAxis);
+                        var strokeLength = 6;
+                        // Draw min/max at x and y axis
+                        var xbor = d3.min(x.range()), //margin.left + marginAxis.left,
+                            xmin = xbor - strokeLength,
+                            xmax = d3.max(x.range()), // width - margin.right - marginAxis.right,
+                            ybor = d3.max(y.range()), //height - margin.bottom - marginAxis.bottom,
+                            ymin = d3.min(y.range()), //margin.top + marginAxis.top,
+                            ymax = ybor + strokeLength;
+
+                        // y-axis, max
+                        chart.append('line')
+                            .attr("x1", xmin)
+                            .attr("y1", ymin)
+                            .attr("x2", xbor)
+                            .attr("y2", ymin)
+                            .attr("stroke", "black");
+                        chart.append("text")
+                            .attr("x", xmin - 2)
+                            .attr("y", ymin)
+                            .attr("dy", ".35em")
+                            .style("text-anchor", "end")
+                            .text(d3.max(y.domain()));
+                        // y-axis, min
+                        chart.append('line')
+                            .attr("x1", xmin)
+                            .attr("y1", ybor)
+                            .attr("x2", xbor)
+                            .attr("y2", ybor)
+                            .attr("stroke", "black");
+                        chart.append("text")
+                            .attr("x", xmin - 2)
+                            .attr("y", ybor)
+                            .attr("dy", ".35em")
+                            .style("text-anchor", "end")
+                            .text(d3.min(y.domain()));
+                        // x-axis, min
+                        chart.append('line')
+                            .attr("x1", xbor)
+                            .attr("y1", ymax)
+                            .attr("x2", xbor)
+                            .attr("y2", ybor)
+                            .attr("stroke", "black");
+                        chart.append("text")
+                            .attr("x", xbor)
+                            .attr("y", ymax + 9)
+                            .attr("dy", ".35em")
+                            .style("text-anchor", "start")
+                            .text(ChartHelpers.timestampToString(d3.min(x.domain())));
+                        // x-axis, max
+                        chart.append('line')
+                            .attr("x1", xmax)
+                            .attr("y1", ymax)
+                            .attr("x2", xmax)
+                            .attr("y2", ybor)
+                            .attr("stroke", "black");
+                        chart.append("text")
+                            .attr("x", xmax)
+                            .attr("y", ymax + 9)
+                            .attr("dy", ".35em")
+                            .style("text-anchor", "end")
+                            .text(ChartHelpers.timestampToString(d3.max(x.domain())));
+                    }
 
                     // draw a line at the current cursor position
                     var cursor = chart.append("line")
@@ -339,7 +258,7 @@
                                 .attr("x1", xpos)
                                 .attr("y1", 0)
                                 .attr("x2", xpos)
-                                .attr("y2", height)
+                                .attr("y2", d3.max(y.range()) + (strokeLength || 0))
                                 .attr("opacity", 1);
                             timestampText
                                 .attr("x", xpos - 6)
@@ -354,76 +273,8 @@
                                 .attr("opacity", 1)
                                 .text(d.measurement);
                              });
-
-                    //chart
-                    //    .on("mouseover", function() {})
-                    //    .on("mouseout", function () { })
-                    //    .on("mousemove", function () {
-                    //        var x = d3.event.clientX - offsetLeft;
-                    //        var beginning = x, end = width - margin.left - margin.right, target;
-                    //        while (true) {
-                    //            target = Math.floor((beginning + end) / 2);
-                    //            var pos = { x: 0, y: 0 };
-                    //            if ((target === end || target === beginning) && pos.x !== x) {
-                    //                break;
-                    //            }
-                    //            if (pos.x > x) end = target;
-                    //            else if (pos.x < x) beginning = target;
-                    //            else break; //position found
-                    //        }
-                    //        circle
-                    //            .attr("opacity", 1)
-                    //            .attr("cx", x)
-                    //            .attr("cy", pos.y);
-                    //});
-
-                    //var div = d3.select("body").append("div")
-                    //    .attr("class", "tooltip")
-                    //    .style("opacity", 1e-6);
                 }
-            //    link: function (scope: any, element, attrs) {
-            //        scope.$watch('width + height', function () {
-            //            ChartHelpers.updateDimensions(scope, attrs, element, scope.chart);
-            //        });
-            //        scope.$watch('data', function (data) {
-            //            if (data && angular.isDefined(scope.filtername) && angular.isDefined(scope.filtervalue)) {
-            //                data = $filter(scope.filtername)(data, scope.filtervalue);
-            //            }
-            //            if (data) {
-            //                //if the chart exists on the scope, do not call addGraph again, update data and call the chart.
-            //                if (scope.chart) {
-            //                    return scope.d3Call(data, scope.chart);
-            //                }
-            //                Render.addGraph({
-            //                    generate: function () {
-            //                        ChartHelpers.initializeMargin(scope, attrs);
-            //                        var chart = Render.models.lineChart().width(scope.width).height(scope.height).margin(scope.margin).x(attrs.x === undefined ? function (d) {
-            //                            return d[0];
-            //                        } : scope.x()).y(attrs.y === undefined ? function (d) {
-            //                            return d[1];
-            //                        } : scope.y()).forceX(attrs.forcex === undefined ? [] : scope.$eval(attrs.forcex)).forceY(attrs.forcey === undefined ? [0] : scope.$eval(attrs.forcey)).showLegend(attrs.showlegend === undefined ? false : attrs.showlegend === 'true').tooltips(attrs.tooltips === undefined ? false : attrs.tooltips === 'true').showXAxis(attrs.showxaxis === undefined ? false : attrs.showxaxis === 'true').showYAxis(attrs.showyaxis === undefined ? false : attrs.showyaxis === 'true').rightAlignYAxis(attrs.rightalignyaxis === undefined ? false : attrs.rightalignyaxis === 'true').noData(attrs.nodata === undefined ? 'No Data Available.' : scope.nodata).interactive(attrs.interactive === undefined ? false : attrs.interactive === 'true').clipEdge(attrs.clipedge === undefined ? false : attrs.clipedge === 'true').clipVoronoi(attrs.clipvoronoi === undefined ? false : attrs.clipvoronoi === 'true').interpolate(attrs.interpolate === undefined ? 'linear' : attrs.interpolate).color(attrs.color === undefined ? nv.utils.defaultColor() : scope.color()).isArea(attrs.isarea === undefined ? function (d) {
-            //                            return d.area;
-            //                        } : function () {
-            //                                return attrs.isarea === 'true';
-            //                            });
-            //                        if (attrs.useinteractiveguideline) {
-            //                            chart.useInteractiveGuideline(attrs.useinteractiveguideline === undefined ? false : attrs.useinteractiveguideline === 'true');
-            //                        }
-            //                        if (attrs.tooltipcontent) {
-            //                            chart.tooltipContent(scope.tooltipcontent());
-            //                        }
-            //                        scope.d3Call(data, chart);
-            //                        ChartHelpers.windowResize(chart.update);
-            //                        scope.chart = chart;
-            //                        return chart;
-            //                    },
-            //                    callback: attrs.callback === undefined ? null : scope.callback()
-            //                });
-            //            }
-            //        }, attrs.objectequality === undefined ? false : attrs.objectequality === 'true');
-            //    }
-            //};
-        }
+            }
         }])
 
         /**

@@ -584,6 +584,7 @@
     margin: 0 2px;
 }
 
+/* START CHART STYLE */
 .chart {
     background: #eee;
     padding: 3px;
@@ -625,6 +626,18 @@
     stroke-width: 1;
     fill: none;
 }
+.sparkline-axis path,
+.sparkline-axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+.sparkline-axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+/* END CHART STYLE */
+
 /* START TIMELINE STYLE */
 #timeline {
     position: absolute;

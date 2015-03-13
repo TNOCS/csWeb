@@ -83,11 +83,11 @@
                         <div class="text-right" data-ng-bind-html="vm.toTrusted(item.value)"></div>
                         <div id="sensor{{item.property}}"
                              data-ng-if="item.isSensor"
-                             class="panel-collapse collapse">
-                            <div class="panel-body">
-                                <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="70"></sparkline-chart>
-                                <!--Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt accusamus labore sustainable VHS.-->
-                            </div>
+                             class="panel-collapse collapse" style="padding-top: 10px;">
+                            <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
+                            <!--<div class="panel-body">
+            <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
+        </div>-->
                         </div>
                     </div>
                 </div>
