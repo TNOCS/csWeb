@@ -28,8 +28,20 @@
         zoomLevelName: string;
         isLive       : boolean;
 
+        //constructor() {
+        //    if (!this.focus) this.setFocus(new Date());
+        //}
 
-        public setFocus(d: Date,s? : Date, e? : Date) {
+        static deserialize(input: DateRange): DateRange {
+            var res = <DateRange>$.extend(new DateRange(), input);
+            if (typeof res.focus === 'undefined' || res.focus === null) res.focus = Date.now();
+            return res;
+        }
+
+        /**
+        * Set the focus time of the timeline, optionally including start and end time.
+        */
+        setFocus(d: Date, s? : Date, e? : Date) {
             this.focus = d.getTime();
             if (s) this.start = s.getTime();
             if (e) this.end   = e.getTime();
@@ -44,13 +56,17 @@
             }
         }
         
-        constructor() {
-            if (!focus) this.setFocus(new Date());
+        startDate = () => {
+            if (this.focus < this.start) this.start = this.focus - this.range / 5;
+            return new Date(this.start);
         }
 
-        startDate = () => { return new Date(this.start); }
-        focusDate = () => { return new Date(this.start); }
-        endDate   = () => { return new Date(this.start); }
+        focusDate = () => { return new Date(this.focus); }
+
+        endDate = () => {
+            if (this.focus > this.end) this.end = this.focus + this.range / 5;
+            return new Date(this.end);
+        }
     }
 
     /**
@@ -124,6 +140,7 @@
 
         public deserialize(input: Project): Project {
             var res = <Project>jQuery.extend(new Project(), input);
+            if (input.timeLine) res.timeLine = DateRange.deserialize(input.timeLine); // <DateRange>jQuery.extend(new DateRange(), input.timeLine);
             if (input.dashboards) {
                 res.dashboards = [];
                 input.dashboards.forEach((d) => {

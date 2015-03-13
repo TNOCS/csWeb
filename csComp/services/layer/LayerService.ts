@@ -78,7 +78,6 @@
                 }
             });
 
-
             $messageBusService.subscribe('language', (title: string, language: string) => {
                 switch (title) {
                     case 'newLanguage':
@@ -96,7 +95,7 @@
         }
 
         public updateSensorData() {
-            if (this.project == null || this.project.timeLine == null) return;
+            if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
 
             var date = this.project.timeLine.focus;
             var timepos = {};
@@ -1173,11 +1172,14 @@
             this.featureTypes = {};
 
             $.getJSON(url,(data: Project) => {
-                
                 this.project = new Project().deserialize(data);
 
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
+                }
+                else {
+                    // Set range
+                    this.$messageBusService.publish('timeline', 'updateTimerange', this.project.timeLine); 
                 }
 
                 if (this.project.viewBounds) {

@@ -47,6 +47,8 @@
 
             $scope.vm = this;
 
+            this.initTimeline();
+
             this.$messageBusService.subscribe("timeline", (s: string, data: any) => {
                 switch (s) {
                     case "updateTimerange":
@@ -59,14 +61,25 @@
             //$scope.focusDate = $layerService.project.timeLine.focusDate();
 
             // Options voor de timeline
-            var options = TimelineService.getTimelineOptions();
-            options.locale = $layerService.currentLocale;
 
-            this.$layerService.timeline = $scope.timeline = new links.Timeline(document.getElementById('timeline'), options);
+            this.$messageBusService.subscribe("language",(s: string, newLanguage: string) => {
+                switch (s) {
+                    case "newLanguage":
+                        this.initTimeline();
+                        break;
+                }
+            });
+        }
 
-            $scope.timeline.draw();
-            links.events.addListener($scope.timeline, 'rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
-            links.events.addListener($scope.timeline, 'rangechange', () => {
+        private initTimeline() {
+            var options = this.TimelineService.getTimelineOptions();
+            options.locale = this.$layerService.currentLocale;
+
+            this.$layerService.timeline = this.$scope.timeline = new links.Timeline(document.getElementById('timeline'), options);
+
+            this.$scope.timeline.draw();
+            links.events.addListener(this.$scope.timeline, 'rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
+            links.events.addListener(this.$scope.timeline, 'rangechange',() => {
                 if (this.$layerService.project && this.$layerService.project.timeLine.isLive) {
                     this.myTimer();
                 }
@@ -74,14 +87,6 @@
 
             this.updateDragging();
             this.updateFocusTime();
-
-            this.$messageBusService.subscribe("language",(s: string, newLanguage: string) => {
-                switch (s) {
-                    case "newLanguage":
-                        this.$scope.timeline.locale = newLanguage;
-                        break;
-                }
-            });
         }
 
         public updateDragging() {
@@ -156,7 +161,9 @@
         public updateFocusTime() {
             var tl = this.$scope.timeline;
             tl.showCustomTime = true;
-            tl.setCustomTime = new Date(2014,11,27,20,40,0);
+            tl.setCustomTime = typeof this.$layerService.project === 'undefined'
+                ? new Date()
+                : this.$layerService.project.timeLine.focusDate();
             var tc1 = $("#focustimeContainer").offset().left;
             var tc2 = $("#timelinecontainer").offset().left - 15; // + 55;
             var centerX = tc1 - tc2 + $("#focustimeContainer").width() / 2;

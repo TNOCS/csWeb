@@ -1,6 +1,7 @@
 module Timeline {
 
     // Interface describing the members that the provider's service offers
+    // @seealso: http://www.software-architects.com/devblog/2014/10/24/AngularJS-Provider-in-TypeScript
     export interface ITimelineService {
         getTimelineOptions(): csComp.Services.ITimelineOptions;
         setTimelineOptions(options: csComp.Services.ITimelineOptions): void;
