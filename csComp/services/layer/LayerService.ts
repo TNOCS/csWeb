@@ -530,9 +530,9 @@
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
-                if (ft.style.fillColor   != null) s['fillColor']   = this.getColorString(ft.style.fillColor);
-                if (ft.style.strokeColor != null) s['strokeColor'] = this.getColorString(ft.style.strokeColor, '#000');
-                if (ft.style.strokeWidth != null) s['weight']      = ft.style.strokeWidth;
+                if (ft.style.fillColor   != null) s['fillColor'] = this.getColorString(ft.style.fillColor);
+                if (ft.style.strokeColor != null) s['color']     = this.getColorString(ft.style.strokeColor, '#fff');
+                if (ft.style.strokeWidth != null) s['weight']    = ft.style.strokeWidth;
             }
 
             //var layer = this.findLayer(feature.layerId);
@@ -557,8 +557,8 @@
             });
 
             if (feature.isSelected) {
-                s['weight'] = 7;
-                s['color'] = 'blue';
+                s['weight'] = 5;
+                s['color'] = 'black';
             }
             return s;
         }
