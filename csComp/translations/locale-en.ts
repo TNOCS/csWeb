@@ -27,6 +27,9 @@
             GREEN_WHITE             : 'green - white',
             WHITE_ORANGE            : 'white - orange',
             ORANGE_WHITE            : 'orange - white',
+            EXPERTMODE              : {
+                EXPLANATION         : 'By selecting more stars, more functionality will be available (3 stars = expert mode).'
+            },
             LAYER_SERVICE           : {
                 RELOAD_PROJECT_TITLE: 'Data is reloaded',
                 RELOAD_PROJECT_MSG  : 'After switching the language, we need to reload all the map data. Our appologies for the inconvenience.'

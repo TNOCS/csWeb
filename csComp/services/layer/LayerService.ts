@@ -1269,7 +1269,7 @@
                     this.updateFilters();
                 });
 
-                this.$messageBusService.publish('project', 'loaded');
+                this.$messageBusService.publish('project', 'loaded', this.project);
                 this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
             });
         }

@@ -23,7 +23,7 @@
 
         constructor(
             private $scope       : ILanguageSwitchScope,
-            private $translate   : any,
+            private $translate   : ng.translate.ITranslateService,
             private $languages   : ILanguage[],
             private $layerService: csComp.Services.LayerService,
             private $messageBus  : csComp.Services.MessageBusService

@@ -27,6 +27,8 @@
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.tpl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.ts" />
     <TypeScriptCompile Include="directives\Dashboard\DashboardCtrl.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelationsCtrl.ts" />
@@ -188,6 +190,7 @@
     <Content Include="directives\BaseMapList\BaseMapList.tpl.html" />
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular-cookies.d.ts" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>

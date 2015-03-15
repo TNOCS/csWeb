@@ -27,7 +27,10 @@
             GREEN_WHITE             : 'groen - wit',
             WHITE_ORANGE            : 'wit - oranje',
             ORANGE_WHITE            : 'oranje - wit',
-            LAYER_SERVICE           : {
+            EXPERTMODE              : { 
+                EXPLANATION         : 'Door meer sterren te selecteren komt er meer functionaliteit beschikbaar (3 sterren = expert mode).'
+            },
+            LAYER_SERVICE: {
                 RELOAD_PROJECT_TITLE: 'Data wordt opnieuw geladen',
                 RELOAD_PROJECT_MSG  : 'Na het wisselen van de taal moet de kaartdata opnieuw ingelezen worden. Excuses voor het ongemak.'
             },

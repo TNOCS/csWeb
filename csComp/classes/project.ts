@@ -1,5 +1,14 @@
 ﻿module csComp.Services {
     /**
+    * Expert level for determining what options to show to the user.
+    */
+    export enum Expertise {
+        Beginner     = 1,
+        Intermediate = 2,
+        Expert       = 3
+    }
+
+    /**
     * Implement this interface to make your object serializable
     * @see http://stackoverflow.com/a/22886730/319711
     */
@@ -136,6 +145,7 @@
         userPrivileges  : IPrivileges;
         languages       : ILanguageData;
 
+        expertMode = Expertise.Expert;
         markers = {}; 
 
         public deserialize(input: Project): Project {

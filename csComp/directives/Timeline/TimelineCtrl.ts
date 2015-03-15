@@ -55,7 +55,16 @@
                         this.$scope.timeline.setVisibleChartRange(data.start, data.end);
                         this.updateFocusTime();
                         break;
+                    case "loadProjectTimeRange":
+                        if (typeof $layerService.project === 'undefined'
+                            || $layerService.project === null
+                            || typeof $layerService.project.timeLine === 'undefined'
+                            || $layerService.project.timeLine === null) return;
+                        this.$scope.timeline.setVisibleChartRange($layerService.project.timeLine.start, $layerService.project.timeLine.end);
+                        this.updateFocusTime();
+                        break;
                 }
+                //if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest') { $scope.$apply(); }
             });
 
             //$scope.focusDate = $layerService.project.timeLine.focusDate();
@@ -85,6 +94,8 @@
                 }
             });
 
+            if (typeof this.$layerService.project !== 'undefined' && this.$layerService.project.timeLine !== null)
+                this.$scope.timeline.setVisibleChartRange(this.$layerService.project.timeLine.start, this.$layerService.project.timeLine.end);
             this.updateDragging();
             this.updateFocusTime();
         }
@@ -159,6 +170,7 @@
         }
 
         public updateFocusTime() {
+            //if (!this.$mapService.timelineVisible) return;
             var tl = this.$scope.timeline;
             tl.showCustomTime = true;
             tl.setCustomTime = typeof this.$layerService.project === 'undefined'
@@ -203,9 +215,9 @@
                         this.line2 = moment(this.focusDate).format('HH:mm:ss');
                 }
             }
+            //if (this.$scope.$$phase != '$apply' && this.$scope.$$phase != '$digest') { this.$scope.$apply(); }
             this.$messageBusService.publish("timeline", "focusChange", this.focusDate);
             //this.$layerService.focusTime = new Date(this.timelineCtrl.screenToTime(centerX));
-                //this.$scope.$apply();
         }
 
         /** 
