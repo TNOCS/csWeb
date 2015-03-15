@@ -26,6 +26,11 @@
             $scope.vm = this;
             $scope.expertMode = $mapService.expertMode;
 
+            $messageBus.subscribe('expertMode',(title: string, mode: Expertise) => {
+                if (title !== 'newExpertise') return;
+                $scope.expertMode = mode;
+            });
+
             $scope.$watch('expertMode',() => {
                 this.setExpertMode($scope.expertMode);
             });
