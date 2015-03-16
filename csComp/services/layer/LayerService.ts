@@ -12,6 +12,34 @@
       disableLayer(layer : ProjectLayer) : void;
     }
 
+    export interface IMapRenderer
+    {
+      title : string;
+      init(service : LayerService);
+      enable();
+      disable();
+    }
+
+    export class LeafletRenderer implements IMapRenderer
+    {
+
+      title = "Leaflet";
+      service : LayerService;
+
+      public init(service : LayerService){
+        this.service = service;
+      }
+
+      public enable()
+      {
+        alert('enable leaflet');
+      }
+      public disable()
+      {
+
+      }
+    }
+
 
     export interface ILayerService {
         title                : string;
@@ -47,7 +75,9 @@
         lastSelectedFeature : IFeature;
         selectedLayerId     : string;
         timeline            : any;
-        layerSources   : {[ key : string] : ILayerSource};
+        layerSources   : {[ key : string] : ILayerSource};   // list of available layer sources
+        mapRenderers  : {[ key : string] : IMapRenderer};    // list of available map renderers
+        activeMapRenderer : IMapRenderer;                    // active map renderer
         layerGroup    = new L.LayerGroup<L.ILayer>();
         info          = new L.Control();
         currentLocale = 'en';
@@ -79,6 +109,15 @@
             this.propertyTypeData = {};
             //this.map.map.addLayer(this.layerGroup);
             this.noStyles = true;
+
+            // init map renderers
+            this.mapRenderers = {};
+
+            // add leaflet renderer
+            this.mapRenderers["leaflet"] = new LeafletRenderer();
+            this.mapRenderers["leaflet"].init(this);
+            //this.mapRenderers["leaflet"].enable();
+
 
             // init layer sources
             this.layerSources = {};
@@ -983,8 +1022,9 @@
          * @params initialProject: Optionally provide a project name that should be loaded, if omitted the first project in the definition will be loaded
          */
         openSolution(url: string, layers?: string, initialProject?: string): void {
-            //console.log('layers (openSolution): ' + JSON.stringify(layers));
 
+            //console.log('layers (openSolution): ' + JSON.stringify(layers));
+            
             $.getJSON(url, (solution : Solution) => {
                 //var projects = data;
                 if (solution.maxBounds) {

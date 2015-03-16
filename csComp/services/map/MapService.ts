@@ -1,6 +1,6 @@
 ﻿module csComp.Services {
     'use strict';
- 
+
 
     /*
      * Singleton service that holds a reference to the map.
@@ -47,22 +47,23 @@
                         }
                         break;
                     case "hide":
-                        if (!$('body').hasClass("leftpanel-collapsed")) $('body').addClass("leftpanel-collapsed");                        
+                        if (!$('body').hasClass("leftpanel-collapsed")) $('body').addClass("leftpanel-collapsed");
                         break;
                     case "show":
                         if ($('body').hasClass("leftpanel-collapsed")) $('body').removeClass("leftpanel-collapsed");
-                        
+
                         break;
                 }
-                
+
             });
         }
 
         public initMap() {
-            this.map = L.map("map", {
-                zoomControl: false,
-                attributionControl: true
-            });
+            // alert('map service');
+            // this.map = L.map("map", {
+            //     zoomControl: false,
+            //     attributionControl: true
+            // });
         }
 
         public changeBaseLayer(layerObj: L.ILayer) {

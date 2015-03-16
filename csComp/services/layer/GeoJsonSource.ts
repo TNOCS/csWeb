@@ -1,8 +1,6 @@
 module csComp.Services {
     'use strict';
 
-
-
     export class GeoJsonSource implements ILayerSource
     {
       title = "geojson";
@@ -121,7 +119,7 @@ module csComp.Services {
 
       disableLayer(layer : ProjectLayer)
       {
-        alert('remove layer');
+        //alert('remove layer');
       }
 
     }
