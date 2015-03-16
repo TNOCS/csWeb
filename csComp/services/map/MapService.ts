@@ -1,35 +1,37 @@
 ﻿module csComp.Services {
     'use strict';
  
-
     /*
      * Singleton service that holds a reference to the map.
      * In case other controllers need access to the map, they can inject this service.
      */
     export class MapService {
+        private static expertModeKey = 'expertMode';
+        private activeBaseLayer: L.ILayer;
+
         public static $inject = [
+            'localStorageService',
+            '$timeout',
             'messageBusService'
         ];
 
-        public map: L.Map;
+        map             : L.Map;
+        baseLayers      : any;
+        mapVisible      : boolean = true;
+        timelineVisible : boolean = true;
+        rightMenuVisible: boolean = true;
+        expertMode      : Expertise;
 
-        public baseLayers: any;
-        private activeBaseLayer: L.ILayer;
-        public mapVisible: boolean = true;
-        public timelineVisible: boolean = true;
-        public rightMenuVisible: boolean = true;
+        constructor(
+            private $localStorageService: ng.localStorage.ILocalStorageService,
+            private $timeout            : ng.ITimeoutService,
+            private $messageBus         : csComp.Services.MessageBusService) {
 
-
-        constructor(private $messageBusService: csComp.Services.MessageBusService) {
-            //this.map = L.map("map", {
-            //    zoomControl        : false,
-            //    attributionControl : true
-            //});
-            //this.activeBaseLayer;
+            this.initExpertMode();
             this.baseLayers = {};
             this.initMap();
 
-            $messageBusService.subscribe('timeline', (title: string, data) => {
+            $messageBus.subscribe('timeline',(title: string, data) => {
                 switch (title) {
                     case 'isEnabled':
                         this.timelineVisible = data;
@@ -37,7 +39,7 @@
                 }
             });
 
-            $messageBusService.subscribe('leftmenu',(title: string, data) => {
+            $messageBus.subscribe('leftmenu',(title: string, data) => {
                 switch (title.toLowerCase()) {
                     case "toggle":
                         if ($('body').hasClass("leftpanel-collapsed")) {
@@ -51,10 +53,49 @@
                         break;
                     case "show":
                         if ($('body').hasClass("leftpanel-collapsed")) $('body').removeClass("leftpanel-collapsed");
-                        
                         break;
                 }
-                
+            });
+        }
+
+        /**
+        * The expert mode can either be set manually, e.g. using this directive, or by setting the expertMode property in the
+        * project.json file. In neither are set, we assume that we are dealing with an expert, so all features should be enabled.
+        * 
+        * Precedence:
+        * - when a declaration is absent, assume Expert.
+        * - when the mode is set in local storage, take that value.
+        * - when the mode is set in the project.json file, take that value. 
+        */
+        private initExpertMode() {
+            this.expertMode = this.$localStorageService.get(MapService.expertModeKey);
+            if (!this.expertMode) {
+                this.expertMode = Expertise.Expert; // Default behaviour
+                // When a project defines the expert mode, overrules default behaviour
+                this.$messageBus.subscribe('project',(title: string, project: csComp.Services.Project) => {
+                    switch (title) {
+                        case 'loaded':
+                            if (project != null && typeof project.expertMode !== 'undefined')
+                                this.$messageBus.publish('expertMode', 'newExpertise', project.expertMode);
+                            break;
+                    }
+                });
+            }
+
+            this.$messageBus.subscribe('expertMode',(title: string, expertMode: Expertise) => {
+                if (title !== 'newExpertise') return;
+                this.expertMode = expertMode;
+                this.$localStorageService.set(csComp.Services.MapService.expertModeKey, expertMode); // You first need to set the key
+                switch (expertMode) {
+                    case Expertise.Intermediate:
+                    case Expertise.Expert:
+                        this.timelineVisible = true;
+                        this.$timeout(() => {this.$messageBus.publish('timeline', 'loadProjectTimeRange')}, 100); 
+                        break;
+                    default:
+                        this.timelineVisible = false;
+                        break;
+                }
             });
         }
 
@@ -109,8 +150,8 @@
                 var northEast = L.latLng(Math.max(bb[2], bb[3]), Math.max(bb[0], bb[1]) + spacingLon);
                 this.map.fitBounds(new L.LatLngBounds(southWest, northEast));
             }
-            this.$messageBusService.publish("sidebar", "show");
-            this.$messageBusService.publish("feature", "onFeatureSelect", feature);
+            this.$messageBus.publish("sidebar", "show");
+            this.$messageBus.publish("feature", "onFeatureSelect", feature);
         }
 
         //private getCentroid(arr) {

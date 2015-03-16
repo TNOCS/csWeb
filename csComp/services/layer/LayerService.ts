@@ -10,8 +10,9 @@
         solution             : Solution;
         project              : Project;
         maxBounds            : IBoundingBox;
-        findLayer(id         : string): ProjectLayer;
+        findLayer(id: string): ProjectLayer;
         selectFeature(feature: Services.IFeature);
+        currentLocale        : string;
 
         mb              : Services.MessageBusService;
         map             : Services.MapService;
@@ -38,9 +39,10 @@
         lastSelectedFeature : IFeature;
         selectedLayerId     : string;
         timeline            : any;
+        currentLocale       : string;
+        loadedLayers  = new csComp.Helpers.Dictionary<L.ILayer>();
         layerGroup    = new L.LayerGroup<L.ILayer>();
         info          = new L.Control();
-        currentLocale = 'en';
 
         static $inject = [
             '$location',
@@ -76,7 +78,6 @@
                 }
             });
 
-
             $messageBusService.subscribe('language', (title: string, language: string) => {
                 switch (title) {
                     case 'newLanguage':
@@ -94,7 +95,7 @@
         }
 
         public updateSensorData() {
-            if (this.project == null || this.project.timeLine == null) return;
+            if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
 
             var date = this.project.timeLine.focus;
             var timepos = {};
@@ -103,22 +104,20 @@
                 var l = this.findLayer(f.layerId);
 
                 if (l != null) {
-                    if (f.sensors || f.coordinates)
-                    {
+                    if (f.sensors || f.coordinates) {
                         var getIndex = (d: Number, timestamps: Number[]) => {
                             for (var i = 1; i < timestamps.length; i++) {
                                 if (timestamps[i] > d) {
-                                    return i;                                    
+                                    return i;
                                 }
                             }
-                            return timestamps.length-1;
+                            return timestamps.length - 1;
                         }
                         var pos = 0;
                         if (f.timestamps) // check if feature contains timestamps
-                        { 
+                        {
                             pos = getIndex(date, f.timestamps);
                         } else if (l.timestamps) {
-
                             if (timepos.hasOwnProperty(f.layerId)) {
                                 pos = timepos[f.layerId];
                             }
@@ -126,15 +125,13 @@
                                 pos = getIndex(date, l.timestamps);
                                 timepos[f.layerId] = pos;
                             }
-                            
                         }
 
                         // check if a new coordinate is avaiable
-                        if (f.coordinates && f.coordinates.length>pos && f.coordinates[pos] != f.geometry.coordinates) {
+                        if (f.coordinates && f.coordinates.length > pos && f.coordinates[pos] != f.geometry.coordinates) {
                             f.geometry.coordinates = f.coordinates[pos];
                             // get marker
-                            if (l.group.markers.hasOwnProperty(f.id))
-                            {
+                            if (l.group.markers.hasOwnProperty(f.id)) {
                                 var m = l.group.markers[f.id]
                                 // update position
                                 m.setLatLng(new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]));
@@ -147,12 +144,11 @@
                                 f.properties[sensorTitle] = value;
                             }
                             this.updateFeatureIcon(f, l);
+                            if (f.isSelected) this.$messageBusService.publish("feature", "onFeatureUpdated", f);
                         }
                     }
                 }
-                }
-            );
-            this.$messageBusService.publish("feature", "onFeatureUpdated");
+            });
         }
 
         /**
@@ -179,6 +175,8 @@
                 });
                 wms.on('load', (event) => {
                     layer.isLoading = false;
+                    if (!layer.id) layer.id = Helpers.getGuid();
+                    this.loadedLayers.add(layer.id, layer);
                     if (this.$rootScope.$$phase != '$apply' && this.$rootScope.$$phase != '$digest') { this.$rootScope.$apply(); }
                 });
                 layer.isLoading = true;
@@ -223,10 +221,12 @@
                         // Open a layer URL
                         layer.isLoading = true;
                         d3.json(layer.url, (error, data) => {
-                          layer.isLoading = false;
+                            layer.isLoading = false;
                             if (error)
                                 this.$messageBusService.notify('ERROR loading' + layer.title, error);
                             else {
+                                if (!layer.id) layer.id = Helpers.getGuid();
+                                this.loadedLayers.add(layer.id, layer);
                                 if (layer.type.toLowerCase() === 'topojson')
                                     data = this.convertTopoToGeoJson(data);
                                 if (data.events && this.timeline) {
@@ -296,9 +296,9 @@
                                             layer.group.markers[f.id] = m;
                                             return this.style(f, layer);
                                         },
-                                        pointToLayer                                 : (feature, latlng) => this.addFeature(feature, latlng, layer)
+                                        pointToLayer : (feature, latlng) => this.addFeature(feature, latlng, layer)
                                     });
-                                    this.project.features.forEach((f                 : IFeature) => {
+                                    this.project.features.forEach((f: IFeature) => {
                                         if (f.layerId !== layer.id) return;
                                         var ft = this.getFeatureType(f);
                                         f.properties['Name'] = f.properties[ft.style.nameLabel];
@@ -463,7 +463,7 @@
             //console.log('update style ' + style.title);
             if (style == null) return;
             if (style.group != null) {
-                    style.info = this.calculatePropertyInfo(style.group, style.property);
+                style.info = this.calculatePropertyInfo(style.group, style.property);
                 style.canSelectColor = style.visualAspect.toLowerCase().indexOf('color') > -1;
                 this.updateGroupFeatures(style.group);
             }
@@ -488,7 +488,7 @@
         private updateGroupFeatures(group : ProjectGroup) {
             this.project.features.forEach((f: IFeature) => {
                 if (group.markers.hasOwnProperty(f.id)) {
-                    this.updateFeature(f,group);
+                    this.updateFeature(f, group);
                 }
             });
         }
@@ -530,9 +530,9 @@
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
-                if (ft.style.fillColor   != null) s['fillColor']   = this.getColorString(ft.style.fillColor);
-                if (ft.style.strokeColor != null) s['strokeColor'] = this.getColorString(ft.style.strokeColor, '#000');
-                if (ft.style.strokeWidth != null) s['weight']      = ft.style.strokeWidth;
+                if (ft.style.fillColor   != null) s['fillColor'] = this.getColorString(ft.style.fillColor);
+                if (ft.style.strokeColor != null) s['color']     = this.getColorString(ft.style.strokeColor, '#fff');
+                if (ft.style.strokeWidth != null) s['weight']    = ft.style.strokeWidth;
             }
 
             //var layer = this.findLayer(feature.layerId);
@@ -557,8 +557,8 @@
             });
 
             if (feature.isSelected) {
-                s['weight'] = 7;
-                s['color'] = 'blue';
+                s['weight'] = 5;
+                s['color'] = 'black';
             }
             return s;
         }
@@ -714,9 +714,19 @@
         /**
          * Update icon for features
          */
-        updateFeatureIcon(feature: IFeature, layer: ProjectLayer): any {
-            var marker = <L.Marker>layer.group.markers[feature.id];
-            if (marker!=null) marker.setIcon(this.getPointIcon(feature,layer));
+        updateFeatureIcon(feature: IFeature, layer: ProjectLayer) {
+            var geomType = feature.geometry.type.toLowerCase();
+            switch (geomType)
+            {
+                case "point":
+                   var marker = <L.Marker>layer.group.markers[feature.id];
+                   if (marker != null) marker.setIcon(this.getPointIcon(feature, layer));
+                   break;
+                case "polygon":
+                case "multipolygon":
+                    this.updateFeature(feature);
+                    break;
+            }
         }
 
         /**
@@ -780,19 +790,27 @@
         }
 
         /**
-         * find a layer with a specific id
+         * Find a layer with a specific id
          */
         findLayer(id: string): ProjectLayer {
-            var r: ProjectLayer;           
+            if (this.loadedLayers.containsKey(id)) return this.loadedLayers[id];
+            return null;
+            //var r: ProjectLayer;
+            //this.project.groups.forEach(g => {
+            //    g.layers.forEach(l => {
+            //        if (l.id === id) r = l;
+            //    });
+            //});
+            //return r;
+            var r: ProjectLayer;
             this.project.groups.forEach(g => {
                 g.layers.forEach(l => {
                     if (l.id === id) {
-                        r = l;                        
+                        r = l;
                     }
                 });
             });
             return r;
-
         }
 
         setStyle(property: any, openStyleTab = true) {
@@ -1028,6 +1046,8 @@
             var m: any;
             var g = layer.group;
 
+            this.loadedLayers.remove(layer.id);
+
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
                 this.$messageBusService.publish('sidebar', 'hide');
@@ -1078,6 +1098,7 @@
          */
         openSolution(url: string, layers?: string, initialProject?: string): void {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
+            this.loadedLayers.clear();
 
             $.getJSON(url, (solution : Solution) => {
                 //var projects = data;
@@ -1151,11 +1172,14 @@
             this.featureTypes = {};
 
             $.getJSON(url,(data: Project) => {
-                
                 this.project = new Project().deserialize(data);
 
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
+                }
+                else {
+                    // Set range
+                    this.$messageBusService.publish('timeline', 'updateTimerange', this.project.timeLine); 
                 }
 
                 if (this.project.viewBounds) {
@@ -1245,7 +1269,7 @@
                     this.updateFilters();
                 });
 
-                this.$messageBusService.publish('project', 'loaded');
+                this.$messageBusService.publish('project', 'loaded', this.project);
                 this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
             });
         }

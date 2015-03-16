@@ -19,15 +19,28 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="classes\datasource.ts" />
+    <TypeScriptCompile Include="directives\Charts\ChartHelpers.ts" />
+    <TypeScriptCompile Include="directives\Charts\Charts.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.tpl.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelectionCtrl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.tpl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.ts" />
     <TypeScriptCompile Include="directives\Dashboard\DashboardCtrl.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelationsCtrl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\Heatspot.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapModel.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapCtrl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapItem.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\Heatmap.tpl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\Heatmap.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorCtrl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorView.tpl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\IdealityMeasure.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
@@ -46,8 +59,12 @@
     <TypeScriptCompile Include="directives\Timeline\Timeline.ts" />
     <TypeScriptCompile Include="directives\Timeline\TimelineCtrl.ts" />
     <TypeScriptCompile Include="directives\Voting\Voting.ts" />
+    <TypeScriptCompile Include="helpers\Dictionary.ts" />
+    <TypeScriptCompile Include="helpers\GeoExtensions.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
-    <TypeScriptCompile Include="helpers\MessageBus.ts" />
+    <TypeScriptCompile Include="helpers\Utils.ts" />
+    <TypeScriptCompile Include="Scripts\typings\leaflet\webgl-heatmap-leaflet.d.ts" />
+    <TypeScriptCompile Include="services\bus\MessageBus.ts" />
     <TypeScriptCompile Include="helpers\Plot.ts" />
     <TypeScriptCompile Include="directives\Resize\Resize.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.tpl.ts" />
@@ -105,6 +122,8 @@
   <ItemGroup>
     <Content Include="directives\DashboardSelection\DashboardSelection.tpl.html" />
     <Content Include="directives\Dashboard\Dashboard.tpl.html" />
+    <Content Include="directives\Heatmap\Heatmap.tpl.html" />
+    <Content Include="directives\Heatmap\HeatmapEditorView.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
     <Content Include="directives\LanguageSwitch\readme.md" />
     <Content Include="directives\MCA\Mca.tpl.html" />
@@ -171,6 +190,7 @@
     <Content Include="directives\BaseMapList\BaseMapList.tpl.html" />
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular-cookies.d.ts" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>

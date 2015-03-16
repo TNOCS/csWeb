@@ -143,7 +143,6 @@ module csComp.Services {
             if (input.timeline) res.timeline = $.extend(new DateRange(), input.timeline);
 
             return res;
-
         }
 
         public static addNewWidget(widget: IWidget, dashboard: Dashboard) : IWidget {

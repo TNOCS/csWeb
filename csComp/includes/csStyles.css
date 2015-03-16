@@ -160,34 +160,34 @@
             text-decoration: none;
         }*/
 
-    #scoringFunctions .ascending {
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFmSURBVEiJ7dY9axVBFAbg55WAFqkEEVJaiWCRSoSgSJogCBbaiKSS4Ecr6A+wCLY2FgErEQUbPyBoZa9dIIUWt/AX2FiIHosbIZF74+7dzU1hDky155xnZ4eZnVSV/YhD+6L+n3CS80lOTRsOBlivqpu9NU1O4CFmxqSsjHvQBZ3DexzGxri0XuEkR/FuC12oqsG43N7gJLNYx3Gc2w3tDU5yBK9wEheqavNfNZ3hJDN4jrNYqqpPTeo6wUmCJ7iIy1X1oWlt1xk/wjVcr6q3bQonhpM8wB3cqqpnk/QY4HFVaTpwF4X7ber+6tEOxo0tdHVStDWMq/jZ9guNGo3/TkmW8BQvcHuSNd0ejeAkC3hpeAYvV9WvPYeTzOMNPuJKVf3oirJtOyU5jcURL3YPX3Cpqr73ge6AcQarI3I+Gx6F3/pCd8BVtYa1PpvvFn9uILP4Oi2U4Yxf49g0UcjBhf4A3qv4DUN2PFHJY+YgAAAAAElFTkSuQmCC') no-repeat left top; /*images/plot_ascending.png*/
-    }
+#scoringFunctions .ascending {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFmSURBVEiJ7dY9axVBFAbg55WAFqkEEVJaiWCRSoSgSJogCBbaiKSS4Ecr6A+wCLY2FgErEQUbPyBoZa9dIIUWt/AX2FiIHosbIZF74+7dzU1hDky155xnZ4eZnVSV/YhD+6L+n3CS80lOTRsOBlivqpu9NU1O4CFmxqSsjHvQBZ3DexzGxri0XuEkR/FuC12oqsG43N7gJLNYx3Gc2w3tDU5yBK9wEheqavNfNZ3hJDN4jrNYqqpPTeo6wUmCJ7iIy1X1oWlt1xk/wjVcr6q3bQonhpM8wB3cqqpnk/QY4HFVaTpwF4X7ber+6tEOxo0tdHVStDWMq/jZ9guNGo3/TkmW8BQvcHuSNd0ejeAkC3hpeAYvV9WvPYeTzOMNPuJKVf3oirJtOyU5jcURL3YPX3Cpqr73ge6AcQarI3I+Gx6F3/pCd8BVtYa1PpvvFn9uILP4Oi2U4Yxf49g0UcjBhf4A3qv4DUN2PFHJY+YgAAAAAElFTkSuQmCC') no-repeat left top; /*images/plot_ascending.png*/
+}
 
-    #scoringFunctions .descending {
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAAzFBMVEX///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALedlLAAAAQ3RSTlMAqNDgmPhwsLi6/UofRz+XdSqFZ5VYAQL6d7L2Pghl8YcNyusoE9Xjixre2xcj5tERLO3GCzfzBkKktgQOT/Tsv5MyLFsrjgAAAIlJREFUeF7NycUCglAABdGrCEqG3d3d3e///0nBrdwtzGYWB2FmuZSlhJn0GhYCWE99UzU7gH+viyZjOKLEGGmRYYyslmOcPxV1wriUK1XCqD0bb8JotTtdwuj1BwZhjMaTKWHM5oslYazWmy1h7PbqgTCO8lnxu/5l3O6yn+ExS3rESXjFWIhuH1hSCtORBh32AAAAAElFTkSuQmCC') no-repeat left center; /*images/plot_descending.png*/
-    }
+#scoringFunctions .descending {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAAzFBMVEX///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALedlLAAAAQ3RSTlMAqNDgmPhwsLi6/UofRz+XdSqFZ5VYAQL6d7L2Pghl8YcNyusoE9Xjixre2xcj5tERLO3GCzfzBkKktgQOT/Tsv5MyLFsrjgAAAIlJREFUeF7NycUCglAABdGrCEqG3d3d3e///0nBrdwtzGYWB2FmuZSlhJn0GhYCWE99UzU7gH+viyZjOKLEGGmRYYyslmOcPxV1wriUK1XCqD0bb8JotTtdwuj1BwZhjMaTKWHM5oslYazWmy1h7PbqgTCO8lnxu/5l3O6yn+ExS3rESXjFWIhuH1hSCtORBh32AAAAAElFTkSuQmCC') no-repeat left center; /*images/plot_descending.png*/
+}
 
-    #scoringFunctions .ascendingsigmoid {
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAF4SURBVEiJ7dbBi05RGMfxzzOmpGTHQhEbi/kLNBsWiiVFWfgDNLZSsrWhFNnInpUdi0k2CitZKBupsbAQOwYzDX4W9069infmvff1zsI89XQ79/Q73/N77rnnnEpiI2JqQ6j/J7iqDlXVzKTBhbeYT3J2LANW7cbsQO7TVHYLviTZC9PjgLXAKdzE3MDrn/iAFSzj62rHWMBVVbiD01jAXTzBsySf/qQZl+NzLfQFjiX5uJag96quqv24is84uR4o43F8Bdswl2RhvaJejqtqFqfwCrdH0fYt9bX2eT7Jj4mAq+oEDuJRkvlR9Z3A7T97uW1e7DJGV8dnMIN7SZ5PBFxVOzRuv+NSF2gnsGZb3IMbSV53BdMcEreSGJbtJK8jeImta2mG5dANpC3rYRzBURzAGxxPstzH7W+OcQGLWNJ8wwzkEh5gVx+nf3O8iPctdEVzjD3FQzxO8q2vy9UY+0VgVPB2vJskeBr3sXOSUKjNC/0m+F/FLzXD6L0asiqyAAAAAElFTkSuQmCC') no-repeat left center; /*images/plot_ascending_sigmoid.png*/
-    }
+#scoringFunctions .ascendingsigmoid {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAF4SURBVEiJ7dbBi05RGMfxzzOmpGTHQhEbi/kLNBsWiiVFWfgDNLZSsrWhFNnInpUdi0k2CitZKBupsbAQOwYzDX4W9069infmvff1zsI89XQ79/Q73/N77rnnnEpiI2JqQ6j/J7iqDlXVzKTBhbeYT3J2LANW7cbsQO7TVHYLviTZC9PjgLXAKdzE3MDrn/iAFSzj62rHWMBVVbiD01jAXTzBsySf/qQZl+NzLfQFjiX5uJag96quqv24is84uR4o43F8Bdswl2RhvaJejqtqFqfwCrdH0fYt9bX2eT7Jj4mAq+oEDuJRkvlR9Z3A7T97uW1e7DJGV8dnMIN7SZ5PBFxVOzRuv+NSF2gnsGZb3IMbSV53BdMcEreSGJbtJK8jeImta2mG5dANpC3rYRzBURzAGxxPstzH7W+OcQGLWNJ8wwzkEh5gVx+nf3O8iPctdEVzjD3FQzxO8q2vy9UY+0VgVPB2vJskeBr3sXOSUKjNC/0m+F/FLzXD6L0asiqyAAAAAElFTkSuQmCC') no-repeat left center; /*images/plot_ascending_sigmoid.png*/
+}
 
-    #scoringFunctions .descendingsigmoid {
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAAz1BMVEX///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD6rQz2AAAARHRSTlMAqNDgmCr4xtrsl+P93nLqa6DIHQY+5Oh6P5ZcGNyALVULAcw8Rb5WMAeeeBnx92HWHOaRWiN//PnuDUR+uArS1cuTs3Jsz9QAAACQSURBVHhezclFDsIAFATQT0tVcHd3d9e5/5kIIeza2cLbPvmlvEZbDUvEyjpmvFgK6JiXieoAEknffkulKwYcza+/cjDrpKUAm/Wl7FZJSw1P1o0mWqSlDYO1dNBl3XO9PmkZYMh6NJ5opGWK2Zy02FgsV+vAls0WwE7X9/4th+PprFxv908zqqUQ8ggx8r9ewccOUbIqEcoAAAAASUVORK5CYII=') no-repeat left center; /*images/plot_descending_sigmoid.png*/
-    }
+#scoringFunctions .descendingsigmoid {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAMAAAAM7l6QAAAAz1BMVEX///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD6rQz2AAAARHRSTlMAqNDgmCr4xtrsl+P93nLqa6DIHQY+5Oh6P5ZcGNyALVULAcw8Rb5WMAeeeBnx92HWHOaRWiN//PnuDUR+uArS1cuTs3Jsz9QAAACQSURBVHhezclFDsIAFATQT0tVcHd3d9e5/5kIIeza2cLbPvmlvEZbDUvEyjpmvFgK6JiXieoAEknffkulKwYcza+/cjDrpKUAm/Wl7FZJSw1P1o0mWqSlDYO1dNBl3XO9PmkZYMh6NJ5opGWK2Zy02FgsV+vAls0WwE7X9/4th+PprFxv908zqqUQ8ggx8r9ewccOUbIqEcoAAAAASUVORK5CYII=') no-repeat left center; /*images/plot_descending_sigmoid.png*/
+}
 
-    #scoringFunctions .gaussianpeak {
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGzSURBVEiJ5dbPi01xGMfx1yNG6i5IFsKQlUhJSmmkcclCJkk2tlbKRtn7J9QsrJQVFjKa/NoQFiYlCyzkLqyQlYmh5rE439HtZtx7bnPdxTz19Ol8zznP+zzPec73OZGZhmErhkJdnuCIOBQRO4cBb2EyM9VxVbUmMFr33szsr9QR0cR73MaLiBirG6Pfd3wZW3ADa3F94OCI2IUxTGXmGVzDaETsHygY54pOFr1Z9HTdQC01mgtvMIuRcrwKX/EBMZDmioiN2IHHmfkTMvMX7mIb9vQaq26pDxd92LE+XfTYoMBHiz7oWL+P+UGCj+ATXrcvZuYXzOBARDSWFBwR49iEe/n3WTqNETSXFIyLRa8scv4WEpd6DdjS5XNSZTGPp12uW4Cf6uGz/De4QGfxAwe7BNuN78UnaoFV5d+Ok7hTMp3D8R43mCa+lcxncB7rFgNfVW2Br8rTZps/w3jNkblPtZXOtcX5jJeqibY3CviJarYG3hV/i0eZ+bzXZum0iFiPsziBrdiMNbjwp9RY3c9Ar+toZKaFjBv42G9m/dhKVQNt+J9Qyhgbhi3D/+plB/4N/AgMj4ynRG0AAAAASUVORK5CYII=') no-repeat left center; /*images/plot_gaussian_peak.png*/
-    }
+#scoringFunctions .gaussianpeak {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGzSURBVEiJ5dbPi01xGMfx1yNG6i5IFsKQlUhJSmmkcclCJkk2tlbKRtn7J9QsrJQVFjKa/NoQFiYlCyzkLqyQlYmh5rE439HtZtx7bnPdxTz19Ol8zznP+zzPec73OZGZhmErhkJdnuCIOBQRO4cBb2EyM9VxVbUmMFr33szsr9QR0cR73MaLiBirG6Pfd3wZW3ADa3F94OCI2IUxTGXmGVzDaETsHygY54pOFr1Z9HTdQC01mgtvMIuRcrwKX/EBMZDmioiN2IHHmfkTMvMX7mIb9vQaq26pDxd92LE+XfTYoMBHiz7oWL+P+UGCj+ATXrcvZuYXzOBARDSWFBwR49iEe/n3WTqNETSXFIyLRa8scv4WEpd6DdjS5XNSZTGPp12uW4Cf6uGz/De4QGfxAwe7BNuN78UnaoFV5d+Ok7hTMp3D8R43mCa+lcxncB7rFgNfVW2Br8rTZps/w3jNkblPtZXOtcX5jJeqibY3CviJarYG3hV/i0eZ+bzXZum0iFiPsziBrdiMNbjwp9RY3c9Ar+toZKaFjBv42G9m/dhKVQNt+J9Qyhgbhi3D/+plB/4N/AgMj4ynRG0AAAAASUVORK5CYII=') no-repeat left center; /*images/plot_gaussian_peak.png*/
+}
 
-    #scoringFunctions .gaussianvalley {
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAHZSURBVEiJ5dY7aFVBEAbgbySaiCJEUfAtCL7AQrATEUHBiGBhpaWFlb1aWCh2KbQRLASxsdI04gtjpQHRLmCslEQCamFsFBQJY3E2cLnceO+R5KbID8Ny9vw7/86wO7ORmRYCSxZEdXEKR8ShiNjTbeHAOJ5iCH/wPjO/zKlIRC82YjM24LEifA/ZYFMYwVWsy0x1DctxGk8w3eT/SmPEj7Afu7ELO9CL3xjMzMs1IryEi1hVhEYwhkl8woOZiG+12HEfzuFjWXy9w0gHC/8rrmH7LLzWwg2EtXhXnJ1vI3qq8MawqQ3338KFtB4/MIGeWTiBUdUBbRllo3V0jzPzM+5gS4mqFQawF3cz80M7n3UKyI0ynp3l/4ky3u7EWcfCJYpRHIyIvhaUAXzH2zkVLniuup8HGicjYie2YTgzp+dDeLiMR5vmj5XxWaeO6gq/VJ3aI03zx1XXaH6EM/Mn3mBfRKyGiOjHYbzOzMl5ES4YKuvOlO+TWIr7dR2Na1NAmgrFGvxSVadleKFK89Y6TaSn7i4z81tEDKk6zxRW4FVmTtTx878vkAu4qSqTw6p018a4GqluSnu/WWp3O5vpxytVvbJr6MFDVevrKmKmN3Ybi/BdveiE/wKeRN5mRVmz9AAAAABJRU5ErkJggg==') no-repeat left center; /*images/plot_gaussian_valley.png
+#scoringFunctions .gaussianvalley {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAHZSURBVEiJ5dY7aFVBEAbgbySaiCJEUfAtCL7AQrATEUHBiGBhpaWFlb1aWCh2KbQRLASxsdI04gtjpQHRLmCslEQCamFsFBQJY3E2cLnceO+R5KbID8Ny9vw7/86wO7ORmRYCSxZEdXEKR8ShiNjTbeHAOJ5iCH/wPjO/zKlIRC82YjM24LEifA/ZYFMYwVWsy0x1DctxGk8w3eT/SmPEj7Afu7ELO9CL3xjMzMs1IryEi1hVhEYwhkl8woOZiG+12HEfzuFjWXy9w0gHC/8rrmH7LLzWwg2EtXhXnJ1vI3qq8MawqQ3338KFtB4/MIGeWTiBUdUBbRllo3V0jzPzM+5gS4mqFQawF3cz80M7n3UKyI0ynp3l/4ky3u7EWcfCJYpRHIyIvhaUAXzH2zkVLniuup8HGicjYie2YTgzp+dDeLiMR5vmj5XxWaeO6gq/VJ3aI03zx1XXaH6EM/Mn3mBfRKyGiOjHYbzOzMl5ES4YKuvOlO+TWIr7dR2Na1NAmgrFGvxSVadleKFK89Y6TaSn7i4z81tEDKk6zxRW4FVmTtTx878vkAu4qSqTw6p018a4GqluSnu/WWp3O5vpxytVvbJr6MFDVevrKmKmN3Ybi/BdveiE/wKeRN5mRVmz9AAAAABJRU5ErkJggg==') no-repeat left center; /*images/plot_gaussian_valley.png
         */
-    }
+}
 
-    #scoringFunctions .manual {
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAACxQAAAsUBidZ/7wAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFUSURBVDiNndQ/S5xBEMfxz3NRE0Q5FIIgQdFSg4KkESFF3kDQJqQIKXw3FjZ2FhbaCBZCCrUQO8FCAnZilAhpQqJWVv4bC/dCfHzO5+4GBnZnme/+doZZEaEVx2vsYPRRvEVYLw4Q+IvxloGoYj/Ban6BdxGhonm7wnku1oPtLMsmm1HWiSX04yW+5VQGNhuFvcJ2SjrCG7Rj7T/YHrobgXVgI6fkBIN4gZVU02ppU9CG9YKnBU4xjAq6S7ucbl+tA/tXsyd5dWAVLJfADtFXCkSGxRLYMfoLxRQAF0pgpxioW6ocbK4E9gtDzzUyPyk/UmKR/caHiPhZ5/zBkrIpTKf1V9zmlP3BSENDkCDzuMantP+c9uFhbscaHtEEOEnJN/iSYjNJ2USTv5G3uefdYjYddjUDqzXlY66sZ3ifZVk1Ii6fbUCBZdjFHbaSf4+a9hbsHlixj6qGJsHqAAAAAElFTkSuQmCC') /*images/pen_small.png*/ no-repeat left center; /*images/pen_small.png*/
-    }
+#scoringFunctions .manual {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAACxQAAAsUBidZ/7wAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFUSURBVDiNndQ/S5xBEMfxz3NRE0Q5FIIgQdFSg4KkESFF3kDQJqQIKXw3FjZ2FhbaCBZCCrUQO8FCAnZilAhpQqJWVv4bC/dCfHzO5+4GBnZnme/+doZZEaEVx2vsYPRRvEVYLw4Q+IvxloGoYj/Ban6BdxGhonm7wnku1oPtLMsmm1HWiSX04yW+5VQGNhuFvcJ2SjrCG7Rj7T/YHrobgXVgI6fkBIN4gZVU02ppU9CG9YKnBU4xjAq6S7ucbl+tA/tXsyd5dWAVLJfADtFXCkSGxRLYMfoLxRQAF0pgpxioW6ocbK4E9gtDzzUyPyk/UmKR/caHiPhZ5/zBkrIpTKf1V9zmlP3BSENDkCDzuMantP+c9uFhbscaHtEEOEnJN/iSYjNJ2USTv5G3uefdYjYddjUDqzXlY66sZ3ifZVk1Ii6fbUCBZdjFHbaSf4+a9hbsHlixj6qGJsHqAAAAAElFTkSuQmCC') /*images/pen_small.png*/ no-repeat left center; /*images/pen_small.png*/
+}
 
 .truncate {
     white-space: nowrap;
@@ -200,6 +200,14 @@
 
 .mcaIcon {
     overflow: hidden;
+    padding-left: 0;
+    padding-top: 30px;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAIlSURBVEiJzZa/axRBFMc/X+MdCQZFwYCVVyooWImCoL2FIir5B/wFFmmUlKKVnZ0BuwNBxU4s7QSxULQwjTYigqk0iMFwXr4We0Pm9mb3do/F+ODLzLx9M9+ZN++9HdlmK2R7SilJwK5I1bf9s0nibQX6e8D3CD8kXWiSWLaRdBU4CXiAM8COnO0n4GVkkwIVvr+x3Q2uPgbMj9nkBtAj81IKqqATMAN0k3dcIK9sX65hnxRJi1AQXAXSkXSe7OQB/dy4im4mJl4DVslcIWB20MZyguxKVIIq8hgA2yMgHUR3UrYF88PdTg0O1wLaA7RsZ1GdF0l7gdORah14Yrtf8VRjJUn8L6ROcCHpCnAwUr213Z2YWNJOYDfDRSC0oX8UWEps5gvwYczcuP1luxeCYZHyitMk5m3Xc3WBXANekHkvoJUbB3TCpCaIV2x/rGIo6QBwpCni+5LuAn8i9HLjgGngQUz8HPhGeVU6BFxPED8EPjNcvcrWeQ818ljSLPCUXDqRBct6pUXi9f7bAiJpjs2Xim2vNMI8ptgvMJqHt6r+LMoQnj4LwMUcwQZZQO3J7XUVeJ2wzW+wSHfb9nJwdQc4XtFJ02SRGX57UzX6+4A5YHmSPP5t++YE85B0KvQnIW5LusTmk6Zfo38YeBcTfyVzXz7Z95M9g4Y2DtxI2OafQEXfzgFjo3qJ0QB51FhUF4mkNnCWKI+BZ7bXyu6iimxZ5foLmBS7KXfgm40AAAAASUVORK5CYII=') /*images/sliders.png*/ no-repeat left center;
+}
+
+.heatmapIcon {
+    overflow: hidden;
+    background-color: red;
     padding-left: 0;
     padding-top: 30px;
     background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAIlSURBVEiJzZa/axRBFMc/X+MdCQZFwYCVVyooWImCoL2FIir5B/wFFmmUlKKVnZ0BuwNBxU4s7QSxULQwjTYigqk0iMFwXr4We0Pm9mb3do/F+ODLzLx9M9+ZN++9HdlmK2R7SilJwK5I1bf9s0nibQX6e8D3CD8kXWiSWLaRdBU4CXiAM8COnO0n4GVkkwIVvr+x3Q2uPgbMj9nkBtAj81IKqqATMAN0k3dcIK9sX65hnxRJi1AQXAXSkXSe7OQB/dy4im4mJl4DVslcIWB20MZyguxKVIIq8hgA2yMgHUR3UrYF88PdTg0O1wLaA7RsZ1GdF0l7gdORah14Yrtf8VRjJUn8L6ROcCHpCnAwUr213Z2YWNJOYDfDRSC0oX8UWEps5gvwYczcuP1luxeCYZHyitMk5m3Xc3WBXANekHkvoJUbB3TCpCaIV2x/rGIo6QBwpCni+5LuAn8i9HLjgGngQUz8HPhGeVU6BFxPED8EPjNcvcrWeQ818ljSLPCUXDqRBct6pUXi9f7bAiJpjs2Xim2vNMI8ptgvMJqHt6r+LMoQnj4LwMUcwQZZQO3J7XUVeJ2wzW+wSHfb9nJwdQc4XtFJ02SRGX57UzX6+4A5YHmSPP5t++YE85B0KvQnIW5LusTmk6Zfo38YeBcTfyVzXz7Z95M9g4Y2DtxI2OafQEXfzgFjo3qJ0QB51FhUF4mkNnCWKI+BZ7bXyu6iimxZ5foLmBS7KXfgm40AAAAASUVORK5CYII=') /*images/sliders.png*/ no-repeat left center;
@@ -506,9 +514,11 @@
     background: #d2d2d2;
     background: rgba(210, 210, 210, 0.3);
 }
+
 .ignoredCriteria {
     text-decoration: line-through;
 }
+
 .wide-tooltip .tooltip-inner {
     width: 400px;
     max-width: 400px;
@@ -517,48 +527,273 @@
 
 /* spinner */
 .spinner {
-  text-align: center;
-float: right;
-position: absolute;
-right: 5px;
-top: 0;
+    text-align: center;
+    float: right;
+    position: absolute;
+    right: 5px;
+    top: 0;
 }
 
-.spinner > div {
-  width: 6px;
-  height: 6px;
-  background-color: #333;
+    .spinner > div {
+        width: 6px;
+        height: 6px;
+        background-color: #333;
+        border-radius: 100%;
+        display: inline-block;
+        -webkit-animation: bouncedelay 1.4s infinite ease-in-out;
+        animation: bouncedelay 1.4s infinite ease-in-out;
+        /* Prevent first frame from flickering when animation starts */
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+    }
 
-  border-radius: 100%;
-  display: inline-block;
-  -webkit-animation: bouncedelay 1.4s infinite ease-in-out;
-  animation: bouncedelay 1.4s infinite ease-in-out;
-  /* Prevent first frame from flickering when animation starts */
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
-}
+    .spinner .bounce1 {
+        -webkit-animation-delay: -0.32s;
+        animation-delay: -0.32s;
+    }
 
-.spinner .bounce1 {
-  -webkit-animation-delay: -0.32s;
-  animation-delay: -0.32s;
-}
-
-.spinner .bounce2 {
-  -webkit-animation-delay: -0.16s;
-  animation-delay: -0.16s;
-}
+    .spinner .bounce2 {
+        -webkit-animation-delay: -0.16s;
+        animation-delay: -0.16s;
+    }
 
 @-webkit-keyframes bouncedelay {
-  0%, 80%, 100% { -webkit-transform: scale(0.0) }
-  40% { -webkit-transform: scale(1.0) }
+    0%, 80%, 100% {
+        -webkit-transform: scale(0.0);
+    }
+
+    40% {
+        -webkit-transform: scale(1.0);
+    }
 }
 
 @keyframes bouncedelay {
-  0%, 80%, 100% {
-    transform: scale(0.0);
-    -webkit-transform: scale(0.0);
-  } 40% {
-    transform: scale(1.0);
-    -webkit-transform: scale(1.0);
-  }
+    0%, 80%, 100% {
+        transform: scale(0.0);
+        -webkit-transform: scale(0.0);
+    }
+
+    40% {
+        transform: scale(1.0);
+        -webkit-transform: scale(1.0);
+    }
 }
+
+.accordionIcon {
+    width: 12px;
+    margin: 0 2px;
+}
+
+/* START CHART STYLE */
+.chart {
+    background: #eee;
+    padding: 3px;
+}
+
+    .chart div {
+        width: 0;
+        transition: all 1s ease-out;
+        -moz-transition: all 1s ease-out;
+        -webkit-transition: all 1s ease-out;
+    }
+
+    .chart div {
+        font: 10px sans-serif;
+        background-color: steelblue;
+        text-align: right;
+        padding: 3px;
+        margin: 5px;
+        color: white;
+        box-shadow: 2px 2px 2px #666;
+    }
+
+.sparkline {
+    fill: none;
+    stroke: #000;
+    stroke-width: 1px;
+}
+
+.sparkcircle-max {
+    fill: red;
+}
+
+.sparkcircle-min {
+    fill: green;
+}
+
+.sparkline-path {
+    stroke: steelblue;
+    stroke-width: 1;
+    fill: none;
+}
+.sparkline-axis path,
+.sparkline-axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+.sparkline-axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+/* END CHART STYLE */
+
+/* START TIMELINE STYLE */
+#timeline {
+    position: absolute;
+    bottom: 0;
+    /*height: 100px;*/
+    width: 100%;
+    background: white;
+}
+.callout.top::before {
+    left: 45%;
+    bottom: -20px;
+    border-top: 10px solid #444;
+}
+
+.callout::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border: 0.8em solid transparent;
+    position: absolute;
+}
+.focustimeButton {
+    margin: 3px;
+    cursor: pointer;
+}
+#focustimeContainer {
+    width: 150px;
+    cursor: e-resize;
+    height: 75px;
+    right: 200px;
+    /*bottom: 105px;*/
+    bottom: 45px;
+    color: white;
+    position: absolute;
+    z-index: 1000;
+    display: block;
+}
+.timelineControl {
+    background: black;
+    height: 23px;
+}
+.isPlaying {
+    background: gray;
+}
+.showControl {
+    height: 75px;
+}
+.focustimeText {
+    text-align: center;
+    background: #444;
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+    height: 52px;
+}
+.pinButton {
+    color: red;
+}
+.livebutton {
+    display: inline-block;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 4px;
+    margin-right: 0;
+    border: none;
+    font: 16px;
+    color: rgba(255,255,255,1);
+    text-decoration: normal;
+    text-align: center;
+    -o-text-overflow: clip;
+    text-overflow: clip;
+    white-space: pre;
+    cursor: pointer;
+    transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+}
+@keyframes flickerAnimation {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@-o-keyframes flickerAnimation {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@-moz-keyframes flickerAnimation {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 00.2;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes flickerAnimation {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.islivebutton {
+    display: inline-block;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 4px;
+    margin-right: 0;
+    border: none;
+    font: 16px;
+    color: rgba(255,255,255,1);
+    text-decoration: normal;
+    text-align: center;
+    -o-text-overflow: clip;
+    text-overflow: clip;
+    white-space: pre;
+    cursor: pointer;
+    text-shadow: 0 0 2.5px rgba(255,255,255,1), 0 0 5px rgba(255,255,255,1), 0 0 7.5px rgba(255,255,255,1), 0 0 10px #ff0000, 0 0 15px #ff0000, 0 0 20px #ff0000, 0 0 25px #ff0000;
+    -webkit-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+    -moz-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+    -o-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+    -webkit-animation: flickerAnimation 1s infinite;
+    -moz-animation: flickerAnimation 1s infinite;
+    -o-animation: flickerAnimation 1s infinite;
+    animation: flickerAnimation 1s infinite;
+    cursor: pointer;
+}
+/* END TIMELINE STYLE */
