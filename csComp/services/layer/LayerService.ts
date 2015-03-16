@@ -1024,7 +1024,7 @@
         openSolution(url: string, layers?: string, initialProject?: string): void {
 
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
-            
+
             $.getJSON(url, (solution : Solution) => {
                 //var projects = data;
                 if (solution.maxBounds) {
@@ -1096,17 +1096,16 @@
             this.clearLayers();
             this.featureTypes = {};
 
+            // load data
             $.getJSON(url,(data: Project) => {
 
+                // deserialize project, make sure all methods are working
                 this.project = new Project().deserialize(data);
 
-                if (!this.project.timeLine) {
-                    this.project.timeLine = new DateRange();
-                }
+                // initialize timeline
+                if (!this.project.timeLine) this.project.timeLine = new DateRange();
 
-                if (this.project.viewBounds) {
-                    this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
-                }
+                // init feature types
                 var featureTypes = this.project.featureTypes;
                 if (featureTypes) {
                     for (var typeName in featureTypes) {
@@ -1116,6 +1115,8 @@
                         this.featureTypes[typeName] = featureType;
                     }
                 }
+
+                // init property types
                 if (this.project.propertyTypeData) {
                     for (var key in this.project.propertyTypeData) {
                         var propertyType: IPropertyType = this.project.propertyTypeData[key];
@@ -1125,6 +1126,7 @@
                     }
                 }
 
+                // if there is no dashboard available, make a 'map' dashboard
                 if (!this.project.dashboards) {
                     this.project.dashboards = [];
                     var d = new Services.Dashboard();
@@ -1133,63 +1135,91 @@
                     this.project.dashboards.push(d);
                 }
 
+                // init datasets (not being used now)
+                if (!this.project.dataSets) this.project.dataSets = [];
 
-                if (!this.project.dataSets)
-                    this.project.dataSets = [];
-
+                // init features collection
                 this.project.features = [];
 
+                // init groups
                 this.project.groups.forEach((group: ProjectGroup) => {
+                    // make sure group has an id
                     if (group.id == null) group.id = Helpers.getGuid();
+
+                    // init cross filter and styles
                     group.ndx = crossfilter([]);
-                    if (group.styles == null) group.styles = [];
                     if (group.filters == null) group.filters = [];
+                    if (group.styles == null) group.styles = [];
+
+                    // init marker collection (used for referencing all markers)
                     group.markers = {};
+
+                    // set title, description in right language
                     if (group.languages != null && this.currentLocale in group.languages) {
                         var locale = group.languages[this.currentLocale];
                         if (locale.title      ) group.title       = locale.title;
                         if (locale.description) group.description = locale.description;
                     }
+
+                    // add leaflet layer (each group has it's own layer)
+                    // for clustering use a cluster layer
                     if (group.clustering) {
                         group.cluster = new L.MarkerClusterGroup({
                             maxClusterRadius: group.maxClusterRadius || 80,
                             disableClusteringAtZoom: group.clusterLevel || 0
                         });
-
                         this.map.map.addLayer(group.cluster);
                     } else {
                         group.vectors = new L.LayerGroup<L.ILayer>();
                         this.map.map.addLayer(group.vectors);
                     }
+
+                    //init each layer
                     group.layers.forEach((layer: ProjectLayer) => {
+                        // make sure it has an id, reference and title
                         if (layer.id == null) layer.id = Helpers.getGuid();
                         if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
                         if (layer.title == null) layer.title = layer.id;
+
+                        // set title/description in right language
                         if (layer.languages != null && this.currentLocale in layer.languages) {
                             var locale = layer.languages[this.currentLocale];
                             if (locale.title      ) layer.title       = locale.title;
                             if (locale.description) layer.description = locale.description;
                         }
+
+                        // reference to parent group
                         layer.group = group;
+
+                        // if enabled by default, enable it right now
                         if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
                             layer.enabled = true;
                             this.enableLayer(layer);
                         }
                     });
 
+                    // init styles
                     group.styles.forEach((style: GroupStyle) => {
                         if (style.id != null) style.id = Helpers.getGuid();
                     });
 
+                    // init filters
                     group.filters.forEach((filter: GroupFilter) => {
                         if (filter.id != null) filter.id = Helpers.getGuid();
                     });
 
+                    // go to startposition
                     if (data.startposition)
                         this.$mapService.zoomToLocation(new L.LatLng(data.startposition.latitude, data.startposition.longitude));
 
+                    // make sure the filters are applied
                     this.updateFilters();
                 });
+
+                // set viewbounds
+                if (this.project.viewBounds) {
+                    this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
+                }
 
                 this.$messageBusService.publish('project', 'loaded');
                 this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
