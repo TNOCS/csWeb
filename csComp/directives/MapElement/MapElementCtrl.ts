@@ -1,11 +1,14 @@
 ﻿module MapElement {
     declare var links;
+    declare var Cesium;
 
     export interface IMapElementScope extends ng.IScope {
         vm            : MapElementCtrl;
         mapid         : string;
         initMap       : Function;
     }
+
+
 
     export class MapElementCtrl {
         private scope: IMapElementScope;
@@ -42,14 +45,8 @@
         }
         public initMap()
         {
-            //alert('init map ' + this.$scope.mapid);
-            var a = $("#mapleft");
+          
 
-            this.$mapService.map = L.map("map", {
-            //var tl  = L.map("mapleft", {
-                zoomControl: false,
-                attributionControl: true
-            });
 
           //alert(this.$scope.mapId);
         }

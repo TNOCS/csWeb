@@ -18,27 +18,14 @@
       init(service : LayerService);
       enable();
       disable();
+      addGroup(group : ProjectGroup);
+      removeGroup(group : ProjectGroup);
+      addFeature(feature : IFeature);
+      removeFeature(feature : IFeature);
+      updateFeature(feature : IFeature);
     }
 
-    export class LeafletRenderer implements IMapRenderer
-    {
 
-      title = "Leaflet";
-      service : LayerService;
-
-      public init(service : LayerService){
-        this.service = service;
-      }
-
-      public enable()
-      {
-        alert('enable leaflet');
-      }
-      public disable()
-      {
-
-      }
-    }
 
 
     export interface ILayerService {
@@ -113,11 +100,15 @@
             // init map renderers
             this.mapRenderers = {};
 
-            // add leaflet renderer
+            // add renderers
             this.mapRenderers["leaflet"] = new LeafletRenderer();
             this.mapRenderers["leaflet"].init(this);
-            //this.mapRenderers["leaflet"].enable();
 
+            this.mapRenderers["cesium"] = new CesiumRenderer();
+            this.mapRenderers["cesium"].init(this);
+
+            this.selectRenderer("leaflet");
+            //this.mapRenderers["leaflet"].enable();
 
             // init layer sources
             this.layerSources = {};
@@ -151,7 +142,20 @@
                 }
             });
 
+        }
 
+        public selectRenderer(renderer : string)
+        {
+
+          if (this.activeMapRenderer && this.activeMapRenderer.title == renderer) return;
+
+          if (this.activeMapRenderer) this.activeMapRenderer.disable();
+
+          if (this.mapRenderers.hasOwnProperty(renderer))
+          {
+            this.activeMapRenderer = this.mapRenderers[renderer];
+            this.activeMapRenderer.enable();
+          }
         }
 
         public selectDashboard(dashboard: csComp.Services.Dashboard, container : string) {
@@ -1215,6 +1219,7 @@
                     // make sure the filters are applied
                     this.updateFilters();
                 });
+
 
                 // set viewbounds
                 if (this.project.viewBounds) {
