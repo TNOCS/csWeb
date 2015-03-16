@@ -1215,7 +1215,7 @@
                         group.vectors = new L.LayerGroup<L.ILayer>();
                         this.map.map.addLayer(group.vectors);
                     }
-                    group.layers.forEach((layer: ProjectLayer) => {
+                    group.layers.forEach((layer: ProjectLayer) => { 
                         if (layer.id == null) layer.id = Helpers.getGuid();
                         if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
                         if (layer.title == null) layer.title = layer.id;

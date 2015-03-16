@@ -1,3 +1,7 @@
+'use strict';
+/**
+* Offline Search Result contains the result of performing a scan of all the project layer files.
+*/
 var CsServerComp;
 (function (CsServerComp) {
     var Greeter = (function () {

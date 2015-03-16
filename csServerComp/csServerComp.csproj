@@ -56,7 +56,14 @@
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="OfflineSearch\OfflineSearcher.ts" />
+    <TypeScriptCompile Include="OfflineSearch\OfflineSearchManager.ts" />
+    <TypeScriptCompile Include="OfflineSearch\OfflineSearchResult.ts" />
+    <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
     <TypeScriptCompile Include="test.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="OfflineSearch\readme.md" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <PropertyGroup>
