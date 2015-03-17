@@ -158,11 +158,11 @@
                 this.$layerService.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
                     g.layers.forEach((l: csComp.Services.ProjectLayer) => {
                         if (l.enabled && db.visiblelayers.indexOf(l.reference) == -1) {
-                            this.$layerService.disableLayer(l);
+                            this.$layerService.removeLayer(l);
                             l.enabled = false;
                         }
                         if (!l.enabled && db.visiblelayers.indexOf(l.reference) >= 0) {
-                            this.$layerService.enableLayer(l);
+                            this.$layerService.addLayer(l);
                             l.enabled = true;
                         }
                     });

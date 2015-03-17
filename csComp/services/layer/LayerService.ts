@@ -5,28 +5,26 @@
     declare var omnivore;
 
     export interface ILayerSource
-    {
-      title : string;
-      init(service : LayerService);
-      addLayer(layer : ProjectLayer, callback : Function);
-      removeLayer(layer : ProjectLayer) : void;
-    }
+{
+  title : string;
+  init(service : LayerService);
+  addLayer(layer : ProjectLayer, callback : Function);
+  removeLayer(layer : ProjectLayer) : void;
+}
 
-    export interface IMapRenderer
-    {
-      title : string;
-      init(service : LayerService);
-      enable();
-      disable();
-      addGroup(group : ProjectGroup);
-      addLayer(layer : ProjectLayer);
-      removeGroup(group : ProjectGroup);
-      addFeature(feature : IFeature);
-      removeFeature(feature : IFeature);
-      updateFeature(feature : IFeature);
-    }
-
-
+export interface IMapRenderer
+{
+  title : string;
+  init(service : LayerService);
+  enable();
+  disable();
+  addGroup(group : ProjectGroup);
+  addLayer(layer : ProjectLayer);
+  removeGroup(group : ProjectGroup);
+  addFeature(feature : IFeature);
+  removeFeature(feature : IFeature);
+  updateFeature(feature : IFeature);
+}
 
 
     export interface ILayerService {
@@ -35,15 +33,16 @@
         solution             : Solution;
         project              : Project;
         maxBounds            : IBoundingBox;
-        findLayer(id         : string): ProjectLayer;
+        findLayer(id: string): ProjectLayer;
         selectFeature(feature: Services.IFeature);
+        currentLocale        : string;
+
         mb              : Services.MessageBusService;
         map             : Services.MapService;
         layerGroup      : L.LayerGroup<L.ILayer>;
         featureTypes    : { [key: string]: Services.IFeatureType; };
         propertyTypeData: { [key: string]: Services.IPropertyType; };
         timeline        : any;
-        layerSources : { [ key : string] : ILayerSource;};
     }
 
     export class LayerService implements ILayerService {
@@ -63,29 +62,29 @@
         lastSelectedFeature : IFeature;
         selectedLayerId     : string;
         timeline            : any;
+        currentLocale       : string;
+        loadedLayers   =  new csComp.Helpers.Dictionary<L.ILayer>();
+        layerGroup    = new L.LayerGroup<L.ILayer>();
+        info          = new L.Control();
         layerSources   : {[ key : string] : ILayerSource};   // list of available layer sources
         mapRenderers  : {[ key : string] : IMapRenderer};    // list of available map renderers
         activeMapRenderer : IMapRenderer;                    // active map renderer
-        layerGroup    = new L.LayerGroup<L.ILayer>();
-        info          = new L.Control();
-        currentLocale = 'en';
+
 
         static $inject = [
             '$location',
             '$translate',
             'messageBusService',
             'mapService',
-            '$rootScope',
-            '$compile'
+            '$rootScope'
         ];
 
         constructor(
             private $location          : ng.ILocationService,
-            public $translate         : ng.translate.ITranslateService,
+            private $translate         : ng.translate.ITranslateService,
             public $messageBusService : Services.MessageBusService,
             public $mapService        : Services.MapService,
-            public $rootScope : any,
-            public $compile : any) {
+            public $rootScope : any) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb               = $messageBusService;
@@ -99,30 +98,32 @@
             this.noStyles = true;
 
             // init map renderers
-            this.mapRenderers = {};
+this.mapRenderers = {};
 
-            // add renderers
-            this.mapRenderers["leaflet"] = new LeafletRenderer();
-            this.mapRenderers["leaflet"].init(this);
+// add renderers
+this.mapRenderers["leaflet"] = new LeafletRenderer();
+this.mapRenderers["leaflet"].init(this);
 
-            this.mapRenderers["cesium"] = new CesiumRenderer();
-            this.mapRenderers["cesium"].init(this);
+this.mapRenderers["cesium"] = new CesiumRenderer();
+this.mapRenderers["cesium"].init(this);
 
-            this.selectRenderer("leaflet");
-            //this.mapRenderers["leaflet"].enable();
+this.selectRenderer("leaflet");
+//this.mapRenderers["leaflet"].enable();
 
-            // init layer sources
-            this.layerSources = {};
+// init layer sources
+this.layerSources = {};
 
-            // add a topo/geojson source
-            var geojsonsource = new GeoJsonSource();
-            geojsonsource.init(this);
-            this.layerSources["geojson"] = geojsonsource;
-            this.layerSources["topojson"] = geojsonsource;
+// add a topo/geojson source
+var geojsonsource = new GeoJsonSource();
+geojsonsource.init(this);
+this.layerSources["geojson"] = geojsonsource;
+this.layerSources["topojson"] = geojsonsource;
 
-            // add wms source
-            this.layerSources["wms"] = new WmsSource();
-            this.layerSources["wms"].init(this);
+// add wms source
+this.layerSources["wms"] = new WmsSource();
+this.layerSources["wms"].init(this);
+
+
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
@@ -131,7 +132,6 @@
                         break;
                 }
             });
-
 
             $messageBusService.subscribe('language', (title: string, language: string) => {
                 switch (title) {
@@ -142,22 +142,22 @@
                         break;
                 }
             });
-
         }
 
         public selectRenderer(renderer : string)
-        {
+{
 
-          if (this.activeMapRenderer && this.activeMapRenderer.title == renderer) return;
+  if (this.activeMapRenderer && this.activeMapRenderer.title == renderer) return;
 
-          if (this.activeMapRenderer) this.activeMapRenderer.disable();
+  if (this.activeMapRenderer) this.activeMapRenderer.disable();
 
-          if (this.mapRenderers.hasOwnProperty(renderer))
-          {
-            this.activeMapRenderer = this.mapRenderers[renderer];
-            this.activeMapRenderer.enable();
-          }
-        }
+  if (this.mapRenderers.hasOwnProperty(renderer))
+  {
+    this.activeMapRenderer = this.mapRenderers[renderer];
+    this.activeMapRenderer.enable();
+  }
+}
+
 
         public selectDashboard(dashboard: csComp.Services.Dashboard, container : string) {
            this.project.activeDashboard = dashboard;
@@ -165,7 +165,7 @@
         }
 
         public updateSensorData() {
-            if (this.project == null || this.project.timeLine == null) return;
+            if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
 
             var date = this.project.timeLine.focus;
             var timepos = {};
@@ -174,22 +174,20 @@
                 var l = this.findLayer(f.layerId);
 
                 if (l != null) {
-                    if (f.sensors || f.coordinates)
-                    {
+                    if (f.sensors || f.coordinates) {
                         var getIndex = (d: Number, timestamps: Number[]) => {
                             for (var i = 1; i < timestamps.length; i++) {
                                 if (timestamps[i] > d) {
                                     return i;
                                 }
                             }
-                            return timestamps.length-1;
+                            return timestamps.length - 1;
                         }
                         var pos = 0;
                         if (f.timestamps) // check if feature contains timestamps
                         {
                             pos = getIndex(date, f.timestamps);
                         } else if (l.timestamps) {
-
                             if (timepos.hasOwnProperty(f.layerId)) {
                                 pos = timepos[f.layerId];
                             }
@@ -197,15 +195,13 @@
                                 pos = getIndex(date, l.timestamps);
                                 timepos[f.layerId] = pos;
                             }
-
                         }
 
                         // check if a new coordinate is avaiable
-                        if (f.coordinates && f.coordinates.length>pos && f.coordinates[pos] != f.geometry.coordinates) {
+                        if (f.coordinates && f.coordinates.length > pos && f.coordinates[pos] != f.geometry.coordinates) {
                             f.geometry.coordinates = f.coordinates[pos];
                             // get marker
-                            if (l.group.markers.hasOwnProperty(f.id))
-                            {
+                            if (l.group.markers.hasOwnProperty(f.id)) {
                                 var m = l.group.markers[f.id]
                                 // update position
                                 m.setLatLng(new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]));
@@ -218,84 +214,188 @@
                                 f.properties[sensorTitle] = value;
                             }
                             this.updateFeatureIcon(f, l);
+                            if (f.isSelected) this.$messageBusService.publish("feature", "onFeatureUpdated", f);
                         }
                     }
                 }
-                }
-            );
-            this.$messageBusService.publish("feature", "onFeatureUpdated");
+            });
         }
 
         /**
          * Add a layer
          */
-        enableLayer(layer : ProjectLayer) {
+        addLayer(layer : ProjectLayer) {
             var disableLayers = [];
-            async.series([
-              (callback)=>
-              {
-                // check if in this group only one layer can be active
-                // make sure all existising active layers are disabled
-                if (layer.group.oneLayerActive) {
-                    layer.group.layers.forEach((l: ProjectLayer) => {
-                        if (l !== layer && l.enabled) {
-                            disableLayers.push(l);
-                        }
-                    });
-                  }
-                callback(null,null);
-              },
-              (callback)=>
-              {
-                // find layer source, and activate layer
-                var layerSource = layer.type.toLowerCase();
-                if (this.layerSources.hasOwnProperty(layerSource))
-                {
-                  async.series([
-                    (cb)=> {
-                      // load layer from source
-                      this.layerSources[layerSource].addLayer(layer,(l)=>
-                      {
-                        this.activeMapRenderer.addLayer(layer);
-                      }); cb(null,null);
-                    },
-                    (cb)=> {
-                      // update sensor data & filters
-                      this.updateSensorData();
-                      this.$messageBusService.publish('layer', 'activated', layer);
-                      this.updateFilters();
-                      cb(null,null);
-                    }]);
-                }
-                callback(null,null);
-              },
-              (callback)=>
-              {
-                // now remove the layers that need to be disabled
-                disableLayers.forEach((l) => {
-                    this.disableLayer(l);
-                    l.enabled = false;
+            switch (layer.type.toLowerCase()) {
+            case 'wms':
+                var wms        : any = L.tileLayer.wms(layer.url, {
+                    layers     : layer.wmsLayers,
+                    opacity    : layer.opacity/100,
+                    format     : 'image/png',
+                    transparent: true,
+                    attribution: layer.description
                 });
-                callback(null,null);
+                layer.mapLayer = new L.LayerGroup<L.ILayer>();
+                this.map.map.addLayer(layer.mapLayer);
+                layer.mapLayer.addLayer(wms);
+                wms.on('loading',  (event) => {
+                    layer.isLoading = true;
+                    this.$rootScope.$apply();
+                    if (this.$rootScope.$$phase != '$apply' && this.$rootScope.$$phase != '$digest') { this.$rootScope.$apply(); }
+                });
+                wms.on('load', (event) => {
+                    layer.isLoading = false;
+                    if (!layer.id) layer.id = Helpers.getGuid();
+                    //this.loadedLayers[layer.]
+                    this.loadedLayers.add(layer.id, layer);
+                    if (this.$rootScope.$$phase != '$apply' && this.$rootScope.$$phase != '$digest') { this.$rootScope.$apply(); }
+                });
+                layer.isLoading = true;
+                //this.$rootScope.$apply();
+                break;
+            case 'topojson':
+            case 'geojson':
+                async.series([
+                    (callback) => {
+                        // If oneLayerActive: close other group layer
+                        if (layer.group.oneLayerActive) {
+                            layer.group.layers.forEach((l: ProjectLayer) => {
+                                if (l !== layer && l.enabled) {
+                                    disableLayers.push(l);
+                                }
+                            });
+                        }
+                        callback(null, null);
+                    },
+                    (callback) => {
+                        // Open a style file
+                        if (layer.styleurl) {
+                            d3.json(layer.styleurl, (err, dta) => {
 
-              }
-            ]);
+                                if (err)
+                                    this.$messageBusService.notify('ERROR loading' + layer.title, err);
+                                else {
+                                    if (dta.featureTypes)
+                                        for (var featureTypeName in dta.featureTypes) {
+                                            if (!dta.featureTypes.hasOwnProperty(featureTypeName)) continue;
+                                            var featureType: IFeatureType = dta.featureTypes[featureTypeName];
+                                            featureTypeName = layer.id + '_' + featureTypeName;
+                                            this.featureTypes[featureTypeName] = featureType;
+                                        }
+                                }
+                                callback(null, null);
+                            });
+                        } else
+                            callback(null, null);
+                    },
+                    (callback) => {
+                        // Open a layer URL
+                        layer.isLoading = true;
+                        d3.json(layer.url, (error, data) => {
+                            layer.isLoading = false;
+                            if (error)
+                                this.$messageBusService.notify('ERROR loading' + layer.title, error);
+                            else {
+                                if (!layer.id) layer.id = Helpers.getGuid();
+                                this.loadedLayers.add(layer.id, layer);
+                                if (layer.type.toLowerCase() === 'topojson')
+                                    data = csComp.Helpers.convertTopoToGeoJson(data);
+                                if (data.events && this.timeline) {
+                                    layer.events = data.events;
+                                    var devents = [];
+                                    layer.events.forEach((e: Event) => {
+                                        if (!e.id) e.id = Helpers.getGuid();
+                                        devents.push({
+                                            'start': new Date(e.start),
+                                            'content': e.title
+                                        });
+                                    });
+                                    this.timeline.draw(devents);
+                                }
+                                for (var featureTypeName in data.featureTypes) {
+                                    if (!data.featureTypes.hasOwnProperty(featureTypeName)) continue;
+                                    var featureType: IFeatureType = data.featureTypes[featureTypeName];
+                                    featureTypeName = layer.id + '_' + featureTypeName;
+                                    this.featureTypes[featureTypeName] = featureType;
+                                    //var pt = "." + featureTypeName;
+                                    //var icon = featureType.style.iconUri;
+                                    var t = '{".style' + featureTypeName + '":';
+                                    if (featureType.style.iconUri != null) {
+                                        t += ' { "background": "url(' + featureType.style.iconUri + ') no-repeat right center",';
+                                    };
+                                    t += ' "background-size": "100% 100%","border-style": "none"} }';
+                                    var json = $.parseJSON(t);
+                                    (<any>$).injectCSS(json);
+
+                                    //console.log(JSON.stringify(poiType, null, 2));
+                                }
+                                if (data.timestamps) layer.timestamps = data.timestamps;
+                                if (layer.group.clustering) {
+                                    var markers = L.geoJson(data, {
+                                        pointToLayer: (feature, latlng) => this.addFeature(feature, latlng, layer),
+                                        onEachFeature: (feature: IFeature, lay) => {
+                                            //We do not need to init the feature here: already done in style.
+                                            //this.initFeature(feature, layer);
+                                            layer.group.markers[feature.id] = lay;
+                                            lay.on({
+                                                mouseover: (a) => this.showFeatureTooltip(a, layer.group),
+                                                mouseout: (s) => this.hideFeatureTooltip(s)
+                                            });
+                                        }
+                                    });
+                                    layer.group.cluster.addLayer(markers);
+                                } else {
+                                    layer.mapLayer = new L.LayerGroup<L.ILayer>();
+                                    this.map.map.addLayer(layer.mapLayer);
+
+                                    var v = L.geoJson(data, {
+                                        onEachFeature : (feature: IFeature, lay) => {
+                                            //We do not need to init the feature here: already done in style.
+                                            //this.initFeature(feature, layer);
+                                            layer.group.markers[feature.id] = lay;
+                                            lay.on({
+                                                mouseover : (a) => this.showFeatureTooltip(a, layer.group),
+                                                mouseout  : (s) => this.hideFeatureTooltip(s),
+                                                mousemove : (d) => this.updateFeatureTooltip(d),
+                                                click     : ()  => this.selectFeature(feature)
+                                            });
+                                        },
+                                        style: (f: IFeature, m) => {
+
+                                            this.initFeature(f, layer);
+                                            //this.updateSensorData();
+                                            layer.group.markers[f.id] = m;
+                                            return this.style(f, layer);
+                                        },
+                                        pointToLayer : (feature, latlng) => this.addFeature(feature, latlng, layer)
+                                    });
+                                    this.project.features.forEach((f: IFeature) => {
+                                        if (f.layerId !== layer.id) return;
+                                        var ft = this.getFeatureType(f);
+                                        f.properties['Name'] = f.properties[ft.style.nameLabel];
+                                    });
+                                    layer.mapLayer.addLayer(v);
+                                }
+                          }
+                            this.updateSensorData();
+                            this.$messageBusService.publish('layer', 'activated', layer);
+
+                            callback(null, null);
+                            this.updateFilters();
+                        });
+                    },
+                    // Callback
+                    () => {
+                        disableLayers.forEach((l) => {
+                            this.removeLayer(l);
+                            l.enabled = false;
+                        });
+                    }
+                ]);
+            }
         }
 
-        /**
-        * Convert topojson data to geojson data.
-        */
-        public convertTopoToGeoJson(data) : {} {
-            // Convert topojson to geojson format
-            var topo = omnivore.topojson.parse(data);
-            var newData: any = {};
-            newData.featureTypes = data.featureTypes;
-            newData.features = [];
-            topo.eachLayer((l) => {
-                newData.features.push(l.feature);
-            });
-            return newData;
-        }
+
 
         /***
          * get list of properties that are part of the filter collection
@@ -417,17 +517,17 @@
             this.updateGroupFeatures(g);
         }
 
-        public updateStyle(style: GroupStyle) {
+        updateStyle(style: GroupStyle) {
             //console.log('update style ' + style.title);
             if (style == null) return;
             if (style.group != null) {
-                    style.info = this.calculatePropertyInfo(style.group, style.property);
+                style.info = this.calculatePropertyInfo(style.group, style.property);
                 style.canSelectColor = style.visualAspect.toLowerCase().indexOf('color') > -1;
                 this.updateGroupFeatures(style.group);
             }
         }
 
-        public updateFeature(feature: IFeature, group?: ProjectGroup) {
+        updateFeature(feature: IFeature, group?: ProjectGroup) {
             var layer = this.findLayer(feature.layerId);
             if (layer == null) return;
             if (feature.geometry.type === 'Point') {
@@ -446,7 +546,7 @@
         private updateGroupFeatures(group : ProjectGroup) {
             this.project.features.forEach((f: IFeature) => {
                 if (group.markers.hasOwnProperty(f.id)) {
-                    this.updateFeature(f,group);
+                    this.updateFeature(f, group);
                 }
             });
         }
@@ -477,7 +577,7 @@
             return defaultColor;
         }
 
-        public style(feature: IFeature, layer: ProjectLayer) {
+        style(feature: IFeature, layer: ProjectLayer) {
             var s = {
                 fillColor   : 'red',
                 weight      : 2,
@@ -488,9 +588,9 @@
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
-                if (ft.style.fillColor   != null) s['fillColor']   = this.getColorString(ft.style.fillColor);
-                if (ft.style.strokeColor != null) s['strokeColor'] = this.getColorString(ft.style.strokeColor, '#000');
-                if (ft.style.strokeWidth != null) s['weight']      = ft.style.strokeWidth;
+                if (ft.style.fillColor   != null) s['fillColor'] = this.getColorString(ft.style.fillColor);
+                if (ft.style.strokeColor != null) s['color']     = this.getColorString(ft.style.strokeColor, '#fff');
+                if (ft.style.strokeWidth != null) s['weight']    = ft.style.strokeWidth;
             }
 
             //var layer = this.findLayer(feature.layerId);
@@ -515,8 +615,8 @@
             });
 
             if (feature.isSelected) {
-                s['weight'] = 7;
-                s['color'] = 'blue';
+                s['weight'] = 5;
+                s['color'] = 'black';
             }
             return s;
         }
@@ -672,16 +772,25 @@
         /**
          * Update icon for features
          */
-        updateFeatureIcon(feature: IFeature, layer: ProjectLayer): any {
-            var marker = <L.Marker>layer.group.markers[feature.id];
-            if (marker!=null) marker.setIcon(this.getPointIcon(feature,layer));
+        updateFeatureIcon(feature: IFeature, layer: ProjectLayer) {
+            var geomType = feature.geometry.type.toLowerCase();
+            switch (geomType)
+            {
+                case "point":
+                   var marker = <L.Marker>layer.group.markers[feature.id];
+                   if (marker != null) marker.setIcon(this.getPointIcon(feature, layer));
+                   break;
+                case "polygon":
+                case "multipolygon":
+                    this.updateFeature(feature);
+                    break;
+            }
         }
 
         /**
          * add a feature
          */
-        public addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {
-
+        addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {
             this.initFeature(feature,layer);
             //var style = type.style;
             var marker;
@@ -706,7 +815,7 @@
             return marker;
         }
 
-        public selectFeature(feature: IFeature) {
+        selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
             this.updateFeature(feature);
@@ -731,7 +840,7 @@
         /**
          * find a filter for a specific group/property combination
          */
-         public findFilter(group: ProjectGroup, property: string): GroupFilter {
+        private findFilter(group: ProjectGroup, property: string): GroupFilter {
             if (group.filters == null) group.filters = [];
             var r = group.filters.filter((f: GroupFilter) => f.property === property);
             if (r.length > 0) return r[0];
@@ -739,9 +848,18 @@
         }
 
         /**
-         * find a layer with a specific id
+         * Find a layer with a specific id
          */
-        public findLayer(id: string): ProjectLayer {
+        findLayer(id: string): ProjectLayer {
+            if (this.loadedLayers.containsKey(id)) return this.loadedLayers[id];
+            return null;
+            //var r: ProjectLayer;
+            //this.project.groups.forEach(g => {
+            //    g.layers.forEach(l => {
+            //        if (l.id === id) r = l;
+            //    });
+            //});
+            //return r;
             var r: ProjectLayer;
             this.project.groups.forEach(g => {
                 g.layers.forEach(l => {
@@ -982,15 +1100,11 @@
         /**
          * deactivate layer
          */
-        disableLayer(layer: ProjectLayer) {
+        removeLayer(layer: ProjectLayer) {
             var m: any;
             var g = layer.group;
 
-            var layerSource = layer.type.toLowerCase();
-            if (this.layerSources.hasOwnProperty(layerSource))
-            {
-              this.layerSources[layerSource].removeLayer(layer);
-            }
+            this.loadedLayers.remove(layer.id);
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
@@ -1041,8 +1155,8 @@
          * @params initialProject: Optionally provide a project name that should be loaded, if omitted the first project in the definition will be loaded
          */
         openSolution(url: string, layers?: string, initialProject?: string): void {
-
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
+            this.loadedLayers.clear();
 
             $.getJSON(url, (solution : Solution) => {
                 //var projects = data;
@@ -1092,7 +1206,7 @@
             this.project.groups.forEach((group) => {
                 group.layers.forEach((layer: ProjectLayer) => {
                     if (layer.enabled) {
-                        this.disableLayer(layer);
+                        this.removeLayer(layer);
                         layer.enabled = false;
                     }
                 });
@@ -1115,16 +1229,20 @@
             this.clearLayers();
             this.featureTypes = {};
 
-            // load data
             $.getJSON(url,(data: Project) => {
-
-                // deserialize project, make sure all methods are working
                 this.project = new Project().deserialize(data);
 
-                // initialize timeline
-                if (!this.project.timeLine) this.project.timeLine = new DateRange();
+                if (!this.project.timeLine) {
+                    this.project.timeLine = new DateRange();
+                }
+                else {
+                    // Set range
+                    this.$messageBusService.publish('timeline', 'updateTimerange', this.project.timeLine);
+                }
 
-                // init feature types
+                if (this.project.viewBounds) {
+                    this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
+                }
                 var featureTypes = this.project.featureTypes;
                 if (featureTypes) {
                     for (var typeName in featureTypes) {
@@ -1134,8 +1252,6 @@
                         this.featureTypes[typeName] = featureType;
                     }
                 }
-
-                // init property types
                 if (this.project.propertyTypeData) {
                     for (var key in this.project.propertyTypeData) {
                         var propertyType: IPropertyType = this.project.propertyTypeData[key];
@@ -1145,7 +1261,6 @@
                     }
                 }
 
-                // if there is no dashboard available, make a 'map' dashboard
                 if (!this.project.dashboards) {
                     this.project.dashboards = [];
                     var d = new Services.Dashboard();
@@ -1154,85 +1269,65 @@
                     this.project.dashboards.push(d);
                 }
 
-                // init datasets (not being used now)
-                if (!this.project.dataSets) this.project.dataSets = [];
 
-                // init features collection
+                if (!this.project.dataSets)
+                    this.project.dataSets = [];
+
                 this.project.features = [];
 
-                // init groups
                 this.project.groups.forEach((group: ProjectGroup) => {
-                    // make sure group has an id
                     if (group.id == null) group.id = Helpers.getGuid();
-
-                    // init cross filter and styles
                     group.ndx = crossfilter([]);
-                    if (group.filters == null) group.filters = [];
                     if (group.styles == null) group.styles = [];
-
-                    // init marker collection (used for referencing all markers)
+                    if (group.filters == null) group.filters = [];
                     group.markers = {};
-
-                    // set title, description in right language
                     if (group.languages != null && this.currentLocale in group.languages) {
                         var locale = group.languages[this.currentLocale];
                         if (locale.title      ) group.title       = locale.title;
                         if (locale.description) group.description = locale.description;
                     }
+                    if (group.clustering) {
+                        group.cluster = new L.MarkerClusterGroup({
+                            maxClusterRadius: group.maxClusterRadius || 80,
+                            disableClusteringAtZoom: group.clusterLevel || 0
+                        });
 
-                    // add leaflet layer (each group has it's own layer)
-                    this.activeMapRenderer.addGroup(group);
-
-
-                    //init each layer
+                        this.map.map.addLayer(group.cluster);
+                    } else {
+                        group.vectors = new L.LayerGroup<L.ILayer>();
+                        this.map.map.addLayer(group.vectors);
+                    }
                     group.layers.forEach((layer: ProjectLayer) => {
-                        // make sure it has an id, reference and title
                         if (layer.id == null) layer.id = Helpers.getGuid();
                         if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
                         if (layer.title == null) layer.title = layer.id;
-
-                        // set title/description in right language
                         if (layer.languages != null && this.currentLocale in layer.languages) {
                             var locale = layer.languages[this.currentLocale];
                             if (locale.title      ) layer.title       = locale.title;
                             if (locale.description) layer.description = locale.description;
                         }
-
-                        // reference to parent group
                         layer.group = group;
-
-                        // if enabled by default, enable it right now
                         if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
                             layer.enabled = true;
-                            this.enableLayer(layer);
+                            this.addLayer(layer);
                         }
                     });
 
-                    // init styles
                     group.styles.forEach((style: GroupStyle) => {
                         if (style.id != null) style.id = Helpers.getGuid();
                     });
 
-                    // init filters
                     group.filters.forEach((filter: GroupFilter) => {
                         if (filter.id != null) filter.id = Helpers.getGuid();
                     });
 
-                    // go to startposition
                     if (data.startposition)
                         this.$mapService.zoomToLocation(new L.LatLng(data.startposition.latitude, data.startposition.longitude));
 
-                    // make sure the filters are applied
                     this.updateFilters();
                 });
 
-
-                // set viewbounds
-                if (this.project.viewBounds) {
-                    this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
-                }
-
-                this.$messageBusService.publish('project', 'loaded');
+                this.$messageBusService.publish('project', 'loaded', this.project);
                 this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
             });
         }
@@ -1242,7 +1337,7 @@
             this.project.groups.forEach((group: ProjectGroup) => {
                 group.layers.forEach((layer: ProjectLayer) => {
                     if (layer.enabled) {
-                        this.disableLayer(layer);
+                        this.removeLayer(layer);
                     }
                 });
             });
@@ -1299,8 +1394,8 @@
             }
             return r;
         }
-        
-        public updateFilters() {
+
+        private updateFilters() {
             var fmain = $('#filterChart');
             fmain.empty();
             this.noFilters = true;
@@ -1500,43 +1595,6 @@
             //.range([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
         }
 
-        private createFilterMenu(group: ProjectGroup, filter : GroupFilter)
-        {
-          // init drop down menu
-          var res = "<span style=\'position:absolute;top:-5px;right:4px\' id=\'menu" + filter.id + "\' class=\'dropdown\' dropdown><a href class=\'fa fa-cog dropdown-toggle\' dropdown-toggle > </a><ul class=\'dropdown-menu\' >"
-
-          // check for scatter plots
-          if (filter.filterType == "bar")
-          {
-            group.filters.forEach((gf : GroupFilter)=>
-            {
-              if (gf!=filter && gf.filterType=="bar"){
-                var id = "scatter" + csComp.Helpers.getGuid();
-                res+="<li><a id='" + id + "'>scatter +" + gf.title + "</a></li>";
-                $("#" + id).on('click',()=>{alert('scatter')});
-              }
-            });
-          }
-
-
-          // remove
-          res +="<li><a id=\'removefilter" + filter.id + "\'><span class=\'fa fa-trash\'></span> remove</a></li >";
-
-          // finish up
-          res += "</ul></span>";
-          return res;
-        }
-
-        public createScatter()
-        {
-            alert('scatter');
-        }
-
-        public removeFilter(id : string)
-        {
-            alert(id);
-        }
-
         /***
          * Add bar chart filter for filter number values
          */
@@ -1548,18 +1606,11 @@
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
 
-            //$('<div style=\'position:relative\'><h4>' + filter.title + '</h4><span class=\'dropdown\' dropdown><a href class=\'fa fa-circle-o makeNarrow dropdown-toggle\' dropdown-toggle > </a><ul class=\'dropdown-menu\' ><li><a>scatter plot</a></li><li><a>add to dashboard< /a></li ></ul></span><a class=\'btn fa fa-info\' style=\'position:absolute;top:-5px;right:0\' id=\'remove' + filter.id + '\'></a><div id=\'' + divid + '\' style=\'float:none\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div></div>').appendTo('#filterChart');
-            var el = $("#filterChart");
-            var b = angular.element("#filterChart");
-            var sc = b.controller("filterChart");
-            var s = this.$compile('<div style=\'position:relative\'><h4>' + filter.title + '</h4>' + this.createFilterMenu(group,filter) + '<div id=\'' + divid + '\' style=\'float:none\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div></div>')(this.$rootScope);
-
-            el.append(s);
-
+            $('<div style=\'position:relative\'><h4>' + filter.title + '</h4><span class=\'dropdown\' dropdown><a href class=\'fa fa-circle-o makeNarrow dropdown-toggle\' dropdown-toggle > </a><ul class=\'dropdown-menu\' ><li><a>scatter plot</a></li><li><a>add to dashboard< /a></li ></ul></span><a class=\'btn fa fa-cog\' style=\'position:absolute;top:-5px;right:0\' id=\'remove' + filter.id + '\'></a><div id=\'' + divid + '\' style=\'float:none\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div></div>').appendTo('#filterChart');
             var filterFrom = $('#fsfrom_' + filter.id);
             var filterTo = $('#fsto_' + filter.id);
             var filterRange = $('#fdrange_' + filter.id);
-            $('#removefilter' + filter.id).on('click', () => {
+            $('#remove' + filter.id).on('click', () => {
                 var pos = group.filters.indexOf(filter);
                 if (pos !== -1) group.filters.splice(pos, 1);
                 filter.dimension.dispose();

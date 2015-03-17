@@ -91,6 +91,7 @@
         "./directives/Timeline/Timeline.ts",
         "./directives/Timeline/TimelineCtrl.ts",
         "./directives/Voting/Voting.ts",
+        "./helpers/Dictionary.ts",
         "./helpers/Helpers.ts",
         "./helpers/MessageBus.ts",
         "./helpers/Plot.ts",

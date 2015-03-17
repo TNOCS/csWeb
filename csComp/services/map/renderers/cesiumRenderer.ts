@@ -29,6 +29,11 @@ module csComp.Services
 
     public addLayer(layer : ProjectLayer)
     {
+       this.viewer.dataSources.add(Cesium.GeoJsonDataSource.load(layer.url));
+    }
+
+    public removeLayer(layer : ProjectLayer)
+    {
 
     }
 

@@ -28,7 +28,7 @@ module csComp.Services {
                         // if this is a topojson layer, convert to geojson first
                         if (layer.type.toLowerCase() === 'topojson')
                         {
-                            data = this.service.convertTopoToGeoJson(data);
+                            data = csComp.Helpers.convertTopoToGeoJson(data);
                         }
 
 

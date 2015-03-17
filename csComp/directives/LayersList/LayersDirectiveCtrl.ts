@@ -27,9 +27,9 @@
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
             //layer.enabled = !layer.enabled;
             if (layer.enabled) {
-                this.$layerService.enableLayer(layer);
+                this.$layerService.addLayer(layer);
             } else {
-                this.$layerService.disableLayer(layer);
+                this.$layerService.removeLayer(layer);
             }
 
             // NOTE EV: You need to call apply only when an event is received outside the angular scope.
