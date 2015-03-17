@@ -225,174 +225,56 @@ this.layerSources["wms"].init(this);
          * Add a layer
          */
         addLayer(layer : ProjectLayer) {
-            var disableLayers = [];
-            switch (layer.type.toLowerCase()) {
-            case 'wms':
-                var wms        : any = L.tileLayer.wms(layer.url, {
-                    layers     : layer.wmsLayers,
-                    opacity    : layer.opacity/100,
-                    format     : 'image/png',
-                    transparent: true,
-                    attribution: layer.description
-                });
-                layer.mapLayer = new L.LayerGroup<L.ILayer>();
-                this.map.map.addLayer(layer.mapLayer);
-                layer.mapLayer.addLayer(wms);
-                wms.on('loading',  (event) => {
-                    layer.isLoading = true;
-                    this.$rootScope.$apply();
-                    if (this.$rootScope.$$phase != '$apply' && this.$rootScope.$$phase != '$digest') { this.$rootScope.$apply(); }
-                });
-                wms.on('load', (event) => {
-                    layer.isLoading = false;
-                    if (!layer.id) layer.id = Helpers.getGuid();
-                    //this.loadedLayers[layer.]
-                    this.loadedLayers.add(layer.id, layer);
-                    if (this.$rootScope.$$phase != '$apply' && this.$rootScope.$$phase != '$digest') { this.$rootScope.$apply(); }
-                });
-                layer.isLoading = true;
-                //this.$rootScope.$apply();
-                break;
-            case 'topojson':
-            case 'geojson':
+          var disableLayers = [];
+          async.series([
+            (callback)=>
+            {
+              // check if in this group only one layer can be active
+              // make sure all existising active layers are disabled
+              if (layer.group.oneLayerActive) {
+                  layer.group.layers.forEach((l: ProjectLayer) => {
+                      if (l !== layer && l.enabled) {
+                          disableLayers.push(l);
+                      }
+                  });
+                }
+              callback(null,null);
+            },
+            (callback)=>
+            {
+              // find layer source, and activate layer
+              var layerSource = layer.type.toLowerCase();
+              if (this.layerSources.hasOwnProperty(layerSource))
+              {
                 async.series([
-                    (callback) => {
-                        // If oneLayerActive: close other group layer
-                        if (layer.group.oneLayerActive) {
-                            layer.group.layers.forEach((l: ProjectLayer) => {
-                                if (l !== layer && l.enabled) {
-                                    disableLayers.push(l);
-                                }
-                            });
-                        }
-                        callback(null, null);
-                    },
-                    (callback) => {
-                        // Open a style file
-                        if (layer.styleurl) {
-                            d3.json(layer.styleurl, (err, dta) => {
+                  (cb)=> {
+                    // load layer from source
+                    this.layerSources[layerSource].addLayer(layer,(l)=>
+                    {
+                      this.activeMapRenderer.addLayer(layer);
+                    }); cb(null,null);
+                  },
+                  (cb)=> {
+                    // update sensor data & filters
+                    this.updateSensorData();
+                    this.$messageBusService.publish('layer', 'activated', layer);
+                    this.updateFilters();
+                    cb(null,null);
+                  }]);
+              }
+              callback(null,null);
+            },
+            (callback)=>
+            {
+              // now remove the layers that need to be disabled
+              disableLayers.forEach((l) => {
+                  this.removeLayer(l);
+                  l.enabled = false;
+              });
+              callback(null,null);
 
-                                if (err)
-                                    this.$messageBusService.notify('ERROR loading' + layer.title, err);
-                                else {
-                                    if (dta.featureTypes)
-                                        for (var featureTypeName in dta.featureTypes) {
-                                            if (!dta.featureTypes.hasOwnProperty(featureTypeName)) continue;
-                                            var featureType: IFeatureType = dta.featureTypes[featureTypeName];
-                                            featureTypeName = layer.id + '_' + featureTypeName;
-                                            this.featureTypes[featureTypeName] = featureType;
-                                        }
-                                }
-                                callback(null, null);
-                            });
-                        } else
-                            callback(null, null);
-                    },
-                    (callback) => {
-                        // Open a layer URL
-                        layer.isLoading = true;
-                        d3.json(layer.url, (error, data) => {
-                            layer.isLoading = false;
-                            if (error)
-                                this.$messageBusService.notify('ERROR loading' + layer.title, error);
-                            else {
-                                if (!layer.id) layer.id = Helpers.getGuid();
-                                this.loadedLayers.add(layer.id, layer);
-                                if (layer.type.toLowerCase() === 'topojson')
-                                    data = csComp.Helpers.convertTopoToGeoJson(data);
-                                if (data.events && this.timeline) {
-                                    layer.events = data.events;
-                                    var devents = [];
-                                    layer.events.forEach((e: Event) => {
-                                        if (!e.id) e.id = Helpers.getGuid();
-                                        devents.push({
-                                            'start': new Date(e.start),
-                                            'content': e.title
-                                        });
-                                    });
-                                    this.timeline.draw(devents);
-                                }
-                                for (var featureTypeName in data.featureTypes) {
-                                    if (!data.featureTypes.hasOwnProperty(featureTypeName)) continue;
-                                    var featureType: IFeatureType = data.featureTypes[featureTypeName];
-                                    featureTypeName = layer.id + '_' + featureTypeName;
-                                    this.featureTypes[featureTypeName] = featureType;
-                                    //var pt = "." + featureTypeName;
-                                    //var icon = featureType.style.iconUri;
-                                    var t = '{".style' + featureTypeName + '":';
-                                    if (featureType.style.iconUri != null) {
-                                        t += ' { "background": "url(' + featureType.style.iconUri + ') no-repeat right center",';
-                                    };
-                                    t += ' "background-size": "100% 100%","border-style": "none"} }';
-                                    var json = $.parseJSON(t);
-                                    (<any>$).injectCSS(json);
-
-                                    //console.log(JSON.stringify(poiType, null, 2));
-                                }
-                                if (data.timestamps) layer.timestamps = data.timestamps;
-                                if (layer.group.clustering) {
-                                    var markers = L.geoJson(data, {
-                                        pointToLayer: (feature, latlng) => this.addFeature(feature, latlng, layer),
-                                        onEachFeature: (feature: IFeature, lay) => {
-                                            //We do not need to init the feature here: already done in style.
-                                            //this.initFeature(feature, layer);
-                                            layer.group.markers[feature.id] = lay;
-                                            lay.on({
-                                                mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout: (s) => this.hideFeatureTooltip(s)
-                                            });
-                                        }
-                                    });
-                                    layer.group.cluster.addLayer(markers);
-                                } else {
-                                    layer.mapLayer = new L.LayerGroup<L.ILayer>();
-                                    this.map.map.addLayer(layer.mapLayer);
-
-                                    var v = L.geoJson(data, {
-                                        onEachFeature : (feature: IFeature, lay) => {
-                                            //We do not need to init the feature here: already done in style.
-                                            //this.initFeature(feature, layer);
-                                            layer.group.markers[feature.id] = lay;
-                                            lay.on({
-                                                mouseover : (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout  : (s) => this.hideFeatureTooltip(s),
-                                                mousemove : (d) => this.updateFeatureTooltip(d),
-                                                click     : ()  => this.selectFeature(feature)
-                                            });
-                                        },
-                                        style: (f: IFeature, m) => {
-
-                                            this.initFeature(f, layer);
-                                            //this.updateSensorData();
-                                            layer.group.markers[f.id] = m;
-                                            return this.style(f, layer);
-                                        },
-                                        pointToLayer : (feature, latlng) => this.addFeature(feature, latlng, layer)
-                                    });
-                                    this.project.features.forEach((f: IFeature) => {
-                                        if (f.layerId !== layer.id) return;
-                                        var ft = this.getFeatureType(f);
-                                        f.properties['Name'] = f.properties[ft.style.nameLabel];
-                                    });
-                                    layer.mapLayer.addLayer(v);
-                                }
-                          }
-                            this.updateSensorData();
-                            this.$messageBusService.publish('layer', 'activated', layer);
-
-                            callback(null, null);
-                            this.updateFilters();
-                        });
-                    },
-                    // Callback
-                    () => {
-                        disableLayers.forEach((l) => {
-                            this.removeLayer(l);
-                            l.enabled = false;
-                        });
-                    }
-                ]);
             }
+          ]);
         }
 
 
@@ -1101,51 +983,55 @@ this.layerSources["wms"].init(this);
          * deactivate layer
          */
         removeLayer(layer: ProjectLayer) {
-            var m: any;
-            var g = layer.group;
+          var m: any;
+          var g = layer.group;
 
-            this.loadedLayers.remove(layer.id);
+          var layerSource = layer.type.toLowerCase();
+          if (this.layerSources.hasOwnProperty(layerSource))
+          {
+            this.layerSources[layerSource].removeLayer(layer);
+          }
 
-            if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
-                this.lastSelectedFeature = null;
-                this.$messageBusService.publish('sidebar', 'hide');
-                this.$messageBusService.publish('feature', 'onFeatureDeselect');
-            }
+          if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
+              this.lastSelectedFeature = null;
+              this.$messageBusService.publish('sidebar', 'hide');
+              this.$messageBusService.publish('feature', 'onFeatureDeselect');
+          }
 
-            //m = layer.group.vectors;
-            if (g.clustering) {
-                m = g.cluster;
-                this.project.features.forEach((feature: IFeature) => {
-                    if (feature.layerId === layer.id) {
-                        try {
-                            m.removeLayer(layer.group.markers[feature.id]);
-                            delete layer.group.markers[feature.id];
-                        } catch (error) {
+          //m = layer.group.vectors;
+          if (g.clustering) {
+              m = g.cluster;
+              this.project.features.forEach((feature: IFeature) => {
+                  if (feature.layerId === layer.id) {
+                      try {
+                          m.removeLayer(layer.group.markers[feature.id]);
+                          delete layer.group.markers[feature.id];
+                      } catch (error) {
 
-                        }
-                    }
-                });
-            } else {
-                this.map.map.removeLayer(layer.mapLayer);
-            }
+                      }
+                  }
+              });
+          } else {
+              this.map.map.removeLayer(layer.mapLayer);
+          }
 
-            this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
-            var layerName = layer.id + '_';
-            var featureTypes = this.featureTypes;
-            for (var poiTypeName in featureTypes) {
-                if (!featureTypes.hasOwnProperty(poiTypeName)) continue;
-                if (poiTypeName.lastIndexOf(layerName, 0) === 0) delete featureTypes[poiTypeName];
-            }
+          this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
+          var layerName = layer.id + '_';
+          var featureTypes = this.featureTypes;
+          for (var poiTypeName in featureTypes) {
+              if (!featureTypes.hasOwnProperty(poiTypeName)) continue;
+              if (poiTypeName.lastIndexOf(layerName, 0) === 0) delete featureTypes[poiTypeName];
+          }
 
-            // check if there are no more active layers in group and remove filters/styles
-            if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0) {
-                g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
-                g.filters = [];
-                g.styles = [];
-            }
+          // check if there are no more active layers in group and remove filters/styles
+          if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0) {
+              g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
+              g.filters = [];
+              g.styles = [];
+          }
 
-            this.rebuildFilters(g);
-            this.$messageBusService.publish('layer', 'deactivate', layer);
+          this.rebuildFilters(g);
+          this.$messageBusService.publish('layer', 'deactivate', layer);
         }
 
         /***
