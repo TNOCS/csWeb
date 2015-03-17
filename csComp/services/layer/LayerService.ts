@@ -63,7 +63,7 @@ export interface IMapRenderer
         selectedLayerId     : string;
         timeline            : any;
         currentLocale       : string;
-        loadedLayers   =  new csComp.Helpers.Dictionary<L.ILayer>();
+        loadedLayers   =  new csComp.Helpers.Dictionary<ProjectLayer>();
         layerGroup    = new L.LayerGroup<L.ILayer>();
         info          = new L.Control();
         layerSources   : {[ key : string] : ILayerSource};   // list of available layer sources
@@ -98,33 +98,32 @@ export interface IMapRenderer
             this.noStyles = true;
 
             // init map renderers
-this.mapRenderers = {};
+            this.mapRenderers = {};
 
-// add renderers
-this.mapRenderers["leaflet"] = new LeafletRenderer();
-this.mapRenderers["leaflet"].init(this);
+            // add renderers
+            this.mapRenderers["leaflet"] = new LeafletRenderer();
+            this.mapRenderers["leaflet"].init(this);
 
-this.mapRenderers["cesium"] = new CesiumRenderer();
-this.mapRenderers["cesium"].init(this);
+            this.mapRenderers["cesium"] = new CesiumRenderer();
+            this.mapRenderers["cesium"].init(this);
 
-this.selectRenderer("leaflet");
-//this.mapRenderers["leaflet"].enable();
+            this.selectRenderer("leaflet");
+            //this.mapRenderers["leaflet"].enable();
 
-// init layer sources
-this.layerSources = {};
+            // init layer sources
+            this.layerSources = {};
 
-// add a topo/geojson source
-var geojsonsource = new GeoJsonSource();
-geojsonsource.init(this);
-this.layerSources["geojson"] = geojsonsource;
-this.layerSources["topojson"] = geojsonsource;
+            // add a topo/geojson source
+            var geojsonsource = new GeoJsonSource();
+            geojsonsource.init(this);
+            this.layerSources["geojson"] = geojsonsource;
+            this.layerSources["topojson"] = geojsonsource;
 
-// add wms source
-this.layerSources["wms"] = new WmsSource();
-this.layerSources["wms"].init(this);
+            // add wms source
+            this.layerSources["wms"] = new WmsSource();
+            this.layerSources["wms"].init(this);
 
-
-
+            // listen to timeline updates to update sensor data
             $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
                     case 'focusChange':
@@ -133,6 +132,7 @@ this.layerSources["wms"].init(this);
                 }
             });
 
+            // listen to language changes, to reload project
             $messageBusService.subscribe('language', (title: string, language: string) => {
                 switch (title) {
                     case 'newLanguage':
@@ -144,26 +144,31 @@ this.layerSources["wms"].init(this);
             });
         }
 
+        /** select a new renderer */
         public selectRenderer(renderer : string)
-{
+        {
 
-  if (this.activeMapRenderer && this.activeMapRenderer.title == renderer) return;
+          // check if render still the same, ignore request
+          if (this.activeMapRenderer && this.activeMapRenderer.title == renderer) return;
 
-  if (this.activeMapRenderer) this.activeMapRenderer.disable();
+          // disable existing renderer
+          if (this.activeMapRenderer) this.activeMapRenderer.disable();
 
-  if (this.mapRenderers.hasOwnProperty(renderer))
-  {
-    this.activeMapRenderer = this.mapRenderers[renderer];
-    this.activeMapRenderer.enable();
-  }
-}
+          // enable new renderer
+          if (this.mapRenderers.hasOwnProperty(renderer))
+          {
+            this.activeMapRenderer = this.mapRenderers[renderer];
+            this.activeMapRenderer.enable();
+          }
+        }
 
-
+        /** switch between dashboard */
         public selectDashboard(dashboard: csComp.Services.Dashboard, container : string) {
            this.project.activeDashboard = dashboard;
            this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
         }
 
+        /** update sensor data */
         public updateSensorData() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
 
@@ -224,7 +229,7 @@ this.layerSources["wms"].init(this);
         /**
          * Add a layer
          */
-        addLayer(layer : ProjectLayer) {
+        public addLayer(layer : ProjectLayer) {
           var disableLayers = [];
           async.series([
             (callback)=>
@@ -295,7 +300,7 @@ this.layerSources["wms"].init(this);
         /***
          * Show tooltip with name, styles & filters.
          */
-        showFeatureTooltip(e, group: ProjectGroup) {
+        public showFeatureTooltip(e, group: ProjectGroup) {
             var layer = e.target;
             var feature = <Feature>layer.feature;
             // add title
@@ -345,13 +350,14 @@ this.layerSources["wms"].init(this);
             }).setLatLng(e.latlng).setContent(content).openOn(this.map.map);
         }
 
-        hideFeatureTooltip(e) {
+        public hideFeatureTooltip(e) {
             if (this.popup && this.map.map) {
                 (<any>this.map.map).closePopup(this.popup);
                 //this.map.map.closePopup(this.popup);
                 this.popup = null;
             }
         }
+        
         private popup: L.Popup;
 
         updateFeatureTooltip(e) {
@@ -654,7 +660,7 @@ this.layerSources["wms"].init(this);
         /**
          * Update icon for features
          */
-        updateFeatureIcon(feature: IFeature, layer: ProjectLayer) {
+        public updateFeatureIcon(feature: IFeature, layer: ProjectLayer) {
             var geomType = feature.geometry.type.toLowerCase();
             switch (geomType)
             {
@@ -672,7 +678,7 @@ this.layerSources["wms"].init(this);
         /**
          * add a feature
          */
-        addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {
+        public addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {
             this.initFeature(feature,layer);
             //var style = type.style;
             var marker;
@@ -697,7 +703,7 @@ this.layerSources["wms"].init(this);
             return marker;
         }
 
-        selectFeature(feature: IFeature) {
+        public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
             this.updateFeature(feature);
@@ -732,7 +738,7 @@ this.layerSources["wms"].init(this);
         /**
          * Find a layer with a specific id
          */
-        findLayer(id: string): ProjectLayer {
+        public findLayer(id: string): ProjectLayer {
             if (this.loadedLayers.containsKey(id)) return this.loadedLayers[id];
             return null;
             //var r: ProjectLayer;
