@@ -126,7 +126,7 @@
         title                       : string;
         description                 : string;
         type                        : string;
-        url                         : string;        
+        url                         : string;
         wmsLayers                   : string;
         enabled                     : boolean;
         opacity                     : number;
@@ -141,6 +141,8 @@
         reference                   : string;
         events                      : Event[];
         languages                   : ILanguageData;
+        /** loaded data itself */
+        data                        : {};
     }
 
     /**

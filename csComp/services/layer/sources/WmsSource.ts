@@ -10,7 +10,7 @@ module csComp.Services {
         this.service = service;
       }
 
-      enableLayer(layer : ProjectLayer)
+      public addLayer(layer : ProjectLayer, callback : Function)
       {
         var wms        : any = L.tileLayer.wms(layer.url, {
             layers     : layer.wmsLayers,
@@ -35,7 +35,7 @@ module csComp.Services {
         //this.$rootScope.$apply();
       }
 
-      disableLayer(layer : ProjectLayer)
+      removeLayer(layer : ProjectLayer)
       {
 
       }

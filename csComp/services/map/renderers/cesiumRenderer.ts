@@ -27,6 +27,11 @@ module csComp.Services
 
     }
 
+    public addLayer(layer : ProjectLayer)
+    {
+
+    }
+
     public addGroup(group : ProjectGroup) {}
     public removeGroup(group : ProjectGroup) {}
     public addFeature(feature : IFeature) {}

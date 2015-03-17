@@ -8,8 +8,8 @@
     {
       title : string;
       init(service : LayerService);
-      enableLayer(layer : ProjectLayer) : void;
-      disableLayer(layer : ProjectLayer) : void;
+      addLayer(layer : ProjectLayer, callback : Function);
+      removeLayer(layer : ProjectLayer) : void;
     }
 
     export interface IMapRenderer
@@ -19,6 +19,7 @@
       enable();
       disable();
       addGroup(group : ProjectGroup);
+      addLayer(layer : ProjectLayer);
       removeGroup(group : ProjectGroup);
       addFeature(feature : IFeature);
       removeFeature(feature : IFeature);
@@ -250,7 +251,21 @@
                 var layerSource = layer.type.toLowerCase();
                 if (this.layerSources.hasOwnProperty(layerSource))
                 {
-                  this.layerSources[layerSource].enableLayer(layer);
+                  async.series([
+                    (cb)=> {
+                      // load layer from source
+                      this.layerSources[layerSource].addLayer(layer,(l)=>
+                      {
+                        this.activeMapRenderer.addLayer(layer);
+                      }); cb(null,null);
+                    },
+                    (cb)=> {
+                      // update sensor data & filters
+                      this.updateSensorData();
+                      this.$messageBusService.publish('layer', 'activated', layer);
+                      this.updateFilters();
+                      cb(null,null);
+                    }]);
                 }
                 callback(null,null);
               },
@@ -402,7 +417,7 @@
             this.updateGroupFeatures(g);
         }
 
-        updateStyle(style: GroupStyle) {
+        public updateStyle(style: GroupStyle) {
             //console.log('update style ' + style.title);
             if (style == null) return;
             if (style.group != null) {
@@ -412,7 +427,7 @@
             }
         }
 
-        updateFeature(feature: IFeature, group?: ProjectGroup) {
+        public updateFeature(feature: IFeature, group?: ProjectGroup) {
             var layer = this.findLayer(feature.layerId);
             if (layer == null) return;
             if (feature.geometry.type === 'Point') {
@@ -462,7 +477,7 @@
             return defaultColor;
         }
 
-        style(feature: IFeature, layer: ProjectLayer) {
+        public style(feature: IFeature, layer: ProjectLayer) {
             var s = {
                 fillColor   : 'red',
                 weight      : 2,
@@ -665,7 +680,8 @@
         /**
          * add a feature
          */
-        addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {
+        public addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {
+
             this.initFeature(feature,layer);
             //var style = type.style;
             var marker;
@@ -690,7 +706,7 @@
             return marker;
         }
 
-        selectFeature(feature: IFeature) {
+        public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
             this.updateFeature(feature);
@@ -715,7 +731,7 @@
         /**
          * find a filter for a specific group/property combination
          */
-        private findFilter(group: ProjectGroup, property: string): GroupFilter {
+         public findFilter(group: ProjectGroup, property: string): GroupFilter {
             if (group.filters == null) group.filters = [];
             var r = group.filters.filter((f: GroupFilter) => f.property === property);
             if (r.length > 0) return r[0];
@@ -725,7 +741,7 @@
         /**
          * find a layer with a specific id
          */
-        findLayer(id: string): ProjectLayer {
+        public findLayer(id: string): ProjectLayer {
             var r: ProjectLayer;
             this.project.groups.forEach(g => {
                 g.layers.forEach(l => {
@@ -735,7 +751,6 @@
                 });
             });
             return r;
-
         }
 
         setStyle(property: any, openStyleTab = true) {
@@ -974,7 +989,7 @@
             var layerSource = layer.type.toLowerCase();
             if (this.layerSources.hasOwnProperty(layerSource))
             {
-              this.layerSources[layerSource].disableLayer(layer);
+              this.layerSources[layerSource].removeLayer(layer);
             }
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
@@ -1166,17 +1181,8 @@
                     }
 
                     // add leaflet layer (each group has it's own layer)
-                    // for clustering use a cluster layer
-                    if (group.clustering) {
-                        group.cluster = new L.MarkerClusterGroup({
-                            maxClusterRadius: group.maxClusterRadius || 80,
-                            disableClusteringAtZoom: group.clusterLevel || 0
-                        });
-                        this.map.map.addLayer(group.cluster);
-                    } else {
-                        group.vectors = new L.LayerGroup<L.ILayer>();
-                        this.map.map.addLayer(group.vectors);
-                    }
+                    this.activeMapRenderer.addGroup(group);
+
 
                     //init each layer
                     group.layers.forEach((layer: ProjectLayer) => {
@@ -1293,7 +1299,7 @@
             }
             return r;
         }
-
+        
         public updateFilters() {
             var fmain = $('#filterChart');
             fmain.empty();
