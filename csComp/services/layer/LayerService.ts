@@ -582,12 +582,10 @@ export interface IMapRenderer
         /**
          * enable a filter for a specific property
          */
-        setFilter(filter: GroupFilter, group : csComp.Services.ProjectGroup) {
-
+        public setFilter(filter: GroupFilter, group : csComp.Services.ProjectGroup) {
             group.filters.push(filter);
             this.updateFilters();
-                (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
-
+            (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
         }
 
 
@@ -734,20 +732,24 @@ export interface IMapRenderer
         /**
          * deactivate layer
          */
-        removeLayer(layer: ProjectLayer) {
+        public removeLayer(layer: ProjectLayer) {
             var m: any;
             var g = layer.group;
 
+            // remove from list of active layers
             this.loadedLayers.remove(layer.id);
 
+            // check if active feature is part of this layer
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
                 this.$messageBusService.publish('sidebar', 'hide');
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
             }
 
+            // remove from render
             this.activeMapRenderer.removeLayer(layer);
 
+            // remove from global features list
 
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
             var layerName = layer.id + '_';
@@ -764,6 +766,7 @@ export interface IMapRenderer
                 g.styles = [];
             }
 
+            // rebuild filters
             this.rebuildFilters(g);
             this.$messageBusService.publish('layer', 'deactivate', layer);
         }
@@ -850,8 +853,11 @@ export interface IMapRenderer
             this.featureTypes = {};
 
             $.getJSON(url,(data: Project) => {
+
+                // deserialize project loads data in an 'active' project object with working methods
                 this.project = new Project().deserialize(data);
 
+                // initialize timeline
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
                 }
@@ -860,9 +866,7 @@ export interface IMapRenderer
                     this.$messageBusService.publish('timeline', 'updateTimerange', this.project.timeLine);
                 }
 
-                if (this.project.viewBounds) {
-                    this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
-                }
+                // init feature types
                 var featureTypes = this.project.featureTypes;
                 if (featureTypes) {
                     for (var typeName in featureTypes) {
@@ -872,6 +876,8 @@ export interface IMapRenderer
                         this.featureTypes[typeName] = featureType;
                     }
                 }
+
+                // init property types
                 if (this.project.propertyTypeData) {
                     for (var key in this.project.propertyTypeData) {
                         var propertyType: IPropertyType = this.project.propertyTypeData[key];
@@ -881,6 +887,7 @@ export interface IMapRenderer
                     }
                 }
 
+                // if no dashboard available, make a new one called 'map'
                 if (!this.project.dashboards) {
                     this.project.dashboards = [];
                     var d = new Services.Dashboard();
@@ -889,62 +896,74 @@ export interface IMapRenderer
                     this.project.dashboards.push(d);
                 }
 
+                // init datasets, not used right now
+                if (!this.project.dataSets) this.project.dataSets = [];
 
-                if (!this.project.dataSets)
-                    this.project.dataSets = [];
-
+                // init global features list
                 this.project.features = [];
 
+                // init all groups
                 this.project.groups.forEach((group: ProjectGroup) => {
+
+                    // make sure group has an id
                     if (group.id == null) group.id = Helpers.getGuid();
+
+                    // init filter
                     group.ndx = crossfilter([]);
                     if (group.styles == null) group.styles = [];
                     if (group.filters == null) group.filters = [];
                     group.markers = {};
+
+                    // set title, description in right language
                     if (group.languages != null && this.currentLocale in group.languages) {
                         var locale = group.languages[this.currentLocale];
                         if (locale.title      ) group.title       = locale.title;
                         if (locale.description) group.description = locale.description;
                     }
-                    if (group.clustering) {
-                        group.cluster = new L.MarkerClusterGroup({
-                            maxClusterRadius: group.maxClusterRadius || 80,
-                            disableClusteringAtZoom: group.clusterLevel || 0
-                        });
 
-                        this.map.map.addLayer(group.cluster);
-                    } else {
-                        group.vectors = new L.LayerGroup<L.ILayer>();
-                        this.map.map.addLayer(group.vectors);
-                    }
+                    // add group layer (todo)
+                    this.activeMapRenderer.addGroup(group);
+
+                    // load layers
                     group.layers.forEach((layer: ProjectLayer) => {
+                        // make sure it has an id, title & refrence
                         if (layer.id == null) layer.id = Helpers.getGuid();
                         if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
                         if (layer.title == null) layer.title = layer.id;
+
+                        // set title, description in right language
                         if (layer.languages != null && this.currentLocale in layer.languages) {
                             var locale = layer.languages[this.currentLocale];
                             if (locale.title      ) layer.title       = locale.title;
                             if (locale.description) layer.description = locale.description;
                         }
+
+                        // attach to group
                         layer.group = group;
                         if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
                             layer.enabled = true;
-                            this.activeMapRenderer.addLayer(layer);
+                            this.addLayer(layer);
                         }
                     });
 
+                    // make sure styles have an id
                     group.styles.forEach((style: GroupStyle) => {
                         if (style.id != null) style.id = Helpers.getGuid();
                     });
 
+                    // make sure filters have an id
                     group.filters.forEach((filter: GroupFilter) => {
                         if (filter.id != null) filter.id = Helpers.getGuid();
                     });
 
+                    this.updateFilters();
+
                     if (data.startposition)
                         this.$mapService.zoomToLocation(new L.LatLng(data.startposition.latitude, data.startposition.longitude));
 
-                    this.updateFilters();
+                    if (this.project.viewBounds) {
+                        this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
+                    }
                 });
 
                 this.$messageBusService.publish('project', 'loaded', this.project);
