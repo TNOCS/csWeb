@@ -115,6 +115,24 @@ module csComp.Services
       }
     }
 
+    /***
+     * Update map markers in cluster after changing filter
+     */
+    public updateMapFilter(group: ProjectGroup) {
+        $.each(group.markers, (key, marker) => {
+            var included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+            if (group.clustering) {
+                var incluster = group.cluster.hasLayer(marker);
+                if (!included && incluster) group.cluster.removeLayer(marker);
+                if (included && !incluster) group.cluster.addLayer(marker);
+            } else {
+                var onmap = group.vectors.hasLayer(marker);
+                if (!included && onmap) group.vectors.removeLayer(marker);
+                if (included && !onmap) group.vectors.addLayer(marker);
+            }
+        });
+    }
+
     public removeGroup(group : ProjectGroup) {}
 
     public removeFeature(feature : IFeature) {

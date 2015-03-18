@@ -474,16 +474,18 @@
             this.showChart = false;
             this.mca = mca;
             this.availableMcas = [];
-
-            this.$layerService.project.mcas.forEach((m) => {
-                m.featureIds.forEach((featureId: string) => {
-                    if (this.availableMcas.indexOf(m) < 0 && this.$layerService.featureTypes.hasOwnProperty(featureId)) {
-                        this.availableMcas.push(m);
-                        var featureType = this.$layerService.featureTypes[featureId];
-                        this.applyPropertyInfoToCriteria(m, featureType);
-                    }
-                });
-            });
+            if (this.$layerService.project.mcas!=null)
+            {
+              this.$layerService.project.mcas.forEach((m) => {
+                  m.featureIds.forEach((featureId: string) => {
+                      if (this.availableMcas.indexOf(m) < 0 && this.$layerService.featureTypes.hasOwnProperty(featureId)) {
+                          this.availableMcas.push(m);
+                          var featureType = this.$layerService.featureTypes[featureId];
+                          this.applyPropertyInfoToCriteria(m, featureType);
+                      }
+                  });
+              });
+            }
             if (mca == null && this.availableMcas.length > 0) {
                 this.mca = this.availableMcas[0];
                 this.updateMca();

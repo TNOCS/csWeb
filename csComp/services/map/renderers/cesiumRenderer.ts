@@ -38,7 +38,7 @@ module csComp.Services
     }
 
 
-
+    public updateMapFilter(group : ProjectGroup) {}
     public addGroup(group : ProjectGroup) {}
     public removeGroup(group : ProjectGroup) {}
     public addFeature( feature : IFeature) {}

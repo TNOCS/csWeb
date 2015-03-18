@@ -20,6 +20,7 @@ export interface IMapRenderer
   disable();
   addGroup(group : ProjectGroup);
   addLayer(layer : ProjectLayer);
+  updateMapFilter(group : ProjectGroup);
   removeLayer(layer : ProjectLayer);
   removeGroup(group : ProjectGroup);
   addFeature(feature : IFeature);
@@ -181,11 +182,14 @@ export interface IMapRenderer
                (cb)=> {
                  // update sensor data & filters
                  this.updateSensorData();
-                 this.$messageBusService.publish('layer', 'activated', layer);
                  this.updateFilters();
+                 this.loadedLayers[layer.id] = layer;
+                 this.$messageBusService.publish('layer', 'activated', layer);
+
                  cb(null,null);
                }]);
            }
+
            callback(null,null);
          },
          (callback)=>
@@ -280,7 +284,7 @@ export interface IMapRenderer
             var timepos = {};
 
             this.project.features.forEach((f: IFeature) => {
-                var l = this.findLayer(f.layerId);
+                var l = f.layer;
 
                 if (l != null) {
                     if (f.sensors || f.coordinates) {
@@ -596,7 +600,7 @@ export interface IMapRenderer
             var prop                                   = property.property;
             var f                                      = property.feature;
             if (f != null) {
-                var layer                              = this.findLayer(f.layerId);
+                var layer                              = f.layer;
                 if (layer != null) {
                     var filter                         = this.findFilter(layer.group, prop);
                     if (filter                         == null) {
@@ -1075,7 +1079,7 @@ export interface IMapRenderer
             }
 
             group.filterResult = dcDim.top(Infinity);
-            this.updateMapFilter(group);
+            this.activeMapRenderer.updateMapFilter(group);
             dc.renderAll();
         }
 
@@ -1208,7 +1212,7 @@ export interface IMapRenderer
                         this.updateFilterGroupCount(group);
                     }, 0);
                     dc.events.trigger(() => {
-                        this.updateMapFilter(group);
+                      this.activeMapRenderer.updateMapFilter(group);
                     }, 100);
                 });
 
@@ -1315,7 +1319,7 @@ export interface IMapRenderer
                         this.updateFilterGroupCount(group);
                     }, 0);
                     dc.events.trigger(() => {
-                        this.updateMapFilter(group);
+                      this.activeMapRenderer.updateMapFilter(group);
                     }, 100);
                 });
 
@@ -1367,23 +1371,7 @@ export interface IMapRenderer
             //.range([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
         }
 
-        /***
-         * Update map markers in cluster after changing filter
-         */
-        private updateMapFilter(group: ProjectGroup) {
-            $.each(group.markers, (key, marker) => {
-                var included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
-                if (group.clustering) {
-                    var incluster = group.cluster.hasLayer(marker);
-                    if (!included && incluster) group.cluster.removeLayer(marker);
-                    if (included && !incluster) group.cluster.addLayer(marker);
-                } else {
-                    var onmap = group.vectors.hasLayer(marker);
-                    if (!included && onmap) group.vectors.removeLayer(marker);
-                    if (included && !onmap) group.vectors.addLayer(marker);
-                }
-            });
-        }
+
 
         private resetMapFilter(group: ProjectGroup) {
             $.each(group.markers, (key, marker) => {
