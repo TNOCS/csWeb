@@ -11,12 +11,13 @@
         title: string;
         color: string;
         start: number;
-        startDate = (): Date => { return new Date(this.start); } 
+        startDate = (): Date => { return new Date(this.start); }
     }
 
     export interface IFeature {
         id?             : string;
         layerId         : string;
+        layer           : ProjectLayer;
         type?           : string;
         geometry        : IGeoJsonGeometry;
         properties?     : IStringToAny;
@@ -24,6 +25,7 @@
         htmlStyle?      : string;
         featureTypeName?: string;
         fType?          : IFeatureType;
+        effectiveStyle  : IFeatureTypeStyle;
         isInitialized?  : boolean;
         sensors?: { [id: string]: any[] }
         timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
@@ -31,23 +33,27 @@
         languages?      : { [key: string]: ILocalisedData }
     }
 
-    /** 
+    /**
      * A feature is a single object that is show on a map (e.g. point, polyline, etc)
      * Features are part of a layer and filtered and styled using group filters and styles
-     * 
+     *
      */
     export class Feature implements IFeature {
         id             : string;
         layerId        : string;
+        layer          : ProjectLayer;
         type           : string;
         geometry       : IGeoJsonGeometry;
         properties     : IStringToAny;
         isSelected     : boolean;
         htmlStyle      : string;
         featureTypeName: string;
+        /** resolved feature type */
         fType          : IFeatureType;
+        /** calculated style, used for final rendering */
+        effectiveStyle  : JSON;
         isInitialized  : boolean;
-        sensors: { [id: string]: any[] }
+        sensors        : { [id: string]: any[] }
         timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         coordinates: IGeoJsonGeometry[];          // used for temporal data
     }
@@ -155,7 +161,7 @@
         style?           : IFeatureTypeStyle;
         propertyTypeData?: IPropertyType[];
         /**
-         * Optional list of propertyType keys, separated by semi-colons. 
+         * Optional list of propertyType keys, separated by semi-colons.
          * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.
          */
         propertyTypeKeys?: string;
@@ -178,4 +184,4 @@
         sdMax   : number;
         sdMin   : number;
     }
-} 
+}

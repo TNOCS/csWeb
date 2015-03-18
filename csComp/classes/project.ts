@@ -210,7 +210,7 @@
         /** Language information that can be used to localize the title and description */
         languages                   : ILanguageData;
         /** layer original source */
-        data                        : {}
+        data                        : JSON;
     }
 
     /**

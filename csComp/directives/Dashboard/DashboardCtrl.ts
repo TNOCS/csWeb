@@ -162,7 +162,7 @@
                             l.enabled = false;
                         }
                         if (!l.enabled && db.visiblelayers.indexOf(l.reference) >= 0) {
-                            this.$layerService.addLayer(l);
+                            this.$layerService.activeMapRenderer.addLayer(l);
                             l.enabled = true;
                         }
                     });

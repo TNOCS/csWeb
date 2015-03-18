@@ -37,10 +37,14 @@ module csComp.Services
 
     }
 
+
+
     public addGroup(group : ProjectGroup) {}
     public removeGroup(group : ProjectGroup) {}
-    public addFeature(feature : IFeature) {}
-    public removeFeature(feature : IFeature) {}
-    public updateFeature(feature : IFeature) {}
+    public addFeature( feature : IFeature) {}
+    public removeFeature( feature : IFeature) {}
+    public updateFeature( feature : IFeature) {
+
+    }
   }
 }

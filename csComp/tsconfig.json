@@ -96,6 +96,7 @@
         "./helpers/MessageBus.ts",
         "./helpers/Plot.ts",
         "./helpers/StringExt.ts",
+        "./helpers/StyleHelpers.ts",
         "./services/layer/LayerService.ts",
         "./services/layer/sources/GeoJsonSource.ts",
         "./services/layer/sources/WmsSource.ts",

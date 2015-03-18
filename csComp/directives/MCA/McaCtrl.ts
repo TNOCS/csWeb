@@ -512,7 +512,7 @@
                         tempScores.push(tempItem);
                     }
                     feature.properties[mca.label] = score * 100;
-                    this.$layerService.updateFeature(feature);
+                    this.$layerService.activeMapRenderer.updateFeature(feature);
                 });
                 if (mca.rankTitle) {
                     // Add rank information

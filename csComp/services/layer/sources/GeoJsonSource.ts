@@ -73,6 +73,11 @@ module csComp.Services {
                         // store raw result in layer
                         layer.data = data;
 
+                        (<any>(layer.data)).features.forEach((f)=>
+                        {
+                          this.service.initFeature(f,layer);
+                        });
+
 
                   }
 
