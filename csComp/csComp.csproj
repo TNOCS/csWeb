@@ -46,6 +46,7 @@
     <TypeScriptCompile Include="directives\Timeline\Timeline.ts" />
     <TypeScriptCompile Include="directives\Timeline\TimelineCtrl.ts" />
     <TypeScriptCompile Include="directives\Voting\Voting.ts" />
+    <TypeScriptCompile Include="helpers\Dictionary.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
     <TypeScriptCompile Include="helpers\MessageBus.ts" />
     <TypeScriptCompile Include="helpers\Plot.ts" />
@@ -66,12 +67,15 @@
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirectiveCtrl.ts" />
     <TypeScriptCompile Include="helpers\StringExt.ts" />
+    <TypeScriptCompile Include="helpers\StyleHelpers.ts" />
     <TypeScriptCompile Include="Scripts\typings\moment\moment.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\underscore\underscore.d.ts" />
     <TypeScriptCompile Include="services\layer\LayerService.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.tpl.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.ts" />
-    <TypeScriptCompile Include="directives\BaseMapList\BaseMapListCtrl.ts" />
+    <TypeScriptCompile Include="directives\BaseMapList\BaseMapListCtrl.ts" />    
+    <TypeScriptCompile Include="services\layer\sources\GeoJsonSource.ts" />
+    <TypeScriptCompile Include="services\layer\sources\WmsSource.ts" />
     <TypeScriptCompile Include="services\map\MapCtrl.ts" />
     <TypeScriptCompile Include="services\map\MapService.ts" />
     <TypeScriptCompile Include="directives\StyleList\StyleList.tpl.ts" />
@@ -91,6 +95,8 @@
     <TypeScriptCompile Include="Scripts\typings\pnotify\jquery.pnotify.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\q\Q.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\xbbcode\xbbcode.d.ts" />
+    <TypeScriptCompile Include="services\map\renderers\cesiumRenderer.ts" />
+    <TypeScriptCompile Include="services\map\renderers\leafletRenderer.ts" />
     <TypeScriptCompile Include="services\search\SearchFormCtrl.ts" />
     <TypeScriptCompile Include="directives\FeatureProps\FeatureProps.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureProps\FeatureProps.ts" />

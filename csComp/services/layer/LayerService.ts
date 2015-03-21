@@ -5,28 +5,26 @@
     declare var omnivore;
 
     export interface ILayerSource
-{
-  title : string;
-  init(service : LayerService);
-  addLayer(layer : ProjectLayer, callback : Function);
-  removeLayer(layer : ProjectLayer) : void;
-}
+    {
+      title : string;
+      init(service : LayerService);
+      addLayer(layer : ProjectLayer, callback : Function);
+      removeLayer(layer : ProjectLayer) : void;
+    }
 
-export interface IMapRenderer
-{
-  title : string;
-  init(service : LayerService);
-  enable();
-  disable();
-  addGroup(group : ProjectGroup);
-  addLayer(layer : ProjectLayer);
-  updateMapFilter(group : ProjectGroup);
-  removeLayer(layer : ProjectLayer);
-  removeGroup(group : ProjectGroup);
-  addFeature(feature : IFeature);
-  removeFeature(feature : IFeature);
-  updateFeature(feature : IFeature);
-}
+    export interface IMapRenderer
+    {
+      title : string;
+      init(service : LayerService);
+      enable();
+      disable();
+      addGroup(group : ProjectGroup);
+      addLayer(layer : ProjectLayer);
+      removeGroup(group : ProjectGroup);
+      addFeature(feature : IFeature);
+      removeFeature(feature : IFeature);
+      updateFeature(feature : IFeature);
+    }
 
 
     export interface ILayerService {
@@ -38,7 +36,7 @@ export interface IMapRenderer
         findLayer(id: string): ProjectLayer;
         //selectFeature(feature: Services.IFeature);
         currentLocale        : string;
-
+        activeMapRenderer: IMapRenderer;                    // active map renderer
         mb              : Services.MessageBusService;
         map             : Services.MapService;
         layerGroup      : L.LayerGroup<L.ILayer>;
@@ -91,6 +89,7 @@ export interface IMapRenderer
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb               = $messageBusService;
             this.map              = $mapService;
+
             this.accentColor      = '';
             this.title            = '';
             //this.layerGroup       = new L.LayerGroup<L.ILayer>();
@@ -121,11 +120,15 @@ export interface IMapRenderer
             this.layerSources["geojson"] = geojsonsource;
             this.layerSources["topojson"] = geojsonsource;
 
+            //var dynamicgeojsonsource = new DynamicGeoJsonSource();
+            //dynamicgeojsonsource.init(this);
+            //this.layerSources["dynamicgeojson"] = dynamicgeojsonsource;
+
             // add wms source
             this.layerSources["wms"] = new WmsSource();
             this.layerSources["wms"].init(this);
 
-
+ 
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
@@ -182,14 +185,11 @@ export interface IMapRenderer
                (cb)=> {
                  // update sensor data & filters
                  this.updateSensorData();
-                 this.updateFilters();
-                 this.loadedLayers[layer.id] = layer;
                  this.$messageBusService.publish('layer', 'activated', layer);
-
+                 this.updateFilters();
                  cb(null,null);
                }]);
            }
-
            callback(null,null);
          },
          (callback)=>
@@ -284,7 +284,7 @@ export interface IMapRenderer
             var timepos = {};
 
             this.project.features.forEach((f: IFeature) => {
-                var l = f.layer;
+                var l = this.findLayer(f.layerId);
 
                 if (l != null) {
                     if (f.sensors || f.coordinates) {
@@ -536,14 +536,20 @@ export interface IMapRenderer
                     gs.colors = ['white', 'orange'];
                 }
                 this.saveStyle(layer.group, gs);
-
+                //if (f.geometry.type.toLowerCase() === 'point') {
                     this.project.features.forEach((fe: IFeature) => {
                         if (fe.layer.group == layer.group)
                         {
                           this.calculateFeatureStyle(fe);
                           this.activeMapRenderer.updateFeature(fe);
                         }
+                        // if (layer.group.markers.hasOwnProperty(fe.id)) {
+                        //
+                        // }
                     });
+                // } else {
+                //     this.updateStyle(gs);
+                // }
 
                 if (openStyleTab)
                     (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
@@ -586,10 +592,12 @@ export interface IMapRenderer
         /**
          * enable a filter for a specific property
          */
-        public setFilter(filter: GroupFilter, group : csComp.Services.ProjectGroup) {
+        setFilter(filter: GroupFilter, group : csComp.Services.ProjectGroup) {
+
             group.filters.push(filter);
             this.updateFilters();
-            (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+                (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+
         }
 
 
@@ -600,7 +608,7 @@ export interface IMapRenderer
             var prop                                   = property.property;
             var f                                      = property.feature;
             if (f != null) {
-                var layer                              = f.layer;
+                var layer                              = this.findLayer(f.layerId);
                 if (layer != null) {
                     var filter                         = this.findFilter(layer.group, prop);
                     if (filter                         == null) {
@@ -736,24 +744,34 @@ export interface IMapRenderer
         /**
          * deactivate layer
          */
-        public removeLayer(layer: ProjectLayer) {
+        removeLayer(layer: ProjectLayer) {
             var m: any;
             var g = layer.group;
 
-            // remove from list of active layers
             this.loadedLayers.remove(layer.id);
 
-            // check if active feature is part of this layer
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
                 this.$messageBusService.publish('sidebar', 'hide');
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
             }
 
-            // remove from render
-            this.activeMapRenderer.removeLayer(layer);
+            //m = layer.group.vectors;
+            if (g.clustering) {
+                m = g.cluster;
+                this.project.features.forEach((feature: IFeature) => {
+                    if (feature.layerId === layer.id) {
+                        try {
+                            m.removeLayer(layer.group.markers[feature.id]);
+                            delete layer.group.markers[feature.id];
+                        } catch (error) {
 
-            // remove from global features list
+                        }
+                    }
+                });
+            } else {
+                this.map.map.removeLayer(layer.mapLayer);
+            }
 
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
             var layerName = layer.id + '_';
@@ -770,7 +788,6 @@ export interface IMapRenderer
                 g.styles = [];
             }
 
-            // rebuild filters
             this.rebuildFilters(g);
             this.$messageBusService.publish('layer', 'deactivate', layer);
         }
@@ -857,11 +874,8 @@ export interface IMapRenderer
             this.featureTypes = {};
 
             $.getJSON(url,(data: Project) => {
-
-                // deserialize project loads data in an 'active' project object with working methods
                 this.project = new Project().deserialize(data);
 
-                // initialize timeline
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
                 }
@@ -870,7 +884,9 @@ export interface IMapRenderer
                     this.$messageBusService.publish('timeline', 'updateTimerange', this.project.timeLine);
                 }
 
-                // init feature types
+                if (this.project.viewBounds) {
+                    this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
+                }
                 var featureTypes = this.project.featureTypes;
                 if (featureTypes) {
                     for (var typeName in featureTypes) {
@@ -880,8 +896,6 @@ export interface IMapRenderer
                         this.featureTypes[typeName] = featureType;
                     }
                 }
-
-                // init property types
                 if (this.project.propertyTypeData) {
                     for (var key in this.project.propertyTypeData) {
                         var propertyType: IPropertyType = this.project.propertyTypeData[key];
@@ -891,7 +905,6 @@ export interface IMapRenderer
                     }
                 }
 
-                // if no dashboard available, make a new one called 'map'
                 if (!this.project.dashboards) {
                     this.project.dashboards = [];
                     var d = new Services.Dashboard();
@@ -900,74 +913,62 @@ export interface IMapRenderer
                     this.project.dashboards.push(d);
                 }
 
-                // init datasets, not used right now
-                if (!this.project.dataSets) this.project.dataSets = [];
 
-                // init global features list
+                if (!this.project.dataSets)
+                    this.project.dataSets = [];
+
                 this.project.features = [];
 
-                // init all groups
                 this.project.groups.forEach((group: ProjectGroup) => {
-
-                    // make sure group has an id
                     if (group.id == null) group.id = Helpers.getGuid();
-
-                    // init filter
                     group.ndx = crossfilter([]);
                     if (group.styles == null) group.styles = [];
                     if (group.filters == null) group.filters = [];
                     group.markers = {};
-
-                    // set title, description in right language
                     if (group.languages != null && this.currentLocale in group.languages) {
                         var locale = group.languages[this.currentLocale];
                         if (locale.title      ) group.title       = locale.title;
                         if (locale.description) group.description = locale.description;
                     }
+                    if (group.clustering) {
+                        group.cluster = new L.MarkerClusterGroup({
+                            maxClusterRadius: group.maxClusterRadius || 80,
+                            disableClusteringAtZoom: group.clusterLevel || 0
+                        });
 
-                    // add group layer (todo)
-                    this.activeMapRenderer.addGroup(group);
-
-                    // load layers
+                        this.map.map.addLayer(group.cluster);
+                    } else {
+                        group.vectors = new L.LayerGroup<L.ILayer>();
+                        this.map.map.addLayer(group.vectors);
+                    }
                     group.layers.forEach((layer: ProjectLayer) => {
-                        // make sure it has an id, title & refrence
                         if (layer.id == null) layer.id = Helpers.getGuid();
                         if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
                         if (layer.title == null) layer.title = layer.id;
-
-                        // set title, description in right language
                         if (layer.languages != null && this.currentLocale in layer.languages) {
                             var locale = layer.languages[this.currentLocale];
                             if (locale.title      ) layer.title       = locale.title;
                             if (locale.description) layer.description = locale.description;
                         }
-
-                        // attach to group
                         layer.group = group;
                         if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
                             layer.enabled = true;
-                            this.addLayer(layer);
+                            this.activeMapRenderer.addLayer(layer);
                         }
                     });
 
-                    // make sure styles have an id
                     group.styles.forEach((style: GroupStyle) => {
                         if (style.id != null) style.id = Helpers.getGuid();
                     });
 
-                    // make sure filters have an id
                     group.filters.forEach((filter: GroupFilter) => {
                         if (filter.id != null) filter.id = Helpers.getGuid();
                     });
 
-                    this.updateFilters();
-
                     if (data.startposition)
                         this.$mapService.zoomToLocation(new L.LatLng(data.startposition.latitude, data.startposition.longitude));
 
-                    if (this.project.viewBounds) {
-                        this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
-                    }
+                    this.updateFilters();
                 });
 
                 this.$messageBusService.publish('project', 'loaded', this.project);
@@ -1079,7 +1080,7 @@ export interface IMapRenderer
             }
 
             group.filterResult = dcDim.top(Infinity);
-            this.activeMapRenderer.updateMapFilter(group);
+            this.updateMapFilter(group);
             dc.renderAll();
         }
 
@@ -1212,7 +1213,7 @@ export interface IMapRenderer
                         this.updateFilterGroupCount(group);
                     }, 0);
                     dc.events.trigger(() => {
-                      this.activeMapRenderer.updateMapFilter(group);
+                        this.updateMapFilter(group);
                     }, 100);
                 });
 
@@ -1319,7 +1320,7 @@ export interface IMapRenderer
                         this.updateFilterGroupCount(group);
                     }, 0);
                     dc.events.trigger(() => {
-                      this.activeMapRenderer.updateMapFilter(group);
+                        this.updateMapFilter(group);
                     }, 100);
                 });
 
@@ -1371,7 +1372,23 @@ export interface IMapRenderer
             //.range([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
         }
 
-
+        /***
+         * Update map markers in cluster after changing filter
+         */
+        private updateMapFilter(group: ProjectGroup) {
+            $.each(group.markers, (key, marker) => {
+                var included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+                if (group.clustering) {
+                    var incluster = group.cluster.hasLayer(marker);
+                    if (!included && incluster) group.cluster.removeLayer(marker);
+                    if (included && !incluster) group.cluster.addLayer(marker);
+                } else {
+                    var onmap = group.vectors.hasLayer(marker);
+                    if (!included && onmap) group.vectors.removeLayer(marker);
+                    if (included && !onmap) group.vectors.addLayer(marker);
+                }
+            });
+        }
 
         private resetMapFilter(group: ProjectGroup) {
             $.each(group.markers, (key, marker) => {
