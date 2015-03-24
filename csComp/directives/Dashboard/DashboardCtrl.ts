@@ -16,6 +16,13 @@
 
     }
 
+    export interface IWidgetScope extends ng.IScope
+    {
+      data : any;
+    }
+
+
+
     export class DashboardCtrl {
         private scope: IDashboardScope;
         private project : csComp.Services.Project;
@@ -103,8 +110,8 @@
             if (widget.canCollapse) {
                 widget.collapse = !widget.collapse;
             }
-
         }
+
 
 
 
@@ -113,13 +120,19 @@
             //this.$dashboardService.updateWidget(w);
             //var newElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
             var widgetElement;
+            var newScope =  this.$scope;
+            (<any>newScope).data = "test";
+
             if (w.template) {
-                widgetElement = this.$compile(this.$templateCache.get(w.template))(this.$scope);
+                widgetElement = this.$compile(this.$templateCache.get(w.template))(newScope);
             }
             else if (w.url) {
                 widgetElement = this.$compile("<div>url</div>")(this.$scope);
             } else if (w.directive) {
-                widgetElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
+               //var newScope : ng.IScope;
+
+
+                widgetElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(newScope);
 
             } else {
                 widgetElement = this.$compile("<h1>hoi</h1>")(this.$scope);

@@ -97,7 +97,7 @@
             this.propertyTypeData = {};
             //this.map.map.addLayer(this.layerGroup);
             this.noStyles = true;
-
+            this.currentLocale = "en";
             // init map renderers
             this.mapRenderers = {};
 
@@ -128,7 +128,7 @@
             this.layerSources["wms"] = new WmsSource();
             this.layerSources["wms"].init(this);
 
- 
+
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
@@ -608,7 +608,7 @@
             var prop                                   = property.property;
             var f                                      = property.feature;
             if (f != null) {
-                var layer                              = this.findLayer(f.layerId);
+                var layer                              = f.layer;
                 if (layer != null) {
                     var filter                         = this.findFilter(layer.group, prop);
                     if (filter                         == null) {

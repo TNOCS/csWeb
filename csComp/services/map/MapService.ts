@@ -8,24 +8,27 @@
      */
     export class MapService {
         public static $inject = [
-            'messageBusService'
+          'localStorageService',
+          '$timeout',
+          'messageBusService'
         ];
 
         public map: L.Map;
-
+        private static expertModeKey = 'expertMode';
         public baseLayers: any;
         private activeBaseLayer: L.ILayer;
         public mapVisible: boolean = true;
         public timelineVisible: boolean = true;
         public rightMenuVisible: boolean = true;
+        expertMode      : Expertise;
 
 
-        constructor(private $messageBusService: csComp.Services.MessageBusService) {
-            //this.map = L.map("map", {
-            //    zoomControl        : false,
-            //    attributionControl : true
-            //});
-            //this.activeBaseLayer;
+        constructor(
+            private $localStorageService: ng.localStorage.ILocalStorageService,
+            private $timeout            : ng.ITimeoutService,
+            private $messageBusService         : csComp.Services.MessageBusService) {
+
+            this.initExpertMode();
             this.baseLayers = {};
             this.initMap();
 
@@ -57,6 +60,47 @@
 
             });
         }
+
+        /**
+      * The expert mode can either be set manually, e.g. using this directive, or by setting the expertMode property in the
+      * project.json file. In neither are set, we assume that we are dealing with an expert, so all features should be enabled.
+      *
+      * Precedence:
+      * - when a declaration is absent, assume Expert.
+      * - when the mode is set in local storage, take that value.
+      * - when the mode is set in the project.json file, take that value.
+      */
+      private initExpertMode() {
+          this.expertMode = this.$localStorageService.get(MapService.expertModeKey);
+          if (!this.expertMode) {
+              this.expertMode = Expertise.Expert; // Default behaviour
+              // When a project defines the expert mode, overrules default behaviour
+              this.$messageBusService.subscribe('project',(title: string, project: csComp.Services.Project) => {
+                  switch (title) {
+                      case 'loaded':
+                          if (project != null && typeof project.expertMode !== 'undefined')
+                              this.$messageBusService.publish('expertMode', 'newExpertise', project.expertMode);
+                          break;
+                  }
+              });
+          }
+
+          this.$messageBusService.subscribe('expertMode',(title: string, expertMode: Expertise) => {
+              if (title !== 'newExpertise') return;
+              this.expertMode = expertMode;
+              this.$localStorageService.set(csComp.Services.MapService.expertModeKey, expertMode); // You first need to set the key
+              switch (expertMode) {
+                  case Expertise.Intermediate:
+                  case Expertise.Expert:
+                      this.timelineVisible = true;
+                      this.$timeout(() => {this.$messageBusService.publish('timeline', 'loadProjectTimeRange')}, 100);
+                      break;
+                  default:
+                      this.timelineVisible = false;
+                      break;
+              }
+          });
+      }
 
         public initMap() {
             // alert('map service');
