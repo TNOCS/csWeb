@@ -211,6 +211,7 @@
         languages                   : ILanguageData;
         /** layer original source */
         data                        : JSON;
+        cesiumDatasource            : any;
     }
 
     /**

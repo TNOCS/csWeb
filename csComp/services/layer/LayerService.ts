@@ -20,6 +20,7 @@
       disable();
       addGroup(group : ProjectGroup);
       addLayer(layer : ProjectLayer);
+      removeLayer(layer : ProjectLayer);
       removeGroup(group : ProjectGroup);
       addFeature(feature : IFeature);
       removeFeature(feature : IFeature);
@@ -769,8 +770,11 @@
                         }
                     }
                 });
+
+                this.activeMapRenderer.removeLayer(layer);
             } else {
-                this.map.map.removeLayer(layer.mapLayer);
+                //this.map.map.removeLayer(layer.mapLayer);
+                this.activeMapRenderer.removeLayer(layer);
             }
 
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
