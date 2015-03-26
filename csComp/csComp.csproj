@@ -54,12 +54,17 @@
     <TypeScriptCompile Include="directives\LegendList\LegendList.tpl.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendListCtrl.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
     <TypeScriptCompile Include="directives\FeatureList\FeatureList.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureList\FeatureList.ts" />
     <TypeScriptCompile Include="directives\FeatureList\FeatureListCtrl.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterList.tpl.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterList.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterListCtrl.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElement.tpl.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElement.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElementCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\McaCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\models\Criteria.ts" />
     <TypeScriptCompile Include="directives\ShowModal\ShowModal.ts" />
@@ -73,7 +78,7 @@
     <TypeScriptCompile Include="services\layer\LayerService.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.tpl.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.ts" />
-    <TypeScriptCompile Include="directives\BaseMapList\BaseMapListCtrl.ts" />    
+    <TypeScriptCompile Include="directives\BaseMapList\BaseMapListCtrl.ts" />
     <TypeScriptCompile Include="services\layer\sources\GeoJsonSource.ts" />
     <TypeScriptCompile Include="services\layer\sources\WmsSource.ts" />
     <TypeScriptCompile Include="services\map\MapCtrl.ts" />
@@ -113,6 +118,7 @@
     <Content Include="directives\Dashboard\Dashboard.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
     <Content Include="directives\LanguageSwitch\readme.md" />
+    <Content Include="directives\MapElement\MapElement.tpl.html" />
     <Content Include="directives\MCA\Mca.tpl.html" />
     <Content Include="directives\MCA\McaEditorView.tpl.html" />
     <Content Include="directives\ProjectSettings\ProjectSettings.tpl.html" />
