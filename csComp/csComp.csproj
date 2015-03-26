@@ -62,6 +62,15 @@
     <TypeScriptCompile Include="directives\FilterList\FilterList.tpl.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterList.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterListCtrl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\Heatspot.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapModel.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapCtrl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapItem.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\Heatmap.tpl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\Heatmap.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorCtrl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorView.tpl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\IdealityMeasure.ts" />
     <TypeScriptCompile Include="directives\MapElement\MapElement.tpl.ts" />
     <TypeScriptCompile Include="directives\MapElement\MapElement.ts" />
     <TypeScriptCompile Include="directives\MapElement\MapElementCtrl.ts" />
@@ -73,6 +82,7 @@
     <TypeScriptCompile Include="directives\LayersList\LayersDirectiveCtrl.ts" />
     <TypeScriptCompile Include="helpers\StringExt.ts" />
     <TypeScriptCompile Include="helpers\StyleHelpers.ts" />
+    <TypeScriptCompile Include="helpers\GeoExtensions.ts" />
     <TypeScriptCompile Include="Scripts\typings\moment\moment.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\underscore\underscore.d.ts" />
     <TypeScriptCompile Include="services\layer\LayerService.ts" />
@@ -116,6 +126,8 @@
   <ItemGroup>
     <Content Include="directives\DashboardSelection\DashboardSelection.tpl.html" />
     <Content Include="directives\Dashboard\Dashboard.tpl.html" />
+    <Content Include="directives\Heatmap\Heatmap.tpl.html" />
+    <Content Include="directives\Heatmap\HeatmapEditorView.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
     <Content Include="directives\LanguageSwitch\readme.md" />
     <Content Include="directives\MapElement\MapElement.tpl.html" />
