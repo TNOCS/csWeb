@@ -47,71 +47,107 @@ module csComp.Services
 
     public removeLayer(layer : ProjectLayer)
     {
-      var g = layer.group;
+      switch (layer.layerRenderer)
+      {
+        case "svg":
+          var g = layer.group;
 
-            //m = layer.group.vectors;
-            if (g.clustering) {
-                var m = g.cluster;
-                this.service.project.features.forEach((feature: IFeature) => {
-                    if (feature.layerId === layer.id) {
-                        try {
-                            m.removeLayer(layer.group.markers[feature.id]);
-                            delete layer.group.markers[feature.id];
-                        } catch (error) {
+                //m = layer.group.vectors;
+                if (g.clustering) {
+                    var m = g.cluster;
+                    this.service.project.features.forEach((feature: IFeature) => {
+                        if (feature.layerId === layer.id) {
+                            try {
+                                m.removeLayer(layer.group.markers[feature.id]);
+                                delete layer.group.markers[feature.id];
+                            } catch (error) {
 
+                            }
                         }
-                    }
-                });
-            } else {
-                this.service.map.map.removeLayer(layer.mapLayer);
-            }
+                    });
+                } else {
+                    this.service.map.map.removeLayer(layer.mapLayer);
+                }
+          break;
+        case "wms":
+          break;
+      }
+
     }
 
     public addLayer(layer : ProjectLayer)
     {
-      // create leaflet layers
-      if (layer.group.clustering) {
-          var markers = L.geoJson(layer.data, {
-              pointToLayer: (feature, latlng) => this.addFeature(feature),
-              onEachFeature: (feature: IFeature, lay) => {
-                  //We do not need to init the feature here: already done in style.
-                  //this.initFeature(feature, layer);
-                  layer.group.markers[feature.id] = lay;
-                  lay.on({
-                      mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                      mouseout: (s) => this.hideFeatureTooltip(s)
-                  });
-              }
-          });
-          layer.group.cluster.addLayer(markers);
-      } else {
-          layer.mapLayer = new L.LayerGroup<L.ILayer>();
-          this.service.map.map.addLayer(layer.mapLayer);
+      switch (layer.layerRenderer)
+      {
+        case "wms":
+            var wms        : any = L.tileLayer.wms(layer.url, {
+                layers     : layer.wmsLayers,
+                opacity    : layer.opacity/100,
+                format     : 'image/png',
+                transparent: true,
+                attribution: layer.description
+            });
+            layer.mapLayer = new L.LayerGroup<L.ILayer>();
+            this.service.map.map.addLayer(layer.mapLayer);
+            layer.mapLayer.addLayer(wms);
+            wms.on('loading',  (event) => {
+                layer.isLoading = true;
+                this.service.$rootScope.$apply();
+                if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+            });
+            wms.on('load', (event) => {
+                layer.isLoading = false;
+                if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+            });
+            layer.isLoading = true;
+            break;
+          case "svg":
+            // create leaflet layers
+            if (layer.group.clustering) {
+                var markers = L.geoJson(layer.data, {
+                    pointToLayer: (feature, latlng) => this.addFeature(feature),
+                    onEachFeature: (feature: IFeature, lay) => {
+                        //We do not need to init the feature here: already done in style.
+                        //this.initFeature(feature, layer);
+                        layer.group.markers[feature.id] = lay;
+                        lay.on({
+                            mouseover: (a) => this.showFeatureTooltip(a, layer.group),
+                            mouseout: (s) => this.hideFeatureTooltip(s)
+                        });
+                    }
+                });
+                layer.group.cluster.addLayer(markers);
+            } else {
+                layer.mapLayer = new L.LayerGroup<L.ILayer>();
+                this.service.map.map.addLayer(layer.mapLayer);
 
-          var v = L.geoJson(layer.data, {
-              onEachFeature : (feature: IFeature, lay) => {
-                  //We do not need to init the feature here: already done in style.
-                  //this.initFeature(feature, layer);
-                  layer.group.markers[feature.id] = lay;
-                  lay.on({
-                      mouseover : (a) => this.showFeatureTooltip(a, layer.group),
-                      mouseout  : (s) => this.hideFeatureTooltip(s),
-                      mousemove : (d) => this.updateFeatureTooltip(d),
-                      click     : ()  => this.service.selectFeature(feature)
-                  });
-              },
-              style: (f: IFeature, m) => {
-                  layer.group.markers[f.id] = m;
-                  return f.effectiveStyle;
-              },
-              pointToLayer                                 : (feature, latlng) => this.addFeature(feature)
-          });
-          this.service.project.features.forEach((f                 : IFeature) => {
-              if (f.layerId !== layer.id) return;
-              var ft = this.service.getFeatureType(f);
-              f.properties['Name'] = f.properties[ft.style.nameLabel];
-          });
-          layer.mapLayer.addLayer(v);
+                var v = L.geoJson(layer.data, {
+                    onEachFeature : (feature: IFeature, lay) => {
+                        //We do not need to init the feature here: already done in style.
+                        //this.initFeature(feature, layer);
+                        layer.group.markers[feature.id] = lay;
+                        lay.on({
+                            mouseover : (a) => this.showFeatureTooltip(a, layer.group),
+                            mouseout  : (s) => this.hideFeatureTooltip(s),
+                            mousemove : (d) => this.updateFeatureTooltip(d),
+                            click     : ()  => this.service.selectFeature(feature)
+                        });
+                    },
+                    style: (f: IFeature, m) => {
+                        layer.group.markers[f.id] = m;
+                        return f.effectiveStyle;
+                    },
+                    pointToLayer                                 : (feature, latlng) => this.addFeature(feature)
+                });
+                this.service.project.features.forEach((f                 : IFeature) => {
+                    if (f.layerId !== layer.id) return;
+                    var ft = this.service.getFeatureType(f);
+                    f.properties['Name'] = f.properties[ft.style.nameLabel];
+                });
+                layer.mapLayer.addLayer(v);
+            break;
+      }
+
       }
     }
 
