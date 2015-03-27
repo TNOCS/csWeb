@@ -9,7 +9,9 @@
       title : string;
       init(service : LayerService);
       addLayer(layer : ProjectLayer, callback : Function);
-      removeLayer(layer : ProjectLayer) : void;
+      removeLayer(layer: ProjectLayer): void;
+      requiresLayer: boolean;
+      getRequiredLayers? (layer: ProjectLayer): ProjectLayer[];
     }
 
     export interface IMapRenderer
@@ -129,6 +131,9 @@
             this.layerSources["wms"] = new WmsSource();
             this.layerSources["wms"].init(this);
 
+            // add heatmap source
+            this.layerSources["heatmap"] = new HeatmapSource();
+            this.layerSources["heatmap"].init(this);
 
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
@@ -172,7 +177,17 @@
          (callback)=>
          {
            // find layer source, and activate layer
-           var layerSource = layer.type.toLowerCase();
+             var layerSource = layer.type.toLowerCase();
+             // if a heatmap layer is selected, it requires one or multiple feature layer to be loaded first
+             if (this.layerSources.hasOwnProperty(layerSource)) {
+                 if (this.layerSources[layerSource].requiresLayer) {
+                     var requiredLayers: ProjectLayer[] = this.layerSources[layerSource].getRequiredLayers(layer);
+                     requiredLayers.forEach((l) => {
+                         this.addLayer(l);
+                     });
+                 }
+             }
+
            if (this.layerSources.hasOwnProperty(layerSource))
            {
              async.series([

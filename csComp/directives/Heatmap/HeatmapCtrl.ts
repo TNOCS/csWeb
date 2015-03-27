@@ -208,7 +208,7 @@ module Heatmap {
                         var hexString = Heatmap.HeatmapCtrl.intensityToHex(feature.properties.intensity);
                         return { color: "#" + hexString + hexString + "FF"};
                     } else {
-                        return { color: "#ffffff" };
+                        return { color: "#000000" };
                     }
                     //if (feature.properties.intensity < -0.10) {
                     //    return { color: "#ff0000" };

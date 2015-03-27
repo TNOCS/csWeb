@@ -4,6 +4,7 @@ module csComp.Services {
     export class GeoJsonSource implements ILayerSource
     {
       title = "geojson";
+      requiresLayer = false;
       service : LayerService;
 
       public init(service : LayerService){

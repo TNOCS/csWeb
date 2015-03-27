@@ -178,6 +178,8 @@
         type                        : string;
         /** Data source */
         url                         : string;
+        /** List of references to required sources (in case of multiple sources) */
+        referenceList                    : string[]
         /** In case we keep the style information in a separate file */
         styleurl                    : string;
         /** how should the layer be renderer, default (can also be null), webgl, heatmap, isolines, etc. */
