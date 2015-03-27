@@ -180,6 +180,8 @@
         url                         : string;
         /** In case we keep the style information in a separate file */
         styleurl                    : string;
+        /** how should the layer be renderer, default (can also be null), webgl, heatmap, isolines, etc. */
+        layerRenderer               : string;
         /** WMS sublayers that must be loaded */
         wmsLayers                   : string;
         /** If enabled, load the layer */

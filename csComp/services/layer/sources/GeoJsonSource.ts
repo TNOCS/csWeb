@@ -15,6 +15,7 @@ module csComp.Services {
         async.series([
 
             (cb) => {
+                layer.layerRenderer = "svg";
                 // Open a layer URL
                 layer.isLoading = true;
                 // get data
