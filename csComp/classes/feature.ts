@@ -11,11 +11,12 @@
         title: string;
         color: string;
         start: number;
-        startDate = (): Date => { return new Date(this.start); } 
+        startDate = (): Date => { return new Date(this.start); }
     }
 
     export interface IFeature {
-        id?             : string;
+        id              : string;
+        index           : number;
         layerId         : string;
         type?           : string;
         geometry        : IGeoJsonGeometry;
@@ -26,27 +27,28 @@
         fType?          : IFeatureType;
         isInitialized?  : boolean;
         /**
-        * An optional dictionary of sensors, where each sensor or measurement represents the value of the sensor 
+        * An optional dictionary of sensors, where each sensor or measurement represents the value of the sensor
         * at a certain point in time. Is often used with the layer's timestamp property in case all sensors have the same
         * number of measurements.
         */
-        sensors?: { [id: string]: any[] }
-        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        sensors?    : { [id: string]: any[] }
+        timestamps  : number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         coordinates?: IGeoJsonGeometry[];          // used for temporal data
         /**
-        * An optional language dictionary, where each key, e.g. 'en' for English, represents a localised data set. Each locale can overwrite 
+        * An optional language dictionary, where each key, e.g. 'en' for English, represents a localised data set. Each locale can overwrite
         * the value of the title, description etc. of a feature.
         */
         languages?      : { [key: string]: ILocalisedData }
     }
 
-    /** 
+    /**
      * A feature is a single object that is show on a map (e.g. point, polyline, etc)
      * Features are part of a layer and filtered and styled using group filters and styles
-     * 
+     *
      */
     export class Feature implements IFeature {
         id             : string;
+        index          : number;
         layerId        : string;
         type           : string;
         geometry       : IGeoJsonGeometry;
@@ -56,9 +58,9 @@
         featureTypeName: string;
         fType          : IFeatureType;
         isInitialized  : boolean;
-        sensors: { [id: string]: any[] }
-        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
-        coordinates: IGeoJsonGeometry[];          // used for temporal data
+        sensors        : { [id: string]: any[] }
+        timestamps     : number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        coordinates    : IGeoJsonGeometry[];          // used for temporal data
     }
 
     export interface IStringToAny {
@@ -110,6 +112,9 @@
         text
     }
 
+    /**
+     * Localisation information, contains translations for one language.
+     */
     export interface ILocalisedData {
         name?       : string;
         title?      : string;
@@ -118,6 +123,9 @@
         options?    : string[];
     }
 
+    /**
+     * Localisation data, needed to support multiple languages.
+     */
     export interface ILanguageData {
         [key: string]: ILocalisedData
     }
@@ -164,7 +172,7 @@
         style?           : IFeatureTypeStyle;
         propertyTypeData?: IPropertyType[];
         /**
-         * Optional list of propertyType keys, separated by semi-colons. 
+         * Optional list of propertyType keys, separated by semi-colons.
          * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.
          */
         propertyTypeKeys?: string;
@@ -187,4 +195,4 @@
         sdMax   : number;
         sdMin   : number;
     }
-} 
+}
