@@ -221,7 +221,7 @@ module OfflineSearch {
             }
         }
 
-        private selectFeature(layerId: number, featureIndex: number) {
+        private selectFeature(layerId: string, featureIndex: number) {
             var feature = this.$layerService.findFeatureById(layerId, featureIndex);
             if (feature == null) return;
             this.$mapService.zoomTo(feature);
