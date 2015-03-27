@@ -7,11 +7,12 @@
 
 
 
-    /** a project group contains a list of layers that can be grouped together. 
-     * Filters, styles can clustering is always defined on the group level. 
+    /**
+     * A project group contains a list of layers that can be grouped together.
+     * Filters, styles and clustering is always defined on the group level.
      * If a filter is selected (e.g. show only the features within a certain property range)
      * this filter is applied to all layers within this group.
-     * If clustering is enabled all features in all layers are grouped together
+     * If clustering is enabled all features in all layers are grouped together.
      */
     export class ProjectGroup {
         id              : string;
@@ -40,7 +41,7 @@
     }
 
     /**
-     * Filters are used to select a subset of features within a group. 
+     * Filters are used to select a subset of features within a group.
      */
     export class GroupFilter {
         id         : string;
@@ -121,6 +122,6 @@
 
 
 
-   
 
-} 
+
+}

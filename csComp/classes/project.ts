@@ -64,7 +64,7 @@
                 });
             }
         }
-        
+
         startDate = () => {
             if (this.focus < this.start) this.start = this.focus - this.range / 5;
             return new Date(this.start);
@@ -105,7 +105,7 @@
             expertMode: boolean;
         }
     }
-    
+
     /** bouding box to specify a region. */
     export interface IBoundingBox {
         southWest: L.LatLng;
@@ -146,7 +146,7 @@
         languages       : ILanguageData;
 
         expertMode = Expertise.Expert;
-        markers = {}; 
+        markers = {};
 
         public deserialize(input: Project): Project {
             var res = <Project>jQuery.extend(new Project(), input);
@@ -161,7 +161,7 @@
                     if (input.mcas.hasOwnProperty(mca)) {
                         res.mcas.push(new Mca.Models.Mca().deserialize(mca));
                     }
-            }            
+            }
           }
             if (!res.propertyTypeData) res.propertyTypeData = {};
           return res;
@@ -193,12 +193,12 @@
         mapLayer                    : L.LayerGroup<L.ILayer>;
         /** Group of layers */
         group                       : ProjectGroup;
-        /** 
+        /**
         * A list of UNIX timestamp, or the UTC time in milliseconds since 1/1/1970, which define the time a sensor value
-        * was taken. So in case we have 10 timestamps, each feature's sensor (key) in the feature's sensors dictionary should 
+        * was taken. So in case we have 10 timestamps, each feature's sensor (key) in the feature's sensors dictionary should
         * also have a lnegth of 10.
         * Note that this value is optional, and can be omitted if the sensor already contains a timestamp too. This is mainly intended
-        * when all 'sensor measurements' are taken on the same moment. For example, the CENSUS date. 
+        * when all 'sensor measurements' are taken on the same moment. For example, the CENSUS date.
         * In Excel, you can use the formula =24*(A4-$B$1)*3600*1000 to convert a date to a UNIX time stamp.
         */
         timestamps                  : number[];
@@ -209,6 +209,8 @@
         events                      : Event[];
         /** Language information that can be used to localize the title and description */
         languages                   : ILanguageData;
+        /** When loading, contains the index of the currently loaded feature */
+        count                       : number;
     }
 
     /**

@@ -1,6 +1,6 @@
 ﻿module csComp.Services {
     'use strict';
- 
+
     /*
      * Singleton service that holds a reference to the map.
      * In case other controllers need access to the map, they can inject this service.
@@ -49,7 +49,7 @@
                         }
                         break;
                     case "hide":
-                        if (!$('body').hasClass("leftpanel-collapsed")) $('body').addClass("leftpanel-collapsed");                        
+                        if (!$('body').hasClass("leftpanel-collapsed")) $('body').addClass("leftpanel-collapsed");
                         break;
                     case "show":
                         if ($('body').hasClass("leftpanel-collapsed")) $('body').removeClass("leftpanel-collapsed");
@@ -61,11 +61,11 @@
         /**
         * The expert mode can either be set manually, e.g. using this directive, or by setting the expertMode property in the
         * project.json file. In neither are set, we assume that we are dealing with an expert, so all features should be enabled.
-        * 
+        *
         * Precedence:
         * - when a declaration is absent, assume Expert.
         * - when the mode is set in local storage, take that value.
-        * - when the mode is set in the project.json file, take that value. 
+        * - when the mode is set in the project.json file, take that value.
         */
         private initExpertMode() {
             this.expertMode = this.$localStorageService.get(MapService.expertModeKey);
@@ -90,7 +90,7 @@
                     case Expertise.Intermediate:
                     case Expertise.Expert:
                         this.timelineVisible = true;
-                        this.$timeout(() => {this.$messageBus.publish('timeline', 'loadProjectTimeRange')}, 100); 
+                        this.$timeout(() => {this.$messageBus.publish('timeline', 'loadProjectTimeRange')}, 100);
                         break;
                     default:
                         this.timelineVisible = false;
@@ -129,7 +129,7 @@
         /**
          * Zoom to a feature on the map.
          */
-        public zoomTo(feature: IFeature,zoomLevel : number = 14) {
+        public zoomTo(feature: IFeature, zoomLevel : number = 14) {
             var center: L.LatLng;
             if (feature.geometry.type.toUpperCase() == 'POINT') {
                 center = new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
