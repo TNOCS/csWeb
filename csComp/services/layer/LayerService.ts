@@ -89,7 +89,7 @@
             });
         }
 
-        public selectDashboard(dashboard: csComp.Services.Dashboard, container : string) {            
+        public selectDashboard(dashboard: csComp.Services.Dashboard, container : string) {
            this.project.activeDashboard = dashboard;
            this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
         }
@@ -156,6 +156,7 @@
          */
         addLayer(layer : ProjectLayer) {
             var disableLayers = [];
+            layer.enabled = true;
             switch (layer.type.toLowerCase()) {
             case 'wms':
                 var wms        : any = L.tileLayer.wms(layer.url, {
@@ -260,15 +261,16 @@
                                 }
                                 if (data.timestamps) layer.timestamps = data.timestamps;
                                 if (layer.group.clustering) {
+                                    layer.count = 0;
                                     var markers = L.geoJson(data, {
-                                        pointToLayer: (feature, latlng) => this.addFeature(feature, latlng, layer),
+                                        pointToLayer : (feature, latlng) => this.addFeature(feature, latlng, layer),
                                         onEachFeature: (feature: IFeature, lay) => {
                                             //We do not need to init the feature here: already done in style.
                                             //this.initFeature(feature, layer);
                                             layer.group.markers[feature.id] = lay;
                                             lay.on({
                                                 mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                                mouseout: (s) => this.hideFeatureTooltip(s)
+                                                mouseout : (s) => this.hideFeatureTooltip(s)
                                             });
                                         }
                                     });
@@ -321,6 +323,30 @@
                         });
                     }
                 ]);
+            }
+        }
+
+        /**
+         * Find a feature by layerId and FeatureId.
+         * @layerId {string}
+         * @featureIndex {number}
+         */
+        findFeatureById(layerId: string, featureIndex: number): IFeature {
+            for (var i=0; i< this.project.features.length; i++) {
+                var feature = this.project.features[i];
+                if (featureIndex === feature.index && layerId === feature.layerId)
+                    return feature;
+            }
+        }
+
+        /**
+         * Find the feature by name.
+         */
+        findFeatureByName(name: string): IFeature {
+            for (var i=0; i< this.project.features.length; i++) {
+                var feature = this.project.features[i];
+                if (feature.hasOwnProperty("Name") && name === feature.properties["Name"])
+                    return feature;
             }
         }
 
@@ -473,7 +499,7 @@
             var layer = this.findLayer(feature.layerId);
             if (layer == null) return;
             if (feature.geometry.type === 'Point') {
-                
+
                 this.updateFeatureIcon(feature, layer);
             } else {
                 if (group == null) {
@@ -569,6 +595,7 @@
         initFeature(feature: IFeature, layer: ProjectLayer): IFeatureType {
             //if (!feature.isInitialized)
             feature.isInitialized = true;
+            feature.index = layer.count++;
             if (feature.id == null) feature.id = Helpers.getGuid();
             feature.layerId = layer.id;
             this.project.features.push(feature);
@@ -604,11 +631,11 @@
         }
 
         /**
-        * Set default PropertyType's properties: 
+        * Set default PropertyType's properties:
         * type              = text
-        * visibleInCallout  = true     
-        * canEdit           = false     
-        * isSearchable      = true     
+        * visibleInCallout  = true
+        * canEdit           = false
+        * isSearchable      = true
         */
         private setDefaultPropertyType(pt: IPropertyType) {
             if (!pt.type) pt.type = "text";
@@ -667,7 +694,7 @@
 
                         switch (gs.visualAspect) {
                         case 'fillColor':
-                            if (gs.meta.type === 'color') {
+                            if (typeof gs.meta !== 'undefined' && gs.meta.type === 'color') {
                                 props['background-color'] = v;
                             } else {
                                 var bezInterpolator = chroma.interpolate.bezier(gs.colors);
@@ -730,10 +757,10 @@
         }
 
         /**
-         * add a feature
+         * Add a feature.
          */
         addFeature(feature: IFeature, latlng, layer: ProjectLayer) : any {
-            this.initFeature(feature,layer);
+            this.initFeature(feature, layer);
             //var style = type.style;
             var marker;
             switch (feature.geometry.type) {
@@ -757,6 +784,9 @@
             return marker;
         }
 
+        /**
+         * Select or deselect a feature and zoom to it on the map.
+         */
         selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
@@ -768,7 +798,6 @@
                 this.updateFeature(this.lastSelectedFeature);
             }
             this.lastSelectedFeature = feature;
-
 
             if (!feature.isSelected) {
                 this.$messageBusService.publish('sidebar', 'hide');
@@ -794,7 +823,7 @@
          */
         findLayer(id: string): ProjectLayer {
             if (this.loadedLayers.containsKey(id)) return this.loadedLayers[id];
-            return null;
+            //return null;
             //var r: ProjectLayer;
             //this.project.groups.forEach(g => {
             //    g.layers.forEach(l => {
@@ -891,14 +920,14 @@
          * enable a filter for a specific property
          */
         setFilter(filter: GroupFilter, group : csComp.Services.ProjectGroup) {
-            
+
             group.filters.push(filter);
             this.updateFilters();
                 (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
-            
+
         }
 
-       
+
          /**
          * enable a filter for a specific property
          */
@@ -1179,7 +1208,7 @@
                 }
                 else {
                     // Set range
-                    this.$messageBusService.publish('timeline', 'updateTimerange', this.project.timeLine); 
+                    this.$messageBusService.publish('timeline', 'updateTimerange', this.project.timeLine);
                 }
 
                 if (this.project.viewBounds) {
@@ -1239,7 +1268,7 @@
                         group.vectors = new L.LayerGroup<L.ILayer>();
                         this.map.map.addLayer(group.vectors);
                     }
-                    group.layers.forEach((layer: ProjectLayer) => { 
+                    group.layers.forEach((layer: ProjectLayer) => {
                         if (layer.id == null) layer.id = Helpers.getGuid();
                         if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
                         if (layer.title == null) layer.title = layer.id;
@@ -1318,7 +1347,7 @@
             if (isNaN(sum) || r.count == 0) {
                 r.sdMax = r.max;
                 r.sdMin = r.min;
-            } else {                
+            } else {
                 r.mean = sum / r.count;
                 r.varience = sumsq / r.count - r.mean * r.mean;
                 r.sd = Math.sqrt(r.varience);
@@ -1328,7 +1357,7 @@
                 if (r.max < r.sdMax) r.sdMax = r.max;
                 if (r.sdMin === NaN) r.sdMin = r.min;
                 if (r.sdMax === NaN) r.sdMax = r.max;
-            } 
+            }
             if (this.propertyTypeData.hasOwnProperty(property)) {
                 var mid = this.propertyTypeData[property];
                 if (mid.maxValue != null) r.sdMax = mid.maxValue;
@@ -1445,19 +1474,19 @@
             }
         }
 
-        
+
         private addScatterFilter(group: ProjectGroup, filter: GroupFilter) {
             filter.id = Helpers.getGuid();
-            
+
             var info = this.calculatePropertyInfo(group, filter.property);
             var info2 = this.calculatePropertyInfo(group, filter.property2);
-            
+
 
             var divid = 'filter_' + filter.id;
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
             $('<h4>' + filter.title + '</h4><div id=\'' + divid + '\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div><a class=\'btn\' id=\'remove' + filter.id + '\'>remove</a>').appendTo('#filterChart');
-            
+
             $('#remove' + filter.id).on('click',() => {
                 var pos = group.filters.indexOf(filter);
                 if (pos !== -1) group.filters.splice(pos, 1);
@@ -1469,13 +1498,13 @@
 
             var dcChart = <any>dc.scatterPlot('#' + divid);
 
-           
+
 
             var prop1 = group.ndx.dimension(d => {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
                 else {
                     if (d.properties[filter.property] != null) {
-                        
+
                         var a = parseInt(d.properties[filter.property]);
                         var b = parseInt(d.properties[filter.property2]);
                         if (a >= info.sdMin && a <= info.sdMax) {
@@ -1486,15 +1515,15 @@
                         }
                     }
                     return [0,0];
-                    
+
                     //return a;
                 }
             });
 
-            
+
 
             filter.dimension = prop1;
-            var dcGroup1 = prop1.group();           
+            var dcGroup1 = prop1.group();
 
             //var scale =
             dcChart.width(275)
@@ -1505,7 +1534,7 @@
                 .yAxisLabel(filter.property2)
                 .xAxisLabel(filter.property)
                 .on('filtered', (e) => {
-                    var fil = e.hasFilter();                    
+                    var fil = e.hasFilter();
                     dc.events.trigger(() => {
                         group.filterResult = prop1.top(Infinity);
                         this.updateFilterGroupCount(group);
@@ -1514,11 +1543,11 @@
                         this.updateMapFilter(group);
                     }, 100);
                 });
-                
+
 
             dcChart.xUnits(() => { return 13; });
 
-            
+
 
             //if (filter.meta != null && filter.meta.minValue != null) {
             //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
