@@ -13,19 +13,32 @@ The offline search module scans the projects.json solution file,
 looking for projects. For each project, a new file is created,
 offline_search_results.json, in the same folder as the project.json.
 
-The OfflineSearchResults class:
+The OfflineSearchManager class:
 
 - Runs when node.js starts up
+- Scans the projects.json for local projects
+- Starts an OfflineSearcher for each project in projects found
+
+The OfflineSearcher 
+
 - Scans the project.json for local layers and parses each of them
-- Builds an array with source layer files: layer_id, title (for display), 
+- Builds an OfflineSearchResult with
+- Saves the OfflineSearchResult.
+
+    - An array with source layer files: layer_id, title (for display), 
 path, file_size, last_write_date
-- Is configered with a list of stop words that should be excluded 
+    - Is configered with a list of stop words that should be excluded 
 from the index.
-- Is configured with the property names it needs to include in the 
+    - Is configured with the property names it needs to include in the 
 search. These property names are also saved.
-- Builds an index list based on these property names
-- Each entry in the index contains a reference to: the layer, the 
+    - Builds an index list based on these property names
+    - Each entry in the index contains a reference to: the layer, the 
 feature, and the property name
 
+The OfflineSearchDirective
+
+- Retreives the OfflineSearchResult file (async)
+- Uses it for locating search requests: found results are returned 
+using the layer name & feature name.
 
 

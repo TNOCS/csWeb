@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": true,
+        "noImplicitAny": false,
+        "removeComments": false,
+        "noLib": false,
+        "out": "dist/csServerComp.js"
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./dist/csServerComp.d.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./Helpers/Feature.ts",
+        "./Helpers/IGroup.ts",
+        "./Helpers/ILayer.ts",
+        "./Helpers/IProject.ts",
+        "./Helpers/IProjectLocation.ts",
+        "./Helpers/ISolution.ts",
+        "./Helpers/Utils.ts",
+        "./OfflineSearch/IOfflineSearchOptions.ts",
+        "./OfflineSearch/OfflineSearchManager.ts",
+        "./OfflineSearch/OfflineSearchResult.ts",
+        "./OfflineSearch/OfflineSearcher.ts",
+        "./Scripts/typings/node/node.d.ts"
+    ]
+}
