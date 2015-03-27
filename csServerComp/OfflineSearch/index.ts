@@ -16,7 +16,7 @@ class OfflineSearchManager {
     }
 
     private openSolution() {
-        var file = this.solutionsFile;
+        var file = path.join(process.cwd(), this.solutionsFile);
         fs.readFile(file, 'utf8', (err, data: string) => {
             if (err) {
                 console.log('Error: ' + err);
@@ -28,7 +28,7 @@ class OfflineSearchManager {
             catch (e) {
                 console.log(data);
                 console.log(e);
-                //return;
+                return;
             }
             solution.projects.forEach((project: IProjectLocation) => {
                 this.processProject(project);

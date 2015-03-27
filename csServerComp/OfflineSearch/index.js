@@ -1,3 +1,4 @@
+var path = require('path');
 var fs = require('fs');
 var offlineSearcher = require('./OfflineSearcher');
 /**
@@ -11,7 +12,7 @@ var OfflineSearchManager = (function () {
     }
     OfflineSearchManager.prototype.openSolution = function () {
         var _this = this;
-        var file = this.solutionsFile;
+        var file = path.join(process.cwd(), this.solutionsFile);
         fs.readFile(file, 'utf8', function (err, data) {
             if (err) {
                 console.log('Error: ' + err);
@@ -23,6 +24,7 @@ var OfflineSearchManager = (function () {
             catch (e) {
                 console.log(data);
                 console.log(e);
+                return;
             }
             solution.projects.forEach(function (project) {
                 _this.processProject(project);
