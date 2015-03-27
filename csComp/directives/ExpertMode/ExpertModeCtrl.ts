@@ -6,7 +6,6 @@
         expertMode: Expertise;
     }
 
-
     export class ExpertModeCtrl {
         public static $inject = [
             '$scope',
