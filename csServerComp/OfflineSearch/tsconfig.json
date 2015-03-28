@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": false,
+        "noLib": false
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./**/*.d.ts",
+        "./Scripts/**/*.d.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./Helpers/Feature.ts",
+        "./Helpers/IGroup.ts",
+        "./Helpers/ILayer.ts",
+        "./Helpers/IProject.ts",
+        "./Helpers/IProjectLocation.ts",
+        "./Helpers/ISolution.ts",
+        "./Helpers/Utils.ts",
+        "./IOfflineSearchOptions.ts",
+        "./OfflineSearchResult.ts",
+        "./OfflineSearcher.ts",
+        "./index.ts",
+        "./test.ts",
+        "./Scripts/typings/node/node.d.ts"
+    ]
+}

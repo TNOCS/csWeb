@@ -1,4 +1,4 @@
-var OfflineSearchManager = require('./OfflineSearchManager');
+var OfflineSearchManager = require('./index');
 var offlineSearchOptions = {
     propertyNames: [
         'Name',
