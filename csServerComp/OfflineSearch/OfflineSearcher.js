@@ -114,14 +114,20 @@ var OfflineSearcher = (function () {
             var key = this.propertyNames[i];
             if (!props.hasOwnProperty(key))
                 continue;
-            var words = props[key].split(' ');
-            if (words.length <= 0)
-                continue;
-            words.forEach(function (word) {
-                if (layerIndex === 10 && word.toLowerCase() === 'parnassia')
-                    debugger;
-                _this.addEntry(word, layerIndex, featureIndex);
-            });
+            var value = props[key];
+            if (typeof value === 'string') {
+                var words = value.split(' ');
+                if (words.length <= 0)
+                    continue;
+                words.forEach(function (word) {
+                    if (layerIndex === 10 && word.toLowerCase() === 'parnassia')
+                        debugger;
+                    _this.addEntry(word, layerIndex, featureIndex);
+                });
+            }
+            else {
+                this.addEntry('' + value, layerIndex, featureIndex);
+            }
         }
         //   for (var key in props) {
         //       var propertyIndex = this.propertyNames.indexOf(key);
