@@ -1,10 +1,10 @@
 {
   "name": "cs-offline-search",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Create an index file of the locally stored geojson files.",
-  "main": "./index.js",
+  "main": "./dist/OfflineSearch/index.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "node ./dist/OfflineSearch/test.js"
   },
   "repository": {
     "type": "git",

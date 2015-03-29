@@ -2,15 +2,14 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "declaration": false,
+        "declaration": true,
         "noImplicitAny": false,
         "removeComments": false,
-        "noLib": false
+        "noLib": false,
+        "outDir": "dist"
     },
     "filesGlob": [
         "./**/*.ts",
-        "!./**/*.d.ts",
-        "./Scripts/**/*.d.ts",
         "!./node_modules/**/*.ts"
     ],
     "files": [
@@ -24,8 +23,8 @@
         "./IOfflineSearchOptions.ts",
         "./OfflineSearchResult.ts",
         "./OfflineSearcher.ts",
+        "./Scripts/typings/node/node.d.ts",
         "./index.ts",
-        "./test.ts",
-        "./Scripts/typings/node/node.d.ts"
+        "./test.ts"
     ]
 }
