@@ -79,6 +79,25 @@ module csComp.Services
     {
       switch (layer.layerRenderer)
       {
+          case "tilelayer":
+              var tileLayer: any = L.tileLayer(layer.url, {
+
+                  attribution: layer.description
+              });
+              layer.mapLayer = new L.LayerGroup<L.ILayer>();
+              this.service.map.map.addLayer(layer.mapLayer);
+              layer.mapLayer.addLayer(tileLayer);
+              tileLayer.on('loading',(event) => {
+                  layer.isLoading = true;
+                  this.service.$rootScope.$apply();
+                  if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+              });
+              tileLayer.on('load',(event) => {
+                  layer.isLoading = false;
+                  if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+              });
+              layer.isLoading = true;
+              break;
         case "wms":
             var wms        : any = L.tileLayer.wms(layer.url, {
                 layers     : layer.wmsLayers,

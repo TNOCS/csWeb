@@ -13,13 +13,13 @@
     } catch (err) {
         // named module does not exist, so create one
         myModule = angular.module(moduleName, []);
-    }
+    } 
 
     /**
       * Directive to display the available map layers.
       */
       myModule.directive('map', [
-          '$window', '$compile', 
+          '$window', '$compile',
           function($window, $compile): ng.IDirective {
               return {
                   terminal: false, // do not compile any other internal directives
