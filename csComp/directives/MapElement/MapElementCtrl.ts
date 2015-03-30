@@ -7,8 +7,8 @@
         mapid         : string;
         initMap       : Function;
     }
-
-
+      
+     
 
     export class MapElementCtrl {
         private scope: IMapElementScope;
@@ -24,7 +24,7 @@
             'mapService',
             'messageBusService'
         ];
-
+         
 
 
         // dependencies are injected via AngularJS $injector
@@ -32,12 +32,12 @@
         constructor(
             private $scope            : IMapElementScope,
             private $layerService     : csComp.Services.LayerService,
-            private $mapService       : csComp.Services.MapService,
+            private mapService       : csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
 
-            //this.initMap();
+            //this.initMap(); 
 
             $scope.initMap = ()=> this.initMap();
 
