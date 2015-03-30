@@ -511,6 +511,13 @@
             return r;
         }
 
+        // hier wordt een groupstyle gemaakt op basis van een property, en dat deze wordt toegevoegd aan een group
+        // nu nog met basis kleuren, straks kijkt hij eerst of er een legenda is, en anders maakt hij een default style;
+        /**
+         * creates a GroupStyle based on a property and adds it to a group.
+         * presently using base colors only; in near future it shall look if there is a legend and otherwise
+         * it should make a default style
+         */
         public setStyle(property: any, openStyleTab = true) {
             var f: IFeature = property.feature;
             if (f != null) {
@@ -604,7 +611,7 @@
 
          /**
          * enable a filter for a specific property
-         */
+         */         
         setPropertyFilter(property: FeatureProps.CallOutProperty) {
             var prop                                   = property.property;
             var f                                      = property.feature;
