@@ -33,6 +33,7 @@
                 //    };
                 //},
                 link: (scope: any, element, attrs) => {
+                    
                     // Deal with resizing the element list
                     scope.onResizeFunction = () => {
                         var filterHeight = 50;

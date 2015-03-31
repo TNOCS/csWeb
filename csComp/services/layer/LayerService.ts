@@ -3,7 +3,7 @@
 
     declare var jsonld;
     declare var omnivore;
-
+     
     export interface ILayerSource
     {
       title : string;
@@ -24,6 +24,14 @@
       addFeature(feature : IFeature);
       removeFeature(feature : IFeature);
       updateFeature(feature : IFeature);
+    }
+
+    export class VisualState {
+        public leftPanelVisible: boolean = false;
+        public rightPanelVisible: boolean = false;
+        public dashboardVisible: boolean = true;
+        public mapVisible: boolean = true;
+        public timelineVisible: boolean = true;
     }
 
 
@@ -69,14 +77,15 @@
         layerSources   : {[ key : string] : ILayerSource};   // list of available layer sources
         mapRenderers  : {[ key : string] : IMapRenderer};    // list of available map renderers
         activeMapRenderer : IMapRenderer;                    // active map renderer
-
+        public visual: VisualState = new VisualState();
 
         static $inject = [
             '$location',
             '$translate',
             'messageBusService',
             'mapService',
-            '$rootScope'
+            '$rootScope',
+            'dashboardService'
         ];
 
         constructor(
@@ -84,7 +93,8 @@
             private $translate         : ng.translate.ITranslateService,
             public $messageBusService : Services.MessageBusService,
             public $mapService        : Services.MapService,
-            public $rootScope : any) {
+            public $rootScope: any,
+            public $dashboardService : Services.DashboardService) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb               = $messageBusService;
@@ -100,6 +110,7 @@
             this.currentLocale = "en";
             // init map renderers
             this.mapRenderers = {};
+            this.visual = new VisualState();
 
             // add renderers
             this.mapRenderers["leaflet"] = new LeafletRenderer();
@@ -112,6 +123,8 @@
             //this.mapRenderers["leaflet"].enable();
 
             this.initLayerSources();
+
+            //this.$dashboardService.init();
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
