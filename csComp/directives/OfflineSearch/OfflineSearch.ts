@@ -17,7 +17,7 @@ module OfflineSearch {
 
     /**
       * Directive to display the available map layers.
-      */
+      */ 
     myModule.directive('offlineSearch', [
         '$compile',
         function ($compile): ng.IDirective {

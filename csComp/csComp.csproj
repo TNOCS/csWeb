@@ -27,6 +27,7 @@
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.tpl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.ts" />
     <TypeScriptCompile Include="directives\Dashboard\DashboardCtrl.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.tpl.ts" />
     <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
     <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.tpl.ts" />
@@ -44,6 +45,7 @@
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
+    <TypeScriptCompile Include="directives\MCA\Criteria.ts" />
     <TypeScriptCompile Include="directives\MCA\Mca.tpl.ts" />
     <TypeScriptCompile Include="directives\MCA\Mca.ts" />
     <TypeScriptCompile Include="directives\MCA\McaEditorCtrl.ts" />
@@ -52,6 +54,10 @@
     <TypeScriptCompile Include="classes\group.ts" />
     <TypeScriptCompile Include="classes\project.ts" />
     <TypeScriptCompile Include="directives\MCA\McaEditorView.tpl.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearch.tpl.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearch.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearchClasses.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearchCtrl.ts" />
     <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettings.tpl.ts" />
     <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettings.ts" />
     <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettingsCtrl.ts" />
@@ -62,6 +68,7 @@
     <TypeScriptCompile Include="helpers\Dictionary.ts" />
     <TypeScriptCompile Include="helpers\GeoExtensions.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
+    <TypeScriptCompile Include="helpers\StringScore.ts" />
     <TypeScriptCompile Include="helpers\Utils.ts" />
     <TypeScriptCompile Include="Scripts\typings\leaflet\webgl-heatmap-leaflet.d.ts" />
     <TypeScriptCompile Include="services\bus\MessageBus.ts" />
@@ -77,7 +84,6 @@
     <TypeScriptCompile Include="directives\FilterList\FilterList.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterListCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\McaCtrl.ts" />
-    <TypeScriptCompile Include="directives\MCA\models\Criteria.ts" />
     <TypeScriptCompile Include="directives\ShowModal\ShowModal.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.tpl.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
@@ -122,14 +128,22 @@
   <ItemGroup>
     <Content Include="directives\DashboardSelection\DashboardSelection.tpl.html" />
     <Content Include="directives\Dashboard\Dashboard.tpl.html" />
+    <Content Include="directives\ExpertMode\ExpertMode.tpl.html" />
     <Content Include="directives\Heatmap\Heatmap.tpl.html" />
     <Content Include="directives\Heatmap\HeatmapEditorView.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
     <Content Include="directives\LanguageSwitch\readme.md" />
     <Content Include="directives\MCA\Mca.tpl.html" />
     <Content Include="directives\MCA\McaEditorView.tpl.html" />
+    <Content Include="directives\OfflineSearch\OfflineSearch.tpl.html" />
     <Content Include="directives\ProjectSettings\ProjectSettings.tpl.html" />
     <Content Include="directives\Timeline\Timeline.tpl.html" />
+    <None Include="includes\cssImages\User Expert.png" />
+    <None Include="includes\cssImages\User Expert.svg" />
+    <None Include="includes\cssImages\User Intermediate.png" />
+    <None Include="includes\cssImages\User Intermediate.svg" />
+    <None Include="includes\cssImages\User Novice.png" />
+    <None Include="includes\cssImages\User Novice.svg" />
     <Content Include="includes\js\dashboard.min.js" />
     <Content Include="includes\js\jquery.cookies.min.js" />
     <Content Include="includes\js\jqueryinjectCSS.min.js" />

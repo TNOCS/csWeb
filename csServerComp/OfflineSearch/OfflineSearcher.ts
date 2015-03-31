@@ -56,11 +56,13 @@ export class OfflineSearcher {
                 return;
             }
             var project : IProject = JSON.parse(data);
-            project.groups.forEach((group) => {
+            if (!project.groups) return;
+            project.groups.forEach((group: IGroup) => {
+                if (!group.layers) return;
                 group.layers.forEach((layer) => {
                     var layerType = layer.type.toLowerCase();
-                    if (!(layerType === 'geojson' || layerType === 'topojson')) return;
-                    this.processLayer(layer, group.title);
+                    if (!(layerType === 'geojson')) return;
+                    this.processLayer(layer, group.title || group.languages['nl'].title);
                 });
             });
             this.saveResult();
@@ -83,17 +85,19 @@ export class OfflineSearcher {
         fs.readFile(this.layerFilename(layer.url), 'utf8', (err, data) => {
             if (err) {
                 this.filesToProcess--;
-                console.log('Error: ' + err);
+                console.log(err);
                 this.saveResult();
                 return;
             }
             var geojson: geo.IGeoJsonFile = JSON.parse(data);
             var featureIndex = 0;
+            if (!geojson.features) return;
             geojson.features.forEach((feature: geo.IFeature) => {
                 resultLayer.featureNames.push(this.getShortenedName(feature));
-                if (!feature.hasOwnProperty('properties')) return;
-                this.processProperties(feature.properties, layerIndex, featureIndex++);
+                if (feature.hasOwnProperty('properties'))
+                    this.processProperties(feature.properties, layerIndex, featureIndex++);
             });
+            console.log(layerIndex + '. Processed ' + layer.title);
             this.filesToProcess--;
             this.saveResult();
         });
@@ -128,11 +132,12 @@ export class OfflineSearcher {
                 var words = value.split(' ');
                 if (words.length <= 0) continue;
                 words.forEach((word) => {
-                    if (layerIndex === 10 && word.toLowerCase() === 'parnassia')
-                        debugger;
+                    // if (layerIndex === 10 && word.toLowerCase() === 'parnassia')
+                    //     debugger;
                     this.addEntry(word, layerIndex, featureIndex)
                 });
             } else {
+                // Value is a number
                 this.addEntry('' + value, layerIndex, featureIndex)
             }
         }

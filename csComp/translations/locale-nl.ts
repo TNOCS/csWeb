@@ -28,7 +28,10 @@
             WHITE_ORANGE            : 'wit - oranje',
             ORANGE_WHITE            : 'oranje - wit',
             EXPERTMODE              : { 
-                EXPLANATION         : 'Door meer sterren te selecteren komt er meer functionaliteit beschikbaar (3 sterren = expert mode).'
+                BEGINNER            : 'Novice',
+                INTERMEDIATE        : 'Gevorderd',
+                EXPERT              : 'Expert',
+                EXPLANATION         : 'Selecteer uw expertise om meer functionaliteit te kunnen gebruiken.'
             },
             LAYER_SERVICE: {
                 RELOAD_PROJECT_TITLE: 'Data wordt opnieuw geladen',

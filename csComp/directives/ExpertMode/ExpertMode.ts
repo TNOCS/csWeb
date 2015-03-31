@@ -35,21 +35,27 @@
                     terminal: true,    
                     restrict: 'E',     
                     scope: {},       
-                    link: function (scope, element, attrs) {
-                        // Since we are wrapping the rating directive in this directive, I couldn't use transclude,
-                        // so I copy the existing attributes manually.
-                        var attributeString = ''; 
-                        for (var key in attrs) {
-                            if (key.substr(0, 1) !== '$' && attrs.hasOwnProperty(key)) attributeString += key + '="' + attrs[key] + '" ';
-                        }
-                        var html = '<rating ng-model="expertMode" '
-                            + attributeString
-                            + 'tooltip-html-unsafe="{{\'EXPERTMODE.EXPLANATION\' | translate}}" tooltip-placement="bottom" tooltip-trigger="mouseenter" tooltip-append-to-body="false"'
-                            + 'max="3"></rating>';
-                        var e = $compile(html)(scope);
-                        element.replaceWith(e);
-                    },  
-                    //template: '<div><rating ng-model="expertise" max="3"></rating></div>',
+                    template: html,    // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
+                    compile: el => {  // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                        var fn = $compile(el);
+                        return scope => {
+                            fn(scope);
+                        };
+                    },
+                   //link: function (scope, element, attrs) {
+                   //     // Since we are wrapping the rating directive in this directive, I couldn't use transclude,
+                   //     // so I copy the existing attributes manually.
+                   //     var attributeString = ''; 
+                   //     for (var key in attrs) {
+                   //         if (key.substr(0, 1) !== '$' && attrs.hasOwnProperty(key)) attributeString += key + '="' + attrs[key] + '" ';
+                   //     }
+                   //     var html = '<rating ng-model="expertMode" '
+                   //         + attributeString
+                   //         + 'tooltip-html-unsafe="{{\'EXPERTMODE.EXPLANATION\' | translate}}" tooltip-placement="bottom" tooltip-trigger="mouseenter" tooltip-append-to-body="false"'
+                   //         + 'max="3"></rating>';
+                   //     var e = $compile(html)(scope);
+                   //     element.replaceWith(e);
+                   // },  
                     replace: true,     // Remove the directive from the DOM
                     transclude: true,  // Add elements and attributes to the template
                     controller: ExpertModeCtrl

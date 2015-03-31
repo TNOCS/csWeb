@@ -28,7 +28,10 @@
             WHITE_ORANGE            : 'white - orange',
             ORANGE_WHITE            : 'orange - white',
             EXPERTMODE              : {
-                EXPLANATION         : 'By selecting more stars, more functionality will be available (3 stars = expert mode).'
+                BEGINNER            : 'Beginner',
+                INTERMEDIATE        : 'Intermediate',
+                EXPERT              : 'Expert',
+                EXPLANATION         : 'Select your expertise in order to unlock more functionality.'
             },
             LAYER_SERVICE           : {
                 RELOAD_PROJECT_TITLE: 'Data is reloaded',

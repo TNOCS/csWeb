@@ -94,7 +94,7 @@ module OfflineSearch {
          * Get the locations based on the entered text.
          */
         public getLocation(text: string, resultCount = 15): OfflineSearchResultViewModel[] {
-            if (!this.isReady || text === null || text.length < 3) return null;
+            if (!this.isReady || text === null || text.length < 3) return [];
             var searchWords = text.toLowerCase().split(' ');
             var totResults: ILookupResult[];
 

@@ -52,6 +52,7 @@
         "./directives/DataTable/DataTable.tpl.ts",
         "./directives/DataTable/DataTable.ts",
         "./directives/DataTable/DataTableCtrl.ts",
+        "./directives/ExpertMode/ExpertMode.tpl.ts",
         "./directives/ExpertMode/ExpertMode.ts",
         "./directives/ExpertMode/ExpertModeCtrl.ts",
         "./directives/FeatureList/FeatureList.tpl.ts",

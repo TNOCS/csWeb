@@ -36,6 +36,23 @@
         }
 
         /** 
+        * Get the CSS class to render the mode.
+        */
+        getCssClass() {
+            switch (this.$mapService.expertMode) {
+                case Expertise.Beginner:
+                    return 'beginnerUserIcon';
+                    break;
+                case Expertise.Intermediate:
+                    return 'intermediateUserIcon';
+                    break;
+                case Expertise.Expert:
+                    return 'expertUserIcon';
+                    break;
+            }
+        }
+
+        /** 
         * Set the expert mode: although we assume that each directive is responsible for managing it by listening
         * to the expertMode.newExpertise message, we already set some common options here. 
         * This is to reduce the dependency on this directive.

@@ -5,20 +5,22 @@ A small node library providing csMap with the option to create an index file of 
 
 ## Installation
 
-  npm install cs-offline-search --save
+`npm install cs-offline-search --save`
 
 ## Usage
 
+```
   import offlineSearch = require('cs-offline-search');
 
   var offlineSearchManager = new offlineSearch('public/data/projects/projects.json', {
       propertyNames: ['Name', 'postcode', 'Postcode'],
       stopWords    : ['the', 'a', 'an', 'of', 'to']
   });
+```
 
 ## Tests
 
-  npm test
+`npm test`
 
 ## Contributing
 
@@ -32,6 +34,7 @@ Add unit tests for any new or changed functionality. Lint and test your code.
 * 0.0.3 Fixed bug when a property returns a number
 * 0.0.4 Reorganized the output (added dist folder)
 * 0.0.5 Updated documentation
+* 0.0.7 Added fix for files that contain geometries without features
 
 ## About the code
 
