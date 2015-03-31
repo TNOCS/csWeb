@@ -8,7 +8,7 @@
     {
       title : string;
       init(service : LayerService);
-      addLayer(layer : ProjectLayer, callback : Function);
+      addLayer(layer: ProjectLayer, callback: Function);
       removeLayer(layer: ProjectLayer): void;
       requiresLayer: boolean;
       getRequiredLayers? (layer: ProjectLayer): ProjectLayer[];
@@ -157,68 +157,64 @@
 
 
 
-         public addLayer(layer : ProjectLayer)
-        {
-          var disableLayers = [];
-       async.series([
-         (callback)=>
-         {
-           // check if in this group only one layer can be active
-           // make sure all existising active layers are disabled
-           if (layer.group.oneLayerActive) {
-               layer.group.layers.forEach((l: ProjectLayer) => {
-                   if (l !== layer && l.enabled) {
-                       disableLayers.push(l);
-                   }
-               });
-             }
-           callback(null,null);
-         },
-         (callback)=>
-         {
-           // find layer source, and activate layer
-             var layerSource = layer.type.toLowerCase();
-             // if a heatmap layer is selected, it requires one or multiple feature layer to be loaded first
-             if (this.layerSources.hasOwnProperty(layerSource)) {
-                 if (this.layerSources[layerSource].requiresLayer) {
-                     var requiredLayers: ProjectLayer[] = this.layerSources[layerSource].getRequiredLayers(layer);
-                     requiredLayers.forEach((l) => {
-                         this.addLayer(l);
-                     });
-                 }
-             }
+        public addLayer(layer: ProjectLayer) {
+            if (this.loadedLayers.containsKey(layer.id)) return;
+            var disableLayers = [];
+            async.series([
+                (callback) => {
+                    // check if in this group only one layer can be active
+                    // make sure all existising active layers are disabled
+                    if (layer.group.oneLayerActive) {
+                        layer.group.layers.forEach((l: ProjectLayer) => {
+                            if (l !== layer && l.enabled) {
+                                disableLayers.push(l);
+                            }
+                        });
+                    }
+                    callback(null, null);
+                },
+                (callback) => {
+                    // find layer source, and activate layer
+                    var layerSource = layer.type.toLowerCase();
+                    // if a layer is depends on other layers, load those first
+                    if (this.layerSources.hasOwnProperty(layerSource)) {
+                        if (this.layerSources[layerSource].requiresLayer) {
+                            var requiredLayers: ProjectLayer[] = this.layerSources[layerSource].getRequiredLayers(layer);
+                            requiredLayers.forEach((l) => {
+                                this.addLayer(l);
+                            });
+                        }
+                    }
 
-           if (this.layerSources.hasOwnProperty(layerSource))
-           {
-             async.series([
-               (cb)=> {
-                 // load layer from source
-                 this.layerSources[layerSource].addLayer(layer,(l)=>
-                 {
-                   this.activeMapRenderer.addLayer(layer);
-                 }); cb(null,null);
-               },
-               (cb)=> {
-                 // update sensor data & filters
-                 this.updateSensorData();
-                 this.$messageBusService.publish('layer', 'activated', layer);
-                 this.updateFilters();
-                 cb(null,null);
-               }]);
-           }
-           callback(null,null);
-         },
-         (callback)=>
-         {
-           // now remove the layers that need to be disabled
-           disableLayers.forEach((l) => {
-               this.removeLayer(l);
-               l.enabled = false;
-           });
-           callback(null,null);
+                    if (this.layerSources.hasOwnProperty(layerSource)) {
+                        async.series([
+                            (cb) => {
+                                // load layer from source
+                                this.layerSources[layerSource].addLayer(layer,(l) => {
+                                    this.activeMapRenderer.addLayer(layer);
+                                }); cb(null, null);
+                            },
+                            (cb) => {
+                                // update sensor data & filters
+                                this.updateSensorData();
+                                this.$messageBusService.publish('layer', 'activated', layer);
+                                this.updateFilters();
+                                cb(null, null);
+                            }]);
+                    }
+                    callback(null, null);
+                },
+                (callback) => {
+                    // now remove the layers that need to be disabled
+                    disableLayers.forEach((l) => {
+                        this.removeLayer(l);
+                        l.enabled = false;
+                    });
+                    callback(null, null);
 
-         }
-       ]);
+                }
+            ]);
+            this.loadedLayers.add(layer.id, layer);
         }
 
         removeStyle(style: GroupStyle) {
@@ -404,10 +400,10 @@
         {
           var s = {
               fillColor   : 'red',
-              weight      : 2,
+              weight      : 0.5,
               opacity     : 1,
               color       : 'black',
-              fillOpacity : 0.7
+              fillOpacity : 0.6
           };
 
           var ft = this.getFeatureType(feature);
@@ -418,25 +414,27 @@
           }
 
           //var layer = this.findLayer(feature.layerId);
-          feature.layer.group.styles.forEach((gs: GroupStyle) => {
-              if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
-                  var v = Number(feature.properties[gs.property]);
-                  if (!isNaN(v)) {
-                      switch (gs.visualAspect) {
-                      case 'strokeColor':
-                          s['color'] = csComp.Helpers.getColor(v, gs);
-                          break;
-                      case 'fillColor':
-                          s[gs.visualAspect] = csComp.Helpers.getColor(v, gs);
-                          break;
-                      case 'strokeWidth':
-                          s['weight'] = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
-                          break;
+          if (feature.layer) {
+              feature.layer.group.styles.forEach((gs: GroupStyle) => {
+                  if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
+                      var v = Number(feature.properties[gs.property]);
+                      if (!isNaN(v)) {
+                          switch (gs.visualAspect) {
+                              case 'strokeColor':
+                                  s['color'] = csComp.Helpers.getColor(v, gs);
+                                  break;
+                              case 'fillColor':
+                                  s[gs.visualAspect] = csComp.Helpers.getColor(v, gs);
+                                  break;
+                              case 'strokeWidth':
+                                  s['weight'] = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
+                                  break;
+                          }
                       }
+                      //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                   }
-                  //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
-              }
-          });
+              });
+          }
 
           if (feature.isSelected) {
               s['weight'] = 5;

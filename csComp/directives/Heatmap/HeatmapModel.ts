@@ -41,6 +41,9 @@ module Heatmap {
                     }
                 });
             });
+            var widthPaddingRatio = (width + 2 * maxInterestDistance) / width;
+            var heigthPaddingRatio = (height + 2 * maxInterestDistance) / height;
+            var paddingRatio = Math.max(widthPaddingRatio, heigthPaddingRatio);
 
             //Calculate a grid based on the maximum number of cells and the map ratio.
             var mapRatio = width / height;
@@ -64,7 +67,7 @@ module Heatmap {
             // Iterate over all applicable features on the map and create a intensity "stamp" for each feature
             dataset.features.forEach((f) => {
                 this.heatmapItems.forEach((hi) => {
-                    var heatspot = hi.calculateHeatspots(f, cellWidth, cellHeight, horizCells, vertCells, mapBounds);
+                    var heatspot = hi.calculateHeatspots(f, cellWidth, cellHeight, horizCells, vertCells, mapBounds, paddingRatio);
                     if (heatspot) {
                         //heatspots = heatspots.concat(heatspot);
                         //console.log('Created ' + heatspot.length + ' heatspots');

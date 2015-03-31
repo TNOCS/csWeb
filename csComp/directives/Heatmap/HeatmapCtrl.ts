@@ -98,6 +98,8 @@ module Heatmap {
         createHeatmap() {
             var heatmap = new HeatmapModel('Heatmap');
             this.showHeatmapEditor(heatmap);
+            this.$mapService.map.addLayer(this.heatmap);
+            this.$mapService.getMap().on('moveend',  () => { this.updateHeatmap() });
         }
 
         editHeatmap(heatmap: HeatmapModel) {
@@ -219,10 +221,7 @@ module Heatmap {
                     //}
                 }
             });
-            this.$mapService.map.setView(new L.LatLng(52.1095, 4.3275), 14);
-            this.$mapService.map.addLayer(this.heatmap);
-            //TODO: remove when deleting heatmap layer
-            this.$mapService.getMap().on('moveend',  () => { this.updateHeatmap() });
+            //this.$mapService.map.setView(new L.LatLng(52.1095, 4.3275), 14);
         }
 
         public static intensityToHex(intensity: number): string {

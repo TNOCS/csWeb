@@ -41,7 +41,7 @@ module Heatmap {
 
         reset(): void;
         setScale(latitude: number, longitude: number): void;
-        calculateHeatspots(feature: csComp.Services.IFeature, cellWidth: number, cellHeight: number, horizCells: number, vertCells: number, mapBounds: L.LatLngBounds) : IHeatspot[];
+        calculateHeatspots(feature: csComp.Services.IFeature, cellWidth: number, cellHeight: number, horizCells: number, vertCells: number, mapBounds: L.LatLngBounds, paddingRatio: number) : IHeatspot[];
     }
 
     export class HeatmapItem implements IHeatmapItem {
@@ -96,18 +96,18 @@ module Heatmap {
         }
 
         calculateHeatspots(feature: csComp.Services.Feature, cellWidth: number, cellHeight: number,
-                                    horizCells: number, vertCells: number, mapBounds: L.LatLngBounds) {
+                horizCells: number, vertCells: number, mapBounds: L.LatLngBounds, paddingRatio: number) {
             // right type?
             if (!this.isSelected || this.featureType !== feature.fType) return null;
             if (this.heatspots.length === 0) this.calculateHeatspot(cellWidth, cellHeight);
             // create heatspot solely based on feature type?
             if (!this.propertyLabel) {
-                return this.pinHeatspotToGrid(feature, horizCells, vertCells, mapBounds);
+                return this.pinHeatspotToGrid(feature, horizCells, vertCells, mapBounds, paddingRatio);
             }
             // create heatspot based on the preferred option?
             if (feature.properties.hasOwnProperty(this.propertyLabel)
                 && feature.properties[this.propertyLabel] === this.optionIndex) {
-                return this.pinHeatspotToGrid(feature, horizCells, vertCells, mapBounds);
+                return this.pinHeatspotToGrid(feature, horizCells, vertCells, mapBounds, paddingRatio);
             }
             return null;
         }
@@ -203,11 +203,11 @@ module Heatmap {
         /** 
         * Translate the heatspot (at (0,0)) to the actual location.
         */
-        private pinHeatspotToGrid(feature: csComp.Services.Feature, horizCells: number, vertCells: number, mapBounds: L.LatLngBounds) {
+        private pinHeatspotToGrid(feature: csComp.Services.Feature, horizCells: number, vertCells: number, mapBounds: L.LatLngBounds, paddingRatio: number) {
             if (feature.geometry.type !== 'Point') return null;
             var latlong = new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
             //TODO add a padding that takes the current zoom into account
-            var paddedBounds: L.LatLngBounds = mapBounds.pad(1.1);
+            var paddedBounds: L.LatLngBounds = mapBounds.pad(paddingRatio);
             if (!paddedBounds.contains(latlong)) return null; //Only draw features that are visible in the map
             var actualHeatspots: IHeatspot[] = [];
             //Find the indices of the feature in the grid
