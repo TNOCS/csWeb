@@ -12,7 +12,7 @@
         param: any;
         initDashboard: Function;
         minus: Function;
-
+           
 
     }
 
@@ -42,7 +42,7 @@
             '$templateCache'
         ];
 
-
+         
 // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
@@ -53,6 +53,8 @@
             private $messageBusService: csComp.Services.MessageBusService,
             private $templateCache : any
             ) {
+
+            //alert('init dashboard ctrl');
 
             $scope.vm = this;
 
@@ -155,11 +157,11 @@
 
         public checkMap() {
 
-            if (this.$scope.dashboard.showMap != this.$mapService.mapVisible) {
+            if (this.$scope.dashboard.showMap != this.$layerService.visual.mapVisible) {
                 if (this.$scope.dashboard.showMap) {
-                    this.$mapService.mapVisible = true;
+                    this.$layerService.visual.mapVisible = true;
                 } else {
-                    this.$mapService.mapVisible = false;
+                    this.$layerService.visual.mapVisible = false;
                 }
                 if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
             }

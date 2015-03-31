@@ -3,7 +3,7 @@
 
     declare var jsonld;
     declare var omnivore;
-
+     
     export interface ILayerSource
     {
       title : string;
@@ -22,11 +22,18 @@
       disable();
       addGroup(group : ProjectGroup);
       addLayer(layer : ProjectLayer);
-      removeLayer(layer : ProjectLayer);
       removeGroup(group : ProjectGroup);
       addFeature(feature : IFeature);
       removeFeature(feature : IFeature);
       updateFeature(feature : IFeature);
+    }
+
+    export class VisualState {
+        public leftPanelVisible: boolean = false;
+        public rightPanelVisible: boolean = false;
+        public dashboardVisible: boolean = true;
+        public mapVisible: boolean = true;
+        public timelineVisible: boolean = true;
     }
 
 
@@ -72,14 +79,15 @@
         layerSources   : {[ key : string] : ILayerSource};   // list of available layer sources
         mapRenderers  : {[ key : string] : IMapRenderer};    // list of available map renderers
         activeMapRenderer : IMapRenderer;                    // active map renderer
-
+        public visual: VisualState = new VisualState();
 
         static $inject = [
             '$location',
             '$translate',
             'messageBusService',
             'mapService',
-            '$rootScope'
+            '$rootScope',
+            'dashboardService'
         ];
 
         constructor(
@@ -87,7 +95,8 @@
             private $translate         : ng.translate.ITranslateService,
             public $messageBusService : Services.MessageBusService,
             public $mapService        : Services.MapService,
-            public $rootScope : any) {
+            public $rootScope: any,
+            public $dashboardService : Services.DashboardService) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb               = $messageBusService;
@@ -103,6 +112,7 @@
             this.currentLocale = "en";
             // init map renderers
             this.mapRenderers = {};
+            this.visual = new VisualState();
 
             // add renderers
             this.mapRenderers["leaflet"] = new LeafletRenderer();
@@ -114,27 +124,9 @@
             this.selectRenderer("leaflet");
             //this.mapRenderers["leaflet"].enable();
 
-            // init layer sources
-            this.layerSources = {};
+            this.initLayerSources();
 
-            // add a topo/geojson source
-            var geojsonsource = new GeoJsonSource();
-            geojsonsource.init(this);
-            this.layerSources["geojson"] = geojsonsource;
-            this.layerSources["topojson"] = geojsonsource;
-
-            //var dynamicgeojsonsource = new DynamicGeoJsonSource();
-            //dynamicgeojsonsource.init(this);
-            //this.layerSources["dynamicgeojson"] = dynamicgeojsonsource;
-
-            // add wms source
-            this.layerSources["wms"] = new WmsSource();
-            this.layerSources["wms"].init(this);
-
-            // add heatmap source
-            this.layerSources["heatmap"] = new HeatmapSource();
-            this.layerSources["heatmap"].init(this);
-
+            //this.$dashboardService.init();
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
@@ -155,7 +147,31 @@
             });
         }
 
+        // initialize the available layer sources
+        private initLayerSources()
+        {
+          // init layer sources
+          this.layerSources = {};
 
+          // add a topo/geojson source
+          var geojsonsource = new GeoJsonSource();
+          geojsonsource.init(this);
+          this.layerSources["geojson"] = geojsonsource;
+          this.layerSources["topojson"] = geojsonsource;
+
+          //var dynamicgeojsonsource = new DynamicGeoJsonSource();
+          //dynamicgeojsonsource.init(this);
+          //this.layerSources["dynamicgeojson"] = dynamicgeojsonsource;
+
+          // add wms source
+          this.layerSources["wms"] = new WmsSource();
+          this.layerSources["wms"].init(this);
+
+          //add tile layer
+          this.layerSources["tilelayer"] = new TileLayerSource();
+          this.layerSources["tilelayer"].init(this);
+
+        }
 
         public addLayer(layer: ProjectLayer) {
             if (this.loadedLayers.containsKey(layer.id)) return;
@@ -524,6 +540,13 @@
             return r;
         }
 
+        // hier wordt een groupstyle gemaakt op basis van een property, en dat deze wordt toegevoegd aan een group
+        // nu nog met basis kleuren, straks kijkt hij eerst of er een legenda is, en anders maakt hij een default style;
+        /**
+         * creates a GroupStyle based on a property and adds it to a group.
+         * presently using base colors only; in near future it shall look if there is a legend and otherwise
+         * it should make a default style
+         */
         public setStyle(property: any, openStyleTab = true) {
             var f: IFeature = property.feature;
             if (f != null) {
@@ -617,7 +640,7 @@
 
          /**
          * enable a filter for a specific property
-         */
+         */         
         setPropertyFilter(property: FeatureProps.CallOutProperty) {
             var prop                                   = property.property;
             var f                                      = property.feature;
@@ -783,11 +806,8 @@
                         }
                     }
                 });
-
-                this.activeMapRenderer.removeLayer(layer);
             } else {
-                //this.map.map.removeLayer(layer.mapLayer);
-                this.activeMapRenderer.removeLayer(layer);
+                this.map.map.removeLayer(layer.mapLayer);
             }
 
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
@@ -1418,5 +1438,7 @@
                 }
             });
         }
+
+        
     }
 }

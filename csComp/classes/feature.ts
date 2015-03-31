@@ -136,7 +136,10 @@
         subject?         : string;
         target?          : string;
         options?         : string[];
-        languages?       : ILanguageData;
+        languages?: ILanguageData;
+        legend?: Legend;
+
+        
     }
 
     export interface IPropertyTypeData {
@@ -154,11 +157,12 @@
         iconUri?             : string;
         maxTitleResolution?  : string;
         analysispropertyType?: any;
+
     }
 
     export interface IFeatureType {
         name?            : string;
-        style?           : IFeatureTypeStyle;
+        style?           : IFeatureTypeStyle; 
         propertyTypeData?: IPropertyType[];
         /**
          * Optional list of propertyType keys, separated by semi-colons.
