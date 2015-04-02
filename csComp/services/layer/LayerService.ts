@@ -182,6 +182,7 @@
                             var requiredLayers: ProjectLayer[] = this.layerSources[layerSource].getRequiredLayers(layer);
                             requiredLayers.forEach((l) => {
                                 this.addLayer(l);
+                                l.enabled = true;
                             });
                         }
                     }
@@ -229,8 +230,12 @@
         updateStyle(style: GroupStyle) {
             //console.log('update style ' + style.title);
             if (style == null) return;
-            if (style.group != null) {
-                style.info = this.calculatePropertyInfo(style.group, style.property);
+            if (style.group != null && style.group.styles[0] != null) {
+                if (style.group.styles[0].property == "intensity") {
+                    style.info = style.group.styles[0].info;
+                } else {
+                    style.info = this.calculatePropertyInfo(style.group, style.property);
+                }
                 style.canSelectColor = style.visualAspect.toLowerCase().indexOf('color') > -1;
                 this.updateGroupFeatures(style.group);
             }
@@ -401,6 +406,7 @@
           var s = {
               fillColor   : 'red',
               weight      : 0.5,
+              stroke      : false,
               opacity     : 1,
               color       : 'black',
               fillOpacity : 0.6
@@ -524,7 +530,7 @@
             return r;
         }
 
-        public setStyle(property: any, openStyleTab = true) {
+        public setStyle(property: any, openStyleTab = true, customStyleInfo?: PropertyInfo) {
             var f: IFeature = property.feature;
             if (f != null) {
                 this.noStyles     = false;
@@ -537,7 +543,11 @@
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
 
                 gs.property = property.property;
-                if (gs.info==null) gs.info = this.calculatePropertyInfo(layer.group, property.property);
+                if (customStyleInfo) {
+                    gs.info = customStyleInfo;
+                } else {
+                    if (gs.info == null) gs.info = this.calculatePropertyInfo(layer.group, property.property);
+                }
 
                 gs.enabled = true;
                 gs.group = layer.group;
@@ -547,7 +557,7 @@
                 if (ft.style && ft.style.fillColor) {
                     gs.colors = ['white', 'orange'];
                 } else {
-                    gs.colors = ['white', 'orange'];
+                    gs.colors = ['red','white','blue'];
                 }
                 this.saveStyle(layer.group, gs);
                 //if (f.geometry.type.toLowerCase() === 'point') {

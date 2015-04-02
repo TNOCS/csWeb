@@ -116,6 +116,9 @@
             $translate('ORANGE_WHITE').then((translation) => {
                 this.colorScales[translation] = ['orange', 'white'];
             });
+            $translate('RED_WHITE_BLUE').then((translation) => {
+                this.colorScales[translation] = ['red', 'white', 'blue'];
+            });
         }
     }
 

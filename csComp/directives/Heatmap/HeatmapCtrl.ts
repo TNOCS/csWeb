@@ -9,6 +9,7 @@ module Heatmap {
     export interface IHeatmapScope extends ng.IScope {
         vm: HeatmapCtrl;
         ratingStates: any;
+        projLayer: csComp.Services.ProjectLayer;
     }
 
     declare var String;//: csComp.StringExt.IStringExt;
@@ -18,8 +19,10 @@ module Heatmap {
         private static confirmationMsg2: string;
         heatmap       : L.GeoJSON;
         heatmapModel  : HeatmapModel;
-        heatmapModels : HeatmapModel[] = [];
-        expertMode    : boolean = true;
+        heatmapModels: HeatmapModel[] = [];
+        heatmapSettings: IHeatmapSettings;
+        expertMode: boolean = true;
+        projLayer = new csComp.Services.ProjectLayer();
 
         public static MAX_HEATMAP_CELLS = 2500;
 
@@ -91,19 +94,22 @@ module Heatmap {
               $translate('HEATMAP.DELETE_MSG2').then(translation => {
                   HeatmapCtrl.confirmationMsg2 = translation;
               });
-
-              this.initializeHeatmap();
           }
 
         createHeatmap() {
+            this.initializeHeatmap();
             var heatmap = new HeatmapModel('Heatmap');
             this.showHeatmapEditor(heatmap);
-            this.$mapService.map.addLayer(this.heatmap);
+            //this.$mapService.map.addLayer(this.heatmap);
             this.$mapService.getMap().on('moveend',  () => { this.updateHeatmap() });
         }
 
         editHeatmap(heatmap: HeatmapModel) {
             this.showHeatmapEditor(heatmap);
+        }
+
+        exportHeatmap(heatmap: HeatmapModel) {
+            console.log(heatmap.serialize());
         }
 
         removeHeatmap(heatmap: HeatmapModel) {
@@ -190,7 +196,17 @@ module Heatmap {
                 if (currentZoom >= this.heatmapModel.scaleMinValue && currentZoom <= this.heatmapModel.scaleMaxValue) {
                     this.heatmapModel.updateWeights();
                     this.heatmapModel.calculate(this.$layerService, this.$mapService, this.heatmap);
-                    //this.createDummyHeatmap();
+                    this.projLayer.heatmapsettings.featureTypes = [];
+                    this.heatmapModel.heatmapItems.forEach((hi) => {
+                        this.projLayer.heatmapsettings.featureTypes.push(hi.featureType.name);
+                        this.projLayer.heatmapsettings.idealities[hi.featureType.name] = hi.idealityMeasure;
+                        this.projLayer.heatmapsettings.weights[hi.featureType.name] = hi.weight;
+                        this.projLayer.heatmapsettings.maxZoom = this.heatmapModel.scaleMaxValue;
+                        this.projLayer.heatmapsettings.minZoom = this.heatmapModel.scaleMinValue;
+                    });
+                    this.projLayer.data = this.heatmap.toGeoJSON();
+                    //this.$layerService.removeLayer(this.projLayer);
+                    //this.$layerService.addLayer(this.projLayer);
                 } else {
                     console.log("Heatmap is not supported for the current zoom level.");
                 }
@@ -201,43 +217,69 @@ module Heatmap {
         //* Add a heatmap layer to the map.
         //*/
         private initializeHeatmap() {
-            this.heatmap = L.geoJson([], {
-                style: function (feature) { 
-                    if (feature.properties.intensity <= 0) {
-                        var hexString = Heatmap.HeatmapCtrl.intensityToHex(feature.properties.intensity);
-                        return { color: "#FF"+hexString+hexString };
-                    } else if (feature.properties.intensity > 0) {
-                        var hexString = Heatmap.HeatmapCtrl.intensityToHex(feature.properties.intensity);
-                        return { color: "#" + hexString + hexString + "FF"};
-                    } else {
-                        return { color: "#000000" };
-                    }
-                    //if (feature.properties.intensity < -0.10) {
-                    //    return { color: "#ff0000" };
-                    //} else if (feature.properties.intensity < 0.10) {
-                    //    return { color: "#ffffff" };
-                    //} else {
-                    //    return { color: "#0000ff" };
-                    //}
-                }
+            this.projLayer.type = "Heatmap";
+            this.projLayer.layerRenderer = "heatmap";
+            this.projLayer.enabled = true;
+            this.projLayer.group = new csComp.Services.ProjectGroup();
+            this.projLayer.group.oneLayerActive = true;
+            this.projLayer.group.layers = [];
+            this.projLayer.group.filters = [];
+            this.projLayer.group.styles = [];
+            this.projLayer.group.markers = [];
+            this.projLayer.heatmapsettings = new HeatmapSettings();
+            this.projLayer.heatmapsettings.weights = [];
+            this.heatmap = L.geoJson([]);//, {
+            //    style: function (feature) { 
+            //        if (feature.properties.intensity <= 0) {
+            //            var hexString = Heatmap.HeatmapCtrl.intensityToHex(feature.properties.intensity);
+            //            return { color: "#FF"+hexString+hexString };
+            //        } else if (feature.properties.intensity > 0) {
+            //            var hexString = Heatmap.HeatmapCtrl.intensityToHex(feature.properties.intensity);
+            //            return { color: "#" + hexString + hexString + "FF"};
+            //        } else {
+            //            return { color: "#000000" };
+            //        }
+            //}
+            //});
+
+            this.projLayer.data = this.heatmap.toGeoJSON();
+            (<any>(this.projLayer.data)).features.forEach((f) => {
+                this.$layerService.initFeature(f, this.projLayer);
             });
+
+            // Set default style for the heatmap:
+            if ((<any>(this.projLayer.data)).features[0]) {
+                var calloutProp = new FeatureProps.CallOutProperty("intensity", "0", "intensity", true, true,(<any>(this.projLayer.data)).features[0], false);
+                var propinfo = new csComp.Services.PropertyInfo();
+                // Tweak the group style info to keep constant min/max color values on panning and zooming.
+                propinfo.count = (<any>(this.projLayer.data)).features.length;
+                propinfo.max = 1;
+                propinfo.min = -1;
+                propinfo.sdMax = propinfo.max;
+                propinfo.sdMin = propinfo.min;
+                propinfo.mean = 0;
+                propinfo.varience = 0.67;
+                propinfo.sd = Math.sqrt(propinfo.varience);
+                this.$layerService.setStyle(calloutProp, false, propinfo); // Set the style
+            }
+            this.$layerService.addLayer(this.projLayer);
             //this.$mapService.map.setView(new L.LatLng(52.1095, 4.3275), 14);
         }
 
-        public static intensityToHex(intensity: number): string {
-            var decreaseOverlap = 20;
-            intensity = Math.floor(Math.abs(intensity) * 255);
-            if (intensity < 0) {
-                intensity = 0;
-            } else if (intensity > 255 - decreaseOverlap) {
-                intensity = 255 - decreaseOverlap;
-            }
-            var hexString: string = (255 - decreaseOverlap - intensity).toString(16);
-            if (hexString.length == 1) {
-                hexString = "0" + hexString;
-            }
-            return hexString;
-        }
+        //public static intensityToHex(intensity: number): string {
+        //    var decreaseOverlap = 20;
+        //    intensity = Math.floor(Math.abs(intensity) * 255);
+        //    if (intensity < 0) {
+        //        intensity = 0;
+        //    } else if (intensity > 255 - decreaseOverlap) {
+        //        intensity = 255 - decreaseOverlap;
+        //    }
+        //    var hexString: string = (255 - decreaseOverlap - intensity).toString(16);
+        //    if (hexString.length == 1) {
+        //        hexString = "0" + hexString;
+        //    }
+        //    return hexString;
+        //}
 
         ///**
         // * Create a dummy heatmap

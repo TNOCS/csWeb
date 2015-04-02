@@ -17,6 +17,7 @@
             MAP_FEATURES            : 'Map features',
             WHITE_RED               : 'white - red',
             RED_WHITE               : 'red - white',
+            RED_WHITE_BLUE          : 'red - white - blue',
             GREEN_RED               : 'green - red',
             RED_GREEN               : 'red - green',
             BLUE_RED                : 'blue - red',
@@ -52,7 +53,8 @@
                 LINEAR_ASC_DESC: 'Linearly increasing, then decreasing function.',
                 ADD_HEATMAP: 'Add a new heatmap.',
                 DELETE_HEATMAP: 'Delete the heatmap.',
-                EDIT_HEATMAP: 'Edit the heatmap.'
+                EDIT_HEATMAP: 'Edit the heatmap.',
+                EXPORT_HEATMAP: 'Export the heatmap.'
             },
             MCA                     : {
                 DESCRIPTION         : '<h4>Multi-Criteria Analysis</h4><p  style="text-align: left; margin-left:5px;">MCA, is a method that combines multiple properties of a feature on the map into a new property. It achieves this by:<ol><li>Scaling each property to a range between 0 (no value) and 1 (maximum value).</li><li>Weighing each property relative to the others, where a weight less than 0 indicates you wish to avoid it, 0 is ignored, and a value greater than 0 is prefered.</li></ol> In fact, it is a kind of linear regression.',

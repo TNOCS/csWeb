@@ -36,8 +36,10 @@ module Heatmap {
          * @type {IIdealityMeasure}
          */
         idealityMeasure: IIdealityMeasure;
-        isSelected    : boolean;
-        intensityScale: number 
+        isSelected     : boolean;
+        intensityScale : number;
+        minZoomLevel   : number;
+        maxZoomLevel   : number;
 
         reset(): void;
         setScale(latitude: number, longitude: number): void;
@@ -88,6 +90,8 @@ module Heatmap {
         /** Represents the number of items that are needed to obtain an ideal location. */
         isSelected = false;
         intensityScale = 1;
+        minZoomLevel = 12;
+        maxZoomLevel = 6;
         private static twoPi: number = Math.PI * 2;
 
         constructor(public title: string, public featureType: csComp.Services.IFeatureType) {
@@ -213,9 +217,10 @@ module Heatmap {
             //Find the indices of the feature in the grid
             var hCell = Math.floor(((latlong.lng - mapBounds.getNorthWest().lng) / (mapBounds.getNorthEast().lng - mapBounds.getNorthWest().lng)) * horizCells);
             var vCell = Math.floor(((latlong.lat - mapBounds.getSouthWest().lat) / (mapBounds.getNorthWest().lat - mapBounds.getSouthWest().lat)) * vertCells);
+
             this.heatspots.forEach((hs) => {
-                //TODO actualHeatspots.push(hs.AddLocation(lat, lon));
-                actualHeatspots.push(hs.AddLocation(hCell,vCell));
+                hs.AddContributor(feature.properties['Name'], hs.intensity);
+                actualHeatspots.push(hs.AddLocation(hCell, vCell));
             });
             return actualHeatspots;
         }
@@ -251,6 +256,10 @@ module Heatmap {
 
         reset() {
             this.heatspots = [];
+        }
+
+        serialize() {
+            console.log(JSON.stringify(this.idealityMeasure));
         }
 
         toString() {

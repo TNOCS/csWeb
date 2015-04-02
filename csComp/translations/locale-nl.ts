@@ -16,6 +16,7 @@
             SEARCH                  : 'Zoeken',
             MAP_FEATURES            : 'Kaartfeatures',
             WHITE_RED               : 'wit - rood',
+            RED_WHITE_BLUE          : 'rood - wit - blauw',
             RED_WHITE               : 'rood - wit',
             GREEN_RED               : 'groen - rood',
             RED_GREEN               : 'rood - groen',
@@ -53,7 +54,8 @@
                 LINEAR_ASC_DESC: 'Linear toenemende, dan afnemende functie.',
                 ADD_HEATMAP: 'Maak een nieuwe heatmap.',
                 DELETE_HEATMAP: 'Verwijder de heatmap.',
-                EDIT_HEATMAP: 'Bewerk de heatmap.'
+                EDIT_HEATMAP: 'Bewerk de heatmap.',
+                EXPORT_HEATMAP: 'Exporteer de heatmap.'
             },
             MCA                     : {
                 DESCRIPTION         : '<h4>Toelichting MCA</h4><div style="text-align: left; margin-left:5px;"><p>Multi-Criteria Analysis (MCA) is een methode die verschillende eigenschappen van een locatie of gebied op de kaart combineerd tot een nieuwe eigenschap. Dit gaat als volgt: <ol><li>Schaal iedere eigenschap tussen 0 (geen waarde) en 1 (maximum waarde).</li><li>Weeg iedere eigenschap relatief t.o.v. de andere gekozen eigenschappen, waar een gewicht onder 0 betekent dat je de eigenschap wil vermijden, 0 wordt genegeerd, en een waarde groter dan 0 betekent dat je dit wil bereiken.</li></ol>Met andere woorden, het is een vorm van lineare regressie.</p></div>',

@@ -179,7 +179,7 @@
         /** Data source */
         url                         : string;
         /** Contains extended layer information (e.g. list of references to required sources, or weights) */
-        criteria                    : any
+        heatmapsettings             : Heatmap.IHeatmapSettings;
         /** In case we keep the style information in a separate file */
         styleurl                    : string;
         /** how should the layer be renderer, default (can also be null), webgl, heatmap, isolines, etc. */

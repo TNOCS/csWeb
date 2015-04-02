@@ -84,9 +84,8 @@ module csComp.Services
                     }
                 }
             });
-        } else {
-            this.service.map.map.removeLayer(layer.mapLayer);
         }
+        this.service.map.map.removeLayer(layer.mapLayer);
         break;
 
         case "wms":
@@ -255,7 +254,7 @@ module csComp.Services
           var m = feature.layer.group.markers[feature.id];
           var layer = this.service.findLayer(feature.layerId);
           //var s = this.style(feature);
-          m.setStyle(feature.effectiveStyle);
+          if (m) m.setStyle(feature.effectiveStyle);
       }
     }
 

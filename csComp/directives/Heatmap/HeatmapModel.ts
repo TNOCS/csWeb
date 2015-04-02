@@ -5,13 +5,15 @@ module Heatmap {
     export interface IHeatmapModel {
         title: string;
         heatmapItems: IHeatmapItem[];
+        heatmapSettings: IHeatmapSettings;
     }
 
     export class HeatmapModel implements IHeatmapModel {
         heatmapItems : IHeatmapItem[] = [];
-        scaleMaxValue: number = 16;
-        scaleMinValue: number = 9;
+        scaleMaxValue: number = 15;
+        scaleMinValue: number = 10;
         intensityScale: number = 1;
+        heatmapSettings: IHeatmapSettings;
 
         constructor(public title: string) {
             this.title = title;
@@ -152,6 +154,35 @@ module Heatmap {
                 if (hi.featureType === ft && hi.title === title) return;
             }
             this.heatmapItems.push(heatmapItem);
+        }
+
+        serialize(): string {
+            //TODO: Add reference layers
+            var output: string = "\"type\":\"Heatmap\",\n\"heatmapsettings\":{\n";
+            var featureTypes: string[] = [];
+            var weights: { [name: string]: number; } = {};
+            var idealities: { [name: string]: IdealityMeasure; } = {};
+            this.heatmapItems.forEach((f) => {
+                featureTypes.push(f.featureType.name);
+                weights[f.featureType.name] = f.weight;
+                idealities[f.featureType.name] = f.idealityMeasure;
+            });
+            output += "\"featureTypes\":";
+            output += JSON.stringify(featureTypes);
+            output += ",\n\"weights\":";
+            output += JSON.stringify(weights);
+            output += ",\n\"idealities\":";
+            output += JSON.stringify(idealities);
+            output += ",\n\"minZoom\":";
+            output += JSON.stringify(this.scaleMinValue);
+            output += ",\n\"maxZoom\":";
+            output += JSON.stringify(this.scaleMaxValue);
+            output += ",\n\"enabled\":";
+            output += JSON.stringify(false);
+            output += ",\n\"opacity\":";
+            output += JSON.stringify(100);
+            output += "\n}";
+            return output;
         }
     }
 }
