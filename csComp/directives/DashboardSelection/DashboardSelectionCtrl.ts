@@ -34,7 +34,7 @@
 
             $scope.vm = this;
 
-
+            alert('hi there');
             //$messageBusService.subscribe("dashboardSelect", ((s: string, dashboard: csComp.Services.Dashboard) => {
             //    switch (s) {
             //        case "selectRequest":

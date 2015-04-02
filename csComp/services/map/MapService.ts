@@ -102,6 +102,15 @@
           });
       }
 
+      get isExpert(): boolean {
+          return this.expertMode === Expertise.Expert;
+      }
+
+      get isIntermediate(): boolean {
+          return this.expertMode === Expertise.Expert
+              || this.expertMode === Expertise.Intermediate;
+      }
+
         public initMap() {
             // alert('map service');
             // this.map = L.map("map", {

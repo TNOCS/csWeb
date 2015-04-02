@@ -19,8 +19,8 @@ module csComp.Services {
             format     : 'image/png',
             transparent: true,
             attribution: layer.description
-        });
-        
+          });
+        layer.layerRenderer = "wms";
         callback(layer);
         //this.$rootScope.$apply();
       }

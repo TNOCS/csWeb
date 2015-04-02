@@ -25,12 +25,17 @@
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.tpl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.ts" />
     <TypeScriptCompile Include="directives\Dashboard\DashboardCtrl.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelationsCtrl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElement.tpl.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElement.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElementCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\Mca.tpl.ts" />
     <TypeScriptCompile Include="directives\MCA\Mca.ts" />
     <TypeScriptCompile Include="directives\MCA\McaEditorCtrl.ts" />
@@ -85,12 +90,15 @@
     <TypeScriptCompile Include="helpers\GeoExtensions.ts" />
     <TypeScriptCompile Include="Scripts\typings\moment\moment.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\underscore\underscore.d.ts" />
+    <TypeScriptCompile Include="services\dashboard\DashboardService.ts" />
     <TypeScriptCompile Include="services\layer\LayerService.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.tpl.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapListCtrl.ts" />
+    <TypeScriptCompile Include="services\layer\sources\DynamicGeoJsonSource.ts" />
     <TypeScriptCompile Include="services\layer\sources\GeoJsonSource.ts" />
-    <TypeScriptCompile Include="services\layer\sources\HeatmapSource.ts" />
+    <TypeScriptCompile Include="services\layer\sources\TileLayerSource.ts" />
+	<TypeScriptCompile Include="services\layer\sources\HeatmapSource.ts" />
     <TypeScriptCompile Include="services\layer\sources\WmsSource.ts" />
     <TypeScriptCompile Include="services\map\MapCtrl.ts" />
     <TypeScriptCompile Include="services\map\MapService.ts" />
@@ -184,6 +192,13 @@
     <Content Include="directives\LegendList\LegendList.tpl.html" />
     <Content Include="directives\DataTable\DataTable.tpl.html" />
     <None Include="directives\FeatureProps\FeatureProps.tpl.html" />
+    <Content Include="web.config" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="directives\LayersList\LayersDirective.tpl.html" />
