@@ -9,7 +9,7 @@
     export class DashboardSelectionCtrl {
         public scope: any;
         public project : csComp.Services.SolutionProject;
-
+         
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -34,7 +34,7 @@
 
             $scope.vm = this;
 
-            alert('hi there');
+            
             //$messageBusService.subscribe("dashboardSelect", ((s: string, dashboard: csComp.Services.Dashboard) => {
             //    switch (s) {
             //        case "selectRequest":

@@ -8,10 +8,10 @@ module csComp.Services {
 
 
       title = "tilelayer";
-      service : LayerService;
+      
 
-      init(service : LayerService){
-        this.service = service;
+      constructor(public service: LayerService) {
+
       }
 
       public addLayer(layer : ProjectLayer, callback : Function) {

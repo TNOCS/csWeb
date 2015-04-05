@@ -1,4 +1,4 @@
-﻿<div class="tab-pane" id="dashboardSelection">
+﻿<div>
 
 
     <h3 class="leftpanel-header" style="width: 100%">
@@ -7,7 +7,7 @@
             <button ng-show="vm.$dashboardService.editMode" ng-click="vm.$dashboardService.editMode = false; vm.stopEdit()" class="button fa fa-check leftpanel-header-button" />
             <button ng-show="vm.$dashboardService.editMode" class="button fa fa-plus leftpanel-header-button" ng-click="vm.addDashboard()" />
             <button ng-hide="vm.$dashboardService.editMode" ng-click="vm.$dashboardService.editMode = true; vm.startEdit()" class="button fa fa-pencil leftpanel-header-button" />
-
+             
         </div>
 
 
@@ -19,7 +19,7 @@
     <ul style="padding: 0;list-style-type: none" data-ng-repeat="value in vm.$layerService.project.dashboards">
         <li>
             <div ng-class="{\'dashboard-selected\' : value.id === vm.$dashboardService.mainDashboard.id}" class="dashboard-item">
-                <span ng-click="vm.selectDashboard(value)" class="dashboard-name">{{value.name}}</span>
+                <span ng-click="vm.$dashboardService.selectDashboard(value)" class="dashboard-name">{{value.name}}</span>
                 <div ng-show="vm.$dashboardService.editMode" class="leftpanel-header-button-container">
                     <button ng-click="vm.removeDashboard(value.id)" class="button fa fa-trash leftpanel-header-button" />
                     <div ng-show="value == vm.$dashboardService.mainDashboard" style="float:right">

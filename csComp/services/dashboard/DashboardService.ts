@@ -35,14 +35,13 @@
         public static $inject = [
             '$rootScope',
             '$compile',
-            '$location',
+            '$location', 
             '$translate',            
-            'messageBusService'            
+            'messageBusService',
+            'layerService',
+            'mapService'           
         ];
-
         
-        
-
         constructor(
             private $rootScope: any,
             private $compile : any,
@@ -51,7 +50,6 @@
             private $messageBusService: Services.MessageBusService,
             private $layerService : Services.LayerService,            
             private $mapService: Services.MapService) {  
-
             
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
@@ -77,7 +75,10 @@
                
         }
 
-        
+        public selectDashboard(dashboard: csComp.Services.Dashboard, container: string) {
+            this.$layerService.project.activeDashboard = dashboard;
+            this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
+        }
         
 
         public addNewWidget(widget: IWidget, dashboard: Dashboard) : IWidget {

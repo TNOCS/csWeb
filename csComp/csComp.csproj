@@ -90,12 +90,12 @@
     <TypeScriptCompile Include="helpers\GeoExtensions.ts" />
     <TypeScriptCompile Include="Scripts\typings\moment\moment.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\underscore\underscore.d.ts" />
+    <TypeScriptCompile Include="services\connection\ConnectionService.ts" />
     <TypeScriptCompile Include="services\dashboard\DashboardService.ts" />
     <TypeScriptCompile Include="services\layer\LayerService.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.tpl.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapListCtrl.ts" />
-    <TypeScriptCompile Include="services\layer\sources\DynamicGeoJsonSource.ts" />
     <TypeScriptCompile Include="services\layer\sources\GeoJsonSource.ts" />
     <TypeScriptCompile Include="services\layer\sources\TileLayerSource.ts" />
     <TypeScriptCompile Include="services\layer\sources\WmsSource.ts" />
@@ -210,6 +210,7 @@
     <Content Include="directives\BaseMapList\BaseMapList.tpl.html" />
     <TypeScriptCompile Include="Scripts\typings\angularjs\angular-cookies.d.ts" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>

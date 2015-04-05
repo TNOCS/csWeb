@@ -6,8 +6,8 @@
      
     export interface ILayerSource
     {
-      title : string;
-      init(service : LayerService);
+        title: string;
+        service: ILayerService;
       addLayer(layer : ProjectLayer, callback : Function);
       removeLayer(layer : ProjectLayer) : void;
     }
@@ -84,8 +84,8 @@
             '$translate',
             'messageBusService',
             'mapService',
-            '$rootScope',
-            'dashboardService'
+            '$rootScope'
+            
         ];
 
         constructor(
@@ -94,7 +94,7 @@
             public $messageBusService : Services.MessageBusService,
             public $mapService        : Services.MapService,
             public $rootScope: any,
-            public $dashboardService : Services.DashboardService) {
+            public dashboardService : Services.DashboardService) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb               = $messageBusService;
@@ -124,6 +124,8 @@
 
             this.initLayerSources();
 
+            
+
             //this.$dashboardService.init();
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
@@ -152,22 +154,22 @@
           this.layerSources = {};
 
           // add a topo/geojson source
-          var geojsonsource = new GeoJsonSource();
-          geojsonsource.init(this);
+          var geojsonsource = new GeoJsonSource(this);
+          
+          
           this.layerSources["geojson"] = geojsonsource;
           this.layerSources["topojson"] = geojsonsource;
-
-          //var dynamicgeojsonsource = new DynamicGeoJsonSource();
-          //dynamicgeojsonsource.init(this);
-          //this.layerSources["dynamicgeojson"] = dynamicgeojsonsource;
+                      
+          this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
+          
 
           // add wms source
-          this.layerSources["wms"] = new WmsSource();
-          this.layerSources["wms"].init(this);
+          this.layerSources["wms"] = new WmsSource(this);
+          
 
           //add tile layer
-          this.layerSources["tilelayer"] = new TileLayerSource();
-          this.layerSources["tilelayer"].init(this);
+          this.layerSources["tilelayer"] = new TileLayerSource(this);
+          
 
         }
 
@@ -292,10 +294,7 @@
             }
         }
 
-        public selectDashboard(dashboard: csComp.Services.Dashboard, container : string) {
-           this.project.activeDashboard = dashboard;
-           this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
-        }
+        
 
         public updateSensorData() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
@@ -406,19 +405,31 @@
 
         public calculateFeatureStyle(feature : IFeature)
         {
-          var s = {
-              fillColor   : 'red',
-              weight      : 2,
-              opacity     : 1,
-              color       : 'black',
-              fillOpacity : 0.7
-          };
+            var s: csComp.Services.IFeatureTypeStyle = {};
+            //s.fillColor = 'red';            
+            s.strokeWidth = 1;
+            s.rotate = 0;
+            s.strokeColor = 'black';
+            s.iconHeight = 32;
+            s.iconWidth = 32;
+
+            
+
 
           var ft = this.getFeatureType(feature);
-          if (ft.style) {
-              if (ft.style.fillColor   != null) s['fillColor'] = csComp.Helpers.getColorString(ft.style.fillColor);
-              if (ft.style.strokeColor != null) s['color']     = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
-              if (ft.style.strokeWidth != null) s['weight']    = ft.style.strokeWidth;
+          if (ft.style) {              
+              if (ft.style.fillColor != null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
+              if (ft.style.strokeColor != null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
+              if (ft.style.strokeWidth != null) s.strokeWidth = ft.style.strokeWidth;
+              if (ft.style.iconWidth != null) s.iconWidth = ft.style.iconWidth;
+              if (ft.style.iconHeight != null) s.iconHeight = ft.style.iconHeight;
+              
+
+              if (ft.style.rotateProperty && feature.properties.hasOwnProperty(ft.style.rotateProperty)) {
+                  s.rotate = Number(feature.properties[ft.style.rotateProperty]);
+              }
+
+
           }
 
           //var layer = this.findLayer(feature.layerId);
@@ -427,14 +438,14 @@
                   var v = Number(feature.properties[gs.property]);
                   if (!isNaN(v)) {
                       switch (gs.visualAspect) {
-                      case 'strokeColor':
-                          s['color'] = csComp.Helpers.getColor(v, gs);
+                          case 'strokeColor':
+                              s.strokeColor = csComp.Helpers.getColor(v, gs);
                           break;
                       case 'fillColor':
-                          s[gs.visualAspect] = csComp.Helpers.getColor(v, gs);
+                          s.fillColor = csComp.Helpers.getColor(v, gs);
                           break;
                       case 'strokeWidth':
-                          s['weight'] = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
+                          s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
                           break;
                       }
                   }
@@ -443,8 +454,8 @@
           });
 
           if (feature.isSelected) {
-              s['weight'] = 5;
-              s['color'] = 'black';
+              s.strokeWidth = 5;
+              s.strokeColor = 'black';
           }
           feature.effectiveStyle = s;
         }
@@ -540,13 +551,14 @@
         public setStyle(property: any, openStyleTab = true) {
             var f: IFeature = property.feature;
             if (f != null) {
+                var ft = this.getFeatureType(f);
                 this.noStyles     = false;
                 var layer         = f.layer;
                 var gs            = new GroupStyle(this.$translate);
                 gs.id             = Helpers.getGuid();
                 gs.title          = property.key;
-                gs.meta           = property.meta;
-                gs.visualAspect   = 'fillColor';
+                gs.meta = property.meta;
+                gs.visualAspect = (ft.style && ft.style.drawingMode && ft.style.drawingMode.toLowerCase() == 'polyline') ? 'strokeColor' : 'fillColor';
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
 
                 gs.property = property.property;
@@ -555,7 +567,7 @@
                 gs.enabled = true;
                 gs.group = layer.group;
                 gs.meta = property.meta;
-                var ft = this.getFeatureType(f);
+                
 
                 if (ft.style && ft.style.fillColor) {
                     gs.colors = ['white', 'orange'];
@@ -903,6 +915,8 @@
             $.getJSON(url,(data: Project) => {
                 this.project = new Project().deserialize(data);
 
+
+
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
                 }
@@ -997,6 +1011,16 @@
 
                     this.updateFilters();
                 });
+
+                if (this.project.connected) {
+                    // check connection
+                    this.$messageBusService.initConnection("","",() => {
+                        this.$messageBusService.serverSubscribe("layers",(d) => {
+                            alert('d');
+                        });
+                    });
+                    
+                }
 
                 this.$messageBusService.publish('project', 'loaded', this.project);
                 this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);

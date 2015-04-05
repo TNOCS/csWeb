@@ -4,10 +4,10 @@ module csComp.Services {
     export class WmsSource implements ILayerSource
     {
       title = "wms";
-      service : LayerService;
+      
 
-      init(service : LayerService){
-        this.service = service;
+      constructor(public service: LayerService) {
+
       }
 
       public addLayer(layer : ProjectLayer, callback : Function)

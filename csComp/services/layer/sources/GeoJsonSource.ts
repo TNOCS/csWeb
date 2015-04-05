@@ -1,16 +1,21 @@
 module csComp.Services {
     'use strict';
 
+   
+
     export class GeoJsonSource implements ILayerSource
     {
       title = "geojson";
-      service : LayerService;
+     
+      public constructor(public service: LayerService) {
 
-      public init(service : LayerService){
-        this.service = service;
       }
 
-      public addLayer(layer : ProjectLayer, callback : Function)
+      public addLayer(layer: ProjectLayer, callback: Function) {
+          this.baseAddLayer(layer, callback);
+      }
+
+      protected baseAddLayer(layer: ProjectLayer, callback: Function)
       {
         async.series([
 
@@ -100,5 +105,26 @@ module csComp.Services {
       }
 
     }
+
+    export class DynamicGeoJsonSource extends GeoJsonSource {
+        title = "dynamicgeojson";
+
+        constructor(public service: LayerService) {
+            super(service);
+            
+            // subscribe
+            
+        }
+
+        public addLayer(layer: ProjectLayer, callback: Function) {
+            this.baseAddLayer(layer, callback);
+            this.service.$messageBusService.serverPublish("joinlayer", { id : layer.id });
+            //this.addLayer(layer, callback);
+            
+        }
+
+    }
+
+    
 
   }
