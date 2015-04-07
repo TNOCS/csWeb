@@ -17,6 +17,7 @@
             MAP_FEATURES            : 'Map features',
             SPEEDS_TAOUFIK          : 'speed colors Taoufik',
             SPEEDS_GOOGLEMAPS       : 'speed colors Google Maps',
+            VERWARMINGSSYSTEEM      : 'Heating system',
             PERCENTAGES_V1          : 'percentages v1',
             ORANGE_RED              : 'orange - red',
             WHITE_RED               : 'white - red',

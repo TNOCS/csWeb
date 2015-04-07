@@ -30,7 +30,9 @@
                                 <!--<a class="btn btn-primary btn-sm" ng-model="style.visualAspect"  style="padding-left: 10px" href="#"> {{ style.visualAspect }} </a>-->
                                 <ul class="dropdown-menu" role="menu">
                                     <li ng-repeat="(key,val) in style.colorScales" style="margin:3px;cursor: pointer">
-                                        <span ng-click="$parent.style.colors = val;vm.$layerService.updateStyle($parent.style)"> {{key}} </span>
+                                        <span ng-click="vm.$layerService.updatePropertyStyle(key,val,$parent);
+                                              $parent.style.colors = val;
+                                              vm.$layerService.updateStyle($parent.style)"> {{key}} </span>
                                     </li>
 
                                 </ul>
