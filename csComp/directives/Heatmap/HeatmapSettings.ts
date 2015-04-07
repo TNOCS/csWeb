@@ -4,19 +4,13 @@
     */
     export interface IHeatmapSettings {
         referenceList: string[];
-        featureTypes : string[];
-        idealities   : IdealityMeasure[];
         minZoom      : number;
         maxZoom      : number;
-        weights      : number[];
     }
 
     export class HeatmapSettings implements IHeatmapSettings {
         referenceList: string[] = [];
-        featureTypes : string[] = [];
-        idealities   : IdealityMeasure[] = [];
-        minZoom      : number;
-        maxZoom      : number;
-        weights      : number[];
+        minZoom      : number = 10;
+        maxZoom      : number = 15;
     }
 }

@@ -230,10 +230,6 @@ module csComp.Services
                     f.properties['Name'] = f.properties[ft.style.nameLabel];
                 });
 
-                this.service.map.map.addOneTimeEventListener('moveend',(event) => {
-                    this.service.removeLayer(layer);
-                    this.service.addLayer(layer);
-                });
                 layer.mapLayer.addLayer(v);
                 
             }

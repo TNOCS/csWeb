@@ -104,6 +104,9 @@
         mca: {
             expertMode: boolean;
         }
+        heatmap: {
+            expertMode: boolean;
+        }
     }
 
     /** bouding box to specify a region. */
@@ -178,8 +181,9 @@
         type                        : string;
         /** Data source */
         url                         : string;
-        /** Contains extended layer information (e.g. list of references to required sources, or weights) */
-        heatmapsettings             : Heatmap.IHeatmapSettings;
+        /** Contains extended heatmap information (e.g. list of references to required sources, or weights) */
+        heatmapSettings             : Heatmap.IHeatmapSettings;
+        heatmapItems                : Heatmap.IHeatmapItem[];
         /** In case we keep the style information in a separate file */
         styleurl                    : string;
         /** how should the layer be renderer, default (can also be null), webgl, heatmap, isolines, etc. */

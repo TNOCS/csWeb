@@ -74,12 +74,14 @@
         colorScales     : any;
         info            : PropertyInfo;
         meta            : IPropertyType;
-        legend          : Legend; 
+        legend          : Legend;
+        fixedColorRange : boolean; 
 
         constructor($translate: ng.translate.ITranslateService) {
 
             this.availableAspects = ['strokeColor', 'fillColor', 'strokeWidth'];
             this.colorScales = {};
+            this.fixedColorRange = false;
 
             $translate('SPEEDS_TAOUFIK').then((translation) => {
                 this.colorScales[translation] = ['black', '#DEEBFA'];

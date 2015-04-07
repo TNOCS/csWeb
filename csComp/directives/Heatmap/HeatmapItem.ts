@@ -38,8 +38,6 @@ module Heatmap {
         idealityMeasure: IIdealityMeasure;
         isSelected     : boolean;
         intensityScale : number;
-        minZoomLevel   : number;
-        maxZoomLevel   : number;
 
         reset(): void;
         setScale(latitude: number, longitude: number): void;
@@ -57,44 +55,13 @@ module Heatmap {
         */
         private static meterToLonDegree: number;
 
-        /**
-         * In case we are not interested in the feature type itself, but in a certain property,
-         * e.g. the property that determines what it represents like buildingFunction.
-         * @type {string}
-         */
-        propertyTitle       : string;
-        propertyLabel       : string;
-        /**
-         * When we are using an options property type, such as buildingFunction, we need
-         * to indicate the particular option that we will evaluate.
-         * @type {number}
-         */
-        optionIndex         : number;
-        /**
-         * The user weight specifies how much you like this item, e.g. the maximum value.
-         * @type {number}, range [-5..5].
-         */
-        userWeight = 1;
-        /**
-         * The weight specifies how much you like this item, relative to others.
-         * @type {number}, range [-1..1].
-         */
-        weight = 0;
-        /**
-         * The ideality measure specifies how much you like this item with respect to its
-         * distance.
-         * @type {IIdealityMeasure}
-         */
-        idealityMeasure     : IIdealityMeasure = new IdealityMeasure();
         heatspots           : IHeatspot[] = [];
-        /** Represents the number of items that are needed to obtain an ideal location. */
-        isSelected = false;
         intensityScale = 1;
-        minZoomLevel = 12;
-        maxZoomLevel = 6;
         private static twoPi: number = Math.PI * 2;
 
-        constructor(public title: string, public featureType: csComp.Services.IFeatureType) {
+        constructor(public title: string, public featureType: csComp.Services.IFeatureType, public weight: number = 0, public userWeight: number = 1,
+            public isSelected: boolean = false, public idealityMeasure: IIdealityMeasure = new IdealityMeasure(), public propertyTitle?: string,
+            public propertyLabel?: string, public optionIndex?: number) {
             // TODO Needs improvement based on actual location
             this.setScale(52);
         }
@@ -102,7 +69,7 @@ module Heatmap {
         calculateHeatspots(feature: csComp.Services.Feature, cellWidth: number, cellHeight: number,
                 horizCells: number, vertCells: number, mapBounds: L.LatLngBounds, paddingRatio: number) {
             // right type?
-            if (!this.isSelected || this.featureType !== feature.fType) return null;
+            if (!this.isSelected || this.featureType.name !== feature.fType.name) return null;
             if (this.heatspots.length === 0) this.calculateHeatspot(cellWidth, cellHeight);
             // create heatspot solely based on feature type?
             if (!this.propertyLabel) {
@@ -219,8 +186,7 @@ module Heatmap {
             var vCell = Math.floor(((latlong.lat - mapBounds.getSouthWest().lat) / (mapBounds.getNorthWest().lat - mapBounds.getSouthWest().lat)) * vertCells);
 
             this.heatspots.forEach((hs) => {
-                hs.AddContributor(feature.properties['Name'], hs.intensity);
-                actualHeatspots.push(hs.AddLocation(hCell, vCell));
+                actualHeatspots.push(hs.AddLocation(hCell, vCell, feature.properties['Name']));
             });
             return actualHeatspots;
         }
@@ -256,10 +222,6 @@ module Heatmap {
 
         reset() {
             this.heatspots = [];
-        }
-
-        serialize() {
-            console.log(JSON.stringify(this.idealityMeasure));
         }
 
         toString() {

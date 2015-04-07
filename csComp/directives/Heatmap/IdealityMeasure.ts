@@ -49,21 +49,7 @@ module Heatmap {
     }
 
     export class IdealityMeasure implements IIdealityMeasure {
-        /**
-        * The distance with respect to my location where I would like to find the item.
-        * @type {number}, in meters
-        */
-        idealDistance = 500;
-        /**
-        * How happy would I be if the item would be at my location.
-        * @type {number}, range [0..1]
-        */
-        atLocation = 0.1;
-        /**
-         * At what distance would the item no longer be of value to me.
-         * @type {number}, range in meters
-         */
-        lostInterestDistance = 2000;
+        constructor(public idealDistance: number = 500, public atLocation: number = 0.1, public lostInterestDistance: number = 2000) { }
          
         computeIdealityAtDistance(distance: number): number {
             if (distance < this.idealDistance) {

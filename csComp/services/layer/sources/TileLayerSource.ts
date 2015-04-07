@@ -9,6 +9,7 @@ module csComp.Services {
 
       title = "tilelayer";
       service : LayerService;
+      requiresLayer = false;
 
       init(service : LayerService){
         this.service = service;

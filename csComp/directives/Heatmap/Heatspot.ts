@@ -1,8 +1,4 @@
 module Heatmap {
-    export interface IHeatspotContributor {
-        name     : string;
-        intensity: number;
-    }
 
     /**
      * A heat spot represents an lat-lon-point on the map with a certain intensity.
@@ -11,27 +7,19 @@ module Heatmap {
         i           : number;
         j           : number;
         intensity   : number;
-        contributors: IHeatspotContributor[];
+        contributor : string;
 
-        AddLocation(i, j): IHeatspot;
-        AddContributor(name, contribution);
+        AddLocation(i, j, contributor): IHeatspot;
     }
 
     /**
      * A heat spot represents a point on the map with a certain intensity.
      */
     export class Heatspot implements IHeatspot {
-        constructor(public i: number, public j: number, public intensity: number, public contributors = []) { }
+        constructor(public i: number, public j: number, public intensity: number, public contributor?: string) { }
 
-        AddLocation(i, j) {
-            return new Heatspot(this.i + i, this.j + j, this.intensity, this.contributors);
-        }
-
-        AddContributor(name, contribution) {
-            var cb = <IHeatspotContributor>{};
-            cb.name = name;
-            cb.intensity = contribution;
-            this.contributors.push(cb);
+        AddLocation(i, j, contributor) {
+            return new Heatspot(this.i + i, this.j + j, this.intensity, contributor);
         }
 
     }

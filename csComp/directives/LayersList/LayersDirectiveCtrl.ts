@@ -27,7 +27,6 @@
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
             if (this.$layerService.loadedLayers.containsKey(layer.id)) {
                 this.$layerService.removeLayer(layer);
-                layer.enabled = false;
             } else {
                 this.$layerService.addLayer(layer);
             }

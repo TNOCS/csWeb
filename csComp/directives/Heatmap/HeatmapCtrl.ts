@@ -17,11 +17,11 @@ module Heatmap {
     export class HeatmapCtrl {
         private static confirmationMsg1: string;
         private static confirmationMsg2: string;
-        heatmap       : L.GeoJSON;
-        heatmapModel  : HeatmapModel;
-        heatmapModels: HeatmapModel[] = [];
+        heatmap        : L.GeoJSON = L.geoJson([]);
+        heatmapModel   : HeatmapModel;
+        heatmapModels  : HeatmapModel[] = [];
         heatmapSettings: IHeatmapSettings;
-        expertMode: boolean = true;
+        expertMode     : boolean = true;
         projLayer = new csComp.Services.ProjectLayer();
 
         public static MAX_HEATMAP_CELLS = 2500;
@@ -59,49 +59,73 @@ module Heatmap {
             switch (title) {
               case 'deactivate':
               case 'activated':
-                /*this.updateAvailableMcas();
-                this.calculateMca();*/
+                //this.updateAvailableHeatmaps();
+                //this.updateHeatmap();
                 break;
               }
           });
 
-          messageBusService.subscribe('project', (title) => {//, layer: csComp.Services.ProjectLayer) => {
-                  switch (title) {
-                      case 'loaded':
-                          //this.expertMode = $layerService.project != null
-                          //    && $layerService.project.hasOwnProperty('userPrivileges')
-                          //    && $layerService.project.userPrivileges.hasOwnProperty('heatmap')
-                          //    && $layerService.project.userPrivileges.heatmap.hasOwnProperty('expertMode')
-                          //    && $layerService.project.userPrivileges.heatmap.expertMode;
+          messageBusService.subscribe('project',(title) => {//, layer: csComp.Services.ProjectLayer) => {
+              switch (title) {
+                  case 'loaded':
+                      this.expertMode = $layerService.project != null
+                      && $layerService.project.hasOwnProperty('userPrivileges')
+                      && $layerService.project.userPrivileges.hasOwnProperty('heatmap')
+                      && $layerService.project.userPrivileges.heatmap.hasOwnProperty('expertMode')
+                      && $layerService.project.userPrivileges.heatmap.expertMode;
 
-                         //if (typeof $layerService.project.mcas === 'undefined' || $layerService.project.mcas == null)
-                              //$layerService.project.mcas = [];
-                          /*var mcas = this.$localStorageService.get(McaCtrl.mcas);*/
-                          /*if (typeof mcas === 'undefined' || mcas === null) return;*/
-                          /*mcas.forEach((mca) => {
-                              $layerService.project.mcas.push(new Models.Mca().deserialize(mca));
-                          });*/
-                          //this.createDummyMca();
-                          break;
-                  }
-              });
+                      this.updateAvailableHeatmaps();
 
-              /*messageBusService.subscribe('feature', this.featureMessageReceived);*/
+                      this.initializeHeatmap();
+                      break;
+              }
+          });
 
-              $translate('HEATMAP.DELETE_MSG').then(translation => {
-                  HeatmapCtrl.confirmationMsg1 = translation;
-              });
-              $translate('HEATMAP.DELETE_MSG2').then(translation => {
-                  HeatmapCtrl.confirmationMsg2 = translation;
-              });
-          }
+          /*messageBusService.subscribe('feature', this.featureMessageReceived);*/
+
+          $translate('HEATMAP.DELETE_MSG').then(translation => {
+              HeatmapCtrl.confirmationMsg1 = translation;
+          });
+          $translate('HEATMAP.DELETE_MSG2').then(translation => {
+              HeatmapCtrl.confirmationMsg2 = translation;
+          });
+        }
+
+        updateAvailableHeatmaps() {
+            this.heatmapModels = [];
+            if (this.$layerService.project.groups) {
+                this.$layerService.project.groups.forEach((group) => {
+                    group.layers.forEach((layer) => {
+                        if (layer.type === "Heatmap") {
+                            var hm = new HeatmapModel(layer.title);
+                            hm.deserialize(layer);
+                            this.heatmapModels.push(hm);
+                            if (layer.enabled) this.heatmapModel = hm;
+                        }
+                    });
+                });
+            }
+        }
 
         createHeatmap() {
-            this.initializeHeatmap();
-            var heatmap = new HeatmapModel('Heatmap');
-            this.showHeatmapEditor(heatmap);
-            //this.$mapService.map.addLayer(this.heatmap);
-            this.$mapService.getMap().on('moveend',  () => { this.updateHeatmap() });
+            this.heatmapModel = new HeatmapModel('Heatmap');
+            if (this.projLayer.data) this.$layerService.removeLayer(this.projLayer); 
+            //Create projectlayer for the heatmap
+            this.projLayer.type = "Heatmap";
+            this.projLayer.layerRenderer = "heatmap";
+            this.projLayer.enabled = true;
+            this.projLayer.group = new csComp.Services.ProjectGroup();
+            this.projLayer.group.oneLayerActive = true;
+            this.projLayer.group.layers = [];
+            this.projLayer.group.filters = [];
+            this.projLayer.group.styles = [];
+            this.projLayer.group.markers = [];
+            this.projLayer.heatmapSettings = new HeatmapSettings();
+            this.projLayer.heatmapItems = [];
+            this.projLayer.id = csComp.Helpers.getGuid();
+            this.heatmap = L.geoJson([]);
+            this.showHeatmapEditor(this.heatmapModel);
+            //this.$layerService.addLayer(this.projLayer);
         }
 
         editHeatmap(heatmap: HeatmapModel) {
@@ -109,6 +133,7 @@ module Heatmap {
         }
 
         exportHeatmap(heatmap: HeatmapModel) {
+            console.log("\n-----------------\n" + "Exported heatmap starts here: \n");
             console.log(heatmap.serialize());
         }
 
@@ -130,7 +155,10 @@ module Heatmap {
             if (!heatmap) return;
             var index = this.heatmapModels.indexOf(heatmap);
             if (index >= 0) this.heatmapModels.splice(index, 1);
-            this.$mapService.map.removeLayer(this.heatmap);
+            this.$layerService.removeLayer(this.projLayer);
+            delete (this.heatmapModel);
+            this.initializeHeatmap();
+            this.updateAvailableHeatmaps();
             //var mcaIndex = this.getMcaIndex(mca);
             //if (mcaIndex < 0) return;
             //var mcas = this.$layerService.project.mcas;
@@ -177,6 +205,7 @@ module Heatmap {
 
         weightUpdated() {
             if (!this.heatmapModel) return;
+            this.heatmapModel.updateWeights();
             this.updateHeatmap();
         }
 
@@ -192,24 +221,39 @@ module Heatmap {
          */
         private updateHeatmap() {
             if (this.heatmapModel) {
+                this.projLayer.heatmapItems = this.heatmapModel.heatmapItems;
+                this.projLayer.heatmapSettings = this.heatmapModel.heatmapSettings;
+                this.projLayer.id = this.heatmapModel.id;
                 var currentZoom = this.$mapService.getMap().getZoom();
-                if (currentZoom >= this.heatmapModel.scaleMinValue && currentZoom <= this.heatmapModel.scaleMaxValue) {
-                    this.heatmapModel.updateWeights();
-                    this.heatmapModel.calculate(this.$layerService, this.$mapService, this.heatmap);
-                    this.projLayer.heatmapsettings.featureTypes = [];
-                    this.heatmapModel.heatmapItems.forEach((hi) => {
-                        this.projLayer.heatmapsettings.featureTypes.push(hi.featureType.name);
-                        this.projLayer.heatmapsettings.idealities[hi.featureType.name] = hi.idealityMeasure;
-                        this.projLayer.heatmapsettings.weights[hi.featureType.name] = hi.weight;
-                        this.projLayer.heatmapsettings.maxZoom = this.heatmapModel.scaleMaxValue;
-                        this.projLayer.heatmapsettings.minZoom = this.heatmapModel.scaleMinValue;
-                    });
-                    this.projLayer.data = this.heatmap.toGeoJSON();
-                    //this.$layerService.removeLayer(this.projLayer);
-                    //this.$layerService.addLayer(this.projLayer);
-                } else {
+                if (currentZoom < this.heatmapModel.heatmapSettings.minZoom || currentZoom > this.heatmapModel.heatmapSettings.maxZoom) {
                     console.log("Heatmap is not supported for the current zoom level.");
+                    return;
+                } else {
+                    //this.heatmapModel.updateWeights();
+                    //this.heatmapModel.calculate(this.$layerService, this.$mapService, this.heatmap);
+                    //this.projLayer.data = this.heatmap.toGeoJSON();
+                    //(<any>(this.projLayer.data)).features.forEach((f) => {
+                    //    this.$layerService.initFeature(f, this.projLayer);
+                    //});
+
+                    //// Set default style for the heatmap:
+                    //if ((<any>(this.projLayer.data)).features[0]) {
+                    //    var calloutProp = new FeatureProps.CallOutProperty("intensity", "0", "intensity", true, true,(<any>(this.projLayer.data)).features[0], false);
+                    //    var propinfo = new csComp.Services.PropertyInfo();
+                    //    // Tweak the group style info to keep constant min/max color values on panning and zooming.
+                    //    propinfo.count = (<any>(this.projLayer.data)).features.length;
+                    //    propinfo.max = 1;
+                    //    propinfo.min = -1;
+                    //    propinfo.sdMax = propinfo.max;
+                    //    propinfo.sdMin = propinfo.min;
+                    //    propinfo.mean = 0;
+                    //    propinfo.varience = 0.67;
+                    //    propinfo.sd = Math.sqrt(propinfo.varience);
+                    //    this.$layerService.setStyle(calloutProp, false, propinfo); // Set the style
+                    // }  
                 }
+                this.$layerService.removeLayer(this.projLayer);
+                this.$layerService.addLayer(this.projLayer);
             }
         }
 
@@ -219,16 +263,23 @@ module Heatmap {
         private initializeHeatmap() {
             this.projLayer.type = "Heatmap";
             this.projLayer.layerRenderer = "heatmap";
-            this.projLayer.enabled = true;
+            this.projLayer.enabled = false;
             this.projLayer.group = new csComp.Services.ProjectGroup();
             this.projLayer.group.oneLayerActive = true;
             this.projLayer.group.layers = [];
             this.projLayer.group.filters = [];
             this.projLayer.group.styles = [];
             this.projLayer.group.markers = [];
-            this.projLayer.heatmapsettings = new HeatmapSettings();
-            this.projLayer.heatmapsettings.weights = [];
-            this.heatmap = L.geoJson([]);//, {
+            this.projLayer.mapLayer = new L.LayerGroup();
+            this.projLayer.heatmapSettings = new HeatmapSettings();
+            this.projLayer.heatmapItems = [];
+            this.projLayer.id = "";
+
+
+            this.$layerService.map.map.addEventListener('moveend',(event) => {
+                this.updateHeatmap();
+            });
+            //this.heatmap = L.geoJson([]);//, {
             //    style: function (feature) { 
             //        if (feature.properties.intensity <= 0) {
             //            var hexString = Heatmap.HeatmapCtrl.intensityToHex(feature.properties.intensity);
@@ -242,27 +293,27 @@ module Heatmap {
             //}
             //});
 
-            this.projLayer.data = this.heatmap.toGeoJSON();
-            (<any>(this.projLayer.data)).features.forEach((f) => {
-                this.$layerService.initFeature(f, this.projLayer);
-            });
+            //this.projLayer.data = this.heatmap.toGeoJSON();
+            //(<any>(this.projLayer.data)).features.forEach((f) => {
+            //    this.$layerService.initFeature(f, this.projLayer);
+            //});
 
-            // Set default style for the heatmap:
-            if ((<any>(this.projLayer.data)).features[0]) {
-                var calloutProp = new FeatureProps.CallOutProperty("intensity", "0", "intensity", true, true,(<any>(this.projLayer.data)).features[0], false);
-                var propinfo = new csComp.Services.PropertyInfo();
-                // Tweak the group style info to keep constant min/max color values on panning and zooming.
-                propinfo.count = (<any>(this.projLayer.data)).features.length;
-                propinfo.max = 1;
-                propinfo.min = -1;
-                propinfo.sdMax = propinfo.max;
-                propinfo.sdMin = propinfo.min;
-                propinfo.mean = 0;
-                propinfo.varience = 0.67;
-                propinfo.sd = Math.sqrt(propinfo.varience);
-                this.$layerService.setStyle(calloutProp, false, propinfo); // Set the style
-            }
-            this.$layerService.addLayer(this.projLayer);
+            //// Set default style for the heatmap:
+            //if ((<any>(this.projLayer.data)).features[0]) {
+            //    var calloutProp = new FeatureProps.CallOutProperty("intensity", "0", "intensity", true, true,(<any>(this.projLayer.data)).features[0], false);
+            //    var propinfo = new csComp.Services.PropertyInfo();
+            //    // Tweak the group style info to keep constant min/max color values on panning and zooming.
+            //    propinfo.count = (<any>(this.projLayer.data)).features.length;
+            //    propinfo.max = 1;
+            //    propinfo.min = -1;
+            //    propinfo.sdMax = propinfo.max;
+            //    propinfo.sdMin = propinfo.min;
+            //    propinfo.mean = 0;
+            //    propinfo.varience = 0.67;
+            //    propinfo.sd = Math.sqrt(propinfo.varience);
+            //    this.$layerService.setStyle(calloutProp, false, propinfo); // Set the style
+            //}
+            //this.$layerService.addLayer(this.projLayer);
             //this.$mapService.map.setView(new L.LatLng(52.1095, 4.3275), 14);
         }
 

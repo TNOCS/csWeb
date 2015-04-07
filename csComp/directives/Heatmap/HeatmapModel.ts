@@ -4,19 +4,20 @@ module Heatmap {
     */
     export interface IHeatmapModel {
         title: string;
+        id: string;
         heatmapItems: IHeatmapItem[];
         heatmapSettings: IHeatmapSettings;
     }
 
     export class HeatmapModel implements IHeatmapModel {
         heatmapItems : IHeatmapItem[] = [];
-        scaleMaxValue: number = 15;
-        scaleMinValue: number = 10;
         intensityScale: number = 1;
         heatmapSettings: IHeatmapSettings;
+        id = "";
 
         constructor(public title: string) {
             this.title = title;
+            this.heatmapSettings = new HeatmapSettings();
         }
 
         /**
@@ -59,10 +60,13 @@ module Heatmap {
             var count: number = 0;
 
             var intensityGrid = [];
+            var contributorGrid = [];
             for (var i = 0; i < horizCells; i++) {
                 intensityGrid[i] = [];
+                contributorGrid[i] = [];
                 for (var j = 0; j < vertCells; j++) {
                     intensityGrid[i][j] = 0;
+                    contributorGrid[i][j] = [];
                 }
             }
 
@@ -78,6 +82,7 @@ module Heatmap {
                             if (hs.intensity != 0 &&
                                 hs.i >=0 && hs.i < horizCells && hs.j >= 0 && hs.j < vertCells) {
                                 intensityGrid[hs.i][hs.j] = intensityGrid[hs.i][hs.j] + hs.intensity;
+                                contributorGrid[hs.i][hs.j].push(hs.contributor);
                                 count = count + 1;
                             }
                         });
@@ -94,8 +99,7 @@ module Heatmap {
                         var polyCoord = [[SW.lng + dLng * i, SW.lat + dLat * j],
                             [SW.lng + dLng * (i + 1), SW.lat + dLat * j],
                             [SW.lng + dLng * (i + 1), SW.lat + dLat * (j + 1)],
-                            [SW.lng + dLng * i, SW.lat + dLat * (j + 1)],
-                            [SW.lng + dLng * i, SW.lat + dLat * j]];
+                            [SW.lng + dLng * i, SW.lat + dLat * (j + 1)]];
                         var feature = {
                             "type": "Feature",
                             "geometry": {
@@ -103,9 +107,11 @@ module Heatmap {
                                 "coordinates": [polyCoord]
                             },
                             "properties": {
+                                "Name": "Heatmap cell (" + i.toString() + ", " + j.toString() + ")",
                                 "gridX": i,
                                 "gridY": j,
-                                "intensity": intensityGrid[i][j]
+                                "intensity": intensityGrid[i][j].toFixed(3),
+                                "contributors": JSON.stringify(contributorGrid[i][j])
                             }
                         };
                         heatmap.addData(feature);
@@ -151,38 +157,71 @@ module Heatmap {
             var title = heatmapItem.title;
             for (var i = 0; i < this.heatmapItems.length; i++) {
                 var hi = this.heatmapItems[i];
-                if (hi.featureType === ft && hi.title === title) return;
+                if (hi.featureType.name === ft.name && hi.title === title) return;
             }
             this.heatmapItems.push(heatmapItem);
         }
 
-        serialize(): string {
-            //TODO: Add reference layers
-            var output: string = "\"type\":\"Heatmap\",\n\"heatmapsettings\":{\n";
-            var featureTypes: string[] = [];
-            var weights: { [name: string]: number; } = {};
-            var idealities: { [name: string]: IdealityMeasure; } = {};
-            this.heatmapItems.forEach((f) => {
-                featureTypes.push(f.featureType.name);
-                weights[f.featureType.name] = f.weight;
-                idealities[f.featureType.name] = f.idealityMeasure;
+        deserialize(layer: csComp.Services.ProjectLayer) {
+            this.id = layer.id;
+            this.heatmapSettings = layer.heatmapSettings;
+            this.heatmapItems = [];
+            var heatmapitems = layer.heatmapItems;
+            heatmapitems.forEach((hi_info) => {
+                var im = new IdealityMeasure(hi_info.idealityMeasure.idealDistance, hi_info.idealityMeasure.atLocation, hi_info.idealityMeasure.lostInterestDistance);
+                var hi = new HeatmapItem(hi_info.title, hi_info.featureType, hi_info.weight, hi_info.userWeight, hi_info.isSelected, im);
+                this.addHeatmapItem(hi);
             });
-            output += "\"featureTypes\":";
-            output += JSON.stringify(featureTypes);
-            output += ",\n\"weights\":";
-            output += JSON.stringify(weights);
-            output += ",\n\"idealities\":";
-            output += JSON.stringify(idealities);
-            output += ",\n\"minZoom\":";
-            output += JSON.stringify(this.scaleMinValue);
-            output += ",\n\"maxZoom\":";
-            output += JSON.stringify(this.scaleMaxValue);
-            output += ",\n\"enabled\":";
+        }
+
+        serialize(): string {
+            this.heatmapItems.forEach((hi) => {
+                hi.reset();
+            });
+            var output: string = "\"type\":\"Heatmap\"";
+            output += ",\n\"heatmapSettings\":" + JSON.stringify(this.heatmapSettings, null, ' ');
+            output += ",\n\"heatmapItems\":";
+            output += JSON.stringify(this.heatmapItems, null, ' ');
+            output += "\n},\n\"enabled\":";
             output += JSON.stringify(false);
             output += ",\n\"opacity\":";
             output += JSON.stringify(100);
             output += "\n}";
             return output;
+            ////TODO: Add reference layers
+            //var output: string = "\"type\":\"Heatmap\",\n\"heatmapsettings\":{\n";
+            //var featureId: string = "";
+            //var featureTypes: string[] = [];
+            //var weights: { [name: string]: number; } = {};
+            //var idealities: { [name: string]: IdealityMeasure; } = {};
+            //this.heatmapItems.forEach((f) => {
+            //    if (f.isSelected) {
+            //        if (f.propertyTitle) {
+            //            featureId = f.featureType.name + "+" + f.propertyTitle + "+" + f.title;
+            //        } else {
+            //            featureId = f.featureType.name;
+            //        }
+            //        featureTypes.push(featureId);
+            //        weights[featureId] = f.weight;
+            //        idealities[featureId] = f.idealityMeasure;
+            //    }
+            //});
+            //output += "\"featureTypes\":";
+            //output += JSON.stringify(featureTypes);
+            //output += ",\n\"weights\":";
+            //output += JSON.stringify(weights);
+            //output += ",\n\"idealities\":";
+            //output += JSON.stringify(idealities);
+            //output += ",\n\"minZoom\":";
+            //output += JSON.stringify(this.heatmapSettings.minZoom);
+            //output += ",\n\"maxZoom\":";
+            //output += JSON.stringify(this.heatmapSettings.maxZoom);
+            //output += "\n},\n\"enabled\":";
+            //output += JSON.stringify(false);
+            //output += ",\n\"opacity\":";
+            //output += JSON.stringify(100);
+            //output += "\n}";
+            //return output;
         }
     }
 }

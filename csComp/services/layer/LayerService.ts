@@ -86,17 +86,17 @@
             '$translate',
             'messageBusService',
             'mapService',
-            '$rootScope',
-            'dashboardService'
+            '$rootScope'//,
+            //'dashboardService'
         ];
 
         constructor(
             private $location          : ng.ILocationService,
             private $translate         : ng.translate.ITranslateService,
-            public $messageBusService : Services.MessageBusService,
-            public $mapService        : Services.MapService,
-            public $rootScope: any,
-            public $dashboardService : Services.DashboardService) {
+            public $messageBusService  : Services.MessageBusService,
+            public $mapService         : Services.MapService,
+            public $rootScope          : any) {//,
+            //public $dashboardService : Services.DashboardService) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb               = $messageBusService;
@@ -171,6 +171,10 @@
           this.layerSources["tilelayer"] = new TileLayerSource();
           this.layerSources["tilelayer"].init(this);
 
+          //add heatmap layer
+          this.layerSources["heatmap"] = new HeatmapSource();
+          this.layerSources["heatmap"].init(this);
+
         }
 
         public addLayer(layer: ProjectLayer) {
@@ -198,7 +202,6 @@
                             var requiredLayers: ProjectLayer[] = this.layerSources[layerSource].getRequiredLayers(layer);
                             requiredLayers.forEach((l) => {
                                 this.addLayer(l);
-                                l.enabled = true;
                             });
                         }
                     }
@@ -209,6 +212,7 @@
                                 // load layer from source
                                 this.layerSources[layerSource].addLayer(layer,(l) => {
                                     this.activeMapRenderer.addLayer(layer);
+                                    layer.enabled = true;
                                 }); cb(null, null);
                             },
                             (cb) => {
@@ -247,7 +251,7 @@
             //console.log('update style ' + style.title);
             if (style == null) return;
             if (style.group != null && style.group.styles[0] != null) {
-                if (style.group.styles[0].property == "intensity") {
+                if (style.group.styles[0].fixedColorRange) {
                     style.info = style.group.styles[0].info;
                 } else {
                     style.info = this.calculatePropertyInfo(style.group, style.property);
@@ -425,7 +429,7 @@
               stroke      : false,
               opacity     : 1,
               color       : 'black',
-              fillOpacity : 0.6
+              fillOpacity : 0.75
           };
 
           var ft = this.getFeatureType(feature);
@@ -553,7 +557,7 @@
          * presently using base colors only; in near future it shall look if there is a legend and otherwise
          * it should make a default style
          */
-        public setStyle(property: any, openStyleTab = true) {
+        public setStyle(property: any, openStyleTab = true, customStyleInfo?: PropertyInfo) {
             var f: IFeature = property.feature;
             if (f != null) {
                 this.noStyles     = false;
@@ -568,6 +572,7 @@
                 gs.property = property.property;
                 if (customStyleInfo) {
                     gs.info = customStyleInfo;
+                    gs.fixedColorRange = true;
                 } else {
                     if (gs.info == null) gs.info = this.calculatePropertyInfo(layer.group, property.property);
                 }
@@ -795,6 +800,7 @@
             var m: any;
             var g = layer.group;
 
+            layer.enabled = false;
             this.loadedLayers.remove(layer.id);
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
