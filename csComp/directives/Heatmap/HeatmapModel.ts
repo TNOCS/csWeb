@@ -91,6 +91,7 @@ module Heatmap {
             console.log('Created ' + count + ' heatspots');
 
             heatmap.clearLayers();
+            var weightedIntensityScale: number = ((this.heatmapSettings.intensityScale / 3)*(this.heatmapSettings.intensityScale / 3)); // Convert intensityscale from [1,...,5] to ~[0.1, 0.5, 1, 2, 3]
             //Draw the intensityGrid
             for (var i = 0; i < horizCells; i++) {
                 for (var j = 0; j < vertCells; j++) {
@@ -109,7 +110,7 @@ module Heatmap {
                                 "Name": "Heatmap cell (" + i.toString() + ", " + j.toString() + ")",
                                 "gridX": i,
                                 "gridY": j,
-                                "intensity": intensityGrid[i][j].toFixed(3) * this.heatmapSettings.intensityScale,
+                                "intensity": (intensityGrid[i][j] * weightedIntensityScale).toFixed(3),
                                 "contributors": JSON.stringify(contributorGrid[i][j])
                             }
                         };
@@ -159,7 +160,11 @@ module Heatmap {
             var heatmapitems = layer.heatmapItems;
             heatmapitems.forEach((hi_info) => {
                 var im = new IdealityMeasure(hi_info.idealityMeasure.idealDistance, hi_info.idealityMeasure.atLocation, hi_info.idealityMeasure.lostInterestDistance);
-                var hi = new HeatmapItem(hi_info.title, hi_info.featureType, hi_info.weight, hi_info.userWeight, hi_info.isSelected, im);
+                if (hi_info.propertyTitle) {
+                    var hi = new HeatmapItem(hi_info.title, hi_info.featureType, hi_info.weight, hi_info.userWeight, hi_info.isSelected, im, hi_info.propertyTitle, hi_info.propertyLabel, hi_info.optionIndex);
+                } else {
+                    var hi = new HeatmapItem(hi_info.title, hi_info.featureType, hi_info.weight, hi_info.userWeight, hi_info.isSelected, im);
+                }
                 this.addHeatmapItem(hi);
             });
         }

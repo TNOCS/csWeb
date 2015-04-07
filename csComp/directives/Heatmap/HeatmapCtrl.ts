@@ -279,6 +279,7 @@ module Heatmap {
             this.$layerService.map.map.addEventListener('moveend',(event) => {
                 this.updateHeatmap();
             });
+
             //this.heatmap = L.geoJson([]);//, {
             //    style: function (feature) { 
             //        if (feature.properties.intensity <= 0) {
