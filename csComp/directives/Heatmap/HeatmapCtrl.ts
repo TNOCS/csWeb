@@ -211,7 +211,7 @@ module Heatmap {
 
         intensityScaleUpdated() {
             if (!this.heatmapModel) return;
-            this.heatmapModel.updateIntensityScale();
+            //this.heatmapModel.updateWeights();
             this.updateHeatmap();
         }
 

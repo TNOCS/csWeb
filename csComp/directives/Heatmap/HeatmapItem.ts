@@ -37,7 +37,6 @@ module Heatmap {
          */
         idealityMeasure: IIdealityMeasure;
         isSelected     : boolean;
-        intensityScale : number;
 
         reset(): void;
         setScale(latitude: number, longitude: number): void;
@@ -56,7 +55,6 @@ module Heatmap {
         private static meterToLonDegree: number;
 
         heatspots           : IHeatspot[] = [];
-        intensityScale = 1;
         private static twoPi: number = Math.PI * 2;
 
         constructor(public title: string, public featureType: csComp.Services.IFeatureType, public weight: number = 0, public userWeight: number = 1,
@@ -92,16 +90,15 @@ module Heatmap {
             var horizCells   = Math.floor(maxRadius / cellWidth);
             var vertCells    = Math.floor(maxRadius / cellHeight);
             var sCellSize    = cellWidth * cellHeight;
-            var scaledWeight = this.weight * this.intensityScale;
             var arrayLength  = horizCells * vertCells;
 
             this.heatspots = new Array<IHeatspot>(arrayLength);
-            this.heatspots.push(new Heatspot(0, 0, scaledWeight * this.idealityMeasure.atLocation));
+            this.heatspots.push(new Heatspot(0, 0, this.weight * this.idealityMeasure.atLocation));
 
             for (var i = -vertCells; i <= vertCells; i++) {
                 for (var j = -horizCells; j <= horizCells; j++) {
                     var radius = Math.sqrt(i * i * sCellSize + j * j * sCellSize);
-                    var weightedIntensity = scaledWeight * this.idealityMeasure.computeIdealityAtDistance(radius);
+                    var weightedIntensity = this.weight * this.idealityMeasure.computeIdealityAtDistance(radius);
                     if (!(i == 0 && j == 0) && weightedIntensity != 0) {
                         this.heatspots.push(new Heatspot(i, j, weightedIntensity));
                         //console.log('Add spot at ' + i + ', ' + j + ' with intensity ' + weightedIntensity);

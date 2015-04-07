@@ -11,7 +11,6 @@ module Heatmap {
 
     export class HeatmapModel implements IHeatmapModel {
         heatmapItems : IHeatmapItem[] = [];
-        intensityScale: number = 1;
         heatmapSettings: IHeatmapSettings;
         id = "";
 
@@ -110,7 +109,7 @@ module Heatmap {
                                 "Name": "Heatmap cell (" + i.toString() + ", " + j.toString() + ")",
                                 "gridX": i,
                                 "gridY": j,
-                                "intensity": intensityGrid[i][j].toFixed(3),
+                                "intensity": intensityGrid[i][j].toFixed(3) * this.heatmapSettings.intensityScale,
                                 "contributors": JSON.stringify(contributorGrid[i][j])
                             }
                         };
@@ -140,15 +139,6 @@ module Heatmap {
             });
         }
 
-        /**
-        * Update the intensity scale of all heatmap items.
-        */
-        updateIntensityScale() {
-            this.heatmapItems.forEach((hi) => {
-                hi.intensityScale = this.intensityScale;
-            });
-        }
-
         /** 
         * Add a heatmap item to the list of items only in case we don't have it yet.
         */
@@ -175,13 +165,17 @@ module Heatmap {
         }
 
         serialize(): string {
+            var minimizedHeatmapItems = [];
             this.heatmapItems.forEach((hi) => {
-                hi.reset();
+                if (hi.isSelected) {
+                    hi.reset();
+                    minimizedHeatmapItems.push(hi);
+                }
             });
             var output: string = "\"type\":\"Heatmap\"";
             output += ",\n\"heatmapSettings\":" + JSON.stringify(this.heatmapSettings, null, ' ');
             output += ",\n\"heatmapItems\":";
-            output += JSON.stringify(this.heatmapItems, null, ' ');
+            output += JSON.stringify(minimizedHeatmapItems, null, ' ');
             output += "\n},\n\"enabled\":";
             output += JSON.stringify(false);
             output += ",\n\"opacity\":";
