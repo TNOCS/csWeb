@@ -181,7 +181,7 @@ module Heatmap {
             output += ",\n\"heatmapSettings\":" + JSON.stringify(this.heatmapSettings, null, ' ');
             output += ",\n\"heatmapItems\":";
             output += JSON.stringify(minimizedHeatmapItems, null, ' ');
-            output += "\n},\n\"enabled\":";
+            output += ",\n\"enabled\":";
             output += JSON.stringify(false);
             output += ",\n\"opacity\":";
             output += JSON.stringify(100);

@@ -134,7 +134,15 @@ module Heatmap {
 
         exportHeatmap(heatmap: HeatmapModel) {
             console.log("\n-----------------\n" + "Exported heatmap starts here: \n");
-            console.log(heatmap.serialize());
+            console.log("{\"id\": \"ID\",\n" +
+                "\"reference\": \"REFERENCE\",\n" +
+                "\"languages\": {\n" +
+                "\"nl\": {\"title\": \"TITLE\",\n\"description\": \"BESCHRIJVING\"\n},\n" +
+                "\"en\": {\"title\": \"TITLE\",\n\"description\": \"DESCRIPTION\"\n}\n" +
+                "},\n" +
+                "\"description\": \"DESCRIPTION\",\n"+
+            heatmap.serialize());
+            console.log("\n-----------------\n" + "Exported heatmap ends here. \n");
         }
 
         removeHeatmap(heatmap: HeatmapModel) {
