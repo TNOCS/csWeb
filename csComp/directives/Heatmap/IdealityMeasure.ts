@@ -52,12 +52,17 @@ module Heatmap {
         constructor(public idealDistance: number = 500, public atLocation: number = 0.1, public lostInterestDistance: number = 2000) { }
          
         computeIdealityAtDistance(distance: number): number {
+            var intensity: number = 0;
             if (distance < this.idealDistance) {
-                return this.atLocation + (1 - this.atLocation) * distance / this.idealDistance;
+                if (this.atLocation >= 1) {
+                    intensity = 1;
+                } else {
+                    intensity = (this.atLocation + (1 - this.atLocation) * distance / this.idealDistance);
+                }
             } else if (distance < this.lostInterestDistance) {
-                return 1 - (distance - this.idealDistance) / (this.lostInterestDistance - this.idealDistance);
+                intensity = ( 1 - (distance - this.idealDistance) / (this.lostInterestDistance - this.idealDistance));
             }
-            return 0;
+            return intensity;
         }
 
     }

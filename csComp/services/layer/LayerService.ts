@@ -803,6 +803,13 @@
             layer.enabled = false;
             this.loadedLayers.remove(layer.id);
 
+            // find layer source, and remove layer
+            var layerSource = layer.type.toLowerCase();
+            // if a layersource is available, remove layer there
+            if (this.layerSources.hasOwnProperty(layerSource)) {
+                this.layerSources[layerSource].removeLayer(layer);
+            }
+
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
                 this.$messageBusService.publish('sidebar', 'hide');

@@ -23,6 +23,8 @@
 
                     // Calculate heatmap
                     this.generateHeatmap(layer);
+                    layer.enabled = true;
+                    this.enableProjectLayer(layer);
 
                     layer.isLoading = false;
 
@@ -36,8 +38,21 @@
         }
 
         removeLayer(layer: ProjectLayer) {
-            //TODO
-            console.log('TODO: [HeatmapSource] remove layer');
+            layer.enabled = false;
+            this.enableProjectLayer(layer);
+        }
+
+        /* Enables the project layer if the 'layer' parameter has the same id as a project layer */
+        enableProjectLayer(layer: ProjectLayer) {
+            if (layer.id) {
+                this.service.project.groups.forEach((group) => {
+                    group.layers.forEach((l) => {
+                        if (l.id == layer.id) {
+                            l.enabled = layer.enabled;
+                        }
+                    });
+                });
+            }
         }
 
         getRequiredLayers(layer: ProjectLayer) {

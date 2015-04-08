@@ -22,6 +22,7 @@ module Heatmap {
         heatmapModels  : HeatmapModel[] = [];
         heatmapSettings: IHeatmapSettings;
         expertMode     : boolean = true;
+        moveListenerInitialized: boolean = false;
         projLayer = new csComp.Services.ProjectLayer();
 
         public static MAX_HEATMAP_CELLS = 2500;
@@ -59,7 +60,7 @@ module Heatmap {
             switch (title) {
               case 'deactivate':
               case 'activated':
-                //this.updateAvailableHeatmaps();
+                this.updateAvailableHeatmaps();
                 //this.updateHeatmap();
                 break;
               }
@@ -92,18 +93,28 @@ module Heatmap {
         }
 
         updateAvailableHeatmaps() {
-            this.heatmapModels = [];
-            if (this.$layerService.project.groups) {
-                this.$layerService.project.groups.forEach((group) => {
-                    group.layers.forEach((layer) => {
-                        if (layer.type === "Heatmap") {
-                            var hm = new HeatmapModel(layer.title);
-                            hm.deserialize(layer);
-                            this.heatmapModels.push(hm);
-                            if (layer.enabled) this.heatmapModel = hm;
-                        }
+            if (!this.heatmapModel) {
+                this.heatmapModels = [];
+                if (this.$layerService.project.groups) {
+                    this.$layerService.project.groups.forEach((group) => {
+                        group.layers.forEach((layer) => {
+                            if (layer.type === "Heatmap") {
+                                var hm = new HeatmapModel(layer.title);
+                                hm.deserialize(layer);
+                                this.heatmapModels.push(hm);
+                                if (layer.enabled) this.heatmapModel = hm;
+                            }
+                        });
                     });
-                });
+                }
+            } else {
+                for (var index = 0; this.heatmapModels.length-1; index++) {
+                    if (this.heatmapModel.id == this.heatmapModels[index].id) {
+                        this.heatmapModels.splice(index, 1);
+                        break;
+                    }
+                }
+                this.heatmapModels.push(this.heatmapModel);
             }
         }
 
@@ -167,13 +178,6 @@ module Heatmap {
             delete (this.heatmapModel);
             this.initializeHeatmap();
             this.updateAvailableHeatmaps();
-            //var mcaIndex = this.getMcaIndex(mca);
-            //if (mcaIndex < 0) return;
-            //var mcas = this.$layerService.project.mcas;
-            //if (mcaIndex >= 0)
-            //    mcas.splice(mcaIndex, 1);
-            //this.removeMcaFromLocalStorage(mca);
-            //this.updateAvailableMcas();
         }
 
         /**
@@ -283,10 +287,12 @@ module Heatmap {
             this.projLayer.heatmapItems = [];
             this.projLayer.id = "";
 
-
-            this.$layerService.map.map.addEventListener('moveend',(event) => {
-                this.updateHeatmap();
-            });
+            if (!this.moveListenerInitialized) {
+                this.$layerService.map.map.addEventListener('moveend',(event) => {
+                    this.updateHeatmap();
+                });
+                this.moveListenerInitialized = true;
+            }
 
             //this.heatmap = L.geoJson([]);//, {
             //    style: function (feature) { 
