@@ -39,7 +39,7 @@
 
         removeLayer(layer: ProjectLayer) {
             layer.enabled = false;
-            this.enableProjectLayer(layer);
+            this.enableProjectLayer(layer); // Set project layer to disabled
         }
 
         /* Enables the project layer if the 'layer' parameter has the same id as a project layer */

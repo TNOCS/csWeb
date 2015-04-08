@@ -25,7 +25,7 @@ module Heatmap {
         moveListenerInitialized: boolean = false;
         projLayer = new csComp.Services.ProjectLayer();
 
-        public static MAX_HEATMAP_CELLS = 2500;
+        public static MAX_HEATMAP_CELLS = 4000;
 
         selectedFeature: IFeature;
         properties     : FeatureProps.CallOutProperty[];
@@ -56,13 +56,14 @@ module Heatmap {
         ) {
           $scope.vm = this;
 
-          messageBusService.subscribe('layer', (title) => {//, layer: csComp.Services.ProjectLayer) => {
-            switch (title) {
-              case 'deactivate':
-              case 'activated':
-                this.updateAvailableHeatmaps();
-                //this.updateHeatmap();
-                break;
+          messageBusService.subscribe('layer',(title) => {//, layer: csComp.Services.ProjectLayer) => {
+              switch (title) {
+                  case 'deactivate':
+                      break;
+                  case 'activated':
+                      this.updateAvailableHeatmaps();
+                      //this.updateHeatmap();
+                      break;
               }
           });
 
@@ -144,6 +145,23 @@ module Heatmap {
         }
 
         exportHeatmap(heatmap: HeatmapModel) {
+            /* Add active feature layer reference to the referencelist (TODO: find reference layer through enabled features) */
+            this.heatmapModel.heatmapSettings.referenceList = [];
+            this.heatmapModel.heatmapItems.forEach((hi) => {
+                if (hi.isSelected) {
+                    this.$layerService.project.groups.forEach((group) => {
+                        if (group.title == "Features") {
+                            group.layers.forEach((l) => {
+                                if (l.enabled) {
+                                    this.heatmapModel.heatmapSettings.referenceList.push(l.reference);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            /* Print the heatmap settings to the console in json format */
             console.log("\n-----------------\n" + "Exported heatmap starts here: \n");
             console.log("{\"id\": \"ID\",\n" +
                 "\"reference\": \"REFERENCE\",\n" +
@@ -163,7 +181,7 @@ module Heatmap {
                 if (!result) return;
                 this.$timeout(() => {
                     this.deleteHeatmap(heatmap);
-                    if (this.heatmap) this.updateHeatmap();
+                    //if (this.heatmap) this.updateHeatmap();
                     //if (this.heatmap) this.$mapService.map.removeLayer(this.heatmap);
                 }, 0);
             });
@@ -176,6 +194,8 @@ module Heatmap {
             if (index >= 0) this.heatmapModels.splice(index, 1);
             this.$layerService.removeLayer(this.projLayer);
             delete (this.heatmapModel);
+            delete (this.projLayer);
+            this.projLayer = new csComp.Services.ProjectLayer();
             this.initializeHeatmap();
             this.updateAvailableHeatmaps();
         }
@@ -285,6 +305,7 @@ module Heatmap {
             this.projLayer.mapLayer = new L.LayerGroup();
             this.projLayer.heatmapSettings = new HeatmapSettings();
             this.projLayer.heatmapItems = [];
+            this.projLayer.data = JSON;
             this.projLayer.id = "";
 
             if (!this.moveListenerInitialized) {

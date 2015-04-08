@@ -13,6 +13,6 @@
         referenceList : string[] = [];
         minZoom       : number = 10;
         maxZoom       : number = 15;
-        intensityScale: number = 1;
+        intensityScale: number = 3;
     }
 }
