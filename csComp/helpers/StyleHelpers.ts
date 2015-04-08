@@ -1,21 +1,22 @@
 module csComp.Helpers
 {
     export function getColor(v: number, gs: csComp.Services.GroupStyle) {
-        if (gs.legend) {
+        if (gs.activeLegend) {
             var defaultcolor: string = '#000000';
-            var l = gs.legend;
-            var n = l.legendentries.length;
+            var l = gs.activeLegend;
+            var s: String = l.id;
+            var n = l.legendEntries.length;
             if (n == 0) return (defaultcolor);
-            var e1 = l.legendentries[0];    // first
-            var e2 = l.legendentries[n - 1];  // last
-            if (l.legendkind == 'interpolated') {
+            var e1 = l.legendEntries[0];    // first
+            var e2 = l.legendEntries[n - 1];  // last
+            if (l.legendKind == 'interpolated') {
                 // interpolate between two colors
                 if (v < e1.value) return e1.color;
                 if (v > e2.value) return e2.color;
                 var i: number = 0;
                 while (i < n-1) {
-                    e1 = l.legendentries[i];
-                    e2 = l.legendentries[i + 1];
+                    e1 = l.legendEntries[i];
+                    e2 = l.legendEntries[i + 1];
                     if ((v >= e1.value) && (v <= e2.value)) {
                         var bezInterpolator = chroma.interpolate.bezier([e1.color, e2.color]);
                         var r = bezInterpolator((v - e1.value) / (e2.value - e1.value)).hex();
@@ -25,12 +26,12 @@ module csComp.Helpers
                 }
                 return(defaultcolor);
             }
-            if (l.legendkind == 'discrete') {
-                if (v < e1.interval.min) return l.legendentries[0].color;
-                if (v > e2.interval.max) return l.legendentries[n - 1].color;
+            if (l.legendKind == 'discrete') {
+                if (v < e1.interval.min) return l.legendEntries[0].color;
+                if (v > e2.interval.max) return l.legendEntries[n - 1].color;
                 var i: number = 0;
                 while (i < n) {
-                    var e = l.legendentries[i];
+                    var e = l.legendEntries[i];
                     if ((v >= e.interval.min) && (v <= e.interval.max)) {
                         return e.color;
                     }

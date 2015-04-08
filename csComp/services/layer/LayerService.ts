@@ -173,7 +173,7 @@
 
         }
 
-         public addLayer(layer : ProjectLayer)
+        public addLayer(layer : ProjectLayer)
         {
           var disableLayers = [];
        async.series([
@@ -234,6 +234,27 @@
             g.styles = g.styles.filter((s: GroupStyle) => s.id !== style.id);
 
             this.updateGroupFeatures(g);
+         }
+
+        // class LayerService
+        updatePropertyStyle(k: any, v: any, parent: any) {
+            //alert('key = ' + k + '; value = ' + v);
+            var l: Legend;
+            l = parent.style.legends[k];
+            //if (l) {
+            //    alert('legend.id=' + l.id);
+            //} else {
+            //    alert('no legend');
+            //}
+            if (l && (l.legendEntries.length > 0)) {
+                var e1: LegendEntry = l.legendEntries[0];
+                var e2: LegendEntry = l.legendEntries[l.legendEntries.length-1];
+                parent.style.colors = [e1.color, e2.color]
+            }
+            parent.style.activeLegend = l;
+            //alert('parent.style.colors=' + parent.style.colors);
+            //for gs in groupstyles {
+           // }
         }
 
         updateStyle(style: GroupStyle) {
@@ -245,7 +266,6 @@
                 this.updateGroupFeatures(style.group);
             }
         }
-
 
         private updateGroupFeatures(group : ProjectGroup) {
             this.project.features.forEach((f: IFeature) => {
@@ -354,10 +374,6 @@
             });
         }
 
-
-
-
-
         /***
          * get list of properties that are part of the filter collection
          */
@@ -370,8 +386,6 @@
             };
             return result;
         }
-
-
 
         /**
          * init feature (add to feature list, crossfilter)
@@ -434,7 +448,7 @@
 
           //var layer = this.findLayer(feature.layerId);
           feature.layer.group.styles.forEach((gs: GroupStyle) => {
-              if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
+              if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {                  
                   var v = Number(feature.properties[gs.property]);
                   if (!isNaN(v)) {
                       switch (gs.visualAspect) {
@@ -541,20 +555,44 @@
             return r;
         }
 
-        // hier wordt een groupstyle gemaakt op basis van een property, en dat deze wordt toegevoegd aan een group
-        // nu nog met basis kleuren, straks kijkt hij eerst of er een legenda is, en anders maakt hij een default style;
         /**
-         * creates a GroupStyle based on a property and adds it to a group.
-         * presently using base colors only; in near future it shall look if there is a legend and otherwise
-         * it should make a default style
+         * Creates a GroupStyle based on a property and adds it to a group.
+         * If the group already has a style which contains legends, those legends are copied into the newly created group.
+         * Already existing groups (for the same visualAspect) are replaced by the new group
          */
         public setStyle(property: any, openStyleTab = true) {
             var f: IFeature = property.feature;
             if (f != null) {
                 var ft = this.getFeatureType(f);
-                this.noStyles     = false;
-                var layer         = f.layer;
-                var gs            = new GroupStyle(this.$translate);
+                this.noStyles = false;
+                // for debugging: what do these properties contain?
+                var layer = f.layer;
+                var lg = layer.group;
+                //var lgs = lg.styles;
+                //var NS: number = lg.styles.length;
+                //var gs0 = lgs[0];     // may give an error if the group has no styles
+                //var gsl = gs0.legends
+
+                var gs = new GroupStyle(this.$translate);
+                // add the legends and colorscales from any existing group style
+                if (lg.styles && (lg.styles.length > 0)) {
+                    var gs0 = lg.styles[0];
+                    gs0.title = property.key;
+                    var legend: Legend;
+                    var legendKey: string;
+                    for (legendKey in gs0.legends) {
+                        legend = gs0.legends[legendKey];
+                        gs.legends[legendKey] = legend;
+                        if ((legend.legendEntries) && (legend.legendEntries.length > 0)) {
+                            var e1: LegendEntry = legend.legendEntries[0];
+                            var e2: LegendEntry = legend.legendEntries[legend.legendEntries.length - 1];
+                            gs.colorScales[legendKey] = [e1.color, e2.color]
+                        } else {
+                            gs.colorScales[legendKey] = ['red', 'red'];
+                        }
+                    }
+                }
+
                 gs.id             = Helpers.getGuid();
                 gs.title          = property.key;
                 gs.meta = property.meta;
@@ -575,21 +613,14 @@
                     gs.colors = ['white', 'orange'];
                 }
                 this.saveStyle(layer.group, gs);
-                //if (f.geometry.type.toLowerCase() === 'point') {
-                    this.project.features.forEach((fe: IFeature) => {
-                        if (fe.layer.group == layer.group)
-                        {
-                          this.calculateFeatureStyle(fe);
-                          this.activeMapRenderer.updateFeature(fe);
-                        }
-                        // if (layer.group.markers.hasOwnProperty(fe.id)) {
-                        //
-                        // }
-                    });
-                // } else {
-                //     this.updateStyle(gs);
-                // }
-
+                var NS: number = lg.styles.length;
+                this.project.features.forEach((fe: IFeature) => {
+                    if (fe.layer.group == layer.group)
+                    {
+                        this.calculateFeatureStyle(fe);
+                        this.activeMapRenderer.updateFeature(fe);
+                    }
+                });
                 if (openStyleTab)
                     (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
                 return gs;
@@ -597,13 +628,15 @@
             return null;
         }
 
+        /**
+         * checks if there are other styles that affect the same visual aspect, removes them
+         * and then adds the style to the group's styles
+         */
         private saveStyle(group: ProjectGroup, style: GroupStyle) {
-            // check if there are other styles that affect the same visual aspect, remove them
             var oldStyles = group.styles.filter((s: GroupStyle) => s.visualAspect === style.visualAspect);
-
             if (oldStyles.length > 0) {
                 var pos = group.styles.indexOf(oldStyles[0]);
-                group.styles.splice(pos,1);
+                group.styles.splice(pos, 1);   // RS, 2015-04-04: why delete only one style? (what if oldStyles.length > 1)
             }
             group.styles.push(style);
         }
@@ -954,7 +987,6 @@
                     this.project.dashboards.push(d);
                 }
 
-
                 if (!this.project.dataSets)
                     this.project.dataSets = [];
 
@@ -963,6 +995,14 @@
                 this.project.groups.forEach((group: ProjectGroup) => {
                     if (group.id == null) group.id = Helpers.getGuid();
                     group.ndx = crossfilter([]);
+                    if ((group.styles) && (group.styles.length > 0)) {
+                        var styleId: string = group.styles[0].id;
+                        //var legend: Legend;
+                        //var url: string = "dummylegend.json";
+                        //$.getJSON(url,(data: Legend) => {
+                        //    legend = new Legend().deserialize(data);
+                        //}
+                    };
                     if (group.styles == null) group.styles = [];
                     if (group.filters == null) group.filters = [];
                     group.markers = {};

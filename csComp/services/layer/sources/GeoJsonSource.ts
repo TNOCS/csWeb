@@ -159,8 +159,7 @@ module csComp.Services {
                     case "update": 
                         msg.data.forEach((f) => {
                             this.updateById((<any>layer.data).features, "id", f.properties["id"], f); 
-                        });
-                        console.log(msg.data);         
+                        });                        
                         break;
                 }
                 
