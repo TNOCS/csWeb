@@ -49,6 +49,7 @@
             this.socket.on('reconnect_failed',() => {
                 this.isConnecting = false;
             });
+            
         }
 
         public disconnect() {
@@ -111,14 +112,15 @@
             var c = this.getConnection(serverId);
             if (c == null) return null;
             
-            
             // array van socket.io verbindingen
             // registeren
+            
             if (!c.cache[topic]) {
                 c.cache[topic] = new Array<IMessageBusCallback>();
                 c.cache[topic].push(callback);
+                
                 c.socket.on(topic,(r) => {
-                    //c.cache[topic].forEach(cb => cb(title, data));
+                    c.cache[topic].forEach(cb => cb(topic,r));
                 });
             } else {
 
@@ -129,6 +131,8 @@
 
             return new MessageBusHandle(topic, callback);
         }
+
+        
 
         
 

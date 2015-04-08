@@ -5,7 +5,8 @@ module csComp.Services {
 
     export class GeoJsonSource implements ILayerSource
     {
-      title = "geojson";
+        title = "geojson";
+        layer: ProjectLayer;
      
       public constructor(public service: LayerService) {
 
@@ -17,6 +18,7 @@ module csComp.Services {
 
       protected baseAddLayer(layer: ProjectLayer, callback: Function)
       {
+          this.layer = layer;
         async.series([
 
             (cb) => {
@@ -108,6 +110,7 @@ module csComp.Services {
 
     export class DynamicGeoJsonSource extends GeoJsonSource {
         title = "dynamicgeojson";
+        
 
         constructor(public service: LayerService) {
             super(service);
@@ -116,9 +119,53 @@ module csComp.Services {
             
         }
 
+        private updateById(obj, key, id, value: IFeature) {
+            try {
+                if (obj == null)
+                    return;
+                var done = false;
+                obj.some((o : IFeature) => {
+                    if (o.properties != null && o.properties.hasOwnProperty(key) && o.properties[key] === id) {
+                        o.properties = value.properties;
+                        o.geometry = value.geometry;
+                        this.service.calculateFeatureStyle(o);
+                        this.service.activeMapRenderer.updateFeature(o);                        
+                        done = true;
+                        //  console.log('updating feature');
+                        return true;
+                    } else {
+                        
+                        return false;
+                    }
+                });
+                if (!done) {
+                    // console.log('adding feature');
+                    obj.push(value);
+                    this.service.initFeature(value, this.layer);
+                    var m = this.service.activeMapRenderer.createFeature(value);
+                    
+                }
+            } catch (e) {
+                console.log('error');
+            }
+        }
+
         public addLayer(layer: ProjectLayer, callback: Function) {
+            
             this.baseAddLayer(layer, callback);
-            this.service.$messageBusService.serverPublish("joinlayer", { id : layer.id });
+            this.service.$messageBusService.serverPublish("joinlayer", { id: layer.id });
+            this.service.$messageBusService.serverSubscribe("layer-" + layer.id,(topic: string, msg: any) => {                                
+                switch (msg.action) {
+                    case "update": 
+                        msg.data.forEach((f) => {
+                            this.updateById((<any>layer.data).features, "id", f.properties["id"], f); 
+                        });
+                        console.log(msg.data);         
+                        break;
+                }
+                
+            });
+
             //this.addLayer(layer, callback);
             
         }

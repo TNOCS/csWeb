@@ -136,7 +136,7 @@ module csComp.Services
             // create leaflet layers
             if (layer.group.clustering) {
                 var markers = L.geoJson(layer.data, {
-                    pointToLayer: (feature, latlng) => this.addFeature(feature),
+                    pointToLayer: (feature, latlng) => this.createFeature(feature),
                     onEachFeature: (feature: IFeature, lay) => {
                         //We do not need to init the feature here: already done in style.
                         //this.initFeature(feature, layer);
@@ -168,7 +168,7 @@ module csComp.Services
                         layer.group.markers[f.id] = m;
                         return this.getLeafletStyle(f.effectiveStyle);
                     },
-                    pointToLayer : (feature, latlng) => this.addFeature(feature)
+                    pointToLayer : (feature, latlng) => this.createFeature(feature)
                 });
                 this.service.project.features.forEach((f                 : IFeature) => {
                     if (f.layerId !== layer.id) return;
@@ -210,6 +210,7 @@ module csComp.Services
       if (feature.geometry.type === 'Point') {
           var marker = <L.Marker>feature.layer.group.markers[feature.id];
           if (marker != null) marker.setIcon(this.getPointIcon(feature));
+          marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
 
       } else {
           if (feature.layer.group == null) return;
@@ -220,12 +221,23 @@ module csComp.Services
       }
     }
 
+    public addFeature(feature: IFeature) {
+        var m = this.createFeature(feature);
+        feature.layer.group.markers[feature.id] = m;
+        m.on({
+            mouseover: (a) => this.showFeatureTooltip(a, feature.layer.group),
+            mouseout: (s) => this.hideFeatureTooltip(s),
+            mousemove: (d) => this.updateFeatureTooltip(d),
+            click: () => this.service.selectFeature(feature)
+        });
 
+        feature.layer.mapLayer.addLayer(m);
+    }
 
       /**
        * add a feature
        */
-      public addFeature(feature: IFeature) : any {
+      public createFeature(feature: IFeature) : any {
           //this.service.initFeature(feature,layer);
           //var style = type.style;
           var marker;

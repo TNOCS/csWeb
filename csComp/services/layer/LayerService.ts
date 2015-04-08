@@ -21,7 +21,7 @@
       addGroup(group : ProjectGroup);
       addLayer(layer : ProjectLayer);
       removeGroup(group : ProjectGroup);
-      addFeature(feature : IFeature);
+      createFeature(feature : IFeature);
       removeFeature(feature : IFeature);
       updateFeature(feature : IFeature);
     }
@@ -1015,9 +1015,7 @@
                 if (this.project.connected) {
                     // check connection
                     this.$messageBusService.initConnection("","",() => {
-                        this.$messageBusService.serverSubscribe("layers",(d) => {
-                            alert('d');
-                        });
+                        
                     });
                     
                 }
