@@ -183,7 +183,7 @@ module Heatmap {
             var vCell = Math.floor(((latlong.lat - mapBounds.getSouthWest().lat) / (mapBounds.getNorthWest().lat - mapBounds.getSouthWest().lat)) * vertCells);
 
             this.heatspots.forEach((hs) => {
-                actualHeatspots.push(hs.AddLocation(hCell, vCell, feature.properties['Name']));
+                actualHeatspots.push(hs.AddLocation(hCell, vCell, feature.properties['Name'] + ': ' + hs.intensity.toFixed(3)));
             });
             return actualHeatspots;
         }

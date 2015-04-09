@@ -38,8 +38,12 @@
         }
 
         removeLayer(layer: ProjectLayer) {
+            delete (this.heatmapModel);
+            this.heatmapModel = new Heatmap.HeatmapModel("ProjectHeatmap");
             layer.enabled = false;
+            layer.data = JSON;
             this.enableProjectLayer(layer); // Set project layer to disabled
+            //this.updateLayer(layer);
         }
 
         /* Enables the project layer if the 'layer' parameter has the same id as a project layer */
@@ -49,6 +53,9 @@
                     group.layers.forEach((l) => {
                         if (l.id == layer.id) {
                             l.enabled = layer.enabled;
+                            if (l.enabled == false) {
+                                layer.data = JSON;
+                            }
                         }
                     });
                 });
@@ -87,6 +94,8 @@
             this.heatmapModel.id = layer.id;
             this.heatmapModel.updateWeights();
             this.heatmapModel.calculate(this.service, this.service.$mapService, geoLayer);
+
+            var time = new Date().getTime();
             layer.data = geoLayer.toGeoJSON();
 
             if ((<any>(layer.data)) && (<any>(layer.data)).features) {
@@ -110,6 +119,8 @@
                     this.service.setStyle(calloutProp, false, propinfo); // Set the style
                 }
             }
+            var time2 = new Date().getTime();
+            console.log('Init and style features in ' + (time2 - time).toFixed(1) + ' ms');
         }
     }
 }

@@ -84,8 +84,9 @@ module csComp.Services
                     }
                 }
             });
+        } else {
+            this.service.map.map.removeLayer(layer.mapLayer);
         }
-        this.service.map.map.removeLayer(layer.mapLayer);
         break;
 
         case "wms":
@@ -187,6 +188,7 @@ module csComp.Services
             }
             break;
         case "heatmap":
+              var time = new Date().getTime();
             // create leaflet layers
             if (layer.group.clustering) {
                 var markers = L.geoJson(layer.data, {
@@ -231,7 +233,8 @@ module csComp.Services
                 });
 
                 layer.mapLayer.addLayer(v);
-                
+                var time2 = new Date().getTime();
+                console.log('Applied style in ' + (time2 - time).toFixed(1) + ' ms');
             }
             break;
       }

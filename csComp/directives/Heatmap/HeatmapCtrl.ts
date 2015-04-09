@@ -181,6 +181,7 @@ module Heatmap {
                 if (!result) return;
                 this.$timeout(() => {
                     this.deleteHeatmap(heatmap);
+                    this.updateAvailableHeatmaps();
                     //if (this.heatmap) this.updateHeatmap();
                     //if (this.heatmap) this.$mapService.map.removeLayer(this.heatmap);
                 }, 0);
@@ -197,7 +198,6 @@ module Heatmap {
             delete (this.projLayer);
             this.projLayer = new csComp.Services.ProjectLayer();
             this.initializeHeatmap();
-            this.updateAvailableHeatmaps();
         }
 
         /**
@@ -259,6 +259,7 @@ module Heatmap {
                 var currentZoom = this.$mapService.getMap().getZoom();
                 if (currentZoom < this.heatmapModel.heatmapSettings.minZoom || currentZoom > this.heatmapModel.heatmapSettings.maxZoom) {
                     console.log("Heatmap is not supported for the current zoom level.");
+                    this.$layerService.loadRequiredLayers(this.projLayer); // Make sure to load the required layers even if heatmap is not yet being drawn
                     return;
                 } else {
                     //this.heatmapModel.updateWeights();

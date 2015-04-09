@@ -23,6 +23,7 @@ module Heatmap {
          * Calculate the heatmap.
          */
         calculate(layerService: csComp.Services.LayerService, mapService: csComp.Services.MapService, heatmap: L.GeoJSON) { //: L.TileLayer.WebGLHeatMap) {
+            var time = new Date().getTime();
             console.log('Calculating heatmap');
             var mapBounds = mapService.map.getBounds();
             var NW = mapBounds.getNorthWest();
@@ -88,10 +89,12 @@ module Heatmap {
                     }
                 });
             });
-            console.log('Created ' + count + ' heatspots');
+            var time2 = new Date().getTime();
+            console.log('Created ' + count + ' heatspots in ' + (time2 - time).toFixed(1) + ' ms');
 
             heatmap.clearLayers();
             var weightedIntensityScale: number = ((this.heatmapSettings.intensityScale / 3)*(this.heatmapSettings.intensityScale / 3)); // Convert intensityscale from [1,...,5] to ~[0.1, 0.5, 1, 2, 3]
+            
             //Draw the intensityGrid
             for (var i = 0; i < horizCells; i++) {
                 for (var j = 0; j < vertCells; j++) {
@@ -118,6 +121,8 @@ module Heatmap {
                     }
                 }
             }
+            var time3 = new Date().getTime();
+            console.log('Calculated ' + (i*j) + ' cells in ' + (time3 - time).toFixed(1) + ' ms');
         }
 
         /**
@@ -187,40 +192,6 @@ module Heatmap {
             output += JSON.stringify(100);
             output += "\n}";
             return output;
-            ////TODO: Add reference layers
-            //var output: string = "\"type\":\"Heatmap\",\n\"heatmapsettings\":{\n";
-            //var featureId: string = "";
-            //var featureTypes: string[] = [];
-            //var weights: { [name: string]: number; } = {};
-            //var idealities: { [name: string]: IdealityMeasure; } = {};
-            //this.heatmapItems.forEach((f) => {
-            //    if (f.isSelected) {
-            //        if (f.propertyTitle) {
-            //            featureId = f.featureType.name + "+" + f.propertyTitle + "+" + f.title;
-            //        } else {
-            //            featureId = f.featureType.name;
-            //        }
-            //        featureTypes.push(featureId);
-            //        weights[featureId] = f.weight;
-            //        idealities[featureId] = f.idealityMeasure;
-            //    }
-            //});
-            //output += "\"featureTypes\":";
-            //output += JSON.stringify(featureTypes);
-            //output += ",\n\"weights\":";
-            //output += JSON.stringify(weights);
-            //output += ",\n\"idealities\":";
-            //output += JSON.stringify(idealities);
-            //output += ",\n\"minZoom\":";
-            //output += JSON.stringify(this.heatmapSettings.minZoom);
-            //output += ",\n\"maxZoom\":";
-            //output += JSON.stringify(this.heatmapSettings.maxZoom);
-            //output += "\n},\n\"enabled\":";
-            //output += JSON.stringify(false);
-            //output += ",\n\"opacity\":";
-            //output += JSON.stringify(100);
-            //output += "\n}";
-            //return output;
         }
     }
 }

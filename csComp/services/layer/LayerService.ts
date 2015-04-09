@@ -177,6 +177,20 @@
 
         }
 
+        public loadRequiredLayers(layer: ProjectLayer) {
+            // find layer source, and activate layer
+            var layerSource = layer.type.toLowerCase();
+            // if a layer is depends on other layers, load those first
+            if (this.layerSources.hasOwnProperty(layerSource)) {
+                if (this.layerSources[layerSource].requiresLayer) {
+                    var requiredLayers: ProjectLayer[] = this.layerSources[layerSource].getRequiredLayers(layer);
+                    requiredLayers.forEach((l) => {
+                        this.addLayer(l);
+                    });
+                }
+            }
+        }
+
         public addLayer(layer: ProjectLayer) {
             if (this.loadedLayers.containsKey(layer.id)) return;
             var disableLayers = [];
@@ -194,17 +208,11 @@
                     callback(null, null);
                 },
                 (callback) => {
+                    // load required feature layers, if applicable
+                    this.loadRequiredLayers(layer);
+
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
-                    // if a layer is depends on other layers, load those first
-                    if (this.layerSources.hasOwnProperty(layerSource)) {
-                        if (this.layerSources[layerSource].requiresLayer) {
-                            var requiredLayers: ProjectLayer[] = this.layerSources[layerSource].getRequiredLayers(layer);
-                            requiredLayers.forEach((l) => {
-                                this.addLayer(l);
-                            });
-                        }
-                    }
 
                     if (this.layerSources.hasOwnProperty(layerSource)) {
                         async.series([
