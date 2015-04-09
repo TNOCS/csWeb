@@ -92,11 +92,17 @@
             var geoLayer = L.geoJson([]);
             this.heatmapModel.deserialize(layer);
             this.heatmapModel.id = layer.id;
-            this.heatmapModel.updateWeights();
-            this.heatmapModel.calculate(this.service, this.service.$mapService, geoLayer);
 
-            var time = new Date().getTime();
-            layer.data = geoLayer.toGeoJSON();
+            var currentZoom = this.service.$mapService.getMap().getZoom();
+            if (currentZoom < this.heatmapModel.heatmapSettings.minZoom || currentZoom > this.heatmapModel.heatmapSettings.maxZoom) {
+                return;
+            } else {
+                this.heatmapModel.updateWeights();
+                this.heatmapModel.calculate(this.service, this.service.$mapService, geoLayer);
+
+                var time = new Date().getTime();
+                layer.data = geoLayer.toGeoJSON();
+            }
 
             if ((<any>(layer.data)) && (<any>(layer.data)).features) {
                 (<any>(layer.data)).features.forEach((f) => {

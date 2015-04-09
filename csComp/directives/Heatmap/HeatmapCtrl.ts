@@ -56,12 +56,12 @@ module Heatmap {
         ) {
           $scope.vm = this;
 
-          messageBusService.subscribe('layer',(title) => {//, layer: csComp.Services.ProjectLayer) => {
+          messageBusService.subscribe('layer',(title, layer) => {//, layer: csComp.Services.ProjectLayer) => {
               switch (title) {
                   case 'deactivate':
                       break;
                   case 'activated':
-                      this.updateAvailableHeatmaps();
+                      if (layer.type && layer.type === "Heatmap") this.updateAvailableHeatmaps();
                       //this.updateHeatmap();
                       break;
               }
@@ -109,7 +109,7 @@ module Heatmap {
                     });
                 }
             } else {
-                for (var index = 0; this.heatmapModels.length-1; index++) {
+                for (var index = 0; index < this.heatmapModels.length; index++) {
                     if (this.heatmapModel.id == this.heatmapModels[index].id) {
                         this.heatmapModels.splice(index, 1);
                         break;
