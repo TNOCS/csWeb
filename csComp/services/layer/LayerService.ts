@@ -124,8 +124,6 @@
 
             this.initLayerSources();
 
-            
-
             //this.$dashboardService.init();
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
@@ -448,19 +446,29 @@
 
           //var layer = this.findLayer(feature.layerId);
           feature.layer.group.styles.forEach((gs: GroupStyle) => {
-              if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {                  
+              if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                   var v = Number(feature.properties[gs.property]);
                   if (!isNaN(v)) {
                       switch (gs.visualAspect) {
                           case 'strokeColor':
                               s.strokeColor = csComp.Helpers.getColor(v, gs);
-                          break;
-                      case 'fillColor':
-                          s.fillColor = csComp.Helpers.getColor(v, gs);
-                          break;
-                      case 'strokeWidth':
-                          s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
-                          break;
+                              break;
+                          case 'fillColor':
+                              s.fillColor = csComp.Helpers.getColor(v, gs);
+                              break;
+                          case 'strokeWidth':
+                              s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
+                              break;
+                      }
+                  } else {
+                      var ss = feature.properties[gs.property];
+                      switch (gs.visualAspect) {
+                          case 'strokeColor':
+                              s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                              break;
+                          case 'fillColor':
+                              s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                              break;
                       }
                   }
                   //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
@@ -605,7 +613,6 @@
                 gs.enabled = true;
                 gs.group = layer.group;
                 gs.meta = property.meta;
-                
 
                 if (ft.style && ft.style.fillColor) {
                     gs.colors = ['white', 'orange'];
@@ -947,8 +954,6 @@
 
             $.getJSON(url,(data: Project) => {
                 this.project = new Project().deserialize(data);
-
-
 
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
