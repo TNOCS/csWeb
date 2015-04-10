@@ -275,7 +275,7 @@ module Heatmap {
                 if (this.$layerService.project.groups) {
                     this.$layerService.project.groups.forEach((group) => {
                         group.layers.forEach((layer) => {
-                            if (layer.type === "Heatmap" && layer.id === this.heatmapModel.id) {
+                            if (layer.type === "Heatmap" && layer.id === this.heatmapModel.id && layer.mapLayer) {
                                 this.$layerService.map.map.removeLayer(layer.mapLayer);
                                 layer.enabled = true;
                             }

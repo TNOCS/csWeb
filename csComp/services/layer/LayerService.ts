@@ -443,11 +443,12 @@
         public calculateFeatureStyle(feature: IFeature) {
             var s: csComp.Services.IFeatureTypeStyle = {};
             //s.fillColor = 'red';            
-            s.strokeWidth = 1;
+            s.stroke = false;
+            s.fillOpacity = 0.75;
             s.rotate = 0;
-            s.strokeColor = 'black';
-            s.iconHeight = 32;
-            s.iconWidth = 32;
+            //s.strokeColor = 'black';
+            //s.iconHeight = 32;
+            //s.iconWidth = 32;
             /*var s = {
                 fillColor   : 'red',
                 weight      : 0.5,
@@ -891,7 +892,7 @@
                     }
                 });
             } else {
-                this.map.map.removeLayer(layer.mapLayer);
+                if (layer.mapLayer) this.map.map.removeLayer(layer.mapLayer);
             }
 
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
