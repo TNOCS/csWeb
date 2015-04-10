@@ -103,6 +103,7 @@
     */
     export class Legend {
         id: string;
+        description: string;
         legendKind: string;
         legendEntries: LegendEntry[];
         // it is assumed that the legendentries have their values and/or intervals
@@ -116,7 +117,8 @@
             max: number;
         };                 // either interval or value is used, depending on legendtype (discrete or interpolated)
         value: number;
-        color: string;  // hex string; rgb (first shot at it)
+        stringValue: string;
+        color: string;  // hex string; rgb
     }
 
 } 

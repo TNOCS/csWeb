@@ -1,5 +1,27 @@
 module csComp.Helpers
 {
+    export function getColorFromStringValue(v: string, gs: csComp.Services.GroupStyle) {
+        if (gs.activeLegend) {
+            var defaultcolor: string = '#000000';
+            var l = gs.activeLegend;
+            var s: String = l.id;
+            var n = l.legendEntries.length;
+            if (n == 0) return (defaultcolor);
+            if (l.legendKind == 'discretestrings') {
+                var i: number = 0;
+                while (i < n) {
+                    var e = l.legendEntries[i];
+                    if (v == e.stringValue)  {
+                        return e.color;
+                    }
+                    i++;
+                }
+                return defaultcolor;
+            }
+            return defaultcolor;
+        }
+    }
+
     export function getColor(v: number, gs: csComp.Services.GroupStyle) {
         if (gs.activeLegend) {
             var defaultcolor: string = '#000000';
