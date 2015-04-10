@@ -27,9 +27,6 @@
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.tpl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.ts" />
     <TypeScriptCompile Include="directives\Dashboard\DashboardCtrl.ts" />
-    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.tpl.ts" />
-    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
-    <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelationsCtrl.ts" />
@@ -53,6 +50,9 @@
     <TypeScriptCompile Include="classes\feature.ts" />
     <TypeScriptCompile Include="classes\group.ts" />
     <TypeScriptCompile Include="classes\project.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.tpl.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\McaEditorView.tpl.ts" />
     <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearch.tpl.ts" />
     <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearch.ts" />

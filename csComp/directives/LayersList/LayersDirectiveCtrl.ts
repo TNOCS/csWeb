@@ -28,7 +28,7 @@
             //Uncommented after updating the bower packages: the behaviour changed between angular versions.
             // layer.enabled = !layer.enabled;
             // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
-            if (layer.group.oneLayerActive && this.$layerService.findLayer(layer.id)) layer.enabled = false;
+            //if (layer.group.oneLayerActive && this.$layerService.findLayer(layer.id)) layer.enabled = false;
             
             if (layer.enabled) {    
                 this.$layerService.addLayer(layer);
