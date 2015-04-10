@@ -35,6 +35,7 @@ Add unit tests for any new or changed functionality. Lint and test your code.
 * 0.0.4 Reorganized the output (added dist folder)
 * 0.0.5 Updated documentation
 * 0.0.7 Added fix for files that contain geometries without features
+* 0.0.8 Excluded topojson files (not yet supported)
 
 ## About the code
 
