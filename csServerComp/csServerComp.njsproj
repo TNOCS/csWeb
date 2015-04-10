@@ -12,7 +12,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>fff1af43-c29b-4ecd-aef4-d6f3c020413f</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>index.ts</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <StartWebBrowser>False</StartWebBrowser>
     <SearchPath>
     </SearchPath>
@@ -33,18 +34,30 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="index.ts" />
+    <Content Include="OfflineSearch\package.json" />
     <Content Include="OfflineSearch\readme.md" />
-    <Content Include="package.json" />
     <Content Include="README.md" />
+    <TypeScriptCompile Include="OfflineSearch\Helpers\Feature.ts" />
+    <TypeScriptCompile Include="OfflineSearch\Helpers\IGroup.ts" />
+    <TypeScriptCompile Include="OfflineSearch\Helpers\ILayer.ts" />
+    <TypeScriptCompile Include="OfflineSearch\Helpers\IProject.ts" />
+    <TypeScriptCompile Include="OfflineSearch\Helpers\IProjectLocation.ts" />
+    <TypeScriptCompile Include="OfflineSearch\Helpers\ISolution.ts" />
+    <TypeScriptCompile Include="OfflineSearch\Helpers\Utils.ts" />
     <TypeScriptCompile Include="OfflineSearch\index.ts" />
+    <TypeScriptCompile Include="OfflineSearch\IOfflineSearchOptions.ts" />
     <TypeScriptCompile Include="OfflineSearch\OfflineSearcher.ts" />
-    <TypeScriptCompile Include="OfflineSearch\OfflineSearchManager.ts" />
     <TypeScriptCompile Include="OfflineSearch\OfflineSearchResult.ts" />
+    <TypeScriptCompile Include="OfflineSearch\Scripts\typings\node\node.d.ts" />
+    <TypeScriptCompile Include="OfflineSearch\test.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="OfflineSearch\" />
+    <Folder Include="OfflineSearch\Helpers\" />
+    <Folder Include="OfflineSearch\Scripts\" />
+    <Folder Include="OfflineSearch\Scripts\typings\" />
+    <Folder Include="OfflineSearch\Scripts\typings\node\" />
     <Folder Include="Scripts\" />
     <Folder Include="Scripts\typings\" />
     <Folder Include="Scripts\typings\node\" />

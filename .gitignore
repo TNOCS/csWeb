@@ -8,3 +8,5 @@ csCompTests/bower_components/
 csCompTests/csComp/
 *.orig
 csServerComp/OfflineSearch/dist/
+csServerComp/OfflineSearch/OfflineSearcher.d.ts
+csServerComp/OfflineSearch/OfflineSearcher.js

@@ -2,8 +2,8 @@
 * Offline Search Result contains the result of performing a scan of all the project layer files.
 */
 
-import IProjectLocation      = require('../Helpers/IProjectLocation');
-import f                     = require('../Helpers/Feature')
+import IProjectLocation      = require('./Helpers/IProjectLocation');
+import f                     = require('./Helpers/Feature')
 import IOfflineSearchOptions = require('./IOfflineSearchOptions');
 
 export class Layer {

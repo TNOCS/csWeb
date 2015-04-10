@@ -1,12 +1,12 @@
 import path                  = require('path');
 import fs                    = require('fs');
-import geo                   = require('../Helpers/Feature');
+import geo                   = require('./Helpers/Feature');
 import osr                   = require('./OfflineSearchResult');
 import IOfflineSearchOptions = require('./IOfflineSearchOptions');
-import IProjectLocation      = require('../Helpers/IProjectLocation');
-import IProject              = require('../Helpers/IProject');
-import IGroup                = require('../Helpers/IGroup');
-import ILayer                = require('../Helpers/ILayer');
+import IProjectLocation      = require('./Helpers/IProjectLocation');
+import IProject              = require('./Helpers/IProject');
+import IGroup                = require('./Helpers/IGroup');
+import ILayer                = require('./Helpers/ILayer');
 
 /**
 * Offline Search reads the solution file, and creates an OfflineSearchResult for each project it contains.
