@@ -8,7 +8,7 @@ module csComp.Services {
       title = "geojson";
       layer: ProjectLayer;
       requiresLayer = false;
-      service : LayerService;
+      //service : LayerService;
       public constructor(public service: LayerService) {
 
       }

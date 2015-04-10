@@ -4,12 +4,15 @@ module csComp.Services {
     export class DynamicGeoJsonSource implements ILayerSource
     {
       title = "dynamicgeojson";
-      service: LayerService;
+      //service: LayerService;
       requiresLayer = false;
+      constructor(public service: LayerService) {
 
-      public init(service : LayerService){
-        this.service = service;
       }
+
+      //public init(service : LayerService){
+      //  this.service = service;
+      //}
 
       public addLayer(layer : ProjectLayer, callback : Function)
       {

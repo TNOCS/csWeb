@@ -203,7 +203,7 @@ module csComp.Services
             // create leaflet layers
             if (layer.group.clustering) {
                 var markers = L.geoJson(layer.data, {
-                    pointToLayer: (feature, latlng) => this.addFeature(feature),
+                    pointToLayer: (feature, latlng) => this.createFeature(feature),
                     onEachFeature: (feature: IFeature, lay) => {
                         //We do not need to init the feature here: already done in style.
                         //this.initFeature(feature, layer);
@@ -235,7 +235,7 @@ module csComp.Services
                         layer.group.markers[f.id] = m;
                         return f.effectiveStyle;
                     },
-                    pointToLayer: (feature, latlng) => this.addFeature(feature)
+                    pointToLayer: (feature, latlng) => this.createFeature(feature)
                 });
                 this.service.project.features.forEach((f: IFeature) => {
                     if (f.layerId !== layer.id) return;

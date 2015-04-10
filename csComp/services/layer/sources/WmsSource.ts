@@ -5,7 +5,7 @@ module csComp.Services {
     {
       title = "wms";
       requiresLayer = false;
-      service : LayerService;
+      //service : LayerService;
 	  constructor(public service: LayerService) {
 
       }

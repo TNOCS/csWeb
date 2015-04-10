@@ -7,7 +7,7 @@
     export interface ILayerSource
     {
       title : string;
-      service : ILayerService);
+      service : ILayerService;
       addLayer(layer: ProjectLayer, callback: Function);
       removeLayer(layer: ProjectLayer): void;
       requiresLayer: boolean;
@@ -172,8 +172,8 @@
           
 
           //add heatmap layer
-          this.layerSources["heatmap"] = new HeatmapSource();
-          this.layerSources["heatmap"].init(this);
+          this.layerSources["heatmap"] = new HeatmapSource(this);
+          //this.layerSources["heatmap"].init(this);
 
         }
 
@@ -440,8 +440,7 @@
             return feature.type;
         }
 
-        public calculateFeatureStyle(feature : IFeature)
-        {
+        public calculateFeatureStyle(feature: IFeature) {
             var s: csComp.Services.IFeatureTypeStyle = {};
             //s.fillColor = 'red';            
             s.strokeWidth = 1;
@@ -449,67 +448,67 @@
             s.strokeColor = 'black';
             s.iconHeight = 32;
             s.iconWidth = 32;
-          /*var s = {
-              fillColor   : 'red',
-              weight      : 0.5,
-              stroke      : false,
-              opacity     : 1,
-              color       : 'black',
-              fillOpacity : 0.75
-          };*/
+            /*var s = {
+                fillColor   : 'red',
+                weight      : 0.5,
+                stroke      : false,
+                opacity     : 1,
+                color       : 'black',
+                fillOpacity : 0.75
+            };*/
 
-          var ft = this.getFeatureType(feature);
-          if (ft.style) {              
-              if (ft.style.fillColor != null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
-              if (ft.style.strokeColor != null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
-              if (ft.style.strokeWidth != null) s.strokeWidth = ft.style.strokeWidth;
-              if (ft.style.iconWidth != null) s.iconWidth = ft.style.iconWidth;
-              if (ft.style.iconHeight != null) s.iconHeight = ft.style.iconHeight;
-              
-
-              if (ft.style.rotateProperty && feature.properties.hasOwnProperty(ft.style.rotateProperty)) {
-                  s.rotate = Number(feature.properties[ft.style.rotateProperty]);
-              }
+            var ft = this.getFeatureType(feature);
+            if (ft.style) {
+                if (ft.style.fillColor != null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
+                if (ft.style.strokeColor != null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
+                if (ft.style.strokeWidth != null) s.strokeWidth = ft.style.strokeWidth;
+                if (ft.style.iconWidth != null) s.iconWidth = ft.style.iconWidth;
+                if (ft.style.iconHeight != null) s.iconHeight = ft.style.iconHeight;
 
 
-          }
+                if (ft.style.rotateProperty && feature.properties.hasOwnProperty(ft.style.rotateProperty)) {
+                    s.rotate = Number(feature.properties[ft.style.rotateProperty]);
+                }
 
-          //var layer = this.findLayer(feature.layerId);
-          feature.layer.group.styles.forEach((gs: GroupStyle) => {
-              if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
-                  var v = Number(feature.properties[gs.property]);
-                  if (!isNaN(v)) {
-                      switch (gs.visualAspect) {
-                          case 'strokeColor':
-                              s.strokeColor = csComp.Helpers.getColor(v, gs);
-                              break;
-                          case 'fillColor':
-                              s.fillColor = csComp.Helpers.getColor(v, gs);
-                              break;
-                          case 'strokeWidth':
-                              s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
-                              break;
-                      }
-                  } else {
-                      var ss = feature.properties[gs.property];
-                      switch (gs.visualAspect) {
-                          case 'strokeColor':
-                              s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-                              break;
-                          case 'fillColor':
-                              s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-                              break;
-                      }
-                      //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
-                  }
-              });
-          }
 
-          if (feature.isSelected) {
-              s.strokeWidth = 5;
-              s.strokeColor = 'black';
-          }
-          feature.effectiveStyle = s;
+            }
+
+            //var layer = this.findLayer(feature.layerId);
+            feature.layer.group.styles.forEach((gs: GroupStyle) => {
+                if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
+                    var v = Number(feature.properties[gs.property]);
+                    if (!isNaN(v)) {
+                        switch (gs.visualAspect) {
+                            case 'strokeColor':
+                                s.strokeColor = csComp.Helpers.getColor(v, gs);
+                                break;
+                            case 'fillColor':
+                                s.fillColor = csComp.Helpers.getColor(v, gs);
+                                break;
+                            case 'strokeWidth':
+                                s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
+                                break;
+                        }
+                    } else {
+                        var ss = feature.properties[gs.property];
+                        switch (gs.visualAspect) {
+                            case 'strokeColor':
+                                s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                break;
+                            case 'fillColor':
+                                s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                break;
+                        }
+                        //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
+                    }
+                }
+            });
+
+            if (feature.isSelected) {
+                s.strokeWidth = 5;
+                s.strokeColor = 'black';
+            }
+            feature.effectiveStyle = s;
         }
 
         /**

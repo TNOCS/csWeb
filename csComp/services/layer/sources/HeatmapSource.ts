@@ -4,12 +4,13 @@
     export class HeatmapSource implements ILayerSource {
         title = "heatmap";
         requiresLayer = true;
-        service: LayerService;
+        //service: LayerService;
         heatmapModel: Heatmap.HeatmapModel = new Heatmap.HeatmapModel("ProjectHeatmap");
+        constructor(public service: LayerService) { }
 
-        public init(service: LayerService) {
-            this.service = service;
-        }
+        //public init(service: LayerService) {
+        //    this.service = service;
+        //}
 
         public updateLayer(layer: ProjectLayer) {
             this.generateHeatmap(layer);
