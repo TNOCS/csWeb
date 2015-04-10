@@ -59,6 +59,12 @@ module Heatmap {
           messageBusService.subscribe('layer',(title, layer) => {//, layer: csComp.Services.ProjectLayer) => {
               switch (title) {
                   case 'deactivate':
+                      /* For an explanation to the removing of layers, see the bottom of this file */
+                      if (layer.type && layer.type === "Heatmap" && layer.id === this.projLayer.id && layer != this.projLayer) {
+                          this.$layerService.removeLayer(this.projLayer);
+                          delete (this.heatmapModel);
+                          this.initializeHeatmap();
+                      }
                       break;
                   case 'activated':
                       if (layer.type && layer.type === "Heatmap") this.updateAvailableHeatmaps();
@@ -194,6 +200,17 @@ module Heatmap {
             var index = this.heatmapModels.indexOf(heatmap);
             if (index >= 0) this.heatmapModels.splice(index, 1);
             this.$layerService.removeLayer(this.projLayer);
+            // If the current heatmaplayer was a projectlayer, disable that one too
+            if (this.$layerService.project.groups) {
+                this.$layerService.project.groups.forEach((group) => {
+                    group.layers.forEach((layer) => {
+                        if (layer.type === "Heatmap" && layer.id === this.projLayer.id) {
+                            this.$layerService.removeLayer(layer);
+                        }
+                    });
+                });
+            }
+
             delete (this.heatmapModel);
             delete (this.projLayer);
             this.projLayer = new csComp.Services.ProjectLayer();
@@ -219,7 +236,8 @@ module Heatmap {
                 this.updateHeatmap();
                 console.log('Updated heatmap');
             }, () => {
-                //console.log('Modal dismissed at: ' + new Date());
+                    console.log('Modal dismissed at: ' + new Date());
+                    delete (this.heatmapModel);
             });
         }
 
@@ -253,6 +271,17 @@ module Heatmap {
          */
         private updateHeatmap() {
             if (this.heatmapModel) {
+                // If the current heatmapmodel comes from a projectlayer, disable that layer
+                if (this.$layerService.project.groups) {
+                    this.$layerService.project.groups.forEach((group) => {
+                        group.layers.forEach((layer) => {
+                            if (layer.type === "Heatmap" && layer.id === this.heatmapModel.id) {
+                                this.$layerService.map.map.removeLayer(layer.mapLayer);
+                                layer.enabled = true;
+                            }
+                        });
+                    });
+                }
                 this.projLayer.heatmapItems = this.heatmapModel.heatmapItems;
                 this.projLayer.heatmapSettings = this.heatmapModel.heatmapSettings;
                 this.projLayer.id = this.heatmapModel.id;
@@ -315,64 +344,18 @@ module Heatmap {
                 });
                 this.moveListenerInitialized = true;
             }
-
-            //this.heatmap = L.geoJson([]);//, {
-            //    style: function (feature) { 
-            //        if (feature.properties.intensity <= 0) {
-            //            var hexString = Heatmap.HeatmapCtrl.intensityToHex(feature.properties.intensity);
-            //            return { color: "#FF"+hexString+hexString };
-            //        } else if (feature.properties.intensity > 0) {
-            //            var hexString = Heatmap.HeatmapCtrl.intensityToHex(feature.properties.intensity);
-            //            return { color: "#" + hexString + hexString + "FF"};
-            //        } else {
-            //            return { color: "#000000" };
-            //        }
-            //}
-            //});
-
-            //this.projLayer.data = this.heatmap.toGeoJSON();
-            //(<any>(this.projLayer.data)).features.forEach((f) => {
-            //    this.$layerService.initFeature(f, this.projLayer);
-            //});
-
-            //// Set default style for the heatmap:
-            //if ((<any>(this.projLayer.data)).features[0]) {
-            //    var calloutProp = new FeatureProps.CallOutProperty("intensity", "0", "intensity", true, true,(<any>(this.projLayer.data)).features[0], false);
-            //    var propinfo = new csComp.Services.PropertyInfo();
-            //    // Tweak the group style info to keep constant min/max color values on panning and zooming.
-            //    propinfo.count = (<any>(this.projLayer.data)).features.length;
-            //    propinfo.max = 1;
-            //    propinfo.min = -1;
-            //    propinfo.sdMax = propinfo.max;
-            //    propinfo.sdMin = propinfo.min;
-            //    propinfo.mean = 0;
-            //    propinfo.varience = 0.67;
-            //    propinfo.sd = Math.sqrt(propinfo.varience);
-            //    this.$layerService.setStyle(calloutProp, false, propinfo); // Set the style
-            //}
-            //this.$layerService.addLayer(this.projLayer);
-            //this.$mapService.map.setView(new L.LatLng(52.1095, 4.3275), 14);
         }
-
-        //public static intensityToHex(intensity: number): string {
-        //    var decreaseOverlap = 20;
-        //    intensity = Math.floor(Math.abs(intensity) * 255);
-        //    if (intensity < 0) {
-        //        intensity = 0;
-        //    } else if (intensity > 255 - decreaseOverlap) {
-        //        intensity = 255 - decreaseOverlap;
-        //    }
-        //    var hexString: string = (255 - decreaseOverlap - intensity).toString(16);
-        //    if (hexString.length == 1) {
-        //        hexString = "0" + hexString;
-        //    }
-        //    return hexString;
-        //}
-
-        ///**
-        // * Create a dummy heatmap
-        // */
-        //private createDummyHeatmap() {
-        //}
     }
 }
+
+/* Heatmap layers: 
+ * ---------------
+ * Two layers are used for the heatmaps, which are both very similar but different in an important way. The difference 
+ * lies in the fact that one layer comes directly from the project.json file. This layer is parsed and added to the layerservice
+ * directly when it is enabled in the 'Layers' panel. The second layer is 'this.projLayer', which looks almost identical to 
+ * the parsed projectLayer, but it is generated programmatically. When a new heatmap is created, or a predefined heatmap is edited,
+ * this.projLayer will be added to the layerservice. Very importantly, the MoveListener is connected to this.projLayer. That means
+ * that every time the map is moved, 'this.projLayer' will contain the current heatmap, even when it was added from project.json. 
+ * Therefore, when one layer is being disabled, it needs to be checked whether the other layer is present in the layerservice, 
+ * and if so, it should be removed too.
+ */
