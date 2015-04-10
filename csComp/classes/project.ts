@@ -129,10 +129,12 @@
 
     /** project configuration. */
     export class Project implements ISerializable<Project> {
+        id: string;
         title           : string;
         description     : string;
         logo            : string;
-        url             : string;
+        url: string;
+        connected       : boolean;
         activeDashboard : Dashboard;
         baselayers      : IBaseLayer[];
         featureTypes    : { [id: string]: IFeatureType }
@@ -167,6 +169,7 @@
             }
           }
             if (!res.propertyTypeData) res.propertyTypeData = {};
+            if (res.id == null) res.id = res.title;
           return res;
         }
     }

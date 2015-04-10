@@ -7,3 +7,4 @@ csCompTests/node_modules/
 csCompTests/bower_components/
 csCompTests/csComp/
 *.orig
+*.config

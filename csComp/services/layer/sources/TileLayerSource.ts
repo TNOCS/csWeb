@@ -10,9 +10,8 @@ module csComp.Services {
       title = "tilelayer";
       service : LayerService;
       requiresLayer = false;
+      constructor(public service: LayerService) {
 
-      init(service : LayerService){
-        this.service = service;
       }
 
       public addLayer(layer : ProjectLayer, callback : Function) {

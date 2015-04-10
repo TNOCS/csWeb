@@ -95,6 +95,17 @@ module csComp.Services
 
     }
 
+    private getLeafletStyle(style: IFeatureTypeStyle) {
+        var s = {
+            fillColor: style.fillColor,
+            weight: style.strokeWidth,
+            opacity: style.opacity,
+            color: style.strokeColor,
+            fillOpacity: style.opacity
+        };
+        return s;
+    }
+
     public addLayer(layer : ProjectLayer)
     {
       switch (layer.layerRenderer)
@@ -145,7 +156,7 @@ module csComp.Services
             // create leaflet layers
             if (layer.group.clustering) {
                 var markers = L.geoJson(layer.data, {
-                    pointToLayer: (feature, latlng) => this.addFeature(feature),
+                    pointToLayer: (feature, latlng) => this.createFeature(feature),
                     onEachFeature: (feature: IFeature, lay) => {
                         //We do not need to init the feature here: already done in style.
                         //this.initFeature(feature, layer);
@@ -166,18 +177,18 @@ module csComp.Services
                         //We do not need to init the feature here: already done in style.
                         //this.initFeature(feature, layer);
                         layer.group.markers[feature.id] = lay;
-                        lay.on({
-                            mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                            mouseout : (s) => this.hideFeatureTooltip(s),
-                            mousemove: (d) => this.updateFeatureTooltip(d),
-                            click    : ()  => this.service.selectFeature(feature)
+                        lay.on({ 
+                            mouseover : (a) => this.showFeatureTooltip(a, layer.group),
+                            mouseout  : (s) => this.hideFeatureTooltip(s),
+                            mousemove : (d) => this.updateFeatureTooltip(d),
+                            click     : ()  => this.service.selectFeature(feature)
                         });
                     },
                     style: (f: IFeature, m) => {
                         layer.group.markers[f.id] = m;
-                        return f.effectiveStyle;
+                        return this.getLeafletStyle(f.effectiveStyle);
                     },
-                    pointToLayer: (feature, latlng) => this.addFeature(feature)
+                    pointToLayer : (feature, latlng) => this.createFeature(feature)
                 });
                 this.service.project.features.forEach((f: IFeature) => {
                     if (f.layerId !== layer.id) return;
@@ -265,24 +276,37 @@ module csComp.Services
     }
 
     public updateFeature(feature : IFeature) {
-        if (feature.geometry.type === 'Point') {
-            var marker = <L.Marker>feature.layer.group.markers[feature.id];
-            if (marker != null) marker.setIcon(this.getPointIcon(feature)); 
-        } else {
+      if (feature.geometry.type === 'Point') {
+          var marker = <L.Marker>feature.layer.group.markers[feature.id];
+          if (marker != null) marker.setIcon(this.getPointIcon(feature));
+          marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
+
+      } else {
           if (feature.layer.group == null) return;
           var m = feature.layer.group.markers[feature.id];
           var layer = this.service.findLayer(feature.layerId);
           //var s = this.style(feature);
-          if (m) m.setStyle(feature.effectiveStyle);
+          if (m) m.setStyle(this.getLeafletStyle(feature.effectiveStyle));
       }
     }
 
+    public addFeature(feature: IFeature) {
+        var m = this.createFeature(feature);
+        feature.layer.group.markers[feature.id] = m;
+        m.on({
+            mouseover: (a) => this.showFeatureTooltip(a, feature.layer.group),
+            mouseout: (s) => this.hideFeatureTooltip(s),
+            mousemove: (d) => this.updateFeatureTooltip(d),
+            click: () => this.service.selectFeature(feature)
+        });
 
+        feature.layer.mapLayer.addLayer(m);
+    }
 
       /**
        * add a feature
        */
-      public addFeature(feature: IFeature) : any {
+      public createFeature(feature: IFeature) : any {
           //this.service.initFeature(feature,layer);
           //var style = type.style;
           var marker;
@@ -290,12 +314,12 @@ module csComp.Services
           case 'Point'          :
               var icon = this.getPointIcon(feature);
               marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), { icon: icon });
-              marker.on('click', () => {
-                  this.service.selectFeature(feature);
-              });
+              //marker.on('click', () => {
+              //    this.service.selectFeature(feature);
+              //}); 
               //feature.marker = m;
               break;
-              default:
+           default:
                   var polyoptions = {
                       fillColor: 'Green'
                   };
@@ -318,7 +342,7 @@ module csComp.Services
         if (feature.htmlStyle != null) {
             icon = new L.DivIcon({
                 className: '',
-                iconSize: new L.Point(32, 32),
+                iconSize: new L.Point(feature.effectiveStyle.iconWidth, feature.effectiveStyle.iconHeight),
                 html: feature.htmlStyle
             });
         } else {
@@ -328,35 +352,17 @@ module csComp.Services
 
             //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
             var iconUri = ft.style.iconUri;
-            if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
+            //if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
 
             // TODO refactor to object
-            props['background']    = ft.style.fillColor;
-            props['width']         = '32px';
-            props['height']        = '32px';
+            props['background'] = feature.effectiveStyle.fillColor;
+            props['width'] = feature.effectiveStyle.iconWidth + 'px';
+            props['height'] = feature.effectiveStyle.iconHeight + 'px';
             props['border-radius'] = '20%';
             props['border-style']  = 'solid';
-            props['border-color']  = 'black';
-            props['border-width']  = '0';
-
-            feature.layer.group.styles.forEach((gs: GroupStyle) => {
-                if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
-                    var v = feature.properties[gs.property];
-
-                    switch (gs.visualAspect) {
-                    case 'fillColor':
-                        if (gs.meta.type === 'color') {
-                            props['background-color'] = v;
-                        } else {
-                            var bezInterpolator = chroma.interpolate.bezier(gs.colors);
-                            props['background-color'] = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
-                        }
-
-                        break;
-                    }
-                    //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
-                }
-            });
+            props['border-color']  = feature.effectiveStyle.strokeColor;
+            props['border-width']  = feature.effectiveStyle.strokeWidth;
+            
             if (feature.isSelected) {
                 props['border-width'] = '3px';
             }
@@ -372,13 +378,16 @@ module csComp.Services
                 // Must the iconUri be formatted?
                 if (iconUri!=null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
 
-                html += '<img src=' + iconUri + ' style=\'width:' + (ft.style.iconWidth - 2) + 'px;height:' + (ft.style.iconHeight - 2) + 'px\' />';
+                html += '<img src=' + iconUri + ' style=\'width:' + (feature.effectiveStyle.iconWidth - 2) + 'px;height:' + (feature.effectiveStyle.iconHeight - 2) + 'px';
+                if (feature.effectiveStyle.rotate && feature.effectiveStyle.rotate > 0) html += ';transform:rotate(' + feature.effectiveStyle.rotate + 'deg)';
+                html += '\' />';
             }
+            
             html += '</div>';
 
             icon = new L.DivIcon({
                 className: '',
-                iconSize: new L.Point(ft.style.iconWidth, ft.style.iconHeight),
+                iconSize: new L.Point(feature.effectiveStyle.iconWidth, feature.effectiveStyle.iconHeight),
                 html: html
             });
             //icon = new L.DivIcon({

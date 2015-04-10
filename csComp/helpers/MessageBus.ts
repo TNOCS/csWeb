@@ -5,6 +5,8 @@
 		(title: string, data?: any) : any;
     }
 
+    declare var io;
+
 	// Handle returned when subscribing to a topic
 	export class MessageBusHandle {
 		constructor(topic: string, callback: IMessageBusCallback) {
@@ -14,7 +16,48 @@
 
 		public topic: string;
 		public callback: IMessageBusCallback;
-	}
+    }
+
+    export class Connection {
+
+        public isConnected: boolean;
+        public isConnecting: boolean; 
+        public cache: { [topic: string]: Array<IMessageBusCallback> } = {};       
+        public socket;
+
+        constructor(public id: string, public url: string) {
+        }
+
+        public connect(callback: Function) {
+            if (this.isConnected || this.isConnecting) return;
+            this.socket = io();
+            this.isConnecting = true;
+            this.socket.on('connect',() => {
+                this.isConnecting = false;
+                this.isConnected = true;   
+                
+                callback();
+            });
+            this.socket.on('disconnect',() => {
+                this.isConnecting = false;
+                this.isConnected = false;
+            });
+            this.socket.on('reconnect_attempt',() => {
+                this.isConnecting = true;
+                this.isConnected = false;
+            });
+            this.socket.on('reconnect_failed',() => {
+                this.isConnecting = false;
+            });
+            
+        }
+
+        public disconnect() {
+
+        }
+        
+
+    }
 
     export enum NotifyLocation {
         BottomRight,
@@ -34,9 +77,64 @@
             '$translate'
         ];
 
+        private connections: { [id: string]: Connection } = {};
+
         constructor(private $translate: ng.translate.ITranslateService) {
             PNotify.prototype.options.styling = "fontawesome";
         }
+
+
+        getConnection(id: string): Connection {            
+            if (this.connections.hasOwnProperty(id)) return this.connections[id];
+            return null;
+        }
+
+        public initConnection(id: string, url: string,callback : Function) {
+            if (id == null) id = "";
+            var c = this.getConnection(id);
+            if (c==null) {
+                c = new Connection(id, url);                                
+                this.connections[c.id] = c;
+            }
+            this.connections[id].connect(() => {
+                callback();
+                     });            
+        }
+
+        public serverPublish(topic: string, message : any, serverId = "") {
+            var c = this.getConnection(serverId);
+            if (c == null) return null;
+            c.socket.emit(topic, message);
+        }
+
+        
+        public serverSubscribe(topic: string, callback: IMessageBusCallback, serverId = ""): MessageBusHandle {
+            var c = this.getConnection(serverId);
+            if (c == null) return null;
+            
+            // array van socket.io verbindingen
+            // registeren
+            
+            if (!c.cache[topic]) {
+                c.cache[topic] = new Array<IMessageBusCallback>();
+                c.cache[topic].push(callback);
+                
+                c.socket.on(topic,(r) => {
+                    c.cache[topic].forEach(cb => cb(topic,r));
+                });
+            } else {
+
+                c.cache[topic].push(callback);
+            }
+
+            
+
+            return new MessageBusHandle(topic, callback);
+        }
+
+        
+
+        
 
 		/** 
 		 * Publish a notification that needs to be translated
@@ -176,7 +274,9 @@
 			if (!MessageBusService.cache[topic]) MessageBusService.cache[topic] = new Array<IMessageBusCallback>();
 			MessageBusService.cache[topic].push(callback);
 			return new MessageBusHandle(topic, callback);
-		}
+        }
+
+        
 
 		//public subscribe(topic: string, callback: IMessageBusCallback): MessageBusHandle {            
 		//	return MessageBusService.subscribe(topic, callback);
@@ -195,7 +295,8 @@
 					return;
 				}
 			});
-		}
+        }
+
 	}
 
 	export class EventObj {

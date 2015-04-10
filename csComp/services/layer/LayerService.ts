@@ -7,7 +7,7 @@
     export interface ILayerSource
     {
       title : string;
-      init(service : LayerService);
+      service : ILayerService);
       addLayer(layer: ProjectLayer, callback: Function);
       removeLayer(layer: ProjectLayer): void;
       requiresLayer: boolean;
@@ -23,7 +23,7 @@
       addGroup(group : ProjectGroup);
       addLayer(layer : ProjectLayer);
       removeGroup(group : ProjectGroup);
-      addFeature(feature : IFeature);
+      createFeature(feature : IFeature);
       removeFeature(feature : IFeature);
       updateFeature(feature : IFeature);
     }
@@ -86,17 +86,17 @@
             '$translate',
             'messageBusService',
             'mapService',
-            '$rootScope'//,
-            //'dashboardService'
+            '$rootScope'
+            
         ];
 
         constructor(
             private $location          : ng.ILocationService,
             private $translate         : ng.translate.ITranslateService,
-            public $messageBusService  : Services.MessageBusService,
-            public $mapService         : Services.MapService,
-            public $rootScope          : any) {//,
-            //public $dashboardService : Services.DashboardService) {
+            public $messageBusService : Services.MessageBusService,
+            public $mapService        : Services.MapService,
+            public $rootScope: any,
+            public dashboardService : Services.DashboardService) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb               = $messageBusService;
@@ -154,22 +154,22 @@
           this.layerSources = {};
 
           // add a topo/geojson source
-          var geojsonsource = new GeoJsonSource();
-          geojsonsource.init(this);
+          var geojsonsource = new GeoJsonSource(this);
+          
+          
           this.layerSources["geojson"] = geojsonsource;
           this.layerSources["topojson"] = geojsonsource;
-
-          //var dynamicgeojsonsource = new DynamicGeoJsonSource();
-          //dynamicgeojsonsource.init(this);
-          //this.layerSources["dynamicgeojson"] = dynamicgeojsonsource;
+                      
+          this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
+          
 
           // add wms source
-          this.layerSources["wms"] = new WmsSource();
-          this.layerSources["wms"].init(this);
+          this.layerSources["wms"] = new WmsSource(this);
+          
 
           //add tile layer
-          this.layerSources["tilelayer"] = new TileLayerSource();
-          this.layerSources["tilelayer"].init(this);
+          this.layerSources["tilelayer"] = new TileLayerSource(this);
+          
 
           //add heatmap layer
           this.layerSources["heatmap"] = new HeatmapSource();
@@ -253,6 +253,27 @@
             g.styles = g.styles.filter((s: GroupStyle) => s.id !== style.id);
 
             this.updateGroupFeatures(g);
+         }
+
+        // class LayerService
+        updatePropertyStyle(k: any, v: any, parent: any) {
+            //alert('key = ' + k + '; value = ' + v);
+            var l: Legend;
+            l = parent.style.legends[k];
+            //if (l) {
+            //    alert('legend.id=' + l.id);
+            //} else {
+            //    alert('no legend');
+            //}
+            if (l && (l.legendEntries.length > 0)) {
+                var e1: LegendEntry = l.legendEntries[0];
+                var e2: LegendEntry = l.legendEntries[l.legendEntries.length-1];
+                parent.style.colors = [e1.color, e2.color]
+            }
+            parent.style.activeLegend = l;
+            //alert('parent.style.colors=' + parent.style.colors);
+            //for gs in groupstyles {
+           // }
         }
 
         updateStyle(style: GroupStyle) {
@@ -268,7 +289,6 @@
                 this.updateGroupFeatures(style.group);
             }
         }
-
 
         private updateGroupFeatures(group : ProjectGroup) {
             this.project.features.forEach((f: IFeature) => {
@@ -317,10 +337,7 @@
             }
         }
 
-        public selectDashboard(dashboard: csComp.Services.Dashboard, container : string) {
-           this.project.activeDashboard = dashboard;
-           this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
-        }
+        
 
         public updateSensorData() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
@@ -380,10 +397,6 @@
             });
         }
 
-
-
-
-
         /***
          * get list of properties that are part of the filter collection
          */
@@ -396,8 +409,6 @@
             };
             return result;
         }
-
-
 
         /**
          * init feature (add to feature list, crossfilter)
@@ -431,39 +442,63 @@
 
         public calculateFeatureStyle(feature : IFeature)
         {
-          var s = {
+            var s: csComp.Services.IFeatureTypeStyle = {};
+            //s.fillColor = 'red';            
+            s.strokeWidth = 1;
+            s.rotate = 0;
+            s.strokeColor = 'black';
+            s.iconHeight = 32;
+            s.iconWidth = 32;
+          /*var s = {
               fillColor   : 'red',
               weight      : 0.5,
               stroke      : false,
               opacity     : 1,
               color       : 'black',
               fillOpacity : 0.75
-          };
+          };*/
 
           var ft = this.getFeatureType(feature);
-          if (ft.style) {
-              if (ft.style.fillColor   != null) s['fillColor'] = csComp.Helpers.getColorString(ft.style.fillColor);
-              if (ft.style.strokeColor != null) s['color']     = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
-              if (ft.style.strokeWidth != null) s['weight']    = ft.style.strokeWidth;
+          if (ft.style) {              
+              if (ft.style.fillColor != null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
+              if (ft.style.strokeColor != null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
+              if (ft.style.strokeWidth != null) s.strokeWidth = ft.style.strokeWidth;
+              if (ft.style.iconWidth != null) s.iconWidth = ft.style.iconWidth;
+              if (ft.style.iconHeight != null) s.iconHeight = ft.style.iconHeight;
+              
+
+              if (ft.style.rotateProperty && feature.properties.hasOwnProperty(ft.style.rotateProperty)) {
+                  s.rotate = Number(feature.properties[ft.style.rotateProperty]);
+              }
+
+
           }
 
           //var layer = this.findLayer(feature.layerId);
-          if (feature.layer) {
-              feature.layer.group.styles.forEach((gs: GroupStyle) => {
-                  if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
-                      var v = Number(feature.properties[gs.property]);
-                      if (!isNaN(v)) {
-                          switch (gs.visualAspect) {
-                              case 'strokeColor':
-                                  s['color'] = csComp.Helpers.getColor(v, gs);
-                                  break;
-                              case 'fillColor':
-                                  s[gs.visualAspect] = csComp.Helpers.getColor(v, gs);
-                                  break;
-                              case 'strokeWidth':
-                                  s['weight'] = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
-                                  break;
-                          }
+          feature.layer.group.styles.forEach((gs: GroupStyle) => {
+              if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
+                  var v = Number(feature.properties[gs.property]);
+                  if (!isNaN(v)) {
+                      switch (gs.visualAspect) {
+                          case 'strokeColor':
+                              s.strokeColor = csComp.Helpers.getColor(v, gs);
+                              break;
+                          case 'fillColor':
+                              s.fillColor = csComp.Helpers.getColor(v, gs);
+                              break;
+                          case 'strokeWidth':
+                              s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
+                              break;
+                      }
+                  } else {
+                      var ss = feature.properties[gs.property];
+                      switch (gs.visualAspect) {
+                          case 'strokeColor':
+                              s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                              break;
+                          case 'fillColor':
+                              s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                              break;
                       }
                       //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                   }
@@ -471,8 +506,8 @@
           }
 
           if (feature.isSelected) {
-              s['weight'] = 5;
-              s['color'] = 'black';
+              s.strokeWidth = 5;
+              s.strokeColor = 'black';
           }
           feature.effectiveStyle = s;
         }
@@ -558,23 +593,48 @@
             return r;
         }
 
-        // hier wordt een groupstyle gemaakt op basis van een property, en dat deze wordt toegevoegd aan een group
-        // nu nog met basis kleuren, straks kijkt hij eerst of er een legenda is, en anders maakt hij een default style;
         /**
-         * creates a GroupStyle based on a property and adds it to a group.
-         * presently using base colors only; in near future it shall look if there is a legend and otherwise
-         * it should make a default style
+         * Creates a GroupStyle based on a property and adds it to a group.
+         * If the group already has a style which contains legends, those legends are copied into the newly created group.
+         * Already existing groups (for the same visualAspect) are replaced by the new group
          */
         public setStyle(property: any, openStyleTab = true, customStyleInfo?: PropertyInfo) {
             var f: IFeature = property.feature;
             if (f != null) {
-                this.noStyles     = false;
-                var layer         = f.layer;
-                var gs            = new GroupStyle(this.$translate);
+                var ft = this.getFeatureType(f);
+                this.noStyles = false;
+                // for debugging: what do these properties contain?
+                var layer = f.layer;
+                var lg = layer.group;
+                //var lgs = lg.styles;
+                //var NS: number = lg.styles.length;
+                //var gs0 = lgs[0];     // may give an error if the group has no styles
+                //var gsl = gs0.legends
+
+                var gs = new GroupStyle(this.$translate);
+                // add the legends and colorscales from any existing group style
+                if (lg.styles && (lg.styles.length > 0)) {
+                    var gs0 = lg.styles[0];
+                    gs0.title = property.key;
+                    var legend: Legend;
+                    var legendKey: string;
+                    for (legendKey in gs0.legends) {
+                        legend = gs0.legends[legendKey];
+                        gs.legends[legendKey] = legend;
+                        if ((legend.legendEntries) && (legend.legendEntries.length > 0)) {
+                            var e1: LegendEntry = legend.legendEntries[0];
+                            var e2: LegendEntry = legend.legendEntries[legend.legendEntries.length - 1];
+                            gs.colorScales[legendKey] = [e1.color, e2.color]
+                        } else {
+                            gs.colorScales[legendKey] = ['red', 'red'];
+                        }
+                    }
+                }
+
                 gs.id             = Helpers.getGuid();
                 gs.title          = property.key;
-                gs.meta           = property.meta;
-                gs.visualAspect   = 'fillColor';
+                gs.meta = property.meta;
+                gs.visualAspect = (ft.style && ft.style.drawingMode && ft.style.drawingMode.toLowerCase() == 'polyline') ? 'strokeColor' : 'fillColor';
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
 
                 gs.property = property.property;
@@ -588,7 +648,6 @@
                 gs.enabled = true;
                 gs.group = layer.group;
                 gs.meta = property.meta;
-                var ft = this.getFeatureType(f);
 
                 if (ft.style && ft.style.fillColor) {
                     gs.colors = ['white', 'orange'];
@@ -596,21 +655,14 @@
                     gs.colors = ['red','white','blue'];
                 }
                 this.saveStyle(layer.group, gs);
-                //if (f.geometry.type.toLowerCase() === 'point') {
-                    this.project.features.forEach((fe: IFeature) => {
-                        if (fe.layer.group == layer.group)
-                        {
-                          this.calculateFeatureStyle(fe);
-                          this.activeMapRenderer.updateFeature(fe);
-                        }
-                        // if (layer.group.markers.hasOwnProperty(fe.id)) {
-                        //
-                        // }
-                    });
-                // } else {
-                //     this.updateStyle(gs);
-                // }
-
+                var NS: number = lg.styles.length;
+                this.project.features.forEach((fe: IFeature) => {
+                    if (fe.layer.group == layer.group)
+                    {
+                        this.calculateFeatureStyle(fe);
+                        this.activeMapRenderer.updateFeature(fe);
+                    }
+                });
                 if (openStyleTab)
                     (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
                 return gs;
@@ -618,13 +670,15 @@
             return null;
         }
 
+        /**
+         * checks if there are other styles that affect the same visual aspect, removes them
+         * and then adds the style to the group's styles
+         */
         private saveStyle(group: ProjectGroup, style: GroupStyle) {
-            // check if there are other styles that affect the same visual aspect, remove them
             var oldStyles = group.styles.filter((s: GroupStyle) => s.visualAspect === style.visualAspect);
-
             if (oldStyles.length > 0) {
                 var pos = group.styles.indexOf(oldStyles[0]);
-                group.styles.splice(pos,1);
+                group.styles.splice(pos, 1);   // RS, 2015-04-04: why delete only one style? (what if oldStyles.length > 1)
             }
             group.styles.push(style);
         }
@@ -981,7 +1035,6 @@
                     this.project.dashboards.push(d);
                 }
 
-
                 if (!this.project.dataSets)
                     this.project.dataSets = [];
 
@@ -990,6 +1043,14 @@
                 this.project.groups.forEach((group: ProjectGroup) => {
                     if (group.id == null) group.id = Helpers.getGuid();
                     group.ndx = crossfilter([]);
+                    if ((group.styles) && (group.styles.length > 0)) {
+                        var styleId: string = group.styles[0].id;
+                        //var legend: Legend;
+                        //var url: string = "dummylegend.json";
+                        //$.getJSON(url,(data: Legend) => {
+                        //    legend = new Legend().deserialize(data);
+                        //}
+                    };
                     if (group.styles == null) group.styles = [];
                     if (group.filters == null) group.filters = [];
                     group.markers = {};
@@ -1038,6 +1099,14 @@
 
                     this.updateFilters();
                 });
+
+                if (this.project.connected) {
+                    // check connection
+                    this.$messageBusService.initConnection("","",() => {
+                        
+                    });
+                    
+                }
 
                 this.$messageBusService.publish('project', 'loaded', this.project);
                 this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);

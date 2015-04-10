@@ -17,6 +17,7 @@
             MAP_FEATURES            : 'Kaartfeatures',
             SPEEDS_TAOUFIK          : 'snelheden legenda Taoufik',
             SPEEDS_GOOGLEMAPS       : 'snelheden legenda Google Maps',
+            VERWARMINGSSYSTEEM      : 'Verwarmingssysteem',
             PERCENTAGES_V1          : 'percentages v1',
             ORANGE_RED              : 'oranje - rood', 
             WHITE_RED               : 'wit - rood',

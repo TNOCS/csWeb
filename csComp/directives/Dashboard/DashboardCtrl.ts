@@ -72,7 +72,7 @@
                     },
                     stop: (event, uiWidget, $element: csComp.Services.IWidget) => {
                         $element.resize("stop", uiWidget.width(), uiWidget.height());
-                    },
+                    }, 
                     resize: (event, uiWidget, $element: csComp.Services.IWidget) => {
 
                         $element.resize("change", uiWidget.width(),uiWidget.height());

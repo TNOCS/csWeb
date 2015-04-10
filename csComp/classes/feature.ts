@@ -51,7 +51,7 @@
         /** resolved feature type */
         fType          : IFeatureType;
         /** calculated style, used for final rendering */
-        effectiveStyle  : JSON;
+        effectiveStyle: IFeatureTypeStyle;
         isInitialized  : boolean;
         sensors        : { [id: string]: any[] }
         timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
@@ -149,14 +149,18 @@
     export interface IFeatureTypeStyle {
         nameLabel?           : string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
         fillColor?           : string;
-        strokeColor?         : string;
+        strokeColor?: string;
+        opacity?: number;
         drawingMode?         : string;
         strokeWidth?         : number;
         iconWidth?           : number;
         iconHeight?          : number;
         iconUri?             : string;
-        maxTitleResolution?  : string;
+        maxTitleResolution?: string;
+        rotate?: number;
         analysispropertyType?: any;
+        rotateProperty?: string;
+
 
     }
 
