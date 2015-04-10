@@ -134,50 +134,28 @@ module csComp.Services
             break;
           case "svg":
             // create leaflet layers
-            if (layer.group.clustering) {
-                var markers = L.geoJson(layer.data, {
-                    pointToLayer: (feature, latlng) => this.createFeature(feature),
-                    onEachFeature: (feature: IFeature, lay) => {
-                        //We do not need to init the feature here: already done in style.
-                        //this.initFeature(feature, layer);
-                        layer.group.markers[feature.id] = lay;
-                        lay.on({
-                            mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                            mouseout: (s) => this.hideFeatureTooltip(s)
-                        });
-                    }
-                });
-                layer.group.cluster.addLayer(markers);
-            } else {
+            
                 layer.mapLayer = new L.LayerGroup<L.ILayer>();
                 this.service.map.map.addLayer(layer.mapLayer);
 
-                var v = L.geoJson(layer.data, {
-                    onEachFeature : (feature: IFeature, lay) => {
-                        //We do not need to init the feature here: already done in style.
-                        //this.initFeature(feature, layer);
-                        layer.group.markers[feature.id] = lay;
-                        lay.on({ 
-                            mouseover : (a) => this.showFeatureTooltip(a, layer.group),
-                            mouseout  : (s) => this.hideFeatureTooltip(s),
-                            mousemove : (d) => this.updateFeatureTooltip(d),
-                            click     : ()  => this.service.selectFeature(feature)
-                        });
-                    },
-                    style: (f: IFeature, m) => {
-                        layer.group.markers[f.id] = m;
-                        return this.getLeafletStyle(f.effectiveStyle);
-                    },
-                    pointToLayer : (feature, latlng) => this.createFeature(feature)
+                (<any>layer.data).features.forEach((f: IFeature) => {                    
+                    layer.group.markers[f.id]  = this.addFeature(f);
                 });
-                this.service.project.features.forEach((f                 : IFeature) => {
-                    if (f.layerId !== layer.id) return;
-                    var ft = this.service.getFeatureType(f);
-                    f.properties['Name'] = f.properties[ft.style.nameLabel];
-                });
-                layer.mapLayer.addLayer(v);
+                //var v = L.geoJson(layer.data, {      
+                //    style: (f: IFeature, m) => {
+                //        layer.group.markers[f.id] = m;
+                //        return this.getLeafletStyle(f.effectiveStyle);
+                //    },
+                //    pointToLayer : (feature, latlng) => 
+                //});
+                //this.service.project.features.forEach((f : IFeature) => {
+                //    if (f.layerId !== layer.id) return;
+                //    var ft = this.service.getFeatureType(f);
+                //    f.properties['Name'] = f.properties[ft.style.nameLabel];
+                //}); 
+                //layer.mapLayer.addLayer(v);
             break;
-      }
+      
 
       }
     }
@@ -203,35 +181,44 @@ module csComp.Services
     public removeGroup(group : ProjectGroup) {}
 
     public removeFeature(feature : IFeature) {
-
+        var marker = <L.Marker>feature.layer.group.markers[feature.id];
+        if (marker != null) {
+            feature.layer.mapLayer.removeLayer(marker);
+            delete feature.layer.group.markers[feature.id];
+        }
     }
 
-    public updateFeature(feature : IFeature) {
-      if (feature.geometry.type === 'Point') {
-          var marker = <L.Marker>feature.layer.group.markers[feature.id];
-          if (marker != null) marker.setIcon(this.getPointIcon(feature));
-          marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
-
-      } else {
-          if (feature.layer.group == null) return;
-          var m = feature.layer.group.markers[feature.id];
-          var layer = this.service.findLayer(feature.layerId);
-          //var s = this.style(feature);
-          m.setStyle(this.getLeafletStyle(feature.effectiveStyle));
-      }
+    public updateFeature(feature: IFeature) {
+        if (feature.layer.group == null) return;
+        var marker = feature.layer.group.markers[feature.id];
+        if (marker == null) return;
+        if (feature.geometry.type === 'Point') {
+              marker.setIcon(this.getPointIcon(feature));
+              marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));          
+        } else {                    
+              marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));          
+        }
     }
 
-    public addFeature(feature: IFeature) {
+    public addFeature(feature: IFeature) : any {
         var m = this.createFeature(feature);
-        feature.layer.group.markers[feature.id] = m;
+        var l = <ProjectLayer>feature.layer;
+        l.group.markers[feature.id] = m;
         m.on({
-            mouseover: (a) => this.showFeatureTooltip(a, feature.layer.group),
+            mouseover: (a) => this.showFeatureTooltip(a, l.group),
             mouseout: (s) => this.hideFeatureTooltip(s),
             mousemove: (d) => this.updateFeatureTooltip(d),
             click: () => this.service.selectFeature(feature)
         });
-
-        feature.layer.mapLayer.addLayer(m);
+        m.feature = feature;
+        if (l.group.clustering) {
+            l.group.cluster.addLayer(m);
+        }
+        else {
+            l.mapLayer.addLayer(m);
+        }
+        
+        return m;
     }
 
       /**
@@ -244,20 +231,16 @@ module csComp.Services
           switch (feature.geometry.type) {
           case 'Point'          :
               var icon = this.getPointIcon(feature);
-              marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), { icon: icon });
-              //marker.on('click', () => {
-              //    this.service.selectFeature(feature);
-              //}); 
-              //feature.marker = m;
+              marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), { icon: icon });              
               break;
-           default:
-                  var polyoptions = {
-                      fillColor: 'Green'
-                  };
+          default:
+                  marker = L.GeoJSON.geometryToLayer(<any>feature);
+                  marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));           
+                  
                   //marker = L.multiPolygon(latlng, polyoptions);
               break;
           }
-
+          marker.feature = feature;
           feature.layer.group.markers[feature.id] = marker;
 
           return marker;

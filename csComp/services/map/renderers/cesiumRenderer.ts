@@ -79,5 +79,9 @@ module csComp.Services
     public updateFeature( feature : IFeature) {
 
     }
+
+    public addFeature(feature: IFeature) {
+
+    }
   }
 }

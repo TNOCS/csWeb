@@ -23,7 +23,8 @@
       removeGroup(group : ProjectGroup);
       createFeature(feature : IFeature);
       removeFeature(feature : IFeature);
-      updateFeature(feature : IFeature);
+      updateFeature(feature: IFeature);
+      addFeature(feature: IFeature);
     }
 
     export class VisualState {
@@ -415,6 +416,12 @@
               this.calculateFeatureStyle(feature);
             }
             return feature.type;
+        }
+
+        public removeFeature(feature: IFeature) {
+            this.project.features = this.project.features.filter((f: IFeature) => { return f != feature; });
+            feature.layer.group.ndx.remove([feature]);
+            this.activeMapRenderer.removeFeature(feature);
         }
 
         public calculateFeatureStyle(feature : IFeature)

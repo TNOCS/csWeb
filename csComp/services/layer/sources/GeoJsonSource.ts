@@ -84,9 +84,7 @@ module csComp.Services {
                         (<any>(layer.data)).features.forEach((f)=>
                         {
                           this.service.initFeature(f,layer);
-                        });
-
-
+                        });                        
                   }
 
 
@@ -110,39 +108,43 @@ module csComp.Services {
 
     export class DynamicGeoJsonSource extends GeoJsonSource {
         title = "dynamicgeojson";
-        
+        connection: Connection;
 
         constructor(public service: LayerService) {
             super(service);
-            
+
+           
             // subscribe
             
         }
 
-        private updateById(obj, key, id, value: IFeature) {
+        
+
+        private updateFeatureByProperty(key, id, value: IFeature) {
             try {
-                if (obj == null)
+                var features = (<any>this.layer.data).features;
+                if (features == null)
                     return;
                 var done = false;
-                obj.some((o : IFeature) => {
-                    if (o.properties != null && o.properties.hasOwnProperty(key) && o.properties[key] === id) {
-                        o.properties = value.properties;
-                        o.geometry = value.geometry;
-                        this.service.calculateFeatureStyle(o);
-                        this.service.activeMapRenderer.updateFeature(o);                        
+                features.some((f : IFeature) => {
+                    if (f.properties != null && f.properties.hasOwnProperty(key) && f.properties[key] === id) {
+                        f.properties = value.properties;
+                        f.geometry = value.geometry;
+                        this.service.calculateFeatureStyle(f);
+                        this.service.activeMapRenderer.updateFeature(f);                        
                         done = true;
                         //  console.log('updating feature');
                         return true;
-                    } else {
-                        
+                    } else {                        
                         return false;
                     }
                 });
                 if (!done) {
                     // console.log('adding feature');
-                    obj.push(value);
+                    features.push(value);
+                    
                     this.service.initFeature(value, this.layer);
-                    var m = this.service.activeMapRenderer.createFeature(value);
+                    var m = this.service.activeMapRenderer.addFeature(value);
                     
                 }
             } catch (e) {
@@ -150,24 +152,90 @@ module csComp.Services {
             }
         }
 
+        private deleteFeatureByProperty(key, id, value: IFeature) {
+            try {
+                var features = <IFeature[]>(<any>this.layer.data).features;
+
+                //features = features.splice(
+                
+                if (features == null)
+                    return;
+                var done = false;
+                
+                features.some((f: IFeature) => {
+                    if (f.properties != null && f.properties.hasOwnProperty(key) && f.properties[key] === id) {
+                        f.properties = value.properties;
+                        f.geometry = value.geometry;
+                        this.service.calculateFeatureStyle(f);
+                        this.service.activeMapRenderer.updateFeature(f);
+                        done = true;
+                        //  console.log('updating feature');
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                if (!done) {
+                    // console.log('adding feature');
+                    features.push(value);
+                    this.service.initFeature(value, this.layer);
+                    var m = this.service.activeMapRenderer.createFeature(value);
+
+                }
+            } catch (e) {
+                console.log('error');
+            }
+        }
+
+        public initSubscriptions(layer: ProjectLayer) {
+            this.service.$messageBusService.serverPublish("joinlayer", { id: layer.id });
+        }
+
         public addLayer(layer: ProjectLayer, callback: Function) {
             
             this.baseAddLayer(layer, callback);
-            this.service.$messageBusService.serverPublish("joinlayer", { id: layer.id });
+            this.initSubscriptions(layer);
             this.service.$messageBusService.serverSubscribe("layer-" + layer.id,(topic: string, msg: any) => {                                
                 switch (msg.action) {
                     case "update": 
                         msg.data.forEach((f) => {
-                            this.updateById((<any>layer.data).features, "id", f.properties["id"], f); 
-                        });                        
+                            this.updateFeatureByProperty("id", f.properties["id"], f); 
+                        });                                                
+                        break;
+                    case "delete":
+                        msg.data.forEach((f) => {
+                            //this.service.removeFeature(f);                             
+                        });
                         break;
                 }
                 
             });
+            this.connection = this.service.$messageBusService.getConnection("");
+            this.connection.events.add((status: string) => this.connectionEvent);
+            
+            
 
             //this.addLayer(layer, callback);
+            //this.service.$messageBusService.    
+        }
+
+        connectionEvent(status: string) {
+            console.log("connected event");
+                switch (status) {
+                    case "connected":
+                        console.log('connected');                        
+                        this.initSubscriptions(this.layer);
+                        break;
+                }
+
             
         }
+
+        removeLayer(layer: ProjectLayer) {
+            console.log('removing connection event');
+            this.connection.events.remove((status: string) => this.connectionEvent);            
+        }
+        
 
     }
 
