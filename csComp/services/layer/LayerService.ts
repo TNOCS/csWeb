@@ -196,22 +196,6 @@
                             this.updateFilters();
                             this.activeMapRenderer.addLayer(layer);
                         });
-                        //async.series([
-                        //(cb)=> {
-                        //    // load layer from source
-                        //    this.layerSources[layerSource].addLayer(layer, (l) => {
-                        //        this.loadedLayers[layer.id] = l;
-                        //        this.activeMapRenderer.addLayer(layer);
-                        //    });
-                        //    cb(null, null);
-                        //},
-                        //(cb)=> {
-                        //    // update sensor data & filters
-                        //    this.updateSensorData();
-                        //    this.$messageBusService.publish('layer', 'activated', layer);
-                        //    this.updateFilters();
-                        //    cb(null,null);
-                        //}]);
                     }
                     callback(null,null);
                 },
