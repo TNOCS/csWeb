@@ -188,22 +188,30 @@
                     var layerSource = layer.type.toLowerCase();
                     if (this.layerSources.hasOwnProperty(layerSource))
                     {
-                        async.series([
-                        (cb)=> {
-                            // load layer from source
-                            this.layerSources[layerSource].addLayer(layer, (l) => {
-                                this.loadedLayers[layer.id] = l;
-                                this.activeMapRenderer.addLayer(layer);
-                            });
-                            cb(null, null);
-                        },
-                        (cb)=> {
-                            // update sensor data & filters
+                        // load layer from source
+                        this.layerSources[layerSource].addLayer(layer, (l) => {
+                            this.loadedLayers[layer.id] = l;
                             this.updateSensorData();
                             this.$messageBusService.publish('layer', 'activated', layer);
                             this.updateFilters();
-                            cb(null,null);
-                        }]);
+                            this.activeMapRenderer.addLayer(layer);
+                        });
+                        //async.series([
+                        //(cb)=> {
+                        //    // load layer from source
+                        //    this.layerSources[layerSource].addLayer(layer, (l) => {
+                        //        this.loadedLayers[layer.id] = l;
+                        //        this.activeMapRenderer.addLayer(layer);
+                        //    });
+                        //    cb(null, null);
+                        //},
+                        //(cb)=> {
+                        //    // update sensor data & filters
+                        //    this.updateSensorData();
+                        //    this.$messageBusService.publish('layer', 'activated', layer);
+                        //    this.updateFilters();
+                        //    cb(null,null);
+                        //}]);
                     }
                     callback(null,null);
                 },
@@ -304,8 +312,6 @@
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
             }
         }
-
-        
 
         public updateSensorData() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;

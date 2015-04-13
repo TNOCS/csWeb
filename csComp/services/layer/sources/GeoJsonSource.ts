@@ -39,7 +39,6 @@ module csComp.Services {
                             data = csComp.Helpers.convertTopoToGeoJson(data);
                         }
 
-
                         // check if there are events definined
                         if (data.events && this.service.timeline) {
                             layer.events = data.events;

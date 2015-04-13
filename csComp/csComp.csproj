@@ -60,7 +60,7 @@
     <TypeScriptCompile Include="directives\Voting\Voting.ts" />
     <TypeScriptCompile Include="helpers\Dictionary.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
-    <TypeScriptCompile Include="helpers\MessageBus.ts" />
+    <TypeScriptCompile Include="services\bus\MessageBus.ts" />
     <TypeScriptCompile Include="helpers\Plot.ts" />
     <TypeScriptCompile Include="directives\Resize\Resize.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.tpl.ts" />
@@ -87,7 +87,7 @@
     <TypeScriptCompile Include="directives\MapElement\MapElement.ts" />
     <TypeScriptCompile Include="directives\MapElement\MapElementCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\McaCtrl.ts" />
-    <TypeScriptCompile Include="directives\MCA\models\Criteria.ts" />
+    <TypeScriptCompile Include="directives\MCA\Criteria.ts" />
     <TypeScriptCompile Include="directives\ShowModal\ShowModal.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.tpl.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
