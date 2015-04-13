@@ -16,6 +16,7 @@
 
     export interface IFeature {
         id?             : string;
+        index           : number;
         layerId         : string;
         layer           : ProjectLayer;
         type?           : string;
@@ -40,6 +41,7 @@
      */
     export class Feature implements IFeature {
         id             : string;
+        index          : number;
         layerId        : string;
         layer          : ProjectLayer;
         type           : string;

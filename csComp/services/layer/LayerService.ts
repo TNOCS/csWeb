@@ -547,6 +547,31 @@
         }
 
         /**
+         * Find a feature by layerId and FeatureId.
+         * @layerId {string}
+         * @featureIndex {number}
+         */
+        findFeatureById(layerId: string, featureIndex: number): IFeature {
+            for (var i = 0; i < this.project.features.length; i++) {
+                var feature = this.project.features[i];
+                if (featureIndex === feature.index && layerId === feature.layerId)
+                    return feature;
+            }
+        }
+
+        /**
+         * Find the feature by name.
+         */
+        findFeatureByName(name: string): IFeature {
+            for (var i = 0; i < this.project.features.length; i++) {
+                var feature = this.project.features[i];
+                if (feature.hasOwnProperty("Name") && name === feature.properties["Name"])
+                    return feature;
+            }
+        }
+
+
+        /**
          * Find a layer with a specific id
          */
         findLayer(id: string): ProjectLayer {

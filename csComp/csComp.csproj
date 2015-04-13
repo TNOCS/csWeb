@@ -19,14 +19,14 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="classes\datasource.ts" />
+    <TypeScriptCompile Include="directives\Charts\ChartHelpers.ts" />
+    <TypeScriptCompile Include="directives\Charts\Charts.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.tpl.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelectionCtrl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.tpl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.ts" />
     <TypeScriptCompile Include="directives\Dashboard\DashboardCtrl.ts" />
-    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
-    <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelationsCtrl.ts" />
@@ -43,7 +43,14 @@
     <TypeScriptCompile Include="classes\feature.ts" />
     <TypeScriptCompile Include="classes\group.ts" />
     <TypeScriptCompile Include="classes\project.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.tpl.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\McaEditorView.tpl.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearch.tpl.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearch.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearchClasses.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearchCtrl.ts" />
     <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettings.tpl.ts" />
     <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettings.ts" />
     <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettingsCtrl.ts" />
@@ -86,8 +93,10 @@
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirectiveCtrl.ts" />
     <TypeScriptCompile Include="helpers\StringExt.ts" />
+    <TypeScriptCompile Include="helpers\StringScore.ts" />
     <TypeScriptCompile Include="helpers\StyleHelpers.ts" />
     <TypeScriptCompile Include="helpers\GeoExtensions.ts" />
+    <TypeScriptCompile Include="helpers\Utils.ts" />
     <TypeScriptCompile Include="Scripts\typings\moment\moment.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\underscore\underscore.d.ts" />
     <TypeScriptCompile Include="services\connection\ConnectionService.ts" />
@@ -134,6 +143,7 @@
   <ItemGroup>
     <Content Include="directives\DashboardSelection\DashboardSelection.tpl.html" />
     <Content Include="directives\Dashboard\Dashboard.tpl.html" />
+    <Content Include="directives\ExpertMode\ExpertMode.tpl.html" />
     <Content Include="directives\Heatmap\Heatmap.tpl.html" />
     <Content Include="directives\Heatmap\HeatmapEditorView.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
@@ -141,6 +151,7 @@
     <Content Include="directives\MapElement\MapElement.tpl.html" />
     <Content Include="directives\MCA\Mca.tpl.html" />
     <Content Include="directives\MCA\McaEditorView.tpl.html" />
+    <Content Include="directives\OfflineSearch\OfflineSearch.tpl.html" />
     <Content Include="directives\ProjectSettings\ProjectSettings.tpl.html" />
     <Content Include="directives\Timeline\Timeline.tpl.html" />
     <Content Include="includes\js\dashboard.min.js" />
@@ -191,13 +202,6 @@
     <Content Include="directives\LegendList\LegendList.tpl.html" />
     <Content Include="directives\DataTable\DataTable.tpl.html" />
     <None Include="directives\FeatureProps\FeatureProps.tpl.html" />
-    <Content Include="web.config" />
-    <None Include="web.Debug.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="directives\LayersList\LayersDirective.tpl.html" />

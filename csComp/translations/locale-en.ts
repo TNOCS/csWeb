@@ -32,6 +32,12 @@
             GREEN_WHITE             : 'green - white',
             WHITE_ORANGE            : 'white - orange',
             ORANGE_WHITE            : 'orange - white',
+            EXPERTMODE              : {
+                BEGINNER            : 'Beginner',
+                INTERMEDIATE        : 'Intermediate',
+                EXPERT              : 'Expert',
+                EXPLANATION         : 'Select your expertise in order to unlock more functionality.'
+            },
             LAYER_SERVICE           : {
                 RELOAD_PROJECT_TITLE: 'Data is reloaded',
                 RELOAD_PROJECT_MSG  : 'After switching the language, we need to reload all the map data. Our appologies for the inconvenience.'
