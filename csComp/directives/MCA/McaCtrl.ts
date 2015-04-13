@@ -512,6 +512,7 @@
                         tempScores.push(tempItem);
                     }
                     feature.properties[mca.label] = score * 100;
+                    this.$layerService.calculateFeatureStyle(feature);
                     this.$layerService.activeMapRenderer.updateFeature(feature);
                     //this.$layerService.updateFeature(feature);
                 });
