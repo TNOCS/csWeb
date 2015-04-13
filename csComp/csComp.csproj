@@ -83,9 +83,6 @@
     <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorCtrl.ts" />
     <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorView.tpl.ts" />
     <TypeScriptCompile Include="directives\Heatmap\IdealityMeasure.ts" />
-    <TypeScriptCompile Include="directives\MapElement\MapElement.tpl.ts" />
-    <TypeScriptCompile Include="directives\MapElement\MapElement.ts" />
-    <TypeScriptCompile Include="directives\MapElement\MapElementCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\McaCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\Criteria.ts" />
     <TypeScriptCompile Include="directives\ShowModal\ShowModal.ts" />
