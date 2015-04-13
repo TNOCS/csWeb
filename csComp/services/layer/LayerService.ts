@@ -6,33 +6,33 @@
      
     export interface ILayerSource
     {
-        title: string;
-        service: ILayerService;
-      addLayer(layer : ProjectLayer, callback : Function);
-      removeLayer(layer : ProjectLayer) : void;
+        title             : string;
+        service           : ILayerService;
+        addLayer(layer    : ProjectLayer, callback : Function);
+        removeLayer(layer : ProjectLayer) : void;
     }
 
     export interface IMapRenderer
     {
-      title : string;
-      init(service : LayerService);
-      enable();
-      disable();
-      addGroup(group : ProjectGroup);
-      addLayer(layer : ProjectLayer);
-      removeGroup(group : ProjectGroup);
-      createFeature(feature : IFeature);
-      removeFeature(feature : IFeature);
-      updateFeature(feature: IFeature);
-      addFeature(feature: IFeature);
+        title                 : string;
+        init(service          : LayerService);
+        enable();
+        disable();
+        addGroup(group        : ProjectGroup);
+        addLayer(layer        : ProjectLayer);
+        removeGroup(group     : ProjectGroup);
+        createFeature(feature : IFeature);
+        removeFeature(feature : IFeature);
+        updateFeature(feature : IFeature);
+        addFeature(feature    : IFeature);
     }
 
     export class VisualState {
-        public leftPanelVisible: boolean = false;
+        public leftPanelVisible : boolean = false;
         public rightPanelVisible: boolean = false;
-        public dashboardVisible: boolean = true;
-        public mapVisible: boolean = true;
-        public timelineVisible: boolean = true;
+        public dashboardVisible : boolean = true;
+        public mapVisible       : boolean = true;
+        public timelineVisible  : boolean = true;
     }
 
 
@@ -149,81 +149,73 @@
         // initialize the available layer sources
         private initLayerSources()
         {
-          // init layer sources
-          this.layerSources = {};
+            // init layer sources
+            this.layerSources = {};
 
-          // add a topo/geojson source
-          var geojsonsource = new GeoJsonSource(this);
+            // add a topo/geojson source
+            var geojsonsource = new GeoJsonSource(this);
           
-          
-          this.layerSources["geojson"] = geojsonsource;
-          this.layerSources["topojson"] = geojsonsource;
+            this.layerSources["geojson"] = geojsonsource;
+            this.layerSources["topojson"] = geojsonsource;
                       
-          this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
-          
+            this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
 
-          // add wms source
-          this.layerSources["wms"] = new WmsSource(this);
-          
+            // add wms source
+            this.layerSources["wms"] = new WmsSource(this);
 
-          //add tile layer
-          this.layerSources["tilelayer"] = new TileLayerSource(this);
-          
-
+            //add tile layer
+            this.layerSources["tilelayer"] = new TileLayerSource(this);
         }
 
         public addLayer(layer : ProjectLayer)
         {
-          var disableLayers = [];
-       async.series([
-         (callback)=>
-         {
-           // check if in this group only one layer can be active
-           // make sure all existising active layers are disabled
-           if (layer.group.oneLayerActive) {
-               layer.group.layers.forEach((l: ProjectLayer) => {
-                   if (l !== layer && l.enabled) {
-                       disableLayers.push(l);
-                   }
-               });
-             }
-           callback(null,null);
-         },
-         (callback)=>
-         {
-           // find layer source, and activate layer
-           var layerSource = layer.type.toLowerCase();
-           if (this.layerSources.hasOwnProperty(layerSource))
-           {
-             async.series([
-               (cb)=> {
-                 // load layer from source
-                 this.layerSources[layerSource].addLayer(layer,(l)=>
-                 {
-                   this.activeMapRenderer.addLayer(layer);
-                 }); cb(null,null);
-               },
-               (cb)=> {
-                 // update sensor data & filters
-                 this.updateSensorData();
-                 this.$messageBusService.publish('layer', 'activated', layer);
-                 this.updateFilters();
-                 cb(null,null);
-               }]);
-           }
-           callback(null,null);
-         },
-         (callback)=>
-         {
-           // now remove the layers that need to be disabled
-           disableLayers.forEach((l) => {
-               this.removeLayer(l);
-               l.enabled = false;
-           });
-           callback(null,null);
-
-         }
-       ]);
+            var disableLayers = [];
+            async.series([
+                (callback) => {
+                    // check if in this group only one layer can be active
+                    // make sure all existising active layers are disabled
+                    if (layer.group.oneLayerActive) {
+                        layer.group.layers.forEach((l: ProjectLayer) => {
+                            if (l !== layer && l.enabled) {
+                                disableLayers.push(l);
+                            }
+                        });
+                    }
+                    callback(null,null);
+                },
+                (callback) => {
+                    // find layer source, and activate layer
+                    var layerSource = layer.type.toLowerCase();
+                    if (this.layerSources.hasOwnProperty(layerSource))
+                    {
+                        async.series([
+                        (cb)=> {
+                            // load layer from source
+                            this.layerSources[layerSource].addLayer(layer, (l) => {
+                                this.loadedLayers[layer.id] = l;
+                                this.activeMapRenderer.addLayer(layer);
+                            });
+                            cb(null, null);
+                        },
+                        (cb)=> {
+                            // update sensor data & filters
+                            this.updateSensorData();
+                            this.$messageBusService.publish('layer', 'activated', layer);
+                            this.updateFilters();
+                            cb(null,null);
+                        }]);
+                    }
+                    callback(null,null);
+                },
+                (callback) => {
+                    // now remove the layers that need to be disabled
+                    disableLayers.forEach((l) => {
+                        this.removeLayer(l);
+                        l.enabled = false;
+                    });
+                    callback(null,null);
+                }
+            ]);
         }
 
         removeStyle(style: GroupStyle) {
@@ -570,20 +562,20 @@
             }
         }
 
+        /** 
+        * Find a loaded layer with a specific id.
+        */
+        findLoadedLayer(id: string): ProjectLayer {
+            if (this.loadedLayers.containsKey(id)) return this.loadedLayers[id];
+            return null;
+        }
 
         /**
-         * Find a layer with a specific id
+         * Find a layer with a specific id.
          */
         findLayer(id: string): ProjectLayer {
             if (this.loadedLayers.containsKey(id)) return this.loadedLayers[id];
-            return null;
-            //var r: ProjectLayer;
-            //this.project.groups.forEach(g => {
-            //    g.layers.forEach(l => {
-            //        if (l.id === id) r = l;
-            //    });
-            //});
-            //return r;
+            //return null;
             var r: ProjectLayer;
             this.project.groups.forEach(g => {
                 g.layers.forEach(l => {
