@@ -1,21 +1,5 @@
 ﻿module csComp.Helpers {
     declare var String;//: StringExt.IStringExt;
-    declare var omnivore;
-
-    /**
-    * Convert topojson data to geojson data.
-    */
-    export function convertTopoToGeoJson(data) {
-        // Convert topojson to geojson format
-        var topo = omnivore.topojson.parse(data);
-        var newData: any = {};
-        newData.featureTypes = data.featureTypes;
-        newData.features = [];
-        topo.eachLayer((l) => {
-            newData.features.push(l.feature);
-        });
-        return newData;
-    }
 
     export function supportsDataUri() {
         var isOldIE = navigator.appName === "Microsoft Internet Explorer";

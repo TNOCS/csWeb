@@ -34,48 +34,49 @@
     }
 
     export interface ILayerService {
-        title: string;
-        accentColor: string;
-        solution: Solution;
-        project: Project;
-        maxBounds: IBoundingBox;
+        title                  : string;
+        accentColor            : string;
+        solution               : Solution;
+        project                : Project;
+        maxBounds              : IBoundingBox;
         findLayer(id: string): ProjectLayer;
+        findLoadedLayer(id: string): ProjectLayer;
         //selectFeature(feature: Services.IFeature);
-        currentLocale: string;
-        activeMapRenderer: IMapRenderer;                    // active map renderer
-        mb: Services.MessageBusService;
-        map: Services.MapService;
-        layerGroup: L.LayerGroup<L.ILayer>;
-        featureTypes: { [key: string]: Services.IFeatureType; };
-        propertyTypeData: { [key: string]: Services.IPropertyType; };
-        timeline: any;
+        currentLocale          : string;
+        activeMapRenderer      : IMapRenderer;                    // active map renderer
+        mb                     : Services.MessageBusService;
+        map                    : Services.MapService;
+        layerGroup             : L.LayerGroup<L.ILayer>;
+        featureTypes           : { [key: string]: Services.IFeatureType; };
+        propertyTypeData       : { [key: string]: Services.IPropertyType; };
+        timeline               : any;
     }
 
     export class LayerService implements ILayerService {
-        maxBounds: IBoundingBox;
-        title: string;
-        accentColor: string;
-        mb: Services.MessageBusService;
-        map: Services.MapService;
-        featureTypes: { [key: string]: IFeatureType; };
-        propertyTypeData: { [key: string]: IPropertyType; };
-        project: Project;
-        projectUrl: string; // URL of the current project
-        solution: Solution;
-        dimension: any;
-        noFilters: boolean;
-        noStyles: boolean;
+        maxBounds          : IBoundingBox;
+        title              : string;
+        accentColor        : string;
+        mb                 : Services.MessageBusService;
+        map                : Services.MapService;
+        featureTypes       : { [key: string]: IFeatureType; };
+        propertyTypeData   : { [key: string]: IPropertyType; };
+        project            : Project;
+        projectUrl         : string; // URL of the current project
+        solution           : Solution;
+        dimension          : any;
+        noFilters          : boolean;
+        noStyles           : boolean;
         lastSelectedFeature: IFeature;
-        selectedLayerId: string;
-        timeline: any;
-        currentLocale: string;
+        selectedLayerId    : string;
+        timeline           : any;
+        currentLocale      : string;
         loadedLayers = new csComp.Helpers.Dictionary<L.ILayer>();
         layerGroup = new L.LayerGroup<L.ILayer>();
         info = new L.Control();
-        layerSources: { [key: string]: ILayerSource };   // list of available layer sources
-        mapRenderers: { [key: string]: IMapRenderer };    // list of available map renderers
-        activeMapRenderer: IMapRenderer;                    // active map renderer
-        public visual: VisualState = new VisualState();
+        layerSources       : { [key: string]: ILayerSource };   // list of available layer sources
+        mapRenderers       : { [key: string]: IMapRenderer };   // list of available map renderers
+        activeMapRenderer  : IMapRenderer;                 // active map renderer
+        public visual      : VisualState = new VisualState();
 
         static $inject = [
             '$location',
@@ -183,12 +184,13 @@
                     var layerSource = layer.type.toLowerCase();
                     if (this.layerSources.hasOwnProperty(layerSource)) {
                         // load layer from source
-                        this.layerSources[layerSource].addLayer(layer,(l) => {
+                        this.layerSources[layerSource].addLayer(layer, (l) => {
+                            l.enabled = true;
                             this.loadedLayers[layer.id] = l;
                             this.updateSensorData();
-                            this.$messageBusService.publish('layer', 'activated', layer);
                             this.updateFilters();
                             this.activeMapRenderer.addLayer(layer);
+                            this.$messageBusService.publish('layer', 'activated', layer);
                         });
                     }
                     callback(null, null);
@@ -205,8 +207,6 @@
         }
 
         removeStyle(style: GroupStyle) {
-            //console.log('update style ' + style.title);
-
             var g = style.group;
             g.styles = g.styles.filter((s: GroupStyle) => s.id !== style.id);
 
