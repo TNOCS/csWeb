@@ -151,8 +151,10 @@
     export interface IFeatureTypeStyle {
         nameLabel?           : string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
         fillColor?           : string;
-        strokeColor?: string;
-        opacity?: number;
+        strokeColor?         : string;
+        opacity?             : number;
+        fillOpacity?         : number;
+        stroke?              : boolean;
         drawingMode?         : string;
         strokeWidth?         : number;
         iconWidth?           : number;
@@ -164,7 +166,7 @@
         innerTextProperty?: string;
         innerTextSize?: number;
         analysispropertyType?: any;
-        rotateProperty?: string;
+        rotateProperty?      : string;
 
 
     }

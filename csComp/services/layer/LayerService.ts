@@ -10,6 +10,8 @@
         addLayer(layer: ProjectLayer, callback: Function);
         removeLayer(layer: ProjectLayer): void;
         refreshLayer(layer: ProjectLayer): void;
+		requiresLayer: boolean;
+		getRequiredLayers? (layer: ProjectLayer): ProjectLayer[];
     }
 
     export interface IMapRenderer {
@@ -163,9 +165,27 @@
 
             //add tile layer
             this.layerSources["tilelayer"] = new TileLayerSource(this);
+			//add heatmap layer
+			this.layerSources["heatmap"] = new HeatmapSource(this);
+
+		}
+
+        public loadRequiredLayers(layer: ProjectLayer) {
+            // find layer source, and activate layer
+            var layerSource = layer.type.toLowerCase();
+            // if a layer is depends on other layers, load those first
+            if (this.layerSources.hasOwnProperty(layerSource)) {
+                if (this.layerSources[layerSource].requiresLayer) {
+                    var requiredLayers: ProjectLayer[] = this.layerSources[layerSource].getRequiredLayers(layer);
+                    requiredLayers.forEach((l) => {
+                        this.addLayer(l);
+                    });
+                }
+            }
         }
 
         public addLayer(layer: ProjectLayer) {
+            if (this.loadedLayers.containsKey(layer.id)) return;
             var disableLayers = [];
             async.series([
                 (callback) => {
@@ -181,6 +201,9 @@
                     callback(null, null);
                 },
                 (callback) => {
+                    // load required feature layers, if applicable
+                    this.loadRequiredLayers(layer);
+
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
                     if (this.layerSources.hasOwnProperty(layerSource)) {
@@ -203,6 +226,7 @@
                         l.enabled = false;
                     });
                     callback(null, null);
+
                 }
             ]);
         }
@@ -238,8 +262,12 @@
         updateStyle(style: GroupStyle) {
             //console.log('update style ' + style.title);
             if (style == null) return;
-            if (style.group != null) {
-                style.info = this.calculatePropertyInfo(style.group, style.property);
+            if (style.group != null && style.group.styles[0] != null) {
+                if (style.group.styles[0].fixedColorRange) {
+                    style.info = style.group.styles[0].info;
+                } else {
+                    style.info = this.calculatePropertyInfo(style.group, style.property);
+                }
                 style.canSelectColor = style.visualAspect.toLowerCase().indexOf('color') > -1;
                 this.updateGroupFeatures(style.group);
             }
@@ -402,14 +430,16 @@
         */
         public calculateFeatureStyle(feature: IFeature) {
             var s: csComp.Services.IFeatureTypeStyle = {};
-            s.strokeWidth = 1;
-            s.rotate      = 0;
-            s.strokeColor = 'black';
-            s.iconHeight = 32;
-            s.iconWidth = 32;
-            s.cornerRadius = 20;
-
-            
+			//TODO: check compatibility for both heatmaps and other features
+            //s.fillColor = 'red';
+			//s.strokeWidth = 1;            
+            s.stroke = false;
+            s.fillOpacity = 0.75;
+            s.rotate = 0;
+            //s.strokeColor = 'black';
+            //s.iconHeight = 32;
+            //s.iconWidth = 32;
+			//s.cornerRadius = 20;
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
@@ -493,7 +523,6 @@
                     //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                 }
             });
-
 
             if (feature.isSelected) {
                 s.strokeWidth = 5;
@@ -613,7 +642,7 @@
          * If the group already has a style which contains legends, those legends are copied into the newly created group.
          * Already existing groups (for the same visualAspect) are replaced by the new group
          */
-        public setStyle(property: any, openStyleTab = true) {
+        public setStyle(property: any, openStyleTab = true, customStyleInfo?: PropertyInfo) {
             var f: IFeature = property.feature;
             if (f != null) {
                 var ft = this.getFeatureType(f);
@@ -653,7 +682,12 @@
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
 
                 gs.property = property.property;
-                if (gs.info == null) gs.info = this.calculatePropertyInfo(layer.group, property.property);
+                if (customStyleInfo) {
+                    gs.info = customStyleInfo;
+                    gs.fixedColorRange = true;
+                } else {
+                    if (gs.info == null) gs.info = this.calculatePropertyInfo(layer.group, property.property);
+                }
 
                 gs.enabled = true;
                 gs.group = layer.group;
@@ -662,7 +696,7 @@
                 if (ft.style && ft.style.fillColor) {
                     gs.colors = ['white', 'orange'];
                 } else {
-                    gs.colors = ['white', 'orange'];
+                    gs.colors = ['red','white','blue'];
                 }
                 this.saveStyle(layer.group, gs);
                 var NS: number = lg.styles.length;
@@ -871,9 +905,17 @@
             var m: any;
             var g = layer.group;
 
+			layer.enabled = false;
             //if (layer.refreshTimer) layer.stop();
 
             this.loadedLayers.remove(layer.id);
+
+            // find layer source, and remove layer
+            var layerSource = layer.type.toLowerCase();
+            // if a layersource is available, remove layer there
+            if (this.layerSources.hasOwnProperty(layerSource)) {
+                this.layerSources[layerSource].removeLayer(layer);
+            }
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
@@ -895,7 +937,7 @@
                     }
                 });
             } else {
-                this.map.map.removeLayer(layer.mapLayer);
+                if (layer.mapLayer) this.map.map.removeLayer(layer.mapLayer);
             }
 
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);

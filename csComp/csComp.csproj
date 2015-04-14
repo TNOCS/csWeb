@@ -30,15 +30,13 @@
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelationsCtrl.ts" />
-    <TypeScriptCompile Include="directives\Indicators\Indicators.tpl.ts" />
+    <TypeScriptCompile Include="directives\Heatmap\HeatmapSettings.ts" />
+	<TypeScriptCompile Include="directives\Indicators\Indicators.tpl.ts" />
     <TypeScriptCompile Include="directives\Indicators\Indicators.ts" />
     <TypeScriptCompile Include="directives\Indicators\IndicatorsCtrl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
-    <TypeScriptCompile Include="directives\MapElement\MapElement.tpl.ts" />
-    <TypeScriptCompile Include="directives\MapElement\MapElement.ts" />
-    <TypeScriptCompile Include="directives\MapElement\MapElementCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\Mca.tpl.ts" />
     <TypeScriptCompile Include="directives\MCA\Mca.ts" />
     <TypeScriptCompile Include="directives\MCA\McaEditorCtrl.ts" />
@@ -106,6 +104,7 @@
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapListCtrl.ts" />
     <TypeScriptCompile Include="services\layer\sources\GeoJsonSource.ts" />
+    <TypeScriptCompile Include="services\layer\sources\HeatmapSource.ts" />
     <TypeScriptCompile Include="services\layer\sources\TileLayerSource.ts" />
     <TypeScriptCompile Include="services\layer\sources\WmsSource.ts" />
     <TypeScriptCompile Include="services\map\MapCtrl.ts" />
@@ -136,6 +135,9 @@
     <TypeScriptCompile Include="directives\DataTable\DataTableCtrl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTable.tpl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTable.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElement.tpl.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElement.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElementCtrl.ts" />
     <TypeScriptCompile Include="services\time\TimeService.ts" />
     <TypeScriptCompile Include="translations\locale-en.ts" />
     <TypeScriptCompile Include="translations\locale-nl.ts" />

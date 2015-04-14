@@ -4,9 +4,9 @@ module csComp.Services {
     export class WmsSource implements ILayerSource
     {
       title = "wms";
-      
-
-      constructor(public service: LayerService) {
+      requiresLayer = false;
+      //service : LayerService;
+	  constructor(public service: LayerService) {
 
       }
 

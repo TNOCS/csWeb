@@ -18,10 +18,10 @@
             <li ng-repeat="hi in vm.heatmap.heatmapItems"
                 class="row-fluid list-unstyled truncate">
                 <div style="padding: 5px 0;" class="row-fluid">
-<!--                    name="vm.selectedTitles[]" value="{{hi.title}}"-->
+                    <!--                    name="vm.selectedTitles[]" value="{{hi.title}}"-->
                     <input type="checkbox"
                            data-ng-checked="hi.isSelected"
-                           data-ng-click="hi.isSelected = !hi.isSelected">&nbsp;&nbsp;{{hi.title}}
+                           data-ng-click="hi.isSelected = !hi.isSelected">&nbsp;&nbsp;{{hi.toString()}}
                     <div data-ng-if="hi.isSelected" class="pull-right">
                         <a href="" class="pull-right"
                            style="margin-right: 5px;"
@@ -34,11 +34,18 @@
                             data-ng-init="hi.scoringFunctionType = hi.scoringFunctionType || vm.scoringFunctions[0]"
                             data-ng-model="hi.scoringFunctionType"
                             data-ng-options="sf as sf.title for sf in vm.scoringFunctions"></select>
-                    <div class="pull-right" data-ng-class="hi.scoringFunctionType.cssClass" style="width: 40px; height: 28px; margin-top: -5px;"></div>
-                    <div class="row-fluid" >
-                        <input type="text" class="col-xs-3" style="padding: 0; margin-right: 5px;" data-ng-model="hi.idealityMeasure.atLocation" placeholder="{{ \'HEATMAP.AT_LOCATION_VALUE\' | translate }}" />
-                        <input type="text" class="col-xs-3" style="padding: 0; margin-right: 5px;" data-ng-model="hi.idealityMeasure.idealDistance" placeholder="{{ \'HEATMAP.DISTANCE_MAX_VALUE\' | translate }}" />
-                        <input type="text" class="col-xs-3" style="padding: 0;" data-ng-model="hi.idealityMeasure.lostInterestDistance" placeholder="{{ \'HEATMAP.LOST_INTEREST_VALUE\' | translate }}" />
+                    <div class="row-fluid">
+                        <div class="row-fluid">
+                            <div class="col-xs-3" style="margin-top: 5px; margin-right: 5px; padding-left: 0;" translate>HEATMAP.AT_LOCATION_VALUE</div>
+                            <div class="col-xs-3" style="margin-top: 5px; margin-right: 5px; padding-left: 0;" translate>HEATMAP.DISTANCE_MAX_VALUE</div>
+                            <div class="col-xs-3" style="margin-top: 5px; padding-left: 0;" translate>HEATMAP.LOST_INTEREST_VALUE</div>
+                        </div>
+                        <div class="row-fluid">
+                            <input type="number" class="col-xs-3" style="padding: 0; margin-right: 5px;" data-ng-model="hi.idealityMeasure.atLocation" placeholder="{{ \'HEATMAP.AT_LOCATION_VALUE\' | translate }}" />
+                            <input type="number" class="col-xs-3" style="padding: 0; margin-right: 5px;" data-ng-model="hi.idealityMeasure.idealDistance" placeholder="{{ \'HEATMAP.DISTANCE_MAX_VALUE\' | translate }}" />
+                            <input type="number" class="col-xs-3" style="padding: 0;" data-ng-model="hi.idealityMeasure.lostInterestDistance" placeholder="{{ \'HEATMAP.LOST_INTEREST_VALUE\' | translate }}" />
+                        </div>
+                        <!--<div class="pull-right" data-ng-class="hi.scoringFunctionType.cssClass" style="width: 40px; height: 28px; margin-top: -5px;"></div>-->
                     </div>
                 </div>
             </li>

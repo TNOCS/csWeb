@@ -64,11 +64,15 @@ module csComp.Helpers
             return defaultcolor;
         }
         
-        if (v > gs.info.sdMax) return gs.colors[gs.colors.length - 1];
-        if (v < gs.info.sdMin) return gs.colors[0];
-        var bezInterpolator = chroma.interpolate.bezier(gs.colors);
-        var r = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
-        return r;
+      if (v > gs.info.sdMax) return gs.colors[gs.colors.length - 1];
+      if (v < gs.info.sdMin) return gs.colors[0];
+      //var bezInterpolator = chroma.interpolate.bezier(gs.colors);
+      //var r = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
+      var color = d3.scale.linear()
+          .domain([gs.info.sdMin, gs.info.mean, gs.info.sdMax])
+          .range(gs.colors);
+      var hexColor = color(v).toString();
+      return hexColor;
     }
 
     /**

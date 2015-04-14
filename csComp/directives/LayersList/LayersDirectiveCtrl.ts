@@ -26,6 +26,7 @@
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
             //layer.enabled = !layer.enabled;
+			//if (this.$layerService.loadedLayers.containsKey(layer.id)) {
             // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
             if (layer.group.oneLayerActive && this.$layerService.findLoadedLayer(layer.id)) layer.enabled = false;
             if (layer.enabled) {

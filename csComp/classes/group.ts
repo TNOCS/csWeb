@@ -75,12 +75,14 @@
         meta            : IPropertyType;
         legends         : { [key: string] : Legend; }
         activeLegend    : Legend;
+	    fixedColorRange : boolean; 
 
         constructor($translate: ng.translate.ITranslateService) {
 
             this.availableAspects = ['strokeColor', 'fillColor', 'strokeWidth'];
             this.colorScales = {};
             this.legends = {};
+            this.fixedColorRange = false;
 
             $translate('WHITE_RED').then((translation) => {
                 this.colorScales[translation] = ['white', 'red'];
@@ -117,6 +119,9 @@
             });
             $translate('ORANGE_WHITE').then((translation) => {
                 this.colorScales[translation] = ['orange', 'white'];
+            });
+            $translate('RED_WHITE_BLUE').then((translation) => {
+                this.colorScales[translation] = ['red', 'white', 'blue'];
             });
         }
     }
