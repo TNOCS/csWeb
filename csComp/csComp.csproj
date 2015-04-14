@@ -135,6 +135,9 @@
     <TypeScriptCompile Include="directives\DataTable\DataTableCtrl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTable.tpl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTable.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElement.tpl.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElement.ts" />
+    <TypeScriptCompile Include="directives\MapElement\MapElementCtrl.ts" />
     <TypeScriptCompile Include="services\time\TimeService.ts" />
     <TypeScriptCompile Include="translations\locale-en.ts" />
     <TypeScriptCompile Include="translations\locale-nl.ts" />

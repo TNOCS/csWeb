@@ -57,12 +57,11 @@ module csComp.Services {
 
                                 }
                             }
-                        }
-                    });
-                } else {
-                    this.service.map.map.removeLayer(layer.mapLayer);
-                }
-                break;
+                        });
+                    } else {
+                        this.service.map.map.removeLayer(layer.mapLayer);
+                    }
+                    break;
 			    case "heatmap":
 			        var g = layer.group;
 			
@@ -165,6 +164,56 @@ module csComp.Services {
                     //    f.properties['Name'] = f.properties[ft.style.nameLabel];
                     //}); 
                     //layer.mapLayer.addLayer(v);
+                    break;
+                case "heatmap":
+                    var time = new Date().getTime();
+                    // create leaflet layers
+                    if (layer.group.clustering) {
+                        var markers = L.geoJson(layer.data, {
+                            pointToLayer: (feature, latlng) => this.createFeature(feature),
+                            onEachFeature: (feature: IFeature, lay) => {
+                                //We do not need to init the feature here: already done in style.
+                                //this.initFeature(feature, layer);
+                                layer.group.markers[feature.id] = lay;
+                                lay.on({
+                                    mouseover: (a) => this.showFeatureTooltip(a, layer.group),
+                                    mouseout: (s) => this.hideFeatureTooltip(s)
+                                });
+                            }
+                        });
+                        layer.group.cluster.addLayer(markers);
+                    } else {
+                        layer.mapLayer = new L.LayerGroup<L.ILayer>();
+                        this.service.map.map.addLayer(layer.mapLayer);
+
+                        var v = L.geoJson(layer.data, {
+                            onEachFeature: (feature: IFeature, lay) => {
+                                //We do not need to init the feature here: already done in style.
+                                //this.initFeature(feature, layer);
+                                layer.group.markers[feature.id] = lay;
+                                lay.on({
+                                    mouseover: (a) => this.showFeatureTooltip(a, layer.group),
+                                    mouseout: (s) => this.hideFeatureTooltip(s),
+                                    mousemove: (d) => this.updateFeatureTooltip(d),
+                                    click: () => this.service.selectFeature(feature)
+                                });
+                            },
+                            style: (f: IFeature, m) => {
+                                layer.group.markers[f.id] = m;
+                                return f.effectiveStyle;
+                            },
+                            pointToLayer: (feature, latlng) => this.createFeature(feature)
+                        });
+                        this.service.project.features.forEach((f: IFeature) => {
+                            if (f.layerId !== layer.id) return;
+                            var ft = this.service.getFeatureType(f);
+                            f.properties['Name'] = f.properties[ft.style.nameLabel];
+                        });
+
+                        layer.mapLayer.addLayer(v);
+                        var time2 = new Date().getTime();
+                        console.log('Applied style in ' + (time2 - time).toFixed(1) + ' ms');
+                    }
                     break;
             }
         }

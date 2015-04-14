@@ -12,7 +12,7 @@
         //    this.service = service;
         //}
 
-        public updateLayer(layer: ProjectLayer) {
+        public refreshLayer(layer: ProjectLayer) {
             this.generateHeatmap(layer);
         }
 
@@ -112,7 +112,7 @@
 
                 // Set default style for the heatmap:
                 if ((<any>(layer.data)).features[0]) {
-                    var calloutProp = new FeatureProps.CallOutProperty("intensity", "0", "intensity", true, true,(<any>(layer.data)).features[0], false);
+                    var calloutProp = new FeatureProps.CallOutProperty("intensity", "0", "intensity", true, true,(<any>(layer.data)).features[0], false, false);
                     var propinfo = new PropertyInfo();
                     // Tweak the group style info to keep constant min/max color values on panning and zooming.
                     propinfo.count = (<any>(layer.data)).features.length;
