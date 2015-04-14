@@ -432,61 +432,60 @@
             s.iconHeight = 32;
             s.iconWidth = 32;
 
-            
+            var ft = this.getFeatureType(feature);
+            if (ft.style) {              
+                if (ft.style.fillColor != null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
+                if (ft.style.strokeColor != null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
+                if (ft.style.strokeWidth != null) s.strokeWidth = ft.style.strokeWidth;
+                if (ft.style.iconWidth != null) s.iconWidth = ft.style.iconWidth;
+                if (ft.style.iconHeight != null) s.iconHeight = ft.style.iconHeight;
 
+                if (ft.style.rotateProperty && feature.properties.hasOwnProperty(ft.style.rotateProperty)) {
+                    s.rotate = Number(feature.properties[ft.style.rotateProperty]);
+                }
+            }
 
-          var ft = this.getFeatureType(feature);
-          if (ft.style) {              
-              if (ft.style.fillColor != null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
-              if (ft.style.strokeColor != null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
-              if (ft.style.strokeWidth != null) s.strokeWidth = ft.style.strokeWidth;
-              if (ft.style.iconWidth != null) s.iconWidth = ft.style.iconWidth;
-              if (ft.style.iconHeight != null) s.iconHeight = ft.style.iconHeight;
-              
+            feature.layer.group.styles.forEach((gs: GroupStyle) => {
+                if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
+                    if (gs.activeLegend) {
+                        if ((gs.activeLegend.legendKind == 'discrete') ||
+                            (gs.activeLegend.legendKind == 'interpolated')) {
 
-              if (ft.style.rotateProperty && feature.properties.hasOwnProperty(ft.style.rotateProperty)) {
-                  s.rotate = Number(feature.properties[ft.style.rotateProperty]);
-              }
+                            var v = Number(feature.properties[gs.property]);
+                            if (!isNaN(v)) {
+                                switch (gs.visualAspect) {
+                                    case 'strokeColor':
+                                        s.strokeColor = csComp.Helpers.getColor(v, gs);
+                                        break;
+                                    case 'fillColor':
+                                        s.fillColor = csComp.Helpers.getColor(v, gs);
+                                        break;
+                                    case 'strokeWidth':
+                                        s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
+                                        break;
+                                }
+                            }
+                        } // discrete or interpolated
+                        if (gs.activeLegend.legendKind == 'discretestrings')  {
+                            var ss = feature.properties[gs.property];
+                            switch (gs.visualAspect) {
+                                case 'strokeColor':
+                                    s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                    break;
+                                case 'fillColor':
+                                    s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                    break;
+                            }
+                        } // discrete strings
+                    } // activelegend
+                }
+            } );
 
-
-          }
-
-          //var layer = this.findLayer(feature.layerId);
-          feature.layer.group.styles.forEach((gs: GroupStyle) => {
-              if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
-                  var v = Number(feature.properties[gs.property]);
-                  if (!isNaN(v)) {
-                      switch (gs.visualAspect) {
-                          case 'strokeColor':
-                              s.strokeColor = csComp.Helpers.getColor(v, gs);
-                              break;
-                          case 'fillColor':
-                              s.fillColor = csComp.Helpers.getColor(v, gs);
-                              break;
-                          case 'strokeWidth':
-                              s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
-                              break;
-                      }
-                  } else {
-                      var ss = feature.properties[gs.property];
-                      switch (gs.visualAspect) {
-                          case 'strokeColor':
-                              s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-                              break;
-                          case 'fillColor':
-                              s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-                              break;
-                      }
-                  }
-                  //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
-              }
-          });
-
-          if (feature.isSelected) {
-              s.strokeWidth = 5;
-              s.strokeColor = 'black';
-          }
-          feature.effectiveStyle = s;
+            if (feature.isSelected) {
+                s.strokeWidth = 5;
+                s.strokeColor = 'black';
+            }
+            feature.effectiveStyle = s;
         }
 
         /**
