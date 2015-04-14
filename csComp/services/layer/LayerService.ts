@@ -9,6 +9,7 @@
         service: ILayerService;
         addLayer(layer: ProjectLayer, callback: Function);
         removeLayer(layer: ProjectLayer): void;
+        refreshLayer(layer: ProjectLayer): void;
     }
 
     export interface IMapRenderer {
@@ -404,20 +405,11 @@
             s.strokeWidth = 1;
             s.rotate      = 0;
             s.strokeColor = 'black';
-<<<<<<< HEAD
             s.iconHeight = 32;
             s.iconWidth = 32;
+            s.cornerRadius = 20;
 
-            var ft = this.getFeatureType(feature);
-            if (ft.style) {              
-                if (ft.style.fillColor != null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
-                if (ft.style.strokeColor != null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
-                if (ft.style.strokeWidth != null) s.strokeWidth = ft.style.strokeWidth;
-                if (ft.style.iconWidth != null) s.iconWidth = ft.style.iconWidth;
-                if (ft.style.iconHeight != null) s.iconHeight = ft.style.iconHeight;
-=======
-            s.iconHeight  = 32;
-            s.iconWidth   = 32;
+            
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
@@ -425,15 +417,16 @@
                 if (ft.style.strokeColor != null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
                 if (ft.style.strokeWidth != null) s.strokeWidth = ft.style.strokeWidth;
                 if (ft.style.iconWidth   != null) s.iconWidth   = ft.style.iconWidth;
-                if (ft.style.iconHeight  != null) s.iconHeight  = ft.style.iconHeight;
->>>>>>> dd7307939c7b777c80559ce6ec328d8f7c082e4f
-
+                if (ft.style.iconHeight != null) s.iconHeight = ft.style.iconHeight;
+                if (ft.style.innerTextProperty != null) s.innerTextProperty = ft.style.innerTextProperty;
+                if (ft.style.innerTextSize != null) s.innerTextSize = ft.style.innerTextSize;
+                if (ft.style.cornerRadius != null) s.cornerRadius = ft.style.cornerRadius;
                 if (ft.style.rotateProperty && feature.properties.hasOwnProperty(ft.style.rotateProperty)) {
                     s.rotate = Number(feature.properties[ft.style.rotateProperty]);
                 }
             }
 
-<<<<<<< HEAD
+
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     if (gs.activeLegend) {
@@ -469,7 +462,7 @@
                     } // activelegend
                 }
             } );
-=======
+
             //var layer = this.findLayer(feature.layerId);
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
@@ -500,7 +493,7 @@
                     //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                 }
             });
->>>>>>> dd7307939c7b777c80559ce6ec328d8f7c082e4f
+
 
             if (feature.isSelected) {
                 s.strokeWidth = 5;
@@ -540,7 +533,7 @@
         */
         private setDefaultPropertyType(pt: IPropertyType) {
             if (!pt.type) pt.type = "text";
-
+            if (typeof pt.title == 'undefined') pt.title = pt.label;
             if (typeof pt.canEdit == 'undefined') pt.canEdit = false;
             if (typeof pt.visibleInCallOut == 'undefined') pt.visibleInCallOut = true;
             if (typeof pt.isSearchable == 'undefined' && pt.type === 'text') pt.isSearchable = true;
@@ -878,6 +871,8 @@
             var m: any;
             var g = layer.group;
 
+            //if (layer.refreshTimer) layer.stop();
+
             this.loadedLayers.remove(layer.id);
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
@@ -919,6 +914,7 @@
             }
 
             this.rebuildFilters(g);
+            layer.enabled = false;
             this.$messageBusService.publish('layer', 'deactivate', layer);
         }
 
@@ -1043,6 +1039,25 @@
                     this.project.dashboards.push(d);
                 }
 
+                if (this.project.datasources) {
+                    this.project.datasources.forEach((ds: DataSource) => {
+                        if (ds.url) {
+                            DataSource.LoadData(ds,() => {
+                                for (var s in ds.sensors) {
+                                    var ss = ds.sensors[s];
+                                    ss.activeValue = ss.values[ss.values.length - 1];
+                                    console.log(ss.activeValue);
+
+                                    
+                                    //console.log(s);
+                                }
+                                
+                            });
+                            
+                        }
+                    });
+                }
+
                 if (!this.project.dataSets)
                     this.project.dataSets = [];
 
@@ -1130,6 +1145,22 @@
                     }
                 });
             });
+        }
+
+        public findSensorSet(key: string, callback : Function) {
+            var kk = key.split('/');
+            if (kk.length == 2) {
+                var source = kk[0];
+                var sensorset = kk[1];
+                this.project.datasources.forEach((ds: DataSource) => {
+                    if (ds.id === source) {
+                        if (ds.sensors.hasOwnProperty(sensorset)) {
+                            callback(ds.sensors[sensorset]);
+                        }
+                    }
+                });
+            }
+            return null;
         }
 
         //private zoom(data: any) {

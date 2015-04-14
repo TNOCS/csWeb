@@ -9,6 +9,9 @@ module csComp.Services {
 
         }
 
+        public refreshLayer(layer: ProjectLayer) {
+        }
+
         public addLayer(layer: ProjectLayer, callback: Function) {
             this.baseAddLayer(layer, callback);
         }
@@ -197,7 +200,7 @@ module csComp.Services {
                 }
             });
             this.connection = this.service.$messageBusService.getConnection("");
-            this.connection.events.add((status: string) => this.connectionEvent);
+            //this.connection.events.add((status: string) => this.connectionEvent);
         }
 
         connectionEvent(status: string) {

@@ -58,27 +58,27 @@
 
             $scope.vm = this;
 
-            $scope.gridsterOptions = {
-                margins: [10, 10],
-                columns: 20,
-                rows: 20,
-                draggable: {
-                    enabled:true
-                },
-                resizable: {
-                    enabled: true,
-                    start: (event, uiWidget, $element: csComp.Services.IWidget) => {
-                        $element.resize("start", uiWidget.width(), uiWidget.height());
-                    },
-                    stop: (event, uiWidget, $element: csComp.Services.IWidget) => {
-                        $element.resize("stop", uiWidget.width(), uiWidget.height());
-                    }, 
-                    resize: (event, uiWidget, $element: csComp.Services.IWidget) => {
+            //$scope.gridsterOptions = {
+            //    margins: [10, 10],
+            //    columns: 20,
+            //    rows: 20,
+            //    draggable: {
+            //        enabled:true
+            //    },
+            //    resizable: {
+            //        enabled: true,
+            //        start: (event, uiWidget, $element: csComp.Services.IWidget) => {
+            //            $element.resize("start", uiWidget.width(), uiWidget.height());
+            //        },
+            //        stop: (event, uiWidget, $element: csComp.Services.IWidget) => {
+            //            $element.resize("stop", uiWidget.width(), uiWidget.height());
+            //        }, 
+            //        resize: (event, uiWidget, $element: csComp.Services.IWidget) => {
 
-                        $element.resize("change", uiWidget.width(),uiWidget.height());
-                    }
-                }
-            };
+            //            $element.resize("change", uiWidget.width(),uiWidget.height());
+            //        }
+            //    }
+            //};
 
 
 
@@ -123,7 +123,7 @@
             //var newElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
             var widgetElement;
             var newScope =  this.$scope;
-            (<any>newScope).data = "test";
+            (<any>newScope).widget = w;
 
             if (w.template) {
                 widgetElement = this.$compile(this.$templateCache.get(w.template))(newScope);
@@ -132,9 +132,7 @@
                 widgetElement = this.$compile("<div>url</div>")(this.$scope);
             } else if (w.directive) {
                //var newScope : ng.IScope;
-
-
-                widgetElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(newScope);
+                widgetElement = this.$compile("<" + w.directive + "></" + w.directive + ">")(newScope);
 
             } else {
                 widgetElement = this.$compile("<h1>hoi</h1>")(this.$scope);
@@ -177,7 +175,7 @@
                             l.enabled = false;
                         }
                         if (!l.enabled && db.visiblelayers.indexOf(l.reference) >= 0) {
-                            this.$layerService.activeMapRenderer.addLayer(l);
+                            this.$layerService.addLayer(l);
                             l.enabled = true;
                         }
                     });

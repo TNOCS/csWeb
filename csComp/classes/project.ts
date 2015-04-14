@@ -142,10 +142,12 @@
         timeLine        : DateRange;
         mcas            : Mca.Models.Mca[];
         dashboards      : Dashboard[];
+        datasources     : DataSource[];
         dataSets        : DataSet[];
         viewBounds      : IBoundingBox;
         userPrivileges  : IPrivileges;
-        languages       : ILanguageData;
+        languages: ILanguageData;
+        
 
         expertMode = Expertise.Expert;
         markers = {};
@@ -201,6 +203,7 @@
         mapLayer: L.LayerGroup<L.ILayer>;
         /** Group of layers */
         group: ProjectGroup;
+        refreshTimer: number;
         /**
         * A list of UNIX timestamp, or the UTC time in milliseconds since 1/1/1970, which define the time a sensor value
         * was taken. So in case we have 10 timestamps, each feature's sensor (key) in the feature's sensors dictionary should

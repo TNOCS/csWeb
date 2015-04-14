@@ -14,8 +14,12 @@ module csComp.Services {
 
       }
 
+      public refreshLayer(layer: ProjectLayer) {
+      }
+
       public addLayer(layer : ProjectLayer, callback : Function) {
           layer.layerRenderer = "tilelayer";
+          callback(layer);
           //this.$rootScope.$apply();
       }
 

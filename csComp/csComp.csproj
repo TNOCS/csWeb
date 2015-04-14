@@ -30,6 +30,9 @@
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelationsCtrl.ts" />
+    <TypeScriptCompile Include="directives\Indicators\Indicators.tpl.ts" />
+    <TypeScriptCompile Include="directives\Indicators\Indicators.ts" />
+    <TypeScriptCompile Include="directives\Indicators\IndicatorsCtrl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
@@ -143,6 +146,7 @@
     <Content Include="directives\ExpertMode\ExpertMode.tpl.html" />
     <Content Include="directives\Heatmap\Heatmap.tpl.html" />
     <Content Include="directives\Heatmap\HeatmapEditorView.tpl.html" />
+    <Content Include="directives\Indicators\Indicators.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
     <Content Include="directives\LanguageSwitch\readme.md" />
     <Content Include="directives\MapElement\MapElement.tpl.html" />

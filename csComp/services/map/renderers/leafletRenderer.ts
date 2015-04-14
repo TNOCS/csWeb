@@ -80,7 +80,7 @@ module csComp.Services {
 
         public addLayer(layer: ProjectLayer) {
             switch (layer.layerRenderer) {
-                case "tile":
+                case "tilelayer":
                     var tileLayer: any = L.tileLayer(layer.url, {
 
                         attribution: layer.description
@@ -258,7 +258,7 @@ module csComp.Services {
                 props['background'] = feature.effectiveStyle.fillColor;
                 props['width'] = feature.effectiveStyle.iconWidth + 'px';
                 props['height'] = feature.effectiveStyle.iconHeight + 'px';
-                props['border-radius'] = '20%';
+            props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
                 props['border-style'] = 'solid';
                 props['border-color'] = feature.effectiveStyle.strokeColor;
                 props['border-width'] = feature.effectiveStyle.strokeWidth;
@@ -274,7 +274,10 @@ module csComp.Services {
                 }
 
                 html += '\'>';
-                if (iconUri != null) {
+            if (feature.effectiveStyle.innerTextProperty != null && feature.properties.hasOwnProperty(feature.effectiveStyle.innerTextProperty)) {
+                html += "<span style='font-size:12px;vertical-align:-webkit-baseline-middle'>" + feature.properties[feature.effectiveStyle.innerTextProperty] + "</span>";
+            }
+            else if (iconUri != null) {
                     // Must the iconUri be formatted?
                     if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
 
@@ -285,7 +288,7 @@ module csComp.Services {
 
                 html += '</div>';
 
-                icon = new L.DivIcon({
+                icon = new L.DivIcon({    
                     className: '',
                     iconSize: new L.Point(feature.effectiveStyle.iconWidth, feature.effectiveStyle.iconHeight),
                     html: html

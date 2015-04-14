@@ -157,9 +157,12 @@
         strokeWidth?         : number;
         iconWidth?           : number;
         iconHeight?          : number;
-        iconUri?             : string;
+        iconUri?: string;
+        cornerRadius?: number;
         maxTitleResolution?: string;
         rotate?: number;
+        innerTextProperty?: string;
+        innerTextSize?: number;
         analysispropertyType?: any;
         rotateProperty?: string;
 

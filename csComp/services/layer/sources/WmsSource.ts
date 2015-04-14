@@ -10,6 +10,9 @@ module csComp.Services {
 
       }
 
+      public refreshLayer(layer: ProjectLayer) {
+      }
+
       public addLayer(layer : ProjectLayer, callback : Function)
       {
         var wms        : any = L.tileLayer.wms(layer.url, {
