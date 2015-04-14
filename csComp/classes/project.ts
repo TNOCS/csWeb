@@ -174,31 +174,33 @@
     /** layer information. a layer is described in a project file and is always part of a group */
     export class ProjectLayer {
         /** Title as displayed in the menu */
-        title                       : string;
+        title: string;
+        /** Number of features in the layer */
+        count: number;
         /** Description as displayed in the menu */
-        description                 : string;
+        description: string;
         /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
-        type                        : string;
+        type: string;
         /** Data source */
         url: string;
         
         /** In case we keep the style information in a separate file */
-        styleurl                    : string;
+        styleurl: string;
         /** how should the layer be renderer, default (can also be null), webgl, heatmap, isolines, etc. */
-        layerRenderer               : string;
+        layerRenderer: string;
         /** WMS sublayers that must be loaded */
-        wmsLayers                   : string;
+        wmsLayers: string;
         /** If enabled, load the layer */
-        enabled                     : boolean;
+        enabled: boolean;
         /** Layer opacity */
-        opacity                     : number;
+        opacity: number;
         /** When loading the data, the isLoading variable is true (e.g. used for the spinner control) */
-        isLoading                   : boolean;
+        isLoading: boolean;
         /** Indent the layer, so it seems to be a sublayer. */
-        isSublayer                  : boolean;
-        mapLayer                    : L.LayerGroup<L.ILayer>;
+        isSublayer: boolean;
+        mapLayer: L.LayerGroup<L.ILayer>;
         /** Group of layers */
-        group                       : ProjectGroup;
+        group: ProjectGroup;
         /**
         * A list of UNIX timestamp, or the UTC time in milliseconds since 1/1/1970, which define the time a sensor value
         * was taken. So in case we have 10 timestamps, each feature's sensor (key) in the feature's sensors dictionary should
@@ -207,17 +209,17 @@
         * when all 'sensor measurements' are taken on the same moment. For example, the CENSUS date.
         * In Excel, you can use the formula =24*(A4-$B$1)*3600*1000 to convert a date to a UNIX time stamp.
         */
-        timestamps                  : number[];
+        timestamps: number[];
         /** Internal ID, e.g. for the Excel service */
-        id                          : string;
+        id: string;
         /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */
-        reference                   : string;
-        events                      : Event[];
+        reference: string;
+        events: Event[];
         /** Language information that can be used to localize the title and description */
-        languages                   : ILanguageData;
+        languages: ILanguageData;
         /** layer original source */
-        data                        : JSON;
-        cesiumDatasource            : any;
+        data: JSON;
+        cesiumDatasource: any;
     }
 
     /**

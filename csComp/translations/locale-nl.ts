@@ -32,6 +32,12 @@
             GREEN_WHITE             : 'groen - wit',
             WHITE_ORANGE            : 'wit - oranje',
             ORANGE_WHITE            : 'oranje - wit',
+            EXPERTMODE              : { 
+                BEGINNER            : 'Novice',
+                INTERMEDIATE        : 'Gevorderd',
+                EXPERT              : 'Expert',
+                EXPLANATION         : 'Selecteer uw expertise om meer functionaliteit te kunnen gebruiken.'
+            },
             LAYER_SERVICE           : {
                 RELOAD_PROJECT_TITLE: 'Data wordt opnieuw geladen',
                 RELOAD_PROJECT_MSG  : 'Na het wisselen van de taal moet de kaartdata opnieuw ingelezen worden. Excuses voor het ongemak.'

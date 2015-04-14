@@ -336,11 +336,11 @@
             this.properties = [];
             var mi = McaCtrl.createPropertyType(this.mca);
             var displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
-            this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, mi.description, mi));
+            this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, true, true, feature, false, false, mi.description, mi));
             if (this.mca.rankTitle) {
                 mi = McaCtrl.createRankPropertyType(this.mca);
                 displayValue = csComp.Helpers.convertPropertyInfo(mi, feature.properties[mi.label]);
-                this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, mi.description, mi));
+                this.properties.push(new FeatureProps.CallOutProperty(mi.title, displayValue, mi.label, false, false, feature, false, false, mi.description, mi));
             }
             if (drawCharts) this.drawChart();
         }
@@ -474,18 +474,16 @@
             this.showChart = false;
             this.mca = mca;
             this.availableMcas = [];
-            if (this.$layerService.project.mcas!=null)
-            {
-              this.$layerService.project.mcas.forEach((m) => {
-                  m.featureIds.forEach((featureId: string) => {
-                      if (this.availableMcas.indexOf(m) < 0 && this.$layerService.featureTypes.hasOwnProperty(featureId)) {
-                          this.availableMcas.push(m);
-                          var featureType = this.$layerService.featureTypes[featureId];
-                          this.applyPropertyInfoToCriteria(m, featureType);
-                      }
-                  });
-              });
-            }
+
+            this.$layerService.project.mcas.forEach((m) => {
+                m.featureIds.forEach((featureId: string) => {
+                    if (this.availableMcas.indexOf(m) < 0 && this.$layerService.featureTypes.hasOwnProperty(featureId)) {
+                        this.availableMcas.push(m);
+                        var featureType = this.$layerService.featureTypes[featureId];
+                        this.applyPropertyInfoToCriteria(m, featureType);
+                    }
+                });
+            });
             if (mca == null && this.availableMcas.length > 0) {
                 this.mca = this.availableMcas[0];
                 this.updateMca();
@@ -514,7 +512,9 @@
                         tempScores.push(tempItem);
                     }
                     feature.properties[mca.label] = score * 100;
+                    this.$layerService.calculateFeatureStyle(feature);
                     this.$layerService.activeMapRenderer.updateFeature(feature);
+                    //this.$layerService.updateFeature(feature);
                 });
                 if (mca.rankTitle) {
                     // Add rank information
@@ -574,8 +574,10 @@
             if (forceUpdate || labelIndex < 0) {
                 var pt = McaCtrl.createPropertyType(mca);
                 if (labelIndex < 0)
+                {
+                    if (featureType.propertyTypeData === null) featureType.propertyTypeData = [];
                     featureType.propertyTypeData.push(pt); // NOTE: propertyTypes refers to a new list, so you cannot add to it.
-                else
+                } else
                     propertyTypes[labelIndex] = pt;        // NOTE: but you should be able to overwrite an existing property.
             }
 

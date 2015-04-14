@@ -1,10 +1,25 @@
 ﻿module csComp.Helpers {
+    declare var omnivore;
 
     /**
     * A set of static geo tools
     * Source: http://www.csgnetwork.com/degreelenllavcalc.html
     */
     export class GeoExtensions {
+        /**
+        * Convert topojson data to geojson data.
+        */
+        static convertTopoToGeoJson(data) {
+            // Convert topojson to geojson format
+            var topo = omnivore.topojson.parse(data);
+            var newData: any = {};
+            newData.featureTypes = data.featureTypes;
+            newData.features = [];
+            topo.eachLayer((l) => {
+                newData.features.push(l.feature);
+            });
+            return newData;
+        }
 
         static deg2rad(degree: number) {
             var conv_factor = (2.0 * Math.PI) / 360.0;

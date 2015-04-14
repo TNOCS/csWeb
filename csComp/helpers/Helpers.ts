@@ -1,23 +1,5 @@
 ﻿module csComp.Helpers {
     declare var String;//: StringExt.IStringExt;
-    declare var omnivore;
-
-    
-
-    /**
-    * Convert topojson data to geojson data.
-    */
-    export function convertTopoToGeoJson(data) {
-        // Convert topojson to geojson format
-        var topo = omnivore.topojson.parse(data);
-        var newData: any = {};
-        newData.featureTypes = data.featureTypes;
-        newData.features = [];
-        topo.eachLayer((l) => {
-            newData.features.push(l.feature);
-        });
-        return newData;
-    }
 
     export function supportsDataUri() {
         var isOldIE = navigator.appName === "Microsoft Internet Explorer";
@@ -46,7 +28,7 @@
         return avg;
     }
 
-
+    
 
     /**
      * Collect all the property types that are referenced by a feature type.
@@ -189,7 +171,8 @@
 
     /**
      * Load the features as visible on the map, effectively creating a virtual
-     * GeoJSON file that represents all visible items.
+     * GeoJSON file that represents all visible items. 
+     * Also loads the keys into the featuretype's propertyTypeData collection. 
      */
      export function loadMapLayers(layerService: Services.LayerService) : Services.IGeoJsonFile {
         var data         : Services.IGeoJsonFile = {
@@ -211,6 +194,14 @@
                 var featureType = layerService.featureTypes[f.featureTypeName];
                 if (!featureType.name) featureType.name = f.featureTypeName.replace('_Default', '');
                 data.featureTypes[f.featureTypeName] = featureType;
+                if (featureType.propertyTypeKeys) {
+                    featureType.propertyTypeData = [];
+                    featureType.propertyTypeKeys.split(';').forEach((key) => {
+                        if (layerService.propertyTypeData.hasOwnProperty(key)) {
+                            featureType.propertyTypeData.push(layerService.propertyTypeData[key]);
+                        }
+                    });
+                }
             }
         });
 

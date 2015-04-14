@@ -1,0 +1,32 @@
+<form role="search">
+    <style>
+        .typeahead-group-header {
+            margin-left: 10px;
+            font-weight: bold;
+            font-size: 120%;
+        }
+    </style>
+    <script type="text/ng-template" id="typeahead-item.html">
+     <div class="typeahead-group-header" ng-if="match.model.firstInGroup">{{match.model.groupTitle}} >> {{match.model.layerTitle}}</div>
+     <a>
+       <span ng-bind-html="match.label.title"></span>
+     </a>
+   </script>
+   <div id="scrollable-dropdown-menu" data-ng-disabled="!vm.isReady" class="form-group has-feedback navbar-right">
+        <input data-ng-model="vm.searchText"
+               typeahead="address for address in vm.getLocation($viewValue)"
+               typeahead-loading="loadingLocations"
+               typeahead-min-length="3"
+               typeahead-highlight="true"
+               typeahead-editable="false"
+               typeahead-template-url="typeahead-item.html"
+               typeahead-on-select="vm.onSelect($item, $model, $label)"
+               id="searchbox"
+               type="text"
+               style="width:300px"
+               class="typeahead form-control">
+               <!-- placeholder="Zoek in kaartlagen" -->
+        <!-- <span ng-if="loadingLocations"  id="searchicon" class="fa fa-refresh fa-spin"></span>-->
+        <span id="searchicon" class="fa fa-search form-control-feedback"></span>
+    </div>
+</form>
