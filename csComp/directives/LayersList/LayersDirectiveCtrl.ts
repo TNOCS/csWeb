@@ -25,10 +25,14 @@
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
-            if (this.$layerService.loadedLayers.containsKey(layer.id)) {
-                this.$layerService.removeLayer(layer);
-            } else {
+            //layer.enabled = !layer.enabled;
+			//if (this.$layerService.loadedLayers.containsKey(layer.id)) {
+            // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
+            if (layer.group.oneLayerActive && this.$layerService.findLoadedLayer(layer.id)) layer.enabled = false;
+            if (layer.enabled) {
                 this.$layerService.addLayer(layer);
+            } else {
+                this.$layerService.removeLayer(layer);
             }
 
             // NOTE EV: You need to call apply only when an event is received outside the angular scope.

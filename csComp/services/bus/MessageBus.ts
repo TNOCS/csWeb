@@ -17,13 +17,65 @@
 		public topic: string;
 		public callback: IMessageBusCallback;
     }
+    
 
-    export class Connection {
+    export interface IBaseEvent {
+        add(listener: () => void): void;
+        remove(listener: () => void): void;
+        trigger(...a: any[]): void;
+    }
+
+    export class TypedEvent implements IBaseEvent {
+        // Private member vars
+        private _listeners: any[] = [];
+
+        public add(listener: () => void): void {
+            /// <summary>Registers a new listener for the event.</summary>
+            /// <param name="listener">The callback function to register.</param>
+            this._listeners.push(listener);
+        }
+        public remove(listener?: () => void): void {
+            /// <summary>Unregisters a listener from the event.</summary>
+            /// <param name="listener">The callback function that was registered. If missing then all listeners will be removed.</param>
+            if (typeof listener === 'function') {
+                for (var i = 0, l = this._listeners.length; i < l; l++) {
+                    if (this._listeners[i] === listener) {
+                        this._listeners.splice(i, 1);
+                        break;
+                    }
+                }
+            } else {
+                this._listeners = [];
+            }
+        }
+
+        public trigger(...a: any[]): void {
+            /// <summary>Invokes all of the listeners for this event.</summary>
+            /// <param name="args">Optional set of arguments to pass to listners.</param>
+            var context = {};
+            var listeners = this._listeners.slice(0);
+            for (var i = 0, l = listeners.length; i < l; i++) {
+                listeners[i].apply(context, a || []);
+            }
+        }
+    }
+
+    // Exposing events
+    export interface IMessageEvent extends IBaseEvent {
+        add(listener: (message: string) => void): void;
+        remove(listener: (message: string) => void): void;
+        trigger(message: string): void;
+    }
+
+    export class Connection  {
 
         public isConnected: boolean;
         public isConnecting: boolean; 
         public cache: { [topic: string]: Array<IMessageBusCallback> } = {};       
         public socket;
+
+        // Events
+        public events: IMessageEvent = new TypedEvent();
 
         constructor(public id: string, public url: string) {
         }
@@ -34,8 +86,8 @@
             this.isConnecting = true;
             this.socket.on('connect',() => {
                 this.isConnecting = false;
-                this.isConnected = true;   
-                
+                this.isConnected = true;
+                this.events.trigger("connected");
                 callback();
             });
             this.socket.on('disconnect',() => {
@@ -97,6 +149,12 @@
                 this.connections[c.id] = c;
             }
             this.connections[id].connect(() => {
+                //for (var topic in c.cache) {
+                //    c.socket.on(topic,(r) => {
+                //        c.cache[topic].forEach(cb => cb(topic, r));
+                //    });
+                //}
+                
                 callback();
                      });            
         }
@@ -106,7 +164,6 @@
             if (c == null) return null;
             c.socket.emit(topic, message);
         }
-
         
         public serverSubscribe(topic: string, callback: IMessageBusCallback, serverId = ""): MessageBusHandle {
             var c = this.getConnection(serverId);
@@ -118,6 +175,7 @@
             if (!c.cache[topic]) {
                 c.cache[topic] = new Array<IMessageBusCallback>();
                 c.cache[topic].push(callback);
+
                 
                 c.socket.on(topic,(r) => {
                     c.cache[topic].forEach(cb => cb(topic,r));

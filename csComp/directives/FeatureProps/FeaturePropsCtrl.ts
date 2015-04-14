@@ -24,7 +24,7 @@
         tabs                            : JQuery;
         tabScrollDelta                  : number;
         featureTabActivated(sectionTitle: string, section: CallOutSection);
-        autocollapse(init               : boolean):void;
+        autocollapse(init: boolean)     : void;
     }
 
     export interface ICallOutProperty {
@@ -48,8 +48,11 @@
             public canStyle    : boolean,
             public feature     : IFeature,
             public isFilter    : boolean,
+            public isSensor    : boolean,
             public description?: string,
-            public meta?       : IPropertyType) { }
+            public meta?       : IPropertyType,
+            public timestamps? : number[],
+            public sensor?     : number[]) { }
     }
 
     export interface ICallOutSection {
@@ -74,7 +77,11 @@
         showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
         addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {            
-            this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, description ? description : null, meta));
+            var isSensor = typeof feature.sensors !== 'undefined' && feature.sensors.hasOwnProperty(property);
+            if (isSensor)
+                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, meta, feature.timestamps, feature.sensors[property]));
+            else
+                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, meta));
         }
 
         hasProperties(): boolean {
@@ -112,7 +119,9 @@
                     var canStyle  = (mi.type === "number" || mi.type === "options" || mi.type === "color");
                     if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
                     if (mi.visibleInCallOut)
-                        callOutSection  .addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                    {
+                        callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                    }
                     searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
                 });
             }
@@ -207,7 +216,6 @@
             
             $messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
             $messageBusService.subscribe("feature", this.featureMessageReceived);
-
 
             var widthOfList = function () {
                 var itemsWidth = 0;
@@ -334,7 +342,8 @@
         private featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("FPC: featureMessageReceived");
             switch (title) {
-                case "onFeatureSelect":                    
+                case "onFeatureSelect":
+                    this.setShowSimpleTimeline();
                     this.displayFeature(feature);
                     this.$scope.poi = feature;
                     this.$scope.autocollapse(true);
@@ -352,12 +361,71 @@
 
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
-            var featureType     = this.$layerService.featureTypes[feature.featureTypeName];
+            var featureType = this.$layerService.featureTypes[feature.featureTypeName];
+            // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
+            if (typeof feature.sensors !== 'undefined' && typeof feature.timestamps === 'undefined')
+                feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData);
-            // Probably not needed
-            //if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-            //    this.$scope.$apply();
-            //}
+        }
+        
+        showSensorData(property: ICallOutProperty) {
+            console.log(property);
+        }
+
+        timestamps = new Array<{ title: string; timestamp: number }>();
+        showSimpleTimeline: boolean;
+        focusTime         : string;
+
+        setShowSimpleTimeline() {
+            if (this.$mapService.timelineVisible
+                || typeof this.$layerService.lastSelectedFeature === 'undefined'
+                || this.$layerService.lastSelectedFeature == null) {
+                this.showSimpleTimeline = false;
+                return;
+            }
+            var feature = this.$layerService.lastSelectedFeature;
+            this.showSimpleTimeline = (typeof feature.sensors !== 'undefined' && feature.sensors !== null);
+            if (this.showSimpleTimeline) this.setTimestamps();
+        }
+
+        setTimestamps() {
+            var feature = this.$layerService.lastSelectedFeature;
+            var layer = this.$layerService.findLayer(feature.layerId);
+            if ((typeof layer.timestamps === 'undefined' || layer.timestamps == null) &&
+                (typeof feature.timestamps === 'undefined' || feature.timestamps == null)) return [];
+            var time = this.timestamps = new Array<{ title: string; timestamp: number }>();
+            (layer.timestamps || feature.timestamps).forEach((ts) => {
+                var date = new Date(ts);
+                var dateString = String.format("{0}-{1:00}-{2:00}", date.getFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
+                if (date.getUTCHours() > 0 || date.getUTCMinutes() > 0)
+                    dateString += String.format(" {0:00}:{1:00}", date.getUTCHours(), date.getUTCMinutes());
+                time.push({ title: dateString, timestamp: ts} );
+            });
+
+            // Set focus time
+            var focus = this.$layerService.project.timeLine.focus;
+            if (focus > time[time.length - 1].timestamp) {
+                this.focusTime = time[time.length - 1].title;
+                this.setTime(time[time.length - 1]);
+            } else if (focus < time[0].timestamp) {
+                this.focusTime = time[0].title;
+                this.setTime(time[0]);
+            }
+            else {
+                for (var i = 1; i < time.length; i++) {
+                    if (focus > time[i].timestamp) continue;
+                    this.focusTime = time[i].title;
+                    this.setTime(time[i]);
+                    break;
+                }
+            }
+            return time;
+        }
+
+        setTime(time: { title: string; timestamp: number} ) {
+            this.focusTime = time.title;
+            this.$layerService.project.timeLine.setFocus(new Date(time.timestamp));
+            this.$messageBusService.publish("timeline", "focusChange", time.timestamp);
         }
     }
 }

@@ -10,16 +10,16 @@
         DescendingSigmoid,
         GaussianPeak,
         GaussianValley
-    } 
+    }
 
-    /** 
+    /**
     * Scoring function creates a PLA of the scoring algorithm.
     */
     export class ScoringFunction {
         title : string;
         type  : ScoringFunctionType;
         scores: string;
-        
+
         get cssClass(): string {
             return ScoringFunctionType[this.type].toLowerCase();
         }
@@ -37,7 +37,7 @@
         /**
          * Create a score based on the type, in which x in [0,10] and y in [0.1].
          * Before applying it, you need to scale the x-axis based on your actual range.
-         * Typically, you would map x=0 to the min(x)+0.1*range(x) and x(10)-0.1*range(x) to max(x), 
+         * Typically, you would map x=0 to the min(x)+0.1*range(x) and x(10)-0.1*range(x) to max(x),
          * i.e. x' = ax+b, where a=100/(8r) and b=-100(min+0.1r)/(8r) and r=max-min
          */
         static createScores(type: ScoringFunctionType): string {
@@ -81,9 +81,9 @@
     export class Criterion {
         title                                             : string;
         description                                       : string;
-        /** 
-        * Top level label will be used to add a property to a feature, mca_LABELNAME, with the MCA value. 
-        * Lower level children will be used to obtain the property value. 
+        /**
+        * Top level label will be used to add a property to a feature, mca_LABELNAME, with the MCA value.
+        * Lower level children will be used to obtain the property value.
         */
         label                                             : string;
         /** Color of the pie chart */
@@ -142,14 +142,14 @@
             return this.label;
         }
 
-        /** 
-         * Update the piecewise linear approximation (PLA) of the scoring (a.k.a. user) function, 
+        /**
+         * Update the piecewise linear approximation (PLA) of the scoring (a.k.a. user) function,
          * which translates a property value to a MCA value in the range [0,1] using all features.
          */
         updatePla(features: IFeature[]) {
             if (this.isPlaUpdated) return;
             if (this.criteria.length > 0) {
-                this.criteria.forEach((c) => { 
+                this.criteria.forEach((c) => {
                     c.updatePla(features);
                 });
                 this.isPlaUpdated = true;
@@ -162,7 +162,7 @@
             if (this.requiresMaximum() || this.requiresMinimum() || this.isPlaScaled) {
                 features.forEach((feature: Feature) => {
                     if (feature.properties.hasOwnProperty(this.label)) {
-                        // The property is available. I use the '+' to convert the string value to a number. 
+                        // The property is available. I use the '+' to convert the string value to a number.
                         var prop = feature.properties[this.label];
                         if ($.isNumeric(prop)) this.propValues.push(prop);
                     }
@@ -185,14 +185,14 @@
             }
             // Regex to split the scores: [^\d\.]+ and remove empty entries
             var pla = scores.split(/[^\d\.]+/).filter(item => item.length > 0);
-            // Test that we have an equal number of x and y, 
+            // Test that we have an equal number of x and y,
             var range = max - min,
                 a: number,
                 b: number;
             if (this.minValue != null || this.maxValue != null) {
                 a = range / 10;
                 b = min;
-            } else {              
+            } else {
                 a = 0.08 * range,
                 b = min + 0.1 * range;
             }
@@ -254,7 +254,7 @@
                         ? crit.weight * crit.getScore(feature)
                         : Math.abs(crit.weight) * (1 - crit.getScore(feature));
                 });
-                return this.weight > 0 
+                return this.weight > 0
                     ? this.weight * finalScore
                     : Math.abs(this.weight) * (1 - finalScore);
             }
@@ -307,7 +307,7 @@
             return this;
         }
 
-        /** 
+        /**
         * Update the MCA by calculating the weights and setting the colors.
         */
         update() {
@@ -355,4 +355,4 @@
         }
 
     }
-} 
+}

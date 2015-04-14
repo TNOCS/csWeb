@@ -19,6 +19,8 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="classes\datasource.ts" />
+    <TypeScriptCompile Include="directives\Charts\ChartHelpers.ts" />
+    <TypeScriptCompile Include="directives\Charts\Charts.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.tpl.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelectionCtrl.ts" />
@@ -29,6 +31,9 @@
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelationsCtrl.ts" />
     <TypeScriptCompile Include="directives\Heatmap\HeatmapSettings.ts" />
+	<TypeScriptCompile Include="directives\Indicators\Indicators.tpl.ts" />
+    <TypeScriptCompile Include="directives\Indicators\Indicators.ts" />
+    <TypeScriptCompile Include="directives\Indicators\IndicatorsCtrl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
@@ -39,7 +44,14 @@
     <TypeScriptCompile Include="classes\feature.ts" />
     <TypeScriptCompile Include="classes\group.ts" />
     <TypeScriptCompile Include="classes\project.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.tpl.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
+    <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\McaEditorView.tpl.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearch.tpl.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearch.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearchClasses.ts" />
+    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearchCtrl.ts" />
     <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettings.tpl.ts" />
     <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettings.ts" />
     <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettingsCtrl.ts" />
@@ -49,7 +61,7 @@
     <TypeScriptCompile Include="directives\Voting\Voting.ts" />
     <TypeScriptCompile Include="helpers\Dictionary.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
-    <TypeScriptCompile Include="helpers\MessageBus.ts" />
+    <TypeScriptCompile Include="services\bus\MessageBus.ts" />
     <TypeScriptCompile Include="helpers\Plot.ts" />
     <TypeScriptCompile Include="directives\Resize\Resize.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.tpl.ts" />
@@ -72,18 +84,17 @@
     <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorCtrl.ts" />
     <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorView.tpl.ts" />
     <TypeScriptCompile Include="directives\Heatmap\IdealityMeasure.ts" />
-    <TypeScriptCompile Include="directives\MapElement\MapElement.tpl.ts" />
-    <TypeScriptCompile Include="directives\MapElement\MapElement.ts" />
-    <TypeScriptCompile Include="directives\MapElement\MapElementCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\McaCtrl.ts" />
-    <TypeScriptCompile Include="directives\MCA\models\Criteria.ts" />
+    <TypeScriptCompile Include="directives\MCA\Criteria.ts" />
     <TypeScriptCompile Include="directives\ShowModal\ShowModal.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.tpl.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirectiveCtrl.ts" />
     <TypeScriptCompile Include="helpers\StringExt.ts" />
+    <TypeScriptCompile Include="helpers\StringScore.ts" />
     <TypeScriptCompile Include="helpers\StyleHelpers.ts" />
     <TypeScriptCompile Include="helpers\GeoExtensions.ts" />
+    <TypeScriptCompile Include="helpers\Utils.ts" />
     <TypeScriptCompile Include="Scripts\typings\moment\moment.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\underscore\underscore.d.ts" />
     <TypeScriptCompile Include="services\connection\ConnectionService.ts" />
@@ -131,13 +142,16 @@
   <ItemGroup>
     <Content Include="directives\DashboardSelection\DashboardSelection.tpl.html" />
     <Content Include="directives\Dashboard\Dashboard.tpl.html" />
+    <Content Include="directives\ExpertMode\ExpertMode.tpl.html" />
     <Content Include="directives\Heatmap\Heatmap.tpl.html" />
     <Content Include="directives\Heatmap\HeatmapEditorView.tpl.html" />
+    <Content Include="directives\Indicators\Indicators.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
     <Content Include="directives\LanguageSwitch\readme.md" />
     <Content Include="directives\MapElement\MapElement.tpl.html" />
     <Content Include="directives\MCA\Mca.tpl.html" />
     <Content Include="directives\MCA\McaEditorView.tpl.html" />
+    <Content Include="directives\OfflineSearch\OfflineSearch.tpl.html" />
     <Content Include="directives\ProjectSettings\ProjectSettings.tpl.html" />
     <Content Include="directives\Timeline\Timeline.tpl.html" />
     <Content Include="includes\js\dashboard.min.js" />

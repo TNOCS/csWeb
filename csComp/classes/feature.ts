@@ -16,6 +16,7 @@
 
     export interface IFeature {
         id?             : string;
+        index           : number;
         layerId         : string;
         layer           : ProjectLayer;
         type?           : string;
@@ -40,6 +41,7 @@
      */
     export class Feature implements IFeature {
         id             : string;
+        index          : number;
         layerId        : string;
         layer          : ProjectLayer;
         type           : string;
@@ -157,9 +159,12 @@
         strokeWidth?         : number;
         iconWidth?           : number;
         iconHeight?          : number;
-        iconUri?             : string;
-        maxTitleResolution?  : string;
-        rotate?              : number;
+        iconUri?: string;
+        cornerRadius?: number;
+        maxTitleResolution?: string;
+        rotate?: number;
+        innerTextProperty?: string;
+        innerTextSize?: number;
         analysispropertyType?: any;
         rotateProperty?      : string;
 
