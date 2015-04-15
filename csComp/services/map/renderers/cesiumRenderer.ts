@@ -29,13 +29,14 @@ module csComp.Services
                 this.addFeature(this.service.project.features[i]);
             $(".cesium-viewer-toolbar").hide();
         }
+
         public disable()
         {
             this.viewer.destroy();
             //$("#map").empty();
         }
 
-        public addLayer(layer : ProjectLayer)
+        public addLayer(layer: ProjectLayer)
         {
             //alert('addLayer called');
             
@@ -77,7 +78,7 @@ module csComp.Services
             }
         }
 
-        public removeLayer(layer : ProjectLayer)
+        public removeLayer(layer: ProjectLayer)
         {
             alert('removelayer called');
             if (layer.type == "GeoJson")
@@ -90,12 +91,15 @@ module csComp.Services
             }
         }
 
-
         public updateMapFilter(group : ProjectGroup) {}
-        public addGroup(group : ProjectGroup) {}
-        public removeGroup(group : ProjectGroup) {}
 
-        public removeFeature( feature : IFeature)
+        public addGroup(group: ProjectGroup) { }
+
+        public removeGroup(group: ProjectGroup) { }
+
+        public createFeature(feature: IFeature) { }
+
+        public removeFeature(feature: IFeature)
         {
             if (this.features.hasOwnProperty(feature.id)) {
                 this.viewer.dataSources.remove(this.features[feature.id]);
