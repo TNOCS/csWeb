@@ -99,13 +99,14 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer) {
+            
             switch (layer.layerRenderer) {
                 case "tilelayer":
                     var tileLayer: any = L.tileLayer(layer.url, {
-
                         attribution: layer.description
                     });
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
+                    tileLayer.opacity = 0.5;
                     this.service.map.map.addLayer(layer.mapLayer);
                     layer.mapLayer.addLayer(tileLayer);
                     tileLayer.on('loading',(event) => {

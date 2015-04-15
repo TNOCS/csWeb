@@ -1,7 +1,7 @@
 ﻿module LayersDirective {
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
-    }
+    } 
 
     export class LayersDirectiveCtrl {
         private scope: ILayersDirectiveScope;
@@ -19,9 +19,9 @@
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope       : ILayersDirectiveScope,
-            private $layerService: csComp.Services.LayerService
-            ) {
-            $scope.vm = this;
+            private $layerService: csComp.Services.LayerService)
+        { 
+                $scope.vm = this;  
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {

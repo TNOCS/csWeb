@@ -76,9 +76,11 @@ module csComp.Services {
                             if (data.timestamps) layer.timestamps = data.timestamps;
 
                             // store raw result in layer
-                            layer.data = data;
-
-                            (<any>(layer.data)).features.forEach((f) => {
+                            layer.data = <any>data;
+                            if (layer.data.geometries && !layer.data.features) {
+                                layer.data.features = layer.data.geometries;
+                            }
+                            layer.data.features.forEach((f) => {
                                 this.service.initFeature(f, layer);
                             });
                         }

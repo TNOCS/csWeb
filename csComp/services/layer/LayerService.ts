@@ -351,7 +351,7 @@
                         }
 
                         // check if a new coordinate is avaiable
-                        if (f.coordinates && f.coordinates.length > pos && f.coordinates[pos] != f.geometry.coordinates) {
+                        if (f.coordinates && f.geometry && f.coordinates.length > pos && f.coordinates[pos] != f.geometry.coordinates) {
                             f.geometry.coordinates = f.coordinates[pos];
                             // get marker
                             if (l.group.markers.hasOwnProperty(f.id)) {
@@ -395,6 +395,7 @@
         public initFeature(feature: IFeature, layer: ProjectLayer): IFeatureType {
             if (!feature.isInitialized) {
                 feature.isInitialized = true;
+                if (feature.properties == null) feature.properties = {}; 
                 feature.index = layer.count++;
                 // make sure it has an id
                 if (feature.id == null) feature.id = Helpers.getGuid();
@@ -1144,6 +1145,32 @@
                             if (locale.title) layer.title = locale.title;
                             if (locale.description) layer.description = locale.description;
                         }
+                        layer.items =  [
+                            {
+                                name: "Menu Item 1",
+                                link: "#main1",
+                                submenu: []
+                            },
+                            {
+                                name: "Menu Item 2",
+                                link: "#main2",
+                                submenu: null
+                            },
+                            {
+                                name: "Menu Item 3",
+                                link: "#main3",
+                                submenu: [
+                                    {
+                                        name: "Sub Item 1",
+                                        link: "#sub1"
+                                    },
+                                    {
+                                        name: "Sub Item 2",
+                                        link: "#sub2"
+                                    }
+                                ]
+                            }
+                        ];
                         layer.group = group;
                         if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
                             layer.enabled = true;
