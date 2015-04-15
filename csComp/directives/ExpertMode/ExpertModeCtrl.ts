@@ -17,7 +17,7 @@
 
         constructor(
             private $scope              : IExpertModeScope,
-            private $localStorageService: ng.localStorage.ILocalStorageService,
+            private $localStorageService: ng.local.storage.ILocalStorageService<any>,
             private $layerService       : csComp.Services.LayerService,
             private $mapService         : csComp.Services.MapService,
             private $messageBus         : csComp.Services.MessageBusService

@@ -24,9 +24,9 @@
 
 
         constructor(
-            private $localStorageService: ng.localStorage.ILocalStorageService,
+            private $localStorageService: ng.local.storage.ILocalStorageService<any>,
             private $timeout            : ng.ITimeoutService,
-            private $messageBusService         : csComp.Services.MessageBusService) {
+            private $messageBusService  : csComp.Services.MessageBusService) {
 
             this.initExpertMode();
             this.baseLayers = {};
