@@ -11,7 +11,7 @@
     }
 
     /**
-     * Represents a field in the table. 
+     * Represents a field in the table.
      * The value is the actual displayValue shown, the type is the propertyType type (e.g. number or text, useful when aligning the data), and the header is used for sorting.
      */
     export class TableField {
@@ -52,10 +52,10 @@
         constructor(
             private $scope               : IDataTableViewScope,
             private $http                : ng.IHttpService,
-            private $sce                 : ng.ISCEService,              
-            private $translate           : ng.translate.ITranslateService,              
+            private $sce                 : ng.ISCEService,
+            private $translate           : ng.translate.ITranslateService,
             private $layerService        : csComp.Services.LayerService,
-            private $localStorageService : ng.local.storage.ILocalStorageService<any>,
+            private $localStorageService : angular.local.storage.ILocalStorageService<any>,
             private $messageBusService   : csComp.Services.MessageBusService
             ) {
             // 'vm' stands for 'view model'. We're adding a reference to the controller to the scope
@@ -129,7 +129,7 @@
             });
         }
 
-        /** 
+        /**
          * Load the features as visible on the map.
          */
         private loadMapLayers(): void {
@@ -154,7 +154,7 @@
             });
 
             this.dataset = data;
-            this.updatepropertyType(data);            
+            this.updatepropertyType(data);
         }
 
         private updatepropertyType(data: IGeoJsonFile) : void {
@@ -323,7 +323,7 @@
         }
 
         private saveData(csvData: string, filename: string) {
-            if (navigator.msSaveBlob) { 
+            if (navigator.msSaveBlob) {
                 // IE 10+
                 var link: any = document.createElement('a');
                 link.addEventListener("click", event => {

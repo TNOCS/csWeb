@@ -49,7 +49,7 @@ module Heatmap {
           private $modal              : any,
           private $translate          : ng.translate.ITranslateService,
           private $timeout            : ng.ITimeoutService,
-          private $localStorageService: ng.local.storage.ILocalStorageService<any>,
+          private $localStorageService: angular.local.storage.ILocalStorageService<any>,
           private $layerService       : csComp.Services.LayerService,
           private $mapService         : csComp.Services.MapService,
           private messageBusService   : csComp.Services.MessageBusService
@@ -127,7 +127,7 @@ module Heatmap {
 
         createHeatmap() {
             this.heatmapModel = new HeatmapModel('Heatmap');
-            if (this.projLayer.data) this.$layerService.removeLayer(this.projLayer); 
+            if (this.projLayer.data) this.$layerService.removeLayer(this.projLayer);
             //Create projectlayer for the heatmap
             this.projLayer.type = "Heatmap";
             this.projLayer.layerRenderer = "heatmap";
@@ -312,7 +312,7 @@ module Heatmap {
                     //    propinfo.varience = 0.67;
                     //    propinfo.sd = Math.sqrt(propinfo.varience);
                     //    this.$layerService.setStyle(calloutProp, false, propinfo); // Set the style
-                    // }  
+                    // }
                 }
                 this.$layerService.removeLayer(this.projLayer);
                 this.$layerService.addLayer(this.projLayer);
@@ -348,14 +348,14 @@ module Heatmap {
     }
 }
 
-/* Heatmap layers: 
+/* Heatmap layers:
  * ---------------
- * Two layers are used for the heatmaps, which are both very similar but different in an important way. The difference 
+ * Two layers are used for the heatmaps, which are both very similar but different in an important way. The difference
  * lies in the fact that one layer comes directly from the project.json file. This layer is parsed and added to the layerservice
- * directly when it is enabled in the 'Layers' panel. The second layer is 'this.projLayer', which looks almost identical to 
+ * directly when it is enabled in the 'Layers' panel. The second layer is 'this.projLayer', which looks almost identical to
  * the parsed projectLayer, but it is generated programmatically. When a new heatmap is created, or a predefined heatmap is edited,
  * this.projLayer will be added to the layerservice. Very importantly, the MoveListener is connected to this.projLayer. That means
- * that every time the map is moved, 'this.projLayer' will contain the current heatmap, even when it was added from project.json. 
- * Therefore, when one layer is being disabled, it needs to be checked whether the other layer is present in the layerservice, 
+ * that every time the map is moved, 'this.projLayer' will contain the current heatmap, even when it was added from project.json.
+ * Therefore, when one layer is being disabled, it needs to be checked whether the other layer is present in the layerservice,
  * and if so, it should be removed too.
  */

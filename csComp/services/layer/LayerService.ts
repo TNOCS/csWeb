@@ -1041,7 +1041,7 @@
             this.clearLayers();
             this.featureTypes = {};
 
-            $.getJSON(url,(data: Project) => {
+            $.getJSON(url, (data: Project) => {
                 this.project = new Project().deserialize(data);
 
                 if (!this.project.timeLine) {
