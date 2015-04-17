@@ -1,6 +1,6 @@
 ﻿module csComp.StringExt {
     export function isNullOrEmpty(s: string): boolean {
-        return !s;
+        return !isNumber(s) && !s;
     }
 
     /**
@@ -41,4 +41,3 @@
         return s.indexOf("[b]") > 0 || s.indexOf("[i]") > 0 || s.indexOf("[url") > 0;
     }
 }
- 
