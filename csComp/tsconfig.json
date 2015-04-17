@@ -11,7 +11,8 @@
     "filesGlob": [
         "./**/*.ts",
         "!./dist/csComp.d.ts",
-        "!./js/**/*.ts",
+        "!./js/**/*.d.ts",
+        "!./js/**/*.js",
         "!./node_modules/**/*.ts"
     ],
     "files": [
