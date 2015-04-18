@@ -101,6 +101,10 @@ gulp.task('convertTemplates2Ts', function() {
 
 gulp.task('watch', function () {
     gulp.watch('./**/*.tpl.html', ['convertTemplates2Ts']);
+    gulp.watch('./js/**/*.js',['built']);
+    gulp.watch('./js/**/*.d.ts',['builtDef']);
+    
+
 });
 
 gulp.task('default', ['convertTemplates2Ts', 'watch']);
