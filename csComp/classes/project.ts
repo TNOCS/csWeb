@@ -210,6 +210,7 @@
         group: ProjectGroup;
         layerSource : ILayerSource;
         refreshTimer: number;
+        timerToken : any;
         /**
         * A list of UNIX timestamp, or the UTC time in milliseconds since 1/1/1970, which define the time a sensor value
         * was taken. So in case we have 10 timestamps, each feature's sensor (key) in the feature's sensors dictionary should

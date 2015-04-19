@@ -217,6 +217,7 @@
                             this.updateSensorData();
                             this.updateFilters();
                             this.activeMapRenderer.addLayer(layer);
+                            this.checkLayerTimer(layer);
                             this.$messageBusService.publish('layer', 'activated', layer);
                         });
                     }
@@ -232,6 +233,28 @@
 
                 }
             ]);
+        }
+
+        checkLayerTimer(layer : ProjectLayer)
+        {
+          console.log('check layer timer');
+          if (layer.refreshTimer)
+          {
+            if (layer.enabled && !layer.timerToken)
+            {
+              layer.timerToken = setInterval(()=>
+              {
+                layer.layerSource.refreshLayer(layer);
+              },layer.refreshTimer * 1000);
+              console.log(layer.timerToken);
+            }
+            if (!layer.enabled && layer.timerToken)
+            {
+              clearInterval(layer.timerToken);
+              layer.timerToken = null;
+            }
+            console.log('refresh timer enabled : ' + layer.refreshTimer);
+          }
         }
 
         removeStyle(style: GroupStyle) {
@@ -911,6 +934,9 @@
 
 			      layer.enabled = false;
             //if (layer.refreshTimer) layer.stop();
+
+            // make sure the timers are disabled
+            this.checkLayerTimer(layer);
 
             this.loadedLayers.remove(layer.id);
 
