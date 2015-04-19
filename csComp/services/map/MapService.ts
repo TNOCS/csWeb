@@ -40,6 +40,18 @@
                 }
             });
 
+            $messageBusService.subscribe('map',(action:string,data)=>
+            {
+              console.log(action);
+              switch(action)
+              {
+                case 'setextent':
+                  console.log(data);
+                  this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast));
+                  break;
+              }
+            })
+
             $messageBusService.subscribe('leftmenu',(title: string, data) => {
                 switch (title.toLowerCase()) {
                     case "toggle":

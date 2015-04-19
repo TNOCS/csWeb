@@ -2,7 +2,7 @@ module csComp.Services {
     'use strict';
 
     declare var L;
-    
+
     export class TileLayerSource implements ILayerSource
     {
 
@@ -15,6 +15,11 @@ module csComp.Services {
       }
 
       public refreshLayer(layer: ProjectLayer) {
+      }
+
+      public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]
+      {
+        return null;
       }
 
       public addLayer(layer : ProjectLayer, callback : Function) {

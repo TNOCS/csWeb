@@ -13,7 +13,12 @@
         //}
 
         public refreshLayer(layer: ProjectLayer) {
-            this.generateHeatmap(layer);
+            this.generateHeatmap(layer); 
+        }
+
+        public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]
+        {
+          return null;
         }
 
         public addLayer(layer: ProjectLayer, callback: Function) {

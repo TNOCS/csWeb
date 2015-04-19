@@ -150,7 +150,7 @@
         viewBounds      : IBoundingBox;
         userPrivileges  : IPrivileges;
         languages: ILanguageData;
-        
+
 
         expertMode = Expertise.Expert;
         markers = {};
@@ -208,6 +208,7 @@
         mapLayer: L.LayerGroup<L.ILayer>;
         /** Group of layers */
         group: ProjectGroup;
+        layerSource : ILayerSource;
         refreshTimer: number;
         /**
         * A list of UNIX timestamp, or the UTC time in milliseconds since 1/1/1970, which define the time a sensor value

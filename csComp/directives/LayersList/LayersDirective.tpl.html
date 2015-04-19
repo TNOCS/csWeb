@@ -16,7 +16,7 @@
                      popover-trigger="mouseenter"
                      data-ng-repeat="layer in group.layers">
                     <!--bs-popover>-->
-                    <div style="list-style-type: none; padding: 0;" data-ng-class="{indent: layer.isSublayer}">
+                    <div context-menu="options(layer)" style="list-style-type: none; padding: 0;" data-ng-class="{indent: layer.isSublayer}">
                         <style>
                             .left-menu{
                                 background: url("includes/images/menu-left.png");
@@ -40,27 +40,16 @@
 }
                         </style>
                         <!--<button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." data-original-title="" title="">Right</button>-->
-                        <div ng-hide="group.oneLayerActive" class="checkbox checkbox-primary" style="margin-left: 20px">
+                        <div  ng-hide="group.oneLayerActive" class="checkbox checkbox-primary" style="margin-left: 20px">
                             <input type="checkbox" id="cblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
                             <label for="cblayer{{layer.id}}">
                                 {{layer.title}}
                             </label>
-                            <!--<div class="left-menu dropdown-toggle pull-left" data-toggle="dropdown" 
-                                 popover="menu"
-                                 popover-placement="right"
-                                 popover-trigger="mouseenter">
-
+                            <div ng-show="layer.enabled" class="left-menu dropdown-toggle pull-left"  ng-click="vm.openLayerMenu($event)" >
                             </div>
-                            
-                                <ul class="dropdown-menu popover" role="menu" aria-labelledby="dLabel">
-                                    <li ng-repeat="item in layer.items" ng-class="{\'dropdown-submenu\': item.submenu && item.submenu.length}">
-                                        <a href="{{item.link}}">{{item.name}}</a>
-                                        <ul ng-if="item.submenu && item.submenu.length" class="dropdown-menu">
-                                            <li ng-repeat="subitem in item.submenu"><a href="{{subitem.link}}">{{subitem.name}}</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>-->
-                            
+
+
+
                             <div ng-show="layer.isLoading" class="spinner">
                             <div class="bounce1"></div>
                             <div class="bounce2"></div>
@@ -73,6 +62,7 @@
                             <label for="rblayer{{layer.id}}">
                                 {{layer.title}}
                             </label>
+                            <div ng-show="layer.enabled" class="left-menu dropdown-toggle pull-left"  ng-click="vm.openLayerMenu($event)" >
                             <div ng-show="layer.isLoading" class="spinner">
                             <div class="bounce1"></div>
                             <div class="bounce2"></div>
