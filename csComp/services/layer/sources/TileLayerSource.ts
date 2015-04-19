@@ -15,11 +15,15 @@ module csComp.Services {
       }
 
       public refreshLayer(layer: ProjectLayer) {
+        this.service.removeLayer(layer);
+        this.service.addLayer(layer);
       }
 
       public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]
       {
-        return null;
+        return [        
+          ['Refresh', (($itemScope)=> this.refreshLayer(layer))]
+        ];
       }
 
       public addLayer(layer : ProjectLayer, callback : Function) {
