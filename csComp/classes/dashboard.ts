@@ -7,24 +7,24 @@ module csComp.Services {
     }
 
     export interface IWidget {
-        
+
         directive: string;  // name of the directive that should be used as widget
-        data: Object;           // json object that can hold parameters for the directive 
-        url: string;       // url of the html page that should be used as widget        
+        data: Object;           // json object that can hold parameters for the directive
+        url: string;       // url of the html page that should be used as widget
         template : string;
         title            : string;  // title of the widget
         elementId        : string;
         dashboard        : csComp.Services.Dashboard;
         renderer         : Function;
         resize           : Function;
-        background       : string; 
+        background       : string;
         init             : Function;
         start: Function;
         left?: string;
         right?: string;
         top?: string;
         bottom?: string;
-        name: string; id: string;   
+        name: string; id: string;
         properties       : {};
         dataSets         : DataSet[];
         range            : csComp.Services.DateRange;
@@ -32,7 +32,7 @@ module csComp.Services {
         collapse         : boolean;
         canCollapse      : boolean;
         width: string;
-        height: string;   
+        height: string;
         allowFullscreen  : boolean;
         messageBusService: csComp.Services.MessageBusService;
         layerService     : csComp.Services.LayerService;
@@ -42,13 +42,13 @@ module csComp.Services {
 
     export class BaseWidget implements IWidget {
         public directive: string;
-        public template : string; 
+        public template : string;
         public title            : string;
         public data             : {};
         public url              : string;
         public elementId        : string;
         public dashboard        : csComp.Services.Dashboard;
-       
+
         public background       : string;
         public left: string;
         public right: string;
@@ -127,7 +127,7 @@ module csComp.Services {
         background: string;
         backgroundimage: string;
         visiblelayers : string[];
-
+        baselayer : string;
         viewBounds: IBoundingBox;
         timeline: DateRange;
         id: string;

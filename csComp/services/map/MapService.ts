@@ -42,12 +42,15 @@
 
             $messageBusService.subscribe('map',(action:string,data)=>
             {
-              console.log(action);
               switch(action)
               {
                 case 'setextent':
                   console.log(data);
                   this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast));
+                  break;
+                case 'setbaselayer':
+                  var bl :L.ILayer = this.baseLayers[data];
+                  this.changeBaseLayer(bl);
                   break;
               }
             })
@@ -132,6 +135,7 @@
         }
 
         public changeBaseLayer(layerObj: L.ILayer) {
+          if (this.activeBaseLayer==layerObj) return;
             this.map.addLayer(layerObj);
             if (this.activeBaseLayer)
                 this.map.removeLayer(this.activeBaseLayer);
