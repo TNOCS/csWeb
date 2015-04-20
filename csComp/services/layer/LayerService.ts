@@ -10,8 +10,9 @@
         addLayer(layer: ProjectLayer, callback: Function);
         removeLayer(layer: ProjectLayer): void;
         refreshLayer(layer: ProjectLayer): void;
-		requiresLayer: boolean;
-		getRequiredLayers? (layer: ProjectLayer): ProjectLayer[];
+		    requiresLayer: boolean;
+		    getRequiredLayers? (layer: ProjectLayer): ProjectLayer[];
+        layerMenuOptions(layer : ProjectLayer) : [[string,Function]];
     }
 
     export interface IMapRenderer {
@@ -165,10 +166,11 @@
 
             //add tile layer
             this.layerSources["tilelayer"] = new TileLayerSource(this);
-			//add heatmap layer
-			this.layerSources["heatmap"] = new HeatmapSource(this);
 
-		}
+			      //add heatmap layer
+			      this.layerSources["heatmap"] = new HeatmapSource(this);
+
+		    }
 
         public loadRequiredLayers(layer: ProjectLayer) {
             // find layer source, and activate layer
@@ -207,13 +209,15 @@
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
                     if (this.layerSources.hasOwnProperty(layerSource)) {
+                        layer.layerSource = this.layerSources[layerSource];
                         // load layer from source
-                        this.layerSources[layerSource].addLayer(layer, (l) => {
+                        layer.layerSource.addLayer(layer, (l) => {
                             l.enabled = true;
                             this.loadedLayers[layer.id] = l;
                             this.updateSensorData();
                             this.updateFilters();
                             this.activeMapRenderer.addLayer(layer);
+                            this.checkLayerTimer(layer);
                             this.$messageBusService.publish('layer', 'activated', layer);
                         });
                     }
@@ -229,6 +233,28 @@
 
                 }
             ]);
+        }
+
+        checkLayerTimer(layer : ProjectLayer)
+        {
+          console.log('check layer timer');
+          if (layer.refreshTimer)
+          {
+            if (layer.enabled && !layer.timerToken)
+            {
+              layer.timerToken = setInterval(()=>
+              {
+                layer.layerSource.refreshLayer(layer);
+              },layer.refreshTimer * 1000);
+              console.log(layer.timerToken);
+            }
+            if (!layer.enabled && layer.timerToken)
+            {
+              clearInterval(layer.timerToken);
+              layer.timerToken = null;
+            }
+            console.log('refresh timer enabled : ' + layer.refreshTimer);
+          }
         }
 
         removeStyle(style: GroupStyle) {
@@ -351,7 +377,7 @@
                         }
 
                         // check if a new coordinate is avaiable
-                        if (f.coordinates && f.coordinates.length > pos && f.coordinates[pos] != f.geometry.coordinates) {
+                        if (f.coordinates && f.geometry && f.coordinates.length > pos && f.coordinates[pos] != f.geometry.coordinates) {
                             f.geometry.coordinates = f.coordinates[pos];
                             // get marker
                             if (l.group.markers.hasOwnProperty(f.id)) {
@@ -395,6 +421,7 @@
         public initFeature(feature: IFeature, layer: ProjectLayer): IFeatureType {
             if (!feature.isInitialized) {
                 feature.isInitialized = true;
+                if (feature.properties == null) feature.properties = {};
                 feature.index = layer.count++;
                 // make sure it has an id
                 if (feature.id == null) feature.id = Helpers.getGuid();
@@ -425,14 +452,14 @@
             this.activeMapRenderer.removeFeature(feature);
         }
 
-        /** 
+        /**
         * Calculate the effective feature style.
         */
         public calculateFeatureStyle(feature: IFeature) {
             var s: csComp.Services.IFeatureTypeStyle = {};
 			//TODO: check compatibility for both heatmaps and other features
             //s.fillColor = 'red';
-			//s.strokeWidth = 1;            
+			//s.strokeWidth = 1;
             s.stroke = false;
             s.fillOpacity = 0.75;
             s.rotate = 0;
@@ -612,7 +639,7 @@
             }
         }
 
-        /** 
+        /**
         * Find a loaded layer with a specific id.
         */
         findLoadedLayer(id: string): ProjectLayer {
@@ -905,17 +932,17 @@
             var m: any;
             var g = layer.group;
 
-			layer.enabled = false;
+			      layer.enabled = false;
             //if (layer.refreshTimer) layer.stop();
+
+            // make sure the timers are disabled
+            this.checkLayerTimer(layer);
 
             this.loadedLayers.remove(layer.id);
 
             // find layer source, and remove layer
-            var layerSource = layer.type.toLowerCase();
-            // if a layersource is available, remove layer there
-            if (this.layerSources.hasOwnProperty(layerSource)) {
-                this.layerSources[layerSource].removeLayer(layer);
-            }
+            layer.layerSource.removeLayer(layer);
+
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
@@ -993,8 +1020,7 @@
                     if (b.id != null) options['id'] = b.id;
                     var layer = L.tileLayer(b.url, options);
                     this.$mapService.baseLayers[b.title] = layer;
-                    if (b.isDefault)
-                        this.$mapService.changeBaseLayer(layer);
+                    if (b.isDefault) this.$mapService.changeBaseLayer(layer);
                 });
                 //$scope.projects = projects.projects;
                 if (solution.projects.length > 0) {
@@ -1041,7 +1067,7 @@
             this.clearLayers();
             this.featureTypes = {};
 
-            $.getJSON(url,(data: Project) => {
+            $.getJSON(url, (data: Project) => {
                 this.project = new Project().deserialize(data);
 
                 if (!this.project.timeLine) {
@@ -1090,12 +1116,12 @@
                                     ss.activeValue = ss.values[ss.values.length - 1];
                                     console.log(ss.activeValue);
 
-                                    
+
                                     //console.log(s);
                                 }
-                                
+
                             });
-                            
+
                         }
                     });
                 }
@@ -1137,6 +1163,7 @@
                     }
                     group.layers.forEach((layer: ProjectLayer) => {
                         if (layer.id == null) layer.id = Helpers.getGuid();
+                        layer.type = layer.type.toLowerCase();
                         if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
                         if (layer.title == null) layer.title = layer.id;
                         if (layer.languages != null && this.currentLocale in layer.languages) {
@@ -1144,6 +1171,7 @@
                             if (locale.title) layer.title = locale.title;
                             if (locale.description) layer.description = locale.description;
                         }
+
                         layer.group = group;
                         if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
                             layer.enabled = true;

@@ -150,7 +150,7 @@
         viewBounds      : IBoundingBox;
         userPrivileges  : IPrivileges;
         languages: ILanguageData;
-        
+
 
         expertMode = Expertise.Expert;
         markers = {};
@@ -208,7 +208,9 @@
         mapLayer: L.LayerGroup<L.ILayer>;
         /** Group of layers */
         group: ProjectGroup;
+        layerSource : ILayerSource;
         refreshTimer: number;
+        timerToken : any;
         /**
         * A list of UNIX timestamp, or the UTC time in milliseconds since 1/1/1970, which define the time a sensor value
         * was taken. So in case we have 10 timestamps, each feature's sensor (key) in the feature's sensors dictionary should
@@ -226,8 +228,9 @@
         /** Language information that can be used to localize the title and description */
         languages: ILanguageData;
         /** layer original source */
-        data: JSON;
+        data: any;
         cesiumDatasource: any;
+        items : any;
     }
 
     /**

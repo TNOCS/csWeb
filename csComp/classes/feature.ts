@@ -140,8 +140,6 @@
         options?         : string[];
         languages?: ILanguageData;
         legend?: Legend;
-
-        
     }
 
     export interface IPropertyTypeData {
@@ -159,21 +157,19 @@
         strokeWidth?         : number;
         iconWidth?           : number;
         iconHeight?          : number;
-        iconUri?: string;
-        cornerRadius?: number;
-        maxTitleResolution?: string;
-        rotate?: number;
-        innerTextProperty?: string;
-        innerTextSize?: number;
+        iconUri?             : string;
+        cornerRadius?        : number;
+        maxTitleResolution?  : string;
+        rotate?              : number;
+        innerTextProperty?   : string;
+        innerTextSize?       : number;
         analysispropertyType?: any;
         rotateProperty?      : string;
-
-
     }
 
     export interface IFeatureType {
         name?            : string;
-        style?           : IFeatureTypeStyle; 
+        style?           : IFeatureTypeStyle;
         propertyTypeData?: IPropertyType[];
         /**
          * Optional list of propertyType keys, separated by semi-colons.

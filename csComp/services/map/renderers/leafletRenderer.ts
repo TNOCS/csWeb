@@ -64,7 +64,7 @@ module csComp.Services {
                     break;
 			    case "heatmap":
 			        var g = layer.group;
-			
+
 			        //m = layer.group.vectors;
 			        if (g.clustering) {
 			            var m = g.cluster;
@@ -74,7 +74,7 @@ module csComp.Services {
 			                        m.removeLayer(layer.group.markers[feature.id]);
 			                        delete layer.group.markers[feature.id];
 			                    } catch (error) {
-			
+
 			                    }
 			                }
 			            });
@@ -99,13 +99,14 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer) {
+
             switch (layer.layerRenderer) {
                 case "tilelayer":
                     var tileLayer: any = L.tileLayer(layer.url, {
-
                         attribution: layer.description
                     });
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
+                    tileLayer.setOpacity(layer.opacity / 100);
                     this.service.map.map.addLayer(layer.mapLayer);
                     layer.mapLayer.addLayer(tileLayer);
                     tileLayer.on('loading',(event) => {
@@ -144,25 +145,25 @@ module csComp.Services {
                     break;
                 case "svg":
                     // create leaflet layers
-            
-                    layer.mapLayer = new L.LayerGroup<L.ILayer>();
+
+                    layer.mapLayer = new L.LayerGroup<L.ILayer>();                    
                     this.service.map.map.addLayer(layer.mapLayer);
 
                     (<any>layer.data).features.forEach((f: IFeature) => {
                         layer.group.markers[f.id] = this.addFeature(f);
                     });
-                    //var v = L.geoJson(layer.data, {      
+                    //var v = L.geoJson(layer.data, {
                     //    style: (f: IFeature, m) => {
                     //        layer.group.markers[f.id] = m;
                     //        return this.getLeafletStyle(f.effectiveStyle);
                     //    },
-                    //    pointToLayer : (feature, latlng) => 
+                    //    pointToLayer : (feature, latlng) =>
                     //});
                     //this.service.project.features.forEach((f : IFeature) => {
                     //    if (f.layerId !== layer.id) return;
                     //    var ft = this.service.getFeatureType(f);
                     //    f.properties['Name'] = f.properties[ft.style.nameLabel];
-                    //}); 
+                    //});
                     //layer.mapLayer.addLayer(v);
                     break;
                 case "heatmap":
@@ -293,8 +294,8 @@ module csComp.Services {
                     break;
                 default:
                     marker = L.GeoJSON.geometryToLayer(<any>feature);
-                    marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));           
-                  
+                    marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
+
                     //marker = L.multiPolygon(latlng, polyoptions);
                     break;
             }
@@ -358,7 +359,7 @@ module csComp.Services {
 
                 html += '</div>';
 
-                icon = new L.DivIcon({    
+                icon = new L.DivIcon({
                     className: '',
                     iconSize: new L.Point(feature.effectiveStyle.iconWidth, feature.effectiveStyle.iconHeight),
                     html: html

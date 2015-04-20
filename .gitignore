@@ -8,3 +8,5 @@ csCompTests/bower_components/
 csCompTests/csComp/
 *.orig
 *.config
+csComp/js/
+csComp/node_modules/

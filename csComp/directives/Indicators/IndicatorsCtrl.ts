@@ -13,6 +13,7 @@
         sensorSet: csComp.Services.SensorSet;
         layer: string;
         isActive: boolean;
+        id: string;
     }
 
     export interface ILayersDirectiveScope extends ng.IScope {
@@ -50,10 +51,15 @@
             });
             $scope.data = <indicatorData>this.widget.data;
             $scope.data.indicators.forEach((i) => {
+                i.id = "circ-" + csComp.Helpers.getGuid();
                 if (i.sensor != null) {
                     this.$layerService.findSensorSet(i.sensor,(ss: csComp.Services.SensorSet) => {
                         i.sensorSet = ss;
                         if (!$scope.$$phase) $scope.$apply();
+                        setTimeout(() => {
+                            (<any>$("#" + i.id)).circliful();
+                        }, 1000);
+                        
                     });
                 }                
             });

@@ -19,7 +19,7 @@
             SPEEDS_GOOGLEMAPS       : 'snelheden legenda Google Maps',
             VERWARMINGSSYSTEEM      : 'Verwarmingssysteem',
             PERCENTAGES_V1          : 'percentages v1',
-            ORANGE_RED              : 'oranje - rood', 
+            ORANGE_RED              : 'oranje - rood',
             WHITE_RED               : 'wit - rood',
             RED_WHITE_BLUE          : 'rood - wit - blauw',
             RED_WHITE               : 'rood - wit',
@@ -33,7 +33,7 @@
             GREEN_WHITE             : 'groen - wit',
             WHITE_ORANGE            : 'wit - oranje',
             ORANGE_WHITE            : 'oranje - wit',
-            EXPERTMODE              : { 
+            EXPERTMODE              : {
                 BEGINNER            : 'Novice',
                 INTERMEDIATE        : 'Gevorderd',
                 EXPERT              : 'Expert',

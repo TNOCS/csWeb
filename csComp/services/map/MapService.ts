@@ -24,7 +24,7 @@
 
 
         constructor(
-            private $localStorageService: ng.localStorage.ILocalStorageService,
+            private $localStorageService: angular.local.storage.ILocalStorageService<any>,
             private $timeout            : ng.ITimeoutService,
             private $messageBusService         : csComp.Services.MessageBusService) {
 
@@ -39,6 +39,21 @@
                         break;
                 }
             });
+
+            $messageBusService.subscribe('map',(action:string,data)=>
+            {
+              switch(action)
+              {
+                case 'setextent':
+                  console.log(data);
+                  this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast));
+                  break;
+                case 'setbaselayer':
+                  var bl :L.ILayer = this.baseLayers[data];
+                  this.changeBaseLayer(bl);
+                  break;
+              }
+            })
 
             $messageBusService.subscribe('leftmenu',(title: string, data) => {
                 switch (title.toLowerCase()) {
@@ -120,6 +135,7 @@
         }
 
         public changeBaseLayer(layerObj: L.ILayer) {
+          if (this.activeBaseLayer==layerObj) return;
             this.map.addLayer(layerObj);
             if (this.activeBaseLayer)
                 this.map.removeLayer(this.activeBaseLayer);

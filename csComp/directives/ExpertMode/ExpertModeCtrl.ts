@@ -17,7 +17,7 @@
 
         constructor(
             private $scope              : IExpertModeScope,
-            private $localStorageService: ng.localStorage.ILocalStorageService,
+            private $localStorageService: angular.local.storage.ILocalStorageService<any>,
             private $layerService       : csComp.Services.LayerService,
             private $mapService         : csComp.Services.MapService,
             private $messageBus         : csComp.Services.MessageBusService
@@ -35,7 +35,7 @@
             });
         }
 
-        /** 
+        /**
         * Get the CSS class to render the mode.
         */
         getCssClass() {
@@ -52,13 +52,13 @@
             }
         }
 
-        /** 
+        /**
         * Set the expert mode: although we assume that each directive is responsible for managing it by listening
-        * to the expertMode.newExpertise message, we already set some common options here. 
+        * to the expertMode.newExpertise message, we already set some common options here.
         * This is to reduce the dependency on this directive.
         */
         private setExpertMode(expertMode: Expertise) {
             this.$messageBus.publish('expertMode', 'newExpertise', expertMode);
         }
     }
-} 
+}

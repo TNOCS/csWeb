@@ -13,6 +13,11 @@ module csComp.Services {
       public refreshLayer(layer: ProjectLayer) {
       }
 
+      public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]
+      {
+        return null;
+      }
+
       public addLayer(layer : ProjectLayer, callback : Function)
       {
         var wms        : any = L.tileLayer.wms(layer.url, {

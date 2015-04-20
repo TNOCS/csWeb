@@ -11,10 +11,27 @@ module csComp.Services {
         }
 
         public refreshLayer(layer: ProjectLayer) {
+          this.service.removeLayer(layer);
+          this.service.addLayer(layer);
         }
 
         public addLayer(layer: ProjectLayer, callback: Function) {
             this.baseAddLayer(layer, callback);
+        }
+
+        public fitMap(layer : ProjectLayer)
+        {
+          var b = Helpers.GeoExtensions.getBoundingBox(this.layer.data);
+          this.service.$messageBusService.publish("map","setextent",b);
+        }
+
+        public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]
+        {
+          return [
+            ["Fit map", (($itemScope)=> this.fitMap(layer))],
+            null,
+            ['Refresh', (($itemScope)=> this.refreshLayer(layer))]
+          ];
         }
 
         protected baseAddLayer(layer: ProjectLayer, callback: Function) {
@@ -59,26 +76,16 @@ module csComp.Services {
                                 // give it a unique name
                                 featureTypeName = layer.id + '_' + featureTypeName;
                                 this.service.featureTypes[featureTypeName] = featureType;
-
-                                //var pt = "." + featureTypeName;
-                                //var icon = featureType.style.iconUri;
-                                // var t = '{".style' + featureTypeName + '":';
-                                // if (featureType.style.iconUri != null) {
-                                //     t += ' { "background": "url(' + featureType.style.iconUri + ') no-repeat right center",';
-                                // };
-                                // t += ' "background-size": "100% 100%","border-style": "none"} }';
-                                // var json = $.parseJSON(t);
-                                // (<any>$).injectCSS(json);
-
-                                //console.log(JSON.stringify(poiType, null, 2));
                             }
 
                             if (data.timestamps) layer.timestamps = data.timestamps;
 
                             // store raw result in layer
-                            layer.data = data;
-
-                            (<any>(layer.data)).features.forEach((f) => {
+                            layer.data = <any>data;
+                            if (layer.data.geometries && !layer.data.features) {
+                                layer.data.features = layer.data.geometries;
+                            }
+                            layer.data.features.forEach((f) => {
                                 this.service.initFeature(f, layer);
                             });
                         }
@@ -105,9 +112,9 @@ module csComp.Services {
         constructor(public service: LayerService) {
             super(service);
 
-           
+
             // subscribe
-            
+
         }
 
 
@@ -149,7 +156,7 @@ module csComp.Services {
                 var features = <IFeature[]>(<any>this.layer.data).features;
 
                 //features = features.splice(
-                
+
                 if (features == null)
                     return;
                 var done = false;
@@ -195,7 +202,7 @@ module csComp.Services {
                         break;
                     case "delete":
                         msg.data.forEach((f) => {
-                            //this.service.removeFeature(f);                             
+                            //this.service.removeFeature(f);
                         });
                         break;
                 }
@@ -217,6 +224,15 @@ module csComp.Services {
         removeLayer(layer: ProjectLayer) {
             console.log('removing connection event');
             this.connection.events.remove((status: string) => this.connectionEvent);
+        }
+
+        public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]
+        {
+          return [
+            ["Fit map", (($itemScope)=> this.fitMap(layer))],
+            null
+
+          ];
         }
     }
 }

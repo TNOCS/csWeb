@@ -12,7 +12,7 @@
         param: any;
         initDashboard: Function;
         minus: Function;
-           
+
 
     }
 
@@ -42,7 +42,7 @@
             '$templateCache'
         ];
 
-         
+
 // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
@@ -72,7 +72,7 @@
             //        },
             //        stop: (event, uiWidget, $element: csComp.Services.IWidget) => {
             //            $element.resize("stop", uiWidget.width(), uiWidget.height());
-            //        }, 
+            //        },
             //        resize: (event, uiWidget, $element: csComp.Services.IWidget) => {
 
             //            $element.resize("change", uiWidget.width(),uiWidget.height());
@@ -163,6 +163,11 @@
                 }
                 if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
             }
+
+          if (this.$scope.dashboard.showMap && this.$scope.dashboard.baselayer)
+          {
+            this.$messageBusService.publish("map","setbaselayer",this.$scope.dashboard.baselayer);
+          }
         }
 
         public checkLayers() {

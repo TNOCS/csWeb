@@ -1,6 +1,7 @@
 ﻿module LayersDirective {
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
+        options : Function;
     }
 
     export class LayersDirectiveCtrl {
@@ -15,16 +16,39 @@
             'layerService'
         ];
 
+
+
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope       : ILayersDirectiveScope,
-            private $layerService: csComp.Services.LayerService
-            ) {
+            private $layerService: csComp.Services.LayerService)
+        {
             $scope.vm = this;
+
+            $scope.options = ((layer : csComp.Services.ProjectLayer)=>{
+              if (!layer.enabled) return null;
+              if (layer.layerSource)
+              {
+                return layer.layerSource.layerMenuOptions(layer);
+              }
+
+          });
+
+        }
+
+        public openLayerMenu(e)
+        {
+          //e.stopPropagation();
+          (<any>$('.left-menu')).contextmenu( 'show', e );
+          //alert('open layers');
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
+          $(".left-menu" ).on( "click", function( clickE ) {
+            //alert('context menu');
+            (<any>$( this )).contextmenu( { x: clickE.offsetX, y: clickE.offsetY } );
+          } );
             //layer.enabled = !layer.enabled;
 			//if (this.$layerService.loadedLayers.containsKey(layer.id)) {
             // Unselect when dealing with a radio group, so you can turn a loaded layer off again.

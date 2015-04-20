@@ -63,6 +63,9 @@
                 //    }
                 //],
                 link: function (scope: ISparklineScope, element, attrs) {
+
+                    if (scope.timestamps == null || scope.sensor==null) return;
+
                     var margin           = scope.margin || { top: 15, right: 5, bottom: 0, left: 10 };
                     var width            = scope.width || 100;
                     var height           = scope.height || 70;
@@ -87,6 +90,8 @@
                         .y(function (d) { return y(d.measurement); });
 
                     var data: { time: number; measurement: number }[] = []; 
+                    
+                        
                     for (var i = 0; i < scope.timestamps.length; i++) {
                         data.push({ time: scope.timestamps[i], measurement: scope.sensor[i] });
                     }
