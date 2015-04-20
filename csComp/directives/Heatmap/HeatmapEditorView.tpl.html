@@ -5,9 +5,15 @@
     </div>
     <div class="modal-body container-fluid">
         <div class="row-fluid">
-            <input type="text" data-ng-model="vm.heatmap.title" style="margin: 0 5px" placeholder="{{ \'HEATMAP.TITLE\' | translate }}" />
+            <div class="col-xs-3" style="margin-top: 5px; margin-right: 0px; padding-left: 0;" translate>HEATMAP.TITLE_TAG</div>
+            <input type="text" class="col-xs-4" data-ng-model="vm.heatmap.title" style="padding: 0; margin: 0 5px" placeholder="{{ \'HEATMAP.TITLE\' | translate }}" />
         </div>
-        <h4 class="row-fluid" style="margin-top: 20px;" translate>HEATMAP.MAIN_FEATURE</h4>
+        <div class="row-fluid" style="margin-top: 30px;">
+            <div class="col-xs-3" style="margin-top: 5px; margin-right: 5px; padding-left: 0;" translate>HEATMAP.MIN_MAX_ZOOM</div>
+            <input type="number" class="col-xs-1" style="padding: 0; margin-right: 5px;" data-ng-model="vm.heatmap.heatmapSettings.minZoom" />
+            <input type="number" class="col-xs-1" style="padding: 0;" data-ng-model="vm.heatmap.heatmapSettings.maxZoom" />
+        </div>
+        <h4 class="row-fluid" style="margin-top: 70px;" translate>HEATMAP.MAIN_FEATURE</h4>
         <!--<select data-ng-model="vm.selectedFeatureType"
                 data-ng-change="vm.loadPropertyTypes()"
                 data-ng-options="item as item.name for (key, item) in vm.dataset.featureTypes"

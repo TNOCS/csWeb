@@ -25,8 +25,6 @@ module Heatmap {
         moveListenerInitialized: boolean = false;
         projLayer = new csComp.Services.ProjectLayer();
 
-        public static MAX_HEATMAP_CELLS = 4000;
-
         selectedFeature: IFeature;
         properties     : FeatureProps.CallOutProperty[];
         showFeature    : boolean;
@@ -259,6 +257,10 @@ module Heatmap {
             this.updateHeatmap();
         }
 
+        resolutionUpdated() {
+            if (!this.heatmapModel) return;
+            this.updateHeatmap();
+        }
 
         /**
          * Update the available pre-set heatmaps.

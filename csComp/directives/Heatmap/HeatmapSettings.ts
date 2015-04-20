@@ -7,6 +7,7 @@
         intensityScale: number;
         minZoom       : number;
         maxZoom       : number;
+        resolution    : number;
 
         addReference(reference: string): void;
     }
@@ -16,6 +17,7 @@
         minZoom: number = 10;
         maxZoom: number = 15;
         intensityScale: number = 3;
+        resolution: number = 2;
 
         public addReference(reference: string) {
             // Add unique reference layers only

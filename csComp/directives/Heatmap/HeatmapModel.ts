@@ -50,7 +50,21 @@ module Heatmap {
 
             //Calculate a grid based on the maximum number of cells and the map ratio.
             var mapRatio = width / height;
-            var maxCellCount = HeatmapCtrl.MAX_HEATMAP_CELLS;
+            var maxCellCount;
+            switch (this.heatmapSettings.resolution) {
+                case 1:
+                    maxCellCount = 1000;
+                    break;
+                case 2:
+                    maxCellCount = 4000;
+                    break;
+                case 3:
+                    maxCellCount = 7000;
+                    break;
+                default:
+                    maxCellCount = 4000;
+                    break;
+            }
             var horizCells = Math.floor(Math.sqrt(maxCellCount * mapRatio));
             var vertCells = Math.floor(horizCells / mapRatio);
             var cellWidth = width / horizCells;
