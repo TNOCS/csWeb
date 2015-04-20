@@ -461,6 +461,8 @@
             //s.fillColor = 'red';
 			//s.strokeWidth = 1;
             s.stroke = false;
+            s.strokeWidth = 1;
+            s.strokeColor = 'black';
             s.fillOpacity = 0.75;
             s.rotate = 0;
             //s.strokeColor = 'black';

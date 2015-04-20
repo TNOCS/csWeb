@@ -153,8 +153,7 @@
             }
         }
 
-        public checkMap() {
-
+        public checkMap() { 
             if (this.$scope.dashboard.showMap != this.$layerService.visual.mapVisible) {
                 if (this.$scope.dashboard.showMap) {
                     this.$layerService.visual.mapVisible = true;
