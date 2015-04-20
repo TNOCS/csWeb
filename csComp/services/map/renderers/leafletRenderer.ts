@@ -111,10 +111,8 @@ module csComp.Services {
                       u+="&cache=" + layer.cacheKey;
                     }
 
-                    var tileLayer: any = L.tileLayer(u, {
-                        attribution: layer.description
-                    });
-                    
+                    var tileLayer: any = L.tileLayer(u, { attribution: layer.description });
+
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                     tileLayer.setOpacity(layer.opacity / 100);
                     this.service.map.map.addLayer(layer.mapLayer);
