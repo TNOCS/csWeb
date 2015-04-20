@@ -13,6 +13,7 @@
 		    requiresLayer: boolean;
 		    getRequiredLayers? (layer: ProjectLayer): ProjectLayer[];
         layerMenuOptions(layer : ProjectLayer) : [[string,Function]];
+
     }
 
     export interface IMapRenderer {

@@ -5,8 +5,6 @@ module csComp.Services {
 
     export class TileLayerSource implements ILayerSource
     {
-
-
       title = "tilelayer";
       //service : LayerService;
       requiresLayer = false;
@@ -21,7 +19,7 @@ module csComp.Services {
 
       public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]
       {
-        return [        
+        return [
           ['Refresh', (($itemScope)=> this.refreshLayer(layer))]
         ];
       }
