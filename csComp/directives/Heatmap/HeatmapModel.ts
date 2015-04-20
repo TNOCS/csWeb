@@ -174,7 +174,8 @@ module Heatmap {
 
         deserialize(layer: csComp.Services.ProjectLayer) {
             this.id = layer.id;
-            this.heatmapSettings = layer.heatmapSettings;
+            var hs = layer.heatmapSettings;
+            this.heatmapSettings = new HeatmapSettings(hs.referenceList, hs.minZoom, hs.maxZoom, hs.intensityScale, hs.resolution);
             this.heatmapItems = [];
             var heatmapitems = layer.heatmapItems;
             heatmapitems.forEach((hi_info) => {
@@ -193,7 +194,12 @@ module Heatmap {
             this.heatmapItems.forEach((hi) => {
                 if (hi.isSelected) {
                     hi.reset();
-                    minimizedHeatmapItems.push(hi);
+                    if (hi.propertyTitle) {
+                        var hi_new = new HeatmapItem(hi.title, <csComp.Services.IFeatureType>{name: hi.featureType.name}, hi.weight, hi.userWeight, hi.isSelected, hi.idealityMeasure, hi.propertyTitle, hi.propertyLabel, hi.optionIndex);
+                    } else {
+                        var hi_new = new HeatmapItem(hi.title, <csComp.Services.IFeatureType>{name: hi.featureType.name}, hi.weight, hi.userWeight, hi.isSelected, hi.idealityMeasure);
+                    }
+                    minimizedHeatmapItems.push(hi_new);
                 }
             });
             var output: string = "{\"id\": \"ID\",\n" +
