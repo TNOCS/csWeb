@@ -159,7 +159,7 @@ module Heatmap {
                         if (group.title == "Features") {
                             group.layers.forEach((l) => {
                                 if (l.enabled) {
-                                    this.heatmapModel.heatmapSettings.referenceList.push(l.reference);
+                                    this.heatmapModel.heatmapSettings.addReference(l.reference);
                                 }
                             });
                         }
@@ -169,15 +169,9 @@ module Heatmap {
 
             /* Print the heatmap settings to the console in json format */
             console.log("\n-----------------\n" + "Exported heatmap starts here: \n");
-            console.log("{\"id\": \"ID\",\n" +
-                "\"reference\": \"REFERENCE\",\n" +
-                "\"languages\": {\n" +
-                "\"nl\": {\"title\": \"TITLE\",\n\"description\": \"BESCHRIJVING\"\n},\n" +
-                "\"en\": {\"title\": \"TITLE\",\n\"description\": \"DESCRIPTION\"\n}\n" +
-                "},\n" +
-                "\"description\": \"DESCRIPTION\",\n"+
-            heatmap.serialize());
+            console.log(heatmap.serialize());
             console.log("\n-----------------\n" + "Exported heatmap ends here. \n");
+            this.messageBusService.notify('Heatmap exported successfully', 'Your heatmap was exported to the console successfully.', csComp.Services.NotifyLocation.TopLeft);
         }
 
         removeHeatmap(heatmap: HeatmapModel) {

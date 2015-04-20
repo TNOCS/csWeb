@@ -182,7 +182,18 @@ module Heatmap {
                     minimizedHeatmapItems.push(hi);
                 }
             });
-            var output: string = "\"type\":\"Heatmap\"";
+            var output: string = "{\"id\": \"ID\",\n" +
+                "\"reference\": \"REFERENCE\",\n" +
+                "\"languages\": {\n" +
+                "\"nl\": {\"title\": ";
+            output += JSON.stringify(this.title);
+            output += ",\n\"description\": \"BESCHRIJVING\"\n},\n" +
+                        "\"en\": {\"title\": ";
+            output += JSON.stringify(this.title);
+            output += ",\n\"description\": \"DESCRIPTION\"\n}\n" +
+                        "},\n" +
+                        "\"description\": \"DESCRIPTION\",\n";
+            output +="\"type\":\"Heatmap\"";
             output += ",\n\"heatmapSettings\":" + JSON.stringify(this.heatmapSettings, null, ' ');
             output += ",\n\"heatmapItems\":";
             output += JSON.stringify(minimizedHeatmapItems, null, ' ');
