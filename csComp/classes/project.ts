@@ -231,6 +231,11 @@
         data: any;
         cesiumDatasource: any;
         items : any;
+
+        /** use a timestamp with each url request to make them unique (only tile layer for now, timestamp created after each refresh )*/
+        disableCache : boolean;
+        /** key attached for identifying to */
+        cacheKey : string;
     }
 
     /**

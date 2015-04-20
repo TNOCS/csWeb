@@ -18,6 +18,11 @@
   color:red;
 }
 
+.spinner
+{
+  margin-right:5px;
+}
+
 ﻿.btn-filter-delete {
     position: relative;
     right: 0;
