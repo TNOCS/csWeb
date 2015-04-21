@@ -238,6 +238,9 @@
         disableCache : boolean;
         /** key attached for identifying to */
         cacheKey : string;
+
+        /** handle for receiving server events */
+        serverHandle : MessageBusHandle;
     }
 
     /**

@@ -1,6 +1,6 @@
 ﻿module csComp.Services {
-    
-    
+
+
 
     export class SensorSet {
         id: string;
@@ -8,14 +8,16 @@
         type: string;
         timestamps: number[];
         values: any[];
-        activeValue: any; 
+        activeValue: any;
     }
 
     export class DataSource {
         id: string;
         url: string;
+        /** static, dynamic */
+        type : string;
         title: string;
-        sensors: { (key: string): SensorSet };        
+        sensors: { (key: string): SensorSet };
 
         public static LoadData(ds: DataSource, callback: Function) {
             if (ds.url != null) {
@@ -25,10 +27,10 @@
                         ds.sensors = temp.sensors;
                         ds.title = temp.title;
                         callback();
-                    }  
+                    }
                     //var projects = data;
                 });
-            }
+            }            
         }
     }
-} 
+}

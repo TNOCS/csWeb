@@ -269,8 +269,7 @@
         }
 
         checkLayerTimer(layer : ProjectLayer)
-        {
-          console.log('check layer timer');
+        {          
           if (layer.refreshTimer)
           {
             if (layer.enabled && !layer.timerToken)
@@ -1148,13 +1147,13 @@
                     this.project.datasources.forEach((ds: DataSource) => {
                         if (ds.url) {
                             DataSource.LoadData(ds,() => {
+                              if (ds.type.toLowerCase() == "dynamic")
+                              {
+                                this.$messageBusService.getConnection
+                              }
                                 for (var s in ds.sensors) {
                                     var ss = ds.sensors[s];
                                     ss.activeValue = ss.values[ss.values.length - 1];
-                                    console.log(ss.activeValue);
-
-
-                                    //console.log(s);
                                 }
 
                             });

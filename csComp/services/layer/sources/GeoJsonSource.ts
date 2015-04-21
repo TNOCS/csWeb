@@ -187,27 +187,50 @@ module csComp.Services {
         }
 
         public initSubscriptions(layer: ProjectLayer) {
-            this.service.$messageBusService.serverPublish("joinlayer", { id: layer.id });
+            layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id,"layer",(topic: string, msg: any)=>
+            {
+              switch (msg.action)
+              {
+                case "subscribed":
+                  console.log('sucesfully subscribed');
+                  break;
+                  case "update":
+                      if (msg.data!=null)
+                      {
+                        try
+                        {
+                        msg.data.forEach((f) => {                          
+                          this.updateFeatureByProperty("id", f.properties["id"], f);
+                        });
+                        }
+                        catch(e)
+                        {
+                          console.warn('error updating feature');
+                        }
+                      }
+                      break;
+                  case "delete":
+                      if (msg.data!=null)
+                      {
+                        try
+                        {
+                        msg.data.forEach((f) => {
+                          //this.service.removeFeature(f);
+                        });
+                      }catch(e)
+                      {
+                        console.warn('error deleting feature');
+                      }
+                      }
+                      break;
+              }
+            });
         }
 
         public addLayer(layer: ProjectLayer, callback: Function) {
             this.baseAddLayer(layer, callback);
             this.initSubscriptions(layer);
-            this.service.$messageBusService.serverSubscribe("layer-" + layer.id,(topic: string, msg: any) => {
-                switch (msg.action) {
-                    case "update":
-                        msg.data.forEach((f) => {
-                            this.updateFeatureByProperty("id", f.properties["id"], f);
-                        });
-                        break;
-                    case "delete":
-                        msg.data.forEach((f) => {
-                            //this.service.removeFeature(f);
-                        });
-                        break;
-                }
-            });
-            this.connection = this.service.$messageBusService.getConnection("");
+            //this.connection = this.service.$messageBusService.getConnection("");
             //this.connection.events.add((status: string) => this.connectionEvent);
         }
 
@@ -222,8 +245,7 @@ module csComp.Services {
         }
 
         removeLayer(layer: ProjectLayer) {
-            console.log('removing connection event');
-            this.connection.events.remove((status: string) => this.connectionEvent);
+          this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
         }
 
         public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]

@@ -72,13 +72,61 @@
         public isConnected: boolean;
         public isConnecting: boolean;
         public cache: { [topic: string]: Array<IMessageBusCallback> } = {};
+				public subscriptions : { [id : string] : ServerSubscription } = {};
         public socket;
 
         // Events
         public events: IMessageEvent = new TypedEvent();
 
         constructor(public id: string, public url: string) {
+
         }
+
+				public unsubscribe(id: string, callback: IMessageBusCallback)
+				{
+					if (this.subscriptions.hasOwnProperty(id))
+					{
+						var s = this.subscriptions[id];
+						s.callbacks	= s.callbacks.filter((f)=>{ return f != callback;})
+						if (s.callbacks.length==0)
+						{
+							this.socket.emit(id,{action:"unsubscribe" });
+							this.socket.removeListener(id,s.serverCallback);
+							s.serverCallback = null;
+							delete this.subscriptions[id];
+						}
+					}
+				}
+
+				public subscribe(target : string, type : string, callback : IMessageBusCallback) : ServerSubscription
+				{
+					var sub : ServerSubscription;
+					var subs = [];
+					for (var s in this.subscriptions)
+					{
+						if (this.subscriptions[s].target == target && this.subscriptions[s].type == type) subs.push(this.subscriptions[s]);
+					}
+
+					if (subs==null || subs.length==0)
+					{
+						sub = new ServerSubscription(target,type);
+
+						this.socket.emit("subscribe",{ id : sub.id, target : sub.target, type : sub.type});
+
+						sub.callbacks.push(callback);
+						this.subscriptions[sub.id] = sub;
+						sub.serverCallback = (r)=> {sub.callbacks.forEach(cb => cb(sub.id,r));};
+						this.socket.on(sub.id,sub.serverCallback);
+					}
+					else
+					{
+						sub = subs[0];
+						sub.callbacks.push(callback);
+					}
+
+					return sub;
+
+				}
 
         public connect(callback: Function) {
             if (this.isConnected || this.isConnecting) return;
@@ -122,6 +170,21 @@
         TopRight,
         TopLeft
     }
+
+		export class ServerSubscription {
+
+			public callbacks : Array<IMessageBusCallback>;
+			public id: string;
+			public serverCallback : any;
+
+			constructor( 
+				public target: string,
+				public type : string
+			){
+				this.callbacks = [];
+				this.id = Helpers.getGuid();
+			}
+	}
 
 	/**
 	 * Simple message bus service, used for subscribing and unsubsubscribing to topics.
@@ -170,30 +233,23 @@
             c.socket.emit(topic, message);
         }
 
-        public serverSubscribe(topic: string, callback: IMessageBusCallback, serverId = ""): MessageBusHandle {
+
+
+        public serverSubscribe(target : string, type: string, callback: IMessageBusCallback, serverId = ""): MessageBusHandle {
             var c = this.getConnection(serverId);
             if (c == null) return null;
 
-            // array van socket.io verbindingen
-            // registeren
-
-            if (!c.cache[topic]) {
-                c.cache[topic] = new Array<IMessageBusCallback>();
-                c.cache[topic].push(callback);
-
-
-                c.socket.on(topic,(r) => {
-                    c.cache[topic].forEach(cb => cb(topic,r));
-                });
-            } else {
-
-                c.cache[topic].push(callback);
-            }
-
-
-
-            return new MessageBusHandle(topic, callback);
+						var sub = c.subscribe(target,type,callback);
+            return new MessageBusHandle(sub.id, callback);
         }
+
+				public serverUnsubscribe(handle : MessageBusHandle, serverId = "")
+				{
+					var c = this.getConnection(serverId);
+					if (c == null) return null;
+					c.unsubscribe(handle.topic,handle.callback);
+
+				}
 
 
 
