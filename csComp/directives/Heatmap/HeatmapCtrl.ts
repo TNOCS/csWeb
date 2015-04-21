@@ -58,14 +58,14 @@ module Heatmap {
               switch (title) {
                   case 'deactivate':
                       /* For an explanation to the removing of layers, see the bottom of this file */
-                      if (layer.type && layer.type === "Heatmap" && layer.id === this.projLayer.id && layer != this.projLayer) {
+                      if (layer.type && layer.type === "heatmap" && layer.id === this.projLayer.id && layer != this.projLayer) {
                           this.$layerService.removeLayer(this.projLayer);
                           delete (this.heatmapModel);
                           this.initializeHeatmap();
                       }
                       break;
                   case 'activated':
-                      if (layer.type && layer.type === "Heatmap") this.updateAvailableHeatmaps();
+                      if (layer.type && layer.type === "heatmap") this.updateAvailableHeatmaps();
                       //this.updateHeatmap();
                       break;
               }
@@ -103,7 +103,7 @@ module Heatmap {
                 if (this.$layerService.project.groups) {
                     this.$layerService.project.groups.forEach((group) => {
                         group.layers.forEach((layer) => {
-                            if (layer.type === "Heatmap") {
+                            if (layer.type === "heatmap") {
                                 var hm = new HeatmapModel(layer.title);
                                 hm.deserialize(layer);
                                 this.heatmapModels.push(hm);
@@ -127,7 +127,7 @@ module Heatmap {
             this.heatmapModel = new HeatmapModel('Heatmap');
             if (this.projLayer.data) this.$layerService.removeLayer(this.projLayer);
             //Create projectlayer for the heatmap
-            this.projLayer.type = "Heatmap";
+            this.projLayer.type = "heatmap";
             this.projLayer.layerRenderer = "heatmap";
             this.projLayer.enabled = true;
             this.projLayer.group = new csComp.Services.ProjectGroup();
@@ -196,7 +196,7 @@ module Heatmap {
             if (this.$layerService.project.groups) {
                 this.$layerService.project.groups.forEach((group) => {
                     group.layers.forEach((layer) => {
-                        if (layer.type === "Heatmap" && layer.id === this.projLayer.id) {
+                        if (layer.type === "heatmap" && layer.id === this.projLayer.id) {
                             this.$layerService.removeLayer(layer);
                         }
                     });
@@ -271,7 +271,7 @@ module Heatmap {
                 if (this.$layerService.project.groups) {
                     this.$layerService.project.groups.forEach((group) => {
                         group.layers.forEach((layer) => {
-                            if (layer.type === "Heatmap" && layer.id === this.heatmapModel.id && layer.mapLayer) {
+                            if (layer.type === "heatmap" && layer.id === this.heatmapModel.id && layer.mapLayer) {
                                 this.$layerService.map.map.removeLayer(layer.mapLayer);
                                 layer.enabled = true;
                             }
@@ -319,7 +319,7 @@ module Heatmap {
         //* Add a heatmap layer to the map.
         //*/
         private initializeHeatmap() {
-            this.projLayer.type = "Heatmap";
+            this.projLayer.type = "heatmap";
             this.projLayer.layerRenderer = "heatmap";
             this.projLayer.enabled = false;
             this.projLayer.group = new csComp.Services.ProjectGroup();
