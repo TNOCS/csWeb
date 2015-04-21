@@ -2,16 +2,15 @@ module csComp.Services {
 
     export class Widget {
         public content: Function;
-        constructor() {
-        }
+
+        constructor() {}
     }
 
     export interface IWidget {
-
-        directive: string;  // name of the directive that should be used as widget
-        data: Object;           // json object that can hold parameters for the directive
-        url: string;       // url of the html page that should be used as widget
-        template : string;
+        directive        : string;  // name of the directive that should be used as widget
+        data             : Object;  // json object that can hold parameters for the directive
+        url              : string;  // url of the html page that should be used as widget
+        template         : string;
         title            : string;  // title of the widget
         elementId        : string;
         dashboard        : csComp.Services.Dashboard;
@@ -19,30 +18,28 @@ module csComp.Services {
         resize           : Function;
         background       : string;
         init             : Function;
-        start: Function;
-        left?: string;
-        right?: string;
-        top?: string;
-        bottom?: string;
-        name: string; id: string;
+        start            : Function;
+        left?            : string;
+        right?           : string;
+        top?             : string;
+        bottom?          : string;
+        name             : string; id: string;
         properties       : {};
         dataSets         : DataSet[];
         range            : csComp.Services.DateRange;
         updateDateRange  : Function;
         collapse         : boolean;
         canCollapse      : boolean;
-        width: string;
-        height: string;
+        width            : string;
+        height           : string;
         allowFullscreen  : boolean;
         messageBusService: csComp.Services.MessageBusService;
         layerService     : csComp.Services.LayerService;
     }
 
-
-
     export class BaseWidget implements IWidget {
-        public directive: string;
-        public template : string;
+        public directive        : string;
+        public template         : string;
         public title            : string;
         public data             : {};
         public url              : string;
@@ -50,10 +47,10 @@ module csComp.Services {
         public dashboard        : csComp.Services.Dashboard;
 
         public background       : string;
-        public left: string;
-        public right: string;
-        public top: string;
-        public bottom: string;
+        public left             : string;
+        public right            : string;
+        public top              : string;
+        public bottom           : string;
         public name             : string; public id: string;
         public properties       : {};
         public dataSets         : DataSet[];
@@ -74,20 +71,12 @@ module csComp.Services {
         //}
 
         constructor(title? : string, type? : string) {
-
             if (title) this.title = title;
             this.properties = {};
             this.dataSets = [];
-
-
-
         }
 
-
-
-        public start() {
-
-        }
+        public start() {}
 
         public init() {
             //if (!sizeX)
@@ -102,8 +91,8 @@ module csComp.Services {
             //this.id = id;
             this.elementId = this.id;
             this.start();
-
         }
+
         public renderer = ($compile : any,$scope: any) => { };
 
         public updateDateRange(r: csComp.Services.DateRange) {
@@ -113,30 +102,27 @@ module csComp.Services {
         public resize = (status: string, width : number, height : number) => {};
     }
 
-
-
     export class Dashboard {
-        widgets: IWidget[];
-        editMode: boolean;
-        showMap: boolean;
-        showTimeline: boolean = true;
-        showLeftmenu: boolean;
-        showRightmenu: boolean = true;
-        draggable: boolean = true;
-        resizable: boolean = true;
-        background: string;
+        widgets:         IWidget[];
+        editMode:        boolean;
+        showMap:         boolean;
+        showTimeline:    boolean = true;
+        showLeftmenu:    boolean;
+        showRightmenu:   boolean = true;
+        draggable:       boolean = true;
+        resizable:       boolean = true;
+        background:      string;
         backgroundimage: string;
-        visiblelayers : string[];
-        baselayer : string;
-        viewBounds: IBoundingBox;
-        timeline: DateRange;
-        id: string;
-        name: string;
+        visiblelayers:   string[];
+        baselayer:       string;
+        viewBounds:      IBoundingBox;
+        timeline:        DateRange;
+        id:              string;
+        name:            string;
 
         constructor() {
             this.widgets = [];
         }
-
 
         public static deserialize(input: Dashboard): Dashboard {
             var res = <Dashboard>$.extend(new Dashboard(), input);
@@ -148,7 +134,6 @@ module csComp.Services {
             if (input.timeline) res.timeline = $.extend(new DateRange(), input.timeline);
 
             return res;
-
         }
 
         public static addNewWidget(widget: IWidget, dashboard: Dashboard) : IWidget {
@@ -172,7 +157,6 @@ module csComp.Services {
           //this.editWidget(w);
           return widget;
       }
-
     }
 
     export class Timeline {
@@ -193,10 +177,5 @@ module csComp.Services {
         constructor(public id?: string, public title?: string) {
             this.data = [];
         }
-
-
-
-
     }
-
 }
