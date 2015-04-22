@@ -50,7 +50,21 @@ module Heatmap {
 
             //Calculate a grid based on the maximum number of cells and the map ratio.
             var mapRatio = width / height;
-            var maxCellCount = HeatmapCtrl.MAX_HEATMAP_CELLS;
+            var maxCellCount;
+            switch (this.heatmapSettings.resolution) {
+                case 1:
+                    maxCellCount = 1000;
+                    break;
+                case 2:
+                    maxCellCount = 4000;
+                    break;
+                case 3:
+                    maxCellCount = 7000;
+                    break;
+                default:
+                    maxCellCount = 4000;
+                    break;
+            }
             var horizCells = Math.floor(Math.sqrt(maxCellCount * mapRatio));
             var vertCells = Math.floor(horizCells / mapRatio);
             var cellWidth = width / horizCells;
@@ -160,7 +174,8 @@ module Heatmap {
 
         deserialize(layer: csComp.Services.ProjectLayer) {
             this.id = layer.id;
-            this.heatmapSettings = layer.heatmapSettings;
+            var hs = layer.heatmapSettings;
+            this.heatmapSettings = new HeatmapSettings(hs.referenceList, hs.minZoom, hs.maxZoom, hs.intensityScale, hs.resolution);
             this.heatmapItems = [];
             var heatmapitems = layer.heatmapItems;
             heatmapitems.forEach((hi_info) => {
@@ -179,10 +194,26 @@ module Heatmap {
             this.heatmapItems.forEach((hi) => {
                 if (hi.isSelected) {
                     hi.reset();
-                    minimizedHeatmapItems.push(hi);
+                    if (hi.propertyTitle) {
+                        var hi_new = new HeatmapItem(hi.title, <csComp.Services.IFeatureType>{name: hi.featureType.name}, hi.weight, hi.userWeight, hi.isSelected, hi.idealityMeasure, hi.propertyTitle, hi.propertyLabel, hi.optionIndex);
+                    } else {
+                        var hi_new = new HeatmapItem(hi.title, <csComp.Services.IFeatureType>{name: hi.featureType.name}, hi.weight, hi.userWeight, hi.isSelected, hi.idealityMeasure);
+                    }
+                    minimizedHeatmapItems.push(hi_new);
                 }
             });
-            var output: string = "\"type\":\"Heatmap\"";
+            var output: string = "{\"id\": \"ID\",\n" +
+                "\"reference\": \"REFERENCE\",\n" +
+                "\"languages\": {\n" +
+                "\"nl\": {\"title\": ";
+            output += JSON.stringify(this.title);
+            output += ",\n\"description\": \"BESCHRIJVING\"\n},\n" +
+                        "\"en\": {\"title\": ";
+            output += JSON.stringify(this.title);
+            output += ",\n\"description\": \"DESCRIPTION\"\n}\n" +
+                        "},\n" +
+                        "\"description\": \"DESCRIPTION\",\n";
+            output +="\"type\":\"Heatmap\"";
             output += ",\n\"heatmapSettings\":" + JSON.stringify(this.heatmapSettings, null, ' ');
             output += ",\n\"heatmapItems\":";
             output += JSON.stringify(minimizedHeatmapItems, null, ' ');

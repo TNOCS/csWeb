@@ -25,8 +25,6 @@ module Heatmap {
         moveListenerInitialized: boolean = false;
         projLayer = new csComp.Services.ProjectLayer();
 
-        public static MAX_HEATMAP_CELLS = 4000;
-
         selectedFeature: IFeature;
         properties     : FeatureProps.CallOutProperty[];
         showFeature    : boolean;
@@ -60,14 +58,14 @@ module Heatmap {
               switch (title) {
                   case 'deactivate':
                       /* For an explanation to the removing of layers, see the bottom of this file */
-                      if (layer.type && layer.type === "Heatmap" && layer.id === this.projLayer.id && layer != this.projLayer) {
+                      if (layer.type && layer.type === "heatmap" && layer.id === this.projLayer.id && layer != this.projLayer) {
                           this.$layerService.removeLayer(this.projLayer);
                           delete (this.heatmapModel);
                           this.initializeHeatmap();
                       }
                       break;
                   case 'activated':
-                      if (layer.type && layer.type === "Heatmap") this.updateAvailableHeatmaps();
+                      if (layer.type && layer.type === "heatmap") this.updateAvailableHeatmaps();
                       //this.updateHeatmap();
                       break;
               }
@@ -105,7 +103,7 @@ module Heatmap {
                 if (this.$layerService.project.groups) {
                     this.$layerService.project.groups.forEach((group) => {
                         group.layers.forEach((layer) => {
-                            if (layer.type === "Heatmap") {
+                            if (layer.type === "heatmap") {
                                 var hm = new HeatmapModel(layer.title);
                                 hm.deserialize(layer);
                                 this.heatmapModels.push(hm);
@@ -129,7 +127,7 @@ module Heatmap {
             this.heatmapModel = new HeatmapModel('Heatmap');
             if (this.projLayer.data) this.$layerService.removeLayer(this.projLayer);
             //Create projectlayer for the heatmap
-            this.projLayer.type = "Heatmap";
+            this.projLayer.type = "heatmap";
             this.projLayer.layerRenderer = "heatmap";
             this.projLayer.enabled = true;
             this.projLayer.group = new csComp.Services.ProjectGroup();
@@ -159,7 +157,7 @@ module Heatmap {
                         if (group.title == "Features") {
                             group.layers.forEach((l) => {
                                 if (l.enabled) {
-                                    this.heatmapModel.heatmapSettings.referenceList.push(l.reference);
+                                    this.heatmapModel.heatmapSettings.addReference(l.reference);
                                 }
                             });
                         }
@@ -169,15 +167,9 @@ module Heatmap {
 
             /* Print the heatmap settings to the console in json format */
             console.log("\n-----------------\n" + "Exported heatmap starts here: \n");
-            console.log("{\"id\": \"ID\",\n" +
-                "\"reference\": \"REFERENCE\",\n" +
-                "\"languages\": {\n" +
-                "\"nl\": {\"title\": \"TITLE\",\n\"description\": \"BESCHRIJVING\"\n},\n" +
-                "\"en\": {\"title\": \"TITLE\",\n\"description\": \"DESCRIPTION\"\n}\n" +
-                "},\n" +
-                "\"description\": \"DESCRIPTION\",\n"+
-            heatmap.serialize());
+            console.log(heatmap.serialize());
             console.log("\n-----------------\n" + "Exported heatmap ends here. \n");
+            this.messageBusService.notify('Heatmap exported successfully', 'Your heatmap was exported to the console successfully.', csComp.Services.NotifyLocation.TopLeft);
         }
 
         removeHeatmap(heatmap: HeatmapModel) {
@@ -204,7 +196,7 @@ module Heatmap {
             if (this.$layerService.project.groups) {
                 this.$layerService.project.groups.forEach((group) => {
                     group.layers.forEach((layer) => {
-                        if (layer.type === "Heatmap" && layer.id === this.projLayer.id) {
+                        if (layer.type === "heatmap" && layer.id === this.projLayer.id) {
                             this.$layerService.removeLayer(layer);
                         }
                     });
@@ -265,6 +257,10 @@ module Heatmap {
             this.updateHeatmap();
         }
 
+        resolutionUpdated() {
+            if (!this.heatmapModel) return;
+            this.updateHeatmap();
+        }
 
         /**
          * Update the available pre-set heatmaps.
@@ -275,7 +271,7 @@ module Heatmap {
                 if (this.$layerService.project.groups) {
                     this.$layerService.project.groups.forEach((group) => {
                         group.layers.forEach((layer) => {
-                            if (layer.type === "Heatmap" && layer.id === this.heatmapModel.id && layer.mapLayer) {
+                            if (layer.type === "heatmap" && layer.id === this.heatmapModel.id && layer.mapLayer) {
                                 this.$layerService.map.map.removeLayer(layer.mapLayer);
                                 layer.enabled = true;
                             }
@@ -323,7 +319,7 @@ module Heatmap {
         //* Add a heatmap layer to the map.
         //*/
         private initializeHeatmap() {
-            this.projLayer.type = "Heatmap";
+            this.projLayer.type = "heatmap";
             this.projLayer.layerRenderer = "heatmap";
             this.projLayer.enabled = false;
             this.projLayer.group = new csComp.Services.ProjectGroup();

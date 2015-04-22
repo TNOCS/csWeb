@@ -13,9 +13,24 @@
         </div>
     </div>
 
-    <div data-ng-if="vm.heatmapModel" style="margin-bottom: 20px; margin-left: -5px">
+    <div data-ng-if="vm.heatmapModel" style="margin-bottom: 7px; margin-left: -5px">
         <div style="display: inline; font-weight: bold" translate>HEATMAP.INTENSITY_SCALE</div>
-        <voting class="pull-right" data-ng-change="vm.intensityScaleUpdated()" min="1" max="5" ng-model="vm.heatmapModel.heatmapSettings.intensityScale" style="margin-bottom: 3px; margin-right: 5px"></voting>
+        <voting class="pull-right"
+                data-ng-change="vm.intensityScaleUpdated()"
+                min="1"
+                max="5"
+                ng-model="vm.heatmapModel.heatmapSettings.intensityScale"
+                style="margin-bottom: 3px; margin-right: 5px"></voting>
+    </div>
+
+    <div data-ng-if="vm.heatmapModel" style="margin-bottom: 20px; margin-left: -5px">
+        <div style="display: inline; font-weight: bold" translate>HEATMAP.RESOLUTION</div>
+        <voting class="pull-right"
+                data-ng-change="vm.resolutionUpdated()"
+                min="1"
+                max="3"
+                ng-model="vm.heatmapModel.heatmapSettings.resolution"
+                style="margin-bottom: 3px; margin-right: 5px"></voting>
     </div>
 
     <div data-ng-if="vm.heatmapModel" style="overflow-y: auto; overflow-x: hidden; margin-left: -5px;" resize resize-y="140">

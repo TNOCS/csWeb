@@ -943,6 +943,7 @@
             this.loadedLayers.remove(layer.id);
 
             // find layer source, and remove layer
+            if (!layer.layerSource) layer.layerSource = this.layerSources[layer.type.toLowerCase()];
             layer.layerSource.removeLayer(layer);
 
 
