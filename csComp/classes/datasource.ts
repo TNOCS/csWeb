@@ -1,7 +1,5 @@
 ﻿module csComp.Services {
 
-
-
     export class SensorSet {
         id: string;
         title: string;
@@ -9,6 +7,13 @@
         timestamps: number[];
         values: any[];
         activeValue: any;
+
+        public addValue(date : number, value : number)
+        {
+          this.timestamps.push(date);
+          this.values.push(value);
+          this.activeValue = value;
+        }
     }
 
     export class DataSource {
@@ -30,7 +35,7 @@
                     }
                     //var projects = data;
                 });
-            }            
+            }
         }
     }
 }

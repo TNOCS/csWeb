@@ -9,7 +9,7 @@
         title: string;
         visual: string;
         type: string;
-        sensor: string;        
+        sensor: string;
         sensorSet: csComp.Services.SensorSet;
         layer: string;
         isActive: boolean;
@@ -41,7 +41,7 @@
             private $scope       : ILayersDirectiveScope,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService
-            ) { 
+            ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = (par.widget);
@@ -50,23 +50,44 @@
                 this.checkLayers();
             });
             $scope.data = <indicatorData>this.widget.data;
-            $scope.data.indicators.forEach((i) => {
+            $scope.data.indicators.forEach((i : indicator) => {
                 i.id = "circ-" + csComp.Helpers.getGuid();
                 if (i.sensor != null) {
-                    this.$layerService.findSensorSet(i.sensor,(ss: csComp.Services.SensorSet) => {
-                        i.sensorSet = ss;
-                        if (!$scope.$$phase) $scope.$apply();
-                        setTimeout(() => {
-                            (<any>$("#" + i.id)).circliful();
-                        }, 1000);
-                        
+                    this.$messageBus.subscribe("sensor-" + i.sensor, (action : string ,data : string)=>
+                    {
+                      switch(action)
+                      {
+                        case "update":
+                          console.log("sensor update:" + data);
+                          this.updateIndicator(i);
+                          break;
+                      }
+
                     });
-                }                
+                    this.updateIndicator(i);
+                }
             });
 
+            setInterval(()=>
+            {
+              console.log("active value: " + $scope.data.indicators[0].sensorSet.activeValue);
+            },5000);
 
-            
-            
+
+
+
+        }
+
+        public updateIndicator(i : indicator)
+        {
+          this.$layerService.findSensorSet(i.sensor,(ss: csComp.Services.SensorSet) => {
+              i.sensorSet = ss;
+              if (!this.$scope.$$phase) this.$scope.$apply();
+              setTimeout(() => {
+                  (<any>$("#" + i.id)).circliful();
+              }, 1000);
+
+          });
         }
 
         private checkLayers() {
@@ -78,7 +99,7 @@
                         i.isActive = l.enabled;
                     }
                 }
-            }); 
+            });
             //if (!this.$scope.$$phase) this.$scope.$apply()
         }
 
@@ -92,6 +113,6 @@
             }
             //console.log(i.title);
         }
-        
+
     }
 }

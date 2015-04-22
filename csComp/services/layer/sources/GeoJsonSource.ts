@@ -194,12 +194,12 @@ module csComp.Services {
                 case "subscribed":
                   console.log('sucesfully subscribed');
                   break;
-                  case "update":
+                case "feature-update":
                       if (msg.data!=null)
                       {
                         try
                         {
-                        msg.data.forEach((f) => {                          
+                        msg.data.forEach((f) => {
                           this.updateFeatureByProperty("id", f.properties["id"], f);
                         });
                         }
@@ -209,7 +209,7 @@ module csComp.Services {
                         }
                       }
                       break;
-                  case "delete":
+                  case "feature-delete":
                       if (msg.data!=null)
                       {
                         try

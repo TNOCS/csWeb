@@ -98,6 +98,16 @@
 					}
 				}
 
+				public reSubscribeAll()
+				{
+					for (var s in this.subscriptions)
+					{
+						console.log('reconnecting ' + s);
+						var sub = this.subscriptions[s];
+						this.socket.emit("subscribe",{ id : sub.id, target : sub.target, type : sub.type});
+					}
+				}
+
 				public subscribe(target : string, type : string, callback : IMessageBusCallback) : ServerSubscription
 				{
 					var sub : ServerSubscription;
@@ -115,7 +125,9 @@
 
 						sub.callbacks.push(callback);
 						this.subscriptions[sub.id] = sub;
-						sub.serverCallback = (r)=> {sub.callbacks.forEach(cb => cb(sub.id,r));};
+						sub.serverCallback = (r)=> {
+							sub.callbacks.forEach(cb => cb(sub.id,r));
+							};
 						this.socket.on(sub.id,sub.serverCallback);
 					}
 					else
@@ -138,6 +150,7 @@
                 this.isConnecting = false;
                 this.isConnected = true;
                 this.events.trigger("connected");
+								this.reSubscribeAll();
                 callback();
             });
             this.socket.on('disconnect',() => {
@@ -160,8 +173,6 @@
         public disconnect() {
 
         }
-
-
     }
 
     export enum NotifyLocation {
@@ -177,7 +188,7 @@
 			public id: string;
 			public serverCallback : any;
 
-			constructor( 
+			constructor(
 				public target: string,
 				public type : string
 			){
