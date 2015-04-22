@@ -13,6 +13,7 @@
 		    requiresLayer: boolean;
 		    getRequiredLayers? (layer: ProjectLayer): ProjectLayer[];
         layerMenuOptions(layer : ProjectLayer) : [[string,Function]];
+
     }
 
     export interface IMapRenderer {
@@ -167,10 +168,9 @@
             //add tile layer
             this.layerSources["tilelayer"] = new TileLayerSource(this);
 
-			      //add heatmap layer
-			      this.layerSources["heatmap"] = new HeatmapSource(this);
-
-		    }
+            //add heatmap layer
+            this.layerSources["heatmap"] = new HeatmapSource(this);
+    }
 
         public loadRequiredLayers(layer: ProjectLayer) {
             // find layer source, and activate layer
@@ -461,12 +461,14 @@
             //s.fillColor = 'red';
 			//s.strokeWidth = 1;
             s.stroke = false;
+            s.strokeWidth = 1;
+            s.strokeColor = 'black';
             s.fillOpacity = 0.75;
             s.rotate = 0;
             //s.strokeColor = 'black';
             //s.iconHeight = 32;
             //s.iconWidth = 32;
-			//s.cornerRadius = 20;
+            //s.cornerRadius = 20;
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
@@ -482,7 +484,6 @@
                     s.rotate = Number(feature.properties[ft.style.rotateProperty]);
                 }
             }
-
 
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
@@ -677,10 +678,6 @@
                 // for debugging: what do these properties contain?
                 var layer = f.layer;
                 var lg = layer.group;
-                //var lgs = lg.styles;
-                //var NS: number = lg.styles.length;
-                //var gs0 = lgs[0];     // may give an error if the group has no styles
-                //var gsl = gs0.legends
 
                 var gs = new GroupStyle(this.$translate);
                 // add the legends and colorscales from any existing group style
@@ -720,13 +717,18 @@
                 gs.group = layer.group;
                 gs.meta = property.meta;
 
+                var ptd = this.propertyTypeData[property.property];
+                if (ptd && ptd.legend) {
+                    gs.activeLegend = ptd.legend;
+                    gs.legends[ptd.title] = ptd.legend;
+                    gs.colorScales[ptd.title] = ['purple', 'purple'];
+                }
                 if (ft.style && ft.style.fillColor) {
                     gs.colors = ['white', 'orange'];
                 } else {
                     gs.colors = ['red','white','blue'];
                 }
                 this.saveStyle(layer.group, gs);
-                var NS: number = lg.styles.length;
                 this.project.features.forEach((fe: IFeature) => {
                     if (fe.layer.group == layer.group) {
                         this.calculateFeatureStyle(fe);
@@ -741,7 +743,7 @@
         }
 
         /**
-         * checks if there are other styles that affect the same visual aspect, removes them
+         * checks if there are other styles that affect the same visual aspect, removes them (it)
          * and then adds the style to the group's styles
          */
         private saveStyle(group: ProjectGroup, style: GroupStyle) {
@@ -932,7 +934,7 @@
             var m: any;
             var g = layer.group;
 
-			      layer.enabled = false;
+            layer.enabled = false;
             //if (layer.refreshTimer) layer.stop();
 
             // make sure the timers are disabled

@@ -10,14 +10,14 @@
 	// Handle returned when subscribing to a topic
 	export class MessageBusHandle {
 		constructor(topic: string, callback: IMessageBusCallback) {
-			this.topic = topic; 
+			this.topic = topic;
 			this.callback = callback;
 		}
 
 		public topic: string;
 		public callback: IMessageBusCallback;
     }
-    
+
 
     export interface IBaseEvent {
         add(listener: () => void): void;
@@ -70,8 +70,8 @@
     export class Connection  {
 
         public isConnected: boolean;
-        public isConnecting: boolean; 
-        public cache: { [topic: string]: Array<IMessageBusCallback> } = {};       
+        public isConnecting: boolean;
+        public cache: { [topic: string]: Array<IMessageBusCallback> } = {};
         public socket;
 
         // Events
@@ -85,29 +85,34 @@
             this.socket = io();
             this.isConnecting = true;
             this.socket.on('connect',() => {
+								//console.log(JSON.stringify(this.socket));
+								console.log('socket.io connected');
                 this.isConnecting = false;
                 this.isConnected = true;
                 this.events.trigger("connected");
                 callback();
             });
             this.socket.on('disconnect',() => {
+							console.log('socket.io disconnected');
                 this.isConnecting = false;
                 this.isConnected = false;
             });
             this.socket.on('reconnect_attempt',() => {
+							console.log('socket.io reconnect attempt');
                 this.isConnecting = true;
                 this.isConnected = false;
             });
             this.socket.on('reconnect_failed',() => {
+							console.log('socket.io reconnect failed');
                 this.isConnecting = false;
             });
-            
+
         }
 
         public disconnect() {
 
         }
-        
+
 
     }
 
@@ -118,7 +123,7 @@
         TopLeft
     }
 
-	/** 
+	/**
 	 * Simple message bus service, used for subscribing and unsubsubscribing to topics.
 	 * @see {@link https://gist.github.com/floatingmonkey/3384419}
 	 */
@@ -136,7 +141,7 @@
         }
 
 
-        getConnection(id: string): Connection {            
+        getConnection(id: string): Connection {
             if (this.connections.hasOwnProperty(id)) return this.connections[id];
             return null;
         }
@@ -145,7 +150,7 @@
             if (id == null) id = "";
             var c = this.getConnection(id);
             if (c==null) {
-                c = new Connection(id, url);                                
+                c = new Connection(id, url);
                 this.connections[c.id] = c;
             }
             this.connections[id].connect(() => {
@@ -154,9 +159,9 @@
                 //        c.cache[topic].forEach(cb => cb(topic, r));
                 //    });
                 //}
-                
+
                 callback();
-                     });            
+                     });
         }
 
         public serverPublish(topic: string, message : any, serverId = "") {
@@ -164,19 +169,19 @@
             if (c == null) return null;
             c.socket.emit(topic, message);
         }
-        
+
         public serverSubscribe(topic: string, callback: IMessageBusCallback, serverId = ""): MessageBusHandle {
             var c = this.getConnection(serverId);
             if (c == null) return null;
-            
+
             // array van socket.io verbindingen
             // registeren
-            
+
             if (!c.cache[topic]) {
                 c.cache[topic] = new Array<IMessageBusCallback>();
                 c.cache[topic].push(callback);
 
-                
+
                 c.socket.on(topic,(r) => {
                     c.cache[topic].forEach(cb => cb(topic,r));
                 });
@@ -185,16 +190,16 @@
                 c.cache[topic].push(callback);
             }
 
-            
+
 
             return new MessageBusHandle(topic, callback);
         }
 
-        
 
-        
 
-		/** 
+
+
+		/**
 		 * Publish a notification that needs to be translated
          * @title:       the translation key of the notification's title
          * @text:        the translation key of the notification's content
@@ -208,7 +213,7 @@
             });
         }
 
-		/** 
+		/**
 		 * Publish a notification
          * @title:       the title of the notification
          * @text:        the contents of the notification
@@ -251,10 +256,10 @@
                 stack      : { "dir1": dir1, "dir2": dir2, "firstpos1": 25, "firstpos2": 25 }
             };
 
-            var pn = new PNotify(options);            
+            var pn = new PNotify(options);
         }
 
-		/** 
+		/**
 		 * Show a confirm dialog
          * @title           : the title of the notification
          * @text            : the contents of the notification
@@ -296,11 +301,11 @@
                 width: "70%",
                 stack: stack_bar_bottom
             };
-            var pn = new PNotify(options);            
-            
+            var pn = new PNotify(options);
+
         }
 
-		/** 
+		/**
 		 * Publish a notification
          * @title: the title of the notification
          * @text:  the contents of the notification
@@ -310,8 +315,8 @@
             //this.publish("notify", "", data);
         }
 
-		/** 
-		 * Publish to a topic 
+		/**
+		 * Publish to a topic
 		 */
 		public publish(topic: string, title: string, data?: any): void {
 			//window.console.log("publish: " + topic + ", " + title);
@@ -323,10 +328,10 @@
 		//	MessageBusService.publish(topic, title, data);
 		//}
 
-		/** 
+		/**
 		 * Subscribe to a topic
-		 * @param {string} topic The desired topic of the message. 
-		 * @param {IMessageBusCallback} callback The callback to call. 
+		 * @param {string} topic The desired topic of the message.
+		 * @param {IMessageBusCallback} callback The callback to call.
 		 */
 		public subscribe(topic: string, callback: IMessageBusCallback): MessageBusHandle {
 			if (!MessageBusService.cache[topic]) MessageBusService.cache[topic] = new Array<IMessageBusCallback>();
@@ -334,14 +339,14 @@
 			return new MessageBusHandle(topic, callback);
         }
 
-        
 
-		//public subscribe(topic: string, callback: IMessageBusCallback): MessageBusHandle {            
+
+		//public subscribe(topic: string, callback: IMessageBusCallback): MessageBusHandle {
 		//	return MessageBusService.subscribe(topic, callback);
 		//}
 
-		/** 
-		 * Unsubscribe to a topic by providing its handle 
+		/**
+		 * Unsubscribe to a topic by providing its handle
 		 */
 		public unsubscribe(handle: MessageBusHandle): void {
 			var topic = handle.topic;
@@ -404,7 +409,7 @@
 			evtnames.forEach(evtname => {
 				this.registerEvent(evtname);
 			});
-			
+
 		}
 
 	}

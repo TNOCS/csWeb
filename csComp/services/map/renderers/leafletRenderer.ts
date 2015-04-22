@@ -102,9 +102,19 @@ module csComp.Services {
 
             switch (layer.layerRenderer) {
                 case "tilelayer":
-                    var tileLayer: any = L.tileLayer(layer.url, {
+
+                    // check if we need to create a unique url to force a refresh
+                    var u = layer.url;
+                    if (layer.disableCache)
+                    {
+                      layer.cacheKey = new Date().getTime().toString();
+                      u+="&cache=" + layer.cacheKey;
+                    }
+
+                    var tileLayer: any = L.tileLayer(u, {
                         attribution: layer.description
                     });
+                    
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                     tileLayer.setOpacity(layer.opacity / 100);
                     this.service.map.map.addLayer(layer.mapLayer);
@@ -146,7 +156,7 @@ module csComp.Services {
                 case "svg":
                     // create leaflet layers
 
-                    layer.mapLayer = new L.LayerGroup<L.ILayer>();                    
+                    layer.mapLayer = new L.LayerGroup<L.ILayer>();
                     this.service.map.map.addLayer(layer.mapLayer);
 
                     (<any>layer.data).features.forEach((f: IFeature) => {

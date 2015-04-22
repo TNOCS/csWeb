@@ -12,9 +12,7 @@
         myModule = angular.module(moduleName);
     } catch (err) {
         // named module does not exist, so create one
-        myModule = angular.module(moduleName, []);
-      
-
+        myModule = angular.module(moduleName, []);    
     }
 
     /**

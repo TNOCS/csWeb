@@ -1,3 +1,28 @@
+.dashboard-base{
+  position: absolute;width: 100%;height:100%;pointer-events: none
+}
+
+.dashboard-main{
+  width:100%; height:100%;pointer-events: none;margin-top:-10px;
+}
+
+.dashboard-option
+{
+  color:white;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.dashboard-option-selected
+{
+  color:red;
+}
+
+.spinner
+{
+  margin-right:5px;
+}
+
 ﻿.btn-filter-delete {
     position: relative;
     right: 0;

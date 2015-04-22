@@ -16,8 +16,6 @@
             'layerService'
         ];
 
-
-
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
@@ -25,16 +23,13 @@
             private $layerService: csComp.Services.LayerService)
         {
             $scope.vm = this;
-
             $scope.options = ((layer : csComp.Services.ProjectLayer)=>{
               if (!layer.enabled) return null;
               if (layer.layerSource)
               {
                 return layer.layerSource.layerMenuOptions(layer);
-              }
-
+              } 
           });
-
         }
 
         public openLayerMenu(e)
