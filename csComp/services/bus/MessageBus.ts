@@ -120,7 +120,6 @@
 					if (subs==null || subs.length==0)
 					{
 						sub = new ServerSubscription(target,type);
-
 						this.socket.emit("subscribe",{ id : sub.id, target : sub.target, type : sub.type});
 
 						sub.callbacks.push(callback);

@@ -216,7 +216,7 @@
                             this.updateSensorData();
                             this.updateFilters();
                             this.activeMapRenderer.addLayer(layer);
-                            this.checkLayerLegend(layer);
+                            if (layer.defaultLegendProperty) this.checkLayerLegend(layer,layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
                             this.$messageBusService.publish('layer', 'activated', layer);
                         });
@@ -235,9 +235,11 @@
             ]);
         }
 
-        checkLayerLegend(layer: ProjectLayer) {
-            if (layer.defaultLegendProperty) {
-                var ptd = this.project.propertyTypeData[layer.defaultLegendProperty];
+
+
+        checkLayerLegend(layer: ProjectLayer,property : string) {
+
+                var ptd = this.project.propertyTypeData[property];
                 if (ptd && ptd.legend) {
                     var gs: GroupStyle;
                     if (layer.group.styles && (layer.group.styles.length > 0)) {
@@ -246,8 +248,9 @@
                         gs = new GroupStyle(this.$translate);
                         layer.group.styles.push(gs);
                     }
+                    gs.title = ptd.title;
                     gs.activeLegend = ptd.legend;
-                    gs.property = layer.defaultLegendProperty;
+                    gs.property = property;
                     gs.legends[ptd.title] = ptd.legend;
                     gs.colorScales[ptd.title] = ['purple', 'purple'];
                     gs.enabled = true;
@@ -264,7 +267,7 @@
                     this.noStyles = false;   // TODO: when does this need to be reset?
                                              // upon deactivation of the layer? (but other layers can also have active styles)
                 }
-            }
+
         }
 
         checkLayerTimer(layer : ProjectLayer)
@@ -697,6 +700,8 @@
             return r;
         }
 
+        
+
         /**
          * Creates a GroupStyle based on a property and adds it to a group.
          * If the group already has a style which contains legends, those legends are copied into the newly created group.
@@ -714,23 +719,23 @@
 
                 var gs = new GroupStyle(this.$translate);
                 // add the legends and colorscales from any existing group style
-                if (lg.styles && (lg.styles.length > 0)) {
-                    var gs0 = lg.styles[0];
-                    gs0.title = property.key;
-                    var legend: Legend;
-                    var legendKey: string;
-                    for (legendKey in gs0.legends) {
-                        legend = gs0.legends[legendKey];
-                        gs.legends[legendKey] = legend;
-                        if ((legend.legendEntries) && (legend.legendEntries.length > 0)) {
-                            var e1: LegendEntry = legend.legendEntries[0];
-                            var e2: LegendEntry = legend.legendEntries[legend.legendEntries.length - 1];
-                            gs.colorScales[legendKey] = [e1.color, e2.color]
-                        } else {
-                            gs.colorScales[legendKey] = ['red', 'red'];
-                        }
-                    }
-                }
+                // if (lg.styles && (lg.styles.length > 0)) {
+                //     var gs0 = lg.styles[0];
+                //     gs0.title = property.key;
+                //     var legend: Legend;
+                //     var legendKey: string;
+                //     for (legendKey in gs0.legends) {
+                //         legend = gs0.legends[legendKey];
+                //         gs.legends[legendKey] = legend;
+                //         if ((legend.legendEntries) && (legend.legendEntries.length > 0)) {
+                //             var e1: LegendEntry = legend.legendEntries[0];
+                //             var e2: LegendEntry = legend.legendEntries[legend.legendEntries.length - 1];
+                //             gs.colorScales[legendKey] = [e1.color, e2.color]
+                //         } else {
+                //             gs.colorScales[legendKey] = ['red', 'red'];
+                //         }
+                //     }
+                // }
 
                 gs.id = Helpers.getGuid();
                 gs.title = property.key;

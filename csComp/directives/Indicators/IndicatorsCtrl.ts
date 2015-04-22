@@ -94,9 +94,19 @@
             if (!this.$scope.data || !this.$scope.data.indicators ) return;
             this.$scope.data.indicators.forEach((i) => {
                 if (i.layer != null) {
-                    var l = this.$layerService.findLayer(i.layer);
+                    var ss = i.layer.split('/');
+                    var l = this.$layerService.findLayer(ss[0]);
                     if (l != null) {
-                        i.isActive = l.enabled;
+                        if (ss.length>1)
+                        {
+                          i.isActive =  l.enabled && l.group.styles.some((gs:csComp.Services.GroupStyle)=>{ return gs.property == ss[1]; });
+                        }
+                        else
+                        {
+                          i.isActive = l.enabled;
+                        }
+
+
                     }
                 }
             });
@@ -105,12 +115,21 @@
 
         public selectIndicator(i: indicator) {
             if (i.layer != null) {
-                var l = this.$layerService.findLayer(i.layer);
+              var ss = i.layer.split('/');
+                var l = this.$layerService.findLayer(ss[0]);
                 if (l != null) {
-                    this.$layerService.addLayer(l);
+                    if (l.enabled)
+                    {
+                      this.$layerService.checkLayerLegend(l,ss[1]);
+                    }
+                    else{
+                      if (ss.length>1) l.defaultLegendProperty = ss[1];
+                      this.$layerService.addLayer(l);
+                    }
                 }
 
             }
+            this.checkLayers();
             //console.log(i.title);
         }
 

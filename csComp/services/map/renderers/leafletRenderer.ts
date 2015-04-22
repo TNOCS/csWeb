@@ -417,7 +417,8 @@ module csComp.Services {
                             value = Helpers.convertPropertyInfo(s.meta, value);
                             if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
                         }
-                        rowLength = Math.max(rowLength, valueLength + s.title.length);
+                        var tl = s.title ? s.title.length : 10;
+                        rowLength = Math.max(rowLength, valueLength + tl);
                         content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
                     }
                 });
