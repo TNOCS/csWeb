@@ -262,7 +262,9 @@
     overflow: hidden;
     padding-left: 0;
     padding-top: 30px;
-    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFMSURBVEiJ7ZaxagJBEIa/DV5hYWm6cClsRPAZ9Al8EN9E0qTzBVL7EmIhpNQiVUIEK/GwEUJg0kxgM9ze7RnxCh0YDu6f+T8Z93bXiQh1xF0t1Bv4KsCN2ELnXAN4AB6BVJ8A78CHPj9F5DvKUEQKE+gDz8AOkJLcaW2/1LcAOAKWEbBQLoFRNBhoAtN/AG1OgWYhWMe6Dhgs1OSYox1VWwR613b8PrQD7E1DBjwBXWAIHIAXTWt+0Jqu9mRG3wOdP2CgBaxM4QboqZ6o0dz7ofMceAYkqvfUw9dXQOv3fHDAzBS8AakHGej7LXCvuQ2MdeD1perl6zNlMjbCK9A2//3E0780Q4tpYnrb6unXjKM3EC+SE3pyo8qoYzJu1BUXVxk0fnGd8DmFoNU/p1o3kFq3zFoPiUsdiy72envui0A0+NxxfZe9G/hi8QNZYH9sfYbZcgAAAABJRU5ErkJggg==') /*images/style-black.png*/ no-repeat left center;
+    background: url('data:image/svg+xml;utf8,<svg height="48" viewBox="0 0 48 48" width="48" xmlns="http://www.w3.org/2000/svg"><path d="M24 6C14.06 6 6 14.06 6 24s8.06 18 18 18c1.66 0 3-1.34 3-3 0-.78-.29-1.48-.78-2.01-.47-.53-.75-1.22-.75-1.99 0-1.66 1.34-3 3-3H32c5.52 0 10-4.48 10-10 0-8.84-8.06-16-18-16zM13 24c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm6-8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm10 0c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm6 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/><path d="M0 0h48v48H0z" fill="none"/></svg>');
+    background-size: 32px 32px;
+    /*background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAFMSURBVEiJ7ZaxagJBEIa/DV5hYWm6cClsRPAZ9Al8EN9E0qTzBVL7EmIhpNQiVUIEK/GwEUJg0kxgM9ze7RnxCh0YDu6f+T8Z93bXiQh1xF0t1Bv4KsCN2ELnXAN4AB6BVJ8A78CHPj9F5DvKUEQKE+gDz8AOkJLcaW2/1LcAOAKWEbBQLoFRNBhoAtN/AG1OgWYhWMe6Dhgs1OSYox1VWwR613b8PrQD7E1DBjwBXWAIHIAXTWt+0Jqu9mRG3wOdP2CgBaxM4QboqZ6o0dz7ofMceAYkqvfUw9dXQOv3fHDAzBS8AakHGej7LXCvuQ2MdeD1perl6zNlMjbCK9A2//3E0780Q4tpYnrb6unXjKM3EC+SE3pyo8qoYzJu1BUXVxk0fnGd8DmFoNU/p1o3kFq3zFoPiUsdiy72envui0A0+NxxfZe9G/hi8QNZYH9sfYbZcgAAAABJRU5ErkJggg==') /*images/style-black.png*/ no-repeat left center;*/
 }
 
 .featuresIcon {
@@ -290,11 +292,12 @@
 
 .smallStyleIcon {
     overflow: hidden;
-    padding-left: 0;
-    padding-top: 12px;
     float: left;
-    width: 15px;
-    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAACXBIWXMAAAQmAAAEJgELCP9kAAABJ0lEQVR42qVTO07FQAx0PhQUr6RGSDQIiSK5ACQH4ASR6LkEaRENHbegS5P2iQKJEgpqWgSiIf/g2WdHhhdAgkgTez1jb+zd0DiONAwDwVZVRU3TUNu2sxa81bsXyL7vnf8boIPeJXddNxFlWVKaphRFEcVx/MkiDl61KOCcoigoSRIyT8g4YpwxThg7SqAI9G7nLMumjCAIjhmj7/trQJxxq9o8z1eO53nEggd2R8EN492sr9RHIdYf6G4w90I+SeFXsUtTYIOxr+swDBcQnErgzvSMdWMSgXPhtqYY7+wZwbZJ/opD4R5l52vteRe9iOhCJm0T3xh7aEd6fnGJZtqbMtGfpq3DW0175pwxyeeZz75cO+d/37A/3237lyBY1/W30CTVfwCiYE4pOFs0qQAAAABJRU5ErkJggg==') /*cssImages/style-black-small.png*/ no-repeat left center;
+    width: 16px;
+    padding-top: 16px;
+    background: url('data:image/svg+xml;utf8,<svg style="fill: #428BCA" height="48" viewBox="0 0 48 48" width="48" xmlns="http://www.w3.org/2000/svg"><path d="M24 6C14.06 6 6 14.06 6 24s8.06 18 18 18c1.66 0 3-1.34 3-3 0-.78-.29-1.48-.78-2.01-.47-.53-.75-1.22-.75-1.99 0-1.66 1.34-3 3-3H32c5.52 0 10-4.48 10-10 0-8.84-8.06-16-18-16zM13 24c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm6-8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm10 0c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm6 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/><path d="M0 0h48v48H0z" fill="none"/></svg>') no-repeat left;
+    background-size: 16px 16px;
+    /*background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAACXBIWXMAAAQmAAAEJgELCP9kAAABJ0lEQVR42qVTO07FQAx0PhQUr6RGSDQIiSK5ACQH4ASR6LkEaRENHbegS5P2iQKJEgpqWgSiIf/g2WdHhhdAgkgTez1jb+zd0DiONAwDwVZVRU3TUNu2sxa81bsXyL7vnf8boIPeJXddNxFlWVKaphRFEcVx/MkiDl61KOCcoigoSRIyT8g4YpwxThg7SqAI9G7nLMumjCAIjhmj7/trQJxxq9o8z1eO53nEggd2R8EN492sr9RHIdYf6G4w90I+SeFXsUtTYIOxr+swDBcQnErgzvSMdWMSgXPhtqYY7+wZwbZJ/opD4R5l52vteRe9iOhCJm0T3xh7aEd6fnGJZtqbMtGfpq3DW0175pwxyeeZz75cO+d/37A/3237lyBY1/W30CTVfwCiYE4pOFs0qQAAAABJRU5ErkJggg==') /*cssImages/style-black-small.png*/ no-repeat left center;*/
 }
 
 .leaflet-popup-content-wrapper {
@@ -892,3 +895,17 @@
     background:#fff
 }
 /* END USER EXPERIENCE STYLE */
+#cesiumContainer {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+#contextMenu {
+    position: absolute;
+    display: none;
+}
+a:focus {
+    color: #FFF;
+}

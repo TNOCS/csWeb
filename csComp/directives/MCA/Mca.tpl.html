@@ -25,7 +25,7 @@
            data-ng-style="sparkLineStyle"
            class="pull-right" style="margin-right:5px;"><i class="fa fa-bar-chart"></i></a>
     </div>
-    
+
     <div data-ng-if="!vm.mca">
         <div data-ng-if="vm.expertMode"  translate>MCA.INFO_EXPERT</div>
         <div data-ng-if="!vm.expertMode" translate>MCA.INFO</div>
@@ -69,7 +69,7 @@
             <a href="" data-ng-click="vm.weightUpdated(vm.mca)" translate="MCA.TOTAL_RESULT"></a>
             <a href="" data-ng-if="vm.selectedCriterion">&gt;&nbsp;{{vm.selectedCriterion.title}}</a>
         </h4>
-        
+
         <a href="" data-ng-if="vm.showFeature" class="pull-right" data-ng-click="vm.toggleMcaChartType();" style="margin-right: 10px">
             <i class="fa" data-ng-class="{true: \'fa-bar-chart\', false: \'fa-pie-chart\'}[vm.showAsterChart]"></i>
         </a>
@@ -88,7 +88,7 @@
                     popover-trigger="mouseenter"
                     popover-append-to-body="true">
                     <td><a class="fa fa-filter makeNarrow" data-ng-if="item.canFilter" data-ng-click="vm.$layerService.setFilter(item)" style="cursor: pointer"></a></td>
-                    <td><a class="fa fa-eye makeNarrow" data-ng-if="item.canStyle" data-ng-click="vm.setStyle(item)" style="cursor: pointer"></a></td>
+                    <td><a class="smallStyleIcon makeNarrow" data-ng-if="item.canStyle" data-ng-click="vm.setStyle(item)" style="cursor: pointer"></a></td>
                     <td>{{item.key}}</td>
                     <td class="text-right">{{item.value}}</td>
                 </tr>

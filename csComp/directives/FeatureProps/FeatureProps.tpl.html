@@ -2,7 +2,7 @@
     <h4 class="rightpanel-header">
         <img data-ng-if="callOut.icon" data-ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" />
         &nbsp;&nbsp;{{callOut.title}}
-    </h4>    
+    </h4>
     <div class="container-fluid rightpanel-tabs" style="position: relative">
         <div class="row" style="overflow:hidden" ng-if="callOut.sectionCount() < 4">
             <!-- Nav tabs -->
@@ -19,13 +19,13 @@
                 </li>
             </ul>
         </div>
-        
+
         <div class="row" ng-if="callOut.sectionCount() >= 4">
             <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
                 <li data-toggle="tab" class="active" ng-init="firstCallOutsection=callOut.firstSection()">
                     <a ng-href="#rp-0" data-toggle="tab" data-ng-if="firstCallOutsection.showSectionIcon()" >
                         <i class="fa {{firstCallOutsection.sectionIcon}}"></i>
-                    </a>                    
+                    </a>
                 </li>
                 <li class="dropdown" ng-init="selectedSection.title=\'...\'">
                     <a style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"></span></a>
@@ -38,18 +38,18 @@
                     </ul>
                 </li>
                 <li data-toggle="tab" ng-init="lastCallOutsection=callOut.lastSection()">
-                    <a ng-href="#rp-{{callOut.sectionCount()-1}}" data-toggle="tab" 
+                    <a ng-href="#rp-{{callOut.sectionCount()-1}}" data-toggle="tab"
                        data-ng-if="lastCallOutsection.showSectionIcon()">
                         <i class="fa {{lastCallOutsection.sectionIcon}}"></i>
-                    </a>                    
+                    </a>
                 </li>
             </ul>
         </div>
     </div>
-    
+
     <div class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
-        <div data-ng-if="!$last" class="tab-pane" data-ng-class="{active : $first}" 
-             id="rp-{{$index}}" 
+        <div data-ng-if="!$last" class="tab-pane" data-ng-class="{active : $first}"
+             id="rp-{{$index}}"
              data-ng-repeat="(sectionTitle, section) in callOut.sections">
             <!--<td>
                     <span class="dropdown">
@@ -69,7 +69,7 @@
                      data-ng-repeat="item in section.properties">
                     <div class="panel-heading" style="min-height: 36px">
                         <div class="pull-left accordionIcon"><a class="fa fa-filter makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a></div>
-                        <div class="pull-left accordionIcon"><a class="fa fa-eye makeNarrow" data-ng-show="item.canStyle" data-ng-click="vm.$layerService.setStyle(item)" style="cursor: pointer"></a></div>
+                        <div class="pull-left accordionIcon"><a class="smallStyleIcon makeNarrow" data-ng-show="item.canStyle" data-ng-click="vm.$layerService.setStyle(item)" style="cursor: pointer"></a></div>
                         <div class="pull-left accordionIcon" data-ng-if="item.isSensor">
                             <a class="fa fa-line-chart makeNarrow"
                                data-toggle="collapse"
@@ -147,7 +147,7 @@
                 </tr>
             </table>-->
         </div>
-        
+
         <!--SimpleTimeline component-->
         <div data-ng-if="vm.showSimpleTimeline" style="margin-left: 10px">
             <div class="btn-group" dropdown is-open="status.isopen">
@@ -155,7 +155,7 @@
                     {{vm.focusTime}} <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
-                    <li data-ng-repeat="ts in vm.timestamps" 
+                    <li data-ng-repeat="ts in vm.timestamps"
                         data-ng-click="vm.setTime(ts)">{{ts.title}}</li>
                 </ul>
             </div>

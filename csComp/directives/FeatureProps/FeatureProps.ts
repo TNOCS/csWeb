@@ -21,7 +21,7 @@
       * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
       * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
       */
-    myModule.directive('featureprops', [ '$compile',
+    myModule.directive('featureprops', [ '$compile', 
         function($compile): ng.IDirective {
             return {
                 terminal  : true,       // do not compile any other internal directives

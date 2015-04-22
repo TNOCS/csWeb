@@ -52,28 +52,28 @@ var gulp      = require('gulp'),
             .pipe(gulp.dest('./dist'));
     });
 
-gulp.task('debug-built', function() {
-    var assets = useref.assets();
-
-    return gulp.src('./index.html')
-        .pipe(assets)
-        .pipe(assets.restore())
-        .pipe(useref())
-        .pipe(gulp.dest('dist'));
-});
-
-gulp.task('release-built', function() {
-    var assets = useref.assets();
-
-    return gulp.src('./index.html')
-        .pipe(assets)
-        .pipe(gulpif('*.js', uglify()))
-        //.pipe(gulpif('*.css', minifyCss()))
-        .pipe(assets.restore())
-        .pipe(useref())
-        .pipe(gulp.dest('dist'))
-        .on('error', gutil.log);
-});
+// gulp.task('debug-built', function() {
+//     var assets = useref.assets();
+//
+//     return gulp.src('./index.html')
+//         .pipe(assets)
+//         .pipe(assets.restore())
+//         .pipe(useref())
+//         .pipe(gulp.dest('dist'));
+// });
+//
+// gulp.task('release-built', function() {
+//     var assets = useref.assets();
+//
+//     return gulp.src('./index.html')
+//         .pipe(assets)
+//         .pipe(gulpif('*.js', uglify()))
+//         //.pipe(gulpif('*.css', minifyCss()))
+//         .pipe(assets.restore())
+//         .pipe(useref())
+//         .pipe(gulp.dest('dist'))
+//         .on('error', gutil.log);
+// });
 
 // gulp.task('run node', function (cb) {
 //   exec('node server.js', function (err, stdout, stderr) {
@@ -101,10 +101,8 @@ gulp.task('convertTemplates2Ts', function() {
 
 gulp.task('watch', function () {
     gulp.watch('./**/*.tpl.html', ['convertTemplates2Ts']);
-    gulp.watch('./js/**/*.js',['built']);
-    gulp.watch('./js/**/*.d.ts',['builtDef']);
-    
-
+    gulp.watch('./js/**/*.js', ['built']);
+    gulp.watch('./js/**/*.d.ts', ['builtDef']);
 });
 
 gulp.task('default', ['convertTemplates2Ts', 'watch']);

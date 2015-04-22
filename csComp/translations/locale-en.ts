@@ -10,7 +10,7 @@
             FILTERS                 : 'Filters',
             FILTER_INFO             : 'At the moment, no filters have been selected. In order to add a filter, click on an icon or area on the map, and click on the filter icon (<span class="fa fa-filter"></span>) in the right menu. This will create a filter for the selected property.',
             STYLES                  : 'Styles',
-            STYLE_INFO              : 'At the moment, no style has been selected. In order to add a style, click on an icon or area on the map, and click on the style icon (<span class="fa fa-eye"></span>) in the right menu. This will create a filter for the selected property.',
+            STYLE_INFO              : 'At the moment, no style has been selected. In order to add a style, click on an icon or area on the map, and click on the style icon (<span class="smallStyleIcon"></span>) in the right menu. This will create a filter for the selected property.',
             FEATURES                : 'Features',
             LEGEND                  : 'Legend',
             SEARCH                  : 'Search',
@@ -115,4 +115,4 @@
             SHOW40                  : 'Show 40 items'
         };
     }
-} 
+}
