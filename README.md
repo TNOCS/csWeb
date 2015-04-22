@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/tnocs/csweb.png?label=ready&title=Ready)](https://waffle.io/tnocs/csweb)
 # README #
 
 ### What is this repository for? ###
