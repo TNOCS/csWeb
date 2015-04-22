@@ -159,7 +159,6 @@
 
             this.layerSources["geojson"] = geojsonsource;
             this.layerSources["topojson"] = geojsonsource;
-
             this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
 
             // add wms source
@@ -231,6 +230,7 @@
                         l.enabled = false;
                     });
                     callback(null, null);
+
                 }
             ]);
         }
@@ -269,6 +269,7 @@
 
         checkLayerTimer(layer : ProjectLayer)
         {
+          console.log('check layer timer');
           if (layer.refreshTimer)
           {
             if (layer.enabled && !layer.timerToken)
@@ -709,7 +710,6 @@
                 this.noStyles = false;
                 // for debugging: what do these properties contain?
                 var layer = f.layer;
-                console.log(this.propertyTypeData);
                 var lg = layer.group;
 
                 var gs = new GroupStyle(this.$translate);
@@ -1099,6 +1099,7 @@
             if (layers) {
                 layers.split(';').forEach((layerId) => { layerIds.push(layerId.toLowerCase()); });
             }
+            //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
             this.clearLayers();
             this.featureTypes = {};
 
@@ -1148,11 +1149,18 @@
                             DataSource.LoadData(ds,() => {
                               console.log('datasource loaded');
                                 if (ds.type == "dynamic") this.checkDataSourceSubscriptions(ds);
+
                                 for (var s in ds.sensors) {
-                                  var ss = ds.sensors[s];
+                                    var ss = ds.sensors[s];
                                     ss.activeValue = ss.values[ss.values.length - 1];
+                                    console.log(ss.activeValue);
+
+
+                                    //console.log(s);
                                 }
+
                             });
+
                         }
                     });
                 }
@@ -1227,9 +1235,9 @@
                 if (this.project.connected) {
                     // check connection
                     this.$messageBusService.initConnection("", "",() => {
-                      console.log("connect establesd");
-                      this.checkSubscriptions();
+
                     });
+
                 }
 
                 this.$messageBusService.publish('project', 'loaded', this.project);
@@ -1238,36 +1246,36 @@
         }
 
         checkDataSourceSubscriptions(ds : DataSource)
-        {
-            for (var s in ds.sensors)
-            {
-              this.$messageBusService.serverSubscribe(s,"sensor",(sub: string, msg: any)=>
-              {
-                if (msg.action=="sensor-update")
-                {
-                  var d = msg.data[0];
-                  var ss : SensorSet = ds.sensors[d.sensor];
-                  if (ss!=null)
-                  {
-                    ss.timestamps.push(d.date);
-                    ss.values.push(d.value);
-                    ss.activeValue = d.value;
-                    //this.$messageBusService.publish("sensor-"+ds.id + "/" + s,"update",ss.activeValue);
-                    this.$rootScope.$apply();
-                  }
-                }
-              });
-          }
-      }
+   {
+       for (var s in ds.sensors)
+       {
+         this.$messageBusService.serverSubscribe(s,"sensor",(sub: string, msg: any)=>
+         {
+           if (msg.action=="sensor-update")
+           {
+             var d = msg.data[0];
+             var ss : SensorSet = ds.sensors[d.sensor];
+             if (ss!=null)
+             {
+               ss.timestamps.push(d.date);
+               ss.values.push(d.value);
+               ss.activeValue = d.value;
+               //this.$messageBusService.publish("sensor-"+ds.id + "/" + s,"update",ss.activeValue);
+               this.$rootScope.$apply();
+             }
+           }
+         });
+     }
+ }
 
-        checkSubscriptions()
-        {
-          this.project.datasources.forEach((ds: DataSource) => {
-              if (ds.url && ds.type=="dynamic") { this.checkDataSourceSubscriptions(ds); }
-            });
-          //this.project.datasources.for
+   checkSubscriptions()
+   {
+     this.project.datasources.forEach((ds: DataSource) => {
+         if (ds.url && ds.type=="dynamic") { this.checkDataSourceSubscriptions(ds); }
+       });
+     //this.project.datasources.for
 
-        }
+   }
 
         closeProject() {
             if (this.project == null) return;
