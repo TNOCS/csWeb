@@ -18,6 +18,10 @@
         description     : string;
         layers          : Array<ProjectLayer>;
         filters         : Array<GroupFilter>;
+        /* Including styles in (projectgroups in) project.json files is probably not a good idea, in case the layers
+           in the group have properties (attributes), as for example in geojson files.
+           This is because when selecting a property for styling, the call to setStyle leads to the creation of a new 
+           group and deletion of existing styles. */
         styles          : Array<GroupStyle>;
         showTitle       : boolean;
         cluster         : L.MarkerClusterGroup;

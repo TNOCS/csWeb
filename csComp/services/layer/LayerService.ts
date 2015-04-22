@@ -170,7 +170,7 @@
 
             //add heatmap layer
             this.layerSources["heatmap"] = new HeatmapSource(this);
-    }
+        }
 
         public loadRequiredLayers(layer: ProjectLayer) {
             // find layer source, and activate layer
@@ -217,6 +217,7 @@
                             this.updateSensorData();
                             this.updateFilters();
                             this.activeMapRenderer.addLayer(layer);
+                            this.checkLayerLegend(layer);
                             this.checkLayerTimer(layer);
                             this.$messageBusService.publish('layer', 'activated', layer);
                         });
@@ -233,6 +234,38 @@
 
                 }
             ]);
+        }
+
+        checkLayerLegend(layer: ProjectLayer) {
+            if (layer.defaultLegendProperty) {
+                var ptd = this.project.propertyTypeData[layer.defaultLegendProperty];
+                if (ptd && ptd.legend) {
+                    var gs: GroupStyle;
+                    if (layer.group.styles && (layer.group.styles.length > 0)) {
+                        gs = layer.group.styles[0];  // TODO: when do we need a different one than the first?
+                    } else {
+                        gs = new GroupStyle(this.$translate);
+                        layer.group.styles.push(gs);
+                    }
+                    gs.activeLegend = ptd.legend;
+                    gs.property = layer.defaultLegendProperty;
+                    gs.legends[ptd.title] = ptd.legend;
+                    gs.colorScales[ptd.title] = ['purple', 'purple'];
+                    gs.enabled = true;
+                    gs.visualAspect = 'strokeColor';  // TODO: let this be read from the propertyTypeData
+
+                    this.saveStyle(layer.group, gs);
+                    this.project.features.forEach((fe: IFeature) => {
+                        if (fe.layer.group == layer.group) {
+                            this.calculateFeatureStyle(fe);
+                            this.activeMapRenderer.updateFeature(fe);
+                        }
+                    });
+
+                    this.noStyles = false;   // TODO: when does this need to be reset?
+                                             // upon deactivation of the layer? (but other layers can also have active styles)
+                }
+            }
         }
 
         checkLayerTimer(layer : ProjectLayer)
@@ -264,8 +297,11 @@
             this.updateGroupFeatures(g);
         }
 
-        // class LayerService
-        updatePropertyStyle(k: any, v: any, parent: any) {
+        updatePropertyStyle(k: string, v: any, parent: any) {
+        // method of class LayerService
+        /* k, v is key-value pair of style.colorScales => key is a string */
+        /* value is in most cases a list of two strings. actually it is not used in this function */
+        /* parent is a ??which class??  ($parent in stylelist.tpl.html) */
             //alert('key = ' + k + '; value = ' + v);
             var l: Legend;
             l = parent.style.legends[k];
@@ -280,9 +316,6 @@
                 parent.style.colors = [e1.color, e2.color]
             }
             parent.style.activeLegend = l;
-            //alert('parent.style.colors=' + parent.style.colors);
-            //for gs in groupstyles {
-            // }
         }
 
         updateStyle(style: GroupStyle) {
@@ -671,6 +704,7 @@
          * Already existing groups (for the same visualAspect) are replaced by the new group
          */
         public setStyle(property: any, openStyleTab = true, customStyleInfo?: PropertyInfo) {
+        // parameter property is of the type ICallOutProperty. explicit declaration gives the red squigglies
             var f: IFeature = property.feature;
             if (f != null) {
                 var ft = this.getFeatureType(f);

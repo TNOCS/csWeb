@@ -178,6 +178,8 @@
 
     /** layer information. a layer is described in a project file and is always part of a group */
     export class ProjectLayer {
+        /** key of the propertyTypeData entry that provides a legend for this layer **/
+        defaultLegendProperty: string;
         /** Title as displayed in the menu */
         title: string;
         /** Number of features in the layer */
