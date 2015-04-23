@@ -100,6 +100,7 @@
 
 				public reSubscribeAll()
 				{
+					console.log('resubscribing...');
 					for (var s in this.subscriptions)
 					{
 						console.log('reconnecting ' + s);
@@ -149,21 +150,21 @@
                 this.isConnecting = false;
                 this.isConnected = true;
                 this.events.trigger("connected");
-								this.reSubscribeAll();
+		this.reSubscribeAll();
                 callback();
             });
             this.socket.on('disconnect',() => {
-							console.log('socket.io disconnected');
+		console.log('socket.io disconnected');
                 this.isConnecting = false;
                 this.isConnected = false;
             });
             this.socket.on('reconnect_attempt',() => {
-							console.log('socket.io reconnect attempt');
+		console.log('socket.io reconnect attempt');
                 this.isConnecting = true;
                 this.isConnected = false;
             });
             this.socket.on('reconnect_failed',() => {
-							console.log('socket.io reconnect failed');
+		console.log('socket.io reconnect failed');
                 this.isConnecting = false;
             });
 
