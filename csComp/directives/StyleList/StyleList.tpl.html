@@ -1,7 +1,7 @@
 ﻿<div>
     <h4 class="leftpanel-header" translate="STYLES"></h4>
     <div ng-show="vm.$layerService.noStyles" translate="STYLE_INFO"></div>
-    <div data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px">
+    <div data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;clear:left;float:left">
         <div ng-show="group.styles.length">
             <div style="float:left;margin-left: -10px; margin-top: 5px" data-toggle="collapse" data-target="#stylegroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
             <div class="group-title">{{group.title}}</div>
@@ -98,7 +98,7 @@
                             left: 55px;
                         }
                     </style>
-                    <div data-ng-if="style.activeLegend">
+                    <div data-ng-if="style.activeLegend && style.enabled" style="float:left;clear:left">
                         <div data-ng-if="style.activeLegend.legendKind==\'discrete\' ||  style.activeLegend.legendKind==\'discretestrings\'  ">
                             <div class="legend-description">{{style.activeLegend.description}}</div>
                             <!--<div class="legend-description">22:24</div>-->
@@ -124,6 +124,7 @@
                             </ul>
                         </div>
                     </div>
+                  </div>
                 </div>
             </div>
         </div>

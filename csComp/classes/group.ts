@@ -6,8 +6,8 @@
     }
 
 
-    /** a project group contains a list of layers that can be grouped together. 
-     * Filters, styles can clustering is always defined on the group level. 
+    /** a project group contains a list of layers that can be grouped together.
+     * Filters, styles can clustering is always defined on the group level.
      * If a filter is selected (e.g. show only the features within a certain property range)
      * this filter is applied to all layers within this group.
      * If clustering is enabled all features in all layers are grouped together
@@ -20,7 +20,7 @@
         filters         : Array<GroupFilter>;
         /* Including styles in (projectgroups in) project.json files is probably not a good idea, in case the layers
            in the group have properties (attributes), as for example in geojson files.
-           This is because when selecting a property for styling, the call to setStyle leads to the creation of a new 
+           This is because when selecting a property for styling, the call to setStyle leads to the creation of a new
            group and deletion of existing styles. */
         styles          : Array<GroupStyle>;
         showTitle       : boolean;
@@ -43,7 +43,7 @@
     }
 
     /**
-     * Filters are used to select a subset of features within a group. 
+     * Filters are used to select a subset of features within a group.
      */
     export class GroupFilter {
         id         : string;
@@ -79,7 +79,7 @@
         meta            : IPropertyType;
         legends         : { [key: string] : Legend; }
         activeLegend    : Legend;
-	    fixedColorRange : boolean; 
+	    fixedColorRange : boolean;
 
         constructor($translate: ng.translate.ITranslateService) {
 
@@ -138,6 +138,7 @@
         id: string;
         description: string;
         legendKind: string;
+        visualAspect : string;
         legendEntries: LegendEntry[];
         // it is assumed that the legendentries have their values and/or intervals
         // sorted in ascending order
@@ -154,4 +155,4 @@
         color: string;  // hex string; rgb
     }
 
-} 
+}

@@ -249,12 +249,14 @@
                         layer.group.styles.push(gs);
                     }
                     gs.title = ptd.title;
+                    gs.id = Helpers.getGuid();
                     gs.activeLegend = ptd.legend;
+                    gs.group = layer.group;
                     gs.property = property;
                     gs.legends[ptd.title] = ptd.legend;
                     gs.colorScales[ptd.title] = ['purple', 'purple'];
                     gs.enabled = true;
-                    gs.visualAspect = 'strokeColor';  // TODO: let this be read from the propertyTypeData
+                    gs.visualAspect = (ptd.legend.visualAspect) ? ptd.legend.visualAspect : 'strokeColor';  // TODO: let this be read from the propertyTypeData
 
                     this.saveStyle(layer.group, gs);
                     this.project.features.forEach((fe: IFeature) => {
@@ -700,7 +702,7 @@
             return r;
         }
 
-        
+
 
         /**
          * Creates a GroupStyle based on a property and adds it to a group.
@@ -1265,7 +1267,7 @@
                ss.timestamps.push(d.date);
                ss.values.push(d.value);
                ss.activeValue = d.value;
-               //this.$messageBusService.publish("sensor-"+ds.id + "/" + s,"update",ss.activeValue);
+               this.$messageBusService.publish("sensor-"+ds.id + "/" + d.sensor,"update",ss.activeValue);
                this.$rootScope.$apply();
              }
            }
@@ -1338,7 +1340,7 @@
                         }
                     });
                 }
-            });
+            }); 
             if (isNaN(sum) || r.count == 0) {
                 r.sdMax = r.max;
                 r.sdMin = r.min;

@@ -32,7 +32,8 @@
         public static $inject = [
             '$scope',
             'layerService',
-            'messageBusService'
+            'messageBusService',
+            'mapService'
         ];
 
         // dependencies are injected via AngularJS $injector
@@ -40,7 +41,8 @@
         constructor(
             private $scope       : ILayersDirectiveScope,
             private $layerService: csComp.Services.LayerService,
-            private $messageBus: csComp.Services.MessageBusService
+            private $messageBus: csComp.Services.MessageBusService,
+            private $mapService : csComp.Services.MapService
             ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
@@ -58,8 +60,8 @@
                       switch(action)
                       {
                         case "update":
-                          console.log("sensor update:" + data);
-                          this.updateIndicator(i);
+                          //console.log("sensor update:" + data);
+                          //this.updateIndicator(i);
                           break;
                       }
 
@@ -67,15 +69,8 @@
                     this.updateIndicator(i);
                 }
             });
-
-            setInterval(()=>
-            {
-              console.log("active value: " + $scope.data.indicators[0].sensorSet.activeValue);
-            },5000);
-
-
-
-
+            this.checkLayers();
+            this.$scope.$apply();
         }
 
         public updateIndicator(i : indicator)
@@ -91,6 +86,7 @@
         }
 
         private checkLayers() {
+            if (!this.$layerService.visual.mapVisible) return;
             if (!this.$scope.data || !this.$scope.data.indicators ) return;
             this.$scope.data.indicators.forEach((i) => {
                 if (i.layer != null) {
@@ -114,6 +110,7 @@
         }
 
         public selectIndicator(i: indicator) {
+            if (!this.$layerService.visual.mapVisible) return;
             if (i.layer != null) {
               var ss = i.layer.split('/');
                 var l = this.$layerService.findLayer(ss[0]);

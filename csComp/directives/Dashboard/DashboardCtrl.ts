@@ -77,6 +77,7 @@
             //};
 
             $scope.initDashboard = () => {
+                //if (!$scope.container) $scope.container = "main";
                 $messageBusService.subscribe("dashboard-" + $scope.container,(s: string, d: csComp.Services.Dashboard) => {
                     this.project = $layerService.project;
                     this.project.activeDashboard = d;
