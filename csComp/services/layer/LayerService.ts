@@ -1266,6 +1266,11 @@
              {
                ss.timestamps.push(d.date);
                ss.values.push(d.value);
+               while (ss.timestamps.length>25)
+               {
+                 ss.timestamps.shift();
+                 ss.values.shift();
+               }
                ss.activeValue = d.value;
                this.$messageBusService.publish("sensor-"+ds.id + "/" + d.sensor,"update",ss.activeValue);
                this.$rootScope.$apply();
@@ -1340,7 +1345,7 @@
                         }
                     });
                 }
-            }); 
+            });
             if (isNaN(sum) || r.count == 0) {
                 r.sdMax = r.max;
                 r.sdMin = r.min;

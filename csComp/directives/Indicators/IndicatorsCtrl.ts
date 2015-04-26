@@ -15,11 +15,11 @@
         isActive: boolean;
         id: string;
     }
-
+    
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
         data: indicatorData;
-    } 
+    }
 
     export class LayersDirectiveCtrl {
         private scope: ILayersDirectiveScope;
