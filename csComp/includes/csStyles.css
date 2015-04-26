@@ -682,8 +682,7 @@
 
 .sparkline-path {
     stroke: steelblue;
-    stroke-width: 1;
-    fill: none;
+    stroke-width: 1;    
 }
 .sparkline-axis path,
 .sparkline-axis line {

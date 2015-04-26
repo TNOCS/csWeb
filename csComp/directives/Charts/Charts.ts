@@ -6,13 +6,13 @@
     var moduleName = 'csWeb.charts';
 
     /**
-      * Module        
+      * Module
       */
     export var myModule;
     try {
         myModule = angular.module(moduleName);
-    } catch (err) { 
-        // named module does not exist, so create one                                             
+    } catch (err) {
+        // named module does not exist, so create one
         myModule = angular.module(moduleName, []);
     }
 
@@ -23,8 +23,9 @@
         sensor    : number[];
         width?    : number;
         height?   : number;
+        closed? : boolean;
         margin?   : { top: number; right: number; bottom: number; left: number; };
-        showaxis? : boolean; 
+        showaxis? : boolean;
     }
 
     export interface IBarchartScope extends ng.IScope {
@@ -42,12 +43,13 @@
         .directive('sparklineChart', ['$filter',
         function ($filter): ng.IDirective {
             return {
-                terminal: true,       // do not compile any other internal directives 
+                terminal: true,       // do not compile any other internal directives
                 restrict: 'EA',       // E = elements, other options are A=attributes and C=classes
                 scope: {
                     timestamps: '=',  // = means that we use angular to evaluate the expression,
                     sensor    : '=',
                     showaxis  : '=',
+                    closed : '=',
                     width     : '@',  // the value is used as is
                     height    : '@',
                     margin    : '@'
@@ -65,11 +67,13 @@
                 link: function (scope: ISparklineScope, element, attrs) {
 
                     if (scope.timestamps == null || scope.sensor==null) return;
+                    //scope.closed = true;
 
                     var margin           = scope.margin || { top: 15, right: 5, bottom: 0, left: 10 };
                     var width            = scope.width || 100;
                     var height           = scope.height || 70;
                     var showAxis         = typeof scope.showaxis !== 'undefined' && scope.showaxis;
+                    var closed         = typeof scope.closed !== 'undefined' && scope.closed;
                     var cursorTextHeight = 12;// + (showAxis ? 5 : 0); // leave room for the cursor text (timestamp | measurement)
                     var chart = d3.select(element[0])
                         .append('svg:svg')
@@ -84,23 +88,38 @@
                     var y = d3.scale.linear().range([height - margin.bottom - marginAxis.bottom, margin.top + marginAxis.top + cursorTextHeight]);
                     var bisect = d3.bisector(function (d) { return d.time; }).left;
 
+
+
                     var line = d3.svg.line()
-                        .interpolate("cardinal")
+                        .interpolate((closed) ? "linear-closed" : "cardinal")
                         .x(function (d) { return x(d.time); })
                         .y(function (d) { return y(d.measurement); });
 
-                    var data: { time: number; measurement: number }[] = []; 
-                    
-                        
+                    var data: { time: number; measurement: number }[] = [];
+                    //data.push({time:scope.timestamps[0],measurement:0});
+
+
                     for (var i = 0; i < scope.timestamps.length; i++) {
                         data.push({ time: scope.timestamps[i], measurement: scope.sensor[i] });
                     }
+
+                    //data.push({time:scope.timestamps[scope.timestamps.length-1],measurement:0});
+
                     x.domain(d3.extent(data, function (d: { time: number; measurement: number }) { return d.time; }));
                     y.domain(d3.extent(data, function (d: { time: number; measurement: number }) { return d.measurement; }));
 
+                    var s = [];
+                    if (closed) s.push({ time: data[0].time, measurement: 0 });
+                    data.forEach((d)=>s.push(d));
+                    if (closed) s.push({ time: data[data.length-1].time, measurement: 0 });
+
+
+
+
                     var path = chart.append("svg:path")
-                        .attr("d", line(data))
-                        .attr('class', 'sparkline-path');
+                        .attr("d", line(s))
+                        .attr('class', 'sparkline-path')
+                        .style('fill',(closed) ? 'steelblue' : 'none');
 
                     // draw a circle around the max and min value
                     var measurements = data.map(function (d) { return d.measurement; });
@@ -244,7 +263,7 @@
                             // this would be the index suitable for insertion
                             var i = bisect(data, t0, 1);
 
-                            if (0 < i && i < data.length) { 
+                            if (0 < i && i < data.length) {
                                 // now that we know where in the data the interpolated date would "fit"
                                 // between two values, pull them both back as temporaries
                                 var d0 = data[i - 1];
@@ -290,7 +309,7 @@
         .directive('barChart', ['$filter',
             function ($filter): ng.IDirective {
                 return {
-                    terminal: true,       // do not compile any other internal directives 
+                    terminal: true,       // do not compile any other internal directives
                     restrict: 'EA',       // E = elements, other options are A=attributes and C=classes
                     scope: {
                         data: '=',
@@ -310,11 +329,10 @@
                             .style("width", function (d) { return d + "%"; })
                             .text(function (d) { return d + "%"; });
                         //a little of magic: setting it's width based
-                        //on the data value (d) 
+                        //on the data value (d)
                         //and text all with a smooth transition
-                    } 
+                    }
                 }
             }
         ]);
 }
-  
