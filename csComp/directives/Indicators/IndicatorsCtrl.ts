@@ -14,6 +14,7 @@
         layer: string;
         isActive: boolean;
         id: string;
+        indexValue: number;   // the value that is treated as 100%
     }
     
     export interface ILayersDirectiveScope extends ng.IScope {
@@ -52,10 +53,10 @@
                 this.checkLayers();
             });
             $scope.data = <indicatorData>this.widget.data;
-            $scope.data.indicators.forEach((i : indicator) => {
+            $scope.data.indicators.forEach((i: indicator) => {
                 i.id = "circ-" + csComp.Helpers.getGuid();
                 if (i.sensor != null) {
-                    this.$messageBus.subscribe("sensor-" + i.sensor, (action : string ,data : string)=>
+                    this.$messageBus.subscribe("sensor-" + i.sensor, (action: string, data: string)=>
                     {
                       switch(action)
                       {
@@ -75,13 +76,12 @@
 
         public updateIndicator(i : indicator)
         {
-          this.$layerService.findSensorSet(i.sensor,(ss: csComp.Services.SensorSet) => {
-              i.sensorSet = ss;
-              if (!this.$scope.$$phase) this.$scope.$apply();
-              setTimeout(() => {
-                  (<any>$("#" + i.id)).circliful();
-              }, 1000);
-
+            this.$layerService.findSensorSet(i.sensor,(ss: csComp.Services.SensorSet) => {
+                i.sensorSet = ss;
+                if (!this.$scope.$$phase) this.$scope.$apply();
+                setTimeout(() => {
+                    (<any>$("#" + i.id)).circliful();
+                }, 1000);
           });
         }
 

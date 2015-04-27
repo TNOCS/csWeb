@@ -236,40 +236,37 @@
         }
 
 
-
-        checkLayerLegend(layer: ProjectLayer,property : string) {
-
-                var ptd = this.project.propertyTypeData[property];
-                if (ptd && ptd.legend) {
-                    var gs: GroupStyle;
-                    if (layer.group.styles && (layer.group.styles.length > 0)) {
-                        gs = layer.group.styles[0];  // TODO: when do we need a different one than the first?
-                    } else {
-                        gs = new GroupStyle(this.$translate);
-                        layer.group.styles.push(gs);
-                    }
-                    gs.title = ptd.title;
-                    gs.id = Helpers.getGuid();
-                    gs.activeLegend = ptd.legend;
-                    gs.group = layer.group;
-                    gs.property = property;
-                    gs.legends[ptd.title] = ptd.legend;
-                    gs.colorScales[ptd.title] = ['purple', 'purple'];
-                    gs.enabled = true;
-                    gs.visualAspect = (ptd.legend.visualAspect) ? ptd.legend.visualAspect : 'strokeColor';  // TODO: let this be read from the propertyTypeData
-
-                    this.saveStyle(layer.group, gs);
-                    this.project.features.forEach((fe: IFeature) => {
-                        if (fe.layer.group == layer.group) {
-                            this.calculateFeatureStyle(fe);
-                            this.activeMapRenderer.updateFeature(fe);
-                        }
-                    });
-
-                    this.noStyles = false;   // TODO: when does this need to be reset?
-                                             // upon deactivation of the layer? (but other layers can also have active styles)
+        checkLayerLegend(layer: ProjectLayer, property: string) {
+            var ptd = this.project.propertyTypeData[property];
+            if (ptd && ptd.legend) {
+                var gs: GroupStyle;
+                if (layer.group.styles && (layer.group.styles.length > 0)) {
+                    gs = layer.group.styles[0];  // TODO: when do we need a different one than the first?
+                } else {
+                    gs = new GroupStyle(this.$translate);
+                    layer.group.styles.push(gs);
                 }
+                gs.title = ptd.title;
+                gs.id = Helpers.getGuid();
+                gs.activeLegend = ptd.legend;
+                gs.group = layer.group;
+                gs.property = property;
+                gs.legends[ptd.title] = ptd.legend;
+                gs.colorScales[ptd.title] = ['purple', 'purple'];
+                gs.enabled = true;
+                gs.visualAspect = (ptd.legend.visualAspect) ? ptd.legend.visualAspect : 'strokeColor';  // TODO: let this be read from the propertyTypeData
 
+                this.saveStyle(layer.group, gs);
+                this.project.features.forEach((fe: IFeature) => {
+                    if (fe.layer.group == layer.group) {
+                        this.calculateFeatureStyle(fe);
+                        this.activeMapRenderer.updateFeature(fe);
+                    }
+                });
+
+                this.noStyles = false;   // TODO: when does this need to be reset?
+                                            // upon deactivation of the layer? (but other layers can also have active styles)
+            }
         }
 
         checkLayerTimer(layer : ProjectLayer)
@@ -309,15 +306,10 @@
             //alert('key = ' + k + '; value = ' + v);
             var l: Legend;
             l = parent.style.legends[k];
-            //if (l) {
-            //    alert('legend.id=' + l.id);
-            //} else {
-            //    alert('no legend');
-            //}
             if (l && (l.legendEntries.length > 0)) {
                 var e1: LegendEntry = l.legendEntries[0];
                 var e2: LegendEntry = l.legendEntries[l.legendEntries.length - 1];
-                parent.style.colors = [e1.color, e2.color]
+                parent.style.colors = [e1.color, e2.color];
             }
             parent.style.activeLegend = l;
         }
@@ -1266,7 +1258,7 @@
              {
                ss.timestamps.push(d.date);
                ss.values.push(d.value);
-               while (ss.timestamps.length>25)
+               while (ss.timestamps.length > 30)
                {
                  ss.timestamps.shift();
                  ss.values.shift();
