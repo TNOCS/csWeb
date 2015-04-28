@@ -59,6 +59,10 @@
             this.dashboards = [];
             this.dashboards["main"] = this.mainDashboard;
             this.widgetTypes = {};
+
+            this.$messageBusService.subscribe("dashboard",(event: string, id: string) => {
+                alert(event);
+            });
             
             //this.widgetTypes["Title"] = new TitleWidget();
             //this.widgetTypes["Text"] = new TextWidget();

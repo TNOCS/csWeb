@@ -1138,6 +1138,8 @@
                     this.project.dashboards = [];
                     var d = new Services.Dashboard();
                     d.id = "map";
+                    d.showMap = true;
+                    d.showLeftmenu = true;
                     d.widgets = [];
                     this.project.dashboards.push(d);
                 }
@@ -1240,7 +1242,8 @@
                 }
 
                 this.$messageBusService.publish('project', 'loaded', this.project);
-                this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
+                if (this.project.dashboards && this.project.dashboards.length>0) 
+                    this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
             });
         }
 
