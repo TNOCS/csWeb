@@ -66,6 +66,14 @@ module Heatmap {
                       break;
                   case 'activated':
                       if (layer.type && layer.type === "heatmap") this.updateAvailableHeatmaps();
+                      if (layer.type && layer.type === "geojson") {
+                          // When the final, required feature layer is loaded, update the heatmap
+                          if (this.heatmapModel && this.heatmapModel.heatmapSettings.referenceList.length > 0) {
+                              if (layer.reference && layer.reference == this.heatmapModel.heatmapSettings.referenceList[this.heatmapModel.heatmapSettings.referenceList.length - 1]) {
+                                  this.updateHeatmap();
+                              }
+                          }
+                      }
                       //this.updateHeatmap();
                       break;
               }
