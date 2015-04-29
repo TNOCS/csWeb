@@ -16,7 +16,7 @@
     }                                                                                                        
 
     /**                                                  
-      * Directive to display a feature's properties in a panel.
+      * Directive to display a feature's relations in a panel.
       * 
       * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
       * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview

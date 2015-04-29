@@ -169,6 +169,9 @@
 
             //add heatmap layer
             this.layerSources["heatmap"] = new HeatmapSource(this);
+
+            //add hierarchy layer
+            this.layerSources["hierarchy"] = new HierarchySource(this);
         }
 
         public loadRequiredLayers(layer: ProjectLayer) {

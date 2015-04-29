@@ -93,6 +93,12 @@
                 else
                     displayValue = String.format("{0) / {1}", rank[0], rank[1]);
                 break;
+            case "hierarchy":
+                var hierarchy = text.split(";");
+                var count = hierarchy[0];
+                var calculation = hierarchy[1];
+                displayValue = count.toString();
+                break;
             default:
                 displayValue = text;
                 break;

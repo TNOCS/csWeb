@@ -135,10 +135,14 @@
         minValue?        : number;
         maxValue?        : number;
         defaultValue?    : number;
+        count?           : number;
+        calculation?     : string;
         subject?         : string;
         target?          : string;
+        targetrelation?  : string;
+        targetproperty?  : string;
         options?         : string[];
-        languages?: ILanguageData;
+        languages?       : ILanguageData;
         legend?: Legend;
     }
 

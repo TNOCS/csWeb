@@ -193,6 +193,8 @@
         /** Contains extended heatmap information (e.g. list of references to required sources, or weights) */
         heatmapSettings             : Heatmap.IHeatmapSettings;
         heatmapItems                : Heatmap.IHeatmapItem[];
+        /** Contains hierarchy settings */
+        hierarchySettings           : FeatureRelations.IHierarchySettings;
         /** In case we keep the style information in a separate file */
         styleurl: string;
         /** how should the layer be renderer, default (can also be null), webgl, heatmap, isolines, etc. */

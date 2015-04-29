@@ -105,6 +105,7 @@
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapListCtrl.ts" />
     <TypeScriptCompile Include="services\layer\sources\GeoJsonSource.ts" />
     <TypeScriptCompile Include="services\layer\sources\HeatmapSource.ts" />
+    <TypeScriptCompile Include="services\layer\sources\HierarchySource.ts" />
     <TypeScriptCompile Include="services\layer\sources\TileLayerSource.ts" />
     <TypeScriptCompile Include="services\layer\sources\WmsSource.ts" />
     <TypeScriptCompile Include="services\map\MapCtrl.ts" />

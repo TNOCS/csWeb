@@ -4,7 +4,7 @@
         &nbsp;&nbsp;{{callOut.title}}
     </h4>
     <div class="container-fluid rightpanel-tabs" style="position: relative">
-        <div class="row" style="overflow:hidden" ng-if="callOut.sectionCount() < 4">
+        <div class="row" style="overflow:hidden" ng-if="callOut.sectionCount() < 5">
             <!-- Nav tabs -->
             <span id="leftArr" style="display:block;padding:10px;margin-top:5px;position:absolute;background-color:transparent;z-index:2">
                 <i class="glyphicon glyphicon-chevron-left"></i>
@@ -20,7 +20,7 @@
             </ul>
         </div>
 
-        <div class="row" ng-if="callOut.sectionCount() >= 4">
+        <div class="row" ng-if="callOut.sectionCount() >= 5">
             <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
                 <li data-toggle="tab" class="active" ng-init="firstCallOutsection=callOut.firstSection()">
                     <a ng-href="#rp-0" data-toggle="tab" data-ng-if="firstCallOutsection.showSectionIcon()" >

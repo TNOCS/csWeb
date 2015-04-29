@@ -96,7 +96,7 @@
         public icon    : string;
         public sections: { [title: string]: ICallOutSection; };
 
-        constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: IPropertyTypeData ) {
+        constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: IPropertyTypeData, private layerservice: csComp.Services.LayerService ) {
             this.sections = {};
             //if (type == null) this.createDefaultType();
             this.setTitle();
@@ -104,13 +104,18 @@
 
             var infoCallOutSection   = new CallOutSection('fa-info');
             var searchCallOutSection = new CallOutSection('fa-filter');
+            var hierarchyCallOutSection = new CallOutSection('fa-link');
+
             var displayValue: string;
             if (type != null) {
                 var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
                 propertyTypes.forEach((mi: IPropertyType) => {
                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                     callOutSection.propertyTypes[mi.label] = mi;
-                    var text = feature.properties[mi.label];
+                    var text = feature.properties[mi.label]; if (mi.type === "hierarchy") {
+                    var count = this.calculateHierarchyValue(mi, feature, propertyTypeData, layerservice);
+                        text = count + ";" + feature.properties[mi.calculation];
+                    }
                     displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
                     // Skip empty, non-editable values
                     if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
@@ -122,11 +127,40 @@
                     {
                         callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
                     }
+                    if (mi.type === "hierarchy") {
+                        hierarchyCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                    }
                     searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
                 });
             }
-            if (infoCallOutSection  .properties.length > 0) this.sections['AAA Info'  ] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
-            if (searchCallOutSection.properties.length > 0) this.sections['Zzz Search'] = searchCallOutSection;
+            if (infoCallOutSection.properties.length > 0) this.sections['AAA Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
+            if (hierarchyCallOutSection.properties.length > 0) this.sections['hierarchy'] = hierarchyCallOutSection;
+            if (searchCallOutSection.properties.length > 0) this.sections['zzz Search'] = searchCallOutSection;
+        }
+
+        private calculateHierarchyValue(mi: IPropertyType, feature: IFeature, propertyTypeData: IPropertyTypeData, layerservice: csComp.Services.LayerService): number {
+            var propertyTypes = csComp.Helpers.getPropertyTypes(feature.fType, propertyTypeData);
+            for (var p in propertyTypes) {
+                var pt = propertyTypes[p];
+                if (pt.type === "relation" && mi.targetrelation === pt.label) {
+                    var result: number
+                    if (mi.calculation === "count") {
+                        result = pt.count;
+                    } else if (mi.calculation === "ratio") {
+                        var prop = mi.targetproperty;
+                        var featureName = feature.properties[pt.target];
+                        layerservice.project.features.forEach((f: csComp.Services.IFeature) => {
+                            if (f.properties.hasOwnProperty(pt.subject) && f.properties[pt.subject] === featureName) {
+                                if (f.properties.hasOwnProperty(prop)) {
+                                    result = f.properties[prop];
+                                }
+                            }
+                        });
+                    }
+                    return result;
+                }
+            }
+            return -1;
         }
 
         public sectionCount(): number {
@@ -134,7 +168,16 @@
         }
 
         public firstSection(): ICallOutSection {
-            return this.sections[Object.keys(this.sections)[this.sectionCount() - 2]];
+            //Return first section that has an icon
+            //TODO: Swap locations
+            var firstSec;
+            for (var i = 0; i < (this.sectionCount() - 1); i++) {
+                if (this.sections[Object.keys(this.sections)[i]].sectionIcon) {
+                    firstSec = this.sections[Object.keys(this.sections)[i]];
+                    break;
+                }
+            }
+            return firstSec;
         }
 
         public lastSection(): ICallOutSection {
@@ -173,6 +216,7 @@
             else {
                 if (feature.properties.hasOwnProperty('Name')) title = feature.properties['Name'];
                 else if (feature.properties.hasOwnProperty('name')) title = feature.properties['name'];
+                else if (feature.properties.hasOwnProperty('naam')) title = feature.properties['naam'];
             }
             if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
                 title = title.replace(/&amp;/g, '&');
@@ -345,6 +389,7 @@
                 case "onFeatureSelect":
                     this.setShowSimpleTimeline();
                     this.displayFeature(feature);
+                    this.updateHierarchyLinks(feature);
                     this.$scope.poi = feature;
                     this.$scope.autocollapse(true);
                     break;
@@ -365,7 +410,35 @@
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
             if (typeof feature.sensors !== 'undefined' && typeof feature.timestamps === 'undefined')
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
-            this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData);
+            this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService);
+        }
+
+        private updateHierarchyLinks(feature: IFeature): void {
+            if (!feature) return;
+            this.$layerService.project.groups.forEach((group) => {
+                group.layers.forEach((l) => {
+                    if (l.type == "hierarchy" && l.enabled) {
+                        if ((<any>(l.data)) && (<any>(l.data)).features) {
+                            (<any>(l.data)).features[0].fType.propertyTypeData.forEach((pt) => {
+                                if (pt.type == "hierarchy") {
+                                    if (pt.targetlayer == feature.layerId) {
+                                        var featureType = this.$layerService.featureTypes[feature.featureTypeName];
+                                        var propertyTypes = csComp.Helpers.getPropertyTypes(feature.fType, this.$layerService.propertyTypeData);
+                                        var found = false;
+                                        propertyTypes.forEach((p) => {
+                                            if (p.label === pt.label) {
+                                                found = true;
+                                            }
+                                        });
+                                        if (!found) featureType.propertyTypeData.push(pt);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+            csComp.Helpers.getPropertyTypes
         }
         
         showSensorData(property: ICallOutProperty) {
