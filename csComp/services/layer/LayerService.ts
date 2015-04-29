@@ -187,6 +187,7 @@
 
         public addLayer(layer: ProjectLayer) {
             if (this.loadedLayers.containsKey(layer.id)) return;
+            this.$messageBusService.publish('layer', 'loading', layer);
             var disableLayers = [];
             async.series([
                 (callback) => {
