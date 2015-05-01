@@ -1134,10 +1134,7 @@
 
                                 for (var s in ds.sensors) {
                                     var ss = ds.sensors[s];
-                                    ss.activeValue = ss.values[ss.values.length - 1];
-                                    console.log(ss.activeValue);
-
-
+                                    ss.activeValue = ss.values[ss.values.length - 1];                                    
                                     //console.log(s);
                                 }
 

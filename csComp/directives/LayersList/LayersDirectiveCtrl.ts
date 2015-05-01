@@ -3,7 +3,7 @@
         vm: LayersDirectiveCtrl;
         options : Function;
     }
-
+    
     export class LayersDirectiveCtrl {
         private scope: ILayersDirectiveScope;
 
@@ -28,7 +28,7 @@
               if (layer.layerSource)
               {
                 return layer.layerSource.layerMenuOptions(layer);
-              } 
+              }
           });
         }
 

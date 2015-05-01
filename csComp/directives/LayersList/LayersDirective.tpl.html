@@ -1,6 +1,5 @@
 ﻿<div>
     <h4 class="leftpanel-header" translate="LAYERS"></h4>
-
     <div style="overflow-y: auto; overflow-x: hidden; margin-top: -10px" resize resize-y="95">
         <div data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px">
             <div style="float: left; margin-left: -5px; margin-top: 5px" data-toggle="collapse" data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
@@ -9,7 +8,6 @@
                  popover-width="400"
                  popover-trigger="mouseenter"
                  class="group-title">{{group.title}}</div>
-
             <div id="layergroup_{{group.id}}" class="collapse in">
                 <div popover="{{(layer.description) ? layer.description : ''}}"
                      popover-placement="right"
@@ -30,7 +28,6 @@
                             <div class="bounce2"></div>
                             <div class="bounce3"></div>
                         </div>
-
                         </div>
                         <div ng-show="group.oneLayerActive" class="radio radio-primary" style="margin-left: 20px">
                             <input type="radio" ng-value="true" id="rblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">

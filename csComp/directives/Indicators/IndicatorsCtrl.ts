@@ -80,7 +80,7 @@
                 i.sensorSet = ss;
                 if (!this.$scope.$$phase) this.$scope.$apply();
                 setTimeout(() => {
-                    (<any>$("#" + i.id)).circliful();
+                    // (<any>$("#" + i.id)).circliful();
                 }, 1000);
           });
         }

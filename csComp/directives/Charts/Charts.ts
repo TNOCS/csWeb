@@ -32,6 +32,14 @@
         data: number[];
     }
 
+    export interface IRadialchartScope extends ng.IScope {
+        value: number;
+        min : number;
+        max : number;
+        maintitle : string;
+
+    }
+
     /**
       * Directive to create a sparkline chart.
       *
@@ -66,10 +74,12 @@
                 //],
                 link: function (scope: ISparklineScope, element, attrs) {
 
-                    if (scope.timestamps == null || scope.sensor==null) return;
+
 
                     var doDraw = (()=>
                     {
+                      if (scope.timestamps != null && scope.sensor!=null && scope.timestamps.length > 0){
+
                       var margin           = scope.margin || { top: 15, right: 5, bottom: 0, left: 10 };
                       var width            = scope.width || 100;
                       var height           = scope.height || 70;
@@ -110,10 +120,11 @@
                       x.domain(d3.extent(data, function (d: { time: number; measurement: number }) { return d.time; }));
                       y.domain(d3.extent(data, function (d: { time: number; measurement: number }) { return d.measurement; }));
 
+
                       var s = [];
-                      if (closed) s.push({ time: data[0].time, measurement: 0 });
+                      if (closed && data.length>0) s.push({ time: data[0].time, measurement: 0 });
                       data.forEach((d)=>s.push(d));
-                      if (closed) s.push({ time: data[data.length-1].time, measurement: 0 });
+                      if (closed && data.length>0) s.push({ time: data[data.length-1].time, measurement: 0 });
 
 
 
@@ -299,6 +310,7 @@
                                   .attr("opacity", 1)
                                   .text(d.measurement);
                                });
+                             }
                     });
 
                     doDraw();
@@ -328,15 +340,57 @@
                         //selection[0][0] is the DOM node
                         //but we won't need that this time
                         var chart = d3.select(element[0]);
+
+                        chart.append("div").attr("class", "chart")
+    .selectAll('div')
+    .data(scope.data).enter().append("div")
+    .transition().ease("elastic")
+    .style("width", function (d) { return d + "%"; })
+    .text(function (d) { return d + "%"; });
+
+
                         //to our original directive markup bars-chart
                         //we add a div with out chart stling and bind each
                         //data entry to the chart
-                        chart.append("div").attr("class", "chart")
-                            .selectAll('div')
-                            .data(scope.data).enter().append("div")
-                            .transition().ease("elastic")
-                            .style("width", function (d) { return d + "%"; })
-                            .text(function (d) { return d + "%"; });
+
+                    }
+                }
+            }
+        ])
+
+        /**
+        * A simple directive to create a (horizontal) barchart.
+        * Usage: <bar-chart data="[10,20,30,40,50]"></bar-chart>
+        * @seealso: https://gist.github.com/odiseo42/6731571
+        */
+        .directive('radialChart', ['$filter',
+            function ($filter): ng.IDirective {
+                return {
+                    terminal: true,       // do not compile any other internal directives
+                    restrict: 'EA',       // E = elements, other options are A=attributes and C=classes
+                    scope: {
+                        value: '=',
+                        maintitle: '=',
+                        min: '@',
+                        max: '@'
+                    },
+                    link: function (scope: IRadialchartScope, element, attrs) {
+
+                      console.log('chart');
+                        //in D3, any selection[0] contains the group
+                        //selection[0][0] is the DOM node
+                        //but we won't need that this time
+                        var chart = d3.select(element[0]);
+                        //to our original directive markup bars-chart
+                        //we add a div with out chart stling and bind each
+                        //data entry to the chart
+                        var measurementText = chart.append("text")
+                            .attr("x", 0)
+                            .attr("y", 0)
+                            .attr("dy", ".35em")
+                            .attr("opacity", 0)
+                            .text(scope.maintitle);
+
                         //a little of magic: setting it's width based
                         //on the data value (d)
                         //and text all with a smooth transition

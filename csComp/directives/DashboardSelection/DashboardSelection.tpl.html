@@ -1,5 +1,6 @@
+﻿<div>
 
-<div>
+
     <h3 class="leftpanel-header" style="width: 100%">
         Dashboards
         <div class="leftpanel-header-button-container">
@@ -7,10 +8,16 @@
             <button ng-show="vm.$dashboardService.editMode" class="button fa fa-plus leftpanel-header-button" ng-click="vm.addDashboard()" />
             <button ng-hide="vm.$dashboardService.editMode" ng-click="vm.$dashboardService.editMode = true; vm.startEdit()" class="button fa fa-pencil leftpanel-header-button" />
         </div>
+
+
+
     </h3>
+    <style>
+
+    </style>
     <ul style="padding: 0;list-style-type: none" data-ng-repeat="value in vm.$layerService.project.dashboards">
         <li>
-            <div ng-class="{'dashboard-selected' : value.id === vm.$dashboardService.mainDashboard.id}" class="dashboard-item">
+            <div ng-class="{\'dashboard-selected\' : value.id === vm.$dashboardService.mainDashboard.id}" class="dashboard-item">
                 <span ng-click="vm.$dashboardService.selectDashboard(value)" class="dashboard-name">{{value.name}}</span>
                 <div ng-show="vm.$dashboardService.editMode" class="leftpanel-header-button-container">
                     <button ng-click="vm.removeDashboard(value.id)" class="button fa fa-trash leftpanel-header-button" />
@@ -33,7 +40,12 @@
                     <input type="checkbox" id="timeline-{{value.id}}" ng-model="value.showTimeline" ng-click="vm.toggleTimeline()">
                     <label for="timeline-{{value.id}}">Show Timeline</label>
                 </div>
+
+
+
             </div>
+
         </li>
     </ul>
+
 </div>
