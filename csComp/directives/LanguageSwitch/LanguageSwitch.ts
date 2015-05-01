@@ -15,13 +15,7 @@
         myModule = angular.module(moduleName, []);
     }
 
-    /**
-      * Directive to display the available map layers.
-      */
-    myModule
-        .directive('languageSwitch', [
-            '$compile',
-            function ($compile): ng.IDirective {
+    myModule.directive('languageSwitch', [ '$compile', function ($compile): ng.IDirective {
                 return {
                     terminal: true,    // do not compile any other internal directives
                     restrict: 'E',     // E = elements, other options are A=attributes and C=classes
@@ -49,6 +43,5 @@
             this.setLanguages = function (languages) {
                 this.languages = languages;
             };
-
         });
 }
