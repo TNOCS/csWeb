@@ -46,6 +46,7 @@
         "./directives/ContextMenu/ContextMenu.ts",
         "./directives/Dashboard/Dashboard.ts",
         "./directives/Dashboard/DashboardCtrl.ts",
+        "./directives/DashboardSelection/DashboardSelection.tpl.ts",
         "./directives/DashboardSelection/DashboardSelection.ts",
         "./directives/DashboardSelection/DashboardSelectionCtrl.ts",
         "./directives/DataTable/DataTable.ts",
