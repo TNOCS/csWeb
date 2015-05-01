@@ -1,11 +1,4 @@
 <form role="search">
-    <style>
-        .typeahead-group-header {
-            margin-left: 10px;
-            font-weight: bold;
-            font-size: 120%;
-        }
-    </style>
     <script type="text/ng-template" id="typeahead-item.html">
      <div class="typeahead-group-header" ng-if="match.model.firstInGroup">{{match.model.groupTitle}} >> {{match.model.layerTitle}}</div>
      <a>

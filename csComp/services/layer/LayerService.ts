@@ -10,10 +10,9 @@
         addLayer(layer: ProjectLayer, callback: Function);
         removeLayer(layer: ProjectLayer): void;
         refreshLayer(layer: ProjectLayer): void;
-		    requiresLayer: boolean;
-		    getRequiredLayers? (layer: ProjectLayer): ProjectLayer[];
-        layerMenuOptions(layer : ProjectLayer) : [[string,Function]];
-
+        requiresLayer: boolean;
+        getRequiredLayers?(layer: ProjectLayer): ProjectLayer[];
+        layerMenuOptions(layer: ProjectLayer): [[string, Function]];
     }
 
     export interface IMapRenderer {
@@ -39,49 +38,49 @@
     }
 
     export interface ILayerService {
-        title                  : string;
-        accentColor            : string;
-        solution               : Solution;
-        project                : Project;
-        maxBounds              : IBoundingBox;
+        title: string;
+        accentColor: string;
+        solution: Solution;
+        project: Project;
+        maxBounds: IBoundingBox;
         findLayer(id: string): ProjectLayer;
         findLoadedLayer(id: string): ProjectLayer;
         //selectFeature(feature: Services.IFeature);
-        currentLocale          : string;
-        activeMapRenderer      : IMapRenderer;                    // active map renderer
-        mb                     : Services.MessageBusService;
-        map                    : Services.MapService;
-        layerGroup             : L.LayerGroup<L.ILayer>;
-        featureTypes           : { [key: string]: Services.IFeatureType; };
-        propertyTypeData       : { [key: string]: Services.IPropertyType; };
-        timeline               : any;
+        currentLocale: string;
+        activeMapRenderer: IMapRenderer;                    // active map renderer
+        mb: Services.MessageBusService;
+        map: Services.MapService;
+        layerGroup: L.LayerGroup<L.ILayer>;
+        featureTypes: { [key: string]: Services.IFeatureType; };
+        propertyTypeData: { [key: string]: Services.IPropertyType; };
+        timeline: any;
     }
 
     export class LayerService implements ILayerService {
-        maxBounds          : IBoundingBox;
-        title              : string;
-        accentColor        : string;
-        mb                 : Services.MessageBusService;
-        map                : Services.MapService;
-        featureTypes       : { [key: string]: IFeatureType; };
-        propertyTypeData   : { [key: string]: IPropertyType; };
-        project            : Project;
-        projectUrl         : string; // URL of the current project
-        solution           : Solution;
-        dimension          : any;
-        noFilters          : boolean;
-        noStyles           : boolean;
+        maxBounds: IBoundingBox;
+        title: string;
+        accentColor: string;
+        mb: Services.MessageBusService;
+        map: Services.MapService;
+        featureTypes: { [key: string]: IFeatureType; };
+        propertyTypeData: { [key: string]: IPropertyType; };
+        project: Project;
+        projectUrl: string; // URL of the current project
+        solution: Solution;
+        dimension: any;
+        noFilters: boolean;
+        noStyles: boolean;
         lastSelectedFeature: IFeature;
-        selectedLayerId    : string;
-        timeline           : any;
-        currentLocale      : string;
+        selectedLayerId: string;
+        timeline: any;
+        currentLocale: string;
         loadedLayers = new csComp.Helpers.Dictionary<L.ILayer>();
         layerGroup = new L.LayerGroup<L.ILayer>();
         info = new L.Control();
-        layerSources       : { [key: string]: ILayerSource };   // list of available layer sources
-        mapRenderers       : { [key: string]: IMapRenderer };   // list of available map renderers
-        activeMapRenderer  : IMapRenderer;                 // active map renderer
-        public visual      : VisualState = new VisualState();
+        layerSources: { [key: string]: ILayerSource };   // list of available layer sources
+        mapRenderers: { [key: string]: IMapRenderer };   // list of available map renderers
+        activeMapRenderer: IMapRenderer;                 // active map renderer
+        public visual: VisualState = new VisualState();
 
         static $inject = [
             '$location',
@@ -130,7 +129,7 @@
 
             //this.$dashboardService.init();
 
-            $messageBusService.subscribe('timeline',(trigger: string) => {
+            $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
                     case 'focusChange':
                         this.updateSensorData();
@@ -138,7 +137,7 @@
                 }
             });
 
-            $messageBusService.subscribe('language',(title: string, language: string) => {
+            $messageBusService.subscribe('language', (title: string, language: string) => {
                 switch (title) {
                     case 'newLanguage':
                         this.currentLocale = language;
@@ -216,7 +215,7 @@
                             this.updateSensorData();
                             this.updateFilters();
                             this.activeMapRenderer.addLayer(layer);
-                            if (layer.defaultLegendProperty) this.checkLayerLegend(layer,layer.defaultLegendProperty);
+                            if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
                             this.$messageBusService.publish('layer', 'activated', layer);
                         });
@@ -230,11 +229,9 @@
                         l.enabled = false;
                     });
                     callback(null, null);
-
                 }
             ]);
         }
-
 
         checkLayerLegend(layer: ProjectLayer, property: string) {
             var ptd = this.project.propertyTypeData[property];
@@ -265,30 +262,25 @@
                 });
 
                 this.noStyles = false;   // TODO: when does this need to be reset?
-                                            // upon deactivation of the layer? (but other layers can also have active styles)
+                // upon deactivation of the layer? (but other layers can also have active styles)
             }
         }
 
-        checkLayerTimer(layer : ProjectLayer)
-        {
-          console.log('check layer timer');
-          if (layer.refreshTimer)
-          {
-            if (layer.enabled && !layer.timerToken)
-            {
-              layer.timerToken = setInterval(()=>
-              {
-                layer.layerSource.refreshLayer(layer);
-              },layer.refreshTimer * 1000);
-              console.log(layer.timerToken);
+        checkLayerTimer(layer: ProjectLayer) {
+            console.log('check layer timer');
+            if (layer.refreshTimer) {
+                if (layer.enabled && !layer.timerToken) {
+                    layer.timerToken = setInterval(() => {
+                        layer.layerSource.refreshLayer(layer);
+                    }, layer.refreshTimer * 1000);
+                    console.log(layer.timerToken);
+                }
+                if (!layer.enabled && layer.timerToken) {
+                    clearInterval(layer.timerToken);
+                    layer.timerToken = null;
+                }
+                console.log('refresh timer enabled : ' + layer.refreshTimer);
             }
-            if (!layer.enabled && layer.timerToken)
-            {
-              clearInterval(layer.timerToken);
-              layer.timerToken = null;
-            }
-            console.log('refresh timer enabled : ' + layer.refreshTimer);
-          }
         }
 
         removeStyle(style: GroupStyle) {
@@ -299,10 +291,10 @@
         }
 
         updatePropertyStyle(k: string, v: any, parent: any) {
-        // method of class LayerService
-        /* k, v is key-value pair of style.colorScales => key is a string */
-        /* value is in most cases a list of two strings. actually it is not used in this function */
-        /* parent is a ??which class??  ($parent in stylelist.tpl.html) */
+            // method of class LayerService
+            /* k, v is key-value pair of style.colorScales => key is a string */
+            /* value is in most cases a list of two strings. actually it is not used in this function */
+            /* parent is a ??which class??  ($parent in stylelist.tpl.html) */
             //alert('key = ' + k + '; value = ' + v);
             var l: Legend;
             l = parent.style.legends[k];
@@ -486,9 +478,9 @@
         */
         public calculateFeatureStyle(feature: IFeature) {
             var s: csComp.Services.IFeatureTypeStyle = {};
-			//TODO: check compatibility for both heatmaps and other features
+            //TODO: check compatibility for both heatmaps and other features
             //s.fillColor = 'red';
-			//s.strokeWidth = 1;
+            //s.strokeWidth = 1;
             s.stroke = false;
             s.strokeWidth = 1;
             s.strokeColor = 'black';
@@ -501,10 +493,10 @@
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
-                if (ft.style.fillColor   != null) s.fillColor   = csComp.Helpers.getColorString(ft.style.fillColor);
+                if (ft.style.fillColor != null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
                 if (ft.style.strokeColor != null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
                 if (ft.style.strokeWidth != null) s.strokeWidth = ft.style.strokeWidth;
-                if (ft.style.iconWidth   != null) s.iconWidth   = ft.style.iconWidth;
+                if (ft.style.iconWidth != null) s.iconWidth = ft.style.iconWidth;
                 if (ft.style.iconHeight != null) s.iconHeight = ft.style.iconHeight;
                 if (ft.style.innerTextProperty != null) s.innerTextProperty = ft.style.innerTextProperty;
                 if (ft.style.innerTextSize != null) s.innerTextSize = ft.style.innerTextSize;
@@ -535,7 +527,7 @@
                                 }
                             }
                         } // discrete or interpolated
-                        if (gs.activeLegend.legendKind == 'discretestrings')  {
+                        if (gs.activeLegend.legendKind == 'discretestrings') {
                             var ss = feature.properties[gs.property];
                             switch (gs.visualAspect) {
                                 case 'strokeColor':
@@ -548,7 +540,7 @@
                         } // discrete strings
                     } // activelegend
                 }
-            } );
+            });
 
             //var layer = this.findLayer(feature.layerId);
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
@@ -694,15 +686,13 @@
             return r;
         }
 
-
-
         /**
          * Creates a GroupStyle based on a property and adds it to a group.
          * If the group already has a style which contains legends, those legends are copied into the newly created group.
          * Already existing groups (for the same visualAspect) are replaced by the new group
          */
         public setStyle(property: any, openStyleTab = true, customStyleInfo?: PropertyInfo) {
-        // parameter property is of the type ICallOutProperty. explicit declaration gives the red squigglies
+            // parameter property is of the type ICallOutProperty. explicit declaration gives the red squigglies
             var f: IFeature = property.feature;
             if (f != null) {
                 var ft = this.getFeatureType(f);
@@ -758,7 +748,7 @@
                 if (ft.style && ft.style.fillColor) {
                     gs.colors = ['white', 'orange'];
                 } else {
-                    gs.colors = ['red','white','blue'];
+                    gs.colors = ['red', 'white', 'blue'];
                 }
                 this.saveStyle(layer.group, gs);
                 this.project.features.forEach((fe: IFeature) => {
@@ -811,13 +801,10 @@
          * enable a filter for a specific property
          */
         setFilter(filter: GroupFilter, group: csComp.Services.ProjectGroup) {
-
             group.filters.push(filter);
             this.updateFilters();
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
-
         }
-
 
         /**
         * enable a filter for a specific property
@@ -930,13 +917,11 @@
         }
 
         resetFilters() {
-
             dc.filterAll();
             dc.redrawAll();
         }
 
         private getGroupFeatures(g: ProjectGroup): Array<IFeature> {
-
             // find active layers
             var ls = [];
             g.layers.forEach((l: ProjectLayer) => { if (l.enabled) ls.push(l.id); });
@@ -947,7 +932,6 @@
         }
 
         rebuildFilters(g: ProjectGroup) {
-
             // remove all data from crossfilter group
             g.ndx = crossfilter([]);
 
@@ -1032,7 +1016,7 @@
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
             this.loadedLayers.clear();
 
-            $.getJSON(url,(solution: Solution) => {
+            $.getJSON(url, (solution: Solution) => {
                 //var projects = data;
                 if (solution.maxBounds) {
                     this.maxBounds = solution.maxBounds;
@@ -1040,9 +1024,6 @@
                 }
                 if (solution.viewBounds)
                     this.$mapService.map.fitBounds(new L.LatLngBounds(solution.viewBounds.southWest, solution.viewBounds.northEast));
-
-                //$scope.title = projects.title;
-                //$scope.projects = [];
 
                 solution.baselayers.forEach(b => {
                     var options: L.TileLayerOptions = {};
@@ -1147,8 +1128,8 @@
                 if (this.project.datasources) {
                     this.project.datasources.forEach((ds: DataSource) => {
                         if (ds.url) {
-                            DataSource.LoadData(ds,() => {
-                              console.log('datasource loaded');
+                            DataSource.LoadData(ds, () => {
+                                console.log('datasource loaded');
                                 if (ds.type == "dynamic") this.checkDataSourceSubscriptions(ds);
 
                                 for (var s in ds.sensors) {
@@ -1235,54 +1216,45 @@
 
                 if (this.project.connected) {
                     // check connection
-                    this.$messageBusService.initConnection("", "",() => {
-
+                    this.$messageBusService.initConnection("", "", () => {
                     });
-
                 }
 
                 this.$messageBusService.publish('project', 'loaded', this.project);
-                if (this.project.dashboards && this.project.dashboards.length>0) 
+                if (this.project.dashboards && this.project.dashboards.length > 0)
                     this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
             });
         }
 
-        checkDataSourceSubscriptions(ds : DataSource)
-   {
-       for (var s in ds.sensors)
-       {
-         this.$messageBusService.serverSubscribe(s,"sensor",(sub: string, msg: any)=>
-         {
-           if (msg.action=="sensor-update")
-           {
-             var d = msg.data[0];
-             var ss : SensorSet = ds.sensors[d.sensor];
-             if (ss!=null)
-             {
-               ss.timestamps.push(d.date);
-               ss.values.push(d.value);
-               while (ss.timestamps.length > 30)
-               {
-                 ss.timestamps.shift();
-                 ss.values.shift();
-               }
-               ss.activeValue = d.value;
-               this.$messageBusService.publish("sensor-"+ds.id + "/" + d.sensor,"update",ss.activeValue);
-               this.$rootScope.$apply();
-             }
-           }
-         });
-     }
- }
+        checkDataSourceSubscriptions(ds: DataSource) {
+            for (var s in ds.sensors) {
+                this.$messageBusService.serverSubscribe(s, "sensor", (sub: string, msg: any) => {
+                    if (msg.action == "sensor-update") {
+                        var d = msg.data[0];
+                        var ss: SensorSet = ds.sensors[d.sensor];
+                        if (ss != null) {
+                            ss.timestamps.push(d.date);
+                            ss.values.push(d.value);
+                            while (ss.timestamps.length > 30) {
+                                ss.timestamps.shift();
+                                ss.values.shift();
+                            }
+                            ss.activeValue = d.value;
+                            this.$messageBusService.publish("sensor-" + ds.id + "/" + d.sensor, "update", ss.activeValue);
+                            this.$rootScope.$apply();
+                        }
+                    }
+                });
+            }
+        }
 
-   checkSubscriptions()
-   {
-     this.project.datasources.forEach((ds: DataSource) => {
-         if (ds.url && ds.type=="dynamic") { this.checkDataSourceSubscriptions(ds); }
-       });
-     //this.project.datasources.for
+        checkSubscriptions() {
+            this.project.datasources.forEach((ds: DataSource) => {
+                if (ds.url && ds.type == "dynamic") { this.checkDataSourceSubscriptions(ds); }
+            });
+            //this.project.datasources.for
 
-   }
+        }
 
         closeProject() {
             if (this.project == null) return;
@@ -1295,7 +1267,7 @@
             });
         }
 
-        public findSensorSet(key: string, callback : Function) {
+        public findSensorSet(key: string, callback: Function) {
             var kk = key.split('/');
             if (kk.length == 2) {
                 var source = kk[0];
@@ -1440,7 +1412,7 @@
                 this.updateFilterGroupCount(group);
                 //alert('text change');
             });
-            $('#remove' + filter.id).on('click',() => {
+            $('#remove' + filter.id).on('click', () => {
                 var pos = group.filters.indexOf(filter);
 
                 filter.dimension.filterAll();
@@ -1484,7 +1456,7 @@
             //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
             $('<h4>' + filter.title + '</h4><div id=\'' + divid + '\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div><a class=\'btn\' id=\'remove' + filter.id + '\'>remove</a>').appendTo('#filterChart');
 
-            $('#remove' + filter.id).on('click',() => {
+            $('#remove' + filter.id).on('click', () => {
                 var pos = group.filters.indexOf(filter);
                 if (pos !== -1) group.filters.splice(pos, 1);
                 filter.dimension.dispose();
@@ -1530,7 +1502,7 @@
                 .x(d3.scale.linear().domain([info.sdMin, info.sdMax]))
                 .yAxisLabel(filter.property2)
                 .xAxisLabel(filter.property)
-                .on('filtered',(e) => {
+                .on('filtered', (e) => {
                 var fil = e.hasFilter();
                 dc.events.trigger(() => {
                     group.filterResult = prop1.top(Infinity);
@@ -1578,7 +1550,7 @@
             var filterFrom = $('#fsfrom_' + filter.id);
             var filterTo = $('#fsto_' + filter.id);
             var filterRange = $('#fdrange_' + filter.id);
-            $('#remove' + filter.id).on('click',() => {
+            $('#remove' + filter.id).on('click', () => {
                 var pos = group.filters.indexOf(filter);
                 if (pos !== -1) group.filters.splice(pos, 1);
                 filter.dimension.dispose();
@@ -1632,7 +1604,7 @@
 
                 return s;
             })
-                .on('filtered',(e) => {
+                .on('filtered', (e) => {
                 var fil = e.hasFilter();
                 if (fil) {
                     filterRange.show();
@@ -1650,7 +1622,7 @@
 
             dcChart.xUnits(() => { return 13; });
 
-            filterFrom.on('change',() => {
+            filterFrom.on('change', () => {
                 if ($.isNumeric(filterFrom.val())) {
                     var min = parseInt(filterFrom.val());
                     var filters = dcChart.filters();
@@ -1664,7 +1636,7 @@
                     }
                 }
             });
-            filterTo.on('change',() => {
+            filterTo.on('change', () => {
                 if ($.isNumeric(filterTo.val())) {
                     var max = parseInt(filterTo.val());
                     var filters = dcChart.filters();
@@ -1700,7 +1672,7 @@
          * Update map markers in cluster after changing filter
          */
         private updateMapFilter(group: ProjectGroup) {
-            $.each(group.markers,(key, marker) => {
+            $.each(group.markers, (key, marker) => {
                 var included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
                 if (group.clustering) {
                     var incluster = group.cluster.hasLayer(marker);
@@ -1715,7 +1687,7 @@
         }
 
         private resetMapFilter(group: ProjectGroup) {
-            $.each(group.markers,(key, marker) => {
+            $.each(group.markers, (key, marker) => {
                 if (group.clustering) {
                     var incluster = group.cluster.hasLayer(marker);
                     if (!incluster) group.cluster.addLayer(marker);
@@ -1725,7 +1697,23 @@
                 }
             });
         }
-
-
     }
+
+    /**
+      * Register service
+      */
+    var moduleName = 'csComp';
+
+    /**
+      * Module
+      */
+    export var myModule;
+    try {
+        myModule = angular.module(moduleName);
+    } catch (err) {
+        // named module does not exist, so create one
+        myModule = angular.module(moduleName, []);
+    }
+
+    myModule.service('layerService', csComp.Services.LayerService)
 }

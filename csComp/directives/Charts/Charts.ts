@@ -3,7 +3,7 @@
     /**
       * Config
       */
-    var moduleName = 'csWeb.charts';
+    var moduleName = 'csComp';
 
     /**
       * Module

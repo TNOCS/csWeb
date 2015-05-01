@@ -3,12 +3,10 @@
     declare var Cesium;
 
     export interface IMapElementScope extends ng.IScope {
-        vm            : MapElementCtrl;
-        mapid         : string;
-        initMap       : Function;
+        vm: MapElementCtrl;
+        mapid: string;
+        initMap: Function;
     }
-      
-     
 
     export class MapElementCtrl {
         private scope: IMapElementScope;
@@ -24,31 +22,24 @@
             'mapService',
             'messageBusService'
         ];
-         
-
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope            : IMapElementScope,
-            private $layerService     : csComp.Services.LayerService,
-            private mapService       : csComp.Services.MapService,
+            private $scope: IMapElementScope,
+            private $layerService: csComp.Services.LayerService,
+            private mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
 
-            //this.initMap(); 
+            //this.initMap();
 
-            $scope.initMap = ()=> this.initMap();
-
-
+            $scope.initMap = () => this.initMap();
         }
-        public initMap()
-        {
-          
 
-
-          //alert(this.$scope.mapId);
+        public initMap() {
+                     //alert(this.$scope.mapId);
         }
-}
+    }
 }

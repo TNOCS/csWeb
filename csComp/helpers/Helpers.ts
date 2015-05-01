@@ -28,7 +28,7 @@
         return avg;
     }
 
-    
+
 
     /**
      * Collect all the property types that are referenced by a feature type.
@@ -53,7 +53,6 @@
                 propertyTypes.push(pt);
             });
         }
-
         return propertyTypes;
     }
 
@@ -171,8 +170,8 @@
 
     /**
      * Load the features as visible on the map, effectively creating a virtual
-     * GeoJSON file that represents all visible items. 
-     * Also loads the keys into the featuretype's propertyTypeData collection. 
+     * GeoJSON file that represents all visible items.
+     * Also loads the keys into the featuretype's propertyTypeData collection.
      */
      export function loadMapLayers(layerService: Services.LayerService) : Services.IGeoJsonFile {
         var data         : Services.IGeoJsonFile = {

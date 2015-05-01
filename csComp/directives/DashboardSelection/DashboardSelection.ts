@@ -2,38 +2,39 @@
     /**
       * Config
       */
-    var moduleName = 'csWeb.dashboardSelection';
+    var moduleName = 'csComp';
 
     /**
-      * Module    
+      * Module
       */
-    export var myModule;     
-    try {    
+    export var myModule;
+    try {
         myModule = angular.module(moduleName);
-    } catch (err) {           
+    } catch (err) {
         // named module does not exist, so create one
         myModule = angular.module(moduleName, []);
-    }   
+    }
 
-    /**       
-      * Directive to display the available map layers.            
+    /**
+      * Directive to display the available map layers.
       */
     myModule.directive('dashboardSelection', [
-        '$window', '$compile',                  
-        function ($window, $compile): ng.IDirective {     
+        '$window', '$compile',
+        function ($window, $compile): ng.IDirective {
             return {
-                terminal: false,  // do not compile any other internal directives      
+                terminal: false,  // do not compile any other internal directives
                 restrict: 'E',    // E = elements, other options are A=attributes and C=classes
                 scope: {},     // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
-                template: html,   // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
+                templateUrl: 'directives/DashboardSelection/DashboardSelection.tpl.html',
+                //template: html,   // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
                 //compile             : el          => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                 //    var fn                        = $compile(el);
-                //    return scope                  => { 
+                //    return scope                  => {
                 //        fn(scope);
                 //    };
                 //},
                 link: (scope: any, element, attrs) => {
-                    
+
                     // Deal with resizing the element list
                     scope.onResizeFunction = () => {
                         var filterHeight = 50;
@@ -53,14 +54,14 @@
                     });
                 },
                 replace: true,    // Remove the directive from the DOM
-                transclude: true,    // Add elements and attributes to the template     
+                transclude: true,    // Add elements and attributes to the template
                 controller: DashboardSelectionCtrl
-            }              
+            }
         }
-    ]).directive('bsPopover', () => {        
+    ]).directive('bsPopover', () => {
             return (scope, element, attrs) => {
                 element.find("a[rel=popover]").popover({ placement: 'right', html: 'true' });
             };
         });
 
-}  
+}

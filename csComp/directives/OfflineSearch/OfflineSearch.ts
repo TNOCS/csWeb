@@ -2,7 +2,7 @@ module OfflineSearch {
     /**
       * Config
       */
-    var moduleName = 'csWeb.offlineSearch';
+    var moduleName = 'csComp';
 
     /**
       * Module
@@ -17,7 +17,7 @@ module OfflineSearch {
 
     /**
       * Directive to display the available map layers.
-      */ 
+      */
     myModule.directive('offlineSearch', [
         '$compile',
         function ($compile): ng.IDirective {
@@ -25,7 +25,7 @@ module OfflineSearch {
                 terminal  : true,    // do not compile any other internal directives
                 restrict  : 'E',     // E = elements, other options are A=attributes and C=classes
                 scope     : {},      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
-                template  : html,    // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
+                templateUrl: 'directives/OfflineSearch/OfflineSearch.tpl.html',
                 compile   : el => {  // I need to explicitly compile it in order to use interpolation like {{xxx}}
                     var fn = $compile(el);
                     return scope => {

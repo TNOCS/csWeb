@@ -1,4 +1,4 @@
-﻿<div>
+<div>
     <h4 class="leftpanel-header" translate="STYLES"></h4>
     <div ng-show="vm.$layerService.noStyles" translate="STYLE_INFO"></div>
     <div data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;clear:left;float:left">
@@ -24,14 +24,14 @@
                                     </div>
                                     <b class="caret"></b>
                                 </div>
-                                <!--<a class="btn btn-primary btn-sm" ng-model="style.visualAspect"  style="padding-left: 10px" href="#"> {{ style.visualAspect }} </a>-->
                                 <ul class="dropdown-menu" role="menu">
                                     <li ng-repeat="(key,val) in style.colorScales" style="margin:3px;cursor: pointer">
                                         <span ng-click="vm.$layerService.updatePropertyStyle(key,val,$parent);
+
                                               $parent.style.colors = val;
+
                                               vm.$layerService.updateStyle($parent.style)">{{key}}</span>
                                     </li>
-
                                 </ul>
                             </div>
                         </div>
@@ -39,92 +39,46 @@
                         <div style="float:right">
                             <div class="dropdown">
                                 <div class="style-settings" data-toggle="dropdown">
-                                    <!--<img src="includes/images/fillcolor.png" style="width: 32px; height:32px" />-->
                                     <div class="style-aspect style-{{style.visualAspect}}"></div><b class="caret"></b>
                                 </div>
-                                <!--<a class="btn btn-primary btn-sm" ng-model="style.visualAspect"  style="padding-left: 10px" href="#"> {{ style.visualAspect }} </a>-->
                                 <ul class="dropdown-menu" role="menu">
                                     <li ng-repeat="title in style.availableAspects" style="margin:3px;cursor: pointer">
-                                        <i class="style-aspect style-{{title}}" style="float:left" /><span ng-click="$parent.style.visualAspect = title;vm.$layerService.updateStyle($parent.style)"><img class="fa fa-search" style="margin-right: 8px" /> {{title}} </span>
+                                        <i class="style-aspect style-{{title}}" style="float:left" />
+                                        <span ng-click="$parent.style.visualAspect = title;vm.$layerService.updateStyle($parent.style)">
+                                            <img class="fa fa-search" style="margin-right: 8px" /> {{title}} </span>
                                     </li>
                                     <li class="divider"></li>
-                                    <li style="margin:3px;cursor: pointer"><i class="fa fa-remove" style="margin-right: 8px; float:left" /><span ng-click="vm.$layerService.removeStyle(style)">Verwijder</span></li>
-
+                                    <li style="margin:3px;cursor: pointer"><i class="fa fa-remove" style="margin-right: 8px; float:left" />
+                                        <span ng-click="vm.$layerService.removeStyle(style)">Verwijder</span>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
-                    <style>
-                        .legend-description {
-                            display: block;
-                            font-size: 16px;
-                            color: blue;
-                        }
-                        .legend-entry-item-d {
-                            list-style-type: none;
-                            height: 25px;
-                        }
-                        .legend-entry-item-i {
-                            list-style-type: none;
-                            height: 40px;
-                        }
-                        .legend-color-square {
-                            display: inline;
-                            width: 20px;
-                            height: 20px;
-                            background: #4cff00;
-                            position: relative;
-                            left: -40px;
-                        }
-                        .legend-color-gradient-rect {
-                            display: inline;
-                            width: 30px;
-                            height: 40px;
-                            background: #4cff00;
-                            position: relative;
-                            left: -40px;
-                        }
-                        .legend-label-d {
-                            display: inline;
-                            font-size: 13px;
-                            position: relative;
-                            top:    2px;
-                            left: -25px;
-                        }
-                        .legend-label-i {
-                            display: inline;
-                            font-size: 13px;
-                            position: absolute;
-                            left: 55px;
-                        }
-                    </style>
                     <div data-ng-if="style.activeLegend && style.enabled" style="float:left;clear:left">
-                        <div data-ng-if="style.activeLegend.legendKind==\'discrete\' ||  style.activeLegend.legendKind==\'discretestrings\'  ">
+                        <div data-ng-if="style.activeLegend.legendKind=='discrete' ||  style.activeLegend.legendKind=='discretestrings'  ">
                             <div class="legend-description">{{style.activeLegend.description}}</div>
-                            <!--<div class="legend-description">22:24</div>-->
                             <ul class="legend-entry-list">
                                 <li data-ng-repeat="le in style.activeLegend.legendEntries | reverse" class="legend-entry-item-d">
                                     <div class="legend-color-square" style="float: left; background: {{le.color}}"></div>
                                     <div class="legend-label-d" style="float: left">{{le.label}}</div>
-                                    <div>&nbsp;</div>   <!-- die &nbsp; is echt nodig... -->
+                                    <div>&nbsp;</div>
+                                    <!-- die &nbsp; is echt nodig... -->
                                 </li>
                             </ul>
                         </div>
-                        <div data-ng-if="style.activeLegend.legendKind==\'interpolated\'">
+                        <div data-ng-if="style.activeLegend.legendKind=='interpolated'">
                             <div class="legend-description">{{style.activeLegend.description}}</div>
                             <ul class="legend-entry-list">
                                 <li data-ng-repeat="(key, le) in style.activeLegend.legendEntries | reverse" class="legend-entry-item-i">
                                     <div ng-if="key < style.activeLegend.legendEntries.length-1" class="legend-color-gradient-rect" style="float: left; position: relative; top: 10px; background: linear-gradient(to bottom, {{le.color}}, {{style.activeLegend.legendEntries[style.activeLegend.legendEntries.length-key-2].color}}"></div>
-                                    <!--<div class="legend-label" style="float: left">{{key}} </div>-->
-                                    <!--<div ng-if="key < style.activeLegend.legendEntries.length-1" class="legend-label" style="float: left">{{le.label}}</div>
-                                    <div ng-if="key == style.activeLegend.legendEntries.length-1" class="legend-label" style="float: left; left: 0px">{{le.label}}</div>-->
                                     <div class="legend-label-i">{{le.label}}</div>
-                                    <div>&nbsp;</div>   <!-- die &nbsp; is echt nodig... -->
+                                    <!-- die &nbsp; is echt nodig... -->
+                                    <div>&nbsp;</div>
                                 </li>
                             </ul>
                         </div>
                     </div>
-                  </div>
                 </div>
             </div>
         </div>
