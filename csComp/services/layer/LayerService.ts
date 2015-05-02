@@ -267,7 +267,6 @@
         }
 
         checkLayerTimer(layer: ProjectLayer) {
-            console.log('check layer timer');
             if (layer.refreshTimer) {
                 if (layer.enabled && !layer.timerToken) {
                     layer.timerToken = setInterval(() => {
@@ -278,8 +277,7 @@
                 if (!layer.enabled && layer.timerToken) {
                     clearInterval(layer.timerToken);
                     layer.timerToken = null;
-                }
-                console.log('refresh timer enabled : ' + layer.refreshTimer);
+                }                
             }
         }
 
@@ -1134,7 +1132,7 @@
 
                                 for (var s in ds.sensors) {
                                     var ss = ds.sensors[s];
-                                    ss.activeValue = ss.values[ss.values.length - 1];                                    
+                                    ss.activeValue = ss.values[ss.values.length - 1];
                                     //console.log(s);
                                 }
 
