@@ -1,3 +1,34 @@
+/*custom fonts - Bitter, Montserrat*/
+@import url('http://fonts.googleapis.com/css?family=Noto Sans|Montserrat');
+
+/*----------------------
+webfont
+------------------------*/
+
+@font-face {
+    font-family: "ROSans";
+    font-style: normal;
+    font-weight: normal;
+    src: url("ROsanswebtextregular.ttf") format("opentype");
+}
+
+html,
+body,
+#map {
+    font-family: ROSans;
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+}
+
+html, body, #container {
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+}
+
+
+
 /* Start StyleList */
 .legend-description {
     display: block;
@@ -111,7 +142,7 @@
 /* Start LayersList */
 
 .left-menu {
-    background: url("../../includes/images/menu-left.png");
+    background: url("../../cs/images/menu-left.png");
     background-position: right bottom;
     background-repeat: no-repeat;
     position: absolute;

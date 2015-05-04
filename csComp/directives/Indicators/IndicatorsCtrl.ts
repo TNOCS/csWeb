@@ -78,10 +78,7 @@
         {
             this.$layerService.findSensorSet(i.sensor,(ss: csComp.Services.SensorSet) => {
                 i.sensorSet = ss;
-                if (!this.$scope.$$phase) this.$scope.$apply();
-                setTimeout(() => {
-                    // (<any>$("#" + i.id)).circliful();
-                }, 1000);
+                //if (!this.$scope.$$phase) this.$scope.$apply();\
           });
         }
 
@@ -106,7 +103,6 @@
                     }
                 }
             });
-            //if (!this.$scope.$$phase) this.$scope.$apply()
         }
 
         public selectIndicator(i: indicator) {
