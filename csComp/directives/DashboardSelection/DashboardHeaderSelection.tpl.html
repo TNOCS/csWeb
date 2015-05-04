@@ -1,16 +1,7 @@
 
 <div>
 <ul class="nav navbar-nav">
-<style>
-.dashboard-selection{
-  border-bottom: transparent;
-border-bottom-style: solid;
-}
-.dashboardselectionactive{
-  border-bottom: white;
-  border-bottom-style: solid;
-}
-</style>
+
     <!--<li data-ng-class="{ active: vm.isActive('/map')}"><a href="#/map" data-ng-click="showMap=true">Map</a></li>
     <li data-ng-class="{ active: vm.isActive('/table')}"><a href="#/table" data-ng-click="vm.showTable()">Table</a></li>-->
     <li ng-repeat="v in vm.$layerService.project.dashboards" class="dashboard-selection" ng-class="{dashboardselectionactive: v == vm.$layerService.project.activeDashboard}">
