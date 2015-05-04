@@ -161,6 +161,7 @@ html, body, #container {
 .dashboard-selection{
   border-bottom: transparent;
 border-bottom-style: solid;
+height:50px;
 }
 .dashboardselectionactive{
   border-bottom: white;
