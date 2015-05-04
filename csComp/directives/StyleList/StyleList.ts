@@ -18,9 +18,13 @@
     /**
       * Directive to display the available map layers.
       */
-    myModule.directive('styleList', [
-        '$window', '$compile',
-        function ($window, $compile)  : ng.IDirective {
+    myModule
+        .filter('reverse', function() {
+            return function(items) {
+                return items.slice().reverse();
+            };
+        })
+        .directive('styleList', ['$window', '$compile', function ($window, $compile)  : ng.IDirective {
             return {
                 terminal  : false,  // do not compile any other internal directives
                 restrict  : 'E',    // E = elements, other options are A=attributes and C=classes
@@ -32,7 +36,7 @@
                 //        fn(scope);
                 //    };
                 //},
-                link                  : (scope: any, element, attrs) => {
+                link: (scope: any, element, attrs) => {
                     // Deal with resizing the element list
                     scope.onResizeFunction = () => {
                         var filterHeight = 50;
@@ -56,10 +60,5 @@
                 controller: StyleListCtrl
             }
         }
-    ]).directive('bsPopover', () => {
-            return (scope, element, attrs) => {
-                element.find("a[rel=popover]").popover({ placement: 'right', html: 'true' });
-            };
-        });
-
+    ]);
 }
