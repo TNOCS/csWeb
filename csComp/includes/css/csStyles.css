@@ -108,18 +108,15 @@ html, body, #container {
 /*circular*/
 
 .indicator-circular-group {
-    height: 165px;
+    height: 200px;
 }
 .indicator-circular-title {
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 300;
 }
 .indicator-circular-value {
-    font-size: 20px;
-    font-weight: bold;
-    right: 5px;
-    position: absolute;
-    bottom: 5px;
+    font-size: 22px;
+    font-weight: 800;
 }
 .isActive {
     background-color: #B5A3C1;

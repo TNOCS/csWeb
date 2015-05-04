@@ -5,9 +5,14 @@
         title: string;
         type: string;
         propertyTypeKey : string;
+        propertyType : IPropertyType;
         timestamps: number[];
         values: any[];
         activeValue: any;
+
+        public activeValueText() : string {
+          return Helpers.convertPropertyInfo(this.propertyType,this.activeValue);
+        }
 
         public addValue(date : number, value : number)
         {
@@ -44,7 +49,7 @@
                 $.getJSON(ds.url,(temp: DataSource) => {
                     if (temp != null) {
                         ds.id      = temp.id;
-                        for (var s in temp.sensors) { if (temp.sensors.hasOwnProperty(s)) ds.sensors[s] = this.merge_sensor(ds.sensors[s],temp.sensors[s]); }                        
+                        for (var s in temp.sensors) { if (temp.sensors.hasOwnProperty(s)) ds.sensors[s] = this.merge_sensor(ds.sensors[s],temp.sensors[s]); }
                         ds.title   = temp.title;
                         callback();
                     }
