@@ -200,8 +200,11 @@
             this.checkTimeline();
             this.checkLayers();
             this.checkViewbound();
-            this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
-            this.$mapService.rightMenuVisible = d.showRightmenu;
+            //this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
+            this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
+            this.$layerService.visual.rightPanelVisible = d.showRightmenu;
+            //this.$layerService.rightMenuVisible = d.showLeftmenu;
+            //this.$mapService.rightMenuVisible = d.showRightmenu;
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
         }
     }
