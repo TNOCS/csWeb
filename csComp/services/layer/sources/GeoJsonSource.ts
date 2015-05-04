@@ -6,35 +6,32 @@ module csComp.Services {
         layer: ProjectLayer;
         requiresLayer = false;
 
-        public constructor(public service: LayerService) {
-
-        }
+        public constructor(public service: LayerService) {}
 
         public refreshLayer(layer: ProjectLayer) {
-          this.service.removeLayer(layer);
-          this.service.addLayer(layer);
+            this.service.removeLayer(layer);
+            this.service.addLayer(layer);
         }
 
-        public addLayer(layer: ProjectLayer, callback: Function) {
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
             this.baseAddLayer(layer, callback);
         }
 
         public fitMap(layer : ProjectLayer)
         {
-          var b = Helpers.GeoExtensions.getBoundingBox(this.layer.data);
-          this.service.$messageBusService.publish("map","setextent",b);
+            var b = Helpers.GeoExtensions.getBoundingBox(this.layer.data);
+            this.service.$messageBusService.publish("map","setextent",b);
         }
 
-        public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]
-        {
-          return [
-            ["Fit map", (($itemScope)=> this.fitMap(layer))],
-            null,
-            ['Refresh', (($itemScope)=> this.refreshLayer(layer))]
-          ];
+        public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
+            return [
+                ["Fit map", (($itemScope) => this.fitMap(layer))],
+                null,
+                ['Refresh', (($itemScope) => this.refreshLayer(layer))]
+            ];
         }
 
-        protected baseAddLayer(layer: ProjectLayer, callback: Function) {
+        protected baseAddLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
             this.layer = layer;
             async.series([
                 (cb) => {
@@ -102,7 +99,6 @@ module csComp.Services {
         removeLayer(layer: ProjectLayer) {
             //alert('remove layer');
         }
-
     }
 
     export class DynamicGeoJsonSource extends GeoJsonSource {
@@ -111,13 +107,8 @@ module csComp.Services {
 
         constructor(public service: LayerService) {
             super(service);
-
-
             // subscribe
-
         }
-
-
 
         private updateFeatureByProperty(key, id, value: IFeature) {
             try {
@@ -144,7 +135,6 @@ module csComp.Services {
 
                     this.service.initFeature(value, this.layer);
                     var m = this.service.activeMapRenderer.addFeature(value);
-
                 }
             } catch (e) {
                 console.log('error');
@@ -154,8 +144,6 @@ module csComp.Services {
         private deleteFeatureByProperty(key, id, value: IFeature) {
             try {
                 var features = <IFeature[]>(<any>this.layer.data).features;
-
-                //features = features.splice(
 
                 if (features == null)
                     return;
@@ -187,47 +175,39 @@ module csComp.Services {
         }
 
         public initSubscriptions(layer: ProjectLayer) {
-            layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id,"layer",(topic: string, msg: any)=>
-            {
-              switch (msg.action)
-              {
-                case "subscribed":
-                  console.log('sucesfully subscribed');
-                  break;
-                case "feature-update":
-                      if (msg.data!=null)
-                      {
-                        try
-                        {
-                        msg.data.forEach((f) => {
-                          this.updateFeatureByProperty("id", f.properties["id"], f);
-                        });
+            layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, "layer", (topic: string, msg: any) => {
+                switch (msg.action) {
+                    case "subscribed":
+                        console.log('sucesfully subscribed');
+                        break;
+                    case "feature-update":
+                        if (msg.data != null) {
+                            try {
+                                msg.data.forEach((f) => {
+                                    this.updateFeatureByProperty("id", f.properties["id"], f);
+                                });
+                            }
+                            catch (e) {
+                                console.warn('error updating feature');
+                            }
                         }
-                        catch(e)
-                        {
-                          console.warn('error updating feature');
+                        break;
+                    case "feature-delete":
+                        if (msg.data != null) {
+                            try {
+                                msg.data.forEach((f) => {
+                                    //this.service.removeFeature(f);
+                                });
+                            } catch (e) {
+                                console.warn('error deleting feature');
+                            }
                         }
-                      }
-                      break;
-                  case "feature-delete":
-                      if (msg.data!=null)
-                      {
-                        try
-                        {
-                        msg.data.forEach((f) => {
-                          //this.service.removeFeature(f);
-                        });
-                      }catch(e)
-                      {
-                        console.warn('error deleting feature');
-                      }
-                      }
-                      break;
-              }
+                        break;
+                }
             });
         }
 
-        public addLayer(layer: ProjectLayer, callback: Function) {
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
             this.baseAddLayer(layer, callback);
             this.initSubscriptions(layer);
             //this.connection = this.service.$messageBusService.getConnection("");
@@ -245,16 +225,13 @@ module csComp.Services {
         }
 
         removeLayer(layer: ProjectLayer) {
-          this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
+            this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
         }
 
-        public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]
-        {
-          return [
-            ["Fit map", (($itemScope)=> this.fitMap(layer))],
-            null
-
-          ];
+        public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
+            return [
+                ["Fit map", (($itemScope) => this.fitMap(layer))], null
+            ];
         }
     }
 }
