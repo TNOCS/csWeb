@@ -60,7 +60,8 @@
             '$sce',
             'mapService',
             'layerService',
-            'messageBusService'
+            'messageBusService',
+            '$translate'
         ];
 
         public selectRelation(relation: Relation) {
@@ -68,6 +69,35 @@
             this.$mapService.zoomTo(relation.target);
         }
 
+        // Create a relation to the nearest 10 features that are within the extent
+        private createNearbyRelation(f) : RelationGroup {
+            var rgr = new RelationGroup();
+            this.$translate('NEARBY_FEATURES').then((translation) => {
+                rgr.title = translation;
+            });
+            rgr.id = csComp.Helpers.getGuid();
+            rgr.relations = [];
+            var mapBounds = this.$mapService.map.getBounds();
+            this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
+                if (feature.id != f.id && mapBounds.contains(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]))) {
+                    var rl = new Relation();
+                    rl.subject = f;
+                    rl.target = feature;
+
+                    rl.title = FeatureProps.CallOut.title(feature.fType, feature);
+                    rl.icon = (feature.fType == null || feature.fType.style == null || !feature.fType.style.hasOwnProperty('iconUri') || feature.fType.style.iconUri.toLowerCase().indexOf('_media') >= 0) ? '' : feature.fType.style.iconUri;
+                    rgr.relations.push(rl);
+                }
+            });
+            var fLoc: L.LatLng = new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
+            rgr.relations.sort((rl1: Relation, rl2: Relation) => {
+                return (fLoc.distanceTo(new L.LatLng(rl1.target.geometry.coordinates[1], rl1.target.geometry.coordinates[0]))) - (fLoc.distanceTo(new L.LatLng(rl2.target.geometry.coordinates[1], rl2.target.geometry.coordinates[0])));
+            });
+            if (rgr.relations.length > 10) {
+                rgr.relations.splice(10);
+            }
+            return rgr;
+        }
 
         public initRelations() {
             this.relations = [];
@@ -110,6 +140,9 @@
                     if (rg.relations.length > 0) this.relations.push(rg);
                 }
             }
+            var nearbyRelGroup = this.createNearbyRelation(f);
+            if (nearbyRelGroup.relations.length > 0) this.relations.push(nearbyRelGroup);
+
             this.showRelations = this.relations.length > 0;
 
             if (this.showRelations) { $("#linkedData").show(); } else { $("#linkedData").hide();}
@@ -129,7 +162,8 @@
             private $sce               : ng.ISCEService,              
             private $mapService        : csComp.Services.MapService,
             private $layerService      : csComp.Services.LayerService,
-            private $messageBusService : csComp.Services.MessageBusService
+            private $messageBusService : csComp.Services.MessageBusService, 
+            private $translate         : ng.translate.ITranslateService
             ) {
             this.scope = $scope;
             $scope.vm = this;

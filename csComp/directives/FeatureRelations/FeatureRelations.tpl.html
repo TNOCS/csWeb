@@ -21,7 +21,7 @@
                 <div class="relationgroup-title">{{group.title}}</div>
                 <div id="relationgroup_{{group.id}}" class="collapse in">
                     <div ng-repeat="relation in group.relations" style="margin-bottom: 5px">
-                        <img data-ng-if="relation.icon" data-ng-src="{{relation.icon}}" width="24" height="24" style="margin-left:5px; " alt="Icon" />
+                        <img data-ng-if="relation.icon" data-ng-src="{{relation.icon}}" ng-click="vm.selectRelation(relation)" width="24" height="24" style="margin-left:5px; " alt="Icon" />
                         <a class="relation-title" ng-click="vm.selectRelation(relation)">
                             {{relation.title}}
                         </a>
