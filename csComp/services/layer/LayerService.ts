@@ -30,7 +30,7 @@
     }
 
     export class VisualState {
-        public leftPanelVisible: boolean = false;
+        public leftPanelVisible: boolean = true;
         public rightPanelVisible: boolean = false;
         public dashboardVisible: boolean = true;
         public mapVisible: boolean = true;
@@ -281,7 +281,7 @@
                 if (!layer.enabled && layer.timerToken) {
                     clearInterval(layer.timerToken);
                     layer.timerToken = null;
-                }                
+                }
             }
         }
 

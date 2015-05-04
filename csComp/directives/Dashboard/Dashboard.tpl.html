@@ -6,11 +6,16 @@
             height: 100%;
             position: absolute;
         }
+
+        .widget-entrance {
+          -webkit-animation:fadeIn 1s
+        }
+
     </style>
     <div style="position:relative;width:100%; height:100%;pointer-events: none">
         <ul style="padding:0;pointer-events: none">
             <li ng-repeat="widget in dashboard.widgets" class="widget-parent">
-                <div class="widget-container" ng-hide="widget.collapse" style="top: {{widget.top}};bottom: {{widget.bottom}};left:{{widget.left}};right:{{widget.right}};position: absolute;width:{{widget.width}};height:{{widget.height}};background: white">
+                <div class="widget-container widget-entrance" ng-hide="widget.collapse" style="top: {{widget.top}};bottom: {{widget.bottom}};left:{{widget.left}};right:{{widget.right}};position: absolute;width:{{widget.width}};height:{{widget.height}};background: white">
                     <div id="{{widget.elementId}}" class="box-content" style="width:100%;height:100%">
                     </div>
                 </div>
