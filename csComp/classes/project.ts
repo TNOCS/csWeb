@@ -149,8 +149,7 @@
         dataSets        : DataSet[];
         viewBounds      : IBoundingBox;
         userPrivileges  : IPrivileges;
-        languages: ILanguageData;
-
+        languages       : ILanguageData;
 
         expertMode = Expertise.Expert;
         markers = {};
@@ -168,17 +167,17 @@
                     if (input.mcas.hasOwnProperty(mca)) {
                         res.mcas.push(new Mca.Models.Mca().deserialize(mca));
                     }
+                }
             }
-          }
             if (!res.propertyTypeData) res.propertyTypeData = {};
             if (res.id == null) res.id = res.title;
-          return res;
+            return res;
         }
     }
 
-    /** layer information. a layer is described in a project file and is always part of a group */
+    /** Layer information. a layer is described in a project file and is always part of a group */
     export class ProjectLayer {
-        /** key of the propertyTypeData entry that provides a legend for this layer **/
+        /** Key of the propertyTypeData entry that provides a legend for this layer **/
         defaultLegendProperty: string;
         /** Title as displayed in the menu */
         title: string;
@@ -189,10 +188,10 @@
         /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
         type: string;
         /** Data source */
-        url                         : string;
+        url: string;
         /** Contains extended heatmap information (e.g. list of references to required sources, or weights) */
-        heatmapSettings             : Heatmap.IHeatmapSettings;
-        heatmapItems                : Heatmap.IHeatmapItem[];
+        heatmapSettings: Heatmap.IHeatmapSettings;
+        heatmapItems: Heatmap.IHeatmapItem[];
         /** In case we keep the style information in a separate file */
         styleurl: string;
         /** how should the layer be renderer, default (can also be null), webgl, heatmap, isolines, etc. */

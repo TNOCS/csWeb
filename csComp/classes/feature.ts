@@ -138,8 +138,8 @@
         subject?         : string;
         target?          : string;
         options?         : string[];
-        languages?: ILanguageData;
-        legend?: Legend;
+        languages?       : ILanguageData;
+        legend?          : Legend;
     }
 
     export interface IPropertyTypeData {

@@ -40,7 +40,7 @@
             $messageBusService.subscribe('layer', () => {
                 // Update the legend when a layer is added or removed.
                 this.updateLegendItems();
-            }); 
+            });
 
             this.updateLegendItems();
 
@@ -72,7 +72,7 @@
 
         private getImageUri(ft: csComp.Services.IFeatureType): string {
             var iconUri = ft.style.iconUri;
-            if (iconUri==null) iconUri="includes/images/marker.png";
+            if (iconUri == null) iconUri = "includes/images/marker.png";
             if (iconUri.indexOf('{') >= 0) iconUri = iconUri.replace('{', '').replace('}', '');
 
             if (ft.style != null && ft.style.drawingMode!=null && ft.style.drawingMode.toLowerCase() != "point") {
