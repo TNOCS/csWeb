@@ -7,14 +7,14 @@
 border-bottom-style: solid;
 }
 .dashboardselectionactive{
-  border-bottom: red;
+  border-bottom: white;
   border-bottom-style: solid;
 }
 </style>
     <!--<li data-ng-class="{ active: vm.isActive('/map')}"><a href="#/map" data-ng-click="showMap=true">Map</a></li>
     <li data-ng-class="{ active: vm.isActive('/table')}"><a href="#/table" data-ng-click="vm.showTable()">Table</a></li>-->
     <li ng-repeat="v in vm.$layerService.project.dashboards" class="dashboard-selection" ng-class="{dashboardselectionactive: v == vm.$layerService.project.activeDashboard}">
-        <a ng-class="{dashboardactivelink: v == vm.$layerService.project.activeDashboard}" data-ng-click="vm.$dashboardService.selectDashboard(v)">
+        <a ng-class="{dashboardactivelink: v == vm.$layerService.project.activeDashboard}" data-ng-click="vm.$dashboardService.selectDashboard(v,'main')">
             <span style="color:white;font-size:20px;cursor:pointer">{{v.name}}</span>
         </a>
     </li>

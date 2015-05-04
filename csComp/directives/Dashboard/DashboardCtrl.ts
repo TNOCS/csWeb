@@ -202,6 +202,7 @@
             this.checkViewbound();
             this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
             this.$mapService.rightMenuVisible = d.showRightmenu;
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
         }
     }
 }

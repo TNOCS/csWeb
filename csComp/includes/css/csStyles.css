@@ -161,6 +161,15 @@ html, body, #container {
 }
 /* End LayersList */
 
+.dashboard-selection{
+  border-bottom: transparent;
+border-bottom-style: solid;
+}
+.dashboardselectionactive{
+  border-bottom: white;
+  border-bottom-style: solid;
+}
+
 .dashboard-base {
     position: absolute;
     width: 100%;
