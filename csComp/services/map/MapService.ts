@@ -11,7 +11,7 @@
         public static $inject = [
             'localStorageService',
             '$timeout',
-            'messageBusService'
+            'messageBusService' 
         ];
 
         public map:              L.Map;

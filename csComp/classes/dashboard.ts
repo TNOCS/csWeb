@@ -119,6 +119,7 @@ module csComp.Services {
         timeline:        DateRange;
         id:              string;
         name:            string;
+        disabled: boolean = false;
 
         constructor() {
             this.widgets = [];

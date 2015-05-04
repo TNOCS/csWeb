@@ -27,6 +27,15 @@ html, body, #container {
     width: 100%;
 }
 
+.map-main
+{
+  position:absolute;
+  width:100%;
+  height:100%;
+}
+
+
+
 
 
 /* Start StyleList */
@@ -570,6 +579,21 @@ height:50px;
     text-align: right;
     font-weight: bold;
 }
+
+/* leftpanel */
+
+.leftpanel-entrance {
+  -webkit-animation:fadeInLeft 0.5s
+}
+
+.leftpanel-entrance.ng-hide {
+  opacity:0;
+}
+
+.leftpanel-exit {
+  -webkit-animation:fadeOutLeft 0.5s
+}
+
 .leftpanel-header-button {
     float: right;
     border: 0;
@@ -600,16 +624,20 @@ height:50px;
 }
 .dashboard-name {
     font-size: 18px;
-    cursor: pointer;
 }
 .dashboard-item {
     margin-right: 5px;
     padding: 3px;
+    cursor:pointer;
 }
 .dashboard-selected {
     background: black;
     color: white;
     border-radius: 3px;
+}
+
+.control-label{
+  font-size:20px;
 }
 .gridster-content {
     pointer-events: all;
