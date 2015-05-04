@@ -24,16 +24,22 @@
         title: string;
         sensors: { (key: string): SensorSet };
 
+        /**
+         * Load JSON data.
+         * @type {DataSource}
+         *
+         * @param ds {DataSource}
+         * @param callback {Function}
+         */
         public static LoadData(ds: DataSource, callback: Function) {
             if (ds.url != null) {
                 $.getJSON(ds.url,(temp: DataSource) => {
                     if (temp != null) {
-                        ds.id = temp.id;
+                        ds.id      = temp.id;
                         ds.sensors = temp.sensors;
-                        ds.title = temp.title;
+                        ds.title   = temp.title;
                         callback();
                     }
-                    //var projects = data;
                 });
             }
         }
