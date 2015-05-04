@@ -483,7 +483,7 @@
             //TODO: check compatibility for both heatmaps and other features
             //s.fillColor = 'red';
             //s.strokeWidth = 1;
-            s.stroke        = false;
+            //s.stroke        = false;
             s.strokeWidth   = 1;
             s.strokeColor   = 'black';
             s.fillOpacity   = 0.75;
@@ -495,14 +495,15 @@
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
-                if (ft.style.fillColor != null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
-                if (ft.style.strokeColor != null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
-                if (ft.style.strokeWidth != null) s.strokeWidth = ft.style.strokeWidth;
-                if (ft.style.iconWidth != null) s.iconWidth = ft.style.iconWidth;
-                if (ft.style.iconHeight != null) s.iconHeight = ft.style.iconHeight;
-                if (ft.style.innerTextProperty != null) s.innerTextProperty = ft.style.innerTextProperty;
-                if (ft.style.innerTextSize != null) s.innerTextSize = ft.style.innerTextSize;
-                if (ft.style.cornerRadius != null) s.cornerRadius = ft.style.cornerRadius;
+                if (ft.style.fillColor !== null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
+                if (ft.style.stroke !== null) s.stroke = ft.style.stroke;
+                if (ft.style.strokeColor !== null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
+                if (ft.style.strokeWidth !== null) s.strokeWidth = ft.style.strokeWidth;
+                if (ft.style.iconWidth !== null) s.iconWidth = ft.style.iconWidth;
+                if (ft.style.iconHeight !== null) s.iconHeight = ft.style.iconHeight;
+                if (ft.style.innerTextProperty !== null) s.innerTextProperty = ft.style.innerTextProperty;
+                if (ft.style.innerTextSize !== null) s.innerTextSize = ft.style.innerTextSize;
+                if (ft.style.cornerRadius !== null) s.cornerRadius = ft.style.cornerRadius;
                 if (ft.style.rotateProperty && feature.properties.hasOwnProperty(ft.style.rotateProperty)) {
                     s.rotate = Number(feature.properties[ft.style.rotateProperty]);
                 }

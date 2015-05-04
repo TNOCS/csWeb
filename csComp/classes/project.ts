@@ -210,6 +210,10 @@
         /** Group of layers */
         group: ProjectGroup;
         layerSource : ILayerSource;
+        /**
+         * Number of seconds between automatic layer refresh.
+         * @type {number}
+         */
         refreshTimer: number;
         timerToken : any;
         /**

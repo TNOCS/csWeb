@@ -94,7 +94,7 @@ module csComp.Services {
                 opacity:     style.opacity,
                 fillOpacity: style.opacity
             };
-            s["color"] = style.stroke === false
+            s["color"] = (typeof style.stroke !== 'undefined' && style.stroke === false)
                 ? style.fillColor
                 : style.strokeColor;
             return s;
