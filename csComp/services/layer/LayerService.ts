@@ -270,18 +270,21 @@
             }
         }
 
-        checkLayerTimer(layer: ProjectLayer) {
-            if (layer.refreshTimer) {
-                if (layer.enabled && !layer.timerToken) {
+        /**
+         * Check whether we need to enable the timer to refresh the layer.
+         */
+        private checkLayerTimer(layer: ProjectLayer) {
+            if (!layer.refreshTimer) return;
+            if (layer.enabled) {
+                if (!layer.timerToken) {
                     layer.timerToken = setInterval(() => {
                         layer.layerSource.refreshLayer(layer);
                     }, layer.refreshTimer * 1000);
-                    console.log(layer.timerToken);
+                    console.log(`Timer started for ${layer.title}: ${layer.timerToken}`);
                 }
-                if (!layer.enabled && layer.timerToken) {
-                    clearInterval(layer.timerToken);
-                    layer.timerToken = null;
-                }
+            } else if (layer.timerToken) {
+                clearInterval(layer.timerToken);
+                layer.timerToken = null;
             }
         }
 
