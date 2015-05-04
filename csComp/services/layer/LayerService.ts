@@ -57,30 +57,30 @@
     }
 
     export class LayerService implements ILayerService {
-        maxBounds: IBoundingBox;
-        title: string;
-        accentColor: string;
-        mb: Services.MessageBusService;
-        map: Services.MapService;
-        featureTypes: { [key: string]: IFeatureType; };
-        propertyTypeData: { [key: string]: IPropertyType; };
-        project: Project;
-        projectUrl: string; // URL of the current project
-        solution: Solution;
-        dimension: any;
-        noFilters: boolean;
-        noStyles: boolean;
+        maxBounds:           IBoundingBox;
+        title:               string;
+        accentColor:         string;
+        mb:                  Services.MessageBusService;
+        map:                 Services.MapService;
+        featureTypes:        { [key: string]: IFeatureType; };
+        propertyTypeData:    { [key: string]: IPropertyType; };
+        project:             Project;
+        projectUrl:          string; // URL of the current project
+        solution:            Solution;
+        dimension:           any;
+        noFilters:           boolean;
+        noStyles:            boolean;
         lastSelectedFeature: IFeature;
-        selectedLayerId: string;
-        timeline: any;
-        currentLocale: string;
-        loadedLayers = new csComp.Helpers.Dictionary<L.ILayer>();
-        layerGroup = new L.LayerGroup<L.ILayer>();
-        info = new L.Control();
-        layerSources: { [key: string]: ILayerSource };   // list of available layer sources
-        mapRenderers: { [key: string]: IMapRenderer };   // list of available map renderers
-        activeMapRenderer: IMapRenderer;                 // active map renderer
-        public visual: VisualState = new VisualState();
+        selectedLayerId:     string;
+        timeline:            any;
+        currentLocale:       string;
+        loadedLayers       = new csComp.Helpers.Dictionary<L.ILayer>();
+        layerGroup         = new L.LayerGroup<L.ILayer>();
+        info               = new L.Control();
+        layerSources:        { [key: string]: ILayerSource };   // list of available layer sources
+        mapRenderers:        { [key: string]: IMapRenderer };   // list of available map renderers
+        activeMapRenderer:   IMapRenderer;                 // active map renderer
+        public visual:       VisualState = new VisualState();
 
         static $inject = [
             '$location',
@@ -148,7 +148,9 @@
             });
         }
 
-        // initialize the available layer sources
+        /**
+         * Initialize the available layer sources
+         */
         private initLayerSources() {
             // init layer sources
             this.layerSources = {};
@@ -156,8 +158,8 @@
             // add a topo/geojson source
             var geojsonsource = new GeoJsonSource(this);
 
-            this.layerSources["geojson"] = geojsonsource;
-            this.layerSources["topojson"] = geojsonsource;
+            this.layerSources["geojson"]        = geojsonsource;
+            this.layerSources["topojson"]       = geojsonsource;
             this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
 
             // add wms source
@@ -243,15 +245,17 @@
                     gs = new GroupStyle(this.$translate);
                     layer.group.styles.push(gs);
                 }
-                gs.title = ptd.title;
-                gs.id = Helpers.getGuid();
-                gs.activeLegend = ptd.legend;
-                gs.group = layer.group;
-                gs.property = property;
-                gs.legends[ptd.title] = ptd.legend;
+                gs.title                  = ptd.title;
+                gs.id                     = Helpers.getGuid();
+                gs.activeLegend           = ptd.legend;
+                gs.group                  = layer.group;
+                gs.property               = ptd.label;
+                gs.legends[ptd.title]     = ptd.legend;
                 gs.colorScales[ptd.title] = ['purple', 'purple'];
-                gs.enabled = true;
-                gs.visualAspect = (ptd.legend.visualAspect) ? ptd.legend.visualAspect : 'strokeColor';  // TODO: let this be read from the propertyTypeData
+                gs.enabled                = true;
+                gs.visualAspect           = (ptd.legend.visualAspect)
+                    ? ptd.legend.visualAspect
+                    : 'strokeColor';  // TODO: let this be read from the propertyTypeData
 
                 this.saveStyle(layer.group, gs);
                 this.project.features.forEach((fe: IFeature) => {
@@ -481,11 +485,11 @@
             //TODO: check compatibility for both heatmaps and other features
             //s.fillColor = 'red';
             //s.strokeWidth = 1;
-            s.stroke = false;
-            s.strokeWidth = 1;
-            s.strokeColor = 'black';
-            s.fillOpacity = 0.75;
-            s.rotate = 0;
+            s.stroke        = false;
+            s.strokeWidth   = 1;
+            s.strokeColor   = 'black';
+            s.fillOpacity   = 0.75;
+            s.rotate        = 0;
             //s.strokeColor = 'black';
             //s.iconHeight = 32;
             //s.iconWidth = 32;
@@ -506,41 +510,41 @@
                 }
             }
 
-            feature.layer.group.styles.forEach((gs: GroupStyle) => {
-                if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
-                    if (gs.activeLegend) {
-                        if ((gs.activeLegend.legendKind == 'discrete') ||
-                            (gs.activeLegend.legendKind == 'interpolated')) {
-
-                            var v = Number(feature.properties[gs.property]);
-                            if (!isNaN(v)) {
-                                switch (gs.visualAspect) {
-                                    case 'strokeColor':
-                                        s.strokeColor = csComp.Helpers.getColor(v, gs);
-                                        break;
-                                    case 'fillColor':
-                                        s.fillColor = csComp.Helpers.getColor(v, gs);
-                                        break;
-                                    case 'strokeWidth':
-                                        s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
-                                        break;
-                                }
-                            }
-                        } // discrete or interpolated
-                        if (gs.activeLegend.legendKind == 'discretestrings') {
-                            var ss = feature.properties[gs.property];
-                            switch (gs.visualAspect) {
-                                case 'strokeColor':
-                                    s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-                                    break;
-                                case 'fillColor':
-                                    s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-                                    break;
-                            }
-                        } // discrete strings
-                    } // activelegend
-                }
-            });
+            // feature.layer.group.styles.forEach((gs: GroupStyle) => {
+            //     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
+            //         if (gs.activeLegend) {
+            //             if ((gs.activeLegend.legendKind == 'discrete') ||
+            //                 (gs.activeLegend.legendKind == 'interpolated')) {
+            //
+            //                 var v = Number(feature.properties[gs.property]);
+            //                 if (!isNaN(v)) {
+            //                     switch (gs.visualAspect) {
+            //                         case 'strokeColor':
+            //                             s.strokeColor = csComp.Helpers.getColor(v, gs);
+            //                             break;
+            //                         case 'fillColor':
+            //                             s.fillColor = csComp.Helpers.getColor(v, gs);
+            //                             break;
+            //                         case 'strokeWidth':
+            //                             s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
+            //                             break;
+            //                     }
+            //                 }
+            //             } // discrete or interpolated
+            //             if (gs.activeLegend.legendKind == 'discretestrings') {
+            //                 var ss = feature.properties[gs.property];
+            //                 switch (gs.visualAspect) {
+            //                     case 'strokeColor':
+            //                         s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+            //                         break;
+            //                     case 'fillColor':
+            //                         s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+            //                         break;
+            //                 }
+            //             } // discrete strings
+            //         } // activelegend
+            //     }
+            // });
 
             //var layer = this.findLayer(feature.layerId);
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
@@ -1130,16 +1134,13 @@
                         if (ds.url) {
                             DataSource.LoadData(ds, () => {
                                 console.log('datasource loaded');
-                                if (ds.type == "dynamic") this.checkDataSourceSubscriptions(ds);
+                                if (ds.type === "dynamic") this.checkDataSourceSubscriptions(ds);
 
                                 for (var s in ds.sensors) {
                                     var ss = ds.sensors[s];
-                                    ss.activeValue = ss.values[ss.values.length - 1];                                    
-                                    //console.log(s);
+                                    ss.activeValue = ss.values[ss.values.length - 1];
                                 }
-
                             });
-
                         }
                     });
                 }
@@ -1149,68 +1150,69 @@
 
                 this.project.features = [];
 
-                this.project.groups.forEach((group: ProjectGroup) => {
-                    if (group.id == null) group.id = Helpers.getGuid();
-                    group.ndx = crossfilter([]);
-                    if ((group.styles) && (group.styles.length > 0)) {
-                        var styleId: string = group.styles[0].id;
-                        //var legend: Legend;
-                        //var url: string = "dummylegend.json";
-                        //$.getJSON(url,(data: Legend) => {
-                        //    legend = new Legend().deserialize(data);
-                        //}
-                    };
-                    if (group.styles == null) group.styles = [];
-                    if (group.filters == null) group.filters = [];
-                    group.markers = {};
-                    if (group.languages != null && this.currentLocale in group.languages) {
-                        var locale = group.languages[this.currentLocale];
-                        if (locale.title) group.title = locale.title;
-                        if (locale.description) group.description = locale.description;
-                    }
-                    if (group.clustering) {
-                        group.cluster = new L.MarkerClusterGroup({
-                            maxClusterRadius: group.maxClusterRadius || 80,
-                            disableClusteringAtZoom: group.clusterLevel || 0
+                if (this.project.groups && this.project.groups.length > 0) {
+                    this.project.groups.forEach((group: ProjectGroup) => {
+                        if (group.id == null) group.id = Helpers.getGuid();
+                        group.ndx = crossfilter([]);
+                        if ((group.styles) && (group.styles.length > 0)) {
+                            var styleId: string = group.styles[0].id;
+                            //var legend: Legend;
+                            //var url: string = "dummylegend.json";
+                            //$.getJSON(url,(data: Legend) => {
+                            //    legend = new Legend().deserialize(data);
+                            //}
+                        };
+                        if (group.styles == null) group.styles = [];
+                        if (group.filters == null) group.filters = [];
+                        group.markers = {};
+                        if (group.languages != null && this.currentLocale in group.languages) {
+                            var locale = group.languages[this.currentLocale];
+                            if (locale.title) group.title = locale.title;
+                            if (locale.description) group.description = locale.description;
+                        }
+                        if (group.clustering) {
+                            group.cluster = new L.MarkerClusterGroup({
+                                maxClusterRadius: group.maxClusterRadius || 80,
+                                disableClusteringAtZoom: group.clusterLevel || 0
+                            });
+
+                            this.map.map.addLayer(group.cluster);
+                        } else {
+                            group.vectors = new L.LayerGroup<L.ILayer>();
+                            this.map.map.addLayer(group.vectors);
+                        }
+                        group.layers.forEach((layer: ProjectLayer) => {
+                            if (layer.id == null) layer.id = Helpers.getGuid();
+                            layer.type = layer.type.toLowerCase();
+                            if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
+                            if (layer.title == null) layer.title = layer.id;
+                            if (layer.languages != null && this.currentLocale in layer.languages) {
+                                var locale = layer.languages[this.currentLocale];
+                                if (locale.title) layer.title = locale.title;
+                                if (locale.description) layer.description = locale.description;
+                            }
+
+                            layer.group = group;
+                            if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
+                                layer.enabled = true;
+                                this.activeMapRenderer.addLayer(layer);
+                            }
                         });
 
-                        this.map.map.addLayer(group.cluster);
-                    } else {
-                        group.vectors = new L.LayerGroup<L.ILayer>();
-                        this.map.map.addLayer(group.vectors);
-                    }
-                    group.layers.forEach((layer: ProjectLayer) => {
-                        if (layer.id == null) layer.id = Helpers.getGuid();
-                        layer.type = layer.type.toLowerCase();
-                        if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
-                        if (layer.title == null) layer.title = layer.id;
-                        if (layer.languages != null && this.currentLocale in layer.languages) {
-                            var locale = layer.languages[this.currentLocale];
-                            if (locale.title) layer.title = locale.title;
-                            if (locale.description) layer.description = locale.description;
-                        }
+                        group.styles.forEach((style: GroupStyle) => {
+                            if (style.id != null) style.id = Helpers.getGuid();
+                        });
 
-                        layer.group = group;
-                        if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
-                            layer.enabled = true;
-                            this.activeMapRenderer.addLayer(layer);
-                        }
+                        group.filters.forEach((filter: GroupFilter) => {
+                            if (filter.id != null) filter.id = Helpers.getGuid();
+                        });
+
+                        if (data.startposition)
+                            this.$mapService.zoomToLocation(new L.LatLng(data.startposition.latitude, data.startposition.longitude));
+
+                        this.updateFilters();
                     });
-
-                    group.styles.forEach((style: GroupStyle) => {
-                        if (style.id != null) style.id = Helpers.getGuid();
-                    });
-
-                    group.filters.forEach((filter: GroupFilter) => {
-                        if (filter.id != null) filter.id = Helpers.getGuid();
-                    });
-
-                    if (data.startposition)
-                        this.$mapService.zoomToLocation(new L.LatLng(data.startposition.latitude, data.startposition.longitude));
-
-                    this.updateFilters();
-                });
-
+                }
                 if (this.project.connected) {
                     // check connection
                     this.$messageBusService.initConnection("", "", () => {
@@ -1226,7 +1228,7 @@
         checkDataSourceSubscriptions(ds: DataSource) {
             for (var s in ds.sensors) {
                 this.$messageBusService.serverSubscribe(s, "sensor", (sub: string, msg: any) => {
-                    if (msg.action == "sensor-update") {
+                    if (msg.action === "sensor-update") {
                         var d = msg.data[0];
                         var ss: SensorSet = ds.sensors[d.sensor];
                         if (ss != null) {
@@ -1247,10 +1249,8 @@
 
         checkSubscriptions() {
             this.project.datasources.forEach((ds: DataSource) => {
-                if (ds.url && ds.type == "dynamic") { this.checkDataSourceSubscriptions(ds); }
+                if (ds.url && ds.type === "dynamic") { this.checkDataSourceSubscriptions(ds); }
             });
-            //this.project.datasources.for
-
         }
 
         closeProject() {
@@ -1269,6 +1269,7 @@
             if (kk.length == 2) {
                 var source = kk[0];
                 var sensorset = kk[1];
+                if (!this.project.datasources || this.project.datasources.length === 0) return null;
                 this.project.datasources.forEach((ds: DataSource) => {
                     if (ds.id === source) {
                         if (ds.sensors.hasOwnProperty(sensorset)) {
