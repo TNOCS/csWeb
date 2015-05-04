@@ -40,6 +40,7 @@
         title : string;
         valueString : string;
         valueClass : string;
+        animationDuration : number;
         width?    : number;
         height?   : number;
         margin?   : { top: number; right: number; bottom: number; left: number; };
@@ -71,8 +72,9 @@
                     max : '=',
                     title : '=',
                     valueString : '=',
-                    valueClass : '=',
-                    titleClass : '=',
+                    valueClass : '@',
+                    titleClass : '@',
+                    animationDuration : '@',
                     width     : '@',  // the value is used as is
                     height    : '@',
                     margin    : '@'
@@ -97,6 +99,7 @@
                       var margin           = scope.margin || { top: 15, right: 5, bottom: 0, left: 10 };
                       var width            = scope.width || 100;
                       var height           = scope.height || 70;
+                      var animationDuration = scope.animationDuration || 0;
                       var cursorTextHeight = 12;// + (showAxis ? 5 : 0); // leave room for the cursor text (timestamp | measurement)
                       $(element[0]).empty();
 
@@ -129,7 +132,7 @@
       .enter().append("path")
       .attr("class", "arc")
       .attr("fill", function(d, i) { return color(i); })
-      .transition().delay(function(d, i) { return i * 500; }).duration(500)
+      .transition().delay(function(d, i) { return i * animationDuration; }).duration(animationDuration)
       .attrTween("d", function(d) {
           var i = d3.interpolate(d.startAngle+0.1, d.endAngle);
           return function(t) {
