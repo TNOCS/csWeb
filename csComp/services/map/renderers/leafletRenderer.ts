@@ -89,26 +89,26 @@ module csComp.Services {
 
         private getLeafletStyle(style: IFeatureTypeStyle) {
             var s = {
-                fillColor: style.fillColor,
-                weight: style.strokeWidth,
-                opacity: style.opacity,
-                color: style.strokeColor,
+                fillColor:   style.fillColor,
+                weight:      style.strokeWidth,
+                opacity:     style.opacity,
                 fillOpacity: style.opacity
             };
+            s["color"] = style.stroke === false
+                ? style.fillColor
+                : style.strokeColor;
             return s;
         }
 
         public addLayer(layer: ProjectLayer) {
-
             switch (layer.layerRenderer) {
                 case "tilelayer":
-
                     // check if we need to create a unique url to force a refresh
                     var u = layer.url;
                     if (layer.disableCache)
                     {
-                      layer.cacheKey = new Date().getTime().toString();
-                      u+="&cache=" + layer.cacheKey;
+                        layer.cacheKey = new Date().getTime().toString();
+                        u += "&cache=" + layer.cacheKey;
                     }
 
                     var tileLayer: any = L.tileLayer(u, { attribution: layer.description });
@@ -153,7 +153,6 @@ module csComp.Services {
                     break;
                 case "svg":
                     // create leaflet layers
-
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                     this.service.map.map.addLayer(layer.mapLayer);
 
@@ -334,13 +333,13 @@ module csComp.Services {
                 //if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
 
                 // TODO refactor to object
-                props['background'] = feature.effectiveStyle.fillColor;
-                props['width'] = feature.effectiveStyle.iconWidth + 'px';
-                props['height'] = feature.effectiveStyle.iconHeight + 'px';
-            props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
-                props['border-style'] = 'solid';
-                props['border-color'] = feature.effectiveStyle.strokeColor;
-                props['border-width'] = feature.effectiveStyle.strokeWidth;
+                props['background']    = feature.effectiveStyle.fillColor;
+                props['width']         = feature.effectiveStyle.iconWidth   + 'px';
+                props['height']        = feature.effectiveStyle.iconHeight  + 'px';
+                props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
+                props['border-style']  = 'solid';
+                props['border-color']  = feature.effectiveStyle.strokeColor;
+                props['border-width']  = feature.effectiveStyle.strokeWidth;
 
                 if (feature.isSelected) {
                     props['border-width'] = '3px';
