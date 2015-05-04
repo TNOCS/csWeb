@@ -1135,7 +1135,21 @@
                                 if (ds.type === "dynamic") this.checkDataSourceSubscriptions(ds);
 
                                 for (var s in ds.sensors) {
-                                    var ss = ds.sensors[s];
+                                    var ss : SensorSet = ds.sensors[s];
+                                    /// check if there is an propertytype available for this sensor
+                                    if (ss.propertyTypeKey != null && this.project.propertyTypeData.hasOwnProperty(ss.propertyTypeKey)) {
+                                      ss.propertyType = this.project.propertyTypeData[ss.propertyTypeKey];
+                                    }
+                                    else // else create a new one and store in project
+                                    {
+                                      var id = "sensor-" + Helpers.getGuid();
+                                      var pt : IPropertyType = {};
+                                      pt.title = s;
+                                      ss.propertyTypeKey = id;
+                                      this.project.propertyTypeData[id] = pt;
+                                      ss.propertyType = pt;
+                                    }
+
                                     ss.activeValue = ss.values[ss.values.length - 1];
                                 }
                             });

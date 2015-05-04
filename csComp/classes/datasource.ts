@@ -44,8 +44,7 @@
                 $.getJSON(ds.url,(temp: DataSource) => {
                     if (temp != null) {
                         ds.id      = temp.id;
-                        for (var s in temp.sensors) { if (temp.sensors.hasOwnProperty(s)) ds.sensors[s] = this.merge_sensor(ds.sensors[s],temp.sensors[s]); }
-                        ds.sensors = temp.sensors;
+                        for (var s in temp.sensors) { if (temp.sensors.hasOwnProperty(s)) ds.sensors[s] = this.merge_sensor(ds.sensors[s],temp.sensors[s]); }                        
                         ds.title   = temp.title;
                         callback();
                     }
