@@ -96,6 +96,8 @@
         "./directives/Timeline/Timeline.ts",
         "./directives/Timeline/TimelineCtrl.ts",
         "./directives/Voting/Voting.ts",
+        "./directives/WidgetEdit/WidgetEdit.ts",
+        "./directives/WidgetEdit/WidgetEditCtrl.ts",
         "./helpers/Dictionary.ts",
         "./helpers/GeoExtensions.ts",
         "./helpers/Helpers.ts",

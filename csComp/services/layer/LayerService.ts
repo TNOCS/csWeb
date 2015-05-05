@@ -1129,7 +1129,21 @@
                     d.showLeftmenu = true;
                     d.widgets = [];
                     this.project.dashboards.push(d);
+                }else
+                {
+
+                  this.project.dashboards.forEach((d)=>
+                  {
+                    if (!d.id) d.id = Helpers.getGuid();
+                    if (d.widgets && d.widgets.length>0)
+                      d.widgets.forEach((w)=>
+                      {
+                        if (!w.id) w.id = Helpers.getGuid();
+                        if (!w.enabled) w.enabled = true;
+                      });
+                  });
                 }
+
 
                 if (this.project.datasources) {
                     this.project.datasources.forEach((ds: DataSource) => {

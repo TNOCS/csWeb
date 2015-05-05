@@ -23,6 +23,7 @@
         public dashboards: any;
         public widgetTypes: { [key: string]: IWidget };
         public socket;
+        public editWidgetMode : boolean;
 
         public init() {
             //alert('init');
@@ -116,7 +117,19 @@
 
         public editWidget(widget: csComp.Services.IWidget) {
             this.activeWidget = widget;
-            (<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
+            this.editWidgetMode = true;
+            $("#widgetEdit").addClass('active');
+            this.$layerService.visual.rightPanelVisible = true;
+
+            //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
+        }
+
+        public stopEditWidget()
+        {
+          this.activeWidget = null;
+          this.editWidgetMode = false;
+          this.$layerService.visual.rightPanelVisible = false;
+          $("#widgetEdit").removeClass('active');
         }
 
         public removeWidget() {

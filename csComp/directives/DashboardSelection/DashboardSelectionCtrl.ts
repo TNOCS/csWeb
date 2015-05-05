@@ -9,6 +9,8 @@
     export class DashboardSelectionCtrl {
         public scope: any;
         public project : csComp.Services.SolutionProject;
+        public activeWidget : csComp.Services.BaseWidget;
+
 
 
         // $inject annotation.
@@ -47,6 +49,11 @@
 
         }
 
+        public startWidgetEdit(widget : csComp.Services.BaseWidget)
+        {
+          this.$dashboardService.editWidget(widget);
+        }
+
         /***
         Start editing a specific dashboard
         */
@@ -59,7 +66,9 @@
                 }
               }
             );
+            this.$dashboardService.stopEditWidget();
         }
+
 
         /***
         Stop editing a specific dashboard
@@ -71,6 +80,7 @@
                 d.editMode = false;
             }
           );
+          this.$dashboardService.stopEditWidget();
         }
 
         public stopEdit() {
@@ -88,6 +98,16 @@
 
              //this.$scope.gridsterOptions.draggable.enabled = true;
             //this.$scope.gridsterOptions.resizable.enabled = true;
+        }
+
+        public widgetHighlight(widget : csComp.Services.BaseWidget)
+        {
+          widget.hover = true;
+        }
+
+        public widgetStopHighlight(widget : csComp.Services.BaseWidget)
+        {
+          widget.hover = false;
         }
 
         /** Add new dashboard */

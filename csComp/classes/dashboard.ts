@@ -13,6 +13,7 @@ module csComp.Services {
         template         : string;
         title            : string;  // title of the widget
         elementId        : string;
+        enabled : boolean;
         dashboard        : csComp.Services.Dashboard;
         renderer         : Function;
         resize           : Function;
@@ -45,6 +46,7 @@ module csComp.Services {
         public url              : string;
         public elementId        : string;
         public dashboard        : csComp.Services.Dashboard;
+        public enabled : boolean = true;
 
         public background       : string;
         public left             : string;
@@ -62,6 +64,7 @@ module csComp.Services {
         public allowFullscreen  : boolean;
         public messageBusService: csComp.Services.MessageBusService;
         public layerService     : csComp.Services.LayerService;
+        public hover : boolean;
 
         //public static deserialize(input: IWidget): IWidget {
         //    var loader = new InstanceLoader(window);

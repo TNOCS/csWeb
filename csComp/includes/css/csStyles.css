@@ -636,9 +636,27 @@ height:50px;
     border-radius: 3px;
 }
 
+.dashboard-edit-checkbox
+{
+  font-size:18px;
+}
+
 .control-label{
   font-size:20px;
+  width:100px;
+  margin-left:5px;
 }
+
+.widgets-edit-list
+{
+  list-style-type: none; padding: 0;
+}
+
+.widget-edit-item
+{
+  font-size:18px;
+}
+
 .gridster-content {
     pointer-events: all;
 }
