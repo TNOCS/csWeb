@@ -2,7 +2,7 @@
     /**
     * Config
     */
-    var moduleName = 'csWeb.showModal';
+    var moduleName = 'csComp';
 
     /**
       * Module

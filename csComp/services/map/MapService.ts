@@ -1,32 +1,31 @@
 ﻿module csComp.Services {
     'use strict';
 
-
     /*
      * Singleton service that holds a reference to the map.
      * In case other controllers need access to the map, they can inject this service.
      */
     export class MapService {
+        private static expertModeKey = 'expertMode';
+
         public static $inject = [
-          'localStorageService',
-          '$timeout',
-          'messageBusService'
+            'localStorageService',
+            '$timeout',
+            'messageBusService' 
         ];
 
-        public map: L.Map;
-        private static expertModeKey = 'expertMode';
-        public baseLayers: any;
+        public map:              L.Map;
+        public baseLayers:       any;
         private activeBaseLayer: L.ILayer;
-        public mapVisible: boolean = true;
-        public timelineVisible: boolean = true;
+        public mapVisible:       boolean = true;
+        public timelineVisible:  boolean = true;
         public rightMenuVisible: boolean = true;
-        expertMode      : Expertise;
-
+        expertMode:              Expertise;
 
         constructor(
             private $localStorageService: angular.local.storage.ILocalStorageService<any>,
-            private $timeout            : ng.ITimeoutService,
-            private $messageBusService         : csComp.Services.MessageBusService) {
+            private $timeout: ng.ITimeoutService,
+            private $messageBusService: csComp.Services.MessageBusService) {
 
             this.initExpertMode();
             this.baseLayers = {};
@@ -40,22 +39,20 @@
                 }
             });
 
-            $messageBusService.subscribe('map',(action:string,data)=>
-            {
-              switch(action)
-              {
-                case 'setextent':
-                  console.log(data);
-                  this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast));
-                  break;
-                case 'setbaselayer':
-                  var bl :L.ILayer = this.baseLayers[data];
-                  this.changeBaseLayer(bl);
-                  break;
-              }
+            $messageBusService.subscribe('map', (action: string, data) => {
+                switch (action) {
+                    case 'setextent':
+                        console.log(data);
+                        this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast));
+                        break;
+                    case 'setbaselayer':
+                        var bl: L.ILayer = this.baseLayers[data];
+                        this.changeBaseLayer(bl);
+                        break;
+                }
             })
 
-            $messageBusService.subscribe('leftmenu',(title: string, data) => {
+            $messageBusService.subscribe('leftmenu', (title: string, data) => {
                 switch (title.toLowerCase()) {
                     case "toggle":
                         if ($('body').hasClass("leftpanel-collapsed")) {
@@ -72,7 +69,6 @@
 
                         break;
                 }
-
             });
         }
 
@@ -85,46 +81,46 @@
       * - when the mode is set in local storage, take that value.
       * - when the mode is set in the project.json file, take that value.
       */
-      private initExpertMode() {
-          this.expertMode = this.$localStorageService.get(MapService.expertModeKey);
-          if (!this.expertMode) {
-              this.expertMode = Expertise.Expert; // Default behaviour
-              // When a project defines the expert mode, overrules default behaviour
-              this.$messageBusService.subscribe('project',(title: string, project: csComp.Services.Project) => {
-                  switch (title) {
-                      case 'loaded':
-                          if (project != null && typeof project.expertMode !== 'undefined')
-                              this.$messageBusService.publish('expertMode', 'newExpertise', project.expertMode);
-                          break;
-                  }
-              });
-          }
+        private initExpertMode() {
+            this.expertMode = this.$localStorageService.get(MapService.expertModeKey);
+            if (!this.expertMode) {
+                this.expertMode = Expertise.Expert; // Default behaviour
+                // When a project defines the expert mode, overrules default behaviour
+                this.$messageBusService.subscribe('project', (title: string, project: csComp.Services.Project) => {
+                    switch (title) {
+                        case 'loaded':
+                            if (project != null && typeof project.expertMode !== 'undefined')
+                                this.$messageBusService.publish('expertMode', 'newExpertise', project.expertMode);
+                            break;
+                    }
+                });
+            }
 
-          this.$messageBusService.subscribe('expertMode',(title: string, expertMode: Expertise) => {
-              if (title !== 'newExpertise') return;
-              this.expertMode = expertMode;
-              this.$localStorageService.set(csComp.Services.MapService.expertModeKey, expertMode); // You first need to set the key
-              switch (expertMode) {
-                  case Expertise.Intermediate:
-                  case Expertise.Expert:
-                      this.timelineVisible = true;
-                      this.$timeout(() => {this.$messageBusService.publish('timeline', 'loadProjectTimeRange')}, 100);
-                      break;
-                  default:
-                      this.timelineVisible = false;
-                      break;
-              }
-          });
-      }
+            this.$messageBusService.subscribe('expertMode', (title: string, expertMode: Expertise) => {
+                if (title !== 'newExpertise') return;
+                this.expertMode = expertMode;
+                this.$localStorageService.set(csComp.Services.MapService.expertModeKey, expertMode); // You first need to set the key
+                switch (expertMode) {
+                    case Expertise.Intermediate:
+                    case Expertise.Expert:
+                        this.timelineVisible = true;
+                        this.$timeout(() => { this.$messageBusService.publish('timeline', 'loadProjectTimeRange') }, 100);
+                        break;
+                    default:
+                        this.timelineVisible = false;
+                        break;
+                }
+            });
+        }
 
-      get isExpert(): boolean {
-          return this.expertMode === Expertise.Expert;
-      }
+        get isExpert(): boolean {
+            return this.expertMode === Expertise.Expert;
+        }
 
-      get isIntermediate(): boolean {
-          return this.expertMode === Expertise.Expert
-              || this.expertMode === Expertise.Intermediate;
-      }
+        get isIntermediate(): boolean {
+            return this.expertMode === Expertise.Expert
+                || this.expertMode === Expertise.Intermediate;
+        }
 
         public initMap() {
             // alert('map service');
@@ -135,7 +131,7 @@
         }
 
         public changeBaseLayer(layerObj: L.ILayer) {
-          if (this.activeBaseLayer==layerObj) return;
+            if (this.activeBaseLayer == layerObj) return;
             this.map.addLayer(layerObj);
             if (this.activeBaseLayer)
                 this.map.removeLayer(this.activeBaseLayer);
@@ -158,13 +154,13 @@
         /**
          * Zoom to a feature on the map.
          */
-        public zoomTo(feature: IFeature,zoomLevel : number = 14) {
+        public zoomTo(feature: IFeature, zoomLevel: number = 14) {
             var center: L.LatLng;
             if (feature.geometry.type.toUpperCase() == 'POINT') {
                 center = new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
                 this.map.setView(center, zoomLevel);
             } else {
-                var bb : Array<number>;
+                var bb: Array<number>;
                 if (feature.geometry.type.toUpperCase().indexOf("MULTI") < 0)
                     bb = this.getBoundingBox(feature.geometry.coordinates[0]);
                 else { // MULTIPOLYGON or MULTILINESTRING
@@ -198,4 +194,22 @@
 
         getMap(): L.Map { return this.map; }
     }
+
+    /**
+      * Register service
+      */
+    var moduleName = 'csComp';
+
+    /**
+      * Module
+      */
+    export var myModule;
+    try {
+        myModule = angular.module(moduleName);
+    } catch (err) {
+        // named module does not exist, so create one
+        myModule = angular.module(moduleName, []);
+    }
+
+    myModule.service('mapService', csComp.Services.MapService)
 }

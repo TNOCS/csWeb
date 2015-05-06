@@ -149,8 +149,7 @@
         dataSets        : DataSet[];
         viewBounds      : IBoundingBox;
         userPrivileges  : IPrivileges;
-        languages: ILanguageData;
-
+        languages       : ILanguageData;
 
         expertMode = Expertise.Expert;
         markers = {};
@@ -168,17 +167,17 @@
                     if (input.mcas.hasOwnProperty(mca)) {
                         res.mcas.push(new Mca.Models.Mca().deserialize(mca));
                     }
+                }
             }
-          }
             if (!res.propertyTypeData) res.propertyTypeData = {};
             if (res.id == null) res.id = res.title;
-          return res;
+            return res;
         }
     }
 
-    /** layer information. a layer is described in a project file and is always part of a group */
+    /** Layer information. a layer is described in a project file and is always part of a group */
     export class ProjectLayer {
-        /** key of the propertyTypeData entry that provides a legend for this layer **/
+        /** Key of the propertyTypeData entry that provides a legend for this layer **/
         defaultLegendProperty: string;
         /** Title as displayed in the menu */
         title: string;
@@ -189,7 +188,7 @@
         /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
         type: string;
         /** Data source */
-        url                         : string;
+        url: string;
         /** Contains extended heatmap information (e.g. list of references to required sources, or weights) */
         heatmapSettings             : Heatmap.IHeatmapSettings;
         heatmapItems                : Heatmap.IHeatmapItem[];
@@ -213,8 +212,16 @@
         /** Group of layers */
         group: ProjectGroup;
         layerSource : ILayerSource;
+        /**
+         * Number of seconds between automatic layer refresh.
+         * @type {number}
+         */
         refreshTimer: number;
-        timerToken : any;
+        /**
+         * When enabling the refresh timer, store the returned timer token so we can stop the timer later. 
+         * @type {number}
+         */
+        timerToken : number;
         /**
         * A list of UNIX timestamp, or the UTC time in milliseconds since 1/1/1970, which define the time a sensor value
         * was taken. So in case we have 10 timestamps, each feature's sensor (key) in the feature's sensors dictionary should

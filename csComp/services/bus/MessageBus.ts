@@ -1,23 +1,22 @@
 ﻿module csComp.Services {
-	// Interface for message bus callbacks, i.e. (data: any) => any,
-	// so you can supply a single data argument of any type, and it may return any type.
-	export interface IMessageBusCallback {
-		(title: string, data?: any) : any;
+    // Interface for message bus callbacks, i.e. (data: any) => any,
+    // so you can supply a single data argument of any type, and it may return any type.
+    export interface IMessageBusCallback {
+        (title: string, data?: any): any;
     }
 
     declare var io;
 
-	// Handle returned when subscribing to a topic
-	export class MessageBusHandle {
-		constructor(topic: string, callback: IMessageBusCallback) {
-			this.topic = topic;
-			this.callback = callback;
-		}
+    // Handle returned when subscribing to a topic
+    export class MessageBusHandle {
+        constructor(topic: string, callback: IMessageBusCallback) {
+            this.topic = topic;
+            this.callback = callback;
+        }
 
-		public topic: string;
-		public callback: IMessageBusCallback;
+        public topic: string;
+        public callback: IMessageBusCallback;
     }
-
 
     export interface IBaseEvent {
         add(listener: () => void): void;
@@ -67,12 +66,11 @@
         trigger(message: string): void;
     }
 
-    export class Connection  {
-
+    export class Connection {
         public isConnected: boolean;
         public isConnecting: boolean;
         public cache: { [topic: string]: Array<IMessageBusCallback> } = {};
-				public subscriptions : { [id : string] : ServerSubscription } = {};
+        public subscriptions: { [id: string]: ServerSubscription } = {};
         public socket;
 
         // Events
@@ -82,97 +80,85 @@
 
         }
 
-				public unsubscribe(id: string, callback: IMessageBusCallback)
-				{
-					if (this.subscriptions.hasOwnProperty(id))
-					{
-						var s = this.subscriptions[id];
-						s.callbacks	= s.callbacks.filter((f)=>{ return f != callback;})
-						if (s.callbacks.length==0)
-						{
-							this.socket.emit(id,{action:"unsubscribe" });
-							this.socket.removeListener(id,s.serverCallback);
-							s.serverCallback = null;
-							delete this.subscriptions[id];
-						}
-					}
-				}
+        public unsubscribe(id: string, callback: IMessageBusCallback) {
+            if (this.subscriptions.hasOwnProperty(id)) {
+                var s = this.subscriptions[id];
+                s.callbacks = s.callbacks.filter((f) => { return f != callback; })
+                if (s.callbacks.length == 0) {
+                    this.socket.emit(id, { action: "unsubscribe" });
+                    this.socket.removeListener(id, s.serverCallback);
+                    s.serverCallback = null;
+                    delete this.subscriptions[id];
+                }
+            }
+        }
 
-				public reSubscribeAll()
-				{
-					console.log('resubscribing...');
-					for (var s in this.subscriptions)
-					{
-						console.log('reconnecting ' + s);
-						var sub = this.subscriptions[s];
-						this.socket.emit("subscribe",{ id : sub.id, target : sub.target, type : sub.type});
-					}
-				}
+        public reSubscribeAll() {
+            console.log('resubscribing...');
+            for (var s in this.subscriptions) {
+                console.log('reconnecting ' + s);
+                var sub = this.subscriptions[s];
+                this.socket.emit("subscribe", { id: sub.id, target: sub.target, type: sub.type });
+            }
+        }
 
-				public subscribe(target : string, type : string, callback : IMessageBusCallback) : ServerSubscription
-				{
-					var sub : ServerSubscription;
-					var subs = [];
-					for (var s in this.subscriptions)
-					{
-						if (this.subscriptions[s].target == target && this.subscriptions[s].type == type) subs.push(this.subscriptions[s]);
-					}
+        public subscribe(target: string, type: string, callback: IMessageBusCallback): ServerSubscription {
+            var sub: ServerSubscription;
+            var subs = [];
+            for (var s in this.subscriptions) {
+                if (this.subscriptions[s].target == target && this.subscriptions[s].type == type) subs.push(this.subscriptions[s]);
+            }
 
-					if (subs==null || subs.length==0)
-					{
-						sub = new ServerSubscription(target,type);
-						this.socket.emit("subscribe",{ id : sub.id, target : sub.target, type : sub.type});
+            if (subs == null || subs.length == 0) {
+                sub = new ServerSubscription(target, type);
+                this.socket.emit("subscribe", { id: sub.id, target: sub.target, type: sub.type });
 
-						sub.callbacks.push(callback);
-						this.subscriptions[sub.id] = sub;
-						sub.serverCallback = (r)=> {
-							sub.callbacks.forEach(cb => cb(sub.id,r));
-							};
-						this.socket.on(sub.id,sub.serverCallback);
-					}
-					else
-					{
-						sub = subs[0];
-						sub.callbacks.push(callback);
-					}
+                sub.callbacks.push(callback);
+                this.subscriptions[sub.id] = sub;
+                sub.serverCallback = (r) => {
+                    sub.callbacks.forEach(cb => cb(sub.id, r));
+                };
+                this.socket.on(sub.id, sub.serverCallback);
+            }
+            else {
+                sub = subs[0];
+                sub.callbacks.push(callback);
+            }
 
-					return sub;
-
-				}
+            return sub;
+        }
 
         public connect(callback: Function) {
             if (this.isConnected || this.isConnecting) return;
             this.socket = io();
             this.isConnecting = true;
-            this.socket.on('connect',() => {
-								//console.log(JSON.stringify(this.socket));
-								console.log('socket.io connected');
+            this.socket.on('connect', () => {
+                //console.log(JSON.stringify(this.socket));
+                console.log('socket.io connected');
                 this.isConnecting = false;
                 this.isConnected = true;
                 this.events.trigger("connected");
-		this.reSubscribeAll();
+                this.reSubscribeAll();
                 callback();
             });
-            this.socket.on('disconnect',() => {
-		console.log('socket.io disconnected');
+            this.socket.on('disconnect', () => {
+                console.log('socket.io disconnected');
                 this.isConnecting = false;
                 this.isConnected = false;
             });
-            this.socket.on('reconnect_attempt',() => {
-		console.log('socket.io reconnect attempt');
+            this.socket.on('reconnect_attempt', () => {
+                console.log('socket.io reconnect attempt');
                 this.isConnecting = true;
                 this.isConnected = false;
             });
-            this.socket.on('reconnect_failed',() => {
-		console.log('socket.io reconnect failed');
+            this.socket.on('reconnect_failed', () => {
+                console.log('socket.io reconnect failed');
                 this.isConnecting = false;
             });
 
         }
 
-        public disconnect() {
-
-        }
+        public disconnect() {}
     }
 
     export enum NotifyLocation {
@@ -182,27 +168,26 @@
         TopLeft
     }
 
-		export class ServerSubscription {
+    export class ServerSubscription {
+        public callbacks: Array<IMessageBusCallback>;
+        public id: string;
+        public serverCallback: any;
 
-			public callbacks : Array<IMessageBusCallback>;
-			public id: string;
-			public serverCallback : any;
-
-			constructor(
-				public target: string,
-				public type : string
-			){
-				this.callbacks = [];
-				this.id = Helpers.getGuid();
-			}
-	}
+        constructor(
+            public target: string,
+            public type: string
+            ) {
+            this.callbacks = [];
+            this.id = Helpers.getGuid();
+        }
+    }
 
 	/**
 	 * Simple message bus service, used for subscribing and unsubsubscribing to topics.
 	 * @see {@link https://gist.github.com/floatingmonkey/3384419}
 	 */
-	export class MessageBusService {
-		private static cache: { [topic: string]: Array<IMessageBusCallback> } = {};
+    export class MessageBusService {
+        private static cache: { [topic: string]: Array<IMessageBusCallback> } = {};
 
         static $inject = [
             '$translate'
@@ -214,16 +199,15 @@
             PNotify.prototype.options.styling = "fontawesome";
         }
 
-
         getConnection(id: string): Connection {
             if (this.connections.hasOwnProperty(id)) return this.connections[id];
             return null;
         }
 
-        public initConnection(id: string, url: string,callback : Function) {
+        public initConnection(id: string, url: string, callback: Function) {
             if (id == null) id = "";
             var c = this.getConnection(id);
-            if (c==null) {
+            if (c == null) {
                 c = new Connection(id, url);
                 this.connections[c.id] = c;
             }
@@ -233,38 +217,29 @@
                 //        c.cache[topic].forEach(cb => cb(topic, r));
                 //    });
                 //}
-
                 callback();
-                     });
+            });
         }
 
-        public serverPublish(topic: string, message : any, serverId = "") {
+        public serverPublish(topic: string, message: any, serverId = "") {
             var c = this.getConnection(serverId);
             if (c == null) return null;
             c.socket.emit(topic, message);
         }
 
-
-
-        public serverSubscribe(target : string, type: string, callback: IMessageBusCallback, serverId = ""): MessageBusHandle {
+        public serverSubscribe(target: string, type: string, callback: IMessageBusCallback, serverId = ""): MessageBusHandle {
             var c = this.getConnection(serverId);
             if (c == null) return null;
 
-						var sub = c.subscribe(target,type,callback);
+            var sub = c.subscribe(target, type, callback);
             return new MessageBusHandle(sub.id, callback);
         }
 
-				public serverUnsubscribe(handle : MessageBusHandle, serverId = "")
-				{
-					var c = this.getConnection(serverId);
-					if (c == null) return null;
-					c.unsubscribe(handle.topic,handle.callback);
-
-				}
-
-
-
-
+        public serverUnsubscribe(handle: MessageBusHandle, serverId = "") {
+            var c = this.getConnection(serverId);
+            if (c == null) return null;
+            c.unsubscribe(handle.topic, handle.callback);
+        }
 
 		/**
 		 * Publish a notification that needs to be translated
@@ -288,8 +263,8 @@
 		 */
         notify(title: string, text: string, location = NotifyLocation.BottomRight) {
             var cssLocation: string,
-                dir1       : string,
-                dir2       : string;
+                dir1: string,
+                dir2: string;
 
             switch (location) {
                 case NotifyLocation.BottomLeft:
@@ -314,13 +289,13 @@
                     break;
             }
 
-            var options : pnotifyDefaults = {
-                title      : title,
-                text       : text,
-                icon       : 'fa fa-info',
+            var options: pnotifyDefaults = {
+                title: title,
+                text: text,
+                icon: 'fa fa-info',
                 cornerclass: 'ui-pnotify-sharp',
-                addclass   : cssLocation,
-                stack      : { "dir1": dir1, "dir2": dir2, "firstpos1": 25, "firstpos2": 25 }
+                addclass: cssLocation,
+                stack: { "dir1": dir1, "dir2": dir2, "firstpos1": 25, "firstpos2": 25 }
             };
 
             var pn = new PNotify(options);
@@ -334,23 +309,23 @@
 		 */
         public confirm(title: string, text: string, callback: (result: boolean) => any) {
             var options = {
-                title       : title,
-                text        : text,
-                hide        : false,
-                confirm     : {
-                    confirm : true
+                title: title,
+                text: text,
+                hide: false,
+                confirm: {
+                    confirm: true
                 },
-                buttons     : {
-                    closer  : false,
-                    sticker : false
+                buttons: {
+                    closer: false,
+                    sticker: false
                 },
-                history     : {
-                    history : false
+                history: {
+                    history: false
                 },
-                icon        : 'fa fa-question-circle',
-                cornerclass : 'ui-pnotify-sharp',
-                addclass    : "stack-topright",
-                stack       : { "dir1": "down", "dir2": "left", "firstpos1": 25, "firstpos2": 25 }
+                icon: 'fa fa-question-circle',
+                cornerclass: 'ui-pnotify-sharp',
+                addclass: "stack-topright",
+                stack: { "dir1": "down", "dir2": "left", "firstpos1": 25, "firstpos2": 25 }
             };
 
             var pn = new PNotify(options).get()
@@ -369,7 +344,6 @@
                 stack: stack_bar_bottom
             };
             var pn = new PNotify(options);
-
         }
 
 		/**
@@ -385,99 +359,110 @@
 		/**
 		 * Publish to a topic
 		 */
-		public publish(topic: string, title: string, data?: any): void {
-			//window.console.log("publish: " + topic + ", " + title);
-			if (!MessageBusService.cache[topic]) return;
-			MessageBusService.cache[topic].forEach(cb => cb(title, data));
-		}
+        public publish(topic: string, title: string, data?: any): void {
+            //window.console.log("publish: " + topic + ", " + title);
+            if (!MessageBusService.cache[topic]) return;
+            MessageBusService.cache[topic].forEach(cb => cb(title, data));
+        }
 
-		//public publish(topic: string, title: string, data?: any): void {
-		//	MessageBusService.publish(topic, title, data);
-		//}
+        //public publish(topic: string, title: string, data?: any): void {
+        //	MessageBusService.publish(topic, title, data);
+        //}
 
 		/**
 		 * Subscribe to a topic
 		 * @param {string} topic The desired topic of the message.
 		 * @param {IMessageBusCallback} callback The callback to call.
 		 */
-		public subscribe(topic: string, callback: IMessageBusCallback): MessageBusHandle {
-			if (!MessageBusService.cache[topic]) MessageBusService.cache[topic] = new Array<IMessageBusCallback>();
-			MessageBusService.cache[topic].push(callback);
-			return new MessageBusHandle(topic, callback);
+        public subscribe(topic: string, callback: IMessageBusCallback): MessageBusHandle {
+            if (!MessageBusService.cache[topic]) MessageBusService.cache[topic] = new Array<IMessageBusCallback>();
+            MessageBusService.cache[topic].push(callback);
+            return new MessageBusHandle(topic, callback);
         }
-
-
-
-		//public subscribe(topic: string, callback: IMessageBusCallback): MessageBusHandle {
-		//	return MessageBusService.subscribe(topic, callback);
-		//}
 
 		/**
 		 * Unsubscribe to a topic by providing its handle
 		 */
-		public unsubscribe(handle: MessageBusHandle): void {
-			var topic = handle.topic;
-			var callback = handle.callback;
-			if (!MessageBusService.cache[topic]) return;
-			MessageBusService.cache[topic].forEach((cb, idx) => {
-				if (cb == callback) {
-					MessageBusService.cache[topic].splice(idx, 1);
-					return;
-				}
-			});
+        public unsubscribe(handle: MessageBusHandle): void {
+            var topic = handle.topic;
+            var callback = handle.callback;
+            if (!MessageBusService.cache[topic]) return;
+            MessageBusService.cache[topic].forEach((cb, idx) => {
+                if (cb == callback) {
+                    MessageBusService.cache[topic].splice(idx, 1);
+                    return;
+                }
+            });
         }
+    }
 
-	}
+    export class EventObj {
+        myEvents: any;
 
-	export class EventObj {
-		myEvents: any;
-		constructor() {
-		}
-
-		// Events primitives ======================
-		bind(event, fct) {
+        // Events primitives ======================
+        bind(event, fct) {
             this.myEvents = this.myEvents || {};
             this.myEvents[event] = this.myEvents[event] || [];
             this.myEvents[event].push(fct);
-		}
-		unbind(event, fct) {
+        }
+
+        unbind(event, fct) {
             this.myEvents = this.myEvents || {};
             if (event in this.myEvents === false) return;
             this.myEvents[event].splice(this.myEvents[event].indexOf(fct), 1);
-		}
-		unbindEvent(event) {
+        }
+
+        unbindEvent(event) {
             this.myEvents = this.myEvents || {};
             this.myEvents[event] = [];
-		}
-		unbindAll() {
+        }
+
+        unbindAll() {
             this.myEvents = this.myEvents || {};
             for (var event in this.myEvents) this.myEvents[event] = false;
-		}
-		trigger(event, ...args: any[]) {
+        }
+
+        trigger(event, ...args: any[]) {
             this.myEvents = this.myEvents || {};
             if (event in this.myEvents === false) return;
             for (var i = 0; i < this.myEvents[event].length; i++) {
                 this.myEvents[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
             }
-		}
-		registerEvent(evtname : string) {
-			this[evtname] = function (callback, replace) {
+        }
 
-				if (typeof callback == 'function') {
-					if (replace) this.unbindEvent(evtname);
+        registerEvent(evtname: string) {
+            this[evtname] = function(callback, replace) {
+                if (typeof callback == 'function') {
+                    if (replace) this.unbindEvent(evtname);
 
-					this.bind(evtname, callback);
-				}
+                    this.bind(evtname, callback);
+                }
+                return this;
+            }
+        }
 
-				return this;
-			}
-		}
-		registerEvents(evtnames: Array<string>) {
-			evtnames.forEach(evtname => {
-				this.registerEvent(evtname);
-			});
+        registerEvents(evtnames: Array<string>) {
+            evtnames.forEach(evtname => {
+                this.registerEvent(evtname);
+            });
+        }
+    }
 
-		}
+    /**
+      * Register service
+      */
+    var moduleName = 'csComp';
 
-	}
+    /**
+      * Module
+      */
+    export var myModule;
+    try {
+        myModule = angular.module(moduleName);
+    } catch (err) {
+        // named module does not exist, so create one
+        myModule = angular.module(moduleName, []);
+    }
+
+    myModule.service('messageBusService', csComp.Services.MessageBusService);
 }

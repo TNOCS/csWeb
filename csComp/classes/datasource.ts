@@ -4,9 +4,15 @@
         id: string;
         title: string;
         type: string;
+        propertyTypeKey : string;
+        propertyType : IPropertyType;
         timestamps: number[];
         values: any[];
         activeValue: any;
+
+        public activeValueText() : string {
+          return Helpers.convertPropertyInfo(this.propertyType,this.activeValue);
+        }
 
         public addValue(date : number, value : number)
         {
@@ -24,16 +30,29 @@
         title: string;
         sensors: { (key: string): SensorSet };
 
+        static merge_sensor(s1 : SensorSet,s2 : SensorSet) : SensorSet {
+          var obj3 : SensorSet = new SensorSet();
+          for (var attrname in s1) { obj3[attrname] = s1[attrname]; }
+          for (var attrname in s2) { obj3[attrname] = s2[attrname]; }
+          return obj3;
+        }
+
+        /**
+         * Load JSON data.
+         * @type {DataSource}
+         *
+         * @param ds {DataSource}
+         * @param callback {Function}
+         */
         public static LoadData(ds: DataSource, callback: Function) {
             if (ds.url != null) {
                 $.getJSON(ds.url,(temp: DataSource) => {
                     if (temp != null) {
-                        ds.id = temp.id;
-                        ds.sensors = temp.sensors;
-                        ds.title = temp.title;
+                        ds.id      = temp.id;
+                        for (var s in temp.sensors) { if (temp.sensors.hasOwnProperty(s)) ds.sensors[s] = this.merge_sensor(ds.sensors[s],temp.sensors[s]); }
+                        ds.title   = temp.title;
                         callback();
                     }
-                    //var projects = data;
                 });
             }
         }

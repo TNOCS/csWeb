@@ -143,7 +143,7 @@
         targetproperty?  : string;
         options?         : string[];
         languages?       : ILanguageData;
-        legend?: Legend;
+        legend?          : Legend;
     }
 
     export interface IPropertyTypeData {

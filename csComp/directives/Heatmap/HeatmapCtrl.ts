@@ -222,7 +222,7 @@ module Heatmap {
          */
         private showHeatmapEditor(heatmap: HeatmapModel): void {
             var modalInstance = this.$modal.open({
-                templateUrl: 'heatmapEditorView.html',
+                templateUrl: 'directives/Heatmap/HeatmapEditorView.tpl.html',
                 controller: HeatmapEditorCtrl,
                 resolve: {
                     heatmap: () => heatmap

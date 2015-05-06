@@ -6,7 +6,7 @@ module Timeline {
         getTimelineOptions(): csComp.Services.ITimelineOptions;
         setTimelineOptions(options: csComp.Services.ITimelineOptions): void;
     }
- 
+
     // The following class represents the provider
     class TimelineService implements ng.IServiceProvider {
         private timelineOptions: csComp.Services.ITimelineOptions = {
@@ -15,12 +15,12 @@ module Timeline {
             'editable': false,
             'layout'  : 'box'
         };
- 
+
         // Configuration function
         public setTimelineOptions(options: csComp.Services.ITimelineOptions) {
             this.timelineOptions = options;
         }
- 
+
         // Provider's factory function
         $get(): ITimelineService {
             return {
@@ -29,12 +29,12 @@ module Timeline {
             };
         }
     }
- 
+
 
      /**
       * Config
       */
-    var moduleName = 'csWeb.timeline';
+    var moduleName = 'csComp';
 
     /**
       * Module
@@ -46,10 +46,10 @@ module Timeline {
         // named module does not exist, so create one
         myModule = angular.module(moduleName, []);
     }
- 
+
     /**
       * Directive to display the available map layers.
-      * 
+      *
       * When turning of the event margins in app.ts (see below), also set the #focustimeContainer { bottom: 45px; }
       * $layerService.timelineOptions = {
       *     'width': '100%',
@@ -60,16 +60,16 @@ module Timeline {
       * };
       * @seealso: http://almende.github.io/chap-links-library/downloads.html
       */
-    myModule 
-        .provider('TimelineService', TimelineService) 
-        .directive('timeline', [ 
+    myModule
+        .provider('TimelineService', TimelineService)
+        .directive('timeline', [
             '$compile',
-            function($compile): ng.IDirective { 
+            function($compile): ng.IDirective {
                 return {
                     terminal  : true, // do not compile any other internal directives
                     restrict  : 'E', // E = elements, other options are A=attributes and C=classes
                     scope     : {}, // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
-                    template  : html, // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
+                    templateUrl: 'directives/Timeline/Timeline.tpl.html',
                     compile   : el => { // I need to explicitly compile it in order to use interpolation like {{xxx}}
                         var fn = $compile(el);
                         return scope => {

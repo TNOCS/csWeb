@@ -1,0 +1,23 @@
+{
+  "name": "cs-offline-search",
+  "version": "0.0.8",
+  "description": "Create an index file of the locally stored geojson files.",
+  "main": "./dist/OfflineSearch/index.js",
+  "scripts": {
+    "test": "node ./dist/OfflineSearch/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TNOCS/csWeb"
+  },
+  "keywords": [
+    "offline",
+    "search"
+  ],
+  "author": "Erik Vullings <erik.vullings@gmail.com> (https://nl.linkedin.com/in/erikvullings)",
+  "license": "MIT",
+  "readmeFilename": "readme.md",
+  "bugs": {
+    "url": "https://github.com/TNOCS/csWeb/issues"
+  }
+}

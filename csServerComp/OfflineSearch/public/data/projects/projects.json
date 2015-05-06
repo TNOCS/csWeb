@@ -1,0 +1,89 @@
+{
+    "title": "csMap",
+    "maxBounds": {
+        "southWest": [ 49.2, 1.0 ],
+        "northEast": [ 54.0, 10.0 ]
+    },
+    "viewBounds": {
+        "southWest": [ 50.7, 3.3 ],
+        "northEast": [ 53.5, 7.3 ]
+    },
+    "baselayers" :  [
+        {
+            "title"       :  "OpenStreetMap HOT",     
+            "subtitle"    :  "Road",
+            "url"         :  "http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+            "isDefault"   :  true,
+            "minZoom"     :  7,
+            "maxZoom"     :  19,
+            "subdomains"  :  ["a", "b", "c"],
+            "attribution" :  "Tiles courtesy of <a href='http://hot.openstreetmap.org/' target='_blank'>Humanitarian OpenStreetMap Team</a>",
+            "preview"     :  "http://b.tile.openstreetmap.fr/hot/11/1048/675.png"
+        },
+        {
+            "title"       :  "World Imagery",     
+            "subtitle"    :  "ESRI",
+            "url"         :  "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            "minZoom"     :  7,
+            "maxZoom"     :  19,
+            "attribution" :  "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+            "preview"     :  "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/15/10806/16773"
+        },
+        {
+            "title"       :  "OpenStreetMap",     
+            "subtitle"    :  "Road",
+            "url"         :  "http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png",
+            "isDefault"   :  false,
+            "minZoom"     :  7,
+            "maxZoom"     :  19,
+            "subdomains"  :  ["otile1", "otile2", "otile3", "otile4"],
+            "attribution" :  "Tiles courtesy of <a href='http://www.mapquest.com/' target='_blank'>MapQuest</a> <img src='http://developer.mapquest.com/content/osm/mq_logo.png'>. Map data (c) <a href='http://www.openstreetmap.org/' target='_blank'>OpenStreetMap</a> contributors, CC-BY-SA.",
+            "preview"     :  "http://c.tile.openstreetmap.org/11/1051/673.png"
+        },
+        {
+            "title"       :  "OSM Mapnik",  
+            "subtitle"    :  "Mapnik",          
+            "url"         :  "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            "minZoom"     :  7,
+            "maxZoom"     :  18,   
+            "id"          :  "osm.mapnik",
+            "attribution" :  "&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>",
+            "preview"     :  "https://a.tiles.mapbox.com/v3/foursquare.meku766r/11/1051/673.png"
+        },
+        {
+            "title"       :  "Black-White",  
+            "subtitle"    :  "Stamen",          
+            "url"         :  "http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png",
+            "subdomains"  :  ["a","b","c","d"],
+            "minZoom"     :  7,
+            "maxZoom"     :  18,               
+            "attribution" :  "",
+            "preview"     :  "http://a.tile.stamen.com/toner/11/1051/673.png"
+        },       
+        {
+            "title"       :  "Watercolor",  
+            "subtitle"    :  "Stamen",          
+            "url"         :  "http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.png",
+            "subdomains"  :  ["a","b","c","d"],
+            "minZoom"     :  7,
+            "maxZoom"     :  18,               
+            "attribution" :  "",
+            "preview"     :  "http://a.tile.stamen.com/watercolor/11/1051/673.png"
+        },
+        {
+            "title"       :  "World Imagery",  
+            "subtitle"    :  "from ESRI",          
+            "minZoom"     :  7,
+            "maxZoom"     :  18,               
+            "url"         :  "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            "attribution" :  "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+            "preview"     :  "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/11/673/1051.png"
+        }
+    ],
+    "projects" :  [
+        {
+            "title": "csMap",
+            "url": "data/projects/20141104_csMap/project.json"
+        }
+    ]
+}

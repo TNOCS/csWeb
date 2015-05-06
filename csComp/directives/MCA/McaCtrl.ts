@@ -215,7 +215,7 @@
 
         private showMcaEditor(newMca: Models.Mca): void {
             var modalInstance = this.$modal.open({
-                templateUrl: 'mcaEditorView.html',
+                templateUrl: 'directives/MCA/McaEditorView.tpl.html',
                 controller: McaEditorCtrl,
                 resolve: {
                     mca: () => newMca
@@ -387,7 +387,6 @@
                     });
                 }
             });
-
         }
 
         private getParentOfSelectedCriterion(criterion?: Models.Criterion) {
@@ -640,6 +639,5 @@
             };
             return mi;
         }
-
     }
 }

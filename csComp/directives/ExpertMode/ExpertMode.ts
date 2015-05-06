@@ -1,8 +1,8 @@
 ﻿module ExpertMode {
-    /**  
+    /**
   * Config
   */
-    var moduleName = 'csWeb.expertMode';
+    var moduleName = 'csComp';
 
     /**
       * Module
@@ -19,23 +19,23 @@
       * Directive to set the expert mode, so we can determine what the user should see (degree of difficulty).
       * The expert mode can either be set manually, e.g. using this directive, or by setting the expertMode property in the
       * project.json file. In neither are set, we assume that we are dealing with an expert, so all features should be enabled.
-      * 
+      *
       * Precedence:
       * - when a declaration is absent, assume Expert.
       * - when the mode is set in local storage, take that value.
-      * - when the mode is set in the project.json file, take that value. 
-      * 
-      * As we want the expertMode to be always available, we have added it to the MapService service. 
+      * - when the mode is set in the project.json file, take that value.
+      *
+      * As we want the expertMode to be always available, we have added it to the MapService service.
       */
     myModule
         .directive('expertMode', [
             '$compile',
             function ($compile): ng.IDirective {
                 return {
-                    terminal: true,    
-                    restrict: 'E',     
-                    scope: {},       
-                    template: html,    // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
+                    terminal: true,
+                    restrict: 'E',
+                    scope: {},
+                    templateUrl: 'directives/ExpertMode/ExpertMode.tpl.html',
                     compile: el => {  // I need to explicitly compile it in order to use interpolation like {{xxx}}
                         var fn = $compile(el);
                         return scope => {
@@ -45,7 +45,7 @@
                    //link: function (scope, element, attrs) {
                    //     // Since we are wrapping the rating directive in this directive, I couldn't use transclude,
                    //     // so I copy the existing attributes manually.
-                   //     var attributeString = ''; 
+                   //     var attributeString = '';
                    //     for (var key in attrs) {
                    //         if (key.substr(0, 1) !== '$' && attrs.hasOwnProperty(key)) attributeString += key + '="' + attrs[key] + '" ';
                    //     }
@@ -55,11 +55,11 @@
                    //         + 'max="3"></rating>';
                    //     var e = $compile(html)(scope);
                    //     element.replaceWith(e);
-                   // },  
+                   // },
                     replace: true,     // Remove the directive from the DOM
                     transclude: true,  // Add elements and attributes to the template
                     controller: ExpertModeCtrl
                 }
             }
         ]);
-} 
+}

@@ -1,52 +1,71 @@
-﻿<div>
+
+<div>
 
 
-    <h3 class="leftpanel-header" style="width: 100%">
-        Dashboards
-        <div class="leftpanel-header-button-container">
-            <button ng-show="vm.$dashboardService.editMode" ng-click="vm.$dashboardService.editMode = false; vm.stopEdit()" class="button fa fa-check leftpanel-header-button" />
-            <button ng-show="vm.$dashboardService.editMode" class="button fa fa-plus leftpanel-header-button" ng-click="vm.addDashboard()" />
-            <button ng-hide="vm.$dashboardService.editMode" ng-click="vm.$dashboardService.editMode = true; vm.startEdit()" class="button fa fa-pencil leftpanel-header-button" />
-             
+  <h3 class="leftpanel-header" style="width: 100%">
+    Dashboards
+    <div class="leftpanel-header-button-container">
+      <button ng-show="vm.$dashboardService.editMode" ng-click="vm.$dashboardService.editMode = false; vm.stopEdit()" class="button fa fa-check leftpanel-header-button" />
+      <button ng-show="vm.$dashboardService.editMode" class="button fa fa-plus leftpanel-header-button" ng-click="vm.addDashboard()" />
+      <button ng-hide="vm.$dashboardService.editMode" ng-click="vm.$dashboardService.editMode = true; vm.startEdit()" class="button fa fa-pencil leftpanel-header-button" />
+    </div>
+
+
+
+  </h3>
+  <style>
+  </style>
+  <ul style="padding: 0;list-style-type: none" data-ng-repeat="value in vm.$layerService.project.dashboards">
+    <li>
+      <div ng-click="vm.$dashboardService.selectDashboard(value,'main')" ng-hide="value.disabled" ng-class="{'dashboard-selected' : value == vm.$layerService.project.activeDashboard}" class="dashboard-item">
+        <span class="dashboard-name">{{value.name}}</span>
+        <div ng-show="vm.$dashboardService.editMode" class="leftpanel-header-button-container">
+          <button ng-click="vm.removeDashboard(value.id)" class="button fa fa-trash leftpanel-header-button" />
+          <div ng-show="value == vm.$layerService.project.activeDashboard" style="float:right">
+            <button ng-hide="value.editMode" ng-click="value.editMode = true; vm.startDashboardEdit(value)" class="button fa fa-pencil leftpanel-header-button" />
+            <button ng-show="value.editMode" ng-click="value.editMode = false; vm.stopDashboardEdit(value)" class="button fa fa-check leftpanel-header-button" />
+          </div>
         </div>
-
-
-
-    </h3>
-    <style>
-
-    </style>
-    <ul style="padding: 0;list-style-type: none" data-ng-repeat="value in vm.$layerService.project.dashboards">
-        <li>
-            <div ng-class="{\'dashboard-selected\' : value.id === vm.$dashboardService.mainDashboard.id}" class="dashboard-item">
-                <span ng-click="vm.$dashboardService.selectDashboard(value)" class="dashboard-name">{{value.name}}</span>
-                <div ng-show="vm.$dashboardService.editMode" class="leftpanel-header-button-container">
-                    <button ng-click="vm.removeDashboard(value.id)" class="button fa fa-trash leftpanel-header-button" />
-                    <div ng-show="value == vm.$dashboardService.mainDashboard" style="float:right">
-                        <button ng-hide="value.editMode" ng-click="value.editMode = true; vm.startDashboardEdit(value)" class="button fa fa-pencil leftpanel-header-button" />
-                        <button ng-show="value.editMode" ng-click="value.editMode = false" class="button fa fa-check leftpanel-header-button" />
-                    </div>
-                </div>
-            </div>
-            <div style="margin-top:0" ng-show="value.editMode">
-                <label class="control-label" for="dashboardTitle">Title</label>
-                <div class="controls">
-                    <input id="dashboardTitle" name="textinput" type="text" ng-model="value.name" placeholder="placeholder" class="input-xlarge">
-                </div>
-                <div class="checkbox" style="margin-left: 20px"> 
-                    <input type="checkbox" id="showmap-{{value.id}}" ng-model="value.showMap" ng-click="vm.toggleMap()">
-                    <label for="showmap-{{value.id}}">Show Map</label>
-                </div>
-                <div class="checkbox" style="margin-left: 20px">
-                    <input type="checkbox" id="timeline-{{value.id}}" ng-model="value.showTimeline" ng-click="vm.toggleTimeline()">
-                    <label for="timeline-{{value.id}}">Show Timeline</label>
-                </div>
-
-
-
+      </div>
+      <div style="margin-top:10px" ng-show="value.editMode">
+        <div style="float: left; margin-left: -5px; margin-top: 5px" data-toggle="collapse" data-target="#dashboardmain_{{value.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
+        <label class="control-label" for="dashboardTitle">Main Settings</label>
+        <div id="dashboardmain_{{value.id}}" class="collapse in">
+          <div class="controls">
+            <input id="dashboardTitle" name="textinput" type="text" ng-model="value.name" placeholder="placeholder" class="input-xlarge">
+          </div>
+          <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+            <input type="checkbox" id="showmap-{{value.id}}" ng-model="value.showMap" ng-click="vm.toggleMap()">
+            <label for="showmap-{{value.id}}">Show Map</label>
+          </div>
+          <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+            <input type="checkbox" id="timeline-{{value.id}}" ng-model="value.showTimeline" ng-click="vm.toggleTimeline()">
+            <label for="timeline-{{value.id}}">Show Timeline</label>
+          </div>
+        </div>
+        <div style="float: left; margin-left: -5px; margin-top: 5px" data-toggle="collapse" data-target="#dashboardwidgets_{{value.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
+        <label class="control-label">Widgets</label>
+        <div id="dashboardwidgets_{{value.id}}" class="collapse in">
+          <ul data-ng-repeat="widget in value.widgets" class="widgets-edit-list">
+            <li>
+              <div ng-show="widget.enabled" style="float:right">
+                <button ng-click="vm.startWidgetEdit(widget)" class="button fa fa-pencil leftpanel-header-button" />
+              </div>
+              <div class="checkbox dashboard-edit-checkbox" ng-mouseover="vm.widgetHighlight(widget)" ng-mouseleave="vm.widgetStopHighlight(widget)" style="margin-left: 20px;margin-right:40px">
+                <input type="checkbox" ng-model="widget.enabled" id="widget-{{value.id}}-{{widget.id}}">
+                <label for="widget-{{value.id}}-{{widget.id}}">{{widget.directive}}</label>
             </div>
 
-        </li>
-    </ul>
+            </li>
+          </ul>
+
+        </div>
+      </div>
+
+
+
+
+    </li>
+  </ul>
 
 </div>

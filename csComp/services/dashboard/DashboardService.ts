@@ -1,9 +1,7 @@
 ﻿module csComp.Services {
 
     class InstanceLoader {
-        constructor(private context: Object) {
-
-        }
+        constructor(private context: Object) {}
 
         getInstance(name: string, ...args: any[]) {
             var instance = Object.create(this.context["csComp"]["Services"][name].prototype);
@@ -18,39 +16,38 @@
     export class DashboardService {
         public maxBounds: IBoundingBox;
         public featureDashboard: csComp.Services.Dashboard;
-        
-        public mainDashboard: csComp.Services.Dashboard;        
+
+        public mainDashboard: csComp.Services.Dashboard;
         public editMode: boolean;
         public activeWidget: IWidget;
-        public dashboards: any; 
+        public dashboards: any;
         public widgetTypes: { [key: string]: IWidget };
         public socket;
+        public editWidgetMode : boolean;
 
         public init() {
-
             //alert('init');
-
-
         }
+
         public static $inject = [
             '$rootScope',
             '$compile',
-            '$location', 
-            '$translate',            
+            '$location',
+            '$translate',
             'messageBusService',
             'layerService',
-            'mapService'           
+            'mapService'
         ];
-        
+
         constructor(
             private $rootScope: any,
             private $compile : any,
             private $location: ng.ILocationService,
             private $translate: ng.translate.ITranslateService,
             private $messageBusService: Services.MessageBusService,
-            private $layerService : Services.LayerService,            
-            private $mapService: Services.MapService) {  
-            
+            private $layerService : Services.LayerService,
+            private $mapService: Services.MapService) {
+
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
 
@@ -63,27 +60,26 @@
             this.$messageBusService.subscribe("dashboard",(event: string, id: string) => {
                 alert(event);
             });
-            
+
             //this.widgetTypes["Title"] = new TitleWidget();
             //this.widgetTypes["Text"] = new TextWidget();
             //this.widgetTypes["DataSet"] = new DataSetWidget();
             //this.widgetTypes["Layer"] = new LayerWidget();
 
             //this.socket = new io();
-            
-            //this.socket.on('update', (s) => {                
+
+            //this.socket.on('update', (s) => {
             //    alert(s.topic);
 
             //});
             //this.socket.connect();
-               
+
         }
 
         public selectDashboard(dashboard: csComp.Services.Dashboard, container: string) {
             this.$layerService.project.activeDashboard = dashboard;
             this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
         }
-        
 
         public addNewWidget(widget: IWidget, dashboard: Dashboard) : IWidget {
             //var loader = new InstanceLoader(window);
@@ -117,12 +113,23 @@
 
         public addWidget(widget: IWidget) : IWidget {
             return this.addNewWidget(widget, this.mainDashboard);
-
         }
 
         public editWidget(widget: csComp.Services.IWidget) {
             this.activeWidget = widget;
-            (<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
+            this.editWidgetMode = true;
+            $("#widgetEdit").addClass('active');
+            this.$layerService.visual.rightPanelVisible = true;
+
+            //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
+        }
+
+        public stopEditWidget()
+        {
+          this.activeWidget = null;
+          this.editWidgetMode = false;
+          this.$layerService.visual.rightPanelVisible = false;
+          $("#widgetEdit").removeClass('active');
         }
 
         public removeWidget() {
@@ -131,9 +138,24 @@
                 this.activeWidget = null;
                 (<any>$('#leftPanelTab a[href="#basewidgets"]')).tab('show'); // Select tab by name
             }
-        } 
-
-        
+        }
     }
 
+    /**
+      * Register service
+      */
+    var moduleName = 'csComp';
+
+    /**
+      * Module
+      */
+    export var myModule;
+    try {
+        myModule = angular.module(moduleName);
+    } catch (err) {
+        // named module does not exist, so create one
+        myModule = angular.module(moduleName, []);
+    }
+
+    myModule.service('dashboardService', csComp.Services.DashboardService)
 }

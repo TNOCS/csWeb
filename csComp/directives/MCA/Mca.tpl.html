@@ -1,7 +1,7 @@
 ﻿<div>
     <div class="wide-tooltip">
         <span class="pull-right fa fa-info-circle fa-2x"
-              tooltip-html-unsafe="{{\'MCA.DESCRIPTION\' | translate}}"
+              tooltip-html-unsafe="{{'MCA.DESCRIPTION' | translate}}"
               tooltip-placement="bottom"
               tooltip-trigger="mouseenter"
               tooltip-append-to-body="false"
@@ -14,14 +14,14 @@
                 data-ng-change="vm.updateMca()"
                 style="width: 65%; margin-bottom: 10px;"></select>
         <div data-ng-if="vm.expertMode" class="pull-right">
-            <a href="" data-ng-click="vm.createMca()" tooltip="{{\'MCA.ADD_MCA\' | translate}}" style="margin-right:5px;"><i class="fa fa-plus"></i></a>
-            <a href="" data-ng-click="vm.removeMca(vm.mca)" tooltip="{{\'MCA.DELETE_MCA\' | translate}}" style="margin-right:5px;"><i class="fa fa-trash"></i></a>
-            <a href="" data-ng-click="vm.editMca(vm.mca)" tooltip="{{\'MCA.EDIT_MCA\' | translate}}" tooltip-placement="right" style="margin-right:5px;"><i class="fa fa-edit"></i></a>
+            <a href="" data-ng-click="vm.createMca()" tooltip="{{'MCA.ADD_MCA' | translate}}" style="margin-right:5px;"><i class="fa fa-plus"></i></a>
+            <a href="" data-ng-click="vm.removeMca(vm.mca)" tooltip="{{'MCA.DELETE_MCA' | translate}}" style="margin-right:5px;"><i class="fa fa-trash"></i></a>
+            <a href="" data-ng-click="vm.editMca(vm.mca)" tooltip="{{'MCA.EDIT_MCA' | translate}}" tooltip-placement="right" style="margin-right:5px;"><i class="fa fa-edit"></i></a>
         </div>
         <a href=""
-           tooltip="{{\'MCA.TOGGLE_SPARKLINE\' | translate}}"
-           data-ng-init="sparkLineStyle = vm.showSparkline ? {} : {color:\'lightgray\'}"
-           data-ng-click="vm.toggleSparkline(); sparkLineStyle = vm.showSparkline ? {} : {color:\'lightgray\'}"
+           tooltip="{{'MCA.TOGGLE_SPARKLINE' | translate}}"
+           data-ng-init="sparkLineStyle = vm.showSparkline ? {} : {color:'lightgray'}"
+           data-ng-click="vm.toggleSparkline(); sparkLineStyle = vm.showSparkline ? {} : {color:'lightgray'}"
            data-ng-style="sparkLineStyle"
            class="pull-right" style="margin-right:5px;"><i class="fa fa-bar-chart"></i></a>
     </div>
@@ -34,8 +34,8 @@
     <div data-ng-if="vm.mca" style="overflow-y: auto; overflow-x: hidden; margin-left: -5px;" resize resize-y="140">
         <div data-ng-repeat="criterion in vm.mca.criteria" class="wide-tooltip">
             <div data-ng-if="criterion.criteria.length > 0 && criterion.userWeight != 0" class="collapsed pull-left" style="margin: 0 5px 0 0" data-toggle="collapse" data-target="#criterion_{{$index}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
-            <div data-ng-style="{\'display\': \'inline-block\', \'margin-bottom\': \'6px\', \'width\':\'10px\', \'height\':\'10px\', \'border\':\'solid 1px black\', \'background-color\': criterion.color}"></div>
-            <div class="truncate" data-ng-class="{true: \'ignoredCriteria\'}[criterion.userWeight == 0]" style="display: inline-block; width: 150px; font-weight: bold">{{criterion.getTitle()}}</div>
+            <div data-ng-style="{'display': 'inline-block', 'margin-bottom': '6px', 'width':'10px', 'height':'10px', 'border':'solid 1px black', 'background-color': criterion.color}"></div>
+            <div class="truncate" data-ng-class="{true: 'ignoredCriteria'}[criterion.userWeight == 0]" style="display: inline-block; width: 150px; font-weight: bold">{{criterion.getTitle()}}</div>
 
             <voting class="pull-right"
                     data-ng-class="vm.getVotingClass(criterion)"
@@ -48,8 +48,8 @@
             <div id="histogram_{{$index}}" data-ng-show="vm.showSparkline && criterion.criteria.length == 0" style="margin-top: 5px;"></div>
             <div data-ng-if="criterion.criteria.length > 0" id="criterion_{{$parent.$index}}" class="collapse out" style="margin-left: 19px">
                 <div data-ng-repeat="crit in criterion.criteria">
-                    <div data-ng-style="{\'display\': \'inline-block\', \'margin-bottom\': \'6px\', \'width\':\'10px\', \'height\':\'10px\', \'border\':\'solid 1px black\', \'background-color\': crit.color}"></div>
-                    <div class="truncate" data-ng-class="{true: \'ignoredCriteria\'}[crit.userWeight == 0 || criterion.userWeight == 0]" style="display: inline-block; width: 150px;">{{crit.getTitle()}}</div>
+                    <div data-ng-style="{'display': 'inline-block', 'margin-bottom': '6px', 'width':'10px', 'height':'10px', 'border':'solid 1px black', 'background-color': crit.color}"></div>
+                    <div class="truncate" data-ng-class="{true: 'ignoredCriteria'}[crit.userWeight == 0 || criterion.userWeight == 0]" style="display: inline-block; width: 150px;">{{crit.getTitle()}}</div>
                     <div class="pull-right" style="margin-right: 15px;">{{Math.abs(crit.userWeight)}}</div>
                     <voting class="pull-right"
                             data-ng-class="vm.getVotingClass(criterion)"
@@ -71,7 +71,7 @@
         </h4>
 
         <a href="" data-ng-if="vm.showFeature" class="pull-right" data-ng-click="vm.toggleMcaChartType();" style="margin-right: 10px">
-            <i class="fa" data-ng-class="{true: \'fa-bar-chart\', false: \'fa-pie-chart\'}[vm.showAsterChart]"></i>
+            <i class="fa" data-ng-class="{true: 'fa-bar-chart', false: 'fa-pie-chart'}[vm.showAsterChart]"></i>
         </a>
 
         <div style="margin-top: 5px; margin-left: auto; margin-right: auto; width: 95%;" id="mcaChart"></div>
@@ -79,7 +79,7 @@
         <div data-ng-if="vm.showFeature">
             <h4>
                 <img data-ng-if="vm.featureIcon" data-ng-src="{{vm.featureIcon}}" width="24" height="24" style="margin:0 5px" alt="Icon" />
-                {{vm.selectedFeature.properties[\'Name\']}}
+                {{vm.selectedFeature.properties['Name']}}
             </h4>
             <table class="table table-condensed">
                 <tr data-ng-repeat="item in vm.properties"
@@ -98,7 +98,7 @@
     </div>
 
     <!--<div rating class="pull-right"
-             data-ng-style="{\'margin\': \'0 10px\', \'background\':\'rgba(0, 0, 0, 0.1)\', \'border-radius\': \'8px\', \'padding\': \'0 4px\', \'color\': criterion.color}"
+             data-ng-style="{'margin': '0 10px', 'background':'rgba(0, 0, 0, 0.1)', 'border-radius': '8px', 'padding': '0 4px', 'color': criterion.color}"
              ng-model="criterion.userWeight" max="11" readonly="isReadonly"
              rating-states="ratingStates"
              data-ng-click="vm.weightUpdated(criterion)"

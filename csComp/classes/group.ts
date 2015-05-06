@@ -135,24 +135,24 @@
      * (see also the function getColor())
     */
     export class Legend {
-        id: string;
-        description: string;
-        legendKind: string;
-        visualAspect : string;
+        id:            string;
+        description:   string;
+        legendKind:    string;
+        visualAspect:  string;
         legendEntries: LegendEntry[];
         // it is assumed that the legendentries have their values and/or intervals
         // sorted in ascending order
     }
 
     export class LegendEntry {
-        label: string;
-        interval: {
-            min: number;
-            max: number;
+        label:       string;
+        interval:    {
+            min:     number;
+            max:     number;
         };                 // either interval or value is used, depending on legendtype (discrete or interpolated)
-        value: number;
+        value:       number;
         stringValue: string;
-        color: string;  // hex string; rgb
+        color:       string;  // hex string; rgb
     }
 
 }

@@ -1,11 +1,11 @@
 ﻿module StyleList {
     /**
-      * Config 
+      * Config
       */
-    var moduleName = 'csWeb.styleList';
+    var moduleName = 'csComp';
 
     /**
-      * Module      
+      * Module
       */
     export var myModule;
     try {
@@ -18,21 +18,25 @@
     /**
       * Directive to display the available map layers.
       */
-    myModule.directive('styleList', [
-        '$window', '$compile',
-        function ($window, $compile)  : ng.IDirective {
+    myModule
+        .filter('reverse', function() {
+            return function(items) {
+                return items.slice().reverse();
+            };
+        })
+        .directive('styleList', ['$window', '$compile', function ($window, $compile)  : ng.IDirective {
             return {
-                terminal  : false,  // do not compile any other internal directives 
+                terminal  : false,  // do not compile any other internal directives
                 restrict  : 'E',    // E = elements, other options are A=attributes and C=classes
                 scope     : {},     // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
-                template  : html,   // I use gulp automation to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisense in the html file.
+                templateUrl: 'directives/StyleList/StyleList.tpl.html',
                 //compile             : el          => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                 //    var fn                        = $compile(el);
-                //    return scope                  => { 
+                //    return scope                  => {
                 //        fn(scope);
                 //    };
                 //},
-                link                  : (scope: any, element, attrs) => {
+                link: (scope: any, element, attrs) => {
                     // Deal with resizing the element list
                     scope.onResizeFunction = () => {
                         var filterHeight = 50;
@@ -56,10 +60,5 @@
                 controller: StyleListCtrl
             }
         }
-    ]).directive('bsPopover', () => {
-            return (scope, element, attrs) => {
-                element.find("a[rel=popover]").popover({ placement: 'right', html: 'true' });
-            };
-        });
-
-}  
+    ]);
+}

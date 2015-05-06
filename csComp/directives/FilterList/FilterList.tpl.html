@@ -1,6 +1,7 @@
-﻿<div>
+<div>
     <h4 class="leftpanel-header" translate="FILTERS"></h4>
     <div ng-show="vm.$layerService.noFilters" translate="FILTER_INFO"></div>
-    <a ng-hide="vm.$layerService.noFilters" ng-click="vm.$layerService.resetFilters()"><span class="fa fa-refresh"></span> reset</a>
+    <a ng-hide="vm.$layerService.noFilters" ng-click="vm.$layerService.resetFilters()">
+        <span class="fa fa-refresh"></span> reset</a>
     <div id="filterChart"></div>
 </div>

@@ -16,13 +16,13 @@
         id: string;
         indexValue: number;   // the value that is treated as 100%
     }
-    
+
     export interface ILayersDirectiveScope extends ng.IScope {
-        vm: LayersDirectiveCtrl;
+        vm: IndicatorsCtrl;
         data: indicatorData;
     }
 
-    export class LayersDirectiveCtrl {
+    export class IndicatorsCtrl {
         private scope: ILayersDirectiveScope;
         private widget: csComp.Services.IWidget;
 
@@ -32,6 +32,7 @@
         // See http://docs.angularjs.org/guide/di
         public static $inject = [
             '$scope',
+            '$timeout',
             'layerService',
             'messageBusService',
             'mapService'
@@ -41,6 +42,7 @@
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope       : ILayersDirectiveScope,
+            private $timeout     : ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private $mapService : csComp.Services.MapService
@@ -65,23 +67,18 @@
                           //this.updateIndicator(i);
                           break;
                       }
-
                     });
                     this.updateIndicator(i);
                 }
             });
-            this.checkLayers();
-            this.$scope.$apply();
+            $timeout(() => this.checkLayers());
         }
 
         public updateIndicator(i : indicator)
         {
             this.$layerService.findSensorSet(i.sensor,(ss: csComp.Services.SensorSet) => {
                 i.sensorSet = ss;
-                if (!this.$scope.$$phase) this.$scope.$apply();
-                setTimeout(() => {
-                    (<any>$("#" + i.id)).circliful();
-                }, 1000);
+                //if (!this.$scope.$$phase) this.$scope.$apply();\
           });
         }
 
@@ -106,7 +103,6 @@
                     }
                 }
             });
-            //if (!this.$scope.$$phase) this.$scope.$apply()
         }
 
         public selectIndicator(i: indicator) {

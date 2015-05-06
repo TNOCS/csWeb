@@ -3,7 +3,7 @@
     /**
       * Config
       */
-    var moduleName = 'csWeb.charts';
+    var moduleName = 'csComp';
 
     /**
       * Module
@@ -32,6 +32,20 @@
         data: number[];
     }
 
+    export interface ICircularchartScope extends ng.IScope {
+        value: number;
+        min : number;
+        max : number;
+        titleClass : string;
+        title : string;
+        valueString : string;
+        valueClass : string;
+        animationDuration : number;
+        width?    : number;
+        height?   : number;
+        margin?   : { top: number; right: number; bottom: number; left: number; };
+    }
+
     /**
       * Directive to create a sparkline chart.
       *
@@ -40,6 +54,115 @@
       * @seealso: http://www.tnoda.com/blog/2013-12-19
       */
     myModule
+    /**
+      * Directive to create a sparkline chart.
+      *
+      * @seealso: http://odiseo.net/angularjs/proper-use-of-d3-js-with-angular-directives
+      * @seealso: http://cmaurer.github.io/angularjs-nvd3-directives/sparkline.chart.html
+      * @seealso: http://www.tnoda.com/blog/2013-12-19
+      */
+    myModule
+        .directive('circularChart', [
+        function (): ng.IDirective {
+            return {
+                terminal: true,       // do not compile any other internal directives
+                restrict: 'EA',       // E = elements, other options are A=attributes and C=classes
+                scope: {
+                    value : '=',
+                    max : '=',
+                    title : '=',
+                    valueString : '=',
+                    valueClass : '@',
+                    titleClass : '@',
+                    animationDuration : '@',
+                    width     : '@',  // the value is used as is
+                    height    : '@',
+                    margin    : '@'
+                },
+                //controller: [
+                //    '$scope',
+                //    '$element',
+                //    '$attrs',
+                //    function ($scope, $element, $attrs) {
+                //        $scope.d3Call    = function (data, chart) {
+                //            ChartHelpers.checkElementID($scope, $attrs, $element, chart, data);
+                //        };
+                //    }
+                //],
+                link: function (scope: ICircularchartScope, element, attrs) {
+
+
+
+                    var doDraw = (()=>
+                    {
+                      if (scope.value != null && scope.max!=null){
+                      var margin           = scope.margin || { top: 15, right: 5, bottom: 0, left: 10 };
+                      var width            = scope.width || 100;
+                      var height           = scope.height || 70;
+                      var animationDuration = scope.animationDuration || 0;
+                      var cursorTextHeight = 12;// + (showAxis ? 5 : 0); // leave room for the cursor text (timestamp | measurement)
+                      $(element[0]).empty();
+
+                          var dataset = {
+    hddrives: [scope.value, scope.max - scope.value],
+  };
+
+  var width = scope.width,
+      height = scope.height,
+      radius = Math.min(width, height) / 2;
+
+  var color = d3.scale.ordinal()
+      .range(["#2DA7E2","#8DC7E2"]);
+
+  var pie = d3.layout.pie()
+      .sort(null);
+
+  var arc = d3.svg.arc()
+      .innerRadius(radius - 100)
+      .outerRadius(radius - 80);
+
+  var svg = d3.select(element[0]).append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .append("g")
+      .attr("transform", "translate(" + width / 3 + "," + height / 3 + ")");
+
+  var path = svg.selectAll("path")
+      .data(pie(dataset.hddrives))
+      .enter().append("path")
+      .attr("class", "arc")
+      .attr("fill", function(d, i) { return color(i); })
+      .transition().delay(function(d, i) { return i * animationDuration; }).duration(animationDuration)
+      .attrTween("d", function(d) {
+          var i = d3.interpolate(d.startAngle+0.1, d.endAngle);
+          return function(t) {
+            d.endAngle = i(t);
+            return arc(d);
+          }
+      });
+
+  svg.append("text")
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .attr("class", scope.valueClass)
+        .text(function(d) { return scope.valueString; });
+  svg.append("text")
+         .attr("dy", "2em")
+        .style("text-anchor", "middle")
+        .attr("class", scope.titleClass)
+        .text(function(d) { return scope.title; });
+                        }}
+                    );
+
+                    doDraw();
+                    scope.$watch("value",()=>{
+                      doDraw();})
+                    //scope.closed = true;
+
+
+                }
+            }
+        }])
         .directive('sparklineChart', ['$filter',
         function ($filter): ng.IDirective {
             return {
@@ -66,10 +189,12 @@
                 //],
                 link: function (scope: ISparklineScope, element, attrs) {
 
-                    if (scope.timestamps == null || scope.sensor==null) return;
+
 
                     var doDraw = (()=>
                     {
+                      if (scope.timestamps != null && scope.sensor!=null && scope.timestamps.length > 0){
+
                       var margin           = scope.margin || { top: 15, right: 5, bottom: 0, left: 10 };
                       var width            = scope.width || 100;
                       var height           = scope.height || 70;
@@ -110,10 +235,11 @@
                       x.domain(d3.extent(data, function (d: { time: number; measurement: number }) { return d.time; }));
                       y.domain(d3.extent(data, function (d: { time: number; measurement: number }) { return d.measurement; }));
 
+
                       var s = [];
-                      if (closed) s.push({ time: data[0].time, measurement: 0 });
+                      if (closed && data.length>0) s.push({ time: data[0].time, measurement: 0 });
                       data.forEach((d)=>s.push(d));
-                      if (closed) s.push({ time: data[data.length-1].time, measurement: 0 });
+                      if (closed && data.length>0) s.push({ time: data[data.length-1].time, measurement: 0 });
 
 
 
@@ -299,10 +425,11 @@
                                   .attr("opacity", 1)
                                   .text(d.measurement);
                                });
+                             }
                     });
 
                     doDraw();
-                    scope.$watchCollection("sensor",()=>{console.log('redraw chart'); doDraw();})
+                    scope.$watchCollection("sensor",()=>{doDraw();})
                     //scope.closed = true;
 
 
@@ -328,20 +455,23 @@
                         //selection[0][0] is the DOM node
                         //but we won't need that this time
                         var chart = d3.select(element[0]);
+
+                        chart.append("div").attr("class", "chart")
+    .selectAll('div')
+    .data(scope.data).enter().append("div")
+    .transition().ease("elastic")
+    .style("width", function (d) { return d + "%"; })
+    .text(function (d) { return d + "%"; });
+
+
                         //to our original directive markup bars-chart
                         //we add a div with out chart stling and bind each
                         //data entry to the chart
-                        chart.append("div").attr("class", "chart")
-                            .selectAll('div')
-                            .data(scope.data).enter().append("div")
-                            .transition().ease("elastic")
-                            .style("width", function (d) { return d + "%"; })
-                            .text(function (d) { return d + "%"; });
-                        //a little of magic: setting it's width based
-                        //on the data value (d)
-                        //and text all with a smooth transition
+
                     }
                 }
             }
-        ]);
+        ])
+
+        ;
 }
