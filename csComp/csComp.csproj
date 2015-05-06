@@ -21,41 +21,33 @@
     <TypeScriptCompile Include="classes\datasource.ts" />
     <TypeScriptCompile Include="directives\Charts\ChartHelpers.ts" />
     <TypeScriptCompile Include="directives\Charts\Charts.ts" />
-    <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.tpl.ts" />
+    <TypeScriptCompile Include="directives\ContextMenu\ContextMenu.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelection.ts" />
     <TypeScriptCompile Include="directives\DashboardSelection\DashboardSelectionCtrl.ts" />
-    <TypeScriptCompile Include="directives\Dashboard\Dashboard.tpl.ts" />
+    <TypeScriptCompile Include="directives\DashboardSelection\DashboardHeaderSelection.ts" />
+    <TypeScriptCompile Include="directives\DashboardSelection\DashboardHeaderSelectionCtrl.ts" />
     <TypeScriptCompile Include="directives\Dashboard\Dashboard.ts" />
     <TypeScriptCompile Include="directives\Dashboard\DashboardCtrl.ts" />
-    <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelations.ts" />
     <TypeScriptCompile Include="directives\FeatureRelations\FeatureRelationsCtrl.ts" />
     <TypeScriptCompile Include="directives\Heatmap\HeatmapSettings.ts" />
-	<TypeScriptCompile Include="directives\Indicators\Indicators.tpl.ts" />
     <TypeScriptCompile Include="directives\Indicators\Indicators.ts" />
     <TypeScriptCompile Include="directives\Indicators\IndicatorsCtrl.ts" />
-    <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.tpl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
-    <TypeScriptCompile Include="directives\MCA\Mca.tpl.ts" />
     <TypeScriptCompile Include="directives\MCA\Mca.ts" />
     <TypeScriptCompile Include="directives\MCA\McaEditorCtrl.ts" />
     <TypeScriptCompile Include="classes\dashboard.ts" />
     <TypeScriptCompile Include="classes\feature.ts" />
     <TypeScriptCompile Include="classes\group.ts" />
     <TypeScriptCompile Include="classes\project.ts" />
-    <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.tpl.ts" />
     <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
     <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
-    <TypeScriptCompile Include="directives\MCA\McaEditorView.tpl.ts" />
-    <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearch.tpl.ts" />
     <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearch.ts" />
     <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearchClasses.ts" />
     <TypeScriptCompile Include="directives\OfflineSearch\OfflineSearchCtrl.ts" />
-    <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettings.tpl.ts" />
     <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettings.ts" />
     <TypeScriptCompile Include="directives\ProjectSettings\ProjectSettingsCtrl.ts" />
-    <TypeScriptCompile Include="directives\Timeline\Timeline.tpl.ts" />
     <TypeScriptCompile Include="directives\Timeline\Timeline.ts" />
     <TypeScriptCompile Include="directives\Timeline\TimelineCtrl.ts" />
     <TypeScriptCompile Include="directives\Voting\Voting.ts" />
@@ -64,30 +56,24 @@
     <TypeScriptCompile Include="services\bus\MessageBus.ts" />
     <TypeScriptCompile Include="helpers\Plot.ts" />
     <TypeScriptCompile Include="directives\Resize\Resize.ts" />
-    <TypeScriptCompile Include="directives\LegendList\LegendList.tpl.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendList.ts" />
     <TypeScriptCompile Include="directives\LegendList\LegendListCtrl.ts" />
     <TypeScriptCompile Include="directives\ExpertMode\ExpertMode.ts" />
     <TypeScriptCompile Include="directives\ExpertMode\ExpertModeCtrl.ts" />
-    <TypeScriptCompile Include="directives\FeatureList\FeatureList.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureList\FeatureList.ts" />
     <TypeScriptCompile Include="directives\FeatureList\FeatureListCtrl.ts" />
-    <TypeScriptCompile Include="directives\FilterList\FilterList.tpl.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterList.ts" />
     <TypeScriptCompile Include="directives\FilterList\FilterListCtrl.ts" />
     <TypeScriptCompile Include="directives\Heatmap\Heatspot.ts" />
     <TypeScriptCompile Include="directives\Heatmap\HeatmapModel.ts" />
     <TypeScriptCompile Include="directives\Heatmap\HeatmapCtrl.ts" />
     <TypeScriptCompile Include="directives\Heatmap\HeatmapItem.ts" />
-    <TypeScriptCompile Include="directives\Heatmap\Heatmap.tpl.ts" />
     <TypeScriptCompile Include="directives\Heatmap\Heatmap.ts" />
     <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorCtrl.ts" />
-    <TypeScriptCompile Include="directives\Heatmap\HeatmapEditorView.tpl.ts" />
     <TypeScriptCompile Include="directives\Heatmap\IdealityMeasure.ts" />
     <TypeScriptCompile Include="directives\MCA\McaCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\Criteria.ts" />
     <TypeScriptCompile Include="directives\ShowModal\ShowModal.ts" />
-    <TypeScriptCompile Include="directives\LayersList\LayersDirective.tpl.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirective.ts" />
     <TypeScriptCompile Include="directives\LayersList\LayersDirectiveCtrl.ts" />
     <TypeScriptCompile Include="helpers\StringExt.ts" />
@@ -100,7 +86,6 @@
     <TypeScriptCompile Include="services\connection\ConnectionService.ts" />
     <TypeScriptCompile Include="services\dashboard\DashboardService.ts" />
     <TypeScriptCompile Include="services\layer\LayerService.ts" />
-    <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.tpl.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapList.ts" />
     <TypeScriptCompile Include="directives\BaseMapList\BaseMapListCtrl.ts" />
     <TypeScriptCompile Include="services\layer\sources\GeoJsonSource.ts" />
@@ -110,7 +95,6 @@
     <TypeScriptCompile Include="services\layer\sources\WmsSource.ts" />
     <TypeScriptCompile Include="services\map\MapCtrl.ts" />
     <TypeScriptCompile Include="services\map\MapService.ts" />
-    <TypeScriptCompile Include="directives\StyleList\StyleList.tpl.ts" />
     <TypeScriptCompile Include="directives\StyleList\StyleList.ts" />
     <TypeScriptCompile Include="directives\StyleList\StyleListCtrl.ts" />
     <TypeScriptCompile Include="Scripts\typings\angular-translate\angular-translate.d.ts" />
@@ -130,15 +114,14 @@
     <TypeScriptCompile Include="services\map\renderers\cesiumRenderer.ts" />
     <TypeScriptCompile Include="services\map\renderers\leafletRenderer.ts" />
     <TypeScriptCompile Include="services\search\SearchFormCtrl.ts" />
-    <TypeScriptCompile Include="directives\FeatureProps\FeatureProps.tpl.ts" />
     <TypeScriptCompile Include="directives\FeatureProps\FeatureProps.ts" />
     <TypeScriptCompile Include="directives\FeatureProps\FeaturePropsCtrl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTableCtrl.ts" />
-    <TypeScriptCompile Include="directives\DataTable\DataTable.tpl.ts" />
     <TypeScriptCompile Include="directives\DataTable\DataTable.ts" />
-    <TypeScriptCompile Include="directives\MapElement\MapElement.tpl.ts" />
     <TypeScriptCompile Include="directives\MapElement\MapElement.ts" />
     <TypeScriptCompile Include="directives\MapElement\MapElementCtrl.ts" />
+    <TypeScriptCompile Include="directives\WidgetEdit\WidgetEdit.ts" />
+    <TypeScriptCompile Include="directives\WidgetEdit\WidgetEditCtrl.ts" />
     <TypeScriptCompile Include="services\time\TimeService.ts" />
     <TypeScriptCompile Include="translations\locale-en.ts" />
     <TypeScriptCompile Include="translations\locale-nl.ts" />
@@ -232,8 +215,8 @@
     <TypeScriptSourceMap>False</TypeScriptSourceMap>
     <TypeScriptModuleKind>commonjs</TypeScriptModuleKind>
     <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
-    <TypeScriptOutDir>dist</TypeScriptOutDir>
-    <TypeScriptOutFile>dist\csComp.js</TypeScriptOutFile>
+    <TypeScriptOutDir>js</TypeScriptOutDir>
+    <TypeScriptOutFile>js\csComp.js</TypeScriptOutFile>
     <TypeScriptTarget>ES5</TypeScriptTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
