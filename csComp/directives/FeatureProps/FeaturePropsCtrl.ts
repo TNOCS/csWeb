@@ -139,28 +139,30 @@
         }
 
         private calculateHierarchyValue(mi: IPropertyType, feature: IFeature, propertyTypeData: IPropertyTypeData, layerservice: csComp.Services.LayerService): number {
+            var countResults = [];
+            var result: number = -1;
             var propertyTypes = csComp.Helpers.getPropertyTypes(feature.fType, propertyTypeData);
             for (var p in propertyTypes) {
                 var pt = propertyTypes[p];
                 if (pt.type === "relation" && mi.targetrelation === pt.label) {
-                    var result: number
+                    countResults[pt.label] = pt.count;
                     if (mi.calculation === "count") {
                         result = pt.count;
-                    } else if (mi.calculation === "ratio") {
-                        var prop = mi.targetproperty;
-                        var featureName = feature.properties[pt.target];
-                        layerservice.project.features.forEach((f: csComp.Services.IFeature) => {
-                            if (f.properties.hasOwnProperty(pt.subject) && f.properties[pt.subject] === featureName) {
-                                if (f.properties.hasOwnProperty(prop)) {
-                                    result = f.properties[prop];
-                                }
-                            }
-                        });
                     }
-                    return result;
                 }
             }
-            return -1;
+
+            if (mi.calculation === "ratio") {
+                var featureName = feature.properties[mi.subject];
+                layerservice.project.features.forEach((f: csComp.Services.IFeature) => {
+                    if (f.properties.hasOwnProperty(mi.target) && f.properties[mi.target] === featureName) {
+                        if (f.properties.hasOwnProperty(mi.targetproperty)) {
+                            result = +f.properties[mi.targetproperty] / countResults[mi.targetrelation];
+                        }
+                    }
+                });
+            }
+            return result;
         }
 
         public sectionCount(): number {
@@ -387,6 +389,8 @@
             //console.log("FPC: featureMessageReceived");
             switch (title) {
                 case "onFeatureSelect":
+                    break;
+                case "onRelationsUpdated":
                     this.setShowSimpleTimeline();
                     this.displayFeature(feature);
                     this.updateHierarchyLinks(feature);
@@ -415,6 +419,7 @@
 
         private updateHierarchyLinks(feature: IFeature): void {
             if (!feature) return;
+            // Add properties defined inside of layers to the project-wide properties. 
             this.$layerService.project.groups.forEach((group) => {
                 group.layers.forEach((l) => {
                     if (l.type == "hierarchy" && l.enabled) {
