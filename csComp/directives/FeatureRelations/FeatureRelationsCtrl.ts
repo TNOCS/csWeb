@@ -81,7 +81,7 @@
             this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
                 if (feature.id != f.id) {
                     if ((feature.geometry.type == 'Point' && mapBounds.contains(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0])))
-                        || (feature.geometry.type == 'Polygon' && mapBounds.contains(new L.Polygon(feature.geometry.coordinates).getBounds()))) {
+                        || (feature.geometry.type == 'Polygon' && mapBounds.contains(new L.LatLng(feature.geometry.coordinates[0][0][1], feature.geometry.coordinates[0][0][0])))) { //TODO: Get center point of polygon, instead of its first point. 
                         var rl = new Relation();
                         rl.subject = f;
                         rl.target = feature;
@@ -96,16 +96,16 @@
             if (f.geometry.type == 'Point') {
                 fLoc = new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
             } else if (f.geometry.type == 'Polygon') {
-                fLoc = new L.Polygon(f.geometry.coordinates).getBounds().getCenter();
+                fLoc = new L.LatLng(f.geometry.coordinates[0][0][1], f.geometry.coordinates[0][0][0]); //TODO: Get center point of polygon, instead of its first point. 
             }
             if (fLoc) {
                 rgr.relations.sort((rl1: Relation, rl2: Relation) => {
                     var loc1: L.LatLng;
                     var loc2: L.LatLng;
                     if (rl1.target.geometry.type == 'Point') loc1 = new L.LatLng(rl1.target.geometry.coordinates[1], rl1.target.geometry.coordinates[0]);
-                    if (rl1.target.geometry.type == 'Polygon') loc1 = new L.Polygon(rl1.target.geometry.coordinates).getBounds().getCenter();
+                    if (rl1.target.geometry.type == 'Polygon') loc1 = new L.LatLng(rl1.target.geometry.coordinates[0][0][1], rl1.target.geometry.coordinates[0][0][0]);
                     if (rl2.target.geometry.type == 'Point') loc2 = new L.LatLng(rl2.target.geometry.coordinates[1], rl2.target.geometry.coordinates[0]);
-                    if (rl2.target.geometry.type == 'Polygon') loc2 = new L.Polygon(rl2.target.geometry.coordinates).getBounds().getCenter();
+                    if (rl2.target.geometry.type == 'Polygon') loc2 = new L.LatLng(rl2.target.geometry.coordinates[0][0][1], rl2.target.geometry.coordinates[0][0][0]);
                     if (loc1 && loc2) {
                         return (fLoc.distanceTo(loc1) - fLoc.distanceTo(loc2));
                     } else {
