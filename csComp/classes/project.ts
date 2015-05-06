@@ -101,12 +101,8 @@
     * Simple class to hold the user privileges.
     */
     export interface IPrivileges {
-        mca: {
-            expertMode: boolean;
-        }
-        heatmap: {
-            expertMode: boolean;
-        }
+        mca: { expertMode: boolean;}
+        heatmap: { expertMode: boolean;}
     }
 
     /** bouding box to specify a region. */

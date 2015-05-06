@@ -1183,6 +1183,7 @@
                 if (this.project.groups && this.project.groups.length > 0) {
                     this.project.groups.forEach((group: ProjectGroup) => {
                         if (group.id == null) group.id = Helpers.getGuid();
+
                         group.ndx = crossfilter([]);
                         if ((group.styles) && (group.styles.length > 0)) {
                             var styleId: string = group.styles[0].id;
@@ -1207,10 +1208,11 @@
                             });
 
                             this.map.map.addLayer(group.cluster);
-                        } else {
+                        } else { 
                             group.vectors = new L.LayerGroup<L.ILayer>();
                             this.map.map.addLayer(group.vectors);
                         }
+                        if (!group.layers) group.layers = [];
                         group.layers.forEach((layer: ProjectLayer) => {
                             if (layer.id == null) layer.id = Helpers.getGuid();
                             layer.type = layer.type.toLowerCase();

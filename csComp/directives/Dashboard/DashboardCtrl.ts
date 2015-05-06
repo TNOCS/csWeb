@@ -35,6 +35,7 @@
             'layerService',
             'mapService'           ,
             'messageBusService',
+            'dashboardService',
             '$templateCache'
         ];
 
@@ -47,6 +48,7 @@
             private $layerService:      csComp.Services.LayerService,
             private $mapService:        csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService,
+            private $dashboardService:  csComp.Services.DashboardService,
             private $templateCache:     any
             ) {
 
@@ -191,7 +193,7 @@
         {
           setTimeout(()=>
           {
-            this.updateWidget(widget);  
+            this.updateWidget(widget);
           },100);
 
         }
