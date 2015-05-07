@@ -257,7 +257,8 @@ module Heatmap {
         weightUpdated() {
             if (!this.heatmapModel) return;
             this.heatmapModel.updateWeights();
-            this.updateHeatmap();
+            this.projLayer.quickRefresh = true;
+            this.$layerService.addLayer(this.projLayer);
         }
 
         intensityScaleUpdated() {
@@ -273,7 +274,6 @@ module Heatmap {
         }
 
         private updateHeatmapWithoutRerendering() {
-            this.projLayer.heatmapSettings = this.heatmapModel.heatmapSettings;
             this.projLayer.quickRefresh = true;
             this.$layerService.addLayer(this.projLayer);
         }
