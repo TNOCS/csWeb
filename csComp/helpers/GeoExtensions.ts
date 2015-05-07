@@ -2,16 +2,16 @@
     declare var omnivore;
 
     export interface IGeoFeature {
-        type: string,
+        type: string;
         geometry: {
-            type: string,
+            type: string;
             coordinates: Array<number> | Array<Array<number>> | Array<Array<Array<number>>>
-        },
+        };
         properties: Object
     }
 
     export interface IGeoFeatureCollection {
-        type: string,
+        type: string;
         features: IGeoFeature[]
     }
 
