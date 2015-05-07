@@ -93,14 +93,14 @@ module Heatmap {
             var arrayLength  = horizCells * vertCells;
 
             this.heatspots = new Array<IHeatspot>(arrayLength);
-            this.heatspots.push(new Heatspot(0, 0, this.weight * this.idealityMeasure.atLocation));
+            this.heatspots.push(new Heatspot(0, 0, this.idealityMeasure.atLocation));
 
             for (var i = -vertCells; i <= vertCells; i++) {
                 for (var j = -horizCells; j <= horizCells; j++) {
                     var radius = Math.sqrt(i * i * sCellSize + j * j * sCellSize);
-                    var weightedIntensity = this.weight * this.idealityMeasure.computeIdealityAtDistance(radius);
-                    if (!(i == 0 && j == 0) && weightedIntensity != 0) {
-                        this.heatspots.push(new Heatspot(i, j, weightedIntensity));
+                    var intensity = this.idealityMeasure.computeIdealityAtDistance(radius);
+                    if (!(i == 0 && j == 0) && intensity != 0) {
+                        this.heatspots.push(new Heatspot(i, j, intensity));
                         //console.log('Add spot at ' + i + ', ' + j + ' with intensity ' + weightedIntensity);
                     }
                 }
@@ -183,7 +183,7 @@ module Heatmap {
             var vCell = Math.floor(((latlong.lat - mapBounds.getSouthWest().lat) / (mapBounds.getNorthWest().lat - mapBounds.getSouthWest().lat)) * vertCells);
 
             this.heatspots.forEach((hs) => {
-                actualHeatspots.push(hs.AddLocation(hCell, vCell, feature.properties['Name'] + ': ' + hs.intensity.toFixed(3)));
+                actualHeatspots.push(hs.AddLocation(hCell, vCell, feature.properties['Name']));// + ': ' + hs.intensity.toFixed(3)));
             });
             return actualHeatspots;
         }

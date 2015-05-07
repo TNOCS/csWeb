@@ -174,6 +174,7 @@ module csComp.Services {
                     //layer.mapLayer.addLayer(v);
                     break;
                 case "heatmap":
+                    if (layer.quickRefresh && layer.quickRefresh == true) break; //When only updating style of current heatmap, do not add a new layer. 
                     var time = new Date().getTime();
                     // create leaflet layers
                     layer.isLoading = true;

@@ -190,7 +190,7 @@
         }
 
         public addLayer(layer: ProjectLayer) {
-            if (this.loadedLayers.containsKey(layer.id)) return;
+            if (this.loadedLayers.containsKey(layer.id) && (!layer.quickRefresh || layer.quickRefresh == false)) return;
             this.$messageBusService.publish('layer', 'loading', layer);
             var disableLayers = [];
             async.series([

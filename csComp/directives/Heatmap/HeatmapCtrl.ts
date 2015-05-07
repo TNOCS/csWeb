@@ -147,6 +147,7 @@ module Heatmap {
             this.projLayer.heatmapSettings = new HeatmapSettings();
             this.projLayer.heatmapItems = [];
             this.projLayer.id = csComp.Helpers.getGuid();
+            this.projLayer.quickRefresh = false;
             this.heatmap = L.geoJson([]);
             this.showHeatmapEditor(this.heatmapModel);
             //this.$layerService.addLayer(this.projLayer);
@@ -262,12 +263,19 @@ module Heatmap {
         intensityScaleUpdated() {
             if (!this.heatmapModel) return;
             //this.heatmapModel.updateWeights();
-            this.updateHeatmap();
+            //this.updateHeatmap();
+            this.updateHeatmapWithoutRerendering();
         }
 
         resolutionUpdated() {
             if (!this.heatmapModel) return;
             this.updateHeatmap();
+        }
+
+        private updateHeatmapWithoutRerendering() {
+            this.projLayer.heatmapSettings = this.heatmapModel.heatmapSettings;
+            this.projLayer.quickRefresh = true;
+            this.$layerService.addLayer(this.projLayer);
         }
 
         /**
@@ -286,6 +294,7 @@ module Heatmap {
                         });
                     });
                 }
+                this.projLayer.quickRefresh = false;
                 this.projLayer.heatmapItems = this.heatmapModel.heatmapItems;
                 this.projLayer.heatmapSettings = this.heatmapModel.heatmapSettings;
                 this.projLayer.id = this.heatmapModel.id;
@@ -341,6 +350,7 @@ module Heatmap {
             this.projLayer.heatmapItems = [];
             this.projLayer.data = JSON;
             this.projLayer.id = "";
+            this.projLayer.quickRefresh = false;
 
             if (!this.moveListenerInitialized) {
                 this.$layerService.map.map.addEventListener('moveend',(event) => {

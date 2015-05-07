@@ -249,7 +249,9 @@
         cacheKey : string;
 
         /** handle for receiving server events */
-        serverHandle : MessageBusHandle;
+        serverHandle: MessageBusHandle;
+        /** Whether layer can be quickly updated instead of completely rerendered */
+        quickRefresh: boolean;
     }
 
     /**
