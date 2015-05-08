@@ -288,7 +288,9 @@ module csComp.Services {
                 l.group.cluster.addLayer(m);
             }
             else {
-                l.mapLayer.addLayer(m);
+                if (l.mapLayer) {
+                    l.mapLayer.addLayer(m);
+                }
             }
 
             return m;
