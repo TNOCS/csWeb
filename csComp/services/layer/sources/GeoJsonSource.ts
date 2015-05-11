@@ -43,9 +43,10 @@ module csComp.Services {
                         layer.count = 0;
                         layer.isLoading = false;
                         // check if loaded correctly
-                        if (error)
+                        if (error) {
                             this.service.$messageBusService.notify('ERROR loading ' + layer.title, error);
-                        else {
+                            this.service.$messageBusService.publish('layer', 'error', layer);
+                        } else {
                             // if this is a topojson layer, convert to geojson first
                             if (layer.type.toLowerCase() === 'topojson') {
                                 data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);

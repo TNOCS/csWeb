@@ -15,8 +15,8 @@ module Heatmap {
         heatmapItems : IHeatmapItem[] = [];
         heatmapSettings: IHeatmapSettings;
         id = "";
-        intensityGrid: csComp.Services.IStringToAny[][];
-        contributorGrid: csComp.Services.IStringToAny[][];
+        intensityGrid: csComp.Services.IProperty[][];
+        contributorGrid: csComp.Services.IProperty[][];
         horizCells: number = 0;
         vertCells: number = 0;
         cellWidth: number = 0;
@@ -127,7 +127,7 @@ module Heatmap {
         public drawIntensityGrid(heatmap: L.GeoJSON) {
             var weightedIntensityScale: number = ((this.heatmapSettings.intensityScale / 3) * (this.heatmapSettings.intensityScale / 3)); // Convert intensityscale from [1,...,5] to ~[0.1, 0.5, 1, 2, 3]
             heatmap.clearLayers();
-            var hiWeights: csComp.Services.IStringToAny = {}; 
+            var hiWeights: csComp.Services.IProperty = {}; 
             this.heatmapItems.forEach((hi) => {
                 hiWeights[hi.toString()] = hi.weight;
             });

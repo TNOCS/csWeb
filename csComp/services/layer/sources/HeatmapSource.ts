@@ -34,7 +34,7 @@
                         this.heatmapModel.updateWeights();
 
                         if (layer.heatmapItems) {
-                            var hiWeights: csComp.Services.IStringToAny = {};
+                            var hiWeights: csComp.Services.IProperty = {};
                             this.heatmapModel.heatmapItems.forEach((hi) => {
                                 hiWeights[hi.toString()] = hi.weight;
                             });
