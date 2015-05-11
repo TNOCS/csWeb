@@ -3,7 +3,7 @@
         vm: LayersDirectiveCtrl;
         options : Function;
     }
-    
+
     export class LayersDirectiveCtrl {
         private scope: ILayersDirectiveScope;
 
@@ -13,14 +13,17 @@
         // See http://docs.angularjs.org/guide/di
         public static $inject = [
             '$scope',
-            'layerService'
+            'layerService',
+            'messageBusService'
+
         ];
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope       : ILayersDirectiveScope,
-            private $layerService: csComp.Services.LayerService)
+            private $layerService: csComp.Services.LayerService,
+            private $messageBusService : csComp.Services.MessageBusService)
         {
             $scope.vm = this;
             $scope.options = ((layer : csComp.Services.ProjectLayer)=>{
@@ -30,6 +33,7 @@
                 return layer.layerSource.layerMenuOptions(layer);
               }
           });
+          
         }
 
         public openLayerMenu(e)

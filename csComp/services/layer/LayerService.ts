@@ -194,7 +194,7 @@
                     var l = feature.properties[prop.label];
                     if (this.loadedLayers.containsKey(l))
                     {
-                      this.removeLayer(this.loadedLayers[l]);
+                      this.removeLayer(this.loadedLayers[l],true);
                     }
                   }
                 });
@@ -209,8 +209,9 @@
                       pl.id = l;
                       pl.group = feature.layer.group;
                       pl.type = feature.layer.type;
-                      pl.title = l;
+                      pl.title = feature.properties["Name"] + " " + prop.title;
                       pl.url = l;
+                      feature.layer.group.layers.push(pl);
                       this.addLayer(pl);
                     }
                   });
@@ -1022,7 +1023,7 @@
         /**
          * deactivate layer
          */
-        removeLayer(layer: ProjectLayer) {
+        removeLayer(layer: ProjectLayer, removeFromGroup : boolean = false) {
             var m: any;
             var g = layer.group;
 
@@ -1079,6 +1080,7 @@
 
             this.rebuildFilters(g);
             layer.enabled = false;
+            if (removeFromGroup) layer.group.layers = layer.group.layers.filter((pl:ProjectLayer)=>pl != layer);
             this.$messageBusService.publish('layer', 'deactivate', layer);
         }
 
