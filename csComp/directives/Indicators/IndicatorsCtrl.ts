@@ -19,6 +19,7 @@
 
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: IndicatorsCtrl;
+        
         data: indicatorData;
     }
 

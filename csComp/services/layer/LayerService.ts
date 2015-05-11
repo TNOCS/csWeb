@@ -65,7 +65,7 @@
         featureTypes:        { [key: string]: IFeatureType; };
         propertyTypeData:    { [key: string]: IPropertyType; };
         project:             Project;
-        projectUrl:          string; // URL of the current project
+        projectUrl:          SolutionProject; // URL of the current project
         solution:            Solution;
         dimension:           any;
         noFilters:           boolean;
@@ -173,6 +173,55 @@
 
             //add hierarchy layer
             this.layerSources["hierarchy"] = new HierarchySource(this);
+
+            // check for every feature (de)select if layers should automatically be activated
+            this.checkFeatureSubLayers();
+
+        }
+
+        /**
+        check for every feature (de)select if layers should automatically be activated
+        */
+        private checkFeatureSubLayers()
+        {
+          this.$messageBusService.subscribe('feature', (action : string, feature : IFeature)=>
+          {
+            if (!feature.fType) return;
+            var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
+            switch (action){
+              case 'onFeatureDeselect':
+                // check sub-layers
+                props.forEach((prop : IPropertyType)=>{
+                  if (prop.type === "layer" && prop.activation==="automatic" && feature.properties.hasOwnProperty(prop.label))
+                  {
+                    var l = feature.properties[prop.label];
+                    if (this.loadedLayers.containsKey(l))
+                    {
+                      this.removeLayer(this.loadedLayers[l],true);
+                    }
+                  }
+                });
+                break;
+                case 'onFeatureSelect':
+                  // check sub-layers
+                  props.forEach((prop : IPropertyType)=>{
+                    if (prop.type === "layer" && prop.activation==="automatic" && feature.properties.hasOwnProperty(prop.label))
+                    {
+                      var l = feature.properties[prop.label];
+                      var pl = new ProjectLayer();
+                      pl.id = l;
+                      pl.group = feature.layer.group;
+                      pl.type = feature.layer.type;
+                      pl.title = feature.properties["Name"] + " " + prop.title;
+                      pl.url = l;
+                      feature.layer.group.layers.push(pl);
+                      this.addLayer(pl);
+                    }
+                  });
+                  break;
+            }
+
+          });
         }
 
         public loadRequiredLayers(layer: ProjectLayer) {
@@ -349,6 +398,24 @@
             }
         }
 
+        public getPropertyTypes(fType : IFeatureType) : IPropertyType[]
+        {
+          var result : IPropertyType[] = [];
+          if (fType)
+          {
+            fType.propertyTypeKeys.split(';').forEach((key)=>
+            {
+              if (this.propertyTypeData.hasOwnProperty(key))
+              {
+                var prop = this.propertyTypeData[key];
+                result.push(prop);
+              }
+            });
+          }
+          return result;
+
+        }
+
         public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
@@ -360,14 +427,18 @@
                 this.lastSelectedFeature.isSelected = false;
                 this.calculateFeatureStyle(this.lastSelectedFeature);
                 this.activeMapRenderer.updateFeature(this.lastSelectedFeature);
+                this.$messageBusService.publish('feature', 'onFeatureDeselect',this.lastSelectedFeature);
             }
             this.lastSelectedFeature = feature;
 
 
+
+
             if (!feature.isSelected) {
                 this.$messageBusService.publish('sidebar', 'hide');
-                this.$messageBusService.publish('feature', 'onFeatureDeselect');
+                this.$messageBusService.publish('feature', 'onFeatureDeselect',feature);
             } else {
+
                 this.$messageBusService.publish('sidebar', 'show');
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
             }
@@ -956,7 +1027,7 @@
         /**
          * deactivate layer
          */
-        removeLayer(layer: ProjectLayer) {
+        removeLayer(layer: ProjectLayer, removeFromGroup : boolean = false) {
             var m: any;
             var g = layer.group;
 
@@ -1001,7 +1072,7 @@
             var featureTypes = this.featureTypes;
             for (var poiTypeName in featureTypes) {
                 if (!featureTypes.hasOwnProperty(poiTypeName)) continue;
-                if (poiTypeName.lastIndexOf(layerName, 0) === 0) delete featureTypes[poiTypeName];
+                //if (poiTypeName.lastIndexOf(layerName, 0) === 0) delete featureTypes[poiTypeName];
             }
 
             // check if there are no more active layers in group and remove filters/styles
@@ -1013,6 +1084,7 @@
 
             this.rebuildFilters(g);
             layer.enabled = false;
+            if (removeFromGroup) layer.group.layers = layer.group.layers.filter((pl:ProjectLayer)=>pl != layer);
             this.$messageBusService.publish('layer', 'deactivate', layer);
         }
 
@@ -1052,9 +1124,9 @@
                 if (solution.projects.length > 0) {
                     var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title === initialProject; })[0];
                     if (p != null) {
-                        this.openProject(p.url, layers);
+                        this.openProject(p, layers);
                     } else {
-                        this.openProject(solution.projects[0].url, layers);
+                        this.openProject(solution.projects[0], layers);
                     }
                 }
 
@@ -1082,8 +1154,8 @@
          * @params url: URL of the project
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
          */
-        public openProject(url: string, layers?: string): void {
-            this.projectUrl = url;
+        public openProject(project : csComp.Services.SolutionProject, layers?: string ): void {
+            this.projectUrl = project;
             //console.log('layers (openProject): ' + JSON.stringify(layers));
             var layerIds: Array<string> = [];
             if (layers) {
@@ -1093,7 +1165,7 @@
             this.clearLayers();
             this.featureTypes = {};
 
-            $.getJSON(url, (data: Project) => {
+            $.getJSON(project.url, (data: Project) => {
                 this.project = new Project().deserialize(data);
 
                 if (!this.project.timeLine) {
@@ -1187,6 +1259,7 @@
                 if (this.project.groups && this.project.groups.length > 0) {
                     this.project.groups.forEach((group: ProjectGroup) => {
                         if (group.id == null) group.id = Helpers.getGuid();
+
                         group.ndx = crossfilter([]);
                         if ((group.styles) && (group.styles.length > 0)) {
                             var styleId: string = group.styles[0].id;
@@ -1215,6 +1288,7 @@
                             group.vectors = new L.LayerGroup<L.ILayer>();
                             this.map.map.addLayer(group.vectors);
                         }
+                        if (!group.layers) group.layers = [];
                         group.layers.forEach((layer: ProjectLayer) => {
                             if (layer.id == null) layer.id = Helpers.getGuid();
                             layer.type = layer.type.toLowerCase();
@@ -1250,6 +1324,16 @@
                 if (this.project.connected) {
                     // check connection
                     this.$messageBusService.initConnection("", "", () => {
+                    });
+                }
+
+                // check if project is dynamic
+                if (project.dynamic)
+                {
+                  this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
+                      if (msg.action === "layer-update") {
+                        alert('new layer');
+                      }
                     });
                 }
 

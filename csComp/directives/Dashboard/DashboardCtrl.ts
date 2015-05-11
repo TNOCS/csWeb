@@ -35,6 +35,7 @@
             'layerService',
             'mapService'           ,
             'messageBusService',
+            'dashboardService',
             '$templateCache'
         ];
 
@@ -47,6 +48,7 @@
             private $layerService:      csComp.Services.LayerService,
             private $mapService:        csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService,
+            private $dashboardService:  csComp.Services.DashboardService,
             private $templateCache:     any
             ) {
 
@@ -133,6 +135,7 @@
                 el.empty();
                 el.append(widgetElement);
             }
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
         }
 
         public checkMap() {
@@ -186,15 +189,24 @@
             }
         }
 
+        public isReady(widget : csComp.Services.IWidget)
+        {
+          setTimeout(()=>
+          {
+            this.updateWidget(widget);
+          },100);
+
+        }
+
         public updateDashboard() {
             var d = this.$scope.dashboard;
             if (!d) return;
             if (d.widgets && d.widgets.length > 0) {
-            setTimeout(() => {
-                d.widgets.forEach((w: csComp.Services.IWidget) => {
-                    this.updateWidget(w);
-                });
-                }, 100);
+
+                // d.widgets.forEach((w: csComp.Services.IWidget) => {
+                //     this.updateWidget(w);
+                // });
+
             }
             this.checkMap();
             this.checkTimeline();

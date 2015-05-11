@@ -58,6 +58,9 @@
         sensors        : { [id: string]: any[] }
         timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         coordinates: IGeoJsonGeometry[];          // used for temporal data
+
+
+
     }
 
     export interface IProperty {
@@ -121,6 +124,12 @@
         [key: string]: ILocalisedData
     }
 
+    export enum LayerActivationTypes
+    {
+      manual,
+      automatic
+    }
+
     export interface IPropertyType {
         label?           : string;
         title?           : string;
@@ -144,6 +153,7 @@
         options?         : string[];
         languages?       : ILanguageData;
         legend?          : Legend;
+        activation?      : string;
     }
 
     export interface IPropertyTypeData {

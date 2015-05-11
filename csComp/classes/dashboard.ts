@@ -24,6 +24,10 @@ module csComp.Services {
         right?           : string;
         top?             : string;
         bottom?          : string;
+        borderWidth: string;
+        borderColor      : string;
+        borderRadius     : string;
+
         name             : string; id: string;
         properties       : {};
         dataSets         : DataSet[];
@@ -47,8 +51,11 @@ module csComp.Services {
         public elementId        : string;
         public dashboard        : csComp.Services.Dashboard;
         public enabled : boolean = true;
+        public borderWidth: string = "1px";
+        public borderColor      : string = "green";
+        public borderRadius     : string = "5px";
 
-        public background       : string;
+        public background       : string = "white";
         public left             : string;
         public right            : string;
         public top              : string;

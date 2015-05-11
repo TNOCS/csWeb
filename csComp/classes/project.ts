@@ -95,18 +95,15 @@
     export class SolutionProject {
         title: string;
         url  : string;
+        dynamic : boolean;
     }
 
     /**
     * Simple class to hold the user privileges.
     */
     export interface IPrivileges {
-        mca: {
-            expertMode: boolean;
-        }
-        heatmap: {
-            expertMode: boolean;
-        }
+        mca: { expertMode: boolean;}
+        heatmap: { expertMode: boolean;}
     }
 
     /** bouding box to specify a region. */
@@ -170,6 +167,7 @@
                 }
             }
             if (!res.propertyTypeData) res.propertyTypeData = {};
+            if (!res.mcas) res.mcas = [];
             if (res.id == null) res.id = res.title;
             return res;
         }

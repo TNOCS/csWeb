@@ -167,6 +167,35 @@ html, body, #container {
 }
 /* End LayersList */
 
+.background-image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+.widgethover{
+  opacity : 0.5;
+}
+
+.widget-entrance {
+  -webkit-animation:fadeIn 1s
+}
+
+.widgeteditbutton
+{
+  width:25px;
+  height:25px;
+  margin-top:2px;
+  margin-right:2px;
+  padding-top:3px;
+}
+
+.widgeteditmode{
+  background:gray;
+  border-radius:10px;
+
+}
+
 .dashboard-selection{
   border-bottom: transparent;
 border-bottom-style: solid;
@@ -679,10 +708,7 @@ height:50px;
     margin: 4px;
 }
 .widget-container {
-    border: 1px;
-    border-color: black;
-    border-style: solid;
-    border-radius: 3px;
+    border-style: solid;    
     background: white;
     padding: 3px;
     pointer-events: all;

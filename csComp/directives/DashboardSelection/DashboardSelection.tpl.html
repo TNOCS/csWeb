@@ -48,8 +48,8 @@
         <div id="dashboardwidgets_{{value.id}}" class="collapse in">
           <ul data-ng-repeat="widget in value.widgets" class="widgets-edit-list">
             <li>
-              <div ng-show="widget.enabled" style="float:right">
-                <button ng-click="vm.startWidgetEdit(widget)" class="button fa fa-pencil leftpanel-header-button" />
+              <div ng-show="widget.enabled" class="widgeteditbutton" style="float:right;height:25px;width:25px" ng-class="{widgeteditmode : vm.$dashboardService.activeWidget == widget}">
+                <button ng-click="vm.$dashboardService.editWidget(widget)"  class="button fa fa-pencil leftpanel-header-button" />
               </div>
               <div class="checkbox dashboard-edit-checkbox" ng-mouseover="vm.widgetHighlight(widget)" ng-mouseleave="vm.widgetStopHighlight(widget)" style="margin-left: 20px;margin-right:40px">
                 <input type="checkbox" ng-model="widget.enabled" id="widget-{{value.id}}-{{widget.id}}">
