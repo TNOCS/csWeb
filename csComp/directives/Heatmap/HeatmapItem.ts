@@ -67,7 +67,7 @@ module Heatmap {
         calculateHeatspots(feature: csComp.Services.Feature, cellWidth: number, cellHeight: number,
                 horizCells: number, vertCells: number, mapBounds: L.LatLngBounds, paddingRatio: number) {
             // right type?
-            if (!this.isSelected || this.featureType.name !== feature.fType.name) return null;
+            if (!this.isSelected || this.featureType.name.replace('_Default', '') !== feature.fType.name) return null;
             if (this.heatspots.length === 0) this.calculateHeatspot(cellWidth, cellHeight);
             // create heatspot solely based on feature type?
             if (!this.propertyLabel) {
