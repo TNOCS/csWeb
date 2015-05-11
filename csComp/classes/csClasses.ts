@@ -27,11 +27,11 @@
         type            : string;
         geometry        : IGeoJsonGeometry;
         properties      : Array<IStringToString>;
-        isSelected      : boolean;  
-        htmlStyle       : string;  
+        isSelected      : boolean;
+        htmlStyle       : string;
         featureTypeName : string;
-        fType           : IFeatureType; 
-        isInitialized   : boolean;              
+        fType           : IFeatureType;
+        isInitialized   : boolean;
     }
 
     export enum DrawingModeType {
@@ -124,16 +124,10 @@
         style?       : IFeatureTypeStyle;
         metaInfoData?: IMetaInfo[];
         /**
-         * Optional list of MetaInfo keys, separated by semi-colons. 
+         * Optional list of MetaInfo keys, separated by semi-colons.
          * The keys can be resolved in the project's metaInfoData dictionary, or in the local metaInfoData.
          */
         metaInfoKeys?: string;
-    }
-
-    export interface IGeoJsonFile {
-        poiTypes?: { [key: string]: IFeatureType };
-        type     : string;
-        features : Array<Feature>;
     }
 
     //export class Feature implements IFeature {
