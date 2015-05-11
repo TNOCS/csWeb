@@ -65,7 +65,7 @@
         featureTypes:        { [key: string]: IFeatureType; };
         propertyTypeData:    { [key: string]: IPropertyType; };
         project:             Project;
-        projectUrl:          string; // URL of the current project
+        projectUrl:          SolutionProject; // URL of the current project
         solution:            Solution;
         dimension:           any;
         noFilters:           boolean;
@@ -1048,9 +1048,9 @@
                 if (solution.projects.length > 0) {
                     var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title === initialProject; })[0];
                     if (p != null) {
-                        this.openProject(p.url, layers);
+                        this.openProject(p, layers);
                     } else {
-                        this.openProject(solution.projects[0].url, layers);
+                        this.openProject(solution.projects[0], layers);
                     }
                 }
 
@@ -1078,8 +1078,8 @@
          * @params url: URL of the project
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
          */
-        public openProject(url: string, layers?: string): void {
-            this.projectUrl = url;
+        public openProject(project : csComp.Services.SolutionProject, layers?: string ): void {
+            this.projectUrl = project;
             //console.log('layers (openProject): ' + JSON.stringify(layers));
             var layerIds: Array<string> = [];
             if (layers) {
@@ -1089,7 +1089,7 @@
             this.clearLayers();
             this.featureTypes = {};
 
-            $.getJSON(url, (data: Project) => {
+            $.getJSON(project.url, (data: Project) => {
                 this.project = new Project().deserialize(data);
 
                 if (!this.project.timeLine) {
@@ -1208,7 +1208,7 @@
                             });
 
                             this.map.map.addLayer(group.cluster);
-                        } else { 
+                        } else {
                             group.vectors = new L.LayerGroup<L.ILayer>();
                             this.map.map.addLayer(group.vectors);
                         }
@@ -1248,6 +1248,16 @@
                 if (this.project.connected) {
                     // check connection
                     this.$messageBusService.initConnection("", "", () => {
+                    });
+                }
+
+                // check if project is dynamic
+                if (project.dynamic)
+                {
+                  this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
+                      if (msg.action === "layer-update") {
+                        alert('new layer');
+                      }
                     });
                 }
 

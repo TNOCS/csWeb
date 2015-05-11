@@ -53,7 +53,7 @@ module OfflineSearch {
             $messageBus.subscribe('project', (title) => {
                 switch (title) {
                     case 'loaded':
-                        var offlineSearchResultUrl = $layerService.projectUrl.replace('project.json', 'offline_search_result.json');
+                        var offlineSearchResultUrl = $layerService.projectUrl.url.replace('project.json', 'offline_search_result.json');
                         this.loadSearchResults(offlineSearchResultUrl);
                         break;
                 }

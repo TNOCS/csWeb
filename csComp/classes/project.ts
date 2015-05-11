@@ -95,6 +95,7 @@
     export class SolutionProject {
         title: string;
         url  : string;
+        dynamic : boolean;
     }
 
     /**
@@ -166,6 +167,7 @@
                 }
             }
             if (!res.propertyTypeData) res.propertyTypeData = {};
+            if (!res.mcas) res.mcas = [];
             if (res.id == null) res.id = res.title;
             return res;
         }
