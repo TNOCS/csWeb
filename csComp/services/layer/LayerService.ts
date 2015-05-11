@@ -170,6 +170,54 @@
 
             //add heatmap layer
             this.layerSources["heatmap"] = new HeatmapSource(this);
+
+            // check for every feature (de)select if layers should automatically be activated
+            this.checkFeatureSubLayers();
+
+        }
+
+        /**
+        check for every feature (de)select if layers should automatically be activated
+        */
+        private checkFeatureSubLayers()
+        {
+          this.$messageBusService.subscribe('feature', (action : string, feature : IFeature)=>
+          {
+            if (!feature.fType) return;
+            var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
+            switch (action){
+              case 'onFeatureDeselect':
+                // check sub-layers
+                props.forEach((prop : IPropertyType)=>{
+                  if (prop.type === "layer" && prop.activation==="automatic" && feature.properties.hasOwnProperty(prop.label))
+                  {
+                    var l = feature.properties[prop.label];
+                    if (this.loadedLayers.containsKey(l))
+                    {
+                      this.removeLayer(this.loadedLayers[l]);
+                    }
+                  }
+                });
+                break;
+                case 'onFeatureSelect':
+                  // check sub-layers
+                  props.forEach((prop : IPropertyType)=>{
+                    if (prop.type === "layer" && prop.activation==="automatic" && feature.properties.hasOwnProperty(prop.label))
+                    {
+                      var l = feature.properties[prop.label];
+                      var pl = new ProjectLayer();
+                      pl.id = l;
+                      pl.group = feature.layer.group;
+                      pl.type = feature.layer.type;
+                      pl.title = l;
+                      pl.url = l;
+                      this.addLayer(pl);
+                    }
+                  });
+                  break;
+            }
+
+          });
         }
 
         public loadRequiredLayers(layer: ProjectLayer) {
@@ -345,6 +393,24 @@
             }
         }
 
+        public getPropertyTypes(fType : IFeatureType) : IPropertyType[]
+        {
+          var result : IPropertyType[] = [];
+          if (fType)
+          {
+            fType.propertyTypeKeys.split(';').forEach((key)=>
+            {
+              if (this.propertyTypeData.hasOwnProperty(key))
+              {
+                var prop = this.propertyTypeData[key];
+                result.push(prop);
+              }
+            });
+          }
+          return result;
+
+        }
+
         public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
@@ -356,14 +422,18 @@
                 this.lastSelectedFeature.isSelected = false;
                 this.calculateFeatureStyle(this.lastSelectedFeature);
                 this.activeMapRenderer.updateFeature(this.lastSelectedFeature);
+                this.$messageBusService.publish('feature', 'onFeatureDeselect',this.lastSelectedFeature);
             }
             this.lastSelectedFeature = feature;
 
 
+
+
             if (!feature.isSelected) {
                 this.$messageBusService.publish('sidebar', 'hide');
-                this.$messageBusService.publish('feature', 'onFeatureDeselect');
+                this.$messageBusService.publish('feature', 'onFeatureDeselect',feature);
             } else {
+
                 this.$messageBusService.publish('sidebar', 'show');
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
             }
@@ -997,7 +1067,7 @@
             var featureTypes = this.featureTypes;
             for (var poiTypeName in featureTypes) {
                 if (!featureTypes.hasOwnProperty(poiTypeName)) continue;
-                if (poiTypeName.lastIndexOf(layerName, 0) === 0) delete featureTypes[poiTypeName];
+                //if (poiTypeName.lastIndexOf(layerName, 0) === 0) delete featureTypes[poiTypeName];
             }
 
             // check if there are no more active layers in group and remove filters/styles

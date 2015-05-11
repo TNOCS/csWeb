@@ -1,4 +1,4 @@
-﻿module FeatureProps {   
+﻿module FeatureProps {
     import IFeature          = csComp.Services.IFeature;
     import IFeatureType      = csComp.Services.IFeatureType;
     import IPropertyType     = csComp.Services.IPropertyType;
@@ -12,7 +12,7 @@
         constructor(position: string) {
             this.position    = position;
             this.closeButton = true;
-            this.autoPan     = true;            
+            this.autoPan     = true;
         }
     }
 
@@ -34,7 +34,7 @@
         canFilter   : boolean;
         canStyle    : boolean;
         feature     : IFeature;
-        description?: string;         
+        description?: string;
         meta?: IPropertyType;
         isFilter    : boolean;
     }
@@ -76,7 +76,7 @@
 
         showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
-        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {            
+        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {
             var isSensor = typeof feature.sensors !== 'undefined' && feature.sensors.hasOwnProperty(property);
             if (isSensor)
                 this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, meta, feature.timestamps, feature.sensors[property]));
@@ -159,7 +159,7 @@
         }
 
         private setIcon(feature: csComp.Services.IFeature) {
-            this.icon = (this.type == null || this.type.style == null || !this.type.style.hasOwnProperty('iconUri') || this.type.style.iconUri.toLowerCase().indexOf('_media') >= 0) 
+            this.icon = (this.type == null || this.type.style == null || !this.type.style.hasOwnProperty('iconUri') || this.type.style.iconUri.toLowerCase().indexOf('_media') >= 0)
                 ? ''
                 : this.type.style.iconUri.indexOf('{') >= 0
                     ? csComp.Helpers.convertStringFormat(feature, this.type.style.iconUri)
@@ -201,7 +201,7 @@
         constructor(
             private $scope             : IFeaturePropsScope,
             private $location          : ng.ILocationService,
-            private $sce               : ng.ISCEService,              
+            private $sce               : ng.ISCEService,
             private $mapService        : csComp.Services.MapService,
             private $layerService      : csComp.Services.LayerService,
             private $messageBusService : csComp.Services.MessageBusService
@@ -209,11 +209,11 @@
             this.scope = $scope;
             $scope.vm = this;
             $scope.showMenu = false;
-            
+
             $scope.featureTabActivated = function (sectionTitle: string, section: CallOutSection) {
                 $messageBusService.publish('FeatureTab', 'activated', { sectionTitle: sectionTitle, section: section });
             };
-            
+
             $messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
             $messageBusService.subscribe("feature", this.featureMessageReceived);
 
@@ -222,7 +222,7 @@
                 $('#featureTabs>li').each(function () {
                     var itemWidth = $(this).outerWidth();
 
-                    itemsWidth += itemWidth;                               
+                    itemsWidth += itemWidth;
                 });
                 return itemsWidth;
             }
@@ -300,6 +300,15 @@
             }
         }
 
+        public openLayer(property : FeatureProps.CallOutProperty){
+          if (property.feature!=null && property.feature.properties.hasOwnProperty(property.meta.label))
+          {
+            var link = property.feature.properties[property.meta.label];
+            alert(link);
+          }
+
+        }
+
         public createScatter(property: FeatureProps.CallOutProperty) {
             var sc = new csComp.Services.GroupFilter();
             sc.property = property.property;
@@ -312,7 +321,7 @@
             //alert('scatter ' + property.property);
         }
 
-        /** 
+        /**
          * Callback function
          * @see {http://stackoverflow.com/questions/12756423/is-there-an-alias-for-this-in-typescript}
          * @see {http://stackoverflow.com/questions/20627138/typescript-this-scoping-issue-when-called-in-jquery-callback}
@@ -349,7 +358,7 @@
                     this.$scope.autocollapse(true);
                     break;
                 case "onFeatureUpdated":
-                    this.displayFeature(this.$layerService.lastSelectedFeature);                    
+                    this.displayFeature(this.$layerService.lastSelectedFeature);
                     this.$scope.poi = this.$layerService.lastSelectedFeature;
                 break;
                default:
@@ -361,13 +370,13 @@
 
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
-            var featureType = this.$layerService.featureTypes[feature.featureTypeName];
+            var featureType = feature.fType;
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
             if (typeof feature.sensors !== 'undefined' && typeof feature.timestamps === 'undefined')
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData);
         }
-        
+
         showSensorData(property: ICallOutProperty) {
             console.log(property);
         }
