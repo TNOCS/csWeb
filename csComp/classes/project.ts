@@ -175,8 +175,87 @@
         }
     }
 
+    /** Interface of a project layer
+     *  Note that this is a copy of the similarly named class, but the advantage is that I can use the
+     *  interface definition also on the server side.
+     *  TODO Check whether we need to keep the class definition.
+     */
+    export interface IProjectLayer {
+        /** Key of the propertyTypeData entry that provides a legend for this layer **/
+        defaultLegendProperty?: string;
+        /** Title as displayed in the menu */
+        title: string;
+        /** Number of features in the layer */
+        count?: number;
+        /** Description as displayed in the menu */
+        description?: string;
+        /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
+        type: string;
+        /** Data source */
+        url: string;
+        /** Contains extended heatmap information (e.g. list of references to required sources, or weights) */
+        heatmapSettings?: Heatmap.IHeatmapSettings;
+        heatmapItems?: Heatmap.IHeatmapItem[];
+        /** In case we keep the style information in a separate file */
+        styleurl?: string;
+        /** how should the layer be renderer, default (can also be null), webgl, heatmap, isolines, etc. */
+        layerRenderer?: string;
+        /** WMS sublayers that must be loaded */
+        wmsLayers?: string;
+        /** If enabled, load the layer */
+        enabled?: boolean;
+        /** Layer opacity */
+        opacity?: number;
+        /** When loading the data, the isLoading variable is true (e.g. used for the spinner control) */
+        isLoading?: boolean;
+        /** Indent the layer, so it seems to be a sublayer. */
+        isSublayer?: boolean;
+        mapLayer?: L.LayerGroup<L.ILayer>;
+        /** Group of layers */
+        group: ProjectGroup;
+        layerSource: ILayerSource;
+        /**
+         * Number of seconds between automatic layer refresh.
+         * @type {number}
+         */
+        refreshTimer?: number;
+        /**
+         * When enabling the refresh timer, store the returned timer token so we can stop the timer later.
+         * @type {number}
+         */
+        timerToken?: number;
+        /**
+        * A list of UNIX timestamp, or the UTC time in milliseconds since 1/1/1970, which define the time a sensor value
+        * was taken. So in case we have 10 timestamps, each feature's sensor (key) in the feature's sensors dictionary should
+        * also have a lnegth of 10.
+        * Note that this value is optional, and can be omitted if the sensor already contains a timestamp too. This is mainly intended
+        * when all 'sensor measurements' are taken on the same moment. For example, the CENSUS date.
+        * In Excel, you can use the formula =24*(A4-$B$1)*3600*1000 to convert a date to a UNIX time stamp.
+        */
+        timestamps?: number[];
+        /** Internal ID, e.g. for the Excel service */
+        id?: string;
+        /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */
+        reference?: string;
+        events?: Event[];
+        /** Language information that can be used to localize the title and description */
+        languages?: ILanguageData;
+        /** layer original source */
+        data?: any;
+        cesiumDatasource?: any;
+        items?: any;
+
+        /** use a timestamp with each url request to make them unique (only tile layer for now, timestamp created after each refresh )*/
+        disableCache?: boolean;
+        /** key attached for identifying to */
+        cacheKey?: string;
+
+        /** handle for receiving server events */
+        serverHandle?: MessageBusHandle;
+    }
+
     /** Layer information. a layer is described in a project file and is always part of a group */
-    export class ProjectLayer {
+    export class ProjectLayer implements IProjectLayer {
         /** Key of the propertyTypeData entry that provides a legend for this layer **/
         defaultLegendProperty: string;
         /** Title as displayed in the menu */
@@ -216,7 +295,7 @@
          */
         refreshTimer: number;
         /**
-         * When enabling the refresh timer, store the returned timer token so we can stop the timer later. 
+         * When enabling the refresh timer, store the returned timer token so we can stop the timer later.
          * @type {number}
          */
         timerToken : number;
