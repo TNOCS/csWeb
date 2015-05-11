@@ -112,6 +112,7 @@
         "./services/layer/LayerService.ts",
         "./services/layer/sources/GeoJsonSource.ts",
         "./services/layer/sources/HeatmapSource.ts",
+        "./services/layer/sources/HierarchySource.ts",
         "./services/layer/sources/TileLayerSource.ts",
         "./services/layer/sources/WmsSource.ts",
         "./services/map/MapCtrl.ts",
