@@ -174,8 +174,10 @@ module csComp.Services {
                     //layer.mapLayer.addLayer(v);
                     break;
                 case "heatmap":
+                    if (layer.quickRefresh && layer.quickRefresh == true) break; //When only updating style of current heatmap, do not add a new layer. 
                     var time = new Date().getTime();
                     // create leaflet layers
+                    layer.isLoading = true;
                     if (layer.group.clustering) {
                         var markers = L.geoJson(layer.data, {
                             pointToLayer: (feature, latlng) => this.createFeature(feature),
@@ -194,24 +196,28 @@ module csComp.Services {
                         layer.mapLayer = new L.LayerGroup<L.ILayer>();
                         this.service.map.map.addLayer(layer.mapLayer);
 
-                        var v = L.geoJson(layer.data, {
-                            onEachFeature: (feature: IFeature, lay) => {
-                                //We do not need to init the feature here: already done in style.
-                                //this.initFeature(feature, layer);
-                                layer.group.markers[feature.id] = lay;
-                                lay.on({
-                                    mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                    mouseout: (s) => this.hideFeatureTooltip(s),
-                                    mousemove: (d) => this.updateFeatureTooltip(d),
-                                    click: () => this.service.selectFeature(feature)
-                                });
-                            },
-                            style: (f: IFeature, m) => {
-                                layer.group.markers[f.id] = m;
-                                return f.effectiveStyle;
-                            },
-                            pointToLayer: (feature, latlng) => this.createFeature(feature)
-                        });
+                        if (layer.data && layer.data.features) {
+                            var v = L.geoJson(layer.data, {
+                                onEachFeature: (feature: IFeature, lay) => {
+                                    //We do not need to init the feature here: already done in style.
+                                    //this.initFeature(feature, layer);
+                                    layer.group.markers[feature.id] = lay;
+                                    lay.on({
+                                        mouseover: (a) => this.showFeatureTooltip(a, layer.group),
+                                        mouseout: (s) => this.hideFeatureTooltip(s),
+                                        mousemove: (d) => this.updateFeatureTooltip(d),
+                                        click: () => this.service.selectFeature(feature)
+                                    });
+                                },
+                                style: (f: IFeature, m) => {
+                                    layer.group.markers[f.id] = m;
+                                    return f.effectiveStyle;
+                                },
+                                pointToLayer: (feature, latlng) => this.createFeature(feature)
+                            });
+                        } else {
+                            var v = L.geoJson([]);
+                        }
                         this.service.project.features.forEach((f: IFeature) => {
                             if (f.layerId !== layer.id) return;
                             var ft = this.service.getFeatureType(f);
@@ -219,6 +225,7 @@ module csComp.Services {
                         });
 
                         layer.mapLayer.addLayer(v);
+                        layer.isLoading = false;
                         var time2 = new Date().getTime();
                         console.log('Applied style in ' + (time2 - time).toFixed(1) + ' ms');
                     }
@@ -281,7 +288,9 @@ module csComp.Services {
                 l.group.cluster.addLayer(m);
             }
             else {
-                l.mapLayer.addLayer(m);
+                if (l.mapLayer) {
+                    l.mapLayer.addLayer(m);
+                }
             }
 
             return m;
@@ -359,7 +368,7 @@ module csComp.Services {
                     // Must the iconUri be formatted?
                     if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
 
-                    html += '<img src=' + iconUri + ' style=\'width:' + (feature.effectiveStyle.iconWidth - 2) + 'px;height:' + (feature.effectiveStyle.iconHeight - 2) + 'px';
+                    html += '<img src=' + iconUri + ' style=\'width:' + (feature.effectiveStyle.iconWidth - 6) + 'px;height:' + (feature.effectiveStyle.iconHeight - 6) + 'px';
                     if (feature.effectiveStyle.rotate && feature.effectiveStyle.rotate > 0) html += ';transform:rotate(' + feature.effectiveStyle.rotate + 'deg)';
                     html += '\' />';
                 }

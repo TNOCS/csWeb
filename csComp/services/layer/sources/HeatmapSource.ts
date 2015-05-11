@@ -27,13 +27,43 @@
                     layer.layerRenderer = "heatmap";
                     layer.isLoading = true;
 
-                    // Calculate heatmap
-                    this.generateHeatmap(layer);
-                    layer.enabled = true;
-                    this.enableProjectLayer(layer);
+                    if (layer.quickRefresh && layer.quickRefresh == true) {
+                        // In case the map has not moved, the heatmap cells do not need to be calculated again, only the style of the markers need to be updated.
+                        this.heatmapModel.deserialize(layer);
+                        this.heatmapModel.id = layer.id;
+                        this.heatmapModel.updateWeights();
+
+                        if (layer.heatmapItems) {
+                            var hiWeights: csComp.Services.IProperty = {};
+                            this.heatmapModel.heatmapItems.forEach((hi) => {
+                                hiWeights[hi.toString()] = hi.weight;
+                            });
+                            
+                            var weightedIntensityScale: number = ((this.heatmapModel.heatmapSettings.intensityScale / 3) * (this.heatmapModel.heatmapSettings.intensityScale / 3)); // Convert intensityscale from [1,...,5] to ~[0.1, 0.5, 1, 2, 3]
+                            this.service.project.features.forEach((f: csComp.Services.IFeature) => {
+                                if (f.properties.hasOwnProperty('intensities') && f.properties.hasOwnProperty('contributors')) {
+                                    var intensities = JSON.parse(f.properties['intensities']);
+                                    var totalIntensity = 0;
+                                    for (var key in intensities) {
+                                        if (intensities.hasOwnProperty(key)) {
+                                            totalIntensity += intensities[key] * hiWeights[key] * weightedIntensityScale;
+                                        }
+                                    }
+                                    f.properties['totalIntensity'] = totalIntensity;
+                                    this.service.calculateFeatureStyle(f);
+                                    this.service.activeMapRenderer.updateFeature(f);
+                                }
+                            });
+                        }
+
+                    } else {
+                        // In all other occasions, (re)calculate the complete heatmap 
+                        this.generateHeatmap(layer);
+                        layer.enabled = true;
+                        this.enableProjectLayer(layer);
+                    }
 
                     layer.isLoading = false;
-
                     cb(null, null);
                 },
                 // Callback
@@ -113,11 +143,12 @@
             if ((<any>(layer.data)) && (<any>(layer.data)).features) {
                 (<any>(layer.data)).features.forEach((f) => {
                     this.service.initFeature(f, layer);
+                    this.service.activeMapRenderer.addFeature(f);
                 });
 
                 // Set default style for the heatmap:
                 if ((<any>(layer.data)).features[0]) {
-                    var calloutProp = new FeatureProps.CallOutProperty("intensity", "0", "intensity", true, true,(<any>(layer.data)).features[0], false, false);
+                    var calloutProp = new FeatureProps.CallOutProperty("totalIntensity", "0", "totalIntensity", true, true,(<any>(layer.data)).features[0], false, false);
                     var propinfo = new PropertyInfo();
                     // Tweak the group style info to keep constant min/max color values on panning and zooming.
                     propinfo.count = (<any>(layer.data)).features.length;

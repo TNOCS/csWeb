@@ -2,6 +2,8 @@ module Heatmap {
     /**
     * A simple interface to describe a heat map.
     */
+    declare var turf: any;
+
     export interface IHeatmapModel {
         title: string;
         id: string;
@@ -13,6 +15,15 @@ module Heatmap {
         heatmapItems : IHeatmapItem[] = [];
         heatmapSettings: IHeatmapSettings;
         id = "";
+        intensityGrid: csComp.Services.IProperty[][];
+        contributorGrid: csComp.Services.IProperty[][];
+        horizCells: number = 0;
+        vertCells: number = 0;
+        cellWidth: number = 0;
+        cellHeight: number = 0;
+        dLat: number = 0;
+        dLng: number = 0;
+        SW: L.LatLng;
 
         constructor(public title: string) {
             this.title = title;
@@ -28,9 +39,9 @@ module Heatmap {
             var mapBounds = mapService.map.getBounds();
             var NW = mapBounds.getNorthWest();
             var NE = mapBounds.getNorthEast();
-            var SW = mapBounds.getSouthWest();
+            this.SW = mapBounds.getSouthWest();
             var width = NW.distanceTo(NE);  //Width of the map as it is currently visible on the screen, including padding
-            var height = NW.distanceTo(SW); //Height ...
+            var height = NW.distanceTo(this.SW); //Height ...
 
             var heatspots: IHeatspot[] = [];
             // Iterate over all applicable features on the map and find the one with the largest interest distance.
@@ -65,38 +76,39 @@ module Heatmap {
                     maxCellCount = 4000;
                     break;
             }
-            var horizCells = Math.floor(Math.sqrt(maxCellCount * mapRatio));
-            var vertCells = Math.floor(horizCells / mapRatio);
-            var cellWidth = width / horizCells;
-            var cellHeight = height / vertCells;
-            var dLat = (NE.lat - SW.lat) / vertCells;
-            var dLng = (NE.lng - SW.lng) / horizCells;
+            this.horizCells = Math.floor(Math.sqrt(maxCellCount * mapRatio));
+            this.vertCells = Math.floor(this.horizCells / mapRatio);
+            this.cellWidth = width / this.horizCells;
+            this.cellHeight = height / this.vertCells;
+            this.dLat = (NE.lat - this.SW.lat) / this.vertCells;
+            this.dLng = (NE.lng - this.SW.lng) / this.horizCells;
             var count: number = 0;
 
-            var intensityGrid = [];
-            var contributorGrid = [];
-            for (var i = 0; i < horizCells; i++) {
-                intensityGrid[i] = [];
-                contributorGrid[i] = [];
-                for (var j = 0; j < vertCells; j++) {
-                    intensityGrid[i][j] = 0;
-                    contributorGrid[i][j] = [];
+            //var turfgrid = turf.squareGrid([SW.lng, SW.lat, NE.lng, NE.lat], cellWidth / 1000, 'kilometers');
+            this.intensityGrid = [];
+            this.contributorGrid = [];
+            for (var i = 0; i < this.horizCells; i++) {
+                this.intensityGrid[i] = [];
+                this.contributorGrid[i] = [];
+                for (var j = 0; j < this.vertCells; j++) {
+                    this.intensityGrid[i][j] = {};
+                    this.contributorGrid[i][j] = {};
                 }
             }
 
             // Iterate over all applicable features on the map and create a intensity "stamp" for each feature
             dataset.features.forEach((f) => {
                 this.heatmapItems.forEach((hi) => {
-                    var heatspot = hi.calculateHeatspots(f, cellWidth, cellHeight, horizCells, vertCells, mapBounds, paddingRatio);
+                    var heatspot = hi.calculateHeatspots(f, this.cellWidth, this.cellHeight, this.horizCells, this.vertCells, mapBounds, paddingRatio);
                     if (heatspot) {
                         //heatspots = heatspots.concat(heatspot);
                         //console.log('Created ' + heatspot.length + ' heatspots');
                         heatspot.forEach((hs) => {
                             //heatmap.addDataPoint(hs.i, hs.j, hs.intensity);
                             if (hs.intensity != 0 &&
-                                hs.i >=0 && hs.i < horizCells && hs.j >= 0 && hs.j < vertCells) {
-                                intensityGrid[hs.i][hs.j] = intensityGrid[hs.i][hs.j] + hs.intensity;
-                                contributorGrid[hs.i][hs.j].push(hs.contributor);
+                                hs.i >= 0 && hs.i < this.horizCells && hs.j >= 0 && hs.j < this.vertCells) {
+                                (this.intensityGrid[hs.i][hs.j].hasOwnProperty(hi.toString())) ? this.intensityGrid[hs.i][hs.j][hi.toString()] += hs.intensity : this.intensityGrid[hs.i][hs.j][hi.toString()] = hs.intensity;
+                                this.contributorGrid[hs.i][hs.j][hs.contributor] = hs.intensity;
                                 count = count + 1;
                             }
                         });
@@ -105,18 +117,35 @@ module Heatmap {
             });
             var time2 = new Date().getTime();
             console.log('Created ' + count + ' heatspots in ' + (time2 - time).toFixed(1) + ' ms');
-
-            heatmap.clearLayers();
-            var weightedIntensityScale: number = ((this.heatmapSettings.intensityScale / 3)*(this.heatmapSettings.intensityScale / 3)); // Convert intensityscale from [1,...,5] to ~[0.1, 0.5, 1, 2, 3]
             
+            this.drawIntensityGrid(heatmap);
+
+            var time3 = new Date().getTime();
+            console.log('Calculated ' + (i*j) + ' cells in ' + (time3 - time).toFixed(1) + ' ms');
+        }
+
+        public drawIntensityGrid(heatmap: L.GeoJSON) {
+            var weightedIntensityScale: number = ((this.heatmapSettings.intensityScale / 3) * (this.heatmapSettings.intensityScale / 3)); // Convert intensityscale from [1,...,5] to ~[0.1, 0.5, 1, 2, 3]
+            heatmap.clearLayers();
+            var hiWeights: csComp.Services.IProperty = {}; 
+            this.heatmapItems.forEach((hi) => {
+                hiWeights[hi.toString()] = hi.weight;
+            });
+
             //Draw the intensityGrid
-            for (var i = 0; i < horizCells; i++) {
-                for (var j = 0; j < vertCells; j++) {
-                    if (intensityGrid[i][j] != 0) {
-                        var polyCoord = [[SW.lng + dLng * i, SW.lat + dLat * j],
-                            [SW.lng + dLng * (i + 1), SW.lat + dLat * j],
-                            [SW.lng + dLng * (i + 1), SW.lat + dLat * (j + 1)],
-                            [SW.lng + dLng * i, SW.lat + dLat * (j + 1)]];
+            for (var i = 0; i < this.horizCells; i++) {
+                for (var j = 0; j < this.vertCells; j++) {
+                    var totalIntensity: number = 0;
+                    for (var hiTitle in this.intensityGrid[i][j]) {
+                        if (this.intensityGrid[i][j].hasOwnProperty(hiTitle)) {
+                            totalIntensity += (hiWeights[hiTitle] * this.intensityGrid[i][j][hiTitle]);
+                        }
+                    }
+                    if (totalIntensity != 0) {
+                        var polyCoord = [[this.SW.lng + this.dLng * i, this.SW.lat + this.dLat * j],
+                            [this.SW.lng + this.dLng * (i + 1), this.SW.lat + this.dLat * j],
+                            [this.SW.lng + this.dLng * (i + 1), this.SW.lat + this.dLat * (j + 1)],
+                            [this.SW.lng + this.dLng * i, this.SW.lat + this.dLat * (j + 1)]];
                         var feature = {
                             "type": "Feature",
                             "geometry": {
@@ -127,16 +156,17 @@ module Heatmap {
                                 "Name": "Heatmap cell (" + i.toString() + ", " + j.toString() + ")",
                                 "gridX": i,
                                 "gridY": j,
-                                "intensity": (intensityGrid[i][j] * weightedIntensityScale).toFixed(3),
-                                "contributors": JSON.stringify(contributorGrid[i][j])
+                                "totalIntensity": (totalIntensity * weightedIntensityScale).toFixed(3),
+                                "contributors": JSON.stringify(this.contributorGrid[i][j], function (key, intensity) {
+                                    return intensity.toFixed ? Number(intensity.toFixed(3)) : intensity;
+                                }),
+                                "intensities": JSON.stringify(this.intensityGrid[i][j])
                             }
                         };
                         heatmap.addData(feature);
                     }
                 }
             }
-            var time3 = new Date().getTime();
-            console.log('Calculated ' + (i*j) + ' cells in ' + (time3 - time).toFixed(1) + ' ms');
         }
 
         /**
@@ -154,7 +184,7 @@ module Heatmap {
                     } else {
                         hi.weight = 0;
                     }
-                    hi.reset();
+                    //hi.reset();
                 }
             });
         }

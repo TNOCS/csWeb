@@ -15,6 +15,7 @@
             LEGEND                  : 'Legenda',
             SEARCH                  : 'Zoeken',
             MAP_FEATURES            : 'Kaartfeatures',
+            NEARBY_FEATURES         : 'Dichtbijgelegen features',
             SPEEDS_TAOUFIK          : 'snelheden legenda Taoufik',
             SPEEDS_GOOGLEMAPS       : 'snelheden legenda Google Maps',
             VERWARMINGSSYSTEEM      : 'Verwarmingssysteem',

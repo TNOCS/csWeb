@@ -15,6 +15,7 @@
             LEGEND                  : 'Legend',
             SEARCH                  : 'Search',
             MAP_FEATURES            : 'Map features',
+            NEARBY_FEATURES         : 'Nearby features',
             SPEEDS_TAOUFIK          : 'speed colors Taoufik',
             SPEEDS_GOOGLEMAPS       : 'speed colors Google Maps',
             VERWARMINGSSYSTEEM      : 'Heating system',
