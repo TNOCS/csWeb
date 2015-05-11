@@ -51,6 +51,8 @@
     <TypeScriptCompile Include="directives\Timeline\Timeline.ts" />
     <TypeScriptCompile Include="directives\Timeline\TimelineCtrl.ts" />
     <TypeScriptCompile Include="directives\Voting\Voting.ts" />
+    <TypeScriptCompile Include="directives\WidgetEdit\WidgetEdit.ts" />
+    <TypeScriptCompile Include="directives\WidgetEdit\WidgetEditCtrl.ts" />
     <TypeScriptCompile Include="helpers\Dictionary.ts" />
     <TypeScriptCompile Include="helpers\Helpers.ts" />
     <TypeScriptCompile Include="services\bus\MessageBus.ts" />
@@ -135,12 +137,12 @@
     <Content Include="directives\Indicators\Indicators.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
     <Content Include="directives\LanguageSwitch\readme.md" />
-    <Content Include="directives\MapElement\MapElement.tpl.html" />
     <Content Include="directives\MCA\Mca.tpl.html" />
     <Content Include="directives\MCA\McaEditorView.tpl.html" />
     <Content Include="directives\OfflineSearch\OfflineSearch.tpl.html" />
     <Content Include="directives\ProjectSettings\ProjectSettings.tpl.html" />
     <Content Include="directives\Timeline\Timeline.tpl.html" />
+    <Content Include="directives\WidgetEdit\WidgetEdit.tpl.html" />
     <Content Include="includes\js\dashboard.min.js" />
     <Content Include="includes\js\jquery.cookies.min.js" />
     <Content Include="includes\js\jqueryinjectCSS.min.js" />

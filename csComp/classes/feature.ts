@@ -21,7 +21,7 @@
         layer           : ProjectLayer;
         type?           : string;
         geometry        : IGeoJsonGeometry;
-        properties?     : IStringToAny;
+        properties?     : IProperty;
         isSelected?     : boolean;
         htmlStyle?      : string;
         featureTypeName?: string;
@@ -46,7 +46,7 @@
         layer          : ProjectLayer;
         type           : string;
         geometry       : IGeoJsonGeometry;
-        properties     : IStringToAny;
+        properties     : IProperty;
         isSelected     : boolean;
         htmlStyle      : string;
         featureTypeName: string;
@@ -60,8 +60,8 @@
         coordinates: IGeoJsonGeometry[];          // used for temporal data
     }
 
-    export interface IStringToAny {
-        [key: string]: any;
+    export interface IProperty {
+        [key: string]: any; //string | number | boolean;
     }
 
     export interface IGeoJsonGeometry {
