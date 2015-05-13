@@ -273,6 +273,7 @@
         public addLayer(layer: ProjectLayer) {
             if (this.loadedLayers.containsKey(layer.id) && (!layer.quickRefresh || layer.quickRefresh == false)) return;
             this.$messageBusService.publish('layer', 'loading', layer);
+            this.$messageBusService.publish('updatelegend', 'title', layer.defaultLegendProperty);
             var disableLayers = [];
             async.series([
                 (callback) => {
@@ -352,6 +353,7 @@
 
                 this.noStyles = false;   // TODO: when does this need to be reset?
                 // upon deactivation of the layer? (but other layers can also have active styles)
+                this.mb.publish('updatelegend', 'title', property);
             }
         }
 

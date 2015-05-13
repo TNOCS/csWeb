@@ -35,6 +35,8 @@
     <TypeScriptCompile Include="directives\Indicators\IndicatorsCtrl.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitch.ts" />
     <TypeScriptCompile Include="directives\LanguageSwitch\LanguageSwitchCtrl.ts" />
+    <TypeScriptCompile Include="directives\Legend\Legend.ts" />
+    <TypeScriptCompile Include="directives\Legend\LegendCtrl.ts" />
     <TypeScriptCompile Include="directives\MCA\Mca.ts" />
     <TypeScriptCompile Include="directives\MCA\McaEditorCtrl.ts" />
     <TypeScriptCompile Include="classes\dashboard.ts" />
@@ -137,6 +139,7 @@
     <Content Include="directives\Indicators\Indicators.tpl.html" />
     <Content Include="directives\LanguageSwitch\LanguageSwitch.tpl.html" />
     <Content Include="directives\LanguageSwitch\readme.md" />
+    <Content Include="directives\Legend\Legend.tpl.html" />
     <Content Include="directives\MCA\Mca.tpl.html" />
     <Content Include="directives\MCA\McaEditorView.tpl.html" />
     <Content Include="directives\OfflineSearch\OfflineSearch.tpl.html" />
@@ -218,7 +221,6 @@
     <TypeScriptModuleKind>commonjs</TypeScriptModuleKind>
     <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
     <TypeScriptOutDir>js</TypeScriptOutDir>
-    <TypeScriptOutFile>js\csComp.js</TypeScriptOutFile>
     <TypeScriptTarget>ES5</TypeScriptTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
