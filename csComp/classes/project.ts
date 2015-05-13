@@ -250,6 +250,12 @@
 
         /** handle for receiving server events */
         serverHandle?: MessageBusHandle;
+
+        parentFeature : IFeature;
+
+        /** key name of default feature type */
+        defaultFeatureType? : string;
+
     }
 
     /** Layer information. a layer is described in a project file and is always part of a group */
@@ -327,8 +333,17 @@
 
         /** handle for receiving server events */
         serverHandle: MessageBusHandle;
-        /** Whether layer can be quickly updated instead of completely rerendered */
-        quickRefresh: boolean;
+
+	/** Whether layer can be quickly updated instead of completely rerendered */
+        quickRefresh:boolean;
+
+        lastSelectedFeature : IFeature;
+
+        /** link to a parent feature, e.g. city layer references to a parent provence */
+        parentFeature : IFeature;
+
+        /** key name of default feature type */
+        defaultFeatureType : string;
     }
 
     /**

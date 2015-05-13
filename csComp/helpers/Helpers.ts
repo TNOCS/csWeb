@@ -62,6 +62,7 @@
         if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
             text = text.replace(/&amp;/g, '&');
         if (csComp.StringExt.isNullOrEmpty(text)) return text;
+        if (!pt.type) return text;
         switch (pt.type) {
             case "bbcode":
                 if (!csComp.StringExt.isNullOrEmpty(pt.stringFormat))

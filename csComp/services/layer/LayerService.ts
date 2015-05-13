@@ -178,6 +178,25 @@
             this.checkFeatureSubLayers();
         }
 
+        private removeSubLayers(feature : IFeature)
+        {
+          if (!feature  || !feature.fType) return;
+          var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
+          props.forEach((prop : IPropertyType)=>{
+            if (prop.type === "layer" && feature.properties.hasOwnProperty(prop.label))
+            {
+              var l = feature.properties[prop.label];
+
+              if (this.loadedLayers.containsKey(l))
+              {
+                var layer = this.loadedLayers[l];
+                this.removeLayer(this.loadedLayers[l],true);
+              }
+            }
+          });
+
+        }
+
         /**
         check for every feature (de)select if layers should automatically be activated
         */
@@ -190,30 +209,43 @@
             switch (action){
               case 'onFeatureDeselect':
                 // check sub-layers
-                props.forEach((prop : IPropertyType)=>{
-                  if (prop.type === "layer" && prop.activation==="automatic" && feature.properties.hasOwnProperty(prop.label))
-                  {
-                    var l = feature.properties[prop.label];
-                    if (this.loadedLayers.containsKey(l))
-                    {
-                      this.removeLayer(this.loadedLayers[l],true);
-                    }
-                  }
-                });
+
                 break;
                 case 'onFeatureSelect':
                   // check sub-layers
                   props.forEach((prop : IPropertyType)=>{
                     if (prop.type === "layer" && prop.activation==="automatic" && feature.properties.hasOwnProperty(prop.label))
                     {
+                      this.removeSubLayers(feature.layer.lastSelectedFeature);
+
+                      feature.layer.lastSelectedFeature = feature;
+
                       var l = feature.properties[prop.label];
+
                       var pl = new ProjectLayer();
-                      pl.id = l;
-                      pl.group = feature.layer.group;
-                      pl.type = feature.layer.type;
-                      pl.title = feature.properties["Name"] + " " + prop.title;
-                      pl.url = l;
-                      feature.layer.group.layers.push(pl);
+                      if(typeof l === 'string') {
+                        pl.url = l;
+                      }
+                      else
+                      {
+                        pl = l;
+                      }
+
+                      if (!pl.id) pl.id = l;
+                      if (!pl.group) {
+                        pl.group = feature.layer.group;
+                      }
+                      else
+                      {
+                        if(typeof pl.group === 'string') {
+                          pl.group = this.findGroupById(<any>pl.group);
+                      }
+                      }
+                      if (!pl.type) pl.type = feature.layer.type;
+                      if (!pl.title) pl.title = feature.properties["Name"] + " " + prop.title;
+                      if (!pl.defaultFeatureType) pl.defaultFeatureType = "link";
+                      //pl.parentFeature = feature;
+                      pl.group.layers.push(pl);
                       this.addLayer(pl);
                     }
                   });
@@ -240,6 +272,7 @@
         public addLayer(layer: ProjectLayer) {
             if (this.loadedLayers.containsKey(layer.id) && (!layer.quickRefresh || layer.quickRefresh == false)) return;
             this.$messageBusService.publish('layer', 'loading', layer);
+            this.$messageBusService.publish('updatelegend', 'title', layer.defaultLegendProperty);
             var disableLayers = [];
             async.series([
                 (callback) => {
@@ -319,6 +352,7 @@
 
                 this.noStyles = false;   // TODO: when does this need to be reset?
                 // upon deactivation of the layer? (but other layers can also have active styles)
+                this.mb.publish('updatelegend', 'title', property);
             }
         }
 
@@ -421,6 +455,7 @@
             this.calculateFeatureStyle(feature);
             this.activeMapRenderer.updateFeature(feature);
 
+
             // deselect last feature and also update
             if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature) {
                 this.lastSelectedFeature.isSelected = false;
@@ -429,8 +464,6 @@
                 this.$messageBusService.publish('feature', 'onFeatureDeselect',this.lastSelectedFeature);
             }
             this.lastSelectedFeature = feature;
-
-
 
 
             if (!feature.isSelected) {
@@ -733,6 +766,15 @@
         }
 
         /**
+         * Find a group by id
+         */
+        findGroupById(id: string): ProjectGroup {
+          for (var i = 0; i < this.project.groups.length; i++) {
+            if (this.project.groups[i].id === id) return this.project.groups[i]; }
+            return null;
+        }
+
+        /**
          * Find the feature by name.
          */
         findFeatureByName(name: string): IFeature {
@@ -955,7 +997,7 @@
          * In case both fail, create a default feature type at the layer level.
          */
         getFeatureType(feature: IFeature): IFeatureType {
-            var projectFeatureTypeName = feature.properties['FeatureTypeId'] || 'Default';
+            var projectFeatureTypeName = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
             var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
             if (!(this.featureTypes.hasOwnProperty(featureTypeName))) {
                 if (this.featureTypes.hasOwnProperty(projectFeatureTypeName))
@@ -1202,6 +1244,7 @@
                     this.project.dashboards = [];
                     var d = new Services.Dashboard();
                     d.id = "map";
+                    d.name = "Home";
                     d.showMap = true;
                     d.showLeftmenu = true;
                     d.widgets = [];
@@ -1583,8 +1626,6 @@
             });
 
             var dcChart = <any>dc.scatterPlot('#' + divid);
-
-
 
             var prop1 = group.ndx.dimension(d => {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
