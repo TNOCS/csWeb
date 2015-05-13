@@ -44,13 +44,13 @@ module csComp.Helpers
     }
 
     export function getColorFromLegend(v: number, l: csComp.Services.Legend) {
-        var defaultcolor: string = '#000000';
-        var s: String = l.id;
+        var defaultcolor = '#000000';
+        var s: string = l.id;
         var n = l.legendEntries.length;
         if (n == 0) return (defaultcolor);
         var e1 = l.legendEntries[0];    // first
         var e2 = l.legendEntries[n - 1];  // last
-        if (l.legendKind == 'interpolated') {
+        if (l.legendKind === 'interpolated') {
             // interpolate between two colors
             if (v < e1.value) return e1.color;
             if (v > e2.value) return e2.color;
@@ -67,7 +67,7 @@ module csComp.Helpers
             }
             return (defaultcolor);
         }
-        if (l.legendKind == 'discrete') {
+        if (l.legendKind === 'discrete') {
             if (v < e1.interval.min) return l.legendEntries[0].color;
             if (v > e2.interval.max) return l.legendEntries[n - 1].color;
             var i: number = 0;
@@ -87,7 +87,7 @@ module csComp.Helpers
         if (gs.activeLegend) {
             return getColorFromLegend(v, gs.activeLegend)
         }
-        
+
         if (v > gs.info.sdMax) return gs.colors[gs.colors.length - 1];
         if (v < gs.info.sdMin) return gs.colors[0];
         //var bezInterpolator = chroma.interpolate.bezier(gs.colors);
