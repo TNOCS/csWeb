@@ -75,12 +75,12 @@
             $timeout(() => this.checkLayers());
         }
 
-        public updateIndicator(i : indicator)
-        {
-            this.$layerService.findSensorSet(i.sensor,(ss: csComp.Services.SensorSet) => {
+        public updateIndicator(i: indicator) {
+            this.$layerService.findSensorSet(i.sensor, (ss: csComp.Services.SensorSet) => {
                 i.sensorSet = ss;
+                //console.log('updateIndicator: indicator.title = ' + i.title);
                 //if (!this.$scope.$$phase) this.$scope.$apply();\
-          });
+            });
         }
 
         private checkLayers() {
@@ -91,16 +91,14 @@
                     var ss = i.layer.split('/');
                     var l = this.$layerService.findLayer(ss[0]);
                     if (l != null) {
-                        if (ss.length>1)
-                        {
-                          i.isActive =  l.enabled && l.group.styles.some((gs:csComp.Services.GroupStyle)=>{ return gs.property == ss[1]; });
+                        if (ss.length > 1) {
+                            i.isActive =  l.enabled && l.group.styles.some((gs: csComp.Services.GroupStyle) => {
+                                return gs.property == ss[1];
+                            } );
                         }
-                        else
-                        {
+                        else {
                           i.isActive = l.enabled;
                         }
-
-
                     }
                 }
             });
@@ -109,23 +107,21 @@
         public selectIndicator(i: indicator) {
             if (!this.$layerService.visual.mapVisible) return;
             if (i.layer != null) {
-              var ss = i.layer.split('/');
+                var ss = i.layer.split('/');
                 var l = this.$layerService.findLayer(ss[0]);
                 if (l != null) {
-                    if (l.enabled)
-                    {
-                      this.$layerService.checkLayerLegend(l,ss[1]);
+                    if (l.enabled) {
+                        this.$layerService.checkLayerLegend(l,ss[1]);
                     }
-                    else{
-                      if (ss.length>1) l.defaultLegendProperty = ss[1];
-                      this.$layerService.addLayer(l);
+                    else {
+                        if (ss.length > 1)
+                            l.defaultLegendProperty = ss[1];
+                        this.$layerService.addLayer(l);
                     }
                 }
-
             }
             this.checkLayers();
             //console.log(i.title);
         }
-
     }
 }
