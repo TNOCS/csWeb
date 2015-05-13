@@ -176,7 +176,6 @@
 
             // check for every feature (de)select if layers should automatically be activated
             this.checkFeatureSubLayers();
-
         }
 
         /**
@@ -186,7 +185,7 @@
         {
           this.$messageBusService.subscribe('feature', (action : string, feature : IFeature)=>
           {
-            if (!feature.fType) return;
+            if (!feature || !feature.fType) return;
             var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
             switch (action){
               case 'onFeatureDeselect':
@@ -573,6 +572,8 @@
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
+                if (ft.style.fillOpacity !== null) s.fillOpacity = ft.style.fillOpacity;
+                if (ft.style.opacity !== null) s.opacity = ft.style.opacity;
                 if (ft.style.fillColor !== null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
                 if (ft.style.stroke !== null) s.stroke = ft.style.stroke;
                 if (ft.style.strokeColor !== null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');

@@ -92,7 +92,7 @@ module csComp.Services {
                 fillColor:   style.fillColor,
                 weight:      style.strokeWidth,
                 opacity:     style.opacity,
-                fillOpacity: style.opacity
+                fillOpacity: style.fillOpacity
             };
             s["color"] = (typeof style.stroke !== 'undefined' && style.stroke === false)
                 ? style.fillColor
@@ -174,7 +174,7 @@ module csComp.Services {
                     //layer.mapLayer.addLayer(v);
                     break;
                 case "heatmap":
-                    if (layer.quickRefresh && layer.quickRefresh == true) break; //When only updating style of current heatmap, do not add a new layer. 
+                    if (layer.quickRefresh && layer.quickRefresh == true) break; //When only updating style of current heatmap, do not add a new layer.
                     var time = new Date().getTime();
                     // create leaflet layers
                     layer.isLoading = true;
