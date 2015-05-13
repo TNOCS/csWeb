@@ -2,7 +2,6 @@
     // Interface for message bus callbacks, i.e. (data: any) => any,
     // so you can supply a single data argument of any type, and it may return any type.
 
-
     export interface IMessageBusCallback {
         (title: string, data?: any): any;
     }
@@ -131,7 +130,7 @@
         }
 
         public connect(callback: Function) {
-            if (this.isConnected || this.isConnecting) return;
+            if (this.isConnected || this.isConnecting || typeof io === "undefined") return;
             this.socket = io();
             this.isConnecting = true;
             this.socket.on('connect', () => {
