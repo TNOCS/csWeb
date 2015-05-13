@@ -216,6 +216,21 @@
                 case 'onFeatureSelect':
                   // check sub-layers
                   props.forEach((prop : IPropertyType)=>{
+                    if (prop.type === "matrix" && prop.activation==="automatic" && feature.properties.hasOwnProperty(prop.label))
+                    {
+                      var matrix = feature.properties[prop.label];
+                      this.project.features.forEach(f=>{
+                        if (f.layer == feature.layer && f.properties.hasOwnProperty(prop.targetid) && matrix.hasOwnProperty(f.properties[prop.targetid]))
+                        {
+                          var newValue = matrix[f.properties[prop.targetid]];
+                          for (var val in newValue)
+                          {
+                            f.properties[val] = newValue[val];
+                          }
+                        }
+                      });
+                      this.updateGroupFeatures(feature.layer.group);
+                    }
                     if (prop.type === "layer" && prop.activation==="automatic" && feature.properties.hasOwnProperty(prop.label))
                     {
                       this.removeSubLayers(feature.layer.lastSelectedFeature);

@@ -110,6 +110,8 @@
             if (type != null) {
                 var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
                 propertyTypes.forEach((mi: IPropertyType) => {
+                    if (mi.visibleInCallOut)
+                    {
                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                     callOutSection.propertyTypes[mi.label] = mi;
                     var text = feature.properties[mi.label]; if (mi.type === "hierarchy") {
@@ -131,6 +133,7 @@
                         hierarchyCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
                     }
                     searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
+                  }
                 });
             }
             if (infoCallOutSection.properties.length > 0) this.sections['AAA Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
@@ -430,7 +433,7 @@
 
         private updateHierarchyLinks(feature: IFeature): void {
             if (!feature) return;
-            // Add properties defined inside of layers to the project-wide properties. 
+            // Add properties defined inside of layers to the project-wide properties.
             this.$layerService.project.groups.forEach((group) => {
                 group.layers.forEach((l) => {
                     if (l.type == "hierarchy" && l.enabled) {

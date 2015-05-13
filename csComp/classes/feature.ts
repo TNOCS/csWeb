@@ -154,6 +154,7 @@
         languages?       : ILanguageData;
         legend?          : Legend;
         activation?      : string;
+        targetid?        : string;
     }
 
     export interface IPropertyTypeData {
