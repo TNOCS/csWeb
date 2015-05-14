@@ -28,6 +28,39 @@
         { title: "milliseconds", value: 1 }
     ];
 
+    export interface ILayerSource {
+        title: string;
+        service: ILayerService;
+        addLayer(layer: ProjectLayer, callback: Function);
+        removeLayer(layer: ProjectLayer): void;
+        refreshLayer(layer: ProjectLayer): void;
+        requiresLayer: boolean;
+        getRequiredLayers?(layer: ProjectLayer): ProjectLayer[];
+        layerMenuOptions(layer: ProjectLayer): [[string, Function]];
+    }
+
+    export interface IMapRenderer {
+        title: string;
+        init(service: LayerService);
+        enable();
+        disable();
+        addGroup(group: ProjectGroup);
+        addLayer(layer: ProjectLayer);
+        removeGroup(group: ProjectGroup);
+        createFeature(feature: IFeature);
+        removeFeature(feature: IFeature);
+        updateFeature(feature: IFeature);
+        addFeature(feature: IFeature);
+    }
+
+    export class VisualState {
+        public leftPanelVisible: boolean = true;
+        public rightPanelVisible: boolean = false;
+        public dashboardVisible: boolean = true;
+        public mapVisible: boolean = true;
+        public timelineVisible: boolean = true;
+    }
+
     export class DateRange {
         start        : number;
         end          : number;

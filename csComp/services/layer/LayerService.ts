@@ -15,29 +15,8 @@
         layerMenuOptions(layer: ProjectLayer): [[string, Function]];
     }
 
-    export interface IMapRenderer {
-        title: string;
-        init(service: LayerService);
-        enable();
-        disable();
-        addGroup(group: ProjectGroup);
-        addLayer(layer: ProjectLayer);
         removeLayer(layer : ProjectLayer);
-        removeGroup(group: ProjectGroup);
-        createFeature(feature: IFeature);
-        removeFeature(feature: IFeature);
         updateMapFilter(group: ProjectGroup);
-        updateFeature(feature: IFeature);
-        addFeature(feature: IFeature);
-    }
-
-    export class VisualState {
-        public leftPanelVisible: boolean = true;
-        public rightPanelVisible: boolean = false;
-        public dashboardVisible: boolean = true;
-        public mapVisible: boolean = true;
-        public timelineVisible: boolean = true;
-    }
 
     export interface ILayerService {
         title: string;

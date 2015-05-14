@@ -38,8 +38,6 @@ module csComp.Services {
         width            : string;
         height           : string;
         allowFullscreen  : boolean;
-        messageBusService: csComp.Services.MessageBusService;
-        layerService     : csComp.Services.LayerService;
     }
 
     export class BaseWidget implements IWidget {
@@ -69,8 +67,6 @@ module csComp.Services {
         public width            : string;
         public height           : string ;
         public allowFullscreen  : boolean;
-        public messageBusService: csComp.Services.MessageBusService;
-        public layerService     : csComp.Services.LayerService;
         public hover : boolean;
 
         //public static deserialize(input: IWidget): IWidget {
