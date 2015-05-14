@@ -1536,7 +1536,7 @@
                 dcDim.filterFunction((d: string) => {
                     if (d != null) return (d.toLowerCase().indexOf(value.toLowerCase()) > -1);
                     return false;
-                });
+                }); 
             }
 
             group.filterResult = dcDim.top(Infinity);

@@ -14,7 +14,7 @@
     } catch (err) {
         // named module does not exist, so create one
         myModule = angular.module(moduleName, []);
-    }
+    } 
 
     /**
       * Directive to resize an element by settings its width or height,

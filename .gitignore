@@ -10,3 +10,4 @@ csCompTests/csComp/
 *.config
 csComp/js/
 csComp/node_modules/
+csServerComp/node_modules/

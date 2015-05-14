@@ -1,0 +1,31 @@
+{
+    "version": "1.5.0-alpha",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./Components/Layers/flightradar.ts",
+        "./Components/bus/MessageBus.ts",
+        "./Components/configuration/ConfigurationService.ts",
+        "./Components/configuration/IConfiguration.ts",
+        "./Components/dynamic/ClientConnection.ts",
+        "./Components/dynamic/Datasource.ts",
+        "./Components/dynamic/DynamicProject.ts",
+        "./Scripts/typings/cs/cs-offline-search.d.ts",
+        "./Scripts/typings/express/express.d.ts",
+        "./Scripts/typings/jquery/jquery.d.ts",
+        "./Scripts/typings/node/node.d.ts",
+        "./Scripts/typings/socketio/socket.io.d.ts"
+    ]
+}
