@@ -398,6 +398,8 @@
             //console.log("FPC: featureMessageReceived");
             switch (title) {
                 case "onFeatureSelect":
+                    this.displayFeature(this.$layerService.lastSelectedFeature);
+                    this.$scope.poi = this.$layerService.lastSelectedFeature;
                     break;
                 case "onRelationsUpdated":
                     this.setShowSimpleTimeline();
@@ -409,8 +411,8 @@
                 case "onFeatureUpdated":
                     this.displayFeature(this.$layerService.lastSelectedFeature);
                     this.$scope.poi = this.$layerService.lastSelectedFeature;
-                break;
-               default:
+                    break;
+                default:
             }
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                 this.$scope.$apply();
