@@ -76,6 +76,8 @@
         "./directives/LanguageSwitch/LanguageSwitchCtrl.ts",
         "./directives/LayersList/LayersDirective.ts",
         "./directives/LayersList/LayersDirectiveCtrl.ts",
+        "./directives/Legend/Legend.ts",
+        "./directives/Legend/LegendCtrl.ts",
         "./directives/LegendList/LegendList.ts",
         "./directives/LegendList/LegendListCtrl.ts",
         "./directives/MCA/Criteria.ts",
