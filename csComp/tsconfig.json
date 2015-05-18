@@ -98,6 +98,8 @@
         "./directives/Timeline/Timeline.ts",
         "./directives/Timeline/TimelineCtrl.ts",
         "./directives/Voting/Voting.ts",
+        "./directives/Widgets/Filters/TextFilter.ts",
+        "./directives/Widgets/Filters/TextFilterCtrl.ts",
         "./directives/Widgets/Indicators/Indicators.ts",
         "./directives/Widgets/Indicators/IndicatorsCtrl.ts",
         "./helpers/Dictionary.ts",

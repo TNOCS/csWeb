@@ -14,10 +14,9 @@
         getRequiredLayers?(layer: ProjectLayer): ProjectLayer[];
         layerMenuOptions(layer: ProjectLayer): [[string, Function]];
     }
-
-        removeLayer(layer : ProjectLayer);
+removeLayer(layer : ProjectLayer);
         updateMapFilter(group: ProjectGroup);
-
+        
     export interface ILayerService {
         title: string;
         accentColor: string;
@@ -65,20 +64,24 @@
 
         static $inject = [
             '$location',
+            '$compile',
             '$translate',
             'messageBusService',
             'mapService',
             '$rootScope'
 
+
+
         ];
 
         constructor(
             private $location: ng.ILocationService,
+            public $compile : any,
             private $translate: ng.translate.ITranslateService,
             public $messageBusService: Services.MessageBusService,
             public $mapService: Services.MapService,
-            public $rootScope: any,
-            public dashboardService: Services.DashboardService) {
+            public $rootScope: any
+            ) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb = $messageBusService;
@@ -927,6 +930,7 @@
          * enable a filter for a specific property
          */
         setFilter(filter: GroupFilter, group: csComp.Services.ProjectGroup) {
+            filter.group = group;
             group.filters.push(filter);
             this.updateFilters();
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
@@ -945,6 +949,7 @@
                     if (filter == null) {
                         var gf = new GroupFilter();
                         gf.property = prop;
+                        gf.group = layer.group;
                         gf.meta = property.meta;
                         gf.filterType = 'bar';
                         if (gf.meta != null) {
@@ -1499,7 +1504,8 @@
             return r;
         }
 
-        private updateFilters() {
+        public updateFilters() {
+          return;
             var fmain = $('#filterChart');
             fmain.empty();
             this.noFilters = true;
@@ -1508,11 +1514,12 @@
                 if (group.filters != null && group.filters.length > 0) {
                     $('<div style=\'float:left;margin-left: -10px; margin-top: 5px\' data-toggle=\'collapse\' data-target=\'#filters_' + group.id + '\'><i class=\'fa fa-chevron-down togglebutton toggle-arrow-down\'></i><i class=\'fa fa-chevron-up togglebutton toggle-arrow-up\'></i></div><div class=\'group-title\' >' + group.title + '</div><div id=\'filtergroupcount_' + group.id + '\'  class=\'filter-group-count\' /><div class=\'collapse in\' id=\'filters_' + group.id + '\'></div>').appendTo('#filterChart');
                     group.filters.forEach((filter: GroupFilter) => {
+                        if (!filter.id) filter.id = Helpers.getGuid();
                         if (filter.dimension != null) filter.dimension.dispose();
                         this.noFilters = false;
                         switch (filter.filterType) {
                             case 'text':
-                                this.addTextFilter(group, filter);
+                              //  this.addTextFilter(group, filter);
                                 break;
                             case 'bar':
                                 this.addBarFilter(group, filter);
@@ -1528,67 +1535,14 @@
             dc.renderAll();
         }
 
-        private updateTextFilter(group: ProjectGroup, dcDim: any, value: string) {
 
-            if (value == null || value === '') {
-                dcDim.filterAll();
-            } else {
-                dcDim.filterFunction((d: string) => {
-                    if (d != null) return (d.toLowerCase().indexOf(value.toLowerCase()) > -1);
-                    return false;
-                }); 
-            }
 
-            group.filterResult = dcDim.top(Infinity);
-            this.updateMapFilter(group);
-            dc.renderAll();
-        }
-
-        private updateFilterGroupCount(group: ProjectGroup) {
+        public updateFilterGroupCount(group: ProjectGroup) {
             if (group.filterResult != null)
                 $('#filtergroupcount_' + group.id).text(group.filterResult.length + ' objecten geselecteerd');
         }
 
-        /***
-         * Add text filter to list of filters
-         */
-        private addTextFilter(group: ProjectGroup, filter: GroupFilter) {
-            filter.id = Helpers.getGuid();
-            //var divid = 'filter_' + filter.id;
-            var dcDim = group.ndx.dimension(d => {
-                if (d.properties.hasOwnProperty(filter.property)) {
-                    return d.properties[filter.property];
-                } else return null;
-            });
-            filter.dimension = dcDim;
-            dcDim.filterFunction((d: string) => {
-                if (d != null) return (d.toLowerCase().indexOf(filter.stringValue.toLowerCase()) > -1);
-                return false;
-            });
 
-            this.updateTextFilter(group, dcDim, filter.stringValue);
-            var fid = 'filtertext' + filter.id;
-            $('<h4>' + filter.title + '</h4><input type=\'text\' value=\'' + filter.stringValue + '\' class=\'filter-text\' id=\'' + fid + '\'/><a class=\'btn\' value=' + filter.value + ' id=\'remove' + filter.id + '\'><i class=\'fa fa-times\'></i></a>').appendTo('#filters_' + group.id);
-            //$("<h4>" + filter.title + "</h4><input type='text' class='filter-text' id='" + fid + "'/></div><a class='btn btn-filter-delete' value=" + filter.value + " id='remove" + filter.id + "'><i class='fa fa-remove'></i></a>").appendTo("#filterChart");
-            $('#' + fid).keyup(() => {
-                filter.stringValue = $('#' + fid).val();
-                this.updateTextFilter(group, dcDim, filter.stringValue);
-                this.updateFilterGroupCount(group);
-                //alert('text change');
-            });
-            $('#remove' + filter.id).on('click', () => {
-                var pos = group.filters.indexOf(filter);
-
-                filter.dimension.filterAll();
-                filter.dimension.dispose();
-                filter.dimension = null;
-                if (pos !== -1) group.filters = group.filters.slice(pos - 1, pos);
-                dc.filterAll();
-
-                this.updateFilters();
-                this.resetMapFilter(group);
-            });
-        }
 
         private updateChartRange(chart: dc.IBarchart, filter: GroupFilter) {
             var filterFrom = $('#fsfrom_' + filter.id);
@@ -1609,7 +1563,7 @@
 
 
         private addScatterFilter(group: ProjectGroup, filter: GroupFilter) {
-            filter.id = Helpers.getGuid();
+
 
             var info = this.calculatePropertyInfo(group, filter.property);
             var info2 = this.calculatePropertyInfo(group, filter.property2);
@@ -1701,7 +1655,6 @@
          * Add bar chart filter for filter number values
          */
         private addBarFilter(group: ProjectGroup, filter: GroupFilter) {
-            filter.id = Helpers.getGuid();
             var info = this.calculatePropertyInfo(group, filter.property);
 
             var divid = 'filter_' + filter.id;
@@ -1833,11 +1786,11 @@
         /***
          * Update map markers in cluster after changing filter
          */
-        private updateMapFilter(group: ProjectGroup) {
+        public updateMapFilter(group: ProjectGroup) {
             this.activeMapRenderer.updateMapFilter(group);
         }
 
-        private resetMapFilter(group: ProjectGroup) {
+        public resetMapFilter(group: ProjectGroup) {
             $.each(group.markers, (key, marker) => {
                 if (group.clustering) {
                     var incluster = group.cluster.hasLayer(marker);

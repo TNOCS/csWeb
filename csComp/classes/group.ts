@@ -53,6 +53,7 @@
         property   : string;
         property2  : string;
         criteria   : string;
+        group      : ProjectGroup;
         dimension  : any;
         value      : any;
         stringValue: string;
