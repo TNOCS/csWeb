@@ -1,4 +1,4 @@
-import OfflineSearchManager  = require('./index');
+import OfflineSearchManager = require('./OfflineSearchManager');
 import IOfflineSearchOptions = require('./IOfflineSearchOptions');
 
 var offlineSearchOptions: IOfflineSearchOptions = {

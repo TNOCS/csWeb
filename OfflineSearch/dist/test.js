@@ -1,4 +1,4 @@
-var OfflineSearchManager = require('./index');
+var OfflineSearchManager = require('./OfflineSearchManager');
 var offlineSearchOptions = {
     propertyNames: ['Name', 'LOC_NAAM', 'GeoAddress', 'LOC_STRAAT', 'adres', 'gemeente', 'postcode', 'plaats', 'Organisatie'],
     stopWords: ['de', 'het', 'een', 'en', 'van', 'aan']
