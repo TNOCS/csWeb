@@ -43,7 +43,7 @@
                 position: "bottomleft"
             }).addTo(map);
 
-            // GPS enabled geolocation control set to follow the user's location 
+            // GPS enabled geolocation control set to follow the user's location
             L.control.locate({
                 position:                "bottomleft",
                 drawCircle:              true,
@@ -78,7 +78,7 @@
             //L.control.groupedLayers(this.$mapService.baseLayers, $layerService.overlays, {
             //    collapsed: true
             //}).addTo(map);
-            
+
         }
 
         //private popUp(f,l) : void {
