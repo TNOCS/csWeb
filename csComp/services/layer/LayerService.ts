@@ -1138,6 +1138,7 @@ removeLayer(layer : ProjectLayer);
             this.rebuildFilters(g);
             layer.enabled = false;
             if (removeFromGroup) layer.group.layers = layer.group.layers.filter((pl:ProjectLayer)=>pl != layer);
+            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             this.$messageBusService.publish('layer', 'deactivate', layer);
         }
 
@@ -1356,6 +1357,26 @@ removeLayer(layer : ProjectLayer);
 
                       }
                       if (msg.action === "layer-remove"){
+                        msg.data.forEach((l : ProjectLayer) =>{
+                          var g : ProjectGroup;
+                          // find group
+                          if (l.groupId) {g = this.findGroupById(l.groupId);} else { l.groupId="main"; }
+                          if (g!=null)
+                          {
+                            g.layers.forEach((layer : ProjectLayer)=>{
+                              if (layer.id == l.id)
+                              {
+                                this.removeLayer(layer,true);
+                                //console.log('remove layer'+layer.id);
+                              }
+                            });
+
+                            if (g.layers.length == 0)
+                            {
+                              this.removeGroup(g);
+                            }
+                          }
+                        });
                         // find group
                         // find layer
                         // remove layer
@@ -1368,6 +1389,19 @@ removeLayer(layer : ProjectLayer);
                 if (this.project.dashboards && this.project.dashboards.length > 0)
                     this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
             });
+        }
+
+        public removeGroup(group : ProjectGroup)
+        {
+          if (group.layers)
+          {
+            group.layers.forEach((l : ProjectLayer)=>{
+              if (l.enabled) this.removeLayer(l,true);
+            })
+          }
+          group.ndx = null;
+          this.project.groups = this.project.groups.filter((g:ProjectGroup)=>g!=group);
+          if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
         }
 
         /** initializes project group (create crossfilter index, clustering, initializes layers) */

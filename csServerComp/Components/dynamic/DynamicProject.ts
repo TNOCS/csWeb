@@ -88,7 +88,11 @@ module DynamicProject {
       if (gg.length>0)
       {
         g = gg[0];
-        this.service.connection.sendUpdate(this.project.id,"project","layer-remove",[null]);
+        var layer : any = {};
+        layer.id = file;
+        layer.groupId = g.title;
+        g.layers = g.layers.filter(l => layer.id != l.id);
+        this.service.connection.sendUpdate(this.project.id,"project","layer-remove",[layer]);
       }
 
     }
@@ -122,7 +126,7 @@ module DynamicProject {
       }
 
       var layer : any = {};
-
+      layer.id = file;
       layer.title = pp.name.split('_').join(' ');
       layer.type = "geojson";
       layer.url = "data/projects/" + this.id + "/" + g.title + "/" + pp.base;
