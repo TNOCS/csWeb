@@ -39,6 +39,8 @@
                 bounds.yMin = bounds.yMin < b[0][1] ? bounds.yMin : b[0][1];
                 bounds.yMax = bounds.yMax > b[1][1] ? bounds.yMax : b[1][1];
             }
+            bounds.southWest = [bounds.yMin,bounds.xMin];
+            bounds.northEast = [bounds.yMax,bounds.xMax];
 
             // Returns an object that contains the bounds of this GeoJSON
             // data. The keys of this object describe a box formed by the
