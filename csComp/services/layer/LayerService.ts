@@ -949,6 +949,7 @@ removeLayer(layer : ProjectLayer);
                     if (filter == null) {
                         var gf = new GroupFilter();
                         gf.property = prop;
+                        gf.id = Helpers.getGuid();
                         gf.group = layer.group;
                         gf.meta = property.meta;
                         gf.filterType = 'bar';
@@ -1206,8 +1207,8 @@ removeLayer(layer : ProjectLayer);
          * @params url: URL of the project
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
          */
-        public openProject(project : csComp.Services.SolutionProject, layers?: string ): void {
-            this.projectUrl = project;
+        public openProject(solutionProject : csComp.Services.SolutionProject, layers?: string ): void {
+            this.projectUrl = solutionProject;
             //console.log('layers (openProject): ' + JSON.stringify(layers));
             var layerIds: Array<string> = [];
             if (layers) {
@@ -1217,7 +1218,7 @@ removeLayer(layer : ProjectLayer);
             this.clearLayers();
             this.featureTypes = {};
 
-            $.getJSON(project.url, (data: Project) => {
+            $.getJSON(solutionProject.url, (data: Project) => {
                 this.project = new Project().deserialize(data);
 
                 if (!this.project.timeLine) {
@@ -1311,67 +1312,14 @@ removeLayer(layer : ProjectLayer);
 
                 if (this.project.groups && this.project.groups.length > 0) {
                     this.project.groups.forEach((group: ProjectGroup) => {
-                        if (group.id == null) group.id = Helpers.getGuid();
 
-                        group.ndx = crossfilter([]);
-                        if ((group.styles) && (group.styles.length > 0)) {
-                            var styleId: string = group.styles[0].id;
-                            //var legend: Legend;
-                            //var url: string = "dummylegend.json";
-                            //$.getJSON(url,(data: Legend) => {
-                            //    legend = new Legend().deserialize(data);
-                            //}
-                        };
-                        if (group.styles == null) group.styles = [];
-                        if (group.filters == null) group.filters = [];
-                        group.markers = {};
-                        if (group.languages != null && this.currentLocale in group.languages) {
-                            var locale = group.languages[this.currentLocale];
-                            if (locale.title) group.title = locale.title;
-                            if (locale.description) group.description = locale.description;
-                        }
-                        if (group.clustering) {
-                            group.cluster = new L.MarkerClusterGroup({
-                                maxClusterRadius: group.maxClusterRadius || 80,
-                                disableClusteringAtZoom: group.clusterLevel || 0
-                            });
-
-                            this.map.map.addLayer(group.cluster);
-                        } else {
-                            group.vectors = new L.LayerGroup<L.ILayer>();
-                            this.map.map.addLayer(group.vectors);
-                        }
-                        if (!group.layers) group.layers = [];
-                        group.layers.forEach((layer: ProjectLayer) => {
-                            if (layer.id == null) layer.id = Helpers.getGuid();
-                            layer.type = layer.type.toLowerCase();
-                            if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
-                            if (layer.title == null) layer.title = layer.id;
-                            if (layer.languages != null && this.currentLocale in layer.languages) {
-                                var locale = layer.languages[this.currentLocale];
-                                if (locale.title) layer.title = locale.title;
-                                if (locale.description) layer.description = locale.description;
-                            }
-
-                            layer.group = group;
-                            if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
-                                layer.enabled = true;
-                                this.activeMapRenderer.addLayer(layer);
-                            }
-                        });
-
-                        group.styles.forEach((style: GroupStyle) => {
-                            if (style.id != null) style.id = Helpers.getGuid();
-                        });
-
-                        group.filters.forEach((filter: GroupFilter) => {
-                            if (filter.id != null) filter.id = Helpers.getGuid();
-                        });
+                        this.initGroup(group,layerIds);
 
                         if (data.startposition)
                             this.$mapService.zoomToLocation(new L.LatLng(data.startposition.latitude, data.startposition.longitude));
 
                         this.updateFilters();
+
                     });
                 }
                 if (this.project.connected) {
@@ -1381,12 +1329,38 @@ removeLayer(layer : ProjectLayer);
                 }
 
                 // check if project is dynamic
-                if (project.dynamic)
+                if (solutionProject.dynamic)
                 {
                   this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
                       if (msg.action === "layer-update") {
-                        alert('new layer');
+                        msg.data.forEach((l : ProjectLayer) =>{
+                          var g : ProjectGroup;
+                          // find group
+                          if (l.groupId) {g = this.findGroupById(l.groupId);} else { l.groupId="main"; }
+                          if (!g)
+                          {
+                            g = new ProjectGroup();
+                            g.id = l.groupId;
+                            g.title = l.groupId;
+                            this.project.groups.push(g);
+                            this.initGroup(g);
+                          }
+                          g.layers.push(l);
+                          this.initLayer(g,l);
+                          if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+
+                        } );
+
+                        // init group
+                        // add layer
+
                       }
+                      if (msg.action === "layer-remove"){
+                        // find group
+                        // find layer
+                        // remove layer
+
+                            }
                     });
                 }
 
@@ -1394,6 +1368,75 @@ removeLayer(layer : ProjectLayer);
                 if (this.project.dashboards && this.project.dashboards.length > 0)
                     this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
             });
+        }
+
+        /** initializes project group (create crossfilter index, clustering, initializes layers) */
+        public initGroup(group: ProjectGroup,layerIds?: string[])
+        {
+          if (group.id == null) group.id = Helpers.getGuid();
+
+          group.ndx = crossfilter([]);
+          if ((group.styles) && (group.styles.length > 0)) {
+              var styleId: string = group.styles[0].id;
+              //var legend: Legend;
+              //var url: string = "dummylegend.json";
+              //$.getJSON(url,(data: Legend) => {
+              //    legend = new Legend().deserialize(data);
+              //}
+          };
+          if (group.styles == null) group.styles = [];
+          if (group.filters == null) group.filters = [];
+          group.markers = {};
+          if (group.languages != null && this.currentLocale in group.languages) {
+              var locale = group.languages[this.currentLocale];
+              if (locale.title) group.title = locale.title;
+              if (locale.description) group.description = locale.description;
+          }
+          if (group.clustering) {
+              group.cluster = new L.MarkerClusterGroup({
+                  maxClusterRadius: group.maxClusterRadius || 80,
+                  disableClusteringAtZoom: group.clusterLevel || 0
+              });
+
+              this.map.map.addLayer(group.cluster);
+          } else {
+              group.vectors = new L.LayerGroup<L.ILayer>();
+              this.map.map.addLayer(group.vectors);
+          }
+          if (!group.layers) group.layers = [];
+          group.layers.forEach((layer: ProjectLayer) => {
+              this.initLayer(group,layer,layerIds);
+          });
+
+          group.styles.forEach((style: GroupStyle) => {
+              if (style.id != null) style.id = Helpers.getGuid();
+          });
+
+          group.filters.forEach((filter: GroupFilter) => {
+              if (filter.id != null) filter.id = Helpers.getGuid();
+          });
+
+
+        }
+
+        /** initializes a layer (check for id, language, references group, add to active map renderer) */
+        public initLayer(group : ProjectGroup, layer : ProjectLayer, layerIds? : string[])
+        {
+          if (layer.id == null) layer.id = Helpers.getGuid();
+          layer.type = layer.type.toLowerCase();
+          if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
+          if (layer.title == null) layer.title = layer.id;
+          if (layer.languages != null && this.currentLocale in layer.languages) {
+              var locale = layer.languages[this.currentLocale];
+              if (locale.title) layer.title = locale.title;
+              if (locale.description) layer.description = locale.description;
+          }
+
+          layer.group = group;
+          if (layer.enabled || (layerIds && layerIds.indexOf(layer.reference.toLowerCase()) >= 0)) {
+              layer.enabled = true;
+              this.activeMapRenderer.addLayer(layer);
+          }
         }
 
         checkDataSourceSubscriptions(ds: DataSource) {
@@ -1518,9 +1561,7 @@ removeLayer(layer : ProjectLayer);
                         if (filter.dimension != null) filter.dimension.dispose();
                         this.noFilters = false;
                         switch (filter.filterType) {
-                            case 'text':
-                              //  this.addTextFilter(group, filter);
-                                break;
+
                             case 'bar':
                                 this.addBarFilter(group, filter);
                                 break;

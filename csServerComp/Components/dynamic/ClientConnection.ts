@@ -115,7 +115,7 @@ module ClientConnection {
             if (sub!=null)
             {
               //console.log('sending update:' + sub.id);
-              this.users[uId].Client.emit(sub.id,new ClientMessage("command",object));
+              this.users[uId].Client.emit(sub.id,new ClientMessage(command,object));
                 }
             }
         }

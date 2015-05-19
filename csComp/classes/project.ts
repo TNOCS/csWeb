@@ -325,6 +325,8 @@
         /** Indent the layer, so it seems to be a sublayer. */
         isSublayer: boolean;
         mapLayer: L.LayerGroup<L.ILayer>;
+        /** id of the group */
+        groupId : string;        
         /** Group of layers */
         group: ProjectGroup;
         layerSource : ILayerSource;

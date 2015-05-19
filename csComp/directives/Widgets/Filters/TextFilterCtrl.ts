@@ -29,8 +29,8 @@ module Filters {
             private $messageBus: csComp.Services.MessageBusService
             ) {
               $scope.vm = this;
-              
-              var par = <any>$scope.$parent;
+
+              var par = <any>$scope.$parent.$parent;
 
               if (par.hasOwnProperty('filter'))
               {

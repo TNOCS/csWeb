@@ -52,8 +52,10 @@ module DynamicProject {
             {
                 try{
                   this.project = JSON.parse(data);
+                  if (!this.project.id) this.project.id = this.project.title;
+
                   if (!this.project.groups) this.project.groups = [];
-                  console.log(this.project.title);
+                  console.log("ProjectID: " + this.project.id);
                 }
                 catch(e)
                 {
@@ -67,8 +69,29 @@ module DynamicProject {
     {
       var watcher = chokidar.watch(this.folder, {ignoreInitial: false,ignored: /[\/\\]\./, persistent: true});
       watcher.on('add', (path)=> { this.addLayer(path); });
+      watcher.on('unlink', (path)=> { this.removeLayer(path); });
     }
 
+    public removeLayer(file : string)
+    {
+      var p = <any>path;
+      var pp = p.parse(file);
+      if (pp.base === "project.json") return;
+
+      // determine group
+      var groupTitle = pp.dir.toLowerCase().replace(this.folder.toLowerCase(),"").replace("\\","");
+      if (groupTitle === "") return;
+
+      // check if group exists
+      var gg = this.project.groups.filter((element:any)=>(element!=null && element.title && element.title.toLowerCase() == groupTitle));
+      var g : any = {};
+      if (gg.length>0)
+      {
+        g = gg[0];
+        this.service.connection.sendUpdate(this.project.id,"project","layer-remove",[null]);
+      }
+
+    }
 
     public addLayer(file : string)
     {
@@ -90,6 +113,7 @@ module DynamicProject {
       else
       {
       //  var g : any; //new csComp.Services.ProjectGroup();
+        g.id = groupTitle;
         g.title = groupTitle;
         g.layers = [];
         g.styles = [];
@@ -102,6 +126,7 @@ module DynamicProject {
       layer.title = pp.name.split('_').join(' ');
       layer.type = "geojson";
       layer.url = "data/projects/" + this.id + "/" + g.title + "/" + pp.base;
+      layer.groupId = g.title;
       g.layers.push(layer);
       console.log("project id:" + this.project.id);
       this.service.connection.sendUpdate(this.project.id,"project","layer-update",[layer]);

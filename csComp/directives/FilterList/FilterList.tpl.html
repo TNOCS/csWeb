@@ -11,7 +11,8 @@
             <div class="group-title">{{group.title}}</div>
             <div id="filtergroup_{{group.id}}" class="collapse in">
               <div data-ng-repeat="filter in group.filters">
-                <txt2></txt2> 
+                  <txt2 ng-if="filter.filterType == 'text'"></txt2>
+                  <bar-filter ng-if="filter.filterType == 'bar'"></bar-filter> 
             </div>
         </div>
     </div>
