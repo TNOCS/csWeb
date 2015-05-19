@@ -4,6 +4,7 @@ module Filters {
     export interface IBarFilterScope extends ng.IScope {
         vm: BarFilterCtrl;
         filter : csComp.Services.GroupFilter;
+        options : Function;
     }
 
     export class BarFilterCtrl {
@@ -17,7 +18,8 @@ module Filters {
         public static $inject = [
             '$scope',
             'layerService',
-            'messageBusService'
+            'messageBusService',
+            '$timeout'
 
         ];
 
@@ -26,9 +28,12 @@ module Filters {
         constructor(
             public $scope       : IBarFilterScope,
             private $layerService: csComp.Services.LayerService,
-            private $messageBus: csComp.Services.MessageBusService
+            private $messageBus: csComp.Services.MessageBusService,
+            private $timeout : ng.ITimeoutService
             ) {
               $scope.vm = this;
+
+
 
               var par = <any>$scope.$parent.$parent;
 
@@ -42,16 +47,35 @@ module Filters {
               }
               if ($scope && $scope.filter)
               {
-                this.initBarFilter();
+                setTimeout(()=>this.initBarFilter());
+                //$timeout.call(()=>this.initBarFilter());
+
               //this.updateTextFilter();
               //this.widget = (par.widget);
               $scope.$watch('filter.stringValue', ()=> {
                   //this.updateTextFilter();
               });
 
-            }
+              $scope.options = (()=>{
+                var res = [];
+                res.push(['reset',()=>this.initBarFilter()]);
+                return res;
+              });
+
+
+              }
 
             }
+
+            private displayFilterRange(min,max)
+            {
+              var filter = this.$scope.filter;
+              (<any>filter).from = min;
+              (<any>filter).to = max;
+              this.$scope.$apply();
+            }
+
+            private dcChart : any;
 
             public initBarFilter()
             {
@@ -59,21 +83,26 @@ module Filters {
               var group = filter.group;
               var divid = 'filter_' + filter.id;
 
-              var dcChart = <any>dc.barChart('#' + divid);
+              this.dcChart = <any>dc.barChart('#' + divid);
+
+              this.$scope.$apply();
+
               var filterFrom = $('#fsfrom_' + filter.id);
               var filterTo = $('#fsto_' + filter.id);
               var info = this.$layerService.calculatePropertyInfo(group, filter.property);
 
               var nBins = 20;
+              var min = info.sdMin;
+              var max = info.sdMax;
 
-              var binWidth = (info.sdMax - info.sdMin) / nBins;
+              var binWidth = (max - min) / nBins;
 
               var dcDim = group.ndx.dimension(d => {
                   if (!d.properties.hasOwnProperty(filter.property)) return null;
                   else {
                       if (d.properties[filter.property] != null) {
                           var a = parseInt(d.properties[filter.property]);
-                          if (a >= info.sdMin && a <= info.sdMax) {
+                          if (a >= min && a <= max) {
                               return Math.floor(a / binWidth) * binWidth;
                           } else {
                               return null;
@@ -87,21 +116,22 @@ module Filters {
               var dcGroup = dcDim.group();
 
               //var scale =
-              dcChart.width(275)
-                  .height(90)
+              this.dcChart.width(275)
+                  .height(100)
                   .dimension(dcDim)
                   .group(dcGroup)
                   .transitionDuration(100)
                   .centerBar(true)
                   .gap(5) //d3.scale.quantize().domain([0, 10]).range(d3.range(1, 4));
                   .elasticY(true)
-                  .x(d3.scale.linear().domain([info.sdMin, info.sdMax]).range([-1, nBins + 1]))
+                  .x(d3.scale.linear().domain([min,max]).range([-1, nBins + 1]))
                   .filterPrinter(filters => {
                   var s = '';
                   if (filters.length > 0) {
                       var localFilter = filters[0];
-                      //filterFrom.text(localFilter[0].toFixed(2));
-                      //filterTo.text(localFilter[1].toFixed(2));
+                      this.displayFilterRange(localFilter[0].toFixed(2),localFilter[1].toFixed(2))
+
+
                       s += localFilter[0];
                   }
 
@@ -122,17 +152,19 @@ module Filters {
                     this.$layerService.updateMapFilter(group);
                   }, 100);
               });
+              this.displayFilterRange(min,max);
 
-              dcChart.xUnits(() => { return 13; });
+
+              this.dcChart.xUnits(() => { return 13; });
 
               filterFrom.on('change', () => {
                   if ($.isNumeric(filterFrom.val())) {
                       var min = parseInt(filterFrom.val());
-                      var filters = dcChart.filters();
+                      var filters = this.dcChart.filters();
                       if (filters.length > 0) {
                           filters[0][0] = min;
-                          dcChart.filter(filters[0]);
-                          dcChart.render();
+                          this.dcChart.filter(filters[0]);
+                          this.dcChart.render();
                           //dcDim.filter(filters[0]);
                           dc.redrawAll();
                           //dc.renderAll();
@@ -142,10 +174,10 @@ module Filters {
               filterTo.on('change', () => {
                   if ($.isNumeric(filterTo.val())) {
                       var max = parseInt(filterTo.val());
-                      var filters = dcChart.filters();
+                      var filters = this.dcChart.filters();
                       if (filters.length > 0) {
                           filters[0][1] = max;
-                          dcChart.filter(filters[0]);
+                          this.dcChart.filter(filters[0]);
                           dcDim.filter(filters[0]);
                           dc.renderAll();
                       }
@@ -162,11 +194,11 @@ module Filters {
               //    dcChart.x(d3.scale.linear().domain([propInfo.min - dif, propInfo.max + dif]));
               //}
 
-              dcChart.yAxis().ticks(5);
-              dcChart.xAxis().ticks(5);
-
-              this.updateChartRange(dcChart,filter);
+              this.dcChart.yAxis().ticks(5);
+              this.dcChart.xAxis().ticks(5);
               dc.renderAll();
+              this.updateChartRange(this.dcChart,filter);
+
             }
 
             private updateChartRange(chart: dc.IBarchart, filter: csComp.Services.GroupFilter) {

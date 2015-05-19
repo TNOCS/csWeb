@@ -1,16 +1,8 @@
 <div>
-  <h1>bar</h1>
-  <h4>{{filter.title}}</h4>
-  <div style='position:relative'>
-    <span class='dropdown' dropdown>
-      <a href class='fa fa-circle-o makeNarrow dropdown-toggle' dropdown-toggle> </a>
-      <ul class='dropdown-menu'>
-        <li><a>scatter plot</a></li>
-        <li><a>add to dashboard</a></li>
-      </ul>
-    </span>
-    <a class='btn fa fa-cog' style='position:absolute;top:-5px;right:0' id='remove'></a>
+  <div style='position:relative' context-menu="options()">
+    <h4>{{filter.title}}</h4>
+    <div class="left-menu dropdown-toggle pull-left"  ng-click="vm.openLayerMenu($event)" ></div>
+    <a class='btn fa fa-cog' style='position:absolute;top:-5px;right:0' ng-click="vm.remove()"></a>
     <div id="filter_{{filter.id}}" ></div>
-    <div id='fdrange_ '>from <span id='fsfrom_{{filter.id}}'/> to <span id='fsto_{{filter.id}}' /></div>
-    <a class='btn btn-filter-delete ' ng-click="vm.remove()" ><i class='fa fa-remove '></i></a>
+    <div>from <b>{{filter.from}}</b> to <b>{{filter.to}}</b></div>
 </div>
