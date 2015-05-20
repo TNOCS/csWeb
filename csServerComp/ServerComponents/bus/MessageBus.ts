@@ -2,19 +2,19 @@
  * Interface for message bus callbacks, i.e. (data: any) => any,
  * so you can supply a single data argument of any type, and it may return any type.
  */
-interface IMessageBusCallback {
+export interface IMessageBusCallback {
     (title: string, data?: any): any;
 }
 
 /**
  *  Handle returned when subscribing to a topic
  */
-class MessageBusHandle {
+export class MessageBusHandle {
     constructor(topic: string, callback: IMessageBusCallback) {
         this.topic = topic;
         this.callback = callback;
     }
-    public topic: string; 
+    public topic: string;
     public callback: IMessageBusCallback;
 }
 
@@ -22,7 +22,7 @@ class MessageBusHandle {
  * Simple message bus service, used for subscribing and unsubsubscribing to topics.
  * @see {@link https://gist.github.com/floatingmonkey/3384419}
  */
-class MessageBusService {
+export class MessageBusService {
     private static cache: { [topic: string]: Array<IMessageBusCallback> } = {};
 
     /**
@@ -60,4 +60,3 @@ class MessageBusService {
         });
     }
 }
-export = MessageBusService;
