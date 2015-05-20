@@ -161,7 +161,7 @@
     }
 
     export interface IFeatureTypeStyle {
-        nameLabel?           : string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.        
+        nameLabel?           : string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
         fillColor?           : string;
         strokeColor?         : string;
         opacity?             : number;
