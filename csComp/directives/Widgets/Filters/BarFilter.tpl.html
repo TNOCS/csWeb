@@ -1,9 +1,20 @@
 <div>
   <div style='position:relative' context-menu="options()">
     <h4>{{filter.title}}</h4>
-    <div class="left-menu dropdown-toggle pull-left"  ng-click="vm.openLayerMenu($event)" ></div>
+    <div class="left-menu dropdown-toggle pull-left" ng-click="vm.openLayerMenu($event)"></div>
     <a class='btn fa fa-cog' style='position:absolute;top:-5px;right:0' ng-click="vm.remove()"></a>
-    <div id="filter_{{filter.id}}" ></div>
-    <!-- <div>from <a href="#" editable-text="filter.from">{{ filter.from || "empty" }}</a> to <a href="#" editable-text="filter.to">{{ filter.to || "empty" }}</a></div>     -->
-    <div>from <span>{{filter.from}}</span> to <span>{{filter.to}}</span></div>    
-</div>
+    <div id="filter_{{filter.id}}"></div>
+
+    <div ng-hide="editMode">
+      <div>from <b>{{filter.from}}</b> to <b>{{filter.to}}</b>
+        <button class="btn fa fa-pencil" ng-click="editMode=true" style="float:right; margin-left:4px"/>
+      </div>
+    </div>
+    <div ng-show="editMode">
+      <div style="position:relative">
+        <b>from</b><br/><input type="text" ng-model="filter.from" /><br/>
+        <b>to</b><br/><input  style="postion:absolute;right:125px" type="text" ng-model="filter.to" />
+      </div>
+      <button class="btn fa fa-check" style="float:right; margin-left:4px" ng-click="vm.updateRange();editMode=false"></button>
+    </div>
+  </div>

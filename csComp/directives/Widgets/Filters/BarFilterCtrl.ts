@@ -5,6 +5,7 @@ module Filters {
         vm: BarFilterCtrl;
         filter : csComp.Services.GroupFilter;
         options : Function;
+        editMode : boolean;
     }
 
     export class BarFilterCtrl {
@@ -50,12 +51,6 @@ module Filters {
                 setTimeout(()=>this.initBarFilter());
                 //$timeout.call(()=>this.initBarFilter());
 
-              //this.updateTextFilter();
-              //this.widget = (par.widget);
-              $scope.$watch('filter.stringValue', ()=> {
-                  //this.updateTextFilter();
-              });
-
               $scope.options = (()=>{
                 var res = [];
                 res.push(['reset',()=>this.initBarFilter()]);
@@ -94,7 +89,7 @@ module Filters {
 
               var nBins = 20;
               var min = info.sdMin;
-              var max = info.sdMax;
+              var max = info.sdMax + (info.sdMax - info.sdMin) * 0.01;
 
               var binWidth = (max - min) / nBins;
 
@@ -118,7 +113,7 @@ module Filters {
 
               //var scale =
               this.dcChart.width(275)
-                  .height(100)
+                  .height(110)
                   .dimension(dcDim)
                   .group(dcGroup)
                   .transitionDuration(100)
@@ -155,7 +150,7 @@ module Filters {
                     this.$layerService.updateMapFilter(group);
                   }, 100);
               });
-              this.displayFilterRange(min,max);
+              //this.displayFilterRange(min,max);
 
 
               this.dcChart.xUnits(() => { return 13; });
@@ -189,8 +184,8 @@ module Filters {
                   //dcDim.filter([min, min + 100]);
               });
 
-              this.$scope.$watch('filter.from',()=>this.updateFilter());
-              this.$scope.$watch('filter.to',()=>this.updateFilter());
+              //this.$scope.$watch('filter.from',()=>this.updateFilter());
+            //  this.$scope.$watch('filter.to',()=>this.updateFilter());
 
               //if (filter.meta != null && filter.meta.minValue != null) {
               //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
@@ -213,10 +208,21 @@ module Filters {
               setTimeout(()=>{
                 this.dcChart.filter([(<any>this.$scope.filter).from,(<any>this.$scope.filter).to]);
                 this.dcChart.render();
+                dc.renderAll();
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
                 console.log('update filter');
               },10);
 
+            }
+
+            public updateRange()
+            {
+              setTimeout(()=>{
+                this.dcChart.filter([(<any>this.$scope.filter).from,(<any>this.$scope.filter).to]);
+                this.dcChart.render();
+                this.$layerService.updateMapFilter(this.$scope.filter.group);
+                console.log('update filter');
+              },10);
             }
 
         public remove()

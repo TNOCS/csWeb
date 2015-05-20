@@ -14,7 +14,7 @@
     */
     export interface ISerializable<T> {
         deserialize(input: Object): T;
-    }
+    } 
 
     var availableZoomLevels  = [
         { title: "decades",      value: 315360000000 },

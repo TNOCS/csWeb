@@ -238,7 +238,8 @@ module csComp.Services {
          */
         public updateMapFilter(group: ProjectGroup) {
             $.each(group.markers,(key, marker) => {
-                var included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+                var included;
+                if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
                 if (group.clustering) {
                     var incluster = group.cluster.hasLayer(marker);
                     if (!included && incluster) group.cluster.removeLayer(marker);
