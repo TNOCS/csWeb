@@ -83,7 +83,7 @@
 
         constructor($translate: ng.translate.ITranslateService) {
 
-            this.availableAspects = ['strokeColor', 'fillColor', 'strokeWidth'];
+            this.availableAspects = ['strokeColor', 'fillColor', 'strokeWidth', 'height'];
             this.colorScales = {};
             this.legends = {};
             this.fixedColorRange = false;

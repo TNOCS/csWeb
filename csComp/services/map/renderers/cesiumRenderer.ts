@@ -17,7 +17,19 @@ module csComp.Services
 
         public enable()
         {
-            this.viewer = new Cesium.Viewer('map');
+            this.viewer = new Cesium.Viewer('map', {
+                selectionIndicator : false,
+                infoBox: false,
+                scene3DOnly: true,
+                sceneModePicker: false,
+                fullscreenButton: false,
+                homeButton: false,
+                baseLayerPicker: false,
+                animation: false,
+                timeline: false,
+                navigationHelpButton: false
+            });
+
             this.camera = this.viewer.camera;
             this.scene  = this.viewer.scene;
 
@@ -26,33 +38,54 @@ module csComp.Services
                 position : Cesium.Cartesian3.fromDegrees(5, 52, 1000000)
             });
 
-            //console.log('project:');
-            //console.log(this.service.project.features);
             for (var i = 0; i < this.service.project.features.length; ++i)
                 this.addFeature(this.service.project.features[i]);
 
-            $(".cesium-viewer-toolbar").hide();
+            // onclick events
+            this.setUpMouseHandlers();
         }
 
+        public setUpMouseHandlers()
+        {
+            var handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
+            handler.setInputAction((click) => {
+                var pickedObject = this.scene.pick(click.position);
+                if (Cesium.defined(pickedObject) && pickedObject.id !== undefined && pickedObject.id.feature !== undefined) {
+                    this.service.selectFeature(pickedObject.id.feature);
+                }
+            }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+            handler.setInputAction((movement) => {
+                var pickedObject = this.scene.pick(movement.endPosition);
+                this.viewer.entities.values.forEach((entity) => {
+                      if (entity.label !== undefined)
+                          entity.label.show = false;
+                });
+
+                if (Cesium.defined(pickedObject) && pickedObject.id !== undefined && pickedObject.id.label !== undefined)
+                    pickedObject.id.label.show = true;
+
+            }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+        }
         public disable()
         {
             this.viewer.destroy();
-            //$("#map").empty();
         }
 
         public addLayer(layer: ProjectLayer)
         {
-            //alert('addLayer called: ' + layer.type);
+            console.log(layer);
             switch(layer.type.toUpperCase()) {
                 case "GEOJSON":
                 case "DYNAMICGEOJSON":
+                case "TOPOJSON":
                     layer.data.features.forEach((f: IFeature) => {
                         this.addFeature(f);
                     });
-
                 break;
+
                 case "WMS":
-                    var wms_layer = this.scene.globe.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    var wms_layer = this.viewer.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
                         url : layer.url,
                         layers: layer.wmsLayers,
                         parameters: {
@@ -66,46 +99,78 @@ module csComp.Services
                 default:
                     alert('unknown layertype: ' + layer.type);
                 break;
-
             }
         }
 
         public removeLayer(layer: ProjectLayer)
         {
-            alert('removeLayer called: ' + layer.type);
-            if (layer.type.toUpperCase() === "GEOJSON")
-            {
-                var object:any = <Object> layer.data;
-                console.log(object);
+            switch(layer.type.toUpperCase()) {
+                case "GEOJSON":
+                case "DYNAMICGEOJSON":
+                case "TOPOJSON":
+                  layer.data.features.forEach((f: IFeature) => {
+                      this.removeFeature(f);
+                  });
+                break;
 
-                object.features.forEach((f: IFeature) => {
-                    this.removeFeature(f);
-                });
+                case "WMS":
+                    // just pop the last one, since it is a radiobutton
+                    this.viewer.imageryLayers.remove(this.viewer.imageryLayers.get(1));
+                break;
 
+                default:
+                    alert('unknown layertype: ' + layer.type);
+                break;
             }
         }
 
-        public updateMapFilter(group : ProjectGroup) {}
+        public updateMapFilter(group : ProjectGroup)
+        {
+            console.log('updateMapFilter called (cesium)');
 
-        public addGroup(group: ProjectGroup) { }
+            var toRemove = [];
+            this.viewer.entities.values.forEach((entity) => {
+                if (group.filterResult === undefined || (group.filterResult.length > 0 && entity.feature.layer.id === group.filterResult[0].layer.id))
+                    toRemove.push(entity);
+            });
+            toRemove.forEach(entity => {
+                this.removeFeature(entity.feature);
+            });
 
-        public removeGroup(group: ProjectGroup) { }
+            group.filterResult.forEach((f: IFeature) => {
+                this.addFeature(f);
+            });
 
+        }
+
+        public addGroup(group: ProjectGroup) {
+            console.log('addGroup called');
+        }
+
+        public removeGroup(group: ProjectGroup)
+        {
+            console.log('removeGroup called');
+        }
 
         public removeFeature(feature: IFeature)
         {
             console.log('removeFeature called');
-            this.viewer.entities.remove(feature.id);
-            //if (this.features.hasOwnProperty(feature.id)) {
-            //    this.viewer.dataSources.remove(this.features[feature.id]);
-            //    delete this.features[feature.id];
-            //}
+
+            var toRemove = [];
+            this.viewer.entities.values.forEach((entity) => {
+                if (entity.feature.id === feature.id) {
+                    toRemove.push(entity);
+                }
+            });
+            toRemove.forEach(entity => {
+                this.viewer.entities.remove(entity);
+            });
+
         }
 
         public updateFeature( feature : IFeature)
         {
-            //console.log('updateFeature called', feature);
-            //this.removeFeature(feature);
+            this.removeFeature(feature);
             this.addFeature(feature);
         }
 
@@ -117,13 +182,57 @@ module csComp.Services
         public createFeature(feature: IFeature) {
             var entity = this.viewer.entities.getOrCreateEntity(feature.id);
 
-            entity.name = feature.properties['Name'];
+            entity.feature = feature;
 
-            // use 2D or 3D coordinates as a basis if we have one
-            if (feature.geometry.coordinates.length === 2)
-                entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
-            else if (feature.geometry.coordinates.length === 3)
-                entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+            if (feature.properties['Name'] !== undefined)
+              entity.name = feature.properties['Name'];
+
+            switch (feature.geometry.type.toUpperCase())
+            {
+                case "POINT":
+                    // use 2D or 3D coordinates as a basis if we have them
+                    if (feature.geometry.coordinates.length === 2)
+                        entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
+                    else if (feature.geometry.coordinates.length === 3)
+                        entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+                break;
+
+                case "POLYGON":
+                    entity.polygon = {
+                          hierarchy : this.createPolygon(feature.geometry.coordinates).hierarchy,
+                          material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                          outline : true,
+                          outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                          outlineWidth: feature.effectiveStyle.strokeWidth,
+                          extrudedHeight: feature.effectiveStyle.height
+                    }
+                break;
+
+                case "MULTIPOLYGON":
+                    var polygons = this.createMultiPolygon(feature.geometry.coordinates);
+                    for (var i = 0; i < polygons.length; ++i)
+                    {
+                        var entity_multi = new Cesium.Entity();
+                        entity_multi.feature = feature;
+
+                        var polygon = polygons[i];
+
+                        polygon.material = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+                        polygon.outline = true;
+                        polygon.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
+                        polygon.outlineWidth = feature.effectiveStyle.strokeWidth;
+                        polygon.extrudedHeight = feature.effectiveStyle.height;
+                        entity_multi.polygon = polygon;
+
+                        this.viewer.entities.add(entity_multi);
+                    }
+                    return null;
+                break;
+
+                default:
+                    alert('unknown geometry type: ' + feature.geometry.type);
+                break;
+            }
 
             // a billboard is an icon for a feature
             entity.billboard = {
@@ -152,53 +261,54 @@ module csComp.Services
             };
 
             // add a 3D model if we have one
-            if (feature.properties["model"] != "")
+            if (feature.effectiveStyle.modelUri !== undefined)
             {
-              entity.model =  new Cesium.ModelGraphics({
-                uri : feature.properties["model"],
-                minimumPixelSize: 100
-              });
+                entity.model = new Cesium.ModelGraphics({
+                    uri : feature.effectiveStyle.modelUri,
+                    scale: feature.effectiveStyle.modelScale,
+                    minimumPixelsize: feature.effectiveStyle.modelMinimumPixelSize,
+                });
 
-              // Hide icon and point when we have a 3D model
-              //entity.billboard.show = false;
-              //entity.point.show = false;
-
-              // account for rotation
-              if (feature.properties["Track"] != "")
-              {
-                  //todo: account for current rotation
-                  var headingQuaternion = Cesium.Quaternion.fromAxisAngle(Cesium.Cartesian3.UNIT_Z, -feature.properties["Track"] );
-
-                  //entity.orientation = headingQuaternion;
-              }
-
-
+                // Hide icon and point when we have a 3D model
+                entity.billboard.show = false;
+                entity.point.show = false;
             }
 
-            // onclick events
-            if (feature.layer.type.toUpperCase() === "GEOJSON" || feature.layer.type.toUpperCase() === "DYNAMICGEOJSON")
+            //account for rotation
+            if (feature.properties["Track"] !== undefined)
             {
-                var handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
-                handler.setInputAction((movement) => {
-                    var pickedObject = this.scene.pick(movement.position);
-                    if (Cesium.defined(pickedObject) && (pickedObject.id === entity)) {
-                        this.service.selectFeature(feature);
-                    }
-                }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+                var headingQuaternion = Cesium.Transforms.headingPitchRollQuaternion(Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]), Cesium.Math.toRadians(feature.properties["Track"]), 0, 0);
+                entity.orientation = headingQuaternion;
             }
-            if (feature.layer.type.toUpperCase() === "GEOJSON")
-            {
-                handler.setInputAction((movement) => {
-                    var pickedObject = this.scene.pick(movement.endPosition);
-                    if (Cesium.defined(pickedObject) && pickedObject.id === entity) {
-                        entity.label.show = true;
-                    } else {
-                        entity.label.show = false;
-                    }
-                }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-            }
+
             return entity;
         }
 
+        private createPolygon(coordinates)
+        {
+            if (coordinates.length === 0 || coordinates[0].length === 0)
+                return;
+
+            var polygon = new Cesium.PolygonHierarchy();
+            var holes = [];
+            for (var i = 1, len = coordinates.length; i < len; i++) {
+                holes.push(new Cesium.PolygonHierarchy(Cesium.Cartesian3.fromDegreesArray(Array.prototype.concat.apply([], coordinates[i]))));
+            }
+
+            var positions = coordinates[0];
+            polygon.hierarchy = new Cesium.ConstantProperty(new Cesium.PolygonHierarchy(Cesium.Cartesian3.fromDegreesArray(Array.prototype.concat.apply([],positions)), holes));
+
+            return polygon;
+        }
+
+        private createMultiPolygon(coordinates)
+        {
+            var polygons = [];
+
+            for (var i = 0; i < coordinates.length; i++) {
+                polygons.push(this.createPolygon(coordinates[i]));
+            }
+            return polygons;
+        }
     }
 }

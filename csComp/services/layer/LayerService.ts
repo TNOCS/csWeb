@@ -26,6 +26,7 @@
         removeGroup(group: ProjectGroup);
         createFeature(feature: IFeature);
         removeFeature(feature: IFeature);
+        updateMapFilter(group: ProjectGroup);
         updateFeature(feature: IFeature);
         addFeature(feature: IFeature);
     }
@@ -614,6 +615,9 @@
                 if (ft.style.strokeWidth !== null) s.strokeWidth = ft.style.strokeWidth;
                 if (ft.style.iconWidth !== null) s.iconWidth = ft.style.iconWidth;
                 if (ft.style.iconHeight !== null) s.iconHeight = ft.style.iconHeight;
+                if (ft.style.modelUri !== null) s.modelUri = ft.style.modelUri;
+                if (ft.style.modelScale !== null) s.modelScale = ft.style.modelScale;
+                if (ft.style.modelMinimumPixelSize !== null) s.modelMinimumPixelSize = ft.style.modelMinimumPixelSize;
                 if (ft.style.innerTextProperty !== null) s.innerTextProperty = ft.style.innerTextProperty;
                 if (ft.style.innerTextSize !== null) s.innerTextSize = ft.style.innerTextSize;
                 if (ft.style.cornerRadius !== null) s.cornerRadius = ft.style.cornerRadius;
@@ -673,6 +677,9 @@
                             case 'strokeWidth':
                                 s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
                                 break;
+                            case 'height':
+                                s.height = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 25000);
+                            break;
                         }
                     } else {
                         var ss = feature.properties[gs.property];
@@ -1833,18 +1840,7 @@
          * Update map markers in cluster after changing filter
          */
         private updateMapFilter(group: ProjectGroup) {
-            $.each(group.markers, (key, marker) => {
-                var included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
-                if (group.clustering) {
-                    var incluster = group.cluster.hasLayer(marker);
-                    if (!included && incluster) group.cluster.removeLayer(marker);
-                    if (included && !incluster) group.cluster.addLayer(marker);
-                } else {
-                    var onmap = group.vectors.hasLayer(marker);
-                    if (!included && onmap) group.vectors.removeLayer(marker);
-                    if (included && !onmap) group.vectors.addLayer(marker);
-                }
-            });
+            this.activeMapRenderer.updateMapFilter(group);
         }
 
         private resetMapFilter(group: ProjectGroup) {

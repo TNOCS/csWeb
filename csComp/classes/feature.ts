@@ -161,24 +161,28 @@
     }
 
     export interface IFeatureTypeStyle {
-        nameLabel?           : string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.        
-        fillColor?           : string;
-        strokeColor?         : string;
-        opacity?             : number;
-        fillOpacity?         : number;
-        stroke?              : boolean;
-        drawingMode?         : string;
-        strokeWidth?         : number;
-        iconWidth?           : number;
-        iconHeight?          : number;
-        iconUri?             : string;
-        cornerRadius?        : number;
-        maxTitleResolution?  : string;
-        rotate?              : number;
-        innerTextProperty?   : string;
-        innerTextSize?       : number;
-        analysispropertyType?: any;
-        rotateProperty?      : string;
+        nameLabel?             : string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
+        fillColor?             : string;
+        strokeColor?           : string;
+        height?                : number;
+        opacity?               : number;
+        fillOpacity?           : number;
+        stroke?                : boolean;
+        drawingMode?           : string;
+        strokeWidth?           : number;
+        iconWidth?             : number;
+        iconHeight?            : number;
+        iconUri?               : string;
+        modelUri?              : string;
+        modelScale?            : number;
+        modelMinimumPixelSize? : number;
+        cornerRadius?          : number;
+        maxTitleResolution?    : string;
+        rotate?                : number;
+        innerTextProperty?     : string;
+        innerTextSize?         : number;
+        analysispropertyType?  : any;
+        rotateProperty?        : string;
     }
 
     export interface IFeatureType {
