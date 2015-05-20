@@ -111,7 +111,7 @@
             this.propertyTypeData = {};
             //this.map.map.addLayer(this.layerGroup);
             this.noStyles = true;
-            this.currentLocale = "en";
+            this.currentLocale = $translate.preferredLanguage();
             // init map renderers
             this.mapRenderers = {};
             this.visual = new VisualState();
