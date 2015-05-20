@@ -160,8 +160,8 @@ module csComp.Services
               });
 
               // Hide icon and point when we have a 3D model
-              entity.billboard.show = false;
-              entity.point.show = false;
+              //entity.billboard.show = false;
+              //entity.point.show = false;
 
               // account for rotation
               if (feature.properties["Track"] != "")
@@ -169,7 +169,7 @@ module csComp.Services
                   //todo: account for current rotation
                   var headingQuaternion = Cesium.Quaternion.fromAxisAngle(Cesium.Cartesian3.UNIT_Z, -feature.properties["Track"] );
 
-                  entity.orientation = headingQuaternion;
+                  //entity.orientation = headingQuaternion;
               }
 
 

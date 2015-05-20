@@ -22,6 +22,7 @@
         disable();
         addGroup(group: ProjectGroup);
         addLayer(layer: ProjectLayer);
+        removeLayer(layer : ProjectLayer);
         removeGroup(group: ProjectGroup);
         createFeature(feature: IFeature);
         removeFeature(feature: IFeature);
@@ -1094,21 +1095,23 @@
             }
 
             //m = layer.group.vectors;
-            if (g.clustering) {
-                m = g.cluster;
-                this.project.features.forEach((feature: IFeature) => {
-                    if (feature.layerId === layer.id) {
-                        try {
-                            m.removeLayer(layer.group.markers[feature.id]);
-                            delete layer.group.markers[feature.id];
-                        } catch (error) {
-
-                        }
-                    }
-                });
-            } else {
-                if (layer.mapLayer) this.map.map.removeLayer(layer.mapLayer);
-            }
+            this.activeMapRenderer.removeLayer(layer);
+            // if (g.clustering) {
+            //     m = g.cluster;
+            //     this.project.features.forEach((feature: IFeature) => {
+            //         if (feature.layerId === layer.id) {
+            //             try {
+            //                 m.removeLayer(layer.group.markers[feature.id]);
+            //                 delete layer.group.markers[feature.id];
+            //             } catch (error) {
+            //
+            //             }
+            //         }
+            //     });
+            // } else {
+            //
+            //     if (layer.mapLayer) this.map.map.removeLayer(layer.mapLayer);
+            // }
 
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
             var layerName = layer.id + '_';
