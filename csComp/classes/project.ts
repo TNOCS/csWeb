@@ -28,16 +28,7 @@
         { title: "milliseconds", value: 1 }
     ];
 
-    export interface ILayerSource {
-        title: string;
-        service: ILayerService;
-        addLayer(layer: ProjectLayer, callback: Function);
-        removeLayer(layer: ProjectLayer): void;
-        refreshLayer(layer: ProjectLayer): void;
-        requiresLayer: boolean;
-        getRequiredLayers?(layer: ProjectLayer): ProjectLayer[];
-        layerMenuOptions(layer: ProjectLayer): [[string, Function]];
-    }
+
 
     export interface IMapRenderer {
         title: string;
@@ -51,6 +42,9 @@
         removeFeature(feature: IFeature);
         updateFeature(feature: IFeature);
         addFeature(feature: IFeature);
+        removeLayer(layer : ProjectLayer);
+                updateMapFilter(group: ProjectGroup);
+
     }
 
     export class VisualState {
@@ -326,7 +320,7 @@
         isSublayer: boolean;
         mapLayer: L.LayerGroup<L.ILayer>;
         /** id of the group */
-        groupId : string;        
+        groupId : string;
         /** Group of layers */
         group: ProjectGroup;
         layerSource : ILayerSource;
