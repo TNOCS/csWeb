@@ -28,6 +28,11 @@
                         </div>
                     </div>
                 </div>
+                <div data-ng-if="vm.relations.length == 0" style="margin-left:20px">
+                  <p>
+                    No relations can be shown for the selected feature. Either the zoom level is too low, there are too many features in the view or there are no relations defined.
+                  </p>
+                </div>
             </div>
         </div>
     </div>

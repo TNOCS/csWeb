@@ -368,7 +368,7 @@ module csComp.Services {
                     // Must the iconUri be formatted?
                     if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
 
-                    html += '<img src=' + iconUri + ' style=\'width:' + (feature.effectiveStyle.iconWidth - 6) + 'px;height:' + (feature.effectiveStyle.iconHeight - 6) + 'px';
+                    html += '<img src=\'' + iconUri + '\' style=\'width:' + (feature.effectiveStyle.iconWidth - 6) + 'px;height:' + (feature.effectiveStyle.iconHeight - 6) + 'px';
                     if (feature.effectiveStyle.rotate && feature.effectiveStyle.rotate > 0) html += ';transform:rotate(' + feature.effectiveStyle.rotate + 'deg)';
                     html += '\' />';
                 }
