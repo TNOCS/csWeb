@@ -431,7 +431,7 @@
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService);
         }
 
-        private updateHierarchyLinks(feature: IFeature): void {
+        private updateHierarchyLinks(feature: IFeature): void {            
             if (!feature) return;
             // Add properties defined inside of layers to the project-wide properties.
             this.$layerService.project.groups.forEach((group) => {

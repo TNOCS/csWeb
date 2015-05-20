@@ -77,6 +77,7 @@ module Filters {
 
             private dcChart : any;
 
+
             public initBarFilter()
             {
               var filter = this.$scope.filter;
@@ -130,6 +131,8 @@ module Filters {
                   if (filters.length > 0) {
                       var localFilter = filters[0];
                       this.displayFilterRange(localFilter[0].toFixed(2),localFilter[1].toFixed(2))
+                    //  $("#filterfrom_" + filter.id).empty();
+                    //$("#filterfrom_" + filter.id).text(localFilter[0].toFixed(2));
 
 
                       s += localFilter[0];
@@ -186,6 +189,9 @@ module Filters {
                   //dcDim.filter([min, min + 100]);
               });
 
+              this.$scope.$watch('filter.from',()=>this.updateFilter());
+              this.$scope.$watch('filter.to',()=>this.updateFilter());
+
               //if (filter.meta != null && filter.meta.minValue != null) {
               //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
               //} else {
@@ -196,30 +202,28 @@ module Filters {
 
               this.dcChart.yAxis().ticks(5);
               this.dcChart.xAxis().ticks(5);
+              //this.dcChart.mouseZoomable(true);
               dc.renderAll();
-              this.updateChartRange(this.dcChart,filter);
+            //  this.updateChartRange(this.dcChart,filter);
 
             }
 
-            private updateChartRange(chart: dc.IBarchart, filter: csComp.Services.GroupFilter) {
-                var filterFrom = $('#fsfrom_' + filter.id);
-                var filterTo = $('#fsto_' + filter.id);
-                var extent = (<any>chart).brush().extent();
-                if (extent != null && extent.length === 2) {
-                    if (extent[0] !== extent[1]) {
-                        console.log(extent);
-                        //if (extent.length == 2) {
-                        filterFrom.val(extent[0]);
-                        filterTo.val(extent[1]);
-                    }
-                } else {
-                    filterFrom.val('0');
-                    filterTo.val('1');
-                }
+            private updateFilter()
+            {
+              setTimeout(()=>{
+                this.dcChart.filter([(<any>this.$scope.filter).from,(<any>this.$scope.filter).to]);
+                this.dcChart.render();
+                this.$layerService.updateMapFilter(this.$scope.filter.group);
+                console.log('update filter');
+              },10);
+
             }
 
         public remove()
         {
+
+          return;
+
           if (this.$scope.filter)
           {
             this.$scope.filter.dimension.dispose();

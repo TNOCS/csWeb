@@ -1583,31 +1583,6 @@ removeLayer(layer : ProjectLayer);
 
         public updateFilters() {
           return;
-            var fmain = $('#filterChart');
-            fmain.empty();
-            this.noFilters = true;
-
-            this.project.groups.forEach((group: ProjectGroup) => {
-                if (group.filters != null && group.filters.length > 0) {
-                    $('<div style=\'float:left;margin-left: -10px; margin-top: 5px\' data-toggle=\'collapse\' data-target=\'#filters_' + group.id + '\'><i class=\'fa fa-chevron-down togglebutton toggle-arrow-down\'></i><i class=\'fa fa-chevron-up togglebutton toggle-arrow-up\'></i></div><div class=\'group-title\' >' + group.title + '</div><div id=\'filtergroupcount_' + group.id + '\'  class=\'filter-group-count\' /><div class=\'collapse in\' id=\'filters_' + group.id + '\'></div>').appendTo('#filterChart');
-                    group.filters.forEach((filter: GroupFilter) => {
-                        if (!filter.id) filter.id = Helpers.getGuid();
-                        if (filter.dimension != null) filter.dimension.dispose();
-                        this.noFilters = false;
-                        switch (filter.filterType) {
-
-                            case 'bar':
-                                this.addBarFilter(group, filter);
-                                break;
-                            case 'scatter':
-                                this.addScatterFilter(group, filter);
-                                break;
-                        }
-                    });
-                }
-                this.updateFilterGroupCount(group);
-            });
-            dc.renderAll();
         }
 
 
@@ -1618,23 +1593,6 @@ removeLayer(layer : ProjectLayer);
         }
 
 
-
-        private updateChartRange(chart: dc.IBarchart, filter: GroupFilter) {
-            var filterFrom = $('#fsfrom_' + filter.id);
-            var filterTo = $('#fsto_' + filter.id);
-            var extent = (<any>chart).brush().extent();
-            if (extent != null && extent.length === 2) {
-                if (extent[0] !== extent[1]) {
-                    console.log(extent);
-                    //if (extent.length == 2) {
-                    filterFrom.val(extent[0]);
-                    filterTo.val(extent[1]);
-                }
-            } else {
-                filterFrom.val('0');
-                filterTo.val('1');
-            }
-        }
 
 
         private addScatterFilter(group: ProjectGroup, filter: GroupFilter) {
@@ -1726,137 +1684,7 @@ removeLayer(layer : ProjectLayer);
             //.range([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
         }
 
-        /***
-         * Add bar chart filter for filter number values
-         */
-        private addBarFilter(group: ProjectGroup, filter: GroupFilter) {
-            var info = this.calculatePropertyInfo(group, filter.property);
-
-            var divid = 'filter_' + filter.id;
-            //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
-            //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
-
-            $('<div style=\'position:relative\'><h4>' + filter.title + '</h4><span class=\'dropdown\' dropdown><a href class=\'fa fa-circle-o makeNarrow dropdown-toggle\' dropdown-toggle > </a><ul class=\'dropdown-menu\' ><li><a>scatter plot</a></li><li><a>add to dashboard< /a></li ></ul></span><a class=\'btn fa fa-cog\' style=\'position:absolute;top:-5px;right:0\' id=\'remove' + filter.id + '\'></a><div id=\'' + divid + '\' style=\'float:none\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div></div>').appendTo('#filterChart');
-            var filterFrom = $('#fsfrom_' + filter.id);
-            var filterTo = $('#fsto_' + filter.id);
-            var filterRange = $('#fdrange_' + filter.id);
-            $('#remove' + filter.id).on('click', () => {
-                var pos = group.filters.indexOf(filter);
-                if (pos !== -1) group.filters.splice(pos, 1);
-                filter.dimension.dispose();
-                this.updateFilters();
-
-                this.resetMapFilter(group);
-            });
-
-            var dcChart = <any>dc.barChart('#' + divid);
-
-            var nBins = 20;
-
-            var binWidth = (info.sdMax - info.sdMin) / nBins;
-
-            var dcDim = group.ndx.dimension(d => {
-                if (!d.properties.hasOwnProperty(filter.property)) return null;
-                else {
-                    if (d.properties[filter.property] != null) {
-                        var a = parseInt(d.properties[filter.property]);
-                        if (a >= info.sdMin && a <= info.sdMax) {
-                            return Math.floor(a / binWidth) * binWidth;
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                    //return a;
-                }
-            });
-            filter.dimension = dcDim;
-            var dcGroup = dcDim.group();
-
-            //var scale =
-            dcChart.width(275)
-                .height(90)
-                .dimension(dcDim)
-                .group(dcGroup)
-                .transitionDuration(100)
-                .centerBar(true)
-                .gap(5) //d3.scale.quantize().domain([0, 10]).range(d3.range(1, 4));
-                .elasticY(true)
-                .x(d3.scale.linear().domain([info.sdMin, info.sdMax]).range([-1, nBins + 1]))
-                .filterPrinter(filters => {
-                var s = '';
-                if (filters.length > 0) {
-                    var localFilter = filters[0];
-                    filterFrom.text(localFilter[0].toFixed(2));
-                    filterTo.text(localFilter[1].toFixed(2));
-                    s += localFilter[0];
-                }
-
-                return s;
-            })
-                .on('filtered', (e) => {
-                var fil = e.hasFilter();
-                if (fil) {
-                    filterRange.show();
-                } else {
-                    filterRange.hide();
-                }
-                dc.events.trigger(() => {
-                    group.filterResult = dcDim.top(Infinity);
-                    this.updateFilterGroupCount(group);
-                }, 0);
-                dc.events.trigger(() => {
-                    this.updateMapFilter(group);
-                }, 100);
-            });
-
-            dcChart.xUnits(() => { return 13; });
-
-            filterFrom.on('change', () => {
-                if ($.isNumeric(filterFrom.val())) {
-                    var min = parseInt(filterFrom.val());
-                    var filters = dcChart.filters();
-                    if (filters.length > 0) {
-                        filters[0][0] = min;
-                        dcChart.filter(filters[0]);
-                        dcChart.render();
-                        //dcDim.filter(filters[0]);
-                        dc.redrawAll();
-                        //dc.renderAll();
-                    }
-                }
-            });
-            filterTo.on('change', () => {
-                if ($.isNumeric(filterTo.val())) {
-                    var max = parseInt(filterTo.val());
-                    var filters = dcChart.filters();
-                    if (filters.length > 0) {
-                        filters[0][1] = max;
-                        dcChart.filter(filters[0]);
-                        dcDim.filter(filters[0]);
-                        dc.renderAll();
-                    }
-                    //dc.redrawAll();
-                }
-                //dcDim.filter([min, min + 100]);
-            });
-
-            //if (filter.meta != null && filter.meta.minValue != null) {
-            //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
-            //} else {
-            //    var propInfo = this.calculatePropertyInfo(group, filter.property);
-            //    var dif = (propInfo.max - propInfo.min) / 100;
-            //    dcChart.x(d3.scale.linear().domain([propInfo.min - dif, propInfo.max + dif]));
-            //}
-
-            dcChart.yAxis().ticks(5);
-            dcChart.xAxis().ticks(5);
-            this.updateChartRange(dcChart, filter);
-            //.x(d3.scale.quantile().domain(dcGroup.all().map(function (d) {
-            //return d.key;
-            //   }))
-            //.range([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
-        }
+        
 
         /***
          * Update map markers in cluster after changing filter
