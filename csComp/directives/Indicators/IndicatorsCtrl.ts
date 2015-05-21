@@ -39,8 +39,6 @@
             'mapService'
         ];
 
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope       : ILayersDirectiveScope,
             private $timeout     : ng.ITimeoutService,
@@ -50,7 +48,7 @@
             ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
-            this.widget = (par.widget);
+            this.widget = par.widget;
             this.checkLayers();
             this.$messageBus.subscribe("layer",(s: string) => {
                 this.checkLayers();
