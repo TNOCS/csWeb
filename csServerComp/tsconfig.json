@@ -1,0 +1,38 @@
+{
+    "version": "1.5.0-alpha",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": true,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./Scripts/typings/cs/cs-offline-search.d.ts",
+        "./Scripts/typings/express/express.d.ts",
+        "./Scripts/typings/jquery/jquery.d.ts",
+        "./Scripts/typings/node/node.d.ts",
+        "./Scripts/typings/socketio/socket.io.d.ts",
+        "./ServerComponents/Layers/flightradar.d.ts",
+        "./ServerComponents/Layers/flightradar.ts",
+        "./ServerComponents/bus/MessageBus.d.ts",
+        "./ServerComponents/bus/MessageBus.ts",
+        "./ServerComponents/configuration/ConfigurationService.d.ts",
+        "./ServerComponents/configuration/ConfigurationService.ts",
+        "./ServerComponents/configuration/IConfiguration.d.ts",
+        "./ServerComponents/configuration/IConfiguration.ts",
+        "./ServerComponents/dynamic/ClientConnection.d.ts",
+        "./ServerComponents/dynamic/ClientConnection.ts",
+        "./ServerComponents/dynamic/Datasource.d.ts",
+        "./ServerComponents/dynamic/Datasource.ts",
+        "./ServerComponents/dynamic/DynamicProject.d.ts",
+        "./ServerComponents/dynamic/DynamicProject.ts"
+    ]
+}

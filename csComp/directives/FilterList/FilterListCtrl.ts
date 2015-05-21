@@ -1,12 +1,12 @@
 ﻿module FilterList {
     export interface IFilterListScope extends ng.IScope {
-        vm: FilterListCtrl;        
+        vm: FilterListCtrl;
     }
 
     export class FilterListCtrl {
         private scope: IFilterListScope;
 
-        // $inject annotation.   
+        // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
         // it is better to have it close to the constructor, because the parameters must match in count and type.
         // See http://docs.angularjs.org/guide/di
@@ -22,7 +22,8 @@
             private $layerService: csComp.Services.LayerService
             ) {
             $scope.vm = this;
+            
         }
 
     }
-}  
+}

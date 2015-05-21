@@ -10,7 +10,7 @@ module csComp.Services {
         directive        : string;  // name of the directive that should be used as widget
         data             : Object;  // json object that can hold parameters for the directive
         url              : string;  // url of the html page that should be used as widget
-        template         : string;
+        template         : string;  // name of the template that should be shown as widget
         title            : string;  // title of the widget
         elementId        : string;
         enabled : boolean;

@@ -1,4 +1,4 @@
-﻿module FeatureRelations {   
+﻿module FeatureRelations {
     import IFeature          = csComp.Services.IFeature;
     import IFeatureType      = csComp.Services.IFeatureType;
     import IPropertyType     = csComp.Services.IPropertyType;
@@ -12,16 +12,16 @@
         constructor(position: string) {
             this.position    = position;
             this.closeButton = true;
-            this.autoPan     = true;            
+            this.autoPan     = true;
         }
-    }                    
+    }
 
     export interface IFeatureRelationsScope extends ng.IScope {
         vm                              : FeatureRelationsCtrl;
         showMenu                        : boolean;
         poi                             : IFeature;
-        title                           : string;  
-        icon                            : string;      
+        title                           : string;
+        icon                            : string;
     }
 
     export interface IHierarchySettings {
@@ -72,6 +72,9 @@
         // Create a relation to the nearest 10 features that are within the extent
         private createNearbyRelation(f) : RelationGroup {
             var rgr = new RelationGroup();
+            var mapZoom = this.$mapService.map.getZoom();
+            if (mapZoom < 12) return rgr; //Disable when zoom level is too low
+
             this.$translate('NEARBY_FEATURES').then((translation) => {
                 rgr.title = translation;
             });
@@ -81,22 +84,28 @@
             this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
                 if (feature.id != f.id) {
                     if ((feature.geometry.type == 'Point' && mapBounds.contains(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0])))
-                        || (feature.geometry.type == 'Polygon' && mapBounds.contains(new L.LatLng(feature.geometry.coordinates[0][0][1], feature.geometry.coordinates[0][0][0])))) { //TODO: Get center point of polygon, instead of its first point. 
+                        || (feature.geometry.type == 'Polygon' && mapBounds.contains(new L.LatLng(feature.geometry.coordinates[0][0][1], feature.geometry.coordinates[0][0][0])))) { //TODO: Get center point of polygon, instead of its first point.
                         var rl = new Relation();
                         rl.subject = f;
                         rl.target = feature;
 
                         rl.title = FeatureProps.CallOut.title(feature.fType, feature);
-                        rl.icon = (feature.fType == null || feature.fType.style == null || !feature.fType.style.hasOwnProperty('iconUri') || feature.fType.style.iconUri.toLowerCase().indexOf('_media') >= 0) ? '' : feature.fType.style.iconUri;
+                        rl.icon = (feature.fType == null || feature.fType.style == null || !feature.fType.style.hasOwnProperty('iconUri') || feature.fType.style.iconUri.toLowerCase().indexOf('_media') >= 0) ? '' : csComp.Helpers.convertStringFormat(feature, feature.fType.style.iconUri);
                         rgr.relations.push(rl);
                     }
                 }
             });
+
+            if (rgr.relations.length > 40) {
+              rgr.relations.length = 0; //Stop finding nearby features if over 40 features were found, to prevent performance issues
+              return rgr;
+            }
+
             var fLoc: L.LatLng;
             if (f.geometry.type == 'Point') {
                 fLoc = new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
             } else if (f.geometry.type == 'Polygon') {
-                fLoc = new L.LatLng(f.geometry.coordinates[0][0][1], f.geometry.coordinates[0][0][0]); //TODO: Get center point of polygon, instead of its first point. 
+                fLoc = new L.LatLng(f.geometry.coordinates[0][0][1], f.geometry.coordinates[0][0][0]); //TODO: Get center point of polygon, instead of its first point.
             }
             if (fLoc) {
                 rgr.relations.sort((rl1: Relation, rl2: Relation) => {
@@ -182,23 +191,23 @@
         constructor(
             private $scope             : IFeatureRelationsScope,
             private $location          : ng.ILocationService,
-            private $sce               : ng.ISCEService,              
+            private $sce               : ng.ISCEService,
             private $mapService        : csComp.Services.MapService,
             private $layerService      : csComp.Services.LayerService,
-            private $messageBusService : csComp.Services.MessageBusService, 
+            private $messageBusService : csComp.Services.MessageBusService,
             private $translate         : ng.translate.ITranslateService
             ) {
             this.scope = $scope;
             $scope.vm = this;
             $scope.showMenu = false;
-            
+
             $messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
             $messageBusService.subscribe("feature", this.featureMessageReceived);
-            
+
         }
 
-     
-        /** 
+
+        /**
                  * Callback function
                  * @see {http://stackoverflow.com/questions/12756423/is-there-an-alias-for-this-in-typescript}
                  * @see {http://stackoverflow.com/questions/20627138/typescript-this-scoping-issue-when-called-in-jquery-callback}
@@ -227,10 +236,10 @@
         private featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("FPC: featureMessageReceived");
             switch (title) {
-                case "onFeatureSelect":                    
+                case "onFeatureSelect":
                     this.initRelations();
                     this.$messageBusService.publish('feature', 'onRelationsUpdated', feature);
-                    break;                
+                    break;
                default:
             }
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
@@ -238,6 +247,6 @@
             }
         }
 
-     
+
     }
 }

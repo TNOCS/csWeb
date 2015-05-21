@@ -15,28 +15,6 @@
         layerMenuOptions(layer: ProjectLayer): [[string, Function]];
     }
 
-    export interface IMapRenderer {
-        title: string;
-        init(service: LayerService);
-        enable();
-        disable();
-        addGroup(group: ProjectGroup);
-        addLayer(layer: ProjectLayer);
-        removeGroup(group: ProjectGroup);
-        createFeature(feature: IFeature);
-        removeFeature(feature: IFeature);
-        updateFeature(feature: IFeature);
-        addFeature(feature: IFeature);
-    }
-
-    export class VisualState {
-        public leftPanelVisible: boolean = true;
-        public rightPanelVisible: boolean = false;
-        public dashboardVisible: boolean = true;
-        public mapVisible: boolean = true;
-        public timelineVisible: boolean = true;
-    }
-
     export interface ILayerService {
         title: string;
         accentColor: string;
@@ -84,20 +62,24 @@
 
         static $inject = [
             '$location',
+            '$compile',
             '$translate',
             'messageBusService',
             'mapService',
             '$rootScope'
 
+
+
         ];
 
         constructor(
             private $location: ng.ILocationService,
+            public $compile : any,
             private $translate: ng.translate.ITranslateService,
             public $messageBusService: Services.MessageBusService,
             public $mapService: Services.MapService,
-            public $rootScope: any,
-            public dashboardService: Services.DashboardService) {
+            public $rootScope: any
+            ) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb = $messageBusService;
@@ -110,7 +92,7 @@
             this.propertyTypeData = {};
             //this.map.map.addLayer(this.layerGroup);
             this.noStyles = true;
-            this.currentLocale = "en";
+            this.currentLocale = $translate.preferredLanguage();
             // init map renderers
             this.mapRenderers = {};
             this.visual = new VisualState();
@@ -214,6 +196,21 @@
                 case 'onFeatureSelect':
                   // check sub-layers
                   props.forEach((prop : IPropertyType)=>{
+                    if (prop.type === "matrix" && prop.activation==="automatic" && feature.properties.hasOwnProperty(prop.label))
+                    {
+                      var matrix = feature.properties[prop.label];
+                      this.project.features.forEach(f=>{
+                        if (f.layer == feature.layer && f.properties.hasOwnProperty(prop.targetid) && matrix.hasOwnProperty(f.properties[prop.targetid]))
+                        {
+                          var newValue = matrix[f.properties[prop.targetid]];
+                          for (var val in newValue)
+                          {
+                            f.properties[val] = newValue[val];
+                          }
+                        }
+                      });
+                      this.updateGroupFeatures(feature.layer.group);
+                    }
                     if (prop.type === "layer" && prop.activation==="automatic" && feature.properties.hasOwnProperty(prop.label))
                     {
                       this.removeSubLayers(feature.layer.lastSelectedFeature);
@@ -613,6 +610,9 @@
                 if (ft.style.strokeWidth !== null) s.strokeWidth = ft.style.strokeWidth;
                 if (ft.style.iconWidth !== null) s.iconWidth = ft.style.iconWidth;
                 if (ft.style.iconHeight !== null) s.iconHeight = ft.style.iconHeight;
+                if (ft.style.modelUri !== null) s.modelUri = ft.style.modelUri;
+                if (ft.style.modelScale !== null) s.modelScale = ft.style.modelScale;
+                if (ft.style.modelMinimumPixelSize !== null) s.modelMinimumPixelSize = ft.style.modelMinimumPixelSize;
                 if (ft.style.innerTextProperty !== null) s.innerTextProperty = ft.style.innerTextProperty;
                 if (ft.style.innerTextSize !== null) s.innerTextSize = ft.style.innerTextSize;
                 if (ft.style.cornerRadius !== null) s.cornerRadius = ft.style.cornerRadius;
@@ -672,6 +672,9 @@
                             case 'strokeWidth':
                                 s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
                                 break;
+                            case 'height':
+                                s.height = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 25000);
+                            break;
                         }
                     } else {
                         var ss = feature.properties[gs.property];
@@ -925,6 +928,7 @@
          * enable a filter for a specific property
          */
         setFilter(filter: GroupFilter, group: csComp.Services.ProjectGroup) {
+            filter.group = group;
             group.filters.push(filter);
             this.updateFilters();
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
@@ -943,6 +947,8 @@
                     if (filter == null) {
                         var gf = new GroupFilter();
                         gf.property = prop;
+                        gf.id = Helpers.getGuid();
+                        gf.group = layer.group;
                         gf.meta = property.meta;
                         gf.filterType = 'bar';
                         if (gf.meta != null) {
@@ -1094,21 +1100,23 @@
             }
 
             //m = layer.group.vectors;
-            if (g.clustering) {
-                m = g.cluster;
-                this.project.features.forEach((feature: IFeature) => {
-                    if (feature.layerId === layer.id) {
-                        try {
-                            m.removeLayer(layer.group.markers[feature.id]);
-                            delete layer.group.markers[feature.id];
-                        } catch (error) {
-
-                        }
-                    }
-                });
-            } else {
-                if (layer.mapLayer) this.map.map.removeLayer(layer.mapLayer);
-            }
+            this.activeMapRenderer.removeLayer(layer);
+            // if (g.clustering) {
+            //     m = g.cluster;
+            //     this.project.features.forEach((feature: IFeature) => {
+            //         if (feature.layerId === layer.id) {
+            //             try {
+            //                 m.removeLayer(layer.group.markers[feature.id]);
+            //                 delete layer.group.markers[feature.id];
+            //             } catch (error) {
+            //
+            //             }
+            //         }
+            //     });
+            // } else {
+            //
+            //     if (layer.mapLayer) this.map.map.removeLayer(layer.mapLayer);
+            // }
 
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
             var layerName = layer.id + '_';
@@ -1128,6 +1136,7 @@
             this.rebuildFilters(g);
             layer.enabled = false;
             if (removeFromGroup) layer.group.layers = layer.group.layers.filter((pl:ProjectLayer)=>pl != layer);
+            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             this.$messageBusService.publish('layer', 'deactivate', layer);
         }
 
@@ -1197,8 +1206,8 @@
          * @params url: URL of the project
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
          */
-        public openProject(project : csComp.Services.SolutionProject, layers?: string ): void {
-            this.projectUrl = project;
+        public openProject(solutionProject : csComp.Services.SolutionProject, layers?: string ): void {
+            this.projectUrl = solutionProject;
             //console.log('layers (openProject): ' + JSON.stringify(layers));
             var layerIds: Array<string> = [];
             if (layers) {
@@ -1208,7 +1217,7 @@
             this.clearLayers();
             this.featureTypes = {};
 
-            $.getJSON(project.url, (data: Project) => {
+            $.getJSON(solutionProject.url, (data: Project) => {
                 this.project = new Project().deserialize(data);
 
                 if (!this.project.timeLine) {
@@ -1302,67 +1311,14 @@
 
                 if (this.project.groups && this.project.groups.length > 0) {
                     this.project.groups.forEach((group: ProjectGroup) => {
-                        if (group.id == null) group.id = Helpers.getGuid();
 
-                        group.ndx = crossfilter([]);
-                        if ((group.styles) && (group.styles.length > 0)) {
-                            var styleId: string = group.styles[0].id;
-                            //var legend: Legend;
-                            //var url: string = "dummylegend.json";
-                            //$.getJSON(url,(data: Legend) => {
-                            //    legend = new Legend().deserialize(data);
-                            //}
-                        };
-                        if (group.styles == null) group.styles = [];
-                        if (group.filters == null) group.filters = [];
-                        group.markers = {};
-                        if (group.languages != null && this.currentLocale in group.languages) {
-                            var locale = group.languages[this.currentLocale];
-                            if (locale.title) group.title = locale.title;
-                            if (locale.description) group.description = locale.description;
-                        }
-                        if (group.clustering) {
-                            group.cluster = new L.MarkerClusterGroup({
-                                maxClusterRadius: group.maxClusterRadius || 80,
-                                disableClusteringAtZoom: group.clusterLevel || 0
-                            });
-
-                            this.map.map.addLayer(group.cluster);
-                        } else {
-                            group.vectors = new L.LayerGroup<L.ILayer>();
-                            this.map.map.addLayer(group.vectors);
-                        }
-                        if (!group.layers) group.layers = [];
-                        group.layers.forEach((layer: ProjectLayer) => {
-                            if (layer.id == null) layer.id = Helpers.getGuid();
-                            layer.type = layer.type.toLowerCase();
-                            if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
-                            if (layer.title == null) layer.title = layer.id;
-                            if (layer.languages != null && this.currentLocale in layer.languages) {
-                                var locale = layer.languages[this.currentLocale];
-                                if (locale.title) layer.title = locale.title;
-                                if (locale.description) layer.description = locale.description;
-                            }
-
-                            layer.group = group;
-                            if (layer.enabled || layerIds.indexOf(layer.reference.toLowerCase()) >= 0) {
-                                layer.enabled = true;
-                                this.activeMapRenderer.addLayer(layer);
-                            }
-                        });
-
-                        group.styles.forEach((style: GroupStyle) => {
-                            if (style.id != null) style.id = Helpers.getGuid();
-                        });
-
-                        group.filters.forEach((filter: GroupFilter) => {
-                            if (filter.id != null) filter.id = Helpers.getGuid();
-                        });
+                        this.initGroup(group,layerIds);
 
                         if (data.startposition)
                             this.$mapService.zoomToLocation(new L.LatLng(data.startposition.latitude, data.startposition.longitude));
 
                         this.updateFilters();
+
                     });
                 }
                 if (this.project.connected) {
@@ -1372,12 +1328,58 @@
                 }
 
                 // check if project is dynamic
-                if (project.dynamic)
+                if (solutionProject.dynamic)
                 {
                   this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
                       if (msg.action === "layer-update") {
-                        alert('new layer');
+                        msg.data.forEach((l : ProjectLayer) =>{
+                          var g : ProjectGroup;
+                          // find group
+                          if (l.groupId) {g = this.findGroupById(l.groupId);} else { l.groupId="main"; }
+                          if (!g)
+                          {
+                            g = new ProjectGroup();
+                            g.id = l.groupId;
+                            g.title = l.groupId;
+                            this.project.groups.push(g);
+                            this.initGroup(g);
+                          }
+                          g.layers.push(l);
+                          this.initLayer(g,l);
+                          if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+
+                        } );
+
+                        // init group
+                        // add layer
+
                       }
+                      if (msg.action === "layer-remove"){
+                        msg.data.forEach((l : ProjectLayer) =>{
+                          var g : ProjectGroup;
+                          // find group
+                          if (l.groupId) {g = this.findGroupById(l.groupId);} else { l.groupId="main"; }
+                          if (g!=null)
+                          {
+                            g.layers.forEach((layer : ProjectLayer)=>{
+                              if (layer.id == l.id)
+                              {
+                                this.removeLayer(layer,true);
+                                //console.log('remove layer'+layer.id);
+                              }
+                            });
+
+                            if (g.layers.length == 0)
+                            {
+                              this.removeGroup(g);
+                            }
+                          }
+                        });
+                        // find group
+                        // find layer
+                        // remove layer
+
+                            }
                     });
                 }
 
@@ -1385,6 +1387,88 @@
                 if (this.project.dashboards && this.project.dashboards.length > 0)
                     this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
             });
+        }
+
+        public removeGroup(group : ProjectGroup)
+        {
+          if (group.layers)
+          {
+            group.layers.forEach((l : ProjectLayer)=>{
+              if (l.enabled) this.removeLayer(l,true);
+            })
+          }
+          group.ndx = null;
+          this.project.groups = this.project.groups.filter((g:ProjectGroup)=>g!=group);
+          if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+        }
+
+        /** initializes project group (create crossfilter index, clustering, initializes layers) */
+        public initGroup(group: ProjectGroup,layerIds?: string[])
+        {
+          if (group.id == null) group.id = Helpers.getGuid();
+
+          group.ndx = crossfilter([]);
+          if ((group.styles) && (group.styles.length > 0)) {
+              var styleId: string = group.styles[0].id;
+              //var legend: Legend;
+              //var url: string = "dummylegend.json";
+              //$.getJSON(url,(data: Legend) => {
+              //    legend = new Legend().deserialize(data);
+              //}
+          };
+          if (group.styles == null) group.styles = [];
+          if (group.filters == null) group.filters = [];
+          group.markers = {};
+          if (group.languages != null && this.currentLocale in group.languages) {
+              var locale = group.languages[this.currentLocale];
+              if (locale.title) group.title = locale.title;
+              if (locale.description) group.description = locale.description;
+          }
+          if (group.clustering) {
+              group.cluster = new L.MarkerClusterGroup({
+                  maxClusterRadius: group.maxClusterRadius || 80,
+                  disableClusteringAtZoom: group.clusterLevel || 0
+              });
+
+              this.map.map.addLayer(group.cluster);
+          } else {
+              group.vectors = new L.LayerGroup<L.ILayer>();
+              this.map.map.addLayer(group.vectors);
+          }
+          if (!group.layers) group.layers = [];
+          group.layers.forEach((layer: ProjectLayer) => {
+              this.initLayer(group,layer,layerIds);
+          });
+
+          group.styles.forEach((style: GroupStyle) => {
+              if (style.id != null) style.id = Helpers.getGuid();
+          });
+
+          group.filters.forEach((filter: GroupFilter) => {
+              if (filter.id != null) filter.id = Helpers.getGuid();
+          });
+
+
+        }
+
+        /** initializes a layer (check for id, language, references group, add to active map renderer) */
+        public initLayer(group : ProjectGroup, layer : ProjectLayer, layerIds? : string[])
+        {
+          if (layer.id == null) layer.id = Helpers.getGuid();
+          layer.type = layer.type.toLowerCase();
+          if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
+          if (layer.title == null) layer.title = layer.id;
+          if (layer.languages != null && this.currentLocale in layer.languages) {
+              var locale = layer.languages[this.currentLocale];
+              if (locale.title) layer.title = locale.title;
+              if (locale.description) layer.description = locale.description;
+          }
+
+          layer.group = group;
+          if (layer.enabled || (layerIds && layerIds.indexOf(layer.reference.toLowerCase()) >= 0)) {
+              layer.enabled = true;
+              this.activeMapRenderer.addLayer(layer);
+          }
         }
 
         checkDataSourceSubscriptions(ds: DataSource) {
@@ -1495,117 +1579,22 @@
             return r;
         }
 
-        private updateFilters() {
-            var fmain = $('#filterChart');
-            fmain.empty();
-            this.noFilters = true;
-
-            this.project.groups.forEach((group: ProjectGroup) => {
-                if (group.filters != null && group.filters.length > 0) {
-                    $('<div style=\'float:left;margin-left: -10px; margin-top: 5px\' data-toggle=\'collapse\' data-target=\'#filters_' + group.id + '\'><i class=\'fa fa-chevron-down togglebutton toggle-arrow-down\'></i><i class=\'fa fa-chevron-up togglebutton toggle-arrow-up\'></i></div><div class=\'group-title\' >' + group.title + '</div><div id=\'filtergroupcount_' + group.id + '\'  class=\'filter-group-count\' /><div class=\'collapse in\' id=\'filters_' + group.id + '\'></div>').appendTo('#filterChart');
-                    group.filters.forEach((filter: GroupFilter) => {
-                        if (filter.dimension != null) filter.dimension.dispose();
-                        this.noFilters = false;
-                        switch (filter.filterType) {
-                            case 'text':
-                                this.addTextFilter(group, filter);
-                                break;
-                            case 'bar':
-                                this.addBarFilter(group, filter);
-                                break;
-                            case 'scatter':
-                                this.addScatterFilter(group, filter);
-                                break;
-                        }
-                    });
-                }
-                this.updateFilterGroupCount(group);
-            });
-            dc.renderAll();
+        public updateFilters() {
+          return;
         }
 
-        private updateTextFilter(group: ProjectGroup, dcDim: any, value: string) {
 
-            if (value == null || value === '') {
-                dcDim.filterAll();
-            } else {
-                dcDim.filterFunction((d: string) => {
-                    if (d != null) return (d.toLowerCase().indexOf(value.toLowerCase()) > -1);
-                    return false;
-                });
-            }
 
-            group.filterResult = dcDim.top(Infinity);
-            this.updateMapFilter(group);
-            dc.renderAll();
-        }
-
-        private updateFilterGroupCount(group: ProjectGroup) {
+        public updateFilterGroupCount(group: ProjectGroup) {
             if (group.filterResult != null)
                 $('#filtergroupcount_' + group.id).text(group.filterResult.length + ' objecten geselecteerd');
         }
 
-        /***
-         * Add text filter to list of filters
-         */
-        private addTextFilter(group: ProjectGroup, filter: GroupFilter) {
-            filter.id = Helpers.getGuid();
-            //var divid = 'filter_' + filter.id;
-            var dcDim = group.ndx.dimension(d => {
-                if (d.properties.hasOwnProperty(filter.property)) {
-                    return d.properties[filter.property];
-                } else return null;
-            });
-            filter.dimension = dcDim;
-            dcDim.filterFunction((d: string) => {
-                if (d != null) return (d.toLowerCase().indexOf(filter.stringValue.toLowerCase()) > -1);
-                return false;
-            });
 
-            this.updateTextFilter(group, dcDim, filter.stringValue);
-            var fid = 'filtertext' + filter.id;
-            $('<h4>' + filter.title + '</h4><input type=\'text\' value=\'' + filter.stringValue + '\' class=\'filter-text\' id=\'' + fid + '\'/><a class=\'btn\' value=' + filter.value + ' id=\'remove' + filter.id + '\'><i class=\'fa fa-times\'></i></a>').appendTo('#filters_' + group.id);
-            //$("<h4>" + filter.title + "</h4><input type='text' class='filter-text' id='" + fid + "'/></div><a class='btn btn-filter-delete' value=" + filter.value + " id='remove" + filter.id + "'><i class='fa fa-remove'></i></a>").appendTo("#filterChart");
-            $('#' + fid).keyup(() => {
-                filter.stringValue = $('#' + fid).val();
-                this.updateTextFilter(group, dcDim, filter.stringValue);
-                this.updateFilterGroupCount(group);
-                //alert('text change');
-            });
-            $('#remove' + filter.id).on('click', () => {
-                var pos = group.filters.indexOf(filter);
-
-                filter.dimension.filterAll();
-                filter.dimension.dispose();
-                filter.dimension = null;
-                if (pos !== -1) group.filters = group.filters.slice(pos - 1, pos);
-                dc.filterAll();
-
-                this.updateFilters();
-                this.resetMapFilter(group);
-            });
-        }
-
-        private updateChartRange(chart: dc.IBarchart, filter: GroupFilter) {
-            var filterFrom = $('#fsfrom_' + filter.id);
-            var filterTo = $('#fsto_' + filter.id);
-            var extent = (<any>chart).brush().extent();
-            if (extent != null && extent.length === 2) {
-                if (extent[0] !== extent[1]) {
-                    console.log(extent);
-                    //if (extent.length == 2) {
-                    filterFrom.val(extent[0]);
-                    filterTo.val(extent[1]);
-                }
-            } else {
-                filterFrom.val('0');
-                filterTo.val('1');
-            }
-        }
 
 
         private addScatterFilter(group: ProjectGroup, filter: GroupFilter) {
-            filter.id = Helpers.getGuid();
+
 
             var info = this.calculatePropertyInfo(group, filter.property);
             var info2 = this.calculatePropertyInfo(group, filter.property2);
@@ -1693,158 +1682,16 @@
             //.range([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
         }
 
-        /***
-         * Add bar chart filter for filter number values
-         */
-        private addBarFilter(group: ProjectGroup, filter: GroupFilter) {
-            filter.id = Helpers.getGuid();
-            var info = this.calculatePropertyInfo(group, filter.property);
 
-            var divid = 'filter_' + filter.id;
-            //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
-            //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
-
-            $('<div style=\'position:relative\'><h4>' + filter.title + '</h4><span class=\'dropdown\' dropdown><a href class=\'fa fa-circle-o makeNarrow dropdown-toggle\' dropdown-toggle > </a><ul class=\'dropdown-menu\' ><li><a>scatter plot</a></li><li><a>add to dashboard< /a></li ></ul></span><a class=\'btn fa fa-cog\' style=\'position:absolute;top:-5px;right:0\' id=\'remove' + filter.id + '\'></a><div id=\'' + divid + '\' style=\'float:none\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div></div>').appendTo('#filterChart');
-            var filterFrom = $('#fsfrom_' + filter.id);
-            var filterTo = $('#fsto_' + filter.id);
-            var filterRange = $('#fdrange_' + filter.id);
-            $('#remove' + filter.id).on('click', () => {
-                var pos = group.filters.indexOf(filter);
-                if (pos !== -1) group.filters.splice(pos, 1);
-                filter.dimension.dispose();
-                this.updateFilters();
-
-                this.resetMapFilter(group);
-            });
-
-            var dcChart = <any>dc.barChart('#' + divid);
-
-            var nBins = 20;
-
-            var binWidth = (info.sdMax - info.sdMin) / nBins;
-
-            var dcDim = group.ndx.dimension(d => {
-                if (!d.properties.hasOwnProperty(filter.property)) return null;
-                else {
-                    if (d.properties[filter.property] != null) {
-                        var a = parseInt(d.properties[filter.property]);
-                        if (a >= info.sdMin && a <= info.sdMax) {
-                            return Math.floor(a / binWidth) * binWidth;
-                        } else {
-                            return null;
-                        }
-                    }
-                    return null;
-                    //return a;
-                }
-            });
-            filter.dimension = dcDim;
-            var dcGroup = dcDim.group();
-
-            //var scale =
-            dcChart.width(275)
-                .height(90)
-                .dimension(dcDim)
-                .group(dcGroup)
-                .transitionDuration(100)
-                .centerBar(true)
-                .gap(5) //d3.scale.quantize().domain([0, 10]).range(d3.range(1, 4));
-                .elasticY(true)
-                .x(d3.scale.linear().domain([info.sdMin, info.sdMax]).range([-1, nBins + 1]))
-                .filterPrinter(filters => {
-                var s = '';
-                if (filters.length > 0) {
-                    var localFilter = filters[0];
-                    filterFrom.text(localFilter[0].toFixed(2));
-                    filterTo.text(localFilter[1].toFixed(2));
-                    s += localFilter[0];
-                }
-
-                return s;
-            })
-                .on('filtered', (e) => {
-                var fil = e.hasFilter();
-                if (fil) {
-                    filterRange.show();
-                } else {
-                    filterRange.hide();
-                }
-                dc.events.trigger(() => {
-                    group.filterResult = dcDim.top(Infinity);
-                    this.updateFilterGroupCount(group);
-                }, 0);
-                dc.events.trigger(() => {
-                    this.updateMapFilter(group);
-                }, 100);
-            });
-
-            dcChart.xUnits(() => { return 13; });
-
-            filterFrom.on('change', () => {
-                if ($.isNumeric(filterFrom.val())) {
-                    var min = parseInt(filterFrom.val());
-                    var filters = dcChart.filters();
-                    if (filters.length > 0) {
-                        filters[0][0] = min;
-                        dcChart.filter(filters[0]);
-                        dcChart.render();
-                        //dcDim.filter(filters[0]);
-                        dc.redrawAll();
-                        //dc.renderAll();
-                    }
-                }
-            });
-            filterTo.on('change', () => {
-                if ($.isNumeric(filterTo.val())) {
-                    var max = parseInt(filterTo.val());
-                    var filters = dcChart.filters();
-                    if (filters.length > 0) {
-                        filters[0][1] = max;
-                        dcChart.filter(filters[0]);
-                        dcDim.filter(filters[0]);
-                        dc.renderAll();
-                    }
-                    //dc.redrawAll();
-                }
-                //dcDim.filter([min, min + 100]);
-            });
-
-            //if (filter.meta != null && filter.meta.minValue != null) {
-            //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
-            //} else {
-            //    var propInfo = this.calculatePropertyInfo(group, filter.property);
-            //    var dif = (propInfo.max - propInfo.min) / 100;
-            //    dcChart.x(d3.scale.linear().domain([propInfo.min - dif, propInfo.max + dif]));
-            //}
-
-            dcChart.yAxis().ticks(5);
-            dcChart.xAxis().ticks(5);
-            this.updateChartRange(dcChart, filter);
-            //.x(d3.scale.quantile().domain(dcGroup.all().map(function (d) {
-            //return d.key;
-            //   }))
-            //.range([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
-        }
 
         /***
          * Update map markers in cluster after changing filter
          */
-        private updateMapFilter(group: ProjectGroup) {
-            $.each(group.markers, (key, marker) => {
-                var included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
-                if (group.clustering) {
-                    var incluster = group.cluster.hasLayer(marker);
-                    if (!included && incluster) group.cluster.removeLayer(marker);
-                    if (included && !incluster) group.cluster.addLayer(marker);
-                } else {
-                    var onmap = group.vectors.hasLayer(marker);
-                    if (!included && onmap) group.vectors.removeLayer(marker);
-                    if (included && !onmap) group.vectors.addLayer(marker);
-                }
-            });
+        public updateMapFilter(group: ProjectGroup) {
+            this.activeMapRenderer.updateMapFilter(group);
         }
 
-        private resetMapFilter(group: ProjectGroup) {
+        public resetMapFilter(group: ProjectGroup) {
             $.each(group.markers, (key, marker) => {
                 if (group.clustering) {
                     var incluster = group.cluster.hasLayer(marker);

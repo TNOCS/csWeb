@@ -17,6 +17,7 @@ module csComp.Services {
             this.baseAddLayer(layer, callback);
         }
 
+        /** zoom to boundaries of layer */
         public fitMap(layer : ProjectLayer)
         {
             var b = Helpers.GeoExtensions.getBoundingBox(this.layer.data);

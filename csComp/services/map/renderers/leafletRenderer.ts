@@ -238,7 +238,8 @@ module csComp.Services {
          */
         public updateMapFilter(group: ProjectGroup) {
             $.each(group.markers,(key, marker) => {
-                var included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+                var included;
+                if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
                 if (group.clustering) {
                     var incluster = group.cluster.hasLayer(marker);
                     if (!included && incluster) group.cluster.removeLayer(marker);
@@ -368,7 +369,7 @@ module csComp.Services {
                     // Must the iconUri be formatted?
                     if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
 
-                    html += '<img src=' + iconUri + ' style=\'width:' + (feature.effectiveStyle.iconWidth - 6) + 'px;height:' + (feature.effectiveStyle.iconHeight - 6) + 'px';
+                    html += '<img src=\'' + iconUri + '\' style=\'width:' + (feature.effectiveStyle.iconWidth - 6) + 'px;height:' + (feature.effectiveStyle.iconHeight - 6) + 'px';
                     if (feature.effectiveStyle.rotate && feature.effectiveStyle.rotate > 0) html += ';transform:rotate(' + feature.effectiveStyle.rotate + 'deg)';
                     html += '\' />';
                 }

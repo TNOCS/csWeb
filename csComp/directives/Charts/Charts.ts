@@ -142,12 +142,12 @@
       });
 
   svg.append("text")
-        .attr("dy", ".35em")
+        .attr("dy", "-0.25em")
         .style("text-anchor", "middle")
         .attr("class", scope.valueClass)
         .text(function(d) { return scope.valueString; });
   svg.append("text")
-         .attr("dy", "2em")
+         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .attr("class", scope.titleClass)
         .text(function(d) { return scope.title; });

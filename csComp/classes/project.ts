@@ -14,7 +14,7 @@
     */
     export interface ISerializable<T> {
         deserialize(input: Object): T;
-    }
+    } 
 
     var availableZoomLevels  = [
         { title: "decades",      value: 315360000000 },
@@ -27,6 +27,33 @@
         { title: "seconds",      value: 1000 },
         { title: "milliseconds", value: 1 }
     ];
+
+
+
+    export interface IMapRenderer {
+        title: string;
+        init(service: LayerService);
+        enable();
+        disable();
+        addGroup(group: ProjectGroup);
+        addLayer(layer: ProjectLayer);
+        removeGroup(group: ProjectGroup);
+        createFeature(feature: IFeature);
+        removeFeature(feature: IFeature);
+        updateFeature(feature: IFeature);
+        addFeature(feature: IFeature);
+        removeLayer(layer : ProjectLayer);
+                updateMapFilter(group: ProjectGroup);
+
+    }
+
+    export class VisualState {
+        public leftPanelVisible: boolean = true;
+        public rightPanelVisible: boolean = false;
+        public dashboardVisible: boolean = true;
+        public mapVisible: boolean = true;
+        public timelineVisible: boolean = true;
+    }
 
     export class DateRange {
         start        : number;
@@ -292,6 +319,8 @@
         /** Indent the layer, so it seems to be a sublayer. */
         isSublayer: boolean;
         mapLayer: L.LayerGroup<L.ILayer>;
+        /** id of the group */
+        groupId : string;
         /** Group of layers */
         group: ProjectGroup;
         layerSource : ILayerSource;
