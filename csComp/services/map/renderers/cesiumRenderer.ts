@@ -187,6 +187,9 @@ module csComp.Services
             if (feature.properties['Name'] !== undefined)
               entity.name = feature.properties['Name'];
 
+            // override for buildings from Top10NL
+            var height = feature.properties['mediaan_hoogte'] === undefined ?  feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
+
             switch (feature.geometry.type.toUpperCase())
             {
                 case "POINT":
@@ -198,14 +201,15 @@ module csComp.Services
                 break;
 
                 case "POLYGON":
-                    entity.polygon = {
-                          hierarchy : this.createPolygon(feature.geometry.coordinates).hierarchy,
+                    entity.polygon = new Cesium.PolygonGraphics( {
+                          hierarchy : this.createPolygon(feature.geometry.coordinates),
                           material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
                           outline : true,
                           outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                          outlineWidth: feature.effectiveStyle.strokeWidth,
-                          extrudedHeight: feature.effectiveStyle.height
-                    }
+                          outlineWidth: feature.effectiveStyle.strokeWidth, // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
+                          extrudedHeight: height,
+                          perPositionHeight: true
+                    });
                 break;
 
                 case "MULTIPOLYGON":
@@ -215,13 +219,15 @@ module csComp.Services
                         var entity_multi = new Cesium.Entity();
                         entity_multi.feature = feature;
 
-                        var polygon = polygons[i];
-
-                        polygon.material = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
-                        polygon.outline = true;
-                        polygon.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
-                        polygon.outlineWidth = feature.effectiveStyle.strokeWidth;
-                        polygon.extrudedHeight = feature.effectiveStyle.height;
+                        var polygon = new Cesium.PolygonGraphics({
+                            hierarchy : polygons[i],
+                            material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            outline : true,
+                            outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                            outlineWidth : feature.effectiveStyle.strokeWidth,
+                            extrudedHeight : height,
+                            perPositionHeight: true
+                        });
                         entity_multi.polygon = polygon;
 
                         this.viewer.entities.add(entity_multi);
@@ -234,20 +240,25 @@ module csComp.Services
                 break;
             }
 
-            // a billboard is an icon for a feature
-            entity.billboard = {
-                image : feature.fType.style.iconUri,
-                color : Cesium.Color.WHITE,
-                width : feature.fType.style.iconWidth,
-                height : feature.fType.style.iconHeight
-            };
+            var pixelSize = 5;
+            if (feature.fType.style.iconUri !== undefined)
+            {
+                // a billboard is an icon for a feature
+                entity.billboard = {
+                    image : feature.fType.style.iconUri,
+                    width : feature.effectiveStyle.iconWidth,
+                    height : feature.effectiveStyle.iconHeight
+                };
+                // we draw this point very large because it serves as a background for the billboards
+                pixelSize = 35;
+            }
 
             // if there is no icon, a PointGraphics object is used as a fallback mechanism
             entity.point = {
-                pixelSize : 5,
+                pixelSize : pixelSize,
                 color : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
                 outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                outlineWidth : feature.effectiveStyle.strokeWidth,
+                outlineWidth : feature.effectiveStyle.strokeWidth
             };
 
             //label for mouseover events
@@ -256,7 +267,7 @@ module csComp.Services
                 font : '12pt monospace',
                 style: Cesium.LabelStyle.FILL_AND_OUTLINE,
                 fillColor: Cesium.Color.WHITE,
-                pixelOffset : new Cesium.Cartesian2(0, 20),
+                pixelOffset : new Cesium.Cartesian2(0, 40),
                 show : false
             };
 
@@ -292,11 +303,20 @@ module csComp.Services
             var polygon = new Cesium.PolygonHierarchy();
             var holes = [];
             for (var i = 1, len = coordinates.length; i < len; i++) {
-                holes.push(new Cesium.PolygonHierarchy(Cesium.Cartesian3.fromDegreesArray(Array.prototype.concat.apply([], coordinates[i]))));
+                var flattenedPositions = Array.prototype.concat.apply([], coordinates[i]);
+                if (coordinates[i][0].length == 3)
+                    holes.push(Cesium.Cartesian3.fromDegreesArrayHeights(flattenedPositions));
+                else
+                    holes.push(Cesium.Cartesian3.fromDegreesArray(flattenedPositions));
             }
+            polygon.holes = holes;
 
             var positions = coordinates[0];
-            polygon.hierarchy = new Cesium.ConstantProperty(new Cesium.PolygonHierarchy(Cesium.Cartesian3.fromDegreesArray(Array.prototype.concat.apply([],positions)), holes));
+            var flattenedPositions = Array.prototype.concat.apply([], positions);
+            if (coordinates[0][0].length == 3)
+                polygon.positions = Cesium.Cartesian3.fromDegreesArrayHeights(flattenedPositions);
+            else
+                polygon.positions = Cesium.Cartesian3.fromDegreesArray(flattenedPositions);
 
             return polygon;
         }
