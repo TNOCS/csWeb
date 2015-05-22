@@ -19,7 +19,7 @@
 
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: IndicatorsCtrl;
-        
+
         data: indicatorData;
     }
 
@@ -54,22 +54,22 @@
                 this.checkLayers();
             });
             $scope.data = <indicatorData>this.widget.data;
-            $scope.data.indicators.forEach((i: indicator) => {
-                i.id = "circ-" + csComp.Helpers.getGuid();
-                if (i.sensor != null) {
-                    this.$messageBus.subscribe("sensor-" + i.sensor, (action: string, data: string)=>
-                    {
-                      switch(action)
-                      {
-                        case "update":
-                          //console.log("sensor update:" + data);
-                          //this.updateIndicator(i);
-                          break;
-                      }
-                    });
-                    this.updateIndicator(i);
-                }
-            });
+            if (typeof $scope.data.indicators !== 'undefined') {
+                $scope.data.indicators.forEach((i: indicator) => {
+                    i.id = "circ-" + csComp.Helpers.getGuid();
+                    if (i.sensor != null) {
+                        this.$messageBus.subscribe("sensor-" + i.sensor, (action: string, data: string) => {
+                            switch (action) {
+                                case "update":
+                                    //console.log("sensor update:" + data);
+                                    //this.updateIndicator(i);
+                                    break;
+                            }
+                        });
+                        this.updateIndicator(i);
+                    }
+                });
+            }
             $timeout(() => this.checkLayers());
         }
 

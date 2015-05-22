@@ -103,6 +103,8 @@
         "./directives/Widgets/Filters/TextFilterCtrl.ts",
         "./directives/Widgets/Indicators/Indicators.ts",
         "./directives/Widgets/Indicators/IndicatorsCtrl.ts",
+        "./directives/Widgets/MarkdownWidget/MarkdownWidget.ts",
+        "./directives/Widgets/MarkdownWidget/MarkdownWidgetCtrl.ts",
         "./helpers/Dictionary.ts",
         "./helpers/GeoExtensions.ts",
         "./helpers/Helpers.ts",

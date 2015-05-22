@@ -10,7 +10,7 @@
         * Load a JavaScript or CSS file dynamically by adding it to the end of the HEAD section in your document.
         * See also: http://www.javascriptkit.com/javatutors/loadjavascriptcss.shtml
         */
-        static loadJsCssfile(filename: string, filetype: FileType, callback?: Function) {
+        static loadJsCssfile(filename: string, filetype: FileType, callback?: (evt: Event) => void) {
             if (Utils.loadedFiles.indexOf(filename) > 0) return;
             Utils.loadedFiles.push(filename);
             switch (filetype) {
@@ -41,4 +41,4 @@
             }
         }
     }
-} 
+}
