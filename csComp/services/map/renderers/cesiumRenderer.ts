@@ -187,6 +187,9 @@ module csComp.Services
             if (feature.properties['Name'] !== undefined)
               entity.name = feature.properties['Name'];
 
+            // override for buildings from Top10NL
+            var height = feature.properties['mediaan_hoogte'] === undefined ?  feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
+
             switch (feature.geometry.type.toUpperCase())
             {
                 case "POINT":
@@ -204,7 +207,8 @@ module csComp.Services
                           outline : true,
                           outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
                           outlineWidth: feature.effectiveStyle.strokeWidth, // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
-                          extrudedHeight: feature.effectiveStyle.height
+                          extrudedHeight: height,
+                          perPositionHeight: true
                     });
                 break;
 
@@ -221,7 +225,7 @@ module csComp.Services
                             outline : true,
                             outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
                             outlineWidth : feature.effectiveStyle.strokeWidth,
-                            extrudedHeight : feature.effectiveStyle.height,
+                            extrudedHeight : height,
                             perPositionHeight: true
                         });
                         entity_multi.polygon = polygon;
