@@ -14,7 +14,7 @@
     */
     export interface ISerializable<T> {
         deserialize(input: Object): T;
-    } 
+    }
 
     var availableZoomLevels  = [
         { title: "decades",      value: 315360000000 },
@@ -352,6 +352,10 @@
         languages: ILanguageData;
         /** layer original source */
         data: any;
+        /**
+         * Object to hold any specific parameters for a certain type of layer.
+         */
+        parameters: any;
         cesiumDatasource: any;
         items : any;
 

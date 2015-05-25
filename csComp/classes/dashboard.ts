@@ -13,7 +13,7 @@ module csComp.Services {
         template         : string;  // name of the template that should be shown as widget
         title            : string;  // title of the widget
         elementId        : string;
-        enabled : boolean;
+        enabled          : boolean;
         dashboard        : csComp.Services.Dashboard;
         renderer         : Function;
         resize           : Function;
@@ -24,7 +24,7 @@ module csComp.Services {
         right?           : string;
         top?             : string;
         bottom?          : string;
-        borderWidth: string;
+        borderWidth      : string;
         borderColor      : string;
         borderRadius     : string;
 
@@ -50,8 +50,8 @@ module csComp.Services {
         public url              : string;
         public elementId        : string;
         public dashboard        : csComp.Services.Dashboard;
-        public enabled : boolean = true;
-        public borderWidth: string = "1px";
+        public enabled          : boolean = true;
+        public borderWidth      : string = "1px";
         public borderColor      : string = "green";
         public borderRadius     : string = "5px";
 
