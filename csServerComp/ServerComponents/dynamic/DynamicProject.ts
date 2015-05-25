@@ -1,6 +1,7 @@
-//require('rootpath')();
+require('rootpath')();
 import express       = require('express')
 import ClientConnection = require('ClientConnection');
+import MessageBus = require('ServerComponents/bus/MessageBus');
 import fs = require('fs');
 import path = require('path');
 var chokidar = require('chokidar');
@@ -21,7 +22,7 @@ module DynamicProject {
     public project : any;
 
 
-    constructor(public folder : string, public id, public service : DynamicProjectService )
+    constructor(public folder : string, public id, public service : DynamicProjectService,public messageBus : MessageBus.MessageBusService )
     {
 
     }
@@ -33,6 +34,10 @@ module DynamicProject {
 
       // watch directory changes for new geojson files
       this.watchFolder();
+
+      // listen to messagebus
+
+
 
 
       // setup http handler
@@ -154,13 +159,29 @@ module DynamicProject {
       public test : string;
       public projects : { [key: string] : DynamicProject} = {};
 
-      public constructor(public server : express.Express, public connection : ClientConnection.ConnectionManager)
+      public constructor(public server : express.Express, public connection : ClientConnection.ConnectionManager, public messageBus : MessageBus.MessageBusService)
       {
 
       }
 
       public Start(server: express.Express)
       {
+        console.log("Start project service");
+        this.messageBus.subscribe('dynamic_project_layer', (title : string, data : any)=> {
+          // find project
+          if (this.projects.hasOwnProperty(data.project)){
+            var dp = this.projects[data.project];
+            //dp.AddGeojson()
+          }
+
+          //
+          console.log('got it!:' + JSON.stringify(data));
+          fs.writeFileSync("c:/Temp/excel_export.json", JSON.stringify(data.geojson));
+          console.log('done!');
+
+        });
+
+
         var rootDir = "public\\data\\projects";
         fs.readdir(rootDir,(error,folders)=>{
           if (!error)
@@ -171,7 +192,7 @@ module DynamicProject {
               fs.stat(filePath,(error,stat)=>
               {
                 if (!error && stat.isDirectory && filePath.indexOf('projects.json')==-1) {
-                  var dp = new DynamicProject(filePath,f,this);
+                  var dp = new DynamicProject(filePath,f,this,this.messageBus);
                   this.projects[f] = dp;
                   dp.Start();
                 }
@@ -180,7 +201,8 @@ module DynamicProject {
             });
           }
         });
-        console.log("Start project service");
+
+
 
       }
 
