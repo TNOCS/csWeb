@@ -13,6 +13,14 @@
     declare var JSON;
     declare var io;
 
+    export class RightPanelTab
+    {
+      public title : string;
+      public container : string;
+      public directive : string;
+      public data : any;
+    }
+
     export class DashboardService {
         public maxBounds: IBoundingBox;
         public featureDashboard: csComp.Services.Dashboard;
@@ -59,6 +67,15 @@
 
             this.$messageBusService.subscribe("dashboard",(event: string, id: string) => {
                 alert(event);
+            });
+            this.$messageBusService.subscribe("rightpanel",(event : string, tab: RightPanelTab)=>{
+              switch (event)
+              {
+                case "activate":
+                  this.activateTab(tab);
+                  break;
+              }
+
             });
 
             //this.widgetTypes["Title"] = new TitleWidget();
@@ -115,11 +132,32 @@
             return this.addNewWidget(widget, this.mainDashboard);
         }
 
+        public activateTab(tab : RightPanelTab)
+        {
+          this.$layerService.visual.rightPanelVisible = true;
+          var content = tab.container + "-content";
+          $("#" + tab.container + "-tab").remove();
+          $("#" + content).remove();
+          $("#rightpanelTabs").append("<li id='" + tab.container + "-tab' class='rightPanelTab rightPanelTabAnimated'><a href='#" + content + "' data-toggle='tab'><span class='fa fa-tachometer fa-lg'></span></a></li>");
+          $("#rightpanelTabPanes").append("<div class='tab-pane' style='width:355px' id='" + content + "'></div>");
+          var newScope =  this.$rootScope;
+          (<any>newScope).data = tab.data;
+          var widgetElement = this.$compile("<" + tab.directive + "></" + tab.directive + ">")(newScope);
+          $("#" + content).append(widgetElement);
+          (<any>$("#rightpanelTabs a[href='#" + content + "']")).tab('show');
+        }
+
         public editWidget(widget: csComp.Services.IWidget) {
             this.activeWidget = widget;
             this.editWidgetMode = true;
-            $("#widgetEdit").addClass('active');
-            this.$layerService.visual.rightPanelVisible = true;
+            // $("#widgetEdit").addClass('active');
+
+            var rpt = new RightPanelTab();
+            rpt.container = "widget";
+            rpt.data = widget;
+            rpt.title = "Edit Widget";
+            rpt.directive = "widgetedit";
+            this.$messageBusService.publish("rightpanel","activate",rpt);
 
             //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
         }

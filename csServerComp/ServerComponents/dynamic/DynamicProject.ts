@@ -45,6 +45,13 @@ module DynamicProject {
 
     }
 
+    public AddLayer(data : any)
+    {
+      var file = this.folder + "\\" + this.project.groups[0].title + "\\" + data.reference + ".json";
+      fs.writeFileSync(file, JSON.stringify(data.geojson));
+      console.log('done!');
+    }
+
 
     /***
     Open project file from disk
@@ -60,7 +67,7 @@ module DynamicProject {
                   if (!this.project.id) this.project.id = this.project.title;
 
                   if (!this.project.groups) this.project.groups = [];
-                  console.log("ProjectID: " + this.project.id);
+                  //console.log("ProjectID: " + this.project.id);
                 }
                 catch(e)
                 {
@@ -137,7 +144,7 @@ module DynamicProject {
       layer.url = "data/projects/" + this.id + "/" + g.title + "/" + pp.base;
       layer.groupId = g.title;
       g.layers.push(layer);
-      console.log("project id:" + this.project.id);
+
       this.service.connection.sendUpdate(this.project.id,"project","layer-update",[layer]);
 
       // save project.json (+backup)
@@ -171,13 +178,13 @@ module DynamicProject {
           // find project
           if (this.projects.hasOwnProperty(data.project)){
             var dp = this.projects[data.project];
-            //dp.AddGeojson()
+            //console.log("adding layer");
+            dp.AddLayer(data);
           }
 
           //
-          console.log('got it!:' + JSON.stringify(data));
-          fs.writeFileSync("c:/Temp/excel_export.json", JSON.stringify(data.geojson));
-          console.log('done!');
+
+
 
         });
 

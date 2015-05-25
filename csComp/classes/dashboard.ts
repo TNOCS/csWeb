@@ -119,10 +119,11 @@ module csComp.Services {
         showTimeline:    boolean = true;
         showLeftmenu:    boolean;
         showRightmenu:   boolean = true;
+        showBackgroundImage : boolean = false;
         draggable:       boolean = true;
         resizable:       boolean = true;
         background:      string;
-        backgroundimage: string;
+        backgroundimage: string = "images/amsterdam.jpg";
         visiblelayers:   string[];
         baselayer:       string;
         viewBounds:      IBoundingBox;

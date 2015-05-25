@@ -1,76 +1,67 @@
-<div data-ng-cloak>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Widget Position</a>
-            </h4>
-        </div>
-        <div id="collapseOne" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="controls">
-                <label class="control-label" for="widgetWidth">Width</label>
-                <input id="widgetWidth" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.width" placeholder="width" class="input-xlarge">
-              </div>
-              <div class="controls">
-                <label class="control-label" for="widgetHeight">Height</label>
-                <input id="widgetHeight" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.height" placeholder="height" class="input-xlarge">
-              </div>
-              <div class="controls">
-                <label class="control-label" for="widgetLeft">Left</label>
-                <input id="widgetLeft" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.left" placeholder="left" class="input-xlarge">
-              </div>
-              <div class="controls">
-                <label class="control-label" for="widgetRight">Right</label>
-                <input id="widgetRight" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.right" placeholder="right" class="input-xlarge">
-              </div>
-              <div class="controls">
-                <label class="control-label" for="widgetTop">Top</label>
-                <input id="widgetTop" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.top" placeholder="top" class="input-xlarge">
-              </div>
-              <div class="controls">
-                <label class="control-label" for="widgetBottom">Bottom</label>
-                <input id="widgetBottom" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.bottom" placeholder="bottom" class="input-xlarge">
-              </div>
-            </div>
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">Widget Layout</a>
-            </h4>
-        </div>
-        <div id="collapseTwo" class="panel-collapse collapse in">
-          <div class="panel-body">
-            <div class="controls">
-              <label class="control-label" for="widgetBorderWidth">Border Width</label>
-              <input id="widgetBorderWidth" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.borderwidth" placeholder="border width" class="input-xlarge">
-            </div>
-            <div class="controls">
-              <label class="control-label" for="widgetBorderColor">Border Color</label>
-              <input id="widgetBorderColor" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.bordercolor" placeholder="border color" class="input-xlarge">
-            </div>
-            <div class="controls">
-              <label class="control-label" for="widgetBorderRadius">Border Radius</label>
-              <input id="widgetBorderRadius" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.borderradius" placeholder="border radius" class="input-xlarge">
-            </div>
-            <div class="controls">
-              <label class="control-label" for="widgetBackground">Background Color</label>
-              <input id="widgetBackground" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.background" placeholder="background color" class="input-xlarge">
-            </div>
-          </div>
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">3. What is CSS?</a>
-            </h4>
-        </div>
-        <div id="collapseThree" class="panel-collapse collapse">
-            <div class="panel-body">
-                <p>CSS stands for Cascading Style Sheet. CSS allows you to specify various style properties for a given HTML element such as colors, backgrounds, fonts etc. <a href="http://www.tutorialrepublic.com/css-tutorial/" target="_blank">Learn more.</a></p>
-            </div>
-        </div>
-    </div>
+<div>
+  <h3 class="leftpanel-header" style="width: 100%">
+  Widget Editor
+</h3>
+
+<div data-ng-cloak style="margin:5px">
+  <style>
+   .widget-row
+   {
+     margin-top: 5px;
+   }
+  </style>
+  <div class="row widget-row" >
+
+  <div class="col-md-6">
+    <label class="control-label" for="widgetWidth">Width</label>
+    <input id="widgetWidth" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.width" placeholder="width" class="input-xlarge">
+  </div>
+  <div class="col-md-6">
+    <label class="control-label" for="widgetHeight">Height</label>
+    <input id="widgetHeight" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.height" placeholder="height" class="input-xlarge">
+  </div>
+</div>
+<div class="row widget-row">
+  <div class="col-md-6">
+    <label class="control-label" for="widgetLeft">Left</label>
+    <input id="widgetLeft" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.left" placeholder="left" class="input-xlarge">
+  </div>
+  <div class="col-md-6">
+    <label class="control-label" for="widgetRight">Right</label>
+    <input id="widgetRight" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.right" placeholder="right" class="input-xlarge">
+  </div>
+</div>
+<div class="row widget-row">
+  <div class="col-md-6">
+    <label class="control-label" for="widgetTop">Top</label>
+    <input id="widgetTop" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.top" placeholder="top" class="input-xlarge">
+  </div>
+  <div class="col-md-6">
+    <label class="control-label" for="widgetBottom">Bottom</label>
+    <input id="widgetBottom" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.bottom" placeholder="bottom" class="input-xlarge">
+  </div>
+</div>
+
+<div class="row widget-row">
+  <div class="col-md-6">
+    <label class="control-label" for="widgetBorderWidth">Border Width</label>
+    <input id="widgetBorderWidth" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.borderwidth" placeholder="border width" class="input-xlarge">
+  </div>
+  <div class="col-md-6">
+    <label class="control-label" for="widgetBorderColor">Border Color</label><br/>
+    <spectrum-colorpicker data-ng-model="vm.$dashboardService.activeWidget.bordercolor" options="{cancelText: 'Annuleren', chooseText: 'Kiezen'}"></spectrum-colorpicker>
+  </div>
+</div>
+
+<div class="row widget-row">
+  <div class="col-md-6">
+    <label class="control-label" for="widgetBorderRadius">Border Radius</label>
+    <input id="widgetBorderRadius" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.borderradius" placeholder="border radius" class="input-xlarge">
+  </div>
+  <div class="col-md-6">
+    <label class="control-label" for="widgetBackground">Background</label><br/>
+    <spectrum-colorpicker data-ng-model="vm.$dashboardService.activeWidget.background" options="{cancelText: 'Cancel', chooseText: 'Select'}"></spectrum-colorpicker>
+  </div>
+</div>
+</div>
 </div>
