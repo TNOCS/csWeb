@@ -353,9 +353,9 @@
         /** layer original source */
         data: any;
         /**
-         * Object to hold any specific parameters for a certain type of layer.
+         * Object to hold any specific parameters for a certain type of data source.
          */
-        parameters: any;
+        dataSourceParameters: { dataSourceType: string };
         cesiumDatasource: any;
         items : any;
 
