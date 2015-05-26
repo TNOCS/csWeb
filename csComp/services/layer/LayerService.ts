@@ -1472,7 +1472,8 @@
         public initLayer(group : ProjectGroup, layer : ProjectLayer, layerIds? : string[])
         {
           if (layer.id == null) layer.id = Helpers.getGuid();
-          layer.type = layer.type.toLowerCase();
+          layer.type = (layer.type) ? layer.type.toLowerCase() : "geojson";
+          layer.renderType = (layer.renderType) ? layer.renderType.toLowerCase() : layer.type;
           if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
           if (layer.title == null) layer.title = layer.id;
           if (layer.languages != null && this.currentLocale in layer.languages) {

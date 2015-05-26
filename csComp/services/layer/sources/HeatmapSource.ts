@@ -13,7 +13,7 @@
         //}
 
         public refreshLayer(layer: ProjectLayer) {
-            this.generateHeatmap(layer); 
+            this.generateHeatmap(layer);
         }
 
         public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]
@@ -24,7 +24,7 @@
         public addLayer(layer: ProjectLayer, callback: Function) {
             async.series([
                 (cb) => {
-                    layer.layerRenderer = "heatmap";
+                    layer.renderType = "heatmap";
                     layer.isLoading = true;
 
                     if (layer.quickRefresh && layer.quickRefresh == true) {
@@ -38,7 +38,7 @@
                             this.heatmapModel.heatmapItems.forEach((hi) => {
                                 hiWeights[hi.toString()] = hi.weight;
                             });
-                            
+
                             var weightedIntensityScale: number = ((this.heatmapModel.heatmapSettings.intensityScale / 3) * (this.heatmapModel.heatmapSettings.intensityScale / 3)); // Convert intensityscale from [1,...,5] to ~[0.1, 0.5, 1, 2, 3]
                             this.service.project.features.forEach((f: csComp.Services.IFeature) => {
                                 if (f.properties.hasOwnProperty('intensities') && f.properties.hasOwnProperty('contributors')) {
@@ -57,7 +57,7 @@
                         }
 
                     } else {
-                        // In all other occasions, (re)calculate the complete heatmap 
+                        // In all other occasions, (re)calculate the complete heatmap
                         this.generateHeatmap(layer);
                         layer.enabled = true;
                         this.enableProjectLayer(layer);

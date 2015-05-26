@@ -136,7 +136,7 @@ module Heatmap {
             if (this.projLayer.data) this.$layerService.removeLayer(this.projLayer);
             //Create projectlayer for the heatmap
             this.projLayer.type = "heatmap";
-            this.projLayer.layerRenderer = "heatmap";
+            this.projLayer.renderType = "heatmap";
             this.projLayer.enabled = true;
             this.projLayer.group = new csComp.Services.ProjectGroup();
             this.projLayer.group.oneLayerActive = true;
@@ -337,7 +337,7 @@ module Heatmap {
         //*/
         private initializeHeatmap() {
             this.projLayer.type = "heatmap";
-            this.projLayer.layerRenderer = "heatmap";
+            this.projLayer.renderType = "heatmap";
             this.projLayer.enabled = false;
             this.projLayer.group = new csComp.Services.ProjectGroup();
             this.projLayer.group.oneLayerActive = true;

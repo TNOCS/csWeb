@@ -16,15 +16,15 @@ module csComp.Services
       description?: string;
       /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
       type: string;
+      /** render type */
+      renderType : string;
       /** Data source */
       url: string;
       /** Contains extended heatmap information (e.g. list of references to required sources, or weights) */
       heatmapSettings?: Heatmap.IHeatmapSettings;
       heatmapItems?: Heatmap.IHeatmapItem[];
       /** In case we keep the style information in a separate file */
-      styleurl?: string;
-      /** how should the layer be renderer, default (can also be null), webgl, heatmap, isolines, etc. */
-      layerRenderer?: string;
+      styleurl?: string;      
       /** WMS sublayers that must be loaded */
       wmsLayers?: string;
       /** If enabled, load the layer */
@@ -38,6 +38,7 @@ module csComp.Services
       mapLayer?: L.LayerGroup<L.ILayer>;
       /** Group of layers */
       group: ProjectGroup;
+
       layerSource: ILayerSource;
       /**
        * Number of seconds between automatic layer refresh.
@@ -95,8 +96,10 @@ module csComp.Services
       count: number;
       /** Description as displayed in the menu */
       description: string;
-      /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
+      /** Type of layer, e.g. GeoJSON (default), TopoJSON, or WMS */
       type: string;
+      /** Specificies how the content should be rendered. Default same as 'type', but allows you to transform the source to e.g. geojson for easier rendering */
+      renderType : string;
       /** Data source */
       url: string;
       /** Contains extended heatmap information (e.g. list of references to required sources, or weights) */
@@ -106,8 +109,6 @@ module csComp.Services
       hierarchySettings           : FeatureRelations.IHierarchySettings;
       /** In case we keep the style information in a separate file */
       styleurl: string;
-      /** how should the layer be renderer, default (can also be null), webgl, heatmap, isolines, etc. */
-      layerRenderer: string;
       /** WMS sublayers that must be loaded */
       wmsLayers: string;
       /** If enabled, load the layer */

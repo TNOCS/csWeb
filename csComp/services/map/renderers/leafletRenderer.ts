@@ -42,8 +42,8 @@ module csComp.Services {
         }
 
         public removeLayer(layer: ProjectLayer) {
-            switch (layer.layerRenderer) {
-                case "svg":
+            switch (layer.renderType) {
+                case "geojson":
                     var g = layer.group;
 
                     //m = layer.group.vectors;
@@ -63,29 +63,8 @@ module csComp.Services {
                         this.service.map.map.removeLayer(layer.mapLayer);
                     }
                     break;
-			    case "heatmap":
-			        var g = layer.group;
+                  }
 
-			        //m = layer.group.vectors;
-			        if (g.clustering) {
-			            var m = g.cluster;
-			            this.service.project.features.forEach((feature: IFeature) => {
-			                if (feature.layerId === layer.id) {
-			                    try {
-			                        m.removeLayer(layer.group.markers[feature.id]);
-			                        delete layer.group.markers[feature.id];
-			                    } catch (error) {
-
-			                    }
-			                }
-			            });
-			        } else {
-			            this.service.map.map.removeLayer(layer.mapLayer);
-			        }
-			        break;
-                case "wms":
-                    break;
-            }
         }
 
         public changeBaseLayer(layerObj: BaseLayer)
@@ -130,7 +109,7 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer) {
-            switch (layer.layerRenderer) {
+            switch (layer.renderType) {
                 case "tilelayer":
                     // check if we need to create a unique url to force a refresh
                     var u = layer.url;
@@ -180,7 +159,7 @@ module csComp.Services {
                     });
                     layer.isLoading = true;
                     break;
-                case "svg":
+                case "geojson":
                     // create leaflet layers
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                     this.service.map.map.addLayer(layer.mapLayer);

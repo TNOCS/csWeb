@@ -52,7 +52,7 @@
             this.layer = layer;
             async.series([
                 (cb) => {
-                    layer.layerRenderer = "svg";
+                    layer.renderType = "geojson";
                     // Open a layer URL
                     layer.isLoading = true;
                     // get data
@@ -120,4 +120,3 @@
 
     }
 }
- 

@@ -47,7 +47,7 @@ module csComp.Services
 
             this.changeBaseLayer(this.service.$mapService.activeBaseLayer);
         }
-        
+
         public setUpMouseHandlers()
         {
             var handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
@@ -127,10 +127,8 @@ module csComp.Services
         {
             console.log(layer);
             var dfd = jQuery.Deferred();
-            switch(layer.type.toUpperCase()) {
-                case "GEOJSON":
-                case "DYNAMICGEOJSON":
-                case "TOPOJSON":
+            switch(layer.renderType) {
+                case "geojson":
                     setTimeout(() => {
                         layer.data.features.forEach((f: IFeature) => {
                             this.addFeature(f);
@@ -140,7 +138,7 @@ module csComp.Services
 
                 break;
 
-                case "WMS":
+                case "wms":
                     var wms_layer = this.viewer.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
                         url : layer.url,
                         layers: layer.wmsLayers,

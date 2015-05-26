@@ -27,7 +27,7 @@ module csComp.Services {
             transparent: true,
             attribution: layer.description
           });
-        layer.layerRenderer = "wms";
+        layer.renderType = "wms";
         callback(layer);
         //this.$rootScope.$apply();
       }

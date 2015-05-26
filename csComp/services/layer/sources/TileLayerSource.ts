@@ -25,7 +25,7 @@ module csComp.Services {
       }
 
       public addLayer(layer : ProjectLayer, callback : Function) {
-          layer.layerRenderer = "tilelayer";
+          layer.renderType = "tilelayer";
           callback(layer);
           //this.$rootScope.$apply();
       }
