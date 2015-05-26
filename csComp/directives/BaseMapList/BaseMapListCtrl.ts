@@ -31,9 +31,9 @@
         }
 
         public selectBaseLayer(key): void {
-          //this.$layerService.activeMapRenderer
-          this.$messageBusService.publish("map","setbaselayer",key);
-          console.log('yes select');
-        }
+             var layer : csComp.Services.BaseLayer = this.$layerService.$mapService.getBaselayer(key);
+             this.$layerService.activeMapRenderer.changeBaseLayer(layer);
+             this.$layerService.$mapService.changeBaseLayer(key);
+         }
     }
 }

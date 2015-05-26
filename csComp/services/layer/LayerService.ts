@@ -475,6 +475,7 @@
             var rpt = new RightPanelTab();
             rpt.container = "featureprops";
             rpt.data = feature;
+            rpt.icon = "info";
             rpt.title = "Edit Widget";
             rpt.directive = "featureprops";
             this.$messageBusService.publish("rightpanel","activate",rpt);
