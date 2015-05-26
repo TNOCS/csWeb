@@ -1214,7 +1214,7 @@
          * @params url: URL of the project
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
          */
-        public openProject(solutionProject : csComp.Services.SolutionProject, layers?: string ): void {
+        public openProject(solutionProject : csComp.Services.SolutionProject, layers?: string ): void {            
             this.projectUrl = solutionProject;
             //console.log('layers (openProject): ' + JSON.stringify(layers));
             var layerIds: Array<string> = [];
