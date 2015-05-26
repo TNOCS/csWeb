@@ -92,7 +92,7 @@ module FlightRadar {
                         if (s[0] != "" && s[1] != null && s[2] != null && s[0] != null) {
                             var sit = {
                                 "type": "Feature",
-                                "geometry": { "type": "Point", "coordinates": [s[2], s[1]] },
+                                "geometry": { "type": "Point", "coordinates": [s[2], s[1], s[4]] },
                                 "properties": {
                                     "id": s[0],
                                     "FeatureTypeId": "plane",
