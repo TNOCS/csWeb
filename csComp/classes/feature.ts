@@ -1,4 +1,6 @@
-﻿module csComp.Services {
+﻿module csComp.Services
+{
+
     export interface IEvent {
         id   : string;
         title: string;
