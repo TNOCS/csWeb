@@ -16,7 +16,7 @@
 
         public map:              L.Map;
         public baseLayers:       any;
-        private activeBaseLayer: L.ILayer;
+        public activeBaseLayer:  BaseLayer;
         public mapVisible:       boolean = true;
         public timelineVisible:  boolean = true;
         public rightMenuVisible: boolean = true;
@@ -42,12 +42,9 @@
             $messageBusService.subscribe('map', (action: string, data) => {
                 switch (action) {
                     case 'setextent':
-                        console.log(data);
+                        // console.log(data);
                         this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast));
-                        break;
-                    case 'setbaselayer':
-                        var bl: L.ILayer = this.baseLayers[data];
-                        this.changeBaseLayer(bl);
+
                         break;
                 }
             })
@@ -129,14 +126,14 @@
             //     attributionControl: true
             // });
         }
+        public getBaselayer(layer: string)
+        {
+            var layerObj: BaseLayer = this.baseLayers[layer];
+            return layerObj;
+        }
 
-        public changeBaseLayer(layerObj: L.ILayer) {
-            if (this.activeBaseLayer == layerObj) return;
-            this.map.addLayer(layerObj);
-            if (this.activeBaseLayer)
-                this.map.removeLayer(this.activeBaseLayer);
-            this.map.setZoom(this.map.getZoom());
-            this.map.fire('baselayerchange', { layer: layerObj });
+        public changeBaseLayer(layer: string) {
+            var layerObj : BaseLayer = this.getBaselayer(layer);
             this.activeBaseLayer = layerObj;
         }
 

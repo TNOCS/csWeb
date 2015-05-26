@@ -16,10 +16,11 @@ module csComp.Services {
             this.service.$mapService.map = L.map("map", {
                 //var tl  = L.map("mapleft", {
                 zoomControl: false,
+                maxZoom: 19,
                 attributionControl: true
             });
-
         }
+
         public disable() {
             this.service.$mapService.map.remove();
             this.service.$mapService.map = null;
@@ -87,6 +88,34 @@ module csComp.Services {
             }
         }
 
+        public changeBaseLayer(layerObj: BaseLayer)
+        {
+            if (layerObj == this.service.$mapService.activeBaseLayer) return;
+
+            var layer: L.ILayer = this.createBaseLayer(layerObj);
+
+            this.service.map.map.addLayer(layer);
+            if(this.service.$mapService.activeBaseLayer)
+                this.service.map.map.removeLayer(this.createBaseLayer(this.service.$mapService.activeBaseLayer));
+            this.service.map.map.setZoom(this.service.map.map.getZoom());
+            this.service.map.map.fire('baselayerchange', { layer: layer });
+            console.log('changebaselayer');
+        }
+
+        private createBaseLayer(layerObj: BaseLayer)
+        {
+            var options: L.TileLayerOptions = {};
+            options['subtitle'] = layerObj.subtitle;
+            options['preview'] = layerObj.preview;
+            if (layerObj.subdomains != null) options['subdomains'] = layerObj.subdomains;
+            if (layerObj.maxZoom != null) options.maxZoom = layerObj.maxZoom;
+            if (layerObj.minZoom != null) options.minZoom = layerObj.minZoom;
+            if (layerObj.attribution != null) options.attribution = layerObj.attribution;
+            if (layerObj.id != null) options['id'] = layerObj.id;
+            var layer = L.tileLayer(layerObj.url, options);
+
+            return layer;
+        }
         private getLeafletStyle(style: IFeatureTypeStyle) {
             var s = {
                 fillColor:   style.fillColor,

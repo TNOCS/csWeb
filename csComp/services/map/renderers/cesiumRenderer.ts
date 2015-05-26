@@ -33,18 +33,21 @@ module csComp.Services
             this.camera = this.viewer.camera;
             this.scene  = this.viewer.scene;
 
-
             this.camera.setView({
                 position : Cesium.Cartesian3.fromDegrees(5, 52, 1000000)
             });
 
-            for (var i = 0; i < this.service.project.features.length; ++i)
-                this.addFeature(this.service.project.features[i]);
+            setTimeout(() => {
+                for (var i = 0; i < this.service.project.features.length; ++i)
+                    this.addFeature(this.service.project.features[i]);
+            }, 0);
 
             // onclick events
             this.setUpMouseHandlers();
-        }
 
+            this.changeBaseLayer(this.service.$mapService.activeBaseLayer);
+        }
+        
         public setUpMouseHandlers()
         {
             var handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
@@ -72,16 +75,69 @@ module csComp.Services
             this.viewer.destroy();
         }
 
+        public changeBaseLayer(layer : BaseLayer)
+        {
+            if (layer.cesium_url === undefined)
+                alert('This layer is not cesium compatible');
+            else
+            {
+                switch (layer.cesium_maptype.toUpperCase())
+                {
+                    case "ARCGIS":
+                        var mapProvider = new Cesium.ArcGisMapServerImageryProvider({
+                            url: layer.cesium_url,
+                            minimumLevel: layer.minZoom,
+                            maximumLevel: layer.maxZoom
+                        });
+                    break;
+
+                    case "OPENSTREETMAP":
+                        var mapProvider = new Cesium.OpenStreetMapImageryProvider({
+                            url: layer.cesium_url,
+                            minimumLevel: layer.minZoom,
+                            maximumLevel: layer.maxZoom
+                        });
+                    break;
+
+                    case "WEBMAPTILE":
+                        var mapProvider = new Cesium.WebMapTileServiceImageryProvider({
+                            url: layer.cesium_url,
+                            minimumLevel: layer.minZoom,
+                            maximumLevel: layer.maxZoom
+                        });
+                    break;
+
+                    case "TILEMAP":
+                        var mapProvider = new Cesium.TileMapServiceImageryProvider({
+                            url: layer.cesium_url,
+                            minimumLevel: layer.minZoom,
+                            maximumLevel: layer.maxZoom
+                        });
+                    break;
+
+                    default:
+                        alert('unknown maptype: ' + layer.cesium_maptype);
+                    break;
+                }
+                this.viewer.imageryLayers.addImageryProvider(mapProvider);
+            }
+        }
+
         public addLayer(layer: ProjectLayer)
         {
             console.log(layer);
+            var dfd = jQuery.Deferred();
             switch(layer.type.toUpperCase()) {
                 case "GEOJSON":
                 case "DYNAMICGEOJSON":
                 case "TOPOJSON":
-                    layer.data.features.forEach((f: IFeature) => {
-                        this.addFeature(f);
-                    });
+                    setTimeout(() => {
+                        layer.data.features.forEach((f: IFeature) => {
+                            this.addFeature(f);
+                        });
+                        dfd.resolve();
+                    }, 0);
+
                 break;
 
                 case "WMS":
@@ -94,53 +150,67 @@ module csComp.Services
                         }
                     }));
                     wms_layer.alpha = layer.opacity / 100;
+                    dfd.resolve();
                 break;
 
                 default:
                     alert('unknown layertype: ' + layer.type);
+                    dfd.resolve();
                 break;
             }
+            return dfd.promise();
         }
 
         public removeLayer(layer: ProjectLayer)
         {
+            var dfd = jQuery.Deferred();
             switch(layer.type.toUpperCase()) {
                 case "GEOJSON":
                 case "DYNAMICGEOJSON":
                 case "TOPOJSON":
-                  layer.data.features.forEach((f: IFeature) => {
-                      this.removeFeature(f);
-                  });
+                    setTimeout(() => {
+                      layer.data.features.forEach((f: IFeature) => {
+                          this.removeFeature(f);
+                      });
+                      dfd.resolve();
+                    }, 0);
+
                 break;
 
                 case "WMS":
                     // just pop the last one, since it is a radiobutton
                     this.viewer.imageryLayers.remove(this.viewer.imageryLayers.get(1));
+                    dfd.resolve();
                 break;
 
                 default:
                     alert('unknown layertype: ' + layer.type);
+                    dfd.resolve();
                 break;
             }
+            return dfd.promise();
         }
 
         public updateMapFilter(group : ProjectGroup)
         {
-            console.log('updateMapFilter called (cesium)');
+            //console.log('updateMapFilter called (cesium)');
+            var dfd = jQuery.Deferred();
+            setTimeout(() => {
+                var toRemove = [];
+                this.viewer.entities.values.forEach((entity) => {
+                    if (group.filterResult === undefined || (group.filterResult.length > 0 && entity.feature.layer.id === group.filterResult[0].layer.id))
+                        toRemove.push(entity);
+                });
+                toRemove.forEach(entity => {
+                    this.removeFeature(entity.feature);
+                });
 
-            var toRemove = [];
-            this.viewer.entities.values.forEach((entity) => {
-                if (group.filterResult === undefined || (group.filterResult.length > 0 && entity.feature.layer.id === group.filterResult[0].layer.id))
-                    toRemove.push(entity);
-            });
-            toRemove.forEach(entity => {
-                this.removeFeature(entity.feature);
-            });
-
-            group.filterResult.forEach((f: IFeature) => {
-                this.addFeature(f);
-            });
-
+                group.filterResult.forEach((f: IFeature) => {
+                    this.addFeature(f);
+                });
+                dfd.resolve();
+            }, 0);
+            return dfd.promise();
         }
 
         public addGroup(group: ProjectGroup) {
@@ -154,7 +224,7 @@ module csComp.Services
 
         public removeFeature(feature: IFeature)
         {
-            console.log('removeFeature called');
+            //console.log('removeFeature called');
 
             var toRemove = [];
             this.viewer.entities.values.forEach((entity) => {
@@ -162,10 +232,34 @@ module csComp.Services
                     toRemove.push(entity);
                 }
             });
+
             toRemove.forEach(entity => {
                 this.viewer.entities.remove(entity);
             });
 
+        }
+
+        public removeFeatures(features: IFeature [])
+        {
+            //console.log('removeFeature called');
+            var dfd = jQuery.Deferred();
+
+            setTimeout(() => {
+                var toRemove = [];
+                this.viewer.entities.values.forEach((entity) => {
+                    features.forEach(feature => {
+                      if (entity.feature.id === feature.id) {
+                          toRemove.push(entity);
+                      }
+                    });
+                });
+                toRemove.forEach(entity => {
+                    this.viewer.entities.remove(entity);
+                });
+                dfd.resolve();
+            }, 0);
+
+            return dfd.promise();
         }
 
         public updateFeature( feature : IFeature)
@@ -176,7 +270,12 @@ module csComp.Services
 
         public addFeature(feature: IFeature)
         {
-            var entity = this.createFeature(feature);
+            // var dfd = jQuery.Deferred();
+            // setTimeout(() => {
+                var entity = this.createFeature(feature);
+                // dfd.resolve();
+            // }, 0);
+            // return dfd.promise();
         }
 
         public createFeature(feature: IFeature) {
@@ -277,7 +376,7 @@ module csComp.Services
                 entity.model = new Cesium.ModelGraphics({
                     uri : feature.effectiveStyle.modelUri,
                     scale: feature.effectiveStyle.modelScale,
-                    minimumPixelsize: feature.effectiveStyle.modelMinimumPixelSize,
+                    minimumPixelSize: feature.effectiveStyle.modelMinimumPixelSize,
                 });
 
                 // Hide icon and point when we have a 3D model

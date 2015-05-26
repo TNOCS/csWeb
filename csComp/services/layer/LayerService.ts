@@ -1160,17 +1160,25 @@
                     this.$mapService.map.fitBounds(new L.LatLngBounds(solution.viewBounds.southWest, solution.viewBounds.northEast));
 
                 solution.baselayers.forEach(b => {
-                    var options: L.TileLayerOptions = {};
-                    options['subtitle'] = b.subtitle;
-                    options['preview'] = b.preview;
-                    if (b.subdomains != null) options['subdomains'] = b.subdomains;
-                    if (b.maxZoom != null) options.maxZoom = b.maxZoom;
-                    if (b.minZoom != null) options.minZoom = b.minZoom;
-                    if (b.attribution != null) options.attribution = b.attribution;
-                    if (b.id != null) options['id'] = b.id;
-                    var layer = L.tileLayer(b.url, options);
-                    this.$mapService.baseLayers[b.title] = layer;
-                    if (b.isDefault) this.$mapService.changeBaseLayer(layer);
+                    var baselayer: BaseLayer = new BaseLayer();
+
+                    if (b.subdomains != null) baselayer.subdomains = b.subdomains;
+                    if (b.maxZoom != null) baselayer.maxZoom = b.maxZoom;
+                    if (b.minZoom != null) baselayer.minZoom = b.minZoom;
+                    if (b.attribution != null) baselayer.attribution = b.attribution;
+                    if (b.id != null) baselayer.id = b.id;
+                    if (b.title != null) baselayer.title = b.title;
+                    if (b.subtitle != null) baselayer.subtitle = b.subtitle;
+                    if (b.preview != null) baselayer.preview = b.preview;
+                    if (b.url != null) baselayer.url = b.url;
+                    if (b.cesium_url != null) baselayer.cesium_url = b.cesium_url;
+                    if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
+
+                    this.$mapService.baseLayers[b.title] = baselayer;
+                    if (b.isDefault) {
+                        this.activeMapRenderer.changeBaseLayer(baselayer);
+                        this.$mapService.changeBaseLayer(b.title);
+                    }
                 });
                 //$scope.projects = projects.projects;
                 if (solution.projects.length > 0) {

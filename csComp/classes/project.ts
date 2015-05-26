@@ -43,8 +43,8 @@
         updateFeature(feature: IFeature);
         addFeature(feature: IFeature);
         removeLayer(layer : ProjectLayer);
-                updateMapFilter(group: ProjectGroup);
-
+        updateMapFilter(group: ProjectGroup);
+        changeBaseLayer(layer: BaseLayer);
     }
 
     export class VisualState {
@@ -384,20 +384,43 @@
      * They are described in the project file
      */
     export interface IBaseLayer {
-        id         : string;
-        title      : string;
-        isDefault  : boolean;
-        subtitle   : string;
-        preview    : string;
+        id               : string;
+        title            : string;
+        isDefault        : boolean;
+        subtitle         : string;
+        preview          : string;
         /** URL pointing to the basemap source. */
-        url        : string;
+        url              : string;
         /** Maximum zoom level */
-        maxZoom    : number;
+        maxZoom          : number;
         /** Minimum zoom level */
-        minZoom    : number;
-        subdomains : string[];
+        minZoom          : number;
+        subdomains       : string[];
         /** String that is shown on the map, attributing the source of the basemap */
-        attribution: string;
-        test       : string;
+        attribution      : string;
+        test             : string;
+        cesium_url?      :  string;
+        cesium_maptype?  : string;
+    }
+    export class BaseLayer implements IBaseLayer {
+        id               : string;
+        title            : string;
+        isDefault        : boolean;
+        subtitle         : string;
+        preview          : string;
+        /** URL pointing to the basemap source. */
+        url              : string;
+        /** Maximum zoom level */
+        maxZoom          : number;
+        /** Minimum zoom level */
+        minZoom          : number;
+        subdomains       : string[];
+
+        /** String that is shown on the map, attributing the source of the basemap */
+        attribution      : string;
+        test             : string;
+
+        cesium_url       : string;
+        cesium_maptype   : string;
     }
 }
