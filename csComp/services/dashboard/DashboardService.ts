@@ -93,7 +93,7 @@
 
         }
 
-        public selectDashboard(dashboard: csComp.Services.Dashboard, container: string) {          
+        public selectDashboard(dashboard: csComp.Services.Dashboard, container: string) {
             this.$layerService.project.activeDashboard = dashboard;
             this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
         }
@@ -138,8 +138,13 @@
           var content = tab.container + "-content";
           $("#" + tab.container + "-tab").remove();
           $("#" + content).remove();
-          $("#rightpanelTabs").append("<li id='" + tab.container + "-tab' class='rightPanelTab rightPanelTabAnimated'><a href='#" + content + "' data-toggle='tab'><span class='fa fa-tachometer fa-lg'></span></a></li>");
+          $("#rightpanelTabs").append("<li id='" + tab.container + "-tab' class='rightPanelTab rightPanelTabAnimated'><a id='" + tab.container + "-tab-a' href='#" + content + "' data-toggle='tab'><span class='fa fa-tachometer fa-lg'></span></a></li>");
           $("#rightpanelTabPanes").append("<div class='tab-pane' style='width:355px' id='" + content + "'></div>");
+          $("#" + tab.container + "-tab-a").click(()=> {
+            this.$layerService.visual.rightPanelVisible = true;
+            console.log('rp visible');
+            this.$rootScope.$apply();
+          });
           var newScope =  this.$rootScope;
           (<any>newScope).data = tab.data;
           var widgetElement = this.$compile("<" + tab.directive + "></" + tab.directive + ">")(newScope);

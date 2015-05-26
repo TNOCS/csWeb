@@ -263,8 +263,8 @@
                 $messageBusService.publish('FeatureTab', 'activated', { sectionTitle: sectionTitle, section: section });
             };
 
-            $messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
-            $messageBusService.subscribe("feature", this.featureMessageReceived);
+            //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
+            //$messageBusService.subscribe("feature", this.featureMessageReceived);
 
             var widthOfList = function () {
                 var itemsWidth = 0;
@@ -336,6 +336,10 @@
                     $scope.autocollapse(false);
                 });
             });
+
+            console.log('showing feature');
+            this.displayFeature(this.$layerService.lastSelectedFeature);
+            this.$scope.poi = this.$layerService.lastSelectedFeature;
         }
 
         public toTrusted(html: string): string {
@@ -399,6 +403,7 @@
 
         private featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("FPC: featureMessageReceived");
+
             switch (title) {
                 case "onFeatureSelect":
                     this.displayFeature(this.$layerService.lastSelectedFeature);
@@ -431,7 +436,7 @@
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService);
         }
 
-        private updateHierarchyLinks(feature: IFeature): void {            
+        private updateHierarchyLinks(feature: IFeature): void {
             if (!feature) return;
             // Add properties defined inside of layers to the project-wide properties.
             this.$layerService.project.groups.forEach((group) => {

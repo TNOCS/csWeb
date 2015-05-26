@@ -471,6 +471,15 @@
                 this.$messageBusService.publish('sidebar', 'show');
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
             }
+
+            var rpt = new RightPanelTab();
+            rpt.container = "featureprops";
+            rpt.data = feature;
+            rpt.title = "Edit Widget";
+            rpt.directive = "featureprops";
+            this.$messageBusService.publish("rightpanel","activate",rpt);
+
+
         }
 
         public updateSensorData() {
@@ -1214,7 +1223,7 @@
          * @params url: URL of the project
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
          */
-        public openProject(solutionProject : csComp.Services.SolutionProject, layers?: string ): void {            
+        public openProject(solutionProject : csComp.Services.SolutionProject, layers?: string ): void {
             this.projectUrl = solutionProject;
             //console.log('layers (openProject): ' + JSON.stringify(layers));
             var layerIds: Array<string> = [];
@@ -1304,8 +1313,7 @@
                                       this.project.propertyTypeData[id] = pt;
                                       ss.propertyType = pt;
                                     }
-
-                                    ss.activeValue = ss.values[ss.values.length - 1];
+                                    if (ss.values && ss.values.length>0) ss.activeValue = ss.values[ss.values.length - 1];
                                 }
                             });
                         }

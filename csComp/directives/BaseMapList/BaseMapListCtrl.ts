@@ -12,26 +12,28 @@
         // See http://docs.angularjs.org/guide/di
         public static $inject = [
             '$scope',
+            'layerService',
             'mapService',
             'messageBusService',
-            'layerService'
         ];
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope             : IBaseMapScope,
-            private $mapService        : csComp.Services.MapService,
-            private $messageBusService : csComp.Services.MessageBusService,
-            private $layerService      : csComp.Services.LayerService
+            private $scope       : IBaseMapScope,
+            private $layerService: csComp.Services.LayerService,
+            private $mapService: csComp.Services.MapService,
+            private $messageBusService : csComp.Services.MessageBusService
+
+
             ) {
             $scope.vm = this;
         }
 
         public selectBaseLayer(key): void {
-            var layer : csComp.Services.BaseLayer = this.$layerService.$mapService.getBaselayer(key);
-            this.$layerService.activeMapRenderer.changeBaseLayer(layer);
-            this.$layerService.$mapService.changeBaseLayer(key);
+          //this.$layerService.activeMapRenderer
+          this.$messageBusService.publish("map","setbaselayer",key);
+          console.log('yes select');
         }
     }
 }
