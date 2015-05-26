@@ -55,7 +55,7 @@
             private $sce                 : ng.ISCEService,
             private $translate           : ng.translate.ITranslateService,
             private $layerService        : csComp.Services.LayerService,
-            private $localStorageService : angular.local.storage.ILocalStorageService<any>,
+            private $localStorageService : ng.localStorage.ILocalStorageService,
             private $messageBusService   : csComp.Services.MessageBusService
             ) {
             // 'vm' stands for 'view model'. We're adding a reference to the controller to the scope

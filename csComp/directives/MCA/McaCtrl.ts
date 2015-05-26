@@ -75,7 +75,7 @@
             private $modal              : any,
             private $translate          : ng.translate.ITranslateService,
             private $timeout            : ng.ITimeoutService,
-            private $localStorageService: angular.local.storage.ILocalStorageService<any>,
+            private $localStorageService: ng.localStorage.ILocalStorageService,
             private $layerService       : csComp.Services.LayerService,
             private messageBusService   : csComp.Services.MessageBusService
             ) {

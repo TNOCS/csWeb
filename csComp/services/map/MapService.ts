@@ -11,7 +11,7 @@
         public static $inject = [
             'localStorageService',
             '$timeout',
-            'messageBusService' 
+            'messageBusService'
         ];
 
         public map:              L.Map;
@@ -23,7 +23,7 @@
         expertMode:              Expertise;
 
         constructor(
-            private $localStorageService: angular.local.storage.ILocalStorageService<any>,
+            private $localStorageService: ng.localStorage.ILocalStorageService,
             private $timeout: ng.ITimeoutService,
             private $messageBusService: csComp.Services.MessageBusService) {
 
