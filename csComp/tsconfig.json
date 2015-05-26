@@ -38,6 +38,7 @@
         "./classes/datasource.ts",
         "./classes/feature.ts",
         "./classes/group.ts",
+        "./classes/layer.ts",
         "./classes/project.ts",
         "./directives/BaseMapList/BaseMapList.ts",
         "./directives/BaseMapList/BaseMapListCtrl.ts",
