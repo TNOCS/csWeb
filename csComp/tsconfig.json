@@ -91,6 +91,8 @@
         "./directives/OfflineSearch/OfflineSearch.ts",
         "./directives/OfflineSearch/OfflineSearchClasses.ts",
         "./directives/OfflineSearch/OfflineSearchCtrl.ts",
+        "./directives/ProjectSelection/ProjectHeaderSelection.ts",
+        "./directives/ProjectSelection/ProjectHeaderSelectionCtrl.ts",
         "./directives/ProjectSettings/ProjectSettings.ts",
         "./directives/ProjectSettings/ProjectSettingsCtrl.ts",
         "./directives/Resize/Resize.ts",

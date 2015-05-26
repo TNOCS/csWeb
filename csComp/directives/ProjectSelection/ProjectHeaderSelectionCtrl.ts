@@ -1,11 +1,9 @@
-﻿module DashboarHeaderdSelection {
-  export interface IDashboardHeaderSelectionScope extends ng.IScope {
-    vm: any; //DashboardSelectionCtrl;
-    addWidget: Function;
-    title: string;
+module ProjectHeaderSelection {
+  export interface IProjectHeaderSelectionScope extends ng.IScope {
+    vm: ProjectHeaderSelectionCtrl; //DashboardSelectionCtrl;
   }
 
-  export class DashboardHeaderSelectionCtrl {
+  export class ProjectHeaderSelectionCtrl {
     public scope: any;
     public project: csComp.Services.SolutionProject;
 
@@ -25,7 +23,7 @@
     // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
     constructor(
       private $scope: any,
-      private $layerService: csComp.Services.LayerService,
+      public $layerService: csComp.Services.LayerService,
       public $dashboardService: csComp.Services.DashboardService,
       private $mapService: csComp.Services.MapService,
       public $messageBusService: csComp.Services.MessageBusService

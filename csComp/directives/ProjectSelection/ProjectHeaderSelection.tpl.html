@@ -1,0 +1,22 @@
+<ul class="nav navbar-nav">
+    <!--Start project dropdown-->
+
+    <li class="dropdown">
+        <a target="_blank" data-ng-href="{{vm.$layerService.project.url}}" class="pull-left" style="padding: 10px; padding-bottom: 0; cursor: pointer">
+            <img data-ng-src="{{vm.$layerService.project.logo}}" alt="{{vm.$layerService.project.title}}" width="32" height="32" />
+        </a>
+        <a href="" class="navbar-brand dropdown-toggle" data-toggle="dropdown" style="color:white; margin: 5px 0 -5px -5px; padding: 10px; padding-bottom: 0; cursor: pointer" aria-haspopup="true" aria-expanded="false">
+            {{vm.$layerService.project.title}}
+            <span class="caret" data-ng-if="vm.$layerService.solution.projects.length > 1"></span>
+        </a>
+        <ul data-ng-if="vm.$layerService.solution.projects.length > 1" class="dropdown-menu" role="menu">
+            <li ng-repeat="lsproject in vm.$layerService.solution.projects">
+                <a ng-click="vm.$layerService.openProject(lsproject)">{{lsproject.title}}</a>
+            </li>
+        </ul>
+    </li>
+    <!--End project dropdown-->
+
+    <!-- <li data-ng-class="{ active: vm.isActive('/map')}"><a href="#/map" data-ng-click="showMap=true" translate>MAP_LABEL</a></li>
+    <li data-ng-class="{ active: vm.isActive('/table')}"><a href="#/table" data-ng-click="vm.showTable()" translate>TABLE_LABEL</a></li> -->
+</ul>
