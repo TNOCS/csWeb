@@ -36,6 +36,7 @@
         value: number;
         min : number;
         max : number;
+        color? : string;
         titleClass : string;
         title : string;
         valueString : string;
@@ -72,6 +73,7 @@
                     max : '=',
                     title : '=',
                     valueString : '=',
+                    color : '=',
                     valueClass : '@',
                     titleClass : '@',
                     animationDuration : '@',
@@ -99,6 +101,7 @@
                       var margin           = scope.margin || { top: 15, right: 5, bottom: 0, left: 10 };
                       var width            = scope.width || 100;
                       var height           = scope.height || 70;
+                      var c = scope.color || "purple";
                       var animationDuration = scope.animationDuration || 0;
                       var cursorTextHeight = 12;// + (showAxis ? 5 : 0); // leave room for the cursor text (timestamp | measurement)
                       $(element[0]).empty();
@@ -112,7 +115,7 @@
       radius = Math.min(width, height) / 2;
 
   var color = d3.scale.ordinal()
-      .range(["#2DA7E2","#8DC7E2"]);
+      .range([c,"lightgray"]);
 
   var pie = d3.layout.pie()
       .sort(null);

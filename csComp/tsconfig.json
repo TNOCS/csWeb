@@ -97,6 +97,8 @@
         "./directives/ProjectSettings/ProjectSettings.ts",
         "./directives/ProjectSettings/ProjectSettingsCtrl.ts",
         "./directives/Resize/Resize.ts",
+        "./directives/RightPanel/RightPanel.ts",
+        "./directives/RightPanel/RightPanelCtrl.ts",
         "./directives/ShowModal/ShowModal.ts",
         "./directives/StyleList/StyleList.ts",
         "./directives/StyleList/StyleListCtrl.ts",

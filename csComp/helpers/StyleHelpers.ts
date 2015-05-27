@@ -43,8 +43,7 @@ module csComp.Helpers
         }
     }
 
-    export function getColorFromLegend(v: number, l: csComp.Services.Legend) {
-        var defaultcolor = '#000000';
+    export function getColorFromLegend(v: number, l: csComp.Services.Legend, defaultcolor = '#000000') {        
         var s: string = l.id;
         var n = l.legendEntries.length;
         if (n == 0) return (defaultcolor);

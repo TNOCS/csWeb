@@ -17,6 +17,7 @@
         dashboard        : string;
         isActive: boolean;
         id: string;
+        color : string;
         indexValue: number;   // the value that is treated as 100%
     }
 
@@ -80,6 +81,9 @@
         public updateIndicator(i: indicator) {
             this.$layerService.findSensorSet(i.sensor, (ss: csComp.Services.SensorSet) => {
                 i.sensorSet = ss;
+                if (i.sensorSet.propertyType && i.sensorSet.propertyType.legend){
+                  i.color = csComp.Helpers.getColorFromLegend(i.sensorSet.activeValue,i.sensorSet.propertyType.legend);
+                }
                 //console.log('updateIndicator: indicator.title = ' + i.title);
                 //if (!this.$scope.$$phase) this.$scope.$apply();\
             });
