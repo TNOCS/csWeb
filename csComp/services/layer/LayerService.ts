@@ -315,7 +315,6 @@
                             l.enabled = true;
                             this.loadedLayers[layer.id] = l;
                             this.updateSensorData();
-                            this.updateFilters();
                             this.activeMapRenderer.addLayer(layer);
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
@@ -948,7 +947,6 @@
                 if (pos !== -1) group.filters.slice(pos, 1);
 
             }
-            this.updateFilters();
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
         }
 
@@ -958,7 +956,6 @@
         setFilter(filter: GroupFilter, group: csComp.Services.ProjectGroup) {
             filter.group = group;
             group.filters.push(filter);
-            this.updateFilters();
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
         }
 
@@ -984,6 +981,9 @@
                                 gf.filterType = gf.meta.filterType;
                             } else {
                                 switch (gf.meta.type) {
+                                    case "date":
+                                      gf.filterType = 'date';
+                                      break;
                                     case 'number':
                                     case 'options':
                                         gf.filterType = 'bar';
@@ -1020,7 +1020,6 @@
                             layer.group.filters.slice(pos, 1);
                     }
                 }
-                this.updateFilters();
                 (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
             }
         }
@@ -1096,9 +1095,6 @@
             var features = this.getGroupFeatures(g);
 
             g.ndx.add(features);
-
-            // redraw charts
-            this.updateFilters();
         }
 
         /**
@@ -1352,7 +1348,6 @@
                         if (prj.startposition)
                             this.$mapService.zoomToLocation(new L.LatLng(prj.startposition.latitude, prj.startposition.longitude));
 
-                        this.updateFilters();
 
                     });
                 }
@@ -1634,10 +1629,6 @@
             return r;
         }
 
-        public updateFilters() {
-          return;
-        }
-
 
 
         public updateFilterGroupCount(group: ProjectGroup) {
@@ -1663,8 +1654,7 @@
             $('#remove' + filter.id).on('click', () => {
                 var pos = group.filters.indexOf(filter);
                 if (pos !== -1) group.filters.splice(pos, 1);
-                filter.dimension.dispose();
-                this.updateFilters();
+                filter.dimension.dispose();          
 
                 this.resetMapFilter(group);
             });

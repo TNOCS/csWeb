@@ -153,6 +153,10 @@
                 var calculation = hierarchy[1];
                 displayValue = count.toString();
                 break;
+            case "date":
+                var d = new Date(Date.parse(text));
+                displayValue = d.toLocaleString();
+                  break;
             default:
                 displayValue = text;
                 break;

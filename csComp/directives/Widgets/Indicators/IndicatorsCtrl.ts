@@ -2,6 +2,7 @@
 
     export class indicatorData {
         title: string;
+        orientation : string = "vertical";
         indicators: indicator[];
     }
 

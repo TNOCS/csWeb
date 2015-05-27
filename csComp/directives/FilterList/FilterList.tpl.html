@@ -13,6 +13,7 @@
               <div data-ng-repeat="filter in group.filters">
                   <txt2 ng-if="filter.filterType == 'text'"></txt2>
                   <bar-filter ng-if="filter.filterType == 'bar'"></bar-filter>
+                  <date-filter ng-if="filter.filterType == 'date'"></date-filter>
             </div>
         </div>
     </div>

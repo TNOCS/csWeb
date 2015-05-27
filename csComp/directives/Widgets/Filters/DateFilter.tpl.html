@@ -1,0 +1,9 @@
+<div>
+   <h4>{{filter.title}}</h4>
+   <select selectpicker="" ng-model="vm.switch" ng-click="vm.select()" toggle-dropdown>
+                        <option value="before">Before</option>
+                        <option value="after">After</option>
+                        <option value="range">Range</option>
+                    </select>
+  <a class='btn btn-filter-delete' ng-click="vm.remove()" ><i class='fa fa-remove'></i></a>
+</div>

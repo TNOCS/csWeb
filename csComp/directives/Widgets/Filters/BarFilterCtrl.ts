@@ -53,7 +53,7 @@ module Filters {
 
               $scope.options = (()=>{
                 var res = [];
-                res.push(['reset',()=>this.initBarFilter()]);
+                res.push(['remove',()=>this.remove()]);
                 return res;
               });
 
@@ -227,8 +227,6 @@ module Filters {
 
         public remove()
         {
-
-          return;
 
           if (this.$scope.filter)
           {

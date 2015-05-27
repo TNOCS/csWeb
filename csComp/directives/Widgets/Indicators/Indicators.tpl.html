@@ -1,7 +1,13 @@
 <div>
     <div class="indicatorwidget-title">{{data.title}}</div>
+    <style>
+    .horizontalLayout
+    {
+      float:left;
+    }
+    </style>
     <ul class="indicator-list" data-ng-repeat="i in data.indicators" ng-switch on="i.visual">
-        <li ng-class="{isActive : i.isActive}" class="indicator-group indicator-sparkline-group" ng-click="vm.selectIndicator(i)" ng-switch-when="sparkline">
+        <li ng-class="{isActive : i.isActive, horizontalLayout : data.orientation === 'horizontal'}" class="indicator-group indicator-sparkline-group" ng-click="vm.selectIndicator(i)" ng-switch-when="sparkline">
             <div class="indicator-sparkline-title">{{i.sensorSet.propertyType.title}}</div>
             <sparkline-chart timestamps="i.sensorSet.timestamps" sensor="i.sensorSet.values" width="200" height="40" showaxis="false" closed="true"></sparkline-chart>
             <div class="indicator-sparkline-value">{{i.sensorSet.activeValueText()}}</div>

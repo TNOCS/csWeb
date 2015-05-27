@@ -122,7 +122,7 @@
                     // Skip empty, non-editable values
                     if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
 
-                    var canFilter = (mi.type === "number" || mi.type === "text"    || mi.type === "options");
+                    var canFilter = (mi.type === "number" || mi.type === "text"    || mi.type === "options" || mi.type === "date");
                     var canStyle  = (mi.type === "number" || mi.type === "options" || mi.type === "color");
                     if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
                     if (mi.visibleInCallOut)
