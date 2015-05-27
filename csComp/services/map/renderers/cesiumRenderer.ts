@@ -268,38 +268,72 @@ module csComp.Services
 
         public addFeature(feature: IFeature)
         {
-            // var dfd = jQuery.Deferred();
-            // setTimeout(() => {
-                var entity = this.createFeature(feature);
-                // dfd.resolve();
-            // }, 0);
-            // return dfd.promise();
+
+            var entity = this.createFeature(feature);
         }
 
         public createFeature(feature: IFeature) {
             var entity = this.viewer.entities.getOrCreateEntity(feature.id);
 
+            // link the feature to the entity for CommonSense.selectFeature
             entity.feature = feature;
 
             if (feature.properties['Name'] !== undefined)
-              entity.name = feature.properties['Name'];
+                entity.name = feature.properties['Name'];
 
             // override for buildings from Top10NL
             var height = feature.properties['mediaan_hoogte'] === undefined ?  feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
 
+            var pixelSize = 5;
+            if (feature.fType.style.iconUri !== undefined)
+            {
+                // a billboard is an icon for a feature
+                entity.billboard = {
+                    image : feature.fType.style.iconUri,
+                    width : feature.effectiveStyle.iconWidth,
+                    height : feature.effectiveStyle.iconHeight
+                };
+                // we draw this point very large because it serves as a background for the billboards
+                pixelSize = 35;
+            }
+
+
+
             switch (feature.geometry.type.toUpperCase())
             {
                 case "POINT":
-                    // use 2D or 3D coordinates as a basis if we have them
-                    if (feature.geometry.coordinates.length === 2)
-                        entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
-                    else if (feature.geometry.coordinates.length === 3)
-                        entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+                    // if there is no icon, a PointGraphics object is used as a fallback mechanism
+                    entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+                    
+                    entity.point = {
+                        pixelSize : pixelSize,
+                        position : Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]),
+                        color : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                        outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                        outlineWidth : feature.effectiveStyle.strokeWidth
+                    };
+                break;
+
+                case "MULTIPOINT":
+                    for (var i = 0; i < feature.geometry.coordinates.length; i++) {
+                        var entity_multi = new Cesium.Entity();
+                        entity_multi.feature = feature;
+
+                        entity_multi.point = {
+                            pixelSize : pixelSize,
+                            position : Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[i][0], feature.geometry.coordinates[i][1], feature.geometry.coordinates[i][2]),
+                            color : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                            outlineWidth : feature.effectiveStyle.strokeWidth
+                        };
+
+                        this.viewer.entities.add(entity_multi);
+                    }
                 break;
 
                 case "POLYGON":
                     entity.polygon = new Cesium.PolygonGraphics( {
-                          hierarchy : this.createPolygon(feature.geometry.coordinates),
+                          hierarchy : this.createPolygon(feature.geometry.coordinates).hierarchy,
                           material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
                           outline : true,
                           outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
@@ -317,7 +351,7 @@ module csComp.Services
                         entity_multi.feature = feature;
 
                         var polygon = new Cesium.PolygonGraphics({
-                            hierarchy : polygons[i],
+                            hierarchy : polygons[i].hierarchy,
                             material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
                             outline : true,
                             outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
@@ -329,35 +363,35 @@ module csComp.Services
 
                         this.viewer.entities.add(entity_multi);
                     }
-                    return null;
+                break;
+
+                case "LINESTRING":
+                    entity.polyline = new Cesium.PolylineGraphics({
+                        positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates),
+                        material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                        width : feature.effectiveStyle.strokeWidth,
+                    })
+                break;
+
+                case "MULTILINESTRING":
+                    for (var i = 0; i < feature.geometry.coordinates.length; i++) {
+                        var entity_multi = new Cesium.Entity();
+                        entity_multi.feature = feature;
+
+                        entity.polyline = new Cesium.PolylineGraphics({
+                            positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates[i]),
+                            material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            width : feature.effectiveStyle.strokeWidth,
+                        })
+
+                        this.viewer.entities.add(entity_multi);
+                    }
                 break;
 
                 default:
                     alert('unknown geometry type: ' + feature.geometry.type);
                 break;
             }
-
-            var pixelSize = 5;
-            if (feature.fType.style.iconUri !== undefined)
-            {
-                // a billboard is an icon for a feature
-                entity.billboard = {
-                    image : feature.fType.style.iconUri,
-                    width : feature.effectiveStyle.iconWidth,
-                    height : feature.effectiveStyle.iconHeight
-                };
-                // we draw this point very large because it serves as a background for the billboards
-                pixelSize = 35;
-            }
-
-            // if there is no icon, a PointGraphics object is used as a fallback mechanism
-            entity.point = {
-                pixelSize : pixelSize,
-                color : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                outlineWidth : feature.effectiveStyle.strokeWidth
-            };
-
             //label for mouseover events
             entity.label = {
                 text : entity.name,
@@ -397,23 +431,14 @@ module csComp.Services
             if (coordinates.length === 0 || coordinates[0].length === 0)
                 return;
 
-            var polygon = new Cesium.PolygonHierarchy();
+            var polygon = new Cesium.PolygonGraphics();
             var holes = [];
-            for (var i = 1, len = coordinates.length; i < len; i++) {
-                var flattenedPositions = Array.prototype.concat.apply([], coordinates[i]);
-                if (coordinates[i][0].length == 3)
-                    holes.push(Cesium.Cartesian3.fromDegreesArrayHeights(flattenedPositions));
-                else
-                    holes.push(Cesium.Cartesian3.fromDegreesArray(flattenedPositions));
-            }
-            polygon.holes = holes;
+            for (var i = 1, len = coordinates.length; i < len; i++)
+                holes.push(new Cesium.PolygonHierarchy(this.coordinatesArrayToCartesianArray(coordinates[i])));
 
-            var positions = coordinates[0];
-            var flattenedPositions = Array.prototype.concat.apply([], positions);
-            if (coordinates[0][0].length == 3)
-                polygon.positions = Cesium.Cartesian3.fromDegreesArrayHeights(flattenedPositions);
-            else
-                polygon.positions = Cesium.Cartesian3.fromDegreesArray(flattenedPositions);
+            var positions = this.coordinatesArrayToCartesianArray(coordinates[0]);
+
+            polygon.hierarchy = new Cesium.PolygonHierarchy(positions, holes);
 
             return polygon;
         }
@@ -426,6 +451,18 @@ module csComp.Services
                 polygons.push(this.createPolygon(coordinates[i]));
             }
             return polygons;
+        }
+
+        private coordinatesArrayToCartesianArray(coordinates) {
+            var positions = new Array(coordinates.length);
+            for (var i = 0; i < coordinates.length; i++)
+                positions[i] = this.defaultCrsFunction(coordinates[i]);
+
+            return positions;
+        }
+
+        private defaultCrsFunction(coordinates) {
+            return Cesium.Cartesian3.fromDegrees(coordinates[0], coordinates[1], coordinates[2]);
         }
     }
 }
