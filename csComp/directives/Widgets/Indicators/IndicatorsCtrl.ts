@@ -12,6 +12,8 @@
         sensor: string;
         sensorSet: csComp.Services.SensorSet;
         layer: string;
+        /** dashboard to select after click */
+        dashboard        : string;
         isActive: boolean;
         id: string;
         indexValue: number;   // the value that is treated as 100%
@@ -36,7 +38,7 @@
             '$timeout',
             'layerService',
             'messageBusService',
-            'mapService'
+            'mapService','dashboardService'
         ];
 
         constructor(
@@ -44,7 +46,8 @@
             private $timeout     : ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
-            private $mapService : csComp.Services.MapService
+            private $mapService : csComp.Services.MapService,
+            private $dashboardService : csComp.Services.DashboardService
             ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
@@ -103,7 +106,13 @@
         }
 
         public selectIndicator(i: indicator) {
+          if (i.dashboard != 'undefined')
+          {
+            var db = this.$layerService.project.dashboards.filter((d : csComp.Services.Dashboard)=>d.id === i.dashboard);
+            if (db.length>0) this.$dashboardService.selectDashboard(db[0],'main');
+          }
             if (!this.$layerService.visual.mapVisible) return;
+
             if (i.layer != null) {
                 var ss = i.layer.split('/');
                 var l = this.$layerService.findLayer(ss[0]);

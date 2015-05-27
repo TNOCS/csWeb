@@ -24,7 +24,7 @@ module csComp.Services
       heatmapSettings?: Heatmap.IHeatmapSettings;
       heatmapItems?: Heatmap.IHeatmapItem[];
       /** In case we keep the style information in a separate file */
-      styleurl?: string;      
+      styleurl?: string;
       /** WMS sublayers that must be loaded */
       wmsLayers?: string;
       /** If enabled, load the layer */
@@ -38,7 +38,7 @@ module csComp.Services
       mapLayer?: L.LayerGroup<L.ILayer>;
       /** Group of layers */
       group: ProjectGroup;
-
+      refreshBBOX? : boolean;
       layerSource: ILayerSource;
       /**
        * Number of seconds between automatic layer refresh.
@@ -124,6 +124,8 @@ module csComp.Services
       groupId : string;
       /** Group of layers */
       group: ProjectGroup;
+      refreshBBOX : boolean;
+      BBOX : string;
       layerSource : ILayerSource;
       /**
        * Number of seconds between automatic layer refresh.

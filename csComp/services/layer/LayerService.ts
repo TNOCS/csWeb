@@ -52,7 +52,7 @@
         selectedLayerId:     string;
         timeline:            any;
         currentLocale:       string;
-        loadedLayers       = new csComp.Helpers.Dictionary<L.ILayer>();
+        loadedLayers       = new csComp.Helpers.Dictionary<ProjectLayer>();
         layerGroup         = new L.LayerGroup<L.ILayer>();
         info               = new L.Control();
         layerSources:        { [key: string]: ILayerSource };   // list of available layer sources
@@ -67,9 +67,6 @@
             'messageBusService',
             'mapService',
             '$rootScope'
-
-
-
         ];
 
         constructor(
@@ -127,6 +124,21 @@
                         this.openProject(this.projectUrl);
                         break;
                 }
+            });
+
+            $messageBusService.subscribe('mapbbox',(title : string, bbox : string)=>{
+              if (title === "update")
+              {
+                for (var l in this.loadedLayers){
+                  var layer = <ProjectLayer>this.loadedLayers[l];
+                  if (layer.refreshBBOX)
+                  {
+                    layer.BBOX = bbox;
+                    layer.layerSource.refreshLayer(layer);
+                  }
+                }
+              }
+
             });
         }
 
@@ -1235,8 +1247,8 @@
             this.clearLayers();
             this.featureTypes = {};
 
-            $.getJSON(solutionProject.url, (data: Project) => {
-                this.project = new Project().deserialize(data);
+            $.getJSON(solutionProject.url, (prj: Project) => {
+                this.project = new Project().deserialize(prj);
 
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
@@ -1331,8 +1343,8 @@
 
                         this.initGroup(group,layerIds);
 
-                        if (data.startposition)
-                            this.$mapService.zoomToLocation(new L.LatLng(data.startposition.latitude, data.startposition.longitude));
+                        if (prj.startposition)
+                            this.$mapService.zoomToLocation(new L.LatLng(prj.startposition.latitude, prj.startposition.longitude));
 
                         this.updateFilters();
 

@@ -14,7 +14,8 @@ module csComp.Services {
         title            : string;  // title of the widget
         elementId        : string;
         enabled          : boolean;
-        dashboard        : csComp.Services.Dashboard;
+
+        parentDashboard        : csComp.Services.Dashboard;
         renderer         : Function;
         resize           : Function;
         background       : string;
@@ -49,7 +50,7 @@ module csComp.Services {
         public data             : {};
         public url              : string;
         public elementId        : string;
-        public dashboard        : csComp.Services.Dashboard;
+        public parentDashboard        : csComp.Services.Dashboard;
         public enabled          : boolean = true;
         public borderWidth      : string = "1px";
         public borderColor      : string = "green";
@@ -158,7 +159,7 @@ module csComp.Services {
           if (!widget.id) widget.id = csComp.Helpers.getGuid();
           //alert(widget.id);
           widget.elementId = "widget-" + widget.id;
-          widget.dashboard = dashboard;
+          widget.parentDashboard = dashboard;
           dashboard.widgets.push(widget);
           /*if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
           setTimeout(() => {

@@ -40,7 +40,9 @@ module csComp.Services {
                     // Open a layer URL
                     layer.isLoading = true;
                     // get data
-                    d3.json(layer.url,(error, data) => {
+                    var u = layer.url.replace('[BBOX]',layer.BBOX);
+
+                    d3.json(u,(error, data) => {
                         layer.count = 0;
                         layer.isLoading = false;
                         // check if loaded correctly

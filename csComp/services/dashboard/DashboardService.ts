@@ -108,7 +108,7 @@
             //var w = BaseWidget();
             if (!widget.id) widget.id = csComp.Helpers.getGuid();
             widget.elementId = "widget-" + widget.id;
-            widget.dashboard = dashboard;
+            widget.parentDashboard = dashboard;
             dashboard.widgets.push(widget);
             if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             setTimeout(() => {
