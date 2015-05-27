@@ -158,7 +158,7 @@ module csComp.Services
       /**
        * Object to hold any specific parameters for a certain type of data source.
        */
-      dataSourceParameters: { dataSourceType: string };
+      dataSourceParameters: IProperty;
       cesiumDatasource: any;
       items : any;
 

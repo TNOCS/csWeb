@@ -168,6 +168,12 @@
             //add hierarchy layer
             this.layerSources["hierarchy"] = new HierarchySource(this);
 
+            //add grid layer
+            this.layerSources["grid"] = new GridDataSource(this);
+
+            //add day or night data source
+            this.layerSources["daynight"] = new NightDayDataSource(this);
+
             // check for every feature (de)select if layers should automatically be activated
             this.checkFeatureSubLayers();
         }
