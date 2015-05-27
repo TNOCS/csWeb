@@ -25,9 +25,9 @@ module csComp.Services {
         right?           : string;
         top?             : string;
         bottom?          : string;
-        borderWidth      : string;
-        borderColor      : string;
-        borderRadius     : string;
+        borderWidth?     : string;
+        borderColor?     : string;
+        borderRadius?    : string;
 
         name             : string; id: string;
         properties       : {};
