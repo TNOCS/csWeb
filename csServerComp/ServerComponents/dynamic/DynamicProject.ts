@@ -164,7 +164,7 @@ module DynamicProject {
       }
       if (!layerExists) g.layers.push(layer);
 
-      this.service.connection.sendUpdate(this.project.id,"project","layer-update",[layer]);
+      this.service.connection.sendUpdate(this.project.id,"project","layer-update",{layer: [layer], group: g});
 
       // save project.json (+backup)
 

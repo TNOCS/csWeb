@@ -1367,7 +1367,7 @@
                 {
                   this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
                       if (msg.action === "layer-update") {
-                        msg.data.forEach((l : ProjectLayer) =>{
+                        msg.data.layer.forEach((l : ProjectLayer) =>{
                           var g : ProjectGroup;
                           // find group
                           if (l.groupId) {g = this.findGroupById(l.groupId);} else { l.groupId="main"; }
@@ -1376,8 +1376,13 @@
                             g = new ProjectGroup();
                             g.id = l.groupId;
                             g.title = l.title;
+                            g.clustering = msg.data.group.clustering;
+                            g.clusterLevel = msg.data.group.clusterLevel;
                             this.project.groups.push(g);
                             this.initGroup(g);
+                          } else {
+                            g.clustering = msg.data.group.clustering;
+                            g.clusterLevel = msg.data.group.clusterLevel;
                           }
                           var layerExists = false;
                           var layerIndex;
