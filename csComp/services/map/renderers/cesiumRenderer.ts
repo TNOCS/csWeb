@@ -10,7 +10,8 @@ module csComp.Services
         camera : any;
         scene  : any;
         features: { [key: string]: any } = {};
-
+        private popup : any;
+        private popupShownFor: IFeature;
         public init(service : LayerService){
             this.service = service;
         }
@@ -33,10 +34,6 @@ module csComp.Services
             this.camera = this.viewer.camera;
             this.scene  = this.viewer.scene;
 
-            this.camera.setView({
-                position : Cesium.Cartesian3.fromDegrees(5, 52, 1000000)
-            });
-
             setTimeout(() => {
                 for (var i = 0; i < this.service.project.features.length; ++i)
                     this.addFeature(this.service.project.features[i]);
@@ -44,8 +41,27 @@ module csComp.Services
 
             // onclick events
             this.setUpMouseHandlers();
-
+            this.viewExtent(this.service.$mapService.maxBounds);
             this.changeBaseLayer(this.service.$mapService.activeBaseLayer);
+        }
+
+        public getZoom()
+        {
+            // we dont get nearby relations for now
+            return 0;
+        }
+
+        public viewExtent(bounds: L.LatLngBounds)
+        {
+            var ellipsoid = Cesium.Ellipsoid.WGS84;
+
+            var west = Cesium.Math.toRadians(bounds.getSouthWest().lng);
+            var south = Cesium.Math.toRadians(bounds.getSouthWest().lat);
+            var east = Cesium.Math.toRadians(bounds.getNorthEast().lng);
+            var north = Cesium.Math.toRadians(bounds.getNorthEast().lat);
+
+            var extent = new Cesium.Rectangle(west, south, east, north);
+            this.camera.viewRectangle(extent, ellipsoid);
         }
 
         public setUpMouseHandlers()
@@ -60,16 +76,35 @@ module csComp.Services
 
             handler.setInputAction((movement) => {
                 var pickedObject = this.scene.pick(movement.endPosition);
-                this.viewer.entities.values.forEach((entity) => {
-                      if (entity.label !== undefined)
-                          entity.label.show = false;
-                });
 
-                if (Cesium.defined(pickedObject) && pickedObject.id !== undefined && pickedObject.id.label !== undefined)
-                    pickedObject.id.label.show = true;
-
+                if (Cesium.defined(pickedObject) && pickedObject.id !== undefined && pickedObject.id.feature !== undefined)
+                    this.showFeatureTooltip(pickedObject.id.feature, movement.endPosition);
+                else
+                    $(".cesiumPopup").fadeOut('fast').remove();
             }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+            // zoom to mouse
+            var eventHandler, mousePosition;
+
+            this.scene.screenSpaceCameraController.enableZoom = false;
+            eventHandler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
+
+            eventHandler.setInputAction((event) => {
+                mousePosition = event.endPosition;
+            }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+            eventHandler.setInputAction((wheelZoomAmount) => {
+                var cameraHeight, directionToZoom, zoomAmount;
+                if (mousePosition) {
+                    cameraHeight = this.scene.globe.ellipsoid.cartesianToCartographic(this.camera.position).height || Number.MAX_VALUE;
+                    directionToZoom = this.camera.getPickRay(mousePosition).direction;
+                    zoomAmount = wheelZoomAmount * cameraHeight / 1000;
+
+                    this.camera.move(directionToZoom, zoomAmount);
+                }
+            }, Cesium.ScreenSpaceEventType.WHEEL);
         }
+
         public disable()
         {
             this.viewer.destroy();
@@ -123,9 +158,62 @@ module csComp.Services
             }
         }
 
+        public showFeatureTooltip(feature : IFeature, endPosition) {
+            if (this.popupShownFor !== undefined && feature.id == this.popupShownFor.id) return;
+            $(".cesiumPopup").fadeOut('fast').remove();
+            this.popupShownFor = feature;
+
+            var layer = feature.layer;
+            var group = layer.group;
+            // var feature = <Feature>layer.feature;
+            // add title
+            var title = feature.properties["Name"];
+            var rowLength = (title) ? title.length : 1;
+            var content = '<td colspan=\'3\'>' + title + '</td></tr>';
+            // add filter values
+            if (group.filters != null && group.filters.length > 0) {
+                group.filters.forEach((f: GroupFilter) => {
+                    if (!feature.properties.hasOwnProperty(f.property)) return;
+                    var value = feature.properties[f.property];
+                    if (value) {
+                        var valueLength = value.toString().length;
+                        if (f.meta != null) {
+                            value = Helpers.convertPropertyInfo(f.meta, value);
+                            if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
+                        }
+                        rowLength = Math.max(rowLength, valueLength + f.title.length);
+                        content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
+                    }
+                });
+            }
+
+            // add style values, only in case they haven't been added already as filter
+            if (group.styles != null && group.styles.length > 0) {
+                group.styles.forEach((s: GroupStyle) => {
+                    if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property === s.property; }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
+                        var value = feature.properties[s.property];
+                        var valueLength = value.toString().length;
+                        if (s.meta != null) {
+                            value = Helpers.convertPropertyInfo(s.meta, value);
+                            if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
+                        }
+                        var tl = s.title ? s.title.length : 10;
+                        rowLength = Math.max(rowLength, valueLength + tl);
+                        content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
+                    }
+                });
+            }
+            var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
+            content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
+
+            // cesium does not have a popup class like leaflet does, so we create our own div with absolute position
+            this.popup = $("<div class='cesiumPopup featureTooltip'></div>").html(content).css({ position: 'absolute', top: endPosition.y - 30, left: endPosition.x - widthInPixels / 2 - 30, width: widthInPixels}).hide().fadeIn('fast');
+            $("body").append(this.popup);
+        }
+
         public addLayer(layer: ProjectLayer)
         {
-            console.log(layer);
+            // console.log(layer);
             var dfd = jQuery.Deferred();
             switch(layer.renderType) {
                 case "geojson":
@@ -147,7 +235,9 @@ module csComp.Services
                           transparent: true,
                         }
                     }));
+                    wms_layer.id = layer.id;
                     wms_layer.alpha = layer.opacity / 100;
+
                     dfd.resolve();
                 break;
 
@@ -176,8 +266,10 @@ module csComp.Services
                 break;
 
                 case "WMS":
-                    // just pop the last one, since it is a radiobutton
-                    this.viewer.imageryLayers.remove(this.viewer.imageryLayers.get(1));
+                    this.viewer.imageryLayers._layers.forEach(ilayer => {
+                        if (ilayer.id == layer.id)
+                            this.viewer.imageryLayers.remove(ilayer);
+                    });
                     dfd.resolve();
                 break;
 
@@ -191,20 +283,16 @@ module csComp.Services
 
         public updateMapFilter(group : ProjectGroup)
         {
-            //console.log('updateMapFilter called (cesium)');
             var dfd = jQuery.Deferred();
             setTimeout(() => {
-                var toRemove = [];
                 this.viewer.entities.values.forEach((entity) => {
-                    if (group.filterResult === undefined || (group.filterResult.length > 0 && entity.feature.layer.id === group.filterResult[0].layer.id))
-                        toRemove.push(entity);
-                });
-                toRemove.forEach(entity => {
-                    this.removeFeature(entity.feature);
-                });
+                    var included;
+                    if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === entity.feature.id).length > 0;
+                    if (included)
+                        entity.show = true;
+                    else
+                        entity.show = false;
 
-                group.filterResult.forEach((f: IFeature) => {
-                    this.addFeature(f);
                 });
                 dfd.resolve();
             }, 0);
@@ -223,7 +311,6 @@ module csComp.Services
         public removeFeature(feature: IFeature)
         {
             //console.log('removeFeature called');
-
             var toRemove = [];
             this.viewer.entities.values.forEach((entity) => {
                 if (entity.feature.id === feature.id) {
@@ -239,7 +326,6 @@ module csComp.Services
 
         public removeFeatures(features: IFeature [])
         {
-            //console.log('removeFeature called');
             var dfd = jQuery.Deferred();
 
             setTimeout(() => {
@@ -247,7 +333,8 @@ module csComp.Services
                 this.viewer.entities.values.forEach((entity) => {
                     features.forEach(feature => {
                       if (entity.feature.id === feature.id) {
-                          toRemove.push(entity);
+                          entity.show(false);
+                          //toRemove.push(entity);
                       }
                     });
                 });
@@ -260,15 +347,57 @@ module csComp.Services
             return dfd.promise();
         }
 
-        public updateFeature( feature : IFeature)
+        public updateFeature(feature : IFeature)
         {
-            this.removeFeature(feature);
-            this.addFeature(feature);
+            this.viewer.entities.values.forEach(entity => {
+                if (entity.feature.id === feature.id)
+                    this.updateEntity(entity, feature);
+            });
+        }
+
+        private updateEntity(entity, feature: IFeature)
+        {
+            var height = feature.properties['mediaan_hoogte'] === undefined ?  feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
+
+            if (feature.fType.style.iconUri !== undefined && entity.billboard !== undefined)
+            {
+                entity.billboard.width = feature.effectiveStyle.iconWidth;
+                entity.billboard.height = feature.effectiveStyle.iconHeight;
+            }
+
+            switch (feature.geometry.type.toUpperCase())
+            {
+                case "POINT":
+                case "MULTIPOINT":
+                    entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+                    entity.point.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+                    entity.point.color = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+                    entity.point.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
+                    entity.point.outlineWidth = feature.effectiveStyle.strokeWidth;
+                break;
+
+                case "POLYGON":
+                case "MULTIPOLYGON":
+                    entity.polygon.material = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+                    entity.polygon.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
+                    entity.polygon.outlineWidth = feature.effectiveStyle.strokeWidth; // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
+                    entity.polygon.extrudedHeight = height;
+                break;
+
+                case "LINESTRING":
+                case "MULTILINESTRING":
+                    entity.polyline.material = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+                    entity.polyline.width = feature.effectiveStyle.strokeWidth;
+                break;
+
+                default:
+                    alert('unknown geometry type: ' + feature.geometry.type);
+                break;
+            }
         }
 
         public addFeature(feature: IFeature)
         {
-
             var entity = this.createFeature(feature);
         }
 
@@ -297,14 +426,12 @@ module csComp.Services
                 pixelSize = 35;
             }
 
-
-
             switch (feature.geometry.type.toUpperCase())
             {
                 case "POINT":
                     // if there is no icon, a PointGraphics object is used as a fallback mechanism
                     entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
-                    
+
                     entity.point = {
                         pixelSize : pixelSize,
                         position : Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]),
@@ -329,6 +456,7 @@ module csComp.Services
 
                         this.viewer.entities.add(entity_multi);
                     }
+                    this.viewer.entities.remove(entity);
                 break;
 
                 case "POLYGON":
@@ -363,6 +491,7 @@ module csComp.Services
 
                         this.viewer.entities.add(entity_multi);
                     }
+                    this.viewer.entities.remove(entity);
                 break;
 
                 case "LINESTRING":
@@ -382,25 +511,17 @@ module csComp.Services
                             positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates[i]),
                             material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
                             width : feature.effectiveStyle.strokeWidth,
-                        })
+                        });
 
                         this.viewer.entities.add(entity_multi);
                     }
+                    this.viewer.entities.remove(entity);
                 break;
 
                 default:
                     alert('unknown geometry type: ' + feature.geometry.type);
                 break;
             }
-            //label for mouseover events
-            entity.label = {
-                text : entity.name,
-                font : '12pt monospace',
-                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                fillColor: Cesium.Color.WHITE,
-                pixelOffset : new Cesium.Cartesian2(0, 40),
-                show : false
-            };
 
             // add a 3D model if we have one
             if (feature.effectiveStyle.modelUri !== undefined)
