@@ -28,5 +28,6 @@ module csComp.Services
       updateMapFilter(group: ProjectGroup);
       changeBaseLayer(layer: BaseLayer);
       getZoom();
+      fitBounds(bounds: L.LatLngBounds);
   }
 }

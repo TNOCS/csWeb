@@ -27,6 +27,11 @@ module csComp.Services {
       });
     }
 
+    public fitBounds(bounds: L.LatLngBounds)
+    {
+        this.service.$mapService.map.fitBounds(bounds);
+    }
+
     public getZoom() {
       return this.service.$mapService.map.getZoom();
     }

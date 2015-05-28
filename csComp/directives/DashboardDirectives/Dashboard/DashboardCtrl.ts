@@ -174,7 +174,7 @@
         public checkViewbound() {
             var db = this.$layerService.project.activeDashboard;
             if (db.viewBounds) {
-                this.$mapService.map.fitBounds(new L.LatLngBounds(db.viewBounds.southWest, db.viewBounds.northEast));
+                this.$layerService.activeMapRenderer.fitBounds(new L.LatLngBounds(db.viewBounds.southWest, db.viewBounds.northEast));
             }
         }
 

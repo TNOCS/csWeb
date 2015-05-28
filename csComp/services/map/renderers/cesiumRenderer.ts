@@ -41,7 +41,7 @@ module csComp.Services
 
             // onclick events
             this.setUpMouseHandlers();
-            this.viewExtent(this.service.$mapService.maxBounds);
+            this.fitBounds(this.service.$mapService.maxBounds);
             this.changeBaseLayer(this.service.$mapService.activeBaseLayer);
         }
 
@@ -51,7 +51,7 @@ module csComp.Services
             return 0;
         }
 
-        public viewExtent(bounds: L.LatLngBounds)
+        public fitBounds(bounds: L.LatLngBounds)
         {
             var ellipsoid = Cesium.Ellipsoid.WGS84;
 
