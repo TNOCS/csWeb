@@ -1375,12 +1375,25 @@
                           {
                             g = new ProjectGroup();
                             g.id = l.groupId;
-                            g.title = l.groupId;
+                            g.title = l.title;
                             this.project.groups.push(g);
                             this.initGroup(g);
                           }
-                          g.layers.push(l);
-                          this.initLayer(g,l);
+                          var layerExists = false;
+                          var layerIndex;
+                          g.layers.forEach((gl, index) => {
+                            if (gl.id === l.id) {
+                              layerExists = true;
+                              layerIndex = index;
+                            }
+                          })
+                          if (!layerExists) {
+                            g.layers.push(l);
+                            this.initLayer(g,l);
+                          } else {
+                            if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
+                            l.layerSource.refreshLayer(g.layers[layerIndex]);
+                          }
                           if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
 
                         } );

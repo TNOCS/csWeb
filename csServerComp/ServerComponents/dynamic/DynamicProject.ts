@@ -47,7 +47,7 @@ module DynamicProject {
 
     public AddLayer(data : any)
     {
-      var file = this.folder + "\\" + this.project.groups[0].title + "\\" + data.reference + ".json";
+      var file = this.folder + "\\" + data.group + "\\" + data.layerTitle + ".json";
       fs.writeFileSync(file, JSON.stringify(data.geojson));
       console.log('done!');
     }
@@ -81,6 +81,7 @@ module DynamicProject {
     {
       var watcher = chokidar.watch(this.folder, {ignoreInitial: false,ignored: /[\/\\]\./, persistent: true});
       watcher.on('add', (path)=> { this.addLayer(path); });
+      watcher.on('change', (path)=> { this.addLayer(path); });
       watcher.on('unlink', (path)=> { this.removeLayer(path); });
     }
 
@@ -91,11 +92,11 @@ module DynamicProject {
       if (pp.base === "project.json") return;
 
       // determine group
-      var groupTitle = pp.dir.toLowerCase().replace(this.folder.toLowerCase(),"").replace("\\","");
+      var groupTitle = pp.dir.replace(this.folder,"").replace("\\","");
       if (groupTitle === "") return;
 
       // check if group exists
-      var gg = this.project.groups.filter((element:any)=>(element!=null && element.title && element.title.toLowerCase() == groupTitle));
+      var gg = this.project.groups.filter((element:any)=>(element!=null && element.title && element.title.toLowerCase() == groupTitle.toLowerCase()));
       var g : any = {};
       if (gg.length>0)
       {
@@ -116,11 +117,15 @@ module DynamicProject {
       if (pp.base === "project.json") return;
 
       // determine group
-      var groupTitle = pp.dir.toLowerCase().replace(this.folder.toLowerCase(),"").replace("\\","");
+      var groupTitle = pp.dir.replace(this.folder,"").replace("\\","");
       if (groupTitle === "") return;
 
+      // obtain additional parameters (useClustering, isEnabled, etc.)
+      var parameters = this.service.projectParameters[groupTitle];
+      if (!parameters) return;
+
       // check if group exists
-      var gg = this.project.groups.filter((element:any)=>(element!=null && element.title && element.title.toLowerCase() == groupTitle));
+      var gg = this.project.groups.filter((element:any)=>(element!=null && element.title && element.title.toLowerCase() == groupTitle.toLowerCase()));
       var g : any = {};
       if (gg.length>0)
       {
@@ -129,21 +134,35 @@ module DynamicProject {
       else
       {
       //  var g : any; //new csComp.Services.ProjectGroup();
-        g.id = groupTitle;
+        g.id = groupTitle.toLowerCase();
         g.title = groupTitle;
         g.layers = [];
         g.styles = [];
         g.oneLayerActive = false;
         this.project.groups.push(g);
       }
+      if (parameters.useClustering) {
+        g.clustering = true;
+        g.clusterLevel = 12;
+      }
 
       var layer : any = {};
       layer.id = file;
-      layer.title = pp.name.split('_').join(' ');
+      layer.title = parameters.layerTitle;//pp.name.split('_').join(' ');
       layer.type = "geojson";
       layer.url = "data/projects/" + this.id + "/" + g.title + "/" + pp.base;
-      layer.groupId = g.title;
-      g.layers.push(layer);
+      layer.groupId = g.id;
+      layer.enabled = parameters.enabled;
+      layer.reference = parameters.reference;
+
+      var layerExists = false;
+      for (var i = 0; i < g.layers.length; i++) {
+        if (g.layers[i].id === layer.groupId) {
+          layerExists = true;
+          break;
+        }
+      }
+      if (!layerExists) g.layers.push(layer);
 
       this.service.connection.sendUpdate(this.project.id,"project","layer-update",[layer]);
 
@@ -165,6 +184,7 @@ module DynamicProject {
     export class DynamicProjectService {
       public test : string;
       public projects : { [key: string] : DynamicProject} = {};
+      public projectParameters : { [key: string] : any} = {};
 
       public constructor(public server : express.Express, public connection : ClientConnection.ConnectionManager, public messageBus : MessageBus.MessageBusService)
       {
@@ -180,6 +200,7 @@ module DynamicProject {
             var dp = this.projects[data.project];
             //console.log("adding layer");
             dp.AddLayer(data);
+            this.projectParameters[data.group] = data;
           }
 
           //
