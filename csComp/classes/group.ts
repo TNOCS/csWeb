@@ -40,6 +40,27 @@
         public markers  : any;
         styleProperty   : string;
         languages       : ILanguageData;
+
+
+
+        /**
+         * Returns an object which contains all the data that must be serialized.
+         */
+        public static serializeableData(projectGroup: ProjectGroup): Object {
+            return {
+                id:               projectGroup.id,
+                title:            projectGroup.title,
+                description:      projectGroup.description,
+                showTitle:        projectGroup.showTitle,
+                clustering:       projectGroup.clustering,
+                clusterLevel:     projectGroup.clusterLevel,
+                maxClusterRadius: projectGroup.maxClusterRadius,
+                oneLayerActive:   projectGroup.oneLayerActive,
+                styleProperty:    projectGroup.styleProperty,
+                languages:        projectGroup.languages,
+                layers:           csComp.Helpers.serialize<ProjectLayer>(projectGroup.layers, ProjectLayer.serializeableData)
+            };
+        }
     }
 
     /**

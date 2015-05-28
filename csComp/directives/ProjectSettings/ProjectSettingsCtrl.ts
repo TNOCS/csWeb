@@ -13,6 +13,7 @@
         public static $inject = [
             '$scope',
             '$modal',
+            '$timeout',
             'layerService'
         ];
 
@@ -21,10 +22,20 @@
         constructor(
             private $scope       : IProjectSettingsScope,
             private $modal       : any,
+            private $timeout     : ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService
             ) {
             $scope.vm = this;
         }
 
+        saveSettings() {
+            this.$timeout(() => {
+                var data = this.$layerService.project.serialize();
+                //console.log(data);
+                console.log("Save settings: ");
+                csComp.Helpers.saveData(data, "project", "json");
+            }, 0);
+        }
+
     }
-}  
+}

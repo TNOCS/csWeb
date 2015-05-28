@@ -42,6 +42,7 @@
             '$http',
             '$sce',
             '$translate',
+            '$timeout',
             'layerService',
             'localStorageService',
             'messageBusService'
@@ -54,6 +55,7 @@
             private $http                : ng.IHttpService,
             private $sce                 : ng.ISCEService,
             private $translate           : ng.translate.ITranslateService,
+            private $timeout             : ng.ITimeoutService,
             private $layerService        : csComp.Services.LayerService,
             private $localStorageService : ng.localStorage.ILocalStorageService,
             private $messageBusService   : csComp.Services.MessageBusService
@@ -319,35 +321,41 @@
                 var layer = this.findLayerById(this.selectedLayerId);
                 if (layer) filename = layer.title.replace(' ', '_');
             }
-            this.saveData(csvString, filename + '.csv');
+            //this.saveData(csvString, filename + '.csv');
+            this.$timeout(() => {
+                var data = this.$layerService.project.serialize();
+                //console.log(data);
+                console.log("Save settings: ");
+                csComp.Helpers.saveData(csvString, filename, "csv");
+            }, 0);
         }
 
-        private saveData(csvData: string, filename: string) {
-            if (navigator.msSaveBlob) {
-                // IE 10+
-                var link: any = document.createElement('a');
-                link.addEventListener("click", event => {
-                    var blob = new Blob([csvData], {"type": "text/csv;charset=utf-8;"});
-                    navigator.msSaveBlob(blob, filename);
-                }, false);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else if (!csComp.Helpers.supportsDataUri()) {
-                // Older versions of IE: show the data in a new window
-                var popup = window.open('', 'csv', '');
-                popup.document.body.innerHTML = '<pre>' + csvData + '</pre>';
-            } else {
-                // Support for browsers that support the data uri.
-                var a: any = document.createElement('a');
-                document.body.appendChild(a);
-                a.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvData);
-                a.target = '_blank';
-                a.download = filename;
-                a.click();
-                document.body.removeChild(a);
-            }
-        }
+        // private saveData(csvData: string, filename: string) {
+        //     if (navigator.msSaveBlob) {
+        //         // IE 10+
+        //         var link: any = document.createElement('a');
+        //         link.addEventListener("click", event => {
+        //             var blob = new Blob([csvData], {"type": "text/csv;charset=utf-8;"});
+        //             navigator.msSaveBlob(blob, filename);
+        //         }, false);
+        //         document.body.appendChild(link);
+        //         link.click();
+        //         document.body.removeChild(link);
+        //     } else if (!csComp.Helpers.supportsDataUri()) {
+        //         // Older versions of IE: show the data in a new window
+        //         var popup = window.open('', 'csv', '');
+        //         popup.document.body.innerHTML = '<pre>' + csvData + '</pre>';
+        //     } else {
+        //         // Support for browsers that support the data uri.
+        //         var a: any = document.createElement('a');
+        //         document.body.appendChild(a);
+        //         a.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvData);
+        //         a.target = '_blank';
+        //         a.download = filename;
+        //         a.click();
+        //         document.body.removeChild(a);
+        //     }
+        // }
 
         /**
          * Convert to trusted html string.

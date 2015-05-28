@@ -96,7 +96,7 @@ module csComp.Services
       count: number;
       /** Description as displayed in the menu */
       description: string;
-      /** Type of layer, e.g. GeoJSON (default), TopoJSON, or WMS */
+      /** Source type of layer, e.g. GeoJSON (default), TopoJSON, or WMS TODO Refactor to sourceType */
       type: string;
       /** Specificies how the content should be rendered. Default same as 'type', but allows you to transform the source to e.g. geojson for easier rendering */
       renderType : string;
@@ -124,7 +124,9 @@ module csComp.Services
       groupId : string;
       /** Group of layers */
       group: ProjectGroup;
+      /** if true, use the current bounding box to retreive data from the server */
       refreshBBOX : boolean;
+      /** The current bounding box to retreive data from the server */
       BBOX : string;
       layerSource : ILayerSource;
       /**
@@ -170,7 +172,7 @@ module csComp.Services
       /** handle for receiving server events */
       serverHandle: MessageBusHandle;
 
-/** Whether layer can be quickly updated instead of completely rerendered */
+      /** Whether layer can be quickly updated instead of completely rerendered */
       quickRefresh:boolean;
 
       lastSelectedFeature : IFeature;
@@ -180,6 +182,37 @@ module csComp.Services
 
       /** key name of default feature type */
       defaultFeatureType : string;
+
+
+      /**
+       * Returns an object which contains all the data that must be serialized.
+       */
+      public static serializeableData(pl: ProjectLayer) : Object {
+          return {
+              id:                    pl.id,
+              title:                 pl.title,
+              description:           pl.description,
+              type:                  pl.type,
+              renderType:            pl.renderType,
+              heatmapSettings:       pl.heatmapSettings,
+              heatmapItems:          csComp.Helpers.serialize(pl.heatmapItems, Heatmap.HeatmapItem.serializeableData),
+              url:                   pl.url,
+              styleurl:              pl.styleurl,
+              wmsLayers:             pl.wmsLayers,
+              enabled:               pl.enabled,
+              opacity:               pl.opacity,
+              isSublayer:            pl.isSublayer,
+              BBOX:                  pl.BBOX,
+              refreshBBOX:           pl.refreshBBOX,
+              refreshTimer:          pl.refreshTimer,
+              quickRefresh:          pl.quickRefresh,
+              languages:             pl.languages,
+              events:                pl.events,
+              dataSourceParameters:  pl.dataSourceParameters,
+              defaultFeatureType:    pl.defaultFeatureType,
+              defaultLegendProperty: pl.defaultLegendProperty,
+          };
+      }
   }
 
   /**
