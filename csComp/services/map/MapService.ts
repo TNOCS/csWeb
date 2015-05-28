@@ -20,6 +20,8 @@
         public mapVisible:       boolean = true;
         public timelineVisible:  boolean = true;
         public rightMenuVisible: boolean = true;
+        public maxBounds:        L.LatLngBounds;
+
         expertMode:              Expertise;
 
         constructor(

@@ -1185,7 +1185,7 @@
                     this.$mapService.map.setMaxBounds(new L.LatLngBounds(solution.maxBounds.southWest, solution.maxBounds.northEast));
                 }
                 if (solution.viewBounds)
-                    this.$mapService.map.fitBounds(new L.LatLngBounds(solution.viewBounds.southWest, solution.viewBounds.northEast));
+                    this.activeMapRenderer.fitBounds(new L.LatLngBounds(solution.viewBounds.southWest, solution.viewBounds.northEast));
 
                 solution.baselayers.forEach(b => {
                     var baselayer: BaseLayer = new BaseLayer();
@@ -1265,7 +1265,7 @@
                 }
 
                 if (this.project.viewBounds) {
-                    this.$mapService.map.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
+                    this.activeMapRenderer.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
                 }
                 var featureTypes = this.project.featureTypes;
                 if (featureTypes) {

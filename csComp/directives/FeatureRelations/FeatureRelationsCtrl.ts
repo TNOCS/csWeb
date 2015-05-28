@@ -72,7 +72,7 @@
         // Create a relation to the nearest 10 features that are within the extent
         private createNearbyRelation(f) : RelationGroup {
             var rgr = new RelationGroup();
-            var mapZoom = this.$mapService.map.getZoom();
+            var mapZoom = this.$layerService.activeMapRenderer.getZoom();
             if (mapZoom < 12) return rgr; //Disable when zoom level is too low
 
             this.$translate('NEARBY_FEATURES').then((translation) => {

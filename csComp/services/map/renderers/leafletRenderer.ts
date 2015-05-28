@@ -22,7 +22,18 @@ module csComp.Services {
       this.service.$mapService.map.on('moveend',(t,event : any)=>{
         var b = (<L.Map>(this.service.$mapService.map)).getBounds();
         this.$messageBusService.publish("mapbbox","update",b.toBBoxString());
+
+        this.service.$mapService.maxBounds = b;
       });
+    }
+
+    public fitBounds(bounds: L.LatLngBounds)
+    {
+        this.service.$mapService.map.fitBounds(bounds);
+    }
+
+    public getZoom() {
+      return this.service.$mapService.map.getZoom();
     }
 
     public disable() {

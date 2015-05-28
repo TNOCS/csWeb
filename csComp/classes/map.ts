@@ -27,5 +27,7 @@ module csComp.Services
       removeLayer(layer : ProjectLayer);
       updateMapFilter(group: ProjectGroup);
       changeBaseLayer(layer: BaseLayer);
+      getZoom();
+      fitBounds(bounds: L.LatLngBounds);
   }
 }
