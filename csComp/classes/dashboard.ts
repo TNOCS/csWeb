@@ -7,40 +7,41 @@ module csComp.Services {
     }
 
     export interface IWidget {
-        directive        : string;  // name of the directive that should be used as widget
-        data             : Object;  // json object that can hold parameters for the directive
-        url              : string;  // url of the html page that should be used as widget
-        template         : string;  // name of the template that should be shown as widget
-        title            : string;  // title of the widget
-        elementId        : string;
-        enabled          : boolean;
+        directive:          string;  // name of the directive that should be used as widget
+        data:               Object;  // json object that can hold parameters for the directive
+        url:                string;  // url of the html page that should be used as widget
+        template:           string;  // name of the template that should be shown as widget
+        title:              string;  // title of the widget
+        elementId:          string;
+        enabled:            boolean;
 
-        parentDashboard        : csComp.Services.Dashboard;
-        renderer         : Function;
-        resize           : Function;
-        background       : string;
-        init             : Function;
-        start            : Function;
-        left?            : string;
-        right?           : string;
-        top?             : string;
-        bottom?          : string;
-        borderWidth?     : string;
-        borderColor?     : string;
-        borderRadius?    : string;
+        parentDashboard?:   csComp.Services.Dashboard;
+        renderer?:          Function;
+        resize?:            Function;
+        background:         string;
+        init?:              Function;
+        start?:             Function;
+        left?:              string;
+        right?:             string;
+        top?:               string;
+        bottom?:            string;
+        borderWidth?:       string;
+        borderColor?:       string;
+        borderRadius?:      string;
 
-        name             : string; id: string;
-        properties       : {};
-        dataSets         : DataSet[];
-        range            : csComp.Services.DateRange;
-        updateDateRange  : Function;
-        collapse         : boolean;
-        canCollapse      : boolean;
-        width            : string;
-        height           : string;
-        allowFullscreen  : boolean;
-        messageBusService: csComp.Services.MessageBusService;
-        layerService     : csComp.Services.LayerService;
+        name:               string; id: string;
+        properties:         {};
+        dataSets?:          DataSet[];
+        range:              csComp.Services.DateRange;
+        updateDateRange?:   Function;
+        collapse:           boolean;
+        canCollapse:        boolean;
+        width:              string;
+        height:             string;
+        allowFullscreen:    boolean;
+        hover:              boolean;
+        messageBusService?: csComp.Services.MessageBusService;
+        layerService?:      csComp.Services.LayerService;
     }
 
     export class BaseWidget implements IWidget {
@@ -50,7 +51,7 @@ module csComp.Services {
         public data             : {};
         public url              : string;
         public elementId        : string;
-        public parentDashboard        : csComp.Services.Dashboard;
+        public parentDashboard  : csComp.Services.Dashboard;
         public enabled          : boolean = true;
         public borderWidth      : string = "1px";
         public borderColor      : string = "green";
@@ -72,7 +73,7 @@ module csComp.Services {
         public allowFullscreen  : boolean;
         public messageBusService: csComp.Services.MessageBusService;
         public layerService     : csComp.Services.LayerService;
-        public hover : boolean;
+        public hover            : boolean;
 
         //public static deserialize(input: IWidget): IWidget {
         //    var loader = new InstanceLoader(window);
@@ -85,6 +86,37 @@ module csComp.Services {
             if (title) this.title = title;
             this.properties = {};
             this.dataSets = [];
+        }
+
+        static serializeableData(w: IWidget): IWidget {
+            return {
+                id:              w.id,
+                directive:       w.directive,
+                template:        w.template,
+                title:           w.title,
+                name:            w.name,
+                data:            w.data,
+                url:             w.url,
+                elementId:       w.elementId,
+                enabled:         w.enabled,
+                borderWidth:     w.borderWidth,
+                borderColor:     w.borderColor,
+                borderRadius:    w.borderRadius,
+                background:      w.background,
+                left:            w.left,
+                right:           w.right,
+                top:             w.top,
+                bottom:          w.bottom,
+                width:           w.width,
+                height:          w.height,
+                allowFullscreen: w.allowFullscreen,
+                properties:      w.properties,
+                hover:           w.hover,
+                //dataSets:      {},// w.dataSets,
+                range:           w.range,
+                collapse:        w.collapse,
+                canCollapse:     w.canCollapse,
+            };
         }
 
         public start() {}
@@ -114,27 +146,49 @@ module csComp.Services {
     }
 
     export class Dashboard {
-        widgets:         IWidget[];
-        editMode:        boolean;
-        showMap:         boolean;
-        showTimeline:    boolean = true;
-        showLeftmenu:    boolean;
-        showRightmenu:   boolean = true;
-        showBackgroundImage : boolean = false;
-        draggable:       boolean = true;
-        resizable:       boolean = true;
-        background:      string;
-        backgroundimage: string = "images/amsterdam.jpg";
-        visiblelayers:   string[];
-        baselayer:       string;
-        viewBounds:      IBoundingBox;
-        timeline:        DateRange;
-        id:              string;
-        name:            string;
-        disabled: boolean = false;
+        widgets:             IWidget[];
+        editMode:            boolean;
+        showMap:             boolean;
+        showTimeline:        boolean = true;
+        showLeftmenu:        boolean;
+        showRightmenu:       boolean = true;
+        showBackgroundImage: boolean = false;
+        draggable:           boolean = true;
+        resizable:           boolean = true;
+        background:          string;
+        backgroundimage:     string;
+        visiblelayers:       string[];
+        baselayer:           string;
+        viewBounds:          IBoundingBox;
+        timeline:            DateRange;
+        id:                  string;
+        name:                string;
+        disabled:            boolean = false;
 
         constructor() {
             this.widgets = [];
+        }
+
+        /**
+         * Returns an object which contains all the data that must be serialized.
+         */
+        public static serializeableData(d: Dashboard): Object {
+            return {
+                id:                  d.id,
+                name:                d.name,
+                editMode:            d.editMode,
+                showMap:             d.showMap,
+                showTimeline:        d.showTimeline,
+                showLeftmenu:        d.showLeftmenu,
+                showRightmenu:       d.showRightmenu,
+                showBackgroundImage: d.showBackgroundImage,
+                background:          d.background,
+                backgroundimage:     d.backgroundimage,
+                visiblelayers:       d.visiblelayers,
+                baselayer:           d.baselayer,
+                viewBounds:          d.viewBounds,
+                widgets:             csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData)
+            }
         }
 
         public static deserialize(input: Dashboard): Dashboard {

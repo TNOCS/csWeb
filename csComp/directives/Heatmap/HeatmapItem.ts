@@ -36,7 +36,7 @@ module Heatmap {
          * @type {IIdealityMeasure}
          */
         idealityMeasure: IIdealityMeasure;
-        isSelected     : boolean;
+        isSelected?     : boolean;
 
         reset(): void;
         setScale(latitude: number, longitude: number): void;
@@ -64,6 +64,23 @@ module Heatmap {
             this.setScale(52);
         }
 
+        /**
+         * Returns an object which contains all the data that must be serialized.
+         */
+        public static serializeableData(i: HeatmapItem): Object {
+            return {
+                title:            i.title,
+                featureType:      i.featureType,
+                propertyTitle:    i.propertyTitle,
+                propertyLabel:    i.propertyLabel,
+                optionIndex:      i.optionIndex,
+                userWeight:       i.userWeight,
+                weight:           i.weight,
+                idealityMeasure:  i.idealityMeasure,
+                isSelected:       i.isSelected
+            };
+        }
+
         calculateHeatspots(feature: csComp.Services.Feature, cellWidth: number, cellHeight: number,
                 horizCells: number, vertCells: number, mapBounds: L.LatLngBounds, paddingRatio: number) {
             // right type?
@@ -82,8 +99,8 @@ module Heatmap {
         }
 
         /**
-        * Calculate the intensity around the location. 
-        * NOTE We are performing a relative computation around location (0,0) in a rectangular grid. 
+        * Calculate the intensity around the location.
+        * NOTE We are performing a relative computation around location (0,0) in a rectangular grid.
         */
         private calculateHeatspot(cellWidth: number, cellHeight: number) {
             var maxRadius    = this.idealityMeasure.lostInterestDistance;
@@ -106,9 +123,9 @@ module Heatmap {
                 }
             }
 
-            //var latRadius = radius * HeatmapItem.meterToLatDegree; 
-            //var lonRadius = radius * HeatmapItem.meterToLonDegree; 
-            
+            //var latRadius = radius * HeatmapItem.meterToLatDegree;
+            //var lonRadius = radius * HeatmapItem.meterToLonDegree;
+
             //for (var lat = -latRadius; lat < latRadius; lat += deltaLatDegree) {
             //    for (var lon = -lonRadius; lat < lonRadius; lat += deltaLonDegree) {
             //        // TODO Compute radius
@@ -119,8 +136,8 @@ module Heatmap {
             //var count = 0;
             //while (count++ < 200) {
             //    var radius    = Math.random() * this.idealityMeasure.lostInterestDistance;
-            //    var latRadius = radius * HeatmapItem.meterToLatDegree; 
-            //    var lonRadius = radius * HeatmapItem.meterToLonDegree; 
+            //    var latRadius = radius * HeatmapItem.meterToLatDegree;
+            //    var lonRadius = radius * HeatmapItem.meterToLonDegree;
             //    var angleRad  = Math.random() * HeatmapItem.twoPi;
             //    var lat       = Math.sin(angleRad) * latRadius;
             //    var lon       = Math.cos(angleRad) * lonRadius;
@@ -136,8 +153,8 @@ module Heatmap {
             //// halfway between start and ideal location
             //var stepSize  = Math.PI / 2;
             //var radius    = this.idealityMeasure.idealDistance / 2;
-            //var latRadius = radius * HeatmapItem.meterToLatDegree; 
-            //var lonRadius = radius * HeatmapItem.meterToLonDegree; 
+            //var latRadius = radius * HeatmapItem.meterToLatDegree;
+            //var lonRadius = radius * HeatmapItem.meterToLonDegree;
             //var itensity  = 0.5 * this.weight;
             //for (var i = Math.PI / 4; i < twoPi; i += stepSize) {
             //    lat = Math.sin(i) * latRadius;
@@ -148,7 +165,7 @@ module Heatmap {
             //stepSize /= 2;
             //radius = this.idealityMeasure.idealDistance;
             //latRadius = radius * HeatmapItem.meterToLatDegree;
-            //lonRadius = radius * HeatmapItem.meterToLonDegree; 
+            //lonRadius = radius * HeatmapItem.meterToLonDegree;
             //itensity = this.weight;
             //for (var i = 0; i < twoPi; i += stepSize) {
             //    lat = Math.sin(i) * latRadius;
@@ -159,7 +176,7 @@ module Heatmap {
             //stepSize /= 2;
             //radius   += (this.idealityMeasure.lostInterestDistance - this.idealityMeasure.idealDistance) / 2;
             //latRadius = radius * HeatmapItem.meterToLatDegree;
-            //lonRadius = radius * HeatmapItem.meterToLonDegree; 
+            //lonRadius = radius * HeatmapItem.meterToLonDegree;
             //itensity = this.weight / 2;
             //for (var i = Math.PI / 8; i < twoPi; i += stepSize) {
             //    lat = Math.sin(i) * latRadius;
@@ -168,7 +185,7 @@ module Heatmap {
             //}
         }
 
-        /** 
+        /**
         * Translate the heatspot (at (0,0)) to the actual location.
         */
         private pinHeatspotToGrid(feature: csComp.Services.Feature, horizCells: number, vertCells: number, mapBounds: L.LatLngBounds, paddingRatio: number) {
@@ -189,7 +206,7 @@ module Heatmap {
         }
 
         /**
-        * Set the scale to convert a 1x1 meter grid cell to the appropriate number of degrees 
+        * Set the scale to convert a 1x1 meter grid cell to the appropriate number of degrees
         * in vertical and horizontal direction.
         */
         setScale(latitude: number) {
@@ -200,7 +217,7 @@ module Heatmap {
 
         select() {
             this.reset();
-            this.isSelected = !this.isSelected; 
+            this.isSelected = !this.isSelected;
             if (!this.isSelected) {
                 this.idealityMeasure = null;
             }
@@ -224,7 +241,7 @@ module Heatmap {
         toString() {
             return this.propertyTitle
                 ? this.propertyTitle + '.' + this.title + ' (' + this.featureType.name + ')'
-                : this.title;            
+                : this.title;
         }
     }
 }

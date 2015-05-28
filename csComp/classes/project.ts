@@ -123,7 +123,7 @@
 
     /** project configuration. */
     export class Project implements ISerializable<Project> {
-        id: string;
+        id              : string;
         title           : string;
         description     : string;
         logo            : string;
@@ -149,6 +149,51 @@
         expertMode = Expertise.Expert;
         markers = {};
 
+        /**
+         * Serialize the project to a JSON string.
+         */
+        public serialize(): string {
+            return JSON.stringify(Project.serializeableData(this), (key: string, value: any) => {
+                // Skip serializing certain keys
+                switch (key) {
+                    case "timestamp":
+                    case "values":
+                    case "$$hashKey":
+                    case "div":
+                        return undefined;
+                    default:
+                        return value;
+                }
+            }, 2);
+        }
+
+        /**
+         * Returns an object which contains all the data that must be serialized.
+         */
+        public static serializeableData(project: Project): Object {
+            return {
+                id:               project.id,
+                title:            project.title,
+                description:      project.description,
+                logo:             project.logo,
+                url:              project.url,
+                connected:        project.connected,
+                startPosition:    project.startposition,
+                timeLine:         project.timeLine,
+                mcas:             project.mcas,
+                datasources:      project.datasources,
+                dashboards:       csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
+                viewBounds:       project.viewBounds,
+                userPrivileges:   project.userPrivileges,
+                languages:        project.languages,
+                expertMode:       project.expertMode,
+                baselayers:       project.baselayers,
+                featureTypes:     project.featureTypes,
+                propertyTypeData: project.propertyTypeData,
+                groups:           csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData)
+            };
+        }
+
         public deserialize(input: Project): Project {
             var res = <Project>jQuery.extend(new Project(), input);
             if (input.timeLine) res.timeLine = DateRange.deserialize(input.timeLine); // <DateRange>jQuery.extend(new DateRange(), input.timeLine);
@@ -158,10 +203,9 @@
                     res.dashboards.push(Dashboard.deserialize(d));
                 });
 
-                for (var mca in input.mcas) {
-                    if (input.mcas.hasOwnProperty(mca)) {
-                        res.mcas.push(new Mca.Models.Mca().deserialize(mca));
-                    }
+                for (var index in input.mcas) {
+                    var mca = input.mcas[index];
+                    res.mcas.push(new Mca.Models.Mca().deserialize(mca));
                 }
             }
             if (!res.propertyTypeData) res.propertyTypeData = {};
