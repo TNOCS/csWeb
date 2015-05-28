@@ -47,7 +47,9 @@ module DynamicProject {
 
     public AddLayer(data : any)
     {
-      var file = this.folder + "\\" + data.group + "\\" + data.layerTitle + ".json";
+      var groupFolder = this.folder + "\\" + data.group;
+      var file = groupFolder + "\\" + data.layerTitle + ".json";
+      if(!fs.existsSync(groupFolder)) fs.mkdirSync(groupFolder);
       fs.writeFileSync(file, JSON.stringify(data.geojson));
       console.log('done!');
     }
@@ -148,6 +150,7 @@ module DynamicProject {
 
       var layer : any = {};
       layer.id = file;
+      layer.description = parameters.description;
       layer.title = parameters.layerTitle;//pp.name.split('_').join(' ');
       layer.type = "geojson";
       layer.url = "data/projects/" + this.id + "/" + g.title + "/" + pp.base;

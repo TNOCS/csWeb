@@ -21,7 +21,7 @@ module csComp.Services {
       });
       this.service.$mapService.map.on('moveend',(t,event : any)=>{
         var b = (<L.Map>(this.service.$mapService.map)).getBounds();
-        this.$messageBusService.publish("mapbbox","update",b.toBBoxString());        
+        this.$messageBusService.publish("mapbbox","update",b.toBBoxString());
       });
     }
 
@@ -167,7 +167,7 @@ module csComp.Services {
           // create leaflet layers
           layer.mapLayer = new L.LayerGroup<L.ILayer>();
           this.service.map.map.addLayer(layer.mapLayer);
-
+          if (!layer.data || !layer.data.features) break;
           (<any>layer.data).features.forEach((f: IFeature) => {
             layer.group.markers[f.id] = this.addFeature(f);
           });

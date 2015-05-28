@@ -1396,6 +1396,7 @@
                             g.layers.push(l);
                             this.initLayer(g,l);
                           } else {
+                            if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
                             if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
                             l.layerSource.refreshLayer(g.layers[layerIndex]);
                           }
