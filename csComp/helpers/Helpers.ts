@@ -1,4 +1,60 @@
+// export interface Array<T> {
+//     serialize<T>(): string
+// }
+//
+// Array<T>.prototype.serialize<T> = function() {
+//     return "";
+// }
+
 ﻿module csComp.Helpers {
+
+    /**
+     * Serialize an array of type T to a JSON string, by calling the callback on each array element.
+     */
+    export function serialize<T>(arr: Array<T>, callback: (T) => Object) {
+        if (typeof arr === 'undefined' || arr === null || arr.length === 0) return null;
+        var result: Object[] = [];
+        arr.forEach(a => {
+            result.push(callback(a));
+        });
+        return result;
+    }
+
+    /**
+     * Export data to the file system.
+     */
+    export function saveData(data: string, filename: string, fileType: string) {
+        fileType = fileType.replace(".", "");
+        filename = filename.replace("." + fileType, "") + "." + fileType; // if the filename already contains a type, first remove it before adding it.
+
+        if (navigator.msSaveBlob) {
+            // IE 10+
+            var link: any = document.createElement('a');
+            link.addEventListener("click", event => {
+                var blob = new Blob([data], {"type": "text/" + fileType + ";charset=utf-8;"});
+                navigator.msSaveBlob(blob, filename);
+            }, false);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else if (!csComp.Helpers.supportsDataUri()) {
+            // Older versions of IE: show the data in a new window
+            var popup = window.open('', fileType, '');
+            popup.document.body.innerHTML = '<pre>' + data + '</pre>';
+        } else {
+            // Support for browsers that support the data uri.
+            var a: any = document.createElement('a');
+            document.body.appendChild(a);
+            a.href = "data:text/" + fileType + ";charset=utf-8," + encodeURI(data);
+            a.target = '_blank';
+            a.download = filename;
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+
+
+
     declare var String;//: StringExt.IStringExt;
 
     export function supportsDataUri() {

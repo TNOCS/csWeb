@@ -1367,7 +1367,7 @@
                 {
                   this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
                       if (msg.action === "layer-update") {
-                        msg.data.forEach((l : ProjectLayer) =>{
+                        msg.data.layer.forEach((l : ProjectLayer) =>{
                           var g : ProjectGroup;
                           // find group
                           if (l.groupId) {g = this.findGroupById(l.groupId);} else { l.groupId="main"; }
@@ -1375,12 +1375,30 @@
                           {
                             g = new ProjectGroup();
                             g.id = l.groupId;
-                            g.title = l.groupId;
+                            g.title = l.title;
+                            g.clustering = msg.data.group.clustering;
+                            g.clusterLevel = msg.data.group.clusterLevel;
                             this.project.groups.push(g);
                             this.initGroup(g);
+                          } else {
+                            g.clustering = msg.data.group.clustering;
+                            g.clusterLevel = msg.data.group.clusterLevel;
                           }
-                          g.layers.push(l);
-                          this.initLayer(g,l);
+                          var layerExists = false;
+                          var layerIndex;
+                          g.layers.forEach((gl, index) => {
+                            if (gl.id === l.id) {
+                              layerExists = true;
+                              layerIndex = index;
+                            }
+                          })
+                          if (!layerExists) {
+                            g.layers.push(l);
+                            this.initLayer(g,l);
+                          } else {
+                            if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
+                            l.layerSource.refreshLayer(g.layers[layerIndex]);
+                          }
                           if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
 
                         } );
