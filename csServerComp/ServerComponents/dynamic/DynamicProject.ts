@@ -145,7 +145,7 @@ module DynamicProject {
       }
       if (parameters.useClustering) {
         g.clustering = true;
-        g.clusterLevel = 12;
+        g.clusterLevel = parameters.clusterLevel;
       }
 
       var layer : any = {};
