@@ -108,7 +108,6 @@ module csComp.Services {
                 // https://github.com/caolan/async#seriestasks-callback
                 async.series([
                     (cb) => {
-                        layer.type = 'geojson';
                         layer.count = 0;
                         if (typeof this.gridParams.gridType !== 'undefined' && this.gridParams.gridType === 'esri') {
                             this.convertEsriHeaderToGridParams(result);
