@@ -171,7 +171,7 @@ No carriage returns are necessary at the end of each row in the raster. The numb
 Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so on.
          */
         private convertEsriHeaderToGridParams(data: string) {
-            const regex = /(\S*)\s*([\d\.]*)/;
+            const regex = /(\S*)\s*([\d-.]*)/;
 
             var lines = data.split('\n', 6);
             var x: number,
@@ -295,7 +295,7 @@ Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so
                 if (!cells || (!gridParams.skipFirstColumn && cells.length < gridParams.columns)) return;
 
                 lon = gridParams.startLon;
-                var minThreshold = gridParams.minThreshold || Number.MIN_VALUE,
+                var minThreshold = gridParams.minThreshold || -Number.MAX_VALUE,
                     maxThreshold = gridParams.maxThreshold || Number.MAX_VALUE;
                 cells.forEach((n) => {
                     var value = +n;
