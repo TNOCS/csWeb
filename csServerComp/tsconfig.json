@@ -33,6 +33,8 @@
         "./ServerComponents/dynamic/Datasource.d.ts",
         "./ServerComponents/dynamic/Datasource.ts",
         "./ServerComponents/dynamic/DynamicProject.d.ts",
-        "./ServerComponents/dynamic/DynamicProject.ts"
+        "./ServerComponents/dynamic/DynamicProject.ts",
+        "./ServerComponents/dynamic/DynamicSources.d.ts",
+        "./ServerComponents/dynamic/DynamicSources.ts"
     ]
 }

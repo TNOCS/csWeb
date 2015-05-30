@@ -27,6 +27,19 @@ html, body, #container {
     width: 100%;
 }
 
+.editor-text-input
+{
+  clear: left;
+  width:80%
+}
+.editor-title
+{
+  font-size:18px;
+  display: block;
+  margin-top:8px;
+
+}
+
 .map-main
 {
   position:absolute;

@@ -158,14 +158,20 @@
             this.editWidgetMode = true;
             // $("#widgetEdit").addClass('active');
 
-            var rpt = new RightPanelTab();
-            rpt.container = "widget";
-            rpt.data = widget;
-            rpt.title = "Edit Widget";
-            rpt.directive = "widgetedit";
-            this.$messageBusService.publish("rightpanel","activate",rpt);
+            this.openRightTab("widget","widgetedit",widget);
+
 
             //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
+        }
+        
+        public openRightTab(container : string, directive : string,data : any)
+        {
+          var rpt = new RightPanelTab();
+          rpt.container = container;
+          rpt.data = data;
+          //rpt.title = "Edit Widget";
+          rpt.directive = directive;
+          this.$messageBusService.publish("rightpanel","activate",rpt);
         }
 
         public stopEditWidget()

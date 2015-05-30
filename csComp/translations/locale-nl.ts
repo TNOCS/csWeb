@@ -38,6 +38,7 @@
                 BEGINNER            : 'Novice',
                 INTERMEDIATE        : 'Gevorderd',
                 EXPERT              : 'Expert',
+                ADMIN               : 'Admin',
                 EXPLANATION         : 'Selecteer uw expertise om meer functionaliteit te kunnen gebruiken.'
             },
             LAYER_SERVICE           : {

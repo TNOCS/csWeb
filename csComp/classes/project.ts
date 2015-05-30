@@ -5,7 +5,8 @@
     export enum Expertise {
         Beginner     = 1,
         Intermediate = 2,
-        Expert       = 3
+        Expert       = 3,
+        Admin        = 4
     }
 
     /**
