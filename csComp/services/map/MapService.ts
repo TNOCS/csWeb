@@ -12,6 +12,7 @@
             'localStorageService',
             '$timeout',
             'messageBusService'
+
         ];
 
         public map:              L.Map;
@@ -27,7 +28,8 @@
         constructor(
             private $localStorageService: ng.localStorage.ILocalStorageService,
             private $timeout: ng.ITimeoutService,
-            private $messageBusService: csComp.Services.MessageBusService) {
+            private $messageBusService: csComp.Services.MessageBusService
+            ) {
 
             this.initExpertMode();
             this.baseLayers = {};
@@ -113,12 +115,16 @@
         }
 
         get isExpert(): boolean {
-            return this.expertMode === Expertise.Expert;
+            return this.expertMode === Expertise.Expert || this.expertMode === Expertise.Admin;
         }
 
         get isIntermediate(): boolean {
             return this.expertMode === Expertise.Expert
-                || this.expertMode === Expertise.Intermediate;
+                || this.expertMode === Expertise.Intermediate || this.expertMode === Expertise.Admin;
+        }
+
+        get isAdminExpert() : boolean{
+          return this.expertMode === Expertise.Admin;
         }
 
         public initMap() {

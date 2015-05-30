@@ -38,6 +38,7 @@
                 BEGINNER            : 'Beginner',
                 INTERMEDIATE        : 'Intermediate',
                 EXPERT              : 'Expert',
+                ADMIN               : 'Admin',
                 EXPLANATION         : 'Select your expertise in order to unlock more functionality.'
             },
             LAYER_SERVICE           : {

@@ -14,7 +14,9 @@
         public static $inject = [
             '$scope',
             'layerService',
-            'messageBusService'
+            'messageBusService',
+            'mapService',
+            'dashboardService'
 
         ];
 
@@ -23,7 +25,9 @@
         constructor(
             private $scope       : ILayersDirectiveScope,
             private $layerService: csComp.Services.LayerService,
-            private $messageBusService : csComp.Services.MessageBusService)
+            private $messageBusService : csComp.Services.MessageBusService,
+            private $mapService : csComp.Services.MapService,
+            private $dashboardService : csComp.Services.DashboardService)
         {
             $scope.vm = this;
             $scope.options = ((layer : csComp.Services.ProjectLayer)=>{
@@ -33,7 +37,17 @@
                 return layer.layerSource.layerMenuOptions(layer);
               }
           });
-          
+
+        }
+
+        public editGroup(group : csComp.Services.ProjectGroup)
+        {
+          this.$dashboardService.openRightTab("edit","groupedit",group);
+        }
+
+        public editLayer(layer : csComp.Services.ProjectLayer)
+        {
+          this.$dashboardService.openRightTab("edit","layeredit",layer);
         }
 
         public openLayerMenu(e)
