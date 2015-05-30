@@ -33,6 +33,16 @@
         "./ServerComponents/dynamic/Datasource.d.ts",
         "./ServerComponents/dynamic/Datasource.ts",
         "./ServerComponents/dynamic/DynamicProject.d.ts",
-        "./ServerComponents/dynamic/DynamicProject.ts"
+        "./ServerComponents/dynamic/DynamicProject.ts",
+        "./ServerComponents/helpers/Utils.d.ts",
+        "./ServerComponents/helpers/Utils.ts",
+        "./ServerComponents/import/DynamicSources.ts",
+        "./ServerComponents/import/Store.ts",
+        "./ServerComponents/import/importer.d.ts",
+        "./ServerComponents/import/importer.ts",
+        "./ServerComponents/import/repo.d.ts",
+        "./ServerComponents/import/repo.ts",
+        "./ServerComponents/import/transformer.d.ts",
+        "./ServerComponents/import/transformer.ts"
     ]
 }
