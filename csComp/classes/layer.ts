@@ -1,5 +1,6 @@
 module csComp.Services
 {
+
   /** Interface of a project layer
    *  Note that this is a copy of the similarly named class, but the advantage is that I can use the
    *  interface definition also on the server side.
@@ -14,6 +15,8 @@ module csComp.Services
       count?: number;
       /** Description as displayed in the menu */
       description?: string;
+      /** link to one or more meta description files containing  */
+      typeUrl? : string | string[];
       /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
       type: string;
       /** render type */
@@ -23,8 +26,6 @@ module csComp.Services
       /** Contains extended heatmap information (e.g. list of references to required sources, or weights) */
       heatmapSettings?: Heatmap.IHeatmapSettings;
       heatmapItems?: Heatmap.IHeatmapItem[];
-      /** In case we keep the style information in a separate file */
-      styleurl?: string;
       /** WMS sublayers that must be loaded */
       wmsLayers?: string;
       /** If enabled, load the layer */
@@ -38,7 +39,11 @@ module csComp.Services
       mapLayer?: L.LayerGroup<L.ILayer>;
       /** Group of layers */
       group: ProjectGroup;
+      /** proxy url, using own server, not implemented */
+      useProxy? : boolean;
+      /** force refresh on chaning bounding box */
       refreshBBOX? : boolean;
+
       layerSource: ILayerSource;
       /**
        * Number of seconds between automatic layer refresh.
@@ -107,8 +112,8 @@ module csComp.Services
       heatmapItems                : Heatmap.IHeatmapItem[];
       /** Contains hierarchy settings */
       hierarchySettings           : FeatureRelations.IHierarchySettings;
-      /** In case we keep the style information in a separate file */
-      styleurl: string;
+      /** In case we keep the type (feature,property) information in a separate file */
+      typeUrl: string;
       /** WMS sublayers that must be loaded */
       wmsLayers: string;
       /** If enabled, load the layer */
@@ -124,6 +129,8 @@ module csComp.Services
       groupId : string;
       /** Group of layers */
       group: ProjectGroup;
+      /** proxy url, using own server, not implemented */
+      useProxy : boolean;
       /** if true, use the current bounding box to retreive data from the server */
       refreshBBOX : boolean;
       /** The current bounding box to retreive data from the server */
@@ -197,7 +204,7 @@ module csComp.Services
               heatmapSettings:       pl.heatmapSettings,
               heatmapItems:          csComp.Helpers.serialize(pl.heatmapItems, Heatmap.HeatmapItem.serializeableData),
               url:                   pl.url,
-              styleurl:              pl.styleurl,
+              typeUrl:               pl.typeUrl,
               wmsLayers:             pl.wmsLayers,
               enabled:               pl.enabled,
               opacity:               pl.opacity,
@@ -211,6 +218,7 @@ module csComp.Services
               dataSourceParameters:  pl.dataSourceParameters,
               defaultFeatureType:    pl.defaultFeatureType,
               defaultLegendProperty: pl.defaultLegendProperty,
+              useProxy:              pl.useProxy
           };
       }
   }
@@ -258,5 +266,11 @@ module csComp.Services
 
       cesium_url       : string;
       cesium_maptype   : string;
+  }
+
+  export class TypeResource implements ITypesResource
+  {
+    featureTypes    : { [id: string]: IFeatureType }
+    propertyTypeData: { [id: string]: IPropertyType }
   }
 }

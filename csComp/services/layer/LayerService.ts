@@ -306,6 +306,9 @@
                     // load required feature layers, if applicable
                     this.loadRequiredLayers(layer);
 
+                    // load type resources
+                    this.loadTypeResources(layer);
+
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
                     if (this.layerSources.hasOwnProperty(layerSource)) {
@@ -333,6 +336,40 @@
                 }
             ]);
         }
+
+        public loadTypeResources(layer : ProjectLayer)
+        {
+          if (layer.typeUrl != 'undefined')
+          {
+            if(typeof layer.typeUrl === 'string') {
+              $.getJSON(layer.typeUrl, (resource: TypeResource) => {
+                  //var projects = data;
+                  this.initTypeResources(resource);
+            });
+          }
+        }
+      }
+
+      public initTypeResources(source : ITypesResource)
+      {
+        var featureTypes = source.featureTypes;
+        if (featureTypes) {
+            for (var typeName in featureTypes) {
+                if (!featureTypes.hasOwnProperty(typeName)) continue;
+                var featureType: IFeatureType = featureTypes[typeName];
+                this.initFeatureType(featureType);
+                this.featureTypes[typeName] = featureType;
+            }
+        }
+        if (source.propertyTypeData) {
+            for (var key in source.propertyTypeData) {
+                var propertyType: IPropertyType = source.propertyTypeData[key];
+                this.initPropertyType(propertyType);
+                if (!propertyType.label) propertyType.label = key;
+                this.propertyTypeData[key] = propertyType;
+            }
+        }
+      }
 
         checkLayerLegend(layer: ProjectLayer, property: string) {
             var ptd = this.project.propertyTypeData[property];
@@ -1263,23 +1300,10 @@
                 if (this.project.viewBounds) {
                     this.activeMapRenderer.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
                 }
-                var featureTypes = this.project.featureTypes;
-                if (featureTypes) {
-                    for (var typeName in featureTypes) {
-                        if (!featureTypes.hasOwnProperty(typeName)) continue;
-                        var featureType: IFeatureType = featureTypes[typeName];
-                        this.initFeatureType(featureType);
-                        this.featureTypes[typeName] = featureType;
-                    }
-                }
-                if (this.project.propertyTypeData) {
-                    for (var key in this.project.propertyTypeData) {
-                        var propertyType: IPropertyType = this.project.propertyTypeData[key];
-                        this.initPropertyType(propertyType);
-                        if (!propertyType.label) propertyType.label = key;
-                        this.propertyTypeData[key] = propertyType;
-                    }
-                }
+
+                this.initTypeResources(this.project);
+
+
 
                 if (!this.project.dashboards) {
                     this.project.dashboards = [];
@@ -1654,7 +1678,7 @@
             $('#remove' + filter.id).on('click', () => {
                 var pos = group.filters.indexOf(filter);
                 if (pos !== -1) group.filters.splice(pos, 1);
-                filter.dimension.dispose();          
+                filter.dimension.dispose();
 
                 this.resetMapFilter(group);
             });
