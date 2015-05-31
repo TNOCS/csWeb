@@ -30,27 +30,42 @@ As explained, you need to check out two repositories to get up and running. This
 #!dos
 
 BASE_FOLDER
-BASE_FOLDER\apps\csMap (go to repository)
-BASE_FOLDER\csWeb\csComp (this repository)
-BASE_FOLDER\csWeb\csServerComp
+BASE_FOLDER\apps\csMap (csMap repository)
+BASE_FOLDER\csWeb (this repository)
 
 ```
 
 Under windows you could checkout `csWeb` in `c:\dev\web\cs\csWeb\`  and csMap in `c:\dev\web\cs\apps`. You can choose any folder you like as a `BASE_FOLDER`, in the example above it is `c:\dev\web\cs\`.
 
+
+Under OSX or linux you would do something like this:
+```
+#!/bin/bash
+BASE_FOLDER=~/src/cs
+mkdir $BASE_FOLDER
+cd $BASE_FOLDER
+git clone https://github.com/TNOCS/csWeb
+mkdir apps
+cd apps
+git clone https://github.com/TNOCS/csMap
+cd -
+```
+
 #### Getting started ####
-
 1. Create a BASE_FOLDER;
-2. Create BASE_FOLDER\apps
-3. Checkout csMap in this folder
-4. Create BASE_FOLDER\csWeb
-5. Checkout csWeb (this repo) in this folder
+2. Checkout csWeb (this repo) in this folder
+3. Create BASE_FOLDER\apps
+4. Go to apps folder
+5. Checkout csMap in this folder
 
-In apps\csMap\Website, run update.bat to:
+In apps\csMap\Website, run update.bat (windows) or ./update.sh (OSX/linux) to:
 1. Download npm dependencies
 2. Download bower dependencies
-3. Run gulp to perform background tasks.
+3. Run to perform background tasks.
 
+If you want to run updates continuously go to apps\csMap\Website and run `gulp watch`. 
+
+Under windows:
 Open apps\csMap\csMap.sln, rebuild the project (probably twice), and press CTRL-F5 to run node.js and open your browser on the local website. 
 
 #### Deployment instructions ####
