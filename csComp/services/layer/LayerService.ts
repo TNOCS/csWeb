@@ -306,6 +306,9 @@
                     // load required feature layers, if applicable
                     this.loadRequiredLayers(layer);
 
+                    // load type resources
+                    this.loadTypeResources(layer);
+
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
                     if (this.layerSources.hasOwnProperty(layerSource)) {
@@ -333,6 +336,19 @@
                 }
             ]);
         }
+
+        public loadTypeResources(layer : ProjectLayer)
+        {
+          if (layer.typeUrl != 'undefined')
+          {
+            if(typeof layer.typeUrl === 'string') {
+              $.getJSON(layer.typeUrl, (resource: TypeResource) => {
+                  //var projects = data;
+                  console.log(resource);
+            });            
+          }
+        }
+      }
 
         checkLayerLegend(layer: ProjectLayer, property: string) {
             var ptd = this.project.propertyTypeData[property];
@@ -1654,7 +1670,7 @@
             $('#remove' + filter.id).on('click', () => {
                 var pos = group.filters.indexOf(filter);
                 if (pos !== -1) group.filters.splice(pos, 1);
-                filter.dimension.dispose();          
+                filter.dimension.dispose();
 
                 this.resetMapFilter(group);
             });
