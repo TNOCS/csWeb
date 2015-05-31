@@ -189,6 +189,7 @@
     }
 
     export interface IFeatureType {
+        id? : string;
         name?            : string;
         style?           : IFeatureTypeStyle;
         propertyTypeData?: IPropertyType[];

@@ -58,6 +58,8 @@
         layerSources:        { [key: string]: ILayerSource };   // list of available layer sources
         mapRenderers:        { [key: string]: IMapRenderer };   // list of available map renderers
         activeMapRenderer:   IMapRenderer;                 // active map renderer
+        typesResources  : { [key:string] : ITypesResource };
+
         public visual:       VisualState = new VisualState();
 
         static $inject = [
@@ -85,6 +87,7 @@
             this.accentColor = '';
             this.title = '';
             //this.layerGroup       = new L.LayerGroup<L.ILayer>();
+            this.typesResources = {};
             this.featureTypes = {};
             this.propertyTypeData = {};
             //this.map.map.addLayer(this.layerGroup);
@@ -352,11 +355,14 @@
 
       public initTypeResources(source : ITypesResource)
       {
+        this.typesResources[source.url] = source;
+        console.log(this.typesResources);
         var featureTypes = source.featureTypes;
         if (featureTypes) {
             for (var typeName in featureTypes) {
                 if (!featureTypes.hasOwnProperty(typeName)) continue;
                 var featureType: IFeatureType = featureTypes[typeName];
+                featureType.id = typeName;
                 this.initFeatureType(featureType);
                 this.featureTypes[typeName] = featureType;
             }
@@ -465,6 +471,15 @@
         private updateGroupFeatures(group: ProjectGroup) {
             this.project.features.forEach((f: IFeature) => {
                 if (f.layer.group == group) {
+                    this.calculateFeatureStyle(f);
+                    this.activeMapRenderer.updateFeature(f);
+                }
+            });
+        }
+
+        public updateFeatureTypes(featureType: IFeatureType) {
+            this.project.features.forEach((f: IFeature) => {
+                if (f.featureTypeName === featureType.id) {
                     this.calculateFeatureStyle(f);
                     this.activeMapRenderer.updateFeature(f);
                 }
@@ -1285,6 +1300,7 @@
             //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
             this.clearLayers();
             this.featureTypes = {};
+            //typesResources
 
             $.getJSON(solutionProject.url, (prj: Project) => {
                 this.project = new Project().deserialize(prj);

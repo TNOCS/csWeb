@@ -89,11 +89,6 @@
         projects  : SolutionProject[];
     }
 
-    export interface ITypesResource{
-      featureTypes    : { [id: string]: IFeatureType }
-      propertyTypeData: { [id: string]: IPropertyType }
-    }
-
     /** Project within a solution file, refers to a project url*/
     export class SolutionProject {
         title: string;
@@ -151,6 +146,7 @@
         viewBounds      : IBoundingBox;
         userPrivileges  : IPrivileges;
         languages       : ILanguageData;
+
 
         expertMode = Expertise.Expert;
         markers = {};
