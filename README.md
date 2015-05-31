@@ -35,8 +35,8 @@ BASE_FOLDER\csWeb\csComp (this repository)
 BASE_FOLDER\csWeb\csServerComp
 
 ```
-waarbij ik csWeb in c:\dev\web\cs\csWeb\ uitcheck, en csMap in c:\dev\web\cs\apps
-en c:\dev\web\cs\ is natuurlijk vrij te kiezen‏
+
+Under windows you could checkout `csWeb` in `c:\dev\web\cs\csWeb\`  and csMap in `c:\dev\web\cs\apps`. You can choose any folder you like as a `BASE_FOLDER`, in the example above it is `c:\dev\web\cs\`.
 
 #### Getting started ####
 
