@@ -344,9 +344,30 @@
             if(typeof layer.typeUrl === 'string') {
               $.getJSON(layer.typeUrl, (resource: TypeResource) => {
                   //var projects = data;
-                  console.log(resource);
-            });            
+                  this.initTypeResources(resource);
+            });
           }
+        }
+      }
+
+      public initTypeResources(source : ITypesResource)
+      {
+        var featureTypes = source.featureTypes;
+        if (featureTypes) {
+            for (var typeName in featureTypes) {
+                if (!featureTypes.hasOwnProperty(typeName)) continue;
+                var featureType: IFeatureType = featureTypes[typeName];
+                this.initFeatureType(featureType);
+                this.featureTypes[typeName] = featureType;
+            }
+        }
+        if (source.propertyTypeData) {
+            for (var key in source.propertyTypeData) {
+                var propertyType: IPropertyType = source.propertyTypeData[key];
+                this.initPropertyType(propertyType);
+                if (!propertyType.label) propertyType.label = key;
+                this.propertyTypeData[key] = propertyType;
+            }
         }
       }
 
@@ -1279,23 +1300,10 @@
                 if (this.project.viewBounds) {
                     this.activeMapRenderer.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
                 }
-                var featureTypes = this.project.featureTypes;
-                if (featureTypes) {
-                    for (var typeName in featureTypes) {
-                        if (!featureTypes.hasOwnProperty(typeName)) continue;
-                        var featureType: IFeatureType = featureTypes[typeName];
-                        this.initFeatureType(featureType);
-                        this.featureTypes[typeName] = featureType;
-                    }
-                }
-                if (this.project.propertyTypeData) {
-                    for (var key in this.project.propertyTypeData) {
-                        var propertyType: IPropertyType = this.project.propertyTypeData[key];
-                        this.initPropertyType(propertyType);
-                        if (!propertyType.label) propertyType.label = key;
-                        this.propertyTypeData[key] = propertyType;
-                    }
-                }
+
+                this.initTypeResources(this.project);
+
+
 
                 if (!this.project.dashboards) {
                     this.project.dashboards = [];

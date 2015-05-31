@@ -268,7 +268,7 @@ module csComp.Services
       cesium_maptype   : string;
   }
 
-  export class TypeResource
+  export class TypeResource implements ITypesResource
   {
     featureTypes    : { [id: string]: IFeatureType }
     propertyTypeData: { [id: string]: IPropertyType }

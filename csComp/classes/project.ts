@@ -89,6 +89,11 @@
         projects  : SolutionProject[];
     }
 
+    export interface ITypesResource{
+      featureTypes    : { [id: string]: IFeatureType }
+      propertyTypeData: { [id: string]: IPropertyType }
+    }
+
     /** Project within a solution file, refers to a project url*/
     export class SolutionProject {
         title: string;
@@ -123,7 +128,7 @@
     }
 
     /** project configuration. */
-    export class Project implements ISerializable<Project> {
+    export class Project implements ITypesResource, ISerializable<Project>  {
         id              : string;
         title           : string;
         description     : string;
