@@ -306,11 +306,14 @@
                     callback(null, null);
                 },
                 (callback) => {
+                  this.loadTypeResources(layer, ()=>callback(null,null)  );
+                },
+                (callback) => {
                     // load required feature layers, if applicable
                     this.loadRequiredLayers(layer);
 
                     // load type resources
-                    this.loadTypeResources(layer);
+
 
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
@@ -340,7 +343,7 @@
             ]);
         }
 
-        public loadTypeResources(layer : ProjectLayer)
+        public loadTypeResources(layer : ProjectLayer, callback : Function)
         {
           if (layer.typeUrl != 'undefined')
           {
@@ -348,7 +351,12 @@
               $.getJSON(layer.typeUrl, (resource: TypeResource) => {
                   //var projects = data;
                   this.initTypeResources(resource);
+
+                callback();
             });
+          }
+          else{
+            callback();
           }
         }
       }
@@ -673,6 +681,7 @@
             s.strokeWidth   = 1;
             s.strokeColor   = 'black';
             s.fillOpacity   = 0.75;
+            s.opacity       = 1;
             s.rotate        = 0;
             //s.strokeColor = 'black';
             //s.iconHeight = 32;

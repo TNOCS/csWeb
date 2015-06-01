@@ -372,7 +372,8 @@ module csComp.Services {
         props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
         props['border-style'] = 'solid';
         props['border-color'] = feature.effectiveStyle.strokeColor;
-        props['border-width'] = feature.effectiveStyle.strokeWidth;
+        props['border-width'] = feature.effectiveStyle.stroke;
+        props['opacity'] = feature.effectiveStyle.opacity;
 
         if (feature.isSelected) {
           props['border-width'] = '3px';
