@@ -75,8 +75,10 @@
                 case "activate":
                   this.activateTab(tab);
                   break;
+                case "deactivate":
+                  this.deactivateTab(tab);
+                  break;
               }
-
             });
 
             //this.widgetTypes["Title"] = new TitleWidget();
@@ -151,6 +153,12 @@
           var widgetElement = this.$compile("<" + tab.directive + "></" + tab.directive + ">")(newScope);
           $("#" + content).append(widgetElement);
           (<any>$("#rightpanelTabs a[href='#" + content + "']")).tab('show');
+        }
+
+        public deactivateTab(tab : RightPanelTab)
+        {
+          this.$layerService.visual.rightPanelVisible = false;
+          this.$rootScope.$apply();
         }
 
         public editWidget(widget: csComp.Services.IWidget) {

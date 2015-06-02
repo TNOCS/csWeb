@@ -543,20 +543,22 @@
             if (!feature.isSelected) {
                 this.$messageBusService.publish('sidebar', 'hide');
                 this.$messageBusService.publish('feature', 'onFeatureDeselect',feature);
+
+                var rpt = new RightPanelTab();
+                this.$messageBusService.publish("rightpanel","deactivate",rpt);
             } else {
 
                 this.$messageBusService.publish('sidebar', 'show');
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
+
+                var rpt = new RightPanelTab();
+                rpt.container = "featureprops";
+                rpt.data = feature;
+                rpt.icon = "info";
+                rpt.title = "Edit Widget";
+                rpt.directive = "featureprops";
+                this.$messageBusService.publish("rightpanel","activate",rpt);
             }
-
-            var rpt = new RightPanelTab();
-            rpt.container = "featureprops";
-            rpt.data = feature;
-            rpt.icon = "info";
-            rpt.title = "Edit Widget";
-            rpt.directive = "featureprops";
-            this.$messageBusService.publish("rightpanel","activate",rpt);
-
 
         }
 
@@ -696,6 +698,9 @@
                 if (ft.style.stroke !== null) s.stroke = ft.style.stroke;
                 if (ft.style.strokeColor !== null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
                 if (ft.style.strokeWidth !== null) s.strokeWidth = ft.style.strokeWidth;
+                if (ft.style.selectedStrokeColor != null) s.selectedStrokeColor = csComp.Helpers.getColorString(ft.style.selectedStrokeColor, '#000');
+                if (ft.style.selectedFillColor != null) s.selectedFillColor = csComp.Helpers.getColorString(ft.style.selectedFillColor);
+                if (ft.style.selectedStrokeWidth != null) s.selectedStrokeWidth = ft.style.selectedStrokeWidth;
                 if (ft.style.iconWidth !== null) s.iconWidth = ft.style.iconWidth;
                 if (ft.style.iconHeight !== null) s.iconHeight = ft.style.iconHeight;
                 if (ft.style.modelUri !== null) s.modelUri = ft.style.modelUri;
@@ -780,8 +785,9 @@
             });
 
             if (feature.isSelected) {
-                s.strokeWidth = 5;
-                s.strokeColor = 'black';
+                s.strokeWidth = s.selectedStrokeWidth || 5;
+                s.strokeColor = s.selectedStrokeColor || 'black';
+                if (s.selectedFillColor) s.fillColor = s.selectedFillColor;
             }
             feature.effectiveStyle = s;
         }
