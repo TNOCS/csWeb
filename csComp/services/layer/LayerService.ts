@@ -541,22 +541,15 @@
 
 
             if (!feature.isSelected) {
-                this.$messageBusService.publish('sidebar', 'hide');
                 this.$messageBusService.publish('feature', 'onFeatureDeselect',feature);
 
                 var rpt = new RightPanelTab();
+                rpt.container = "featureprops";
                 this.$messageBusService.publish("rightpanel","deactivate",rpt);
             } else {
-
-                this.$messageBusService.publish('sidebar', 'show');
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
 
-                var rpt = new RightPanelTab();
-                rpt.container = "featureprops";
-                rpt.data = feature;
-                rpt.icon = "info";
-                rpt.title = "Edit Widget";
-                rpt.directive = "featureprops";
+                var rpt = csComp.Helpers.createRightPanelTab("featureprops", "featureprops", feature, "Selected feature", "info");
                 this.$messageBusService.publish("rightpanel","activate",rpt);
             }
 
@@ -1186,7 +1179,9 @@
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
-                this.$messageBusService.publish('sidebar', 'hide');
+                var rpt = new RightPanelTab();
+                rpt.container = "featureprops";
+                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
             }
 
