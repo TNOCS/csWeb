@@ -1,11 +1,13 @@
-﻿module csComp.Services {
+﻿module csComp.Services
+{
+
     export interface IEvent {
         id   : string;
         title: string;
         color: string;
         start: number;
     }
-    
+
     export class Event implements IEvent {
         id   : string;
         title: string;
@@ -15,29 +17,22 @@
     }
 
     export interface IFeature {
-        id              : string;
+        id?             : string;
         index           : number;
         layerId         : string;
+        layer           : ProjectLayer;
         type?           : string;
         geometry        : IGeoJsonGeometry;
-        properties?     : IStringToAny;
+        properties?     : IProperty;
         isSelected?     : boolean;
         htmlStyle?      : string;
         featureTypeName?: string;
         fType?          : IFeatureType;
+        effectiveStyle  : IFeatureTypeStyle;
         isInitialized?  : boolean;
-        /**
-        * An optional dictionary of sensors, where each sensor or measurement represents the value of the sensor
-        * at a certain point in time. Is often used with the layer's timestamp property in case all sensors have the same
-        * number of measurements.
-        */
-        sensors?    : { [id: string]: any[] }
-        timestamps  : number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        sensors?: { [id: string]: any[] }
+        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         coordinates?: IGeoJsonGeometry[];          // used for temporal data
-        /**
-        * An optional language dictionary, where each key, e.g. 'en' for English, represents a localised data set. Each locale can overwrite
-        * the value of the title, description etc. of a feature.
-        */
         languages?      : { [key: string]: ILocalisedData }
     }
 
@@ -50,21 +45,28 @@
         id             : string;
         index          : number;
         layerId        : string;
+        layer          : ProjectLayer;
         type           : string;
         geometry       : IGeoJsonGeometry;
-        properties     : IStringToAny;
+        properties     : IProperty;
         isSelected     : boolean;
         htmlStyle      : string;
         featureTypeName: string;
+        /** resolved feature type */
         fType          : IFeatureType;
+        /** calculated style, used for final rendering */
+        effectiveStyle: IFeatureTypeStyle;
         isInitialized  : boolean;
         sensors        : { [id: string]: any[] }
-        timestamps     : number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
-        coordinates    : IGeoJsonGeometry[];          // used for temporal data
+        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        coordinates: IGeoJsonGeometry[];          // used for temporal data
+
+
+
     }
 
-    export interface IStringToAny {
-        [key: string]: any;
+    export interface IProperty {
+        [key: string]: any; //string | number | boolean;
     }
 
     export interface IGeoJsonGeometry {
@@ -112,9 +114,6 @@
         text
     }
 
-    /**
-     * Localisation information, contains translations for one language.
-     */
     export interface ILocalisedData {
         name?       : string;
         title?      : string;
@@ -123,11 +122,14 @@
         options?    : string[];
     }
 
-    /**
-     * Localisation data, needed to support multiple languages.
-     */
     export interface ILanguageData {
         [key: string]: ILocalisedData
+    }
+
+    export enum LayerActivationTypes
+    {
+      manual,
+      automatic
     }
 
     export interface IPropertyType {
@@ -144,10 +146,17 @@
         minValue?        : number;
         maxValue?        : number;
         defaultValue?    : number;
+        count?           : number;
+        calculation?     : string;
         subject?         : string;
         target?          : string;
+        targetrelation?  : string;
+        targetproperty?  : string;
         options?         : string[];
         languages?       : ILanguageData;
+        legend?          : Legend;
+        activation?      : string;
+        targetid?        : string;
     }
 
     export interface IPropertyTypeData {
@@ -155,22 +164,39 @@
     }
 
     export interface IFeatureTypeStyle {
-        nameLabel?           : string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
-        fillColor?           : string;
-        strokeColor?         : string;
-        drawingMode?         : string;
-        strokeWidth?         : number;
-        iconWidth?           : number;
-        iconHeight?          : number;
-        iconUri?             : string;
-        maxTitleResolution?  : string;
-        analysispropertyType?: any;
+        nameLabel?             : string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
+        fillColor?             : string;
+        strokeColor?           : string;
+        selectedFillColor?     : string;
+        selectedStrokeColor?   : string;
+        selectedStrokeWidth?   : number;    
+        height?                : number;
+        opacity?               : number;
+        fillOpacity?           : number;
+        stroke?                : boolean;
+        drawingMode?           : string;
+        strokeWidth?           : number;
+        iconWidth?             : number;
+        iconHeight?            : number;
+        iconUri?               : string;
+        modelUri?              : string;
+        modelScale?            : number;
+        modelMinimumPixelSize? : number;
+        cornerRadius?          : number;
+        maxTitleResolution?    : string;
+        rotate?                : number;
+        innerTextProperty?     : string;
+        innerTextSize?         : number;
+        analysispropertyType?  : any;
+        rotateProperty?        : string;
     }
 
     export interface IFeatureType {
+        id? : string;
         name?            : string;
         style?           : IFeatureTypeStyle;
         propertyTypeData?: IPropertyType[];
+        showAllProperties? : boolean;
         /**
          * Optional list of propertyType keys, separated by semi-colons.
          * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.

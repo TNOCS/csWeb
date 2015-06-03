@@ -1,4 +1,60 @@
+// export interface Array<T> {
+//     serialize<T>(): string
+// }
+//
+// Array<T>.prototype.serialize<T> = function() {
+//     return "";
+// }
+
 ﻿module csComp.Helpers {
+
+    /**
+     * Serialize an array of type T to a JSON string, by calling the callback on each array element.
+     */
+    export function serialize<T>(arr: Array<T>, callback: (T) => Object) {
+        if (typeof arr === 'undefined' || arr === null || arr.length === 0) return null;
+        var result: Object[] = [];
+        arr.forEach(a => {
+            result.push(callback(a));
+        });
+        return result;
+    }
+
+    /**
+     * Export data to the file system.
+     */
+    export function saveData(data: string, filename: string, fileType: string) {
+        fileType = fileType.replace(".", "");
+        filename = filename.replace("." + fileType, "") + "." + fileType; // if the filename already contains a type, first remove it before adding it.
+
+        if (navigator.msSaveBlob) {
+            // IE 10+
+            var link: any = document.createElement('a');
+            link.addEventListener("click", event => {
+                var blob = new Blob([data], {"type": "text/" + fileType + ";charset=utf-8;"});
+                navigator.msSaveBlob(blob, filename);
+            }, false);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else if (!csComp.Helpers.supportsDataUri()) {
+            // Older versions of IE: show the data in a new window
+            var popup = window.open('', fileType, '');
+            popup.document.body.innerHTML = '<pre>' + data + '</pre>';
+        } else {
+            // Support for browsers that support the data uri.
+            var a: any = document.createElement('a');
+            document.body.appendChild(a);
+            a.href = "data:text/" + fileType + ";charset=utf-8," + encodeURI(data);
+            a.target = '_blank';
+            a.download = filename;
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+
+
+
     declare var String;//: StringExt.IStringExt;
 
     export function supportsDataUri() {
@@ -28,8 +84,6 @@
         return avg;
     }
 
-    
-
     /**
      * Collect all the property types that are referenced by a feature type.
      */
@@ -40,7 +94,7 @@
             var keys = type.propertyTypeKeys.split(';');
             keys.forEach((key) => {
                 // First, lookup key in global propertyTypeData
-                if (propertyTypeData.hasOwnProperty(key)) propertyTypes.push(propertyTypeData[key]);
+                if (propertyTypeData && propertyTypeData.hasOwnProperty(key)) propertyTypes.push(propertyTypeData[key]);
                 // If you cannot find it there, look it up in the featureType's propertyTypeData.
                 else if (type.propertyTypeData != null) {
                     var result = $.grep(type.propertyTypeData, e => e.label === key);
@@ -53,8 +107,52 @@
                 propertyTypes.push(pt);
             });
         }
-
         return propertyTypes;
+    }
+
+    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType : csComp.Services.IFeatureType) : csComp.Services.IFeatureType
+    {
+      var type = featureType;
+      if (!type.propertyTypeData) type.propertyTypeData = [];
+
+      for (var key in feature.properties) {
+        if (!type.propertyTypeData.some((pt : csComp.Services.IPropertyType)=>{return pt.label === key;}))
+        {
+          if (!feature.properties.hasOwnProperty(key)) continue;
+          var propertyType: csComp.Services.IPropertyType = [];
+          propertyType.label = key;
+          propertyType.title = key.replace('_', ' ');
+          propertyType.isSearchable = true;
+          propertyType.visibleInCallOut = true;
+          propertyType.canEdit = false;
+          var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+          if (StringExt.isNumber(value))
+              propertyType.type = 'number';
+          else if (StringExt.isBoolean(value))
+              propertyType.type = 'boolean';
+          else if (StringExt.isBbcode(value))
+              propertyType.type = 'bbcode';
+          else
+              propertyType.type = 'text';
+
+          type.propertyTypeData.push(propertyType);
+        }
+      }
+
+      return type;
+    }
+
+    /**
+     * In case we are dealing with a regular JSON file without type information, create a default type.
+     */
+    export function createDefaultType(feature: csComp.Services.IFeature): csComp.Services.IFeatureType {
+        var type: csComp.Services.IFeatureType = {};
+        type.style = { nameLabel: 'Name' };
+        type.propertyTypeData = [];
+
+        this.addPropertyTypes(feature,type);
+
+        return type;
     }
 
     /**
@@ -65,6 +163,7 @@
         if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
             text = text.replace(/&amp;/g, '&');
         if (csComp.StringExt.isNullOrEmpty(text)) return text;
+        if (!pt.type) return text;
         switch (pt.type) {
             case "bbcode":
                 if (!csComp.StringExt.isNullOrEmpty(pt.stringFormat))
@@ -93,6 +192,16 @@
                 else
                     displayValue = String.format("{0) / {1}", rank[0], rank[1]);
                 break;
+            case "hierarchy":
+                var hierarchy = text.split(";");
+                var count = hierarchy[0];
+                var calculation = hierarchy[1];
+                displayValue = count.toString();
+                break;
+            case "date":
+                var d = new Date(Date.parse(text));
+                displayValue = d.toLocaleString();
+                  break;
             default:
                 displayValue = text;
                 break;
@@ -171,8 +280,8 @@
 
     /**
      * Load the features as visible on the map, effectively creating a virtual
-     * GeoJSON file that represents all visible items. 
-     * Also loads the keys into the featuretype's propertyTypeData collection. 
+     * GeoJSON file that represents all visible items.
+     * Also loads the keys into the featuretype's propertyTypeData collection.
      */
      export function loadMapLayers(layerService: Services.LayerService) : Services.IGeoJsonFile {
         var data         : Services.IGeoJsonFile = {
@@ -208,4 +317,21 @@
         return data;
     }
 
+    /**
+     * Helper function to create content for the RightPanelTab
+     * @param  {string} container The container name
+     * @param  {string} directive The directive of the container
+     * @param  {any}    data      Panel data
+     * @return {RightPanelTab}    Returns the RightPanelTab instance. Add it to the
+     * rightpanel by publishing it on the MessageBus.
+     */
+    export function createRightPanelTab(container: string, directive: string, data: any, title: string, icon?: string) : Services.RightPanelTab {
+      var rpt = new Services.RightPanelTab();
+      rpt.container = container;
+      rpt.data = data;
+      rpt.title = title;
+      rpt.directive = directive;
+      rpt.icon = icon || "tachometer";
+      return rpt;
+    }
 }

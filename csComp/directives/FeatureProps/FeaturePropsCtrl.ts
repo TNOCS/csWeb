@@ -1,4 +1,4 @@
-﻿module FeatureProps {   
+﻿module FeatureProps {
     import IFeature          = csComp.Services.IFeature;
     import IFeatureType      = csComp.Services.IFeatureType;
     import IPropertyType     = csComp.Services.IPropertyType;
@@ -12,7 +12,7 @@
         constructor(position: string) {
             this.position    = position;
             this.closeButton = true;
-            this.autoPan     = true;            
+            this.autoPan     = true;
         }
     }
 
@@ -34,7 +34,7 @@
         canFilter   : boolean;
         canStyle    : boolean;
         feature     : IFeature;
-        description?: string;         
+        description?: string;
         meta?: IPropertyType;
         isFilter    : boolean;
     }
@@ -76,7 +76,7 @@
 
         showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
-        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {            
+        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType ): void {
             var isSensor = typeof feature.sensors !== 'undefined' && feature.sensors.hasOwnProperty(property);
             if (isSensor)
                 this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, meta, feature.timestamps, feature.sensors[property]));
@@ -96,7 +96,7 @@
         public icon    : string;
         public sections: { [title: string]: ICallOutSection; };
 
-        constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: IPropertyTypeData ) {
+        constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: IPropertyTypeData, private layerservice: csComp.Services.LayerService ) {
             this.sections = {};
             //if (type == null) this.createDefaultType();
             this.setTitle();
@@ -104,29 +104,68 @@
 
             var infoCallOutSection   = new CallOutSection('fa-info');
             var searchCallOutSection = new CallOutSection('fa-filter');
+            var hierarchyCallOutSection = new CallOutSection('fa-link');
+
             var displayValue: string;
             if (type != null) {
                 var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
                 propertyTypes.forEach((mi: IPropertyType) => {
+                    if (mi.visibleInCallOut)
+                    {
                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                     callOutSection.propertyTypes[mi.label] = mi;
-                    var text = feature.properties[mi.label];
+                    var text = feature.properties[mi.label]; if (mi.type === "hierarchy") {
+                    var count = this.calculateHierarchyValue(mi, feature, propertyTypeData, layerservice);
+                        text = count + ";" + feature.properties[mi.calculation];
+                    }
                     displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
                     // Skip empty, non-editable values
                     if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
 
-                    var canFilter = (mi.type === "number" || mi.type === "text"    || mi.type === "options");
+                    var canFilter = (mi.type === "number" || mi.type === "text"    || mi.type === "options" || mi.type === "date");
                     var canStyle  = (mi.type === "number" || mi.type === "options" || mi.type === "color");
                     if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
                     if (mi.visibleInCallOut)
                     {
                         callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
                     }
+                    if (mi.type === "hierarchy") {
+                        hierarchyCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                    }
                     searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
+                  }
                 });
             }
-            if (infoCallOutSection  .properties.length > 0) this.sections['AAA Info'  ] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
-            if (searchCallOutSection.properties.length > 0) this.sections['Zzz Search'] = searchCallOutSection;
+            if (infoCallOutSection.properties.length > 0) this.sections['AAA Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
+            if (hierarchyCallOutSection.properties.length > 0) this.sections['hierarchy'] = hierarchyCallOutSection;
+            if (searchCallOutSection.properties.length > 0) this.sections['zzz Search'] = searchCallOutSection;
+        }
+
+        private calculateHierarchyValue(mi: IPropertyType, feature: IFeature, propertyTypeData: IPropertyTypeData, layerservice: csComp.Services.LayerService): number {
+            var countResults = [];
+            var result: number = -1;
+            var propertyTypes = csComp.Helpers.getPropertyTypes(feature.fType, propertyTypeData);
+            for (var p in propertyTypes) {
+                var pt = propertyTypes[p];
+                if (pt.type === "relation" && mi.targetrelation === pt.label) {
+                    countResults[pt.label] = pt.count;
+                    if (mi.calculation === "count") {
+                        result = pt.count;
+                    }
+                }
+            }
+
+            if (mi.calculation === "ratio") {
+                var featureName = feature.properties[mi.subject];
+                layerservice.project.features.forEach((f: csComp.Services.IFeature) => {
+                    if (f.properties.hasOwnProperty(mi.target) && f.properties[mi.target] === featureName) {
+                        if (f.properties.hasOwnProperty(mi.targetproperty)) {
+                            result = +f.properties[mi.targetproperty] / countResults[mi.targetrelation];
+                        }
+                    }
+                });
+            }
+            return result;
         }
 
         public sectionCount(): number {
@@ -134,7 +173,16 @@
         }
 
         public firstSection(): ICallOutSection {
-            return this.sections[Object.keys(this.sections)[this.sectionCount() - 2]];
+            //Return first section that has an icon
+            //TODO: Swap locations
+            var firstSec;
+            for (var i = 0; i < (this.sectionCount() - 1); i++) {
+                if (this.sections[Object.keys(this.sections)[i]].sectionIcon) {
+                    firstSec = this.sections[Object.keys(this.sections)[i]];
+                    break;
+                }
+            }
+            return firstSec;
         }
 
         public lastSection(): ICallOutSection {
@@ -159,7 +207,7 @@
         }
 
         private setIcon(feature: csComp.Services.IFeature) {
-            this.icon = (this.type == null || this.type.style == null || !this.type.style.hasOwnProperty('iconUri') || this.type.style.iconUri.toLowerCase().indexOf('_media') >= 0) 
+            this.icon = (this.type == null || this.type.style == null || !this.type.style.hasOwnProperty('iconUri') || this.type.style.iconUri.toLowerCase().indexOf('_media') >= 0)
                 ? ''
                 : this.type.style.iconUri.indexOf('{') >= 0
                     ? csComp.Helpers.convertStringFormat(feature, this.type.style.iconUri)
@@ -173,6 +221,7 @@
             else {
                 if (feature.properties.hasOwnProperty('Name')) title = feature.properties['Name'];
                 else if (feature.properties.hasOwnProperty('name')) title = feature.properties['name'];
+                else if (feature.properties.hasOwnProperty('naam')) title = feature.properties['naam'];
             }
             if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
                 title = title.replace(/&amp;/g, '&');
@@ -201,7 +250,7 @@
         constructor(
             private $scope             : IFeaturePropsScope,
             private $location          : ng.ILocationService,
-            private $sce               : ng.ISCEService,              
+            private $sce               : ng.ISCEService,
             private $mapService        : csComp.Services.MapService,
             private $layerService      : csComp.Services.LayerService,
             private $messageBusService : csComp.Services.MessageBusService
@@ -209,20 +258,20 @@
             this.scope = $scope;
             $scope.vm = this;
             $scope.showMenu = false;
-            
+
             $scope.featureTabActivated = function (sectionTitle: string, section: CallOutSection) {
                 $messageBusService.publish('FeatureTab', 'activated', { sectionTitle: sectionTitle, section: section });
             };
-            
-            $messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
-            $messageBusService.subscribe("feature", this.featureMessageReceived);
+
+            //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
+            //$messageBusService.subscribe("feature", this.featureMessageReceived);
 
             var widthOfList = function () {
                 var itemsWidth = 0;
                 $('#featureTabs>li').each(function () {
                     var itemWidth = $(this).outerWidth();
 
-                    itemsWidth += itemWidth;                               
+                    itemsWidth += itemWidth;
                 });
                 return itemsWidth;
             }
@@ -287,6 +336,10 @@
                     $scope.autocollapse(false);
                 });
             });
+
+            console.log('showing feature');
+            this.displayFeature(this.$layerService.lastSelectedFeature);
+            this.$scope.poi = this.$layerService.lastSelectedFeature;
         }
 
         public toTrusted(html: string): string {
@@ -298,6 +351,15 @@
                 console.log(e + ': ' + html);
                 return '';
             }
+        }
+
+        public openLayer(property : FeatureProps.CallOutProperty){
+          if (property.feature!=null && property.feature.properties.hasOwnProperty(property.meta.label))
+          {
+            var link = property.feature.properties[property.meta.label];
+            alert(link);
+          }
+
         }
 
         public createScatter(property: FeatureProps.CallOutProperty) {
@@ -312,7 +374,7 @@
             //alert('scatter ' + property.property);
         }
 
-        /** 
+        /**
          * Callback function
          * @see {http://stackoverflow.com/questions/12756423/is-there-an-alias-for-this-in-typescript}
          * @see {http://stackoverflow.com/questions/20627138/typescript-this-scoping-issue-when-called-in-jquery-callback}
@@ -341,18 +403,24 @@
 
         private featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("FPC: featureMessageReceived");
+
             switch (title) {
                 case "onFeatureSelect":
+                    this.displayFeature(this.$layerService.lastSelectedFeature);
+                    this.$scope.poi = this.$layerService.lastSelectedFeature;
+                    break;
+                case "onRelationsUpdated":
                     this.setShowSimpleTimeline();
                     this.displayFeature(feature);
+                    this.updateHierarchyLinks(feature);
                     this.$scope.poi = feature;
                     this.$scope.autocollapse(true);
                     break;
                 case "onFeatureUpdated":
-                    this.displayFeature(this.$layerService.lastSelectedFeature);                    
+                    this.displayFeature(this.$layerService.lastSelectedFeature);
                     this.$scope.poi = this.$layerService.lastSelectedFeature;
-                break;
-               default:
+                    break;
+                default:
             }
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                 this.$scope.$apply();
@@ -361,13 +429,42 @@
 
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
-            var featureType = this.$layerService.featureTypes[feature.featureTypeName];
+            var featureType = feature.fType;
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
             if (typeof feature.sensors !== 'undefined' && typeof feature.timestamps === 'undefined')
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
-            this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData);
+            this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService);
         }
-        
+
+        private updateHierarchyLinks(feature: IFeature): void {
+            if (!feature) return;
+            // Add properties defined inside of layers to the project-wide properties.
+            this.$layerService.project.groups.forEach((group) => {
+                group.layers.forEach((l) => {
+                    if (l.type == "hierarchy" && l.enabled) {
+                        if ((<any>(l.data)) && (<any>(l.data)).features) {
+                            (<any>(l.data)).features[0].fType.propertyTypeData.forEach((pt) => {
+                                if (pt.type == "hierarchy") {
+                                    if (pt.targetlayer == feature.layerId) {
+                                        var featureType = this.$layerService.featureTypes[feature.featureTypeName];
+                                        var propertyTypes = csComp.Helpers.getPropertyTypes(feature.fType, this.$layerService.propertyTypeData);
+                                        var found = false;
+                                        propertyTypes.forEach((p) => {
+                                            if (p.label === pt.label) {
+                                                found = true;
+                                            }
+                                        });
+                                        if (!found) featureType.propertyTypeData.push(pt);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+            csComp.Helpers.getPropertyTypes
+        }
+
         showSensorData(property: ICallOutProperty) {
             console.log(property);
         }

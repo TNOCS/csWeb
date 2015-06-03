@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html ng-app="csDataGatherer">
+
+<head>
+    <!--[if lt IE 9]>
+        <script>
+            alert("This application does not work on IE8 or below! Please obtain a newer browser, or try a portable version of Firefox.");
+            window.location = "https://github.com/TNOCS/csMap";
+        </script>
+    <![endif]-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="Import GEO data.">
+    <meta name="author" content="Erik Vullings">
+    <meta name="color:Accent" content="#a98e2e" />
+
+    <!--TODO Add your title here-->
+    <title>CommonSense Data Gatherer</title>
+
+    <!-- build:css css/csMap.css -->
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" href="bower_components/ng-tags-input/ng-tags-input.min.css" />
+    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
+
+    <!-- this app style sheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- endbuild -->
+    <link rel="shortcut icon" href="favicon.ico">
+</head>
+
+<body data-ng-controller="appCtrl" data-ng-cloak data-ng-init="showMap=true">
+    <!-- build:js csMap.js -->
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="bower_components/ng-tags-input/ng-tags-input.min.js"></script>
+    <script src="bower_components/pnotify/pnotify.core.js"></script>
+
+    <script src="app/app.js"></script>
+    <!-- endbuild -->
+
+    <div role="navigation" class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-header" style="margin: 7px 12px 0 0;">
+            <!-- <img src="img/Clipboard_wb.png" alt="TARTAN logo" width="32" height="32" /> -->
+        </div>
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">CommonSense Importer</a>
+        </div>
+
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+
+            <!-- Filter importers are shown -->
+            <form class="navbar-form navbar-right" style="margin-right:0" role="search" class="pull-right">
+                <div id="scrollable-dropdown-menu" class="form-group has-feedback navbar-right">
+                    <input data-ng-model="searchText" id="searchbox" type="text" placeholder="not implemented yet..." class="form-control">
+                    <span id="searchicon" class="fa fa-filter form-control-feedback" style="margin-top: 0.65em"></span>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <h1>Importers</h1>
+                <label>Number of sources: {{vm.importers.length}} </label>
+                <div class="list-group">
+                    <div class="row list-group-item" ng-class="{active: importer==vm.activeImporter}" ng-repeat="importer in vm.importers track by importer.id" ng-click="vm.select(importer)">
+                        <div class="col-md-1">
+                            <img ng-if="importer.image" ng-src="{{importer.image}}" width="50">
+                        </div>
+                        <div class="col-md-2">
+                            &nbsp;{{importer.title}}
+                        </div>
+                        <div class="col-md-2" style="text-overflow: ellipsis;">
+                            <a target="_blank" href="{{importer.sourceUrl}}">{{importer.sourceUrl}}</a>
+                        </div>
+                        <div class="col-md-4" style="text-overflow: ellipsis;">
+                            {{importer.description}}
+                        </div>
+                        <div class="col-md-2">
+                            <span>{{importer.lastRun}}</span>
+                        </div>
+                        <div class="col-md-1">
+                            <span class="badge">{{importer.transformers.length}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h1>Selected importer</h1>
+
+                <!-- SHOW ERROR/SUCCESS MESSAGES -->
+                <div id="messages"></div>
+
+                <!-- FORM -->
+                <form name="importerInputForm" ng-submit="vm.submit()">
+                    <!-- NAME -->
+                    <div id="name-group" class="form-group">
+                        <label>Title</label>
+                        <input type="text" ng-required name="title" class="form-control" placeholder="title" ng-model="vm.activeImporter.title">
+                        <span style="color:red" ng-show="importerInputForm.title.$error.required">You can't leave this field empty</span>
+                        <span class="help-block"></span>
+                    </div>
+
+                    <!-- DESCRIPTION -->
+                    <div id="description-group" class="form-group">
+                        <label>Description</label>
+                        <input type="text" name="description" class="form-control" placeholder="..." ng-model="vm.activeImporter.description">
+                        <span class="help-block"></span>
+                    </div>
+
+                    <!-- sourceUrl -->
+                    <div id="sourceUrl-group" class="form-group">
+                        <label>Source URL</label>
+                        <input type="url" ng-required name="sourceUrl" class="form-control" placeholder="http://source.url" ng-model="vm.activeImporter.sourceUrl">
+                        <span style="color:red" ng-show="importerInputForm.sourceUrl.$error.required">You can't leave this field empty</span>
+                        <span style="color:red" ng-show="importerInputForm.sourceUrl.$error.url">Sorry Not a Valid URL, Don't Forget to Use http://</span>                
+                        <span class="help-block"></span>
+                    </div>
+
+                    <!-- contributor -->
+                    <div id="contributor-group" class="form-group">
+                        <label>Contributor</label>
+                        <input type="text" name="contributor" class="form-control" placeholder="Contributed by..." ng-model="vm.activeImporter.contributor">
+                        <span class="help-block"></span>
+                    </div>
+
+                    <!-- image -->
+                    <div id="image-group" class="form-group">
+                        <label>Image URL</label>
+                        <input type="url" name="image" class="form-control" placeholder="http://imgur.com" ng-model="vm.activeImporter.image">
+                        <span class="help-block"></span>
+                    </div>
+
+                    <!-- tags -->
+                    <div id="tags-group" class="form-group">
+                        <label>Tags</label>
+                        <tags-input ng-model="vm.activeImporter.tags"></tags-input>
+                    </div>
+
+                    <!-- repeat -->
+                    <div id="repeat-group" class="form-group">
+                        <label>Repeat&nbsp;</label>
+                        <select ng-options="transformer.value as transformer.text for transformer in vm.repeatOptions" ng-model="vm.activeImporter.repeat"></select>
+                    </div>
+
+                    <!-- transformers -->
+                    <div class="col-md-11 col-md-offset-1">
+                        <div id="transformers-group" >
+                            <label>Transformers</label>
+                            <div class="list-group">
+                                <div class="row list-group-item" ng-repeat="transformer in vm.activeImporter.transformers">
+                                    <div class="col-md-2">
+                                        &nbsp;{{transformer.title}}
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{transformer.description}}
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button name="delete" ng-click="vm.removeTransformer($index)">
+                                            <span class="fa fa-minus"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <select ng-options="transformer.title for transformer in vm.transformers track by transformer.id" ng-model="vm.selectedTransformer"></select>
+                                    <button name="add" ng-click="vm.addTransformer()">
+                                        <span class="fa fa-add">+</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- BUTTONS -->
+                <div class="row">
+                    <div class="col-md-2 col-md-offset-2">
+                        <button ng-disabled="!vm.canRun()" ng-click="vm.runImporter()" class="btn btn-info btn-lg btn-block">
+                            <span class="fa fa-play"></span>&nbsp;Run
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <button ng-click="vm.newImporter()" class="btn btn-info btn-lg btn-block">
+                            <span class="fa fa-plus"></span>&nbsp;New
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <button ng-disabled="!vm.canDeleteImporter()" ng-click="vm.deleteImporter()" class="btn btn-info btn-lg btn-block">
+                            <span class="fa fa-trash"></span>&nbsp;Delete
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <button ng-disabled="!vm.canRevert()" ng-click="vm.revert()" class="btn btn-info btn-lg btn-block">
+                            <span class="fa fa-rotate-left"></span> Undo
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <button ng-if="!vm.activeImporter.id" ng-click="vm.submit()" class="btn btn-info btn-lg btn-block">
+                            <span class="glyphicon glyphicon-flash"></span> Create
+                        </button>
+                        <button ng-if="vm.activeImporter.id" ng-click="vm.submit()" class="btn btn-info btn-lg btn-block">
+                            <span class="fa fa-refresh"></span> Update
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

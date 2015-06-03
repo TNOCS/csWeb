@@ -6,13 +6,11 @@
     }
 
 
-
-    /**
-     * A project group contains a list of layers that can be grouped together.
-     * Filters, styles and clustering is always defined on the group level.
+    /** a project group contains a list of layers that can be grouped together.
+     * Filters, styles can clustering is always defined on the group level.
      * If a filter is selected (e.g. show only the features within a certain property range)
      * this filter is applied to all layers within this group.
-     * If clustering is enabled all features in all layers are grouped together.
+     * If clustering is enabled all features in all layers are grouped together
      */
     export class ProjectGroup {
         id              : string;
@@ -20,6 +18,10 @@
         description     : string;
         layers          : Array<ProjectLayer>;
         filters         : Array<GroupFilter>;
+        /* Including styles in (projectgroups in) project.json files is probably not a good idea, in case the layers
+           in the group have properties (attributes), as for example in geojson files.
+           This is because when selecting a property for styling, the call to setStyle leads to the creation of a new
+           group and deletion of existing styles. */
         styles          : Array<GroupStyle>;
         showTitle       : boolean;
         cluster         : L.MarkerClusterGroup;
@@ -38,6 +40,27 @@
         public markers  : any;
         styleProperty   : string;
         languages       : ILanguageData;
+
+
+
+        /**
+         * Returns an object which contains all the data that must be serialized.
+         */
+        public static serializeableData(projectGroup: ProjectGroup): Object {
+            return {
+                id:               projectGroup.id,
+                title:            projectGroup.title,
+                description:      projectGroup.description,
+                showTitle:        projectGroup.showTitle,
+                clustering:       projectGroup.clustering,
+                clusterLevel:     projectGroup.clusterLevel,
+                maxClusterRadius: projectGroup.maxClusterRadius,
+                oneLayerActive:   projectGroup.oneLayerActive,
+                styleProperty:    projectGroup.styleProperty,
+                languages:        projectGroup.languages,
+                layers:           csComp.Helpers.serialize<ProjectLayer>(projectGroup.layers, ProjectLayer.serializeableData)
+            };
+        }
     }
 
     /**
@@ -48,9 +71,10 @@
         title      : string;
         enabled    : boolean;
         filterType : string;
-        property    : string;
-        property2   : string;
+        property   : string;
+        property2  : string;
         criteria   : string;
+        group      : ProjectGroup;
         dimension  : any;
         value      : any;
         stringValue: string;
@@ -75,23 +99,28 @@
         colorScales     : any;
         info            : PropertyInfo;
         meta            : IPropertyType;
+        legends         : { [key: string] : Legend; }
+        activeLegend    : Legend;
+	    fixedColorRange : boolean;
 
         constructor($translate: ng.translate.ITranslateService) {
 
-            this.availableAspects = ['strokeColor', 'fillColor', 'strokeWidth'];
+            this.availableAspects = ['strokeColor', 'fillColor', 'strokeWidth', 'height'];
             this.colorScales = {};
+            this.legends = {};
+            this.fixedColorRange = false;
 
             $translate('WHITE_RED').then((translation) => {
                 this.colorScales[translation] = ['white', 'red'];
-            });
-            $translate('RED_WHITE').then((translation) => {
-                this.colorScales[translation] = ['red', 'white'];
             });
             $translate('GREEN_RED').then((translation) => {
                 this.colorScales[translation] = ['green', 'red'];
             });
             $translate('RED_GREEN').then((translation) => {
                 this.colorScales[translation] = ['red', 'green'];
+            });
+            $translate('WHITE_ORANGE').then((translation) => {
+                this.colorScales[translation] = ['white', 'orange'];
             });
             $translate('BLUE_RED').then((translation) => {
                 this.colorScales[translation] = ['#F04030', '#3040F0'];
@@ -117,11 +146,35 @@
             $translate('ORANGE_WHITE').then((translation) => {
                 this.colorScales[translation] = ['orange', 'white'];
             });
+            $translate('RED_WHITE_BLUE').then((translation) => {
+                this.colorScales[translation] = ['red', 'white', 'blue'];
+            });
         }
     }
 
+    /**
+     * the Legend class provides a data structure that is used to map a value to a color
+     * (see also the function getColor())
+    */
+    export class Legend {
+        id:            string;
+        description:   string;
+        legendKind:    string;
+        visualAspect:  string;
+        legendEntries: LegendEntry[];
+        // it is assumed that the legendentries have their values and/or intervals
+        // sorted in ascending order
+    }
 
-
-
+    export class LegendEntry {
+        label:       string;
+        interval:    {
+            min:     number;
+            max:     number;
+        };                 // either interval or value is used, depending on legendtype (discrete or interpolated)
+        value:       number;
+        stringValue: string;
+        color:       string;  // hex string; rgb
+    }
 
 }

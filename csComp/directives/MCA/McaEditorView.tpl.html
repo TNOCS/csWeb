@@ -5,11 +5,11 @@
     </div>
     <div class="modal-body container-fluid">
         <div class="row-fluid">
-            <input type="text" class="pull-left" data-ng-model="vm.mcaTitle" style="margin: 0 5px" placeholder="{{ \'MCA.TITLE\' | translate }}" />
+            <input type="text" class="pull-left" data-ng-model="vm.mcaTitle" style="margin: 0 5px" placeholder="{{ 'MCA.TITLE' | translate }}" />
             <!-- <span><input type="checkbox" data-ng-model="vm.hasRank" style="margin-left: 10px;" /><span translate>MCA.INCLUDE_RANK</span></span>-->
-            <input type="text" class="pull-left" data-ng-model="vm.rankTitle" style="margin: 0 5px"  placeholder="{{ \'MCA.RANK_TITLE\' | translate }}" />
-            <input type="text" class="pull-left" data-ng-model="vm.scaleMin" style="width: 100px; margin: 0 5px" placeholder="{{ \'MCA.SCALE_MIN_TITLE\' | translate }}" />
-            <input type="text" class="pull-left" data-ng-model="vm.scaleMax" style="width: 100px; margin: 0 5px" placeholder="{{ \'MCA.SCALE_MAX_TITLE\' | translate }}" />
+            <input type="text" class="pull-left" data-ng-model="vm.rankTitle" style="margin: 0 5px"  placeholder="{{ 'MCA.RANK_TITLE' | translate }}" />
+            <input type="text" class="pull-left" data-ng-model="vm.scaleMin" style="width: 100px; margin: 0 5px" placeholder="{{ 'MCA.SCALE_MIN_TITLE' | translate }}" />
+            <input type="text" class="pull-left" data-ng-model="vm.scaleMax" style="width: 100px; margin: 0 5px" placeholder="{{ 'MCA.SCALE_MAX_TITLE' | translate }}" />
         </div>
         <h4 class="row-fluid" style="margin-top: 5px;" translate>MCA.MAIN_FEATURE</h4>
         <select data-ng-model="vm.selectedFeatureType"
@@ -32,7 +32,7 @@
                         <input type="text" class="pull-right"
                                style="margin: -2px 5px -2px 0;"
                                data-ng-model="mi.category"
-                               placeholder="{{\'MCA.CATEGORY_MSG\' | translate}}" />
+                               placeholder="{{'MCA.CATEGORY_MSG' | translate}}" />
                     </div>
                     <!--<form data-ng-if="mi.isSelected" name="myForm" style="margin-left: 20px;">
                 <label id="scoringFunctions" data-ng-repeat="sf in vm.scoringFunctions">
@@ -52,10 +52,10 @@
                             data-ng-options="sf as sf.title for sf in vm.scoringFunctions"></select>
                     <div class="pull-right" data-ng-class="mi.scoringFunctionType.cssClass" style="width: 40px; height: 28px; margin-top: -5px;"></div>
                     <div class="row-fluid">
-                        <input type="text" class="col-xs-3" style="padding: 0;" data-ng-model="mi.minValue" placeholder="{{ \'MCA.MIN_VALUE\' | translate }}" />
-                        <input type="text" class="col-xs-3" style="padding: 0;" data-ng-model="mi.maxValue" placeholder="{{ \'MCA.MAX_VALUE\' | translate }}" />
-                        <input type="text" class="col-xs-3" style="padding: 0;" data-ng-model="mi.minCutoffValue" placeholder="{{ \'MCA.MIN_CUTOFF_VALUE\' | translate }}" />
-                        <input type="text" class="col-xs-3" style="padding: 0;" data-ng-model="mi.maxCutoffValue" placeholder="{{ \'MCA.MAX_CUTOFF_VALUE\' | translate }}" />
+                        <input type="text" class="col-xs-3" style="padding: 0;" data-ng-model="mi.minValue" placeholder="{{ 'MCA.MIN_VALUE' | translate }}" />
+                        <input type="text" class="col-xs-3" style="padding: 0;" data-ng-model="mi.maxValue" placeholder="{{ 'MCA.MAX_VALUE' | translate }}" />
+                        <input type="text" class="col-xs-3" style="padding: 0;" data-ng-model="mi.minCutoffValue" placeholder="{{ 'MCA.MIN_CUTOFF_VALUE' | translate }}" />
+                        <input type="text" class="col-xs-3" style="padding: 0;" data-ng-model="mi.maxCutoffValue" placeholder="{{ 'MCA.MAX_CUTOFF_VALUE' | translate }}" />
                     </div>
                 </div>
             </li>

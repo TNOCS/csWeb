@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/TNOCS/csWeb.svg?branch=layer-sources-renders)](https://travis-ci.org/TNOCS/csWeb)
+[![bitHound Score](https://www.bithound.io/github/TNOCS/csWeb/badges/score.svg)](https://www.bithound.io/github/TNOCS/csWeb/layer-sources-renders)
+
 # README #
 
 ### What is this repository for? ###
@@ -11,8 +14,6 @@ This repository consists of two projects, csComp, a library containing client si
 ### How do I get set up? ###
 
 #### Development environment ####
-
-This project was creating in **Visual Studio 2013**, update 3, using the **Web Extension** and **nodejstools.codeplex.com** extensions, among others. Although we use VS, this shouldn't keep you from developing in another environment. We have also tested this setup with **atom.io** using the **atom-typescript** package.
 
 We further use **node.js** or IIS to run our web application, although currently it suffices to copy everything to a public folder on the web to get up running.
 

@@ -1,0 +1,25 @@
+<div data-ng-cloak class="rightpanel-content" style="width:100%">
+    <h4 class="rightpanel-header">
+      <i class="fa fa-folder rightpanel-header-icon" />Group Editor
+    </h4>
+
+<div data-ng-cloak style="margin:5px">
+    <div class="controls">
+      <label class="editor-title input-xlarge" for="groupTitle">Title</label>
+      <input id="groupTitle" name="textinput" type="text" ng-model="group.title" placeholder="placeholder" class="input-xlarge editor-text-input">
+    </div>
+    <div class="controls">
+      <label class="editor-title" for="groupDescription">Description</label>
+      <textarea id="groupDescription" ng-model="group.description" placeholder="placeholder" class="input-xlarge editor-text-input" />
+    </div>
+    <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+      <input ng-disabled="vm.noLayerSelected" type="checkbox" id="clustering-{{vm.group.id}}" ng-model="group.clustering" ng-click="vm.toggleClustering()">
+      <label for="clustering-{{vm.group.id}}">Enable Clustering</label>
+    </div>
+    <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+      <input ng-disabled="vm.noLayerSelected" type="checkbox" id="oneLayerActive-{{vm.group.id}}" ng-model="group.oneLayerActive" >
+      <label for="oneLayerActive-{{vm.group.id}}">One layer active</label>
+    </div>
+
+</div>
+</div>

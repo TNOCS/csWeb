@@ -1,0 +1,52 @@
+{
+    "version": "1.5.0-alpha",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./Scripts/typings/JSONStream/JSONStream.d.ts",
+        "./Scripts/typings/angular-translate/angular-translate.d.ts",
+        "./Scripts/typings/angularLocalStorage/angularLocalStorage.d.ts",
+        "./Scripts/typings/angularjs/angular-cookies.d.ts",
+        "./Scripts/typings/angularjs/angular.d.ts",
+        "./Scripts/typings/async/async.d.ts",
+        "./Scripts/typings/body-parser/body-parser.d.ts",
+        "./Scripts/typings/cs/cs-offline-search.d.ts",
+        "./Scripts/typings/express/express.d.ts",
+        "./Scripts/typings/jquery/jquery.d.ts",
+        "./Scripts/typings/node/node.d.ts",
+        "./Scripts/typings/pnotify/jquery.pnotify.d.ts",
+        "./Scripts/typings/request/request.d.ts",
+        "./Scripts/typings/socketio/socket.io.d.ts",
+        "./ServerComponents/Layers/flightradar.d.ts",
+        "./ServerComponents/bus/MessageBus.d.ts",
+        "./ServerComponents/configuration/ConfigurationService.d.ts",
+        "./ServerComponents/configuration/IConfiguration.d.ts",
+        "./ServerComponents/dynamic/ClientConnection.d.ts",
+        "./ServerComponents/dynamic/Datasource.d.ts",
+        "./ServerComponents/dynamic/DynamicProject.d.ts",
+        "./ServerComponents/helpers/Utils.d.ts",
+        "./ServerComponents/import/BaseTransformer.d.ts",
+        "./ServerComponents/import/IImport.d.ts",
+        "./ServerComponents/import/IImporterRepositoryService.d.ts",
+        "./ServerComponents/import/IStore.d.ts",
+        "./ServerComponents/import/ITransform.d.ts",
+        "./ServerComponents/import/ImporterRepositoryService.d.ts",
+        "./ServerComponents/import/RepeatEnum.d.ts",
+        "./ServerComponents/import/Store.d.ts",
+        "./ServerComponents/import/importer.d.ts",
+        "./public/app/app.ts",
+        "./server.ts"
+    ]
+}

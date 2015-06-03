@@ -4,8 +4,9 @@
     */
     export enum Expertise {
         Beginner     = 1,
-        Intermediate = 2, 
-        Expert       = 3
+        Intermediate = 2,
+        Expert       = 3,
+        Admin        = 4
     }
 
     /**
@@ -16,18 +17,15 @@
         deserialize(input: Object): T;
     }
 
-    var availableZoomLevels  = [
-        { title: "decades",      value: 315360000000 },
-        { title: "years",        value: 31536000000 },
-        { title: "weeks",        value: 604800000 },
-        { title: "days",         value: 86400000 },
-        { title: "hours",        value: 3600000 },
-        { title: "quarters",     value: 900000 },
-        { title: "minutes",      value: 60000 },
-        { title: "seconds",      value: 1000 },
-        { title: "milliseconds", value: 1 }
-    ];
+    export class VisualState {
+        public leftPanelVisible: boolean = true;
+        public rightPanelVisible: boolean = false;
+        public dashboardVisible: boolean = true;
+        public mapVisible: boolean = true;
+        public timelineVisible: boolean = true;
+    }
 
+    //** class for describing time ranges for timeline, including focus time */
     export class DateRange {
         start        : number;
         end          : number;
@@ -95,15 +93,15 @@
     export class SolutionProject {
         title: string;
         url  : string;
+        dynamic : boolean;
     }
 
     /**
     * Simple class to hold the user privileges.
     */
     export interface IPrivileges {
-        mca: {
-            expertMode: boolean;
-        }
+        mca: { expertMode: boolean;}
+        heatmap: { expertMode: boolean;}
     }
 
     /** bouding box to specify a region. */
@@ -125,11 +123,14 @@
     }
 
     /** project configuration. */
-    export class Project implements ISerializable<Project> {
+    export class Project implements ITypesResource, ISerializable<Project>  {
+        id              : string;
         title           : string;
         description     : string;
         logo            : string;
         url             : string;
+        /** true if a dynamic project and you want to subscribe to project changes using socket.io */
+        connected       : boolean;
         activeDashboard : Dashboard;
         baselayers      : IBaseLayer[];
         featureTypes    : { [id: string]: IFeatureType }
@@ -140,13 +141,60 @@
         timeLine        : DateRange;
         mcas            : Mca.Models.Mca[];
         dashboards      : Dashboard[];
+        datasources     : DataSource[];
         dataSets        : DataSet[];
         viewBounds      : IBoundingBox;
         userPrivileges  : IPrivileges;
         languages       : ILanguageData;
 
+
         expertMode = Expertise.Expert;
         markers = {};
+
+        /**
+         * Serialize the project to a JSON string.
+         */
+        public serialize(): string {
+            return JSON.stringify(Project.serializeableData(this), (key: string, value: any) => {
+                // Skip serializing certain keys
+                switch (key) {
+                    case "timestamp":
+                    case "values":
+                    case "$$hashKey":
+                    case "div":
+                        return undefined;
+                    default:
+                        return value;
+                }
+            }, 2);
+        }
+
+        /**
+         * Returns an object which contains all the data that must be serialized.
+         */
+        public static serializeableData(project: Project): Object {
+            return {
+                id:               project.id,
+                title:            project.title,
+                description:      project.description,
+                logo:             project.logo,
+                url:              project.url,
+                connected:        project.connected,
+                startPosition:    project.startposition,
+                timeLine:         project.timeLine,
+                mcas:             project.mcas,
+                datasources:      project.datasources,
+                dashboards:       csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
+                viewBounds:       project.viewBounds,
+                userPrivileges:   project.userPrivileges,
+                languages:        project.languages,
+                expertMode:       project.expertMode,
+                baselayers:       project.baselayers,
+                featureTypes:     project.featureTypes,
+                propertyTypeData: project.propertyTypeData,
+                groups:           csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData)
+            };
+        }
 
         public deserialize(input: Project): Project {
             var res = <Project>jQuery.extend(new Project(), input);
@@ -157,81 +205,17 @@
                     res.dashboards.push(Dashboard.deserialize(d));
                 });
 
-                for (var mca in input.mcas) {
-                    if (input.mcas.hasOwnProperty(mca)) {
-                        res.mcas.push(new Mca.Models.Mca().deserialize(mca));
-                    }
+                for (var index in input.mcas) {
+                    var mca = input.mcas[index];
+                    res.mcas.push(new Mca.Models.Mca().deserialize(mca));
+                }
             }
-          }
             if (!res.propertyTypeData) res.propertyTypeData = {};
-          return res;
+            if (!res.mcas) res.mcas = [];
+            if (res.id == null) res.id = res.title;
+            return res;
         }
     }
 
-    /** layer information. a layer is described in a project file and is always part of a group */
-    export class ProjectLayer {
-        /** Title as displayed in the menu */
-        title                       : string;
-        /** Description as displayed in the menu */
-        description                 : string;
-        /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
-        type                        : string;
-        /** Data source */
-        url                         : string;
-        /** In case we keep the style information in a separate file */
-        styleurl                    : string;
-        /** WMS sublayers that must be loaded */
-        wmsLayers                   : string;
-        /** If enabled, load the layer */
-        enabled                     : boolean;
-        /** Layer opacity */
-        opacity                     : number;
-        /** When loading the data, the isLoading variable is true (e.g. used for the spinner control) */
-        isLoading                   : boolean;
-        /** Indent the layer, so it seems to be a sublayer. */
-        isSublayer                  : boolean;
-        mapLayer                    : L.LayerGroup<L.ILayer>;
-        /** Group of layers */
-        group                       : ProjectGroup;
-        /**
-        * A list of UNIX timestamp, or the UTC time in milliseconds since 1/1/1970, which define the time a sensor value
-        * was taken. So in case we have 10 timestamps, each feature's sensor (key) in the feature's sensors dictionary should
-        * also have a lnegth of 10.
-        * Note that this value is optional, and can be omitted if the sensor already contains a timestamp too. This is mainly intended
-        * when all 'sensor measurements' are taken on the same moment. For example, the CENSUS date.
-        * In Excel, you can use the formula =24*(A4-$B$1)*3600*1000 to convert a date to a UNIX time stamp.
-        */
-        timestamps                  : number[];
-        /** Internal ID, e.g. for the Excel service */
-        id                          : string;
-        /** Reference for URL params: if the URL contains layers=REFERENCE1;REFERENCE2, the two layers will be turned on.  */
-        reference                   : string;
-        events                      : Event[];
-        /** Language information that can be used to localize the title and description */
-        languages                   : ILanguageData;
-        /** When loading, contains the index of the currently loaded feature */
-        count                       : number;
-    }
 
-    /**
-     * Baselayers are background maps (e.g. openstreetmap, nokia here, etc).
-     * They are described in the project file
-     */
-    export interface IBaseLayer {
-        id         : string;
-        title      : string;
-        isDefault  : boolean;
-        subtitle   : string;
-        preview    : string;
-        /** URL pointing to the basemap source. */
-        url        : string;
-        /** Maximum zoom level */
-        maxZoom    : number;
-        /** Minimum zoom level */
-        minZoom    : number;
-        subdomains : string[];
-        /** String that is shown on the map, attributing the source of the basemap */
-        attribution: string;
-        test       : string;
-    }
 }

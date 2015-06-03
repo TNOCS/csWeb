@@ -72,9 +72,9 @@
 
         private getImageUri(ft: csComp.Services.IFeatureType): string {
             var iconUri = ft.style.iconUri;
-            if (iconUri==null) iconUri="includes/images/marker.png";
+            if (iconUri == null) iconUri = "includes/images/marker.png";
             if (iconUri.indexOf('{') >= 0) iconUri = iconUri.replace('{', '').replace('}', '');
- 
+
             if (ft.style != null && ft.style.drawingMode!=null && ft.style.drawingMode.toLowerCase() != "point") {
                 if (iconUri.indexOf('_Media') < 0)
                     return iconUri;

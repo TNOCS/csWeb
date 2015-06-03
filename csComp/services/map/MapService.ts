@@ -7,31 +7,35 @@
      */
     export class MapService {
         private static expertModeKey = 'expertMode';
-        private activeBaseLayer: L.ILayer;
 
         public static $inject = [
             'localStorageService',
             '$timeout',
             'messageBusService'
+
         ];
 
-        map             : L.Map;
-        baseLayers      : any;
-        mapVisible      : boolean = true;
-        timelineVisible : boolean = true;
-        rightMenuVisible: boolean = true;
-        expertMode      : Expertise;
+        public map:              L.Map;
+        public baseLayers:       any;
+        public activeBaseLayer:  BaseLayer;
+        public mapVisible:       boolean = true;
+        public timelineVisible:  boolean = true;
+        public rightMenuVisible: boolean = true;
+        public maxBounds:        L.LatLngBounds;
+
+        expertMode:              Expertise;
 
         constructor(
             private $localStorageService: ng.localStorage.ILocalStorageService,
-            private $timeout            : ng.ITimeoutService,
-            private $messageBus         : csComp.Services.MessageBusService) {
+            private $timeout: ng.ITimeoutService,
+            private $messageBusService: csComp.Services.MessageBusService
+            ) {
 
             this.initExpertMode();
             this.baseLayers = {};
             this.initMap();
 
-            $messageBus.subscribe('timeline',(title: string, data) => {
+            $messageBusService.subscribe('timeline', (title: string, data) => {
                 switch (title) {
                     case 'isEnabled':
                         this.timelineVisible = data;
@@ -39,7 +43,17 @@
                 }
             });
 
-            $messageBus.subscribe('leftmenu',(title: string, data) => {
+            $messageBusService.subscribe('map', (action: string, data) => {
+                switch (action) {
+                    case 'setextent':
+                        // console.log(data);
+                        this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast));
+
+                        break;
+                }
+            })
+
+            $messageBusService.subscribe('leftmenu', (title: string, data) => {
                 switch (title.toLowerCase()) {
                     case "toggle":
                         if ($('body').hasClass("leftpanel-collapsed")) {
@@ -53,36 +67,37 @@
                         break;
                     case "show":
                         if ($('body').hasClass("leftpanel-collapsed")) $('body').removeClass("leftpanel-collapsed");
+
                         break;
                 }
             });
         }
 
         /**
-        * The expert mode can either be set manually, e.g. using this directive, or by setting the expertMode property in the
-        * project.json file. In neither are set, we assume that we are dealing with an expert, so all features should be enabled.
-        *
-        * Precedence:
-        * - when a declaration is absent, assume Expert.
-        * - when the mode is set in local storage, take that value.
-        * - when the mode is set in the project.json file, take that value.
-        */
+      * The expert mode can either be set manually, e.g. using this directive, or by setting the expertMode property in the
+      * project.json file. In neither are set, we assume that we are dealing with an expert, so all features should be enabled.
+      *
+      * Precedence:
+      * - when a declaration is absent, assume Expert.
+      * - when the mode is set in local storage, take that value.
+      * - when the mode is set in the project.json file, take that value.
+      */
         private initExpertMode() {
             this.expertMode = this.$localStorageService.get(MapService.expertModeKey);
             if (!this.expertMode) {
                 this.expertMode = Expertise.Expert; // Default behaviour
                 // When a project defines the expert mode, overrules default behaviour
-                this.$messageBus.subscribe('project',(title: string, project: csComp.Services.Project) => {
+                this.$messageBusService.subscribe('project', (title: string, project: csComp.Services.Project) => {
                     switch (title) {
                         case 'loaded':
                             if (project != null && typeof project.expertMode !== 'undefined')
-                                this.$messageBus.publish('expertMode', 'newExpertise', project.expertMode);
+                                this.$messageBusService.publish('expertMode', 'newExpertise', project.expertMode);
                             break;
                     }
                 });
             }
 
-            this.$messageBus.subscribe('expertMode',(title: string, expertMode: Expertise) => {
+            this.$messageBusService.subscribe('expertMode', (title: string, expertMode: Expertise) => {
                 if (title !== 'newExpertise') return;
                 this.expertMode = expertMode;
                 this.$localStorageService.set(csComp.Services.MapService.expertModeKey, expertMode); // You first need to set the key
@@ -90,7 +105,7 @@
                     case Expertise.Intermediate:
                     case Expertise.Expert:
                         this.timelineVisible = true;
-                        this.$timeout(() => {this.$messageBus.publish('timeline', 'loadProjectTimeRange')}, 100);
+                        this.$timeout(() => { this.$messageBusService.publish('timeline', 'loadProjectTimeRange') }, 100);
                         break;
                     default:
                         this.timelineVisible = false;
@@ -99,19 +114,34 @@
             });
         }
 
-        public initMap() {
-            this.map = L.map("map", {
-                zoomControl: false,
-                attributionControl: true
-            });
+        get isExpert(): boolean {
+            return this.expertMode === Expertise.Expert || this.expertMode === Expertise.Admin;
         }
 
-        public changeBaseLayer(layerObj: L.ILayer) {
-            this.map.addLayer(layerObj);
-            if (this.activeBaseLayer)
-                this.map.removeLayer(this.activeBaseLayer);
-            this.map.setZoom(this.map.getZoom());
-            this.map.fire('baselayerchange', { layer: layerObj });
+        get isIntermediate(): boolean {
+            return this.expertMode === Expertise.Expert
+                || this.expertMode === Expertise.Intermediate || this.expertMode === Expertise.Admin;
+        }
+
+        get isAdminExpert() : boolean{
+          return this.expertMode === Expertise.Admin;
+        }
+
+        public initMap() {
+            // alert('map service');
+            // this.map = L.map("map", {
+            //     zoomControl: false,
+            //     attributionControl: true
+            // });
+        }
+        public getBaselayer(layer: string)
+        {
+            var layerObj: BaseLayer = this.baseLayers[layer];
+            return layerObj;
+        }
+
+        public changeBaseLayer(layer: string) {
+            var layerObj : BaseLayer = this.getBaselayer(layer);
             this.activeBaseLayer = layerObj;
         }
 
@@ -129,13 +159,13 @@
         /**
          * Zoom to a feature on the map.
          */
-        public zoomTo(feature: IFeature, zoomLevel : number = 14) {
+        public zoomTo(feature: IFeature, zoomLevel: number = 14) {
             var center: L.LatLng;
             if (feature.geometry.type.toUpperCase() == 'POINT') {
                 center = new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
                 this.map.setView(center, zoomLevel);
             } else {
-                var bb : Array<number>;
+                var bb: Array<number>;
                 if (feature.geometry.type.toUpperCase().indexOf("MULTI") < 0)
                     bb = this.getBoundingBox(feature.geometry.coordinates[0]);
                 else { // MULTIPOLYGON or MULTILINESTRING
@@ -150,8 +180,8 @@
                 var northEast = L.latLng(Math.max(bb[2], bb[3]), Math.max(bb[0], bb[1]) + spacingLon);
                 this.map.fitBounds(new L.LatLngBounds(southWest, northEast));
             }
-            this.$messageBus.publish("sidebar", "show");
-            this.$messageBus.publish("feature", "onFeatureSelect", feature);
+            this.$messageBusService.publish("sidebar", "show");
+            this.$messageBusService.publish("feature", "onFeatureSelect", feature);
         }
 
         //private getCentroid(arr) {
@@ -169,4 +199,22 @@
 
         getMap(): L.Map { return this.map; }
     }
+
+    /**
+      * Register service
+      */
+    var moduleName = 'csComp';
+
+    /**
+      * Module
+      */
+    export var myModule;
+    try {
+        myModule = angular.module(moduleName);
+    } catch (err) {
+        // named module does not exist, so create one
+        myModule = angular.module(moduleName, []);
+    }
+
+    myModule.service('mapService', csComp.Services.MapService)
 }

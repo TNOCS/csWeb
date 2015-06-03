@@ -1,0 +1,59 @@
+{
+    "title": "Dynamic Example",
+    "description": "csMap is developed by the Dutch Research Organisation TNO, in first instance for the Dutch Ministry of Health (VWS).",
+    "url": "https://github.com/TNOCS/csMap",
+    "logo": "images/CommonSenseRound.png",
+        "connected": true,
+    "timeLine": {
+        "start": 1375315200000,
+        "end": 1425168000000,
+        "range": 34128000000,
+        "zoomLevelName": "years",
+        "isLive": false
+    },
+    "datasources": [
+
+    ],
+    "dashboards": [
+        {
+            "id": "home",
+            "name": "Home",
+            "showTimeline": true,
+            "showLeftmenu": true,
+            "showMap": true,
+            "visiblelayers": []
+        },
+       {
+           "id": "datatable",
+           "name": "Table",
+           "showTimeline": false,
+           "showLeftmenu": false,
+           "showMap": false,
+           "widgets": [
+               {
+                   "directive": "datatable",
+                   "borderwidth" : "0px",
+                   "width": "100%",
+                   "height": "100%"
+               }
+             ]
+       }
+
+      ],
+    "expertMode": 3,
+    "userPrivileges": {
+        "mca": { "expertMode": true },
+        "heatmap": { "expertMode": true }
+    },
+    "accentColor": "Green",
+    "propertyTypeData": {
+
+    },
+    "baselayers": {
+
+    },
+    "groups": [
+
+
+    ]
+}

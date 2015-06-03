@@ -1,0 +1,46 @@
+{
+    "version": "1.5.0-alpha",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": true,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./ServerComponents/**/*.d.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./Scripts/typings/JSONStream/JSONStream.d.ts",
+        "./Scripts/typings/body-parser/body-parser.d.ts",
+        "./Scripts/typings/cs/cs-offline-search.d.ts",
+        "./Scripts/typings/express/express.d.ts",
+        "./Scripts/typings/form-data/form-data.d.ts",
+        "./Scripts/typings/jquery/jquery.d.ts",
+        "./Scripts/typings/node/node.d.ts",
+        "./Scripts/typings/request/request.d.ts",
+        "./Scripts/typings/socketio/socket.io.d.ts",
+        "./ServerComponents/Layers/flightradar.ts",
+        "./ServerComponents/bus/MessageBus.ts",
+        "./ServerComponents/configuration/ConfigurationService.ts",
+        "./ServerComponents/configuration/IConfiguration.ts",
+        "./ServerComponents/dynamic/ClientConnection.ts",
+        "./ServerComponents/dynamic/Datasource.ts",
+        "./ServerComponents/dynamic/DynamicProject.ts",
+        "./ServerComponents/helpers/Utils.ts",
+        "./ServerComponents/import/BaseTransformer.ts",
+        "./ServerComponents/import/IImport.ts",
+        "./ServerComponents/import/IImporterRepositoryService.ts",
+        "./ServerComponents/import/IStore.ts",
+        "./ServerComponents/import/ITransform.ts",
+        "./ServerComponents/import/Importer.ts",
+        "./ServerComponents/import/ImporterRepositoryService.ts",
+        "./ServerComponents/import/RepeatEnum.ts",
+        "./ServerComponents/import/Store.ts"
+    ]
+}

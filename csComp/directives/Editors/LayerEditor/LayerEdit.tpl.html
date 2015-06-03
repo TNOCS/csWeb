@@ -1,0 +1,57 @@
+<div data-ng-cloak class="rightpanel-content" style="width:100%">
+    <h4 class="rightpanel-header">
+      <i class="layersIcon rightpanel-header-icon" />Layer Editor
+    </h4>
+
+  <div data-ng-cloak style="margin:5px">
+    <div class="controls">
+      <label class="editor-title input-xlarge" for="layerTitle">Title</label>
+      <input id="layerTitle" name="textinput" type="text" ng-model="vm.layer.title" placeholder="placeholder" class="input-xlarge editor-text-input">
+    </div>
+    <div class="controls">
+      <label class="editor-title" for="layerDescription">Description</label>
+      <textarea id="layerDescription" ng-model="vm.layer.description" placeholder="placeholder" class="input-xlarge editor-text-input" />
+    </div>
+    <div ng-show="vm.layer.enabled">Disable layer for more options</div>
+
+    <div ng-hide="vm.layer.enabled">
+      <div class="controls">
+        <label class="editor-title input-xlarge" for="layerRefreshTimer">Auto Refresh (in seconds)</label>
+        <input id="layerRefreshTimer" name="textinput" type="number" ng-model="vm.layer.refreshTimer" placeholder="refresh timer (in seconds)" class="input-xlarge editor-text-input">
+      </div>
+      <div class="controls">
+        <label class="editor-title input-xlarge">Source Type</label>
+        <select data-ng-model="vm.layer.type" class="form-control tt-input editor-text-input"><option value="geojson">Geojson</option>
+            <option value="wms">Wms</option>
+          </select>
+      </div>
+      <div class="controls">
+        <label class="editor-title input-xlarge" for="layerUrl">Url</label>
+        <input id="layerUrl" name="textinput" type="text" ng-model="vm.layer.url" placeholder="url" class="input-xlarge editor-text-input">
+      </div>
+      <div ng-show="vm.layer.type=='geojson'">
+        <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+          <input disabled="true"  type="checkbox" id="useProxy-{{vm.layer.id}}" ng-model="group.useProxy">
+          <label for="useProxy-{{vm.layer.id}}">use proxy (used for external urls)</label>
+        </div>
+      <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+        <input type="checkbox" id="dynamic-{{vm.layer.id}}" ng-model="group.dynamic">
+        <label for="dynamic-{{vm.layer.id}}">dynamic</label>
+      </div>
+      <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+        <input  type="checkbox" id="bbox-{{vm.layer.id}}" ng-model="group.refreshBBOX">
+        <label for="bbox-{{vm.layer.id}}">refresh bounding box</label>
+      </div>
+      <div class="controls">
+        <label class="editor-title input-xlarge" for="defaultFeatureType">Default Feature Type</label>
+        <input id="defaultFeatureType" name="textinput" type="text" ng-model="vm.layer.defaultFeatureType" placeholder="feature type" class="input-xlarge editor-text-input">
+      </div>
+      <div class="controls">
+        <label class="editor-title input-xlarge" for="defaultLegendProperty">Default Legend Property</label>
+        <input id="defaultLegendProperty" name="textinput" type="text" ng-model="vm.layer.defaultLegendProperty" placeholder="legend property" class="input-xlarge editor-text-input">
+      </div>
+    </div>
+
+    </div>
+  </div>
+</div>

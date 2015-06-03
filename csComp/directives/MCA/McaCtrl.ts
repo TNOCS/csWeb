@@ -215,7 +215,7 @@
 
         private showMcaEditor(newMca: Models.Mca): void {
             var modalInstance = this.$modal.open({
-                templateUrl: 'mcaEditorView.html',
+                templateUrl: 'directives/MCA/McaEditorView.tpl.html',
                 controller: McaEditorCtrl,
                 resolve: {
                     mca: () => newMca
@@ -387,7 +387,6 @@
                     });
                 }
             });
-
         }
 
         private getParentOfSelectedCriterion(criterion?: Models.Criterion) {
@@ -512,7 +511,9 @@
                         tempScores.push(tempItem);
                     }
                     feature.properties[mca.label] = score * 100;
-                    this.$layerService.updateFeature(feature);
+                    this.$layerService.calculateFeatureStyle(feature);
+                    this.$layerService.activeMapRenderer.updateFeature(feature);
+                    //this.$layerService.updateFeature(feature);
                 });
                 if (mca.rankTitle) {
                     // Add rank information
@@ -638,6 +639,5 @@
             };
             return mi;
         }
-
     }
 }

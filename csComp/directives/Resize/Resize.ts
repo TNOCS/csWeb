@@ -2,7 +2,7 @@
     /**
      * Config
      */
-    var moduleName = 'csWeb.resize';
+    var moduleName = 'csComp';
 
     /**
       * Module
@@ -14,11 +14,11 @@
     } catch (err) {
         // named module does not exist, so create one
         myModule = angular.module(moduleName, []);
-    }
+    } 
 
     /**
-      * Directive to resize an element by settings its width or height, 
-      * for example to make sure that the scrollbar appears. 
+      * Directive to resize an element by settings its width or height,
+      * for example to make sure that the scrollbar appears.
       * Typical usage:
       * <div style="overflow-y: auto; overflow-x: hidden" resize resize-x="20" resize-y="250">...</div>
       * Load the directive in your module, e.g.
@@ -27,14 +27,14 @@
     myModule.directive('resize', [ '$window',
         function ($window): ng.IDirective {
             return {
-                terminal: false, // do not compile any other internal directives 
+                terminal: false, // do not compile any other internal directives
                 // E = elements, A=attributes and C=css classes. Can be compined, e.g. EAC
-                restrict: 'A', 
+                restrict: 'A',
                 // Name if optional. Text Binding (Prefix: @), One-way Binding (Prefix: &), Two-way Binding (Prefix: =)
                 scope: {
                     resizeX: '@',
                     resizeY: '@'
-                },  
+                },
                 // Directives that want to modify the DOM typically use the link option.link takes a function with the following signature, function link(scope, element, attrs) { ... } where:
                 // * scope is an Angular scope object.
                 // * element is the jqLite wrapped element that this directive matches.
@@ -59,7 +59,7 @@
                     angular.element($window).bind('resize', () => {
                         scope.onResizeFunction();
                         scope.$apply();
-                    });                
+                    });
                 }
             }
         }

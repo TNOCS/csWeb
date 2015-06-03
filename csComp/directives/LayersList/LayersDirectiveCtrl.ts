@@ -1,6 +1,7 @@
 ﻿module LayersDirective {
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
+        options : Function;
     }
 
     export class LayersDirectiveCtrl {
@@ -12,25 +13,71 @@
         // See http://docs.angularjs.org/guide/di
         public static $inject = [
             '$scope',
-            'layerService'
-        ]; 
+            'layerService',
+            'messageBusService',
+            'mapService',
+            'dashboardService'
+
+        ];
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope       : ILayersDirectiveScope,
-            private $layerService: csComp.Services.LayerService
-            ) {
+            private $layerService: csComp.Services.LayerService,
+            private $messageBusService : csComp.Services.MessageBusService,
+            private $mapService : csComp.Services.MapService,
+            private $dashboardService : csComp.Services.DashboardService)
+        {
             $scope.vm = this;
+            $scope.options = ((layer : csComp.Services.ProjectLayer)=>{
+              if (!layer.enabled) return null;
+              if (layer.layerSource)
+              {
+                return layer.layerSource.layerMenuOptions(layer);
+              }
+          });
+
+        }
+
+        public editGroup(group : csComp.Services.ProjectGroup)
+        {
+          var rpt = csComp.Helpers.createRightPanelTab("edit","groupedit",group,"Edit group");
+          this.$messageBusService.publish("rightpanel","activate",rpt);
+        }
+
+        public editLayer(layer : csComp.Services.ProjectLayer)
+        {
+          var rpt = csComp.Helpers.createRightPanelTab("edit","layeredit",layer, "Edit layer");
+          this.$messageBusService.publish("rightpanel","activate",rpt);
+        }
+
+        public openLayerMenu(e)
+        {
+          //e.stopPropagation();
+          (<any>$('.left-menu')).contextmenu( 'show', e );
+          //alert('open layers');
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
+<<<<<<< HEAD
             //Uncommented after updating the bower packages: the behaviour changed between angular versions.
             // layer.enabled = !layer.enabled;
             // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
             //if (layer.group.oneLayerActive && this.$layerService.findLayer(layer.id)) layer.enabled = false;
             
             if (layer.enabled) {    
+=======
+          $(".left-menu" ).on( "click", function( clickE ) {
+            //alert('context menu');
+            (<any>$( this )).contextmenu( { x: clickE.offsetX, y: clickE.offsetY } );
+          } );
+            //layer.enabled = !layer.enabled;
+			//if (this.$layerService.loadedLayers.containsKey(layer.id)) {
+            // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
+            if (layer.group.oneLayerActive && this.$layerService.findLoadedLayer(layer.id)) layer.enabled = false;
+            if (layer.enabled) {
+>>>>>>> layer-sources-renders
                 this.$layerService.addLayer(layer);
             } else {
                 this.$layerService.removeLayer(layer);

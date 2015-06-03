@@ -1,0 +1,27 @@
+{
+  "name": "csDataGatherer",
+  "version": "0.0.1",
+  "homepage": "https://github.com/TNOCS/csWeb",
+  "authors": [
+    "erik <erik.vullings@gmail.com>"
+  ],
+  "description": "Data importer and transformer",
+  "main": "index.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "font-awesome": "~4.3.0",
+    "angular": "~1.4.0",
+    "angular-bootstrap": "~0.13.0",
+    "bootstrap": "~3.3.4",
+    "jquery": "~2.1.4",
+    "pnotify": "~2.0.1",
+    "ng-tags-input": "~2.3.0"
+  }
+}

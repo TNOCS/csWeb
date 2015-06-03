@@ -10,13 +10,20 @@
             FILTERS                 : 'Filters',
             FILTER_INFO             : 'At the moment, no filters have been selected. In order to add a filter, click on an icon or area on the map, and click on the filter icon (<span class="fa fa-filter"></span>) in the right menu. This will create a filter for the selected property.',
             STYLES                  : 'Styles',
-            STYLE_INFO              : 'At the moment, no style has been selected. In order to add a style, click on an icon or area on the map, and click on the style icon (<span class="fa fa-eye"></span>) in the right menu. This will create a filter for the selected property.',
+            STYLE_INFO              : 'At the moment, no style has been selected. In order to add a style, click on an icon or area on the map, and click on the style icon (<span class="smallStyleIcon"></span>) in the right menu. This will create a filter for the selected property.',
             FEATURES                : 'Features',
             LEGEND                  : 'Legend',
             SEARCH                  : 'Search',
             MAP_FEATURES            : 'Map features',
+            NEARBY_FEATURES         : 'Nearby features',
+            SPEEDS_TAOUFIK          : 'speed colors Taoufik',
+            SPEEDS_GOOGLEMAPS       : 'speed colors Google Maps',
+            VERWARMINGSSYSTEEM      : 'Heating system',
+            PERCENTAGES_V1          : 'percentages v1',
+            ORANGE_RED              : 'orange - red',
             WHITE_RED               : 'white - red',
             RED_WHITE               : 'red - white',
+            RED_WHITE_BLUE          : 'red - white - blue',
             GREEN_RED               : 'green - red',
             RED_GREEN               : 'red - green',
             BLUE_RED                : 'blue - red',
@@ -28,14 +35,42 @@
             WHITE_ORANGE            : 'white - orange',
             ORANGE_WHITE            : 'orange - white',
             EXPERTMODE              : {
-                BEGINNER            : 'Beginner',
+                BEGINNER            : 'Novice',
                 INTERMEDIATE        : 'Intermediate',
                 EXPERT              : 'Expert',
+                ADMIN               : 'Admin',
                 EXPLANATION         : 'Select your expertise in order to unlock more functionality.'
             },
             LAYER_SERVICE           : {
                 RELOAD_PROJECT_TITLE: 'Data is reloaded',
                 RELOAD_PROJECT_MSG  : 'After switching the language, we need to reload all the map data. Our appologies for the inconvenience.'
+            },
+            HEATMAP: {
+                DESCRIPTION: '<h4>Heatmap</h4><p  style="text-align: left; margin-left:5px;">Heatmap highlights areas on the map that fulfill multiple selected criteria.',
+                INFO: 'At the moment, no map layers are loaded that contain a heatmap. Open another map layer to use it.',
+                INFO_EXPERT: 'At the moment, no map layers are loaded that contain a heatmap. Open another map layer to use it, or create a new heatmap using the wizard.',
+                SHOW_FEATURE_MSG: 'Select a feature on the map to see the heatmap.',
+                TOTAL_RESULT: 'Combined result',
+                DELETE_MSG: 'Delete "{0}"',
+                DELETE_MSG2: 'Are you sure?',
+                EDITOR_TITLE: 'Heatmap Editor',
+                MAIN_FEATURE: 'Select the main feature',
+                PROPERTIES: 'Select the properties',
+                INTENSITY_SCALE: 'Intensity scale',
+                RESOLUTION: 'Resolution',
+                TITLE: 'Title... *',
+                TITLE_TAG: 'Title',
+                SCALE_MIN_TITLE: '[Min. scale]',
+                SCALE_MAX_TITLE: '[Max. scale]',
+                MIN_MAX_ZOOM: 'Min./Max. zoom',
+                AT_LOCATION_VALUE: '[Weight at location]',
+                DISTANCE_MAX_VALUE: '[Ideal distance]',
+                LOST_INTEREST_VALUE: '[Lost interest distance]',
+                LINEAR_ASC_DESC: 'Linearly increasing, then decreasing function.',
+                ADD_HEATMAP: 'Add a new heatmap.',
+                DELETE_HEATMAP: 'Delete the heatmap.',
+                EDIT_HEATMAP: 'Edit the heatmap.',
+                EXPORT_HEATMAP: 'Export the heatmap.'
             },
             MCA                     : {
                 DESCRIPTION         : '<h4>Multi-Criteria Analysis</h4><p  style="text-align: left; margin-left:5px;">MCA, is a method that combines multiple properties of a feature on the map into a new property. It achieves this by:<ol><li>Scaling each property to a range between 0 (no value) and 1 (maximum value).</li><li>Weighing each property relative to the others, where a weight less than 0 indicates you wish to avoid it, 0 is ignored, and a value greater than 0 is prefered.</li></ol> In fact, it is a kind of linear regression.',
@@ -82,4 +117,4 @@
             SHOW40                  : 'Show 40 items'
         };
     }
-} 
+}
