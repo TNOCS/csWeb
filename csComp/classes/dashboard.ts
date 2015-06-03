@@ -151,7 +151,7 @@ module csComp.Services {
         showMap:             boolean;
         showTimeline:        boolean = true;
         showLeftmenu:        boolean;
-        showRightmenu:       boolean = true;
+        showRightmenu:       boolean = false;
         showBackgroundImage: boolean = false;
         draggable:           boolean = true;
         resizable:           boolean = true;

@@ -167,6 +167,9 @@
         nameLabel?             : string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
         fillColor?             : string;
         strokeColor?           : string;
+        selectedFillColor?     : string;
+        selectedStrokeColor?   : string;
+        selectedStrokeWidth?   : number;    
         height?                : number;
         opacity?               : number;
         fillOpacity?           : number;
@@ -189,6 +192,7 @@
     }
 
     export interface IFeatureType {
+        id? : string;
         name?            : string;
         style?           : IFeatureTypeStyle;
         propertyTypeData?: IPropertyType[];

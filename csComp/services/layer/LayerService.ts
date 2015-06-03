@@ -58,6 +58,8 @@
         layerSources:        { [key: string]: ILayerSource };   // list of available layer sources
         mapRenderers:        { [key: string]: IMapRenderer };   // list of available map renderers
         activeMapRenderer:   IMapRenderer;                 // active map renderer
+        typesResources  : { [key:string] : ITypesResource };
+
         public visual:       VisualState = new VisualState();
 
         static $inject = [
@@ -85,6 +87,7 @@
             this.accentColor = '';
             this.title = '';
             //this.layerGroup       = new L.LayerGroup<L.ILayer>();
+            this.typesResources = {};
             this.featureTypes = {};
             this.propertyTypeData = {};
             //this.map.map.addLayer(this.layerGroup);
@@ -303,11 +306,14 @@
                     callback(null, null);
                 },
                 (callback) => {
+                  this.loadTypeResources(layer, ()=>callback(null,null)  );
+                },
+                (callback) => {
                     // load required feature layers, if applicable
                     this.loadRequiredLayers(layer);
 
                     // load type resources
-                    this.loadTypeResources(layer);
+
 
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
@@ -337,7 +343,7 @@
             ]);
         }
 
-        public loadTypeResources(layer : ProjectLayer)
+        public loadTypeResources(layer : ProjectLayer, callback : Function)
         {
           if (layer.typeUrl != 'undefined')
           {
@@ -345,18 +351,26 @@
               $.getJSON(layer.typeUrl, (resource: TypeResource) => {
                   //var projects = data;
                   this.initTypeResources(resource);
+
+                callback();
             });
+          }
+          else{
+            callback();
           }
         }
       }
 
       public initTypeResources(source : ITypesResource)
       {
+        this.typesResources[source.url] = source;
+        console.log(this.typesResources);
         var featureTypes = source.featureTypes;
         if (featureTypes) {
             for (var typeName in featureTypes) {
                 if (!featureTypes.hasOwnProperty(typeName)) continue;
                 var featureType: IFeatureType = featureTypes[typeName];
+                featureType.id = typeName;
                 this.initFeatureType(featureType);
                 this.featureTypes[typeName] = featureType;
             }
@@ -471,6 +485,15 @@
             });
         }
 
+        public updateFeatureTypes(featureType: IFeatureType) {
+            this.project.features.forEach((f: IFeature) => {
+                if (f.featureTypeName === featureType.id) {
+                    this.calculateFeatureStyle(f);
+                    this.activeMapRenderer.updateFeature(f);
+                }
+            });
+        }
+
         public selectRenderer(renderer: string) {
             if (this.activeMapRenderer && this.activeMapRenderer.title == renderer) return;
 
@@ -518,22 +541,17 @@
 
 
             if (!feature.isSelected) {
-                this.$messageBusService.publish('sidebar', 'hide');
                 this.$messageBusService.publish('feature', 'onFeatureDeselect',feature);
+
+                var rpt = new RightPanelTab();
+                rpt.container = "featureprops";
+                this.$messageBusService.publish("rightpanel","deactivate",rpt);
             } else {
-
-                this.$messageBusService.publish('sidebar', 'show');
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
+
+                var rpt = csComp.Helpers.createRightPanelTab("featureprops", "featureprops", feature, "Selected feature", "info");
+                this.$messageBusService.publish("rightpanel","activate",rpt);
             }
-
-            var rpt = new RightPanelTab();
-            rpt.container = "featureprops";
-            rpt.data = feature;
-            rpt.icon = "info";
-            rpt.title = "Edit Widget";
-            rpt.directive = "featureprops";
-            this.$messageBusService.publish("rightpanel","activate",rpt);
-
 
         }
 
@@ -658,6 +676,7 @@
             s.strokeWidth   = 1;
             s.strokeColor   = 'black';
             s.fillOpacity   = 0.75;
+            s.opacity       = 1;
             s.rotate        = 0;
             //s.strokeColor = 'black';
             //s.iconHeight = 32;
@@ -672,6 +691,9 @@
                 if (ft.style.stroke !== null) s.stroke = ft.style.stroke;
                 if (ft.style.strokeColor !== null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
                 if (ft.style.strokeWidth !== null) s.strokeWidth = ft.style.strokeWidth;
+                if (ft.style.selectedStrokeColor != null) s.selectedStrokeColor = csComp.Helpers.getColorString(ft.style.selectedStrokeColor, '#000');
+                if (ft.style.selectedFillColor != null) s.selectedFillColor = csComp.Helpers.getColorString(ft.style.selectedFillColor);
+                if (ft.style.selectedStrokeWidth != null) s.selectedStrokeWidth = ft.style.selectedStrokeWidth;
                 if (ft.style.iconWidth !== null) s.iconWidth = ft.style.iconWidth;
                 if (ft.style.iconHeight !== null) s.iconHeight = ft.style.iconHeight;
                 if (ft.style.modelUri !== null) s.modelUri = ft.style.modelUri;
@@ -756,8 +778,9 @@
             });
 
             if (feature.isSelected) {
-                s.strokeWidth = 5;
-                s.strokeColor = 'black';
+                s.strokeWidth = s.selectedStrokeWidth || 5;
+                s.strokeColor = s.selectedStrokeColor || 'black';
+                if (s.selectedFillColor) s.fillColor = s.selectedFillColor;
             }
             feature.effectiveStyle = s;
         }
@@ -1156,7 +1179,9 @@
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
-                this.$messageBusService.publish('sidebar', 'hide');
+                var rpt = new RightPanelTab();
+                rpt.container = "featureprops";
+                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
             }
 
@@ -1285,6 +1310,7 @@
             //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
             this.clearLayers();
             this.featureTypes = {};
+            //typesResources
 
             $.getJSON(solutionProject.url, (prj: Project) => {
                 this.project = new Project().deserialize(prj);

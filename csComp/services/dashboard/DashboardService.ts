@@ -75,8 +75,10 @@
                 case "activate":
                   this.activateTab(tab);
                   break;
+                case "deactivate":
+                  this.deactivateTab(tab);
+                  break;
               }
-
             });
 
             //this.widgetTypes["Title"] = new TitleWidget();
@@ -135,6 +137,7 @@
 
         public activateTab(tab : RightPanelTab)
         {
+          if (!tab.hasOwnProperty("container")) return;
           this.$layerService.visual.rightPanelVisible = true;
           var content = tab.container + "-content";
           $("#" + tab.container + "-tab").remove();
@@ -153,25 +156,25 @@
           (<any>$("#rightpanelTabs a[href='#" + content + "']")).tab('show');
         }
 
+        public deactivateTab(tab : RightPanelTab)
+        {
+          this.$layerService.visual.rightPanelVisible = false;
+          if (!tab.hasOwnProperty("container")) return;
+          var content = tab.container + "-content";
+          $("#" + tab.container + "-tab").remove();
+          $("#" + content).remove();
+          this.$rootScope.$apply();
+        }
+
         public editWidget(widget: csComp.Services.IWidget) {
             this.activeWidget = widget;
             this.editWidgetMode = true;
             // $("#widgetEdit").addClass('active');
 
-            this.openRightTab("widget","widgetedit",widget);
-
+            var rpt = csComp.Helpers.createRightPanelTab("widget","widgetedit",widget, "Edit widget");
+            this.$messageBusService.publish("rightpanel","activate",rpt);
 
             //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
-        }
-        
-        public openRightTab(container : string, directive : string,data : any)
-        {
-          var rpt = new RightPanelTab();
-          rpt.container = container;
-          rpt.data = data;
-          //rpt.title = "Edit Widget";
-          rpt.directive = directive;
-          this.$messageBusService.publish("rightpanel","activate",rpt);
         }
 
         public stopEditWidget()

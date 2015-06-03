@@ -42,12 +42,14 @@
 
         public editGroup(group : csComp.Services.ProjectGroup)
         {
-          this.$dashboardService.openRightTab("edit","groupedit",group);
+          var rpt = csComp.Helpers.createRightPanelTab("edit","groupedit",group,"Edit group");
+          this.$messageBusService.publish("rightpanel","activate",rpt);
         }
 
         public editLayer(layer : csComp.Services.ProjectLayer)
         {
-          this.$dashboardService.openRightTab("edit","layeredit",layer);
+          var rpt = csComp.Helpers.createRightPanelTab("edit","layeredit",layer, "Edit layer");
+          this.$messageBusService.publish("rightpanel","activate",rpt);
         }
 
         public openLayerMenu(e)
