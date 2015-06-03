@@ -139,12 +139,10 @@
         "./services/layer/sources/NightDayDataSource.ts",
         "./services/layer/sources/TileLayerSource.ts",
         "./services/layer/sources/WmsSource.ts",
-        "./services/map/MapCtrl.ts",
         "./services/map/MapService.ts",
         "./services/map/renderers/cesiumRenderer.ts",
         "./services/map/renderers/leafletRenderer.ts",
         "./services/search/SearchFormCtrl.ts",
-        "./services/time/TimeService.ts",
         "./translations/locale-en.ts",
         "./translations/locale-nl.ts"
     ]
