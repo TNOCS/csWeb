@@ -3,4 +3,3 @@
 npm update
 cd public
 bower update
-gulp
