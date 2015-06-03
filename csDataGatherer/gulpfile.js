@@ -75,4 +75,6 @@ gulp.task('watch', function() {
     gulp.watch('../csServerComp/ServerComponents/**/*.d.ts', ['built_csServerComp.d.ts']);
 });
 
-gulp.task('default', ['copy_csServerComp', 'built_csServerComp.d.ts', 'copy_csServerComp_scripts', 'watch']);
+gulp.task('all', ['copy_csServerComp', 'built_csServerComp.d.ts', 'copy_csServerComp_scripts']);
+
+gulp.task('default', ['all', 'watch']);
