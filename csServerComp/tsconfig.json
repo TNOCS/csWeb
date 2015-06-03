@@ -12,10 +12,18 @@
     },
     "filesGlob": [
         "./**/*.ts",
-        "!./**/*.d.ts",
+        "!./ServerComponents/**/*.d.ts",
         "!./node_modules/**/*.ts"
     ],
     "files": [
+        "./Scripts/typings/JSONStream/JSONStream.d.ts",
+        "./Scripts/typings/cs/cs-offline-search.d.ts",
+        "./Scripts/typings/express/express.d.ts",
+        "./Scripts/typings/form-data/form-data.d.ts",
+        "./Scripts/typings/jquery/jquery.d.ts",
+        "./Scripts/typings/node/node.d.ts",
+        "./Scripts/typings/request/request.d.ts",
+        "./Scripts/typings/socketio/socket.io.d.ts",
         "./ServerComponents/Layers/flightradar.ts",
         "./ServerComponents/bus/MessageBus.ts",
         "./ServerComponents/configuration/ConfigurationService.ts",
