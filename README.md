@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/TNOCS/csWeb.svg?branch=layer-sources-renders)](https://travis-ci.org/TNOCS/csWeb)
+[![Stories in Ready](https://badge.waffle.io/tnocs/csweb.png?label=ready&title=Ready)](https://waffle.io/tnocs/csweb)
 [![bitHound Score](https://www.bithound.io/github/TNOCS/csWeb/badges/score.svg)](https://www.bithound.io/github/TNOCS/csWeb/layer-sources-renders)
 
 # README #
@@ -30,32 +31,37 @@ As explained, you need to check out two repositories to get up and running. This
 #!dos
 
 BASE_FOLDER
-BASE_FOLDER\apps\csMap (go to repository)
-BASE_FOLDER\csWeb\csComp (this repository)
-BASE_FOLDER\csWeb\csServerComp
+BASE_FOLDER\csWeb (this repository)
 
 ```
-waarbij ik csWeb in c:\dev\web\cs\csWeb\ uitcheck, en csMap in c:\dev\web\cs\apps
-en c:\dev\web\cs\ is natuurlijk vrij te kiezen‏
+
+Under windows you could checkout `csWeb` in `c:\dev\web\cs\csWeb\`. You can choose any folder you like as a `BASE_FOLDER`, in the example above it is `c:\dev\web\cs\`.
+
+
+Under OSX or linux you would do something like this:
+```
+#!/bin/bash
+BASE_FOLDER=~/src/cs
+mkdir $BASE_FOLDER
+cd $BASE_FOLDER
+git clone https://github.com/TNOCS/csWeb
+cd -
+```
 
 #### Getting started ####
-
 1. Create a BASE_FOLDER;
-2. Create BASE_FOLDER\apps
-3. Checkout csMap in this folder
-4. Create BASE_FOLDER\csWeb
-5. Checkout csWeb (this repo) in this folder
+2. Checkout csWeb (this repo) in this folder
 
-In apps\csMap\Website, run update.bat to:
+In apps\csMap\Website, run update.bat (windows) or ./update.sh (OSX/linux) to:
 1. Download npm dependencies
 2. Download bower dependencies
-3. Run gulp to perform background tasks.
+3. Run to perform background tasks.
 
-Open apps\csMap\csMap.sln, rebuild the project (probably twice), and press CTRL-F5 to run node.js and open your browser on the local website. 
+If you want to run updates continuously go to apps\csMap\Website and run `gulp watch`. 
 
 #### Deployment instructions ####
 
-Just copy the apps\csMap\Website\public to a public folder and open the index.html file in that folder.
+Just copy the example folder to a public folder and open the public\index.html file in that folder.
 
 ### Contribution guidelines ###
 

@@ -73,7 +73,7 @@
 
             //$scope.focusDate = $layerService.project.timeLine.focusDate();
 
-            // Options voor de timeline
+            // Options for the timeline
 
             this.$messageBusService.subscribe("language",(s: string, newLanguage: string) => {
                 switch (s) {
