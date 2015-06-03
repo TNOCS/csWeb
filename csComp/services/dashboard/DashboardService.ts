@@ -2,13 +2,12 @@ module csComp.Services {
 
 
     /** Contains properties needed to describe right panel */
-    export class RightPanelTab
-    {
-      public title : string;
-      public container : string;
-      public directive : string;
-      public data : any;
-      public icon : string = "tachometer";
+    export class RightPanelTab {
+        public title: string;
+        public container: string;
+        public directive: string;
+        public data: any;
+        public icon: string = "tachometer";
     }
 
     /** service for managing dashboards */
@@ -22,12 +21,13 @@ module csComp.Services {
         public dashboards: any;
         public widgetTypes: { [key: string]: IWidget };
         public socket;
-        public editWidgetMode : boolean;5    
+        public editWidgetMode: boolean; 5
 
         public static $inject = [
             '$rootScope',
             '$compile',
             '$location',
+            '$timeout',
             '$translate',
             'messageBusService',
             'layerService',
@@ -35,13 +35,14 @@ module csComp.Services {
         ];
 
         constructor(
-            private $rootScope: any,
-            private $compile : any,
-            private $location: ng.ILocationService,
-            private $translate: ng.translate.ITranslateService,
+            private $rootScope:         any,
+            private $compile:           any,
+            private $location:          ng.ILocationService,
+            private $timeout:           ng.ITimeoutService,
+            private $translate:         ng.translate.ITranslateService,
             private $messageBusService: Services.MessageBusService,
-            private $layerService : Services.LayerService,
-            private $mapService: Services.MapService) {
+            private $layerService:      Services.LayerService,
+            private $mapService:        Services.MapService) {
 
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
@@ -52,19 +53,18 @@ module csComp.Services {
             this.dashboards["main"] = this.mainDashboard;
             this.widgetTypes = {};
 
-            this.$messageBusService.subscribe("dashboard",(event: string, id: string) => {
+            this.$messageBusService.subscribe("dashboard", (event: string, id: string) => {
                 alert(event);
             });
-            this.$messageBusService.subscribe("rightpanel",(event : string, tab: RightPanelTab)=>{
-              switch (event)
-              {
-                case "activate":
-                  this.activateTab(tab);
-                  break;
-                case "deactivate":
-                  this.deactivateTab(tab);
-                  break;
-              }
+            this.$messageBusService.subscribe("rightpanel", (event: string, tab: RightPanelTab) => {
+                switch (event) {
+                    case "activate":
+                        this.activateTab(tab);
+                        break;
+                    case "deactivate":
+                        this.deactivateTab(tab);
+                        break;
+                }
             });
 
             //this.widgetTypes["Title"] = new TitleWidget();
@@ -87,7 +87,7 @@ module csComp.Services {
             this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
         }
 
-        public addNewWidget(widget: IWidget, dashboard: Dashboard) : IWidget {
+        public addNewWidget(widget: IWidget, dashboard: Dashboard): IWidget {
             //var loader = new InstanceLoader(window);
             //var w = <IWidget>loader.getInstance(widget.widgetType);
             //w.messageBusService = this.$messageBusService;
@@ -117,39 +117,37 @@ module csComp.Services {
             el.append(newElement);
         }
 
-        public addWidget(widget: IWidget) : IWidget {
+        public addWidget(widget: IWidget): IWidget {
             return this.addNewWidget(widget, this.mainDashboard);
         }
 
-        public activateTab(tab : RightPanelTab)
-        {
-          if (!tab.hasOwnProperty("container")) return;
-          this.$layerService.visual.rightPanelVisible = true;
-          var content = tab.container + "-content";
-          $("#" + tab.container + "-tab").remove();
-          $("#" + content).remove();
-          $("#rightpanelTabs").append("<li id='" + tab.container + "-tab' class='rightPanelTab rightPanelTabAnimated'><a id='" + tab.container + "-tab-a' href='#" + content + "' data-toggle='tab'><span class='fa fa-" + tab.icon + " fa-lg'></span></a></li>");
-          $("#rightpanelTabPanes").append("<div class='tab-pane' style='width:355px' id='" + content + "'></div>");
-          $("#" + tab.container + "-tab-a").click(()=> {
+        public activateTab(tab: RightPanelTab) {
+            if (!tab.hasOwnProperty("container")) return;
             this.$layerService.visual.rightPanelVisible = true;
-            console.log('rp visible');
-            this.$rootScope.$apply();
-          });
-          var newScope =  this.$rootScope;
-          (<any>newScope).data = tab.data;
-          var widgetElement = this.$compile("<" + tab.directive + "></" + tab.directive + ">")(newScope);
-          $("#" + content).append(widgetElement);
-          (<any>$("#rightpanelTabs a[href='#" + content + "']")).tab('show');
+            var content = tab.container + "-content";
+            $("#" + tab.container + "-tab").remove();
+            $("#" + content).remove();
+            $("#rightpanelTabs").append("<li id='" + tab.container + "-tab' class='rightPanelTab rightPanelTabAnimated'><a id='" + tab.container + "-tab-a' href='#" + content + "' data-toggle='tab'><span class='fa fa-" + tab.icon + " fa-lg'></span></a></li>");
+            $("#rightpanelTabPanes").append("<div class='tab-pane' style='width:355px' id='" + content + "'></div>");
+            $("#" + tab.container + "-tab-a").click(() => {
+                this.$layerService.visual.rightPanelVisible = true;
+                console.log('rp visible');
+                this.$rootScope.$apply();
+            });
+            var newScope = this.$rootScope;
+            (<any>newScope).data = tab.data;
+            var widgetElement = this.$compile("<" + tab.directive + "></" + tab.directive + ">")(newScope);
+            $("#" + content).append(widgetElement);
+            (<any>$("#rightpanelTabs a[href='#" + content + "']")).tab('show');
         }
 
-        public deactivateTab(tab : RightPanelTab)
-        {
-          this.$layerService.visual.rightPanelVisible = false;
-          if (!tab.hasOwnProperty("container")) return;
-          var content = tab.container + "-content";
-          $("#" + tab.container + "-tab").remove();
-          $("#" + content).remove();
-          this.$rootScope.$apply();
+        public deactivateTab(tab: RightPanelTab) {
+            this.$layerService.visual.rightPanelVisible = false;
+            if (!tab.hasOwnProperty("container")) return;
+            var content = tab.container + "-content";
+            $("#" + tab.container + "-tab").remove();
+            $("#" + content).remove();
+            this.$timeout(()=> {}, 0);
         }
 
         public editWidget(widget: csComp.Services.IWidget) {
@@ -157,18 +155,17 @@ module csComp.Services {
             this.editWidgetMode = true;
             // $("#widgetEdit").addClass('active');
 
-            var rpt = csComp.Helpers.createRightPanelTab("widget","widgetedit",widget, "Edit widget");
-            this.$messageBusService.publish("rightpanel","activate",rpt);
+            var rpt = csComp.Helpers.createRightPanelTab("widget", "widgetedit", widget, "Edit widget");
+            this.$messageBusService.publish("rightpanel", "activate", rpt);
 
             //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
         }
 
-        public stopEditWidget()
-        {
-          this.activeWidget = null;
-          this.editWidgetMode = false;
-          this.$layerService.visual.rightPanelVisible = false;
-          $("#widgetEdit").removeClass('active');
+        public stopEditWidget() {
+            this.activeWidget = null;
+            this.editWidgetMode = false;
+            this.$layerService.visual.rightPanelVisible = false;
+            $("#widgetEdit").removeClass('active');
         }
 
         public removeWidget() {
