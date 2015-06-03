@@ -35,7 +35,7 @@
             WHITE_ORANGE            : 'white - orange',
             ORANGE_WHITE            : 'orange - white',
             EXPERTMODE              : {
-                BEGINNER            : 'Beginner',
+                BEGINNER            : 'Novice',
                 INTERMEDIATE        : 'Intermediate',
                 EXPERT              : 'Expert',
                 ADMIN               : 'Admin',

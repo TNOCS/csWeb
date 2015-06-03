@@ -25,6 +25,7 @@ example/public/data/projects/test/
 example/public/includes/
 example/ServerComponents/
 
+node_modules/
 example/server.js
 example/layers/*.js
 example/public/app/*.js

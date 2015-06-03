@@ -1,0 +1,11 @@
+{
+  "ignore": [
+    "**/node_modules/**",
+	"csComp/includes/**",
+	"example/public/cs/js/ThirdParty/**",
+	"**/bower_components/**",
+	"**/**?(*).ts",
+	"**/**jquery.?(ui|effects)-*.*.?(*).?(cs|j)s",
+    "**/**jquery-*.*.?(*).?(cs|j)s"
+  ]
+}
