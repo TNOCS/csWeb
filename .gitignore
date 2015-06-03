@@ -17,3 +17,11 @@ csDataGatherer/node_modules/
 csDataGatherer/public/includes/
 csDataGatherer/Scripts/
 csDataGatherer/importers.json
+example/node_modules/
+example/public/bower_components/
+example/public/cs/
+example/public/data/projects/AHTI/
+example/public/data/projects/test/
+example/public/includes/
+example/ServerComponents/
+example/services/
