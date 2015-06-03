@@ -15,10 +15,13 @@
         "!./node_modules/**/*.ts"
     ],
     "files": [
+        "./Scripts/typings/JSONStream/JSONStream.d.ts",
         "./Scripts/typings/cs/cs-offline-search.d.ts",
         "./Scripts/typings/express/express.d.ts",
+        "./Scripts/typings/form-data/form-data.d.ts",
         "./Scripts/typings/jquery/jquery.d.ts",
         "./Scripts/typings/node/node.d.ts",
+        "./Scripts/typings/request/request.d.ts",
         "./Scripts/typings/socketio/socket.io.d.ts",
         "./ServerComponents/Layers/flightradar.d.ts",
         "./ServerComponents/Layers/flightradar.ts",
@@ -33,6 +36,26 @@
         "./ServerComponents/dynamic/Datasource.d.ts",
         "./ServerComponents/dynamic/Datasource.ts",
         "./ServerComponents/dynamic/DynamicProject.d.ts",
-        "./ServerComponents/dynamic/DynamicProject.ts"
+        "./ServerComponents/dynamic/DynamicProject.ts",
+        "./ServerComponents/helpers/Utils.d.ts",
+        "./ServerComponents/helpers/Utils.ts",
+        "./ServerComponents/import/BaseTransformer.d.ts",
+        "./ServerComponents/import/BaseTransformer.ts",
+        "./ServerComponents/import/IImport.d.ts",
+        "./ServerComponents/import/IImport.ts",
+        "./ServerComponents/import/IImporterRepositoryService.d.ts",
+        "./ServerComponents/import/IImporterRepositoryService.ts",
+        "./ServerComponents/import/IStore.d.ts",
+        "./ServerComponents/import/IStore.ts",
+        "./ServerComponents/import/ITransform.d.ts",
+        "./ServerComponents/import/ITransform.ts",
+        "./ServerComponents/import/Importer.ts",
+        "./ServerComponents/import/ImporterRepositoryService.d.ts",
+        "./ServerComponents/import/ImporterRepositoryService.ts",
+        "./ServerComponents/import/RepeatEnum.d.ts",
+        "./ServerComponents/import/RepeatEnum.ts",
+        "./ServerComponents/import/Store.d.ts",
+        "./ServerComponents/import/Store.ts",
+        "./ServerComponents/import/importer.d.ts"
     ]
 }
