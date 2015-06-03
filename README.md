@@ -12,8 +12,6 @@ This repository consists of two projects, csComp, a library containing client si
 
 #### Development environment ####
 
-This project was creating in **Visual Studio 2013**, update 3, using the **Web Extension** and **nodejstools.codeplex.com** extensions, among others. Although we use VS, this shouldn't keep you from developing in another environment. We have also tested this setup with **atom.io** using the **atom-typescript** package. Actually, the use of atom is probably advisable over using VS.
-
 We further use **node.js** or IIS to run our web application, although currently it suffices to copy everything to a public folder on the web to get up running.
 
 Finally, we rely on the Node Package Manager (part of node.js), **npm**, to install our server and development packages, **bower** (npm install -g bower), and **gulp.js** as our task runner. 
