@@ -1,8 +1,6 @@
 // Configure gulp scripts
-
 // Output application name
 var appName = 'csWebApp';
-// 
 var path2csWeb = '../';
 
 var gulp = require('gulp'),
