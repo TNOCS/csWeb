@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/TNOCS/csWeb.svg?branch=layer-sources-renders)](https://travis-ci.org/TNOCS/csWeb)
+[![bitHound Score](https://www.bithound.io/github/TNOCS/csWeb/badges/score.svg)](https://www.bithound.io/github/TNOCS/csWeb/layer-sources-renders)
 
 # README #
 
