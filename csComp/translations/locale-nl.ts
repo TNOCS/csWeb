@@ -35,7 +35,7 @@
             WHITE_ORANGE            : 'wit - oranje',
             ORANGE_WHITE            : 'oranje - wit',
             EXPERTMODE              : {
-                BEGINNER            : 'Novice',
+                BEGINNER            : 'Beginner',
                 INTERMEDIATE        : 'Gevorderd',
                 EXPERT              : 'Expert',
                 ADMIN               : 'Admin',

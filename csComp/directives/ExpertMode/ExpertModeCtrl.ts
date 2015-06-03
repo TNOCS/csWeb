@@ -2,7 +2,7 @@
     import Expertise = csComp.Services.Expertise;
 
     export interface IExpertModeScope extends ng.IScope {
-        vm        : ExpertModeCtrl;
+        vm: ExpertModeCtrl;
         expertMode: Expertise;
     }
 
@@ -16,21 +16,21 @@
         ];
 
         constructor(
-            private $scope              : IExpertModeScope,
+            private $scope: IExpertModeScope,
             private $localStorageService: ng.localStorage.ILocalStorageService,
-            private $layerService       : csComp.Services.LayerService,
-            private $mapService         : csComp.Services.MapService,
-            private $messageBus         : csComp.Services.MessageBusService
+            private $layerService: csComp.Services.LayerService,
+            private $mapService: csComp.Services.MapService,
+            private $messageBus: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
             $scope.expertMode = $mapService.expertMode;
 
-            $messageBus.subscribe('expertMode',(title: string, mode: Expertise) => {
+            $messageBus.subscribe('expertMode', (title: string, mode: Expertise) => {
                 if (title !== 'newExpertise') return;
                 $scope.expertMode = mode;
             });
 
-            $scope.$watch('expertMode',() => {
+            $scope.$watch('expertMode', () => {
                 this.setExpertMode($scope.expertMode);
             });
         }
@@ -47,6 +47,9 @@
                     return 'intermediateUserIcon';
                     break;
                 case Expertise.Expert:
+                    return 'expertUserIcon';
+                    break;
+                case Expertise.Admin:
                     return 'expertUserIcon';
                     break;
             }
