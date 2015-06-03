@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/TNOCS/csWeb.svg?branch=layer-sources-renders)](https://travis-ci.org/TNOCS/csWeb)
+
 # README #
 
 ### What is this repository for? ###
