@@ -1,9 +1,7 @@
 ﻿module csComp.Services {
     'use strict';
 
-    declare var jsonld;
-    declare var omnivore;
-
+    /** describes a layer source, every layer has a layer source that is responsible for importing the data (e.g. geojson, wms, etc */
     export interface ILayerSource {
         title: string;
         service: ILayerService;
@@ -28,12 +26,13 @@
         activeMapRenderer: IMapRenderer;                    // active map renderer
         mb: Services.MessageBusService;
         map: Services.MapService;
-        layerGroup: L.LayerGroup<L.ILayer>;
+        //layerGroup: L.LayerGroup<L.ILayer>;
         featureTypes: { [key: string]: Services.IFeatureType; };
         propertyTypeData: { [key: string]: Services.IPropertyType; };
         timeline: any;
     }
 
+    /** layer service is responsible for reading and managing all project, layer and sensor related data */
     export class LayerService implements ILayerService {
         maxBounds:           IBoundingBox;
         title:               string;
@@ -46,18 +45,20 @@
         projectUrl:          SolutionProject; // URL of the current project
         solution:            Solution;
         dimension:           any;
-        noFilters:           boolean;
-        noStyles:            boolean;
         lastSelectedFeature: IFeature;
         selectedLayerId:     string;
         timeline:            any;
+
         currentLocale:       string;
+        /** layers that are currently active */
         loadedLayers       = new csComp.Helpers.Dictionary<ProjectLayer>();
-        layerGroup         = new L.LayerGroup<L.ILayer>();
-        info               = new L.Control();
-        layerSources:        { [key: string]: ILayerSource };   // list of available layer sources
-        mapRenderers:        { [key: string]: IMapRenderer };   // list of available map renderers
+        /** list of available layer sources */
+        layerSources:        { [key: string]: ILayerSource };
+        /** list of available map renderers */
+        mapRenderers:        { [key: string]: IMapRenderer };
+        /** map render currently in use */
         activeMapRenderer:   IMapRenderer;                 // active map renderer
+        /** list of all loaded types resources */
         typesResources  : { [key:string] : ITypesResource };
 
         public visual:       VisualState = new VisualState();
@@ -91,7 +92,7 @@
             this.featureTypes = {};
             this.propertyTypeData = {};
             //this.map.map.addLayer(this.layerGroup);
-            this.noStyles = true;
+            //this.noStyles = true;
             this.currentLocale = $translate.preferredLanguage();
             // init map renderers
             this.mapRenderers = {};
@@ -185,6 +186,7 @@
         {
           if (!feature  || !feature.fType) return;
           var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
+
           props.forEach((prop : IPropertyType)=>{
             if (prop.type === "layer" && feature.properties.hasOwnProperty(prop.label))
             {
@@ -343,15 +345,17 @@
             ]);
         }
 
-        public loadTypeResources(layer : ProjectLayer, callback : Function)
+        /** load external type resource for a project or layer */
+        public loadTypeResources(layer : any, callback : Function)
         {
           if (layer.typeUrl != 'undefined')
           {
+            // todo check for list of type resources
             if(typeof layer.typeUrl === 'string') {
               $.getJSON(layer.typeUrl, (resource: TypeResource) => {
                   //var projects = data;
+                  if (!resource.url) resource.url = layer.typeUrl;
                   this.initTypeResources(resource);
-
                 callback();
             });
           }
@@ -361,10 +365,10 @@
         }
       }
 
+      /** add a types resource (project, resource file or layer) */
       public initTypeResources(source : ITypesResource)
       {
         this.typesResources[source.url] = source;
-        console.log(this.typesResources);
         var featureTypes = source.featureTypes;
         if (featureTypes) {
             for (var typeName in featureTypes) {
@@ -415,7 +419,6 @@
                     }
                 });
 
-                this.noStyles = false;   // TODO: when does this need to be reset?
                 // upon deactivation of the layer? (but other layers can also have active styles)
                 this.mb.publish('updatelegend', 'title', property);
             }
@@ -505,23 +508,6 @@
             }
         }
 
-        public getPropertyTypes(fType : IFeatureType) : IPropertyType[]
-        {
-          var result : IPropertyType[] = [];
-          if (fType)
-          {
-            fType.propertyTypeKeys.split(';').forEach((key)=>
-            {
-              if (this.propertyTypeData.hasOwnProperty(key))
-              {
-                var prop = this.propertyTypeData[key];
-                result.push(prop);
-              }
-            });
-          }
-          return result;
-
-        }
 
         public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
@@ -548,13 +534,12 @@
                 this.$messageBusService.publish("rightpanel","deactivate",rpt);
             } else {
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
-
                 var rpt = csComp.Helpers.createRightPanelTab("featureprops", "featureprops", feature, "Selected feature", "info");
                 this.$messageBusService.publish("rightpanel","activate",rpt);
             }
-
         }
 
+        /** update for all features the active sensor data values and update styles */
         public updateSensorData() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
 
@@ -649,6 +634,10 @@
                 // resolve feature type
                 feature.fType = this.getFeatureType(feature);
                 this.initFeatureType(feature.fType);
+
+                // add missing properties
+                if (feature.fType.showAllProperties) csComp.Helpers.addPropertyTypes(feature,feature.fType);
+
                 // Do we have a name?
                 if (!feature.properties.hasOwnProperty('Name'))
                     Helpers.setFeatureName(feature);
@@ -658,6 +647,7 @@
             return feature.type;
         }
 
+        /** remove feature */
         public removeFeature(feature: IFeature) {
             this.project.features = this.project.features.filter((f: IFeature) => { return f != feature; });
             feature.layer.group.ndx.remove([feature]);
@@ -707,43 +697,6 @@
                 }
             }
 
-            // feature.layer.group.styles.forEach((gs: GroupStyle) => {
-            //     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
-            //         if (gs.activeLegend) {
-            //             if ((gs.activeLegend.legendKind == 'discrete') ||
-            //                 (gs.activeLegend.legendKind == 'interpolated')) {
-            //
-            //                 var v = Number(feature.properties[gs.property]);
-            //                 if (!isNaN(v)) {
-            //                     switch (gs.visualAspect) {
-            //                         case 'strokeColor':
-            //                             s.strokeColor = csComp.Helpers.getColor(v, gs);
-            //                             break;
-            //                         case 'fillColor':
-            //                             s.fillColor = csComp.Helpers.getColor(v, gs);
-            //                             break;
-            //                         case 'strokeWidth':
-            //                             s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
-            //                             break;
-            //                     }
-            //                 }
-            //             } // discrete or interpolated
-            //             if (gs.activeLegend.legendKind == 'discretestrings') {
-            //                 var ss = feature.properties[gs.property];
-            //                 switch (gs.visualAspect) {
-            //                     case 'strokeColor':
-            //                         s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-            //                         break;
-            //                     case 'fillColor':
-            //                         s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-            //                         break;
-            //                 }
-            //             } // discrete strings
-            //         } // activelegend
-            //     }
-            // });
-
-            //var layer = this.findLayer(feature.layerId);
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     var v = Number(feature.properties[gs.property]);
@@ -910,35 +863,16 @@
             var f: IFeature = property.feature;
             if (f != null) {
                 var ft = this.getFeatureType(f);
-                this.noStyles = false;
+
                 // for debugging: what do these properties contain?
                 var layer = f.layer;
                 var lg = layer.group;
 
                 var gs = new GroupStyle(this.$translate);
-                // add the legends and colorscales from any existing group style
-                // if (lg.styles && (lg.styles.length > 0)) {
-                //     var gs0 = lg.styles[0];
-                //     gs0.title = property.key;
-                //     var legend: Legend;
-                //     var legendKey: string;
-                //     for (legendKey in gs0.legends) {
-                //         legend = gs0.legends[legendKey];
-                //         gs.legends[legendKey] = legend;
-                //         if ((legend.legendEntries) && (legend.legendEntries.length > 0)) {
-                //             var e1: LegendEntry = legend.legendEntries[0];
-                //             var e2: LegendEntry = legend.legendEntries[legend.legendEntries.length - 1];
-                //             gs.colorScales[legendKey] = [e1.color, e2.color]
-                //         } else {
-                //             gs.colorScales[legendKey] = ['red', 'red'];
-                //         }
-                //     }
-                // }
-
                 gs.id = Helpers.getGuid();
                 gs.title = property.key;
                 gs.meta = property.meta;
-                gs.visualAspect = (ft.style && ft.style.drawingMode && ft.style.drawingMode.toLowerCase() == 'polyline') ? 'strokeColor' : 'fillColor';
+                gs.visualAspect = (ft.style && ft.style.drawingMode && ft.style.drawingMode.toLowerCase() == 'line') ? 'strokeColor' : 'fillColor';
                 gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
 
                 gs.property = property.property;
@@ -1017,6 +951,7 @@
             filter.group = group;
             group.filters.push(filter);
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+            this.mb.publish("filters","updated");
         }
 
         /**
@@ -1082,6 +1017,17 @@
                 }
                 (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
             }
+            this.mb.publish("filters","updated");
+        }
+
+        /** remove filter from group */
+        public removeFilter(filter : GroupFilter)
+        {
+          // dispose crossfilter dimension
+          filter.dimension.dispose();
+          filter.group.filters = filter.group.filters.filter(f=>{return f!=filter;});
+          this.resetMapFilter(filter.group);
+          this.mb.publish("filters","updated");
         }
 
         /**
@@ -1096,42 +1042,13 @@
                 if (this.featureTypes.hasOwnProperty(projectFeatureTypeName))
                     featureTypeName = projectFeatureTypeName;
                 else
-                    this.featureTypes[featureTypeName] = this.createDefaultType(feature);
+                    this.featureTypes[featureTypeName] = csComp.Helpers.createDefaultType(feature);
             }
             feature.featureTypeName = featureTypeName;
             return this.featureTypes[featureTypeName];
         }
 
-        /**
-         * In case we are dealing with a regular JSON file without type information, create a default type.
-         */
-        private createDefaultType(feature: IFeature): IFeatureType {
-            var type: IFeatureType = {};
-            type.style = { nameLabel: 'Name' };
-            type.propertyTypeData = [];
 
-            for (var key in feature.properties) {
-                if (!feature.properties.hasOwnProperty(key)) continue;
-                var propertyType: IPropertyType = [];
-                propertyType.label = key;
-                propertyType.title = key.replace('_', ' ');
-                propertyType.isSearchable = true;
-                propertyType.visibleInCallOut = true;
-                propertyType.canEdit = false;
-                var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
-                if (StringExt.isNumber(value))
-                    propertyType.type = 'number';
-                else if (StringExt.isBoolean(value))
-                    propertyType.type = 'boolean';
-                else if (StringExt.isBbcode(value))
-                    propertyType.type = 'bbcode';
-                else
-                    propertyType.type = 'text';
-
-                type.propertyTypeData.push(propertyType);
-            }
-            return type;
-        }
 
         resetFilters() {
             dc.filterAll();
@@ -1326,10 +1243,8 @@
                 if (this.project.viewBounds) {
                     this.activeMapRenderer.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
                 }
-
+                                
                 this.initTypeResources(this.project);
-
-
 
                 if (!this.project.dashboards) {
                     this.project.dashboards = [];

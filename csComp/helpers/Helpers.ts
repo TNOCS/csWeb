@@ -94,7 +94,7 @@
             var keys = type.propertyTypeKeys.split(';');
             keys.forEach((key) => {
                 // First, lookup key in global propertyTypeData
-                if (propertyTypeData.hasOwnProperty(key)) propertyTypes.push(propertyTypeData[key]);
+                if (propertyTypeData && propertyTypeData.hasOwnProperty(key)) propertyTypes.push(propertyTypeData[key]);
                 // If you cannot find it there, look it up in the featureType's propertyTypeData.
                 else if (type.propertyTypeData != null) {
                     var result = $.grep(type.propertyTypeData, e => e.label === key);
@@ -108,6 +108,51 @@
             });
         }
         return propertyTypes;
+    }
+
+    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType : csComp.Services.IFeatureType) : csComp.Services.IFeatureType
+    {
+      var type = featureType;
+      if (!type.propertyTypeData) type.propertyTypeData = [];
+
+      for (var key in feature.properties) {
+        if (!type.propertyTypeData.some((pt : csComp.Services.IPropertyType)=>{return pt.label === key;}))
+        {
+          if (!feature.properties.hasOwnProperty(key)) continue;
+          var propertyType: csComp.Services.IPropertyType = [];
+          propertyType.label = key;
+          propertyType.title = key.replace('_', ' ');
+          propertyType.isSearchable = true;
+          propertyType.visibleInCallOut = true;
+          propertyType.canEdit = false;
+          var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+          if (StringExt.isNumber(value))
+              propertyType.type = 'number';
+          else if (StringExt.isBoolean(value))
+              propertyType.type = 'boolean';
+          else if (StringExt.isBbcode(value))
+              propertyType.type = 'bbcode';
+          else
+              propertyType.type = 'text';
+
+          type.propertyTypeData.push(propertyType);
+        }
+      }
+
+      return type;
+    }
+
+    /**
+     * In case we are dealing with a regular JSON file without type information, create a default type.
+     */
+    export function createDefaultType(feature: csComp.Services.IFeature): csComp.Services.IFeatureType {
+        var type: csComp.Services.IFeatureType = {};
+        type.style = { nameLabel: 'Name' };
+        type.propertyTypeData = [];
+
+        this.addPropertyTypes(feature,type);
+
+        return type;
     }
 
     /**

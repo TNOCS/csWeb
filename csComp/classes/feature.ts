@@ -196,6 +196,7 @@
         name?            : string;
         style?           : IFeatureTypeStyle;
         propertyTypeData?: IPropertyType[];
+        showAllProperties? : boolean;
         /**
          * Optional list of propertyType keys, separated by semi-colons.
          * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.

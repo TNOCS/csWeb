@@ -227,13 +227,9 @@ module Filters {
 
         public remove()
         {
-
           if (this.$scope.filter)
           {
-            this.$scope.filter.dimension.dispose();
-            this.$scope.filter.group.filters = this.$scope.filter.group.filters.filter(f=>{return f!=this.$scope.filter;});
-            //this.$layerService.updateMapFilter(this.$scope.filter.group);
-            this.$layerService.resetMapFilter(this.$scope.filter.group);
+            this.$layerService.removeFilter(this.$scope.filter);
           }
         }
 
