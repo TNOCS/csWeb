@@ -1,18 +1,7 @@
-﻿module csComp.Services {
+module csComp.Services {
 
-    class InstanceLoader {
-        constructor(private context: Object) {}
 
-        getInstance(name: string, ...args: any[]) {
-            var instance = Object.create(this.context["csComp"]["Services"][name].prototype);
-            instance.constructor.apply(instance, args);
-            return instance;
-        }
-    }
-
-    declare var JSON;
-    declare var io;
-
+    /** Contains properties needed to describe right panel */
     export class RightPanelTab
     {
       public title : string;
@@ -22,6 +11,7 @@
       public icon : string = "tachometer";
     }
 
+    /** service for managing dashboards */
     export class DashboardService {
         public maxBounds: IBoundingBox;
         public featureDashboard: csComp.Services.Dashboard;
@@ -32,11 +22,7 @@
         public dashboards: any;
         public widgetTypes: { [key: string]: IWidget };
         public socket;
-        public editWidgetMode : boolean;
-
-        public init() {
-            //alert('init');
-        }
+        public editWidgetMode : boolean;5    
 
         public static $inject = [
             '$rootScope',
