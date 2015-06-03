@@ -127,23 +127,14 @@
         "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
         "preview": "http://a.basemaps.cartocdn.com/light_nolabels/11/673/1051.png"
     }],
-    "projects": [
-      {
-              "title": "csMap",
-              "url": "data/projects/20141104_csMap/project.json"
-          },
-      {
-          "title": "Highways",
-          "url": "data/projects/20141104_csMap/projectHighway.json"
-      },
- {
-        "title": "smart cycling",
-        "url": "data/projects/smartcycling/project.json"
-    }, {
-        "title": "Dynamic Example",
-        "url": "data/projects/DynamicExample/project.json",
-        "dynamic": true
-    }
+    "projects": [{
+            "title": "csWeb Showcases",
+            "url": "data/projects/20141104_csMap/project.json"
+        }, {
+            "title": "Dynamic Example",
+            "url": "data/projects/DynamicExample/project.json",
+            "dynamic": true
+        }
 
     ]
 }

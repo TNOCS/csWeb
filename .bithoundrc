@@ -4,6 +4,7 @@
 	"csComp/includes/**",
 	"csComp/Scripts/typings/**",
 	"example/public/cs/js/ThirdParty/**",
+    "csComp/includes/js/**",
 	"**/bower_components/**",
 	"**/**?(*).ts",
 	"**/**jquery.?(ui|effects)-*.*.?(*).?(cs|j)s",

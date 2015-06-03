@@ -1,5 +1,5 @@
 {
-  "title": "csMap",
+  "title": "csWeb Showcases",
   "description": "csMap is developed by the Dutch Research Organisation TNO, in first instance for the Dutch Ministry of Health (VWS).",
   "url": "https://github.com/TNOCS/csMap",
   "logo": "images/CommonSenseRound.png",
@@ -185,6 +185,7 @@
     "layers": [{
       "id": "FlightRadar",
       "type": "dynamicgeojson",
+      "typeUrl": "data/projects/resources/resources.json",
       "url": "/fr"
     }]
   }, {
@@ -253,7 +254,7 @@
       "url": "data/projects/20141104_csMap/aanrijtijden.json",
       "typeUrl": "data/projects/resources/resources.json",
       "enabled": false,
-      "opacity": 100      
+      "opacity": 100
     }]
   }, {
     "title": "WMS",
