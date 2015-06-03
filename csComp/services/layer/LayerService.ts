@@ -352,12 +352,14 @@
           {
             // todo check for list of type resources
             if(typeof layer.typeUrl === 'string') {
-              $.getJSON(layer.typeUrl, (resource: TypeResource) => {
-                  //var projects = data;
-                  if (!resource.url) resource.url = layer.typeUrl;
+              if (!this.typesResources.hasOwnProperty(layer.typeUrl))
+              {
+              $.getJSON(layer.typeUrl, (resource: TypeResource) => {                                    
+                  resource.url = layer.typeUrl;
                   this.initTypeResources(resource);
                 callback();
             });
+          }else { callback();}
           }
           else{
             callback();
@@ -1243,7 +1245,7 @@
                 if (this.project.viewBounds) {
                     this.activeMapRenderer.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
                 }
-                                
+
                 this.initTypeResources(this.project);
 
                 if (!this.project.dashboards) {
