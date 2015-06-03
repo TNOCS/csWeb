@@ -13,6 +13,7 @@ var gulp = require('gulp'),
     concat = require('gulp-concat'),
     plumber = require('gulp-plumber'),
     watch = require('gulp-watch'),
+    exec = require('child_process').exec,
     templateCache = require('gulp-angular-templatecache');
 
 gulp.task('built_csComp', function() {
@@ -27,6 +28,12 @@ gulp.task('built_csComp', function() {
         // .pipe(debug({title: 'after ordering:'}))
         .pipe(concat('csComp.js'))
         .pipe(gulp.dest('./public/cs/js'));
+});
+
+gulp.task('test', function() {
+
+    exec('cd ../csComp && tsc');
+    return exec('cd ../test/csComp && karma');
 });
 
 gulp.task('copy_csServerComp', function() {
