@@ -25,3 +25,8 @@ example/public/data/projects/test/
 example/public/includes/
 example/ServerComponents/
 
+example/server.js
+example/layers/*.js
+example/public/app/*.js
+example/Scripts/typings/cs/csComp.d.ts
+example/services/**/*.js
