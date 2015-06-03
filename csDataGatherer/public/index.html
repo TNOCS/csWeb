@@ -111,6 +111,7 @@
                     <div id="name-group" class="form-group">
                         <label>Title</label>
                         <input type="text" ng-required name="title" class="form-control" placeholder="title" ng-model="vm.activeImporter.title">
+                        <span style="color:red" ng-show="importerInputForm.title.$error.required">You can't leave this field empty</span>
                         <span class="help-block"></span>
                     </div>
 
@@ -125,6 +126,8 @@
                     <div id="sourceUrl-group" class="form-group">
                         <label>Source URL</label>
                         <input type="url" ng-required name="sourceUrl" class="form-control" placeholder="http://source.url" ng-model="vm.activeImporter.sourceUrl">
+                        <span style="color:red" ng-show="importerInputForm.sourceUrl.$error.required">You can't leave this field empty</span>
+                        <span style="color:red" ng-show="importerInputForm.sourceUrl.$error.url">Sorry Not a Valid URL, Don't Forget to Use http://</span>                
                         <span class="help-block"></span>
                     </div>
 
