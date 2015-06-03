@@ -1,0 +1,264 @@
+@font-face {
+    font-family: "ROSans";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../includes/ROsanswebtextregular.ttf") format("opentype");
+}
+@media (min-width: 1600px) {
+  .container {
+    width: 1570px;
+  }
+}
+@media (min-width: 1900px) {
+  .container {
+    width: 1870px;
+  }
+}
+html, body, #map {
+    font-family: ROSans;
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+    background: beige;
+}
+html, body, #container {
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+}
+body {
+    padding-top: 50px;
+}
+.technology-list-container{
+  background:grey;
+  height:100px;
+}
+.ts {
+    margin: 0;
+    padding: 0;
+    width:50000px;
+
+    list-style-type: none;
+    position: absolute;
+    -webkit-transform-style: preserve-3d;
+    -ms-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+.ts li {
+    float: left;
+    width:200px;
+}
+.ts-item
+{
+  background: white;
+  margin-left:10px;
+  margin-right:5px;
+  margin-top:10px;
+  height:75px;
+  opacity:0.5;
+}
+.list-id
+{
+  float:left;
+  font-size:30px;
+  background:black;
+  color:white;
+  padding-right:5px;
+}
+.list-title
+{
+  font-size:16px;
+  margin-left:25px;
+  margin-top:10px;
+  font-weight:500;
+}
+.item-container{
+  fill-opacity:0.85;
+}
+.item-container:hover{
+  fill:"red";
+}
+.item-container-drop-shadow
+{
+  filter: blur(1px);
+}
+.item-id{
+  font-size:14px;
+  font-weight:800;
+}
+.starter-template {
+    background: lightgray;
+    padding: 20px 15px;
+    text-align: center;
+}
+.shortTitle {
+    cursor: pointer;
+    fill: black;
+    font-weight:900;
+    font-size: 12px;
+    letter-spacing: -1px;
+}
+.shortTitle:hover {
+    font-weight: 900;
+    fill: black;
+    font-size: 10px;
+    z-index: 100;
+}
+.period  {
+    fill: white;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.category {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.category:hover {
+    cursor: pointer;
+    background: white;
+    fill: yellow;
+    font-size: 1.5em;
+}
+.period:hover {
+    cursor: pointer;
+    fill: yellow;
+    /*fill: #187aac;*/
+    font-size: 1.5em;
+}
+.backarrow {
+    cursor: pointer;
+    font-size: 5em;
+    fill: black;
+}
+.backarrow:hover {
+    fill: #3182bd;
+    font-size: 6em;
+}
+.new {
+    fill: red;
+}
+.thumbnail:hover {
+    fill: yellow;
+}
+
+/* Start slide style */
+.slide-title {
+    font-size: 40px;
+    position: absolute;
+    left: 80px;
+    top: 10px;
+    fill: black;
+    background-color: black;
+    color: white;
+    padding: 3px;
+    min-width: 0;
+    font-weight: 700;
+}
+
+.slide-subtitle {
+    font-size: 25px;
+    position: absolute;
+    left: 80px;
+    top: 75px;
+    fill: black;
+    background-color: black;
+    color: white;
+    padding: 3px;
+}
+
+.content-list {
+    list-style: none;
+    position: absolute;
+    left: -90px;
+    top: 10px;
+}
+
+.content-preview {
+    background: white;
+    cursor: pointer;
+    width: 100px;
+    height: 100px;
+    border-color: gray;
+    border-width: 3px;
+    border-style: solid;
+    margin-bottom: 20px;
+    position: relative;
+    opacity: 0.75;
+}
+
+.selected-content {
+    opacity: 1;
+    border-width: 3px;
+    border-color: black;
+    opacity: 1;
+}
+
+.image-preview {
+    width: 100%;
+    height: 100%;
+    opacity: 0.5;
+}
+
+.selected-image {
+    opacity: 1;
+}
+
+.active-content {
+    width: 100% !important;
+    height: auto !important;
+    position: absolute;
+    margin: 0;
+}
+
+.active-text {
+    margin-left: 80px;
+    font-size: 30px;
+    color: black;
+    margin-top: 120px;
+    font-weight: 500;
+    position: absolute;
+}
+
+.active-image {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: auto;
+    position: absolute;
+}
+
+.preview-icon {
+    color: black;
+    position: absolute;
+    top: 20px;
+    font-size: 40px;
+    right: 33px;
+    top: 30px;
+}
+
+/* End slide style */
+.focus-opacity
+{
+  opacity:1;
+}
+
+/*.col-md-6:not(:first-child,:last-child) {
+    padding-left:25px;
+    padding-right:35px;
+}*/
+
+/* Validation classes */
+input.ng-pristine {
+    border: solid black 1px;
+}
+input.ng-dirty {
+    border: solid black 3px;
+}
+input.ng-valid.ng-dirty {
+    border: solid green 3px;
+}
+input.ng-invalid.ng-dirty {
+    border: solid red 3px;
+}

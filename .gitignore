@@ -14,3 +14,6 @@ csServerComp/node_modules/
 csServerComp/ServerComponents/**/*.d.ts
 csServerComp/ServerComponents/**/*.js
 csDataGatherer/node_modules/
+csDataGatherer/public/includes/
+csDataGatherer/Scripts/
+csDataGatherer/importers.json
