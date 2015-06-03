@@ -13,3 +13,4 @@ csComp/node_modules/
 csServerComp/node_modules/
 csServerComp/ServerComponents/**/*.d.ts
 csServerComp/ServerComponents/**/*.js
+csDataGatherer/node_modules/
