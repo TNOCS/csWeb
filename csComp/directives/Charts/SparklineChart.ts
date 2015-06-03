@@ -1,4 +1,4 @@
-﻿module Charts {
+module Charts {
     'use strict'
     /**
       * Config
