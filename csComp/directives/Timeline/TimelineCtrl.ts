@@ -1,4 +1,4 @@
-﻿module Timeline {
+module Timeline {
     declare var links;
 
     export interface ITimelineScope extends ng.IScope {
@@ -64,11 +64,6 @@
                         this.updateFocusTime();
                         break;
                 }
-<<<<<<< HEAD
-                //if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest') { $scope.$apply(); }
-=======
-                if ($scope.$$phase != '$apply' && $scope.$$phase != '$digest') { $scope.$apply(); }
->>>>>>> layer-sources-renders
             });
 
             //$scope.focusDate = $layerService.project.timeLine.focusDate();
@@ -224,13 +219,8 @@
             //this.$layerService.focusTime = new Date(this.timelineCtrl.screenToTime(centerX));
         }
 
-<<<<<<< HEAD
-        /** 
-        * Load the locales: instead of loading them from the original timeline-locales.js distribution, 
-=======
         /**
         * Load the locales: instead of loading them from the original timeline-locales.js distribution,
->>>>>>> layer-sources-renders
         * add them here so you don't need to add another js dependency.
         * @seealso: http://almende.github.io/chap-links-library/downloads.html
         */

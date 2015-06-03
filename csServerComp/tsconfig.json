@@ -12,6 +12,7 @@
     },
     "filesGlob": [
         "./**/*.ts",
+        "!./OfflineSearch/**/*.ts",
         "!./ServerComponents/**/*.d.ts",
         "!./node_modules/**/*.ts"
     ],

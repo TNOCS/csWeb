@@ -78,7 +78,7 @@ class ImporterRepositoryService implements IImporterRepositoryService {
         /**
          * Delete
          */
-        server.del(this.baseUrl + '/:id', (req, res) => {
+        server.delete(this.baseUrl + '/:id', (req, res) => {
             var id = req.params.id;
             res.send(this.delete(id));
         });

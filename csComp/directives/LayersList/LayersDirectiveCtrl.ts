@@ -1,4 +1,4 @@
-﻿module LayersDirective {
+module LayersDirective {
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
         options : Function;
@@ -60,14 +60,6 @@
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
-<<<<<<< HEAD
-            //Uncommented after updating the bower packages: the behaviour changed between angular versions.
-            // layer.enabled = !layer.enabled;
-            // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
-            //if (layer.group.oneLayerActive && this.$layerService.findLayer(layer.id)) layer.enabled = false;
-            
-            if (layer.enabled) {    
-=======
           $(".left-menu" ).on( "click", function( clickE ) {
             //alert('context menu');
             (<any>$( this )).contextmenu( { x: clickE.offsetX, y: clickE.offsetY } );
@@ -77,7 +69,6 @@
             // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
             if (layer.group.oneLayerActive && this.$layerService.findLoadedLayer(layer.id)) layer.enabled = false;
             if (layer.enabled) {
->>>>>>> layer-sources-renders
                 this.$layerService.addLayer(layer);
             } else {
                 this.$layerService.removeLayer(layer);

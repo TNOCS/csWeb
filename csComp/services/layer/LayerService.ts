@@ -1,4 +1,4 @@
-﻿module csComp.Services {
+module csComp.Services {
     'use strict';
 
     /** describes a layer source, every layer has a layer source that is responsible for importing the data (e.g. geojson, wms, etc */
@@ -354,7 +354,7 @@
             if(typeof layer.typeUrl === 'string') {
               if (!this.typesResources.hasOwnProperty(layer.typeUrl))
               {
-              $.getJSON(layer.typeUrl, (resource: TypeResource) => {                                    
+              $.getJSON(layer.typeUrl, (resource: TypeResource) => {
                   resource.url = layer.typeUrl;
                   this.initTypeResources(resource);
                 callback();
