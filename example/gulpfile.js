@@ -173,4 +173,6 @@ gulp.task('watch', function() {
     gulp.watch(path2csWeb + 'csComp/includes/images/*.*', ['include_images']);
 });
 
-gulp.task('default', ['create_templateCache', 'copy_csServerComp','built_csServerComp.d.ts','copy_csServerComp_scripts','built_csComp','built_csComp.d.ts', 'include_css', 'include_js', 'include_images', 'watch']);
+gulp.task('all', ['create_templateCache', 'copy_csServerComp','built_csServerComp.d.ts','copy_csServerComp_scripts','built_csComp','built_csComp.d.ts', 'include_css', 'include_js', 'include_images']);
+
+gulp.task('default', ['all', 'watch']);

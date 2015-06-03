@@ -11,4 +11,5 @@ call npm update
 cd public
 call bower update
 cd ..
+call gulp all
 call tsc
