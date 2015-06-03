@@ -17,6 +17,7 @@
     ],
     "files": [
         "./Scripts/typings/JSONStream/JSONStream.d.ts",
+        "./Scripts/typings/body-parser/body-parser.d.ts",
         "./Scripts/typings/cs/cs-offline-search.d.ts",
         "./Scripts/typings/express/express.d.ts",
         "./Scripts/typings/form-data/form-data.d.ts",
