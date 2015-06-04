@@ -20,7 +20,10 @@ var gulp          = require('gulp'),
 
 gulp.task('deploy-githubpages', function() {
     return gulp.src("./dist/**/*")
-        .pipe(deploy())
+        .pipe(deploy({
+            branch:'master',
+            cacheDir : '.deploy'
+        }))
 });
 
 gulp.task('built_csComp', function() {

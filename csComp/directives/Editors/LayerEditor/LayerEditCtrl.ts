@@ -33,7 +33,8 @@ module LayerEdit {
       $scope.vm = this;
       this.layer = $scope.$parent["data"];
       //this.layer.refreshTimer
-      console.log(this.layer.refreshBBOX);
+      //console.log(this.layer.refreshBBOX);
+
 
     }
 

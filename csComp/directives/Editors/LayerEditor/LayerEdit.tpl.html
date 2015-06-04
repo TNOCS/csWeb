@@ -29,6 +29,10 @@
         <label class="editor-title input-xlarge" for="layerUrl">Url</label>
         <input id="layerUrl" name="textinput" type="text" ng-model="vm.layer.url" placeholder="url" class="input-xlarge editor-text-input">
       </div>
+      <div class="controls">
+        <label class="editor-title input-xlarge" for="resourceUrl">Types Resource Url</label>
+        <input id="typeUrl" name="textinput" type="text" ng-model="vm.layer.typeUrl" placeholder="Types Resource Url" class="input-xlarge editor-text-input">
+      </div>
       <div ng-show="vm.layer.type=='geojson'">
         <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
           <input disabled="true"  type="checkbox" id="useProxy-{{vm.layer.id}}" ng-model="group.useProxy">
