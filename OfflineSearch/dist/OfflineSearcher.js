@@ -56,7 +56,7 @@ var OfflineSearcher = (function () {
                     return;
                 group.layers.forEach(function (layer) {
                     var layerType = layer.type.toLowerCase();
-                    if (!(layerType === 'geojson'))
+                    if (layerType !== 'geojson')
                         return;
                     _this.processLayer(layer, group.title || group.languages['nl'].title);
                 });
