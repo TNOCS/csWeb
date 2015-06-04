@@ -34,3 +34,5 @@ example/services/**/*.js
 example/dist/
 
 test/**/*.spec.js
+
+coverage/
