@@ -3,28 +3,25 @@
 var appName = 'csWebApp';
 var path2csWeb = '../';
 
-var gulp = require('gulp'),
-    insert = require('gulp-insert'),
-    uglify = require('gulp-uglify'),
-    useref = require('gulp-useref'),
-    rename = require('gulp-rename'),
-    debug = require('gulp-debug'),
-    cache = require('gulp-cached'),
-    concat = require('gulp-concat'),
-    plumber = require('gulp-plumber'),
-    watch = require('gulp-watch'),
-    gulpif = require('gulp-if'),
-    exec = require('child_process').exec,
+var gulp          = require('gulp'),
+    insert        = require('gulp-insert'),
+    uglify        = require('gulp-uglify'),
+    useref        = require('gulp-useref'),
+    rename        = require('gulp-rename'),
+    debug         = require('gulp-debug'),
+    cache         = require('gulp-cached'),
+    concat        = require('gulp-concat'),
+    plumber       = require('gulp-plumber'),
+    watch         = require('gulp-watch'),
+    gulpif        = require('gulp-if'),
+    exec          = require('child_process').exec,
     templateCache = require('gulp-angular-templatecache'),
-    deploy = require('gulp-gh-pages');
+    deploy        = require('gulp-gh-pages');
 
 gulp.task('deploy-githubpages', function() {
-
     return gulp.src("./dist/**/*")
         .pipe(deploy())
 });
-
-
 
 gulp.task('built_csComp', function() {
     return gulp.src(path2csWeb + 'csComp/js/**/*.js')
@@ -41,7 +38,6 @@ gulp.task('built_csComp', function() {
 });
 
 gulp.task('test', function() {
-
     exec('cd ../csComp && tsc');
     return exec('cd ../test/csComp && karma');
 });
@@ -64,6 +60,11 @@ gulp.task('copy_csServerComp_scripts', function() {
     return gulp.src(path2csWeb + 'csServerComp/Scripts/**/*.ts')
         //.pipe(concat('csComp.js'))
         .pipe(gulp.dest('./Scripts'));
+});
+
+gulp.task('copy_example_scripts', function() {
+    return gulp.src('./Scripts/**/*.ts')
+        .pipe(gulp.dest(path2csWeb + 'test/Scripts'));
 });
 
 gulp.task('built_csComp_classes', function() {
@@ -93,7 +94,8 @@ gulp.task('built_csComp.d.ts', function() {
         .pipe(insert.prepend('/// <reference path="../leaflet/leaflet.d.ts" />\r\n'))
         .pipe(insert.prepend('/// <reference path="../crossfilter/crossfilter.d.ts" />\r\n'))
         .pipe(gulp.dest('Scripts/typings/cs'));
-    //.pipe(gulp.dest('./public/cs/js'));
+    gulp.src('./Scripts/typings/cs/csComp.d.ts')
+        .pipe(gulp.dest(path2csWeb + 'test/Scripts/typings/cs'));
 });
 
 
@@ -114,7 +116,6 @@ gulp.task('create_templateCache', function() {
 })
 
 gulp.task('create_dist', function() {
-
     gulp.src('public/images/*.*')
         .pipe(plumber())
         .pipe(gulp.dest('./dist/images/'));
@@ -143,8 +144,6 @@ gulp.task('create_dist', function() {
         .pipe(useref())
         .pipe(gulp.dest('dist'));
 });
-
-
 
 gulp.task('minify_csComp', function() {
     // gulp.src(path2csWeb + 'csComp/dist/csComp.js')
@@ -186,7 +185,6 @@ gulp.task('watch', function() {
     gulp.watch(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts', ['built_csServerComp.d.ts']);
 
     gulp.watch(path2csWeb + 'csComp/js/**/*.js', ['built_csComp']);
-    //gulp.watch(path2csWeb + 'csComp/classes/*.ts', ['built_csComp_classes']);
     gulp.watch(path2csWeb + 'csComp/js/**/*.d.ts', ['built_csComp.d.ts']);
     gulp.watch(path2csWeb + 'csComp/**/*.tpl.html', ['create_templateCache']);
     gulp.watch(path2csWeb + 'csComp/includes/**/*.css', ['include_css']);
@@ -194,7 +192,7 @@ gulp.task('watch', function() {
     gulp.watch(path2csWeb + 'csComp/includes/images/*.*', ['include_images']);
 });
 
-gulp.task('all', ['create_templateCache', 'copy_csServerComp', 'built_csServerComp.d.ts', 'copy_csServerComp_scripts', 'built_csComp', 'built_csComp.d.ts', 'include_css', 'include_js', 'include_images']);
+gulp.task('all', ['create_templateCache', 'copy_csServerComp', 'built_csServerComp.d.ts', 'copy_csServerComp_scripts', 'built_csComp', 'built_csComp.d.ts', 'include_css', 'include_js', 'include_images', 'copy_example_scripts']);
 
 gulp.task('deploy', ['create_dist','deploy-githubpages']);
 
