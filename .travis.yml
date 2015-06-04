@@ -4,6 +4,8 @@ node_js:
   - "0.12"
 install:
   - "npm install -g typescript"
-script: sh -c 'cd ./csComp && tsc'
+script:
+    - sh -c 'cd ./csComp && tsc'
+    - 'karma start test/karma.conf.js'
 notifications:
   slack: webcs:AnvBbkHIi7v9aTiS2H4suMkr
