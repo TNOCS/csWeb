@@ -4,60 +4,13 @@
 
 # README #
 
-### What is this repository for? ###
-
-**csWeb (version 0.1)**, or the **Common Sense Web application**, is a web-based open source GIS application, written in Typescript, with a focus on usability and connectivity, be it connecting and sharing information with other users or connecting to services or calculation simulations and models. 
-
-Note, however, that this repository only contain the back-end functionality for the above-mentioned web application. You need [csMap](https://github.com/TNOCS/csMap) as a starting point for creating the actual web-based application. 
-
-This repository consists of two projects, csComp, a library containing client side functionality, and csServerComp, for server side components, Both libraries generate a JavaScript file that can be used by the actual map application.
+**csWeb**, or the **Common Sense Web application**, is an intuitive open source web-based GIS application, providing casual users as well as business analysists and information manageners with a powerful tool to perform spatial analysis. It has a strong focus on usability and connectivity, be it connecting and sharing information with other users or connecting to services or calculation simulations and models
 
 ### How do I get set up? ###
 
-#### Development environment ####
+The application is written in Typescript, which compiles to regular JavaScript, and further uses Angularjs as the framework, Leaflet and Cesium for rendering maps, d3 and others. A detailed guide is provided [here](https://github.com/TNOCS/csWeb/wiki/Getting-started).
 
-We further use **node.js** or IIS to run our web application, although currently it suffices to copy everything to a public folder on the web to get up running.
-
-Finally, we rely on the Node Package Manager (part of node.js), **npm**, to install our server and development packages, **bower** (npm install -g bower), and **gulp.js** as our task runner. 
-
-The Typescript files that we generate get, upon saving them in VS, immediately compiled to JavaScript files, and gulp copies them to the web applicatioin.
-
-#### Folder structure ####
-
-As explained, you need to check out two repositories to get up and running. This repository, which contains the shared functionality, and csMap, which contains the front end and the npm, bower and gulp tasks. If you recreate the following folder structure, you should be able to rebuild the project yourself.
-
-
-```
-#!dos
-
-BASE_FOLDER
-BASE_FOLDER\csWeb (this repository)
-
-```
-
-Under windows you could checkout `csWeb` in `c:\dev\web\cs\csWeb\`. You can choose any folder you like as a `BASE_FOLDER`, in the example above it is `c:\dev\web\cs\`.
-
-
-Under OSX or linux you would do something like this:
-```
-#!/bin/bash
-BASE_FOLDER=~/src/cs
-mkdir $BASE_FOLDER
-cd $BASE_FOLDER
-git clone https://github.com/TNOCS/csWeb
-cd -
-```
-
-#### Getting started ####
-1. Create a BASE_FOLDER;
-2. Checkout csWeb (this repo) in this folder
-
-In apps\csMap\Website, run update.bat (windows) or ./update.sh (OSX/linux) to:
-1. Download npm dependencies
-2. Download bower dependencies
-3. Run to perform background tasks.
-
-If you want to run updates continuously go to apps\csMap\Website and run `gulp watch`. 
+This repository consists of several project folders. The  most important ones are csComp, a library containing client side functionality, and csServerComp, for server side components. Both libraries generate a JavaScript file that can be used by the actual map application which you can find in the `example` folder.
 
 #### Deployment instructions ####
 
