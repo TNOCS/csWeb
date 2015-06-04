@@ -1,12 +1,7 @@
-cd csServerComp
-tsc
-cd ../csComp
-npm update
-tsc
-cd ../example
-npm update
-cd public
-bower install
-cd ..
-gulp all
-tsc
+tsc -p csServerComp
+(cd csComp && npm update)
+tsc -p csComp
+(cd example && npm update)
+(cd example/public && bower install)
+(cd example/ && gulp all)
+tsc -p example
