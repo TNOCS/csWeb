@@ -5,7 +5,6 @@ import path                 = require('path');
 //import offlineSearch        = require('cs-offline-search');
 import cc                   = require("ServerComponents/dynamic/ClientConnection");
 import MapLayerFactory      = require('./services/MapLayerCreator/MapLayerFactory');
-import fr                   = require("ServerComponents/Layers/FlightRadar");
 import DataSource           = require("ServerComponents/dynamic/DataSource");
 import MessageBus           = require('ServerComponents/bus/MessageBus');
 import BagDatabase          = require('./services/database/BagDatabase');
@@ -42,10 +41,6 @@ config.add("server", "http://localhost:" + port);
 
 var pr = new DynamicProject.DynamicProjectService(server,cm,messageBus);
 pr.Start(server);
-
-// var planes = new fr.FlightRadar(cm, "FlightRadar");
-// planes.Start();
-// server.get("/fr", planes.GetLayer);
 
 var ds = new DataSource.DataSourceService(cm,"DataSource");
 ds.Start();

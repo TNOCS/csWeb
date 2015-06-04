@@ -55,7 +55,6 @@
         "./ServerComponents/import/ImporterRepositoryService.d.ts",
         "./ServerComponents/import/RepeatEnum.d.ts",
         "./ServerComponents/import/Store.d.ts",
-        "./layers/flightradar.ts",
         "./public/app/app.ts",
         "./server.ts",
         "./services/MapLayerCreator/IGeoJsonFeature.ts",
