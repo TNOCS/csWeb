@@ -26,9 +26,20 @@ describe('DataSource', function() {
     });
 
     describe('loading a datafile', () => {
-        xit('should parse the data properly', function() {
-            datasource.url = 'path/to/json';
-            csComp.Services.DataSource.LoadData(datasource, () => {});
+        it('should load the data with the correct path', function() {
+            spyOn($, 'getJSON');
+            datasource.url = './path/to/json';
+            csComp.Services.DataSource.LoadData(datasource, () => { });
+            expect($.getJSON).toHaveBeenCalledWith('./path/to/json', jasmine.any(Function));
+        });
+
+        xit('should parse the data correctly', function() {
+            spyOn($, 'getJSON');
+            datasource.url = '../../mock/classes/datasourceMock.json';
+            csComp.Services.DataSource.LoadData(datasource, () => {
+                expect(datasource.id).toEqual('datasource');
+                expect(datasource.sensors.hasOwnProperty('test')).toBeTruthy();
+            });
         });
     });
 });

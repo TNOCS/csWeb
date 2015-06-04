@@ -1,4 +1,4 @@
-﻿import express = require('express');
+import express = require('express');
 import http = require('http');
 import ClientConnection = require("ClientConnection");
 import DynamicProject = require("DynamicProject");

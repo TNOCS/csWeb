@@ -17,6 +17,9 @@ csDataGatherer/node_modules/
 csDataGatherer/public/includes/
 csDataGatherer/Scripts/
 csDataGatherer/importers.json
+
+node_modules/
+
 example/node_modules/
 example/public/bower_components/
 example/public/cs/
@@ -24,8 +27,6 @@ example/public/data/projects/AHTI/
 example/public/data/projects/test/
 example/public/includes/
 example/ServerComponents/
-
-node_modules/
 example/server.js
 example/layers/*.js
 example/public/app/*.js
@@ -33,7 +34,13 @@ example/Scripts/typings/cs/csComp.d.ts
 example/services/**/*.js
 example/dist/
 
-test/**/*.spec.js
 test/Scripts/
 
 coverage/
+test/csComp/**/*.js
+test/csComp/spec/classes/datasource.spec.js
+test/csComp/spec/classes/feature.spec.js
+test/csComp/spec/classes/group.spec.js
+test/csComp/spec/services/layer/LayerService.spec.js
+test/csComp/spec/services/bus/MessageBus.spec.js
+test/csComp/spec/classes/project.spec.js

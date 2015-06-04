@@ -20,14 +20,14 @@ import DynamicProject       = require("ServerComponents/dynamic/DynamicProject")
 // });
 
 // setup socket.io object
-var favicon = require('serve-favicon');
+var favicon    = require('serve-favicon');
 var bodyParser = require('body-parser')
-var server        = express();
+var server     = express();
 
-var httpServer    = require('http').Server(server);
-var cm            = new cc.ConnectionManager(httpServer);
-var messageBus    = new MessageBus.MessageBusService();
-var config        = new ConfigurationService('./configuration.json');
+var httpServer = require('http').Server(server);
+var cm         = new cc.ConnectionManager(httpServer);
+var messageBus = new MessageBus.MessageBusService();
+var config     = new ConfigurationService('./configuration.json');
 
 
 // all environments
