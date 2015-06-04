@@ -4,8 +4,6 @@
 
 # README #
 
-### What is this repository for? ###
-
 **csWeb**, or the **Common Sense Web application**, is an intuitive open source web-based GIS application, providing casual users as well as business analysists and information manageners with a powerful tool to perform spatial analysis. It has a strong focus on usability and connectivity, be it connecting and sharing information with other users or connecting to services or calculation simulations and models
 
 ### How do I get set up? ###
