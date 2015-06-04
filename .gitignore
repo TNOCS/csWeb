@@ -38,3 +38,9 @@ test/Scripts/
 
 coverage/
 test/csComp/**/*.js
+test/csComp/spec/classes/datasource.spec.js
+test/csComp/spec/classes/feature.spec.js
+test/csComp/spec/classes/group.spec.js
+test/csComp/spec/services/layer/LayerService.spec.js
+test/csComp/spec/services/bus/MessageBus.spec.js
+test/csComp/spec/classes/project.spec.js
