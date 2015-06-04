@@ -13,3 +13,8 @@ call bower update
 cd ..
 call gulp all
 call tsc
+call gulp built_csComp.d.ts
+cd ../test
+call tsc 
+cd ../example
+call test
