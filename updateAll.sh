@@ -5,3 +5,4 @@ tsc -p csComp
 (cd example/public && bower install)
 (cd example/ && gulp all)
 tsc -p example
+tsc -p test
