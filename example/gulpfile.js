@@ -14,7 +14,13 @@ var gulp = require('gulp'),
     plumber = require('gulp-plumber'),
     watch = require('gulp-watch'),
     exec = require('child_process').exec,
-    templateCache = require('gulp-angular-templatecache');
+    templateCache = require('gulp-angular-templatecache'),
+    deploy = require('gulp-gh-pages');
+
+gulp.task('deploy', function() {
+    return gulp.src("./public/**/*")
+        .pipe(deploy())
+});
 
 gulp.task('built_csComp', function() {
     return gulp.src(path2csWeb + 'csComp/js/**/*.js')
@@ -45,9 +51,9 @@ gulp.task('copy_csServerComp', function() {
 gulp.task('built_csServerComp.d.ts', function() {
     gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts')
         .pipe(plumber())
-      //  .pipe(concat('csServerComp.d.ts'))
+        //  .pipe(concat('csServerComp.d.ts'))
         .pipe(gulp.dest('./ServerComponents'));
-        //.pipe(gulp.dest('./public/cs/js'));
+    //.pipe(gulp.dest('./public/cs/js'));
 });
 
 gulp.task('copy_csServerComp_scripts', function() {
@@ -83,7 +89,7 @@ gulp.task('built_csComp.d.ts', function() {
         .pipe(insert.prepend('/// <reference path="../leaflet/leaflet.d.ts" />\r\n'))
         .pipe(insert.prepend('/// <reference path="../crossfilter/crossfilter.d.ts" />\r\n'))
         .pipe(gulp.dest('Scripts/typings/cs'));
-        //.pipe(gulp.dest('./public/cs/js'));
+    //.pipe(gulp.dest('./public/cs/js'));
 });
 
 
@@ -173,6 +179,6 @@ gulp.task('watch', function() {
     gulp.watch(path2csWeb + 'csComp/includes/images/*.*', ['include_images']);
 });
 
-gulp.task('all', ['create_templateCache', 'copy_csServerComp','built_csServerComp.d.ts','copy_csServerComp_scripts','built_csComp','built_csComp.d.ts', 'include_css', 'include_js', 'include_images']);
+gulp.task('all', ['create_templateCache', 'copy_csServerComp', 'built_csServerComp.d.ts', 'copy_csServerComp_scripts', 'built_csComp', 'built_csComp.d.ts', 'include_css', 'include_js', 'include_images']);
 
 gulp.task('default', ['all', 'watch']);
