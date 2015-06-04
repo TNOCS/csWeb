@@ -500,7 +500,7 @@ module csComp.Services {
         }
 
         public selectRenderer(renderer: string) {
-            if (this.activeMapRenderer && this.activeMapRenderer.title == renderer) return;
+            if (this.activeMapRenderer && this.activeMapRenderer.title === renderer) return;
 
             if (this.activeMapRenderer) this.activeMapRenderer.disable();
 

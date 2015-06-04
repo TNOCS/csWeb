@@ -42,7 +42,7 @@
         "./ServerComponents/configuration/ConfigurationService.d.ts",
         "./ServerComponents/configuration/IConfiguration.d.ts",
         "./ServerComponents/dynamic/ClientConnection.d.ts",
-        "./ServerComponents/dynamic/DataSource.d.ts",
+        "./ServerComponents/dynamic/Datasource.d.ts",
         "./ServerComponents/dynamic/DynamicProject.d.ts",
         "./ServerComponents/helpers/Utils.d.ts",
         "./ServerComponents/import/BaseTransformer.d.ts",
