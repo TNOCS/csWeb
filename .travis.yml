@@ -4,3 +4,6 @@ node_js:
 install:
   - "npm install -g typescript"
 script: sh -c 'cd ./csComp && tsc'
+sudo:required
+notifications:
+  slack: webcs:AnvBbkHIi7v9aTiS2H4suMkr
