@@ -34,5 +34,6 @@ example/services/**/*.js
 example/dist/
 
 test/**/*.spec.js
+test/Scripts/
 
 coverage/
