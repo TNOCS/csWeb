@@ -31,3 +31,4 @@ example/layers/*.js
 example/public/app/*.js
 example/Scripts/typings/cs/csComp.d.ts
 example/services/**/*.js
+example/dist/
