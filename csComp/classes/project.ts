@@ -1,4 +1,4 @@
-﻿module csComp.Services {
+module csComp.Services {
     /**
     * Expert level for determining what options to show to the user.
     */
@@ -135,7 +135,7 @@
         baselayers      : IBaseLayer[];
         featureTypes    : { [id: string]: IFeatureType }
         propertyTypeData: { [id: string]: IPropertyType }
-        groups          : Array<ProjectGroup>;
+        groups          : ProjectGroup[];
         startposition   : Coordinates;
         features        : IFeature[];
         timeLine        : DateRange;

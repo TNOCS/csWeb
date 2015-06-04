@@ -1,4 +1,4 @@
-﻿module csComp.Services {
+module csComp.Services {
     'use strict';
 
     /*

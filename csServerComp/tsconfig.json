@@ -30,7 +30,7 @@
         "./ServerComponents/configuration/ConfigurationService.ts",
         "./ServerComponents/configuration/IConfiguration.ts",
         "./ServerComponents/dynamic/ClientConnection.ts",
-        "./ServerComponents/dynamic/Datasource.ts",
+        "./ServerComponents/dynamic/DataSource.ts",
         "./ServerComponents/dynamic/DynamicProject.ts",
         "./ServerComponents/helpers/Utils.ts",
         "./ServerComponents/import/BaseTransformer.ts",

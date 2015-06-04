@@ -8,7 +8,7 @@ class ConfigurationService implements IConfiguration {
     private static theKeys: string[] = [];
     private static theValues: string[] = [];
 
-    /** 
+    /**
      * Create a configuration service based on a configuration file.
      */
     constructor(private configurationFile: string) {
