@@ -3,20 +3,25 @@
 'use strict';
 
 describe('baseMapList', function() {
-  it('Should fail', function() {
+
+  // load the module
+  beforeEach(module('csWebApp'));
+  beforeEach(module('BaseMapList'));
+
+  it('Should not fail', function() {
     expect(1 == 1).toBeTruthy();
   });
 
-  // load the module
-  // beforeEach(module('csWebApp'));
-  // beforeEach(module('baseMapList'));
-  //
   // var rootScopeFake;
   // var compiledHtml;
   //
-  // describe('baseMapList unit tests.', function() {
+  // debugger
+  //
+  // describe('BaseMapList unit tests.', function() {
+  //
+  //
   // 	beforeEach(function() {
-  //     inject(function($rootScope, $window, $compile) {
+  //     inject(function($rootScope, $compile) {
   //       var html = "<base-map-list></base-map-list>";
   //
   //   		rootScopeFake = $rootScope.$new();
