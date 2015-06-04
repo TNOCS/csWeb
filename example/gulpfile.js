@@ -13,14 +13,18 @@ var gulp = require('gulp'),
     concat = require('gulp-concat'),
     plumber = require('gulp-plumber'),
     watch = require('gulp-watch'),
+    gulpif = require('gulp-if'),
     exec = require('child_process').exec,
     templateCache = require('gulp-angular-templatecache'),
     deploy = require('gulp-gh-pages');
 
-gulp.task('deploy', function() {
-    return gulp.src("./public/**/*")
+gulp.task('deploy-githubpages', function() {
+
+    return gulp.src("./dist/**/*")
         .pipe(deploy())
 });
+
+
 
 gulp.task('built_csComp', function() {
     return gulp.src(path2csWeb + 'csComp/js/**/*.js')
@@ -110,6 +114,27 @@ gulp.task('create_templateCache', function() {
 })
 
 gulp.task('create_dist', function() {
+
+    gulp.src('public/images/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/images/'));
+
+    gulp.src(path2csWeb + 'csComp/includes/images/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/cs/images/'));
+
+    gulp.src('public/data/**/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/data/'));
+
+    gulp.src('public/cs/css/ROsanswebtextregular.ttf')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/css/'));
+
+    gulp.src('public/bower_components/Font-Awesome/fonts/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/fonts/'));
+
     var assets = useref.assets();
 
     return gulp.src('./public/*.html')
@@ -119,17 +144,7 @@ gulp.task('create_dist', function() {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('create_release_dist', function() {
-    var assets = useref.assets();
 
-    return gulp.src('./public/*.html')
-        .pipe(assets)
-        .pipe(gulpif('*.js', uglify()))
-        .pipe(gulpif('*.css', minifyCss()))
-        .pipe(assets.restore())
-        .pipe(useref())
-        .pipe(gulp.dest('dist'));
-});
 
 gulp.task('minify_csComp', function() {
     // gulp.src(path2csWeb + 'csComp/dist/csComp.js')
@@ -180,5 +195,7 @@ gulp.task('watch', function() {
 });
 
 gulp.task('all', ['create_templateCache', 'copy_csServerComp', 'built_csServerComp.d.ts', 'copy_csServerComp_scripts', 'built_csComp', 'built_csComp.d.ts', 'include_css', 'include_js', 'include_images']);
+
+gulp.task('deploy', ['create_dist','deploy-githubpages']);
 
 gulp.task('default', ['all', 'watch']);
