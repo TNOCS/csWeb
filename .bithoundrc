@@ -6,6 +6,7 @@
 	"example/public/cs/js/ThirdParty/**",
 	"csComp/includes/js/**",
 	"OfflineSearch/dist/**",
+	"OfflineSearch/**/*.js",
 	"**/bower_components/**",
 	"**/**?(*).ts",
 	"**/**jquery.?(ui|effects)-*.*.?(*).?(cs|j)s",
