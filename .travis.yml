@@ -4,6 +4,7 @@ node_js:
   - "0.12"
 install:
   - "npm install -g typescript"
+  - "npm install -g bower"
 script:
     - ./updateAll.sh
     - cd example && karma start ../test/karma.conf.js
