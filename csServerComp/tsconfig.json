@@ -26,7 +26,6 @@
         "./Scripts/typings/node/node.d.ts",
         "./Scripts/typings/request/request.d.ts",
         "./Scripts/typings/socketio/socket.io.d.ts",
-        "./ServerComponents/Layers/flightradar.ts",
         "./ServerComponents/bus/MessageBus.ts",
         "./ServerComponents/configuration/ConfigurationService.ts",
         "./ServerComponents/configuration/IConfiguration.ts",
