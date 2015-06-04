@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/TNOCS/csWeb.svg?branch=layer-sources-renders)](https://travis-ci.org/TNOCS/csWeb)
+[![Build Status](https://travis-ci.org/TNOCS/csWeb.svg?branch=master)](https://travis-ci.org/TNOCS/csWeb)
 [![Stories in Ready](https://badge.waffle.io/tnocs/csweb.png?label=ready&title=Ready)](https://waffle.io/tnocs/csweb)
 [![bitHound Score](https://www.bithound.io/github/TNOCS/csWeb/badges/score.svg)](https://www.bithound.io/github/TNOCS/csWeb/layer-sources-renders)
 
