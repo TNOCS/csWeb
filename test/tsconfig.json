@@ -15,16 +15,23 @@
         "!./node_modules/**/*.ts"
     ],
     "files": [
+        "./Scripts/typings/angular-translate/angular-translate.d.ts",
+        "./Scripts/typings/angularLocalStorage/angularLocalStorage.d.ts",
         "./Scripts/typings/angularjs/angular-mocks.d.ts",
         "./Scripts/typings/angularjs/angular.d.ts",
+        "./Scripts/typings/crossfilter/crossfilter.d.ts",
         "./Scripts/typings/cs/csComp.d.ts",
         "./Scripts/typings/jasmine/jasmine.d.ts",
         "./Scripts/typings/jquery/jquery.d.ts",
+        "./Scripts/typings/leaflet/control-sidebar.d.ts",
+        "./Scripts/typings/leaflet/leaflet.d.ts",
+        "./csComp/mock/solutionMock.ts",
         "./csComp/spec/classes/datasource.spec.ts",
         "./csComp/spec/classes/feature.spec.ts",
         "./csComp/spec/classes/group.spec.ts",
         "./csComp/spec/classes/layers.spec.ts",
         "./csComp/spec/classes/project.spec.ts",
-        "./csComp/spec/services/bus/MessageBus.spec.ts"
+        "./csComp/spec/services/bus/MessageBus.spec.ts",
+        "./csComp/spec/services/layer/LayerService.spec.ts"
     ]
 }
