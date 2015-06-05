@@ -535,9 +535,11 @@ module csComp.Services {
                 rpt.container = "featureprops";
                 this.$messageBusService.publish("rightpanel","deactivate",rpt);
             } else {
-                this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
+                var rpt = csComp.Helpers.createRightPanelTab("featurerelations", "featurerelations", feature, "Related features", "link");
+                this.$messageBusService.publish("rightpanel","activate",rpt);
                 var rpt = csComp.Helpers.createRightPanelTab("featureprops", "featureprops", feature, "Selected feature", "info");
                 this.$messageBusService.publish("rightpanel","activate",rpt);
+                this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
             }
         }
 

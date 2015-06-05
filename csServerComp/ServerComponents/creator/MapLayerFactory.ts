@@ -437,6 +437,15 @@ export class MapLayerFactory {
                     case "Euro_two_decimals":
                         prop["stringFormat"] = "€{0:#,#.00}";
                         break;
+                    case "Percentage_no_decimals":
+                        prop["stringFormat"] = "{0:#,#}%";
+                        break;
+                    case "Percentage_one_decimal":
+                        prop["stringFormat"] = "{0:#,#.#}%";
+                        break;
+                    case "Percentage_two_decimals":
+                        prop["stringFormat"] = "{0:#,#.##}%";
+                        break;
                     default:
                         console.log("stringFormat \'" + prop["stringFormat"] + "\' not found.");
                         break;

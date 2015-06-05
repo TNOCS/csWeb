@@ -34,8 +34,9 @@ var config     = new ConfigurationService('./configuration.json');
 var port = "3002";
 server.set('port', port);
 server.use(favicon(__dirname + '/public/favicon.ico'));
-server.use(bodyParser.json()); // support json encoded bodies
-server.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+//increased limit size, see: http://stackoverflow.com/questions/19917401/node-js-express-request-entity-too-large
+server.use(bodyParser.json({limit: '25mb'})); // support json encoded bodies
+server.use(bodyParser.urlencoded({limit: '25mb', extended: true })); // support encoded bodies
 
 config.add("server", "http://localhost:" + port);
 

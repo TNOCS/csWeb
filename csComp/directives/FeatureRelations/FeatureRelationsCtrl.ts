@@ -73,7 +73,7 @@
         private createNearbyRelation(f) : RelationGroup {
             var rgr = new RelationGroup();
             var mapZoom = this.$layerService.activeMapRenderer.getZoom();
-            if (mapZoom < 12) return rgr; //Disable when zoom level is too low
+            if (mapZoom < 11) return rgr; //Disable when zoom level is too low
 
             this.$translate('NEARBY_FEATURES').then((translation) => {
                 rgr.title = translation;
@@ -81,7 +81,8 @@
             rgr.id = csComp.Helpers.getGuid();
             rgr.relations = [];
             var mapBounds = this.$mapService.map.getBounds();
-            this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
+            var tooManyFeatures = false;
+            this.$layerService.project.features.every((feature: csComp.Services.IFeature) => {
                 if (feature.id != f.id) {
                     if ((feature.geometry.type == 'Point' && mapBounds.contains(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0])))
                         || (feature.geometry.type == 'Polygon' && mapBounds.contains(new L.LatLng(feature.geometry.coordinates[0][0][1], feature.geometry.coordinates[0][0][0])))) { //TODO: Get center point of polygon, instead of its first point.
@@ -94,10 +95,16 @@
                         rgr.relations.push(rl);
                     }
                 }
+                if (rgr.relations.length > 40) {
+                    tooManyFeatures = true;
+                    return false; // break out of the some-loop when too many features are nearby
+                } else {
+                    return true;
+                }
             });
 
-            if (rgr.relations.length > 40) {
-              rgr.relations.length = 0; //Stop finding nearby features if over 40 features were found, to prevent performance issues
+            if (tooManyFeatures) {
+              rgr.relations.length = 0;
               return rgr;
             }
 
@@ -201,9 +208,9 @@
             $scope.vm = this;
             $scope.showMenu = false;
 
-            $messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
-            $messageBusService.subscribe("feature", this.featureMessageReceived);
-
+            //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
+            //$messageBusService.subscribe("feature", this.featureMessageReceived);
+            this.initRelations();
         }
 
 
