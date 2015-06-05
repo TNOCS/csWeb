@@ -43,6 +43,12 @@
         "./ServerComponents/bus/MessageBus.d.ts",
         "./ServerComponents/configuration/ConfigurationService.d.ts",
         "./ServerComponents/configuration/IConfiguration.d.ts",
+        "./ServerComponents/creator/IGeoJsonFeature.d.ts",
+        "./ServerComponents/creator/MapLayerFactory.d.ts",
+        "./ServerComponents/database/BagDatabase.d.ts",
+        "./ServerComponents/database/IBagAddress.d.ts",
+        "./ServerComponents/database/IBagOptions.d.ts",
+        "./ServerComponents/database/Location.d.ts",
         "./ServerComponents/dynamic/ClientConnection.d.ts",
         "./ServerComponents/dynamic/DataSource.d.ts",
         "./ServerComponents/dynamic/DynamicProject.d.ts",
@@ -57,15 +63,6 @@
         "./ServerComponents/import/RepeatEnum.d.ts",
         "./ServerComponents/import/Store.d.ts",
         "./public/app/app.ts",
-        "./server.ts",
-        "./services/MapLayerCreator/IGeoJsonFeature.ts",
-        "./services/MapLayerCreator/MapLayerFactory.ts",
-        "./services/bus/MessageBus.ts",
-        "./services/configuration/ConfigurationService.ts",
-        "./services/configuration/IConfiguration.ts",
-        "./services/database/BagDatabase.ts",
-        "./services/database/IBagAddress.ts",
-        "./services/database/IBagOptions.ts",
-        "./services/database/Location.ts"
+        "./server.ts"
     ]
 }

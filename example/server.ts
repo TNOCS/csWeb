@@ -4,10 +4,10 @@ import http                 = require('http');
 import path                 = require('path');
 //import offlineSearch        = require('cs-offline-search');
 import cc                   = require("ServerComponents/dynamic/ClientConnection");
-import MapLayerFactory      = require('./services/MapLayerCreator/MapLayerFactory');
+import creator              = require('ServerComponents/creator/MapLayerFactory');
 import DataSource           = require("ServerComponents/dynamic/DataSource");
 import MessageBus           = require('ServerComponents/bus/MessageBus');
-import BagDatabase          = require('./services/database/BagDatabase');
+import BagDatabase          = require('ServerComponents/database/BagDatabase');
 import ConfigurationService = require('ServerComponents/configuration/ConfigurationService');
 import DynamicProject       = require("ServerComponents/dynamic/DynamicProject");
 
@@ -47,7 +47,7 @@ ds.Start();
 server.get("/datasource", ds.GetDataSource);
 
 var bagDatabase = new BagDatabase(config);
-var mapLayerFactory = new MapLayerFactory(bagDatabase, messageBus);
+var mapLayerFactory = new creator.MapLayerFactory(bagDatabase, messageBus);
 server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res));
 
 server.use(express.static(path.join(__dirname, 'public')));
