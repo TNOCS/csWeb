@@ -4,6 +4,7 @@ var appName = 'csWebApp';
 var path2csWeb = '../';
 
 var gulp          = require('gulp'),
+    del           = require('del'),
     insert        = require('gulp-insert'),
     uglify        = require('gulp-uglify'),
     useref        = require('gulp-useref'),
@@ -17,6 +18,19 @@ var gulp          = require('gulp'),
     exec          = require('child_process').exec,
     templateCache = require('gulp-angular-templatecache'),
     deploy        = require('gulp-gh-pages');
+
+gulp.task('clean', function(cb) {
+    // NOTE Careful! Removes all generated javascript files and certain folders.
+    del([
+        path2csWeb + 'csServerComp/ServerComponents/**/*.js',
+        path2csWeb + 'csComp/js/**',
+        'public/cs/**',
+        'dist',
+        'ServerComponents/**',
+        'services/**',
+        path2csWeb + 'test/csComp/**/*.js'
+    ], { force: true }, cb);
+});
 
 gulp.task('deploy-githubpages', function() {
     return gulp.src("./dist/**/*")
@@ -37,10 +51,16 @@ gulp.task('built_csComp', function() {
         .pipe(gulp.dest('./public/cs/js'));
 });
 
-gulp.task('test', function() {
-    exec('cd ../csComp && tsc');
-    return exec('cd ../test/csComp && karma');
+gulp.task('compile_all', function() {
+    exec('cd ' + path2csWeb + 'csServerComp && tsc');
+    exec('cd ' + path2csWeb + 'csComp && tsc');
+    exec('tsc');
+    exec('cd ' + path2csWeb + 'test && tsc');
+    //exec('gulp all');
+    //return exec('cd ' + path2csWeb + 'test/csComp && karma');
 });
+
+//gulp.task('built', ['compile_all', 'default']);
 
 gulp.task('copy_csServerComp', function() {
     return gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.js')
@@ -98,8 +118,6 @@ gulp.task('built_csComp.d.ts', function() {
         .pipe(gulp.dest(path2csWeb + 'test/Scripts/typings/cs'));
 });
 
-
-
 gulp.task('create_templateCache', function() {
     console.log('Creating templateCache.')
     var options = {
@@ -144,6 +162,32 @@ gulp.task('create_dist', function() {
         .pipe(useref())
         .pipe(gulp.dest('dist'));
 });
+
+gulp.task('create_dist_of_server', function() {
+    gulp.src('node_modules/express')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/node_modules/'));
+    gulp.src('node_modules/body_parser')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/node_modules/'));
+    gulp.src('node_modules/serve-favicon')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/node_modules/'));
+    gulp.src('node_modules/rootpath')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/node_modules/'));
+    gulp.src('node_modules/socket.io')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/node_modules/'));
+    gulp.src('node_modules/chokidar')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/node_modules/'));
+    gulp.src('server.js')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/'));
+});
+
+gulp.task('create_dist_of_client_and_server', ['create_dist', 'create_dist_of_server']);
 
 gulp.task('minify_csComp', function() {
     // gulp.src(path2csWeb + 'csComp/dist/csComp.js')
