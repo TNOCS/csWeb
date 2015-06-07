@@ -1102,6 +1102,7 @@ module csComp.Services {
                 rpt.container = "featureprops";
                 this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
+
             }
 
             //m = layer.group.vectors;
@@ -1143,6 +1144,7 @@ module csComp.Services {
             if (removeFromGroup) layer.group.layers = layer.group.layers.filter((pl:ProjectLayer)=>pl != layer);
             if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             this.$messageBusService.publish('layer', 'deactivate', layer);
+            this.$messageBusService.publish('rightpanel','deactiveContainer','edit');
         }
 
         /***

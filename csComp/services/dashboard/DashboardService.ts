@@ -56,13 +56,16 @@ module csComp.Services {
             this.$messageBusService.subscribe("dashboard", (event: string, id: string) => {
                 alert(event);
             });
-            this.$messageBusService.subscribe("rightpanel", (event: string, tab: RightPanelTab) => {
+            this.$messageBusService.subscribe("rightpanel", (event: string, tab: any) => {
                 switch (event) {
                     case "activate":
-                        this.activateTab(tab);
+                        this.activateTab(<RightPanelTab>tab);
                         break;
                     case "deactivate":
-                        this.deactivateTab(tab);
+                        this.deactivateTab(<RightPanelTab>tab);
+                        break;
+                    case "deactiveContainer":
+                        this.deactivateTabContainer(<string>tab);
                         break;
                 }
             });
@@ -121,6 +124,8 @@ module csComp.Services {
             return this.addNewWidget(widget, this.mainDashboard);
         }
 
+
+
         public activateTab(tab: RightPanelTab) {
             if (!tab.hasOwnProperty("container")) return;
             this.$layerService.visual.rightPanelVisible = true;
@@ -141,13 +146,17 @@ module csComp.Services {
             (<any>$("#rightpanelTabs a[href='#" + content + "']")).tab('show');
         }
 
-        public deactivateTab(tab: RightPanelTab) {
+        public deactivateTabContainer(container: string) {
             this.$layerService.visual.rightPanelVisible = false;
-            if (!tab.hasOwnProperty("container")) return;
-            var content = tab.container + "-content";
-            $("#" + tab.container + "-tab").remove();
+            var content = container + "-content";
+            $("#" + container + "-tab").remove();
             $("#" + content).remove();
             this.$timeout(()=> {}, 0);
+        }
+
+        public deactivateTab(tab: RightPanelTab) {
+            if (!tab.hasOwnProperty("container")) return;
+            this.deactivateTabContainer(tab.container);
         }
 
         public editWidget(widget: csComp.Services.IWidget) {
