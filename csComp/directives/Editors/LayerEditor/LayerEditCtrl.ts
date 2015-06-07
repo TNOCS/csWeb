@@ -43,6 +43,12 @@ module LayerEdit {
 
     }
 
+    public removeLayer()
+    {
+        this.$layerService.removeLayer(this.layer,true);
+
+    }
+
 
 
 
