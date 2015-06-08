@@ -51,10 +51,9 @@ module.exports = function(config) {
             'example/public/cs/js/jqueryinjectCSS.min.js',
             'example/public/cs/js/timeline.min.js',
             'example/public/cs/js/wizMarkdown.min.js',
-            'example/public/cs/js/csComp.js',
+            'csComp/js/**/*.js',
             'example/public/app/app.js',
             'example/public/cs/js/csTemplates.js',
-
             'test/csComp/spec/**/*.js'
         ],
 
@@ -66,7 +65,7 @@ module.exports = function(config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'example/public/cs/js/csComp.js': ['coverage']
+            'csComp/js/**/*.js': ['coverage']
         },
 
 
@@ -76,7 +75,7 @@ module.exports = function(config) {
         reporters: ['progress', 'coverage'],
 
         coverageReporter: {
-            type: 'html',
+            type: 'lcov',
             dir: 'coverage/'
         },
 
