@@ -30,7 +30,6 @@ var cm = new cc.ConnectionManager(httpServer);
 var messageBus = new MessageBus.MessageBusService();
 var config = new ConfigurationService('./configuration.json');
 
-
 // all environments
 var port = "3002";
 server.set('port', port);
