@@ -11,6 +11,7 @@
     "zoomLevelName": "years",
     "isLive": false
   },
+  "layerDirectory" : "/layerDirectory",
   "datasources": [{
     "url": "/datasource",
     "type": "dynamic",

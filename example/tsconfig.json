@@ -52,6 +52,7 @@
         "./ServerComponents/dynamic/ClientConnection.d.ts",
         "./ServerComponents/dynamic/DataSource.d.ts",
         "./ServerComponents/dynamic/DynamicProject.d.ts",
+        "./ServerComponents/dynamic/LayerDirectory.d.ts",
         "./ServerComponents/helpers/Utils.d.ts",
         "./ServerComponents/import/BaseTransformer.d.ts",
         "./ServerComponents/import/IImport.d.ts",
