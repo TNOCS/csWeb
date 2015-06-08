@@ -89,12 +89,12 @@ module DynamicProject {
 
     public removeLayer(file : string)
     {
-      var p = <any>path;
-      var pp = p.parse(file);
-      if (pp.base === "project.json") return;
+      var p = path;
+      var pp = file.split(p.sep);
+      if (p.basename(file) === 'project.json') return;
 
       // determine group
-      var groupTitle = pp.dir.replace(this.folder,"").replace("\\","");
+      var groupTitle = p.dirname(file).replace(this.folder,"").replace(p.sep,"");
       if (groupTitle === "") return;
 
       // check if group exists
@@ -114,12 +114,12 @@ module DynamicProject {
 
     public addLayer(file : string)
     {
-      var p = <any>path;
-      var pp = p.parse(file);
-      if (pp.base === "project.json") return;
+      var p = path;
+      var pp = file.split(p.sep);
+      if (p.basename(file) === 'project.json') return;
 
       // determine group
-      var groupTitle = pp.dir.replace(this.folder,"").replace("\\","");
+      var groupTitle = p.dirname(file).replace(this.folder,"").replace(p.sep,"");
       if (groupTitle === "") return;
 
       // obtain additional parameters (useClustering, isEnabled, etc.)
@@ -153,7 +153,7 @@ module DynamicProject {
       layer.description = parameters.description;
       layer.title = parameters.layerTitle;//pp.name.split('_').join(' ');
       layer.type = "geojson";
-      layer.url = "data/projects/" + this.id + "/" + g.title + "/" + pp.base;
+      layer.url = "data/projects/" + this.id + "/" + g.title + "/" + p.basename(file);
       layer.groupId = g.id;
       layer.enabled = parameters.enabled;
       layer.reference = parameters.reference;
