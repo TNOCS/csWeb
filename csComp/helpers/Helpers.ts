@@ -20,6 +20,7 @@
         return result;
     }
 
+    
     /**
      * Export data to the file system.
      */
@@ -31,7 +32,7 @@
             // IE 10+
             var link: any = document.createElement('a');
             link.addEventListener("click", event => {
-                var blob = new Blob([data], {"type": "text/" + fileType + ";charset=utf-8;"});
+                var blob = new Blob([data], { "type": "text/" + fileType + ";charset=utf-8;" });
                 navigator.msSaveBlob(blob, filename);
             }, false);
             document.body.appendChild(link);
@@ -110,36 +111,34 @@
         return propertyTypes;
     }
 
-    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType : csComp.Services.IFeatureType) : csComp.Services.IFeatureType
-    {
-      var type = featureType;
-      if (!type.propertyTypeData) type.propertyTypeData = [];
+    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType): csComp.Services.IFeatureType {
+        var type = featureType;
+        if (!type.propertyTypeData) type.propertyTypeData = [];
 
-      for (var key in feature.properties) {
-        if (!type.propertyTypeData.some((pt : csComp.Services.IPropertyType)=>{return pt.label === key;}))
-        {
-          if (!feature.properties.hasOwnProperty(key)) continue;
-          var propertyType: csComp.Services.IPropertyType = [];
-          propertyType.label = key;
-          propertyType.title = key.replace('_', ' ');
-          propertyType.isSearchable = true;
-          propertyType.visibleInCallOut = true;
-          propertyType.canEdit = false;
-          var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
-          if (StringExt.isNumber(value))
-              propertyType.type = 'number';
-          else if (StringExt.isBoolean(value))
-              propertyType.type = 'boolean';
-          else if (StringExt.isBbcode(value))
-              propertyType.type = 'bbcode';
-          else
-              propertyType.type = 'text';
+        for (var key in feature.properties) {
+            if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
+                if (!feature.properties.hasOwnProperty(key)) continue;
+                var propertyType: csComp.Services.IPropertyType = [];
+                propertyType.label = key;
+                propertyType.title = key.replace('_', ' ');
+                propertyType.isSearchable = true;
+                propertyType.visibleInCallOut = true;
+                propertyType.canEdit = false;
+                var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+                if (StringExt.isNumber(value))
+                    propertyType.type = 'number';
+                else if (StringExt.isBoolean(value))
+                    propertyType.type = 'boolean';
+                else if (StringExt.isBbcode(value))
+                    propertyType.type = 'bbcode';
+                else
+                    propertyType.type = 'text';
 
-          type.propertyTypeData.push(propertyType);
+                type.propertyTypeData.push(propertyType);
+            }
         }
-      }
 
-      return type;
+        return type;
     }
 
     /**
@@ -150,7 +149,7 @@
         type.style = { nameLabel: 'Name' };
         type.propertyTypeData = [];
 
-        this.addPropertyTypes(feature,type);
+        this.addPropertyTypes(feature, type);
 
         return type;
     }
@@ -201,7 +200,7 @@
             case "date":
                 var d = new Date(Date.parse(text));
                 displayValue = d.toLocaleString();
-                  break;
+                break;
             default:
                 displayValue = text;
                 break;
@@ -274,7 +273,7 @@
         return guid;
     }
 
-     export function S4() {
+    export function S4() {
         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
     }
 
@@ -283,11 +282,11 @@
      * GeoJSON file that represents all visible items.
      * Also loads the keys into the featuretype's propertyTypeData collection.
      */
-     export function loadMapLayers(layerService: Services.LayerService) : Services.IGeoJsonFile {
-        var data         : Services.IGeoJsonFile = {
-            type         : '',
-            features     : [],
-            featureTypes : {}
+    export function loadMapLayers(layerService: Services.LayerService): Services.IGeoJsonFile {
+        var data: Services.IGeoJsonFile = {
+            type: '',
+            features: [],
+            featureTypes: {}
         };
         // If we are filtering, load the filter results
         layerService.project.groups.forEach((group) => {
@@ -325,13 +324,13 @@
      * @return {RightPanelTab}    Returns the RightPanelTab instance. Add it to the
      * rightpanel by publishing it on the MessageBus.
      */
-    export function createRightPanelTab(container: string, directive: string, data: any, title: string, icon?: string) : Services.RightPanelTab {
-      var rpt = new Services.RightPanelTab();
-      rpt.container = container;
-      rpt.data = data;
-      rpt.title = title;
-      rpt.directive = directive;
-      rpt.icon = icon || "tachometer";
-      return rpt;
+    export function createRightPanelTab(container: string, directive: string, data: any, title: string, icon?: string): Services.RightPanelTab {
+        var rpt = new Services.RightPanelTab();
+        rpt.container = container;
+        rpt.data = data;
+        rpt.title = title;
+        rpt.directive = directive;
+        rpt.icon = icon || "tachometer";
+        return rpt;
     }
 }

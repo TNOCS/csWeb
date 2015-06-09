@@ -191,6 +191,8 @@ module csComp.Services {
         /** key name of default feature type */
         defaultFeatureType: string;
 
+        isFeed: boolean;
+
 
         /**
          * Returns an object which contains all the data that must be serialized.

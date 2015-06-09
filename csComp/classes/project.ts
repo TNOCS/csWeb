@@ -185,7 +185,7 @@ module csComp.Services {
                 startPosition: project.startposition,
                 timeLine: project.timeLine,
                 mcas: project.mcas,
-                datasources: project.datasources,
+                datasources: csComp.Helpers.serialize<DataSource>(project.datasources, DataSource.serializeableData),
                 dashboards: csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
                 viewBounds: project.viewBounds,
                 userPrivileges: project.userPrivileges,
