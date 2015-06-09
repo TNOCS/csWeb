@@ -7,11 +7,24 @@
         <tabset>
             <tab heading="Directory" ng-if="vm.project.layerDirectory">{{vm.project.layerDirectory}}</tab>
             <tab heading="New Layer">New Layer</tab>
+            <tab heading="New Group">
+                <div class="form-group">
+                    <label for="groupName">Group Title</label>
+                    <input type="text" class="form-control" id="groupTitle"  ng-model="vm.groupTitle" placeholder="Enter group title">
+                </div>
+                <div class="form-group">
+                    <label for="groupDescription">Description</label>
+                    <input type="text" class="form-control" id="groupDescription" ng-model="vm.groupDescription" placeholder="Enter group description">
+                </div>
+
+                <button type="button" class="btn btn-warning" data-ng-click="vm.cancel()" translate>CANCEL_BTN</button>
+                <button type="button" class="btn btn-primary" data-ng-click="vm.addGroup()" translate>OK_BTN</button>
+            </tab>
             <!-- <tab heading="Long Justified">Long Labeled Justified content</tab> -->
         </tabset>
     </div>
-    <div class="modal-footer">
+    <!-- <div class="modal-footer">
         <button type="button" class="btn btn-warning" data-ng-click="vm.cancel()" translate>CANCEL_BTN</button>
         <button type="button" class="btn btn-primary" data-ng-click="vm.done()" translate>OK_BTN</button>
-    </div>
+    </div> -->
 </div>

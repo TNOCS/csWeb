@@ -9,6 +9,9 @@ module LayersDirective {
 
     export class AddLayerCtrl {
 
+        public groupTitle: string;
+        public groupDescription: string;
+
         static $inject = [
             '$scope',
             '$modalInstance',
@@ -32,6 +35,17 @@ module LayersDirective {
                 $.getJSON(this.project.layerDirectory, (result) => {
                     console.log("done");
                 });
+            }
+        }
+
+        public addGroup() {
+            if (!this.layerService.project.groups.some((g: csComp.Services.ProjectGroup) => g.title == this.groupTitle)) {
+                var gr = new csComp.Services.ProjectGroup();
+                gr.title = this.groupTitle;
+                gr.description = this.groupDescription;
+                this.layerService.project.groups.push(gr);
+                this.layerService.initGroup(gr);
+                this.done();
             }
         }
 
