@@ -46,6 +46,10 @@
         <input  type="checkbox" id="bbox-{{vm.layer.id}}" ng-model="group.refreshBBOX">
         <label for="bbox-{{vm.layer.id}}">refresh bounding box</label>
       </div>
+      <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+        <input  type="checkbox" id="isFeed-{{vm.layer.isFeed}}" ng-model="group.isFeed">
+        <label for="isFeed-{{vm.layer.id}}">is a feed</label>
+      </div>
       <div class="controls">
         <label class="editor-title input-xlarge" for="defaultFeatureType">Default Feature Type</label>
         <input id="defaultFeatureType" name="textinput" type="text" ng-model="vm.layer.defaultFeatureType" placeholder="feature type" class="input-xlarge editor-text-input">
