@@ -10,6 +10,7 @@ import MessageBus           = require('ServerComponents/bus/MessageBus');
 import BagDatabase          = require('ServerComponents/database/BagDatabase');
 import ConfigurationService = require('ServerComponents/configuration/ConfigurationService');
 import DynamicProject       = require("ServerComponents/dynamic/DynamicProject");
+import LayerDirectory       = require("ServerComponents/dynamic/LayerDirectory");
 
 /**
  * Create a search index file which can be loaded statically.
@@ -37,15 +38,18 @@ var port = "3002";
 server.set('port', port);
 server.use(favicon(__dirname + '/public/favicon.ico'));
 //increased limit size, see: http://stackoverflow.com/questions/19917401/node-js-express-request-entity-too-large
-server.use(bodyParser.json({limit: '25mb'})); // support json encoded bodies
-server.use(bodyParser.urlencoded({limit: '25mb', extended: true })); // support encoded bodies
+server.use(bodyParser.json({ limit: '25mb' })); // support json encoded bodies
+server.use(bodyParser.urlencoded({ limit: '25mb', extended: true })); // support encoded bodies
 
 config.add("server", "http://localhost:" + port);
 
-var pr = new DynamicProject.DynamicProjectService(server,cm,messageBus);
+var ld = new LayerDirectory.LayerDirectory(server, cm);
+ld.Start();
+
+var pr = new DynamicProject.DynamicProjectService(server, cm, messageBus);
 pr.Start(server);
 
-var ds = new DataSource.DataSourceService(cm,"DataSource");
+var ds = new DataSource.DataSourceService(cm, "DataSource");
 ds.Start();
 server.get("/datasource", ds.GetDataSource);
 
@@ -56,6 +60,6 @@ server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res))
 server.use(express.static(path.join(__dirname, 'public')));
 console.log("started");
 
-httpServer.listen(server.get('port'),() => {
+httpServer.listen(server.get('port'), () => {
     console.log('Express server listening on port ' + server.get('port'));
 });

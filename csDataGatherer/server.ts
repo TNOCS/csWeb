@@ -1,4 +1,4 @@
-﻿import express                   = require('express');
+import express                   = require('express');
 import http                      = require('http');
 import path                      = require('path');
 import ITransform                = require('./ServerComponents/import/ITransform');
@@ -6,6 +6,7 @@ import BaseTransformer           = require('./ServerComponents/import/BaseTransf
 import Store                     = require('./ServerComponents/import/Store');
 import ImporterRepositoryService = require('./ServerComponents/import/ImporterRepositoryService');
 import ConfigurationService      = require('./ServerComponents/configuration/ConfigurationService');
+import ApiServiceManager         = require('./ServerComponents/api/ApiServiceManager');
 
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser')
@@ -28,13 +29,14 @@ server.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 server.use(express.static(path.join(__dirname, 'public')));
 
-var fileStore   = new Store.FileStore(config);
-var repoService = new ImporterRepositoryService(server, config, fileStore);
-var transformers: ITransform[] = [];
-transformers.push(new BaseTransformer("Test 1"));
-transformers.push(new BaseTransformer("Test 2"));
-transformers.push(new BaseTransformer("Test 3"));
-repoService.init(transformers);
+// Create the API service manager and add the services that you need
+var apiServiceMgr = new ApiServiceManager(server, config);
+var repoService = new ImporterRepositoryService(new Store.FileStore(config));
+apiServiceMgr.addService(repoService);
+
+repoService.addTransformer(new BaseTransformer("Test 1"));
+repoService.addTransformer(new BaseTransformer("Test 2"));
+repoService.addTransformer(new BaseTransformer("Test 3"));
 
 // development only
 // if ('development' == server.get('env')) {

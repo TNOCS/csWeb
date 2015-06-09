@@ -1,7 +1,7 @@
 module LayersDirective {
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
-        options : Function;
+        options: Function;
     }
 
     export class LayersDirectiveCtrl {
@@ -16,56 +16,72 @@ module LayersDirective {
             'layerService',
             'messageBusService',
             'mapService',
-            'dashboardService'
-
+            'dashboardService',
+            '$modal'
         ];
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope       : ILayersDirectiveScope,
+            private $scope: ILayersDirectiveScope,
             private $layerService: csComp.Services.LayerService,
-            private $messageBusService : csComp.Services.MessageBusService,
-            private $mapService : csComp.Services.MapService,
-            private $dashboardService : csComp.Services.DashboardService)
-        {
+            private $messageBusService: csComp.Services.MessageBusService,
+            private $mapService: csComp.Services.MapService,
+            private $dashboardService: csComp.Services.DashboardService,
+            private $modal: any) {
             $scope.vm = this;
-            $scope.options = ((layer : csComp.Services.ProjectLayer)=>{
-              if (!layer.enabled) return null;
-              if (layer.layerSource)
-              {
-                return layer.layerSource.layerMenuOptions(layer);
-              }
-          });
+            $scope.options = ((layer: csComp.Services.ProjectLayer) => {
+                if (!layer.enabled) return null;
+                if (layer.layerSource) {
+                    return layer.layerSource.layerMenuOptions(layer);
+                }
+            });
 
         }
 
-        public editGroup(group : csComp.Services.ProjectGroup)
-        {
-          var rpt = csComp.Helpers.createRightPanelTab("edit","groupedit",group,"Edit group");
-          this.$messageBusService.publish("rightpanel","activate",rpt);
+        public editGroup(group: csComp.Services.ProjectGroup) {
+            var rpt = csComp.Helpers.createRightPanelTab("edit", "groupedit", group, "Edit group");
+            this.$messageBusService.publish("rightpanel", "activate", rpt);
         }
 
-        public editLayer(layer : csComp.Services.ProjectLayer)
-        {
-          var rpt = csComp.Helpers.createRightPanelTab("edit","layeredit",layer, "Edit layer");
-          this.$messageBusService.publish("rightpanel","activate",rpt);
+        public editLayer(layer: csComp.Services.ProjectLayer) {
+            var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", layer, "Edit layer");
+            this.$messageBusService.publish("rightpanel", "activate", rpt);
         }
 
-        public openLayerMenu(e)
-        {
-          //e.stopPropagation();
-          (<any>$('.left-menu')).contextmenu( 'show', e );
-          //alert('open layers');
+        public openLayerMenu(e) {
+            //e.stopPropagation();
+            (<any>$('.left-menu')).contextmenu('show', e);
+            //alert('open layers');
+        }
+
+        public addLayer() {
+            var modalInstance = this.$modal.open({
+                templateUrl: 'directives/LayersList/AddLayerView.tpl.html',
+                controller: AddLayerCtrl,
+                resolve: {
+                    //mca: () => newMca
+                }
+            });
+            modalInstance.result.then((s: any) => {
+                console.log('done adding');
+                console.log(s);
+                // this.showSparkline = false;
+                // this.addMca(mca);
+                // this.updateMca();
+                //console.log(JSON.stringify(mca, null, 2));
+            }, () => {
+                    //console.log('Modal dismissed at: ' + new Date());
+                });
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
-          $(".left-menu" ).on( "click", function( clickE ) {
-            //alert('context menu');
-            (<any>$( this )).contextmenu( { x: clickE.offsetX, y: clickE.offsetY } );
-          } );
+            $(".left-menu").on("click", function(clickE) {
+                //alert('context menu');
+                (<any>$(this)).contextmenu({ x: clickE.offsetX, y: clickE.offsetY });
+            });
             //layer.enabled = !layer.enabled;
-			//if (this.$layerService.loadedLayers.containsKey(layer.id)) {
+            //if (this.$layerService.loadedLayers.containsKey(layer.id)) {
             // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
             if (layer.group.oneLayerActive && this.$layerService.findLoadedLayer(layer.id)) layer.enabled = false;
             if (layer.enabled) {

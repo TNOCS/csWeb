@@ -1,4 +1,5 @@
 import express                    = require('express');
+import IApiServiceManager         = require('../api/IApiServiceManager');
 import IImport                    = require("./IImport");
 import ITransform                 = require("./ITransform");
 import IStore                     = require("./IStore");
@@ -11,14 +12,18 @@ var es = require('event-stream');
 
 /* Multiple storage engine supported, e.g. file system, mongo  */
 class ImporterRepositoryService implements IImporterRepositoryService {
+    private server: express.Express;
+    private config: ConfigurationService;
     private baseUrl: string;
-    private store: IStore;
-
     private transformers: ITransform[] = [];
+    id: string;
 
-    constructor(server: express.Express, config: ConfigurationService, store: IStore) {
-        this.baseUrl = config['importAddress'] || '/importers';
-        this.store = store;
+    constructor(private store: IStore) { }
+
+    init(apiServiceManager: IApiServiceManager, server: express.Express, config: ConfigurationService) {
+        this.server = server;
+        this.config = config;
+        this.baseUrl = apiServiceManager.BaseUrl + config['importAddress'] || '/importers';
 
         server.get(this.baseUrl, (req, res) => {
             var importers = this.getAll();
@@ -84,8 +89,12 @@ class ImporterRepositoryService implements IImporterRepositoryService {
         });
     }
 
-    init(transformers: ITransform[]) {
-        this.transformers = transformers;
+    shutdown() {
+
+    }
+
+    addTransformer(transformer: ITransform) {
+        this.transformers.push(transformer);
     }
 
     getAllTransformers() {

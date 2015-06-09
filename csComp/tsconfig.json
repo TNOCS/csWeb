@@ -87,6 +87,7 @@
         "./directives/Heatmap/IdealityMeasure.ts",
         "./directives/LanguageSwitch/LanguageSwitch.ts",
         "./directives/LanguageSwitch/LanguageSwitchCtrl.ts",
+        "./directives/LayersList/AddLayerCtrl.ts",
         "./directives/LayersList/LayersDirective.ts",
         "./directives/LayersList/LayersDirectiveCtrl.ts",
         "./directives/Legend/Legend.ts",

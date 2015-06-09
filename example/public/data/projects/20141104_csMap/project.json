@@ -11,6 +11,7 @@
     "zoomLevelName": "years",
     "isLive": false
   },
+  "layerDirectory" : "/layerDirectory",
   "datasources": [{
     "url": "/datasource",
     "type": "dynamic",
@@ -42,39 +43,6 @@
       "width": "100%",
       "height": "100%"
     }]
-  }, {
-
-    "id": "flight",
-    "name": "Flights",
-    "showTimeline": true,
-    "showLeftmenu": true,
-    "showMap": true,
-    "baselayer": "Positron",
-    "visiblelayers": [
-      "FlightRadar"
-    ],
-    "widgets": [{
-      "directive": "indicators",
-      "left": "10px",
-      "top": "10px",
-      "borderwidth": "3px",
-      "background": "red",
-      "bordercolor": "red",
-      "borderradius": "5px",
-      "width": "255px",
-      "height": "435px",
-      "data": {
-        "title": "Sensor Data 1",
-        "indicators": [{
-          "visual": "circular",
-          "sensor": "datasource/test"
-        }, {
-          "visual": "sparkline",
-          "sensor": "datasource/test2"
-        }]
-      }
-    }]
-
   }, {
     "id": "health",
     "name": "Health",
@@ -179,16 +147,6 @@
 
   },
   "groups": [{
-    "title": "Flight Radar",
-    "description": "Demonstrates WMS layers.",
-    "clustering": false,
-    "layers": [{
-      "id": "FlightRadar",
-      "type": "dynamicgeojson",
-      "typeUrl": "data/projects/resources/resources.json",
-      "url": "/fr"
-    }]
-  }, {
     "languages": {
       "nl": {
         "title": "Locaties",

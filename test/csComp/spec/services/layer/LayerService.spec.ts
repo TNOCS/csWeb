@@ -20,4 +20,14 @@ describe('csComp.Services.LayerService', function() {
             expect(layerService).toBeDefined();
         });
     });
+
+    // describe('Remove layer', () => {
+    //     it('Should add layer',()=>{
+    //
+    //     });
+    //
+    //     it('Should remove layer',()=>{
+    //         layerService.project = new csComp.Services.Project();
+    //     });
+    // })
 });

@@ -3,10 +3,10 @@ module csComp.Services {
     * Expert level for determining what options to show to the user.
     */
     export enum Expertise {
-        Beginner     = 1,
+        Beginner = 1,
         Intermediate = 2,
-        Expert       = 3,
-        Admin        = 4
+        Expert = 3,
+        Admin = 4
     }
 
     /**
@@ -27,13 +27,13 @@ module csComp.Services {
 
     //** class for describing time ranges for timeline, including focus time */
     export class DateRange {
-        start        : number;
-        end          : number;
-        focus        : number;
-        range        : number; // total time range in ms
-        zoomLevel    : number;
+        start: number;
+        end: number;
+        focus: number;
+        range: number; // total time range in ms
+        zoomLevel: number;
         zoomLevelName: string;
-        isLive       : boolean;
+        isLive: boolean;
 
         //constructor() {
         //    if (!this.focus) this.setFocus(new Date());
@@ -48,10 +48,10 @@ module csComp.Services {
         /**
         * Set the focus time of the timeline, optionally including start and end time.
         */
-        setFocus(d: Date, s? : Date, e? : Date) {
+        setFocus(d: Date, s?: Date, e?: Date) {
             this.focus = d.getTime();
             if (s) this.start = s.getTime();
-            if (e) this.end   = e.getTime();
+            if (e) this.end = e.getTime();
             var newRange = this.end - this.start;
             if (this.range !== newRange) {
                 this.range = newRange;
@@ -82,26 +82,26 @@ module csComp.Services {
      * e.g. you could make it so that you can switch between different regions or different domains of interest.
      */
     export class Solution {
-        title     : string;
-        maxBounds : IBoundingBox;
+        title: string;
+        maxBounds: IBoundingBox;
         viewBounds: IBoundingBox;
         baselayers: IBaseLayer[];
-        projects  : SolutionProject[];
+        projects: SolutionProject[];
     }
 
     /** Project within a solution file, refers to a project url*/
     export class SolutionProject {
         title: string;
-        url  : string;
-        dynamic : boolean;
+        url: string;
+        dynamic: boolean;
     }
 
     /**
     * Simple class to hold the user privileges.
     */
     export interface IPrivileges {
-        mca: { expertMode: boolean;}
-        heatmap: { expertMode: boolean;}
+        mca: { expertMode: boolean; }
+        heatmap: { expertMode: boolean; }
     }
 
     /** bouding box to specify a region. */
@@ -111,41 +111,43 @@ module csComp.Services {
     }
 
     export interface ITimelineOptions {
-        width?          : string;
-        height?         : string;
-        eventMargin?    : number;
+        width?: string;
+        height?: string;
+        eventMargin?: number;
         eventMarginAxis?: number;
-        editable?       : boolean;
-        layout?         : string;
+        editable?: boolean;
+        layout?: string;
         /** NOTE: For internal use only. Do not set it, as it will be overwritten by the $layerService.currentLocale. */
-        locale?         : string;
-        timeLine?       : DateRange;
+        locale?: string;
+        timeLine?: DateRange;
     }
 
     /** project configuration. */
     export class Project implements ITypesResource, ISerializable<Project>  {
-        id              : string;
-        title           : string;
-        description     : string;
-        logo            : string;
-        url             : string;
+        id: string;
+        title: string;
+        description: string;
+        logo: string;
+        url: string;
         /** true if a dynamic project and you want to subscribe to project changes using socket.io */
-        connected       : boolean;
-        activeDashboard : Dashboard;
-        baselayers      : IBaseLayer[];
-        featureTypes    : { [id: string]: IFeatureType }
+        connected: boolean;
+        activeDashboard: Dashboard;
+        baselayers: IBaseLayer[];
+        featureTypes: { [id: string]: IFeatureType }
         propertyTypeData: { [id: string]: IPropertyType }
-        groups          : ProjectGroup[];
-        startposition   : Coordinates;
-        features        : IFeature[];
-        timeLine        : DateRange;
-        mcas            : Mca.Models.Mca[];
-        dashboards      : Dashboard[];
-        datasources     : DataSource[];
-        dataSets        : DataSet[];
-        viewBounds      : IBoundingBox;
-        userPrivileges  : IPrivileges;
-        languages       : ILanguageData;
+        groups: ProjectGroup[];
+        startposition: Coordinates;
+        features: IFeature[];
+        timeLine: DateRange;
+        mcas: Mca.Models.Mca[];
+        dashboards: Dashboard[];
+        datasources: DataSource[];
+        dataSets: DataSet[];
+        viewBounds: IBoundingBox;
+        userPrivileges: IPrivileges;
+        languages: ILanguageData;
+        /** link to layer directory, if empty do not use it */
+        layerDirectory: string;
 
 
         expertMode = Expertise.Expert;
@@ -174,25 +176,25 @@ module csComp.Services {
          */
         public static serializeableData(project: Project): Object {
             return {
-                id:               project.id,
-                title:            project.title,
-                description:      project.description,
-                logo:             project.logo,
-                url:              project.url,
-                connected:        project.connected,
-                startPosition:    project.startposition,
-                timeLine:         project.timeLine,
-                mcas:             project.mcas,
-                datasources:      project.datasources,
-                dashboards:       csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
-                viewBounds:       project.viewBounds,
-                userPrivileges:   project.userPrivileges,
-                languages:        project.languages,
-                expertMode:       project.expertMode,
-                baselayers:       project.baselayers,
-                featureTypes:     project.featureTypes,
+                id: project.id,
+                title: project.title,
+                description: project.description,
+                logo: project.logo,
+                url: project.url,
+                connected: project.connected,
+                startPosition: project.startposition,
+                timeLine: project.timeLine,
+                mcas: project.mcas,
+                datasources: project.datasources,
+                dashboards: csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
+                viewBounds: project.viewBounds,
+                userPrivileges: project.userPrivileges,
+                languages: project.languages,
+                expertMode: project.expertMode,
+                baselayers: project.baselayers,
+                featureTypes: project.featureTypes,
                 propertyTypeData: project.propertyTypeData,
-                groups:           csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData)
+                groups: csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData)
             };
         }
 
