@@ -41,6 +41,7 @@
         "./classes/layer.ts",
         "./classes/map.ts",
         "./classes/project.ts",
+        "./classes/transformation.ts",
         "./classes/typeresource.ts",
         "./directives/BaseMapList/BaseMapList.ts",
         "./directives/BaseMapList/BaseMapListCtrl.ts",

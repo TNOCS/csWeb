@@ -179,7 +179,7 @@ module csComp.Services {
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                     this.service.map.map.addLayer(layer.mapLayer);
                     if (!layer.data || !layer.data.features) break;
-                    (<any>layer.data).features.forEach((f: IFeature) => {
+                    layer.group.filterResult.forEach((f: IFeature) => {
                         layer.group.markers[f.id] = this.addFeature(f);
                     });
                     //var v = L.geoJson(layer.data, {
