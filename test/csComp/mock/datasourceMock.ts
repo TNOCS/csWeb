@@ -1,4 +1,7 @@
-{
+'use strict';
+
+angular.module('mockedDataSource', [])
+  .value('defaultJSON', {
   "sensors": {
     "test": {
       "id": "test",
@@ -96,4 +99,4 @@
     }
   },
   "id": "datasource"
-}
+});
