@@ -29,6 +29,8 @@ var cm         = new cc.ConnectionManager(httpServer);
 var messageBus = new MessageBus.MessageBusService();
 var config     = new ConfigurationService('./configuration.json');
 
+//This line is required when using JX to run the server, or else the input-messages coming from the Excel file will cause an error: https://github.com/jxcore/jxcore/issues/119
+//http.setMaxHeaderLength(26214400);
 
 // all environments
 var port = "3002";
