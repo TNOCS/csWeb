@@ -281,7 +281,7 @@ module csComp.Services {
             // if a layer is depends on other layers, load those first
             if (this.layerSources.hasOwnProperty(layerSource)) {
                 if (this.layerSources[layerSource].requiresLayer) {
-                    var requiredLayers: ProjectLayer[] = this.layerSources[layerSource].getRequiredLayers(layer);
+                    var requiredLayers: ProjectLayer[] = this.layerSources[layerSource].getRequiredLayers(layer) || [];
                     requiredLayers.forEach((l) => {
                         this.addLayer(l);
                     });
