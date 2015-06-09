@@ -54,7 +54,8 @@ module.exports = function(config) {
             'csComp/js/**/*.js',
             'example/public/app/app.js',
             'example/public/cs/js/csTemplates.js',
-            'test/csComp/spec/**/*.js'
+            'test/csComp/spec/**/*.js',
+            'test/csComp/mock/**/*.js'
         ],
 
 

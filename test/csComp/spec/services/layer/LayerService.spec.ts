@@ -10,14 +10,22 @@ describe('csComp.Services.LayerService', function() {
     }));
 
     var layerService: csComp.Services.LayerService;
-    var scope;
+    var scope, translate;
     beforeEach(inject(function(_layerService_, $translate, localStorageService, $mapService) {
         layerService = _layerService_;
+        translate = $translate;
     }));
 
     describe('Initial state', () => {
-        it('Should have created a layerservice', () => {
+        it('should have created a layerservice', () => {
             expect(layerService).toBeDefined();
+        });
+        it('should have an empty title and accentColor', () => {
+            expect(layerService.title).toEqual('');
+            expect(layerService.accentColor).toEqual('');
+        });
+        it('should have preferred language as currentLocale', () => {
+            expect(layerService.currentLocale).toEqual(translate.preferredLanguage());
         });
     });
 
