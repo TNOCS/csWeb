@@ -93,9 +93,9 @@ class ImporterRepositoryService implements IImporterRepositoryService {
 
     }
 
-    // init(transformers: ITransform[]) {
-    //     this.transformers = transformers;
-    // }
+    addTransformer(transformer: ITransform) {
+        this.transformers.push(transformer);
+    }
 
     getAllTransformers() {
         return this.transformers;

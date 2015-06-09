@@ -1,16 +1,16 @@
 require('rootpath')();
-﻿import express = require('express');
-import http = require('http');
-import path = require('path');
+﻿import express              = require('express');
+import http                 = require('http');
+import path                 = require('path');
 //import offlineSearch        = require('cs-offline-search');
-import cc = require("ServerComponents/dynamic/ClientConnection");
-import creator = require('ServerComponents/creator/MapLayerFactory');
-import DataSource = require("ServerComponents/dynamic/DataSource");
-import MessageBus = require('ServerComponents/bus/MessageBus');
-import BagDatabase = require('ServerComponents/database/BagDatabase');
+import cc                   = require("ServerComponents/dynamic/ClientConnection");
+import creator              = require('ServerComponents/creator/MapLayerFactory');
+import DataSource           = require("ServerComponents/dynamic/DataSource");
+import MessageBus           = require('ServerComponents/bus/MessageBus');
+import BagDatabase          = require('ServerComponents/database/BagDatabase');
 import ConfigurationService = require('ServerComponents/configuration/ConfigurationService');
-import DynamicProject = require("ServerComponents/dynamic/DynamicProject");
-import LayerDirectory = require("ServerComponents/dynamic/LayerDirectory");
+import DynamicProject       = require("ServerComponents/dynamic/DynamicProject");
+import LayerDirectory       = require("ServerComponents/dynamic/LayerDirectory");
 
 /**
  * Create a search index file which can be loaded statically.
@@ -21,14 +21,17 @@ import LayerDirectory = require("ServerComponents/dynamic/LayerDirectory");
 // });
 
 // setup socket.io object
-var favicon = require('serve-favicon');
+var favicon    = require('serve-favicon');
 var bodyParser = require('body-parser')
-var server = express();
+var server     = express();
 
 var httpServer = require('http').Server(server);
-var cm = new cc.ConnectionManager(httpServer);
+var cm         = new cc.ConnectionManager(httpServer);
 var messageBus = new MessageBus.MessageBusService();
-var config = new ConfigurationService('./configuration.json');
+var config     = new ConfigurationService('./configuration.json');
+
+//This line is required when using JX to run the server, or else the input-messages coming from the Excel file will cause an error: https://github.com/jxcore/jxcore/issues/119
+//http.setMaxHeaderLength(26214400);
 
 // all environments
 var port = "3002";

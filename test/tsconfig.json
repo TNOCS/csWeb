@@ -42,6 +42,7 @@
         "./Scripts/typings/request/request.d.ts",
         "./Scripts/typings/socketio/socket.io.d.ts",
         "./Scripts/typings/xbbcode/xbbcode.d.ts",
+        "./csComp/mock/datasourceMock.ts",
         "./csComp/mock/projectMock.ts",
         "./csComp/mock/solutionMock.ts",
         "./csComp/spec/classes/dashboard.spec.ts",

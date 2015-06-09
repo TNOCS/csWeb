@@ -156,7 +156,8 @@
                     rg.relations = [];
                     if (pt.target) {
                         this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
-                            if (f.properties.hasOwnProperty(pt.subject) && feature.properties.hasOwnProperty(pt.target) && feature.properties[pt.target] == f.properties[pt.subject]) {
+                            if (f.properties.hasOwnProperty(pt.subject) && feature.properties.hasOwnProperty(pt.target)
+                                    && feature.properties[pt.target] == f.properties[pt.subject] && f.id !== feature.id) {
                                 var rel = new Relation();
                                 rel.subject = f;
                                 rel.target = feature;

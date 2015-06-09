@@ -65,8 +65,8 @@ module App {
             $messageBusService.notify('Welcome to csMap', 'Your mapping solution.');
 
             this.$mapService.mapVisible = this.$location.path() === "/map";
-            var rpt = csComp.Helpers.createRightPanelTab("featuretype","featuretype",null,"Edit group");
-            this.$messageBusService.publish("rightpanel","activate",rpt);
+            //var rpt = csComp.Helpers.createRightPanelTab("featuretype","featuretype",null,"Edit group");
+            //this.$messageBusService.publish("rightpanel","activate",rpt);
 
             //this.$dashboardService.openRightTab('featuretype','featuretypes',null);
         }
