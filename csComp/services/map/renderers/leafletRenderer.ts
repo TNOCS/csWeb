@@ -75,11 +75,12 @@ module csComp.Services {
                             }
                         });
                     } else {
-                        this.service.map.map.removeLayer(layer.mapLayer);
+                        if (this.service.map.map && layer.mapLayer) this.service.map.map.removeLayer(layer.mapLayer);
                     }
                     break;
                 default:
-                    this.service.map.map.removeLayer(layer.mapLayer);
+
+                    if (this.service.map.map && layer.mapLayer) this.service.map.map.removeLayer(layer.mapLayer);
                     break;
             }
 
