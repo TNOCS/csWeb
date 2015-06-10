@@ -52,6 +52,9 @@
         "./csComp/spec/classes/layers.spec.ts",
         "./csComp/spec/classes/project.spec.ts",
         "./csComp/spec/classes/typeresource.spec.ts",
+        "./csComp/spec/directives/DataTable/DataTable.spec.ts",
+        "./csComp/spec/helpers/GeoExtensions.spec.ts",
+        "./csComp/spec/helpers/StringScore.spec.ts",
         "./csComp/spec/services/bus/MessageBus.spec.ts",
         "./csComp/spec/services/layer/LayerService.spec.ts"
     ]
