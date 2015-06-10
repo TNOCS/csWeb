@@ -15,22 +15,22 @@
      * The value is the actual displayValue shown, the type is the propertyType type (e.g. number or text, useful when aligning the data), and the header is used for sorting.
      */
     export class TableField {
-        constructor(public displayValue: string, public originalValue: any, public type: string, public header: string) {}
+        constructor(public displayValue: string, public originalValue: any, public type: string, public header: string) { }
     }
 
     declare var String;
 
     export class DataTableCtrl {
-        public mapLabel        : string = "map";
-        public dataset         : IGeoJsonFile;
-        public selectedType   : csComp.Services.IFeatureType;
-        public numberOfItems   : number = 10;
-        public selectedLayerId : string;
-        public layerOptions    : Array<any> = [];
-        public propertyTypes: Array<IPropertyType> = [];
-        public headers         : Array<string> = [];
-        public sortingColumn   : number;
-        public rows            : Array<Array<TableField>> = [];
+        public mapLabel:         string = "map";
+        public dataset:          IGeoJsonFile;
+        public selectedType:     csComp.Services.IFeatureType;
+        public numberOfItems:    number = 10;
+        public selectedLayerId:  string;
+        public layerOptions:     Array<any> = [];
+        public propertyTypes:    Array<IPropertyType> = [];
+        public headers:          Array<string> = [];
+        public sortingColumn:    number;
+        public rows:             Array<Array<TableField>> = [];
         private mapFeatureTitle: string;
 
         // $inject annotation.
@@ -51,14 +51,14 @@
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope               : IDataTableViewScope,
-            private $http                : ng.IHttpService,
-            private $sce                 : ng.ISCEService,
-            private $translate           : ng.translate.ITranslateService,
-            private $timeout             : ng.ITimeoutService,
-            private $layerService        : csComp.Services.LayerService,
-            private $localStorageService : ng.localStorage.ILocalStorageService,
-            private $messageBusService   : csComp.Services.MessageBusService
+            private $scope:               IDataTableViewScope,
+            private $http:                ng.IHttpService,
+            private $sce:                 ng.ISCEService,
+            private $translate:           ng.translate.ITranslateService,
+            private $timeout:             ng.ITimeoutService,
+            private $layerService:        csComp.Services.LayerService,
+            private $localStorageService: ng.localStorage.ILocalStorageService,
+            private $messageBusService:   csComp.Services.MessageBusService
             ) {
             // 'vm' stands for 'view model'. We're adding a reference to the controller to the scope
             // for its methods to be accessible from view / HTML
@@ -93,16 +93,16 @@
          */
         private updateLayerOptions() {
             this.layerOptions.push({
-                "group" : '',
-                "id"    : this.mapLabel,
-                "title" : this.mapFeatureTitle
+                "group": '',
+                "id":    this.mapLabel,
+                "title": this.mapFeatureTitle
             });
             if (this.$layerService.project == null || this.$layerService.project.groups == null) return;
             this.$layerService.project.groups.forEach((group) => {
                 group.layers.forEach((layer) => {
                     this.layerOptions.push({
                         "group": group.title,
-                        "id"   : layer.id,
+                        "id":    layer.id,
                         "title": layer.title
                     });
                 });
@@ -128,7 +128,7 @@
                 }).
                 error((data, status, headers, config) => {
                     this.$messageBusService.notify("ERROR opening " + selectedLayer.title, "Could not get the data.");
-            });
+                });
         }
 
         /**
@@ -159,20 +159,20 @@
             this.updatepropertyType(data);
         }
 
-        private updatepropertyType(data: IGeoJsonFile) : void {
+        private updatepropertyType(data: IGeoJsonFile): void {
             this.propertyTypes = [];
-            this.headers   = [];
-            this.rows      = [];
+            this.headers = [];
+            this.rows = [];
             var titles: Array<string> = [];
             var mis: Array<IPropertyType> = [];
             // Push the Name, so it always appears on top.
             mis.push({
-                label           : "Name",
+                label:            "Name",
                 visibleInCallOut: true,
-                title           : "Naam",
-                type            : "text",
-                filterType      : "text",
-                isSearchable    : true
+                title:            "Naam",
+                type:             "text",
+                filterType:       "text",
+                isSearchable:     true
             });
             var featureType: csComp.Services.IFeatureType;
             for (var key in data.featureTypes) {
@@ -218,7 +218,7 @@
             this.rows = this.getRows();
         }
 
-        private findLayerById(id: string) : ProjectLayer {
+        private findLayerById(id: string): ProjectLayer {
             for (var i = 0; i < this.$layerService.project.groups.length; i++) {
                 var group = this.$layerService.project.groups[i];
                 for (var j = 0; j < group.layers.length; j++) {
@@ -303,6 +303,35 @@
                 else
                     return -1;
             });
+        }
+
+        public downloadGeoJson() {
+            var geoJsonString = '{"type": "FeatureCollection",' +
+                                 '"featureTypes": ' +
+                                 JSON.stringify(this.dataset.featureTypes, (key, val)=> {return (key === '$$hashKey') ? undefined : val; });
+             //geoJsonString += ', "features" : [';
+             geoJsonString += ', "features": [';
+             this.dataset.features.forEach((f) => {
+                 var cleanFeature = new csComp.Services.Feature();
+                 cleanFeature.type = f.type;
+                 cleanFeature.properties = f.properties;
+                 cleanFeature.geometry = f.geometry;
+                 geoJsonString += JSON.stringify(cleanFeature) + ',';
+             });
+             geoJsonString = geoJsonString.substring(0, geoJsonString.length-1) + ']}';
+
+            var filename = this.mapLabel;
+            if (this.selectedLayerId !== this.mapLabel) {
+                var layer = this.findLayerById(this.selectedLayerId);
+                if (layer) filename = layer.title.replace(' ', '_');
+            }
+
+            this.$timeout(() => {
+                var data = this.$layerService.project.serialize();
+                //console.log(data);
+                console.log("Save settings: ");
+                csComp.Helpers.saveData(geoJsonString, filename, "json");
+            }, 0);
         }
 
         public downloadCsv() {
