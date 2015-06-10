@@ -197,6 +197,10 @@
                     }
                 });
             }
+            // Add lat-lon coordinates for point features
+            this.propertyTypes.push(csComp.Helpers.GeoExtensions.createPropertyType('Lat'));
+            this.propertyTypes.push(csComp.Helpers.GeoExtensions.createPropertyType('Lon'));
+
             // Select the first couple of headers
             var nmbrOfDefaultSelectedHeaders = 3;
             for (var i = 0; i < nmbrOfDefaultSelectedHeaders; i++) {
@@ -245,8 +249,16 @@
             this.dataset.features.forEach((f: IFeature) => {
                 var row: Array<TableField> = [];
                 meta.forEach((mi) => {
-                    var text = f.properties[mi.label];
-                    displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
+                    if (mi.label === 'Lat') {
+                        (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[1] : displayValue = '';
+                        text = displayValue;
+                    } else if (mi.label === 'Lon') {
+                        (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[0] : displayValue = '';
+                        text = displayValue;
+                    } else {
+                        var text = f.properties[mi.label];
+                        displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
+                    }
                     //if (!text)
                     //    text = ' ';
                     //else if (!$.isNumeric(text))

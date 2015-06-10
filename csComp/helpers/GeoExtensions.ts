@@ -183,5 +183,34 @@
             };
         }
 
+        static createPointFeature(lon: number, lat: number, properties?: csComp.Services.IProperty, sensors?: csComp.Services.IProperty): IGeoFeature {
+            var gjson = {
+                type: "Feature",
+                geometry: {
+                    type: "Point",
+                    coordinates: [lon, lat]
+                },
+                properties: properties
+            }
+            if (sensors && sensors !== {}) {
+                gjson["sensors"] = sensors;
+            }
+            return gjson;
+        }
+
+        static createPropertyType(name: string, section?: string): csComp.Services.IPropertyType {
+            if (!name) return;
+            var propType: csComp.Services.IPropertyType = {
+                label: name,
+                title: name,
+                type: "text",
+                visibleInCallOut: true,
+                canEdit: true,
+                isSearchable: false
+            };
+            if (section) propType["section"] = section;
+            return propType;
+        }
+
     }
 }
