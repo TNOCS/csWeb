@@ -55,6 +55,8 @@
         "./csComp/spec/directives/DataTable/DataTable.spec.ts",
         "./csComp/spec/helpers/GeoExtensions.spec.ts",
         "./csComp/spec/helpers/StringScore.spec.ts",
+        "./csComp/spec/helpers/StyleHelpers.spec.ts",
+        "./csComp/spec/helpers/Utils.spec.ts",
         "./csComp/spec/services/bus/MessageBus.spec.ts",
         "./csComp/spec/services/layer/LayerService.spec.ts"
     ]
