@@ -20,7 +20,7 @@
         return result;
     }
 
-    
+
     /**
      * Export data to the file system.
      */
@@ -189,7 +189,7 @@
                 if (pt.stringFormat)
                     displayValue = String.format(pt.stringFormat, rank[0], rank[1]);
                 else
-                    displayValue = String.format("{0) / {1}", rank[0], rank[1]);
+                    displayValue = String.format("{0} / {1}", rank[0], rank[1]);
                 break;
             case "hierarchy":
                 var hierarchy = text.split(";");
@@ -214,12 +214,14 @@
     */
     export function setFeatureName(feature: csComp.Services.IFeature) {
         // Case one: we don't need to set it, as it's already present.
-        if (feature.properties.hasOwnProperty('Name')) return;
+        if (feature.properties.hasOwnProperty('Name')) return feature;
         // Case two: the feature's style tells us what property to use for the name.
-        var nameLabel = feature.fType.style.nameLabel;
-        if (nameLabel && feature.properties.hasOwnProperty(nameLabel)) {
-            feature.properties['Name'] = feature.properties[nameLabel];
-            return;
+        if (feature.fType && feature.fType.style && feature.fType.style.nameLabel) {
+            var nameLabel = feature.fType.style.nameLabel;
+            if (nameLabel && feature.properties.hasOwnProperty(nameLabel)) {
+                feature.properties['Name'] = feature.properties[nameLabel];
+                return feature;
+            }
         }
         // Case three: the feature has a Name property which specifies a string format, meaning that the Name is derived from several existing properties.
         if (feature.fType.propertyTypeData != null) {
@@ -227,16 +229,17 @@
                 var propertyType = feature.fType.propertyTypeData[i];
                 if (propertyType.label !== 'Name') continue;
                 feature.properties['Name'] = Helpers.convertStringFormat(feature, propertyType.stringFormat);
-                return;
+                return feature;
             }
         }
         // If all else fails, use the first property
         for (var prop in feature.properties) {
             feature.properties['Name'] = prop.toString();
-            return;
+            return feature;
         }
         // Finally, just create a GUID.
         feature.properties['Name'] = Helpers.getGuid();
+        return feature;
     }
 
     /**
