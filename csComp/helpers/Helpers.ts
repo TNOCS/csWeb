@@ -327,13 +327,14 @@
      * @return {RightPanelTab}    Returns the RightPanelTab instance. Add it to the
      * rightpanel by publishing it on the MessageBus.
      */
-    export function createRightPanelTab(container: string, directive: string, data: any, title: string, icon?: string): Services.RightPanelTab {
+    export function createRightPanelTab(container: string, directive: string, data: any, title: string, popover?: string, icon?: string): Services.RightPanelTab {
         var rpt = new Services.RightPanelTab();
         rpt.container = container;
         rpt.data = data;
         rpt.title = title;
         rpt.directive = directive;
-        rpt.icon = icon || "tachometer";
+        rpt.popover = popover || '';
+        rpt.icon = icon || 'tachometer';
         return rpt;
     }
 }

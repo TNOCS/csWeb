@@ -151,11 +151,13 @@ describe('Helpers', function() {
 
         it('should create rightpaneltab', function() {
             var f = <csComp.Services.IFeature>{};
-            var result = csComp.Helpers.createRightPanelTab('container', 'dir', 'data', 'title', 'icon');
+            var result = csComp.Helpers.createRightPanelTab('container', 'dir', 'data', 'title', 'popover', 'icon');
             expect(result.title).toEqual('title');
             expect(result.icon).toEqual('icon');
-            result = csComp.Helpers.createRightPanelTab('container', 'dir', 'data', 'title');
+            result = csComp.Helpers.createRightPanelTab('container', 'dir', 'data', 'title', 'popover');
             expect(result.icon).toEqual('tachometer');
+            result = csComp.Helpers.createRightPanelTab('container', 'dir', 'data', 'title');
+            expect(result.popover).toEqual('');
         });
 
         it('should create guid', function() {
