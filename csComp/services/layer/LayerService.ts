@@ -276,7 +276,7 @@ module csComp.Services {
             }
         }
 
-        public addLayer(layer: ProjectLayer) {
+        public addLayer(layer: ProjectLayer, layerloaded?: Function) {
             if (this.loadedLayers.containsKey(layer.id) && (!layer.quickRefresh || layer.quickRefresh == false)) return;
             this.$messageBusService.publish('layer', 'loading', layer);
             this.$messageBusService.publish('updatelegend', 'title', layer.defaultLegendProperty);
@@ -303,7 +303,6 @@ module csComp.Services {
 
                     // load type resources
 
-
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
                     if (this.layerSources.hasOwnProperty(layerSource)) {
@@ -317,6 +316,7 @@ module csComp.Services {
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
                             this.$messageBusService.publish('layer', 'activated', layer);
+                            if (layerloaded) layerloaded(layer);
                         });
                     }
                     callback(null, null);
@@ -1457,6 +1457,7 @@ module csComp.Services {
             }
 
             layer.group = group;
+            if (!layer.groupId) layer.groupId = group.id;
             if (layer.enabled || (layerIds && layerIds.indexOf(layer.reference.toLowerCase()) >= 0)) {
                 layer.enabled = true;
                 this.activeMapRenderer.addLayer(layer);

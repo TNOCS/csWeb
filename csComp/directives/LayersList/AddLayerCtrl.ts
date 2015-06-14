@@ -11,6 +11,8 @@ module LayersDirective {
 
         public groupTitle: string;
         public groupDescription: string;
+        public layerGroup: any;
+        public layerTitle: string;
 
         static $inject = [
             '$scope',
@@ -25,7 +27,7 @@ module LayersDirective {
         constructor(
             private $scope: IAddLayerScope,
             private $modalInstance: any,
-            private layerService: csComp.Services.LayerService,
+            public layerService: csComp.Services.LayerService,
             private translate: ng.translate.ITranslateService,
             private messageBusService: csComp.Services.MessageBusService
             ) {
@@ -47,6 +49,21 @@ module LayersDirective {
                 this.layerService.initGroup(gr);
                 this.done();
             }
+        }
+
+        public addLayer() {
+            var group = this.layerService.findGroupById(this.layerGroup);
+            if (group) {
+                var l = new csComp.Services.ProjectLayer();
+                l.title = this.layerTitle;
+                this.layerService.initLayer(group, l);
+                group.layers.push(l);
+
+                var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", l, "Edit layer");
+                this.messageBusService.publish("rightpanel", "activate", rpt);
+            }
+
+            this.$modalInstance.close("yes i'm done");
         }
 
         public done() {

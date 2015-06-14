@@ -24,11 +24,11 @@ module csComp.Services {
          * Serialize the project to a JSON string.
          */
         public serialize(): string {
-            return SensorSet.serializeableData(this);
-            // return JSON.stringify(SensorSet.serializeableData(this), (key: string, value: any) => {
-            //     // Skip serializing certain keys
-            //     return value;
-            // }, 2);
+            //return SensorSet.serializeableData(this);
+            return JSON.stringify(SensorSet.serializeableData(this), (key: string, value: any) => {
+                // Skip serializing certain keys
+                return value;
+            }, 2);
         }
 
         /**

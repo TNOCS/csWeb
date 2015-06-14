@@ -17,7 +17,7 @@ module DataSource {
 
     export class DataSource {
         id: string;
-        url: string; 
+        url: string;
         /** static, dynamic */
         type: string;
         title: string;

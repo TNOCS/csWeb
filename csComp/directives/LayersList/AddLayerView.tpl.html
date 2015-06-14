@@ -6,7 +6,19 @@
     <div class="modal-body container-fluid">
         <tabset>
             <tab heading="Directory" ng-if="vm.project.layerDirectory">{{vm.project.layerDirectory}}</tab>
-            <tab heading="New Layer">New Layer</tab>
+            <tab heading="New Layer">
+            <div class="form-group">
+                <label for="groupDescription">Title</label>
+                <input type="text" class="form-control" id="layerTitle" ng-model="vm.layerTitle" placeholder="Enter title layer">
+            </div>
+                <div class="form-group">
+                  <label class="editor-title input-xlarge">Group</label>
+                  <select data-ng-model="vm.layerGroup" class="form-control tt-input editor-text-input">
+                      <option ng-repeat="g in vm.layerService.project.groups" ng-value="g.id">{{g.title}}</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary" data-ng-click="vm.addLayer()">Next</button>
+            </tab>
             <tab heading="New Group">
                 <div class="form-group">
                     <label for="groupName">Group Title</label>
