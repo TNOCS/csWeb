@@ -7,7 +7,8 @@ module csComp.Services {
         public container: string;
         public directive: string;
         public data: any;
-        public icon: string = "tachometer";
+        public icon: string = 'tachometer';
+        public popover: string = '';
     }
 
     /** service for managing dashboards */
@@ -132,7 +133,11 @@ module csComp.Services {
             var content = tab.container + "-content";
             $("#" + tab.container + "-tab").remove();
             $("#" + content).remove();
-            $("#rightpanelTabs").append("<li id='" + tab.container + "-tab' class='rightPanelTab rightPanelTabAnimated'><a id='" + tab.container + "-tab-a' href='#" + content + "' data-toggle='tab'><span class='fa fa-" + tab.icon + " fa-lg'></span></a></li>");
+            var popoverString = '';
+            if (tab.popover !== '' && (this.$mapService.expertMode === Expertise.Beginner || this.$mapService.expertMode === Expertise.Intermediate)) {
+                popoverString = "popover='" + tab.popover + "' popover-placement='left' popover-trigger='mouseenter' popover-append-to-body='true'";
+            }
+            $("#rightpanelTabs").append(this.$compile("<li id='" + tab.container + "-tab' class='rightPanelTab rightPanelTabAnimated' " + popoverString + "><a id='" + tab.container + "-tab-a' href='#" + content + "' data-toggle='tab'><span class='fa fa-" + tab.icon + " fa-lg'></span></a></li>")(this.$rootScope));
             $("#rightpanelTabPanes").append("<div class='tab-pane' style='width:355px' id='" + content + "'></div>");
             $("#" + tab.container + "-tab-a").click(() => {
                 this.$layerService.visual.rightPanelVisible = true;
@@ -164,8 +169,8 @@ module csComp.Services {
             this.editWidgetMode = true;
             // $("#widgetEdit").addClass('active');
 
-            var rpt = csComp.Helpers.createRightPanelTab("widget", "widgetedit", widget, "Edit widget");
-            this.$messageBusService.publish("rightpanel", "activate", rpt);
+            var rpt = csComp.Helpers.createRightPanelTab('widget', 'widgetedit', widget, 'Edit widget', 'Edit widget');
+            this.$messageBusService.publish('rightpanel', 'activate', rpt);
 
             //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
         }

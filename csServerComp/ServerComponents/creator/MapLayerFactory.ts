@@ -380,7 +380,7 @@ export class MapLayerFactory {
         if (propertyTypeExists) return;
         var propType: IPropertyType = {
             label: name,
-            titel: name,
+            title: name,
             type: "text",
             visibleInCallOut: true,
             canEdit: true,

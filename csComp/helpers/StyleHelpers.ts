@@ -1,30 +1,8 @@
-module csComp.Helpers
-{
+module csComp.Helpers {
     export function getColorFromStringValue(v: string, gs: csComp.Services.GroupStyle) {
         if (gs.activeLegend) {
             var defaultcolor: string = '#000000';
             var l = gs.activeLegend;
-            var s: String = l.id;
-            var n = l.legendEntries.length;
-            if (n == 0) return (defaultcolor);
-            if (l.legendKind == 'discretestrings') {
-                var i: number = 0;
-                while (i < n) {
-                    var e = l.legendEntries[i];
-                    if (v == e.stringValue)  {
-                        return e.color;
-                    }
-                    i++;
-                }
-                return defaultcolor;
-            }
-            return defaultcolor;
-        }
-    }
-
-    export function getColorFromStringLegend(v: string, l: csComp.Services.Legend) {
-        if (true) {
-            var defaultcolor: string = '#000000';
             var s: String = l.id;
             var n = l.legendEntries.length;
             if (n == 0) return (defaultcolor);
@@ -43,7 +21,26 @@ module csComp.Helpers
         }
     }
 
-    export function getColorFromLegend(v: number, l: csComp.Services.Legend, defaultcolor = '#000000') {        
+    export function getColorFromStringLegend(v: string, l: csComp.Services.Legend) {
+        var defaultcolor: string = '#000000';
+        var s: String = l.id;
+        var n = l.legendEntries.length;
+        if (n == 0) return (defaultcolor);
+        if (l.legendKind == 'discretestrings') {
+            var i: number = 0;
+            while (i < n) {
+                var e = l.legendEntries[i];
+                if (v == e.stringValue) {
+                    return e.color;
+                }
+                i++;
+            }
+            return defaultcolor;
+        }
+        return defaultcolor;
+    }
+
+    export function getColorFromLegend(v: number, l: csComp.Services.Legend, defaultcolor = '#000000') {
         var s: string = l.id;
         var n = l.legendEntries.length;
         if (n == 0) return (defaultcolor);
@@ -92,8 +89,8 @@ module csComp.Helpers
         //var bezInterpolator = chroma.interpolate.bezier(gs.colors);
         //var r = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
         var color = d3.scale.linear()
-                    .domain([gs.info.sdMin, gs.info.mean, gs.info.sdMax])
-                    .range(gs.colors);
+            .domain([gs.info.sdMin, gs.info.mean, gs.info.sdMax])
+            .range(gs.colors);
         var hexColor = color(v).toString();
         return hexColor;
     }
@@ -104,7 +101,7 @@ module csComp.Helpers
     export function getColorString(color: string, defaultColor = '#f00') {
         if (!color) return defaultColor;
         if (color.length == 4 || color.length == 7) return color;
-        if (color.length == 9) return '#' + color.substr(3, 6);
+        if (color.length === 9) return '#' + color.substr(3, 6);
         return defaultColor;
     }
 }
