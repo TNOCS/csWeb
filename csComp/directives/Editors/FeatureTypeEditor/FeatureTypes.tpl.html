@@ -3,9 +3,12 @@
         &nbsp;&nbsp;Verander FeatureTypes
     </h4>
     <div class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
-      <select id="selectResource" ng-model="vm.selectedResourceUrl" class="form-control tt-input editor-text-input" ng-change="vm.selectResource()">
-        <option ng-repeat="(key, types) in vm.$layerService.typesResources" ng-value="key">{{key}}</option>
+        <select id="selectResource" ng-model="vm.selectedResourceUrl" class="form-control tt-input editor-text-input" ng-change="vm.selectResource()">
+            <option ng-repeat="(key, types) in vm.$layerService.typesResources" ng-value="key">{{key}}</option>
         </select>
+        <button type="button" data-ng-click="vm.saveSettings()" style="margin-top: 5px; margin-right: 1em; float: right; background:transparent;border:0">
+            <i class="fa fa-download"></i>
+        </button>
 
         <table class="table table-condensed" style="margin-top:10px">
             <tr data-ng-repeat="(key, featureType) in vm.selectedResource.featureTypes">
@@ -19,7 +22,10 @@
                         <form name="featureTypeForm">
                             <!-- <div data-ng-click="enabled=!enabled" data-ng-class="enabled ? 'bold' : ''">Verander naam {{ featureType.name }}</div> -->
 
-                            <div class="rightpanel-label">Feature name</div>
+                            <div class="rightpanel-label">Feature id</div>
+                            <input type="text" data-ng-model="featureType.id" class="form-control" />
+
+                            <div class="rightpanel-label">Feature title</div>
                             <input type="text" data-ng-model="featureType.name" class="form-control" />
 
                             <div class="rightpanel-label">Icon Image</div>
@@ -63,20 +69,20 @@
                                 </div>
                             </div>
                             <div class="row">
-                              <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.cornerRadius.$invalid }">
-                                  <div class="rightpanel-label">Corner radius (%)</div>
-                                  <input type="number" name="cornerRadius" data-ng-model="featureType.style['cornerRadius']" class="form-control">
-                              </div>
-                              <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.opacity.$invalid }">
-                                  <div class="rightpanel-label">Opacity</div>
-                                  <input type="number" name="opacity" data-ng-model="featureType.style['opacity']" class="form-control">
-                              </div>
+                                <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.cornerRadius.$invalid }">
+                                    <div class="rightpanel-label">Corner radius (%)</div>
+                                    <input type="number" name="cornerRadius" data-ng-model="featureType.style['cornerRadius']" class="form-control">
+                                </div>
+                                <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.opacity.$invalid }">
+                                    <div class="rightpanel-label">Opacity</div>
+                                    <input type="number" name="opacity" data-ng-model="featureType.style['opacity']" class="form-control">
+                                </div>
                             </div>
                             <div class="row">
-                              <div class="col-md-6 checkbox dashboard-edit-checkbox" style="margin-left: 20px">
-                                <input ng-disabled="vm.noLayerSelected" type="checkbox" id="showAllProperties-{{featureType.id}}" ng-model="featureType.showAllProperties" >
-                                <label for="showAllProperties-{{featureType.id}}">Show all properties</label>
-                              </div>
+                                <div class="col-md-6 checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+                                    <input ng-disabled="vm.noLayerSelected" type="checkbox" id="showAllProperties-{{featureType.id}}" ng-model="featureType.showAllProperties">
+                                    <label for="showAllProperties-{{featureType.id}}">Show all properties</label>
+                                </div>
                             </div>
 
                             <button class="btn btn-primary rightpanel-button" data-ng-click="vm.updateFeatureTypes(featureType)">Opslaan</button>

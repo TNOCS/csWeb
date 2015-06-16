@@ -51,18 +51,27 @@
         <label for="isFeed-{{vm.layer.id}}">is a feed</label>
       </div>
       <div class="controls">
-        <label class="editor-title input-xlarge" for="defaultFeatureType">Default Feature Type</label>
-        <input id="defaultFeatureType" name="textinput" type="text" ng-model="vm.layer.defaultFeatureType" placeholder="feature type" class="input-xlarge editor-text-input">
-      </div>
-      <div class="controls">
         <label class="editor-title input-xlarge" for="defaultLegendProperty">Default Legend Property</label>
         <input id="defaultLegendProperty" name="textinput" type="text" ng-model="vm.layer.defaultLegendProperty" placeholder="legend property" class="input-xlarge editor-text-input">
       </div>
+    </div>
+    <div class="controls" style="margin-top:10px">
+      <button class="btn" ng-click="vm.removeLayer()">remove layer</button>
+    </div>
+    </div>
+    <div ng-show="vm.layer.type=='geojson'">
 
-    </div>
     <div class="controls">
-      <button class="btn" ng-click="vm.removeLayer()">remove</button>
+      <label class="editor-title input-xlarge" for="defaultFeatureType">Default Feature Type</label>
+      <input id="defaultFeatureType" name="textinput" type="text" ng-model="vm.layer.defaultFeatureType" placeholder="feature type" class="input-xlarge editor-text-input"/>
+      <ui-select ng-model="vm.layer.defaultFeatureType" refresh="vm.getTypes($select.search)"
+         refresh-delay="0">
+            <ui-select-match placeholder="Select a feature type ...">{{$select.selected.name}}</ui-select-match>
+            <ui-select-choices repeat="type in vm.availableTypes | filter: $select.search">
+              <div ng-bind-html="type | highlight: $select.search"></div>
+            </ui-select-choices>
+          </ui-select>
     </div>
-    </div>
+  </div>
   </div>
 </div>

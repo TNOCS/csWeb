@@ -134,10 +134,9 @@ module csComp.Services {
                 });
                 if (!done) {
                     // console.log('adding feature');
-                    //features.push(value);
-
+                    features.push(value);
                     this.service.initFeature(value, this.layer);
-                    //var m = this.service.activeMapRenderer.addFeature(value);
+                    var m = this.service.activeMapRenderer.addFeature(value);
                 }
             } catch (e) {
                 console.log('error');

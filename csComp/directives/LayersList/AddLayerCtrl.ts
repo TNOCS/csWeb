@@ -13,6 +13,8 @@ module LayersDirective {
         public groupDescription: string;
         public layerGroup: any;
         public layerTitle: string;
+        public layers: csComp.Services.ProjectLayer[];
+        public selectedLayer: csComp.Services.ProjectLayer;
 
         static $inject = [
             '$scope',
@@ -35,7 +37,7 @@ module LayersDirective {
             this.project = this.layerService.project;
             if (this.project.layerDirectory) {
                 $.getJSON(this.project.layerDirectory, (result) => {
-                    console.log("done");
+                    this.layers = result.layers;
                 });
             }
         }
@@ -51,6 +53,19 @@ module LayersDirective {
             }
         }
 
+        public selectProjectLayer(layer: csComp.Services.ProjectLayer) {
+            this.selectedLayer = layer;
+        }
+
+        public addProjectLayer() {
+            var group = this.layerService.findGroupById(this.layerGroup);
+            if (group) {
+                this.layerService.initLayer(group, this.selectedLayer);
+                group.layers.push(this.selectedLayer);
+            }
+            this.$modalInstance.close("done");
+        }
+
         public addLayer() {
             var group = this.layerService.findGroupById(this.layerGroup);
             if (group) {
@@ -63,11 +78,11 @@ module LayersDirective {
                 this.messageBusService.publish("rightpanel", "activate", rpt);
             }
 
-            this.$modalInstance.close("yes i'm done");
+            this.$modalInstance.close("done");
         }
 
         public done() {
-            this.$modalInstance.close("yes i'm done");
+            this.$modalInstance.close("done");
         }
 
         public cancel() {

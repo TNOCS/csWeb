@@ -27,23 +27,27 @@ module csComp.Services {
         public static $inject = [
             '$rootScope',
             '$compile',
+            '$injector',
             '$location',
             '$timeout',
             '$translate',
             'messageBusService',
             'layerService',
-            'mapService'
+            'mapService',
         ];
 
         constructor(
-            private $rootScope:         any,
-            private $compile:           any,
-            private $location:          ng.ILocationService,
-            private $timeout:           ng.ITimeoutService,
-            private $translate:         ng.translate.ITranslateService,
+            private $rootScope: any,
+            private $compile: any,
+            private $injector: any,
+            private $location: ng.ILocationService,
+            private $timeout: ng.ITimeoutService,
+            private $translate: ng.translate.ITranslateService,
             private $messageBusService: Services.MessageBusService,
-            private $layerService:      Services.LayerService,
-            private $mapService:        Services.MapService) {
+            private $layerService: Services.LayerService,
+            private $mapService: Services.MapService
+
+            ) {
 
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
@@ -156,7 +160,7 @@ module csComp.Services {
             var content = container + "-content";
             $("#" + container + "-tab").remove();
             $("#" + content).remove();
-            this.$timeout(()=> {}, 0);
+            this.$timeout(() => { }, 0);
         }
 
         public deactivateTab(tab: RightPanelTab) {
@@ -169,8 +173,14 @@ module csComp.Services {
             this.editWidgetMode = true;
             // $("#widgetEdit").addClass('active');
 
-            var rpt = csComp.Helpers.createRightPanelTab('widget', 'widgetedit', widget, 'Edit widget', 'Edit widget');
+            var rpt = csComp.Helpers.createRightPanelTab('widget', 'widgetedit', widget, 'Edit widget', 'Edit widget', 'th-large');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
+
+            // check if editor exists
+            if (this.$injector.has(widget.directive + 'EditDirective')) {
+                var rptc = csComp.Helpers.createRightPanelTab('widget-content', widget.directive + "-edit", widget, 'Edit widget', 'Edit widget', 'cog');
+                this.$messageBusService.publish('rightpanel', 'activate', rptc);
+            }            
 
             //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
         }
