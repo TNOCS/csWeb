@@ -33,7 +33,7 @@
             '$scope',
             '$compile',
             'layerService',
-            'mapService'           ,
+            'mapService',
             'messageBusService',
             'dashboardService',
             '$templateCache'
