@@ -32,6 +32,7 @@ module.exports = function(config) {
             'example/public/bower_components/angular-local-storage/dist/angular-local-storage.min.js',
             'example/public/bower_components/angular-sanitize/angular-sanitize.min.js',
             'example/public/bower_components/angular-mocks/angular-mocks.js',
+            'example/public/bower_components/angular-ui-select/dist/select.js',
             'example/public/bower_components/chroma-js/chroma.min.js',
             'example/public/bower_components/d3/d3.min.js',
             'example/public/bower_components/d3-tip/index.js',

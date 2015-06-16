@@ -166,6 +166,7 @@ module csComp.Services {
         id: string;
         name: string;
         disabled: boolean = false;
+        parents: string[];
 
         constructor() {
             this.widgets = [];
