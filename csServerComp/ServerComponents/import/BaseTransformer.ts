@@ -1,27 +1,24 @@
-import Utils = require("../helpers/Utils");
-import ITransform = require("./ITransform");
+import Utils     = require("../helpers/Utils");
+import transform = require("./ITransform");
 
-class BaseTransformer implements ITransform {
-    id:                    string;
-    description:           string;
-    parameterTitles:       string[] = [];
-    parameterDescriptions: string[] = [];
-    parameterTypes:        string[] = [];
+class BaseTransformer implements transform.ITransform {
+    id:          string;
+    description: string;
+    /**
+     * Accepted input types.
+     */
+    inputDataTypes?:  InputDataType[];
+    /**
+     * Generated output types.
+     */
+    outputDataTypes?: OutputDataType[];
+
+    //create?(opt?: ITransformFactoryOptions[]): stream.Readable | stream.Writable | stream.Transform;
 
     constructor(public title: string) {
         this.id = Utils.newGuid();
+        //this.description = description;
     }
 
-    transform(s: MSStreamReader, ...params) {
-
-    }
-
-    init() {
-
-    }
-
-    run() {
-
-    }
 }
 export=BaseTransformer;

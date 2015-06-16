@@ -34,7 +34,9 @@ var apiServiceMgr = new ApiServiceManager(server, config);
 var repoService = new ImporterRepositoryService(new Store.FileStore(config));
 apiServiceMgr.addService(repoService);
 
-repoService.addTransformer(new BaseTransformer("Test 1"));
+var test1 = new BaseTransformer("Test 1");
+//test1.
+repoService.addTransformer(test1);
 repoService.addTransformer(new BaseTransformer("Test 2"));
 repoService.addTransformer(new BaseTransformer("Test 3"));
 

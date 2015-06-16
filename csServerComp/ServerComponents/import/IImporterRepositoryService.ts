@@ -1,5 +1,6 @@
 import IApiService = require('../api/IApiService');
 import IImport     = require("./IImport");
+import transform   = require("./ITransform");
 
 interface IImporterRepositoryService extends IApiService {
     getAll() : IImport[];
@@ -7,6 +8,6 @@ interface IImporterRepositoryService extends IApiService {
     delete(id: string);
     create(importer: IImport): IImport;
     update(importer: IImport);
-    addTransformer(transformer: ITransform);
+    addTransformer(transformer: transform.ITransform);
 }
 export = IImporterRepositoryService;
