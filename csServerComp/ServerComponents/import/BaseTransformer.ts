@@ -7,11 +7,11 @@ class BaseTransformer implements transform.ITransform {
     /**
      * Accepted input types.
      */
-    inputDataTypes?:  InputDataType[];
+    inputDataTypes:  transform.InputDataType[];
     /**
      * Generated output types.
      */
-    outputDataTypes?: OutputDataType[];
+    outputDataTypes: transform.OutputDataType[];
 
     //create?(opt?: ITransformFactoryOptions[]): stream.Readable | stream.Writable | stream.Transform;
 
