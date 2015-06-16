@@ -104,11 +104,11 @@ class ImporterRepositoryService implements IImporterRepositoryService {
         return this.store.getAll();
     }
 
-    get(id: string) {
+    get(id: string): any {
         return this.store.get(id);
     }
 
-    create(importer: IImport): IImport {
+    create(importer: Object): Object {
         return this.store.create(importer);
     }
 
