@@ -6,7 +6,7 @@ interface IImporterRepositoryService extends IApiService {
     getAll(): Object[];
     get(id: string): Object;
     delete(id: string);
-    create(importer: Object): Object;
+    create(id: string, importer: Object): Object;
     update(importer: Object);
     addTransformer(transformer: transform.ITransform);
 }

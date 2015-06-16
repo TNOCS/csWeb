@@ -4,8 +4,6 @@ import IStore                     = require("../import/IStore");
 import IProjectRepositoryService  = require("./IProjectRepositoryService");
 import ConfigurationService       = require('../configuration/ConfigurationService');
 
-var es = require('event-stream');
-
 /* Multiple storage engine supported, e.g. file system, mongo  */
 class ProjectRepositoryService implements IProjectRepositoryService {
     private server: express.Express;
@@ -28,10 +26,12 @@ class ProjectRepositoryService implements IProjectRepositoryService {
         /**
          * Create
          */
-        server.post(this.resourceTypeUrl, (req, res) => {
+        server.post(this.resourceTypeUrl + '/:id', (req, res) => {
+            var id = req.params.id;
+            if (!this.endsWith(id, ".json")) id += ".json";
             var resourceType = req.body;
             console.log(resourceType);
-            res.send(this.create(resourceType));
+            res.send(this.create(id, resourceType));
         });
 
         /**
@@ -39,7 +39,7 @@ class ProjectRepositoryService implements IProjectRepositoryService {
          */
         server.get(this.resourceTypeUrl + '/:id', (req, res) => {
             var id = req.params.id;
-            res.send(this.get(id));
+            this.get(id, res);
         });
 
         /**
@@ -48,7 +48,7 @@ class ProjectRepositoryService implements IProjectRepositoryService {
         server.put(this.resourceTypeUrl + '/:id', (req, res) => {
             var id = req.params.id;
             var resourceType = req.body;
-            res.send(this.update(resourceType));
+            res.send(this.update(id, resourceType));
         });
 
         /**
@@ -60,6 +60,10 @@ class ProjectRepositoryService implements IProjectRepositoryService {
         });
     }
 
+    private endsWith(str: string, suffix: string) {
+        return str.indexOf(suffix, str.length - suffix.length) !== -1;
+    };
+
     shutdown() {
 
     }
@@ -68,20 +72,20 @@ class ProjectRepositoryService implements IProjectRepositoryService {
         return this.store.getAll();
     }
 
-    get(id: string) {
-        return this.store.get(id);
+    get(id: string, res: express.Response) {
+        this.store.getAsync(id, res);
     }
 
-    create(resourceType: Object) {
-        return this.store.create(resourceType);
+    create(id: string, resourceType: Object) {
+        return this.store.create(id, resourceType);
     }
 
     delete(id: string) {
         this.store.delete(id);
     }
 
-    update(newObject: { [id: string]: Object }) {
-        this.store.update(newObject);
+    update(id: string, newObject: any) {
+        this.store.update(id, newObject);
     }
 
 }
