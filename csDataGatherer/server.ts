@@ -5,6 +5,7 @@ import ITransform                = require('./ServerComponents/import/ITransform
 import BaseTransformer           = require('./ServerComponents/import/BaseTransformer');
 import Store                     = require('./ServerComponents/import/Store');
 import ImporterRepositoryService = require('./ServerComponents/import/ImporterRepositoryService');
+import ProjectRepositoryService  = require('./ServerComponents/creator/ProjectRepositoryService');
 import ConfigurationService      = require('./ServerComponents/configuration/ConfigurationService');
 import ApiServiceManager         = require('./ServerComponents/api/ApiServiceManager');
 
@@ -31,12 +32,18 @@ server.use(express.static(path.join(__dirname, 'public')));
 
 // Create the API service manager and add the services that you need
 var apiServiceMgr = new ApiServiceManager(server, config);
-var repoService = new ImporterRepositoryService(new Store.FileStore(config));
+var repoService = new ImporterRepositoryService(new Store.FileStore({ storageFile: "importers.json" }));
 apiServiceMgr.addService(repoService);
 
-repoService.addTransformer(new BaseTransformer("Test 1"));
+var test1 = new BaseTransformer("Test 1");
+//test1.
+repoService.addTransformer(test1);
 repoService.addTransformer(new BaseTransformer("Test 2"));
 repoService.addTransformer(new BaseTransformer("Test 3"));
+
+// Resource types
+var resourceTypeStore = new ProjectRepositoryService(new Store.FileStore({ storageFile: "resourceTypes.json" }))
+apiServiceMgr.addService(resourceTypeStore);
 
 // development only
 // if ('development' == server.get('env')) {

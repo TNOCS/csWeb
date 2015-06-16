@@ -77,6 +77,8 @@ gulp.task('built_csServerComp.d.ts', function() {
         //  .pipe(concat('csServerComp.d.ts'))
         .pipe(gulp.dest('./ServerComponents'));
     //.pipe(gulp.dest('./public/cs/js'));
+    gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts')
+        .pipe(gulp.dest(path2csWeb + 'test/Scripts/typings/cs'));
 });
 
 gulp.task('copy_csServerComp_scripts', function() {
@@ -103,7 +105,6 @@ gulp.task('built_csComp_classes', function() {
         .pipe(concat('csCompClasses.ts'))
         .pipe(gulp.dest(path2csWeb + 'csServerComp/classes'));
 });
-
 
 gulp.task('built_csComp.d.ts', function() {
     gulp.src(path2csWeb + 'csComp/js/**/*.d.ts')

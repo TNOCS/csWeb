@@ -1,5 +1,3 @@
-import IImport = require("./IImport");
-
 interface IStore {
     /**
      * Save all importers.
@@ -8,11 +6,11 @@ interface IStore {
     /**
      * Get a single importer.
      */
-    get(id: string) : IImport;
+    get(id: string) : Object;
     /**
      * Get all importers as an array.
      */
-    getAll() : IImport[];
+    getAll() : Object[];
     /**
      * Delete an existing importer.
      */
@@ -20,10 +18,10 @@ interface IStore {
     /**
      * Create a new importer and store it.
      */
-    create(importer: IImport): IImport;
+    create(newObject: Object): Object;
     /**
      * Update an existing importer.
      */
-    update(importer: IImport);
+    update(oldObject: Object);
 }
 export=IStore;
