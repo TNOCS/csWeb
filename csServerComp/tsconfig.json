@@ -18,6 +18,7 @@
         "!./Classes/*.d.ts"
     ],
     "files": [
+        "./Classes/Feature.ts",
         "./Scripts/typings/JSONStream/JSONStream.d.ts",
         "./Scripts/typings/body-parser/body-parser.d.ts",
         "./Scripts/typings/cs/cs-offline-search.d.ts",
@@ -42,6 +43,7 @@
         "./ServerComponents/database/Location.ts",
         "./ServerComponents/dynamic/ClientConnection.ts",
         "./ServerComponents/dynamic/DataSource.ts",
+        "./ServerComponents/dynamic/DynamicLayer.ts",
         "./ServerComponents/dynamic/DynamicProject.ts",
         "./ServerComponents/dynamic/LayerDirectory.ts",
         "./ServerComponents/helpers/Utils.ts",
