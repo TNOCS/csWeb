@@ -3,11 +3,11 @@ import IImport = require("./IImport");
 import transform   = require("./ITransform");
 
 interface IImporterRepositoryService extends IApiService {
-    getAll(): IImport[];
-    get(id: string): IImport;
+    getAll(): Object[];
+    get(id: string): Object;
     delete(id: string);
-    create(importer: IImport): IImport;
-    update(importer: IImport);
+    create(importer: Object): Object;
+    update(importer: Object);
     addTransformer(transformer: transform.ITransform);
 }
 export = IImporterRepositoryService;

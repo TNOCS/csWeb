@@ -48,6 +48,7 @@
         "./directives/Charts/BarChart.ts",
         "./directives/Charts/ChartHelpers.ts",
         "./directives/Charts/CircularChart.ts",
+        "./directives/Charts/SingleValue.ts",
         "./directives/Charts/SparklineChart.ts",
         "./directives/ContextMenu/ContextMenu.ts",
         "./directives/DashboardDirectives/Dashboard/Dashboard.ts",
