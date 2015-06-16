@@ -6,7 +6,7 @@ module csComp.Services {
         layer: ProjectLayer;
         requiresLayer = false;
 
-        public constructor(public service: LayerService) {}
+        public constructor(public service: LayerService) { }
 
         public refreshLayer(layer: ProjectLayer) {
             this.service.removeLayer(layer);
@@ -18,10 +18,9 @@ module csComp.Services {
         }
 
         /** zoom to boundaries of layer */
-        public fitMap(layer : ProjectLayer)
-        {
+        public fitMap(layer: ProjectLayer) {
             var b = Helpers.GeoExtensions.getBoundingBox(this.layer.data);
-            this.service.$messageBusService.publish("map","setextent",b);
+            this.service.$messageBusService.publish("map", "setextent", b);
         }
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
@@ -42,7 +41,7 @@ module csComp.Services {
                     // get data
                     var u = layer.url.replace('[BBOX]', layer.BBOX);
 
-                    d3.json(u,(error, data) => {
+                    d3.json(u, (error, data) => {
                         layer.count = 0;
                         layer.isLoading = false;
                         // check if loaded correctly
@@ -136,7 +135,6 @@ module csComp.Services {
                 if (!done) {
                     // console.log('adding feature');
                     features.push(value);
-
                     this.service.initFeature(value, this.layer);
                     var m = this.service.activeMapRenderer.addFeature(value);
                 }

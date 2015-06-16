@@ -14,7 +14,8 @@
         "./**/*.ts",
         "!./OfflineSearch/**/*.ts",
         "!./ServerComponents/**/*.d.ts",
-        "!./node_modules/**/*.ts"
+        "!./node_modules/**/*.ts",
+        "!./Classes/*.d.ts"
     ],
     "files": [
         "./Scripts/typings/JSONStream/JSONStream.d.ts",

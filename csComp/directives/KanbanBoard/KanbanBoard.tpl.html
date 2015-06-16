@@ -1,32 +1,65 @@
-<div class="container-fluid" id="kanban" style="width:300px">
+<div class="container-fluid" id="kanban">
     <style>
-        .kanbanRowSettings{
-            background: blue;
+        .kanbanColumnSettings {
             position: absolute;
             top: 0;
             right: 0;
-            width:40px;
-            height:40px;
+            width: 40px;
+            height: 40px;
+        }
+
+        .card-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            margin-top:70px;
+        }
+
+        .card-item {
+            min-height: 50px;
+            margin-bottom: 20px;
+            width: 100%;
+            -webkit-box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
+            box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 1s;
+            transition: -webkit-box-shadow 1s;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .kanbanColumn-title {
+            font-size: 30px;
+            float: left;
+        }
+
+        .kanbanColumn-column {
+            position: relative;
+            display: inline-block;
+            width: 300px;
+            float: left;
+            margin-right:10px;
+
         }
     </style>
-    <div class="kanbanRowSettings">
-        <span class="fa fa-2x fa-cog" style="position:absolute;left:7px;top:5px;color:white"></span>
-    </div>
+
     <div id="columns">
-      <div style="width: 50%;display: inline-block;" ng-repeat="column in kanban.columns" data-columnindex="{{$index}}" id="column{{$index}}">
-          <div class="column" style="background-color: {{column.settings.color}}">
-            <div class="columnHeader">
-               <a title="Column settings" ng-click="columnSettings(kanban, column)" ng-model="column" ng-hide="editing"><i class="glyphicon glyphicon-wrench"></i></a>
-                <a title="Add card to column" class="pull-right" ng-click="addNewCard(column)" ng-hide="columnLimitsReached(column)"><i class="glyphicon glyphicon-plus"></i></a>
-                <span>{{column.name}} ({{columnLimitsTextFor(column)}})</span>
+        <div class="kanbanColumn-column" ng-repeat="column in vm.kanban.columns" data-columnindex="{{$index}}" id="column{{$index}}">
+
+            <div class="kanbanColumn-title">{{column.title}}</div>
+            <div style="float:right;margin-right:10px;margin-top:12px;">
+                <span class="fa fa-cog" style="color:gray"></span>
+                <span class="fa fa-cog" style="color:gray"></span>
             </div>
-            <ul ng-class="sortableClassFor(column)" ui-sortable="{connectWith: '#kanban ul.cards'}" ng-model="column.cards" style="min-height:{{columnHeight}}px;max-height:{{columnHeight}}px;">
-                <li class="card" ng-repeat="card in column.cards" style="background-color: #{{colorFor(card)}};">
-                    <a class="pull-right" ng-click="delete(card, column)"><i class="glyphicon glyphicon-remove"></i></a>
-                    <a class="pull-right" title="Archive" ng-click="archive(kanban, column, card)" ng-show="isLastColumn(column.name, kanban)"><i class="glyphicon glyphicon-folder-close"></i></a>
-                    <a ng-click="openCardDetails(card)"><span>{{card.name}}</span></a>
+
+            <ul ng-class="sortableClassFor(column)" class="card-list">
+                <li class="card-item" ng-repeat="feature in column.layer.data.features | orderBy:'insertDate':true" ng-click="vm.selectFeature(feature)">
+
+                    <span>{{feature.properties['Name']}}</span>
                 </li>
             </ul>
+
         </div>
-      </div>
-</div>
+    </div>

@@ -181,7 +181,8 @@ module csComp.Services {
                     this.service.map.map.addLayer(layer.mapLayer);
                     if (!layer.data || !layer.data.features) break;
                     (<any>layer.data).features.forEach((f: IFeature) => {
-                        layer.group.markers[f.id] = this.addFeature(f);
+                        var marker = this.addFeature(f);
+                        if (marker) layer.group.markers[f.id] = marker;
                     });
                     //var v = L.geoJson(layer.data, {
                     //    style: (f: IFeature, m) => {
@@ -299,26 +300,27 @@ module csComp.Services {
         }
 
         public addFeature(feature: IFeature): any {
-            var m = this.createFeature(feature);
-            var l = <ProjectLayer>feature.layer;
-            l.group.markers[feature.id] = m;
-            m.on({
-                mouseover: (a) => this.showFeatureTooltip(a, l.group),
-                mouseout: (s) => this.hideFeatureTooltip(s),
-                mousemove: (d) => this.updateFeatureTooltip(d),
-                click: () => this.service.selectFeature(feature)
-            });
-            m.feature = feature;
-            if (l.group.clustering) {
-                l.group.cluster.addLayer(m);
-            }
-            else {
-                if (l.mapLayer) {
-                    l.mapLayer.addLayer(m);
+            if (feature.geometry != null) {
+                var m = this.createFeature(feature);
+                var l = <ProjectLayer>feature.layer;
+                l.group.markers[feature.id] = m;
+                m.on({
+                    mouseover: (a) => this.showFeatureTooltip(a, l.group),
+                    mouseout: (s) => this.hideFeatureTooltip(s),
+                    mousemove: (d) => this.updateFeatureTooltip(d),
+                    click: () => this.service.selectFeature(feature)
+                });
+                m.feature = feature;
+                if (l.group.clustering) {
+                    l.group.cluster.addLayer(m);
                 }
-            }
-
-            return m;
+                else {
+                    if (l.mapLayer) {
+                        l.mapLayer.addLayer(m);
+                    }
+                }
+                return m;
+            } else return null;
         }
 
         /**
