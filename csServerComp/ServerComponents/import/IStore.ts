@@ -1,12 +1,16 @@
+import express = require('express');
+
 interface IStore {
     /**
      * Save all importers.
      */
-    save();
+    save(id?: string, resource?: any);
     /**
      * Get a single importer.
      */
     get(id: string) : Object;
+    getAsync?(id: string, res: express.Response);
+
     /**
      * Get all importers as an array.
      */
@@ -18,10 +22,10 @@ interface IStore {
     /**
      * Create a new importer and store it.
      */
-    create(newObject: Object): Object;
+    create(id: string, resource: any);
     /**
      * Update an existing importer.
      */
-    update(oldObject: Object);
+    update(id: string, resource: any);
 }
 export=IStore;

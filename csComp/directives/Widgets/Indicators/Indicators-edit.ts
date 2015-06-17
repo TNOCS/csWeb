@@ -75,12 +75,12 @@ module Indicators {
         constructor(
             private $scope: IIndicatorsEditCtrl,
             private $timeout: ng.ITimeoutService,
+            private $compile: any,
             private $layerService: csComp.Services.LayerService,
+            private $templateCache: any,
             private $messageBus: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService,
-            private $compile: any,
-            private $dashboardService: csComp.Services.DashboardService,
-            private $templateCache: any
+            private $dashboardService: csComp.Services.DashboardService
             ) {
 
             $scope.vm = this;
@@ -97,11 +97,19 @@ module Indicators {
         }
         //
         // //** select a typesResource collection from the dropdown */
-        // public selectIndicator(i: indicator) {
-        //     if (i.visual) {
-        //         i.visual = this.selectedIndicatorVisual;
-        //     }
-        // }
+        public colorUpdated(c: any, i: any) {
+            if (c) {
+                this.$scope.data.indicators.some((ind) => {
+                    if (ind.id === i.id) {
+                        ind.color = c;
+                        this.$messageBus.publish('layer', 'updatedIndicator', ind);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+            }
+        }
 
 
 

@@ -41,7 +41,7 @@ class ImporterRepositoryService implements IImporterRepositoryService {
         server.post(this.baseUrl, (req, res) => {
             var importer = req.body;
             console.log(importer);
-            res.send(this.create(importer));
+            res.send(this.create(null, importer));
         });
 
         /**
@@ -108,8 +108,8 @@ class ImporterRepositoryService implements IImporterRepositoryService {
         return this.store.get(id);
     }
 
-    create(importer: Object): Object {
-        return this.store.create(importer);
+    create(id: string, importer: Object): Object {
+        return this.store.create(id, importer);
     }
 
     delete(id: string) {
@@ -117,7 +117,7 @@ class ImporterRepositoryService implements IImporterRepositoryService {
     }
 
     update(importer: IImport) {
-        this.store.update(importer);
+        this.store.update(null, importer);
     }
 
 }

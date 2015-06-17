@@ -33,7 +33,9 @@
         "./Scripts/typings/cs/configuration/ConfigurationService.d.ts",
         "./Scripts/typings/cs/configuration/IConfiguration.d.ts",
         "./Scripts/typings/cs/creator/IGeoJsonFeature.d.ts",
+        "./Scripts/typings/cs/creator/IProjectRepositoryService.d.ts",
         "./Scripts/typings/cs/creator/MapLayerFactory.d.ts",
+        "./Scripts/typings/cs/creator/ProjectRepositoryService.d.ts",
         "./Scripts/typings/cs/cs-offline-search.d.ts",
         "./Scripts/typings/cs/csComp.d.ts",
         "./Scripts/typings/cs/database/BagDatabase.d.ts",
@@ -86,6 +88,5 @@
         "./csComp/spec/helpers/StyleHelpers.spec.ts",
         "./csComp/spec/helpers/Utils.spec.ts",
         "./csComp/spec/services/bus/MessageBus.spec.ts",
-        "./csComp/spec/services/layer/LayerService.spec.ts"
-    ]
+        "./csComp/spec/services/layer/LayerService.spec.ts"    ]
 }
