@@ -142,6 +142,7 @@ module csComp.Services {
         timeLine: DateRange;
         mcas: Mca.Models.Mca[];
         dashboards: Dashboard[];
+        typeUrls: string[];
         datasources: DataSource[];
         dataSets: DataSet[];
         viewBounds: IBoundingBox;
