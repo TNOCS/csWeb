@@ -446,6 +446,9 @@ export class MapLayerFactory {
                     case "Percentage_two_decimals":
                         prop["stringFormat"] = "{0:#,#.##}%";
                         break;
+                    case "Percentage_four_decimals":
+                        prop["stringFormat"] = "{0:#,#.####}%";
+                        break;
                     default:
                         console.log("stringFormat \'" + prop["stringFormat"] + "\' not found.");
                         break;

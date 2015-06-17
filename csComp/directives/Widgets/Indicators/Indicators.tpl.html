@@ -13,7 +13,7 @@
             <div class="indicator-sparkline-value">{{i.sensorSet.activeValueText()}}</div>
         </li>
         <li ng-class="{isActive : i.isActive}" ng-click="vm.selectIndicator(i)" class="indicator-group indicator-circular-group"  ng-switch-when="circular">
-          <circular-chart  title-class="indicator-circular-title" color="i.color" animationDuration="200" value-class="indicator-circular-value" value-string="i.sensorSet.activeValueText()" value="i.sensorSet.activeValue"  title="i.sensorSet.propertyType.title" max="100" width="320" height="320"></circular-chart>
+          <circular-chart  title-class="indicator-circular-title" color="i.color" animationDuration="200" value-class="indicator-circular-value" value-string="i.sensorSet.activeValueText()" value="i.sensorSet.activeValue"  title="i.sensorSet.propertyType.title" min="0" max="i.sensorSet.max" width="320" height="320"></circular-chart>
         </li>
         <li ng-class="{isActive : i.isActive}" class="indicator-group" ng-switch-default>
             <div>{{i.sensorSet.propertyType.title}}</div>

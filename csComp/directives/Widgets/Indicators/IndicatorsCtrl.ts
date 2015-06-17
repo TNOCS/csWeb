@@ -10,6 +10,9 @@ module Indicators {
         title: string;
         visual: string;
         type: string;
+        usesSelectedFeature: boolean;
+        featureTypeName: string;
+        propertyTypes: string[];
         sensor: string;
         sensorSet: csComp.Services.SensorSet;
         layer: string;
@@ -59,9 +62,23 @@ module Indicators {
                 this.checkLayers();
             });
             $scope.data = <indicatorData>this.widget.data;
+            $scope.$watch('data',()=>{
+                console.log('update data');
+            })
             if (typeof $scope.data.indicators !== 'undefined') {
                 $scope.data.indicators.forEach((i: indicator) => {
                     i.id = "circ-" + csComp.Helpers.getGuid();
+                    if (i.usesSelectedFeature) {
+                        this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
+                            switch(action) {
+                                case 'onFeatureSelect':
+                                    this.selectFeature(feature, i);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+                    }
                     if (i.sensor != null) {
                         this.$messageBus.subscribe("sensor-" + i.sensor, (action: string, data: string) => {
                             switch (action) {
@@ -133,6 +150,30 @@ module Indicators {
             }
             this.checkLayers();
             //console.log(i.title);
+        }
+
+        private selectFeature(f: csComp.Services.IFeature, i: indicator) {
+            if(!i.sensorSet) {
+                var ss = new csComp.Services.SensorSet();
+                ss.propertyType = {title: ''};
+                i.sensorSet = ss;
+            }
+
+            if (i.hasOwnProperty('propertyTypes') && i.hasOwnProperty('featureTypeName')) {
+                if (f.featureTypeName === i.featureTypeName) {
+                    var propTypes = i.propertyTypes;
+                    var propValues = [];
+                    propTypes.forEach((pt: string) => {
+                        if (f.properties.hasOwnProperty(pt)) {
+                            propValues.push(f.properties[pt]);
+                        }
+                    });
+                    i.sensorSet.activeValue = propValues[0];
+                    i.sensorSet.propertyType.title = propTypes[0];
+                    var propInfo = this.$layerService.calculatePropertyInfo(f.layer.group, propTypes[0]);
+                    i.sensorSet.max = propInfo.sdMax;
+                }
+            }
         }
     }
 }
