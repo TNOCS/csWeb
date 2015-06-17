@@ -352,7 +352,7 @@ module csComp.Services {
         }
 
         /** add a types resource (project, resource file or layer) */
-        public initTypeResources(source: ITypesResource) {
+        public initTypeResources(source: any) { //reset
             this.typesResources[source.url] = source;
             var featureTypes = source.featureTypes;
             if (featureTypes) {
@@ -518,8 +518,8 @@ module csComp.Services {
                 rpt.container = 'featureprops';
                 this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
-                var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
+                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
@@ -1023,6 +1023,7 @@ module csComp.Services {
          * In case both fail, create a default feature type at the layer level.
          */
         getFeatureType(feature: IFeature): IFeatureType {
+            if (feature.fType) return feature.fType;
             var projectFeatureTypeName = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
             var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
             if (!(this.featureTypes.hasOwnProperty(featureTypeName))) {

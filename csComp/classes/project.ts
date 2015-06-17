@@ -123,7 +123,7 @@ module csComp.Services {
     }
 
     /** project configuration. */
-    export class Project implements ITypesResource, ISerializable<Project>  {
+    export class Project implements ISerializable<Project>  {
         id: string;
         title: string;
         description: string;
@@ -133,6 +133,7 @@ module csComp.Services {
         connected: boolean;
         activeDashboard: Dashboard;
         baselayers: IBaseLayer[];
+        allFeatureTypes: { [id: string]: IFeatureType };
         featureTypes: { [id: string]: IFeatureType }
         propertyTypeData: { [id: string]: IPropertyType }
         groups: ProjectGroup[];
@@ -192,7 +193,7 @@ module csComp.Services {
                 languages: project.languages,
                 expertMode: project.expertMode,
                 baselayers: project.baselayers,
-                featureTypes: project.featureTypes,
+                featureTypes: project.featureTypes, //reset
                 propertyTypeData: project.propertyTypeData,
                 groups: csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData)
             };
