@@ -1,4 +1,4 @@
-﻿module ProjectSettings {
+module ProjectSettings {
     export interface IProjectSettingsScope extends ng.IScope {
         vm: ProjectSettingsCtrl;
     }
@@ -12,7 +12,6 @@
         // See http://docs.angularjs.org/guide/di
         public static $inject = [
             '$scope',
-            '$modal',
             '$timeout',
             'layerService'
         ];
@@ -21,7 +20,6 @@
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope       : IProjectSettingsScope,
-            private $modal       : any,
             private $timeout     : ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService
             ) {
@@ -37,5 +35,25 @@
             }, 0);
         }
 
+        updateProject() {
+            console.log('Update project called');
+            this.$timeout(() => {
+                var data = this.$layerService.project.serialize();
+                var url = this.$layerService.projectUrl.url.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
+                console.log('URL: ' + url);
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: data,
+                    contentType: "application/json",
+                    complete: this.updateProjectReady
+                });
+            }, 0);
+        }
+
+        private updateProjectReady(data) {
+            if (data.success().statusText != 'OK') console.error('Error update project.json: ' + JSON.stringify(data));
+            else console.log('Project.json updated succesfully!')
+        }
     }
 }

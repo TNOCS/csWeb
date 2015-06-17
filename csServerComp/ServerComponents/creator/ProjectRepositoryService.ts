@@ -1,3 +1,5 @@
+import fs                         = require('fs');
+import path                       = require('path');
 import express                    = require('express');
 import IApiServiceManager         = require('../api/IApiServiceManager');
 import IStore                     = require("../import/IStore");
@@ -6,10 +8,12 @@ import ConfigurationService       = require('../configuration/ConfigurationServi
 
 /* Multiple storage engine supported, e.g. file system, mongo  */
 class ProjectRepositoryService implements IProjectRepositoryService {
-    private server: express.Express;
-    private config: ConfigurationService;
+    private server:          express.Express;
+    private config:          ConfigurationService;
     private resourceTypeUrl: string;
-    id: string;
+    private dataUrl:         string;
+    private projectUrl:      string;
+    id:                      string;
 
     constructor(private store: IStore) { }
 
@@ -17,6 +21,8 @@ class ProjectRepositoryService implements IProjectRepositoryService {
         this.server = server;
         this.config = config;
         this.resourceTypeUrl = apiServiceManager.BaseUrl + (config['resourceTypeAddress'] || '/resourceTypes');
+        this.dataUrl         = apiServiceManager.DataUrl + (config['resourceTypeAddress'] || '/resourceTypes');
+        this.projectUrl      = apiServiceManager.DataUrl + '/projects';
 
         server.get(this.resourceTypeUrl, (req, res) => {
             var resourceTypes = this.getAll();
@@ -24,7 +30,23 @@ class ProjectRepositoryService implements IProjectRepositoryService {
         });
 
         /**
-         * Create
+         * Create project file
+         */
+        server.post(this.projectUrl + '/:id', (req, res) => {
+            var id = req.params.id;
+            var project = req.body;
+            console.log('Saving posted project file (project.json): ' + id);
+            var filename = path.join(path.dirname(require.main.filename), 'public/data/projects', id, 'project.json');
+            fs.writeFile(filename, JSON.stringify(project, null, 2), (err) => {
+                if (err) {
+                    console.error(err);
+                }
+            });
+            res.end();
+        });
+
+        /**
+         * Create resourceType
          */
         server.post(this.resourceTypeUrl + '/:id', (req, res) => {
             var id = req.params.id;
@@ -37,7 +59,7 @@ class ProjectRepositoryService implements IProjectRepositoryService {
         /**
          * Read
          */
-        server.get(this.resourceTypeUrl + '/:id', (req, res) => {
+        server.get(this.dataUrl + '/:id', (req, res) => {
             var id = req.params.id;
             this.get(id, res);
         });
