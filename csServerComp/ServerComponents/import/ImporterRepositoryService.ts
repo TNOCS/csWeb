@@ -1,7 +1,7 @@
 import express                    = require('express');
 import IApiServiceManager         = require('../api/IApiServiceManager');
 import IImport                    = require("./IImport");
-import ITransform                 = require("./ITransform");
+import transform                  = require("./ITransform");
 import IStore                     = require("./IStore");
 import IImporterRepositoryService = require("./IImporterRepositoryService");
 import ConfigurationService       = require('../configuration/ConfigurationService');
@@ -15,7 +15,7 @@ class ImporterRepositoryService implements IImporterRepositoryService {
     private server: express.Express;
     private config: ConfigurationService;
     private baseUrl: string;
-    private transformers: ITransform[] = [];
+    private transformers: transform.ITransform[] = [];
     id: string;
 
     constructor(private store: IStore) { }
@@ -41,7 +41,7 @@ class ImporterRepositoryService implements IImporterRepositoryService {
         server.post(this.baseUrl, (req, res) => {
             var importer = req.body;
             console.log(importer);
-            res.send(this.create(importer));
+            res.send(this.create(null, importer));
         });
 
         /**
@@ -64,8 +64,7 @@ class ImporterRepositoryService implements IImporterRepositoryService {
             request({ url: importer.sourceUrl })
                 .pipe(JSONStream.parse('rows.*'))
                 .pipe(es.mapSync(function(data) {
-                    console.error(data)
-                    return data
+                    console.log(data);
                 }));
 
             res.send("");
@@ -93,7 +92,7 @@ class ImporterRepositoryService implements IImporterRepositoryService {
 
     }
 
-    addTransformer(transformer: ITransform) {
+    addTransformer(transformer: transform.ITransform) {
         this.transformers.push(transformer);
     }
 
@@ -105,12 +104,12 @@ class ImporterRepositoryService implements IImporterRepositoryService {
         return this.store.getAll();
     }
 
-    get(id: string) {
+    get(id: string): any {
         return this.store.get(id);
     }
 
-    create(importer: IImport): IImport {
-        return this.store.create(importer);
+    create(id: string, importer: Object): Object {
+        return this.store.create(id, importer);
     }
 
     delete(id: string) {
@@ -118,7 +117,7 @@ class ImporterRepositoryService implements IImporterRepositoryService {
     }
 
     update(importer: IImport) {
-        this.store.update(importer);
+        this.store.update(null, importer);
     }
 
 }

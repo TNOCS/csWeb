@@ -104,6 +104,7 @@ module csComp.Services {
                 switch (expertMode) {
                     case Expertise.Intermediate:
                     case Expertise.Expert:
+                    case Expertise.Admin:
                         this.timelineVisible = true;
                         this.$timeout(() => { this.$messageBusService.publish('timeline', 'loadProjectTimeRange') }, 100);
                         break;

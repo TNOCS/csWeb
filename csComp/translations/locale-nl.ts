@@ -16,6 +16,7 @@
             LEGEND                  : 'Legenda',
             SEARCH                  : 'Zoeken',
             HIDE_PANEL              : 'Verberg dit paneel',
+            EDIT_INDICATORS         : 'Wijzig indicatoren',
             RELATED_FEATURES        : 'Toon gerelateerde features',
             FEATURE_INFO            : 'Toon informatie over de geselecteerde feature',
             MAP_FEATURES            : 'Kaartfeatures',

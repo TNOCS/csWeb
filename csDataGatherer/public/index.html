@@ -84,10 +84,10 @@
                         <div class="col-md-2">
                             &nbsp;{{importer.title}}
                         </div>
-                        <div class="col-md-2" style="text-overflow: ellipsis;">
+                        <div class="col-md-3" style="text-overflow: ellipsis;">
                             <a target="_blank" href="{{importer.sourceUrl}}">{{importer.sourceUrl}}</a>
                         </div>
-                        <div class="col-md-4" style="text-overflow: ellipsis;">
+                        <div class="col-md-3" style="text-overflow: ellipsis;">
                             {{importer.description}}
                         </div>
                         <div class="col-md-2">
@@ -127,7 +127,7 @@
                         <label>Source URL</label>
                         <input type="url" ng-required name="sourceUrl" class="form-control" placeholder="http://source.url" ng-model="vm.activeImporter.sourceUrl">
                         <span style="color:red" ng-show="importerInputForm.sourceUrl.$error.required">You can't leave this field empty</span>
-                        <span style="color:red" ng-show="importerInputForm.sourceUrl.$error.url">Sorry Not a Valid URL, Don't Forget to Use http://</span>                
+                        <span style="color:red" ng-show="importerInputForm.sourceUrl.$error.url">Sorry Not a Valid URL, Don't Forget to Use http://</span>
                         <span class="help-block"></span>
                     </div>
 
