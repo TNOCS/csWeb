@@ -10,6 +10,13 @@
     <div class="controls">
       <input id="dashboardTitle" name="textinput" type="text" ng-model="vm.dashboard.name" placeholder="placeholder" class="input-xlarge">
     </div>
+    <div class="controls">
+        <label class="editor-title input-xlarge">Parent</label>
+        <input type="checkbox" ng-model="vm.hasParent" ng-click="vm.toggleMap()">
+        <select data-ng-model="vm.parent" class="form-control tt-input editor-text-input" ng-click="vm.updateHasParent()">
+            <option ng-repeat="db in vm.$layerService.project.dashboards" ng-value="db.id">{{db.name}}</option>
+        </select>
+    </div>
     <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
       <input type="checkbox" id="showmap-{{vm.dashboard.id}}" ng-model="vm.dashboard.showMap" ng-click="vm.toggleMap()">
       <label for="showmap-{{vm.dashboard.id}}">Show Map</label>
@@ -23,8 +30,9 @@
       <label for="image-{{vm.dashboard.id}}">Show Image</label>
     </div>
     <div style="margin-left: 20px">
-      <input type="text" ng-model="vm.dashboard.backgroundimage">      
+      <input type="text" ng-model="vm.dashboard.backgroundimage">
     </div>
+
 
   </div>
   <div style="float: left; margin-left: -5px; margin-top: 5px" data-toggle="collapse" data-target="#dashboardwidgets_{{vm.dashboard.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>

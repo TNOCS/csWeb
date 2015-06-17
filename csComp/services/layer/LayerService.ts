@@ -295,7 +295,8 @@ module csComp.Services {
                     callback(null, null);
                 },
                 (callback) => {
-                    this.loadTypeResources(layer, () => callback(null, null));
+                    console.log('loading types : ' + layer.typeUrl);
+                    if (layer.typeUrl) this.loadTypeResources(layer.typeUrl, () => callback(null, null));
                 },
                 (callback) => {
                     // load required feature layers, if applicable
@@ -333,13 +334,13 @@ module csComp.Services {
         }
 
         /** load external type resource for a project or layer */
-        public loadTypeResources(layer: any, callback: Function) {
-            if (layer.typeUrl != 'undefined') {
+        public loadTypeResources(url: any, callback: Function) {
+            if (url != 'undefined') {
                 // todo check for list of type resources
-                if (typeof layer.typeUrl === 'string') {
-                    if (!this.typesResources.hasOwnProperty(layer.typeUrl)) {
-                        $.getJSON(layer.typeUrl, (resource: TypeResource) => {
-                            resource.url = layer.typeUrl;
+                if (typeof url === 'string') {
+                    if (!this.typesResources.hasOwnProperty(url)) {
+                        $.getJSON(url, (resource: TypeResource) => {
+                            resource.url = url;
                             this.initTypeResources(resource);
                             callback();
                         });
@@ -352,7 +353,7 @@ module csComp.Services {
         }
 
         /** add a types resource (project, resource file or layer) */
-        public initTypeResources(source: ITypesResource) {
+        public initTypeResources(source: any) { //reset
             this.typesResources[source.url] = source;
             var featureTypes = source.featureTypes;
             if (featureTypes) {
@@ -375,7 +376,7 @@ module csComp.Services {
         }
 
         checkLayerLegend(layer: ProjectLayer, property: string) {
-            var ptd = this.project.propertyTypeData[property];
+            var ptd = this.propertyTypeData[property];
             if (ptd && ptd.legend) {
                 var gs: GroupStyle;
                 if (layer.group.styles && (layer.group.styles.length > 0)) {
@@ -518,8 +519,8 @@ module csComp.Services {
                 rpt.container = 'featureprops';
                 this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
-                var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
+                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
@@ -1023,6 +1024,7 @@ module csComp.Services {
          * In case both fail, create a default feature type at the layer level.
          */
         getFeatureType(feature: IFeature): IFeatureType {
+            if (feature.fType) return feature.fType;
             var projectFeatureTypeName = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
             var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
             if (!(this.featureTypes.hasOwnProperty(featureTypeName))) {
@@ -1255,36 +1257,52 @@ module csComp.Services {
                             });
                     });
                 }
+                async.series([
+                    (callback) => {
+                        if (this.project.typeUrls && this.project.typeUrls.length > 0) {
+                            async.eachSeries(this.project.typeUrls, (item, cb) => {
+                                this.loadTypeResources(item, () => cb(null, null));
+
+                            }, () => {
+                                    callback(null, null);
+                                })
 
 
-                if (this.project.datasources) {
-                    this.project.datasources.forEach((ds: DataSource) => {
-                        if (ds.url) {
-                            DataSource.LoadData(ds, () => {
-                                console.log('datasource loaded');
-                                if (ds.type === "dynamic") this.checkDataSourceSubscriptions(ds);
+                        }
+                    },
+                    (callback) => {
+                        if (this.project.datasources) {
+                            this.project.datasources.forEach((ds: DataSource) => {
+                                if (ds.url) {
+                                    DataSource.LoadData(ds, () => {
+                                        console.log('datasource loaded');
+                                        if (ds.type === "dynamic") this.checkDataSourceSubscriptions(ds);
 
-                                for (var s in ds.sensors) {
-                                    var ss: SensorSet = ds.sensors[s];
-                                    /// check if there is an propertytype available for this sensor
-                                    if (ss.propertyTypeKey != null && this.project.propertyTypeData.hasOwnProperty(ss.propertyTypeKey)) {
-                                        ss.propertyType = this.project.propertyTypeData[ss.propertyTypeKey];
-                                    }
-                                    else // else create a new one and store in project
-                                    {
-                                        var id = "sensor-" + Helpers.getGuid();
-                                        var pt: IPropertyType = {};
-                                        pt.title = s;
-                                        ss.propertyTypeKey = id;
-                                        this.project.propertyTypeData[id] = pt;
-                                        ss.propertyType = pt;
-                                    }
-                                    if (ss.values && ss.values.length > 0) ss.activeValue = ss.values[ss.values.length - 1];
+                                        for (var s in ds.sensors) {
+                                            var ss: SensorSet = ds.sensors[s];
+                                            /// check if there is an propertytype available for this sensor
+                                            if (ss.propertyTypeKey != null && this.propertyTypeData.hasOwnProperty(ss.propertyTypeKey)) {
+                                                ss.propertyType = this.propertyTypeData[ss.propertyTypeKey];
+                                            }
+                                            else // else create a new one and store in project
+                                            {
+                                                var id = "sensor-" + Helpers.getGuid();
+                                                var pt: IPropertyType = {};
+                                                pt.title = s;
+                                                ss.propertyTypeKey = id;
+                                                this.project.propertyTypeData[id] = pt;
+                                                ss.propertyType = pt;
+                                            }
+                                            if (ss.values && ss.values.length > 0) ss.activeValue = ss.values[ss.values.length - 1];
+                                        }
+                                    });
                                 }
                             });
                         }
-                    });
-                }
+                    }
+                ]);
+
+
 
                 if (!this.project.dataSets)
                     this.project.dataSets = [];

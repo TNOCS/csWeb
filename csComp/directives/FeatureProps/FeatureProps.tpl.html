@@ -1,7 +1,17 @@
 <div data-ng-cloak class="rightpanel-content" style="max-width: 355px">
     <h4 class="rightpanel-header">
         <img data-ng-if="callOut.icon" data-ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
+        <div ng-show="vm.$mapService.isAdminExpert" class="leftpanel-header-button-container">
+            <button class="button fa fa-pencil leftpanel-header-button" ng-click="enabled=!enabled" />
+        </div>
     </h4>
+    <div ng-show="vm.$mapService.isAdminExpert">
+
+        <div data-ng-show="enabled">
+            <featuretype type="featureType"></featuretype>
+        </div>
+
+    </div>
     <div class="container-fluid rightpanel-tabs" style="position: relative">
         <div class="row" style="overflow:hidden" ng-if="callOut.sectionCount() < 5">
             <!-- Nav tabs -->
@@ -68,8 +78,8 @@
                         <div class="pull-left accordionIcon">
                             <a class="smallStyleIcon makeNarrow" data-ng-show="item.canStyle" data-ng-click="vm.$layerService.setStyle(item)" style="cursor: pointer"></a>
                         </div>
-                        <div class="pull-left accordionIcon" data-ng-if="item.isSensor">
-                            <a class="fa fa-line-chart makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" href="#sensor{{item.property}}" style="cursor: pointer"></a>
+                        <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-left accordionIcon">
+                            <a class="fa fa-pencil makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" ng-click="item.enabled=!item.enabled" href="#sensor{{item.property}}" style="cursor: pointer"></a>
                         </div>
                         <div class="pull-left" style="margin-left: 4px;">
                             {{item.key}}
@@ -78,6 +88,86 @@
                         <div id="sensor{{item.property}}" data-ng-if="item.isSensor" class="panel-collapse collapse" style="padding-top: 10px;">
                             <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
                         </div>
+                        <div ng-if="item.enabled">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="rightpanel-label">Titel</div>
+                                    <input type="text" data-ng-model="item.meta.title" class=" form-control">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="rightpanel-label">Property</div>
+                                    <input type="text" data-ng-model="item.meta.label" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="rightpanel-label">Beschrijving</div>
+                                    <input type="text" data-ng-model="item.meta.description" class="form-control">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="rightpanel-label">Type</div>
+                                    <select data-ng-model="item.meta.type" ng-options="item for item in ['bbcode', 'color', 'date', 'number', 'text']" class="form-control"></select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6" style="margin-left: 20px;">
+                                    <div class="checkbox checkbox-primary">
+                                        <input type="checkbox" data-ng-model="propertyType.visibleInCallOut" id="visibleInCallOut-{{propertyType.title}}" />
+                                        <label for="visibleInCallOut-{{item.meta.title}}">Zichtbaar</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4" style="margin-left: 20px;">
+                                    <div class="checkbox checkbox-primary">
+                                        <input type="checkbox" data-ng-model="propertyType.isSearchable" id="isSearchable-{{propertyType.title}}" />
+                                        <label for="isSearchable-{{item.meta.title}}">Vindbaar</label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <form class="form-inline">
+                                        <div class="rightpanel-label">Sectie</div>
+
+                                        <input type="text" ng-enter="addSection(item.meta.section)" data-ng-model="item.meta.section" style="width: 200px;" class="form-control" />
+                                        <div class="btn-group">
+                                            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                                                <span class="caret"></span>
+                                            </button>
+                                            <!-- <ul class="dropdown-menu">
+                                                <div ng-repeat="section in sections track by $index">
+                                                    <div style="cursor: pointer; margin-left: 4px;" data-ng-click="item.meta.section=section"><i class="fa fa-angle-right"></i> {{ section }}</div>
+                                                </div>
+                                            </ul> -->
+                                        </div>
+                                    </form>
+                                </div>
+
+
+
+                                <div class="col-md-12" ng-show="item.meta.type == 'number'">
+                                    <div class="rightpanel-label">Min/max waarde</div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="number" data-ng-model="item.meta.min" class="form-control" placeholder="Min">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="number" data-ng-model="item.meta.max" class="form-control" placeholder="Max">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary rightpanel-button" type="submit">Opslaan</button>
+                        </div>
+
                       </div>
                     </div>
                 </div>
@@ -104,6 +194,9 @@
                         <div class="pull-left accordionIcon" data-ng-if="item.isSensor">
                             <a class="fa fa-line-chart makeNarrow" data-toggle="collapse" data-target="#fsensor{{item.property}}" href="#fsensor{{item.property}}" style="cursor: pointer"></a>
                         </div>
+                        <div class="pull-left accordionIcon">
+                            <a class="fa fa-filter makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
+                        </div>
                         <div class="pull-left" style="margin-left: 4px;">
                             {{item.key}}
                         </div>
@@ -111,7 +204,10 @@
                         <div id="fsensor{{item.property}}" data-ng-if="item.isSensor" class="panel-collapse collapse">
                             <div class="panel-body"></div>
                         </div>
-                    </div>
+
+
+
+
                 </div>
             </div>
             <!--<input style="padding:4px;" class=" form-control" data-ng-model="search" placeholder="...">-->
