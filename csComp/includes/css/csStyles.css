@@ -131,11 +131,8 @@ margin-right: 10px;
     font-weight: bold;
 }
 .indicator-sparkline-value {
-    font-size: 20px;
+    font-size: 12px;
     font-weight: bold;
-    right: 5px;
-    position: absolute;
-    bottom: 5px;
 }
 /*circular*/
 

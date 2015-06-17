@@ -19,6 +19,7 @@ module Indicators {
         id: string;
         color: string;
         indexValue: number;   // the value that is treated as 100%
+        focusTime : number;
     }
 
     export interface IIndicatorsCtrl extends ng.IScope {
@@ -79,20 +80,24 @@ module Indicators {
         }
 
         public updateIndicator(i: indicator) {
+            var focusTime = this.$layerService.project.timeLine.focus;
             this.$layerService.findSensorSet(i.sensor, (ss: csComp.Services.SensorSet) => {
                 i.sensorSet = ss;
+                i.focusTime = focusTime;
                 if (i.sensorSet.propertyType && i.sensorSet.propertyType.legend) {
                     i.color = csComp.Helpers.getColorFromLegend(i.sensorSet.activeValue, i.sensorSet.propertyType.legend);
                 }
-                //console.log('updateIndicator: indicator.title = ' + i.title);
-                //if (!this.$scope.$$phase) this.$scope.$apply();\
+                console.log('updateIndicator: sensor.activeValue = ' + i.sensorSet.activeValue);
             });
         }
 
         private checkLayers() {
             if (!this.$layerService.visual.mapVisible) return;
+            var focusTime = this.$layerService.project.timeLine.focus;
             if (!this.$scope.data || !this.$scope.data.indicators) return;
             this.$scope.data.indicators.forEach((i) => {
+                i.focusTime = focusTime;
+
                 if (i.layer != null) {
                     var ss = i.layer.split('/');
                     var l = this.$layerService.findLayer(ss[0]);

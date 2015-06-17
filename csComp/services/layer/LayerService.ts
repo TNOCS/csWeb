@@ -533,6 +533,23 @@ module csComp.Services {
             var date = this.project.timeLine.focus;
             var timepos = {};
 
+            this.project.datasources.forEach((ds:DataSource)=>{
+              for (var sensorTitle in ds.sensors){
+                var sensor = <SensorSet>ds.sensors[sensorTitle];
+                if (sensor.timestamps){
+                  for (var i = 1; i < sensor.timestamps.length; i++) {
+                    if (sensor.timestamps[i] > date) {
+                      sensor.activeValue = sensor.values[i];
+                      console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
+                      break;
+                    }
+                  }
+                }
+
+              };
+            });
+
+
             this.project.features.forEach((f: IFeature) => {
                 var l = this.findLayer(f.layerId);
 

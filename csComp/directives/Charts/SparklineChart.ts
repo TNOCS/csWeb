@@ -37,13 +37,22 @@ module Charts {
                 scope: {
                     timestamps: '=',  // = means that we use angular to evaluate the expression,
                     sensor: '=',
+                    focusTime: '=',
                     showaxis: '=',
                     closed: '=',
                     width: '@',  // the value is used as is
                     height: '@',
                     margin: '@'
                 },
-
+                // controller: [
+                //    '$scope',
+                //    '$element',
+                //    '$attrs',
+                //
+                //    function ($scope, $element, $attrs, messageBusService) {
+                //
+                //    }
+                // ],
                 link: function(scope: ISparklineScope, element, attrs) {
 
                     var doDraw = (() => {
@@ -148,7 +157,8 @@ module Charts {
                                     .attr("y", ymin)
                                     .attr("dy", ".35em")
                                     .style("text-anchor", "end")
-                                    .text(d3.max(y.domain()));
+                                    //.text(d3.max(y.domain()));
+                                    .text();
                                 // y-axis, min
                                 chart.append('line')
                                     .attr("x1", xmin)
