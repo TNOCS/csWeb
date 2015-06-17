@@ -137,6 +137,9 @@ module Charts {
                     scope.$watch("value", () => {
                         doDraw();
                     })
+                    scope.$watch("color", () => {
+                        doDraw();
+                    })
                     //scope.closed = true;
 
 
