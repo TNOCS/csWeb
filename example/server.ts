@@ -1,16 +1,19 @@
 require('rootpath')();
-﻿import express              = require('express');
-import http                 = require('http');
-import path                 = require('path');
-//import offlineSearch        = require('cs-offline-search');
-import cc                   = require("ServerComponents/dynamic/ClientConnection");
-import creator              = require('ServerComponents/creator/MapLayerFactory');
-import DataSource           = require("ServerComponents/dynamic/DataSource");
-import MessageBus           = require('ServerComponents/bus/MessageBus');
-import BagDatabase          = require('ServerComponents/database/BagDatabase');
-import ConfigurationService = require('ServerComponents/configuration/ConfigurationService');
-import DynamicProject       = require("ServerComponents/dynamic/DynamicProject");
-import LayerDirectory       = require("ServerComponents/dynamic/LayerDirectory");
+﻿import express                  = require('express');
+import http                     = require('http');
+import path                     = require('path');
+//import offlineSearch          = require('cs-offline-search');
+import cc                       = require("ServerComponents/dynamic/ClientConnection");
+import creator                  = require('ServerComponents/creator/MapLayerFactory');
+import ProjectRepositoryService = require('ServerComponents/creator/ProjectRepositoryService');
+import DataSource               = require("ServerComponents/dynamic/DataSource");
+import MessageBus               = require('ServerComponents/bus/MessageBus');
+import BagDatabase              = require('ServerComponents/database/BagDatabase');
+import ConfigurationService     = require('ServerComponents/configuration/ConfigurationService');
+import DynamicProject           = require("ServerComponents/dynamic/DynamicProject");
+import LayerDirectory           = require("ServerComponents/dynamic/LayerDirectory");
+import store                    = require('ServerComponents/import/Store');
+import ApiServiceManager        = require('ServerComponents/api/ApiServiceManager');
 
 /**
  * Create a search index file which can be loaded statically.
@@ -56,6 +59,12 @@ server.get("/datasource", ds.GetDataSource);
 var bagDatabase = new BagDatabase(config);
 var mapLayerFactory = new creator.MapLayerFactory(bagDatabase, messageBus);
 server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res));
+
+// Create the API service manager and add the services that you need
+var apiServiceMgr = new ApiServiceManager(server, config);
+// Resource types
+var resourceTypeStore = new ProjectRepositoryService(new store.FolderStore({ storageFolder: "public/data/resourceTypes" }))
+apiServiceMgr.addService(resourceTypeStore);
 
 server.use(express.static(path.join(__dirname, 'public')));
 console.log("started");
