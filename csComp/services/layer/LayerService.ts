@@ -295,6 +295,7 @@ module csComp.Services {
                     callback(null, null);
                 },
                 (callback) => {
+                    console.log('loading types : ' + layer.typeUrl);
                     this.loadTypeResources(layer, () => callback(null, null));
                 },
                 (callback) => {
