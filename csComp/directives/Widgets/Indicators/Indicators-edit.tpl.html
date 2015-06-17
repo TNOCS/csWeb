@@ -32,7 +32,7 @@
                 </div>
                 <div>
                     <label>Fill color</label>
-                    <spectrum-colorpicker data-ng-model="indic.color" options="{ cancelText: 'Annuleren', chooseText: 'Kiezen', preferredFormat: 'hex3' }"></spectrum-colorpicker>
+                    <spectrum-colorpicker format="'hex'" on-change="vm.colorUpdated(color, indic)" data-ng-model="indic.color" options="{ cancelText: 'Annuleren', chooseText: 'Kiezen'}"></spectrum-colorpicker>
                 </div>
             </div>
         </li>
