@@ -37,6 +37,13 @@ class ProjectRepositoryService implements IProjectRepositoryService {
             var project = req.body;
             console.log('Saving posted project file (project.json): ' + id);
             var filename = path.join(path.dirname(require.main.filename), 'public/data/projects', id, 'project.json');
+            if (fs.exists(filename)) {
+                var backupFilename = path.join(path.dirname(require.main.filename), 'public/data/projects', id, this.yyyymmdd() + 'project.json');
+                var date = Date();
+                fs.rename(filename, backupFilename, (err) => {
+                    console.error(err);
+                });
+            }
             fs.writeFile(filename, JSON.stringify(project, null, 2), (err) => {
                 if (err) {
                     console.error(err);
@@ -85,6 +92,14 @@ class ProjectRepositoryService implements IProjectRepositoryService {
     private endsWith(str: string, suffix: string) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     };
+
+    private yyyymmdd() {
+        var date = new Date();
+        var yyyy = date.getFullYear().toString();
+        var mm = (date.getMonth()+1).toString(); // getMonth() is zero-based
+        var dd  = date.getDate().toString();
+        return yyyy + (mm[1]?mm:"0"+mm[0]) + (dd[1]?dd:"0"+dd[0]); // padding
+    }
 
     shutdown() {
 

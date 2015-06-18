@@ -18,7 +18,6 @@
         "!./Classes/*.d.ts"
     ],
     "files": [
-        "./Classes/Feature.ts",
         "./Scripts/typings/JSONStream/JSONStream.d.ts",
         "./Scripts/typings/body-parser/body-parser.d.ts",
         "./Scripts/typings/cs/cs-offline-search.d.ts",
@@ -29,6 +28,7 @@
         "./Scripts/typings/pg/pg.d.ts",
         "./Scripts/typings/request/request.d.ts",
         "./Scripts/typings/socketio/socket.io.d.ts",
+        "./Scripts/xml2js/xml2js.d.ts",
         "./ServerComponents/api/ApiServiceManager.ts",
         "./ServerComponents/api/IApiService.ts",
         "./ServerComponents/api/IApiServiceManager.ts",
@@ -39,6 +39,7 @@
         "./ServerComponents/creator/IProjectRepositoryService.ts",
         "./ServerComponents/creator/MapLayerFactory.ts",
         "./ServerComponents/creator/ProjectRepositoryService.ts",
+        "./ServerComponents/creator/RssService.ts",
         "./ServerComponents/database/BagDatabase.ts",
         "./ServerComponents/database/IBagAddress.ts",
         "./ServerComponents/database/IBagOptions.ts",
@@ -48,6 +49,8 @@
         "./ServerComponents/dynamic/DynamicLayer.ts",
         "./ServerComponents/dynamic/DynamicProject.ts",
         "./ServerComponents/dynamic/LayerDirectory.ts",
+        "./ServerComponents/helpers/Rss.ts",
+        "./ServerComponents/helpers/RssGeoJSON.ts",
         "./ServerComponents/helpers/Utils.ts",
         "./ServerComponents/import/BaseTransformer.ts",
         "./ServerComponents/import/IImport.ts",
