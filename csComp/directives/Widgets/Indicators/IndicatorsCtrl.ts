@@ -187,6 +187,7 @@ module Indicators {
                             var pinfo = this.$layerService.calculatePropertyInfo(f.layer.group, propTypes[count]);
                             var item = {
                                 'title': propTypes[count],
+                                'subtitle': '',
                                 'ranges': [pinfo.sdMin, pinfo.sdMax],
                                 'measures': [propValues[count]],
                                 'markers': [propValues[count]]

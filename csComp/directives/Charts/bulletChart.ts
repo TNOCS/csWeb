@@ -57,16 +57,29 @@ module Charts {
                     var parsedData = [];
                     if (scope.data) { parsedData = JSON.parse(scope.data); };
 
-                    chart.append("div").attr("class", "chart")
+                    var svg = chart.append("div").attr("class", "chart")
                         .selectAll('div')
                         .data(parsedData)
                     //.data(demoData)
                         .enter().append("svg")
                         .attr("class", "bullet")
                         .attr("width", scope.width)
-                        .attr("height", scope.height)
-                        .append("g")
+                        .attr("height", +scope.height + 40)
+                        .append("g").attr("transform", "translate(0,20)")
                         .call(doBullet);
+
+                        var title = svg.append("g")
+                            .style("text-anchor", "begin")
+                            .attr("transform", "translate(0,-5)");
+
+                        title.append("text")
+                            .attr("class", "title")
+                            .text(function(d) { return d.title; });
+
+                        title.append("text")
+                            .attr("class", "subtitle")
+                            .attr("dy", "1em")
+                            .text(function(d) { return d.subtitle; });
                 };
             }
 
