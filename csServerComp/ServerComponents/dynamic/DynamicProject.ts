@@ -39,9 +39,6 @@ module DynamicProject {
 
             // listen to messagebus
 
-
-
-
             // setup http handler
             this.service.server.get("/project/" + this.id, (req, res) => { this.GetLayer(req, res); });
 
@@ -54,7 +51,6 @@ module DynamicProject {
             fs.writeFileSync(file, JSON.stringify(data.geojson));
             console.log('done!');
         }
-
 
         /***
         Open project file from disk
@@ -110,15 +106,21 @@ module DynamicProject {
         public addLayer(file: string) {
             var p = path;
             var pp = file.split(p.sep);
+
             if (p.basename(file) === 'project.json') return;
+
 
             // determine group
             var groupTitle = p.dirname(file).replace(this.folder, "").replace(p.sep, "");
+
             if (groupTitle === "") return;
 
             // obtain additional parameters (useClustering, isEnabled, etc.)
             var parameters = this.service.projectParameters[groupTitle];
-            if (!parameters) return;
+
+            if (!parameters) parameters = { useClustering: true };
+
+
 
             // check if group exists
             var gg = this.project.groups.filter((element: any) => (element != null && element.title && element.title.toLowerCase() == groupTitle.toLowerCase()));
@@ -133,17 +135,19 @@ module DynamicProject {
                 g.layers = [];
                 g.styles = [];
                 g.oneLayerActive = false;
+
                 this.project.groups.push(g);
             }
             if (parameters.useClustering) {
                 g.clustering = true;
                 g.clusterLevel = parameters.clusterLevel;
             }
-
+            var tt = file.split('\\');
+            var t = tt[tt.length - 1].replace('.json', '');
             var layer: any = {};
             layer.id = file;
             layer.description = parameters.description;
-            layer.title = parameters.layerTitle;//pp.name.split('_').join(' ');
+            layer.title = t;//pp.name.split('_').join(' ');
             layer.type = "geojson";
             layer.url = "data/projects/" + this.id + "/" + g.title + "/" + p.basename(file);
             layer.groupId = g.id;
@@ -197,7 +201,6 @@ module DynamicProject {
                 }
 
                 //
-
 
 
             });
