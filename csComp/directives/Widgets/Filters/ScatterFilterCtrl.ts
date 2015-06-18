@@ -1,15 +1,15 @@
 module Filters {
 
 
-    export interface IBarFilterScope extends ng.IScope {
-        vm: BarFilterCtrl;
+    export interface IScatterFilterScope extends ng.IScope {
+        vm: ScatterFilterCtrl;
         filter: csComp.Services.GroupFilter;
         options: Function;
         editMode: boolean;
     }
 
-    export class BarFilterCtrl {
-        private scope: IBarFilterScope;
+    export class ScatterFilterCtrl {
+        private scope: IScatterFilterScope;
         private widget: csComp.Services.IWidget;
 
         // $inject annotation.
@@ -27,7 +27,7 @@ module Filters {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            public $scope: IBarFilterScope,
+            public $scope: IScatterFilterScope,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private $timeout: ng.ITimeoutService
@@ -45,7 +45,7 @@ module Filters {
 
             }
             if ($scope && $scope.filter) {
-                setTimeout(() => this.initBarFilter());
+                setTimeout(() => this.addScatterFilter());
                 //$timeout.call(()=>this.initBarFilter());
 
                 $scope.options = (() => {
@@ -53,7 +53,7 @@ module Filters {
                     res.push(['remove', () => this.remove()]);
                     $scope.filter.group.filters.forEach((gf: csComp.Services.GroupFilter) => {
                         if (gf.filterType == "bar" && gf.property != $scope.filter.property) {
-                            res.push(['create scatter with ' + gf.title, () => this.createScatter(gf)]);
+                            res.push(['create scatter with ' + gf.title, () => this.remove()]);
                         }
                     });
 
@@ -63,10 +63,6 @@ module Filters {
 
             }
 
-        }
-
-        private createScatter(gf: csComp.Services.GroupFilter) {
-            this.$layerService.createScatterFilter(this.$scope.filter.group, this.$scope.filter.property, gf.property);
         }
 
         private displayFilterRange(min, max) {
@@ -206,6 +202,101 @@ module Filters {
             dc.renderAll();
             //  this.updateChartRange(this.dcChart,filter);
 
+        }
+
+        private addScatterFilter() {
+            var filter = this.$scope.filter;
+            var group = filter.group;
+
+            var info = this.$layerService.calculatePropertyInfo(group, filter.property);
+            var info2 = this.$layerService.calculatePropertyInfo(group, filter.property2);
+
+            var divid = 'filter_' + filter.id;
+
+            //this.dcChart = <any>dc.barChart('#' + divid);
+
+
+            var divid = 'filter_' + filter.id;
+            //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
+            //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
+            // $('<h4>' + filter.title + '</h4><div id=\'' + divid + '\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div><a class=\'btn\' id=\'remove' + filter.id + '\'>remove</a>').appendTo('#filterChart');
+            //
+            // $('#remove' + filter.id).on('click', () => {
+            //     var pos = group.filters.indexOf(filter);
+            //     if (pos !== -1) group.filters.splice(pos, 1);
+            //     filter.dimension.dispose();
+            //
+            //     this.$layerService.resetMapFilter(group);
+            // });
+
+
+            this.dcChart = <any>dc.scatterPlot('#' + divid);
+
+            var prop1 = group.ndx.dimension(d => {
+                if (!d.properties.hasOwnProperty(filter.property)) return null;
+                else {
+                    if (d.properties[filter.property] != null) {
+
+                        var a = parseInt(d.properties[filter.property]);
+                        var b = parseInt(d.properties[filter.property2]);
+                        if (a >= info.sdMin && a <= info.sdMax) {
+                            return [a, b];
+                            //return Math.floor(a / binWidth) * binWidth;
+                        } else {
+                            //return null;
+                        }
+                    }
+                    return [0, 0];
+
+                    //return a;
+                }
+            });
+
+
+
+            filter.dimension = prop1;
+            var dcGroup1 = prop1.group();
+
+            //var scale =
+            this.dcChart.width(275)
+                .height(190)
+                .dimension(prop1)
+                .group(dcGroup1)
+                .x(d3.scale.linear().domain([info.sdMin, info.sdMax]))
+                .yAxisLabel(filter.property2)
+                .xAxisLabel(filter.property)
+                .on('filtered', (e) => {
+                var fil = e.hasFilter();
+                dc.events.trigger(() => {
+                    group.filterResult = prop1.top(Infinity);
+                    this.$layerService.updateFilterGroupCount(group);
+                }, 0);
+                dc.events.trigger(() => {
+                    this.$layerService.updateMapFilter(group);
+                }, 100);
+            });
+
+
+            this.dcChart.xUnits(() => { return 13; });
+
+
+
+            //if (filter.meta != null && filter.meta.minValue != null) {
+            //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
+            //} else {
+            //    var propInfo = this.calculatePropertyInfo(group, filter.property);
+            //    var dif = (propInfo.max - propInfo.min) / 100;
+            //    dcChart.x(d3.scale.linear().domain([propInfo.min - dif, propInfo.max + dif]));
+            //}
+
+            this.dcChart.yAxis().ticks(15);
+            this.dcChart.xAxis().ticks(15);
+            this.dcChart.render();
+            //this.updateChartRange(dcChart, filter);
+            //.x(d3.scale.quantile().domain(dcGroup.all().map(function (d) {
+            //return d.key;
+            //   }))
+            //.range([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
         }
 
         private updateFilter() {

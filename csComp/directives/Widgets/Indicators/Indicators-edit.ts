@@ -40,6 +40,11 @@ module Indicators {
         }
     ]);
 
+    export interface IVisualType {
+        id: string;
+        title: string;
+    }
+
     export interface IIndicatorsEditCtrl extends ng.IScope {
         vm: IndicatorsEditCtrl;
 
@@ -49,6 +54,10 @@ module Indicators {
     export class IndicatorsEditCtrl {
         private scope: IIndicatorsEditCtrl;
         private widget: csComp.Services.IWidget;
+        private selectedIndicatorVisual: string;
+        public indicatorVisuals: { [key: string]: IVisualType; };
+        private featureType: csComp.Services.IFeatureType;
+        private propertyTypes: csComp.Services.IPropertyType[];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -57,7 +66,9 @@ module Indicators {
         public static $inject = [
             '$scope',
             '$timeout',
+            '$compile',
             'layerService',
+            '$templateCache',
             'messageBusService',
             'mapService', 'dashboardService'
         ];
@@ -65,7 +76,9 @@ module Indicators {
         constructor(
             private $scope: IIndicatorsEditCtrl,
             private $timeout: ng.ITimeoutService,
+            private $compile: any,
             private $layerService: csComp.Services.LayerService,
+            private $templateCache: any,
             private $messageBus: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService,
             private $dashboardService: csComp.Services.DashboardService
@@ -73,14 +86,34 @@ module Indicators {
 
             $scope.vm = this;
             var par = <any>$scope.$parent;
-            this.widget = par.widget;
-
+            this.widget = <csComp.Services.IWidget>par.data;
+            this.propertyTypes = [];
 
             $scope.data = <indicatorData>this.widget.data;
 
+            this.indicatorVisuals = {};
+            this.indicatorVisuals["bullet"] = { id: "bullet", title: "Bullet chart" };
+            this.indicatorVisuals["circular"] = { id: "circular", title: "Circular" };
+            this.indicatorVisuals["sparkline"] = { id: "sparkline", title: "Sparkline" };
+            this.indicatorVisuals["bar"] = { id: "bar", title: "Bar chart" };
+            this.indicatorVisuals["singlevalue"] = { id: "singlevalue", title: "Value" };
+        }
+        //
+        // //** select a typesResource collection from the dropdown */
+        public colorUpdated(c: any, i: any) {
+            i.color = c;
         }
 
-
-
+        public updateIndicator(i: indicator) {
+            i.propertyTypes = [];
+            this.propertyTypes.forEach((pt) => {
+                i.propertyTypes.push(pt.label);
+                i.propertyTypeTitles.push(pt.title);
+            });
+            if (this.$layerService.lastSelectedFeature) {
+                this.$messageBus.publish('feature', 'onUpdateWithLastSelected', i);
+            }
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {this.$scope.$apply();};
+        }
     }
 }

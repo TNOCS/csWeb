@@ -91,6 +91,7 @@ module csComp.Services {
         }
 
         public selectDashboard(dashboard: csComp.Services.Dashboard, container: string) {
+
             this.$layerService.project.activeDashboard = dashboard;
             this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
         }
@@ -180,7 +181,7 @@ module csComp.Services {
             if (this.$injector.has(widget.directive + 'EditDirective')) {
                 var rptc = csComp.Helpers.createRightPanelTab('widget-content', widget.directive + "-edit", widget, 'Edit widget', 'Edit widget', 'cog');
                 this.$messageBusService.publish('rightpanel', 'activate', rptc);
-            }            
+            }
 
             //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
         }

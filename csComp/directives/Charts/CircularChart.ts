@@ -67,7 +67,7 @@ module Charts {
                 //        };
                 //    }
                 //],
-                link: function(scope: ICircularchartScope, element, attrs) {
+                link: (scope: ICircularchartScope, element, attrs)=> {
 
 
 
@@ -135,6 +135,9 @@ module Charts {
 
                     doDraw();
                     scope.$watch("value", () => {
+                        doDraw();
+                    })
+                    scope.$watch("color", () => {
                         doDraw();
                     })
                     //scope.closed = true;

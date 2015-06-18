@@ -13,8 +13,8 @@
   },
   "layerDirectory" : "/layerDirectory",
   "datasources": [{
-    "url": "/datasource",
-    "type": "dynamic",
+    "url": "/data/projects/20141104_csMap/datasource.json",
+    "type": "static",
     "sensors": {
       "test": {
         "propertyTypeKey": "sensor_test"
@@ -66,8 +66,8 @@
         "title": "Mobility",
         "indicators": [{
           "title": "Traffic performance",
-          "visual": "circular",
-          "sensor": "datasource/tp",
+          "visual": "bullet",
+          "sensor": "datasource/test",
           "indexValue": 500000
         }, {
           "title": "Relative speed (% of max)",

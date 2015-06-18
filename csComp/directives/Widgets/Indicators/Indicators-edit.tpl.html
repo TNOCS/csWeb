@@ -1,4 +1,69 @@
 <div>
-    <h4 class="rightpanel-header">&nbsp;&nbsp;Edit indicaters</h4>
+    <h4 class="rightpanel-header" translate>
+        <span><i class="fa-pencil rightpanel-header-icon" />&nbsp;&nbsp;EDIT_INDICATORS</span>
+    </h4>
 
+    <div data-ng-cloak tab-content isolate-scope style="margin:5px; overflow-y: auto; overflow-x: hidden;">
+        <div class="controls">
+            <label>Widget title</label>
+            <input id="indicatorTitle" name="textinput" type="text" ng-model="data.title" placeholder="placeholder" class="input-xlarge editor-text-input">
+        </div>
+        <!-- <div class="controls">
+            <label class="editor-title input-xlarge" for="s">Orientation</label>
+            <label class="radio-inline"><input type="radio" name="indicatorOrientation">Horizontal</label>
+            <label class="radio-inline"><input type="radio" name="indicatorOrientation">Vertical</label>
+        </div> -->
+
+        <li ng-repeat="indic in data.indicators" class="row-fluid list-unstyled truncate">
+            <div>
+                <h5 style="font-size: 20px; padding-top: 20px;">{{indic.title}}</h5>
+                <div style="padding: 5px 0;" class="row-fluid">
+                        <label>Title</label>
+                        <input id="indicatorTitle" name="textinput" type="text" ng-model="indic.sensorSet.propertyType.title" placeholder="placeholder" class="input-xlarge editor-text-input">
+                </div>
+                <div style="padding: 5px 0;" class="row-fluid">
+                    <span>
+                        <label>Visual</label>
+                        <select id="selectIndicatorVisual" ng-model="indic.visual" class="form-control tt-input editor-text-input" style="display:inline-block"
+                        ng-options="types.id as types.title for (key, types) in vm.indicatorVisuals">
+                            <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
+                        </select>
+                    </span>
+                </div>
+                <div>
+                    <label>Fill color</label>
+                    <spectrum-colorpicker format="'hex'" on-change="vm.colorUpdated(color, indic)" data-ng-model="indic.color" options="{ cancelText: 'Annuleren', chooseText: 'Kiezen'}"></spectrum-colorpicker>
+                </div>
+                <div style="padding: 5px 0;" class="row-fluid">
+                    <span>
+                        <label>Feature</label>
+                        <select id="selectIndicatorFeature" ng-model="indic.featureTypeName" class="form-control tt-input editor-text-input" style="display:inline-block"
+                                ng-options="ft as ft for (ft, type) in vm.$layerService.featureTypes">
+                            <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
+                        </select>
+                    </span>
+                </div>
+                <div style="padding: 5px 0;" class="row-fluid">
+                    <span>
+                        <label>Property</label>
+                        <select id="selectIndicatorProperty" ng-model="vm.propertyTypes" class="form-control tt-input editor-text-input" style="display:inline-block"
+                                ng-options="pt as pt.title for pt in vm.$layerService.featureTypes[indic.featureTypeName].propertyTypeData" ng-change="vm.updateIndicator(indic)" multiple>
+                            <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
+                        </select>
+                    </span>
+                </div>
+            </div>
+        </li>
+    </div>
+
+    <!-- <div class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
+        <select id="selectIndicator" ng-model="vm.selectedIndicator" class="form-control tt-input editor-text-input" ng-change="vm.selectIndicator()">
+            <option ng-repeat="(indic) in data.indicators" ng-value="indic">{{indic}}</option>
+        </select>
+        <button type="button" data-ng-click="vm.saveSettings()" style="margin-top: 5px; margin-right: 1em; float: right; background:transparent;border:0">
+            <i class="fa fa-download"></i>
+        </button>
+
+
+    </div> -->
 </div>

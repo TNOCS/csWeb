@@ -16,6 +16,7 @@
             LEGEND                  : 'Legend',
             SEARCH                  : 'Search',
             HIDE_PANEL              : 'Hide this panel',
+            EDIT_INDICATORS         : 'Edit indicators',
             RELATED_FEATURES        : 'Show related features',
             FEATURE_INFO            : 'Show information about the selected feature',
             MAP_FEATURES            : 'Map features',

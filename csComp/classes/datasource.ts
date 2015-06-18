@@ -9,6 +9,8 @@ module csComp.Services {
         timestamps: number[];
         values: any[];
         activeValue: any;
+        max: number = 100;
+        min: number = 0;
 
         public activeValueText(): string {
             return Helpers.convertPropertyInfo(this.propertyType, this.activeValue);

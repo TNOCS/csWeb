@@ -88,7 +88,7 @@
     /**
      * Collect all the property types that are referenced by a feature type.
      */
-    export function getPropertyTypes(type: csComp.Services.IFeatureType, propertyTypeData: csComp.Services.IPropertyTypeData) {
+    export function getPropertyTypes(type: csComp.Services.IFeatureType, propertyTypeData: csComp.Services.IPropertyTypeData, feature?: csComp.Services.IFeature) {
         var propertyTypes: Array<csComp.Services.IPropertyType> = [];
 
         if (type.propertyTypeKeys != null) {
@@ -103,12 +103,51 @@
                 }
             });
         }
+        if (type.showAllProperties && feature && feature.properties) {
+            for (var key in feature.properties) {
+                if (!propertyTypes.some((pt: csComp.Services.IPropertyType) => pt.label == key)) {
+                    //var pt =
+                }
+            }
+        }
         if (type.propertyTypeData != null) {
             type.propertyTypeData.forEach((pt) => {
                 propertyTypes.push(pt);
             });
         }
         return propertyTypes;
+    }
+
+    export function getMissingPropertyTypes(feature: csComp.Services.IFeature): csComp.Services.IPropertyType[] {
+        //var type = featureType;
+        var res = <csComp.Services.IPropertyType[]>[];
+        //        if (!type.propertyTypeData) type.propertyTypeData = [];
+
+        for (var key in feature.properties) {
+
+            //if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
+            if (!feature.properties.hasOwnProperty(key)) continue;
+            var propertyType: csComp.Services.IPropertyType = [];
+            propertyType.label = key;
+            propertyType.title = key.replace('_', ' ');
+            propertyType.isSearchable = true;
+            propertyType.visibleInCallOut = true;
+            propertyType.canEdit = false;
+            var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+            if (StringExt.isNumber(value))
+                propertyType.type = 'number';
+            else if (StringExt.isBoolean(value))
+                propertyType.type = 'boolean';
+            else if (StringExt.isBbcode(value))
+                propertyType.type = 'bbcode';
+            else
+                propertyType.type = 'text';
+
+            res.push(propertyType);
+            //}
+        }
+
+        return res;
     }
 
     export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType): csComp.Services.IFeatureType {

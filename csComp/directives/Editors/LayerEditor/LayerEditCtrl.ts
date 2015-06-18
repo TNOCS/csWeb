@@ -7,7 +7,7 @@ module LayerEdit {
     export class LayerEditCtrl {
         private scope: ILayerEditScope;
         public layer: csComp.Services.ProjectLayer;
-        public availabeTypes: csComp.Services.IFeatureType[];
+        public availabeTypes: { (key: string): csComp.Services.IFeatureType };
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -35,6 +35,10 @@ module LayerEdit {
             this.scope = $scope;
             $scope.vm = this;
             this.layer = $scope.$parent["data"];
+            this.getTypes();
+            var ft = <csComp.Services.IFeatureType>{};
+
+
             //this.layer.refreshTimer
             //console.log(this.layer.refreshBBOX);
 
@@ -50,13 +54,18 @@ module LayerEdit {
 
         }
 
-        public getTypes(address) {
+
+        public getTypes() {
             //var params = { address: address, sensor: false };
-            console.log('getting data');
-            return this.$http.get('data/projects/resources/resources.json')
-                .then(function(response: any) {
-                this.availableTypes = response.data.featureTypes
+            console.log('its me babe');
+            $.getJSON(this.layer.typeUrl, (response: any) => {
+                setTimeout(() => {
+                    this.availabeTypes = response.featureTypes;
+                    console.log(this.availabeTypes);
+                }, 0);
+
             });
+
         };
 
 

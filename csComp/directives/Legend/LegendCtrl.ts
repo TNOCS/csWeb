@@ -1,12 +1,12 @@
-﻿module Legend {
-// created 12 May 2015, RPS, TNO
-// TODO1: decide how to determine which legend (from which layer) shows up immediately after loading
-// currently the last added layer shows up which is the netatmo layer in csMapUS.
-// And after a reload (refresh), the one for the current indicator's layer shows up
-// TODO2: disappear when empty -> reopen legend for the most recently activated layer that is still active
-// TODO3: positioning: from bottom up (using "bottom" in the project.json file didn't work)
-// TODO4: provide possibility to not show a legend at all. Either by a hide button (but how to show then)
-// or via a project/user setting
+module Legend {
+    // created 12 May 2015, RPS, TNO
+    // TODO1: decide how to determine which legend (from which layer) shows up immediately after loading
+    // currently the last added layer shows up which is the netatmo layer in csMapUS.
+    // And after a reload (refresh), the one for the current indicator's layer shows up
+    // TODO2: disappear when empty -> reopen legend for the most recently activated layer that is still active
+    // TODO3: positioning: from bottom up (using "bottom" in the project.json file didn't work)
+    // TODO4: provide possibility to not show a legend at all. Either by a hide button (but how to show then)
+    // or via a project/user setting
 
     export class LegendData {
         propertyTypeKey: string;
@@ -56,7 +56,7 @@
             //$scope.timestamp = '19:45';
             $scope.data = <LegendData>this.widget.data;
             //$scope.s1 = $scope.data.propertyTypeKey;
-            var ptd = this.$layerService.project.propertyTypeData[$scope.data.propertyTypeKey];
+            var ptd = this.$layerService.propertyTypeData[$scope.data.propertyTypeKey];
             //if (ptd) $scope.s2 = ptd.title;
             //$scope.s3 = 'passcount=' + this.passcount.toString();
 
@@ -65,7 +65,7 @@
                 //$scope.s3 = 'passcount=' + this.passcount.toString();
                 //$scope.s1 = title;
                 //$scope.s2 = ptdataKey;
-                var ptd = this.$layerService.project.propertyTypeData[ptdataKey];
+                //var ptd = this.$layerService.project.propertyTypeData[ptdataKey];
                 if (ptd && ptd.legend) {
                     //$scope.s3 = ptd.legend.description;
                     $scope.legend = ptd.legend;
