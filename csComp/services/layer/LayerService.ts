@@ -296,7 +296,7 @@ module csComp.Services {
                 },
                 (callback) => {
                     console.log('loading types : ' + layer.typeUrl);
-                    if (layer.typeUrl) this.loadTypeResources(layer.typeUrl, () => callback(null, null));
+                    if (layer.typeUrl) { this.loadTypeResources(layer.typeUrl, () => callback(null, null)); } else { callback(null, null); }
                 },
                 (callback) => {
                     // load required feature layers, if applicable
@@ -847,7 +847,7 @@ module csComp.Services {
          * If the group already has a style which contains legends, those legends are copied into the newly created group.
          * Already existing groups (for the same visualAspect) are replaced by the new group
          */
-        public setStyle(property: any, openStyleTab = true, customStyleInfo?: PropertyInfo) {
+        public setStyle(property: any, openStyleTab = false, customStyleInfo?: PropertyInfo) {
             // parameter property is of the type ICallOutProperty. explicit declaration gives the red squigglies
             var f: IFeature = property.feature;
             if (f != null) {
@@ -894,8 +894,7 @@ module csComp.Services {
                         this.activeMapRenderer.updateFeature(fe);
                     }
                 });
-                if (openStyleTab)
-                    (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
+                if (openStyleTab) (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
                 return gs;
             }
             return null;
@@ -1268,6 +1267,9 @@ module csComp.Services {
                                 })
 
 
+                        }
+                        else {
+                            callback(null, null);
                         }
                     },
                     (callback) => {

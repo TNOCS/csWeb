@@ -124,6 +124,7 @@
         "./directives/Voting/Voting.ts",
         "./directives/Widgets/Filters/BarFilterCtrl.ts",
         "./directives/Widgets/Filters/DateFilterCtrl.ts",
+        "./directives/Widgets/Filters/ScatterFilterCtrl.ts",
         "./directives/Widgets/Filters/TextFilter.ts",
         "./directives/Widgets/Filters/TextFilterCtrl.ts",
         "./directives/Widgets/Indicators/Indicators-edit.ts",
