@@ -1283,6 +1283,7 @@ module csComp.Services {
                 layers.split(';').forEach((layerId) => { layerIds.push(layerId.toLowerCase()); });
             }
             //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
+            
             this.clearLayers();
             this.featureTypes = {};
             //typesResources

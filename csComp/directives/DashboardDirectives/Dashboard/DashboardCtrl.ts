@@ -1,27 +1,25 @@
-﻿module Dashboard {
+module Dashboard {
 
     import Dashboard = csComp.Services.Dashboard;
 
     declare var c3;
 
     export interface IDashboardScope extends ng.IScope {
-        vm:              DashboardCtrl;
-        gridsterOptions: any;
-        dashboard:       csComp.Services.Dashboard;
-        container:       string;
-        param:           any;
-        initDashboard:   Function;
-        minus:           Function;
+        vm: DashboardCtrl;
+        dashboard: csComp.Services.Dashboard;
+        container: string;
+        param: any;
+        initDashboard: Function;
+        minus: Function;
     }
 
-    export interface IWidgetScope extends ng.IScope
-    {
-        data : any;
+    export interface IWidgetScope extends ng.IScope {
+        data: any;
     }
 
     export class DashboardCtrl {
         private scope: IDashboardScope;
-        private project : csComp.Services.Project;
+        private project: csComp.Services.Project;
 
         //public dashboard: csComp.Services.Dashboard;
 
@@ -36,51 +34,37 @@
             'mapService',
             'messageBusService',
             'dashboardService',
-            '$templateCache'
+            '$templateCache', '$timeout'
         ];
 
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope:             IDashboardScope,
-            private $compile:           any,
-            private $layerService:      csComp.Services.LayerService,
-            private $mapService:        csComp.Services.MapService,
+            private $scope: IDashboardScope,
+            private $compile: any,
+            private $layerService: csComp.Services.LayerService,
+            private $mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService,
-            private $dashboardService:  csComp.Services.DashboardService,
-            private $templateCache:     any
+            private $dashboardService: csComp.Services.DashboardService,
+            private $templateCache: any,
+            private $timeout: ng.ITimeoutService
             ) {
 
             //alert('init dashboard ctrl');
 
             $scope.vm = this;
 
-            //$scope.gridsterOptions = {
-            //    margins: [10, 10],
-            //    columns: 20,
-            //    rows: 20,
-            //    draggable: {
-            //        enabled:true
-            //    },
-            //    resizable: {
-            //        enabled: true,
-            //        start: (event, uiWidget, $element: csComp.Services.IWidget) => {
-            //            $element.resize("start", uiWidget.width(), uiWidget.height());
-            //        },
-            //        stop: (event, uiWidget, $element: csComp.Services.IWidget) => {
-            //            $element.resize("stop", uiWidget.width(), uiWidget.height());
-            //        },
-            //        resize: (event, uiWidget, $element: csComp.Services.IWidget) => {
+            $messageBusService.subscribe('project', (e, f) => {
+                if (e === "loaded") {
+                    $scope.dashboard = null;
+                }
+            });
 
-            //            $element.resize("change", uiWidget.width(),uiWidget.height());
-            //        }
-            //    }
-            //};
 
             $scope.initDashboard = () => {
                 //if (!$scope.container) $scope.container = "main";
-                $messageBusService.subscribe("dashboard-" + $scope.container,(s: string, d: csComp.Services.Dashboard) => {
+                $messageBusService.subscribe("dashboard-" + $scope.container, (s: string, d: csComp.Services.Dashboard) => {
                     this.project = $layerService.project;
                     this.project.activeDashboard = d;
                     //alert(this.project.activeDashboard.id);
@@ -103,11 +87,12 @@
         }
 
         public updateWidget(w: csComp.Services.IWidget) {
-          //alert('updatewidget');
+            //alert('updatewidget');
             //this.$dashboardService.updateWidget(w);
             //var newElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
+            console.log('updating widget');
             var widgetElement;
-            var newScope =  this.$scope;
+            var newScope = this.$scope;
             (<any>newScope).widget = w;
 
             if (w.template) {
@@ -116,14 +101,14 @@
             else if (w.url) {
                 widgetElement = this.$compile("<div>url</div>")(this.$scope);
             } else if (w.directive) {
-               //var newScope : ng.IScope;
+                //var newScope : ng.IScope;
                 widgetElement = this.$compile("<" + w.directive + "></" + w.directive + ">")(newScope);
 
             } else {
                 widgetElement = this.$compile("<h1>hoi</h1>")(this.$scope);
             }
 
-            var resized = function () {
+            var resized = function() {
                 //alert('resize');
                 /* do something */
             };
@@ -149,7 +134,7 @@
             }
 
             if (this.$scope.dashboard.showMap && this.$scope.dashboard.baselayer) {
-                this.$messageBusService.publish("map","setbaselayer",this.$scope.dashboard.baselayer);
+                this.$messageBusService.publish("map", "setbaselayer", this.$scope.dashboard.baselayer);
             }
         }
 
@@ -189,12 +174,10 @@
             }
         }
 
-        public isReady(widget : csComp.Services.IWidget)
-        {
-          setTimeout(()=>
-          {
-            this.updateWidget(widget);
-          },100);
+        public isReady(widget: csComp.Services.IWidget) {
+            setTimeout(() => {
+                this.updateWidget(widget);
+            }, 10);
 
         }
 
@@ -215,6 +198,12 @@
             //this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
             this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
             this.$layerService.visual.rightPanelVisible = d.showRightmenu;
+            this.$timeout(() => {
+                d.widgets.forEach((w: any) => {
+                    this.updateWidget(w);
+                });
+            }, 100);
+
             //this.$layerService.rightMenuVisible = d.showLeftmenu;
             //this.$mapService.rightMenuVisible = d.showRightmenu;
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
