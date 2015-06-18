@@ -538,8 +538,7 @@ module csComp.Services
 
                 // Hide icon and point when we have a 3D model
                 if (entity.billboard !== undefined) entity.billboard.show = false;
-                if (entity.point !== undefined) entity.point.show = false;
-                this.viewer.zoomTo(entity);
+                if (entity.point !== undefined) entity.point.show = false;                
             }
 
             //account for rotation
