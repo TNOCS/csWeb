@@ -10,6 +10,9 @@ module Indicators {
         title: string;
         visual: string;
         type: string;
+        usesSelectedFeature: boolean;
+        featureTypeName: string;
+        propertyTypes: string[];
         sensor: string;
         sensorSet: csComp.Services.SensorSet;
         layer: string;
@@ -19,6 +22,7 @@ module Indicators {
         id: string;
         color: string;
         indexValue: number;   // the value that is treated as 100%
+        focusTime : number;
     }
 
     export interface IIndicatorsCtrl extends ng.IScope {
@@ -59,9 +63,23 @@ module Indicators {
                 this.checkLayers();
             });
             $scope.data = <indicatorData>this.widget.data;
+            $scope.$watch('data',()=>{
+                console.log('update data');
+            })
             if (typeof $scope.data.indicators !== 'undefined') {
                 $scope.data.indicators.forEach((i: indicator) => {
                     i.id = "circ-" + csComp.Helpers.getGuid();
+                    if (i.usesSelectedFeature) {
+                        this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
+                            switch(action) {
+                                case 'onFeatureSelect':
+                                    this.selectFeature(feature, i);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+                    }
                     if (i.sensor != null) {
                         this.$messageBus.subscribe("sensor-" + i.sensor, (action: string, data: string) => {
                             switch (action) {
@@ -79,20 +97,24 @@ module Indicators {
         }
 
         public updateIndicator(i: indicator) {
+            var focusTime = this.$layerService.project.timeLine.focus;
             this.$layerService.findSensorSet(i.sensor, (ss: csComp.Services.SensorSet) => {
                 i.sensorSet = ss;
+                i.focusTime = focusTime;
                 if (i.sensorSet.propertyType && i.sensorSet.propertyType.legend) {
                     i.color = csComp.Helpers.getColorFromLegend(i.sensorSet.activeValue, i.sensorSet.propertyType.legend);
                 }
-                //console.log('updateIndicator: indicator.title = ' + i.title);
-                //if (!this.$scope.$$phase) this.$scope.$apply();\
+                console.log('updateIndicator: sensor.activeValue = ' + i.sensorSet.activeValue);
             });
         }
 
         private checkLayers() {
             if (!this.$layerService.visual.mapVisible) return;
+            var focusTime = this.$layerService.project.timeLine.focus;
             if (!this.$scope.data || !this.$scope.data.indicators) return;
             this.$scope.data.indicators.forEach((i) => {
+                i.focusTime = focusTime;
+
                 if (i.layer != null) {
                     var ss = i.layer.split('/');
                     var l = this.$layerService.findLayer(ss[0]);
@@ -133,6 +155,30 @@ module Indicators {
             }
             this.checkLayers();
             //console.log(i.title);
+        }
+
+        private selectFeature(f: csComp.Services.IFeature, i: indicator) {
+            if(!i.sensorSet) {
+                var ss = new csComp.Services.SensorSet();
+                ss.propertyType = {title: ''};
+                i.sensorSet = ss;
+            }
+
+            if (i.hasOwnProperty('propertyTypes') && i.hasOwnProperty('featureTypeName')) {
+                if (f.featureTypeName === i.featureTypeName) {
+                    var propTypes = i.propertyTypes;
+                    var propValues = [];
+                    propTypes.forEach((pt: string) => {
+                        if (f.properties.hasOwnProperty(pt)) {
+                            propValues.push(f.properties[pt]);
+                        }
+                    });
+                    i.sensorSet.activeValue = propValues[0];
+                    i.sensorSet.propertyType.title = propTypes[0];
+                    var propInfo = this.$layerService.calculatePropertyInfo(f.layer.group, propTypes[0]);
+                    i.sensorSet.max = propInfo.sdMax;
+                }
+            }
         }
     }
 }
