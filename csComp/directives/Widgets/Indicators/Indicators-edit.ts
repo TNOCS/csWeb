@@ -108,6 +108,7 @@ module Indicators {
             i.propertyTypes = [];
             this.propertyTypes.forEach((pt) => {
                 i.propertyTypes.push(pt.label);
+                i.propertyTypeTitles.push(pt.title);
             });
             if (this.$layerService.lastSelectedFeature) {
                 this.$messageBus.publish('feature', 'onUpdateWithLastSelected', i);

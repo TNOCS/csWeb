@@ -13,6 +13,7 @@ module Indicators {
         usesSelectedFeature: boolean;
         featureTypeName: string;
         propertyTypes: string[];
+        propertyTypeTitles: string[];
         data: string;
         sensor: string;
         sensorSet: csComp.Services.SensorSet;
@@ -174,10 +175,16 @@ module Indicators {
             if (i.hasOwnProperty('propertyTypes') && i.hasOwnProperty('featureTypeName')) {
                 if (f.featureTypeName === i.featureTypeName) {
                     var propTypes = i.propertyTypes;
+                    var propTitles: string[] = [];
                     var propValues: number[] = [];
                     propTypes.forEach((pt: string) => {
                         if (f.properties.hasOwnProperty(pt)) {
                             propValues.push(f.properties[pt]);
+                        }
+                        if (this.$layerService.propertyTypeData.hasOwnProperty(pt)) {
+                            propTitles.push(this.$layerService.propertyTypeData[pt].title);
+                        } else {
+                            propTitles.push(pt);
                         }
                     });
 
@@ -192,7 +199,7 @@ module Indicators {
                         for (var count = 0; count < propTypes.length; count++) {
                             var pinfo = this.$layerService.calculatePropertyInfo(f.layer.group, propTypes[count]);
                             var item = {
-                                'title': propTypes[count],
+                                'title': propTitles[count],
                                 'subtitle': '',
                                 'ranges': [pinfo.sdMin, pinfo.sdMax],
                                 'measures': [propValues[count]],
