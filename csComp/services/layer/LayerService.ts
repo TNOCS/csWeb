@@ -176,6 +176,9 @@ module csComp.Services {
             //add day or night data source
             this.layerSources["daynight"] = new NightDayDataSource(this);
 
+            // add RSS data source
+            this.layerSources["rss"] = new RssDataSource(this);
+
             // check for every feature (de)select if layers should automatically be activated
             this.checkFeatureSubLayers();
         }

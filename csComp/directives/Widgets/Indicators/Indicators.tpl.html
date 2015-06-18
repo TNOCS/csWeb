@@ -17,7 +17,7 @@
           <circular-chart  title-class="indicator-circular-title" color="i.color" animationDuration="200" value-class="indicator-circular-value" value-string="i.sensorSet.activeValueText()" value="i.sensorSet.activeValue"  title="i.sensorSet.propertyType.title" min="0" max="i.sensorSet.max" width="320" height="320"></circular-chart>
         </li>
         <li ng-class="{isActive : i.isActive}" class="indicator-group" ng-switch-when="bullet">
-          <bullet-chart width="230" height="30" data="0" style="width:calc(100% - 80px)"/>
+          <bullet-chart width="200" height="30" title="i.sensorSet.propertyType.title" data="i.data" style="width:calc(100% - 80px)"/>
         </li>
         <li ng-class="{isActive : i.isActive}" class="indicator-group" ng-switch-default>
             <div>{{i.sensorSet.propertyType.title}}</div>

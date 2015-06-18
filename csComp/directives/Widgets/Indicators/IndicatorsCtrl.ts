@@ -13,6 +13,7 @@ module Indicators {
         usesSelectedFeature: boolean;
         featureTypeName: string;
         propertyTypes: string[];
+        data: string;
         sensor: string;
         sensorSet: csComp.Services.SensorSet;
         layer: string;
@@ -22,7 +23,7 @@ module Indicators {
         id: string;
         color: string;
         indexValue: number;   // the value that is treated as 100%
-        focusTime : number;
+        focusTime: number;
     }
 
     export interface IIndicatorsCtrl extends ng.IScope {
@@ -63,17 +64,23 @@ module Indicators {
                 this.checkLayers();
             });
             $scope.data = <indicatorData>this.widget.data;
-            $scope.$watch('data',()=>{
+            $scope.$watch('data', () => {
                 console.log('update data');
             })
             if (typeof $scope.data.indicators !== 'undefined') {
                 $scope.data.indicators.forEach((i: indicator) => {
                     i.id = "circ-" + csComp.Helpers.getGuid();
                     if (i.usesSelectedFeature) {
-                        this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
-                            switch(action) {
+                        this.$messageBus.subscribe('feature', (action: string, feature: any) => {
+                            switch (action) {
                                 case 'onFeatureSelect':
                                     this.selectFeature(feature, i);
+                                    break;
+                                case 'onUpdateWithLastSelected':
+                                    var indic = <indicator> feature; //variable called feature is actually the indicator
+                                    var realFeature;
+                                    if (this.$layerService.lastSelectedFeature) { realFeature = this.$layerService.lastSelectedFeature; };
+                                    this.selectFeature(realFeature, indic);
                                     break;
                                 default:
                                     break;
@@ -158,27 +165,46 @@ module Indicators {
         }
 
         private selectFeature(f: csComp.Services.IFeature, i: indicator) {
-            if(!i.sensorSet) {
+            if (!i.sensorSet) {
                 var ss = new csComp.Services.SensorSet();
-                ss.propertyType = {title: ''};
+                ss.propertyType = { title: '' };
                 i.sensorSet = ss;
             }
 
             if (i.hasOwnProperty('propertyTypes') && i.hasOwnProperty('featureTypeName')) {
                 if (f.featureTypeName === i.featureTypeName) {
                     var propTypes = i.propertyTypes;
-                    var propValues = [];
+                    var propValues: number[] = [];
                     propTypes.forEach((pt: string) => {
                         if (f.properties.hasOwnProperty(pt)) {
                             propValues.push(f.properties[pt]);
                         }
                     });
+
                     i.sensorSet.activeValue = propValues[0];
                     i.sensorSet.propertyType.title = propTypes[0];
                     var propInfo = this.$layerService.calculatePropertyInfo(f.layer.group, propTypes[0]);
+                    i.sensorSet.min = propInfo.sdMin;
                     i.sensorSet.max = propInfo.sdMax;
+
+                    if (i.visual === 'bullet') {
+                        var dataInJson = [];
+                        for (var count = 0; count < propTypes.length; count++) {
+                            var pinfo = this.$layerService.calculatePropertyInfo(f.layer.group, propTypes[count]);
+                            var item = {
+                                'title': propTypes[count],
+                                'subtitle': '',
+                                'ranges': [pinfo.sdMin, pinfo.sdMax],
+                                'measures': [propValues[count]],
+                                'markers': [propValues[count]]
+                            };
+                            dataInJson.push(item);
+                        }
+                        i.data = JSON.stringify(dataInJson);
+                    }
                 }
             }
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {this.$scope.$apply();};
         }
     }
 }
