@@ -71,10 +71,16 @@ module Indicators {
                 $scope.data.indicators.forEach((i: indicator) => {
                     i.id = "circ-" + csComp.Helpers.getGuid();
                     if (i.usesSelectedFeature) {
-                        this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
+                        this.$messageBus.subscribe('feature', (action: string, feature: any) => {
                             switch (action) {
                                 case 'onFeatureSelect':
                                     this.selectFeature(feature, i);
+                                    break;
+                                case 'onUpdateWithLastSelected':
+                                    var indic = <indicator> feature; //variable called feature is actually the indicator
+                                    var realFeature;
+                                    if (this.$layerService.lastSelectedFeature) { realFeature = this.$layerService.lastSelectedFeature; };
+                                    this.selectFeature(realFeature, indic);
                                     break;
                                 default:
                                     break;
