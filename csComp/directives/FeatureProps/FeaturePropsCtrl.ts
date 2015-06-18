@@ -110,7 +110,10 @@ module FeatureProps {
 
             var displayValue: string;
             if (type != null) {
-                var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
+                var propertyTypes = [];
+                for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]);
+
+                csComp.Helpers.getPropertyTypes(type, propertyTypeData);
                 if (type.showAllProperties || this.mapservice.isAdminExpert) {
                     var missing = csComp.Helpers.getMissingPropertyTypes(feature);
                     missing.forEach((pt: csComp.Services.IPropertyType) => {
@@ -147,7 +150,7 @@ module FeatureProps {
             }
             if (infoCallOutSection.properties.length > 0) this.sections['AAA Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
             if (hierarchyCallOutSection.properties.length > 0) this.sections['hierarchy'] = hierarchyCallOutSection;
-            if (searchCallOutSection.properties.length > 0) this.sections['zzz Search'] = searchCallOutSection;
+            //if (searchCallOutSection.properties.length > 0) this.sections['zzz Search'] = searchCallOutSection;
         }
 
         private calculateHierarchyValue(mi: IPropertyType, feature: IFeature, propertyTypeData: IPropertyTypeData, layerservice: csComp.Services.LayerService): number {
@@ -193,8 +196,6 @@ module FeatureProps {
             }
             return firstSec;
         }
-
-
 
 
         public lastSection(): ICallOutSection {
@@ -450,7 +451,7 @@ module FeatureProps {
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
             if (typeof feature.sensors !== 'undefined' && typeof feature.timestamps === 'undefined')
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
-                
+
             //var pt = this.$layerService.getPropertyTypes(feature);
 
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService, this.$mapService);
