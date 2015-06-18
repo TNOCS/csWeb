@@ -537,20 +537,20 @@ module csComp.Services {
             var date = this.project.timeLine.focus;
             var timepos = {};
 
-            this.project.datasources.forEach((ds:DataSource)=>{
-              for (var sensorTitle in ds.sensors){
-                var sensor = <SensorSet>ds.sensors[sensorTitle];
-                if (sensor.timestamps){
-                  for (var i = 1; i < sensor.timestamps.length; i++) {
-                    if (sensor.timestamps[i] > date) {
-                      sensor.activeValue = sensor.values[i];
-                      console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
-                      break;
+            this.project.datasources.forEach((ds: DataSource) => {
+                for (var sensorTitle in ds.sensors) {
+                    var sensor = <SensorSet>ds.sensors[sensorTitle];
+                    if (sensor.timestamps) {
+                        for (var i = 1; i < sensor.timestamps.length; i++) {
+                            if (sensor.timestamps[i] > date) {
+                                sensor.activeValue = sensor.values[i];
+                                console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
+                                break;
+                            }
+                        }
                     }
-                  }
-                }
 
-              };
+                };
             });
 
 
@@ -1028,6 +1028,54 @@ module csComp.Services {
             this.mb.publish("filters", "updated");
         }
 
+        public createScatterFilter(group: ProjectGroup, prop1: string, prop2: string) {
+            console.log("create scatter " + prop1 + "-" + prop2);
+
+            var gf = new GroupFilter();
+            gf.property = prop1;
+            gf.property2 = prop2
+            gf.id = Helpers.getGuid();
+            gf.group = group;
+            //gf.meta = property.meta;
+            gf.filterType = 'scatter';
+            // if (gf.meta != null) {
+            //     if (gf.meta.filterType != null) {
+            //         gf.filterType = gf.meta.filterType;
+            //     } else {
+            //         switch (gf.meta.type) {
+            //             case "date":
+            //                 gf.filterType = 'date';
+            //                 break;
+            //             case 'number':
+            //             case 'options':
+            //                 gf.filterType = 'bar';
+            //                 break;
+            //             //case 'rank':
+            //             //    gf.filterType  = 'bar';
+            //             //    gf.value = property.value.split(',')[0];
+            //             //    break;
+            //             default:
+            //                 gf.filterType = 'text';
+            //                 gf.stringValue = property.value;
+            //                 gf.value = property.value;
+            //                 break;
+            //         }
+            //     }
+            // }
+
+            gf.title = "Scatter";
+            gf.rangex = [0, 1];
+
+
+            // add filter
+            group.filters.push(gf);
+
+
+            (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+
+            this.mb.publish("filters", "updated");
+        }
+
         /** remove filter from group */
         public removeFilter(filter: GroupFilter) {
             // dispose crossfilter dimension
@@ -1235,6 +1283,7 @@ module csComp.Services {
                 layers.split(';').forEach((layerId) => { layerIds.push(layerId.toLowerCase()); });
             }
             //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
+            
             this.clearLayers();
             this.featureTypes = {};
             //typesResources
@@ -1622,93 +1671,7 @@ module csComp.Services {
 
 
 
-        private addScatterFilter(group: ProjectGroup, filter: GroupFilter) {
 
-
-            var info = this.calculatePropertyInfo(group, filter.property);
-            var info2 = this.calculatePropertyInfo(group, filter.property2);
-
-
-            var divid = 'filter_' + filter.id;
-            //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filters_" + group.id);
-            //$("<h4>" + filter.title + "</h4><div id='" + divid + "'></div><div style='display:none' id='fdrange_" + filter.id + "'>from <input type='text' style='width:75px' id='fsfrom_" + filter.id + "'> to <input type='text' style='width:75px' id='fsto_" + filter.id + "'></div><a class='btn' id='remove" + filter.id + "'>remove</a>").appendTo("#filterChart");
-            $('<h4>' + filter.title + '</h4><div id=\'' + divid + '\'></div><div style=\'display:none\' id=\'fdrange_' + filter.id + '\'>from <span id=\'fsfrom_' + filter.id + '\'/> to <span id=\'fsto_' + filter.id + '\'/></div><a class=\'btn\' id=\'remove' + filter.id + '\'>remove</a>').appendTo('#filterChart');
-
-            $('#remove' + filter.id).on('click', () => {
-                var pos = group.filters.indexOf(filter);
-                if (pos !== -1) group.filters.splice(pos, 1);
-                filter.dimension.dispose();
-
-                this.resetMapFilter(group);
-            });
-
-            var dcChart = <any>dc.scatterPlot('#' + divid);
-
-            var prop1 = group.ndx.dimension(d => {
-                if (!d.properties.hasOwnProperty(filter.property)) return null;
-                else {
-                    if (d.properties[filter.property] != null) {
-
-                        var a = parseInt(d.properties[filter.property]);
-                        var b = parseInt(d.properties[filter.property2]);
-                        if (a >= info.sdMin && a <= info.sdMax) {
-                            return [a, b];
-                            //return Math.floor(a / binWidth) * binWidth;
-                        } else {
-                            //return null;
-                        }
-                    }
-                    return [0, 0];
-
-                    //return a;
-                }
-            });
-
-
-
-            filter.dimension = prop1;
-            var dcGroup1 = prop1.group();
-
-            //var scale =
-            dcChart.width(275)
-                .height(190)
-                .dimension(prop1)
-                .group(dcGroup1)
-                .x(d3.scale.linear().domain([info.sdMin, info.sdMax]))
-                .yAxisLabel(filter.property2)
-                .xAxisLabel(filter.property)
-                .on('filtered', (e) => {
-                var fil = e.hasFilter();
-                dc.events.trigger(() => {
-                    group.filterResult = prop1.top(Infinity);
-                    this.updateFilterGroupCount(group);
-                }, 0);
-                dc.events.trigger(() => {
-                    this.updateMapFilter(group);
-                }, 100);
-            });
-
-
-            dcChart.xUnits(() => { return 13; });
-
-
-
-            //if (filter.meta != null && filter.meta.minValue != null) {
-            //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
-            //} else {
-            //    var propInfo = this.calculatePropertyInfo(group, filter.property);
-            //    var dif = (propInfo.max - propInfo.min) / 100;
-            //    dcChart.x(d3.scale.linear().domain([propInfo.min - dif, propInfo.max + dif]));
-            //}
-
-            dcChart.yAxis().ticks(15);
-            dcChart.xAxis().ticks(15);
-            //this.updateChartRange(dcChart, filter);
-            //.x(d3.scale.quantile().domain(dcGroup.all().map(function (d) {
-            //return d.key;
-            //   }))
-            //.range([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
-        }
 
 
 

@@ -57,7 +57,6 @@ module Indicators {
         private selectedIndicatorVisual: string;
         public indicatorVisuals: { [key: string]: IVisualType; };
         private featureType: csComp.Services.IFeatureType;
-        private featureTypeName: string;
         private propertyTypes: csComp.Services.IPropertyType[];
 
         // $inject annotation.
@@ -106,13 +105,13 @@ module Indicators {
         }
 
         public updateIndicator(i: indicator) {
-            i.featureTypeName = this.featureTypeName;
             i.propertyTypes = [];
             this.propertyTypes.forEach((pt) => {
                 i.propertyTypes.push(pt.label);
+                i.propertyTypeTitles.push(pt.title);
             });
             if (this.$layerService.lastSelectedFeature) {
-                i.sensorSet.activeValue = this.$layerService.lastSelectedFeature.properties[this.propertyTypes[0].label];
+                this.$messageBus.publish('feature', 'onUpdateWithLastSelected', i);
             }
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {this.$scope.$apply();};
         }

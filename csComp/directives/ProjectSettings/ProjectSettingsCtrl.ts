@@ -19,8 +19,8 @@ module ProjectSettings {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope       : IProjectSettingsScope,
-            private $timeout     : ng.ITimeoutService,
+            private $scope: IProjectSettingsScope,
+            private $timeout: ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService
             ) {
             $scope.vm = this;
@@ -49,6 +49,22 @@ module ProjectSettings {
                     complete: this.updateProjectReady
                 });
             }, 0);
+
+            for (var id in this.$layerService.typesResources) {
+                if (id.indexOf('data/resourceTypes/') >= 0) {
+
+                    var file = this.$layerService.typesResources[id];
+                    var data = JSON.stringify(file);
+                    var url = "api/resourceTypes/" + id.replace('data/resourceTypes/', ''); //this.$layerService.projectUrl.url.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: data,
+                        contentType: "application/json",
+                        complete: this.updateProjectReady
+                    });
+                }
+            }
         }
 
         private updateProjectReady(data) {
