@@ -17,6 +17,22 @@
           },
           "propertyTypeKeys": "PlaneType;Speed;Altitude;Track"
       },
+      "3Dmodel": {
+          "name": "3Dmodel",
+          "style": {
+              "strokeColor": "#000000",
+              "drawingMode": "Point",
+              "strokeWidth": 0,
+              "iconWidth": 32,
+              "iconHeight": 32,
+              "iconUri": "",
+              "modelUri": "",
+              "modelScale": 1.0,
+              "modelMinimumPixelSize": 32,
+              "rotateProperty": "Rotation"
+          },
+          "propertyTypeKeys": ""
+      },
       "Huisarts": {
           "name": "Huisarts",
           "style": {
