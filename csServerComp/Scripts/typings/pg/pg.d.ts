@@ -13,6 +13,8 @@ declare module "pg" {
     export function connect(config: ClientConfig, callback: (err: Error, client: Client, done: () => void) => void): void;
     export function end(): void;
 
+    export var defaults:Defaults;
+
     export interface ConnectionConfig {
         user?: string;
         database?: string;

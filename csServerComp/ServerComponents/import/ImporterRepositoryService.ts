@@ -7,7 +7,10 @@ import IImporterRepositoryService = require("./IImporterRepositoryService");
 import ConfigurationService       = require('../configuration/ConfigurationService');
 import request                    = require("request");
 import JSONStream                 = require('JSONStream');
+import CsvToJsonTransformer = require("./CsvToJsonTransformer");
+import fs = require("fs");
 
+var split = require("split");
 var es = require('event-stream');
 
 /* Multiple storage engine supported, e.g. file system, mongo  */
@@ -32,7 +35,20 @@ class ImporterRepositoryService implements IImporterRepositoryService {
 
         server.get(this.baseUrl + "/transformers", (req, res) => {
             var transformers = this.getAllTransformers();
-            res.send(transformers);
+
+            var strippedTransformers = [];
+            transformers.forEach((t)=>{
+              var stripped = {
+                id: t.id,
+                title: t.title,
+                description: t.description,
+                type: t.type
+              }
+
+              strippedTransformers.push(stripped);
+            });
+
+            res.send(strippedTransformers);
         });
 
         /**
@@ -61,12 +77,78 @@ class ImporterRepositoryService implements IImporterRepositoryService {
             var importer = this.get(id);
             importer.lastRun = new Date();
 
-            request({ url: importer.sourceUrl })
-                .pipe(JSONStream.parse('rows.*'))
-                .pipe(es.mapSync(function(data) {
-                    console.log(data);
-                }));
+            var sourceRequest = request({ url: importer.sourceUrl });
+            var stream: NodeJS.ReadWriteStream = sourceRequest.pipe(split());
 
+            importer.transformers.forEach(transformerDefinition=>{
+              var transformerInstance = this.getTransformerInstance(transformerDefinition);
+              if (!transformerInstance) {
+                console.error("Unknown transformer type: " + transformerDefinition.type);
+              }
+
+              if (stream) {
+                // Pipe to existing stream chain
+                stream = stream.pipe(transformerInstance.create(config));
+              }
+              else{
+                // Initialize stream chain from source request
+                stream = sourceRequest.pipe(transformerInstance.create(config));
+              }
+            });
+
+            var index = 0;
+            var startTs = new Date();
+            var prevTs = new Date();
+
+            stream.on("end", ()=> {
+              var currTs = new Date();
+              var diff = (currTs.getTime() - startTs.getTime())/1000;
+              console.log("Finished: " + index + " (" + diff + "s)");
+            });
+
+            stream.pipe(es.mapSync(function(data) {
+              console.log("##### Output record:");
+
+              var jsonData = JSON.parse(data);
+
+              var folder = "public/data";
+              var fileName = "";
+
+              if (jsonData.features[0].properties[importer.title]) {
+                fileName = jsonData.features[0].properties[importer.title];
+                //folder = "public/data/" + jsonData.features[0].properties[importer.title];
+              }
+              else {
+                fileName = importer.title;
+                //folder = "public/data/" + importer.title;
+              }
+
+              /*
+              if (!fs.existsSync(folder)) {
+                console.log("Folder does not exist, create");
+                fs.mkdirSync(folder);
+              }
+              */
+
+              var outputFileStream = fs.createWriteStream(folder + "/" + fileName + ".json");
+              outputFileStream.write(data, "utf8");
+
+              console.log("Output written to " + folder + "/kvk.json");
+
+              var currTs = new Date();
+              var diff = (currTs.getTime() - prevTs.getTime());
+              if ( (index % 100) == 0) {
+
+                console.log(new Date() + ": " + index + "(" + diff / 100 + "ms per feature)");
+
+                prevTs = currTs;
+
+              }
+              // console.log(data);
+              index++;
+            }));
+
+            console.log(new Date() + ": Started");
             res.send("");
         });
 
@@ -94,6 +176,26 @@ class ImporterRepositoryService implements IImporterRepositoryService {
 
     addTransformer(transformer: transform.ITransform) {
         this.transformers.push(transformer);
+    }
+
+    getTransformerInstance(transformerDefinition: transform.ITransform) : transform.ITransform {
+      var transformer = this.transformers.filter(t=>t.type == transformerDefinition.type)[0];
+
+      return transformer;
+/*
+      var newInstance: any;
+
+      switch(transformer.type) {
+        case "CsvToJsonTransformer":
+          newInstance = new CsvToJsonTransformer(transformerDefinition.title);
+      }
+
+      for (var prop in transformer) {
+        newInstance[prop] = transformer[prop];
+      }
+
+      return newInstance;
+*/
     }
 
     getAllTransformers() {
