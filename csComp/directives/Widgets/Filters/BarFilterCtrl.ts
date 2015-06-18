@@ -53,7 +53,7 @@ module Filters {
                     res.push(['remove', () => this.remove()]);
                     $scope.filter.group.filters.forEach((gf: csComp.Services.GroupFilter) => {
                         if (gf.filterType == "bar" && gf.property != $scope.filter.property) {
-                            res.push(['create scatter with ' + gf.title, () => this.remove()]);
+                            res.push(['create scatter with ' + gf.title, () => this.createScatter(gf)]);
                         }
                     });
 
@@ -63,6 +63,10 @@ module Filters {
 
             }
 
+        }
+
+        private createScatter(gf: csComp.Services.GroupFilter) {
+            this.$layerService.createScatterFilter(this.$scope.filter.group, this.$scope.filter.property, gf.property);
         }
 
         private displayFilterRange(min, max) {
