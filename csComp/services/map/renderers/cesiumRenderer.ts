@@ -524,17 +524,22 @@ module csComp.Services
             }
 
             // add a 3D model if we have one
-            if (feature.effectiveStyle.modelUri !== undefined)
+            if (feature.properties["FeatureTypeId"] === "3Dmodel")
             {
+                var modelUri = feature.effectiveStyle.modelUri || feature.properties["modelUri"] || "";
+                var modelScale = feature.effectiveStyle.modelScale || feature.properties["modelScale"] || 1;
+                var modelMinimumPixelSize = feature.effectiveStyle.modelMinimumPixelSize || feature.properties["modelMinimumPixelSize"] || 32;
+
                 entity.model = new Cesium.ModelGraphics({
-                    uri : feature.effectiveStyle.modelUri,
-                    scale: feature.effectiveStyle.modelScale,
-                    minimumPixelSize: feature.effectiveStyle.modelMinimumPixelSize,
+                    uri : modelUri,
+                    scale: modelScale,
+                    minimumPixelSize: modelMinimumPixelSize,
                 });
 
                 // Hide icon and point when we have a 3D model
-                entity.billboard.show = false;
-                entity.point.show = false;
+                if (entity.billboard !== undefined) entity.billboard.show = false;
+                if (entity.point !== undefined) entity.point.show = false;
+                this.viewer.zoomTo(entity);
             }
 
             //account for rotation
