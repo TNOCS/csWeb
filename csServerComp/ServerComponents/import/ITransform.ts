@@ -1,5 +1,6 @@
 import stream  = require('stream');
 import IImport = require('./IImport');
+import ConfigurationService = require('ServerComponents/configuration/ConfigurationService');
 
 export enum InputDataType {
     file,
@@ -41,6 +42,7 @@ export interface ITransform {
     id:               string;
     title:            string;
     description?:     string;
+    type:             string;
     /**
      * Accepted input types.
      */
@@ -50,7 +52,9 @@ export interface ITransform {
      */
     outputDataTypes?: OutputDataType[];
 
-    create?(opt?: ITransformFactoryOptions[]): stream.Readable | stream.Writable | stream.Transform;
+    create?(config: ConfigurationService, opt?: ITransformFactoryOptions[]): NodeJS.ReadWriteStream;
+
+    initialize(callback?: (error)=>void);
 }
 
 // import s = require('stream');

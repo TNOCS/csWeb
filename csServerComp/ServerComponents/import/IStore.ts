@@ -1,18 +1,20 @@
-import IImport = require("./IImport");
+import express = require('express');
 
 interface IStore {
     /**
      * Save all importers.
      */
-    save();
+    save(id?: string, resource?: any);
     /**
      * Get a single importer.
      */
-    get(id: string) : IImport;
+    get(id: string) : Object;
+    getAsync?(id: string, res: express.Response);
+
     /**
      * Get all importers as an array.
      */
-    getAll() : IImport[];
+    getAll() : Object[];
     /**
      * Delete an existing importer.
      */
@@ -20,10 +22,10 @@ interface IStore {
     /**
      * Create a new importer and store it.
      */
-    create(importer: IImport): IImport;
+    create(id: string, resource: any);
     /**
      * Update an existing importer.
      */
-    update(importer: IImport);
+    update(id: string, resource: any);
 }
 export=IStore;

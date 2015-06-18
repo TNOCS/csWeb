@@ -1,15 +1,16 @@
 import fs                   = require('fs');
+import path                 = require('path');
+import express              = require('express');
 import Utils                = require("../helpers/Utils");
-import IImport              = require("./IImport");
 import IStore               = require("./IStore");
 import ConfigurationService = require('../configuration/ConfigurationService');
 
 export class FileStore implements IStore {
     private store: string;
-    private importers: { [id: string]: IImport} = {};
+    private resources: { [id: string]: any} = {};
 
-    constructor(config: ConfigurationService) {
-        this.store = config["importersStore"] || "importers.json";
+    constructor(opt?: { [key: string]: any }) {
+        this.store = opt["storageFile"] || "importers.json";
         this.load();
     }
 
@@ -19,10 +20,10 @@ export class FileStore implements IStore {
     private load() {
         fs.readFile(this.store, 'utf8', (err, res) => {
             if (err) {
-                console.log(err);
+                console.log('No file store found: ' + this.store);
             }
             else {
-                this.importers = JSON.parse(res);
+                this.resources = JSON.parse(res);
             }
         });
     }
@@ -31,7 +32,7 @@ export class FileStore implements IStore {
      * Save the list of importers to disk.
      */
     save() {
-        fs.writeFile(this.store, JSON.stringify(this.importers, null, 2), { encoding: 'utf8' }, (err) => {
+        fs.writeFile(this.store, JSON.stringify(this.resources, null, 2), { encoding: 'utf8' }, (err) => {
             if (err) {
                 console.log(err);
                 throw err;
@@ -43,49 +44,151 @@ export class FileStore implements IStore {
      * Get all importers as an array.
      */
     getAll() {
-        var importerArray: IImport[] = [];
-        for (var id in this.importers) {
-            if (!this.importers.hasOwnProperty(id)) continue;
-            importerArray.push(this.importers[id]);
+        var resourceArray: Object[] = [];
+        for (var id in this.resources) {
+            if (!this.resources.hasOwnProperty(id)) continue;
+            resourceArray.push(this.resources[id]);
         }
-        return importerArray;
+        return resourceArray;
     }
 
     /**
      * Get a single importer.
      */
     get(id: string) {
-        if (!this.importers.hasOwnProperty(id)) return null;
-        return this.importers[id];
+        if (!this.resources.hasOwnProperty(id)) return null;
+        return this.resources[id];
     }
 
     /**
      * Create a new importer and store it.
      */
-    create(importer: IImport): IImport {
-        if (typeof importer.id === 'undefined')
-            importer.id = Utils.newGuid();
-        else if (this.get(importer.id) !== null) return;
-        this.importers[importer.id] = importer;
+    create(id: string, newObject: any) {
+        if (typeof id === 'undefined' || !newObject.hasOwnProperty("id"))
+            newObject.id = id = Utils.newGuid();
+        else if (this.get(newObject.id) !== null) return;
+        this.resources[id] = newObject;
         this.save();
-        return importer;
     }
 
     /**
      * Delete an existing importer.
      */
     delete(id: string) {
-        if (!this.importers.hasOwnProperty(id)) return null;
-        this.importers[id] = null;
-        delete this.importers[id];
+        if (!this.resources.hasOwnProperty(id)) return null;
+        this.resources[id] = null;
+        delete this.resources[id];
         this.save();
     }
 
     /**
      * Update an existing importer.
      */
-    update(importer: IImport) {
-        this.importers[importer.id] = importer;
+    update(id: string, resource: any) {
+        this.resources[id] = resource;
         this.save();
+    }
+}
+
+
+export class FolderStore implements IStore {
+    private folder: string;
+    private resources: { [id: string]: string } = {};
+
+    constructor(opt?: { [key: string]: any }) {
+        this.folder = path.join(path.dirname(require.main.filename), opt["storageFolder"] || "public/data/resourceTypes");
+        this.load();
+    }
+
+    /**
+     * Load the file from disk.
+     */
+    private load() {
+        fs.readdir(this.folder, (err, res) => {
+            if (err) {
+                console.log('No folder store found: ' + this.folder);
+            }
+            else {
+                res.forEach(resource => {
+                    this.resources[resource] = path.join(this.folder, resource);
+                });
+            }
+        });
+    }
+
+    save(id: string, resource: any) {
+        var filename = path.join(this.folder, id);
+        fs.writeFile(filename, JSON.stringify(resource, null, 2), (err) => {
+            var b = this.folder;
+            if (err) {
+                console.error(err);
+            } else {
+                this.resources[id] = filename;
+            }
+        });
+    }
+
+
+    /**
+     * Get all importers as an array.
+     */
+    getAll() {
+        var resourceArray: string[] = [];
+        for (var id in this.resources) {
+            if (this.resources.hasOwnProperty(id))
+                resourceArray.push(id);
+        }
+        return resourceArray;
+    }
+
+    /**
+     * Get a single resource.
+     */
+    get(id: string) {
+        if (!this.resources.hasOwnProperty(id)) return null;
+        return this.resources[id];
+    }
+
+    /**
+     * Get a single resource.
+     */
+    getAsync(id: string, res: express.Response) {
+        if (!this.resources.hasOwnProperty(id)) {
+            res.status(404);
+            res.write("");
+            res.end();
+        } else {
+            var filename = this.resources[id];
+            res.sendFile(filename);
+        }
+    }
+
+    /**
+     * Create a new importer and store it.
+     */
+    create(id: string, resource: any) {
+        this.save(id, resource);
+    }
+
+    /**
+     * Delete an existing importer.
+     */
+    delete(id: string) {
+        if (!this.resources.hasOwnProperty(id)) return null;
+        fs.unlink(this.resources[id], (err) => {
+            if (err) {
+                console.error(err);
+            } else {
+                this.resources[id] = null;
+                delete this.resources[id];
+            }
+        });
+    }
+
+    /**
+     * Update an existing resource.
+     */
+    update(id: string, resource: any) {
+        this.save(id, resource);
     }
 }

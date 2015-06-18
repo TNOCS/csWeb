@@ -6,13 +6,17 @@ import IApiServiceManager   = require('./IApiServiceManager');
 
 class ApiServiceManager implements IApiServiceManager {
     private baseUrl: string;
+    private dataUrl: string;
+
     private apiServices: IApiService[] = [];
 
     constructor(private server: express.Express, private config: ConfigurationService) {
         this.baseUrl = config['apiAddress'] || '/api';
+        this.dataUrl = config['dataApiAddress'] || '/data';
     }
 
     get BaseUrl() { return this.baseUrl; }
+    get DataUrl() { return this.dataUrl; }
 
     /**
      * Add a service, initialize it, and return the service GUID.

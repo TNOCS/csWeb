@@ -4,6 +4,8 @@ import transform = require("./ITransform");
 class BaseTransformer implements transform.ITransform {
     id:          string;
     description: string;
+    type        = null;
+
     /**
      * Accepted input types.
      */
@@ -14,6 +16,10 @@ class BaseTransformer implements transform.ITransform {
     outputDataTypes: transform.OutputDataType[];
 
     //create?(opt?: ITransformFactoryOptions[]): stream.Readable | stream.Writable | stream.Transform;
+
+    initialize() {
+      
+    }
 
     constructor(public title: string) {
         this.id = Utils.newGuid();
