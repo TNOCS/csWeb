@@ -228,7 +228,7 @@ module Filters {
             //
             //     this.$layerService.resetMapFilter(group);
             // });
-            console.log('adding scatterplot');
+
 
             this.dcChart = <any>dc.scatterPlot('#' + divid);
 
@@ -291,6 +291,7 @@ module Filters {
 
             this.dcChart.yAxis().ticks(15);
             this.dcChart.xAxis().ticks(15);
+            this.dcChart.render();
             //this.updateChartRange(dcChart, filter);
             //.x(d3.scale.quantile().domain(dcGroup.all().map(function (d) {
             //return d.key;
