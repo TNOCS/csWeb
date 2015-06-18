@@ -19,67 +19,80 @@ module Charts {
 
     export interface IBulletchartScope extends ng.IScope {
         data: any;
-        width:number;
-        height:number;
-        margin:number;
+        width: number;
+        height: number;
+        margin: number;
     }
 
     myModule.directive('bulletChart', ['$filter',
-            function($filter): ng.IDirective {
-                return {
-                    terminal: true,       // do not compile any other internal directives
-                    restrict: 'EA',       // E = elements, other options are A=attributes and C=classes
-                    scope: {
-                        //data: '=',
-                        data: '@',
-                        width: '@',  // the value is used as is
-                        height: '@',
-                        margin: '@'
-                    },
-                    link: function(scope: IBulletchartScope, element, attrs) {
-                        //in D3, any selection[0] contains the group
-                        //selection[0][0] is the DOM node
-                        //but we won't need that this time
+        function($filter): ng.IDirective {
 
-                        var demoData = [{// demo data
-                          title:"Drop outs",
-                          subtitle:"%",
-                          ranges : [150,225,300],
-                          measures : [220,270],
-                          markers : [250]
+            var demoData = [{// demo data
+                title: "Drop outs",
+                subtitle: "%",
+                ranges: [150, 225, 300],
+                measures: [220, 270],
+                markers: [250]
+            }];
 
-                        }];
+            function doDraw(scope, element) {
+                if (scope.data) {
+                    var doBullet = d3.bullet()
+                        .width(scope.width)
+                        .height(scope.height);
 
-                        var doBullet = d3.bullet()
-                          .width(scope.width)
-                          .height(scope.height);
+                    //bullet expects de following data
+                    /**
+                    title :
+                    subtitle :
 
-                        //bullet expects de following data
-                        /**
-                        title :
-                        subtitle :
+                    ranges : array of context ranges (absolute, not relative)
+                    measures : array of values shown (absolute, not relative)
+                    markers : (absolute, not relative)
+                    */
+                    //
 
-                        ranges : array of context ranges (absolute, not relative)
-                        measures : array of values shown (absolute, not relative)
-                        markers : (absolute, not relative)
-                        */
-                        //
+                    $(element[0]).empty();
+                    var chart = d3.select(element[0]);
+                    var parsedData = [];
+                    if (scope.data) { parsedData = JSON.parse(scope.data); };
 
-                        var chart = d3.select(element[0]);
+                    chart.append("div").attr("class", "chart")
+                        .selectAll('div')
+                        .data(parsedData)
+                    //.data(demoData)
+                        .enter().append("svg")
+                        .attr("class", "bullet")
+                        .attr("width", scope.width)
+                        .attr("height", scope.height)
+                        .append("g")
+                        .call(doBullet);
+                };
+            }
 
-                        chart.append("div").attr("class", "chart")
-                            .selectAll('div')
-                            //.data(scope.data)
-                              .data(demoData)
-                              .enter().append("svg")
-                              .attr("class", "bullet")
-                              .attr("width", scope.width)
-                              .attr("height", scope.height)
-                            .append("g")
-                              .call(doBullet);
-                    }
+            return {
+                terminal: true,       // do not compile any other internal directives
+                restrict: 'EA',       // E = elements, other options are A=attributes and C=classes
+                scope: {
+                    //data: '=',
+                    data: '=',
+                    width: '@',  // the value is used as is
+                    height: '@',
+                    margin: '@'
+                },
+                link: (scope: IBulletchartScope, element, attrs) => {
+                    //in D3, any selection[0] contains the group
+                    //selection[0][0] is the DOM node
+                    //but we won't need that this time
+
+                    doDraw(scope, element);
+
+                    scope.$watch("data", () => {
+                        doDraw(scope, element);
+                    })
                 }
             }
-        ])
+        }
+    ])
 
 }
