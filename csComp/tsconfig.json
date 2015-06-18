@@ -50,6 +50,7 @@
         "./directives/Charts/CircularChart.ts",
         "./directives/Charts/SingleValue.ts",
         "./directives/Charts/SparklineChart.ts",
+        "./directives/Charts/bulletChart.ts",
         "./directives/ContextMenu/ContextMenu.ts",
         "./directives/DashboardDirectives/Dashboard/Dashboard.ts",
         "./directives/DashboardDirectives/Dashboard/DashboardCtrl.ts",

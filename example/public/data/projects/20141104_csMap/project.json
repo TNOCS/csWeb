@@ -66,7 +66,7 @@
         "title": "Mobility",
         "indicators": [{
           "title": "Traffic performance",
-          "visual": "sparkline",
+          "visual": "bullet",
           "sensor": "datasource/test",
           "indexValue": 500000
         }, {
