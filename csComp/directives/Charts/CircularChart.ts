@@ -67,7 +67,7 @@ module Charts {
                 //        };
                 //    }
                 //],
-                link: function(scope: ICircularchartScope, element, attrs) {
+                link: (scope: ICircularchartScope, element, attrs)=> {
 
 
 
