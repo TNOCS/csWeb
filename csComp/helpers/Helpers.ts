@@ -198,7 +198,6 @@
      */
     export function convertPropertyInfo(pt: csComp.Services.IPropertyType, text: any): string {
         var displayValue: string;
-        if ((typeof text) != 'string') return '';
         if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
             text = text.replace(/&amp;/g, '&');
         if (csComp.StringExt.isNullOrEmpty(text)) return text;
