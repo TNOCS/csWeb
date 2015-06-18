@@ -1,4 +1,4 @@
-﻿module LegendList {
+module LegendList {
     export interface ILegendItem {
         title: string;
         uri : string;
@@ -72,20 +72,20 @@
 
         private getImageUri(ft: csComp.Services.IFeatureType): string {
             var iconUri = ft.style.iconUri;
-            if (iconUri == null) iconUri = "includes/images/marker.png";
+            if (iconUri == null) iconUri = "cs/images/marker.png";
             if (iconUri.indexOf('{') >= 0) iconUri = iconUri.replace('{', '').replace('}', '');
 
             if (ft.style != null && ft.style.drawingMode!=null && ft.style.drawingMode.toLowerCase() != "point") {
                 if (iconUri.indexOf('_Media') < 0)
                     return iconUri;
                 else
-                    return "includes/images/polygon.png";
+                    return "cs/images/polygon.png";
             }
             else if (ft.style != null && iconUri != null) {
                 return iconUri;
             }
             else {
-                return "includes/images/marker.png";
+                return "cs/images/marker.png";
             }
         }
 
