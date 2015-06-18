@@ -1034,7 +1034,15 @@ height:50px;
 }
 /* END TIMELINE STYLE */
 /* START USER EXPERIENCE STYLE */
-
+.adminExpertUserIcon {
+    overflow: hidden;
+    padding-left: 0;
+    padding-top: 12px;
+    float: left;
+    width: 32px;
+    height: 32px;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEbgAABG4B0KOyaAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAKOSURBVFiF7dc9iFVXEAfw3+zLZpWYQvETJUoUJGFRCVoYRLARJYkJNjYK2qlgZ5vGchtFtBELCwMBsTCkiB8oVrGISQrR4IagCCpu4QdCVsUdi3ufPu7uvr1v98VtMjC8M8yZOf8zd87/nBeZaTqlZ1pX/x8APuhWooiYhwYS/TiMEczAxsx89J8CwNlywbk4iEG8wnxlpSNiNpZiODP/6jaABj5sybm9xdcbEafwoJzXU4IkM7uiuKMo/zC2lOOmLsSfLfb9Ztz7bMLfW8aLImIxHZ6CiGhExGRBX6/Ya2sDiIgvIuIynuFpRFyIiP5uAKjzbb9UdHNWdBirOuiBmZU8v9TtgePGPi19OFpv82Tmv7hZrUDbYxgRH2N1mynrI6IvM1/gV/yoICE4ghf4pGX+ZVxSVGJORCybqAK9iDb+hnebeIk1CjIawmelPacEAlfwkaKXruBpTHQdR8QgVozjvp6ZayPipGZTdSa/1QHwDX4aw5XYlJlXI2KLotE6lYd1WW4b/vGug29jc83YvS26supvW4Hyhvs8M6+W9kK8zsyh0t6JnzPzSZsc53CrNG9gMWbjVWZ+3w75ATxWNNe3Y/gHymoMYU+bPK18sBtnFCfkfGaOJiJF1x+vBI4ouHwAJ3HPaGI6VBPAnXI8PB6AY2Mkr6ujQHQEAFunsHjiNTZ0AuAtEUXELJwwNenBqYjo6ySgKbuwZIoAYDl2TAbA3i4s3pT9HQGIiF6cxjXFRTFZeYkL+CEiGnUCRhFR+f3WYF2pnyqu3hmV3x7cVbx+/8YfuJiZzyv5qkT0VRnXn5lfT3gX1NpFxGosGse9qmV8DwsUr+cRXOvWs3wfvptE3GBXKjAVmfb/hm8AYtcORd8CHZAAAAAASUVORK5CYII=')/*cssImages/UserAdminExpert.png*/ no-repeat left center;
+}
 .expertUserIcon {
     overflow: hidden;
     padding-left: 0;

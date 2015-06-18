@@ -88,5 +88,6 @@
         "./csComp/spec/helpers/StyleHelpers.spec.ts",
         "./csComp/spec/helpers/Utils.spec.ts",
         "./csComp/spec/services/bus/MessageBus.spec.ts",
-        "./csComp/spec/services/layer/LayerService.spec.ts"    ]
+        "./csComp/spec/services/layer/LayerService.spec.ts"
+    ]
 }
