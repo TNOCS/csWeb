@@ -60,7 +60,7 @@ class RssService implements IApiService {
                                   feature = new RssGeoJSON.RssFeature(i["geo:lat"], i["geo:long"]);
                               else
                                   feature = new RssGeoJSON.RssFeature();
-                              if (i.title) feature.properties["title"] = i.title;
+                              if (i.title) feature.properties["Name"] = i.title;
                               if (i.link) feature.properties["link"] = i.link;
                               if (i.description) feature.properties["description"] = i.description;
                               if (i.category) feature.properties["category"] = i.category;

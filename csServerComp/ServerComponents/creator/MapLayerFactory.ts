@@ -1,14 +1,14 @@
 require('rootpath')();
-import express = require('express');
-import MessageBus = require('ServerComponents/bus/MessageBus');
-import pg = require('pg');
-import ConfigurationService = require('ServerComponents/configuration/ConfigurationService');
-import fs = require('fs');
-import http = require('http');
-import Location = require('../database/Location');
-import BagDatabase = require('../database/BagDatabase');
-import IBagOptions = require('../database/IBagOptions');
-import IGeoJsonFeature = require('./IGeoJsonFeature');
+import express              = require('express');
+import MessageBus           = require('../bus/MessageBus');
+import pg                   = require('pg');
+import ConfigurationService = require('../configuration/ConfigurationService');
+import fs                   = require('fs');
+import http                 = require('http');
+import Location             = require('../database/Location');
+import BagDatabase          = require('../database/BagDatabase');
+import IBagOptions          = require('../database/IBagOptions');
+import IGeoJsonFeature      = require('./IGeoJsonFeature');
 
 export interface ILayerDefinition {
     projectTitle:              string,

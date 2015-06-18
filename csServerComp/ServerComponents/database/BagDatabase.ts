@@ -1,6 +1,6 @@
 require('rootpath')();
 import express              = require('express');
-import ConfigurationService = require('ServerComponents/configuration/ConfigurationService');
+import ConfigurationService = require('../configuration/ConfigurationService');
 import pg                   = require('pg');
 import Location             = require('./Location');
 import IBagOptions          = require('../database/IBagOptions');
@@ -13,7 +13,9 @@ class BagDatabase {
 
     constructor(config: ConfigurationService) {
         this.connectionString = process.env.DATABASE_URL || config["bagConnectionString"];
-        (<any>pg).defaults.poolSize = 20;
+        console.log("Poolsize: " + pg.defaults.poolSize);
+        pg.defaults.poolSize = 100;
+        console.log("Poolsize: " + pg.defaults.poolSize);
     }
 
     /**
@@ -100,6 +102,7 @@ class BagDatabase {
                 callback(null);
                 return;
             }
+
             //var sql = `SELECT openbareruimtenaam, huisnummer, huisletter, huisnummertoevoeging, gemeentenaam, provincienaam, ST_X(ST_Transform(geopunt, 4326)) as lon, ST_Y(ST_Transform(geopunt, 4326)) as lat FROM adres WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNumber}`;
             var sql;
             switch (bagOptions) {
@@ -116,6 +119,7 @@ class BagDatabase {
                   console.log("Error: Unknown IBagOptions");
                   break;
             }
+
             client.query(sql, (err, result) => {
                 done();
                 if (err) {

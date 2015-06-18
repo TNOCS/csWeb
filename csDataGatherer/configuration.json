@@ -1,7 +1,7 @@
 {
-    "bagConnectionStringDesc": "Add the BAG connection string here, including username and pwd, if any.",
-    "bagConnectionString": "postgres://bag_user:bag4all@localhost:5432/bag",
-    "bagConnectionString": "postgres://bag_user:bag4all@cool3.sensorlab.tno.nl:8039/bag",
+    "bagConnectionStringDesc": "Add the BAG connection string here, includin username and pwd, if any.",
+    "bagConnectionString": "postgres://postgres:webcs@192.168.0.101:5432/csDataSources",
+    "bagConnectionString": "postgres://postgres:Zimwra422@127.0.0.1:5432/bag",
     "apiAddress": "/api",
     "importAddress": "/importers",
     "importersStore": "./importers.json"
