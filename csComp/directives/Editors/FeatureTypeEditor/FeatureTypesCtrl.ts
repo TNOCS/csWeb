@@ -4,6 +4,7 @@ module FeatureTypes {
 
     export interface IFeatureTypesScope extends ng.IScope {
         vm: FeatureTypesCtrl;
+        data: IFeature;
     }
 
     export class FeatureTypesCtrl {
@@ -30,6 +31,13 @@ module FeatureTypes {
             private $messageBusService: csComp.Services.MessageBusService
             ) {
             this.$scope.vm = this;
+            if (this.$scope.$root.hasOwnProperty('data')) {
+                $scope.data = $scope.$root['data'];
+                this.selectedResourceUrl = $scope.data.layer.typeUrl;
+                this.selectResource();
+            }
+
+            console.log(this.$scope);
         }
 
         //** force features to be updated */

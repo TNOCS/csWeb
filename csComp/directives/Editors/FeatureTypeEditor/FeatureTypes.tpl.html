@@ -11,7 +11,7 @@
         </button>
 
         <table class="table table-condensed" style="margin-top:10px">
-            <tr data-ng-repeat="(key, featureType) in vm.selectedResource.featureTypes">
+            <tr data-ng-repeat="(key, featureType) in vm.selectedResource.featureTypes" ng-show="featureType.id == data.fType.id">
                 <td data-ng-click="enabled=!enabled">
                     <a data-ng-class="enabled ? 'fa fa-caret-right makeNarrow' : 'fa fa-caret-down makeNarrow'" style="cursor:pointer;"></a>
                 </td>
@@ -55,17 +55,17 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <div class="rightpanel-label">Fill color</div>
-                                    <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Annuleren', chooseText: 'Kiezen' }"></spectrum-colorpicker>
+                                    <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', chooseText: 'Select', format: 'hex' }"></spectrum-colorpicker>
                                 </div>
 
                                 <div class="col-md-3">
                                     <div class="rightpanel-label">Stroke</div>
-                                    <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Annuleren', chooseText: 'Kiezen'}"></spectrum-colorpicker>
+                                    <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', chooseText: 'Select',format: 'hex'}"></spectrum-colorpicker>
                                 </div>
 
-                                <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.stroke.$invalid }">
+                                <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.strokeWidth.$invalid }">
                                     <div class="rightpanel-label">Stroke width</div>
-                                    <input type="number" name="stroke" data-ng-model="featureType.style['stroke']" class="form-control" required>
+                                    <input type="number" name="stroke" data-ng-model="featureType.style['strokeWidth']" class="form-control">
                                 </div>
                             </div>
                             <div class="row">

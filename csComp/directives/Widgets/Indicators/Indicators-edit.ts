@@ -56,7 +56,9 @@ module Indicators {
         private widget: csComp.Services.IWidget;
         private selectedIndicatorVisual: string;
         public indicatorVisuals: { [key: string]: IVisualType; };
-
+        private featureType: csComp.Services.IFeatureType;
+        private featureTypeName: string;
+        private propertyTypes: csComp.Services.IPropertyType[];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -86,6 +88,7 @@ module Indicators {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = <csComp.Services.IWidget>par.data;
+            this.propertyTypes = [];
 
             $scope.data = <indicatorData>this.widget.data;
 
@@ -98,20 +101,16 @@ module Indicators {
         //
         // //** select a typesResource collection from the dropdown */
         public colorUpdated(c: any, i: any) {
-            if (c) {
-                this.$scope.data.indicators.some((ind) => {
-                    if (ind.id === i.id) {
-                        ind.color = c;
-                        this.$messageBus.publish('layer', 'updatedIndicator', ind);
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
-            }
+            i.color = c;
         }
 
-
-
+        public updateIndicator(i: indicator) {
+            i.featureTypeName = this.featureTypeName;
+            i.propertyTypes = [];
+            this.propertyTypes.forEach((pt) => {
+                i.propertyTypes.push(pt.label);
+            });
+            i.sensorSet.activeValue = this.$layerService.lastSelectedFeature.properties[this.propertyTypes[0].label];
+        }
     }
 }

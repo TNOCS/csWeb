@@ -96,7 +96,7 @@ export class FolderStore implements IStore {
     private resources: { [id: string]: string } = {};
 
     constructor(opt?: { [key: string]: any }) {
-        this.folder = path.join(path.dirname(require.main.filename), opt["storageFolder"] || "public/data/projects");
+        this.folder = path.join(path.dirname(require.main.filename), opt["storageFolder"] || "public/data/resourceTypes");
         this.load();
     }
 
@@ -116,16 +116,18 @@ export class FolderStore implements IStore {
         });
     }
 
-    save(id: string, resource: Object) {
+    save(id: string, resource: any) {
         var filename = path.join(this.folder, id);
         fs.writeFile(filename, JSON.stringify(resource, null, 2), (err) => {
+            var b = this.folder;
             if (err) {
                 console.error(err);
             } else {
                 this.resources[id] = filename;
             }
-        })
+        });
     }
+
 
     /**
      * Get all importers as an array.

@@ -181,7 +181,8 @@
                       </a>
                   </li>
                   <li popover="{{'SETTINGS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                      <a href="#settings" data-toggle="tab"><i class="fa fa-gear fa-2x" style="color: black"></i>
+                      <a href="#settings" data-toggle="tab" data-ng-if="vm.$mapService.isAdminExpert">
+                          <i class="fa fa-gear fa-2x" style="color: black"></i>
                       </a>
                   </li>
               </ul>
