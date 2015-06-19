@@ -1,6 +1,6 @@
 import stream  = require('stream');
 import IImport = require('./IImport');
-import ConfigurationService = require('ServerComponents/configuration/ConfigurationService');
+import ConfigurationService = require('../configuration/ConfigurationService');
 
 export enum InputDataType {
     file,
