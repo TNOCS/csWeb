@@ -61,7 +61,7 @@
                     </span>
                 </td>-->
             <div class="panel-group" id="accordion">
-                <div class="panel panel-default" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in section.properties">
+                <div class="panel" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in section.properties">
                     <div class="panel-heading" style="min-height: 36px">
                       <div data-ng-switch="item.meta.type">
                         <div ng-switch-when="layer">
