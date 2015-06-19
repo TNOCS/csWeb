@@ -19,7 +19,7 @@ module csComp.Services {
         public baseLayers:       any;
         public activeBaseLayer:  BaseLayer;
         public mapVisible:       boolean = true;
-        public timelineVisible:  boolean = true;
+        public timelineVisible:  boolean = false;
         public rightMenuVisible: boolean = true;
         public maxBounds:        L.LatLngBounds;
 
