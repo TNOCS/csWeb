@@ -16,6 +16,8 @@ import GeoJsonAggregateTransformer = require('./ServerComponents/import/GeoJsonA
 import GeoJsonOutputTransformer = require('./ServerComponents/import/GeoJsonOutputTransformer');
 import FieldFilterTransformer = require('./ServerComponents/import/FieldFilterTransformer');
 import GeoJsonSplitTransformer = require('./ServerComponents/import/GeoJsonSplitTransformer');
+import GeoJsonFeaturesTransformer = require('./ServerComponents/import/GeoJsonFeaturesTransformer');
+import CollateStreamTransformer = require('./ServerComponents/import/CollateStreamTransformer');
 
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser')
@@ -51,7 +53,9 @@ var transformers = [
   new GeoJsonAggregateTransformer("GeoJSON aggregate"),
   new FieldFilterTransformer("Filter gemeente Utrecht"),
   new GeoJsonOutputTransformer("GeoJSON output"),
-  new GeoJsonSplitTransformer("GeoJSON split")
+  new GeoJsonSplitTransformer("GeoJSON split"),
+  new GeoJsonFeaturesTransformer("GeoJSON features input"),
+  new CollateStreamTransformer("Wait for complete stream")
 ]
 
 console.log(transformers.length);

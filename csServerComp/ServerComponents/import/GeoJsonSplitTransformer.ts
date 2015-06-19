@@ -27,7 +27,7 @@ class GeoJsonSplitTransformer implements transform.ITransform {
   }
 
   initialize(callback: (error)=>void) {
-    request({ url: "http://localhost:3456/data/wijk-empty.geojson" }, (error, response, body)=>{
+    request({ url: "http://localhost:3456/data/gemeente-empty.geojson" }, (error, response, body)=>{
       if (error) {
         callback(error);
         return;
@@ -68,17 +68,17 @@ class GeoJsonSplitTransformer implements transform.ITransform {
         // console.log("=== Piped feature:");
         // console.log(feature);
         if (turf.inside(feature, f)) {
-          //console.log(feature.gemeentenaam + "<-- matched -->" + f.properties.Name);
-          feature.properties.wk_code = f.properties.wk_code;
-          feature.properties.wk_naam = f.properties.wk_naam;
-
-          var accEntry = accumulator[f.properties.wk_code];
+          // console.log(feature.properties.Gemeente + "<-- matched -->" + f.properties.Name);
+          // feature.properties.wk_code = f.properties.wk_code;
+          // feature.properties.wk_naam = f.properties.wk_naam;
+          feature.properties.Gemeente = f.properties.Name;
+          var accEntry = accumulator[f.properties.Name];
           if (accEntry) {
             accEntry.push(feature);
           }
           else {
             accEntry = [feature];
-            accumulator[f.properties.wk_code] = accEntry;
+            accumulator[f.properties.Name] = accEntry;
           }
         }
       });
@@ -93,11 +93,15 @@ class GeoJsonSplitTransformer implements transform.ITransform {
 
     t._flush = (done) => {
       try {
-        console.log("#### start GJST flush")
-        // console.log(accumulator);
-        for(var wijkCode in accumulator) {
+
+        var keys = Object.keys(accumulator);
+        // console.log(JSON.stringify(keys));
+        // for(var wijkCode in keys) {
+        keys.forEach(wijkCode=> {
+          // console.log(wijkCode);
           var wijkFeatures = accumulator[wijkCode];
-          // console.log ("#### push wijk");
+          // console.log ("#### push wijk: " + wijkCode + " - " + wijkFeatures.length + " features");
+
           // console.log(wijkAcc);
           var wijkGeoJson = {
             type: "FeatureCollection",
@@ -105,10 +109,11 @@ class GeoJsonSplitTransformer implements transform.ITransform {
           };
 
           t.push(JSON.stringify(wijkGeoJson));
-        }
+        });
         done();
       }
       catch(error) {
+        console.error(error);
         done();
       }
     }
