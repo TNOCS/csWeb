@@ -13,8 +13,9 @@ class BagDatabase {
 
     constructor(config: ConfigurationService) {
         this.connectionString = process.env.DATABASE_URL || config["bagConnectionString"];
-        console.log("Poolsize: " + pg.defaults.poolSize);
-        pg.defaults.poolSize = 100;
+        //console.log("Poolsize: " + pg.defaults.poolSize);
+        pg.defaults.poolSize = 10;
+        console.log("BAG connection: " + this.connectionString);
         console.log("Poolsize: " + pg.defaults.poolSize);
     }
 

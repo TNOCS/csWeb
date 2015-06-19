@@ -110,6 +110,7 @@ export class MapLayerFactory {
                 geojson: geojson,
                 enabled: ld.isEnabled
             };
+            console.log("New map created: publishing...");
             this.messageBus.publish('dynamic_project_layer', 'created', data);
         });
     }
