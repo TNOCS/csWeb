@@ -67,20 +67,20 @@ module Charts {
                         .attr("height", +scope.height + 40)
                         .append("g")
                         .attr("transform", "translate(0,20)")
-                        .call(doBullet);
+                        .call(doBullet,false);
 
-                        var title = svg.append("g")
-                            .style("text-anchor", "begin")
-                            .attr("transform", "translate(0,-5)");
+                    var title = svg.append("g")
+                        .style("text-anchor", "begin")
+                        .attr("transform", "translate(0,-5)");
 
-                        title.append("text")
-                            .attr("class", "title")
-                            .text(function(d) { return d.title; });
+                    title.append("text")
+                        .attr("class", "title")
+                        .text(function(d) { return d.title; });
 
-                        title.append("text")
-                            .attr("class", "subtitle")
-                            .attr("dy", "1em")
-                            .text(function(d) { return d.subtitle; });
+                    title.append("text")
+                        .attr("class", "subtitle")
+                        .attr("dy", "1em")
+                        .text(function(d) { return d.subtitle; });
                 };
             }
 

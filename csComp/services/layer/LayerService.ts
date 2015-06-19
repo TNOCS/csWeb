@@ -1091,7 +1091,7 @@ module csComp.Services {
          * In case both fail, create a default feature type at the layer level.
          */
         getFeatureType(feature: IFeature): IFeatureType {
-            if (feature.fType) return feature.fType;
+            //    if (feature.fType) return feature.fType;
             var projectFeatureTypeName = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
             var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
             if (!(this.featureTypes.hasOwnProperty(featureTypeName))) {
@@ -1277,15 +1277,18 @@ module csComp.Services {
          */
         public openProject(solutionProject: csComp.Services.SolutionProject, layers?: string): void {
             this.projectUrl = solutionProject;
+
+
             //console.log('layers (openProject): ' + JSON.stringify(layers));
             var layerIds: Array<string> = [];
             if (layers) {
                 layers.split(';').forEach((layerId) => { layerIds.push(layerId.toLowerCase()); });
             }
             //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
-            
+
             this.clearLayers();
             this.featureTypes = {};
+            this.propertyTypeData = {};
             //typesResources
 
             $.getJSON(solutionProject.url, (prj: Project) => {
