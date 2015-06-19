@@ -3,7 +3,7 @@
         <div id="timeline"></div>
     </div>
 
-    <div class="callout top" id="focustimeContainer" ng-class="{showControl : vm.showControl}" ng-mouseenter="vm.mouseEnter()" ng-mouseleave="vm.mouseLeave()">
+    <div class="callout top" ng-show="vm.$mapService.timelineVisible" id="focustimeContainer" ng-class="{showControl : vm.showControl}" ng-mouseenter="vm.mouseEnter()" ng-mouseleave="vm.mouseLeave()">
         <div ng-show="vm.showControl" class="timelineControl" ng-class="{isPlaying : vm.isPlaying}">
             <span ng-hide="vm.$layerService.project.timeLine.isLive" class="focustimeButton">
                 <div ng-hide="vm.isPlaying" class="fa fa-play focustimeButton" ng-click="vm.start()"></div>

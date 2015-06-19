@@ -70,7 +70,7 @@ module Timeline {
 
             // Options for the timeline
 
-            this.$messageBusService.subscribe("language",(s: string, newLanguage: string) => {
+            this.$messageBusService.subscribe("language", (s: string, newLanguage: string) => {
                 switch (s) {
                     case "newLanguage":
                         this.initTimeline();
@@ -87,7 +87,7 @@ module Timeline {
 
             this.$scope.timeline.draw();
             links.events.addListener(this.$scope.timeline, 'rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
-            links.events.addListener(this.$scope.timeline, 'rangechange',() => {
+            links.events.addListener(this.$scope.timeline, 'rangechange', () => {
                 if (this.$layerService.project && this.$layerService.project.timeLine.isLive) {
                     this.myTimer();
                 }
@@ -121,7 +121,7 @@ module Timeline {
             this.stop();
             this.isPlaying = true;
             if (this.timer) this.timer = null;
-            this.timer = setInterval(()=> { this.myTimer(); }, 500);
+            this.timer = setInterval(() => { this.myTimer(); }, 500);
         }
 
         public toggleLive() {
@@ -150,7 +150,10 @@ module Timeline {
         }
 
         public mouseEnter() {
-            this.showControl = true;
+            this.updateFocusTime();
+            if (!isNaN(this.focusDate.getTime())) {
+                this.showControl = true;
+            }
         }
 
         public mouseLeave() {
