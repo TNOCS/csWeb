@@ -198,12 +198,22 @@ module Indicators {
                         var dataInJson = [];
                         for (var count = 0; count < propTypes.length; count++) {
                             var pinfo = this.$layerService.calculatePropertyInfo(f.layer.group, propTypes[count]);
-                            if (propTypes[count].substr(0,3) === 'IMP') {
+
+                            //TODO: Just for fixing the impact ranges to [-5, 5], better solution is to be implemented...
+                            if (propTypes[count].substr(0, 3) === 'IMP') {
+                                if (pinfo.sdMax < 0) {
+                                    pinfo.min = -5;
+                                    pinfo.max = -5;
+                                } else {
+                                    pinfo.min = 5;
+                                    pinfo.max = 5;
+
+                                }
                             }
                             var item = {
                                 'title': propTitles[count],
                                 'subtitle': '',
-                                'ranges': [pinfo.min, pinfo.max],
+                                'ranges': [pinfo.max, pinfo.max],
                                 'measures': [propValues[count]],
                                 'markers': [propValues[count]],
                                 'barColor': (propValues[count] <= 0) ? 'green' : 'red'
@@ -214,7 +224,7 @@ module Indicators {
                     }
                 }
             }
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {this.$scope.$apply();};
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); };
         }
     }
 }

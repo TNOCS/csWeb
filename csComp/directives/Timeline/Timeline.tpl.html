@@ -14,7 +14,7 @@
             <div ng-click="vm.toggleLive()" class="livebutton" ng-hide="vm.$layerService.project.timeLine.isLive" style="float: right">go live</div>
             <!--<div ng-hide="vm.isPinned" class="fa fa-thumb-tack focustimeButton pinButton" ng-class="{isPinned : vm.isPinned}" ng-click="vm.pinToNow()"></div>-->
         </div>
-        <div class="focustimeText">
+        <div class="focustimeText" ng-show="vm.showControl">
             <span style="font-weight: bold">{{vm.line1}}</span><br />
             <span>{{vm.line2}}</span>
         </div>
