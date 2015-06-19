@@ -365,7 +365,7 @@ module csComp.Services {
                 var ft = this.service.getFeatureType(feature);
 
                 //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
-                var iconUri = ft.style.iconUri;
+                var iconUri = feature.effectiveStyle.iconUri; //ft.style.iconUri;
                 //if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
 
                 // TODO refactor to object
@@ -375,7 +375,7 @@ module csComp.Services {
                 props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
                 props['border-style'] = 'solid';
                 props['border-color'] = feature.effectiveStyle.strokeColor;
-                props['border-width'] = feature.effectiveStyle.stroke;
+                props['border-width'] = feature.effectiveStyle.strokeWidth;
                 props['opacity'] = feature.effectiveStyle.opacity;
 
                 if (feature.isSelected) {

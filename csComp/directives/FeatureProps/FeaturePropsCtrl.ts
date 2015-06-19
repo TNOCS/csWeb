@@ -108,6 +108,14 @@ module FeatureProps {
             var searchCallOutSection = new CallOutSection('fa-filter');
             var hierarchyCallOutSection = new CallOutSection('fa-link');
 
+            console.log('show props');
+            var g = feature.layer.group;
+            var props = [];
+            g.styles.forEach((s: csComp.Services.GroupStyle) => {
+                if (s.enabled) props.push(s.property);
+            });
+            console.log(props);
+
             var displayValue: string;
             if (type != null) {
                 var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
@@ -186,18 +194,18 @@ module FeatureProps {
         }
 
         public firstSection(): ICallOutSection {
-          var keys = Object.keys(this.sections);
-          keys.sort();
-          var first = this.sections[keys[0]];
-          return first;
+            var keys = Object.keys(this.sections);
+            keys.sort();
+            var first = this.sections[keys[0]];
+            return first;
         }
 
 
         public lastSection(): ICallOutSection {
-          var keys = Object.keys(this.sections);
-          keys.sort();
-          var last = this.sections[keys[this.sectionCount() - 1]];
-          return last;
+            var keys = Object.keys(this.sections);
+            keys.sort();
+            var last = this.sections[keys[this.sectionCount() - 1]];
+            return last;
         }
 
         private getOrCreateCallOutSection(sectionTitle: string): ICallOutSection {
@@ -348,7 +356,7 @@ module FeatureProps {
                 });
             });
 
-            console.log('showing feature');
+
             this.displayFeature(this.$layerService.lastSelectedFeature);
             this.$scope.poi = this.$layerService.lastSelectedFeature;
         }
@@ -451,6 +459,7 @@ module FeatureProps {
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
 
             //var pt = this.$layerService.getPropertyTypes(feature);
+            console.log('showing feature');
 
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService, this.$mapService);
         }
