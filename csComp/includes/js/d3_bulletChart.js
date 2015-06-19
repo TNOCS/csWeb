@@ -24,10 +24,17 @@ d3.bullet = function() {
 
       var inverseColor = (rangez.length && rangez[0] < 0) ? "red" : "green";
 
-      // Compute the new x-scale.
-      var x1 = d3.scale.linear()
-          .domain([0, Math.max(rangez[0], markerz[0], measurez[0])])
-          .range(reverse ? [width, 0] : [0, width]);
+      // Compute the new x-scale. Reverse scale for negative values
+      var x1;
+      if (rangez.length && rangez[0] < 0) {
+          x1 = d3.scale.linear()
+              .domain([0, Math.min(rangez[0], markerz[0], measurez[0])])
+              .range(reverse ? [width, 0] : [0, width]);
+      } else {
+          x1 = d3.scale.linear()
+            .domain([0, Math.max(rangez[0], markerz[0], measurez[0])])
+            .range(reverse ? [width, 0] : [0, width]);
+      }
 
       // Retrieve the old x-scale, if this is an update.
       var x0 = this.__chart__ || d3.scale.linear()

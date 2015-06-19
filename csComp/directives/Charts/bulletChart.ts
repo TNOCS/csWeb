@@ -66,7 +66,7 @@ module Charts {
                         .attr("width", scope.width)
                         .attr("height", +scope.height + 40)
                         .append("g")
-                        .attr("transform", "translate(0,20)")
+                        .attr("transform", "translate(7,20)")
                         .call(doBullet,false);
 
                     var title = svg.append("g")
