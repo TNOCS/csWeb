@@ -148,7 +148,7 @@ module FeatureProps {
                     }
                 });
             }
-            if (infoCallOutSection.properties.length > 0) this.sections['AAA Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
+            if (infoCallOutSection.properties.length > 0) this.sections['Aaa Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
             if (hierarchyCallOutSection.properties.length > 0) this.sections['hierarchy'] = hierarchyCallOutSection;
             //if (searchCallOutSection.properties.length > 0) this.sections['zzz Search'] = searchCallOutSection;
         }
@@ -185,21 +185,18 @@ module FeatureProps {
         }
 
         public firstSection(): ICallOutSection {
-            //Return first section that has an icon
-            //TODO: Swap locations
-            var firstSec;
-            for (var i = 0; i < (this.sectionCount() - 1); i++) {
-                if (this.sections[Object.keys(this.sections)[i]].sectionIcon) {
-                    firstSec = this.sections[Object.keys(this.sections)[i]];
-                    break;
-                }
-            }
-            return firstSec;
+          var keys = Object.keys(this.sections);
+          keys.sort();
+          var first = this.sections[keys[0]];
+          return first;
         }
 
 
         public lastSection(): ICallOutSection {
-            return this.sections[Object.keys(this.sections)[this.sectionCount() - 1]];
+          var keys = Object.keys(this.sections);
+          keys.sort();
+          var last = this.sections[keys[this.sectionCount() - 1]];
+          return last;
         }
 
         private getOrCreateCallOutSection(sectionTitle: string): ICallOutSection {
