@@ -198,12 +198,15 @@ module Indicators {
                         var dataInJson = [];
                         for (var count = 0; count < propTypes.length; count++) {
                             var pinfo = this.$layerService.calculatePropertyInfo(f.layer.group, propTypes[count]);
+                            if (propTypes[count].substr(0,3) === 'IMP') {
+                            }
                             var item = {
                                 'title': propTitles[count],
                                 'subtitle': '',
-                                'ranges': [pinfo.sdMin, pinfo.sdMax],
+                                'ranges': [pinfo.min, pinfo.max],
                                 'measures': [propValues[count]],
-                                'markers': [propValues[count]]
+                                'markers': [propValues[count]],
+                                'barColor': (propValues[count] <= 0) ? 'green' : 'red'
                             };
                             dataInJson.push(item);
                         }

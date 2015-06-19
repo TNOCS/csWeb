@@ -22,6 +22,8 @@ d3.bullet = function() {
           measurez = measures.call(this, d, i).slice().sort(d3.descending),
           g = d3.select(this);
 
+      var inverseColor = (rangez.length && rangez[0] < 0) ? "red" : "green";
+
       // Compute the new x-scale.
       var x1 = d3.scale.linear()
           .domain([0, Math.max(rangez[0], markerz[0], measurez[0])])
@@ -64,7 +66,7 @@ d3.bullet = function() {
           .data(measurez);
 
       measure.enter().append("rect")
-          .attr("class", function(d, i) { return "measure s" + i; })
+          .attr("class", function(d, i) { return "measure s" + i + inverseColor; })
           .attr("width", w0)
           .attr("height", height / 3)
           .attr("x", reverse ? x0 : 0)
