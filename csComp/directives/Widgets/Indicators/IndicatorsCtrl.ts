@@ -15,6 +15,7 @@ module Indicators {
         propertyTypes: string[];
         propertyTypeTitles: string[];
         data: string;
+        indicatorWidth: number = 200;
         sensor: string;
         sensorSet: csComp.Services.SensorSet;
         layer: string;
@@ -220,6 +221,7 @@ module Indicators {
                             };
                             dataInJson.push(item);
                         }
+                        i.indicatorWidth = 200;
                         i.data = JSON.stringify(dataInJson);
                     };
                     if (i.title === 'Blootgestelden') {
@@ -245,7 +247,7 @@ module Indicators {
                                  }
                              }
                         );
-
+                        i.indicatorWidth = 400;
                         i.data = JSON.stringify(dataInJson);
                     }
                 }

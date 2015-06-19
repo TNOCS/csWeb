@@ -90,7 +90,7 @@ module Charts {
                 scope: {
                     //data: '=',
                     data: '=',
-                    width: '@',  // the value is used as is
+                    width: '=',  // the value is used as is
                     height: '@',
                     margin: '@'
                 },
