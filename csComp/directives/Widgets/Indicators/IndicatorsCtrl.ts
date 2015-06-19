@@ -221,6 +221,32 @@ module Indicators {
                             dataInJson.push(item);
                         }
                         i.data = JSON.stringify(dataInJson);
+                    };
+                    if (i.title === 'Blootgestelden') {
+                        var property: string = propTypes[0];
+                        var dataInJson = [];
+                        this.$layerService.project.features.forEach(
+                            (f: csComp.Services.IFeature) => {
+                                 if (f.layerId === f.layer.id && f.properties.hasOwnProperty(property)) {
+                                     var s = f.properties[property];
+                                     var v = Number(s);
+                                    //  if (!isNaN(v)) {
+                                    //  }
+                                    var item = {
+//                                        'title': propTitles[0],
+                                        'title': f.properties["WIJKNAAM"],
+                                        'subtitle': 'norm',
+                                        'ranges': [4000, 12500],
+                                        'measures': [v],
+                                        'markers': [v],
+                                        'barColor': (v <= 0) ? 'green' : 'red'
+                                    };
+                                    dataInJson.push(item);
+                                 }
+                             }
+                        );
+
+                        i.data = JSON.stringify(dataInJson);
                     }
                 }
             }
