@@ -1,7 +1,7 @@
 tsc -p csServerComp
-(cd csComp && npm update)
+(cd csComp && npm install)
 tsc -p csComp
-(cd example && npm update)
+(cd example && npm install)
 (cd example/public && bower install)
 (cd example/ && gulp all)
 tsc -p example
