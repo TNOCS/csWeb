@@ -75,6 +75,14 @@ module MarkdownWidget {
             });
         }
 
+        private escapeRegExp(str: string) {
+            return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+        }
+
+        private replaceAll(str: string, find: string, replace: string) {
+            return str.replace(new RegExp(this.escapeRegExp(find), 'g'), replace);
+        }
+
         private selectFeature(feature: csComp.Services.IFeature) {
             if (feature.featureTypeName !== this.$scope.data.featureTypeName) {
                 this.parentWidget.hide();
@@ -84,7 +92,8 @@ module MarkdownWidget {
                 var md = this.$scope.data.content;
                 var i = 0;
                 this.$scope.data.dynamicProperties.forEach(p => {
-                    md = md.replace('{{' + i++ +'}}', feature.properties[p]);
+                    var searchPattern = '{{' + i++ + '}}';
+                    md = this.replaceAll(md, searchPattern, feature.properties[p]);
                 });
                 this.parentWidget.show();
                 this.$scope.data.mdText = md;
