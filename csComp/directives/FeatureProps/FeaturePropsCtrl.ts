@@ -124,7 +124,8 @@ module FeatureProps {
                 }
 
                 propertyTypes.forEach((mi: IPropertyType) => {
-                    if (mi.visibleInCallOut) {
+
+                    if (feature.properties.hasOwnProperty(mi.label) && mi.visibleInCallOut) {
                         var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                         callOutSection.propertyTypes[mi.label] = mi;
                         var text = feature.properties[mi.label]; if (mi.type === "hierarchy") {
