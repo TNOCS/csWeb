@@ -110,10 +110,10 @@ module FeatureProps {
 
             var displayValue: string;
             if (type != null) {
-                var propertyTypes = [];
+                var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
                 for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]);
 
-                //csComp.Helpers.getPropertyTypes(type, propertyTypeData);
+                //
                 if (type.showAllProperties || this.mapservice.isAdminExpert) {
                     var missing = csComp.Helpers.getMissingPropertyTypes(feature);
                     missing.forEach((pt: csComp.Services.IPropertyType) => {
