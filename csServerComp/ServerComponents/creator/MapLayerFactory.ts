@@ -9,6 +9,7 @@ import Location             = require('../database/Location');
 import BagDatabase          = require('../database/BagDatabase');
 import IBagOptions          = require('../database/IBagOptions');
 import IGeoJsonFeature      = require('./IGeoJsonFeature');
+import proj4                = require('proj4');
 
 export interface ILayerDefinition {
     projectTitle:              string,
@@ -100,15 +101,15 @@ export class MapLayerFactory {
             //fs.writeFileSync("public/data/projects/DynamicExample/" + ld.group + "/" + ld.layerTitle + ".json", JSON.stringify(geojson));
 
             var data = {
-                project: ld.projectTitle,
-                layerTitle: ld.layerTitle,
-                description: ld.description,
-                reference: ld.reference,
-                clusterLevel: ld.clusterLevel,
+                project:       ld.projectTitle,
+                layerTitle:    ld.layerTitle,
+                description:   ld.description,
+                reference:     ld.reference,
+                clusterLevel:  ld.clusterLevel,
                 useClustering: ld.useClustering,
-                group: ld.group,
-                geojson: geojson,
-                enabled: ld.isEnabled
+                group:         ld.group,
+                geojson:       geojson,
+                enabled:       ld.isEnabled
             };
             console.log("New map created: publishing...");
             this.messageBus.publish('dynamic_project_layer', 'created', data);
@@ -128,15 +129,15 @@ export class MapLayerFactory {
                 "Default": {
                     name: "Default",
                     style: {
-                        iconUri: ld.iconUri,
-                        iconWidth: ld.iconSize,
-                        iconHeight: ld.iconSize,
-                        stroke: ld.strokeWidth > 0,
+                        iconUri:     ld.iconUri,
+                        iconWidth:   ld.iconSize,
+                        iconHeight:  ld.iconSize,
+                        stroke:      ld.strokeWidth > 0,
                         strokeColor: ld.strokeColor || "#000",
-                        fillColor: ld.fillColor || "#ff0",
-                        opacity: ld.opacity || 0.5,
+                        fillColor:   ld.fillColor   || "#ff0",
+                        opacity:     ld.opacity || 0.5,
                         fillOpacity: ld.opacity || 0.5,
-                        nameLabel: ld.nameLabel
+                        nameLabel:   ld.nameLabel
                     },
                     propertyTypeData: template.propertyTypes
                 }
@@ -193,6 +194,17 @@ export class MapLayerFactory {
                     return;
                 }
                 this.createLatLonFeature(ld.parameter1, ld.parameter2, features, template.properties, template.sensors || [], () => { callback(geojson) });
+                break;
+            case "RD_X_en_Y":
+                if (!ld.parameter1) {
+                    console.log("Error: Parameter1 should be the name of the column containing the RD X coordinate!")
+                    return;
+                }
+                if (!ld.parameter2) {
+                    console.log("Error: Parameter2 should be the name of the column containing the RD Y coordinate!")
+                    return;
+                }
+                this.createRDFeature(ld.parameter1, ld.parameter2, features, template.properties, template.sensors || [], () => { callback(geojson) });
                 break;
             default:
                 if (!ld.parameter1) {
@@ -320,6 +332,29 @@ export class MapLayerFactory {
                 console.log("Error: Not a valid coordinate ( " + lat + ", " + lon + ")");
             } else {
                 features.push(this.createFeature(lon, lat, prop, sensors[index] || {}));
+            }
+        });
+        callback();
+    }
+
+    /**
+     * Convert the RD coordinate to WGS84.
+     */
+    private createRDFeature(rdX: string, rdY: string, features: IGeoJsonFeature[], properties: IProperty[], sensors: IProperty[], callback: Function) {
+        if (!properties) callback();
+        //https://github.com/yuletide/node-proj4js-defs/blob/master/epsg.js
+        //Proj4js.defs["EPSG:28992"] = "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs";
+        proj4.defs('RD', "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs");
+        var converter = proj4('RD');
+        properties.forEach((prop, index) => {
+            var x = prop[rdX];
+            var y = prop[rdY];
+            if (isNaN(x) || isNaN(y)) {
+                console.log("Error: Not a valid coordinate ( " + x + ", " + y + ")");
+            } else {
+                var wgs = converter.inverse( { x: x, y: y });
+                console.log(JSON.stringify(wgs));
+                features.push(this.createFeature(wgs.y, wgs.x, prop, sensors[index] || {}));
             }
         });
         callback();
