@@ -21,7 +21,6 @@ module Filters {
             'layerService',
             'messageBusService',
             '$timeout'
-
         ];
 
         // dependencies are injected via AngularJS $injector

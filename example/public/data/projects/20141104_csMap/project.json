@@ -29,7 +29,8 @@
     "name": "Home",
     "showTimeline": true,
     "showLeftmenu": true,
-    "showMap": true
+    "showMap": true,
+    "visiblelayers" : ["zorgkantoor"]
 
   }, {
     "id": "datatable",

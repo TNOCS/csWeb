@@ -1,8 +1,8 @@
 import io = require('socket.io');
 
 module ClientConnection {
-        GetDataSource: Function;
-   export class ClientSubscription {
+    GetDataSource: Function;
+    export class ClientSubscription {
         public id: string;
         public type: string;
         public target: string;
@@ -77,45 +77,41 @@ module ClientConnection {
 
         }
 
-            //
-            // //console.log('updateSensorValue:' + sensor);
-            // for (var uId in this.users) {
-            //     //var sub = this.users[uId].FindSubscription(sensor,"sensor");
-            //     for (var s in this.users[uId].Subscriptions) {
-            //         var sub = this.users[uId].Subscriptions[s];
-            //         if (sub.type == "sensor" && sub.target == sensor) {
-            //             //console.log('sending update:' + sub.id);
-            //             var cm = new ClientMessage("sensor-update", [{ sensor: sensor, date: date, value: value }]);
-            //             //console.log(JSON.stringify(cm));
-            //             this.users[uId].Client.emit(sub.id, cm);
-                    // }
-        public updateSensorValue(sensor : string, date : number, value : number)
-        {
-          //console.log('updateSensorValue:' + sensor);
-          for (var uId in this.users) {
-            //var sub = this.users[uId].FindSubscription(sensor,"sensor");
-            for (var s in this.users[uId].Subscriptions)
-            {
-                var sub = this.users[uId].Subscriptions[s];
-                if (sub.type == "sensor" && sub.target == sensor) {
-                    //console.log('sending update:' + sub.id);
-                    var cm = new ClientMessage("sensor-update", [{ sensor: sensor, date: date, value: value }]);
-                    //console.log(JSON.stringify(cm));
-                    this.users[uId].Client.emit(sub.id, cm);
+        //
+        // //console.log('updateSensorValue:' + sensor);
+        // for (var uId in this.users) {
+        //     //var sub = this.users[uId].FindSubscription(sensor,"sensor");
+        //     for (var s in this.users[uId].Subscriptions) {
+        //         var sub = this.users[uId].Subscriptions[s];
+        //         if (sub.type == "sensor" && sub.target == sensor) {
+        //             //console.log('sending update:' + sub.id);
+        //             var cm = new ClientMessage("sensor-update", [{ sensor: sensor, date: date, value: value }]);
+        //             //console.log(JSON.stringify(cm));
+        //             this.users[uId].Client.emit(sub.id, cm);
+        // }
+        public updateSensorValue(sensor: string, date: number, value: number) {
+            //console.log('updateSensorValue:' + sensor);
+            for (var uId in this.users) {
+                //var sub = this.users[uId].FindSubscription(sensor,"sensor");
+                for (var s in this.users[uId].Subscriptions) {
+                    var sub = this.users[uId].Subscriptions[s];
+                    if (sub.type == "sensor" && sub.target == sensor) {
+                        //console.log('sending update:' + sub.id);
+                        var cm = new ClientMessage("sensor-update", [{ sensor: sensor, date: date, value: value }]);
+                        //console.log(JSON.stringify(cm));
+                        this.users[uId].Client.emit(sub.id, cm);
+                    }
                 }
             }
-          }
         }
 
-        public sendUpdate(key : string, type : string, command : string, object : any)
-        {
-          for (var uId in this.users) {
+        public sendUpdate(key: string, type: string, command: string, object: any) {
+            for (var uId in this.users) {
 
-            var sub = this.users[uId].FindSubscription(key,type);
-            if (sub!=null)
-            {
-              //console.log('sending update:' + sub.id);
-              this.users[uId].Client.emit(sub.id,new ClientMessage(command,object));
+                var sub = this.users[uId].FindSubscription(key, type);
+                if (sub != null) {
+                    //console.log('sending update:' + sub.id);
+                    this.users[uId].Client.emit(sub.id, new ClientMessage(command, object));
                 }
             }
         }

@@ -672,39 +672,43 @@ module csComp.Services {
             //s.strokeWidth = 1;
             //s.stroke        = false;
             s.strokeWidth = 1;
-            s.strokeColor = 'black';
+            s.strokeColor = '#GGFFBB';
             s.fillOpacity = 0.75;
+            s.fillColor = '#GGFFBB';
+            s.stroke = true;
             s.opacity = 1;
             s.rotate = 0;
+            s.iconUri = "cs/images/marker.png";
             //s.strokeColor = 'black';
-            //s.iconHeight = 32;
-            //s.iconWidth = 32;
+            s.iconHeight = 32;
+            s.iconWidth = 32;
             //s.cornerRadius = 20;
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
+                if (ft.style.iconUri != null) s.iconUri = ft.style.iconUri;
                 if (ft.style.fillOpacity !== null) s.fillOpacity = ft.style.fillOpacity;
-                if (ft.style.opacity !== null) s.opacity = ft.style.opacity;
-                if (ft.style.fillColor !== null) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
-                if (ft.style.stroke !== null) s.stroke = ft.style.stroke;
-                if (ft.style.strokeColor !== null) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
-                if (ft.style.strokeWidth !== null) s.strokeWidth = ft.style.strokeWidth;
-                if (ft.style.selectedStrokeColor != null) s.selectedStrokeColor = csComp.Helpers.getColorString(ft.style.selectedStrokeColor, '#000');
-                if (ft.style.selectedFillColor != null) s.selectedFillColor = csComp.Helpers.getColorString(ft.style.selectedFillColor);
-                if (ft.style.selectedStrokeWidth != null) s.selectedStrokeWidth = ft.style.selectedStrokeWidth;
-                if (ft.style.iconWidth !== null) s.iconWidth = ft.style.iconWidth;
-                if (ft.style.iconHeight !== null) s.iconHeight = ft.style.iconHeight;
-                if (ft.style.modelUri !== null) s.modelUri = ft.style.modelUri;
-                if (ft.style.modelScale !== null) s.modelScale = ft.style.modelScale;
-                if (ft.style.modelMinimumPixelSize !== null) s.modelMinimumPixelSize = ft.style.modelMinimumPixelSize;
-                if (ft.style.innerTextProperty !== null) s.innerTextProperty = ft.style.innerTextProperty;
-                if (ft.style.innerTextSize !== null) s.innerTextSize = ft.style.innerTextSize;
-                if (ft.style.cornerRadius !== null) s.cornerRadius = ft.style.cornerRadius;
+                if (ft.style.opacity) s.opacity = ft.style.opacity;
+                if (ft.style.fillColor) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
+                if (ft.style.stroke) s.stroke = ft.style.stroke;
+                if (ft.style.strokeColor) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
+                if (ft.style.strokeWidth) s.strokeWidth = ft.style.strokeWidth;
+                if (ft.style.selectedStrokeColor) s.selectedStrokeColor = csComp.Helpers.getColorString(ft.style.selectedStrokeColor, '#000');
+                if (ft.style.selectedFillColor) s.selectedFillColor = csComp.Helpers.getColorString(ft.style.selectedFillColor);
+                if (ft.style.selectedStrokeWidth) s.selectedStrokeWidth = ft.style.selectedStrokeWidth;
+                if (ft.style.iconWidth) s.iconWidth = ft.style.iconWidth;
+                if (ft.style.iconHeight) s.iconHeight = ft.style.iconHeight;
+                if (ft.style.modelUri) s.modelUri = ft.style.modelUri;
+                if (ft.style.modelScale) s.modelScale = ft.style.modelScale;
+                if (ft.style.modelMinimumPixelSize) s.modelMinimumPixelSize = ft.style.modelMinimumPixelSize;
+                if (ft.style.innerTextProperty) s.innerTextProperty = ft.style.innerTextProperty;
+                if (ft.style.innerTextSize) s.innerTextSize = ft.style.innerTextSize;
+                if (ft.style.cornerRadius) s.cornerRadius = ft.style.cornerRadius;
                 if (ft.style.rotateProperty && feature.properties.hasOwnProperty(ft.style.rotateProperty)) {
                     s.rotate = Number(feature.properties[ft.style.rotateProperty]);
                 }
             }
-
+            feature.gui = {};
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     var v = Number(feature.properties[gs.property]);
@@ -715,9 +719,11 @@ module csComp.Services {
                                 break;
                             case 'fillColor':
                                 s.fillColor = csComp.Helpers.getColor(v, gs);
+                                feature.gui[gs.property] = s.fillColor;
                                 break;
                             case 'strokeWidth':
                                 s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
+                                feature.gui[gs.property] = s.strokeWidth;
                                 break;
                             case 'height':
                                 s.height = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 25000);
@@ -737,6 +743,10 @@ module csComp.Services {
                     //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                 }
             });
+
+
+
+
 
             if (feature.isSelected) {
                 s.strokeWidth = s.selectedStrokeWidth || 5;
@@ -920,6 +930,16 @@ module csComp.Services {
             return null;
         }
 
+        public toggleStyle(property: any, group: ProjectGroup, openStyleTab = false, customStyleInfo?: PropertyInfo) {
+            var s = property.feature.layer.group.styles;
+            if (!s.some((s: GroupStyle) => s.property === property.property)) {
+                this.setStyle(property, openStyleTab, customStyleInfo);
+            }
+            else {
+                s.filter((s: GroupStyle) => s.property === property.property).forEach((st: GroupStyle) => this.removeStyle(st));
+            }
+        }
+
         /**
          * checks if there are other styles that affect the same visual aspect, removes them (it)
          * and then adds the style to the group's styles
@@ -977,7 +997,7 @@ module csComp.Services {
                         gf.property = prop;
                         gf.id = Helpers.getGuid();
                         gf.group = layer.group;
-                        gf.meta = property.meta;
+                        gf.meta = property.propertyType;
                         gf.filterType = 'bar';
                         if (gf.meta != null) {
                             if (gf.meta.filterType != null) {
