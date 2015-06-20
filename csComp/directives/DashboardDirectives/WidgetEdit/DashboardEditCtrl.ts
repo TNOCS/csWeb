@@ -47,6 +47,7 @@ module DashboardEdit {
         }
 
         public updateHasParent() {
+            return;
             if (this.parent !== "") this.dashboard.parents = [this.parent];
             this.hasParent = this.dashboard.parents && this.dashboard.parents.length > 0;
         }

@@ -196,8 +196,10 @@ module Dashboard {
             this.checkLayers();
             this.checkViewbound();
             //this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
-            this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
-            this.$layerService.visual.rightPanelVisible = d.showRightmenu;
+            if (!this.$mapService.isAdminExpert) {
+                this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
+                this.$layerService.visual.rightPanelVisible = d.showRightmenu;
+            }
             this.$timeout(() => {
                 d.widgets.forEach((w: any) => {
                     this.updateWidget(w);

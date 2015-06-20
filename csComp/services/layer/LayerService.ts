@@ -997,7 +997,7 @@ module csComp.Services {
                         gf.property = prop;
                         gf.id = Helpers.getGuid();
                         gf.group = layer.group;
-                        gf.meta = property.meta;
+                        gf.meta = property.propertyType;
                         gf.filterType = 'bar';
                         if (gf.meta != null) {
                             if (gf.meta.filterType != null) {

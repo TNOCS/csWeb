@@ -70,16 +70,16 @@
             <div class="panel-group" id="accordion">
                 <div class="panel" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in section.properties">
                     <div class="panel-heading" style="min-height: 36px">
-                        <div data-ng-switch="item.meta.type">
+                        <div data-ng-switch="item.propertyType.type">
                             <div ng-switch-when="layer">
-                                <a ng-click="vm.openLayer(item)">{{item.meta.title}}</a>
+                                <a ng-click="vm.openLayer(item)">{{item.propertyType.title}}</a>
                             </div>
                             <div ng-switch-default>
                                 <div class="pull-left accordionIcon">
                                     <a class="fa fa-filter makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
                                 </div>
                                 <div data-ng-show="item.canStyle" class="pull-left accordionIcon style-icon" style="background:{{item.feature.gui[item.property]}}">
-                                    <a class="smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item)" style="cursor: pointer"></a>
+                                    <a class="smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
                                 </div>
                                 <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-left accordionIcon">
                                     <a class="fa fa-pencil makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" ng-click="item.enabled=!item.enabled" href="#sensor{{item.property}}" style="cursor: pointer"></a>
@@ -95,24 +95,24 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="rightpanel-label">Titel</div>
-                                            <input type="text" data-ng-model="item.meta.title" class=" form-control">
+                                            <input type="text" data-ng-model="item.propertyType.title" class=" form-control">
                                         </div>
 
                                         <div class="col-md-6">
                                             <div class="rightpanel-label">Property</div>
-                                            <input type="text" data-ng-model="item.meta.label" class="form-control">
+                                            <input type="text" data-ng-model="item.propertyType.label" class="form-control">
                                         </div>
                                     </div>
 
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="rightpanel-label">Beschrijving</div>
-                                            <input type="text" data-ng-model="item.meta.description" class="form-control">
+                                            <input type="text" data-ng-model="item.propertyType.description" class="form-control">
                                         </div>
 
                                         <div class="col-md-6">
                                             <div class="rightpanel-label">Type</div>
-                                            <select data-ng-model="item.meta.type" ng-options="item for item in ['bbcode', 'color', 'date', 'number', 'text']" class="form-control"></select>
+                                            <select data-ng-model="item.propertyType.type" ng-options="item for item in ['bbcode', 'color', 'date', 'number', 'text']" class="form-control"></select>
                                         </div>
                                     </div>
 
@@ -120,14 +120,14 @@
                                         <div class="col-md-6" style="margin-left: 20px;">
                                             <div class="checkbox checkbox-primary">
                                                 <input type="checkbox" data-ng-model="propertyType.visibleInCallOut" id="visibleInCallOut-{{propertyType.title}}" />
-                                                <label for="visibleInCallOut-{{item.meta.title}}">Zichtbaar</label>
+                                                <label for="visibleInCallOut-{{item.propertyType.title}}">Zichtbaar</label>
                                             </div>
                                         </div>
 
                                         <div class="col-md-4" style="margin-left: 20px;">
                                             <div class="checkbox checkbox-primary">
                                                 <input type="checkbox" data-ng-model="propertyType.isSearchable" id="isSearchable-{{propertyType.title}}" />
-                                                <label for="isSearchable-{{item.meta.title}}">Vindbaar</label>
+                                                <label for="isSearchable-{{item.propertyType.title}}">Vindbaar</label>
                                             </div>
                                         </div>
                                     </div>
@@ -139,14 +139,14 @@
                                             <form class="form-inline">
                                                 <div class="rightpanel-label">Sectie</div>
 
-                                                <input type="text" ng-enter="addSection(item.meta.section)" data-ng-model="item.meta.section" style="width: 200px;" class="form-control" />
+                                                <input type="text" ng-enter="addSection(item.propertyType.section)" data-ng-model="item.propertyType.section" style="width: 200px;" class="form-control" />
                                                 <div class="btn-group">
                                                     <button class="btn dropdown-toggle" data-toggle="dropdown">
                                                         <span class="caret"></span>
                                                     </button>
                                                     <!-- <ul class="dropdown-menu">
                                                 <div ng-repeat="section in sections track by $index">
-                                                    <div style="cursor: pointer; margin-left: 4px;" data-ng-click="item.meta.section=section"><i class="fa fa-angle-right"></i> {{ section }}</div>
+                                                    <div style="cursor: pointer; margin-left: 4px;" data-ng-click="item.propertyType.section=section"><i class="fa fa-angle-right"></i> {{ section }}</div>
                                                 </div>
                                             </ul> -->
                                                 </div>
@@ -155,14 +155,14 @@
 
 
 
-                                        <div class="col-md-12" ng-show="item.meta.type == 'number'">
+                                        <div class="col-md-12" ng-show="item.propertyType.type == 'number'">
                                             <div class="rightpanel-label">Min/max waarde</div>
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    <input type="number" data-ng-model="item.meta.min" class="form-control" placeholder="Min">
+                                                    <input type="number" data-ng-model="item.propertyType.min" class="form-control" placeholder="Min">
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <input type="number" data-ng-model="item.meta.max" class="form-control" placeholder="Max">
+                                                    <input type="number" data-ng-model="item.propertyType.max" class="form-control" placeholder="Max">
                                                 </div>
                                             </div>
                                         </div>
