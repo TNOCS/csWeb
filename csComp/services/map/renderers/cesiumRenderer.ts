@@ -1,25 +1,22 @@
-module csComp.Services
-{
+module csComp.Services {
     declare var Cesium;
 
-    export class CesiumRenderer implements IMapRenderer
-    {
+    export class CesiumRenderer implements IMapRenderer {
         title = "cesium";
-        service : LayerService;
-        viewer : any;
-        camera : any;
-        scene  : any;
+        service: LayerService;
+        viewer: any;
+        camera: any;
+        scene: any;
         features: { [key: string]: any } = {};
-        private popup : any;
+        private popup: any;
         private popupShownFor: IFeature;
-        public init(service : LayerService){
+        public init(service: LayerService) {
             this.service = service;
         }
 
-        public enable()
-        {
+        public enable() {
             this.viewer = new Cesium.Viewer('map', {
-                selectionIndicator : false,
+                selectionIndicator: false,
                 infoBox: false,
                 scene3DOnly: true,
                 sceneModePicker: false,
@@ -32,7 +29,7 @@ module csComp.Services
             });
 
             this.camera = this.viewer.camera;
-            this.scene  = this.viewer.scene;
+            this.scene = this.viewer.scene;
 
             setTimeout(() => {
                 for (var i = 0; i < this.service.project.features.length; ++i)
@@ -45,27 +42,32 @@ module csComp.Services
             this.changeBaseLayer(this.service.$mapService.activeBaseLayer);
         }
 
-        public getZoom()
-        {
+        public getExtent(): csComp.Services.IBoundingBox {
+            var r = <IBoundingBox>{};
+            return r;
+
+        }
+
+        public getZoom() {
             // we dont get nearby relations for now
             return 0;
         }
 
-        public fitBounds(bounds: L.LatLngBounds)
-        {
+        public fitBounds(bounds: csComp.Services.IBoundingBox) {
             var ellipsoid = Cesium.Ellipsoid.WGS84;
+            if (bounds) {
 
-            var west = Cesium.Math.toRadians(bounds.getSouthWest().lng);
-            var south = Cesium.Math.toRadians(bounds.getSouthWest().lat);
-            var east = Cesium.Math.toRadians(bounds.getNorthEast().lng);
-            var north = Cesium.Math.toRadians(bounds.getNorthEast().lat);
+                var west = Cesium.Math.toRadians(bounds.southWest[1]);
+                var south = Cesium.Math.toRadians(bounds.southWest[0]);
+                var east = Cesium.Math.toRadians(bounds.northEast[1]);
+                var north = Cesium.Math.toRadians(bounds.northEast[0]);
 
-            var extent = new Cesium.Rectangle(west, south, east, north);
-            this.camera.viewRectangle(extent, ellipsoid);
+                var extent = new Cesium.Rectangle(west, south, east, north);
+                this.camera.viewRectangle(extent, ellipsoid);
+            }
         }
 
-        public setUpMouseHandlers()
-        {
+        public setUpMouseHandlers() {
             var handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
             handler.setInputAction((click) => {
                 var pickedObject = this.scene.pick(click.position);
@@ -105,26 +107,22 @@ module csComp.Services
             }, Cesium.ScreenSpaceEventType.WHEEL);
         }
 
-        public disable()
-        {
+        public disable() {
             this.viewer.destroy();
         }
 
-        public changeBaseLayer(layer : BaseLayer)
-        {
+        public changeBaseLayer(layer: BaseLayer) {
             if (layer.cesium_url === undefined)
                 alert('This layer is not cesium compatible');
-            else
-            {
-                switch (layer.cesium_maptype.toUpperCase())
-                {
+            else {
+                switch (layer.cesium_maptype.toUpperCase()) {
                     case "ARCGIS":
                         var mapProvider = new Cesium.ArcGisMapServerImageryProvider({
                             url: layer.cesium_url,
                             minimumLevel: layer.minZoom,
                             maximumLevel: layer.maxZoom
                         });
-                    break;
+                        break;
 
                     case "OPENSTREETMAP":
                         var mapProvider = new Cesium.OpenStreetMapImageryProvider({
@@ -132,7 +130,7 @@ module csComp.Services
                             minimumLevel: layer.minZoom,
                             maximumLevel: layer.maxZoom
                         });
-                    break;
+                        break;
 
                     case "WEBMAPTILE":
                         var mapProvider = new Cesium.WebMapTileServiceImageryProvider({
@@ -140,7 +138,7 @@ module csComp.Services
                             minimumLevel: layer.minZoom,
                             maximumLevel: layer.maxZoom
                         });
-                    break;
+                        break;
 
                     case "TILEMAP":
                         var mapProvider = new Cesium.TileMapServiceImageryProvider({
@@ -148,17 +146,17 @@ module csComp.Services
                             minimumLevel: layer.minZoom,
                             maximumLevel: layer.maxZoom
                         });
-                    break;
+                        break;
 
                     default:
                         alert('unknown maptype: ' + layer.cesium_maptype);
-                    break;
+                        break;
                 }
                 this.viewer.imageryLayers.addImageryProvider(mapProvider);
             }
         }
 
-        public showFeatureTooltip(feature : IFeature, endPosition) {
+        public showFeatureTooltip(feature: IFeature, endPosition) {
             if (this.popupShownFor !== undefined && feature.id == this.popupShownFor.id) return;
             $(".cesiumPopup").fadeOut('fast').remove();
             this.popupShownFor = feature;
@@ -207,15 +205,14 @@ module csComp.Services
             content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
 
             // cesium does not have a popup class like leaflet does, so we create our own div with absolute position
-            this.popup = $("<div class='cesiumPopup featureTooltip'></div>").html(content).css({ position: 'absolute', top: endPosition.y - 30, left: endPosition.x - widthInPixels / 2 - 30, width: widthInPixels}).hide().fadeIn('fast');
+            this.popup = $("<div class='cesiumPopup featureTooltip'></div>").html(content).css({ position: 'absolute', top: endPosition.y - 30, left: endPosition.x - widthInPixels / 2 - 30, width: widthInPixels }).hide().fadeIn('fast');
             $("body").append(this.popup);
         }
 
-        public addLayer(layer: ProjectLayer)
-        {
+        public addLayer(layer: ProjectLayer) {
             // console.log(layer);
             var dfd = jQuery.Deferred();
-            switch(layer.renderType) {
+            switch (layer.renderType) {
                 case "geojson":
                     setTimeout(() => {
                         layer.data.features.forEach((f: IFeature) => {
@@ -224,46 +221,45 @@ module csComp.Services
                         dfd.resolve();
                     }, 0);
 
-                break;
+                    break;
 
                 case "wms":
                     var wms_layer = this.viewer.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
-                        url : layer.url,
+                        url: layer.url,
                         layers: layer.wmsLayers,
                         parameters: {
-                          format: 'image/png',
-                          transparent: true,
+                            format: 'image/png',
+                            transparent: true,
                         }
                     }));
                     wms_layer.id = layer.id;
                     wms_layer.alpha = layer.opacity / 100;
 
                     dfd.resolve();
-                break;
+                    break;
 
                 default:
                     alert('unknown layertype: ' + layer.type);
                     dfd.resolve();
-                break;
+                    break;
             }
             return dfd.promise();
         }
 
-        public removeLayer(layer: ProjectLayer)
-        {
+        public removeLayer(layer: ProjectLayer) {
             var dfd = jQuery.Deferred();
-            switch(layer.type.toUpperCase()) {
+            switch (layer.type.toUpperCase()) {
                 case "GEOJSON":
                 case "DYNAMICGEOJSON":
                 case "TOPOJSON":
                     setTimeout(() => {
-                      layer.data.features.forEach((f: IFeature) => {
-                          this.removeFeature(f);
-                      });
-                      dfd.resolve();
+                        layer.data.features.forEach((f: IFeature) => {
+                            this.removeFeature(f);
+                        });
+                        dfd.resolve();
                     }, 0);
 
-                break;
+                    break;
 
                 case "WMS":
                     this.viewer.imageryLayers._layers.forEach(ilayer => {
@@ -271,18 +267,17 @@ module csComp.Services
                             this.viewer.imageryLayers.remove(ilayer);
                     });
                     dfd.resolve();
-                break;
+                    break;
 
                 default:
                     alert('unknown layertype: ' + layer.type);
                     dfd.resolve();
-                break;
+                    break;
             }
             return dfd.promise();
         }
 
-        public updateMapFilter(group : ProjectGroup)
-        {
+        public updateMapFilter(group: ProjectGroup) {
             var dfd = jQuery.Deferred();
             setTimeout(() => {
                 this.viewer.entities.values.forEach((entity) => {
@@ -303,13 +298,11 @@ module csComp.Services
             console.log('addGroup called');
         }
 
-        public removeGroup(group: ProjectGroup)
-        {
+        public removeGroup(group: ProjectGroup) {
             console.log('removeGroup called');
         }
 
-        public removeFeature(feature: IFeature)
-        {
+        public removeFeature(feature: IFeature) {
             //console.log('removeFeature called');
             var toRemove = [];
             this.viewer.entities.values.forEach((entity) => {
@@ -324,18 +317,17 @@ module csComp.Services
 
         }
 
-        public removeFeatures(features: IFeature [])
-        {
+        public removeFeatures(features: IFeature[]) {
             var dfd = jQuery.Deferred();
 
             setTimeout(() => {
                 var toRemove = [];
                 this.viewer.entities.values.forEach((entity) => {
                     features.forEach(feature => {
-                      if (entity.feature.id === feature.id) {
-                          entity.show(false);
-                          //toRemove.push(entity);
-                      }
+                        if (entity.feature.id === feature.id) {
+                            entity.show(false);
+                            //toRemove.push(entity);
+                        }
                     });
                 });
                 toRemove.forEach(entity => {
@@ -347,26 +339,22 @@ module csComp.Services
             return dfd.promise();
         }
 
-        public updateFeature(feature : IFeature)
-        {
+        public updateFeature(feature: IFeature) {
             this.viewer.entities.values.forEach(entity => {
                 if (entity.feature.id === feature.id)
                     this.updateEntity(entity, feature);
             });
         }
 
-        private updateEntity(entity, feature: IFeature)
-        {
-            var height = feature.properties['mediaan_hoogte'] === undefined ?  feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
+        private updateEntity(entity, feature: IFeature) {
+            var height = feature.properties['mediaan_hoogte'] === undefined ? feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
 
-            if (feature.fType.style.iconUri !== undefined && entity.billboard !== undefined)
-            {
+            if (feature.fType.style.iconUri !== undefined && entity.billboard !== undefined) {
                 entity.billboard.width = feature.effectiveStyle.iconWidth;
                 entity.billboard.height = feature.effectiveStyle.iconHeight;
             }
 
-            switch (feature.geometry.type.toUpperCase())
-            {
+            switch (feature.geometry.type.toUpperCase()) {
                 case "POINT":
                 case "MULTIPOINT":
                     entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
@@ -374,7 +362,7 @@ module csComp.Services
                     entity.point.color = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
                     entity.point.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
                     entity.point.outlineWidth = feature.effectiveStyle.strokeWidth;
-                break;
+                    break;
 
                 case "POLYGON":
                 case "MULTIPOLYGON":
@@ -382,22 +370,21 @@ module csComp.Services
                     entity.polygon.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
                     entity.polygon.outlineWidth = feature.effectiveStyle.strokeWidth; // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
                     entity.polygon.extrudedHeight = height;
-                break;
+                    break;
 
                 case "LINESTRING":
                 case "MULTILINESTRING":
                     entity.polyline.material = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
                     entity.polyline.width = feature.effectiveStyle.strokeWidth;
-                break;
+                    break;
 
                 default:
                     alert('unknown geometry type: ' + feature.geometry.type);
-                break;
+                    break;
             }
         }
 
-        public addFeature(feature: IFeature)
-        {
+        public addFeature(feature: IFeature) {
             var entity = this.createFeature(feature);
         }
 
@@ -411,35 +398,33 @@ module csComp.Services
                 entity.name = feature.properties['Name'];
 
             // override for buildings from Top10NL
-            var height = feature.properties['mediaan_hoogte'] === undefined ?  feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
+            var height = feature.properties['mediaan_hoogte'] === undefined ? feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
 
             var pixelSize = 5;
-            if (feature.fType.style.iconUri !== undefined)
-            {
+            if (feature.fType.style.iconUri !== undefined) {
                 // a billboard is an icon for a feature
                 entity.billboard = {
-                    image : feature.fType.style.iconUri,
-                    width : feature.effectiveStyle.iconWidth,
-                    height : feature.effectiveStyle.iconHeight
+                    image: feature.fType.style.iconUri,
+                    width: feature.effectiveStyle.iconWidth,
+                    height: feature.effectiveStyle.iconHeight
                 };
                 // we draw this point very large because it serves as a background for the billboards
                 pixelSize = 35;
             }
 
-            switch (feature.geometry.type.toUpperCase())
-            {
+            switch (feature.geometry.type.toUpperCase()) {
                 case "POINT":
                     // if there is no icon, a PointGraphics object is used as a fallback mechanism
                     entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
 
                     entity.point = {
-                        pixelSize : pixelSize,
-                        position : Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]),
-                        color : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                        outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                        outlineWidth : feature.effectiveStyle.strokeWidth
+                        pixelSize: pixelSize,
+                        position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]),
+                        color: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                        outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                        outlineWidth: feature.effectiveStyle.strokeWidth
                     };
-                break;
+                    break;
 
                 case "MULTIPOINT":
                     for (var i = 0; i < feature.geometry.coordinates.length; i++) {
@@ -447,44 +432,43 @@ module csComp.Services
                         entity_multi.feature = feature;
 
                         entity_multi.point = {
-                            pixelSize : pixelSize,
-                            position : Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[i][0], feature.geometry.coordinates[i][1], feature.geometry.coordinates[i][2]),
-                            color : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                            outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                            outlineWidth : feature.effectiveStyle.strokeWidth
+                            pixelSize: pixelSize,
+                            position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[i][0], feature.geometry.coordinates[i][1], feature.geometry.coordinates[i][2]),
+                            color: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                            outlineWidth: feature.effectiveStyle.strokeWidth
                         };
 
                         this.viewer.entities.add(entity_multi);
                     }
                     this.viewer.entities.remove(entity);
-                break;
+                    break;
 
                 case "POLYGON":
-                    entity.polygon = new Cesium.PolygonGraphics( {
-                          hierarchy : this.createPolygon(feature.geometry.coordinates).hierarchy,
-                          material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                          outline : true,
-                          outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                          outlineWidth: feature.effectiveStyle.strokeWidth, // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
-                          extrudedHeight: height,
-                          perPositionHeight: true
+                    entity.polygon = new Cesium.PolygonGraphics({
+                        hierarchy: this.createPolygon(feature.geometry.coordinates).hierarchy,
+                        material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                        outline: true,
+                        outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                        outlineWidth: feature.effectiveStyle.strokeWidth, // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
+                        extrudedHeight: height,
+                        perPositionHeight: true
                     });
-                break;
+                    break;
 
                 case "MULTIPOLYGON":
                     var polygons = this.createMultiPolygon(feature.geometry.coordinates);
-                    for (var i = 0; i < polygons.length; ++i)
-                    {
+                    for (var i = 0; i < polygons.length; ++i) {
                         var entity_multi = new Cesium.Entity();
                         entity_multi.feature = feature;
 
                         var polygon = new Cesium.PolygonGraphics({
-                            hierarchy : polygons[i].hierarchy,
-                            material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                            outline : true,
-                            outlineColor : Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                            outlineWidth : feature.effectiveStyle.strokeWidth,
-                            extrudedHeight : height,
+                            hierarchy: polygons[i].hierarchy,
+                            material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            outline: true,
+                            outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                            outlineWidth: feature.effectiveStyle.strokeWidth,
+                            extrudedHeight: height,
                             perPositionHeight: true
                         });
                         entity_multi.polygon = polygon;
@@ -492,15 +476,15 @@ module csComp.Services
                         this.viewer.entities.add(entity_multi);
                     }
                     this.viewer.entities.remove(entity);
-                break;
+                    break;
 
                 case "LINESTRING":
                     entity.polyline = new Cesium.PolylineGraphics({
                         positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates),
-                        material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                        width : feature.effectiveStyle.strokeWidth,
+                        material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                        width: feature.effectiveStyle.strokeWidth,
                     })
-                break;
+                    break;
 
                 case "MULTILINESTRING":
                     for (var i = 0; i < feature.geometry.coordinates.length; i++) {
@@ -509,41 +493,39 @@ module csComp.Services
 
                         entity.polyline = new Cesium.PolylineGraphics({
                             positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates[i]),
-                            material : Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                            width : feature.effectiveStyle.strokeWidth,
+                            material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            width: feature.effectiveStyle.strokeWidth,
                         });
 
                         this.viewer.entities.add(entity_multi);
                     }
                     this.viewer.entities.remove(entity);
-                break;
+                    break;
 
                 default:
                     alert('unknown geometry type: ' + feature.geometry.type);
-                break;
+                    break;
             }
 
             // add a 3D model if we have one
-            if (feature.properties["FeatureTypeId"] === "3Dmodel")
-            {
+            if (feature.properties["FeatureTypeId"] === "3Dmodel") {
                 var modelUri = feature.effectiveStyle.modelUri || feature.properties["modelUri"] || "";
                 var modelScale = feature.effectiveStyle.modelScale || feature.properties["modelScale"] || 1;
                 var modelMinimumPixelSize = feature.effectiveStyle.modelMinimumPixelSize || feature.properties["modelMinimumPixelSize"] || 32;
 
                 entity.model = new Cesium.ModelGraphics({
-                    uri : modelUri,
+                    uri: modelUri,
                     scale: modelScale,
                     minimumPixelSize: modelMinimumPixelSize,
                 });
 
                 // Hide icon and point when we have a 3D model
                 if (entity.billboard !== undefined) entity.billboard.show = false;
-                if (entity.point !== undefined) entity.point.show = false;                
+                if (entity.point !== undefined) entity.point.show = false;
             }
 
             //account for rotation
-            if (feature.properties["Track"] !== undefined)
-            {
+            if (feature.properties["Track"] !== undefined) {
                 var headingQuaternion = Cesium.Transforms.headingPitchRollQuaternion(Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]), Cesium.Math.toRadians(feature.properties["Track"]), 0, 0);
                 entity.orientation = headingQuaternion;
             }
@@ -551,8 +533,7 @@ module csComp.Services
             return entity;
         }
 
-        private createPolygon(coordinates)
-        {
+        private createPolygon(coordinates) {
             if (coordinates.length === 0 || coordinates[0].length === 0)
                 return;
 
@@ -568,8 +549,7 @@ module csComp.Services
             return polygon;
         }
 
-        private createMultiPolygon(coordinates)
-        {
+        private createMultiPolygon(coordinates) {
             var polygons = [];
 
             for (var i = 0; i < coordinates.length; i++) {

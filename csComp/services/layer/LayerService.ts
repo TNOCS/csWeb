@@ -1235,10 +1235,12 @@ module csComp.Services {
                 //var projects = data;
                 if (solution.maxBounds) {
                     this.maxBounds = solution.maxBounds;
-                    this.$mapService.map.setMaxBounds(new L.LatLngBounds(solution.maxBounds.southWest, solution.maxBounds.northEast));
+                    this.$mapService.map.setMaxBounds(new L.LatLngBounds(
+                        L.latLng(solution.maxBounds.southWest[0], solution.maxBounds.southWest[1]),
+                        L.latLng(solution.maxBounds.northEast[0], solution.maxBounds.northEast[1])));
                 }
                 if (solution.viewBounds)
-                    this.activeMapRenderer.fitBounds(new L.LatLngBounds(solution.viewBounds.southWest, solution.viewBounds.northEast));
+                    this.activeMapRenderer.fitBounds(solution.viewBounds);
 
                 solution.baselayers.forEach(b => {
                     var baselayer: BaseLayer = new BaseLayer();
@@ -1323,7 +1325,7 @@ module csComp.Services {
                 }
 
                 if (this.project.viewBounds) {
-                    this.activeMapRenderer.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
+                    this.activeMapRenderer.fitBounds(this.project.viewBounds);
                 }
 
                 this.initTypeResources(this.project);

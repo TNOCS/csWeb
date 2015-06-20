@@ -43,7 +43,6 @@ module DashboardEdit {
             this.dashboard = $scope.$parent["data"];
             if (this.dashboard.parents && this.dashboard.parents.length > 0) this.parent = this.dashboard.parents[0];
             this.updateHasParent();
-            console.log(this.dashboard);
         }
 
         public updateHasParent() {
@@ -56,6 +55,11 @@ module DashboardEdit {
             //this.$dashboardService.mainDashboard.showTimeline = !this.$dashboardService.mainDashboard.showTimeline;
             this.checkTimeline();
             this.$layerService.project.dashboards
+        }
+
+        public setExtent() {
+            this.dashboard.viewBounds = this.$layerService.activeMapRenderer.getExtent();
+            //console.log('test');
         }
 
 

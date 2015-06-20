@@ -133,6 +133,11 @@ module Dashboard {
                 if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
             }
 
+            if (this.$scope.dashboard.viewBounds) {
+                console.log('set bound');
+                this.$layerService.activeMapRenderer.fitBounds(this.$scope.dashboard.viewBounds);
+            }
+
             if (this.$scope.dashboard.showMap && this.$scope.dashboard.baselayer) {
                 this.$messageBusService.publish("map", "setbaselayer", this.$scope.dashboard.baselayer);
             }
@@ -159,7 +164,7 @@ module Dashboard {
         public checkViewbound() {
             var db = this.$layerService.project.activeDashboard;
             if (db.viewBounds) {
-                this.$layerService.activeMapRenderer.fitBounds(new L.LatLngBounds(db.viewBounds.southWest, db.viewBounds.northEast));
+                this.$layerService.activeMapRenderer.fitBounds(db.viewBounds);
             }
         }
 

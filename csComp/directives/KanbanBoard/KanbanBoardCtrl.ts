@@ -54,7 +54,6 @@ module KanbanBoard {
                 this.$layerService.addLayer(l, (t) => {
                     setTimeout(() => {
                         c.layer = t;
-                        console.log(c.layer.data.features);
                     }, 0);
                 });
             });

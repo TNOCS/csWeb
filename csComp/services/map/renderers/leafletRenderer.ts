@@ -4,6 +4,7 @@ module csComp.Services {
         title = "leaflet";
         service: LayerService;
         $messageBusService: MessageBusService;
+        map: L.Map;
 
         private popup: L.Popup;
 
@@ -15,21 +16,41 @@ module csComp.Services {
         public enable() {
             if ($("map").length !== 1) return;
             this.service.$mapService.map = L.map("map", {
+
                 //var tl  = L.map("mapleft", {
                 zoomControl: false,
                 maxZoom: 19,
                 attributionControl: true
             });
+            this.map = this.service.$mapService.map;
+
             this.service.$mapService.map.on('moveend', (t, event: any) => {
                 var b = (<L.Map>(this.service.$mapService.map)).getBounds();
                 this.$messageBusService.publish("mapbbox", "update", b.toBBoxString());
 
-                this.service.$mapService.maxBounds = b;
+                //this.service.$mapService.maxBounds = new csComp.Seb;
             });
         }
 
-        public fitBounds(bounds: L.LatLngBounds) {
-            this.service.$mapService.map.fitBounds(bounds);
+        public getExtent(): csComp.Services.IBoundingBox {
+
+            var r = <IBoundingBox>{};
+            if (this.map) {
+                var b = this.map.getBounds();
+                var sw = b.getSouthWest();
+                var ne = b.getNorthEast();
+                r.southWest = [sw.lat, sw.lng];
+                r.northEast = [ne.lat, ne.lng];
+            }
+            return r;
+
+        }
+
+        public fitBounds(bounds: csComp.Services.IBoundingBox) {
+            var southWest = L.latLng(bounds.southWest[0], bounds.southWest[1]);
+            var northEast = L.latLng(bounds.northEast[0], bounds.northEast[1]);
+            var lb = L.latLngBounds(southWest, northEast);
+            this.service.$mapService.map.fitBounds(lb);
         }
 
         public getZoom() {
