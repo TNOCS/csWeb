@@ -353,8 +353,8 @@ export class MapLayerFactory {
                 console.log("Error: Not a valid coordinate ( " + x + ", " + y + ")");
             } else {
                 var wgs = converter.inverse( { x: x, y: y });
-                console.log(JSON.stringify(wgs));
-                features.push(this.createFeature(wgs.y, wgs.x, prop, sensors[index] || {}));
+                //console.log(JSON.stringify(wgs));
+                features.push(this.createFeature(wgs.x, wgs.y, prop, sensors[index] || {}));
             }
         });
         callback();
