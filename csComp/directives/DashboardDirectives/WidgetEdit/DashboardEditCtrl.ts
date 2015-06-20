@@ -62,6 +62,12 @@ module DashboardEdit {
             //console.log('test');
         }
 
+        public setVisibleLayers() {
+            this.dashboard.visiblelayers = [];
+
+            for (var id in this.$layerService.loadedLayers) this.dashboard.visiblelayers.push(id);
+        }
+
 
         public toggleMap() {
             setTimeout(() => {
