@@ -93,6 +93,8 @@
         "./directives/KanbanBoard/KanbanBoard-edit.ts",
         "./directives/KanbanBoard/KanbanBoard.ts",
         "./directives/KanbanBoard/KanbanBoardCtrl.ts",
+        "./directives/KanbanBoard/KanbanColumn.ts",
+        "./directives/KanbanBoard/KanbanColumnCtrl.ts",
         "./directives/LanguageSwitch/LanguageSwitch.ts",
         "./directives/LanguageSwitch/LanguageSwitchCtrl.ts",
         "./directives/LayersList/AddLayerCtrl.ts",

@@ -4,7 +4,7 @@ module csComp.Services {
     /** describes a layer source, every layer has a layer source that is responsible for importing the data (e.g. geojson, wms, etc */
     export interface ILayerSource {
         title: string;
-        service: ILayerService;
+        service: LayerService;
         addLayer(layer: ProjectLayer, callback: Function);
         removeLayer(layer: ProjectLayer): void;
         refreshLayer(layer: ProjectLayer): void;
@@ -13,34 +13,35 @@ module csComp.Services {
         layerMenuOptions(layer: ProjectLayer): [[string, Function]];
     }
 
-    export interface ILayerService {
-        title: string;
-        accentColor: string;
-        solution: Solution;
-        project: Project;
-        maxBounds: IBoundingBox;
-        findLayer(id: string): ProjectLayer;
-        findLoadedLayer(id: string): ProjectLayer;
-        //selectFeature(feature: Services.IFeature);
-        currentLocale: string;
-        activeMapRenderer: IMapRenderer;                    // active map renderer
-        mb: Services.MessageBusService;
-        map: Services.MapService;
-        //layerGroup: L.LayerGroup<L.ILayer>;
-        featureTypes: { [key: string]: Services.IFeatureType; };
-        propertyTypeData: { [key: string]: Services.IPropertyType; };
-        timeline: any;
-    }
+    // export interface ILayerService {
+    //     title: string;
+    //     accentColor: string;
+    //     solution: Solution;
+    //     project: Project;
+    //     maxBounds: IBoundingBox;
+    //     findLayer(id: string): ProjectLayer;
+    //     findLoadedLayer(id: string): ProjectLayer;
+    //     //selectFeature(feature: Services.IFeature);
+    //     currentLocale: string;
+    //     activeMapRenderer: IMapRenderer;                    // active map renderer
+    //     mb: Services.MessageBusService;
+    //     map: Services.MapService;
+    //     //layerGroup: L.LayerGroup<L.ILayer>;
+    //     featureTypes: { [key: string]: Services.IFeatureType; };
+    //     propertyTypeData: { [key: string]: Services.IPropertyType; };
+    //     timeline: any;
+    // }
 
     /** layer service is responsible for reading and managing all project, layer and sensor related data */
-    export class LayerService implements ILayerService {
+    export class LayerService {
         maxBounds: IBoundingBox;
         title: string;
         accentColor: string;
         mb: Services.MessageBusService;
         map: Services.MapService;
-        featureTypes: { [key: string]: IFeatureType; };
+        _featureTypes: { [key: string]: IFeatureType; };
         propertyTypeData: { [key: string]: IPropertyType; };
+
         project: Project;
         projectUrl: SolutionProject; // URL of the current project
         solution: Solution;
@@ -62,6 +63,7 @@ module csComp.Services {
         typesResources: { [key: string]: ITypesResource };
 
         public visual: VisualState = new VisualState();
+
 
         static $inject = [
             '$location',
@@ -89,7 +91,7 @@ module csComp.Services {
             this.title = '';
             //this.layerGroup       = new L.LayerGroup<L.ILayer>();
             this.typesResources = {};
-            this.featureTypes = {};
+            this._featureTypes = {};
             this.propertyTypeData = {};
             //this.map.map.addLayer(this.layerGroup);
             //this.noStyles = true;
@@ -361,11 +363,12 @@ module csComp.Services {
             var featureTypes = source.featureTypes;
             if (featureTypes) {
                 for (var typeName in featureTypes) {
-                    if (!featureTypes.hasOwnProperty(typeName)) continue;
+                    var tn = source.url + "#" + typeName;
+                    //if (!this._featureTypes.hasOwnProperty(tn)) continue;
                     var featureType: IFeatureType = featureTypes[typeName];
-                    featureType.id = typeName;
+                    //featureType.id = typeName;
                     this.initFeatureType(featureType);
-                    this.featureTypes[typeName] = featureType;
+                    this._featureTypes[tn] = featureType;
                 }
             }
             if (source.propertyTypeData) {
@@ -633,8 +636,11 @@ module csComp.Services {
                 feature.layerId = layer.id;
                 feature.layer = layer;
 
+
+
                 // add feature to global list of features
                 this.project.features.push(feature);
+
 
                 // add to crossfilter
                 layer.group.ndx.add([feature]);
@@ -651,6 +657,7 @@ module csComp.Services {
                     Helpers.setFeatureName(feature);
 
                 this.calculateFeatureStyle(feature);
+                this.$rootScope.$apply();
             }
             return feature.type;
         }
@@ -666,23 +673,7 @@ module csComp.Services {
         * Calculate the effective feature style.
         */
         public calculateFeatureStyle(feature: IFeature) {
-            var s: csComp.Services.IFeatureTypeStyle = {};
-            //TODO: check compatibility for both heatmaps and other features
-            //s.fillColor = 'red';
-            //s.strokeWidth = 1;
-            //s.stroke        = false;
-            s.strokeWidth = 1;
-            s.strokeColor = '#GGFFBB';
-            s.fillOpacity = 0.75;
-            s.fillColor = '#GGFFBB';
-            s.stroke = true;
-            s.opacity = 1;
-            s.rotate = 0;
-            s.iconUri = "cs/images/marker.png";
-            //s.strokeColor = 'black';
-            s.iconHeight = 32;
-            s.iconWidth = 32;
-            //s.cornerRadius = 20;
+            var s = csComp.Helpers.getDefaultFeatureStyle();
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
@@ -1106,22 +1097,46 @@ module csComp.Services {
         }
 
         /**
+        Returns the featureTypeId for specific feature.
+        It looks for the FeatureTypeId property, defaultFeatureType of his layer
+        and checks if it should be found in a resource file or within his own layer
+        */
+        public getFeatureTypeId(feature: IFeature): string {
+            var name = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
+
+            if (name.toLowerCase().startsWith("http://")) return name;
+            //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
+            if (feature.layer.typeUrl) return feature.layer.typeUrl + "#" + name;
+            return feature.layer.url + "#" + name;
+        }
+
+
+
+        /**
          * Return the feature style for a specific feature.
          * First, look for a layer specific feature type, otherwise, look for a project-specific feature type.
          * In case both fail, create a default feature type at the layer level.
          */
         getFeatureType(feature: IFeature): IFeatureType {
-            //    if (feature.fType) return feature.fType;
-            var projectFeatureTypeName = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
-            var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
-            if (!(this.featureTypes.hasOwnProperty(featureTypeName))) {
-                if (this.featureTypes.hasOwnProperty(projectFeatureTypeName))
-                    featureTypeName = projectFeatureTypeName;
-                else
-                    this.featureTypes[featureTypeName] = csComp.Helpers.createDefaultType(feature);
+            if (feature.fType) return feature.fType;
+            feature.featureTypeName = this.getFeatureTypeId(feature);
+            if (!this._featureTypes.hasOwnProperty(feature.featureTypeName)) {
+                this._featureTypes[feature.featureTypeName] = csComp.Helpers.createDefaultType(feature);
             }
-            feature.featureTypeName = featureTypeName;
-            return this.featureTypes[featureTypeName];
+            feature.fType = this._featureTypes[feature.featureTypeName];
+            return feature.fType;
+            //
+            // //    if (feature.fType) return feature.fType;
+            // var projectFeatureTypeName = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
+            // var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
+            // if (!(this._featureTypes.hasOwnProperty(featureTypeName))) {
+            //     if (this._featureTypes.hasOwnProperty(projectFeatureTypeName))
+            //         featureTypeName = projectFeatureTypeName;
+            //     else
+            //         this._featureTypes[featureTypeName] = csComp.Helpers.createDefaultType(feature);
+            // }
+            // feature.featureTypeName = featureTypeName;
+            // return this._featureTypes[featureTypeName];
         }
 
 
@@ -1200,7 +1215,7 @@ module csComp.Services {
 
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
             var layerName = layer.id + '_';
-            var featureTypes = this.featureTypes;
+            var featureTypes = this._featureTypes;
             for (var poiTypeName in featureTypes) {
                 if (!featureTypes.hasOwnProperty(poiTypeName)) continue;
                 //if (poiTypeName.lastIndexOf(layerName, 0) === 0) delete featureTypes[poiTypeName];
@@ -1309,7 +1324,7 @@ module csComp.Services {
             //console.log('layerIds (openProject): ' + JSON.stringify(layerIds));
 
             this.clearLayers();
-            this.featureTypes = {};
+            this._featureTypes = {};
             this.propertyTypeData = {};
             //typesResources
 

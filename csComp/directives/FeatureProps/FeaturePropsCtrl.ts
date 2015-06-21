@@ -440,7 +440,7 @@ module FeatureProps {
                             (<any>(l.data)).features[0].fType.propertyTypeData.forEach((pt) => {
                                 if (pt.type == "hierarchy") {
                                     if (pt.targetlayer == feature.layerId) {
-                                        var featureType = this.$layerService.featureTypes[feature.featureTypeName];
+                                        var featureType = this.$layerService.getFeatureType(feature);
                                         var propertyTypes = csComp.Helpers.getPropertyTypes(feature.fType, this.$layerService.propertyTypeData);
                                         var found = false;
                                         propertyTypes.forEach((p) => {

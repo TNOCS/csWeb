@@ -18,17 +18,19 @@ module KanbanColumn {
     /**
       * Directive to display the available map layers.
       */
-    myModule.directive('kanbanBoard', [
+    myModule.directive('kanbanColumn', [
         '$window', '$compile',
         function($window, $compile): ng.IDirective {
             return {
                 terminal: true,  // do not compile any other internal directives
                 restrict: 'E',    // E = elements, other options are A=attributes and C=classes
-                scope: {},     // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
-                templateUrl: 'directives/KanbanBoard/KanbanBoard.tpl.html',
+                scope: {
+                    column: '='
+                },     // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
+                templateUrl: 'directives/KanbanBoard/KanbanColumn.tpl.html',
                 replace: false,    // Remove the directive from the DOM
                 transclude: false,    // Add elements and attributes to the template
-                controller: KanbanBoardCtrl
+                controller: KanbanColumnCtrl
             }
         }
     ]);

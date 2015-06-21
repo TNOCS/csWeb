@@ -1,22 +1,18 @@
-module KanbanBoard {
+module KanbanColumn {
     export interface IKanbanBoardScope extends ng.IScope {
         vm: KanbanBoardCtrl;
-    }
-
-    export class Column {
-        layerId: string;
-        layer: csComp.Services.ProjectLayer;
     }
 
     export class KanbanConfig {
         columns: Column[];
     }
 
+
     export class KanbanBoardCtrl {
         private scope: IKanbanBoardScope;
         public feeds: csComp.Services.Feed[] = [];
 
-        public kanban: KanbanConfig;
+        public kanban: KanbanColumn.KanbanConfig;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -38,25 +34,11 @@ module KanbanBoard {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.kanban = par.widget.data;
-            this.initLayers();
-            console.log(this.kanban);
-
+            console.log('init board');
         }
 
-        selectFeature(feature: csComp.Services.IFeature) {
-            console.log(feature);
-        }
 
-        /** make sure all layers/feeds are loaded */
-        initLayers() {
-            this.kanban.columns.forEach((c: Column) => {
-                var l = this.$layerService.findLayer(c.layerId);
-                this.$layerService.addLayer(l, (t) => {
-                    setTimeout(() => {
-                        c.layer = t;
-                    }, 0);
-                });
-            });
-        }
+
+
     }
 }

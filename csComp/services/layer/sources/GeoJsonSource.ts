@@ -74,8 +74,8 @@ module csComp.Services {
                                 var featureType: IFeatureType = data.featureTypes[featureTypeName];
 
                                 // give it a unique name
-                                featureTypeName = layer.id + '_' + featureTypeName;
-                                this.service.featureTypes[featureTypeName] = featureType;
+                                featureTypeName = layer.url + '#' + featureTypeName;
+                                this.service._featureTypes[featureTypeName] = featureType;
                             }
 
                             if (data.timestamps) layer.timestamps = data.timestamps;

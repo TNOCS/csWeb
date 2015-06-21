@@ -1,4 +1,4 @@
-﻿module Mca {
+module Mca {
     'use strict';
 
     // TODO Ignore MCA calculation when too many criteria are out of (cut-off) range or not present. ???
@@ -23,9 +23,9 @@
     // TODO Create a function that determines which geojson to load based on the current extent and zoom level.
 
 
-    import Feature       = csComp.Services.Feature;
-    import IFeature      = csComp.Services.IFeature;
-    import IFeatureType  = csComp.Services.IFeatureType;
+    import Feature = csComp.Services.Feature;
+    import IFeature = csComp.Services.IFeature;
+    import IFeatureType = csComp.Services.IFeatureType;
     import IPropertyType = csComp.Services.IPropertyType;
 
     export interface IMcaScope extends ng.IScope {
@@ -44,19 +44,19 @@
         features: IFeature[] = [];
 
         selectedFeature: IFeature;
-        properties     : FeatureProps.CallOutProperty[];
-        showFeature    : boolean;
-        showChart      : boolean;
-        featureIcon    : string;
+        properties: FeatureProps.CallOutProperty[];
+        showFeature: boolean;
+        showChart: boolean;
+        featureIcon: string;
 
-        mca              : Models.Mca;
+        mca: Models.Mca;
         selectedCriterion: Models.Criterion;
-        availableMcas    : Models.Mca[] = [];
+        availableMcas: Models.Mca[] = [];
 
         showAsterChart = false;  // When true, show a pie chart, when false, show a bar chart.
-        showDialog     = false;
-        expertMode     = false;
-        showSparkline  = false;
+        showDialog = false;
+        expertMode = false;
+        showSparkline = false;
 
         private groupStyle: csComp.Services.GroupStyle;
 
@@ -71,13 +71,13 @@
         ];
 
         constructor(
-            private $scope              : IMcaScope,
-            private $modal              : any,
-            private $translate          : ng.translate.ITranslateService,
-            private $timeout            : ng.ITimeoutService,
+            private $scope: IMcaScope,
+            private $modal: any,
+            private $translate: ng.translate.ITranslateService,
+            private $timeout: ng.ITimeoutService,
             private $localStorageService: ng.localStorage.ILocalStorageService,
-            private $layerService       : csComp.Services.LayerService,
-            private messageBusService   : csComp.Services.MessageBusService
+            private $layerService: csComp.Services.LayerService,
+            private messageBusService: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
 
@@ -95,12 +95,12 @@
                 switch (title) {
                     case 'loaded':
                         this.expertMode = $layerService.project != null
-                            && $layerService.project.hasOwnProperty('userPrivileges')
-                            && $layerService.project.userPrivileges.hasOwnProperty('mca')
-                            && $layerService.project.userPrivileges.mca.hasOwnProperty('expertMode')
-                            && $layerService.project.userPrivileges.mca.expertMode;
+                        && $layerService.project.hasOwnProperty('userPrivileges')
+                        && $layerService.project.userPrivileges.hasOwnProperty('mca')
+                        && $layerService.project.userPrivileges.mca.hasOwnProperty('expertMode')
+                        && $layerService.project.userPrivileges.mca.expertMode;
 
-                       if (typeof $layerService.project.mcas === 'undefined' || $layerService.project.mcas == null)
+                        if (typeof $layerService.project.mcas === 'undefined' || $layerService.project.mcas == null)
                             $layerService.project.mcas = [];
                         var mcas = this.$localStorageService.get(McaCtrl.mcas);
                         if (typeof mcas === 'undefined' || mcas === null) return;
@@ -129,54 +129,54 @@
         }
 
         private createDummyMca() {
-            var mca             = new Models.Mca();
-            mca.title           = 'Mijn Zelfredzaamheid';
-            mca.description     = 'Analyse van de zelfredzaamheid van een gemeente.';
-            mca.label           = 'mca_zelfredzaamheid';
-            mca.stringFormat    = '{0:0.0}';
-            mca.rankTitle       = 'Positie';
+            var mca = new Models.Mca();
+            mca.title = 'Mijn Zelfredzaamheid';
+            mca.description = 'Analyse van de zelfredzaamheid van een gemeente.';
+            mca.label = 'mca_zelfredzaamheid';
+            mca.stringFormat = '{0:0.0}';
+            mca.rankTitle = 'Positie';
             mca.rankDescription = 'Relatieve positie in de lijst.';
-            mca.rankFormat      = '{0} van {1}';
-            mca.userWeightMax   = 5;
-            mca.featureIds      = ['cities_Default'];
+            mca.rankFormat = '{0} van {1}';
+            mca.userWeightMax = 5;
+            mca.featureIds = ['cities_Default'];
 
-            var criterion        = new Models.Criterion();
-            criterion.label      = 'p_00_14_jr';
-            criterion.scores     = '[0,0 20,1]';
+            var criterion = new Models.Criterion();
+            criterion.label = 'p_00_14_jr';
+            criterion.scores = '[0,0 20,1]';
             criterion.userWeight = 1;
             mca.criteria.push(criterion);
 
-            criterion            = new Models.Criterion();
-            criterion.label      = 'p_15_24_jr';
-            criterion.scores     = '[0,0 20,1]';
+            criterion = new Models.Criterion();
+            criterion.label = 'p_15_24_jr';
+            criterion.scores = '[0,0 20,1]';
             criterion.userWeight = 1;
             mca.criteria.push(criterion);
 
-            criterion            = new Models.Criterion();
-            criterion.label      = 'p_65_eo_jr';
-            criterion.scores     = '[0,0 25,1]';
+            criterion = new Models.Criterion();
+            criterion.label = 'p_65_eo_jr';
+            criterion.scores = '[0,0 25,1]';
             criterion.userWeight = 3;
             mca.criteria.push(criterion);
             this.$layerService.project.mcas.push(mca);
 
-            mca               = new Models.Mca();
-            mca.title         = 'test';
-            mca.label         = 'mca_test';
-            mca.stringFormat  = '{0:0.0}';
-            mca.rankTitle     = 'Rang';
-            mca.rankFormat    = '{0} van {1}';
+            mca = new Models.Mca();
+            mca.title = 'test';
+            mca.label = 'mca_test';
+            mca.stringFormat = '{0:0.0}';
+            mca.rankTitle = 'Rang';
+            mca.rankFormat = '{0} van {1}';
             mca.userWeightMax = 3;
-            mca.featureIds    = ['cities_Default'];
+            mca.featureIds = ['cities_Default'];
 
-            criterion            = new Models.Criterion();
-            criterion.label      = 'p_15_24_jr';
-            criterion.scores     = '[0,0 20,1]';
+            criterion = new Models.Criterion();
+            criterion.label = 'p_15_24_jr';
+            criterion.scores = '[0,0 20,1]';
             criterion.userWeight = 1;
             mca.criteria.push(criterion);
 
-            criterion            = new Models.Criterion();
-            criterion.label      = 'p_65_eo_jr';
-            criterion.scores     = '[0,0 25,1]';
+            criterion = new Models.Criterion();
+            criterion.label = 'p_65_eo_jr';
+            criterion.scores = '[0,0 25,1]';
             criterion.userWeight = 3;
             mca.criteria.push(criterion);
             this.$layerService.project.mcas.push(mca);
@@ -227,8 +227,8 @@
                 this.updateMca();
                 //console.log(JSON.stringify(mca, null, 2));
             }, () => {
-                //console.log('Modal dismissed at: ' + new Date());
-            });
+                    //console.log('Modal dismissed at: ' + new Date());
+                });
         }
 
         removeMca(mca: Models.Mca) {
@@ -300,17 +300,17 @@
             //console.log("MC: featureMessageReceived");
             if (this.mca == null) return;
             switch (title) {
-            case 'onFeatureSelect':
-                this.updateSelectedFeature(feature, true);
-                break;
-            case 'onFeatureDeselect':
-                this.showFeature = false;
-                this.selectedFeature = null;
-                this.drawChart();
-                break;
-            default:
-                //console.log(title);
-                break;
+                case 'onFeatureSelect':
+                    this.updateSelectedFeature(feature, true);
+                    break;
+                case 'onFeatureDeselect':
+                    this.showFeature = false;
+                    this.selectedFeature = null;
+                    this.drawChart();
+                    break;
+                default:
+                    //console.log(title);
+                    break;
             }
             this.scopeApply();
         }
@@ -366,11 +366,11 @@
                     var y1 = crit.y;
                     if (crit.userWeight < 0) y1 = y1.map((v) => 1 - v);
                     csComp.Helpers.Plot.drawMcaPlot(crit.propValues, {
-                        id              : id,
-                        width           : 220,
-                        height          : 70,
-                        xy              : { x: crit.x, y: y1 },
-                        featureValue    : this.selectedFeature ? this.selectedFeature.properties[crit.label] : null
+                        id: id,
+                        width: 220,
+                        height: 70,
+                        xy: { x: crit.x, y: y1 },
+                        featureValue: this.selectedFeature ? this.selectedFeature.properties[crit.label] : null
                     });
                 } else {
                     var j = 0;
@@ -378,10 +378,10 @@
                         var y2 = c.y;
                         if (crit.userWeight < 0) y2 = y2.map((v) => 1 - v);
                         csComp.Helpers.Plot.drawMcaPlot(c.propValues, {
-                            id          : id + '_' + j++,
-                            width       : 220,
-                            height      : 70,
-                            xy          : { x: c.x, y: y2 },
+                            id: id + '_' + j++,
+                            width: 220,
+                            height: 70,
+                            xy: { x: c.x, y: y2 },
                             featureValue: this.selectedFeature ? this.selectedFeature.properties[c.label] : null
                         });
                     });
@@ -411,12 +411,12 @@
 
             var currentLevel = this.getParentOfSelectedCriterion(criterion);
             if (typeof currentLevel === 'undefined' || currentLevel == null) return;
-            var data         : number[] = [];
-            var options      : csComp.Helpers.IHistogramOptions = {
-                id           : McaCtrl.mcaChartId,
-                numberOfBins : 10,
-                width        : 240,
-                height       : 100,
+            var data: number[] = [];
+            var options: csComp.Helpers.IHistogramOptions = {
+                id: McaCtrl.mcaChartId,
+                numberOfBins: 10,
+                width: 240,
+                height: 100,
                 selectedValue: this.selectedFeature.properties[this.mca.label]
             };
             this.features.forEach((feature: Feature) => {
@@ -437,13 +437,13 @@
             var data: csComp.Helpers.AsterPieData[] = [];
             var i = 0;
             currentLevel.forEach((c) => {
-                var rawScore   = c.getScore(this.selectedFeature);
-                var pieData    = new csComp.Helpers.AsterPieData();
-                pieData.id     = i++;
-                pieData.label  = c.getTitle();
+                var rawScore = c.getScore(this.selectedFeature);
+                var pieData = new csComp.Helpers.AsterPieData();
+                pieData.id = i++;
+                pieData.label = c.getTitle();
                 pieData.weight = Math.abs(c.weight);
-                pieData.color  = c.color;
-                pieData.score  = (c.weight > 0 ? rawScore : 1-rawScore) * 100;
+                pieData.color = c.color;
+                pieData.score = (c.weight > 0 ? rawScore : 1 - rawScore) * 100;
                 data.push(pieData);
             });
             csComp.Helpers.Plot.drawAsterPlot(100, data, McaCtrl.mcaChartId);
@@ -456,11 +456,11 @@
             var data: csComp.Helpers.PieData[] = [];
             var i = 0;
             currentLevel.forEach((c) => {
-                var pieData    = new csComp.Helpers.PieData();
-                pieData.id     = i++;
-                pieData.label  = c.getTitle();
+                var pieData = new csComp.Helpers.PieData();
+                pieData.id = i++;
+                pieData.label = c.getTitle();
                 pieData.weight = Math.abs(c.weight);
-                pieData.color  = c.color;
+                pieData.color = c.color;
                 data.push(pieData);
             });
             csComp.Helpers.Plot.drawPie(100, data, McaCtrl.mcaChartId);
@@ -474,11 +474,12 @@
             this.mca = mca;
             this.availableMcas = [];
 
+
             this.$layerService.project.mcas.forEach((m) => {
                 m.featureIds.forEach((featureId: string) => {
-                    if (this.availableMcas.indexOf(m) < 0 && this.$layerService.featureTypes.hasOwnProperty(featureId)) {
+                    if (this.availableMcas.indexOf(m) < 0 && this.$layerService._featureTypes.hasOwnProperty(featureId)) {
                         this.availableMcas.push(m);
-                        var featureType = this.$layerService.featureTypes[featureId];
+                        var featureType = this.$layerService._featureTypes[featureId];
                         this.applyPropertyInfoToCriteria(m, featureType);
                     }
                 });
@@ -493,7 +494,7 @@
             if (!this.mca) return;
             var mca = this.mca;
             mca.featureIds.forEach((featureId: string) => {
-                if (!(this.$layerService.featureTypes.hasOwnProperty(featureId))) return;
+                if (!(this.$layerService._featureTypes.hasOwnProperty(featureId))) return;
                 this.addPropertyInfo(featureId, mca);
                 this.$layerService.project.features.forEach((feature) => {
                     if (feature.featureTypeName != null && feature.featureTypeName === featureId)
@@ -525,7 +526,7 @@
                         ? mca.scaleMaxValue > mca.scaleMinValue
                             ? (position: number) => { return mca.scaleMaxValue - Math.round(position / scaleFactor); }
                             : (position: number) => { return mca.scaleMinValue + Math.round(position / scaleFactor); }
-                        : (position: number) => { return position};
+                        : (position: number) => { return position };
                     var prevScore = -1;
                     var rank: number = 1;
                     for (var i = 0; i < length; i++) {
@@ -560,11 +561,11 @@
         }
 
         private addPropertyInfo(featureId: string, mca: Models.Mca, forceUpdate = false) {
-            var featureType = this.$layerService.featureTypes[featureId];
+            var featureType = this.$layerService._featureTypes[featureId];
             //var propertyTypes = featureType.propertyTypeData;
             var propertyTypes = csComp.Helpers.getPropertyTypes(featureType, this.$layerService.propertyTypeData);
             var labelIndex = -1;
-            for (var i = propertyTypes.length-1; i >= 0; i--) {
+            for (var i = propertyTypes.length - 1; i >= 0; i--) {
                 if (propertyTypes[i].label === mca.label) {
                     labelIndex = i;
                     break;
@@ -572,8 +573,7 @@
             }
             if (forceUpdate || labelIndex < 0) {
                 var pt = McaCtrl.createPropertyType(mca);
-                if (labelIndex < 0)
-                {
+                if (labelIndex < 0) {
                     if (featureType.propertyTypeData === null) featureType.propertyTypeData = [];
                     featureType.propertyTypeData.push(pt); // NOTE: propertyTypes refers to a new list, so you cannot add to it.
                 } else
@@ -613,29 +613,29 @@
         }
 
         private static createPropertyType(mca: Models.Mca): IPropertyType {
-            var mi : IPropertyType = {
-                title            : mca.title,
-                label            : mca.label,
-                type             : 'number',
-                maxValue         : 1,
-                minValue         : 0,
-                description      : mca.description,
-                stringFormat     : mca.stringFormat,
-                visibleInCallOut : true,
-                section          : mca.section || 'MCA'
+            var mi: IPropertyType = {
+                title: mca.title,
+                label: mca.label,
+                type: 'number',
+                maxValue: 1,
+                minValue: 0,
+                description: mca.description,
+                stringFormat: mca.stringFormat,
+                visibleInCallOut: true,
+                section: mca.section || 'MCA'
             };
             return mi;
         }
 
         private static createRankPropertyType(mca: Models.Mca): IPropertyType {
-            var mi : IPropertyType = {
-                title            : mca.rankTitle,
-                label            : mca.rankLabel,
-                type             : 'rank',
-                description      : mca.rankDescription,
-                stringFormat     : mca.rankFormat,
-                visibleInCallOut : true,
-                section          : mca.section || 'MCA'
+            var mi: IPropertyType = {
+                title: mca.rankTitle,
+                label: mca.rankLabel,
+                type: 'rank',
+                description: mca.rankDescription,
+                stringFormat: mca.rankFormat,
+                visibleInCallOut: true,
+                section: mca.section || 'MCA'
             };
             return mi;
         }
