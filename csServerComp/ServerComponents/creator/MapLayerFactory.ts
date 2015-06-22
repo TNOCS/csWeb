@@ -31,7 +31,8 @@ export interface ILayerDefinition {
     useClustering:             boolean,
     opacity:                   number,
     nameLabel:                 string,
-    includeOriginalProperties: boolean
+    includeOriginalProperties: boolean,
+    defaultFeatureType:        string
 }
 
 export interface IProperty {

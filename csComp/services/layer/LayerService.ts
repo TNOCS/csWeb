@@ -761,9 +761,17 @@ module csComp.Services {
                 if (locale.name) ft.name = locale.name;
             }
             if (ft.propertyTypeData == null || ft.propertyTypeData.length == 0) return;
-            ft.propertyTypeData.forEach((pt) => {
-                this.initPropertyType(pt);
-            });
+            if (ft.propertyTypeData.forEach) {
+                ft.propertyTypeData.forEach((pt) => {
+                    this.initPropertyType(pt);
+                });
+            } else {
+                for (var ptlabel in ft.propertyTypeData) {
+                    if (ft.propertyTypeData.hasOwnProperty(ptlabel)) {
+                        this.initPropertyType(ft.propertyTypeData[ptlabel]);
+                    }
+                }
+            }
         }
 
         /**
@@ -1111,10 +1119,13 @@ module csComp.Services {
             var projectFeatureTypeName = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
             var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
             if (!(this.featureTypes.hasOwnProperty(featureTypeName))) {
-                if (this.featureTypes.hasOwnProperty(projectFeatureTypeName))
+                if (this.featureTypes.hasOwnProperty(projectFeatureTypeName)) {
                     featureTypeName = projectFeatureTypeName;
-                else
+                } else if (this.typesResources.hasOwnProperty(feature.layer.typeUrl) && this.typesResources[feature.layer.typeUrl].featureTypes.hasOwnProperty(projectFeatureTypeName)) {
+                    this.featureTypes[featureTypeName] = this.typesResources[feature.layer.typeUrl].featureTypes[projectFeatureTypeName];
+                } else {
                     this.featureTypes[featureTypeName] = csComp.Helpers.createDefaultType(feature);
+                }
             }
             feature.featureTypeName = featureTypeName;
             return this.featureTypes[featureTypeName];
@@ -1439,7 +1450,7 @@ module csComp.Services {
                                     g.clusterLevel = msg.data.group.clusterLevel;
                                 }
                                 var layerExists = false;
-                                var layerIndex;
+                                var layerIndex = 0;
                                 g.layers.forEach((gl, index) => {
                                     if (gl.id === l.id) {
                                         layerExists = true;
@@ -1449,6 +1460,8 @@ module csComp.Services {
                                 if (!layerExists) {
                                     g.layers.push(l);
                                     this.initLayer(g, l);
+                                    if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
+                                    l.layerSource.refreshLayer(g.layers[layerIndex]);
                                 } else {
                                     if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
