@@ -90,6 +90,7 @@
         "./directives/Heatmap/HeatmapItem.ts",
         "./directives/Heatmap/HeatmapSettings.ts",
         "./directives/Heatmap/IdealityMeasure.ts",
+        "./directives/KanbanBoard/KanbanBoard-edit.ts",
         "./directives/KanbanBoard/KanbanBoard.ts",
         "./directives/KanbanBoard/KanbanBoardCtrl.ts",
         "./directives/LanguageSwitch/LanguageSwitch.ts",

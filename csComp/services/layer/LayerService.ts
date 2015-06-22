@@ -537,22 +537,22 @@ module csComp.Services {
             var date = this.project.timeLine.focus;
             var timepos = {};
 
-            this.project.datasources.forEach((ds: DataSource) => {
-                for (var sensorTitle in ds.sensors) {
-                    var sensor = <SensorSet>ds.sensors[sensorTitle];
-                    if (sensor.timestamps) {
-                        for (var i = 1; i < sensor.timestamps.length; i++) {
-                            if (sensor.timestamps[i] > date) {
-                                sensor.activeValue = sensor.values[i];
-                                console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
-                                break;
+            if (this.project.datasources) {
+                this.project.datasources.forEach((ds: DataSource) => {
+                    for (var sensorTitle in ds.sensors) {
+                        var sensor = <SensorSet>ds.sensors[sensorTitle];
+                        if (sensor.timestamps) {
+                            for (var i = 1; i < sensor.timestamps.length; i++) {
+                                if (sensor.timestamps[i] > date) {
+                                    sensor.activeValue = sensor.values[i];
+                                    console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
+                                    break;
+                                }
                             }
                         }
                     }
-
-                };
-            });
-
+                })
+            };
 
             this.project.features.forEach((f: IFeature) => {
                 var l = this.findLayer(f.layerId);
@@ -744,10 +744,6 @@ module csComp.Services {
                 }
             });
 
-
-
-
-
             if (feature.isSelected) {
                 s.strokeWidth = s.selectedStrokeWidth || 5;
                 s.strokeColor = s.selectedStrokeColor || 'black';
@@ -765,9 +761,17 @@ module csComp.Services {
                 if (locale.name) ft.name = locale.name;
             }
             if (ft.propertyTypeData == null || ft.propertyTypeData.length == 0) return;
-            ft.propertyTypeData.forEach((pt) => {
-                this.initPropertyType(pt);
-            });
+            if (ft.propertyTypeData.forEach) {
+                ft.propertyTypeData.forEach((pt) => {
+                    this.initPropertyType(pt);
+                });
+            } else {
+                for (var ptlabel in ft.propertyTypeData) {
+                    if (ft.propertyTypeData.hasOwnProperty(ptlabel)) {
+                        this.initPropertyType(ft.propertyTypeData[ptlabel]);
+                    }
+                }
+            }
         }
 
         /**
@@ -1115,10 +1119,13 @@ module csComp.Services {
             var projectFeatureTypeName = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
             var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
             if (!(this.featureTypes.hasOwnProperty(featureTypeName))) {
-                if (this.featureTypes.hasOwnProperty(projectFeatureTypeName))
+                if (this.featureTypes.hasOwnProperty(projectFeatureTypeName)) {
                     featureTypeName = projectFeatureTypeName;
-                else
+                } else if (this.typesResources.hasOwnProperty(feature.layer.typeUrl) && this.typesResources[feature.layer.typeUrl].featureTypes.hasOwnProperty(projectFeatureTypeName)) {
+                    this.featureTypes[featureTypeName] = this.typesResources[feature.layer.typeUrl].featureTypes[projectFeatureTypeName];
+                } else {
                     this.featureTypes[featureTypeName] = csComp.Helpers.createDefaultType(feature);
+                }
             }
             feature.featureTypeName = featureTypeName;
             return this.featureTypes[featureTypeName];
@@ -1235,10 +1242,12 @@ module csComp.Services {
                 //var projects = data;
                 if (solution.maxBounds) {
                     this.maxBounds = solution.maxBounds;
-                    this.$mapService.map.setMaxBounds(new L.LatLngBounds(solution.maxBounds.southWest, solution.maxBounds.northEast));
+                    this.$mapService.map.setMaxBounds(new L.LatLngBounds(
+                        L.latLng(solution.maxBounds.southWest[0], solution.maxBounds.southWest[1]),
+                        L.latLng(solution.maxBounds.northEast[0], solution.maxBounds.northEast[1])));
                 }
                 if (solution.viewBounds)
-                    this.activeMapRenderer.fitBounds(new L.LatLngBounds(solution.viewBounds.southWest, solution.viewBounds.northEast));
+                    this.activeMapRenderer.fitBounds(solution.viewBounds);
 
                 solution.baselayers.forEach(b => {
                     var baselayer: BaseLayer = new BaseLayer();
@@ -1323,7 +1332,7 @@ module csComp.Services {
                 }
 
                 if (this.project.viewBounds) {
-                    this.activeMapRenderer.fitBounds(new L.LatLngBounds(this.project.viewBounds.southWest, this.project.viewBounds.northEast));
+                    this.activeMapRenderer.fitBounds(this.project.viewBounds);
                 }
 
                 this.initTypeResources(this.project);
@@ -1441,7 +1450,7 @@ module csComp.Services {
                                     g.clusterLevel = msg.data.group.clusterLevel;
                                 }
                                 var layerExists = false;
-                                var layerIndex;
+                                var layerIndex = 0;
                                 g.layers.forEach((gl, index) => {
                                     if (gl.id === l.id) {
                                         layerExists = true;
@@ -1451,6 +1460,8 @@ module csComp.Services {
                                 if (!layerExists) {
                                     g.layers.push(l);
                                     this.initLayer(g, l);
+                                    if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
+                                    l.layerSource.refreshLayer(g.layers[layerIndex]);
                                 } else {
                                     if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];

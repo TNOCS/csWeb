@@ -106,8 +106,8 @@ module csComp.Services {
 
     /** bouding box to specify a region. */
     export interface IBoundingBox {
-        southWest: L.LatLng;
-        northEast: L.LatLng;
+        southWest: number[];
+        northEast: number[];
     }
 
     export interface ITimelineOptions {

@@ -46,10 +46,44 @@ module DynamicProject {
 
         public AddLayer(data: any) {
             var groupFolder = this.folder + "\\" + data.group;
-            var file = groupFolder + "\\" + data.layerTitle + ".json";
+            var resourceFolder = this.folder + "\\..\\resources";
+            var geojsonfile = groupFolder + "\\" + data.reference + ".json";
+            var resourcefile = resourceFolder + "\\" + data.reference + ".json";
             if (!fs.existsSync(groupFolder)) fs.mkdirSync(groupFolder);
-            fs.writeFileSync(file, JSON.stringify(data.geojson));
+            if (!fs.existsSync(resourceFolder)) fs.mkdirSync(resourceFolder);
+            var combinedjson = this.splitJson(data);
+            fs.writeFileSync(geojsonfile, JSON.stringify(combinedjson.geojson));
+            fs.writeFileSync(resourcefile, JSON.stringify(combinedjson.resourcejson));
             console.log('done!');
+        }
+
+        private splitJson(data) {
+            var geojson = {}, resourcejson: any = {};
+            var combinedjson = data.geojson;
+            if (combinedjson.hasOwnProperty('type') && combinedjson.hasOwnProperty('features')) {
+                geojson = {
+                    type: combinedjson.type,
+                    features: combinedjson.features
+                };
+            }
+            if (combinedjson.hasOwnProperty('featureTypes') && combinedjson.featureTypes.hasOwnProperty('Default')) {
+                var defaultFeatureType = combinedjson.featureTypes['Default'];
+                if (defaultFeatureType.hasOwnProperty('propertyTypeData')) {
+                    var propertyTypeObjects = {};
+                    var propKeys: string = '';
+                    defaultFeatureType.propertyTypeData.forEach((pt) => {
+                        propertyTypeObjects[pt.label] = pt;
+                        propKeys = propKeys + pt.label + ';'
+                    });
+                    defaultFeatureType.propertyTypeData = propertyTypeObjects;
+                    defaultFeatureType.propertyTypeKeys = propKeys;
+                    defaultFeatureType.name = data.reference;
+                    resourcejson['featureTypes'] = {};
+                    resourcejson.featureTypes[data.reference] = defaultFeatureType;
+                    data.defaultFeatureType = defaultFeatureType.name;
+                }
+            }
+            return {geojson: geojson, resourcejson: resourcejson};
         }
 
         /***
@@ -153,6 +187,8 @@ module DynamicProject {
             layer.groupId = g.id;
             layer.enabled = parameters.enabled;
             layer.reference = parameters.reference;
+            layer.defaultFeatureType = parameters.reference;
+            layer.typeUrl = "data/projects/resources/" + parameters.reference + ".json";
 
             var layerExists = false;
             for (var i = 0; i < g.layers.length; i++) {
