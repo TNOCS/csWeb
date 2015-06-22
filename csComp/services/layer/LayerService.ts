@@ -540,22 +540,22 @@ module csComp.Services {
             var date = this.project.timeLine.focus;
             var timepos = {};
 
-            this.project.datasources.forEach((ds: DataSource) => {
-                for (var sensorTitle in ds.sensors) {
-                    var sensor = <SensorSet>ds.sensors[sensorTitle];
-                    if (sensor.timestamps) {
-                        for (var i = 1; i < sensor.timestamps.length; i++) {
-                            if (sensor.timestamps[i] > date) {
-                                sensor.activeValue = sensor.values[i];
-                                console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
-                                break;
+            if (this.project.datasources) {
+                this.project.datasources.forEach((ds: DataSource) => {
+                    for (var sensorTitle in ds.sensors) {
+                        var sensor = <SensorSet>ds.sensors[sensorTitle];
+                        if (sensor.timestamps) {
+                            for (var i = 1; i < sensor.timestamps.length; i++) {
+                                if (sensor.timestamps[i] > date) {
+                                    sensor.activeValue = sensor.values[i];
+                                    console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
+                                    break;
+                                }
                             }
                         }
                     }
-
-                };
-            });
-
+                })
+            };
 
             this.project.features.forEach((f: IFeature) => {
                 var l = this.findLayer(f.layerId);
@@ -734,10 +734,6 @@ module csComp.Services {
                     //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                 }
             });
-
-
-
-
 
             if (feature.isSelected) {
                 s.strokeWidth = s.selectedStrokeWidth || 5;
