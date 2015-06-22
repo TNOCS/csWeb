@@ -3,12 +3,14 @@ module KanbanColumn {
         vm: KanbanColumnCtrl;
         column: Column;
         columnFilter: Function;
+        query: string;
     }
 
     export class ColumnFilter {
         layerIds: string[];
         prio: number;
-        roles: string[]
+        roles: string[];
+        tags: string[];
     }
 
     export class Column {
@@ -20,7 +22,6 @@ module KanbanColumn {
     export class KanbanColumnCtrl {
         public scope: IKanbanColumnScope;
         public column: Column;
-
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -47,14 +48,30 @@ module KanbanColumn {
             console.log('init column:' + this.column);
 
             $scope.columnFilter = (feature: csComp.Services.IFeature) => {
+                var result = true;
                 if (!$scope.column) return false;
                 if (!_.contains(this.column.filters.layerIds, feature.layerId)) return false;
-                return true;
+                if (this.column.filters.tags) {
+                    if (!feature.properties.hasOwnProperty('tags')) return false;
+                    this.column.filters.tags.forEach((tag: string) => {
+                        if (!_.contains(feature.properties['tags'], tag))
+                            result = false;
+                        return;
+                    })
+                }
+                return result;
             }
         }
 
         public logFilter(feature: csComp.Services.IFeature) {
 
+        }
+
+        public getPrioColor(feature: csComp.Services.IFeature) {
+            var colors = ["white", "green", "blue", "orange", "red", "black"];
+            return {
+                "background-color": colors[parseInt(feature.properties['prio'])]
+            }
         }
 
         selectFeature(feature: csComp.Services.IFeature) {
