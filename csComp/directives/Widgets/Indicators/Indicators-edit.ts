@@ -106,12 +106,13 @@ module Indicators {
 
         public updateIndicator(i: indicator) {
             i.propertyTypes = [];
+            i.propertyTypeTitles = [];
             this.propertyTypes.forEach((pt) => {
                 i.propertyTypes.push(pt.label);
                 i.propertyTypeTitles.push(pt.title);
             });
             if (this.$layerService.lastSelectedFeature) {
-                this.$messageBus.publish('feature', 'onUpdateWithLastSelected', i);
+                this.$messageBus.publish('feature', 'onUpdateWithLastSelected', {indicator: i, feature: undefined} );
             }
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {this.$scope.$apply();};
         }

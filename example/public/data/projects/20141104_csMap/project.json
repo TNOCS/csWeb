@@ -55,34 +55,27 @@
       "Hospitals"
     ],
     "widgets": [{
-      "directive": "indicators",
-      "title": "Mobility",
-      "left": "10px",
-      "top": "10px",
-      "borderwidth": 5,
-      "bordercolor": "red",
-      "width": "225px",
-      "height": "365px",
-      "data": {
-        "title": "Mobility",
-        "indicators": [{
-          "title": "Traffic performance",
-          "visual": "bullet",
-          "sensor": "datasource/test",
-          "indexValue": 500000
-        }, {
-          "title": "Relative speed (% of max)",
-          "visual": "sparkline",
-          "sensor": "datasource/speed",
-          "layer": "live_traffic/speed"
-        }, {
-          "title": "Density (veh/km)",
-          "visual": "sparkline",
-          "sensor": "datasource/density",
-          "layer": "live_traffic/density"
-        }]
-      }
-    }, {
+            "id": "wachtlijsten",
+            "directive": "indicators",
+						"left": "10px",
+						"top": "80px",
+						"width": "225px",
+						"height": "295px",
+            "data": {
+                "title": "Wachtlijsten",
+                "orientation": "vertical",
+                "indicators": [{
+                    "title": "Wachtlijsten",
+                    "visual": "bullet",
+                    "usesSelectedFeature": true,
+                    "featureTypeName": "zorgkantoor_Default",
+                    "propertyTypes": ["tote", "toti"],
+                    "sensor": "",
+                    "dashboard": "health"
+                }]
+            }
+      },
+     {
       "directive": "indicators",
       "title": "Mobility",
       "left": "10px",
@@ -355,7 +348,7 @@
     "layers": [
 
       {
-        "id": "9d1dc210f8f5474f977c9d0f24df2ff8",
+        "id": "zorgkantoor",
         "reference": "zorgkantoor",
         "title": "Health regions",
         "description": "Data at the health office regions. (Source: CBS, BAG, TNO, DigiMV.)",

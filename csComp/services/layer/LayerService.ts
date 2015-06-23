@@ -1439,7 +1439,7 @@ module csComp.Services {
                                 if (!g) {
                                     g = new ProjectGroup();
                                     g.id = l.groupId;
-                                    g.title = l.title;
+                                    g.title = msg.data.group.title;
                                     g.clustering = msg.data.group.clustering;
                                     g.clusterLevel = msg.data.group.clusterLevel;
                                     this.project.groups.push(g);
