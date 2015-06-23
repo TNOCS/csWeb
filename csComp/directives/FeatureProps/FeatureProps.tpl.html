@@ -46,7 +46,7 @@
                 <li class="dropdown" ng-init="selectedSection.title='Kies...'">
                     <a style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="!$first">
+                        <li data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="!($first && callOut.hasInfoSection)">
                             <a ng-href="#rp-{{$index}}" ng-click="selectedSection.title = sectionTitle" data-toggle="tab">{{sectionTitle}}</a>
                         </li>
                     </ul>
