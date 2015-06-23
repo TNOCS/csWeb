@@ -501,10 +501,6 @@ module csComp.Services {
         public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
-            this.calculateFeatureStyle(feature);
-            this.activeMapRenderer.updateFeature(feature);
-
-
             // deselect last feature and also update
             if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature) {
                 this.lastSelectedFeature.isSelected = false;
@@ -514,6 +510,9 @@ module csComp.Services {
             }
             this.lastSelectedFeature = feature;
 
+            // select new feature, set selected style and bring to front
+            this.calculateFeatureStyle(feature);
+            this.activeMapRenderer.updateFeature(feature);
 
             if (!feature.isSelected) {
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', feature);
