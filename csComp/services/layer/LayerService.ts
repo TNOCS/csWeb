@@ -64,7 +64,6 @@ module csComp.Services {
 
         public visual: VisualState = new VisualState();
 
-
         static $inject = [
             '$location',
             '$compile',
@@ -283,6 +282,8 @@ module csComp.Services {
 
         public addLayer(layer: ProjectLayer, layerloaded?: Function) {
             if (this.loadedLayers.containsKey(layer.id) && (!layer.quickRefresh || layer.quickRefresh == false)) return;
+            if (layer.isLoading) return;
+            layer.isLoading = true;
             this.$messageBusService.publish('layer', 'loading', layer);
             this.$messageBusService.publish('updatelegend', 'title', layer.defaultLegendProperty);
             var disableLayers = [];
@@ -699,7 +700,7 @@ module csComp.Services {
                     s.rotate = Number(feature.properties[ft.style.rotateProperty]);
                 }
             }
-            feature.gui = {};
+            if (!feature.gui) feature.gui = {};
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     var v = Number(feature.properties[gs.property]);
@@ -707,6 +708,7 @@ module csComp.Services {
                         switch (gs.visualAspect) {
                             case 'strokeColor':
                                 s.strokeColor = csComp.Helpers.getColor(v, gs);
+                                feature.gui[gs.property] = s.strokeColor;
                                 break;
                             case 'fillColor':
                                 s.fillColor = csComp.Helpers.getColor(v, gs);
@@ -714,7 +716,7 @@ module csComp.Services {
                                 break;
                             case 'strokeWidth':
                                 s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
-                                feature.gui[gs.property] = s.strokeWidth;
+
                                 break;
                             case 'height':
                                 s.height = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 25000);
@@ -747,6 +749,8 @@ module csComp.Services {
         * Initialize the feature type and its property types by setting default property values, and by localizing it.
         */
         private initFeatureType(ft: IFeatureType) {
+            if (ft.isInitialized) return;
+            ft.isInitialized = true;
             if (ft.languages != null && this.currentLocale in ft.languages) {
                 var locale = ft.languages[this.currentLocale];
                 if (locale.name) ft.name = locale.name;
@@ -1436,6 +1440,7 @@ module csComp.Services {
                 // check if project is dynamic
                 if (solutionProject.dynamic) {
                     this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
+                        console.log(msg);
                         if (msg.action === "layer-update") {
                             msg.data.layer.forEach((l: ProjectLayer) => {
                                 var g: ProjectGroup;
@@ -1478,6 +1483,7 @@ module csComp.Services {
 
                         }
                         if (msg.action === "layer-remove") {
+
                             msg.data.forEach((l: ProjectLayer) => {
                                 var g: ProjectGroup;
                                 // find group
@@ -1704,12 +1710,17 @@ module csComp.Services {
                 $('#filtergroupcount_' + group.id).text(group.filterResult.length + ' objecten geselecteerd');
         }
 
-
-
-
-
-
-
+        public saveFeature(f: Feature) {
+            console.log('saving feature');
+            // check if feature is in dynamic layer
+            if (f.layer.type.toLowerCase() === "dynamicgeojson") {
+                var s = new LayerMessage();
+                s.layerId = f.layerId;
+                s.action = "featureUpdate";
+                s.object = Feature.serialize(f);
+                this.$messageBusService.serverPublish("layer", s);
+            }
+        }
 
         /***
          * Update map markers in cluster after changing filter
@@ -1729,6 +1740,12 @@ module csComp.Services {
                 }
             });
         }
+    }
+
+    export class LayerMessage {
+        public layerId: string;
+        public action: string;
+        public object: any;
     }
 
     /**

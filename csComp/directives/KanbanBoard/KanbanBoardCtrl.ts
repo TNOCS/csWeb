@@ -39,6 +39,5 @@ module KanbanColumn {
 
 
 
-
     }
 }

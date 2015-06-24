@@ -61,11 +61,27 @@ module KanbanColumn {
                 }
                 return result;
             }
+
+            setInterval(() => { this.updateTime() }, 1000);
+        }
+
+        public updateTime() {
+            this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
+                if (feature.properties.hasOwnProperty('date')) {
+
+                    var d = feature.properties['date'];
+                    if (!feature.hasOwnProperty('gui')) feature.gui = new Object;
+                    feature.gui['relativeTime'] = moment(d).fromNow();
+                }
+                return "";
+            })
         }
 
         public logFilter(feature: csComp.Services.IFeature) {
 
         }
+
+
 
         public getPrioColor(feature: csComp.Services.IFeature) {
             var colors = ["white", "green", "blue", "orange", "red", "black"];
@@ -74,8 +90,15 @@ module KanbanColumn {
             }
         }
 
+        public updateFeature(feature: csComp.Services.Feature) {
+            this.$layerService.saveFeature(feature);
+        }
+
+
+
+
         selectFeature(feature: csComp.Services.IFeature) {
-            console.log(feature);
+            this.$layerService.selectFeature(feature);
         }
 
         /** make sure all layers/feeds are loaded */

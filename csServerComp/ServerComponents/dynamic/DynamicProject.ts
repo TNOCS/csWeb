@@ -1,10 +1,10 @@
 require('rootpath')();
-import express          = require('express')
+import express = require('express')
 import ClientConnection = require('ClientConnection');
-import MessageBus       = require('../bus/MessageBus');
-import fs               = require('fs');
-import path             = require('path');
-var chokidar            = require('chokidar');
+import MessageBus = require('../bus/MessageBus');
+import fs = require('fs');
+import path = require('path');
+var chokidar = require('chokidar');
 //import csComp         = require("Classes/Feature");
 
 
@@ -32,6 +32,7 @@ module DynamicProject {
             console.log(JSON.stringify(feature));*/
 
             // load project file
+
             this.openFile();
 
             // watch directory changes for new geojson files
@@ -45,6 +46,7 @@ module DynamicProject {
         }
 
         public AddLayer(data: any) {
+
             var groupFolder = this.folder + "\\" + data.group;
             var file = groupFolder + "\\" + data.layerTitle + ".json";
             if (!fs.existsSync(groupFolder)) fs.mkdirSync(groupFolder);
@@ -56,11 +58,12 @@ module DynamicProject {
         Open project file from disk
         */
         public openFile() {
-            var f = this.folder + "/project.json";
+            var f = this.folder + "\\project.json";
             fs.readFile(f, 'utf8', (err, data) => {
                 if (!err) {
                     try {
                         this.project = JSON.parse(data);
+
                         if (!this.project.id) this.project.id = this.project.title;
 
                         if (!this.project.groups) this.project.groups = [];
@@ -74,13 +77,29 @@ module DynamicProject {
         }
 
         public watchFolder() {
-            var watcher = chokidar.watch(this.folder, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
-            watcher.on('add', (path) => { this.addLayer(path); });
-            watcher.on('change', (path) => { this.addLayer(path); });
-            watcher.on('unlink', (path) => { this.removeLayer(path); });
+            console.log('watch folder:' + this.folder);
+            setTimeout(() => {
+
+
+                var watcher = chokidar.watch(this.folder, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
+                watcher.on('all', ((action, path) => {
+                    if (action == "add") {
+                        this.addLayer(path);
+                    }
+                    if (action == "unlink") {
+                        this.removeLayer(path);
+                    }
+                    if (action == "change") {
+                        this.addLayer(path);
+                    }
+                }));
+            }, 1000);
+
+            //console.log(action + " - " + path); });
         }
 
         public removeLayer(file: string) {
+            console.log("removing : " + file);
             var p = path;
             var pp = file.split(p.sep);
             if (p.basename(file) === 'project.json') return;
@@ -104,6 +123,7 @@ module DynamicProject {
         }
 
         public addLayer(file: string) {
+            if (!this.project) return;
             var p = path;
             var pp = file.split(p.sep);
 
@@ -121,7 +141,7 @@ module DynamicProject {
             if (!parameters) parameters = { useClustering: true };
 
 
-
+            if (!this.project.groups) this.project.groups = [];
             // check if group exists
             var gg = this.project.groups.filter((element: any) => (element != null && element.title && element.title.toLowerCase() == groupTitle.toLowerCase()));
             var g: any = {};
@@ -130,10 +150,9 @@ module DynamicProject {
             }
             else {
                 //  var g : any; //new csComp.Services.ProjectGroup();
-                g.id = groupTitle.toLowerCase();
+                g.id = groupTitle;
                 g.title = groupTitle;
                 g.layers = [];
-                g.styles = [];
                 g.oneLayerActive = false;
 
                 this.project.groups.push(g);
