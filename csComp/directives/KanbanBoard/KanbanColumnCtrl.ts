@@ -3,7 +3,10 @@ module KanbanColumn {
         vm: KanbanColumnCtrl;
         column: Column;
         columnFilter: Function;
+        columnOrderBy: string;
+        columnOrderByReverse: boolean;
         query: string;
+        fields: any;
     }
 
     export class ColumnFilter {
@@ -15,9 +18,8 @@ module KanbanColumn {
 
     export class Column {
         filters: ColumnFilter;
+        fields: any;
     }
-
-
 
     export class KanbanColumnCtrl {
         public scope: IKanbanColumnScope;
@@ -41,11 +43,18 @@ module KanbanColumn {
             private $messageBus: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
+
             //var par = <any>$scope.$parent;
             //this.kanban = par.widget.data;
             this.column = $scope.column;
+            $scope.fields = this.column.fields;
+
+            // check if layers should be enabled
             this.initLayers();
-            console.log('init column:' + this.column);
+
+            $scope.columnOrderBy = $scope.fields['prio'];
+            $scope.columnOrderByReverse = true;
+
 
             $scope.columnFilter = (feature: csComp.Services.IFeature) => {
                 var result = true;
@@ -85,17 +94,21 @@ module KanbanColumn {
 
         public getPrioColor(feature: csComp.Services.IFeature) {
             var colors = ["white", "black", "red", "orange", "blue", "green"];
-            return {
-                "background-color": colors[parseInt(feature.properties['prio'])]
-            }
+            if (feature.properties.hasOwnProperty(this.column.fields['prio']))
+                return {
+                    "background-color": colors[parseInt(feature.properties[this.column.fields['prio']])]
+                }
+            return {};
+        }
+
+        public setOrder(order: string) {
+            console.log('set order:' + order);
+            this.$scope.columnOrderBy = this.$scope.fields[order];
         }
 
         public updateFeature(feature: csComp.Services.Feature) {
             this.$layerService.saveFeature(feature);
         }
-
-
-
 
         selectFeature(feature: csComp.Services.IFeature) {
             this.$layerService.selectFeature(feature);

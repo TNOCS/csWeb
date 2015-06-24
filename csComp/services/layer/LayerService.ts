@@ -636,11 +636,8 @@ module csComp.Services {
                 feature.layerId = layer.id;
                 feature.layer = layer;
 
-
-
                 // add feature to global list of features
                 this.project.features.push(feature);
-
 
                 // add to crossfilter
                 layer.group.ndx.add([feature]);
@@ -657,7 +654,7 @@ module csComp.Services {
                     Helpers.setFeatureName(feature);
 
                 this.calculateFeatureStyle(feature);
-                this.$rootScope.$apply();
+                if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             }
             return feature.type;
         }
@@ -1444,6 +1441,14 @@ module csComp.Services {
                 if (this.project.connected) {
                     // check connection
                     this.$messageBusService.initConnection("", "", () => {
+                        for (var ll in this.loadedLayers) {
+                            var layer = <ProjectLayer>this.loadedLayers[ll];
+                            if (layer && layer.layerSource && layer.layerSource.title.toLowerCase() === "dynamicgeojson") {
+                                layer.layerSource.refreshLayer(layer);
+                            }
+                        }
+
+                        console.log('Im back again');
                     });
                 }
 
@@ -1622,7 +1627,7 @@ module csComp.Services {
                             }
                             ss.activeValue = d.value;
                             this.$messageBusService.publish("sensor-" + ds.id + "/" + d.sensor, "update", ss.activeValue);
-                            this.$rootScope.$apply();
+                            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
                         }
                     }
                 });

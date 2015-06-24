@@ -81,42 +81,56 @@
     </style>
 
     <div class="kanbanColumn-column">
-
+        <h1>{{fields['prio']}}</h1>
         <div class="kanbanColumn-title">{{column.title}}</div>
         <!-- <form>
         <input type="text" ng-model="query"></input>
     </form> -->
-        <div style="float:right;margin-right:10px;margin-top:12px;">
-            <span class="fa fa-cog" style="color:gray"></span>
+        <div style="float:right;margin-right:10px;margin-top:12px">
+            <span class="fa fa-cog " style="color:gray"></span>
+            <div ng-if="fields['prio']" class="dropdown">
+                <span class="fa fa-sort-amount-asc dropdown-toggle" data-toggle="dropdown" style="color:gray"></span>
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                        <a data-ng-click="vm.setOrder('prio')">priority</a>
+                    </li>
+                    <li>
+                        <a data-ng-click="vm.setOrder('date')">date</a>
+                    </li>
+                    <li>
+                        <a data-ng-click="vm.setOrder('title')">title</a>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <ul class="card-list">
-            <li class="card-item" ng-repeat="feature in vm.$layerService.project.features | orderBy:'-properties.prio':true | filter:query | filter:columnFilter" >
+            <li class="card-item" ng-repeat="feature in vm.$layerService.project.features | orderBy:columnOrderBy | filter:query | filter:columnFilter" >
                 <div style="float:left"><img src="{{feature.effectiveStyle.iconUri}}" style="width:25px;height:25px"></img></div>
-                <div ng-click="vm.selectFeature(feature)" class="card-title">{{feature.properties['Name']}}</div>
+                <div ng-click="vm.selectFeature(feature)" class="card-title">{{feature.properties[fields['title']]}}</div>
                 <div ng-repeat="t in feature.properties['tags']">
                     [{{t}}]
                 </div>
                 <span>
                     {{feature.gui.relativeTime}}
                 </span>
-                <div ng-if="feature.properties['prio']" class="card-prio dropdown" ng-style="vm.getPrioColor(feature)">
-                    <span href="" class="dropdown-toggle" data-toggle="dropdown">{{feature.properties['prio']}}</span>
+                <div ng-if="fields['prio']" class="card-prio dropdown" ng-style="vm.getPrioColor(feature)">
+                    <span href="" class="dropdown-toggle" data-toggle="dropdown">{{feature.properties[fields['prio']]}}</span>
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a data-ng-click="feature.properties['prio']=1;vm.updateFeature(feature)">1 - very high</a>
+                            <a data-ng-click="feature.properties[fields['prio']]=1;vm.updateFeature(feature)">1 - very high</a>
                         </li>
                         <li>
-                            <a data-ng-click="feature.properties['prio']=2;vm.updateFeature(feature)">2 - high</a>
+                            <a data-ng-click="feature.properties[fields['prio']]=2;vm.updateFeature(feature)">2 - high</a>
                         </li>
                         <li>
-                            <a data-ng-click="feature.properties['prio']=3;vm.updateFeature(feature)">3 - moderate</a>
+                            <a data-ng-click="feature.properties[fields['prio']]=3;vm.updateFeature(feature)">3 - moderate</a>
                         </li>
                         <li>
-                            <a data-ng-click="feature.properties['prio']=4;vm.updateFeature(feature)">4 - low</a>
+                            <a data-ng-click="feature.properties[fields['prio']]=4;vm.updateFeature(feature)">4 - low</a>
                         </li>
                         <li>
-                            <a data-ng-click="feature.properties['prio']=5;vm.updateFeature(feature)">5 - very low</a>
+                            <a data-ng-click="feature.properties[fields['prio']]=5;vm.updateFeature(feature)">5 - very low</a>
                         </li>
                     </ul>
                 </div>
