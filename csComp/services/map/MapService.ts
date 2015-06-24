@@ -53,24 +53,7 @@ module csComp.Services {
                 }
             })
 
-            $messageBusService.subscribe('leftmenu', (title: string, data) => {
-                switch (title.toLowerCase()) {
-                    case "toggle":
-                        if ($('body').hasClass("leftpanel-collapsed")) {
-                            $('body').removeClass("leftpanel-collapsed");
-                        } else {
-                            $('body').addClass("leftpanel-collapsed");
-                        }
-                        break;
-                    case "hide":
-                        if (!$('body').hasClass("leftpanel-collapsed")) $('body').addClass("leftpanel-collapsed");
-                        break;
-                    case "show":
-                        if ($('body').hasClass("leftpanel-collapsed")) $('body').removeClass("leftpanel-collapsed");
 
-                        break;
-                }
-            });
         }
 
         /**
