@@ -47,7 +47,9 @@ module Indicators {
             '$timeout',
             'layerService',
             'messageBusService',
-            'mapService', 'dashboardService'
+            'mapService',
+            'dashboardService',
+            '$translate'
         ];
 
         constructor(
@@ -56,7 +58,8 @@ module Indicators {
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService,
-            private $dashboardService: csComp.Services.DashboardService
+            private $dashboardService: csComp.Services.DashboardService,
+            private $translate: ng.translate.ITranslateService
             ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
@@ -79,7 +82,7 @@ module Indicators {
                                     this.selectFeature(feature, i);
                                     break;
                                 case 'onUpdateWithLastSelected':
-                                    var indic = <indicator> feature; //variable called feature is actually the indicator
+                                    var indic = <indicator> feature.indicator; //variable called feature is actually an object containing the indicator and an (empty) feature
                                     var realFeature;
                                     if (this.$layerService.lastSelectedFeature) { realFeature = this.$layerService.lastSelectedFeature; };
                                     this.selectFeature(realFeature, indic);

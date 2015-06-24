@@ -30,10 +30,10 @@
                         </select>
                     </span>
                 </div>
-                <div>
+                <!-- <div>
                     <label>Fill color</label>
                     <spectrum-colorpicker format="'hex'" on-change="vm.colorUpdated(color, indic)" data-ng-model="indic.color" options="{ cancelText: 'Annuleren', chooseText: 'Kiezen'}"></spectrum-colorpicker>
-                </div>
+                </div> -->
                 <div style="padding: 5px 0;" class="row-fluid">
                     <span>
                         <label>Feature</label>
@@ -47,7 +47,7 @@
                     <span>
                         <label>Property</label>
                         <select id="selectIndicatorProperty" ng-model="vm.propertyTypes" class="form-control tt-input editor-text-input" style="display:inline-block"
-                                ng-options="pt as pt.title for pt in vm.$layerService.featureTypes[indic.featureTypeName].propertyTypeData" ng-change="vm.updateIndicator(indic)" multiple>
+                                ng-options="pt as pt.title for pt in vm.$layerService.featureTypes[indic.featureTypeName].propertyTypeData | filter:{type:'number'}" ng-change="vm.updateIndicator(indic)" multiple>
                             <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
                         </select>
                     </span>

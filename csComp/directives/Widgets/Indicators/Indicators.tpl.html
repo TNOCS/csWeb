@@ -16,6 +16,7 @@
         </li>
         <li ng-class="{isActive : i.isActive}" class="indicator-group" ng-switch-when="bullet">
           <bullet-chart width="i.indicatorWidth" height="30" title="i.sensorSet.propertyType.title" data="i.data" style="width:calc(100% - 80px)"/>
+          <div ng-if="!vm.$layerService.lastSelectedFeature">Please select a feature to show the widget</div>
         </li>
         <li ng-class="{isActive : i.isActive}" class="indicator-group" ng-switch-default>
             <div>{{i.sensorSet.propertyType.title}}</div>

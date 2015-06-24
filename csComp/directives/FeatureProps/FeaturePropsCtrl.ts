@@ -96,9 +96,11 @@ module FeatureProps {
         public title: string;
         public icon: string;
         public sections: { [title: string]: ICallOutSection; };
+        public hasInfoSection: boolean;
 
         constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: IPropertyTypeData, private layerservice: csComp.Services.LayerService, private mapservice: csComp.Services.MapService) {
             this.sections = {};
+            this.hasInfoSection = false;
             //if (type == null) this.createDefaultType();
             this.setTitle();
             this.setIcon(feature);
@@ -151,7 +153,12 @@ module FeatureProps {
                     }
                 });
             }
-            if (infoCallOutSection.properties.length > 0) this.sections['Aaa Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
+            if (infoCallOutSection.properties.length > 0) {
+                this.hasInfoSection = true;
+                this.sections['Aaa Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
+            } else {
+                this.hasInfoSection = false;
+            }
             if (hierarchyCallOutSection.properties.length > 0) this.sections['hierarchy'] = hierarchyCallOutSection;
             //if (searchCallOutSection.properties.length > 0) this.sections['zzz Search'] = searchCallOutSection;
         }

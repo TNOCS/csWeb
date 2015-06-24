@@ -505,10 +505,6 @@ module csComp.Services {
         public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
-            this.calculateFeatureStyle(feature);
-            this.activeMapRenderer.updateFeature(feature);
-
-
             // deselect last feature and also update
             if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature) {
                 this.lastSelectedFeature.isSelected = false;
@@ -518,6 +514,9 @@ module csComp.Services {
             }
             this.lastSelectedFeature = feature;
 
+            // select new feature, set selected style and bring to front
+            this.calculateFeatureStyle(feature);
+            this.activeMapRenderer.updateFeature(feature);
 
             if (!feature.isSelected) {
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', feature);
@@ -1460,7 +1459,7 @@ module csComp.Services {
                                 if (!g) {
                                     g = new ProjectGroup();
                                     g.id = l.groupId;
-                                    g.title = l.title;
+                                    g.title = msg.data.group.title;
                                     g.clustering = msg.data.group.clustering;
                                     g.clusterLevel = msg.data.group.clusterLevel;
                                     this.project.groups.push(g);
