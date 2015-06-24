@@ -78,7 +78,7 @@ module FeatureProps {
         showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
         addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, propertyType?: IPropertyType): void {
-            var isSensor = typeof feature.sensors && feature.sensors.hasOwnProperty(property);
+            var isSensor = feature.sensors && feature.sensors.hasOwnProperty(property);
             if (isSensor)
                 this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, propertyType, feature.timestamps, feature.sensors[property]));
             else
