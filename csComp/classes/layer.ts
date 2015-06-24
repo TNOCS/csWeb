@@ -209,7 +209,6 @@ module csComp.Services {
                 url: pl.url,
                 typeUrl: pl.typeUrl,
                 wmsLayers: pl.wmsLayers,
-                enabled: pl.enabled,
                 opacity: pl.opacity,
                 isSublayer: pl.isSublayer,
                 BBOX: pl.BBOX,

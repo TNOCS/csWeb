@@ -78,7 +78,7 @@ module FeatureProps {
         showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
         addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, propertyType?: IPropertyType): void {
-            var isSensor = typeof feature.sensors !== 'undefined' && feature.sensors.hasOwnProperty(property);
+            var isSensor = typeof feature.sensors && feature.sensors.hasOwnProperty(property);
             if (isSensor)
                 this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, propertyType, feature.timestamps, feature.sensors[property]));
             else
@@ -447,7 +447,7 @@ module FeatureProps {
                             (<any>(l.data)).features[0].fType.propertyTypeData.forEach((pt) => {
                                 if (pt.type == "hierarchy") {
                                     if (pt.targetlayer == feature.layerId) {
-                                        var featureType = this.$layerService.featureTypes[feature.featureTypeName];
+                                        var featureType = this.$layerService.getFeatureType(feature);
                                         var propertyTypes = csComp.Helpers.getPropertyTypes(feature.fType, this.$layerService.propertyTypeData);
                                         var found = false;
                                         propertyTypes.forEach((p) => {

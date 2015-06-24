@@ -74,8 +74,8 @@ module csComp.Services {
                                 var featureType: IFeatureType = data.featureTypes[featureTypeName];
 
                                 // give it a unique name
-                                featureTypeName = layer.id + '_' + featureTypeName;
-                                this.service.featureTypes[featureTypeName] = featureType;
+                                featureTypeName = layer.url + '#' + featureTypeName;
+                                this.service._featureTypes[featureTypeName] = featureType;
                             }
 
                             if (data.timestamps) layer.timestamps = data.timestamps;
@@ -115,12 +115,13 @@ module csComp.Services {
 
         private updateFeatureByProperty(key, id, value: IFeature) {
             try {
+
                 var features = (<any>this.layer.data).features;
                 if (features == null)
                     return;
                 var done = false;
                 features.some((f: IFeature) => {
-                    if (f.properties != null && f.properties.hasOwnProperty(key) && f.properties[key] === id) {
+                    if (f.hasOwnProperty(key) && f[key] === id) {
                         f.properties = value.properties;
                         f.geometry = value.geometry;
                         this.service.calculateFeatureStyle(f);
@@ -153,6 +154,7 @@ module csComp.Services {
 
                 features.some((f: IFeature) => {
                     if (f.properties != null && f.properties.hasOwnProperty(key) && f.properties[key] === id) {
+
                         f.properties = value.properties;
                         f.geometry = value.geometry;
                         this.service.calculateFeatureStyle(f);
@@ -185,8 +187,13 @@ module csComp.Services {
                     case "feature-update":
                         if (msg.data != null) {
                             try {
-                                msg.data.forEach((f) => {
-                                    this.updateFeatureByProperty("id", f.properties["id"], f);
+                                msg.data.forEach((f: IFeature) => {
+                                    this.service.$rootScope.$apply(() => {
+                                        this.updateFeatureByProperty("id", f.id, f);
+                                    });
+
+
+
                                 });
                             }
                             catch (e) {

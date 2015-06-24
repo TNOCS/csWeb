@@ -159,7 +159,7 @@ module csComp.Services {
 
         }
 
-        public disconnect() {}
+        public disconnect() { }
     }
 
     export enum NotifyLocation {

@@ -181,7 +181,7 @@ module Dashboard {
 
         public isReady(widget: csComp.Services.IWidget) {
             setTimeout(() => {
-                this.updateWidget(widget);
+                //this.updateWidget(widget);
             }, 10);
 
         }

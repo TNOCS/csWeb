@@ -54,6 +54,33 @@ module LayerEdit {
 
         }
 
+        public addFeatureType() {
+            var ft = <csComp.Services.IFeatureType>{};
+            ft.id = this.layer.defaultFeatureType;
+            ft.name = ft.id;
+            ft.style = csComp.Helpers.getDefaultFeatureStyle();
+            if (this.layer.typeUrl && this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
+                var r = this.$layerService.typesResources[this.layer.typeUrl];
+                if (!r.featureTypes.hasOwnProperty(ft.id)) {
+                    var ft = <csComp.Services.IFeatureType>{};
+                    ft.id = this.layer.defaultFeatureType;
+                    ft.name = ft.id;
+                    ft.style = csComp.Helpers.getDefaultFeatureStyle();
+                    var id = "";
+                    //if (ft.name.toLowerCase().startsWith("http://")) id = ft.name;
+                    //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
+                    if (this.layer.typeUrl) id = this.layer.typeUrl + "#" + ft.name;
+                    id = this.layer.url + "#" + name;
+
+                    this.$layerService._featureTypes[id] = ft;
+                    //this.$layerService.getFeatureTypeId()
+
+                }
+            }
+
+            console.log(this.layer.defaultFeatureType);
+        }
+
 
         public getTypes() {
             //var params = { address: address, sensor: false };

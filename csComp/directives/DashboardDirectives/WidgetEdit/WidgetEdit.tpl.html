@@ -65,11 +65,18 @@
                 <label class="control-label" for="widgetOpacity">Opacity</label>
                 <input id="widgetOpacity" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.opacity" placeholder="left" class="input-xlarge">
             </div>
-            <!-- <div class="col-md-6">
-                <label class="control-label" for="widgetBackground">Background</label>
-                <br/>
-                <spectrum-colorpicker data-ng-model="vm.$dashboardService.activeWidget.background" options="{cancelText: 'Cancel', chooseText: 'Select',format: 'hex'}"></spectrum-colorpicker>
-            </div> -->
         </div>
+
+        <div class="row widget-row">
+            <div class="col-md-6">
+                <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+                  <input type="checkbox" id="hideIfLeftPanel-{{vm.$dashboardService.activeWidget.id}}" ng-model="vm.$dashboardService.activeWidget.hideIfLeftPanel">
+                  <label for="hideIfLeftPanel-{{vm.$dashboardService.activeWidget.id}}">Hide if Left Panel Visible</label>
+                </div>
+            </div>
+
+        </div>
+
+
     </div>
 </div>

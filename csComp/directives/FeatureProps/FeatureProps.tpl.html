@@ -81,8 +81,11 @@
                                 <div data-ng-show="item.canStyle" class="pull-left accordionIcon style-icon" style="background:{{item.feature.gui[item.property]}}">
                                     <a class="smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
                                 </div>
+                                <div ng-show="item.isSensor" style="margin-left:8px" class="pull-left accordionIcon">
+                                    <a class="fa fa-area-chart makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" href="#sensor{{item.property}}" style="cursor: pointer"></a>
+                                </div>
                                 <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-left accordionIcon">
-                                    <a class="fa fa-pencil makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" ng-click="item.enabled=!item.enabled" href="#sensor{{item.property}}" style="cursor: pointer"></a>
+                                    <a class="fa fa-pencil makeNarrow" data-toggle="collapse" ng-click="item.enabled=!item.enabled" style="cursor: pointer"></a>
                                 </div>
                                 <div class="pull-left" style="margin-left: 4px;">
                                     {{item.key}}

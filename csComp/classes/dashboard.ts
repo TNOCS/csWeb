@@ -29,6 +29,7 @@ module csComp.Services {
         borderColor?: string;
         borderRadius?: string;
         opacity?: number;
+        disableIfLeftPanel?: boolean;
 
         name: string; id: string;
         properties: {};
@@ -58,6 +59,7 @@ module csComp.Services {
         public borderColor: string = "green";
         public borderRadius: string = "5px";
         public opacity: number = 1;
+        public hideIfLeftPanel: boolean;
 
         public background: string = "white";
         public left: string;

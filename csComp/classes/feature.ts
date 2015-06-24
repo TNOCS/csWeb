@@ -34,6 +34,9 @@ module csComp.Services {
         gui: Object;
         sensors?: { [id: string]: any[] }
         timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        /**
+         * Temperal list of geometries used e.g. to move a point over time (bound to timestamps, same as sensors)
+         */
         coordinates?: IGeoJsonGeometry[];          // used for temporal data
         languages?: { [key: string]: ILocalisedData }
     }
@@ -64,7 +67,15 @@ module csComp.Services {
         timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         coordinates: IGeoJsonGeometry[];          // used for temporal data
 
-
+        public static serialize(f: IFeature): IFeature {
+            var res = <IFeature>{};
+            res.id = f.id;
+            res.geometry = f.geometry;
+            res.properties = f.properties;
+            if (f.timestamps) res.timestamps = f.timestamps;
+            if (f.sensors) res.sensors = f.sensors;
+            return res;
+        }
 
     }
 
@@ -191,6 +202,7 @@ module csComp.Services {
         innerTextSize?: number;
         analysispropertyType?: any;
         rotateProperty?: string;
+        isInitialized?: boolean;
     }
 
     export interface IFeatureType {
@@ -205,6 +217,7 @@ module csComp.Services {
          */
         propertyTypeKeys?: string;
         languages?: ILanguageData;
+        isInitialized?: boolean;
     }
 
     export interface IGeoJsonFile {

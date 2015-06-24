@@ -1,0 +1,138 @@
+<div class="container-fluid" id="kanban">
+    <style>
+        .kanbanColumnSettings {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+        }
+
+        .card-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            margin-top: 70px;
+            height: 700px;
+            /* overflow: hidden; */
+        }
+
+        .card-item {
+            min-height: 65px;
+            margin-bottom: 20px;
+            width: 100%;
+            -webkit-box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
+            box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 1s;
+            transition: -webkit-box-shadow 1s;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .card-title {
+            font-size:16px;
+            font-weight: bolder;
+            cursor: pointer;
+        }
+
+        .card-prio {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            color:white;
+            background:red;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .card-edit {
+            position: absolute;
+            right: 30px;
+            bottom: 5px;
+            width: 20px;
+            height: 20px;
+            color:white;
+            background:gray;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .card-share {
+            position: absolute;
+            right: 5px;
+            bottom: 5px;
+            width: 20px;
+            height: 20px;
+            color:white;
+            background:gray;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .kanbanColumn-title {
+            font-size: 30px;
+            float: left;
+        }
+    </style>
+
+    <div class="kanbanColumn-column">
+
+        <div class="kanbanColumn-title">{{column.title}}</div>
+        <!-- <form>
+        <input type="text" ng-model="query"></input>
+    </form> -->
+        <div style="float:right;margin-right:10px;margin-top:12px;">
+            <span class="fa fa-cog" style="color:gray"></span>
+        </div>
+
+        <ul class="card-list">
+            <li class="card-item" ng-repeat="feature in vm.$layerService.project.features | orderBy:'properties.prio':true | filter:query | filter:columnFilter" >
+                <div style="float:left"><img src="{{feature.effectiveStyle.iconUri}}" style="width:25px;height:25px"></img></div>
+                <div ng-click="vm.selectFeature(feature)" class="card-title">{{feature.properties['Name']}}</div>
+                <div ng-repeat="t in feature.properties['tags']">
+                    [{{t}}]
+                </div>
+                <span>
+                    {{feature.gui.relativeTime}}
+                </span>
+                <div ng-if="feature.properties['prio']" class="card-prio dropdown" ng-style="vm.getPrioColor(feature)">
+                    <span href="" class="dropdown-toggle" data-toggle="dropdown">{{feature.properties['prio']}}</span>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a data-ng-click="feature.properties['prio']=1;vm.updateFeature(feature)">1</a>
+                        </li>
+                        <li>
+                            <a data-ng-click="feature.properties['prio']=2;vm.updateFeature(feature)">2</a>
+                        </li>
+                        <li>
+                            <a data-ng-click="feature.properties['prio']=3;vm.updateFeature(feature)">3</a>
+                        </li>
+                        <li>
+                            <a data-ng-click="feature.properties['prio']=4;vm.updateFeature(feature)">4</a>
+                        </li>
+                        <li>
+                            <a data-ng-click="feature.properties['prio']=5;vm.updateFeature(feature)">5</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-share dropdown">
+                    <span href="" class="dropdown-toggle fa fa-share" data-toggle="dropdown"></span>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <a data-ng-click="">OC</a>
+                        </li>
+                    </ul>
+                </div>
+                <div ng-click="vm.selectFeature(feature)" class="card-edit">
+                    <span href="" class="fa fa-pencil"></span>
+                </div>
+
+            </li>
+        </ul>
+
+    </div>

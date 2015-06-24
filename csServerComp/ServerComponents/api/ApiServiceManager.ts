@@ -1,8 +1,8 @@
-import express              = require('express');
+import express = require('express');
 import ConfigurationService = require('../configuration/ConfigurationService');
-import IApiService          = require('./IApiService');
-import Utils                = require('../helpers/Utils');
-import IApiServiceManager   = require('./IApiServiceManager');
+import IApiService = require('./IApiService');
+import Utils = require('../helpers/Utils');
+import IApiServiceManager = require('./IApiServiceManager');
 
 class ApiServiceManager implements IApiServiceManager {
     private baseUrl: string;

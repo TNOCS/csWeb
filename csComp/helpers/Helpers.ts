@@ -20,6 +20,27 @@
         return result;
     }
 
+    export function getDefaultFeatureStyle(): csComp.Services.IFeatureTypeStyle {
+        var s: csComp.Services.IFeatureTypeStyle = {};
+        //TODO: check compatibility for both heatmaps and other features
+        //s.fillColor = 'red';
+        //s.strokeWidth = 1;
+        //s.stroke        = false;
+        s.strokeWidth = 1;
+        s.strokeColor = '#GGFFBB';
+        s.fillOpacity = 0.75;
+        s.fillColor = '#GGFFBB';
+        s.stroke = true;
+        s.opacity = 1;
+        s.rotate = 0;
+        s.iconUri = "cs/images/marker.png";
+        //s.strokeColor = 'black';
+        s.iconHeight = 32;
+        s.iconWidth = 32;
+        //s.cornerRadius = 20;
+        return s;
+    }
+
 
     /**
      * Export data to the file system.
@@ -206,8 +227,8 @@
      */
     export function convertPropertyInfo(pt: csComp.Services.IPropertyType, text: any): string {
         var displayValue: string;
-        if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
-            text = text.replace(/&amp;/g, '&');
+        // if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
+        //     text = text.replace(/&amp;/g, '&');
         if (csComp.StringExt.isNullOrEmpty(text)) return text;
         if (!pt.type) return text;
         switch (pt.type) {
@@ -311,6 +332,7 @@
     * @param {string} find
     */
     export function indexes(source: string, find: string) {
+        if (!source) return [];
         var result: number[] = [];
         for (var i = 0; i < source.length; i++) {
             if (source.substr(i, find.length) === find) result.push(i);
@@ -349,7 +371,7 @@
 
         data.features.forEach((f: Services.IFeature) => {
             if (!(data.featureTypes.hasOwnProperty(f.featureTypeName))) {
-                var featureType = layerService.featureTypes[f.featureTypeName];
+                var featureType = layerService.getFeatureType(f);
                 if (!featureType.name) featureType.name = f.featureTypeName.replace('_Default', '');
                 data.featureTypes[f.featureTypeName] = featureType;
                 if (featureType.propertyTypeKeys) {

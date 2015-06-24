@@ -1,36 +1,37 @@
 require('rootpath')();
-import express              = require('express');
-import MessageBus           = require('../bus/MessageBus');
-import pg                   = require('pg');
+import express = require('express');
+import MessageBus = require('../bus/MessageBus');
+import pg = require('pg');
 import ConfigurationService = require('../configuration/ConfigurationService');
-import fs                   = require('fs');
-import http                 = require('http');
-import Location             = require('../database/Location');
-import BagDatabase          = require('../database/BagDatabase');
-import IBagOptions          = require('../database/IBagOptions');
-import IGeoJsonFeature      = require('./IGeoJsonFeature');
-import proj4                = require('proj4');
+import fs = require('fs');
+import http = require('http');
+import Location = require('../database/Location');
+import BagDatabase = require('../database/BagDatabase');
+import IBagOptions = require('../database/IBagOptions');
+import IGeoJsonFeature = require('./IGeoJsonFeature');
+import proj4 = require('proj4');
 
 export interface ILayerDefinition {
-    projectTitle:              string,
-    reference:                 string,
-    group:                     string,
-    layerTitle:                string,
-    description:               string,
-    geometryType:              string,
-    parameter1:                string,
-    parameter2:                string,
-    parameter3:                string,
-    iconUri:                   string,
-    iconSize:                  number,
-    fillColor:                 string,
-    strokeColor:               string,
-    strokeWidth:               number,
-    isEnabled:                 boolean,
-    clusterLevel:              number,
-    useClustering:             boolean,
-    opacity:                   number,
-    nameLabel:                 string,
+    projectTitle: string,
+    reference: string,
+    group: string,
+    layerTitle: string,
+    description: string,
+    geometryType: string,
+    parameter1: string,
+    parameter2: string,
+    parameter3: string,
+    iconUri: string,
+    iconSize: number,
+    drawingMode: string,
+    fillColor: string,
+    strokeColor: string,
+    strokeWidth: number,
+    isEnabled: boolean,
+    clusterLevel: number,
+    useClustering: boolean,
+    opacity: number,
+    nameLabel: string,
     includeOriginalProperties: boolean,
     defaultFeatureType:        string
 }
@@ -40,35 +41,35 @@ export interface IProperty {
 }
 
 export interface IPropertyType {
-    label?:            string;
-    title?:            string;
-    description?:      string;
-    type?:             string;
-    section?:          string;
-    stringFormat?:     string;
+    label?: string;
+    title?: string;
+    description?: string;
+    type?: string;
+    section?: string;
+    stringFormat?: string;
     visibleInCallOut?: boolean;
-    canEdit?:          boolean;
-    filterType?:       string;
-    isSearchable?:     boolean;
-    minValue?:         number;
-    maxValue?:         number;
-    defaultValue?:     number;
-    count?:            number;
-    calculation?:      string;
-    subject?:          string;
-    target?:           string;
-    targetrelation?:   string;
-    targetproperty?:   string;
-    options?:          string[];
-    activation?:       string;
-    targetid?:         string;
+    canEdit?: boolean;
+    filterType?: string;
+    isSearchable?: boolean;
+    minValue?: number;
+    maxValue?: number;
+    defaultValue?: number;
+    count?: number;
+    calculation?: string;
+    subject?: string;
+    target?: string;
+    targetrelation?: string;
+    targetproperty?: string;
+    options?: string[];
+    activation?: string;
+    targetid?: string;
 }
 
 export interface ILayerTemplate {
     layerDefinition: ILayerDefinition[],
-    propertyTypes:   IPropertyType[],
-    properties:      IProperty[],
-    sensors?:        IProperty[]
+    propertyTypes: IPropertyType[],
+    properties: IProperty[],
+    sensors?: IProperty[]
 }
 
 /** A factory class to create new map layers based on input, e.g. from Excel */
@@ -102,15 +103,15 @@ export class MapLayerFactory {
             //fs.writeFileSync("public/data/projects/DynamicExample/" + ld.group + "/" + ld.layerTitle + ".json", JSON.stringify(geojson));
 
             var data = {
-                project:       ld.projectTitle,
-                layerTitle:    ld.layerTitle,
-                description:   ld.description,
-                reference:     ld.reference,
-                clusterLevel:  ld.clusterLevel,
+                project: ld.projectTitle,
+                layerTitle: ld.layerTitle,
+                description: ld.description,
+                reference: ld.reference,
+                clusterLevel: ld.clusterLevel,
                 useClustering: ld.useClustering,
-                group:         ld.group,
-                geojson:       geojson,
-                enabled:       ld.isEnabled
+                group: ld.group,
+                geojson: geojson,
+                enabled: ld.isEnabled
             };
             console.log("New map created: publishing...");
             this.messageBus.publish('dynamic_project_layer', 'created', data);
@@ -119,6 +120,7 @@ export class MapLayerFactory {
 
     public createMapLayer(template: ILayerTemplate, callback: (Object) => void) {
         var ld = template.layerDefinition[0];
+
         var features: IGeoJsonFeature[] = [];
         // Convert StringFormats (from a readable key to StringFormat notation)
         this.convertStringFormats(template.propertyTypes);
@@ -130,15 +132,16 @@ export class MapLayerFactory {
                 "Default": {
                     name: "Default",
                     style: {
-                        iconUri:     ld.iconUri,
-                        iconWidth:   ld.iconSize,
-                        iconHeight:  ld.iconSize,
-                        stroke:      ld.strokeWidth > 0,
+                        iconUri: ld.iconUri,
+                        iconWidth: ld.iconSize,
+                        iconHeight: ld.iconSize,
+                        drawingMode: ld.drawingMode,
+                        stroke: ld.strokeWidth > 0,
                         strokeColor: ld.strokeColor || "#000",
-                        fillColor:   ld.fillColor   || "#ff0",
-                        opacity:     ld.opacity || 0.5,
+                        fillColor: ld.fillColor || "#ff0",
+                        opacity: ld.opacity || 0.5,
                         fillOpacity: ld.opacity || 0.5,
-                        nameLabel:   ld.nameLabel
+                        nameLabel: ld.nameLabel
                     },
                     propertyTypeData: template.propertyTypes
                 }
@@ -215,7 +218,7 @@ export class MapLayerFactory {
                 this.createPolygonFeature(ld.geometryType, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 break;
         }
-
+        console.log("Drawing mode" + ld.drawingMode);
         return geojson;
     }
 
@@ -353,7 +356,7 @@ export class MapLayerFactory {
             if (isNaN(x) || isNaN(y)) {
                 console.log("Error: Not a valid coordinate ( " + x + ", " + y + ")");
             } else {
-                var wgs = converter.inverse( { x: x, y: y });
+                var wgs = converter.inverse({ x: x, y: y });
                 //console.log(JSON.stringify(wgs));
                 features.push(this.createFeature(wgs.x, wgs.y, prop, sensors[index] || {}));
             }

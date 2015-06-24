@@ -1,4 +1,5 @@
 import io = require('socket.io');
+import MessageBus = require("ServerComponents/bus/MessageBus");
 
 module ClientConnection {
     GetDataSource: Function;
@@ -6,6 +7,16 @@ module ClientConnection {
         public id: string;
         public type: string;
         public target: string;
+    }
+
+    export class LayerSubscription {
+        public layerId: string;
+        public callback: MessageBus.IMessageBusCallback
+    }
+
+    export class LayerMessage {
+        constructor(public layerId: string, public action: string, public object: any)
+        { }
     }
 
     export class ClientMessage {
@@ -42,7 +53,9 @@ module ClientConnection {
 
     export class ConnectionManager {
         private users: { [key: string]: WebClient } = {};
-        private server: SocketIO.Server;
+        public server: SocketIO.Server;
+
+        public subscriptions: LayerSubscription[] = [];
 
         constructor(httpServer: any) {
             this.server = io(httpServer);
@@ -65,6 +78,9 @@ module ClientConnection {
                     //socket.emit('laag', 'test');
                 });
 
+                socket.on('layer', (msg: LayerMessage) => {
+                    this.checkLayerMessage(msg);
+                });
                 // create layers room
                 //var l = socket.join('layers');
                 //l.on('join',(j) => {
@@ -73,8 +89,26 @@ module ClientConnection {
             });
         }
 
-        public registerLayer(id: string) {
+        public checkLayerMessage(msg: LayerMessage) {
 
+            this.subscriptions.forEach((s: LayerSubscription) => {
+                if (msg.layerId === s.layerId) {
+                    s.callback(msg.action, msg.object);
+                }
+            });
+        }
+
+        public registerLayer(layerId: string, callback: MessageBus.IMessageBusCallback) {
+            var sub = new LayerSubscription();
+            sub.layerId = layerId;
+            sub.callback = callback;
+            this.subscriptions.push(sub);
+        }
+
+        public subscribe(on: string, callback: Function) {
+            this.server.on('update-feature', (msg: any) => {
+                callback(msg);
+            });
         }
 
         //

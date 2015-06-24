@@ -1,4 +1,4 @@
-﻿module csComp.Services {
+module csComp.Services {
     'use strict';
 
     export class HierarchySource implements ILayerSource {
@@ -56,7 +56,7 @@
                     // Open a layer URL
                     layer.isLoading = true;
                     // get data
-                    d3.json(layer.url,(error, data) => {
+                    d3.json(layer.url, (error, data) => {
                         layer.count = 0;
                         layer.isLoading = false;
                         // check if loaded correctly
@@ -90,7 +90,7 @@
 
                                 // give it a unique name
                                 featureTypeName = layer.id + '_' + featureTypeName;
-                                this.service.featureTypes[featureTypeName] = featureType;
+                                this.service._featureTypes[featureTypeName] = featureType;
                             }
 
                             if (data.timestamps) layer.timestamps = data.timestamps;
