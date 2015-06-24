@@ -23,7 +23,7 @@
                     <div id="{{widget.elementId}}" when-ready="vm.isReady(widget)" class="box-content" style="width:100%;height:100%">
                     </div>
                     <div ng-show="vm.$mapService.isAdminExpert" class="widgeteditbutton" ng-class="{widgeteditmode : vm.$dashboardService.activeWidget == widget}" style="position:absolute;top:0;right:0">
-                        <button ng-click="vm.$dashboardService.editWidget(widget)" class="button fa fa-pencil leftpanel-header-button" />
+                        <button ng-click="vm.$dashboardService.editWidget(widget)" class="button fa fa-cog leftpanel-header-button" />
                     </div>
                 </div>
             </li>

@@ -22,7 +22,7 @@
         <div class="leftpanel-header-button-container">
           <button ng-click="vm.removeDashboard(value.id)" class="button fa fa-trash leftpanel-header-button" />
           <div ng-show="value == vm.$layerService.project.activeDashboard" style="float:right">
-            <button ng-show="vm.$mapService.isAdminExpert"  ng-click="value.editMode = true; vm.startDashboardEdit(value)" class="button fa fa-pencil leftpanel-header-button" />
+            <button ng-show="vm.$mapService.isAdminExpert"  ng-click="value.editMode = true; vm.startDashboardEdit(value)" class="button fa fa-cog leftpanel-header-button" />
             <!-- <button ng-show="value.editMode" ng-click="value.editMode = false; vm.stopDashboardEdit(value)" class="button fa fa-check leftpanel-header-button" /> -->
           </div>
         </div>
