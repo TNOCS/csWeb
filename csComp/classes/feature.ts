@@ -199,7 +199,7 @@ module csComp.Services {
         innerTextSize?: number;
         analysispropertyType?: any;
         rotateProperty?: string;
-        isInitialized: boolean;
+        isInitialized?: boolean;
     }
 
     export interface IFeatureType {

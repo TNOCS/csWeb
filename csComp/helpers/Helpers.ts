@@ -132,9 +132,17 @@
             }
         }
         if (type.propertyTypeData != null) {
-            type.propertyTypeData.forEach((pt) => {
-                propertyTypes.push(pt);
-            });
+            if (type.propertyTypeData.forEach) {
+                type.propertyTypeData.forEach((pt) => {
+                    propertyTypes.push(pt);
+                });
+            } else {
+                for (var ptlabel in type.propertyTypeData) {
+                    if (type.propertyTypeData.hasOwnProperty(ptlabel)) {
+                        propertyTypes.push(type.propertyTypeData[ptlabel]);
+                    }
+                }
+            }
         }
         return propertyTypes;
     }
