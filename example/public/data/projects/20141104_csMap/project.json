@@ -14,6 +14,7 @@
   "layerDirectory" : "/layerDirectory",
   "datasources": [{
     "url": "/data/projects/20141104_csMap/datasource.json",
+		"id": "datasource",
     "type": "static",
     "sensors": {
       "test": {
@@ -23,7 +24,11 @@
         "propertyTypeKey": "sensor_test2"
       }
     }
-  }],
+  }],    
+	"typeUrls": [
+		"data/projects/resources/resources.json",
+		"data/projects/resources/Zorgkantoor.json"
+	],
   "dashboards": [{
     "id": "home",
     "name": "Home",
@@ -68,7 +73,7 @@
                     "title": "Wachtlijsten",
                     "visual": "bullet",
                     "usesSelectedFeature": true,
-                    "featureTypeName": "zorgkantoor_Default",
+                    "featureTypeName": "Zorgkantoor",
                     "propertyTypes": ["tote", "toti"],
                     "sensor": "",
                     "dashboard": "health"
@@ -350,10 +355,12 @@
       {
         "id": "zorgkantoor",
         "reference": "zorgkantoor",
+				"defaultFeatureType": "Zorgkantoor",
         "title": "Health regions",
         "description": "Data at the health office regions. (Source: CBS, BAG, TNO, DigiMV.)",
         "type": "GeoJson",
         "url": "data/projects/20141104_csMap/Regio ZK ZZP CBS.json",
+        "typeUrl": "data/projects/resources/Zorgkantoor.json",
         "enabled": false,
         "opacity": 100
       }, {

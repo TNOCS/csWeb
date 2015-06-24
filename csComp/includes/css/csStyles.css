@@ -61,6 +61,12 @@ float: left;
 margin-right: 10px;
 }
 
+.rightpanel-header-button {
+    border: 0;
+    margin-right: 5px;
+    background: transparent;
+}
+
 /* Start StyleList */
 .legend-description {
     display: block;
