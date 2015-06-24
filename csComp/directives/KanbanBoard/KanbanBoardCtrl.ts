@@ -36,8 +36,5 @@ module KanbanColumn {
             this.kanban = par.widget.data;
             console.log('init board');
         }
-
-
-
     }
 }
