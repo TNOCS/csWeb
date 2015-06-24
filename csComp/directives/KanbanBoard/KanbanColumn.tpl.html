@@ -91,7 +91,7 @@
         </div>
 
         <ul class="card-list">
-            <li class="card-item" ng-repeat="feature in vm.$layerService.project.features | orderBy:'properties.prio':true | filter:query | filter:columnFilter" >
+            <li class="card-item" ng-repeat="feature in vm.$layerService.project.features | orderBy:'-properties.prio':true | filter:query | filter:columnFilter" >
                 <div style="float:left"><img src="{{feature.effectiveStyle.iconUri}}" style="width:25px;height:25px"></img></div>
                 <div ng-click="vm.selectFeature(feature)" class="card-title">{{feature.properties['Name']}}</div>
                 <div ng-repeat="t in feature.properties['tags']">
@@ -104,19 +104,19 @@
                     <span href="" class="dropdown-toggle" data-toggle="dropdown">{{feature.properties['prio']}}</span>
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a data-ng-click="feature.properties['prio']=1;vm.updateFeature(feature)">1</a>
+                            <a data-ng-click="feature.properties['prio']=1;vm.updateFeature(feature)">1 - very high</a>
                         </li>
                         <li>
-                            <a data-ng-click="feature.properties['prio']=2;vm.updateFeature(feature)">2</a>
+                            <a data-ng-click="feature.properties['prio']=2;vm.updateFeature(feature)">2 - high</a>
                         </li>
                         <li>
-                            <a data-ng-click="feature.properties['prio']=3;vm.updateFeature(feature)">3</a>
+                            <a data-ng-click="feature.properties['prio']=3;vm.updateFeature(feature)">3 - moderate</a>
                         </li>
                         <li>
-                            <a data-ng-click="feature.properties['prio']=4;vm.updateFeature(feature)">4</a>
+                            <a data-ng-click="feature.properties['prio']=4;vm.updateFeature(feature)">4 - low</a>
                         </li>
                         <li>
-                            <a data-ng-click="feature.properties['prio']=5;vm.updateFeature(feature)">5</a>
+                            <a data-ng-click="feature.properties['prio']=5;vm.updateFeature(feature)">5 - very low</a>
                         </li>
                     </ul>
                 </div>

@@ -84,7 +84,7 @@ module KanbanColumn {
 
 
         public getPrioColor(feature: csComp.Services.IFeature) {
-            var colors = ["white", "green", "blue", "orange", "red", "black"];
+            var colors = ["white", "black", "red", "orange", "blue", "green"];
             return {
                 "background-color": colors[parseInt(feature.properties['prio'])]
             }
