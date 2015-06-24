@@ -3,8 +3,8 @@ module KanbanColumn {
         vm: KanbanColumnCtrl;
         column: Column;
         columnFilter: Function;
+        columnOrderTitle: string;
         columnOrderBy: string;
-        columnOrderByReverse: boolean;
         query: string;
         fields: any;
     }
@@ -19,6 +19,7 @@ module KanbanColumn {
     export class Column {
         filters: ColumnFilter;
         fields: any;
+        orderBy: string;
     }
 
     export class KanbanColumnCtrl {
@@ -35,6 +36,8 @@ module KanbanColumn {
             'messageBusService'
         ];
 
+        public sortOptions = [];
+
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
@@ -49,12 +52,17 @@ module KanbanColumn {
             this.column = $scope.column;
             $scope.fields = this.column.fields;
 
+            if ($scope.fields.hasOwnProperty('prio')) this.sortOptions = this.sortOptions.concat(['High priority', 'Low Priority']);
+            if ($scope.fields.hasOwnProperty('date')) this.sortOptions = this.sortOptions.concat(['New', 'Old']);
+            this.sortOptions = this.sortOptions.concat(['Title']);
+
             // check if layers should be enabled
             this.initLayers();
 
-            $scope.columnOrderBy = $scope.fields['prio'];
-            $scope.columnOrderByReverse = true;
-
+            if (this.column.orderBy)
+                this.setOrder(this.column.orderBy)
+            else
+                this.setOrder(this.sortOptions[0]);
 
             $scope.columnFilter = (feature: csComp.Services.IFeature) => {
                 var result = true;
@@ -102,8 +110,14 @@ module KanbanColumn {
         }
 
         public setOrder(order: string) {
-            console.log('set order:' + order);
-            this.$scope.columnOrderBy = this.$scope.fields[order];
+            this.$scope.columnOrderTitle = order;
+            switch (order) {
+                case 'High priority': this.$scope.columnOrderBy = "properties." + this.$scope.fields['prio']; break;
+                case 'Low Priority': this.$scope.columnOrderBy = "-properties." + this.$scope.fields['prio']; break;
+                case 'New': this.$scope.columnOrderBy = "properties." + this.$scope.fields['date']; break;
+                case 'Old': this.$scope.columnOrderBy = "-properties." + this.$scope.fields['date']; break;
+                case 'Title': this.$scope.columnOrderBy = "properties." + this.$scope.fields['title']; break;
+            }
         }
 
         public updateFeature(feature: csComp.Services.Feature) {
