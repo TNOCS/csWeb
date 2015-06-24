@@ -76,6 +76,21 @@ module DashboardEdit {
 
         }
 
+        public addWidget(event) {
+            //if (event.target.tagName !== 'INPUT') return;
+            console.log("Add widget");
+            var w = <csComp.Services.IWidget>{};
+            w.directive = "indicators";
+            var idata = new Indicators.indicatorData();
+            idata.title = "NewWidget";
+            idata.orientation = "vertical";
+            w.data = idata;
+            w.enabled = true;
+            w.parentDashboard = this.dashboard;
+            this.$dashboardService.addNewWidget(w, this.dashboard);
+            this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
+        }
+
         public checkMap() {
             var db = this.$layerService.project.activeDashboard;
             if (db.showMap != this.$layerService.visual.mapVisible) {

@@ -19,6 +19,7 @@ module Charts {
 
     export interface IBulletchartScope extends ng.IScope {
         data: any;
+        update: boolean;
         width: number;
         height: number;
         margin: number;
@@ -90,6 +91,7 @@ module Charts {
                 scope: {
                     //data: '=',
                     data: '=',
+                    update: '=',
                     width: '=',  // the value is used as is
                     height: '@',
                     margin: '@'
@@ -102,6 +104,9 @@ module Charts {
                     doDraw(scope, element);
 
                     scope.$watch("data", () => {
+                        doDraw(scope, element);
+                    })
+                    scope.$watch("update", () => {
                         doDraw(scope, element);
                     })
                 }

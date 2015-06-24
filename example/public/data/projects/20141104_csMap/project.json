@@ -352,6 +352,8 @@
                 "title": "Health regions",
                 "description": "Data at the health office regions. (Source: CBS, BAG, TNO, DigiMV.)",
                 "type": "GeoJson",
+								"defaultFeatureType": "Zorgkantoor",
+								"typeUrl": "data/projects/resources/Zorgkantoor.json",
                 "url": "data/projects/20141104_csMap/Regio ZK ZZP CBS.json",
                 "enabled": false,
                 "opacity": 100

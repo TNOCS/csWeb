@@ -15,7 +15,7 @@ module Indicators {
         propertyTypes: string[];
         propertyTypeTitles: string[];
         data: string;
-        indicatorWidth: number = 200;
+        indicatorWidth: number;
         sensor: string;
         sensorSet: csComp.Services.SensorSet;
         layer: string;
@@ -26,6 +26,12 @@ module Indicators {
         color: string;
         indexValue: number;   // the value that is treated as 100%
         focusTime: number;
+        toggleUpdate: boolean;
+
+        constructor() {
+            this.toggleUpdate = true;
+            this.indicatorWidth = 200;
+        }
     }
 
     export interface IIndicatorsCtrl extends ng.IScope {
@@ -64,13 +70,33 @@ module Indicators {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = par.widget;
+            if(!par.widget) return;
             this.checkLayers();
             this.$messageBus.subscribe("layer", (s: string) => {
                 this.checkLayers();
             });
             $scope.data = <indicatorData>this.widget.data;
-            $scope.$watch('data', () => {
+            $scope.$watchCollection('data.indicators', () => {
                 console.log('update data');
+                if ($scope.data.indicators && !$scope.data.indicators[$scope.data.indicators.length-1].id) {
+                    var i = $scope.data.indicators[$scope.data.indicators.length-1];
+                    i.id = csComp.Helpers.getGuid();
+                    this.$messageBus.subscribe('feature', (action: string, feature: any) => {
+                        switch (action) {
+                            case 'onFeatureSelect':
+                                this.selectFeature(feature, i);
+                                break;
+                            case 'onUpdateWithLastSelected':
+                                var indic = <indicator> feature.indicator; //variable called feature is actually an object containing the indicator and an (empty) feature
+                                var realFeature;
+                                if (this.$layerService.lastSelectedFeature) { realFeature = this.$layerService.lastSelectedFeature; };
+                                this.selectFeature(realFeature, indic);
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                }
             })
             if (typeof $scope.data.indicators !== 'undefined') {
                 $scope.data.indicators.forEach((i: indicator) => {
@@ -170,6 +196,7 @@ module Indicators {
         }
 
         private selectFeature(f: csComp.Services.IFeature, i: indicator) {
+            if (!i.usesSelectedFeature) return;
             if (!i.sensorSet) {
                 var ss = new csComp.Services.SensorSet();
                 ss.propertyType = { title: '' };
@@ -193,7 +220,7 @@ module Indicators {
                     });
 
                     i.sensorSet.activeValue = propValues[0];
-                    i.sensorSet.propertyType.title = propTypes[0];
+                    i.sensorSet.propertyType.title = propTitles[0];
                     var propInfo = this.$layerService.calculatePropertyInfo(f.layer.group, propTypes[0]);
                     i.sensorSet.min = propInfo.sdMin;
                     i.sensorSet.max = propInfo.sdMax;
@@ -253,6 +280,7 @@ module Indicators {
                         i.indicatorWidth = 400;
                         i.data = JSON.stringify(dataInJson);
                     }
+                    i.toggleUpdate = !i.toggleUpdate; //Redraw the widget
                 }
             }
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); };
