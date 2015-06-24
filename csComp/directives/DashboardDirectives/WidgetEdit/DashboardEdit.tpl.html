@@ -45,7 +45,7 @@
     <ul data-ng-repeat="widget in vm.dashboard.widgets" class="widgets-edit-list">
       <li>
         <div ng-show="widget.enabled" class="widgeteditbutton" style="float:right;height:25px;width:25px" ng-class="{widgeteditmode : vm.$dashboardService.activeWidget == widget}">
-          <button ng-click="vm.$dashboardService.editWidget(widget)"  class="button fa fa-pencil leftpanel-header-button" />
+          <button ng-click="vm.$dashboardService.editWidget(widget)"  class="button fa fa-cog leftpanel-header-button" />
         </div>
         <div class="checkbox dashboard-edit-checkbox" ng-mouseover="vm.widgetHighlight(widget)" ng-mouseleave="vm.widgetStopHighlight(widget)" style="margin-left: 20px;margin-right:40px">
           <input type="checkbox" ng-model="widget.enabled" id="widget-{{vm.dashboard.id}}-{{widget.id}}">
