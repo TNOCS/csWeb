@@ -5,17 +5,11 @@ import MessageBus = require('../bus/MessageBus');
 import fs = require('fs');
 import path = require('path');
 var chokidar = require('chokidar');
-//import csComp         = require("Classes/Feature");
-
-
 
 export class DynamicProject {
-
     public project: any;
 
-
     constructor(public folder: string, public id, public service: DynamicProjectService, public messageBus: MessageBus.MessageBusService) {
-
     }
 
     public Start() {
@@ -24,21 +18,16 @@ export class DynamicProject {
         console.log(JSON.stringify(feature));*/
 
         // load project file
-
         this.openFile();
 
         // watch directory changes for new geojson files
         this.watchFolder();
 
-        // listen to messagebus
-
         // setup http handler
         this.service.server.get("/project/" + this.id, (req, res) => { this.GetLayer(req, res); });
-
     }
 
     public AddLayer(data: any) {
-
         var groupFolder = this.folder + "\\" + data.group;
         var resourceFolder = this.folder + "\\..\\resources";
         var geojsonfile = groupFolder + "\\" + data.reference + ".json";
@@ -105,8 +94,6 @@ export class DynamicProject {
     public watchFolder() {
         console.log('watch folder:' + this.folder);
         setTimeout(() => {
-
-
             var watcher = chokidar.watch(this.folder, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
                 if (action == "add") {
@@ -120,7 +107,6 @@ export class DynamicProject {
                 }
             }));
         }, 1000);
-
         //console.log(action + " - " + path); });
     }
 
@@ -145,7 +131,6 @@ export class DynamicProject {
             g.layers = g.layers.filter(l => layer.id != l.id);
             this.service.connection.sendUpdate(this.project.id, "project", "layer-remove", [layer]);
         }
-
     }
 
     public addLayer(file: string) {
@@ -154,8 +139,6 @@ export class DynamicProject {
         var pp = file.split(p.sep);
 
         if (p.basename(file) === 'project.json') return;
-
-
         // determine group
         var groupTitle = p.dirname(file).replace(this.folder, "").replace(p.sep, "");
 
@@ -165,7 +148,6 @@ export class DynamicProject {
         var parameters = this.service.projectParameters[groupTitle];
 
         if (!parameters) parameters = { useClustering: true };
-
 
         if (!this.project.groups) this.project.groups = [];
         // check if group exists
@@ -213,18 +195,14 @@ export class DynamicProject {
         this.service.connection.sendUpdate(this.project.id, "project", "layer-update", { layer: [layer], group: g });
 
         // save project.json (+backup)
-
         //console.log("g:" + group);
-
     }
 
     public GetLayer(req: express.Request, res: express.Response) {
         console.log("Get Layer: " + this.folder);
         res.send(JSON.stringify(this.project));
-
         //res.send("postgres layer");
     }
-
 }
 
 export class DynamicProjectService {
@@ -232,9 +210,7 @@ export class DynamicProjectService {
     public projects: { [key: string]: DynamicProject } = {};
     public projectParameters: { [key: string]: any } = {};
 
-    public constructor(public server: express.Express, public connection: ClientConnection.ConnectionManager, public messageBus: MessageBus.MessageBusService) {
-
-    }
+    public constructor(public server: express.Express, public connection: ClientConnection.ConnectionManager, public messageBus: MessageBus.MessageBusService) {}
 
     public Start(server: express.Express) {
         console.log("Start project service");
@@ -246,12 +222,7 @@ export class DynamicProjectService {
                 dp.AddLayer(data);
                 this.projectParameters[data.group] = data;
             }
-
-            //
-
-
         });
-
 
         var rootDir = "public\\data\\projects";
         fs.readdir(rootDir, (error, folders) => {
@@ -265,7 +236,6 @@ export class DynamicProjectService {
                             dp.Start();
                         }
                     });
-
                 });
             }
         });

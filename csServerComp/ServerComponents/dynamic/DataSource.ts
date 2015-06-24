@@ -1,7 +1,7 @@
-import express = require('express');
-import http = require('http');
+import express          = require('express');
+import http             = require('http');
 import ClientConnection = require("ClientConnection");
-import DynamicProject = require("DynamicProject");
+import DynamicLayer     = require("DynamicLayer");
 
 module DataSource {
     export class SensorSet {
@@ -38,7 +38,7 @@ module DataSource {
         }
     }
 
-    export class DataSourceService implements DynamicProject.IDynamicLayer {
+    export class DataSourceService implements DynamicLayer.IDynamicLayer {
         public static result: DataSource;
 
         constructor(public Connection: ClientConnection.ConnectionManager, public layerId: string) {
@@ -49,10 +49,10 @@ module DataSource {
             DataSourceService.result.sensors["test2"] = new SensorSet("test2");
         }
 
-        public GetLayer(req: express.Request, res: express.Response) {
+        public getLayer(req: express.Request, res: express.Response) {
         }
 
-        public GetDataSource(req: express.Request, res: express.Response) {
+        public getDataSource(req: express.Request, res: express.Response) {
             console.log('get DataSource');
             res.send(DataSourceService.result);
         }
@@ -63,7 +63,7 @@ module DataSource {
             this.Connection.updateSensorValue(ss.id, date, value);
         }
 
-        public Start() {
+        public start() {
             setInterval(() => {
                 for (var s in DataSourceService.result.sensors) {
                     var ds = DataSourceService.result.sensors[s];
