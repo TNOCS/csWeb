@@ -1,5 +1,5 @@
 import io = require('socket.io');
-import MessageBus = require("ServerComponents/bus/MessageBus");
+import MessageBus = require("../bus/MessageBus");
 
 module ClientConnection {
     GetDataSource: Function;
