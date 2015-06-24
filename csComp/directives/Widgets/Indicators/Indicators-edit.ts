@@ -106,7 +106,7 @@ module Indicators {
         }
 
         public updatePropertyTypes(indic: indicator) {
-            var fType = this.$layerService.featureTypes[indic.featureTypeName];
+            var fType = this.$layerService._featureTypes[indic.featureTypeName];
             if (fType) this.propertyTypeData = csComp.Helpers.getPropertyTypes(fType, this.$layerService.propertyTypeData);
         }
 
