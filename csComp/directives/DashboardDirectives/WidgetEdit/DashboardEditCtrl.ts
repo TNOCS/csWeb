@@ -59,7 +59,7 @@ module DashboardEdit {
 
         public setExtent() {
             this.dashboard.viewBounds = this.$layerService.activeMapRenderer.getExtent();
-            //console.log('test');
+            console.log('set extent');
         }
 
         public setVisibleLayers() {

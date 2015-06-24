@@ -10,10 +10,10 @@ module Timeline {
     // The following class represents the provider
     class TimelineService implements ng.IServiceProvider {
         private timelineOptions: csComp.Services.ITimelineOptions = {
-            'width'   : '100%',
-            'height'  : '100px',
+            'width': '100%',
+            'height': '100px',
             'editable': false,
-            'layout'  : 'box'
+            'layout': 'box'
         };
 
         // Configuration function
@@ -30,9 +30,9 @@ module Timeline {
         }
     }
 
-     /**
-      * Config
-      */
+    /**
+     * Config
+     */
     var moduleName = 'csComp';
 
     /**
@@ -62,23 +62,17 @@ module Timeline {
     myModule
         .provider('TimelineService', TimelineService)
         .directive('timeline', [
-            '$compile',
-            function($compile): ng.IDirective {
-                return {
-                    terminal  : true, // do not compile any other internal directives
-                    restrict  : 'E', // E = elements, other options are A=attributes and C=classes
-                    scope     : {}, // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
-                    templateUrl: 'directives/Timeline/Timeline.tpl.html',
-                    compile   : el => { // I need to explicitly compile it in order to use interpolation like {{xxx}}
-                        var fn = $compile(el);
-                        return scope => {
-                            fn(scope);
-                        };
-                    },
-                    replace   : true, // Remove the directive from the DOM
-                    transclude: true, // Add elements and attributes to the template
-                    controller: TimelineCtrl
-                }
+        '$compile',
+        function($compile): ng.IDirective {
+            return {
+                terminal: true, // do not compile any other internal directives
+                restrict: 'E', // E = elements, other options are A=attributes and C=classes
+                scope: {}, // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
+                templateUrl: 'directives/Timeline/Timeline.tpl.html',
+                replace: true, // Remove the directive from the DOM
+                transclude: true, // Add elements and attributes to the template
+                controller: TimelineCtrl
             }
-        ]);
+        }
+    ]);
 }
