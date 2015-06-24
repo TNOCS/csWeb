@@ -33,7 +33,7 @@
         }
 
         .card-title {
-            font-size:16px;
+            font-size: 16px;
             font-weight: bolder;
             cursor: pointer;
         }
@@ -44,8 +44,8 @@
             top: 5px;
             width: 20px;
             height: 20px;
-            color:white;
-            background:red;
+            color: white;
+            background: red;
             text-align: center;
             cursor: pointer;
         }
@@ -56,8 +56,8 @@
             bottom: 5px;
             width: 20px;
             height: 20px;
-            color:white;
-            background:gray;
+            color: white;
+            background: gray;
             text-align: center;
             cursor: pointer;
         }
@@ -68,8 +68,8 @@
             bottom: 5px;
             width: 20px;
             height: 20px;
-            color:white;
-            background:gray;
+            color: white;
+            background: gray;
             text-align: center;
             cursor: pointer;
         }
@@ -78,35 +78,42 @@
             font-size: 30px;
             float: left;
         }
+
+        .kanbanColumn-option {
+            float: right;
+            margin: 3px
+        }
+
+        .kanbanColumn-order-option {
+            clear: both;
+        }
     </style>
 
     <div class="kanbanColumn-column">
-        <h1>{{fields['prio']}}</h1>
         <div class="kanbanColumn-title">{{column.title}}</div>
         <!-- <form>
         <input type="text" ng-model="query"></input>
     </form> -->
         <div style="float:right;margin-right:10px;margin-top:12px">
-            <span class="fa fa-cog " style="color:gray"></span>
-            <div ng-if="fields['prio']" class="dropdown">
+            <!-- <span class="fa fa-cog kanbanColumn-option" style="color:gray"></span> -->
+            <div ng-if="fields['prio']" class="dropdown kanbanColumn-option">
                 <span class="fa fa-sort-amount-asc dropdown-toggle" data-toggle="dropdown" style="color:gray"></span>
                 <ul class="dropdown-menu" role="menu">
-                    <li>
-                        <a data-ng-click="vm.setOrder('prio')">priority</a>
-                    </li>
-                    <li>
-                        <a data-ng-click="vm.setOrder('date')">date</a>
-                    </li>
-                    <li>
-                        <a data-ng-click="vm.setOrder('title')">title</a>
+                    <li ng-repeat="order in vm.sortOptions" class="kanbanColumn-order-option" style="position:relative">
+                            <div style="width:20px;top:2px;left:2px;position:absolute">
+                                <span class="fa fa-check" ng-if="order == columnOrderTitle"></span>
+                            </div>
+                            <a style="float:left;cursor:pointer" data-ng-click="vm.setOrder(order)">{{order}} on top</a>
                     </li>
                 </ul>
             </div>
         </div>
 
         <ul class="card-list">
-            <li class="card-item" ng-repeat="feature in vm.$layerService.project.features | orderBy:columnOrderBy | filter:query | filter:columnFilter" >
-                <div style="float:left"><img src="{{feature.effectiveStyle.iconUri}}" style="width:25px;height:25px"></img></div>
+            <li class="card-item" ng-repeat="feature in vm.$layerService.project.features | orderBy:columnOrderBy:false | filter:query | filter:columnFilter">
+                <div style="float:left">
+                    <img src="{{feature.effectiveStyle.iconUri}}" style="width:25px;height:25px"></img>
+                </div>
                 <div ng-click="vm.selectFeature(feature)" class="card-title">{{feature.properties[fields['title']]}}</div>
                 <div ng-repeat="t in feature.properties['tags']">
                     [{{t}}]
