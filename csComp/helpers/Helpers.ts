@@ -332,6 +332,7 @@
     * @param {string} find
     */
     export function indexes(source: string, find: string) {
+        if (!source) return [];
         var result: number[] = [];
         for (var i = 0; i < source.length; i++) {
             if (source.substr(i, find.length) === find) result.push(i);

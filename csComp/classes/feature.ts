@@ -34,6 +34,9 @@ module csComp.Services {
         gui: Object;
         sensors?: { [id: string]: any[] }
         timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        /**
+         * Temperal list of geometries used e.g. to move a point over time (bound to timestamps, same as sensors)
+         */
         coordinates?: IGeoJsonGeometry[];          // used for temporal data
         languages?: { [key: string]: ILocalisedData }
     }
