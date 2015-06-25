@@ -29,7 +29,7 @@ export class DynamicProject {
 
     public AddLayer(data: any) {
         var groupFolder = this.folder + "\\" + data.group;
-        var resourceFolder = this.folder + "\\..\\resources";
+        var resourceFolder = this.folder + "\\..\\..\\resourceTypes";
         var geojsonfile = groupFolder + "\\" + data.reference + ".json";
         var resourcefile = resourceFolder + "\\" + data.reference + ".json";
         if (!fs.existsSync(groupFolder)) fs.mkdirSync(groupFolder);
@@ -58,11 +58,13 @@ export class DynamicProject {
                     propertyTypeObjects[pt.label] = pt;
                     propKeys = propKeys + pt.label + ';'
                 });
-                defaultFeatureType.propertyTypeData = propertyTypeObjects;
+                delete defaultFeatureType.propertyTypeData;
                 defaultFeatureType.propertyTypeKeys = propKeys;
                 defaultFeatureType.name = data.reference;
                 resourcejson['featureTypes'] = {};
                 resourcejson.featureTypes[data.reference] = defaultFeatureType;
+                resourcejson['propertyTypeData'] = {};
+                resourcejson.propertyTypeData = propertyTypeObjects;
                 data.defaultFeatureType = defaultFeatureType.name;
             }
         }
@@ -147,7 +149,8 @@ export class DynamicProject {
         // obtain additional parameters (useClustering, isEnabled, etc.)
         var parameters = this.service.projectParameters[groupTitle];
 
-        if (!parameters) parameters = { useClustering: true };
+        //if (!parameters) parameters = { useClustering: true };
+        if (!parameters) return; //parameters are required
 
         if (!this.project.groups) this.project.groups = [];
         // check if group exists
@@ -181,11 +184,11 @@ export class DynamicProject {
         layer.enabled = parameters.enabled;
         layer.reference = parameters.reference;
         layer.defaultFeatureType = parameters.reference;
-        layer.typeUrl = "data/projects/resources/" + parameters.reference + ".json";
+        if (parameters.reference) layer.typeUrl = "data/resourceTypes/" + parameters.reference + ".json";
 
         var layerExists = false;
         for (var i = 0; i < g.layers.length; i++) {
-            if (g.layers[i].id === layer.groupId) {
+            if (g.layers[i].id === layer.id) {
                 layerExists = true;
                 break;
             }
