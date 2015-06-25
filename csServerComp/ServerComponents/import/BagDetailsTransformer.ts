@@ -2,7 +2,7 @@ import Utils     = require("../helpers/Utils");
 import transform = require("./ITransform");
 import stream  = require('stream');
 import BagDatabase = require("../database/BagDatabase");
-import ConfigurationService = require('ServerComponents/configuration/ConfigurationService');
+import ConfigurationService = require('../configuration/ConfigurationService');
 import IBagOptions          = require('../database/IBagOptions');
 import Location             = require('../database/Location');
 

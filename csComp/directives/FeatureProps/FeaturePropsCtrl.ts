@@ -115,7 +115,7 @@ module FeatureProps {
             var displayValue: string;
             if (type != null) {
                 var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
-                for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]);
+                if (propertyTypes.length === 0) {for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]);};
 
                 //
                 if (type.showAllProperties || this.mapservice.isAdminExpert) {
