@@ -345,11 +345,20 @@ module csComp.Services {
                 // todo check for list of type resources
                 if (typeof url === 'string') {
                     if (!this.typesResources.hasOwnProperty(url)) {
+                        var success = false;
                         $.getJSON(url, (resource: TypeResource) => {
+                            success = true;
                             resource.url = url;
                             this.initTypeResources(resource);
                             callback();
                         });
+                        setTimeout(() => {
+                            if (!success)
+                            {
+                                console.log('Error while loading typeResources: ' + url);
+                                callback();
+                            }
+                        }, 3000);
                     } else { callback(); }
                 }
                 else {

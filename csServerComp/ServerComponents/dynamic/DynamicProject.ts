@@ -35,8 +35,8 @@ export class DynamicProject {
         if (!fs.existsSync(groupFolder)) fs.mkdirSync(groupFolder);
         if (!fs.existsSync(resourceFolder)) fs.mkdirSync(resourceFolder);
         var combinedjson = this.splitJson(data);
-        fs.writeFileSync(geojsonfile, JSON.stringify(combinedjson.geojson));
         fs.writeFileSync(resourcefile, JSON.stringify(combinedjson.resourcejson));
+        fs.writeFileSync(geojsonfile, JSON.stringify(combinedjson.geojson));
         console.log('done!');
     }
 
@@ -177,7 +177,7 @@ export class DynamicProject {
         var layer: any = {};
         layer.id = file;
         layer.description = parameters.description;
-        layer.title = t;//pp.name.split('_').join(' ');
+        layer.title = parameters.layerTitle;//pp.name.split('_').join(' ');
         layer.type = "geojson";
         layer.url = "data/projects/" + this.id + "/" + g.title + "/" + p.basename(file);
         layer.groupId = g.id;
@@ -213,7 +213,7 @@ export class DynamicProjectService {
     public projects: { [key: string]: DynamicProject } = {};
     public projectParameters: { [key: string]: any } = {};
 
-    public constructor(public server: express.Express, public connection: ClientConnection.ConnectionManager, public messageBus: MessageBus.MessageBusService) {}
+    public constructor(public server: express.Express, public connection: ClientConnection.ConnectionManager, public messageBus: MessageBus.MessageBusService) { }
 
     public Start(server: express.Express) {
         console.log("Start project service");

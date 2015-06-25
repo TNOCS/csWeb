@@ -75,6 +75,7 @@ export interface ILayerTemplate {
 /** A factory class to create new map layers based on input, e.g. from Excel */
 export class MapLayerFactory {
     templateFiles: IProperty[];
+    featuresNotFound: any;
 
     constructor(private bag: BagDatabase, private messageBus: MessageBus.MessageBusService) {
         var fileList: IProperty[] = [];
@@ -88,12 +89,14 @@ export class MapLayerFactory {
             }
         });
         this.templateFiles = fileList;
+        this.featuresNotFound = {};
     }
 
     public process(req: express.Request, res: express.Response) {
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end('');
         console.log('Received project template. Processing...');
+        this.featuresNotFound = {};
         var template: ILayerTemplate = req.body;
         var ld = template.layerDefinition[0];
         this.createMapLayer(template, (geojson) => {
@@ -113,6 +116,17 @@ export class MapLayerFactory {
                 geojson: geojson,
                 enabled: ld.isEnabled
             };
+            if ((Object.keys(this.featuresNotFound).length !== 0) && ld.geometryType.indexOf('Postcode') > -1) {
+                console.log('Adresses that could not be found are:');
+                console.log('-------------------------------------');
+                for (var key in this.featuresNotFound) {
+                    if (this.featuresNotFound.hasOwnProperty(key)) {
+                        console.log(this.featuresNotFound[key].zip + ' ' + this.featuresNotFound[key].number);
+                    }
+                }
+                console.log('-------------------------------------');
+            }
+
             console.log("New map created: publishing...");
             this.messageBus.publish('dynamic_project_layer', 'created', data);
         });
@@ -375,6 +389,7 @@ export class MapLayerFactory {
                 todo--;
                 if (!locations || locations.length === 0) {
                     console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
+                    this.featuresNotFound[`${zip}${nmb}`] = {zip: `${zip}`, number: `${nmb}`};
                 } else {
                     for (var key in locations[0]) {
                         if (key !== "lon" && key !== "lat") {
@@ -465,6 +480,9 @@ export class MapLayerFactory {
         properties.forEach(function(prop) {
             if (prop.hasOwnProperty("stringFormat")) {
                 switch (prop["stringFormat"]) {
+                    case "No_decimals":
+                        prop["stringFormat"] = "{0:#,#}";
+                        break;
                     case "One_decimal":
                         prop["stringFormat"] = "{0:#,#.#}";
                         break;
@@ -490,7 +508,9 @@ export class MapLayerFactory {
                         prop["stringFormat"] = "{0:#,#.####}%";
                         break;
                     default:
-                        console.log("stringFormat \'" + prop["stringFormat"] + "\' not found.");
+                        if (prop["stringFormat"] && prop["stringFormat"].charAt(0) === "{") {
+                            console.log("stringFormat \'" + prop["stringFormat"] + "\' not found.");
+                        }
                         break;
                 }
             }
