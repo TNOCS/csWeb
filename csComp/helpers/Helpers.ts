@@ -164,7 +164,9 @@
             propertyType.visibleInCallOut = true;
             propertyType.canEdit = false;
             var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
-            if (StringExt.isNumber(value))
+            if (StringExt.isDate(value))
+                propertyType.type = 'date';
+            else if (StringExt.isNumber(value))
                 propertyType.type = 'number';
             else if (StringExt.isBoolean(value))
                 propertyType.type = 'boolean';

@@ -10,15 +10,13 @@
             padding-left: 4px;
         }
 
-        .panel-group{
-            margin:10px;
+        .panel-group {
+            margin: 10px;
         }
 
-        .property-edit
-        {
+        .property-edit {
             clear: both;
         }
-
     </style>
 
     <h4 class="rightpanel-header">
@@ -87,12 +85,16 @@
                     <div ng-show="feature.gui.editMode" class="property-edit">
                         <div>
                             <div>{{item.propertyType.title}}</div>
-                            <input type="text" data-ng-model="item.feature.properties[item.property]" class="form-control">
+                            <div ng-switch="item.propertyType.type">
+                                <input ng-switch-when="date" type="text" class="form-control" datetime-picker="dd MMM yyyy HH:mm" ng-model="item.feature.properties[item.property]" is-open="false" />
+                                <input ng-switch-when="number" type="number" data-ng-model="item.feature.properties[item.property]" class="form-control">
+                                <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control">
+                            </div>
                         </div>
                     </div>
                     <div ng-show="!feature.gui.editMode" class="panel-heading" style="min-height: 36px">
 
-                        <div  data-ng-switch="item.propertyType.type">
+                        <div data-ng-switch="item.propertyType.type">
                             <div ng-switch-when="layer">
                                 <a ng-click="vm.openLayer(item)">{{item.propertyType.title}}</a>
                             </div>
@@ -112,7 +114,11 @@
                                 <div class="pull-left" style="margin-left: 4px;">
                                     {{item.key}}
                                 </div>
-                                <div class="text-right" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
+                                <div data-ng-switch="item.propertyType.type">
+                                    <div ng-switch-when="date" class="text-right">{{item.feature.properties[item.property] | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</div>
+                                    <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
+                                </div>
+
                                 <div id="sensor{{item.property}}" data-ng-if="item.isSensor" class="panel-collapse collapse" style="padding-top: 10px;">
                                     <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
                                 </div>

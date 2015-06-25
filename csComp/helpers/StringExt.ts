@@ -22,8 +22,7 @@ module csComp.StringExt {
      * Returns true if we are dealing with a number, false otherwise.
      */
     export function isDate(n: any): boolean {
-
-        return !isNaN(parseFloat(n)) && isFinite(n);
+        return moment(n, moment.ISO_8601).isValid();
     }
 
     /*
