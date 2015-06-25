@@ -131,6 +131,10 @@ module KanbanColumn {
             this.$layerService.selectFeature(feature);
         }
 
+        editFeature(feature: csComp.Services.IFeature) {
+            this.$layerService.editFeature(feature);
+        }
+
         public searchFeature(feature: csComp.Services.IFeature) {
             this.mapService.zoomTo(feature, 15);
             //this.$mapService.

@@ -353,8 +353,7 @@ module csComp.Services {
                             callback();
                         });
                         setTimeout(() => {
-                            if (!success)
-                            {
+                            if (!success) {
                                 console.log('Error while loading typeResources: ' + url);
                                 callback();
                             }
@@ -510,6 +509,11 @@ module csComp.Services {
             }
         }
 
+        public editFeature(feature: IFeature) {
+
+            feature.gui["editMode"] = true;
+            this.selectFeature(feature);
+        }
 
         public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
@@ -638,6 +642,7 @@ module csComp.Services {
         public initFeature(feature: IFeature, layer: ProjectLayer): IFeatureType {
             if (!feature.isInitialized) {
                 feature.isInitialized = true;
+                feature.gui = {};
                 if (feature.properties == null) feature.properties = {};
                 feature.index = layer.count++;
                 // make sure it has an id
@@ -706,7 +711,8 @@ module csComp.Services {
                     s.rotate = Number(feature.properties[ft.style.rotateProperty]);
                 }
             }
-            feature.gui = {};
+
+            feature.gui['style'] = {};
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     //delete feature.gui[gs.property];
@@ -715,11 +721,11 @@ module csComp.Services {
                         switch (gs.visualAspect) {
                             case 'strokeColor':
                                 s.strokeColor = csComp.Helpers.getColor(v, gs);
-                                feature.gui[gs.property] = s.strokeColor;
+                                feature.gui['style'][gs.property] = s.strokeColor;
                                 break;
                             case 'fillColor':
                                 s.fillColor = csComp.Helpers.getColor(v, gs);
-                                feature.gui[gs.property] = s.fillColor;
+                                feature.gui['style'][gs.property] = s.fillColor;
                                 break;
                             case 'strokeWidth':
                                 s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
@@ -734,9 +740,11 @@ module csComp.Services {
                         switch (gs.visualAspect) {
                             case 'strokeColor':
                                 s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                feature.gui['style'][gs.property] = s.strokeColor;
                                 break;
                             case 'fillColor':
                                 s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                feature.gui['style'][gs.property] = s.fillColor;
                                 break;
                         }
                     }

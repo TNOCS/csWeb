@@ -10,6 +10,10 @@
             padding-left: 4px;
         }
 
+        .panel-group{
+            margin:10px;
+        }
+
         .property-edit
         {
             clear: both;
@@ -24,8 +28,8 @@
             <button class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false" />
         </div>
         <div class="leftpanel-header-button-container" ng-show="!configMode">
-            <button class="button fa fa-pencil leftpanel-header-button" ng-show="!editMode" ng-click="editMode=true" />
-            <button class="button fa fa-check leftpanel-header-button" ng-show="editMode" ng-click="editMode=false;vm.saveFeature()" />
+            <button class="button fa fa-pencil leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="feature.gui.editMode=true" />
+            <button class="button fa fa-check leftpanel-header-button" ng-show="feature.gui.editMode" ng-click="feature.gui.editMode=false;vm.saveFeature()" />
         </div>
     </h4>
     <div ng-show="vm.$mapService.isAdminExpert">
@@ -80,13 +84,13 @@
                 </td>-->
             <div class="panel-group" id="accordion">
                 <div class="panel" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in section.properties">
-                    <div ng-show="editMode" class="property-edit">
-                        <div class="col-md-6">
+                    <div ng-show="feature.gui.editMode" class="property-edit">
+                        <div>
                             <div>{{item.propertyType.title}}</div>
                             <input type="text" data-ng-model="item.feature.properties[item.property]" class="form-control">
                         </div>
                     </div>
-                    <div ng-show="!editMode" class="panel-heading" style="min-height: 36px">
+                    <div ng-show="!feature.gui.editMode" class="panel-heading" style="min-height: 36px">
 
                         <div  data-ng-switch="item.propertyType.type">
                             <div ng-switch-when="layer">
@@ -96,7 +100,7 @@
                                 <div class="pull-left accordionIcon">
                                     <a class="fa fa-filter makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
                                 </div>
-                                <div data-ng-show="item.canStyle" class="pull-left accordionIcon style-icon" style="background:{{item.feature.gui[item.property]}}">
+                                <div data-ng-show="item.canStyle" class="pull-left accordionIcon style-icon" style="background:{{item.feature.gui['style'][item.property]}}">
                                     <a class="smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
                                 </div>
                                 <div ng-show="item.isSensor" style="margin-left:8px" class="pull-left accordionIcon">
