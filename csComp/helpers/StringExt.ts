@@ -1,4 +1,4 @@
-﻿module csComp.StringExt {
+module csComp.StringExt {
     export function isNullOrEmpty(s: string): boolean {
         return !isNumber(s) && !s;
     }
@@ -17,6 +17,14 @@
         }
         return s;
     };
+
+    /*
+     * Returns true if we are dealing with a number, false otherwise.
+     */
+    export function isDate(n: any): boolean {
+
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
 
     /*
      * Returns true if we are dealing with a number, false otherwise.

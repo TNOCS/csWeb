@@ -173,6 +173,15 @@ module csComp.Services {
             }, 2);
         }
 
+        public static serializeFeatureType(ft: IFeatureType): Object {
+            return {
+                name: ft.name,
+                style: ft.style,
+                propertyTypeKeys: ft.propertyTypeKeys,
+                showAllProperties: ft.showAllProperties
+            }
+        }
+
         /**
          * Returns an object which contains all the data that must be serialized.
          */

@@ -62,6 +62,18 @@
             cursor: pointer;
         }
 
+        .card-map {
+            position: absolute;
+            right: 55px;
+            bottom: 5px;
+            width: 20px;
+            height: 20px;
+            color: white;
+            background: gray;
+            text-align: center;
+            cursor: pointer;
+        }
+
         .card-share {
             position: absolute;
             right: 5px;
@@ -87,6 +99,16 @@
         .kanbanColumn-order-option {
             clear: both;
         }
+
+        .card-item:hover .card-item-options{
+            opacity: 0.9;
+        }
+
+        .card-item-options{
+            opacity: 0.05;
+        }
+
+
     </style>
 
     <div class="kanbanColumn-column">
@@ -97,7 +119,7 @@
         <div style="float:right;margin-right:10px;margin-top:12px">
             <!-- <span class="fa fa-cog kanbanColumn-option" style="color:gray"></span> -->
             <div ng-if="fields['prio']" class="dropdown kanbanColumn-option">
-                <span class="fa fa-sort-amount-asc dropdown-toggle" data-toggle="dropdown" style="color:gray"></span>
+                <span tooltip=" {{columnOrderTitle}} on top" tooltip-placement="right" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="fa fa-sort-amount-asc dropdown-toggle" data-toggle="dropdown" style="color:gray"></span>
                 <ul class="dropdown-menu" role="menu">
                     <li ng-repeat="order in vm.sortOptions" class="kanbanColumn-order-option" style="position:relative">
                             <div style="width:20px;top:2px;left:2px;position:absolute">
@@ -141,6 +163,7 @@
                         </li>
                     </ul>
                 </div>
+                <div class="card-item-options">
                 <div class="card-share dropdown">
                     <span href="" class="dropdown-toggle fa fa-share" data-toggle="dropdown"></span>
                     <ul class="dropdown-menu" role="menu">
@@ -153,6 +176,10 @@
                     <span href="" class="fa fa-pencil"></span>
                 </div>
 
+                <div ng-show="feature.geometry" ng-click="vm.searchFeature(feature)" class="card-map">
+                    <span href="" class="fa fa-search"></span>
+                </div>
+            </div>
             </li>
         </ul>
 

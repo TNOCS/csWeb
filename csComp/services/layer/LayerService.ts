@@ -341,7 +341,7 @@ module csComp.Services {
 
         /** load external type resource for a project or layer */
         public loadTypeResources(url: any, callback: Function) {
-            if (url != 'undefined') {
+            if (url) {
                 // todo check for list of type resources
                 if (typeof url === 'string') {
                     if (!this.typesResources.hasOwnProperty(url)) {
@@ -367,7 +367,7 @@ module csComp.Services {
                     var tn = source.url + "#" + typeName;
                     //if (!this._featureTypes.hasOwnProperty(tn)) continue;
                     var featureType: IFeatureType = featureTypes[typeName];
-                    //featureType.id = typeName;
+                    featureType.id = tn;
                     this.initFeatureType(featureType);
                     this._featureTypes[tn] = featureType;
                 }
@@ -674,8 +674,9 @@ module csComp.Services {
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
-                if (ft.style.iconUri != null) s.iconUri = ft.style.iconUri;
-                if (ft.style.fillOpacity !== null) s.fillOpacity = ft.style.fillOpacity;
+                if (ft.style.nameLabel) s.nameLabel = ft.style.nameLabel;
+                if (ft.style.iconUri) s.iconUri = ft.style.iconUri;
+                if (ft.style.fillOpacity) s.fillOpacity = ft.style.fillOpacity;
                 if (ft.style.opacity) s.opacity = ft.style.opacity;
                 if (ft.style.fillColor) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
                 if (ft.style.stroke) s.stroke = ft.style.stroke;
@@ -1441,14 +1442,14 @@ module csComp.Services {
                 if (this.project.connected) {
                     // check connection
                     this.$messageBusService.initConnection("", "", () => {
-                        for (var ll in this.loadedLayers) {
-                            var layer = <ProjectLayer>this.loadedLayers[ll];
-                            if (layer && layer.layerSource && layer.layerSource.title.toLowerCase() === "dynamicgeojson") {
-                                layer.layerSource.refreshLayer(layer);
-                            }
-                        }
-
-                        console.log('Im back again');
+                        // setTimeout(() => {
+                        //     for (var ll in this.loadedLayers) {
+                        //         var layer = <ProjectLayer>this.loadedLayers[ll];
+                        //         if (layer && layer.layerSource && layer.layerSource.title.toLowerCase() === "dynamicgeojson") {
+                        //             layer.layerSource.refreshLayer(layer);
+                        //         }
+                        //     }
+                        // }, 5000);
                     });
                 }
 
@@ -1727,7 +1728,7 @@ module csComp.Services {
                 $('#filtergroupcount_' + group.id).text(group.filterResult.length + ' objecten geselecteerd');
         }
 
-        public saveFeature(f: Feature) {
+        public saveFeature(f: IFeature) {
             console.log('saving feature');
             // check if feature is in dynamic layer
             if (f.layer.type.toLowerCase() === "dynamicgeojson") {

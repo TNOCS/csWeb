@@ -117,6 +117,7 @@ module csComp.Services {
                 sub.callbacks.push(callback);
                 this.subscriptions[sub.id] = sub;
                 sub.serverCallback = (r) => {
+                    //console.log(r.action);
                     sub.callbacks.forEach(cb => cb(sub.id, r));
                 };
                 this.socket.on(sub.id, sub.serverCallback);

@@ -26,6 +26,7 @@
         //s.fillColor = 'red';
         //s.strokeWidth = 1;
         //s.stroke        = false;
+        s.nameLabel = "Name";
         s.strokeWidth = 1;
         s.strokeColor = '#GGFFBB';
         s.fillOpacity = 0.75;
@@ -171,7 +172,6 @@
                 propertyType.type = 'bbcode';
             else
                 propertyType.type = 'text';
-
             res.push(propertyType);
             //}
         }
@@ -193,6 +193,7 @@
                 propertyType.visibleInCallOut = true;
                 propertyType.canEdit = false;
                 var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+
                 if (StringExt.isNumber(value))
                     propertyType.type = 'number';
                 else if (StringExt.isBoolean(value))
@@ -214,7 +215,7 @@
      */
     export function createDefaultType(feature: csComp.Services.IFeature): csComp.Services.IFeatureType {
         var type: csComp.Services.IFeatureType = {};
-        type.style = { nameLabel: 'Name' };
+        type.style = getDefaultFeatureStyle();
         type.propertyTypeData = [];
 
         this.addPropertyTypes(feature, type);

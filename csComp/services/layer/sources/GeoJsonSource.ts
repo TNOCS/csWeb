@@ -191,9 +191,6 @@ module csComp.Services {
                                     this.service.$rootScope.$apply(() => {
                                         this.updateFeatureByProperty("id", f.id, f);
                                     });
-
-
-
                                 });
                             }
                             catch (e) {
