@@ -115,7 +115,6 @@ module csComp.Services {
 
         private updateFeatureByProperty(key, id, value: IFeature) {
             try {
-
                 var features = (<any>this.layer.data).features;
                 if (features == null)
                     return;
@@ -148,13 +147,11 @@ module csComp.Services {
             try {
                 var features = <IFeature[]>(<any>this.layer.data).features;
 
-                if (features == null)
-                    return;
+                if (features == null) return;
                 var done = false;
 
                 features.some((f: IFeature) => {
                     if (f.properties != null && f.properties.hasOwnProperty(key) && f.properties[key] === id) {
-
                         f.properties = value.properties;
                         f.geometry = value.geometry;
                         this.service.calculateFeatureStyle(f);

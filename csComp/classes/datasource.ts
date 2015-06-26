@@ -1,5 +1,4 @@
 module csComp.Services {
-
     export class SensorSet {
         id: string;
         title: string;
@@ -44,8 +43,6 @@ module csComp.Services {
                 propertyTypeKey: d.propertyTypeKey
             }
         }
-
-
     }
 
     export class DataSource {

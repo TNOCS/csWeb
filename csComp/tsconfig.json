@@ -137,6 +137,7 @@
         "./directives/Widgets/Indicators/IndicatorsCtrl.ts",
         "./directives/Widgets/MarkdownWidget/MarkdownWidget.ts",
         "./directives/Widgets/MarkdownWidget/MarkdownWidgetCtrl.ts",
+        "./helpers/DateExt.ts",
         "./helpers/Dictionary.ts",
         "./helpers/GeoExtensions.ts",
         "./helpers/Helpers.ts",
