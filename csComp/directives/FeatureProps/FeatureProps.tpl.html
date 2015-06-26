@@ -1,4 +1,4 @@
-<div data-ng-cloak class="rightpanel-content" style="max-width: 355px">
+<div data-ng-cloak class="rightpanel-content" id="featureprops-content" style="max-width: 355px">
 
     <style>
         .style-icon {
@@ -17,29 +17,20 @@
         .property-edit {
             clear: both;
         }
+
+        #featureprops-content:hover leftpanel-header-button-container{
+            opacity: 0.5;
+        }
     </style>
 
-    <h4 class="rightpanel-header">
-        <img data-ng-if="callOut.icon" data-ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
-        <div ng-show="vm.$mapService.isAdminExpert && !editMode" class="leftpanel-header-button-container">
-            <button class="button fa fa-cog leftpanel-header-button" ng-show="!configMode" ng-click="configMode=true" />
-            <button class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false" />
-        </div>
-        <div class="leftpanel-header-button-container" ng-show="!configMode">
-            <button class="button fa fa-pencil leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="feature.gui.editMode=true" />
-            <button class="button fa fa-check leftpanel-header-button" ng-show="feature.gui.editMode" ng-click="feature.gui.editMode=false;vm.saveFeature()" />
-        </div>
+    <h4 class="rightpanel-header" >
+        <img data-ng-if="callOut.icon" dataallOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
+
     </h4>
-    <div ng-show="vm.$mapService.isAdminExpert">
 
-        <div ng-show="configMode">
-            <feature-type-editor featureType="featureType"></feature-type-editor>
-        </div>
+    <div class="container-fluid rightpanel-tabs" style="position: relative;height:45px">
 
-    </div>
-    <div class="container-fluid rightpanel-tabs" style="position: relative" ng-hide="configMode">
-
-        <div class="row" style="overflow:hidden" ng-if="callOut.sectionCount() < 3">
+        <div class="row" style="overflow:hidden" ng-if="callOut.sectionCount() < 3" ng-hide="configMode">
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
                 <li data-toggle="tab" data-ng-class="{active : $first}" data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="section.hasProperties()">
@@ -49,7 +40,7 @@
             </ul>
         </div>
 
-        <div class="row" ng-if="callOut.sectionCount() >= 3">
+        <div class="row" ng-if="callOut.sectionCount() >= 3" ng-hide="configMode">
             <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
                 <li data-toggle="tab" class="active" ng-init="firstCallOutsection=callOut.firstSection()">
                     <a ng-href="#rp-0" data-toggle="tab" data-ng-if="firstCallOutsection.showSectionIcon()">
@@ -66,6 +57,25 @@
                 </li>
 
             </ul>
+        </div>
+    </div>
+
+
+
+    <h4  style="position:absolute;right:3px;top:45px">
+        <div ng-show="vm.$mapService.isAdminExpert && !feature.gui.editMode" style="float:right">
+            <button tooltip-html-unsafe="{{'CONFIG' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-cog leftpanel-header-button" ng-show="!configMode" ng-click="configMode=true" />
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false" />
+        </div>
+        <div ng-show="!configMode"  style="float:right">
+            <button tooltip-html-unsafe="{{'EDIT' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="feature.gui.editMode=true" />
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="feature.gui.editMode" ng-click="feature.gui.editMode=false;vm.saveFeature()" />
+        </div>
+    </h4>
+
+    <div ng-show="vm.$mapService.isAdminExpert">
+        <div ng-show="configMode">
+            <feature-type-editor featureType="featureType"></feature-type-editor>
         </div>
     </div>
 
@@ -87,8 +97,8 @@
                             <div>{{item.propertyType.title}}</div>
                             <div ng-switch="item.propertyType.type">
                                 <input ng-switch-when="date" type="text" class="form-control" datetime-picker="dd MMM yyyy HH:mm" ng-model="item.feature.properties[item.property]" is-open="false" />
-                                <input ng-switch-when="number" type="number" data-ng-model="item.feature.properties[item.property]" class="form-control"/>
-                                <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control"/>
+                                <input ng-switch-when="number" type="number" data-ng-model="item.feature.properties[item.property]" class="form-control" />
+                                <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control" />
                                 <!-- <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control"> -->
                             </div>
                         </div>
