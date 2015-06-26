@@ -220,6 +220,8 @@ module csComp.Services {
         isInitialized?: boolean;
     }
 
+
+
     export interface IGeoJsonFile {
         featureTypes?: { [key: string]: IFeatureType };
         type: string;

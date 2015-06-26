@@ -33,7 +33,8 @@ module KanbanColumn {
         public static $inject = [
             '$scope',
             'layerService',
-            'messageBusService'
+            'messageBusService',
+            'mapService'
         ];
 
         public sortOptions = [];
@@ -43,7 +44,8 @@ module KanbanColumn {
         constructor(
             private $scope: IKanbanColumnScope,
             private $layerService: csComp.Services.LayerService,
-            private $messageBus: csComp.Services.MessageBusService
+            private $messageBus: csComp.Services.MessageBusService,
+            private mapService: csComp.Services.MapService
             ) {
             $scope.vm = this;
 
@@ -111,6 +113,7 @@ module KanbanColumn {
 
         public setOrder(order: string) {
             this.$scope.columnOrderTitle = order;
+            this.column.orderBy = order;
             switch (order) {
                 case 'High priority': this.$scope.columnOrderBy = "properties." + this.$scope.fields['prio']; break;
                 case 'Low Priority': this.$scope.columnOrderBy = "-properties." + this.$scope.fields['prio']; break;
@@ -126,6 +129,16 @@ module KanbanColumn {
 
         selectFeature(feature: csComp.Services.IFeature) {
             this.$layerService.selectFeature(feature);
+        }
+
+        editFeature(feature: csComp.Services.IFeature) {
+            this.$layerService.editFeature(feature);
+        }
+
+        public searchFeature(feature: csComp.Services.IFeature) {
+            this.mapService.zoomTo(feature, 15);
+            //this.$mapService.
+            //this.$layerService.selectFeature(feature);
         }
 
         /** make sure all layers/feeds are loaded */

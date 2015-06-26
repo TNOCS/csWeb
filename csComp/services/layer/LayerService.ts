@@ -341,7 +341,7 @@ module csComp.Services {
 
         /** load external type resource for a project or layer */
         public loadTypeResources(url: any, callback: Function) {
-            if (url != 'undefined') {
+            if (url) {
                 // todo check for list of type resources
                 if (typeof url === 'string') {
                     if (!this.typesResources.hasOwnProperty(url)) {
@@ -353,8 +353,7 @@ module csComp.Services {
                             callback();
                         });
                         setTimeout(() => {
-                            if (!success)
-                            {
+                            if (!success) {
                                 console.log('Error while loading typeResources: ' + url);
                                 callback();
                             }
@@ -376,7 +375,7 @@ module csComp.Services {
                     var tn = source.url + "#" + typeName;
                     //if (!this._featureTypes.hasOwnProperty(tn)) continue;
                     var featureType: IFeatureType = featureTypes[typeName];
-                    //featureType.id = typeName;
+                    featureType.id = tn;
                     this.initFeatureType(featureType);
                     this._featureTypes[tn] = featureType;
                 }
@@ -510,6 +509,11 @@ module csComp.Services {
             }
         }
 
+        public editFeature(feature: IFeature) {
+
+            feature.gui["editMode"] = true;
+            this.selectFeature(feature);
+        }
 
         public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
@@ -638,6 +642,7 @@ module csComp.Services {
         public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = true): IFeatureType {
             if (!feature.isInitialized) {
                 feature.isInitialized = true;
+                feature.gui = {};
                 if (feature.properties == null) feature.properties = {};
                 feature.index = layer.count++;
                 // make sure it has an id
@@ -683,8 +688,9 @@ module csComp.Services {
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
-                if (ft.style.iconUri != null) s.iconUri = ft.style.iconUri;
-                if (ft.style.fillOpacity !== null) s.fillOpacity = ft.style.fillOpacity;
+                if (ft.style.nameLabel) s.nameLabel = ft.style.nameLabel;
+                if (ft.style.iconUri) s.iconUri = ft.style.iconUri;
+                if (ft.style.fillOpacity) s.fillOpacity = ft.style.fillOpacity;
                 if (ft.style.opacity) s.opacity = ft.style.opacity;
                 if (ft.style.fillColor) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
                 if (ft.style.stroke) s.stroke = ft.style.stroke;
@@ -705,7 +711,8 @@ module csComp.Services {
                     s.rotate = Number(feature.properties[ft.style.rotateProperty]);
                 }
             }
-            feature.gui = {};
+
+            feature.gui['style'] = {};
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     //delete feature.gui[gs.property];
@@ -714,11 +721,11 @@ module csComp.Services {
                         switch (gs.visualAspect) {
                             case 'strokeColor':
                                 s.strokeColor = csComp.Helpers.getColor(v, gs);
-                                feature.gui[gs.property] = s.strokeColor;
+                                feature.gui['style'][gs.property] = s.strokeColor;
                                 break;
                             case 'fillColor':
                                 s.fillColor = csComp.Helpers.getColor(v, gs);
-                                feature.gui[gs.property] = s.fillColor;
+                                feature.gui['style'][gs.property] = s.fillColor;
                                 break;
                             case 'strokeWidth':
                                 s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
@@ -733,9 +740,11 @@ module csComp.Services {
                         switch (gs.visualAspect) {
                             case 'strokeColor':
                                 s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                feature.gui['style'][gs.property] = s.strokeColor;
                                 break;
                             case 'fillColor':
                                 s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                feature.gui['style'][gs.property] = s.fillColor;
                                 break;
                         }
                     }
@@ -1451,14 +1460,14 @@ module csComp.Services {
                 if (this.project.connected) {
                     // check connection
                     this.$messageBusService.initConnection("", "", () => {
-                        for (var ll in this.loadedLayers) {
-                            var layer = <ProjectLayer>this.loadedLayers[ll];
-                            if (layer && layer.layerSource && layer.layerSource.title.toLowerCase() === "dynamicgeojson") {
-                                layer.layerSource.refreshLayer(layer);
-                            }
-                        }
-
-                        console.log('Im back again');
+                        // setTimeout(() => {
+                        //     for (var ll in this.loadedLayers) {
+                        //         var layer = <ProjectLayer>this.loadedLayers[ll];
+                        //         if (layer && layer.layerSource && layer.layerSource.title.toLowerCase() === "dynamicgeojson") {
+                        //             layer.layerSource.refreshLayer(layer);
+                        //         }
+                        //     }
+                        // }, 5000);
                     });
                 }
 
@@ -1737,7 +1746,7 @@ module csComp.Services {
                 $('#filtergroupcount_' + group.id).text(group.filterResult.length + ' objecten geselecteerd');
         }
 
-        public saveFeature(f: Feature) {
+        public saveFeature(f: IFeature) {
             console.log('saving feature');
             // check if feature is in dynamic layer
             if (f.layer.type.toLowerCase() === "dynamicgeojson") {

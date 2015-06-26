@@ -54,7 +54,7 @@ module ProjectSettings {
                 if (id.indexOf('data/resourceTypes/') >= 0) {
 
                     var file = this.$layerService.typesResources[id];
-                    var data = JSON.stringify(file);
+                    var data = csComp.Services.TypeResource.serialize(file);
                     var url = "api/resourceTypes/" + id.replace('data/resourceTypes/', ''); //this.$layerService.projectUrl.url.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
                     $.ajax({
                         url: url,

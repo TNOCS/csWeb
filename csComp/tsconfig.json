@@ -64,6 +64,8 @@
         "./directives/DashboardDirectives/WidgetEdit/WidgetEditCtrl.ts",
         "./directives/DataTable/DataTable.ts",
         "./directives/DataTable/DataTableCtrl.ts",
+        "./directives/Editors/FeatureTypeEditor/FeatureTypeEditor.ts",
+        "./directives/Editors/FeatureTypeEditor/FeatureTypeEditorCtrl.ts",
         "./directives/Editors/FeatureTypeEditor/FeatureTypes.ts",
         "./directives/Editors/FeatureTypeEditor/FeatureTypesCtrl.ts",
         "./directives/Editors/GroupEditor/GroupEdit.ts",

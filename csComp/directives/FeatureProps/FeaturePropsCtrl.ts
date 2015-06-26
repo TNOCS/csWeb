@@ -19,7 +19,7 @@ module FeatureProps {
     export interface IFeaturePropsScope extends ng.IScope {
         vm: FeaturePropsCtrl;
         showMenu: boolean;
-        poi: IFeature;
+        feature: IFeature;
         callOut: CallOut;
         featureType: IFeatureType;
         tabs: JQuery;
@@ -325,12 +325,16 @@ module FeatureProps {
             $scope.tabScrollDelta = $scope.tabs.outerWidth();
 
             this.displayFeature(this.$layerService.lastSelectedFeature);
-            this.$scope.poi = this.$layerService.lastSelectedFeature;
+            this.$scope.feature = this.$layerService.lastSelectedFeature;
         }
 
         public selectProperty(prop: IPropertyType) {
             console.log(prop);
             this.lastSelectedProperty = prop;
+        }
+
+        public saveFeature() {
+            this.$layerService.saveFeature(this.$scope.feature);
 
         }
 
@@ -365,7 +369,7 @@ module FeatureProps {
             sc.id = csComp.Helpers.getGuid();
             sc.filterType = "scatter";
             sc.title = sc.property;
-            var l = this.$layerService.findLayer(this.$scope.poi.layerId);
+            var l = this.$layerService.findLayer(this.$scope.feature.layerId);
             this.$layerService.setFilter(sc, l.group);
             //alert('scatter ' + property.property);
         }
@@ -403,18 +407,18 @@ module FeatureProps {
             switch (title) {
                 case "onFeatureSelect":
                     this.displayFeature(this.$layerService.lastSelectedFeature);
-                    this.$scope.poi = this.$layerService.lastSelectedFeature;
+                    this.$scope.feature = this.$layerService.lastSelectedFeature;
                     break;
                 case "onRelationsUpdated":
                     this.setShowSimpleTimeline();
                     this.displayFeature(feature);
                     this.updateHierarchyLinks(feature);
-                    this.$scope.poi = feature;
+                    this.$scope.feature = feature;
                     this.$scope.autocollapse(true);
                     break;
                 case "onFeatureUpdated":
                     this.displayFeature(this.$layerService.lastSelectedFeature);
-                    this.$scope.poi = this.$layerService.lastSelectedFeature;
+                    this.$scope.feature = this.$layerService.lastSelectedFeature;
                     break;
                 default:
             }
