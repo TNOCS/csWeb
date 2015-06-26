@@ -1116,11 +1116,12 @@ module csComp.Services {
         and checks if it should be found in a resource file or within his own layer
         */
         public getFeatureTypeId(feature: IFeature): string {
+            if (!feature.hasOwnProperty('layer')) feature['layer'] = new ProjectLayer();
             var name = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
 
             if (name.toLowerCase().startsWith("http://")) return name;
             //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
-            if (feature.layer.typeUrl) return feature.layer.typeUrl + "#" + name;
+            if (feature.layer.hasOwnProperty('typeUrl') && feature.layer.typeUrl) return feature.layer.typeUrl + "#" + name;
             return feature.layer.url + "#" + name;
         }
 

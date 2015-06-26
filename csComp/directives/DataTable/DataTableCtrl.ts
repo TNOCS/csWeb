@@ -118,13 +118,18 @@ module DataTable {
                 success((data: IGeoJsonFile) => {
                 this.dataset = data;
                 if (data.featureTypes == null) data.featureTypes = {};
-                data.features.forEach((f: IFeature) => {
-                    f.featureTypeName = f.properties['FeatureTypeId'];
-                    if (!(f.featureTypeName in data.featureTypes))
-                        data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
-                });
-
-                this.updatepropertyType(data);
+                if (data.features) {
+                    data.features.forEach((f: IFeature) => {
+                        if (f.properties.hasOwnProperty('FeatureTypeId')) {
+                            f.featureTypeName = f.properties['FeatureTypeId'];
+                        } else if (data.featureTypes.hasOwnProperty('Default')) {
+                            f.featureTypeName = 'Default';
+                        }
+                        if (!(f.featureTypeName in data.featureTypes))
+                            data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
+                    });
+                    this.updatepropertyType(data);
+                }
             }).
                 error((data, status, headers, config) => {
                 this.$messageBusService.notify("ERROR opening " + selectedLayer.title, "Could not get the data.");
