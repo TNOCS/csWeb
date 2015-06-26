@@ -87,8 +87,9 @@
                             <div>{{item.propertyType.title}}</div>
                             <div ng-switch="item.propertyType.type">
                                 <input ng-switch-when="date" type="text" class="form-control" datetime-picker="dd MMM yyyy HH:mm" ng-model="item.feature.properties[item.property]" is-open="false" />
-                                <input ng-switch-when="number" type="number" data-ng-model="item.feature.properties[item.property]" class="form-control">
-                                <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control">
+                                <input ng-switch-when="number" type="number" data-ng-model="item.feature.properties[item.property]" class="form-control"/>
+                                <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control"/>
+                                <!-- <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control"> -->
                             </div>
                         </div>
                     </div>
