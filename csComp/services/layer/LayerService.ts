@@ -358,7 +358,12 @@ module csComp.Services {
                                 callback();
                             }
                         }, 3000);
-                    } else { callback(); }
+                    } else {
+                        //make sure featureTypes in typeResources are initialized,
+                        //which is not the case when switching projects
+                        this.initTypeResources(this.typesResources[url]);
+                        callback();
+                    }
                 }
                 else {
                     callback();
