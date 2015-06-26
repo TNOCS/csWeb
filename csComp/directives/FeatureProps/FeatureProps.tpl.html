@@ -67,7 +67,7 @@
             <button tooltip-html-unsafe="{{'CONFIG' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-cog leftpanel-header-button" ng-show="!configMode" ng-click="configMode=true" />
             <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false" />
         </div>
-        <div ng-show="!configMode"  style="float:right">
+        <div ng-show="!configMode && feature.layer.isDynamic"  style="float:right">
             <button tooltip-html-unsafe="{{'EDIT' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="feature.gui.editMode=true" />
             <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="feature.gui.editMode" ng-click="feature.gui.editMode=false;vm.saveFeature()" />
         </div>
