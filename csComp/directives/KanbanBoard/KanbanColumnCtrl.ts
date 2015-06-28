@@ -20,6 +20,7 @@ module KanbanColumn {
         filters: ColumnFilter;
         fields: any;
         orderBy: string;
+        actions: string[];
     }
 
     export class KanbanColumnCtrl {
@@ -80,7 +81,6 @@ module KanbanColumn {
                 }
                 return result;
             }
-
             setInterval(() => { this.updateTime() }, 1000);
         }
 
@@ -100,7 +100,9 @@ module KanbanColumn {
 
         }
 
-
+        public startAction(action: string, feature: csComp.Services.IFeature) {
+            this.$messageBus.publish("kanbanaction", action, feature);
+        }
 
         public getPrioColor(feature: csComp.Services.IFeature) {
             var colors = ["white", "black", "red", "orange", "blue", "green"];

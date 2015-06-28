@@ -36,6 +36,7 @@ module csComp.StringExt {
      * Returns true if we are dealing with a boolean, false otherwise.
      */
     export function isBoolean(s: any): boolean {
+        if (typeof s === 'boolean') return true;
         return s === 'true' || s === 'false';
     }
 

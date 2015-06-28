@@ -1018,6 +1018,7 @@ module csComp.Services {
                                 gf.filterType = gf.meta.filterType;
                             } else {
                                 switch (gf.meta.type) {
+                                    case 'boolean': gf.filterType = 'boolean'; break;
                                     case "date":
                                         gf.filterType = 'date';
                                         break;

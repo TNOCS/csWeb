@@ -55,28 +55,32 @@ module LayerEdit {
         }
 
         public addFeatureType() {
-            var ft = <csComp.Services.IFeatureType>{};
-            ft.id = this.layer.defaultFeatureType;
-            ft.name = ft.id;
-            ft.style = csComp.Helpers.getDefaultFeatureStyle();
-            if (this.layer.typeUrl && this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
-                var r = this.$layerService.typesResources[this.layer.typeUrl];
-                if (!r.featureTypes.hasOwnProperty(ft.id)) {
-                    var ft = <csComp.Services.IFeatureType>{};
-                    ft.id = this.layer.defaultFeatureType;
-                    ft.name = ft.id;
-                    ft.style = csComp.Helpers.getDefaultFeatureStyle();
-                    var id = "";
-                    //if (ft.name.toLowerCase().startsWith("http://")) id = ft.name;
-                    //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
-                    if (this.layer.typeUrl) id = this.layer.typeUrl + "#" + ft.name;
-                    id = this.layer.url + "#" + name;
+            if (this.layer.typeUrl) {
+                this.$layerService.loadTypeResources(this.layer.typeUrl, () => {
+                    if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
+                        var r = this.$layerService.typesResources[this.layer.typeUrl];
+                        var ft = <csComp.Services.IFeatureType>{};
+                        var id = this.layer.typeUrl + "#" + this.layer.defaultFeatureType;
+                        ft.id = this.layer.defaultFeatureType;
+                        ft.name = ft.id;
+                        ft.style = csComp.Helpers.getDefaultFeatureStyle();
+                        if (!r.featureTypes.hasOwnProperty(id)) {
+                            var ft = <csComp.Services.IFeatureType>{};
+                            ft.id = this.layer.defaultFeatureType;
+                            ft.name = ft.id;
+                            ft.style = csComp.Helpers.getDefaultFeatureStyle();
+                            //if (ft.name.toLowerCase().startsWith("http://")) id = ft.name;
+                            //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
+                            this.$layerService._featureTypes[id] = ft;
+                            r.featureTypes[ft.id] = ft;
+                            //this.$layerService.getFeatureTypeId()
+                        }
 
-                    this.$layerService._featureTypes[id] = ft;
-                    //this.$layerService.getFeatureTypeId()
-
-                }
+                    }
+                });
             }
+
+
 
             console.log(this.layer.defaultFeatureType);
         }

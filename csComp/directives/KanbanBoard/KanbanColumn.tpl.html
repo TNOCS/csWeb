@@ -50,9 +50,9 @@
             cursor: pointer;
         }
 
-        .card-edit {
+        .card-button
+        {
             position: absolute;
-            right: 30px;
             bottom: 5px;
             width: 20px;
             height: 20px;
@@ -60,30 +60,31 @@
             background: gray;
             text-align: center;
             cursor: pointer;
+        }
+
+        .card-edit {
+
+            right: 30px;
+
+
         }
 
         .card-map {
-            position: absolute;
+
             right: 55px;
-            bottom: 5px;
-            width: 20px;
-            height: 20px;
-            color: white;
-            background: gray;
-            text-align: center;
-            cursor: pointer;
+
+        }
+
+        .card-actions {
+
+            right: 80px;
+
         }
 
         .card-share {
-            position: absolute;
+
             right: 5px;
-            bottom: 5px;
-            width: 20px;
-            height: 20px;
-            color: white;
-            background: gray;
-            text-align: center;
-            cursor: pointer;
+
         }
 
         .kanbanColumn-title {
@@ -164,7 +165,7 @@
                     </ul>
                 </div>
                 <div class="card-item-options">
-                <div class="card-share dropdown">
+                <div class="card-button card-share dropdown">
                     <span href="" class="dropdown-toggle fa fa-share" data-toggle="dropdown"></span>
                     <ul class="dropdown-menu" role="menu">
                         <li>
@@ -172,12 +173,22 @@
                         </li>
                     </ul>
                 </div>
-                <div ng-click="vm.editFeature(feature)" class="card-edit">
+                <div ng-click="vm.editFeature(feature)" class="card-button card-edit">
                     <span href="" class="fa fa-pencil"></span>
                 </div>
 
-                <div ng-show="feature.geometry" ng-click="vm.searchFeature(feature)" class="card-map">
+                <div ng-show="feature.geometry" ng-click="vm.searchFeature(feature)" class="card-button card-map">
                     <span href="" class="fa fa-search"></span>
+                </div>
+
+                <div ng-show="column.actions" class="card-button card-actions">
+                    <span href="" class="dropdown-toggle fa fa-external-link" data-toggle="dropdown"></span>
+                    <ul class="dropdown-menu" role="menu">
+                        <li ng-repeat="action in column.actions">
+                            <a data-ng-click="vm.startAction(action,feature)">{{action}}</a>
+                        </li>
+
+                    </ul>
                 </div>
             </div>
             </li>

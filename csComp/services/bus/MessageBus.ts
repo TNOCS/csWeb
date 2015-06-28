@@ -6,6 +6,10 @@ module csComp.Services {
         (title: string, data?: any): any;
     }
 
+    export class ClientMessage {
+        constructor(public action: string, public data: any) { }
+    }
+
     declare var io;
 
     // Handle returned when subscribing to a topic
@@ -167,7 +171,8 @@ module csComp.Services {
         BottomRight,
         BottomLeft,
         TopRight,
-        TopLeft
+        TopLeft,
+        BarTop
     }
 
     export class ServerSubscription {
@@ -229,6 +234,17 @@ module csComp.Services {
             c.socket.emit(topic, message);
         }
 
+        public serverSendMessage(msg: ClientMessage, serverId = "") {
+            var c = this.getConnection(serverId);
+            if (c == null) return null;
+            c.socket.emit("msg", msg);
+        }
+
+        public serverSendMessageAction(action: string, data: any, serverId = "") {
+            var cm = new ClientMessage(action, data);
+            this.serverSendMessage(cm, serverId);
+        }
+
         public serverSubscribe(target: string, type: string, callback: IMessageBusCallback, serverId = ""): MessageBusHandle {
             var c = this.getConnection(serverId);
             if (c == null) return null;
@@ -263,10 +279,13 @@ module csComp.Services {
          * @text:        the contents of the notification
          * @location:    the location on the screen where the notification is shown (default bottom right)
 		 */
-        notify(title: string, text: string, location = NotifyLocation.BottomRight) {
+        public notify(title: string, text: string, location = NotifyLocation.BottomRight) {
             var cssLocation: string,
                 dir1: string,
-                dir2: string;
+                dir2: string
+            var cornerglass: string = 'ui-pnotify-sharp';
+
+
 
             switch (location) {
                 case NotifyLocation.BottomLeft:
@@ -284,6 +303,11 @@ module csComp.Services {
                     dir1 = 'down';
                     dir2 = 'right';
                     break;
+                case NotifyLocation.BarTop:
+                    cssLocation = 'stack-bartop';
+                    dir1 = 'down';
+                    cornerglass = "";
+                    break;
                 default:
                     cssLocation = 'stack-bottomright';
                     dir1 = 'up';
@@ -295,10 +319,12 @@ module csComp.Services {
                 title: title,
                 text: text,
                 icon: 'fa fa-info',
-                cornerclass: 'ui-pnotify-sharp',
-                addclass: cssLocation,
+                cornerclass: cornerglass,
+                addclass: "stack-bar-top",
                 stack: { "dir1": dir1, "dir2": dir2, "firstpos1": 25, "firstpos2": 25 }
             };
+
+
 
             var pn = new PNotify(options);
         }

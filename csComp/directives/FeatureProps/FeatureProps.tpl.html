@@ -74,7 +74,7 @@
     </h4>
 
     <div ng-show="vm.$mapService.isAdminExpert">
-        <div ng-show="configMode">
+        <div ng-show="configMode" style="margin:5px">
             <feature-type-editor featureType="featureType"></feature-type-editor>
         </div>
     </div>
@@ -98,8 +98,13 @@
                             <div ng-switch="item.propertyType.type">
                                 <input ng-switch-when="date" type="text" class="form-control" datetime-picker="dd MMM yyyy HH:mm" ng-model="item.feature.properties[item.property]" is-open="false" />
                                 <input ng-switch-when="number" type="number" data-ng-model="item.feature.properties[item.property]" class="form-control" />
-                                <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control" />
-                                <!-- <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control"> -->
+                                <textarea ng-switch-when="textarea" data-ng-model="item.feature.properties[item.property]" class="form-control" />
+
+                                <div ng-switch-when="boolean">
+                                    <input type="checkbox" data-ng-model="item.feature.properties[item.property]" id="booledit-{{item.property}}" />
+                                    <label for="booledit-{{item.property}}">{{item.propertyType.title}}</label>
+                                </div>
+                                <input ng-switch-default="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control" />
                             </div>
                         </div>
                     </div>
@@ -127,6 +132,8 @@
                                 </div>
                                 <div data-ng-switch="item.propertyType.type">
                                     <div ng-switch-when="date" class="text-right">{{item.feature.properties[item.property] | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</div>
+                                    <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
+                                    <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                     <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                 </div>
 
