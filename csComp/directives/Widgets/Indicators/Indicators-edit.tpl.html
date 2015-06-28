@@ -5,7 +5,7 @@
         </span>
     </h4>
 
-    <div data-ng-cloak tab-content isolate-scope style="margin:5px; overflow-y: auto; overflow-x: hidden;">
+    <div data-ng-cloak tab-content isolate-scope style="margin:5px; overflow-y: auto; overflow-x: hidden;" resize resize-y="140">
         <div class="controls">
             <label>Widget title</label>
             <input id="indicatorTitle" name="textinput" type="text" ng-model="data.title" placeholder="placeholder" class="input-xlarge editor-text-input">
@@ -45,7 +45,7 @@
                         <span>
                             <label>Feature</label>
                             <select id="selectIndicatorFeature" ng-model="indic.featureTypeName" class="form-control tt-input editor-text-input" style="display:inline-block"
-                                    ng-options="ft as ft for (ft, type) in vm.$layerService.featureTypes" ng-change="vm.updatePropertyTypes(indic)">
+                                    ng-options="ft as ft for (ft, type) in vm.$layerService._featureTypes" ng-change="vm.updatePropertyTypes(indic)">
                                 <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
                             </select>
                         </span>

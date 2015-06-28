@@ -508,7 +508,7 @@ export class MapLayerFactory {
                         prop["stringFormat"] = "{0:#,#.####}%";
                         break;
                     default:
-                        if (prop["stringFormat"] && prop["stringFormat"].charAt(0) === "{") {
+                        if ((prop["stringFormat"].indexOf('{') < 0) && (prop["stringFormat"].indexOf('}') < 0)) {
                             console.log("stringFormat \'" + prop["stringFormat"] + "\' not found.");
                         }
                         break;

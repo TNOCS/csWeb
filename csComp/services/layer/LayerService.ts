@@ -358,7 +358,12 @@ module csComp.Services {
                                 callback();
                             }
                         }, 3000);
-                    } else { callback(); }
+                    } else {
+                        //make sure featureTypes in typeResources are initialized,
+                        //which is not the case when switching projects
+                        this.initTypeResources(this.typesResources[url]);
+                        callback();
+                    }
                 }
                 else {
                     callback();
@@ -1126,11 +1131,12 @@ module csComp.Services {
         and checks if it should be found in a resource file or within his own layer
         */
         public getFeatureTypeId(feature: IFeature): string {
+            if (!feature.hasOwnProperty('layer')) feature['layer'] = new ProjectLayer();
             var name = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
 
             if (name.toLowerCase().startsWith("http://")) return name;
             //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
-            if (feature.layer.typeUrl) return feature.layer.typeUrl + "#" + name;
+            if (feature.layer.hasOwnProperty('typeUrl') && feature.layer.typeUrl) return feature.layer.typeUrl + "#" + name;
             return feature.layer.url + "#" + name;
         }
 

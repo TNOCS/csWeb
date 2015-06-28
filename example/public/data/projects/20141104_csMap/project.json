@@ -68,7 +68,7 @@
                     "title": "Wachtlijsten",
                     "visual": "bullet",
                     "usesSelectedFeature": true,
-                    "featureTypeName": "zorgkantoor_Default",
+                    "featureTypeName": "data/resourceTypes/Zorgkantoor.json#Zorgkantoor",
                     "propertyTypes": ["tote", "toti"],
                     "sensor": "",
                     "dashboard": "health"
@@ -353,7 +353,7 @@
                 "description": "Data at the health office regions. (Source: CBS, BAG, TNO, DigiMV.)",
                 "type": "GeoJson",
 								"defaultFeatureType": "Zorgkantoor",
-								"typeUrl": "data/projects/resources/Zorgkantoor.json",
+								"typeUrl": "data/resourceTypes/Zorgkantoor.json",
                 "url": "data/projects/20141104_csMap/Regio ZK ZZP CBS.json",
                 "enabled": false,
                 "opacity": 100
