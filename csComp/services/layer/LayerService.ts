@@ -425,7 +425,6 @@ module csComp.Services {
                         this.activeMapRenderer.updateFeature(fe);
                     }
                 });
-
                 // upon deactivation of the layer? (but other layers can also have active styles)
                 this.mb.publish('updatelegend', 'title', property);
             }
