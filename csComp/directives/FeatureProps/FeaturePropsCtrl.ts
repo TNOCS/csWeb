@@ -115,13 +115,13 @@ module FeatureProps {
             var displayValue: string;
             if (type != null) {
                 var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
-                if (propertyTypes.length === 0) {for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]);};
+                if (propertyTypes.length === 0) { for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]); };
 
                 //
                 if (type.showAllProperties || this.mapservice.isAdminExpert) {
                     var missing = csComp.Helpers.getMissingPropertyTypes(feature);
                     missing.forEach((pt: csComp.Services.IPropertyType) => {
-                        if (!propertyTypes.some(((p: csComp.Services.IPropertyType) => p.label == pt.label))) {
+                        if (!propertyTypes.some(((p: csComp.Services.IPropertyType) => p.label === pt.label))) {
                             propertyTypes.push(pt);
                         }
                     });
@@ -140,7 +140,7 @@ module FeatureProps {
                         // Skip empty, non-editable values
                         if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
 
-                        var canFilter = (mi.type === "number" || mi.type === "text" || mi.type === "options" || mi.type === "date");
+                        var canFilter = (mi.type === "number" || mi.type === "text" || mi.type === "options" || mi.type === "date" || mi.type === 'boolean');
                         var canStyle = (mi.type === "number" || mi.type === "options" || mi.type === "color");
                         if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
                         if (mi.visibleInCallOut) {

@@ -20,7 +20,10 @@ module KanbanColumn {
         filters: ColumnFilter;
         fields: any;
         orderBy: string;
+        actions: string[];
     }
+
+    declare var _;
 
     export class KanbanColumnCtrl {
         public scope: IKanbanColumnScope;
@@ -69,18 +72,25 @@ module KanbanColumn {
             $scope.columnFilter = (feature: csComp.Services.IFeature) => {
                 var result = true;
                 if (!$scope.column) return false;
-                if (!_.contains(this.column.filters.layerIds, feature.layerId)) return false;
-                if (this.column.filters.tags) {
+                if (this.column.filters.roles && feature.properties.hasOwnProperty('roles')) {
+                    this.column.filters.roles.forEach((r: string) => {
+                        if (!_.contains(feature.properties['roles'], r)) result = false;
+                    });
+                }
+                if (result && !_.contains(this.column.filters.layerIds, feature.layerId)) return false;
+                if (result && this.column.filters.tags) {
                     if (!feature.properties.hasOwnProperty('tags')) return false;
                     this.column.filters.tags.forEach((tag: string) => {
-                        if (!_.contains(feature.properties['tags'], tag))
-                            result = false;
+                        if (tag[0] === "!") {
+                            var t = tag.slice(1, tag.length);
+                            if (_.contains(feature.properties['tags'], t)) result = false;
+                        }
+                        else if (!_.contains(feature.properties['tags'], tag)) result = false;
                         return;
                     })
                 }
                 return result;
             }
-
             setInterval(() => { this.updateTime() }, 1000);
         }
 
@@ -100,7 +110,9 @@ module KanbanColumn {
 
         }
 
-
+        public startAction(action: string, feature: csComp.Services.IFeature) {
+            this.$messageBus.publish("kanbanaction", action, feature);
+        }
 
         public getPrioColor(feature: csComp.Services.IFeature) {
             var colors = ["white", "black", "red", "orange", "blue", "green"];

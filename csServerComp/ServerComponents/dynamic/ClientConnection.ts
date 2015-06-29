@@ -3,10 +3,11 @@ import MessageBus = require("../bus/MessageBus");
 
 module ClientConnection {
     GetDataSource: Function;
-    export class ClientSubscription {
+    export class msgSubscription {
         public id: string;
         public type: string;
         public target: string;
+        public callback: Function;
     }
 
     export class LayerSubscription {
@@ -25,19 +26,19 @@ module ClientConnection {
 
     export class WebClient {
         public Name: string;
-        public Subscriptions: { [key: string]: ClientSubscription } = {};
+        public Subscriptions: { [key: string]: msgSubscription } = {};
 
         constructor(public Client: any) {
         }
 
-        public FindSubscription(target: string, type: string): ClientSubscription {
+        public FindSubscription(target: string, type: string): msgSubscription {
             for (var k in this.Subscriptions) {
                 if (this.Subscriptions[k].target == target && this.Subscriptions[k].type == type) return this.Subscriptions[k];
             }
             return null;
         }
 
-        public Subscribe(sub: ClientSubscription) {
+        public Subscribe(sub: msgSubscription) {
             this.Subscriptions[sub.id] = sub;
             this.Client.on(sub.id, (data) => {
                 switch (data.action) {
@@ -56,6 +57,8 @@ module ClientConnection {
         public server: SocketIO.Server;
 
         public subscriptions: LayerSubscription[] = [];
+        public msgSubscriptions: msgSubscription[] = [];
+
 
         constructor(httpServer: any) {
             this.server = io(httpServer);
@@ -71,11 +74,15 @@ module ClientConnection {
                     console.log('user ' + socket.id + ' disconnected');
                 });
 
-                socket.on('subscribe', (msg: ClientSubscription) => {
+                socket.on('subscribe', (msg: msgSubscription) => {
                     console.log('subscribe ' + JSON.stringify(msg.target));
                     wc.Subscribe(msg);
                     // wc.Client.emit('laag', 'test');
                     //socket.emit('laag', 'test');
+                });
+
+                socket.on('msg', (msg: ClientMessage) => {
+                    this.checkClientMessage(msg, socket.id);
                 });
 
                 socket.on('layer', (msg: LayerMessage) => {
@@ -86,6 +93,15 @@ module ClientConnection {
                 //l.on('join',(j) => {
                 //    console.log("layers: "+ j);
                 //});
+            });
+        }
+
+
+        public checkClientMessage(msg: ClientMessage, client: string) {
+            this.msgSubscriptions.forEach((sub: msgSubscription) => {
+                if (sub.target === msg.action) {
+                    sub.callback(msg, client);
+                }
             });
         }
 
@@ -106,9 +122,10 @@ module ClientConnection {
         }
 
         public subscribe(on: string, callback: Function) {
-            this.server.on('update-feature', (msg: any) => {
-                callback(msg);
-            });
+            var cs = new msgSubscription();
+            cs.target = on;
+            cs.callback = callback;
+            this.msgSubscriptions.push(cs);
         }
 
         //
@@ -139,7 +156,7 @@ module ClientConnection {
             }
         }
 
-        public sendUpdate(key: string, type: string, command: string, object: any) {
+        public publish(key: string, type: string, command: string, object: any) {
             for (var uId in this.users) {
 
                 var sub = this.users[uId].FindSubscription(key, type);

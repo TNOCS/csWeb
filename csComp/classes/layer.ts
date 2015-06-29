@@ -43,7 +43,7 @@ module csComp.Services {
         /** force refresh on chaning bounding box */
         refreshBBOX?: boolean;
         /** if this is a feed, the layer features can be shown on timeline and  */
-        isFeed: boolean;
+        isDynamic?: boolean;
 
         layerSource: ILayerSource;
         /**
@@ -191,7 +191,7 @@ module csComp.Services {
         /** key name of default feature type */
         defaultFeatureType: string;
 
-        isFeed: boolean;
+        isDynamic: boolean;
 
 
         /**

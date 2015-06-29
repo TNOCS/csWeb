@@ -131,7 +131,7 @@ export class DynamicProject {
             layer.id = file;
             layer.groupId = g.title;
             g.layers = g.layers.filter(l => layer.id != l.id);
-            this.service.connection.sendUpdate(this.project.id, "project", "layer-remove", [layer]);
+            this.service.connection.publish(this.project.id, "project", "layer-remove", [layer]);
         }
     }
 
@@ -195,7 +195,7 @@ export class DynamicProject {
         }
         if (!layerExists) g.layers.push(layer);
 
-        this.service.connection.sendUpdate(this.project.id, "project", "layer-update", { layer: [layer], group: g });
+        this.service.connection.publish(this.project.id, "project", "layer-update", { layer: [layer], group: g });
 
         // save project.json (+backup)
         //console.log("g:" + group);

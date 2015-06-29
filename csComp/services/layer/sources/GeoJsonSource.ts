@@ -211,6 +211,7 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
+            layer.isDynamic = true;
             this.baseAddLayer(layer, callback);
             this.initSubscriptions(layer);
             //this.connection = this.service.$messageBusService.getConnection("");

@@ -170,6 +170,8 @@
                 propertyType.type = 'number';
             else if (StringExt.isBoolean(value))
                 propertyType.type = 'boolean';
+            else if (StringExt.isArray(value))
+                propertyType.type = 'tags';
             else if (StringExt.isBbcode(value))
                 propertyType.type = 'bbcode';
             else

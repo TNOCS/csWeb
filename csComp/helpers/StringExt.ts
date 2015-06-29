@@ -37,6 +37,14 @@ module csComp.StringExt {
      */
     export function isBoolean(s: any): boolean {
         return s === 'true' || s === 'false';
+        if (typeof s === 'boolean') return true;
+    }
+
+    /*
+     * Returns true if we are dealing with a array, false otherwise.
+     */
+    export function isArray(s: any): boolean {
+        return s && s.constructor === Array;
     }
 
     /*
