@@ -200,7 +200,7 @@ module csComp.Services {
             if (layer.data.geometries && !layer.data.features) {
                 layer.data.features = layer.data.geometries;
             }
-            layer.data.features.forEach((f) => {
+            layer.data.features.forEach((f: IFeature) => {
                 this.service.initFeature(f, layer);
             });
 
