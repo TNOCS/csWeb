@@ -418,8 +418,9 @@ module csComp.Services {
                     : 'strokeColor';  // TODO: let this be read from the propertyTypeData
 
                 this.saveStyle(layer.group, gs);
+
                 this.project.features.forEach((fe: IFeature) => {
-                    if (fe.layer.group == layer.group) {
+                    if (fe.layer === layer) {
                         this.calculateFeatureStyle(fe);
                         this.activeMapRenderer.updateFeature(fe);
                     }
@@ -1102,14 +1103,11 @@ module csComp.Services {
             //         }
             //     }
             // }
-
             gf.title = "Scatter";
             gf.rangex = [0, 1];
 
-
             // add filter
             group.filters.push(gf);
-
 
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
 
@@ -1136,11 +1134,11 @@ module csComp.Services {
 
             if (name.toLowerCase().startsWith("http://")) return name;
             //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
-            if (feature.layer.hasOwnProperty('typeUrl') && feature.layer.typeUrl) return feature.layer.typeUrl + "#" + name;
-            return feature.layer.url + "#" + name;
+            if (feature.layer.typeUrl) return feature.layer.typeUrl + "#" + name;
+            return feature.layer.url
+                ? feature.layer.url + "#" + name
+                : this.project.url + "#" + name;
         }
-
-
 
         /**
          * Return the feature style for a specific feature.
@@ -1149,11 +1147,11 @@ module csComp.Services {
          */
         getFeatureType(feature: IFeature): IFeatureType {
             if (feature.fType) return feature.fType;
-            feature.featureTypeName = this.getFeatureTypeId(feature);
+            if (!feature.featureTypeName)
+                feature.featureTypeName = this.getFeatureTypeId(feature);
             if (!this._featureTypes.hasOwnProperty(feature.featureTypeName)) {
                 this._featureTypes[feature.featureTypeName] = csComp.Helpers.createDefaultType(feature);
                 //this._featureTypes[feature.featureTypeName] = this.typesResources[feature.layer.typeUrl].featureTypes[feature.featureTypeName];
-            } else {
             }
             feature.fType = this._featureTypes[feature.featureTypeName];
             return feature.fType;
@@ -1168,7 +1166,7 @@ module csComp.Services {
             //         this._featureTypes[featureTypeName] = csComp.Helpers.createDefaultType(feature);
             // }
             // feature.featureTypeName = featureTypeName;
-            // return this._featureTypes[featureTypeName];
+            // return inthis._featureTypes[featureTypeName];
         }
 
 
