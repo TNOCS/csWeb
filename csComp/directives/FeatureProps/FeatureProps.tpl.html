@@ -18,12 +18,16 @@
             clear: both;
         }
 
-        #featureprops-content:hover leftpanel-header-button-container{
+        .not-valid-input{
+            color : red;
+        }
+
+        #featureprops-content:hover leftpanel-header-button-container {
             opacity: 0.5;
         }
     </style>
 
-    <h4 class="rightpanel-header" >
+    <h4 class="rightpanel-header">
         <img data-ng-if="callOut.icon" src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
 
     </h4>
@@ -62,14 +66,16 @@
 
 
 
-    <h4  style="position:absolute;right:3px;top:45px">
+    <h4 style="position:absolute;right:3px;top:45px">
         <div ng-show="vm.$mapService.isAdminExpert && !feature.gui.editMode" style="float:right">
             <button tooltip-html-unsafe="{{'CONFIG' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-cog leftpanel-header-button" ng-show="!configMode" ng-click="configMode=true" />
             <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false" />
         </div>
-        <div ng-show="!configMode && feature.layer.isDynamic"  style="float:right">
-            <button tooltip-html-unsafe="{{'EDIT' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="feature.gui.editMode=true" />
-            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="feature.gui.editMode" ng-click="feature.gui.editMode=false;vm.saveFeature()" />
+        <div ng-show="!configMode && feature.layer.isDynamic" style="float:right">
+            <button tooltip-html-unsafe="{{'EDIT' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="feature.gui.editMode=true"
+            />
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="feature.gui.editMode" ng-click="feature.gui.editMode=false;vm.saveFeature()"
+            />
         </div>
     </h4>
 
@@ -91,139 +97,144 @@
                     </span>
                 </td>-->
             <div class="panel-group" id="accordion">
-                <div class="panel" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in section.properties">
-                    <div ng-show="feature.gui.editMode" class="property-edit">
-                        <div>
-                            <div>{{item.propertyType.title}}</div>
-                            <div ng-switch="item.propertyType.type">
-                                <input ng-switch-when="date" type="text" class="form-control" datetime-picker="dd MMM yyyy HH:mm" ng-model="item.feature.properties[item.property]" is-open="false" />
-                                <input ng-switch-when="number" type="number" data-ng-model="item.feature.properties[item.property]" class="form-control" />
-                                <textarea ng-switch-when="textarea" data-ng-model="item.feature.properties[item.property]" class="form-control" />
-
-                                <div ng-switch-when="boolean">
-                                    <input type="checkbox" data-ng-model="item.feature.properties[item.property]" id="booledit-{{item.property}}" />
-                                    <label for="booledit-{{item.property}}">{{item.propertyType.title}}</label>
-                                </div>
-                                <input ng-switch-default="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control" />
+                <form name="form" class="css-form" novalidate>
+                    <div class="panel" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in section.properties">
+                        <div ng-show="feature.gui.editMode" class="property-edit">
+                            <div>
+                                <div>{{item.propertyType.title}}</div>
+                                <ng-form name="userFieldForm">
+                                    <div ng-switch="item.propertyType.type">
+                                        <input ng-switch-when="date" type="text" class="form-control" datetime-picker="dd MMM yyyy HH:mm" ng-model="item.feature.properties[item.property]" is-open="false" />
+                                        <input ng-switch-when="number" type="number" name="number" data-ng-model="item.feature.properties[item.property]" class="form-control">
+                                        <p class="not-valid-input" ng-show="userFieldForm.number.$invalid">Not a valid number</p>
+                                        <textarea ng-switch-when="textarea" data-ng-model="item.feature.properties[item.property]" class="form-control" />
+                                        <input ng-switch-when="tags"  type="text" name="tags" ng-list="," data-ng-model="item.feature.properties[item.property]">
+                                        <div ng-switch-when="boolean">
+                                            <input type="checkbox" data-ng-model="item.feature.properties[item.property]" id="booledit-{{item.property}}" />
+                                            <label for="booledit-{{item.property}}">{{item.propertyType.title}}</label>
+                                        </div>
+                                        <input ng-switch-when="text" type="text" data-ng-model="item.feature.properties[item.property]" class="form-control" />
+                                    </div>
+                                </ng-form>
                             </div>
                         </div>
-                    </div>
-                    <div ng-show="!feature.gui.editMode" class="panel-heading" style="min-height: 36px">
+                        <div ng-show="!feature.gui.editMode" class="panel-heading" style="min-height: 36px">
 
-                        <div data-ng-switch="item.propertyType.type">
-                            <div ng-switch-when="layer">
-                                <a ng-click="vm.openLayer(item)">{{item.propertyType.title}}</a>
-                            </div>
-                            <div ng-switch-default>
-                                <div class="pull-left accordionIcon">
-                                    <a class="fa fa-filter makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
+                            <div data-ng-switch="item.propertyType.type">
+                                <div ng-switch-when="layer">
+                                    <a ng-click="vm.openLayer(item)">{{item.propertyType.title}}</a>
                                 </div>
-                                <div data-ng-show="item.canStyle" class="pull-left accordionIcon style-icon" style="background:{{item.feature.gui['style'][item.property]}}">
-                                    <a class="smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
-                                </div>
-                                <div ng-show="item.isSensor" style="margin-left:8px" class="pull-left accordionIcon">
-                                    <a class="fa fa-area-chart makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" href="#sensor{{item.property}}" style="cursor: pointer"></a>
-                                </div>
-                                <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-left accordionIcon">
-                                    <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.enabled=!item.enabled" style="cursor: pointer"></a>
-                                </div>
-                                <div class="pull-left" style="margin-left: 4px;">
-                                    {{item.key}}
-                                </div>
-                                <div data-ng-switch="item.propertyType.type">
-                                    <div ng-switch-when="date" class="text-right">{{item.feature.properties[item.property] | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</div>
-                                    <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
-                                    <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
-                                    <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
-                                </div>
-
-                                <div id="sensor{{item.property}}" data-ng-if="item.isSensor" class="panel-collapse collapse" style="padding-top: 10px;">
-                                    <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
-                                </div>
-                                <div ng-if="item.enabled">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="rightpanel-label">Titel</div>
-                                            <input type="text" data-ng-model="item.propertyType.title" class=" form-control">
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="rightpanel-label">Property</div>
-                                            <input type="text" data-ng-model="item.propertyType.label" class="form-control">
-                                        </div>
+                                <div ng-switch-default>
+                                    <div class="pull-left accordionIcon">
+                                        <a class="fa fa-filter makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
+                                    </div>
+                                    <div data-ng-show="item.canStyle" class="pull-left accordionIcon style-icon" style="background:{{item.feature.gui['style'][item.property]}}">
+                                        <a class="smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
+                                    </div>
+                                    <div ng-show="item.isSensor" style="margin-left:8px" class="pull-left accordionIcon">
+                                        <a class="fa fa-area-chart makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" href="#sensor{{item.property}}" style="cursor: pointer"></a>
+                                    </div>
+                                    <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-left accordionIcon">
+                                        <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.enabled=!item.enabled" style="cursor: pointer"></a>
+                                    </div>
+                                    <div class="pull-left" style="margin-left: 4px;">
+                                        {{item.key}}
+                                    </div>
+                                    <div data-ng-switch="item.propertyType.type">
+                                        <div ng-switch-when="date" class="text-right">{{item.feature.properties[item.property] | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</div>
+                                        <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
+                                        <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
+                                        <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                     </div>
 
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="rightpanel-label">Beschrijving</div>
-                                            <input type="text" data-ng-model="item.propertyType.description" class="form-control">
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="rightpanel-label">Type</div>
-                                            <select data-ng-model="item.propertyType.type" ng-options="item for item in ['bbcode', 'color', 'date', 'number', 'text']" class="form-control"></select>
-                                        </div>
+                                    <div id="sensor{{item.property}}" data-ng-if="item.isSensor" class="panel-collapse collapse" style="padding-top: 10px;">
+                                        <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
                                     </div>
+                                    <div ng-if="item.enabled">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="rightpanel-label">Titel</div>
+                                                <input type="text" data-ng-model="item.propertyType.title" class=" form-control">
+                                            </div>
 
-                                    <div class="row">
-                                        <div class="col-md-6" style="margin-left: 20px;">
-                                            <div class="checkbox checkbox-primary">
-                                                <input type="checkbox" data-ng-model="propertyType.visibleInCallOut" id="visibleInCallOut-{{propertyType.title}}" />
-                                                <label for="visibleInCallOut-{{item.propertyType.title}}">Zichtbaar</label>
+                                            <div class="col-md-6">
+                                                <div class="rightpanel-label">Property</div>
+                                                <input type="text" data-ng-model="item.propertyType.label" class="form-control">
                                             </div>
                                         </div>
 
-                                        <div class="col-md-4" style="margin-left: 20px;">
-                                            <div class="checkbox checkbox-primary">
-                                                <input type="checkbox" data-ng-model="propertyType.isSearchable" id="isSearchable-{{propertyType.title}}" />
-                                                <label for="isSearchable-{{item.propertyType.title}}">Vindbaar</label>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="rightpanel-label">Beschrijving</div>
+                                                <input type="text" data-ng-model="item.propertyType.description" class="form-control">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="rightpanel-label">Type</div>
+                                                <select data-ng-model="item.propertyType.type" ng-options="item for item in ['bbcode', 'color', 'date', 'number', 'text']" class="form-control"></select>
                                             </div>
                                         </div>
-                                    </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6" style="margin-left: 20px;">
+                                                <div class="checkbox checkbox-primary">
+                                                    <input type="checkbox" data-ng-model="propertyType.visibleInCallOut" id="visibleInCallOut-{{propertyType.title}}" />
+                                                    <label for="visibleInCallOut-{{item.propertyType.title}}">Zichtbaar</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4" style="margin-left: 20px;">
+                                                <div class="checkbox checkbox-primary">
+                                                    <input type="checkbox" data-ng-model="propertyType.isSearchable" id="isSearchable-{{propertyType.title}}" />
+                                                    <label for="isSearchable-{{item.propertyType.title}}">Vindbaar</label>
+                                                </div>
+                                            </div>
+                                        </div>
 
 
 
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <form class="form-inline">
-                                                <div class="rightpanel-label">Sectie</div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <form class="form-inline">
+                                                    <div class="rightpanel-label">Sectie</div>
 
-                                                <input type="text" ng-enter="addSection(item.propertyType.section)" data-ng-model="item.propertyType.section" style="width: 200px;" class="form-control" />
-                                                <div class="btn-group">
-                                                    <button class="btn dropdown-toggle" data-toggle="dropdown">
-                                                        <span class="caret"></span>
-                                                    </button>
-                                                    <!-- <ul class="dropdown-menu">
+                                                    <input type="text" ng-enter="addSection(item.propertyType.section)" data-ng-model="item.propertyType.section" style="width: 200px;" class="form-control" />
+                                                    <div class="btn-group">
+                                                        <button class="btn dropdown-toggle" data-toggle="dropdown">
+                                                            <span class="caret"></span>
+                                                        </button>
+                                                        <!-- <ul class="dropdown-menu">
                                                 <div ng-repeat="section in sections track by $index">
                                                     <div style="cursor: pointer; margin-left: 4px;" data-ng-click="item.propertyType.section=section"><i class="fa fa-angle-right"></i> {{ section }}</div>
                                                 </div>
                                             </ul> -->
-                                                </div>
-                                            </form>
-                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
 
 
 
-                                        <div class="col-md-12" ng-show="item.propertyType.type == 'number'">
-                                            <div class="rightpanel-label">Min/max waarde</div>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <input type="number" data-ng-model="item.propertyType.min" class="form-control" placeholder="Min">
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <input type="number" data-ng-model="item.propertyType.max" class="form-control" placeholder="Max">
+                                            <div class="col-md-12" ng-show="item.propertyType.type == 'number'">
+                                                <div class="rightpanel-label">Min/max waarde</div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <input type="number" data-ng-model="item.propertyType.min" class="form-control" placeholder="Min">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <input type="number" data-ng-model="item.propertyType.max" class="form-control" placeholder="Max">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <button class="btn btn-primary rightpanel-button" type="submit">Opslaan</button>
                                     </div>
 
-                                    <button class="btn btn-primary rightpanel-button" type="submit">Opslaan</button>
                                 </div>
-
                             </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
             <!-- Treat last tab (filter) differently -->
         </div>
