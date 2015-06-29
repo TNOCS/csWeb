@@ -25,35 +25,18 @@
         var s: csComp.Services.IFeatureTypeStyle = {
             nameLabel:   "Name",
             strokeWidth: 1,
-            strokeColor: "#GGFFBB",
+            strokeColor: "#GGBBAA",
             fillOpacity: 0.75,
             opacity:     1,
-            fillColor:   "#GGFFBB",
+            fillColor:   "#FFFF00",
             stroke:      true,
             rotate:      0,
             iconUri:     "cs/images/marker.png",
             iconHeight:  32,
             iconWidth:   32
         };
-        //s.fillColor = 'red';
-        //s.strokeWidth = 1;
-        //s.stroke        = false;
-        // s.nameLabel = "Name";
-        // s.strokeWidth = 1;
-        // s.strokeColor = '#GGFFBB';
-        // s.fillOpacity = 0.75;
-        // s.fillColor = '#GGFFBB';
-        // s.stroke = true;
-        // s.opacity = 1;
-        // s.rotate = 0;
-        // s.iconUri = "cs/images/marker.png";
-        // //s.strokeColor = 'black';
-        // s.iconHeight = 32;
-        // s.iconWidth = 32;
-        //s.cornerRadius = 20;
         return s;
     }
-
 
     /**
      * Export data to the file system.
