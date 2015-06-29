@@ -113,7 +113,15 @@ module csComp.Services {
                             this.convertEsriHeaderToGridParams(result);
                         }
                         var data = this.convertDataToGeoJSON(result, this.gridParams);
-
+                        if (data.fc.features.length > 10000) {
+                            console.warn('Grid is very big! Number of features: ' + data.fc.features.length);
+                        }
+                        if (data.fc.features.length === 0) {
+                            this.service.$messageBusService.notify('Warning', 'Data loaded successfully, but all points are outside the specified range.', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Error);
+                            layer.isLoading = false;
+                            cb(null, null);
+                            return;
+                        }
                         // store raw result in layer
                         layer.data = <any>data.fc;
                         //layer.description = data.desc;
@@ -121,9 +129,12 @@ module csComp.Services {
                         if (layer.data.geometries && !layer.data.features) {
                             layer.data.features = layer.data.geometries;
                         }
+                        var count = 0;
+                        var last  = layer.data.features.length-1;
                         layer.data.features.forEach((f) => {
-                            this.service.initFeature(f, layer);
+                            this.service.initFeature(f, layer, count++ === last);
                         });
+                        //if (this.service..$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
 
                         layer.isLoading = false;
                         cb(null, null);
@@ -311,6 +322,7 @@ Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so
                         features.push(pg);
                     }
                     lon += deltaLon;
+                    if (lon > 180) lon -= 360;
                 });
                 lat += deltaLat;
             });
