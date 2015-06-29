@@ -50,7 +50,9 @@ module csComp.Services {
             var southWest = L.latLng(bounds.southWest[0], bounds.southWest[1]);
             var northEast = L.latLng(bounds.northEast[0], bounds.northEast[1]);
             var lb = L.latLngBounds(southWest, northEast);
-            this.service.$mapService.map.fitBounds(lb);
+            try {
+                this.service.$mapService.map.fitBounds(lb);
+            } catch (e) {}
         }
 
         public getZoom() {
@@ -90,13 +92,14 @@ module csComp.Services {
                                 try {
                                     m.removeLayer(layer.group.markers[feature.id]);
                                     delete layer.group.markers[feature.id];
-                                } catch (error) {
-
-                                }
+                                } catch (error) {}
                             }
                         });
                     } else {
-                        if (this.service.map.map && layer.mapLayer) this.service.map.map.removeLayer(layer.mapLayer);
+                        if (this.service.map.map && layer.mapLayer)
+                            try {
+                                this.service.map.map.removeLayer(layer.mapLayer);
+                            } catch (error) {}
                     }
                     break;
                 default:
@@ -121,7 +124,7 @@ module csComp.Services {
         }
 
         private createBaseLayer(layerObj: BaseLayer) {
-            var options: L.TileLayerOptions = {};
+            var options: L.TileLayerOptions = { noWrap: true };
             options['subtitle'] = layerObj.subtitle;
             options['preview'] = layerObj.preview;
             if (layerObj.subdomains != null) options['subdomains'] = layerObj.subdomains;
