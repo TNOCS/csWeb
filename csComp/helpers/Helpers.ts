@@ -21,23 +21,35 @@
     }
 
     export function getDefaultFeatureStyle(): csComp.Services.IFeatureTypeStyle {
-        var s: csComp.Services.IFeatureTypeStyle = {};
         //TODO: check compatibility for both heatmaps and other features
+        var s: csComp.Services.IFeatureTypeStyle = {
+            nameLabel:   "Name",
+            strokeWidth: 1,
+            strokeColor: "#GGFFBB",
+            fillOpacity: 0.75,
+            opacity:     1,
+            fillColor:   "#GGFFBB",
+            stroke:      true,
+            rotate:      0,
+            iconUri:     "cs/images/marker.png",
+            iconHeight:  32,
+            iconWidth:   32
+        };
         //s.fillColor = 'red';
         //s.strokeWidth = 1;
         //s.stroke        = false;
-        s.nameLabel = "Name";
-        s.strokeWidth = 1;
-        s.strokeColor = '#GGFFBB';
-        s.fillOpacity = 0.75;
-        s.fillColor = '#GGFFBB';
-        s.stroke = true;
-        s.opacity = 1;
-        s.rotate = 0;
-        s.iconUri = "cs/images/marker.png";
-        //s.strokeColor = 'black';
-        s.iconHeight = 32;
-        s.iconWidth = 32;
+        // s.nameLabel = "Name";
+        // s.strokeWidth = 1;
+        // s.strokeColor = '#GGFFBB';
+        // s.fillOpacity = 0.75;
+        // s.fillColor = '#GGFFBB';
+        // s.stroke = true;
+        // s.opacity = 1;
+        // s.rotate = 0;
+        // s.iconUri = "cs/images/marker.png";
+        // //s.strokeColor = 'black';
+        // s.iconHeight = 32;
+        // s.iconWidth = 32;
         //s.cornerRadius = 20;
         return s;
     }
