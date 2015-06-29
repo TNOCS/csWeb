@@ -64,9 +64,11 @@ module DataTable {
             // for its methods to be accessible from view / HTML
             $scope.vm = this;
 
-            $translate('MAP_FEATURES').then(translation => {
-                this.layerOptions[0].title = translation;
-            });
+            if (this.layerOptions && this.layerOptions.length > 0) {
+                $translate('MAP_FEATURES').then(translation => {
+                    this.layerOptions[0].title = translation;
+                });
+            }
 
             this.bindToStorage('vm.numberOfItems', 10);
             this.numberOfItems = $localStorageService.get('vm.numberOfItems');
@@ -251,42 +253,44 @@ module DataTable {
             });
             var props: Array<Array<TableField>> = [];
             var displayValue: string;
-            this.dataset.features.forEach((f: IFeature) => {
-                var row: Array<TableField> = [];
-                meta.forEach((mi) => {
-                    if (mi.label === 'Lat') {
-                        (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[1] : displayValue = '';
-                        text = displayValue;
-                    } else if (mi.label === 'Lon') {
-                        (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[0] : displayValue = '';
-                        text = displayValue;
-                    } else {
-                        var text = f.properties[mi.label];
-                        displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
-                    }
-                    //if (!text)
-                    //    text = ' ';
-                    //else if (!$.isNumeric(text))
-                    //    text = text.replace(/&amp;/g, '&');
-                    //switch (mi.type) {
-                    //    case "bbcode":
-                    //        displayValue = XBBCODE.process({ text: text }).html;
-                    //        break;
-                    //    case "number":
-                    //        if (!$.isNumeric(text)) displayValue ='??';
-                    //        else if (!mi.stringFormat)
-                    //            displayValue = text.toString();
-                    //        else
-                    //            displayValue = String.format(mi.stringFormat, parseFloat(text));
-                    //        break;
-                    //    default:
-                    //        displayValue = text;
-                    //        break;
-                    //}
-                    row.push(new TableField(displayValue, text, mi.type, mi.title));
+            if (this.dataset && this.dataset.features) {
+                this.dataset.features.forEach((f: IFeature) => {
+                    var row: Array<TableField> = [];
+                    meta.forEach((mi) => {
+                        if (mi.label === 'Lat') {
+                            (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[1] : displayValue = '';
+                            text = displayValue;
+                        } else if (mi.label === 'Lon') {
+                            (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[0] : displayValue = '';
+                            text = displayValue;
+                        } else {
+                            var text = f.properties[mi.label];
+                            displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
+                        }
+                        //if (!text)
+                        //    text = ' ';
+                        //else if (!$.isNumeric(text))
+                        //    text = text.replace(/&amp;/g, '&');
+                        //switch (mi.type) {
+                        //    case "bbcode":
+                        //        displayValue = XBBCODE.process({ text: text }).html;
+                        //        break;
+                        //    case "number":
+                        //        if (!$.isNumeric(text)) displayValue ='??';
+                        //        else if (!mi.stringFormat)
+                        //            displayValue = text.toString();
+                        //        else
+                        //            displayValue = String.format(mi.stringFormat, parseFloat(text));
+                        //        break;
+                        //    default:
+                        //        displayValue = text;
+                        //        break;
+                        //}
+                        row.push(new TableField(displayValue, text, mi.type, mi.title));
+                    });
+                    props.push(row);
                 });
-                props.push(row);
-            });
+            }
             return props;
         }
 
