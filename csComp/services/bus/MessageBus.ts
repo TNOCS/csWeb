@@ -171,8 +171,14 @@ module csComp.Services {
         BottomRight,
         BottomLeft,
         TopRight,
-        TopLeft,
-        BarTop
+        TopLeft
+    }
+
+    export enum NotifyType {
+        Normal,
+        Info,
+        Error,
+        Success
     }
 
     export class ServerSubscription {
@@ -278,54 +284,61 @@ module csComp.Services {
          * @title:       the title of the notification
          * @text:        the contents of the notification
          * @location:    the location on the screen where the notification is shown (default bottom right)
+         * @notifyType:  the type of notification
 		 */
-        public notify(title: string, text: string, location = NotifyLocation.BottomRight) {
-            var cssLocation: string,
-                dir1: string,
-                dir2: string
+        public notify(title: string, text: string, location = NotifyLocation.TopRight, notifyType = NotifyType.Normal) {
+            var cssLocation: string;
             var cornerglass: string = 'ui-pnotify-sharp';
-
-
-
+            var myStack : { dir1: string, dir2: string } = { dir1: "", dir2: "" };
             switch (location) {
                 case NotifyLocation.BottomLeft:
                     cssLocation = 'stack-bottomleft';
-                    dir1 = 'up';
-                    dir2 = 'right';
-                    break;
-                case NotifyLocation.TopRight:
-                    cssLocation = 'stack-topright';
-                    dir1 = 'down';
-                    dir2 = 'left';
+                    myStack.dir1 = 'up';
+                    myStack.dir2 = 'right';
                     break;
                 case NotifyLocation.TopLeft:
                     cssLocation = 'stack-topleft';
-                    dir1 = 'down';
-                    dir2 = 'right';
-                    break;
-                case NotifyLocation.BarTop:
-                    cssLocation = 'stack-bartop';
-                    dir1 = 'down';
-                    cornerglass = "";
+                    myStack.dir1 = 'down';
+                    myStack.dir2 = 'right';
                     break;
                 default:
-                    cssLocation = 'stack-bottomright';
-                    dir1 = 'up';
-                    dir2 = 'left';
+                //case NotifyLocation.TopRight:
+                    cssLocation = 'stack-topright';
+                    myStack.dir1 = 'down';
+                    myStack.dir2 = 'left';
                     break;
+                // default:
+                //     cssLocation = 'stack-bar-top';
+                //     myStack.dir1 = 'down';
+                //     myStack.dir2 = 'left';
+                //     break;
             }
 
             var options: pnotifyDefaults = {
                 title: title,
                 text: text,
-                icon: 'fa fa-info',
                 cornerclass: cornerglass,
-                addclass: "stack-bar-top",
-                stack: { "dir1": dir1, "dir2": dir2, "firstpos1": 25, "firstpos2": 25 }
+                addclass: cssLocation,
+                stack: myStack
             };
 
-
-
+            switch (notifyType) {
+                default:
+                    options.icon = 'fa fa-info';
+                    break;
+                case NotifyType.Info:
+                    options.icon = 'fa fa-info-circle';
+                    options.type = 'info';
+                    break;
+                case NotifyType.Error:
+                    options.icon = 'fa fa-exclamation-triangle';
+                    options.type = 'error';
+                    break;
+                case NotifyType.Success:
+                    options.icon = 'fa fa-thumbs-o-up';
+                    options.type = 'success';
+                    break;
+            }
             var pn = new PNotify(options);
         }
 
