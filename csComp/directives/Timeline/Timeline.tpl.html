@@ -1,7 +1,7 @@
 <div style="height:200px;position:absolute;bottom:0;width:100%">
 
-    <div style="position:absolute;bottom:40px;width:50px;right:10px;height:20px;background:red" ng-click="vm.expand()">
-    </div>
+
+
     <div id="timelinecontainer">
         <div id="timeline"></div>
     </div>
@@ -27,4 +27,8 @@
         </div>
     </div>
 
+    <div class="timeline-expand-button" style="position:absolute;bottom:{{vm.expandButtonBottom}}px" ng-click="vm.expandToggle()">
+        <span ng-show="vm.expanded" class="fa fa-arrow-down" />
+        <span ng-hide="vm.expanded" class="fa fa-arrow-up" />
+</div>
 </div>

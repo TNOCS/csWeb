@@ -28,13 +28,14 @@ module Timeline {
         public line2: string;
         public startDate: Date;
         public endDate: Date;
-
+        public expanded: boolean = false;
         public timer: any;
         public isPlaying: boolean;
         public showControl: boolean;
         public isPinned: boolean;
 
         public options: any;
+        public expandButtonBottom = 40;
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -50,7 +51,7 @@ module Timeline {
             this.options = {
                 'width': '100%',
                 "eventMargin": 0,
-                "eventMarginAxis": 65,
+                "eventMarginAxis": (this.expanded) ? 65 : 0,
                 'editable': false,
                 'layout': 'box'
             };
@@ -74,6 +75,15 @@ module Timeline {
                         this.updateFocusTime();
                         break;
                 }
+            });
+
+            this.$messageBusService.subscribe("project", (s: string, data: any) => {
+                setTimeout(() => {
+                    this.updateFocusTime();
+                    this.updateDragging();
+                    this.myTimer();
+                }, 0);
+
             });
 
             //$scope.focusDate = $layerService.project.timeLine.focusDate();
@@ -122,7 +132,10 @@ module Timeline {
             }
         }
 
-        public expand() {
+        public expandToggle() {
+            this.expanded = !this.expanded;
+            this.options.eventMarginAxis = (this.expanded) ? 65 : 0;
+            this.expandButtonBottom = (this.expanded) ? 170 : 40;
             this.$layerService.timeline.setOptions(this.options);
             this.$layerService.timeline.redraw();
             // .config(TimelineServiceProvider => {
@@ -165,9 +178,8 @@ module Timeline {
             if (this.$layerService.project.timeLine.isLive) {
                 var pos = tl.timeToScreen(new Date());
                 $("#focustimeContainer").css('left', pos - 75);
-                this.$scope.$apply();
                 this.updateFocusTime();
-            } else {
+            } else if (this.isPlaying) {
                 tl.move(0.005);
                 this.updateFocusTime();
             }
@@ -196,53 +208,62 @@ module Timeline {
         }
 
         public updateFocusTime() {
+            if (!this.$layerService.project) return;
             //if (!this.$mapService.timelineVisible) return;
-            var tl = this.$scope.timeline;
-            tl.showCustomTime = true;
+            setTimeout(() => {
+                var tl = this.$scope.timeline;
+                tl.showCustomTime = true;
 
-            tl.setCustomTime = typeof this.$layerService.project === 'undefined'
-                ? new Date()
-                : this.$layerService.project.timeLine.focusDate();
-            
-            //var end = $("#timeline").width;
+                tl.setCustomTime = typeof this.$layerService.project === 'undefined'
+                    ? new Date()
+                    : this.$layerService.project.timeLine.focusDate();
 
-            var range = this.$scope.timeline.getVisibleChartRange();
-            //tl.calcConversionFactor();
-            var pos = $("#focustimeContainer").position().left + $("#focustimeContainer").width() / 2;
+                //var end = $("#timeline").width;
 
-            this.focusDate = new Date(this.$scope.timeline.screenToTime(pos + 3));
+                var range = this.$scope.timeline.getVisibleChartRange();
+                //tl.calcConversionFactor();
+                var pos = $("#focustimeContainer").position().left + $("#focustimeContainer").width() / 2;
 
-            this.startDate = range.start; //new Date(range.start); //this.$scope.timeline.screenToTime(0));
-            this.endDate = range.end; //new Date(this.$scope.timeline.screenToTime(end));
-
-            if (this.$layerService.project != null && this.$layerService.project.timeLine != null) {
-                var projecttime = this.$layerService.project.timeLine;
-                projecttime.setFocus(this.focusDate, this.startDate, this.endDate);
-                var month = (<any>this.focusDate).toLocaleString(this.locale, { month: "long" });
-                switch (projecttime.zoomLevelName) {
-                    case "decades":
-                        this.line1 = this.focusDate.getFullYear().toString();
-                        this.line2 = "";
-                        break;
-                    case "years":
-                        this.line1 = this.focusDate.getFullYear().toString();
-                        this.line2 = month;
-                        break;
-                    case "weeks":
-                        this.line1 = this.focusDate.getFullYear().toString();
-                        this.line2 = moment(this.focusDate).format('DD') + " " + month;
-                        break;
-                    case "milliseconds":
-                        this.line1 = moment(this.focusDate).format('MM - DD - YYYY');
-                        this.line2 = moment(this.focusDate).format('HH:mm:ss.SSS');
-                        break;
-                    default:
-                        this.line1 = moment(this.focusDate).format('MM - DD - YYYY');
-                        this.line2 = moment(this.focusDate).format('HH:mm:ss');
+                if (this.$layerService.project.timeLine.isLive) {
+                    this.focusDate = new Date();
                 }
-            }
-            if (this.$scope.$$phase != '$apply' && this.$scope.$$phase != '$digest') { this.$scope.$apply(); }
-            this.$messageBusService.publish("timeline", "focusChange", this.focusDate);
+                else {
+                    this.focusDate = new Date(this.$scope.timeline.screenToTime(pos + 3));
+                }
+
+                this.startDate = range.start; //new Date(range.start); //this.$scope.timeline.screenToTime(0));
+                this.endDate = range.end; //new Date(this.$scope.timeline.screenToTime(end));
+
+                if (this.$layerService.project != null && this.$layerService.project.timeLine != null) {
+                    var projecttime = this.$layerService.project.timeLine;
+                    projecttime.setFocus(this.focusDate, this.startDate, this.endDate);
+                    var month = (<any>this.focusDate).toLocaleString(this.locale, { month: "long" });
+
+                    switch (projecttime.zoomLevelName) {
+                        case "decades":
+                            this.line1 = this.focusDate.getFullYear().toString();
+                            this.line2 = "";
+                            break;
+                        case "years":
+                            this.line1 = this.focusDate.getFullYear().toString();
+                            this.line2 = month;
+                            break;
+                        case "weeks":
+                            this.line1 = this.focusDate.getFullYear().toString();
+                            this.line2 = moment(this.focusDate).format('DD') + " " + month;
+                            break;
+                        case "milliseconds":
+                            this.line1 = moment(this.focusDate).format('MM - DD - YYYY');
+                            this.line2 = moment(this.focusDate).format('HH:mm:ss.SSS');
+                            break;
+                        default:
+                            this.line1 = moment(this.focusDate).format('MM - DD - YYYY');
+                            this.line2 = moment(this.focusDate).format('HH:mm:ss');
+                    }
+                }
+                if (this.$scope.$$phase != '$apply' && this.$scope.$$phase != '$digest') { this.$scope.$apply(); }
+                this.$messageBusService.publish("timeline", "focusChange", this.focusDate);
+            }, 0);
             //this.$layerService.focusTime = new Date(this.timelineCtrl.screenToTime(centerX));
         }
 
