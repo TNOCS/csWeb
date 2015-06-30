@@ -1,5 +1,5 @@
 angular.module('projectMock', [])
-  .value('defaultProject', [{
+  .value('defaultProject', {
     "title": "csWeb Showcases",
     "description": "csMap is developed by the Dutch Research Organisation TNO, in first instance for the Dutch Ministry of Health (VWS).",
     "url": "https://github.com/TNOCS/csMap",
@@ -30,7 +30,6 @@ angular.module('projectMock', [])
       "showTimeline": true,
       "showLeftmenu": true,
       "showMap": true
-
     }, {
       "id": "datatable",
       "name": "Table",
@@ -44,7 +43,17 @@ angular.module('projectMock', [])
         "height": "100%"
       }]
     }, {
-
+      "name": "Test",
+      "showTimeline": false,
+      "showLeftmenu": false,
+      "showMap": false,
+      "widgets": [{
+        "directive": "datatable",
+        "borderwidth": "0px",
+        "width": "100%",
+        "height": "100%"
+       }]
+    }, {
       "id": "flight",
       "name": "Flights",
       "showTimeline": true,
@@ -502,4 +511,4 @@ angular.module('projectMock', [])
       }]
     }]
   }
-]);
+);

@@ -2,20 +2,29 @@ describe('csComp.Services.LayerService', function() {
 
     // load the module
     beforeEach(module('csComp'));
+    beforeEach(module('solutionMock'));
+    beforeEach(module('projectMock'));
+    beforeEach(module('mockedDataSource'));
 
     beforeEach(module(function($provide) {
         $provide.value('$translate', jasmine.createSpyObj('translateSpy', ['preferredLanguage']));
         $provide.value('localStorageService', jasmine.createSpyObj('localStorageServiceSpy', ['get']));
         $provide.value('$mapService', jasmine.createSpyObj('mapServiceSpy', ['get']));
-        $provide.value('messageBusService', jasmine.createSpyObj('messageBusServiceSpy', ['subscribe', 'publish']));
+        $provide.value('messageBusService', jasmine.createSpyObj('messageBusServiceSpy', ['subscribe', 'publish', 'initConnection', 'serverSubscribe']));
     }));
 
+    var mockSolution, mockProject, mockDatasource;
     var layerService: csComp.Services.LayerService;
+    var mapService: csComp.Services.MapService;
     var scope, translate, msgBusService;
-    beforeEach(inject(function(_layerService_, $translate, localStorageService, $mapService, messageBusService) {
+    beforeEach(inject(function(_layerService_, $translate, localStorageService, $mapService, messageBusService, defaultSolution, defaultProject, defaultJSON) {
         layerService = _layerService_;
         translate = $translate;
         msgBusService = messageBusService;
+        mockSolution = defaultSolution;
+        mockProject = defaultProject;
+        mapService = $mapService;
+        mockDatasource = defaultJSON;
     }));
 
     describe('Initial state', () => {
@@ -108,6 +117,50 @@ describe('csComp.Services.LayerService', function() {
     });
 
 
+    describe('Open solution', () => {
+        describe('Open solution', () => {
+            it('should load projects.json',()=>{
+                spyOn($, 'getJSON');
+                layerService.openSolution('projects.json');
+                expect($.getJSON).toHaveBeenCalledWith('projects.json', jasmine.any(Function));
+            });
+
+            it('should parse projects.json correctly',()=>{
+                layerService.$mapService = mapService;
+                mapService.map = <L.Map>{};
+                mapService.map.setMaxBounds = function (a:any, b:any) {return new L.Map('mapId', {maxBounds: mockSolution.maxBounds})};
+                mapService.baseLayers = {};
+                spyOn(mapService.map, 'setMaxBounds');
+
+                var jsonSpy = spyOn($, 'getJSON');
+                layerService.openSolution('projects.json');
+                expect($.getJSON).toHaveBeenCalledWith('projects.json', jasmine.any(Function));
+                jsonSpy.calls.mostRecent().args[1](mockSolution); //call callback with mocked json
+
+                expect(layerService.loadedLayers).toEqual(new csComp.Helpers.Dictionary<csComp.Services.ProjectLayer>());
+                expect(layerService.maxBounds).toEqual(mockSolution.maxBounds);
+                expect(mapService.baseLayers.hasOwnProperty(mockSolution.baselayers[0].title)).toBeTruthy();
+
+                //Next, the project defined in the solution should be opened
+                layerService.map = mapService;
+                mapService.map = <L.Map>{};
+                mapService.map.addLayer = function (a:any) {return <L.Map>{}};
+
+                expect($.getJSON).toHaveBeenCalledWith(mockSolution.projects[0].url, jasmine.any(Function));
+                jsonSpy.calls.mostRecent().args[1](mockProject); //call callback with mocked json
+                expect(layerService.project.dashboards.length).toEqual(4);
+
+                //Next, the datasources defined in the project should be opened
+                expect($.getJSON).toHaveBeenCalledWith(mockProject.datasources[0].url, jasmine.any(Function));
+                jsonSpy.calls.mostRecent().args[1](mockDatasource); //call callback with mocked json
+                expect(layerService.project.datasources.length).toEqual(1);
+
+                var ds;
+                layerService.findSensorSet('datasource/test', (cb) => {ds = cb;} );
+                expect(ds.id).toEqual('test');
+            });
+        });
+    });
 
     describe('Remove layer', () => {
         xit('Should remove layer',()=>{
