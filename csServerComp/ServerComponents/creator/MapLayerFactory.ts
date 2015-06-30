@@ -34,7 +34,7 @@ export interface ILayerDefinition {
     opacity: number,
     nameLabel: string,
     includeOriginalProperties: boolean,
-    defaultFeatureType:        string
+    defaultFeatureType: string
 }
 
 export interface IProperty {
@@ -169,6 +169,8 @@ export class MapLayerFactory {
         }
         // Convert dates (from a readable key to a JavaScript Date string notation)
         this.convertDateProperties(template.propertyTypes, template.properties);
+        // Convert types (from a readable key to type notation)
+        this.convertTypes(template.propertyTypes, template.properties);
         // Add geometry
         switch (ld.geometryType) {
             case "Postcode6_en_huisnummer":
@@ -306,7 +308,7 @@ export class MapLayerFactory {
         var templateFile = fs.readFileSync(templateUrl);
         var templateJson = JSON.parse(templateFile.toString());
 
-        if (inclTemplProps) {
+        if (inclTemplProps && templateJson.featureTypes && templateJson.featureTypes.hasOwnProperty("Default")) {
             templateJson.featureTypes["Default"].propertyTypeData.forEach((ft) => {
                 if (!properties[0].hasOwnProperty(ft.label) && ft.label !== "Name") { //Do not overwrite input data, only add new items
                     propertyTypes.push(ft);
@@ -391,7 +393,7 @@ export class MapLayerFactory {
                 todo--;
                 if (!locations || locations.length === 0) {
                     console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
-                    this.featuresNotFound[`${zip}${nmb}`] = {zip: `${zip}`, number: `${nmb}`};
+                    this.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
                 } else {
                     for (var key in locations[0]) {
                         if (key !== "lon" && key !== "lat") {
@@ -474,6 +476,25 @@ export class MapLayerFactory {
                         p[name] = d.toString();
                     }
                 });
+            }
+        });
+    }
+
+    private convertTypes(propertyTypes: IPropertyType[], properties: IProperty[]) {
+        if (!propertyTypes || !properties) return;
+        propertyTypes.forEach((pt) => {
+            if (pt.hasOwnProperty("type") && pt["type"] === "url") {
+                var name = pt["title"]; //Store name of the property with type "date"
+                properties.forEach((p) => {
+                    if (p.hasOwnProperty(name)) {
+                        if (p[name].substring(0,3) === "www") {
+                            p[name] = '<a href="http://' + p[name] + '" target="_blank">' + p[name] + '</a>';
+                        } else {
+                            p[name] = '<a href="' + p[name] + '" target="_blank">' + p[name] + '</a>';
+                        }
+                    }
+                });
+                pt["type"] = "bbcode";
             }
         });
     }
