@@ -71,6 +71,7 @@ module Timeline {
                 templateUrl: 'directives/Timeline/Timeline.tpl.html',
                 replace: true, // Remove the directive from the DOM
                 transclude: true, // Add elements and attributes to the template
+                
                 controller: TimelineCtrl
             }
         }

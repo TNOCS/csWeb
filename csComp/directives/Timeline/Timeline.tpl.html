@@ -1,22 +1,30 @@
-﻿<div>
+<div style="height:200px;position:absolute;bottom:0;width:100%">
+
+    <div style="position:absolute;bottom:40px;width:50px;right:10px;height:20px;background:red" ng-click="vm.expand()">
+    </div>
     <div id="timelinecontainer">
         <div id="timeline"></div>
     </div>
 
-    <div class="callout top" ng-show="vm.$mapService.timelineVisible" id="focustimeContainer" ng-class="{showControl : vm.showControl}" ng-mouseenter="vm.mouseEnter()" ng-mouseleave="vm.mouseLeave()">
-        <div ng-show="vm.showControl" class="timelineControl" ng-class="{isPlaying : vm.isPlaying}">
-            <span ng-hide="vm.$layerService.project.timeLine.isLive" class="focustimeButton">
+
+    <div class="callout top" ng-show="vm.$mapService.timelineVisible" id="focustimeContainer">
+        <div class="timelineControl" ng-class="{isPlaying : vm.isPlaying}">
+            <span class="focustimeButton" ng-hide="vm.$layerService.project.timeLine.isLive">
                 <div ng-hide="vm.isPlaying" class="fa fa-play focustimeButton" ng-click="vm.start()"></div>
                 <div ng-show="vm.isPlaying" class="fa fa-stop focustimeButton" ng-click="vm.stop()"></div>
             </span>
             <div style="float: right">{{vm.$layerService.project.timeLine.levelName}}</div>
-            <div ng-click="vm.toggleLive()" class="islivebutton" ng-show="vm.$layerService.project.timeLine.isLive" style="float: right">live</div>
-            <div ng-click="vm.toggleLive()" class="livebutton" ng-hide="vm.$layerService.project.timeLine.isLive" style="float: right">go live</div>
+            <div  class="timelineFocusState" style="float: right">
+                <div ng-click="vm.toggleLive()" class="islivebutton" ng-show="vm.$layerService.project.timeLine.isLive">live</div>
+                <div ng-click="vm.toggleLive()" class="livebutton" ng-hide="vm.$layerService.project.timeLine.isLive">go live</div>
+            </div>
             <!--<div ng-hide="vm.isPinned" class="fa fa-thumb-tack focustimeButton pinButton" ng-class="{isPinned : vm.isPinned}" ng-click="vm.pinToNow()"></div>-->
         </div>
-        <div class="focustimeText" ng-show="vm.showControl">
-            <span style="font-weight: bold">{{vm.line1}}</span><br />
+        <div class="focustimeText">
+            <span style="font-weight: bold">{{vm.line1}}</span>
+            <br />
             <span>{{vm.line2}}</span>
         </div>
     </div>
+
 </div>

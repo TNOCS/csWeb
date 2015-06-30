@@ -11,6 +11,7 @@ module csComp.Services {
         id?: string;
         geometry: IGeoJsonGeometry;
         properties?: IStringToAny;
+
         isInitialized?: boolean;
         /**
         * An optional dictionary of sensors, where each sensor or measurement represents the value of the sensor

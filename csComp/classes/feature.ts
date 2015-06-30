@@ -30,6 +30,7 @@ module csComp.Services {
         type?: string;
         geometry: IGeoJsonGeometry;
         properties?: IProperty;
+        propertiesOld?: IProperty;
         isSelected?: boolean;
         htmlStyle?: string;
         featureTypeName?: string;
@@ -60,6 +61,7 @@ module csComp.Services {
         type: string;
         geometry: IGeoJsonGeometry;
         properties: IProperty;
+        propertiesOld: IProperty;
         isSelected: boolean;
         htmlStyle: string;
         featureTypeName: string;
@@ -79,6 +81,7 @@ module csComp.Services {
             res.id = f.id;
             res.geometry = f.geometry;
             res.properties = f.properties;
+            res.logs = f.logs;
             if (f.timestamps) res.timestamps = f.timestamps;
             if (f.sensors) res.sensors = f.sensors;
             return res;

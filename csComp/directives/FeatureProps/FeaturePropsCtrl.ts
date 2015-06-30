@@ -298,12 +298,8 @@ module FeatureProps {
             }
 
             $scope.autocollapse = function(initializeTabPosition = false) {
-                //                console.log('autocollapse');
-                var tabs = $('#featureTabs');
 
-                //                console.log('#ft.ow(): ' + tabs.outerWidth());
-                //                console.log('wol: ' + widthOfList());
-                //                console.log('ml: ' + tabs.css('margin-left'));
+                var tabs = $('#featureTabs');
 
                 if (tabs.outerWidth() < widthOfList() || parseFloat(tabs.css('margin-left')) < 0) {
                     $('#leftArr').show();

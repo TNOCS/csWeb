@@ -2,9 +2,9 @@ module Timeline {
     declare var links;
 
     export interface ITimelineScope extends ng.IScope {
-        vm            : TimelineCtrl;
-        numberOfItems : number;
-        timeline      : any;
+        vm: TimelineCtrl;
+        numberOfItems: number;
+        timeline: any;
     }
 
     export class TimelineCtrl {
@@ -24,26 +24,36 @@ module Timeline {
         ];
 
         public focusDate: Date;
-        public line1    : string;
-        public line2    : string;
+        public line1: string;
+        public line2: string;
         public startDate: Date;
-        public endDate  : Date;
+        public endDate: Date;
 
-        public timer       : any;
-        public isPlaying   : boolean;
-        public showControl : boolean;
-        public isPinned    : boolean;
+        public timer: any;
+        public isPlaying: boolean;
+        public showControl: boolean;
+        public isPinned: boolean;
+
+        public options: any;
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope             : ITimelineScope,
-            private $layerService      : csComp.Services.LayerService,
-            private $mapService        : csComp.Services.MapService,
-            private $messageBusService : csComp.Services.MessageBusService,
-            private TimelineService    : Timeline.ITimelineService
+            private $scope: ITimelineScope,
+            private $layerService: csComp.Services.LayerService,
+            private $mapService: csComp.Services.MapService,
+            private $messageBusService: csComp.Services.MessageBusService,
+            private TimelineService: Timeline.ITimelineService
             ) {
             this.loadLocales();
+
+            this.options = {
+                'width': '100%',
+                "eventMargin": 0,
+                "eventMarginAxis": 65,
+                'editable': false,
+                'layout': 'box'
+            };
 
             $scope.vm = this;
 
@@ -112,6 +122,19 @@ module Timeline {
             }
         }
 
+        public expand() {
+            this.$layerService.timeline.setOptions(this.options);
+            this.$layerService.timeline.redraw();
+            // .config(TimelineServiceProvider => {
+            // TimelineServiceProvider.setTimelineOptions({
+            //     'width': '100%',
+            //     "eventMargin": 0,
+            //     "eventMarginAxis": 0,
+            //     'editable': false,
+            //     'layout': 'box'
+            // });
+        }
+
 
         public onRangeChanged(properties) {
             this.updateFocusTime();
@@ -128,6 +151,7 @@ module Timeline {
             if (!this.$layerService.project) return;
             this.stop();
             this.$layerService.project.timeLine.isLive = !this.$layerService.project.timeLine.isLive;
+            this.isPlaying = false;
             if (this.$layerService.project.timeLine.isLive) {
                 this.myTimer();
                 this.start();
@@ -175,18 +199,18 @@ module Timeline {
             //if (!this.$mapService.timelineVisible) return;
             var tl = this.$scope.timeline;
             tl.showCustomTime = true;
+
             tl.setCustomTime = typeof this.$layerService.project === 'undefined'
                 ? new Date()
                 : this.$layerService.project.timeLine.focusDate();
-            var tc1 = $("#focustimeContainer").offset().left;
-            var tc2 = $("#timelinecontainer").offset().left - 15; // + 55;
-            var centerX = tc1 - tc2 + $("#focustimeContainer").width() / 2;
+            
             //var end = $("#timeline").width;
 
             var range = this.$scope.timeline.getVisibleChartRange();
             //tl.calcConversionFactor();
+            var pos = $("#focustimeContainer").position().left + $("#focustimeContainer").width() / 2;
 
-            this.focusDate = new Date(this.$scope.timeline.screenToTime(centerX));
+            this.focusDate = new Date(this.$scope.timeline.screenToTime(pos + 3));
 
             this.startDate = range.start; //new Date(range.start); //this.$scope.timeline.screenToTime(0));
             this.endDate = range.end; //new Date(this.$scope.timeline.screenToTime(end));
@@ -204,9 +228,9 @@ module Timeline {
                         this.line1 = this.focusDate.getFullYear().toString();
                         this.line2 = month;
                         break;
-                    case "weeks" :
+                    case "weeks":
                         this.line1 = this.focusDate.getFullYear().toString();
-                        this.line2 = moment(this.focusDate).format('DD')+ " " + month;
+                        this.line2 = moment(this.focusDate).format('DD') + " " + month;
                         break;
                     case "milliseconds":
                         this.line1 = moment(this.focusDate).format('MM - DD - YYYY');
@@ -217,7 +241,7 @@ module Timeline {
                         this.line2 = moment(this.focusDate).format('HH:mm:ss');
                 }
             }
-            //if (this.$scope.$$phase != '$apply' && this.$scope.$$phase != '$digest') { this.$scope.$apply(); }
+            if (this.$scope.$$phase != '$apply' && this.$scope.$$phase != '$digest') { this.$scope.$apply(); }
             this.$messageBusService.publish("timeline", "focusChange", this.focusDate);
             //this.$layerService.focusTime = new Date(this.timelineCtrl.screenToTime(centerX));
         }

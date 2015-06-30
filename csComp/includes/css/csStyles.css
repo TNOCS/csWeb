@@ -47,6 +47,11 @@ html, body, #container {
   height:100%;
 }
 
+/* timeline */
+.focustimeContainer {
+    bottom: 45px;
+}
+
 
 /* right panel */
 .rightpanel-hidetab{
@@ -950,7 +955,9 @@ height:50px;
 .pinButton {
     color: red;
 }
-.livebutton {
+
+.timelineFocusState
+{
     display: inline-block;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -958,6 +965,10 @@ height:50px;
     padding: 4px;
     margin-right: 0;
     border: none;
+}
+
+.livebutton {
+
     /*font: 16px;*/
 
     color: rgba(255, 255, 255, 1);
@@ -968,7 +979,7 @@ height:50px;
     text-overflow: clip;
     white-space: pre;
     cursor: pointer;
-    transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+    /*transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);*/
 }
 @keyframes flickerAnimation {
     0% {
@@ -1015,14 +1026,7 @@ height:50px;
     }
 }
 .islivebutton {
-    display: inline-block;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    padding: 4px;
-    margin-right: 0;
-    border: none;
-    /*font: 16px;*/
+
 
     color: rgba(255, 255, 255, 1);
     /*text-decoration: normal;*/
@@ -1033,13 +1037,13 @@ height:50px;
     white-space: pre;
     cursor: pointer;
     text-shadow: 0 0 2.5px rgba(255, 255, 255, 1), 0 0 5px rgba(255, 255, 255, 1), 0 0 7.5px rgba(255, 255, 255, 1), 0 0 10px #ff0000, 0 0 15px #ff0000, 0 0 20px #ff0000, 0 0 25px #ff0000;
-    -webkit-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+    /*-webkit-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
     -moz-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
-    -o-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
-    -webkit-animation: flickerAnimation 1s infinite;
+    -o-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);*/
+    /*-webkit-animation: flickerAnimation 1s infinite;
     -moz-animation: flickerAnimation 1s infinite;
     -o-animation: flickerAnimation 1s infinite;
-    animation: flickerAnimation 1s infinite;
+    animation: flickerAnimation 1s infinite;*/
 }
 /* END TIMELINE STYLE */
 /* START USER EXPERIENCE STYLE */

@@ -648,6 +648,8 @@ module csComp.Services {
             if (!feature.isInitialized) {
                 feature.isInitialized = true;
                 feature.gui = {};
+
+                if (!feature.logs) feature.logs = [];
                 if (feature.properties == null) feature.properties = {};
                 feature.index = layer.count++;
                 // make sure it has an id
@@ -673,6 +675,7 @@ module csComp.Services {
                     Helpers.setFeatureName(feature);
 
                 this.calculateFeatureStyle(feature);
+                feature.propertiesOld = feature.properties;
                 if (applyDigest && this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             }
             return feature.type;
@@ -1749,15 +1752,41 @@ module csComp.Services {
                 $('#filtergroupcount_' + group.id).text(group.filterResult.length + ' objecten geselecteerd');
         }
 
+        private trackProperty(f: IFeature, key: string) {
+            var log = <Log>{
+                ts: new Date().getTime(), prop: key, value: f.properties[key]
+            };
+            f.propertiesOld[key] = f.properties[key];
+            f.logs.push(log);
+            console.log(log);
+        }
+
+        private trackFeature(f: IFeature) {
+
+            for (var key in f.properties) {
+                if (!f.propertiesOld.hasOwnProperty(key)) {
+                    this.trackProperty(f, key);
+                }
+                else if (JSON.stringify(f.propertiesOld[key]) != JSON.stringify(f.properties[key])) {
+                    this.trackProperty(f, key);
+                }
+            }
+        }
+
         public saveFeature(f: IFeature) {
             console.log('saving feature');
+
+
             // check if feature is in dynamic layer
             if (f.layer.type.toLowerCase() === "dynamicgeojson") {
+                this.trackFeature(f);
                 var s = new LayerMessage();
                 s.layerId = f.layerId;
                 s.action = "featureUpdate";
                 s.object = Feature.serialize(f);
                 this.$messageBusService.serverPublish("layer", s);
+
+
             }
         }
 
