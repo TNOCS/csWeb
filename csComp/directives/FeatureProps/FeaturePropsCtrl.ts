@@ -330,6 +330,7 @@ module FeatureProps {
         }
 
         public saveFeature() {
+            this.$layerService.unlockFeature(this.$scope.feature);
             this.$layerService.saveFeature(this.$scope.feature);
 
         }

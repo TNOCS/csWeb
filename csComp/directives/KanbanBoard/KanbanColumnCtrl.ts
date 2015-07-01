@@ -104,16 +104,20 @@ module KanbanColumn {
         }
 
         public createForm(feature: csComp.Services.IFeature) {
-            feature.gui["questions"] = [];
-            feature.properties[this.column.fields['question']].forEach((s: string) => {
-                feature.gui["questions"].push(s);
-            });
+            if (this.$layerService.lockFeature(feature)) {
+                feature.gui["questions"] = [];
+                feature.properties[this.column.fields['question']].forEach((s: string) => {
+                    feature.gui["questions"].push(s);
+                });
+            }
         }
 
         public sendForm(feature: csComp.Services.IFeature) {
             feature.properties["answered"] = true;
             delete feature.gui["questions"];
+            this.$layerService.unlockFeature(feature);
             this.$layerService.saveFeature(feature, true);
+
         }
 
         public updateTime() {

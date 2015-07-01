@@ -187,8 +187,6 @@ module csComp.Services {
                         if (msg.data != null) {
                             try {
                                 msg.data.forEach((data: any) => {
-
-
                                     // find feature
                                     var fId = data.featureId;
                                     var logs: { [key: string]: Log[] } = data.logs;
