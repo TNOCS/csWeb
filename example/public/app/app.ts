@@ -81,15 +81,11 @@ module App {
                     console.log("Loading");
                     break;
                 case "activated":
-                    this.$scope.layersLoading -= 1;
+                    if (this.$scope.layersLoading >= 1) this.$scope.layersLoading -= 1;
                     console.log("Activated");
                     break;
                 case "error":
-                    this.$scope.layersLoading -= 1;
-                    console.log("Error loading");
-                    break;
-                case "error":
-                    this.$scope.layersLoading -= 1;
+                    this.$scope.layersLoading = 0;
                     console.log("Error loading");
                     break;
                 case "deactivate":

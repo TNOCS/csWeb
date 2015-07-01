@@ -44,6 +44,8 @@ module csComp.Services {
         refreshBBOX?: boolean;
         /** if this is a feed, the layer features can be shown on timeline and  */
         isDynamic?: boolean;
+        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
+        dynamicResource?: boolean;
 
         layerSource: ILayerSource;
         /**
@@ -134,6 +136,8 @@ module csComp.Services {
         useProxy: boolean;
         /** if true, use the current bounding box to retreive data from the server */
         refreshBBOX: boolean;
+        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
+        dynamicResource: boolean;
         /** The current bounding box to retreive data from the server */
         BBOX: string;
         layerSource: ILayerSource;
