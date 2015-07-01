@@ -128,7 +128,6 @@ module FeatureProps {
                 }
 
                 propertyTypes.forEach((mi: IPropertyType) => {
-
                     if (feature.properties.hasOwnProperty(mi.label) && mi.visibleInCallOut) {
                         var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                         callOutSection.propertyTypes[mi.label] = mi;
