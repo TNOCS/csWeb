@@ -1,13 +1,13 @@
-<div style="height:200px;position:absolute;bottom:0;width:100%">
+<div style="height:200px;position:absolute;bottom:0;width:100%;pointer-events:none">
 
 
 
-    <div id="timelinecontainer">
+    <div id="timelinecontainer" style="pointer-events:auto">
         <div id="timeline"></div>
     </div>
 
 
-    <div class="callout top" ng-show="vm.$mapService.timelineVisible" id="focustimeContainer">
+    <div class="callout top" ng-show="vm.$mapService.timelineVisible" id="focustimeContainer"  style="pointer-events:auto">
         <div class="timelineControl" ng-class="{isPlaying : vm.isPlaying}">
             <span class="focustimeButton" ng-hide="vm.$layerService.project.timeLine.isLive">
                 <div ng-hide="vm.isPlaying" class="fa fa-play focustimeButton" ng-click="vm.start()"></div>
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <div class="timeline-expand-button" style="position:absolute;bottom:{{vm.expandButtonBottom}}px" ng-click="vm.expandToggle()">
+    <div class="timeline-expand-button" style="position:absolute;bottom:{{vm.expandButtonBottom}}px" ng-click="vm.expandToggle()"  style="pointer-events:auto">
         <span ng-show="vm.expanded" class="fa fa-arrow-down" />
         <span ng-hide="vm.expanded" class="fa fa-arrow-up" />
 </div>
