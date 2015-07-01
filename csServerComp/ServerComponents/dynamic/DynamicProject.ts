@@ -183,6 +183,7 @@ export class DynamicProject {
         layer.description = parameters.description;
         layer.title = parameters.layerTitle;//pp.name.split('_').join(' ');
         layer.type = "geojson";
+        layer.dynamicResource = true;
         layer.url = "data/projects/" + this.id + "/" + g.title + "/" + p.basename(file);
         layer.groupId = g.id;
         layer.enabled = parameters.enabled;

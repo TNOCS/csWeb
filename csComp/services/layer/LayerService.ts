@@ -302,7 +302,7 @@ module csComp.Services {
                 },
                 (callback) => {
                     console.log('loading types : ' + layer.typeUrl);
-                    if (layer.typeUrl) { this.loadTypeResources(layer.typeUrl, () => callback(null, null)); } else { callback(null, null); }
+                    if (layer.typeUrl) { this.loadTypeResources(layer.typeUrl, layer.dynamicResource || false, () => callback(null, null)); } else { callback(null, null); }
                 },
                 (callback) => {
                     // load required feature layers, if applicable
@@ -340,11 +340,11 @@ module csComp.Services {
         }
 
         /** load external type resource for a project or layer */
-        public loadTypeResources(url: any, callback: Function) {
+        public loadTypeResources(url: any, requestReload: boolean, callback: Function) {
             if (url) {
                 // todo check for list of type resources
                 if (typeof url === 'string') {
-                    if (!this.typesResources.hasOwnProperty(url)) {
+                    if (!this.typesResources.hasOwnProperty(url) || requestReload) {
                         var success = false;
                         $.getJSON(url, (resource: TypeResource) => {
                             success = true;
@@ -1401,7 +1401,7 @@ module csComp.Services {
                     (callback) => {
                         if (this.project.typeUrls && this.project.typeUrls.length > 0) {
                             async.eachSeries(this.project.typeUrls, (item, cb) => {
-                                this.loadTypeResources(item, () => cb(null, null));
+                                this.loadTypeResources(item, false, () => cb(null, null));
 
                             }, () => {
                                     callback(null, null);
