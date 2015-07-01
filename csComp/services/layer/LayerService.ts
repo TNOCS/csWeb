@@ -117,6 +117,7 @@ module csComp.Services {
                 switch (trigger) {
                     case 'focusChange':
                         this.updateSensorData();
+                        this.updateAllLogs();
                         break;
                 }
             });
@@ -319,6 +320,7 @@ module csComp.Services {
                             l.enabled = true;
                             this.loadedLayers[layer.id] = l;
                             this.updateSensorData();
+                            this.updateAllLogs();
                             this.activeMapRenderer.addLayer(layer);
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
@@ -551,6 +553,64 @@ module csComp.Services {
             }
         }
 
+        public updateAllLogs() {
+            if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
+            this.project.features.forEach((f: IFeature) => {
+                if (f.layer.layerSource.title.toLowerCase() === "dynamicgeojson") {
+                    //if (f.gui.hasOwnProperty("lastUpdate") && this.project.timeLine.focusDate < f.gui["lastUpdate"])
+                    this.updateLog(f);
+                }
+            });
+        }
+
+        private lookupLog(logs: Log[], timestamp: number): Log {
+            if (!logs || logs.length == 0) return <Log>{};
+
+            if (timestamp <= logs[0].ts) return logs[0];
+            if (timestamp >= logs[logs.length - 1].ts) return logs[logs.length - 1];
+            var res = <Log>{};
+            for (var i = 0; i < logs.length; i++) {
+                if (logs[i].ts > timestamp) {
+                    res = logs[i];
+                    break;
+                }
+            }
+
+            return res;
+        }
+
+        public updateLog(f: IFeature) {
+
+            var date = this.project.timeLine.focus;
+            var changed = false;
+            if (f.logs) {
+                // find all keys
+                for (var key in f.logs) {
+                    // lookup value
+                    var l = this.lookupLog(f.logs[key], date);
+                    if (!f.properties.hasOwnProperty(key)) {
+                        f.properties[key] = l.value;
+                        changed = true;
+                    }
+                    else {
+                        if (f.properties[key] != l.value) {
+                            f.properties[key] = l.value;
+                            changed = true;
+                        }
+                    }
+
+
+
+                }
+
+                if (changed) {
+                    this.calculateFeatureStyle(f);
+                    this.activeMapRenderer.updateFeature(f);
+                }
+            }
+        }
+
+
         /** update for all features the active sensor data values and update styles */
         public updateSensorData() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
@@ -564,7 +624,7 @@ module csComp.Services {
                         var sensor = <SensorSet>ds.sensors[sensorTitle];
                         if (sensor.timestamps) {
                             for (var i = 1; i < sensor.timestamps.length; i++) {
-                                if (sensor.timestamps[i] > date) {
+                                if (sensor.timestamps[i] < date) {
                                     sensor.activeValue = sensor.values[i];
                                     console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
                                     break;
@@ -576,7 +636,7 @@ module csComp.Services {
             };
 
             this.project.features.forEach((f: IFeature) => {
-                var l = this.findLayer(f.layerId);
+                var l = f.layer;
 
                 if (l != null) {
                     if (f.sensors || f.coordinates) {
@@ -649,7 +709,7 @@ module csComp.Services {
                 feature.isInitialized = true;
                 feature.gui = {};
 
-                if (!feature.logs) feature.logs = [];
+                if (!feature.logs) feature.logs = {};
                 if (feature.properties == null) feature.properties = {};
                 feature.index = layer.count++;
                 // make sure it has an id
@@ -675,7 +735,10 @@ module csComp.Services {
                     Helpers.setFeatureName(feature);
 
                 this.calculateFeatureStyle(feature);
-                feature.propertiesOld = feature.properties;
+                feature.propertiesOld = {};
+                this.trackFeature(feature);
+
+
                 if (applyDigest && this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             }
             return feature.type;
@@ -1757,12 +1820,12 @@ module csComp.Services {
                 ts: new Date().getTime(), prop: key, value: f.properties[key]
             };
             f.propertiesOld[key] = f.properties[key];
-            f.logs.push(log);
-            console.log(log);
+            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+            f.logs[key].push(log);
+            f.gui["lastUpdate"] = log.ts;
         }
 
         private trackFeature(f: IFeature) {
-
             for (var key in f.properties) {
                 if (!f.propertiesOld.hasOwnProperty(key)) {
                     this.trackProperty(f, key);
@@ -1771,12 +1834,11 @@ module csComp.Services {
                     this.trackProperty(f, key);
                 }
             }
+
         }
 
         public saveFeature(f: IFeature) {
             console.log('saving feature');
-
-
             // check if feature is in dynamic layer
             if (f.layer.type.toLowerCase() === "dynamicgeojson") {
                 this.trackFeature(f);

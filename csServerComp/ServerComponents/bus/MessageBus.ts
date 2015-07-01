@@ -6,7 +6,7 @@ import ClientConnection = require("ServerComponents/dynamic/ClientConnection");
  * so you can supply a single data argument of any type, and it may return any type.
  */
 export interface IMessageBusCallback {
-    (title: string, data?: any): any;
+    (title: string, data?: any, sender?: string): any;
 }
 
 /**

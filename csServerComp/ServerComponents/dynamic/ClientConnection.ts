@@ -86,7 +86,7 @@ module ClientConnection {
                 });
 
                 socket.on('layer', (msg: LayerMessage) => {
-                    this.checkLayerMessage(msg);
+                    this.checkLayerMessage(msg, socket.id);
                 });
                 // create layers room
                 //var l = socket.join('layers');
@@ -105,11 +105,11 @@ module ClientConnection {
             });
         }
 
-        public checkLayerMessage(msg: LayerMessage) {
+        public checkLayerMessage(msg: LayerMessage, client: string) {
 
             this.subscriptions.forEach((s: LayerSubscription) => {
                 if (msg.layerId === s.layerId) {
-                    s.callback(msg.action, msg.object);
+                    s.callback(msg.action, msg.object, client);
                 }
             });
         }
@@ -167,13 +167,15 @@ module ClientConnection {
             }
         }
 
-        public updateFeature(layer: string, feature: any) {
+        public updateFeature(layer: string, feature: any, orign?: string) {
             //console.log('update feature ' + layer);
             for (var uId in this.users) {
-                var sub = this.users[uId].FindSubscription(layer, "layer");
-                if (sub != null) {
-                    //console.log('sending update:' + sub.id);
-                    this.users[uId].Client.emit(sub.id, new ClientMessage("feature-update", [feature]));
+                if (!orign || uId != orign) {
+                    var sub = this.users[uId].FindSubscription(layer, "layer");
+                    if (sub != null) {
+                        //console.log('sending update:' + sub.id);
+                        this.users[uId].Client.emit(sub.id, new ClientMessage("feature-update", [feature]));
+                    }
                 }
             }
         }

@@ -35,6 +35,8 @@ module KanbanColumn {
             var par = <any>$scope.$parent;
             this.kanban = par.widget.data;
             console.log('init board');
+
+
         }
     }
 }

@@ -94,6 +94,28 @@ module KanbanColumn {
             setInterval(() => { this.updateTime() }, 1000);
         }
 
+        public clickPrio($event) {
+
+
+            var dropdown: any = $($event.target, "> ul");
+            dropdown.css('top', angular.element($event.target).prop('offsetLeft') + "px");
+            dropdown.css('left', angular.element($event.target).prop('offsetTop') + "px");
+
+        }
+
+        public createForm(feature: csComp.Services.IFeature) {
+            feature.gui["questions"] = [];
+            feature.properties[this.column.fields['question']].forEach((s: string) => {
+                feature.gui["questions"].push(s);
+            });
+        }
+
+        public sendForm(feature: csComp.Services.IFeature) {
+            feature.properties["answered"] = true;
+            delete feature.gui["questions"];
+            this.$layerService.saveFeature(feature);
+        }
+
         public updateTime() {
             this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
                 if (feature.properties.hasOwnProperty('date')) {

@@ -85,9 +85,10 @@ export class DynamicLayer implements IDynamicLayer {
 
         this.startDate = new Date().getTime();
         //this.OpenFile();
-        this.connection.registerLayer(this.layerId, (action: string, object: any) => {
+        this.connection.registerLayer(this.layerId, (action: string, object: any, client: string) => {
             switch (action) {
                 case "featureUpdate":
+
                     var f = <csComp.Services.IFeature>object;
                     this.initFeature(f);
                     var feature = this.result.features.filter((k) => { return k.id && k.id === f.id });
@@ -98,7 +99,7 @@ export class DynamicLayer implements IDynamicLayer {
                     else {
                         this.result.features.push(f);
                     }
-                    this.connection.updateFeature(this.layerId, f);
+                    this.connection.updateFeature(this.layerId, f, client);
                     break;
             }
         });
