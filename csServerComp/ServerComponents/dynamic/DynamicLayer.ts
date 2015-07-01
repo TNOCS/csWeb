@@ -91,41 +91,45 @@ export class DynamicLayer implements IDynamicLayer {
                 case "logUpdate":
                     // find feature
                     var featureId = msg.object.featureId;
-                    feature = this.result.features.filter((k) => { return k.id && k.id === featureId });
-                    if (!feature.hasOwnProperty('logs')) feature.logs = {};
-                    if (!feature.hasOwnProperty('properties')) feature.properties = {};
+                    var ff = this.result.features.filter((k) => { return k.id && k.id === featureId });
+                    if (ff.length > 0) {
+                        var f = ff[0];
+                        if (!f.hasOwnProperty('logs')) f.logs = {};
+                        if (!f.hasOwnProperty('properties')) f.properties = {};
 
-                    // apply changes
-                    if (feature) {
+                        // apply changes
+
                         var logs = msg.object.logs;
                         console.log(logs);
 
                         for (var key in logs) {
                             console.log('updating key:' + key);
-                            if (!feature.logs.hasOwnProperty(key)) feature.logs[key] = [];
+                            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
                             logs[key].forEach(l=> {
-                                feature.logs[key].push(l);
-                                feature.properties[key] = l.value;
+                                console.log('pushing...');
+                                f.logs[key].push(l);
+                                f.properties[key] = l.value;
                             })
+
+                            console.log(JSON.stringify(f));
+                            // send them to other clients
+                            this.connection.updateFeature(this.layerId, msg.object, "logs-update", client);
                         }
-                        console.log(JSON.stringify(feature));
-                        // send them to other clients
-                        this.connection.updateFeature(this.layerId, msg.object, "logs-update", client);
                     }
                     console.log("Log update" + featureId);
                     break;
                 case "featureUpdate":
-                    var f = <csComp.Services.IFeature>msg.object;
-                    this.initFeature(f);
-                    feature = this.result.features.filter((k) => { return k.id && k.id === f.id });
+                    var ft = <csComp.Services.IFeature>msg.object;
+                    this.initFeature(ft);
+                    feature = this.result.features.filter((k) => { return k.id && k.id === ft.id });
                     if (feature && feature.length > 0) {
                         var index = this.result.features.indexOf(feature[0]);
-                        this.result.features[index] = f;
+                        this.result.features[index] = ft;
                     }
                     else {
-                        this.result.features.push(f);
+                        this.result.features.push(ft);
                     }
-                    this.connection.updateFeature(this.layerId, f, "feature-update", client);
+                    this.connection.updateFeature(this.layerId, ft, "feature-update", client);
                     break;
             }
         });
