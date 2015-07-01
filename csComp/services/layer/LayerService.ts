@@ -1510,7 +1510,7 @@ module csComp.Services {
                                     g.layers.push(l);
                                     this.initLayer(g, l);
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
-                                    l.layerSource.refreshLayer(g.layers[layerIndex]);
+                                    l.layerSource.refreshLayer(g.layers[g.layers.length-1]);
                                 } else {
                                     if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];

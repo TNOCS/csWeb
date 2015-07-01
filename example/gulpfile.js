@@ -138,25 +138,33 @@ gulp.task('create_templateCache', function() {
 })
 
 gulp.task('create_dist', function() {
-    gulp.src('public/images/*.*')
+    gulp.src('public/images/**/*.*')
         .pipe(plumber())
-        .pipe(gulp.dest('./dist/images/'));
+        .pipe(gulp.dest('./dist/public/images/'));
+
+    gulp.src('public/bower_components/angular-utils-pagination/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/public/bower_components/angular-utils-pagination/'));
 
     gulp.src(path2csWeb + 'csComp/includes/images/*.*')
         .pipe(plumber())
-        .pipe(gulp.dest('./dist/cs/images/'));
+        .pipe(gulp.dest('./dist/public/cs/images/'));
 
     gulp.src('public/data/**/*.*')
         .pipe(plumber())
-        .pipe(gulp.dest('./dist/data/'));
+        .pipe(gulp.dest('./dist/public/data/'));
 
     gulp.src('public/cs/css/ROsanswebtextregular.ttf')
         .pipe(plumber())
-        .pipe(gulp.dest('./dist/css/'));
+        .pipe(gulp.dest('./dist/public/css/'));
+
+    gulp.src('public/cs/js/cesium.js')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/public/cs/js/'));
 
     gulp.src('public/bower_components/Font-Awesome/fonts/*.*')
         .pipe(plumber())
-        .pipe(gulp.dest('./dist/fonts/'));
+        .pipe(gulp.dest('./dist/public/fonts/'));
 
     var assets = useref.assets();
 
@@ -164,31 +172,46 @@ gulp.task('create_dist', function() {
         .pipe(assets)
         .pipe(assets.restore())
         .pipe(useref())
-        .pipe(gulp.dest('dist'));
+        .pipe(gulp.dest('./dist/public/'));
 });
 
 gulp.task('create_dist_of_server', function() {
-    gulp.src('node_modules/express')
+    gulp.src('node_modules/express/**/*.*')
         .pipe(plumber())
-        .pipe(gulp.dest('./dist/node_modules/'));
-    gulp.src('node_modules/body_parser')
+        .pipe(gulp.dest('./dist/node_modules/express/'));
+    gulp.src('node_modules/body-parser/**/*.*')
         .pipe(plumber())
-        .pipe(gulp.dest('./dist/node_modules/'));
-    gulp.src('node_modules/serve-favicon')
+        .pipe(gulp.dest('./dist/node_modules/body-parser/'));
+    gulp.src('node_modules/serve-favicon/**/*.*')
         .pipe(plumber())
-        .pipe(gulp.dest('./dist/node_modules/'));
-    gulp.src('node_modules/rootpath')
+        .pipe(gulp.dest('./dist/node_modules/serve-favicon/'));
+    gulp.src('node_modules/rootpath/**/*.*')
         .pipe(plumber())
-        .pipe(gulp.dest('./dist/node_modules/'));
-    gulp.src('node_modules/socket.io')
+        .pipe(gulp.dest('./dist/node_modules/rootpath/'));
+    gulp.src('node_modules/proj4/**/*.*')
         .pipe(plumber())
-        .pipe(gulp.dest('./dist/node_modules/'));
-    gulp.src('node_modules/chokidar')
+        .pipe(gulp.dest('./dist/node_modules/proj4/'));
+    gulp.src('node_modules/socket.io/**/*.*')
         .pipe(plumber())
-        .pipe(gulp.dest('./dist/node_modules/'));
+        .pipe(gulp.dest('./dist/node_modules/socket.io/'));
+    gulp.src('node_modules/chokidar/**/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/node_modules/chokidar/'));
+    gulp.src('node_modules/pg/**/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/node_modules/pg/'));
+    gulp.src('ServerComponents/**/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/ServerComponents/'));
     gulp.src('server.js')
         .pipe(plumber())
         .pipe(gulp.dest('./dist/'));
+    gulp.src('configuration.json')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/'));
+    gulp.src('./public/favicon.ico')
+        .pipe(plumber())
+        .pipe(gulp.dest('./dist/public/'));
 });
 
 gulp.task('create_dist_of_client_and_server', ['create_dist', 'create_dist_of_server']);

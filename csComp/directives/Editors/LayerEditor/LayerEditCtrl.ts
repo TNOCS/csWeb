@@ -56,7 +56,7 @@ module LayerEdit {
 
         public addFeatureType() {
             if (this.layer.typeUrl) {
-                this.$layerService.loadTypeResources(this.layer.typeUrl, () => {
+                this.$layerService.loadTypeResources(this.layer.typeUrl, this.layer.dynamicResource || false, () => {
                     if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
                         var r = this.$layerService.typesResources[this.layer.typeUrl];
                         var ft = <csComp.Services.IFeatureType>{};

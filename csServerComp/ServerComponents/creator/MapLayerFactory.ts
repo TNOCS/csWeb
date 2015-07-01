@@ -239,7 +239,7 @@ export class MapLayerFactory {
                 this.createPolygonFeature(ld.geometryType, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 break;
         }
-        console.log("Drawing mode" + ld.drawingMode);
+        //console.log("Drawing mode" + ld.drawingMode);
         return geojson;
     }
 
