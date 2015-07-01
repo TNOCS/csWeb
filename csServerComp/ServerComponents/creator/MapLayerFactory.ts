@@ -1,36 +1,41 @@
 require('rootpath')();
-import express              = require('express');
-import MessageBus           = require('../bus/MessageBus');
-import pg                   = require('pg');
+import express = require('express');
+import MessageBus = require('../bus/MessageBus');
+import pg = require('pg');
 import ConfigurationService = require('../configuration/ConfigurationService');
-import fs                   = require('fs');
-import http                 = require('http');
-import Location             = require('../database/Location');
-import BagDatabase          = require('../database/BagDatabase');
-import IBagOptions          = require('../database/IBagOptions');
-import IGeoJsonFeature      = require('./IGeoJsonFeature');
+import fs = require('fs');
+import http = require('http');
+import Location = require('../database/Location');
+import BagDatabase = require('../database/BagDatabase');
+import IBagOptions = require('../database/IBagOptions');
+import IGeoJsonFeature = require('./IGeoJsonFeature');
+import proj4 = require('proj4');
 
 export interface ILayerDefinition {
-    projectTitle:              string,
-    reference:                 string,
-    group:                     string,
-    layerTitle:                string,
-    description:               string,
-    geometryType:              string,
-    parameter1:                string,
-    parameter2:                string,
-    parameter3:                string,
-    iconUri:                   string,
-    iconSize:                  number,
-    fillColor:                 string,
-    strokeColor:               string,
-    strokeWidth:               number,
-    isEnabled:                 boolean,
-    clusterLevel:              number,
-    useClustering:             boolean,
-    opacity:                   number,
-    nameLabel:                 string,
-    includeOriginalProperties: boolean
+    projectTitle: string,
+    reference: string,
+    group: string,
+    layerTitle: string,
+    description: string,
+    featureType: string,
+    geometryType: string,
+    parameter1: string,
+    parameter2: string,
+    parameter3: string,
+    iconUri: string,
+    iconSize: number,
+    drawingMode: string,
+    fillColor: string,
+    strokeColor: string,
+    selectedStrokeColor: string,
+    strokeWidth: number,
+    isEnabled: boolean,
+    clusterLevel: number,
+    useClustering: boolean,
+    opacity: number,
+    nameLabel: string,
+    includeOriginalProperties: boolean,
+    defaultFeatureType: string
 }
 
 export interface IProperty {
@@ -38,40 +43,41 @@ export interface IProperty {
 }
 
 export interface IPropertyType {
-    label?:            string;
-    title?:            string;
-    description?:      string;
-    type?:             string;
-    section?:          string;
-    stringFormat?:     string;
+    label?: string;
+    title?: string;
+    description?: string;
+    type?: string;
+    section?: string;
+    stringFormat?: string;
     visibleInCallOut?: boolean;
-    canEdit?:          boolean;
-    filterType?:       string;
-    isSearchable?:     boolean;
-    minValue?:         number;
-    maxValue?:         number;
-    defaultValue?:     number;
-    count?:            number;
-    calculation?:      string;
-    subject?:          string;
-    target?:           string;
-    targetrelation?:   string;
-    targetproperty?:   string;
-    options?:          string[];
-    activation?:       string;
-    targetid?:         string;
+    canEdit?: boolean;
+    filterType?: string;
+    isSearchable?: boolean;
+    minValue?: number;
+    maxValue?: number;
+    defaultValue?: number;
+    count?: number;
+    calculation?: string;
+    subject?: string;
+    target?: string;
+    targetrelation?: string;
+    targetproperty?: string;
+    options?: string[];
+    activation?: string;
+    targetid?: string;
 }
 
 export interface ILayerTemplate {
     layerDefinition: ILayerDefinition[],
-    propertyTypes:   IPropertyType[],
-    properties:      IProperty[],
-    sensors?:        IProperty[]
+    propertyTypes: IPropertyType[],
+    properties: IProperty[],
+    sensors?: IProperty[]
 }
 
 /** A factory class to create new map layers based on input, e.g. from Excel */
 export class MapLayerFactory {
     templateFiles: IProperty[];
+    featuresNotFound: any;
 
     constructor(private bag: BagDatabase, private messageBus: MessageBus.MessageBusService) {
         var fileList: IProperty[] = [];
@@ -85,12 +91,14 @@ export class MapLayerFactory {
             }
         });
         this.templateFiles = fileList;
+        this.featuresNotFound = {};
     }
 
     public process(req: express.Request, res: express.Response) {
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end('');
         console.log('Received project template. Processing...');
+        this.featuresNotFound = {};
         var template: ILayerTemplate = req.body;
         var ld = template.layerDefinition[0];
         this.createMapLayer(template, (geojson) => {
@@ -104,12 +112,24 @@ export class MapLayerFactory {
                 layerTitle: ld.layerTitle,
                 description: ld.description,
                 reference: ld.reference,
+                featureType: ld.featureType,
                 clusterLevel: ld.clusterLevel,
                 useClustering: ld.useClustering,
                 group: ld.group,
                 geojson: geojson,
                 enabled: ld.isEnabled
             };
+            if ((Object.keys(this.featuresNotFound).length !== 0) && ld.geometryType.indexOf('Postcode') > -1) {
+                console.log('Adresses that could not be found are:');
+                console.log('-------------------------------------');
+                for (var key in this.featuresNotFound) {
+                    if (this.featuresNotFound.hasOwnProperty(key)) {
+                        console.log(this.featuresNotFound[key].zip + ' ' + this.featuresNotFound[key].number);
+                    }
+                }
+                console.log('-------------------------------------');
+            }
+
             console.log("New map created: publishing...");
             this.messageBus.publish('dynamic_project_layer', 'created', data);
         });
@@ -117,37 +137,43 @@ export class MapLayerFactory {
 
     public createMapLayer(template: ILayerTemplate, callback: (Object) => void) {
         var ld = template.layerDefinition[0];
+
         var features: IGeoJsonFeature[] = [];
         // Convert StringFormats (from a readable key to StringFormat notation)
         this.convertStringFormats(template.propertyTypes);
         // Check propertyTypeData for time-based data
         var timestamps = this.convertTimebasedPropertyData(template);
+        var featureTypeName = ld.featureType || "Default";
+        var featureTypeContent = {
+            name: featureTypeName,
+            style: {
+                iconUri: ld.iconUri,
+                iconWidth: ld.iconSize,
+                iconHeight: ld.iconSize,
+                drawingMode: ld.drawingMode,
+                stroke: ld.strokeWidth > 0,
+                strokeColor: ld.strokeColor || "#000",
+                selectedStrokeColor: ld.selectedStrokeColor || "#00f",
+                fillColor: ld.fillColor || "#ff0",
+                opacity: ld.opacity || 0.5,
+                fillOpacity: ld.opacity || 0.5,
+                nameLabel: ld.nameLabel
+            },
+            propertyTypeData: template.propertyTypes
+        }
         var geojson = {
             type: "FeatureCollection",
-            featureTypes: {
-                "Default": {
-                    name: "Default",
-                    style: {
-                        iconUri: ld.iconUri,
-                        iconWidth: ld.iconSize,
-                        iconHeight: ld.iconSize,
-                        stroke: ld.strokeWidth > 0,
-                        strokeColor: ld.strokeColor || "#000",
-                        fillColor: ld.fillColor || "#ff0",
-                        opacity: ld.opacity || 0.5,
-                        fillOpacity: ld.opacity || 0.5,
-                        nameLabel: ld.nameLabel
-                    },
-                    propertyTypeData: template.propertyTypes
-                }
-            },
+            featureTypes: {},
             features: features
         };
+        geojson.featureTypes[featureTypeName] = featureTypeContent;
         if (timestamps.length > 0) {
             geojson["timestamps"] = JSON.parse(JSON.stringify(timestamps));
         }
         // Convert dates (from a readable key to a JavaScript Date string notation)
         this.convertDateProperties(template.propertyTypes, template.properties);
+        // Convert types (from a readable key to type notation)
+        this.convertTypes(template.propertyTypes, template.properties);
         // Add geometry
         switch (ld.geometryType) {
             case "Postcode6_en_huisnummer":
@@ -194,6 +220,17 @@ export class MapLayerFactory {
                 }
                 this.createLatLonFeature(ld.parameter1, ld.parameter2, features, template.properties, template.sensors || [], () => { callback(geojson) });
                 break;
+            case "RD_X_en_Y":
+                if (!ld.parameter1) {
+                    console.log("Error: Parameter1 should be the name of the column containing the RD X coordinate!")
+                    return;
+                }
+                if (!ld.parameter2) {
+                    console.log("Error: Parameter2 should be the name of the column containing the RD Y coordinate!")
+                    return;
+                }
+                this.createRDFeature(ld.parameter1, ld.parameter2, features, template.properties, template.sensors || [], () => { callback(geojson) });
+                break;
             default:
                 if (!ld.parameter1) {
                     console.log("Error: At least parameter1 should contain a value!")
@@ -202,7 +239,7 @@ export class MapLayerFactory {
                 this.createPolygonFeature(ld.geometryType, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 break;
         }
-
+        console.log("Drawing mode" + ld.drawingMode);
         return geojson;
     }
 
@@ -274,7 +311,7 @@ export class MapLayerFactory {
         var templateFile = fs.readFileSync(templateUrl);
         var templateJson = JSON.parse(templateFile.toString());
 
-        if (inclTemplProps) {
+        if (inclTemplProps && templateJson.featureTypes && templateJson.featureTypes.hasOwnProperty("Default")) {
             templateJson.featureTypes["Default"].propertyTypeData.forEach((ft) => {
                 if (!properties[0].hasOwnProperty(ft.label) && ft.label !== "Name") { //Do not overwrite input data, only add new items
                     propertyTypes.push(ft);
@@ -325,6 +362,29 @@ export class MapLayerFactory {
         callback();
     }
 
+    /**
+     * Convert the RD coordinate to WGS84.
+     */
+    private createRDFeature(rdX: string, rdY: string, features: IGeoJsonFeature[], properties: IProperty[], sensors: IProperty[], callback: Function) {
+        if (!properties) callback();
+        //https://github.com/yuletide/node-proj4js-defs/blob/master/epsg.js
+        //Proj4js.defs["EPSG:28992"] = "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs";
+        proj4.defs('RD', "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs");
+        var converter = proj4('RD');
+        properties.forEach((prop, index) => {
+            var x = prop[rdX];
+            var y = prop[rdY];
+            if (isNaN(x) || isNaN(y)) {
+                console.log("Error: Not a valid coordinate ( " + x + ", " + y + ")");
+            } else {
+                var wgs = converter.inverse({ x: x, y: y });
+                //console.log(JSON.stringify(wgs));
+                features.push(this.createFeature(wgs.x, wgs.y, prop, sensors[index] || {}));
+            }
+        });
+        callback();
+    }
+
     private createPointFeature(zipCode: string, houseNumber: string, bagOptions: IBagOptions, features: IGeoJsonFeature[], properties: IProperty[], propertyTypes: IPropertyType[], sensors: IProperty[], callback: Function) {
         if (!properties) callback();
         var todo = properties.length;
@@ -336,6 +396,7 @@ export class MapLayerFactory {
                 todo--;
                 if (!locations || locations.length === 0) {
                     console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
+                    this.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
                 } else {
                     for (var key in locations[0]) {
                         if (key !== "lon" && key !== "lat") {
@@ -422,10 +483,32 @@ export class MapLayerFactory {
         });
     }
 
+    private convertTypes(propertyTypes: IPropertyType[], properties: IProperty[]) {
+        if (!propertyTypes || !properties) return;
+        propertyTypes.forEach((pt) => {
+            if (pt.hasOwnProperty("type") && pt["type"] === "url") {
+                var name = pt["title"]; //Store name of the property with type "date"
+                properties.forEach((p) => {
+                    if (p.hasOwnProperty(name)) {
+                        if (p[name].substring(0,3) === "www") {
+                            p[name] = '<a href="http://' + p[name] + '" target="_blank">' + p[name] + '</a>';
+                        } else {
+                            p[name] = '<a href="' + p[name] + '" target="_blank">' + p[name] + '</a>';
+                        }
+                    }
+                });
+                pt["type"] = "bbcode";
+            }
+        });
+    }
+
     private convertStringFormats(properties) {
         properties.forEach(function(prop) {
             if (prop.hasOwnProperty("stringFormat")) {
                 switch (prop["stringFormat"]) {
+                    case "No_decimals":
+                        prop["stringFormat"] = "{0:#,#}";
+                        break;
                     case "One_decimal":
                         prop["stringFormat"] = "{0:#,#.#}";
                         break;
@@ -451,7 +534,9 @@ export class MapLayerFactory {
                         prop["stringFormat"] = "{0:#,#.####}%";
                         break;
                     default:
-                        console.log("stringFormat \'" + prop["stringFormat"] + "\' not found.");
+                        if ((prop["stringFormat"].indexOf('{') < 0) && (prop["stringFormat"].indexOf('}') < 0)) {
+                            console.log("stringFormat \'" + prop["stringFormat"] + "\' not found.");
+                        }
                         break;
                 }
             }

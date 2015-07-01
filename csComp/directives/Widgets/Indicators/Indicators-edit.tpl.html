@@ -1,9 +1,11 @@
 <div>
-    <h4 class="rightpanel-header" translate>
-        <span><i class="fa-pencil rightpanel-header-icon" />&nbsp;&nbsp;EDIT_INDICATORS</span>
+    <h4 class="rightpanel-header">
+        <span><i class="fa fa-cog rightpanel-header-icon"></i>
+            <div translate>EDIT_INDICATORS</div>
+        </span>
     </h4>
 
-    <div data-ng-cloak tab-content isolate-scope style="margin:5px; overflow-y: auto; overflow-x: hidden;">
+    <div data-ng-cloak tab-content isolate-scope style="margin:5px; overflow-y: auto; overflow-x: hidden;" resize resize-y="140">
         <div class="controls">
             <label>Widget title</label>
             <input id="indicatorTitle" name="textinput" type="text" ng-model="data.title" placeholder="placeholder" class="input-xlarge editor-text-input">
@@ -25,35 +27,50 @@
                     <span>
                         <label>Visual</label>
                         <select id="selectIndicatorVisual" ng-model="indic.visual" class="form-control tt-input editor-text-input" style="display:inline-block"
-                        ng-options="types.id as types.title for (key, types) in vm.indicatorVisuals">
+                        ng-options="types.id as types.title for (key, types) in vm.indicatorVisuals" ng-change="vm.updateIndicator(indic)">
                             <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
                         </select>
                     </span>
                 </div>
-                <div>
+                <!-- <div>
                     <label>Fill color</label>
                     <spectrum-colorpicker format="'hex'" on-change="vm.colorUpdated(color, indic)" data-ng-model="indic.color" options="{ cancelText: 'Annuleren', chooseText: 'Kiezen'}"></spectrum-colorpicker>
+                </div> -->
+                <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+                  <input type="checkbox" id="indicator-{{indic.id}}" ng-model="indic.usesSelectedFeature">
+                  <label for="indicator-{{indic.id}}">Uses selected feature</label>
                 </div>
-                <div style="padding: 5px 0;" class="row-fluid">
-                    <span>
-                        <label>Feature</label>
-                        <select id="selectIndicatorFeature" ng-model="indic.featureTypeName" class="form-control tt-input editor-text-input" style="display:inline-block"
-                                ng-options="ft as ft for (ft, type) in vm.$layerService.featureTypes">
-                            <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
-                        </select>
-                    </span>
+                <div ng-if="indic.usesSelectedFeature">
+                    <div style="padding: 5px 0;" class="row-fluid">
+                        <span>
+                            <label>Feature</label>
+                            <select id="selectIndicatorFeature" ng-model="indic.featureTypeName" class="form-control tt-input editor-text-input" style="display:inline-block"
+                                    ng-options="ft as ft for (ft, type) in vm.$layerService._featureTypes" ng-change="vm.updatePropertyTypes(indic)">
+                                <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
+                            </select>
+                        </span>
+                    </div>
+                    <div style="padding: 5px 0;" class="row-fluid">
+                        <span>
+                            <label style="vertical-align: top; padding-top: 3px;">Property</label>
+                            <select id="selectIndicatorProperty" ng-model="vm.propertyTypes" class="form-control tt-input editor-text-input" style="display:inline-block"
+                                    ng-options="pt as pt.title for pt in vm.propertyTypeData | filter:{type:'number'}" ng-change="vm.updateIndicator(indic)" ng-init="vm.updatePropertyTypes(indic)" multiple>
+                                <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
+                            </select>
+                        </span>
+                    </div>
                 </div>
-                <div style="padding: 5px 0;" class="row-fluid">
-                    <span>
-                        <label>Property</label>
-                        <select id="selectIndicatorProperty" ng-model="vm.propertyTypes" class="form-control tt-input editor-text-input" style="display:inline-block"
-                                ng-options="pt as pt.title for pt in vm.$layerService.featureTypes[indic.featureTypeName].propertyTypeData" ng-change="vm.updateIndicator(indic)" multiple>
-                            <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
-                        </select>
-                    </span>
+                <div ng-if="!indic.usesSelectedFeature">
+                    <div style="padding: 5px 0;" class="row-fluid">
+                        <label>Sensor</label>
+                        <input name="textinput" type="text" ng-model="indic.sensor" placeholder="sensorsource" class="input-xlarge editor-text-input" ng-model-options="{ debounce: 500 }" ng-change="vm.sensorChanged(indic)">
+                    </div>
                 </div>
             </div>
         </li>
+
+        <button class="rightpanel-header-button" ng-click="vm.addIndicator()"><span class="fa fa-plus" style="padding:5px;"><div style="margin-left:5px;display:inline-block;">Add indicator</div></span></button>
+
     </div>
 
     <!-- <div class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">

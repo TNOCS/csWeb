@@ -20,6 +20,7 @@ module Charts {
         value: number;
         min: number;
         max: number;
+        update: boolean;
         color?: string;
         titleClass: string;
         title: string;
@@ -48,6 +49,7 @@ module Charts {
                     value: '=',
                     max: '=',
                     title: '=',
+                    update: '=',
                     valueString: '=',
                     color: '=',
                     valueClass: '@',
@@ -138,6 +140,9 @@ module Charts {
                         doDraw();
                     })
                     scope.$watch("color", () => {
+                        doDraw();
+                    })
+                    scope.$watch("update", () => {
                         doDraw();
                     })
                     //scope.closed = true;

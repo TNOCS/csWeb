@@ -15,15 +15,15 @@ module csComp.Services {
 
         ];
 
-        public map:              L.Map;
-        public baseLayers:       any;
-        public activeBaseLayer:  BaseLayer;
-        public mapVisible:       boolean = true;
-        public timelineVisible:  boolean = false;
+        public map: L.Map;
+        public baseLayers: any;
+        public activeBaseLayer: BaseLayer;
+        public mapVisible: boolean = true;
+        public timelineVisible: boolean = false;
         public rightMenuVisible: boolean = true;
-        public maxBounds:        L.LatLngBounds;
+        public maxBounds: IBoundingBox;
 
-        expertMode:              Expertise;
+        expertMode: Expertise;
 
         constructor(
             private $localStorageService: ng.localStorage.ILocalStorageService,
@@ -53,24 +53,7 @@ module csComp.Services {
                 }
             })
 
-            $messageBusService.subscribe('leftmenu', (title: string, data) => {
-                switch (title.toLowerCase()) {
-                    case "toggle":
-                        if ($('body').hasClass("leftpanel-collapsed")) {
-                            $('body').removeClass("leftpanel-collapsed");
-                        } else {
-                            $('body').addClass("leftpanel-collapsed");
-                        }
-                        break;
-                    case "hide":
-                        if (!$('body').hasClass("leftpanel-collapsed")) $('body').addClass("leftpanel-collapsed");
-                        break;
-                    case "show":
-                        if ($('body').hasClass("leftpanel-collapsed")) $('body').removeClass("leftpanel-collapsed");
 
-                        break;
-                }
-            });
         }
 
         /**
@@ -124,8 +107,8 @@ module csComp.Services {
                 || this.expertMode === Expertise.Intermediate || this.expertMode === Expertise.Admin;
         }
 
-        get isAdminExpert() : boolean{
-          return this.expertMode === Expertise.Admin;
+        get isAdminExpert(): boolean {
+            return this.expertMode === Expertise.Admin;
         }
 
         public initMap() {
@@ -135,14 +118,13 @@ module csComp.Services {
             //     attributionControl: true
             // });
         }
-        public getBaselayer(layer: string)
-        {
+        public getBaselayer(layer: string) {
             var layerObj: BaseLayer = this.baseLayers[layer];
             return layerObj;
         }
 
         public changeBaseLayer(layer: string) {
-            var layerObj : BaseLayer = this.getBaselayer(layer);
+            var layerObj: BaseLayer = this.getBaselayer(layer);
             this.activeBaseLayer = layerObj;
         }
 

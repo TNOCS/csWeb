@@ -53,8 +53,8 @@ var pr = new DynamicProject.DynamicProjectService(server, cm, messageBus);
 pr.Start(server);
 
 var ds = new DataSource.DataSourceService(cm, "DataSource");
-ds.Start();
-server.get("/datasource", ds.GetDataSource);
+ds.start();
+server.get("/datasource", ds.getDataSource);
 
 var bagDatabase = new BagDatabase(config);
 var mapLayerFactory = new creator.MapLayerFactory(bagDatabase, messageBus);

@@ -20,6 +20,7 @@ module Charts {
 
     export interface ISparklineScope extends ng.IScope {
         timestamps: number[];
+        update: boolean;
         sensor: number[];
         width?: number;
         height?: number;
@@ -37,6 +38,7 @@ module Charts {
                 scope: {
                     timestamps: '=',  // = means that we use angular to evaluate the expression,
                     sensor: '=',
+                    update: '=',
                     focusTime: '=',
                     showaxis: '=',
                     closed: '=',
@@ -294,6 +296,9 @@ module Charts {
 
                     doDraw();
                     scope.$watchCollection("sensor", () => { doDraw(); })
+                    scope.$watch("update", () => {
+                        doDraw();
+                    })
                     //scope.closed = true;
 
 

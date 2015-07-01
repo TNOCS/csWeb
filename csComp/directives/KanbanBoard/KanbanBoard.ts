@@ -1,4 +1,4 @@
-module KanbanBoard {
+module KanbanColumn {
     /**
       * Config
       */

@@ -20,6 +20,23 @@
         return result;
     }
 
+    export function getDefaultFeatureStyle(): csComp.Services.IFeatureTypeStyle {
+        //TODO: check compatibility for both heatmaps and other features
+        var s: csComp.Services.IFeatureTypeStyle = {
+            nameLabel:   "Name",
+            strokeWidth: 1,
+            strokeColor: "#GGBBAA",
+            fillOpacity: 0.75,
+            opacity:     1,
+            fillColor:   "#FFFF00",
+            stroke:      true,
+            rotate:      0,
+            iconUri:     "cs/images/marker.png",
+            iconHeight:  32,
+            iconWidth:   32
+        };
+        return s;
+    }
 
     /**
      * Export data to the file system.
@@ -111,9 +128,17 @@
             }
         }
         if (type.propertyTypeData != null) {
-            type.propertyTypeData.forEach((pt) => {
-                propertyTypes.push(pt);
-            });
+            if (type.propertyTypeData.forEach) {
+                type.propertyTypeData.forEach((pt) => {
+                    propertyTypes.push(pt);
+                });
+            } else {
+                for (var ptlabel in type.propertyTypeData) {
+                    if (type.propertyTypeData.hasOwnProperty(ptlabel)) {
+                        propertyTypes.push(type.propertyTypeData[ptlabel]);
+                    }
+                }
+            }
         }
         return propertyTypes;
     }
@@ -134,15 +159,18 @@
             propertyType.visibleInCallOut = true;
             propertyType.canEdit = false;
             var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
-            if (StringExt.isNumber(value))
+            if (StringExt.isDate(value))
+                propertyType.type = 'date';
+            else if (StringExt.isNumber(value))
                 propertyType.type = 'number';
             else if (StringExt.isBoolean(value))
                 propertyType.type = 'boolean';
+            else if (StringExt.isArray(value))
+                propertyType.type = 'tags';
             else if (StringExt.isBbcode(value))
                 propertyType.type = 'bbcode';
             else
                 propertyType.type = 'text';
-
             res.push(propertyType);
             //}
         }
@@ -164,6 +192,7 @@
                 propertyType.visibleInCallOut = true;
                 propertyType.canEdit = false;
                 var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+
                 if (StringExt.isNumber(value))
                     propertyType.type = 'number';
                 else if (StringExt.isBoolean(value))
@@ -185,7 +214,7 @@
      */
     export function createDefaultType(feature: csComp.Services.IFeature): csComp.Services.IFeatureType {
         var type: csComp.Services.IFeatureType = {};
-        type.style = { nameLabel: 'Name' };
+        type.style = getDefaultFeatureStyle();
         type.propertyTypeData = [];
 
         this.addPropertyTypes(feature, type);
@@ -198,8 +227,8 @@
      */
     export function convertPropertyInfo(pt: csComp.Services.IPropertyType, text: any): string {
         var displayValue: string;
-        if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
-            text = text.replace(/&amp;/g, '&');
+        // if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
+        //     text = text.replace(/&amp;/g, '&');
         if (csComp.StringExt.isNullOrEmpty(text)) return text;
         if (!pt.type) return text;
         switch (pt.type) {
@@ -303,6 +332,7 @@
     * @param {string} find
     */
     export function indexes(source: string, find: string) {
+        if (!source) return [];
         var result: number[] = [];
         for (var i = 0; i < source.length; i++) {
             if (source.substr(i, find.length) === find) result.push(i);
@@ -341,7 +371,7 @@
 
         data.features.forEach((f: Services.IFeature) => {
             if (!(data.featureTypes.hasOwnProperty(f.featureTypeName))) {
-                var featureType = layerService.featureTypes[f.featureTypeName];
+                var featureType = layerService.getFeatureType(f);
                 if (!featureType.name) featureType.name = f.featureTypeName.replace('_Default', '');
                 data.featureTypes[f.featureTypeName] = featureType;
                 if (featureType.propertyTypeKeys) {

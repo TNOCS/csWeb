@@ -18,6 +18,7 @@
         "!./Classes/*.d.ts"
     ],
     "files": [
+        "./Classes/Feature.ts",
         "./Scripts/typings/JSONStream/JSONStream.d.ts",
         "./Scripts/typings/body-parser/body-parser.d.ts",
         "./Scripts/typings/cs/cs-offline-search.d.ts",
@@ -26,6 +27,7 @@
         "./Scripts/typings/jquery/jquery.d.ts",
         "./Scripts/typings/node/node.d.ts",
         "./Scripts/typings/pg/pg.d.ts",
+        "./Scripts/typings/proj4/proj4.d.ts",
         "./Scripts/typings/request/request.d.ts",
         "./Scripts/typings/socketio/socket.io.d.ts",
         "./Scripts/typings/xml2js/xml2js.d.ts",

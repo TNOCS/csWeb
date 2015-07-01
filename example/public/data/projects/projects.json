@@ -68,7 +68,7 @@
     }, {
         "title": "World Imagery",
         "subtitle": "from ESRI",
-        "isDefault": true,
+        "isDefault": false,
         "minZoom": 0,
         "maxZoom": 18,
         "url": "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
@@ -116,7 +116,7 @@
         "preview": "http://1.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/satellite.day/11/673/1051/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg"
     }, {
         "title": "Positron",
-        "isDefault": false,
+        "isDefault": true,
         "subtitle": "From CartoDB",
         "subdomains": ["a", "b", "c", "d"],
         "minZoom": 0,
@@ -127,12 +127,14 @@
         "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
         "preview": "http://a.basemaps.cartocdn.com/light_nolabels/11/673/1051.png"
     }],
-    "projects": [{
+    "projects": [
+        {
             "title": "csWeb Showcases",
             "url": "data/projects/20141104_csMap/project.json"
-        }, {
+        },
+        {
             "title": "Dynamic Example",
-            "url": "data/projects/DynamicExample/project.json",
+            "url": "project/DynamicExample",
             "dynamic": true
         }
 

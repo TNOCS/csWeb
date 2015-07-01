@@ -4,6 +4,7 @@ module csComp.Services {
         title = "leaflet";
         service: LayerService;
         $messageBusService: MessageBusService;
+        map: L.Map;
 
         private popup: L.Popup;
 
@@ -15,21 +16,43 @@ module csComp.Services {
         public enable() {
             if ($("map").length !== 1) return;
             this.service.$mapService.map = L.map("map", {
+
                 //var tl  = L.map("mapleft", {
                 zoomControl: false,
                 maxZoom: 19,
                 attributionControl: true
             });
+            this.map = this.service.$mapService.map;
+
             this.service.$mapService.map.on('moveend', (t, event: any) => {
                 var b = (<L.Map>(this.service.$mapService.map)).getBounds();
                 this.$messageBusService.publish("mapbbox", "update", b.toBBoxString());
 
-                this.service.$mapService.maxBounds = b;
+                //this.service.$mapService.maxBounds = new csComp.Seb;
             });
         }
 
-        public fitBounds(bounds: L.LatLngBounds) {
-            this.service.$mapService.map.fitBounds(bounds);
+        public getExtent(): csComp.Services.IBoundingBox {
+
+            var r = <IBoundingBox>{};
+            if (this.map) {
+                var b = this.map.getBounds();
+                var sw = b.getSouthWest();
+                var ne = b.getNorthEast();
+                r.southWest = [sw.lat, sw.lng];
+                r.northEast = [ne.lat, ne.lng];
+            }
+            return r;
+
+        }
+
+        public fitBounds(bounds: csComp.Services.IBoundingBox) {
+            var southWest = L.latLng(bounds.southWest[0], bounds.southWest[1]);
+            var northEast = L.latLng(bounds.northEast[0], bounds.northEast[1]);
+            var lb = L.latLngBounds(southWest, northEast);
+            try {
+                this.service.$mapService.map.fitBounds(lb);
+            } catch (e) {}
         }
 
         public getZoom() {
@@ -69,13 +92,14 @@ module csComp.Services {
                                 try {
                                     m.removeLayer(layer.group.markers[feature.id]);
                                     delete layer.group.markers[feature.id];
-                                } catch (error) {
-
-                                }
+                                } catch (error) {}
                             }
                         });
                     } else {
-                        if (this.service.map.map && layer.mapLayer) this.service.map.map.removeLayer(layer.mapLayer);
+                        if (this.service.map.map && layer.mapLayer)
+                            try {
+                                this.service.map.map.removeLayer(layer.mapLayer);
+                            } catch (error) {}
                     }
                     break;
                 default:
@@ -100,7 +124,7 @@ module csComp.Services {
         }
 
         private createBaseLayer(layerObj: BaseLayer) {
-            var options: L.TileLayerOptions = {};
+            var options: L.TileLayerOptions = { noWrap: true };
             options['subtitle'] = layerObj.subtitle;
             options['preview'] = layerObj.preview;
             if (layerObj.subdomains != null) options['subdomains'] = layerObj.subdomains;
@@ -296,6 +320,7 @@ module csComp.Services {
                 marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
             } else {
                 marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
+                marker.bringToFront();
             }
         }
 
@@ -365,7 +390,7 @@ module csComp.Services {
                 var ft = this.service.getFeatureType(feature);
 
                 //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
-                var iconUri = ft.style.iconUri;
+                var iconUri = feature.effectiveStyle.iconUri; //ft.style.iconUri;
                 //if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
 
                 // TODO refactor to object
@@ -375,7 +400,7 @@ module csComp.Services {
                 props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
                 props['border-style'] = 'solid';
                 props['border-color'] = feature.effectiveStyle.strokeColor;
-                props['border-width'] = feature.effectiveStyle.stroke;
+                props['border-width'] = feature.effectiveStyle.strokeWidth;
                 props['opacity'] = feature.effectiveStyle.opacity;
 
                 if (feature.isSelected) {

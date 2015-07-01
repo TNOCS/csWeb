@@ -57,18 +57,12 @@ module App {
                 $scope.$apply();
             });
 
-            $messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
+            //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
             $messageBusService.subscribe("feature", this.featureMessageReceived);
             $messageBusService.subscribe("layer", this.layerMessageReceived);
 
             this.$layerService.openSolution("data/projects/projects.json", $location.$$search.layers);
             //$messageBusService.notify('Welcome to csMap', 'Your mapping solution.');
-
-            this.$mapService.mapVisible = this.$location.path() === "/map";
-
-
-            var rpt2 = csComp.Helpers.createRightPanelTab("propertytypes", "propertytypes", null, "Edit group");
-            this.$messageBusService.publish("rightpanel", "activate", rpt2);
 
             //this.$dashboardService.openRightTab('featuretype','featuretypes',null);
         }
@@ -87,15 +81,11 @@ module App {
                     console.log("Loading");
                     break;
                 case "activated":
-                    this.$scope.layersLoading -= 1;
+                    if (this.$scope.layersLoading >= 1) this.$scope.layersLoading -= 1;
                     console.log("Activated");
                     break;
                 case "error":
-                    this.$scope.layersLoading -= 1;
-                    console.log("Error loading");
-                    break;
-                case "error":
-                    this.$scope.layersLoading -= 1;
+                    this.$scope.layersLoading = 0;
                     console.log("Error loading");
                     break;
                 case "deactivate":

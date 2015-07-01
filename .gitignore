@@ -47,3 +47,4 @@ test/csComp/spec/classes/project.spec.js
 test/csComp/spec/**/*.spec.js
 csDataGatherer/public/data/
 test/csComp/spec/directives/**/*.spec.js
+OfflineSearch

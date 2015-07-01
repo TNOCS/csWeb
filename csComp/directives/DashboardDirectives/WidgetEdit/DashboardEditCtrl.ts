@@ -43,10 +43,10 @@ module DashboardEdit {
             this.dashboard = $scope.$parent["data"];
             if (this.dashboard.parents && this.dashboard.parents.length > 0) this.parent = this.dashboard.parents[0];
             this.updateHasParent();
-            console.log(this.dashboard);
         }
 
         public updateHasParent() {
+            return;
             if (this.parent !== "") this.dashboard.parents = [this.parent];
             this.hasParent = this.dashboard.parents && this.dashboard.parents.length > 0;
         }
@@ -57,12 +57,38 @@ module DashboardEdit {
             this.$layerService.project.dashboards
         }
 
+        public setExtent() {
+            this.dashboard.viewBounds = this.$layerService.activeMapRenderer.getExtent();
+            console.log('set extent');
+        }
+
+        public setVisibleLayers() {
+            this.dashboard.visiblelayers = [];
+
+            for (var id in this.$layerService.loadedLayers) this.dashboard.visiblelayers.push(id);
+        }
+
 
         public toggleMap() {
             setTimeout(() => {
                 this.checkMap();
             }, 100);
 
+        }
+
+        public addWidget(event) {
+            //if (event.target.tagName !== 'INPUT') return;
+            console.log("Add widget");
+            var w = <csComp.Services.IWidget>{};
+            w.directive = "indicators";
+            var idata = new Indicators.indicatorData();
+            idata.title = "NewWidget";
+            idata.orientation = "vertical";
+            w.data = idata;
+            w.enabled = true;
+            w.parentDashboard = this.dashboard;
+            this.$dashboardService.addNewWidget(w, this.dashboard);
+            this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
         }
 
         public checkMap() {

@@ -3,7 +3,7 @@
         <i class="layersIcon rightpanel-header-icon" />Layer Editor
     </h4>
 
-    <div data-ng-cloak style="margin:5px">
+    <div data-ng-cloak style="margin:5px;overflow-y:auto">
         <div class="controls">
             <label class="editor-title input-xlarge" for="layerTitle">Title</label>
             <input id="layerTitle" name="textinput" type="text" ng-model="vm.layer.title" placeholder="placeholder" class="input-xlarge editor-text-input">
@@ -23,7 +23,9 @@
                 <label class="editor-title input-xlarge">Source Type</label>
                 <select data-ng-model="vm.layer.type" class="form-control tt-input editor-text-input">
                     <option value="geojson">Geojson</option>
+                    <option value="dynamicgeojson">Dynamic Geojson</option>
                     <option value="wms">Wms</option>
+                    <option value="rss">Rss</option>
                 </select>
             </div>
             <div class="controls">
@@ -34,7 +36,7 @@
                 <label class="editor-title input-xlarge" for="resourceUrl">Types Resource Url</label>
                 <input id="typeUrl" name="textinput" type="text" ng-model="vm.layer.typeUrl" placeholder="Types Resource Url" class="input-xlarge editor-text-input">
             </div>
-            <div ng-show="vm.layer.type=='geojson'">
+            <div ng-show="vm.layer.type=='geojson' || vm.layer.type=='rss' || vm.layer.type=='dynamicgeojson'">
                 <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
                     <input disabled="true" type="checkbox" id="useProxy-{{vm.layer.id}}" ng-model="group.useProxy">
                     <label for="useProxy-{{vm.layer.id}}">use proxy (used for external urls)</label>
@@ -51,25 +53,27 @@
                     <input type="checkbox" id="isFeed-{{vm.layer.isFeed}}" ng-model="group.isFeed">
                     <label for="isFeed-{{vm.layer.id}}">is a feed</label>
                 </div>
+                <div class="controls" style="position:relative" ng-if="vm.layer.typeUrl">
+                    <label class="editor-title input-xlarge" for="defaultFeatureType">Default Feature Type</label>
+                    <input id="layerTitle" name="textinput" type="text" ng-model="vm.layer.defaultFeatureType" placeholder="placeholder" class="input-xlarge editor-text-input">
+                    <button style="background:transparent;float:right;position:absolute;right:45px;top:30px" class="fa fa-plus" ng-click="vm.addFeatureType()"></button>
+                    <button style="background:transparent;float:right;position:absolute;right:15px;top:30px" class="fa fa-refresh" ng-click="vm.getTypes()"></button>
+                    <br/>
+                    <select ng-model="vm.layer.defaultFeatureType">
+                        <option ng-repeat="(key,value) in vm.availabeTypes" ng-value="key">{{value.name}}</option>
+                    </select>
+
+                </div>
                 <div class="controls">
                     <label class="editor-title input-xlarge" for="defaultLegendProperty">Default Legend Property</label>
                     <input id="defaultLegendProperty" name="textinput" type="text" ng-model="vm.layer.defaultLegendProperty" placeholder="legend property" class="input-xlarge editor-text-input">
                 </div>
+
             </div>
             <div class="controls" style="margin-top:10px">
                 <button class="btn" ng-click="vm.removeLayer()">remove layer</button>
             </div>
         </div>
-        <div ng-show="vm.layer.type=='geojson'">
 
-            <div class="controls" style="position:relative">
-                <label class="editor-title input-xlarge" for="defaultFeatureType">Default Feature Type</label>
-                <select ng-model= "vm.layer.defaultFeatureType" class="form-control tt-input editor-text-input">
-                    <option ng-repeat="(key,value) in vm.availabeTypes" ng-value="key">{{value.name}}</option>
-                </select>
-                <button style="background:transparent;float:right;position:absolute;right:15px;top:30px" class="fa fa-refresh" ng-click="vm.getTypes()"></button>
-
-            </div>
-        </div>
     </div>
 </div>

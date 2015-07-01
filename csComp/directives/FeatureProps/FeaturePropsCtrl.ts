@@ -19,7 +19,7 @@ module FeatureProps {
     export interface IFeaturePropsScope extends ng.IScope {
         vm: FeaturePropsCtrl;
         showMenu: boolean;
-        poi: IFeature;
+        feature: IFeature;
         callOut: CallOut;
         featureType: IFeatureType;
         tabs: JQuery;
@@ -36,7 +36,7 @@ module FeatureProps {
         canStyle: boolean;
         feature: IFeature;
         description?: string;
-        meta?: IPropertyType;
+        propertyType?: IPropertyType;
         isFilter: boolean;
     }
 
@@ -51,7 +51,7 @@ module FeatureProps {
             public isFilter: boolean,
             public isSensor: boolean,
             public description?: string,
-            public meta?: IPropertyType,
+            public propertyType?: IPropertyType,
             public timestamps?: number[],
             public sensor?: number[]) { }
     }
@@ -60,7 +60,7 @@ module FeatureProps {
         propertyTypes: { [label: string]: IPropertyType }; // Probably not needed
         properties: Array<ICallOutProperty>;
         sectionIcon: string;
-        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType): void;
+        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, propertyType?: IPropertyType): void;
         hasProperties(): boolean;
     }
 
@@ -77,12 +77,12 @@ module FeatureProps {
 
         showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
-        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, meta?: IPropertyType): void {
-            var isSensor = typeof feature.sensors !== 'undefined' && feature.sensors.hasOwnProperty(property);
+        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, propertyType?: IPropertyType): void {
+            var isSensor = feature.sensors && feature.sensors.hasOwnProperty(property);
             if (isSensor)
-                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, meta, feature.timestamps, feature.sensors[property]));
+                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, propertyType, feature.timestamps, feature.sensors[property]));
             else
-                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, meta));
+                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, propertyType));
         }
 
         hasProperties(): boolean {
@@ -96,9 +96,11 @@ module FeatureProps {
         public title: string;
         public icon: string;
         public sections: { [title: string]: ICallOutSection; };
+        public hasInfoSection: boolean;
 
         constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: IPropertyTypeData, private layerservice: csComp.Services.LayerService, private mapservice: csComp.Services.MapService) {
             this.sections = {};
+            this.hasInfoSection = false;
             //if (type == null) this.createDefaultType();
             this.setTitle();
             this.setIcon(feature);
@@ -108,16 +110,18 @@ module FeatureProps {
             var searchCallOutSection = new CallOutSection('fa-filter');
             var hierarchyCallOutSection = new CallOutSection('fa-link');
 
+
+
             var displayValue: string;
             if (type != null) {
                 var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
-                for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]);
+                if (propertyTypes.length === 0) { for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]); };
 
                 //
                 if (type.showAllProperties || this.mapservice.isAdminExpert) {
                     var missing = csComp.Helpers.getMissingPropertyTypes(feature);
                     missing.forEach((pt: csComp.Services.IPropertyType) => {
-                        if (!propertyTypes.some(((p: csComp.Services.IPropertyType) => p.label == pt.label))) {
+                        if (!propertyTypes.some(((p: csComp.Services.IPropertyType) => p.label === pt.label))) {
                             propertyTypes.push(pt);
                         }
                     });
@@ -136,7 +140,7 @@ module FeatureProps {
                         // Skip empty, non-editable values
                         if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
 
-                        var canFilter = (mi.type === "number" || mi.type === "text" || mi.type === "options" || mi.type === "date");
+                        var canFilter = (mi.type === "number" || mi.type === "text" || mi.type === "options" || mi.type === "date" || mi.type === 'boolean');
                         var canStyle = (mi.type === "number" || mi.type === "options" || mi.type === "color");
                         if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
                         if (mi.visibleInCallOut) {
@@ -149,7 +153,12 @@ module FeatureProps {
                     }
                 });
             }
-            if (infoCallOutSection.properties.length > 0) this.sections['Aaa Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
+            if (infoCallOutSection.properties.length > 0) {
+                this.hasInfoSection = true;
+                this.sections['Aaa Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
+            } else {
+                this.hasInfoSection = false;
+            }
             if (hierarchyCallOutSection.properties.length > 0) this.sections['hierarchy'] = hierarchyCallOutSection;
             //if (searchCallOutSection.properties.length > 0) this.sections['zzz Search'] = searchCallOutSection;
         }
@@ -186,18 +195,18 @@ module FeatureProps {
         }
 
         public firstSection(): ICallOutSection {
-          var keys = Object.keys(this.sections);
-          keys.sort();
-          var first = this.sections[keys[0]];
-          return first;
+            var keys = Object.keys(this.sections);
+            keys.sort();
+            var first = this.sections[keys[0]];
+            return first;
         }
 
 
         public lastSection(): ICallOutSection {
-          var keys = Object.keys(this.sections);
-          keys.sort();
-          var last = this.sections[keys[this.sectionCount() - 1]];
-          return last;
+            var keys = Object.keys(this.sections);
+            keys.sort();
+            var last = this.sections[keys[this.sectionCount() - 1]];
+            return last;
         }
 
         private getOrCreateCallOutSection(sectionTitle: string): ICallOutSection {
@@ -242,6 +251,7 @@ module FeatureProps {
 
     export class FeaturePropsCtrl {
         private scope: IFeaturePropsScope;
+        public lastSelectedProperty: IPropertyType;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -288,12 +298,8 @@ module FeatureProps {
             }
 
             $scope.autocollapse = function(initializeTabPosition = false) {
-                //                console.log('autocollapse');
-                var tabs = $('#featureTabs');
 
-                //                console.log('#ft.ow(): ' + tabs.outerWidth());
-                //                console.log('wol: ' + widthOfList());
-                //                console.log('ml: ' + tabs.css('margin-left'));
+                var tabs = $('#featureTabs');
 
                 if (tabs.outerWidth() < widthOfList() || parseFloat(tabs.css('margin-left')) < 0) {
                     $('#leftArr').show();
@@ -314,43 +320,18 @@ module FeatureProps {
             $scope.tabs = $('#featureTabs');
             $scope.tabScrollDelta = $scope.tabs.outerWidth();
 
-            $('#leftArr').click(function() {
-                //console.log('leftArr');
-                //var tabs = $('#featureTabs');
-                var current = parseFloat($scope.tabs.css('margin-left'));
-                var min = 20;
-                var nextPos = $scope.tabScrollDelta;
-
-                if (current + nextPos > min) {
-                    nextPos = min - current;
-                }
-
-                $scope.tabs.animate({ 'margin-left': '+=' + nextPos + 'px' }, 'slow', function() {
-                    //                    console.log('rightarr hide');
-                    $('#rightArr').show();
-                    $('#leftArr').show();
-                    $scope.autocollapse(false);
-                });
-            });
-
-            $('#rightArr').click(function() {
-                //var tabs = $('#featureTabs');
-                var max = widthOfList() - $scope.tabs.outerWidth() + 30;
-                //var current = Math.abs(parseFloat($scope.tabs.css('margin-left')));
-                var nextPos = $scope.tabScrollDelta;
-                nextPos = Math.min(max, nextPos);
-
-                $scope.tabs.animate({ 'margin-left': '-=' + nextPos + 'px' }, 'slow', function() {
-                    $('#leftArr').show();
-                    $('#rightArr').show();
-
-                    $scope.autocollapse(false);
-                });
-            });
-
-            console.log('showing feature');
             this.displayFeature(this.$layerService.lastSelectedFeature);
-            this.$scope.poi = this.$layerService.lastSelectedFeature;
+            this.$scope.feature = this.$layerService.lastSelectedFeature;
+        }
+
+        public selectProperty(prop: IPropertyType) {
+            console.log(prop);
+            this.lastSelectedProperty = prop;
+        }
+
+        public saveFeature() {
+            this.$layerService.saveFeature(this.$scope.feature);
+
         }
 
         public editFeature() {
@@ -370,8 +351,8 @@ module FeatureProps {
         }
 
         public openLayer(property: FeatureProps.CallOutProperty) {
-            if (property.feature != null && property.feature.properties.hasOwnProperty(property.meta.label)) {
-                var link = property.feature.properties[property.meta.label];
+            if (property.feature != null && property.feature.properties.hasOwnProperty(property.propertyType.label)) {
+                var link = property.feature.properties[property.propertyType.label];
                 alert(link);
             }
 
@@ -384,7 +365,7 @@ module FeatureProps {
             sc.id = csComp.Helpers.getGuid();
             sc.filterType = "scatter";
             sc.title = sc.property;
-            var l = this.$layerService.findLayer(this.$scope.poi.layerId);
+            var l = this.$layerService.findLayer(this.$scope.feature.layerId);
             this.$layerService.setFilter(sc, l.group);
             //alert('scatter ' + property.property);
         }
@@ -422,18 +403,18 @@ module FeatureProps {
             switch (title) {
                 case "onFeatureSelect":
                     this.displayFeature(this.$layerService.lastSelectedFeature);
-                    this.$scope.poi = this.$layerService.lastSelectedFeature;
+                    this.$scope.feature = this.$layerService.lastSelectedFeature;
                     break;
                 case "onRelationsUpdated":
                     this.setShowSimpleTimeline();
                     this.displayFeature(feature);
                     this.updateHierarchyLinks(feature);
-                    this.$scope.poi = feature;
+                    this.$scope.feature = feature;
                     this.$scope.autocollapse(true);
                     break;
                 case "onFeatureUpdated":
                     this.displayFeature(this.$layerService.lastSelectedFeature);
-                    this.$scope.poi = this.$layerService.lastSelectedFeature;
+                    this.$scope.feature = this.$layerService.lastSelectedFeature;
                     break;
                 default:
             }
@@ -451,6 +432,7 @@ module FeatureProps {
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
 
             //var pt = this.$layerService.getPropertyTypes(feature);
+            console.log('showing feature');
 
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService, this.$mapService);
         }
@@ -465,7 +447,7 @@ module FeatureProps {
                             (<any>(l.data)).features[0].fType.propertyTypeData.forEach((pt) => {
                                 if (pt.type == "hierarchy") {
                                     if (pt.targetlayer == feature.layerId) {
-                                        var featureType = this.$layerService.featureTypes[feature.featureTypeName];
+                                        var featureType = this.$layerService.getFeatureType(feature);
                                         var propertyTypes = csComp.Helpers.getPropertyTypes(feature.fType, this.$layerService.propertyTypeData);
                                         var found = false;
                                         propertyTypes.forEach((p) => {

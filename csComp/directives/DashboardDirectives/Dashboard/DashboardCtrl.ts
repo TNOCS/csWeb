@@ -133,6 +133,11 @@ module Dashboard {
                 if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
             }
 
+            if (this.$scope.dashboard.viewBounds) {
+                console.log('set bound');
+                this.$layerService.activeMapRenderer.fitBounds(this.$scope.dashboard.viewBounds);
+            }
+
             if (this.$scope.dashboard.showMap && this.$scope.dashboard.baselayer) {
                 this.$messageBusService.publish("map", "setbaselayer", this.$scope.dashboard.baselayer);
             }
@@ -159,7 +164,7 @@ module Dashboard {
         public checkViewbound() {
             var db = this.$layerService.project.activeDashboard;
             if (db.viewBounds) {
-                this.$layerService.activeMapRenderer.fitBounds(new L.LatLngBounds(db.viewBounds.southWest, db.viewBounds.northEast));
+                this.$layerService.activeMapRenderer.fitBounds(db.viewBounds);
             }
         }
 
@@ -176,7 +181,7 @@ module Dashboard {
 
         public isReady(widget: csComp.Services.IWidget) {
             setTimeout(() => {
-                this.updateWidget(widget);
+                //this.updateWidget(widget);
             }, 10);
 
         }
@@ -196,8 +201,10 @@ module Dashboard {
             this.checkLayers();
             this.checkViewbound();
             //this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
-            this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
-            this.$layerService.visual.rightPanelVisible = d.showRightmenu;
+            if (!this.$mapService.isAdminExpert) {
+                this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
+                this.$layerService.visual.rightPanelVisible = d.showRightmenu;
+            }
             this.$timeout(() => {
                 d.widgets.forEach((w: any) => {
                     this.updateWidget(w);

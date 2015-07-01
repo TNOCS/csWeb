@@ -189,7 +189,7 @@ module csComp.Services {
         public stopEditWidget() {
             this.activeWidget = null;
             this.editWidgetMode = false;
-            this.$layerService.visual.rightPanelVisible = false;
+            //this.$layerService.visual.rightPanelVisible = false;
             $("#widgetEdit").removeClass('active');
         }
 

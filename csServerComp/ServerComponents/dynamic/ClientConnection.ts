@@ -1,11 +1,23 @@
 import io = require('socket.io');
+import MessageBus = require("../bus/MessageBus");
 
 module ClientConnection {
-        GetDataSource: Function;
-   export class ClientSubscription {
+    GetDataSource: Function;
+    export class msgSubscription {
         public id: string;
         public type: string;
         public target: string;
+        public callback: Function;
+    }
+
+    export class LayerSubscription {
+        public layerId: string;
+        public callback: MessageBus.IMessageBusCallback
+    }
+
+    export class LayerMessage {
+        constructor(public layerId: string, public action: string, public object: any)
+        { }
     }
 
     export class ClientMessage {
@@ -14,19 +26,19 @@ module ClientConnection {
 
     export class WebClient {
         public Name: string;
-        public Subscriptions: { [key: string]: ClientSubscription } = {};
+        public Subscriptions: { [key: string]: msgSubscription } = {};
 
         constructor(public Client: any) {
         }
 
-        public FindSubscription(target: string, type: string): ClientSubscription {
+        public FindSubscription(target: string, type: string): msgSubscription {
             for (var k in this.Subscriptions) {
                 if (this.Subscriptions[k].target == target && this.Subscriptions[k].type == type) return this.Subscriptions[k];
             }
             return null;
         }
 
-        public Subscribe(sub: ClientSubscription) {
+        public Subscribe(sub: msgSubscription) {
             this.Subscriptions[sub.id] = sub;
             this.Client.on(sub.id, (data) => {
                 switch (data.action) {
@@ -42,7 +54,11 @@ module ClientConnection {
 
     export class ConnectionManager {
         private users: { [key: string]: WebClient } = {};
-        private server: SocketIO.Server;
+        public server: SocketIO.Server;
+
+        public subscriptions: LayerSubscription[] = [];
+        public msgSubscriptions: msgSubscription[] = [];
+
 
         constructor(httpServer: any) {
             this.server = io(httpServer);
@@ -58,13 +74,20 @@ module ClientConnection {
                     console.log('user ' + socket.id + ' disconnected');
                 });
 
-                socket.on('subscribe', (msg: ClientSubscription) => {
+                socket.on('subscribe', (msg: msgSubscription) => {
                     console.log('subscribe ' + JSON.stringify(msg.target));
                     wc.Subscribe(msg);
                     // wc.Client.emit('laag', 'test');
                     //socket.emit('laag', 'test');
                 });
 
+                socket.on('msg', (msg: ClientMessage) => {
+                    this.checkClientMessage(msg, socket.id);
+                });
+
+                socket.on('layer', (msg: LayerMessage) => {
+                    this.checkLayerMessage(msg);
+                });
                 // create layers room
                 //var l = socket.join('layers');
                 //l.on('join',(j) => {
@@ -73,49 +96,73 @@ module ClientConnection {
             });
         }
 
-        public registerLayer(id: string) {
 
+        public checkClientMessage(msg: ClientMessage, client: string) {
+            this.msgSubscriptions.forEach((sub: msgSubscription) => {
+                if (sub.target === msg.action) {
+                    sub.callback(msg, client);
+                }
+            });
         }
 
-            //
-            // //console.log('updateSensorValue:' + sensor);
-            // for (var uId in this.users) {
-            //     //var sub = this.users[uId].FindSubscription(sensor,"sensor");
-            //     for (var s in this.users[uId].Subscriptions) {
-            //         var sub = this.users[uId].Subscriptions[s];
-            //         if (sub.type == "sensor" && sub.target == sensor) {
-            //             //console.log('sending update:' + sub.id);
-            //             var cm = new ClientMessage("sensor-update", [{ sensor: sensor, date: date, value: value }]);
-            //             //console.log(JSON.stringify(cm));
-            //             this.users[uId].Client.emit(sub.id, cm);
-                    // }
-        public updateSensorValue(sensor : string, date : number, value : number)
-        {
-          //console.log('updateSensorValue:' + sensor);
-          for (var uId in this.users) {
-            //var sub = this.users[uId].FindSubscription(sensor,"sensor");
-            for (var s in this.users[uId].Subscriptions)
-            {
-                var sub = this.users[uId].Subscriptions[s];
-                if (sub.type == "sensor" && sub.target == sensor) {
-                    //console.log('sending update:' + sub.id);
-                    var cm = new ClientMessage("sensor-update", [{ sensor: sensor, date: date, value: value }]);
-                    //console.log(JSON.stringify(cm));
-                    this.users[uId].Client.emit(sub.id, cm);
+        public checkLayerMessage(msg: LayerMessage) {
+
+            this.subscriptions.forEach((s: LayerSubscription) => {
+                if (msg.layerId === s.layerId) {
+                    s.callback(msg.action, msg.object);
+                }
+            });
+        }
+
+        public registerLayer(layerId: string, callback: MessageBus.IMessageBusCallback) {
+            var sub = new LayerSubscription();
+            sub.layerId = layerId;
+            sub.callback = callback;
+            this.subscriptions.push(sub);
+        }
+
+        public subscribe(on: string, callback: Function) {
+            var cs = new msgSubscription();
+            cs.target = on;
+            cs.callback = callback;
+            this.msgSubscriptions.push(cs);
+        }
+
+        //
+        // //console.log('updateSensorValue:' + sensor);
+        // for (var uId in this.users) {
+        //     //var sub = this.users[uId].FindSubscription(sensor,"sensor");
+        //     for (var s in this.users[uId].Subscriptions) {
+        //         var sub = this.users[uId].Subscriptions[s];
+        //         if (sub.type == "sensor" && sub.target == sensor) {
+        //             //console.log('sending update:' + sub.id);
+        //             var cm = new ClientMessage("sensor-update", [{ sensor: sensor, date: date, value: value }]);
+        //             //console.log(JSON.stringify(cm));
+        //             this.users[uId].Client.emit(sub.id, cm);
+        // }
+        public updateSensorValue(sensor: string, date: number, value: number) {
+            //console.log('updateSensorValue:' + sensor);
+            for (var uId in this.users) {
+                //var sub = this.users[uId].FindSubscription(sensor,"sensor");
+                for (var s in this.users[uId].Subscriptions) {
+                    var sub = this.users[uId].Subscriptions[s];
+                    if (sub.type == "sensor" && sub.target == sensor) {
+                        //console.log('sending update:' + sub.id);
+                        var cm = new ClientMessage("sensor-update", [{ sensor: sensor, date: date, value: value }]);
+                        //console.log(JSON.stringify(cm));
+                        this.users[uId].Client.emit(sub.id, cm);
+                    }
                 }
             }
-          }
         }
 
-        public sendUpdate(key : string, type : string, command : string, object : any)
-        {
-          for (var uId in this.users) {
+        public publish(key: string, type: string, command: string, object: any) {
+            for (var uId in this.users) {
 
-            var sub = this.users[uId].FindSubscription(key,type);
-            if (sub!=null)
-            {
-              //console.log('sending update:' + sub.id);
-              this.users[uId].Client.emit(sub.id,new ClientMessage(command,object));
+                var sub = this.users[uId].FindSubscription(key, type);
+                if (sub != null) {
+                    //console.log('sending update:' + sub.id);
+                    this.users[uId].Client.emit(sub.id, new ClientMessage(command, object));
                 }
             }
         }

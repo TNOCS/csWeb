@@ -1,13 +1,13 @@
-import fs                   = require('fs');
-import path                 = require('path');
-import express              = require('express');
-import Utils                = require("../helpers/Utils");
-import IStore               = require("./IStore");
+import fs = require('fs');
+import path = require('path');
+import express = require('express');
+import Utils = require("../helpers/Utils");
+import IStore = require("./IStore");
 import ConfigurationService = require('../configuration/ConfigurationService');
 
 export class FileStore implements IStore {
     private store: string;
-    private resources: { [id: string]: any} = {};
+    private resources: { [id: string]: any } = {};
 
     constructor(opt?: { [key: string]: any }) {
         this.store = opt["storageFile"] || "importers.json";
@@ -103,7 +103,7 @@ export class FolderStore implements IStore {
     /**
      * Load the file from disk.
      */
-    private load() {
+    private load(callback?: Function) {
         fs.readdir(this.folder, (err, res) => {
             if (err) {
                 console.log('No folder store found: ' + this.folder);
@@ -113,6 +113,7 @@ export class FolderStore implements IStore {
                     this.resources[resource] = path.join(this.folder, resource);
                 });
             }
+            if (callback) callback();
         });
     }
 
@@ -145,7 +146,12 @@ export class FolderStore implements IStore {
      * Get a single resource.
      */
     get(id: string) {
-        if (!this.resources.hasOwnProperty(id)) return null;
+        if (!this.resources.hasOwnProperty(id)) {
+            this.load();
+        }
+        if (!this.resources.hasOwnProperty(id)) {
+            return null;
+        }
         return this.resources[id];
     }
 
@@ -153,10 +159,18 @@ export class FolderStore implements IStore {
      * Get a single resource.
      */
     getAsync(id: string, res: express.Response) {
+        // If resource cannot be found, refresh the resourcelist and try again
         if (!this.resources.hasOwnProperty(id)) {
-            res.status(404);
-            res.write("");
-            res.end();
+            this.load(() => {
+                if (!this.resources.hasOwnProperty(id)) {
+                    res.status(404);
+                    res.write("");
+                    res.end();
+                } else {
+                    var filename = this.resources[id];
+                    res.sendFile(filename);
+                }
+            });
         } else {
             var filename = this.resources[id];
             res.sendFile(filename);
