@@ -86,12 +86,12 @@ export class DynamicLayer implements IDynamicLayer {
         this.startDate = new Date().getTime();
         //this.OpenFile();
         this.connection.registerLayer(this.layerId, (action: string, msg: ClientConnection.LayerMessage, client: string) => {
-
+            var feature;
             switch (action) {
                 case "logUpdate":
                     // find feature
                     var featureId = msg.object.featureId;
-                    var feature = this.result.features.filter((k) => { return k.id && k.id === featureId });
+                    feature = this.result.features.filter((k) => { return k.id && k.id === featureId });
                     if (!feature.hasOwnProperty('logs')) feature.logs = {};
                     if (!feature.hasOwnProperty('properties')) feature.properties = {};
 
@@ -99,15 +99,16 @@ export class DynamicLayer implements IDynamicLayer {
                     if (feature) {
                         var logs = msg.object.logs;
                         console.log(logs);
+
                         for (var key in logs) {
+                            console.log('updating key:' + key);
                             if (!feature.logs.hasOwnProperty(key)) feature.logs[key] = [];
                             logs[key].forEach(l=> {
                                 feature.logs[key].push(l);
                                 feature.properties[key] = l.value;
                             })
                         }
-
-
+                        console.log(JSON.stringify(feature));
                         // send them to other clients
                         this.connection.updateFeature(this.layerId, msg.object, "logs-update", client);
                     }
@@ -116,7 +117,7 @@ export class DynamicLayer implements IDynamicLayer {
                 case "featureUpdate":
                     var f = <csComp.Services.IFeature>msg.object;
                     this.initFeature(f);
-                    var feature = this.result.features.filter((k) => { return k.id && k.id === f.id });
+                    feature = this.result.features.filter((k) => { return k.id && k.id === f.id });
                     if (feature && feature.length > 0) {
                         var index = this.result.features.indexOf(feature[0]);
                         this.result.features[index] = f;

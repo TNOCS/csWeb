@@ -583,7 +583,7 @@ module csComp.Services {
 
             var date = this.project.timeLine.focus;
             var changed = false;
-            if (f.logs) {
+            if (f.logs && !this.isLocked(f)) {
                 // find all keys
                 for (var key in f.logs) {
                     // lookup value
@@ -1838,6 +1838,27 @@ module csComp.Services {
                 }
             }
             return result;
+        }
+
+        public isLocked(f: IFeature): boolean {
+            return f.gui.hasOwnProperty('lock') || (f.gui.hasOwnProperty('editMode') && f.gui['editMode']);
+        }
+
+        /**
+         * Set a lock property on the feature to signal others prevent feature updates
+         */
+        public lockFeature(f: IFeature): boolean {
+            if (f.gui.hasOwnProperty('lock')) {
+                return false;
+            }
+            else {
+                f.gui["lock"] = true;
+                return true;
+            }
+        }
+
+        public unlockFeature(f: IFeature) {
+            delete f.gui['lock'];
         }
 
         public saveFeature(f: IFeature, logs: boolean = false) {
