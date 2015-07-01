@@ -179,8 +179,6 @@ module ClientConnection {
             }
         }
 
-
-
         public deleteFeature(layer: string, feature: any) {
             for (var uId in this.users) {
                 var sub = this.users[uId].FindSubscription(layer, "layer");

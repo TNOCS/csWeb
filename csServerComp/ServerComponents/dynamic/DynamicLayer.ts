@@ -109,7 +109,7 @@ export class DynamicLayer implements IDynamicLayer {
 
 
                         // send them to other clients
-                        this.connection.updateFeature(this.layerId, logs, "logs-update", client);
+                        this.connection.updateFeature(this.layerId, msg.object, "logs-update", client);
                     }
                     console.log("Log update" + featureId);
                     break;
