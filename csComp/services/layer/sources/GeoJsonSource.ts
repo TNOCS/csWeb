@@ -177,9 +177,13 @@ module csComp.Services {
 
         public initSubscriptions(layer: ProjectLayer) {
             layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, "layer", (topic: string, msg: any) => {
+                console.log("action:" + msg.action);
                 switch (msg.action) {
                     case "subscribed":
                         console.log('sucesfully subscribed');
+                        break;
+                    case "logs-update":
+                        console.log('receiving feature updates');
                         break;
                     case "feature-update":
                         if (msg.data != null) {

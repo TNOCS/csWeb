@@ -76,7 +76,7 @@ export class DynamicLayer implements IDynamicLayer {
         this.initFeature(f);
         this.result.features.push(f);
         f.insertDate = new Date().getTime();
-        this.connection.updateFeature(this.layerId, f);
+        this.connection.updateFeature(this.layerId, f, "feature-update");
     }
 
     public start() {
@@ -85,11 +85,36 @@ export class DynamicLayer implements IDynamicLayer {
 
         this.startDate = new Date().getTime();
         //this.OpenFile();
-        this.connection.registerLayer(this.layerId, (action: string, object: any, client: string) => {
-            switch (action) {
-                case "featureUpdate":
+        this.connection.registerLayer(this.layerId, (action: string, msg: ClientConnection.LayerMessage, client: string) => {
 
-                    var f = <csComp.Services.IFeature>object;
+            switch (action) {
+                case "logUpdate":
+                    // find feature
+                    var featureId = msg.object.featureId;
+                    var feature = this.result.features.filter((k) => { return k.id && k.id === featureId });
+                    if (!feature.hasOwnProperty('logs')) feature.logs = {};
+                    if (!feature.hasOwnProperty('properties')) feature.properties = {};
+
+                    // apply changes
+                    if (feature) {
+                        var logs = msg.object.logs;
+                        console.log(logs);
+                        for (var key in logs) {
+                            if (!feature.logs.hasOwnProperty(key)) feature.logs[key] = [];
+                            logs[key].forEach(l=> {
+                                feature.logs[key].push(l);
+                                feature.properties[key] = l.value;
+                            })
+                        }
+
+
+                        // send them to other clients
+                        this.connection.updateFeature(this.layerId, logs, "logs-update", client);
+                    }
+                    console.log("Log update" + featureId);
+                    break;
+                case "featureUpdate":
+                    var f = <csComp.Services.IFeature>msg.object;
                     this.initFeature(f);
                     var feature = this.result.features.filter((k) => { return k.id && k.id === f.id });
                     if (feature && feature.length > 0) {
@@ -99,7 +124,7 @@ export class DynamicLayer implements IDynamicLayer {
                     else {
                         this.result.features.push(f);
                     }
-                    this.connection.updateFeature(this.layerId, f, client);
+                    this.connection.updateFeature(this.layerId, f, "feature-update", client);
                     break;
             }
         });

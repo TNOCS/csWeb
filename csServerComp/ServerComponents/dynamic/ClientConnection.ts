@@ -106,10 +106,9 @@ module ClientConnection {
         }
 
         public checkLayerMessage(msg: LayerMessage, client: string) {
-
             this.subscriptions.forEach((s: LayerSubscription) => {
                 if (msg.layerId === s.layerId) {
-                    s.callback(msg.action, msg.object, client);
+                    s.callback(msg.action, msg, client);
                 }
             });
         }
@@ -117,6 +116,7 @@ module ClientConnection {
         public registerLayer(layerId: string, callback: MessageBus.IMessageBusCallback) {
             var sub = new LayerSubscription();
             sub.layerId = layerId;
+
             sub.callback = callback;
             this.subscriptions.push(sub);
         }
@@ -158,7 +158,6 @@ module ClientConnection {
 
         public publish(key: string, type: string, command: string, object: any) {
             for (var uId in this.users) {
-
                 var sub = this.users[uId].FindSubscription(key, type);
                 if (sub != null) {
                     //console.log('sending update:' + sub.id);
@@ -167,18 +166,20 @@ module ClientConnection {
             }
         }
 
-        public updateFeature(layer: string, feature: any, orign?: string) {
+        public updateFeature(layer: string, object: any, action: string, origin?: string) {
             //console.log('update feature ' + layer);
             for (var uId in this.users) {
-                if (!orign || uId != orign) {
+                if (!origin || uId != origin) {
                     var sub = this.users[uId].FindSubscription(layer, "layer");
                     if (sub != null) {
                         //console.log('sending update:' + sub.id);
-                        this.users[uId].Client.emit(sub.id, new ClientMessage("feature-update", [feature]));
+                        this.users[uId].Client.emit(sub.id, new ClientMessage(action, [object]));
                     }
                 }
             }
         }
+
+
 
         public deleteFeature(layer: string, feature: any) {
             for (var uId in this.users) {

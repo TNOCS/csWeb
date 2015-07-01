@@ -97,9 +97,9 @@ module KanbanColumn {
         public clickPrio($event) {
 
 
-            var dropdown: any = $($event.target, "> ul");
-            dropdown.css('top', angular.element($event.target).prop('offsetLeft') + "px");
-            dropdown.css('left', angular.element($event.target).prop('offsetTop') + "px");
+            // var dropdown: any = $($event.target, "> ul");
+            // dropdown.css('top', angular.element($event.target).prop('offsetLeft') + "px");
+            // dropdown.css('left', angular.element($event.target).prop('offsetTop') + "px");
 
         }
 
@@ -113,7 +113,7 @@ module KanbanColumn {
         public sendForm(feature: csComp.Services.IFeature) {
             feature.properties["answered"] = true;
             delete feature.gui["questions"];
-            this.$layerService.saveFeature(feature);
+            this.$layerService.saveFeature(feature, true);
         }
 
         public updateTime() {
@@ -158,7 +158,7 @@ module KanbanColumn {
         }
 
         public updateFeature(feature: csComp.Services.Feature) {
-            this.$layerService.saveFeature(feature);
+            this.$layerService.saveFeature(feature, true);
         }
 
         selectFeature(feature: csComp.Services.IFeature) {

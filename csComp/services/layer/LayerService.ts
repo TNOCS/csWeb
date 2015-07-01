@@ -1573,7 +1573,7 @@ module csComp.Services {
                                     g.layers.push(l);
                                     this.initLayer(g, l);
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
-                                    l.layerSource.refreshLayer(g.layers[g.layers.length-1]);
+                                    l.layerSource.refreshLayer(g.layers[g.layers.length - 1]);
                                 } else {
                                     if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
@@ -1815,40 +1815,52 @@ module csComp.Services {
                 $('#filtergroupcount_' + group.id).text(group.filterResult.length + ' objecten geselecteerd');
         }
 
-        private trackProperty(f: IFeature, key: string) {
+        private trackProperty(f: IFeature, key: string, result: {}) {
             var log = <Log>{
                 ts: new Date().getTime(), prop: key, value: f.properties[key]
             };
             f.propertiesOld[key] = f.properties[key];
             if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+            if (!result.hasOwnProperty(key)) result[key] = [];
             f.logs[key].push(log);
+            result[key].push(log);
             f.gui["lastUpdate"] = log.ts;
         }
 
-        private trackFeature(f: IFeature) {
+        private trackFeature(f: IFeature): {} {
+            var result = {};
             for (var key in f.properties) {
                 if (!f.propertiesOld.hasOwnProperty(key)) {
-                    this.trackProperty(f, key);
+                    this.trackProperty(f, key, result);
                 }
                 else if (JSON.stringify(f.propertiesOld[key]) != JSON.stringify(f.properties[key])) {
-                    this.trackProperty(f, key);
+                    this.trackProperty(f, key, result);
                 }
             }
-
+            return result;
         }
 
-        public saveFeature(f: IFeature) {
+        public saveFeature(f: IFeature, logs: boolean = false) {
             console.log('saving feature');
             // check if feature is in dynamic layer
             if (f.layer.type.toLowerCase() === "dynamicgeojson") {
-                this.trackFeature(f);
-                var s = new LayerMessage();
-                s.layerId = f.layerId;
-                s.action = "featureUpdate";
-                s.object = Feature.serialize(f);
-                this.$messageBusService.serverPublish("layer", s);
+                var l = this.trackFeature(f);
 
-
+                if (logs) {
+                    var s = new LayerMessage();
+                    s.layerId = f.layerId;
+                    s.action = "logUpdate";
+                    s.object = { featureId: f.id, logs: l };
+                    this.$messageBusService.serverPublish("layer", s);
+                    console.log(l);
+                }
+                else {
+                    var s = new LayerMessage();
+                    s.layerId = f.layerId;
+                    s.action = "featureUpdate";
+                    s.object = Feature.serialize(f);
+                    this.$messageBusService.serverPublish("layer", s);
+                }
             }
         }
 
