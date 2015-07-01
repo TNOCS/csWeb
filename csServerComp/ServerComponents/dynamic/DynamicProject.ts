@@ -31,7 +31,7 @@ export class DynamicProject {
         var groupFolder = this.folder + "\\" + data.group;
         var resourceFolder = this.folder + "\\..\\..\\resourceTypes";
         var geojsonfile = groupFolder + "\\" + data.reference + ".json";
-        var resourcefile = resourceFolder + "\\" + data.reference + ".json";
+        var resourcefile = resourceFolder + "\\" + data.featureType + ".json";
         if (!fs.existsSync(groupFolder)) fs.mkdirSync(groupFolder);
         if (!fs.existsSync(resourceFolder)) fs.mkdirSync(resourceFolder);
         var combinedjson = this.splitJson(data);
@@ -49,23 +49,27 @@ export class DynamicProject {
                 features: combinedjson.features
             };
         }
-        if (combinedjson.hasOwnProperty('featureTypes') && combinedjson.featureTypes.hasOwnProperty('Default')) {
-            var defaultFeatureType = combinedjson.featureTypes['Default'];
-            if (defaultFeatureType.hasOwnProperty('propertyTypeData')) {
-                var propertyTypeObjects = {};
-                var propKeys: string = '';
-                defaultFeatureType.propertyTypeData.forEach((pt) => {
-                    propertyTypeObjects[pt.label] = pt;
-                    propKeys = propKeys + pt.label + ';'
-                });
-                delete defaultFeatureType.propertyTypeData;
-                defaultFeatureType.propertyTypeKeys = propKeys;
-                defaultFeatureType.name = data.reference;
-                resourcejson['featureTypes'] = {};
-                resourcejson.featureTypes[data.reference] = defaultFeatureType;
-                resourcejson['propertyTypeData'] = {};
-                resourcejson.propertyTypeData = propertyTypeObjects;
-                data.defaultFeatureType = defaultFeatureType.name;
+        if (combinedjson.hasOwnProperty('featureTypes')) {
+            for (var ftName in combinedjson.featureTypes) {
+                if (combinedjson.featureTypes.hasOwnProperty(ftName)) {
+                    var defaultFeatureType = combinedjson.featureTypes[ftName];
+                    if (defaultFeatureType.hasOwnProperty('propertyTypeData')) {
+                        var propertyTypeObjects = {};
+                        var propKeys: string = '';
+                        defaultFeatureType.propertyTypeData.forEach((pt) => {
+                            propertyTypeObjects[pt.label] = pt;
+                            propKeys = propKeys + pt.label + ';'
+                        });
+                        delete defaultFeatureType.propertyTypeData;
+                        defaultFeatureType.propertyTypeKeys = propKeys;
+                        defaultFeatureType.name = data.featureType;
+                        resourcejson['featureTypes'] = {};
+                        resourcejson.featureTypes[data.featureType] = defaultFeatureType;
+                        resourcejson['propertyTypeData'] = {};
+                        resourcejson.propertyTypeData = propertyTypeObjects;
+                        data.defaultFeatureType = defaultFeatureType.name;
+                    }
+                }
             }
         }
         return { geojson: geojson, resourcejson: resourcejson };
@@ -183,8 +187,8 @@ export class DynamicProject {
         layer.groupId = g.id;
         layer.enabled = parameters.enabled;
         layer.reference = parameters.reference;
-        layer.defaultFeatureType = parameters.reference;
-        if (parameters.reference) layer.typeUrl = "data/resourceTypes/" + parameters.reference + ".json";
+        layer.defaultFeatureType = parameters.featureType;
+        if (parameters.featureType) layer.typeUrl = "data/resourceTypes/" + parameters.featureType + ".json";
 
         var layerExists = false;
         for (var i = 0; i < g.layers.length; i++) {

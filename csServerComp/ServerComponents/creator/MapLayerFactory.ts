@@ -17,6 +17,7 @@ export interface ILayerDefinition {
     group: string,
     layerTitle: string,
     description: string,
+    featureType: string,
     geometryType: string,
     parameter1: string,
     parameter2: string,
@@ -111,6 +112,7 @@ export class MapLayerFactory {
                 layerTitle: ld.layerTitle,
                 description: ld.description,
                 reference: ld.reference,
+                featureType: ld.featureType,
                 clusterLevel: ld.clusterLevel,
                 useClustering: ld.useClustering,
                 group: ld.group,
@@ -141,29 +143,30 @@ export class MapLayerFactory {
         this.convertStringFormats(template.propertyTypes);
         // Check propertyTypeData for time-based data
         var timestamps = this.convertTimebasedPropertyData(template);
+        var featureTypeName = ld.featureType || "Default";
+        var featureTypeContent = {
+            name: featureTypeName,
+            style: {
+                iconUri: ld.iconUri,
+                iconWidth: ld.iconSize,
+                iconHeight: ld.iconSize,
+                drawingMode: ld.drawingMode,
+                stroke: ld.strokeWidth > 0,
+                strokeColor: ld.strokeColor || "#000",
+                selectedStrokeColor: ld.selectedStrokeColor || "#00f",
+                fillColor: ld.fillColor || "#ff0",
+                opacity: ld.opacity || 0.5,
+                fillOpacity: ld.opacity || 0.5,
+                nameLabel: ld.nameLabel
+            },
+            propertyTypeData: template.propertyTypes
+        }
         var geojson = {
             type: "FeatureCollection",
-            featureTypes: {
-                "Default": {
-                    name: "Default",
-                    style: {
-                        iconUri: ld.iconUri,
-                        iconWidth: ld.iconSize,
-                        iconHeight: ld.iconSize,
-                        drawingMode: ld.drawingMode,
-                        stroke: ld.strokeWidth > 0,
-                        strokeColor: ld.strokeColor || "#000",
-                        selectedStrokeColor: ld.selectedStrokeColor || "#00f",
-                        fillColor: ld.fillColor || "#ff0",
-                        opacity: ld.opacity || 0.5,
-                        fillOpacity: ld.opacity || 0.5,
-                        nameLabel: ld.nameLabel
-                    },
-                    propertyTypeData: template.propertyTypes
-                }
-            },
+            featureTypes: {},
             features: features
         };
+        geojson.featureTypes[featureTypeName] = featureTypeContent;
         if (timestamps.length > 0) {
             geojson["timestamps"] = JSON.parse(JSON.stringify(timestamps));
         }
