@@ -130,6 +130,7 @@ export class DynamicLayer implements IDynamicLayer {
                         this.geojson.features.push(ft);
                     }
                     this.connection.updateFeature(this.layerId, ft, "feature-update", client);
+                    this.featureUpdated(featureId);
                     break;
             }
         });
