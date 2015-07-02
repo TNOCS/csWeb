@@ -463,7 +463,7 @@ module FeatureProps {
                     }
                 });
             });
-            csComp.Helpers.getPropertyTypes
+            //csComp.Helpers.getPropertyTypes
         }
 
         showSensorData(property: ICallOutProperty) {

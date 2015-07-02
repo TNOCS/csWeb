@@ -166,10 +166,15 @@ module ClientConnection {
             }
         }
 
-        public updateFeature(layer: string, object: any, action: string, origin?: string) {
+        /**
+         * Send update to all clients.
+         * @action: logs-update, feature-update
+         * @skip: this one will be skipped ( e.g original source)
+         */
+        public updateFeature(layer: string, object: any, action: string, skip?: string) {
             //console.log('update feature ' + layer);
             for (var uId in this.users) {
-                if (!origin || uId != origin) {
+                if (!skip || uId != skip) {
                     var sub = this.users[uId].FindSubscription(layer, "layer");
                     if (sub != null) {
                         //console.log('sending update:' + sub.id);

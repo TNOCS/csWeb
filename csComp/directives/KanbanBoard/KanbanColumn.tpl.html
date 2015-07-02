@@ -1,3 +1,4 @@
+<div resize resize-y="150">
 <div class="kanbanColumn-title">{{column.title}}</div>
 
 <!-- <form>
@@ -36,7 +37,7 @@
 
     <div class="card-list-container">
         <ul class="card-list">
-            <li class="card-item" ng-class="{ true : 'isQuestion' } [feature.properties[fields['question']]!=null]" } ng-style="feature.properties['answered']===true && {background-image: url('cs/images/check.png')}" ng-repeat="feature in vm.$layerService.project.features | orderBy:columnOrderBy:false | filter:query | filter:columnFilter">
+            <li class="card-item" ng-class="{ true : 'isQuestion' } [feature.properties[fields['question']]!=null]" } ng-repeat="feature in vm.$layerService.project.features | orderBy:columnOrderBy:false | filter:query | filter:columnFilter">
                 <div style="float:left">
                     <img src="{{feature.effectiveStyle.iconUri}}" style="width:25px;height:25px"></img>
                 </div>
@@ -113,4 +114,5 @@
             </li>
         </ul>
     </div>
+</div>
 </div>
