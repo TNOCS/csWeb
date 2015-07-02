@@ -1195,7 +1195,7 @@ module csComp.Services {
         */
         public getFeatureTypeId(feature: IFeature): string {
             if (!feature.hasOwnProperty('layer')) feature['layer'] = new ProjectLayer();
-            var name = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
+            var name = feature.properties['FeatureTypeId'] || feature.properties['featureTypeId'] || feature.layer.defaultFeatureType || 'Default';
 
             //if (name.toLowerCase().startsWith("http://")) return name;
 

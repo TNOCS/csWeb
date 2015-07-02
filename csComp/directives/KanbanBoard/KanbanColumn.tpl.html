@@ -36,13 +36,14 @@
 
     <div class="card-list-container">
         <ul class="card-list">
-            <li class="card-item" ng-class="{ true : 'isQuestion' } [feature.properties[fields['question']]!=null]" } ng-repeat="feature in vm.$layerService.project.features | orderBy:columnOrderBy:false | filter:query | filter:columnFilter">
+            <li class="card-item" ng-class="{ true : 'isQuestion' } [feature.properties[fields['question']]!=null]" } ng-style="feature.properties['answered']===true && {background-image: url('cs/images/check.png')}" ng-repeat="feature in vm.$layerService.project.features | orderBy:columnOrderBy:false | filter:query | filter:columnFilter">
                 <div style="float:left">
                     <img src="{{feature.effectiveStyle.iconUri}}" style="width:25px;height:25px"></img>
                 </div>
                 <div ng-click="vm.selectFeature(feature)" class="card-title">{{feature.properties[fields['title']]}}</div>
+                <div class="card-description">{{feature.properties[fields['description']]}}</div>
                 <div ng-show="feature.properties[fields['question']]">
-                    <button  ng-hide="feature.gui.questions" class="btn btn-primary" ng-click="vm.createForm(feature)">answer</button>
+                    <!-- <button  ng-hide="feature.gui.questions" class="btn btn-primary" ng-click="vm.createForm(feature)">answer</button> -->
                     <div ng-if="feature.gui.questions">
                         <form name="question-form-{{feature.id}}">
                             <div ng-repeat="field in feature.gui.questions">
@@ -93,6 +94,10 @@
 
                     <div ng-show="feature.geometry" ng-click="vm.searchFeature(feature)" class="card-button card-map">
                         <span href="" class="fa fa-search"></span>
+                    </div>
+
+                    <div ng-hide="feature.gui.questions" ng-click="vm.createForm(feature)" class="card-button card-question">
+                        <span href="" class="fa fa-question"></span>
                     </div>
 
                     <div ng-show="column.actions" class="card-button card-actions">
