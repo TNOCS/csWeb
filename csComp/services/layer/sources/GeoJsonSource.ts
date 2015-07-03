@@ -283,7 +283,7 @@ module csComp.Services {
 
         public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
             this.layer = layer;
-            layer.type = 'geojson';
+            layer.type = 'accessibility';
             // Open a layer URL
             layer.isLoading = true;
             layer.count = 0;

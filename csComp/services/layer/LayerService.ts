@@ -583,6 +583,9 @@ module csComp.Services {
                 this.calculateFeatureStyle(this.lastSelectedFeature);
                 this.activeMapRenderer.updateFeature(this.lastSelectedFeature);
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
+                this.actionServices.forEach((as: IActionService) => {
+                    as.deselectFeature(feature);
+                })
             }
             this.lastSelectedFeature = feature;
 
