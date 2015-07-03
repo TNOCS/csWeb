@@ -1,0 +1,19 @@
+<div data-ng-cloak class="rightpanel-content" style="width:100%">
+    <h4 class="rightpanel-header">
+        <i class="layersIcon rightpanel-header-icon" />Bereikbaarheid parameters
+    </h4>
+
+    <div data-ng-cloak style="margin:5px;overflow-y:auto">
+        <div>
+            <div class="controls">
+                <label class="editor-title input-xlarge" for="walkSpeed">Walk speed</label>
+                <input id="walkSpeed" name="textinput" type="number" placeholder="Walk speed" class="input-xlarge editor-text-input" ng-model="vm.walkSpeed">
+            </div>
+
+            <div class="controls" style="margin-top:10px">
+                <button class="btn" ng-click="vm.refreshAccessibility()">Refresh layer</button>
+            </div>
+        </div>
+
+    </div>
+</div>

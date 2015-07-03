@@ -43,6 +43,8 @@
         "./classes/map.ts",
         "./classes/project.ts",
         "./classes/typeresource.ts",
+        "./directives/Accessibility/Accessibility.ts",
+        "./directives/Accessibility/AccessibilityCtrl.ts",
         "./directives/BaseMapList/BaseMapList.ts",
         "./directives/BaseMapList/BaseMapListCtrl.ts",
         "./directives/Charts/BarChart.ts",
