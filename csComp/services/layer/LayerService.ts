@@ -4,6 +4,7 @@ module csComp.Services {
     export interface IActionOption {
         title: string;
         icon: string;
+        feature: IFeature;
         callback: Function;
     }
 
@@ -211,7 +212,10 @@ module csComp.Services {
             // add RSS data source
             this.layerSources["rss"] = new RssDataSource(this);
 
-            // add RSS data source
+            // add Accessibility data source
+            this.layerSources["accessibility"] = new AccessibilityDataSource(this);
+
+            // add Database data source
             this.layerSources["database"] = new DatabaseSource(this);
 
             // check for every feature (de)select if layers should automatically be activated

@@ -84,7 +84,7 @@
     <div ng-if="callOut.feature.gui.actions" class="featureProps-actions">
         <ul>
             <li ng-repeat="action in callOut.feature.gui.actions">
-                <a class="featureProps-action" ng-click="action.callback(action.feature);">{{action.title}}</a>
+                <a class="featureProps-action" ng-click="action.callback(callOut.feature, vm.$layerService);">{{action.title}}</a>
             </li>
         </ul>
     </div>

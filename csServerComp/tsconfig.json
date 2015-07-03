@@ -37,6 +37,7 @@
         "./ServerComponents/bus/MessageBus.ts",
         "./ServerComponents/configuration/ConfigurationService.ts",
         "./ServerComponents/configuration/IConfiguration.ts",
+        "./ServerComponents/creator/AccessibilityService.ts",
         "./ServerComponents/creator/IGeoJsonFeature.ts",
         "./ServerComponents/creator/IProjectRepositoryService.ts",
         "./ServerComponents/creator/MapLayerFactory.ts",
