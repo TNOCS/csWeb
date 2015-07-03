@@ -1134,8 +1134,9 @@ module csComp.Services {
             if (!feature.hasOwnProperty('layer')) feature['layer'] = new ProjectLayer();
             var name = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
 
-            if (name.toLowerCase().startsWith("http://")) return name;
-            //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
+            // if (name.toLowerCase().startsWith("http://")) return name;
+            // if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
+            if (/^http:\/\//.test(name.toLowerCase())) return name;
             if (feature.layer.typeUrl) return feature.layer.typeUrl + "#" + name;
             return feature.layer.url
                 ? feature.layer.url + "#" + name
