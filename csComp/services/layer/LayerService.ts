@@ -1,6 +1,23 @@
 module csComp.Services {
     'use strict';
 
+    export interface IActionOption {
+        title: string;
+        icon: string;
+        callback: Function;
+    }
+
+    export interface IActionService {
+        init(ls: LayerService);
+        stop();
+        addFeature(feature: IFeature);
+        removeFeature(feature: IFeature);
+        selectFeature(feature: IFeature);
+        getFeatureActions(feature: IFeature): IActionOption[];
+        deselectFeature(feature: IFeature);
+        updateFeature(feuture: IFeature);
+    }
+
     /** describes a layer source, every layer has a layer source that is responsible for importing the data (e.g. geojson, wms, etc */
     export interface ILayerSource {
         title: string;
@@ -61,6 +78,8 @@ module csComp.Services {
         activeMapRenderer: IMapRenderer;                 // active map renderer
         /** list of all loaded types resources */
         typesResources: { [key: string]: ITypesResource };
+
+        actionServices: IActionService[] = [];
 
         public visual: VisualState = new VisualState();
 
@@ -145,6 +164,17 @@ module csComp.Services {
 
             });
         }
+
+        public addActionService(as: IActionService) {
+            this.actionServices.push(as);
+            as.init(this);
+        }
+
+        public removeActionService(as: IActionService) {
+            as.stop();
+        }
+
+
 
         /**
          * Initialize the available layer sources
@@ -524,6 +554,10 @@ module csComp.Services {
 
         public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
+
+            this.actionServices.forEach((as: IActionService) => {
+                as.selectFeature(feature);
+            })
 
             // deselect last feature and also update
             if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature) {

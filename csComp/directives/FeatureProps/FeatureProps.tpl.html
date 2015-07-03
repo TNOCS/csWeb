@@ -81,9 +81,16 @@
             <feature-type-editor featureType="featureType"></feature-type-editor>
         </div>
     </div>
-
+    <div ng-if="callOut.feature.gui.actions" class="featureProps-actions">
+        <ul>
+            <li ng-repeat="action in callOut.feature.gui.actions">
+                <a class="featureProps-action" ng-click="action.callback(action.feature);">{{action.title}}</a>
+            </li>
+        </ul>
+    </div>
     <div ng-hide="configMode" class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
         <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="(sectionTitle, section) in callOut.sections">
+
             <!--<td>
                     <span class="dropdown">
                         <a href class="fa fa-circle-o makeNarrow dropdown-toggle"></a>
