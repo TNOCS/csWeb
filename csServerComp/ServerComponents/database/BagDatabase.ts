@@ -53,9 +53,9 @@ class BagDatabase {
         }
 	}
 
-  public lookupBagArea(sqlTable: string, sqlColumn: string, name: string, callback: (coordinates: JSON[]) => void) {
-    if (!name) {
-        console.log('No area with name: ' + name);
+  public lookupBagArea(bounds: string, callback: (areas: Location[]) => void) {
+    if (!bounds) {
+        console.log('No valid bounds supplied');
         callback(null);
         return;
     }
@@ -65,13 +65,14 @@ class BagDatabase {
             callback(null);
             return;
         }
-        //var sql = `SELECT openbareruimtenaam, huisnummer, huisletter, huisnummertoevoeging, gemeentenaam, provincienaam, ST_X(ST_Transform(geopunt, 4326)) as lon, ST_Y(ST_Transform(geopunt, 4326)) as lat FROM adres WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNumber}`;
-        var sql = `SELECT ST_AsGeoJSON(ST_Transform(geovlak, 4326)) as area FROM ${sqlTable} WHERE ${sqlColumn}='${name}'`;
+        //var sql = `SELECT ST_AsGeoJSON(ST_Transform(geovlak, 4326)) as area FROM ${sqlTable} WHERE ${sqlColumn}='${name}'`;
+        var sql = `SELECT adres.postcode, adres.huisnummer, ST_AsGeoJSON(ST_Force_2D(ST_Transform(pand.geovlak, 4326)), 6, 0) as contour, pand.bouwjaar FROM adres, pand, verblijfsobjectpand WHERE adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectpand.gerelateerdpand = pand.identificatie AND ST_Within(pand.geovlak, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992))`
+
         client.query(sql, (err, result) => {
             done();
             if (err) {
                 console.log(err);
-                console.log(`Cannot find province: ${name}`);
+                console.log(`Cannot find areas in bounds: ${bounds}`);
                 callback(null);
             } else {
                 callback(result.rows);
