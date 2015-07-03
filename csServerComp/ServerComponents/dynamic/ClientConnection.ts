@@ -86,7 +86,7 @@ module ClientConnection {
                 });
 
                 socket.on('layer', (msg: LayerMessage) => {
-                    this.checkLayerMessage(msg);
+                    this.checkLayerMessage(msg, socket.id);
                 });
                 // create layers room
                 //var l = socket.join('layers');
@@ -105,11 +105,10 @@ module ClientConnection {
             });
         }
 
-        public checkLayerMessage(msg: LayerMessage) {
-
+        public checkLayerMessage(msg: LayerMessage, client: string) {
             this.subscriptions.forEach((s: LayerSubscription) => {
                 if (msg.layerId === s.layerId) {
-                    s.callback(msg.action, msg.object);
+                    s.callback(msg.action, msg, client);
                 }
             });
         }
@@ -117,6 +116,7 @@ module ClientConnection {
         public registerLayer(layerId: string, callback: MessageBus.IMessageBusCallback) {
             var sub = new LayerSubscription();
             sub.layerId = layerId;
+
             sub.callback = callback;
             this.subscriptions.push(sub);
         }
@@ -158,7 +158,6 @@ module ClientConnection {
 
         public publish(key: string, type: string, command: string, object: any) {
             for (var uId in this.users) {
-
                 var sub = this.users[uId].FindSubscription(key, type);
                 if (sub != null) {
                     //console.log('sending update:' + sub.id);
@@ -167,13 +166,20 @@ module ClientConnection {
             }
         }
 
-        public updateFeature(layer: string, feature: any) {
+        /**
+         * Send update to all clients.
+         * @action: logs-update, feature-update
+         * @skip: this one will be skipped ( e.g original source)
+         */
+        public updateFeature(layer: string, object: any, action: string, skip?: string) {
             //console.log('update feature ' + layer);
             for (var uId in this.users) {
-                var sub = this.users[uId].FindSubscription(layer, "layer");
-                if (sub != null) {
-                    //console.log('sending update:' + sub.id);
-                    this.users[uId].Client.emit(sub.id, new ClientMessage("feature-update", [feature]));
+                if (!skip || uId != skip) {
+                    var sub = this.users[uId].FindSubscription(layer, "layer");
+                    if (sub != null) {
+                        //console.log('sending update:' + sub.id);
+                        this.users[uId].Client.emit(sub.id, new ClientMessage(action, [object]));
+                    }
                 }
             }
         }

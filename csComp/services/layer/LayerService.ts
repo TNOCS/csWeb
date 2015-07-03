@@ -1,6 +1,23 @@
 module csComp.Services {
     'use strict';
 
+    export interface IActionOption {
+        title: string;
+        icon: string;
+        callback: Function;
+    }
+
+    export interface IActionService {
+        init(ls: LayerService);
+        stop();
+        addFeature(feature: IFeature);
+        removeFeature(feature: IFeature);
+        selectFeature(feature: IFeature);
+        getFeatureActions(feature: IFeature): IActionOption[];
+        deselectFeature(feature: IFeature);
+        updateFeature(feuture: IFeature);
+    }
+
     /** describes a layer source, every layer has a layer source that is responsible for importing the data (e.g. geojson, wms, etc */
     export interface ILayerSource {
         title: string;
@@ -62,6 +79,8 @@ module csComp.Services {
         /** list of all loaded types resources */
         typesResources: { [key: string]: ITypesResource };
 
+        actionServices: IActionService[] = [];
+
         public visual: VisualState = new VisualState();
 
         static $inject = [
@@ -117,6 +136,7 @@ module csComp.Services {
                 switch (trigger) {
                     case 'focusChange':
                         this.updateSensorData();
+                        this.updateAllLogs();
                         break;
                 }
             });
@@ -144,6 +164,17 @@ module csComp.Services {
 
             });
         }
+
+        public addActionService(as: IActionService) {
+            this.actionServices.push(as);
+            as.init(this);
+        }
+
+        public removeActionService(as: IActionService) {
+            as.stop();
+        }
+
+
 
         /**
          * Initialize the available layer sources
@@ -179,6 +210,9 @@ module csComp.Services {
 
             // add RSS data source
             this.layerSources["rss"] = new RssDataSource(this);
+
+            // add RSS data source
+            this.layerSources["database"] = new DatabaseSource(this);
 
             // check for every feature (de)select if layers should automatically be activated
             this.checkFeatureSubLayers();
@@ -293,7 +327,7 @@ module csComp.Services {
                     // make sure all existising active layers are disabled
                     if (layer.group.oneLayerActive) {
                         layer.group.layers.forEach((l: ProjectLayer) => {
-                            if (l !== layer && l.enabled) {
+                            if (l.id !== layer.id && l.enabled) {
                                 disableLayers.push(l);
                             }
                         });
@@ -315,10 +349,22 @@ module csComp.Services {
                     if (this.layerSources.hasOwnProperty(layerSource)) {
                         layer.layerSource = this.layerSources[layerSource];
                         // load layer from source
+                        if (layer.type === 'database') {
+                            this.$messageBusService.serverSubscribe(layer.id, "layer", (sub: string, msg: any) => {
+                                console.log(msg);
+                                if (msg.action === "layer-update") {
+                                    if (!msg.data.group) {
+                                        msg.data.group = this.findGroupByLayerId(msg.data);
+                                    }
+                                    this.addLayer(msg.data, () => {});
+                                }
+                            });
+                        }
                         layer.layerSource.addLayer(layer, (l) => {
                             l.enabled = true;
                             this.loadedLayers[layer.id] = l;
                             this.updateSensorData();
+                            this.updateAllLogs();
                             this.activeMapRenderer.addLayer(layer);
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
@@ -523,6 +569,10 @@ module csComp.Services {
         public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
+            this.actionServices.forEach((as: IActionService) => {
+                as.selectFeature(feature);
+            })
+
             // deselect last feature and also update
             if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature) {
                 this.lastSelectedFeature.isSelected = false;
@@ -551,6 +601,64 @@ module csComp.Services {
             }
         }
 
+        public updateAllLogs() {
+            if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
+            this.project.features.forEach((f: IFeature) => {
+                if (f.layer.layerSource.title.toLowerCase() === "dynamicgeojson") {
+                    //if (f.gui.hasOwnProperty("lastUpdate") && this.project.timeLine.focusDate < f.gui["lastUpdate"])
+                    this.updateLog(f);
+                }
+            });
+        }
+
+        private lookupLog(logs: Log[], timestamp: number): Log {
+            if (!logs || logs.length == 0) return <Log>{};
+
+            if (timestamp <= logs[0].ts) return logs[0];
+            if (timestamp >= logs[logs.length - 1].ts) return logs[logs.length - 1];
+            var res = <Log>{};
+            for (var i = 0; i < logs.length; i++) {
+                if (logs[i].ts > timestamp) {
+                    res = logs[i];
+                    break;
+                }
+            }
+
+            return res;
+        }
+
+        public updateLog(f: IFeature) {
+
+            var date = this.project.timeLine.focus;
+            var changed = false;
+            if (f.logs && !this.isLocked(f)) {
+                // find all keys
+                for (var key in f.logs) {
+                    // lookup value
+                    var l = this.lookupLog(f.logs[key], date);
+                    if (!f.properties.hasOwnProperty(key)) {
+                        f.properties[key] = l.value;
+                        changed = true;
+                    }
+                    else {
+                        if (f.properties[key] != l.value) {
+                            f.properties[key] = l.value;
+                            changed = true;
+                        }
+                    }
+
+
+
+                }
+
+                if (changed) {
+                    this.calculateFeatureStyle(f);
+                    this.activeMapRenderer.updateFeature(f);
+                }
+            }
+        }
+
+
         /** update for all features the active sensor data values and update styles */
         public updateSensorData() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
@@ -564,7 +672,7 @@ module csComp.Services {
                         var sensor = <SensorSet>ds.sensors[sensorTitle];
                         if (sensor.timestamps) {
                             for (var i = 1; i < sensor.timestamps.length; i++) {
-                                if (sensor.timestamps[i] > date) {
+                                if (sensor.timestamps[i] < date) {
                                     sensor.activeValue = sensor.values[i];
                                     console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
                                     break;
@@ -576,7 +684,7 @@ module csComp.Services {
             };
 
             this.project.features.forEach((f: IFeature) => {
-                var l = this.findLayer(f.layerId);
+                var l = f.layer;
 
                 if (l != null) {
                     if (f.sensors || f.coordinates) {
@@ -649,7 +757,7 @@ module csComp.Services {
                 feature.isInitialized = true;
                 feature.gui = {};
 
-                if (!feature.logs) feature.logs = [];
+                if (!feature.logs) feature.logs = {};
                 if (feature.properties == null) feature.properties = {};
                 feature.index = layer.count++;
                 // make sure it has an id
@@ -675,7 +783,10 @@ module csComp.Services {
                     Helpers.setFeatureName(feature);
 
                 this.calculateFeatureStyle(feature);
-                feature.propertiesOld = feature.properties;
+                feature.propertiesOld = {};
+                this.trackFeature(feature);
+
+
                 if (applyDigest && this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             }
             return feature.type;
@@ -856,6 +967,28 @@ module csComp.Services {
                 if (this.project.groups[i].id === id) return this.project.groups[i];
             }
             return null;
+        }
+
+        /**
+         * Find a group by id
+         */
+        findGroupByLayerId(layer: csComp.Services.ProjectLayer): ProjectGroup {
+            if (!layer.id) return null;
+            var matchedGroup;
+            this.project.groups.some((group) => {
+                if (group.layers) {
+                    group.layers.some((l) => {
+                        if (l.id === layer.id) {
+                            matchedGroup = group;
+                            return true;
+                        }
+                        return false;
+                    });
+                }
+                if (matchedGroup) return true;
+                return false;
+            });
+            return matchedGroup;
         }
 
         /**
@@ -1132,7 +1265,7 @@ module csComp.Services {
         */
         public getFeatureTypeId(feature: IFeature): string {
             if (!feature.hasOwnProperty('layer')) feature['layer'] = new ProjectLayer();
-            var name = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
+            var name = feature.properties['FeatureTypeId'] || feature.properties['featureTypeId'] || feature.layer.defaultFeatureType || 'Default';
 
             // if (name.toLowerCase().startsWith("http://")) return name;
             // if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
@@ -1511,7 +1644,7 @@ module csComp.Services {
                                     g.layers.push(l);
                                     this.initLayer(g, l);
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
-                                    l.layerSource.refreshLayer(g.layers[layerIndex]);
+                                    l.layerSource.refreshLayer(g.layers[g.layers.length - 1]);
                                 } else {
                                     if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
@@ -1753,41 +1886,73 @@ module csComp.Services {
                 $('#filtergroupcount_' + group.id).text(group.filterResult.length + ' objecten geselecteerd');
         }
 
-        private trackProperty(f: IFeature, key: string) {
+        private trackProperty(f: IFeature, key: string, result: {}) {
             var log = <Log>{
                 ts: new Date().getTime(), prop: key, value: f.properties[key]
             };
             f.propertiesOld[key] = f.properties[key];
-            f.logs.push(log);
-            console.log(log);
+            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+            if (!result.hasOwnProperty(key)) result[key] = [];
+            f.logs[key].push(log);
+            result[key].push(log);
+            f.gui["lastUpdate"] = log.ts;
         }
 
-        private trackFeature(f: IFeature) {
-
+        private trackFeature(f: IFeature): {} {
+            var result = {};
             for (var key in f.properties) {
                 if (!f.propertiesOld.hasOwnProperty(key)) {
-                    this.trackProperty(f, key);
+                    this.trackProperty(f, key, result);
                 }
                 else if (JSON.stringify(f.propertiesOld[key]) != JSON.stringify(f.properties[key])) {
-                    this.trackProperty(f, key);
+                    this.trackProperty(f, key, result);
                 }
+            }
+            return result;
+        }
+
+        public isLocked(f: IFeature): boolean {
+            return f.gui.hasOwnProperty('lock') || (f.gui.hasOwnProperty('editMode') && f.gui['editMode']);
+        }
+
+        /**
+         * Set a lock property on the feature to signal others prevent feature updates
+         */
+        public lockFeature(f: IFeature): boolean {
+            if (f.gui.hasOwnProperty('lock')) {
+                return false;
+            }
+            else {
+                f.gui["lock"] = true;
+                return true;
             }
         }
 
-        public saveFeature(f: IFeature) {
+        public unlockFeature(f: IFeature) {
+            delete f.gui['lock'];
+        }
+
+        public saveFeature(f: IFeature, logs: boolean = false) {
             console.log('saving feature');
-
-
             // check if feature is in dynamic layer
             if (f.layer.type.toLowerCase() === "dynamicgeojson") {
-                this.trackFeature(f);
-                var s = new LayerMessage();
-                s.layerId = f.layerId;
-                s.action = "featureUpdate";
-                s.object = Feature.serialize(f);
-                this.$messageBusService.serverPublish("layer", s);
+                var l = this.trackFeature(f);
 
-
+                if (logs) {
+                    var s = new LayerMessage();
+                    s.layerId = f.layerId;
+                    s.action = "logUpdate";
+                    s.object = { featureId: f.id, logs: l };
+                    this.$messageBusService.serverPublish("layer", s);
+                    console.log(l);
+                }
+                else {
+                    var s = new LayerMessage();
+                    s.layerId = f.layerId;
+                    s.action = "featureUpdate";
+                    s.object = Feature.serialize(f);
+                    this.$messageBusService.serverPublish("layer", s);
+                }
             }
         }
 

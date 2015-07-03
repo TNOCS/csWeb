@@ -177,9 +177,44 @@ module csComp.Services {
 
         public initSubscriptions(layer: ProjectLayer) {
             layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, "layer", (topic: string, msg: any) => {
+                console.log("action:" + msg.action);
                 switch (msg.action) {
                     case "subscribed":
                         console.log('sucesfully subscribed');
+                        break;
+                    case "logs-update":
+                        console.log('receiving feature updates');
+                        if (msg.data != null) {
+                            try {
+                                msg.data.forEach((data: any) => {
+                                    // find feature
+                                    var fId = data.featureId;
+                                    var logs: { [key: string]: Log[] } = data.logs;
+                                    var ff = <IFeature[]>(<any>this.layer.data).features;
+                                    ff.forEach((f: IFeature) => {
+                                        if (f.id === fId) {
+                                            if (!f.logs) f.logs = {};
+                                            for (var k in logs) {
+                                                if (!f.logs.hasOwnProperty(k)) f.logs[k] = [];
+                                                logs[k].forEach((li: Log) => f.logs[k].push(li));
+                                            }
+                                            // update logs
+                                            this.service.$rootScope.$apply(() => {
+                                                this.service.updateLog(f);
+                                            });
+                                            return true;
+                                        }
+                                        return false;
+                                    });
+
+                                    // calculate active properties
+                                    console.log(data);
+                                })
+                            }
+                            catch (e) {
+                                console.warn('error updating feature');
+                            }
+                        }
                         break;
                     case "feature-update":
                         if (msg.data != null) {

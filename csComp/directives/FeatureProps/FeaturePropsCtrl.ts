@@ -128,7 +128,6 @@ module FeatureProps {
                 }
 
                 propertyTypes.forEach((mi: IPropertyType) => {
-
                     if (feature.properties.hasOwnProperty(mi.label) && mi.visibleInCallOut) {
                         var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                         callOutSection.propertyTypes[mi.label] = mi;
@@ -266,6 +265,14 @@ module FeatureProps {
             'messageBusService'
         ];
 
+        public getActions(feature: IFeature) {
+            var options = [];
+            this.$layerService.actionServices.forEach((as: csComp.Services.IActionService) => {
+                options = options.concat(as.getFeatureActions(feature));
+            });
+            return options;
+        }
+
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
@@ -330,6 +337,7 @@ module FeatureProps {
         }
 
         public saveFeature() {
+            this.$layerService.unlockFeature(this.$scope.feature);
             this.$layerService.saveFeature(this.$scope.feature);
 
         }
@@ -425,6 +433,7 @@ module FeatureProps {
 
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
+            feature.gui["actions"] = this.getActions(feature);
             var featureType = feature.fType;
             this.$scope.featureType = featureType;
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
@@ -463,7 +472,7 @@ module FeatureProps {
                     }
                 });
             });
-            csComp.Helpers.getPropertyTypes
+            //csComp.Helpers.getPropertyTypes
         }
 
         showSensorData(property: ICallOutProperty) {

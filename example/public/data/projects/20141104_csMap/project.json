@@ -213,6 +213,28 @@
         "clustering": false,
         "oneLayerActive": true,
         "layers": [{
+            "id": "bagcontouren",
+            "reference": "bagcontouren",
+            "languages": {
+                "nl": {
+                    "title": "BAG Contouren",
+                    "description": "Basis Administratie Gebouwen (Bron: Kadaster)."
+                },
+                "en": {
+                    "title": "BAG Contours",
+                    "description": "Dutch Cadastre's Basis Administratie Gebouwen. (Source: Kadaster.)"
+                }
+            },
+			"clustering": false,
+			"refreshBBOX": true,
+			"defaultFeatureType": "BagPanden",
+			"typeUrl": "data/resourceTypes/BagPanden.json",
+            "type": "database",
+			"url": "bagcontours",
+			"renderType": "geojson",
+            "enabled": false
+        },
+		{
             "id": "bag",
             "reference": "bag",
             "languages": {
@@ -352,8 +374,8 @@
                 "title": "Health regions",
                 "description": "Data at the health office regions. (Source: CBS, BAG, TNO, DigiMV.)",
                 "type": "GeoJson",
-								"defaultFeatureType": "Zorgkantoor",
-								"typeUrl": "data/resourceTypes/Zorgkantoor.json",
+				"defaultFeatureType": "Zorgkantoor",
+				"typeUrl": "data/resourceTypes/Zorgkantoor.json",
                 "url": "data/projects/20141104_csMap/Regio ZK ZZP CBS.json",
                 "enabled": false,
                 "opacity": 100

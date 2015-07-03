@@ -34,7 +34,7 @@ var messageBus = new MessageBus.MessageBusService();
 var config     = new ConfigurationService('./configuration.json');
 
 //This line is required when using JX to run the server, or else the input-messages coming from the Excel file will cause an error: https://github.com/jxcore/jxcore/issues/119
-//http.setMaxHeaderLength(26214400);
+//require('http').setMaxHeaderLength(26214400);
 
 // all environments
 var port = "3002";
@@ -59,6 +59,7 @@ server.get("/datasource", ds.getDataSource);
 var bagDatabase = new BagDatabase(config);
 var mapLayerFactory = new creator.MapLayerFactory(bagDatabase, messageBus);
 server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res));
+server.post('/bagcontours', (req, res) => mapLayerFactory.processBagContours(req, res));
 
 // Create the API service manager and add the services that you need
 var apiServiceMgr = new ApiServiceManager(server, config);

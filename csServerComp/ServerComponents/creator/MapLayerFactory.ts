@@ -74,6 +74,11 @@ export interface ILayerTemplate {
     sensors?: IProperty[]
 }
 
+export interface IBagContourRequest {
+    bounds: string,
+    layer: any
+}
+
 /** A factory class to create new map layers based on input, e.g. from Excel */
 export class MapLayerFactory {
     templateFiles: IProperty[];
@@ -132,6 +137,37 @@ export class MapLayerFactory {
 
             console.log("New map created: publishing...");
             this.messageBus.publish('dynamic_project_layer', 'created', data);
+        });
+    }
+
+    public processBagContours(req: express.Request, res: express.Response) {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end('');
+        console.log('Received bag contours request. Processing...');
+        var template: IBagContourRequest = req.body;
+        var bounds = template.bounds;
+        var layer = template.layer;
+
+        layer.data = {};
+        layer.data.features = [];
+        layer.type = 'database';
+        this.bag.lookupBagArea(bounds, (areas: Location[]) => {
+            areas.forEach((area: Location) => {
+                var props: {[key: string]: any} = {};
+                for (var p in area) {
+                    if (area.hasOwnProperty(p)) {
+                        if (p !== 'contour') props[p] = area[p];
+                    }
+                }
+                var f: IGeoJsonFeature = {
+                    type: "Feature",
+                    geometry: JSON.parse(area.contour),
+                    properties: props
+                };
+                layer.data.features.push(f);
+            });
+            console.log("Updated bag layer: publishing" + areas.length + " features...");
+            this.messageBus.publish('dynamic_project_layer', 'send-layer', layer);
         });
     }
 
@@ -239,7 +275,7 @@ export class MapLayerFactory {
                 this.createPolygonFeature(ld.geometryType, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 break;
         }
-        console.log("Drawing mode" + ld.drawingMode);
+        //console.log("Drawing mode" + ld.drawingMode);
         return geojson;
     }
 
@@ -490,7 +526,7 @@ export class MapLayerFactory {
                 var name = pt["title"]; //Store name of the property with type "date"
                 properties.forEach((p) => {
                     if (p.hasOwnProperty(name)) {
-                        if (p[name].substring(0,3) === "www") {
+                        if (p[name].substring(0, 3) === "www") {
                             p[name] = '<a href="http://' + p[name] + '" target="_blank">' + p[name] + '</a>';
                         } else {
                             p[name] = '<a href="' + p[name] + '" target="_blank">' + p[name] + '</a>';

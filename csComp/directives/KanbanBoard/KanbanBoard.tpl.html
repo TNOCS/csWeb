@@ -1,166 +1,174 @@
 <div class="container-fluid" id="kanban">
+    <style>
+        .kanbanColumn-column {
+            position: relative;
+            display: inline-block;
+            width: 300px;
+            float: left;
+            margin-right: 10px;
+            height: 700px
+        }
 
-<style>
-    .kanbanColumn-column {
-        position: relative;
-        display: inline-block;
-        width: 300px;
-        float: left;
-        margin-right: 10px;
-        height:700px
-    }
+        .kanbanColumnSettings {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+        }
 
-    .kanbanColumnSettings {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 40px;
-        height: 40px;
-    }
+        .card-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
 
-    .card-list {
-        list-style: none;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-    }
+        .card-item {
+            min-height: 65px;
+            margin-bottom: 20px;
+            width: 100%;
+            -webkit-box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
+            box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 1s;
+            transition: -webkit-box-shadow 1s;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+            position: relative;
+        }
 
-    .card-item {
-        min-height: 65px;
-        margin-bottom: 20px;
-        width: 100%;
-        -webkit-box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
-        -moz-box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
-        box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
-        transition: box-shadow 1s;
-        transition: -webkit-box-shadow 1s;
-        -webkit-border-radius: 2px;
-        -moz-border-radius: 2px;
-        border-radius: 2px;
-        position: relative;
-    }
+        .card-title {
+            font-size: 16px;
+            font-weight: bolder;
+            cursor: pointer;
+        }
 
-    .card-title {
-        font-size: 16px;
-        font-weight: bolder;
-        cursor: pointer;
-    }
+        .card-prio {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            color: white;
+            background: red;
+            text-align: center;
+            cursor: pointer;
+        }
 
-    .card-prio {
-        position: absolute;
-        right: 5px;
-        top: 5px;
-        width: 20px;
-        height: 20px;
-        color: white;
-        background: red;
-        text-align: center;
-        cursor: pointer;
-    }
+        .card-button {
+            position: absolute;
+            bottom: 5px;
+            width: 20px;
+            height: 20px;
+            color: white;
+            background: gray;
+            text-align: center;
+            cursor: pointer;
+        }
 
-    .card-button {
-        position: absolute;
-        bottom: 5px;
-        width: 20px;
-        height: 20px;
-        color: white;
-        background: gray;
-        text-align: center;
-        cursor: pointer;
-    }
+        .card-edit {
+            right: 30px;
+        }
 
-    .card-edit {
-        right: 30px;
-    }
+        .card-map {
+            right: 55px;
+        }
 
-    .card-map {
-        right: 55px;
-    }
+        .card-answer {
+            right: 80px;
+        }
 
-    .card-actions {
-        right: 80px;
-    }
+        .card-actions {
+            right: 80px;
+        }
 
-    .card-share {
-        right: 5px;
-    }
+        .card-share {
+            right: 5px;
+        }
 
-    .kanbanColumn-title {
-        font-size: 30px;
-        float: left;
-    }
+        .kanbanColumn-title {
+            font-size: 30px;
+            float: left;
+        }
 
-    .kanbanColumn-option {
-        float: right;
-        margin: 3px
-    }
+        .kanbanColumn-option {
+            float: right;
+            margin: 3px
+        }
 
-    .kanbanColumn-order-option {
-        clear: both;
-    }
+        .kanbanColumn-order-option {
+            clear: both;
+        }
 
-    .kanbanColumn-tags {
-        position: relative;
-        width: 100%;
-        margin-top: 44px;
-        height: 60px;
-        background-color: lightgray;
-        padding: 5px;
-    }
+        .kanbanColumn-tags {
+            position: relative;
+            width: 100%;
+            margin-top: 44px;
+            height: 60px;
+            background-color: lightgray;
+            padding: 5px;
+        }
 
-    .card-item:hover .card-item-options {
-        opacity: 0.9;
-    }
+        .card-item:hover .card-item-options {
+            opacity: 0.9;
+        }
 
-    .card-item-options {
-        opacity: 0.05;
-    }
+        .card-item-options {
+            opacity: 0.05;
+        }
 
-    .filter-title {
-        position: absolute;
-        font-weight: bold;
-    }
+        .card-description {
+            width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-    .filter-values {
-        position: absolute;
-        font-weight: bold;
-        left: 75px;
-    }
+        .filter-title {
+            position: absolute;
+            font-weight: bold;
+        }
 
-    .isQuestion {
-        background-color: #F5F5F5;
-        background-image: url("cs/images/check.png");
-        background-repeat: no-repeat;
-        background-position: right;
-    }
+        .filter-values {
+            position: absolute;
+            font-weight: bold;
+            left: 75px;
+        }
 
-    .filter-row {
-        clear: left;
-        position: relative;
-        ;
-    }
+        .isQuestion {
+            background-color: #F5F5F5;
+            background-image: url("cs/images/question.png");
+            background-repeat: no-repeat;
+            background-position: right;
+        }
 
+        .filter-row {
+            clear: left;
+            position: relative;
+            ;
+        }
 
+        .card-list-scroll-container {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
 
-    .card-list-scroll-container {
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .card-list-container {
-        position: absolute;
-        top: 0px;
-        bottom: 0px;
-        left: 0px;
-        right: -15px;
-        overflow-y: scroll;
-    }
-</style>
+        .card-list-container {
+            position: absolute;
+            top: 0px;
+            bottom: 0px;
+            left: 0px;
+            right: -15px;
+            overflow-y: scroll;
+        }
+    </style>
 
     <div id="columns">
-        <div ng-repeat="column in vm.kanban.columns" data-columnindex="{{$index}}" id="column{{$index}}" >
+        <div ng-repeat="column in vm.kanban.columns" data-columnindex="{{$index}}" id="column{{$index}}">
             <kanban-column column="column" class="kanbanColumn-column" />
 
         </div>

@@ -44,6 +44,10 @@ html, body, #container {
     bottom: 45px;
 }
 
+#timelinecontainer{
+        pointer-events: none;
+}
+
 /* right panel */
 
 .rightpanel-hidetab {
