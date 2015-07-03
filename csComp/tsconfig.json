@@ -151,6 +151,7 @@
         "./services/connection/ConnectionService.ts",
         "./services/dashboard/DashboardService.ts",
         "./services/layer/LayerService.ts",
+        "./services/layer/sources/DatabaseSource.ts",
         "./services/layer/sources/GeoJsonSource.ts",
         "./services/layer/sources/GridDataSource.ts",
         "./services/layer/sources/HeatmapSource.ts",

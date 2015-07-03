@@ -181,6 +181,9 @@ module csComp.Services {
             // add RSS data source
             this.layerSources["rss"] = new RssDataSource(this);
 
+            // add RSS data source
+            this.layerSources["database"] = new DatabaseSource(this);
+
             // check for every feature (de)select if layers should automatically be activated
             this.checkFeatureSubLayers();
         }
@@ -294,7 +297,7 @@ module csComp.Services {
                     // make sure all existising active layers are disabled
                     if (layer.group.oneLayerActive) {
                         layer.group.layers.forEach((l: ProjectLayer) => {
-                            if (l !== layer && l.enabled) {
+                            if (l.id !== layer.id && l.enabled) {
                                 disableLayers.push(l);
                             }
                         });
@@ -316,6 +319,17 @@ module csComp.Services {
                     if (this.layerSources.hasOwnProperty(layerSource)) {
                         layer.layerSource = this.layerSources[layerSource];
                         // load layer from source
+                        if (layer.type === 'database') {
+                            this.$messageBusService.serverSubscribe(layer.id, "layer", (sub: string, msg: any) => {
+                                console.log(msg);
+                                if (msg.action === "layer-update") {
+                                    if (!msg.data.group) {
+                                        msg.data.group = this.findGroupByLayerId(msg.data);
+                                    }
+                                    this.addLayer(msg.data, () => {});
+                                }
+                            });
+                        }
                         layer.layerSource.addLayer(layer, (l) => {
                             l.enabled = true;
                             this.loadedLayers[layer.id] = l;
@@ -919,6 +933,28 @@ module csComp.Services {
                 if (this.project.groups[i].id === id) return this.project.groups[i];
             }
             return null;
+        }
+
+        /**
+         * Find a group by id
+         */
+        findGroupByLayerId(layer: csComp.Services.ProjectLayer): ProjectGroup {
+            if (!layer.id) return null;
+            var matchedGroup;
+            this.project.groups.some((group) => {
+                if (group.layers) {
+                    group.layers.some((l) => {
+                        if (l.id === layer.id) {
+                            matchedGroup = group;
+                            return true;
+                        }
+                        return false;
+                    });
+                }
+                if (matchedGroup) return true;
+                return false;
+            });
+            return matchedGroup;
         }
 
         /**

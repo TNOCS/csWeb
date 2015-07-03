@@ -10,6 +10,7 @@
     "filesGlob": [
         "./**/*.ts",
         "!./node_modules/**/*.ts",
+        "!./dist/**/*.*",
         "!./public/bower_components/**/*.d.ts"
     ],
     "files": [

@@ -59,6 +59,7 @@ server.get("/datasource", ds.getDataSource);
 var bagDatabase = new BagDatabase(config);
 var mapLayerFactory = new creator.MapLayerFactory(bagDatabase, messageBus);
 server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res));
+server.post('/bagcontours', (req, res) => mapLayerFactory.processBagContours(req, res));
 
 // Create the API service manager and add the services that you need
 var apiServiceMgr = new ApiServiceManager(server, config);
