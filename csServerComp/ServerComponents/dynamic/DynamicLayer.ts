@@ -14,16 +14,20 @@ export interface IDynamicLayer {
 }
 
 export class DynamicLayer implements IDynamicLayer {
-    public result: any;
+    /**
+     * Working copy of geojson file
+     */
+    public geojson: any;
     private file: string;
     public server: express.Express;
     public messageBus: MessageBus.MessageBusService;
     public connection: ClientConnection.ConnectionManager;
+    public featureUpdated: Function;
 
     public startDate: number;
 
     constructor(public layerId: string, file: string, server: express.Express, messageBus: MessageBus.MessageBusService, connection: ClientConnection.ConnectionManager) {
-        this.result = { features: [] };
+        this.geojson = { features: [] };
         this.file = file;
         this.server = server;
         this.messageBus = messageBus;
@@ -40,14 +44,14 @@ export class DynamicLayer implements IDynamicLayer {
     }
 
     public getLayer(req: express.Request, res: express.Response) {
-        res.send(JSON.stringify(this.result));
+        res.send(JSON.stringify(this.geojson));
     }
 
     public OpenFile() {
         fs.readFile(this.file, 'utf8', (err, data) => {
             if (!err) {
-                this.result = JSON.parse(data);
-                this.result.features.forEach((f: csComp.Services.IFeature) => {
+                this.geojson = JSON.parse(data);
+                this.geojson.features.forEach((f: csComp.Services.IFeature) => {
                     this.initFeature(f);
                 });
             }
@@ -59,7 +63,7 @@ export class DynamicLayer implements IDynamicLayer {
 
     public getDataSource(req: express.Request, res: express.Response) {
         console.log('get DataSource');
-        res.send(this.result);
+        res.send(this.geojson);
     }
 
     public initFeature(f: any) {
@@ -74,7 +78,7 @@ export class DynamicLayer implements IDynamicLayer {
 
     addFeature(f) {
         this.initFeature(f);
-        this.result.features.push(f);
+        this.geojson.features.push(f);
         f.insertDate = new Date().getTime();
         this.connection.updateFeature(this.layerId, f, "feature-update");
     }
@@ -91,47 +95,46 @@ export class DynamicLayer implements IDynamicLayer {
                 case "logUpdate":
                     // find feature
                     var featureId = msg.object.featureId;
-                    var ff = this.result.features.filter((k) => { return k.id && k.id === featureId });
+                    var ff = this.geojson.features.filter((k) => { return k.id && k.id === featureId });
                     if (ff.length > 0) {
                         var f = ff[0];
                         if (!f.hasOwnProperty('logs')) f.logs = {};
                         if (!f.hasOwnProperty('properties')) f.properties = {};
 
                         // apply changes
-
                         var logs = msg.object.logs;
-                        console.log(logs);
 
                         for (var key in logs) {
-                            console.log('updating key:' + key);
                             if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
                             logs[key].forEach(l=> {
-                                console.log('pushing...');
                                 f.logs[key].push(l);
                                 f.properties[key] = l.value;
-                            })
-
+                            });
                             console.log(JSON.stringify(f));
                             // send them to other clients
                             this.connection.updateFeature(this.layerId, msg.object, "logs-update", client);
                         }
                     }
                     console.log("Log update" + featureId);
+                    this.featureUpdated(featureId);
                     break;
                 case "featureUpdate":
                     var ft = <csComp.Services.IFeature>msg.object;
                     this.initFeature(ft);
-                    feature = this.result.features.filter((k) => { return k.id && k.id === ft.id });
+                    feature = this.geojson.features.filter((k) => { return k.id && k.id === ft.id });
                     if (feature && feature.length > 0) {
-                        var index = this.result.features.indexOf(feature[0]);
-                        this.result.features[index] = ft;
+                        var index = this.geojson.features.indexOf(feature[0]);
+                        this.geojson.features[index] = ft;
                     }
                     else {
-                        this.result.features.push(ft);
+                        this.geojson.features.push(ft);
                     }
                     this.connection.updateFeature(this.layerId, ft, "feature-update", client);
+                    this.featureUpdated(featureId);
                     break;
             }
         });
+
+
     }
 }

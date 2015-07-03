@@ -1,3 +1,4 @@
+<div resize resize-y="150">
 <div class="kanbanColumn-title">{{column.title}}</div>
 
 <!-- <form>
@@ -41,8 +42,9 @@
                     <img src="{{feature.effectiveStyle.iconUri}}" style="width:25px;height:25px"></img>
                 </div>
                 <div ng-click="vm.selectFeature(feature)" class="card-title">{{feature.properties[fields['title']]}}</div>
+                <div class="card-description">{{feature.properties[fields['description']]}}</div>
                 <div ng-show="feature.properties[fields['question']]">
-                    <button  ng-hide="feature.gui.questions" class="btn btn-primary" ng-click="vm.createForm(feature)">answer</button>
+                    <!-- <button  ng-hide="feature.gui.questions" class="btn btn-primary" ng-click="vm.createForm(feature)">answer</button> -->
                     <div ng-if="feature.gui.questions">
                         <form name="question-form-{{feature.id}}">
                             <div ng-repeat="field in feature.gui.questions">
@@ -95,6 +97,10 @@
                         <span href="" class="fa fa-search"></span>
                     </div>
 
+                    <div ng-hide="feature.gui.questions" ng-click="vm.createForm(feature)" class="card-button card-question">
+                        <span href="" class="fa fa-question"></span>
+                    </div>
+
                     <div ng-show="column.actions" class="card-button card-actions">
                         <span href="" class="dropdown-toggle fa fa-external-link" data-toggle="dropdown"></span>
                         <ul class="dropdown-menu" role="menu">
@@ -108,4 +114,5 @@
             </li>
         </ul>
     </div>
+</div>
 </div>
