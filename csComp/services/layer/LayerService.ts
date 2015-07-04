@@ -360,7 +360,7 @@ module csComp.Services {
                                     if (!msg.data.group) {
                                         msg.data.group = this.findGroupByLayerId(msg.data);
                                     }
-                                    this.addLayer(msg.data, () => {});
+                                    this.addLayer(msg.data, () => { });
                                 }
                             });
                         }

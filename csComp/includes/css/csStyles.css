@@ -912,8 +912,10 @@ html, body, #container {
     border-width: 1px;
     border-color: gray;
     border-bottom-style: none;
-    width: 50px;
-    right: 10px;
+    pointer-events: auto;
+    cursor:pointer;
+    width: 75px;
+    right: 110px;
     height: 20px
 }
 .callout.top::before {

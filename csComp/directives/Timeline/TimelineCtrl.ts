@@ -133,6 +133,7 @@ module Timeline {
         }
 
         public expandToggle() {
+            console.log('expanding timeline');
             this.expanded = !this.expanded;
             this.options.eventMarginAxis = (this.expanded) ? 65 : 0;
             this.expandButtonBottom = (this.expanded) ? 170 : 40;
