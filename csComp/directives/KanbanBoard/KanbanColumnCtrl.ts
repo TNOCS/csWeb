@@ -155,8 +155,8 @@ module KanbanColumn {
             switch (order) {
                 case 'High priority': this.$scope.columnOrderBy = "properties." + this.$scope.fields['prio']; break;
                 case 'Low Priority': this.$scope.columnOrderBy = "-properties." + this.$scope.fields['prio']; break;
-                case 'New': this.$scope.columnOrderBy = "properties." + this.$scope.fields['date']; break;
-                case 'Old': this.$scope.columnOrderBy = "-properties." + this.$scope.fields['date']; break;
+                case 'New': this.$scope.columnOrderBy = "-properties." + this.$scope.fields['date']; break;
+                case 'Old': this.$scope.columnOrderBy = "properties." + this.$scope.fields['date']; break;
                 case 'Title': this.$scope.columnOrderBy = "properties." + this.$scope.fields['title']; break;
             }
         }
