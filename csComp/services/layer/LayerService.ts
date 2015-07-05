@@ -376,6 +376,7 @@ module csComp.Services {
                             if (layerloaded) layerloaded(layer);
                         });
                     }
+                    this.$messageBusService.publish("timeline", "updateFeatures");
                     callback(null, null);
                 },
                 (callback) => {
@@ -795,6 +796,7 @@ module csComp.Services {
 
 
                 if (applyDigest && this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+                this.$messageBusService.publish("timeline", "updateFeatures");
             }
             return feature.type;
         }
@@ -958,13 +960,24 @@ module csComp.Services {
          * @layerId {string}
          * @featureIndex {number}
          */
-        findFeatureById(layerId: string, featureIndex: number): IFeature {
+        findFeatureByIndex(layerId: string, featureIndex: number): IFeature {
             for (var i = 0; i < this.project.features.length; i++) {
                 var feature = this.project.features[i];
                 if (featureIndex === feature.index && layerId === feature.layerId)
                     return feature;
             }
         }
+
+        /**
+         * Find a feature by layerId and FeatureId.
+         * @layerId {string}
+         * @featureIndex {number}
+         */
+        findFeatureById(featureId: string): IFeature {
+            return _.find(this.project.features, (f: IFeature) => { return f.id === featureId })
+        }
+
+
 
         /**
          * Find a group by id
@@ -1407,6 +1420,7 @@ module csComp.Services {
             if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             this.$messageBusService.publish('layer', 'deactivate', layer);
             this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
+            this.$messageBusService.publish("timeline", "updateFeatures");
         }
 
         /***
@@ -1585,8 +1599,6 @@ module csComp.Services {
                         }
                     }
                 ]);
-
-
 
                 if (!this.project.dataSets)
                     this.project.dataSets = [];
@@ -1968,6 +1980,9 @@ module csComp.Services {
          */
         public updateMapFilter(group: ProjectGroup) {
             this.activeMapRenderer.updateMapFilter(group);
+            // update timeline list
+            this.$messageBusService.publish("timeline", "updateFeatures");
+
         }
 
         public resetMapFilter(group: ProjectGroup) {
