@@ -65,9 +65,10 @@
                             </div>
                         </div>
 
-                        <span ng-repeat="t in feature.properties['tags']">[{{t}}]</span>
+                        <!-- <span ng-repeat="t in feature.properties['tags']">[{{t}}]</span> -->
 
-                        <span>
+                        <span style="margin-left:25px;color:gray;opacity:0.75">
+                            <span  class="fa fa-clock-o"/>
                             {{feature.gui.relativeTime}}
                         </span>
                         <div ng-if="fields['prio']" class="card-prio dropdown" ng-click="vm.clickPrio($event)" ng-style="vm.getPrioColor(feature)">
