@@ -273,4 +273,36 @@ module csComp.Services {
             ];
         }
     }
+
+    export class AccessibilityDataSource extends GeoJsonSource {
+        title = "Accessibility datasource";
+
+        constructor(public service: csComp.Services.LayerService) {
+            super(service);
+        }
+
+        public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
+            this.layer = layer;
+            layer.type = 'accessibility';
+            // Open a layer URL
+            layer.isLoading = true;
+            layer.count = 0;
+
+            $.getJSON('/api/accessibility', {
+                url: layer.url
+            }, (data, textStatus) => {
+                    layer.data = JSON.parse(data.body);//csComp.Helpers.GeoExtensions.createFeatureCollection(features);
+
+                    if (layer.data.geometries && !layer.data.features) {
+                        layer.data.features = layer.data.geometries;
+                    }
+                    layer.data.features.forEach((f) => {
+                        this.service.initFeature(f, layer);
+                    });
+
+                    layer.isLoading = false;
+                    callback(layer);
+                });
+        }
+    }
 }

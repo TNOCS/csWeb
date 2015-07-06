@@ -1,6 +1,24 @@
 module csComp.Services {
     'use strict';
 
+    export interface IActionOption {
+        title: string;
+        icon: string;
+        feature: IFeature;
+        callback: Function;
+    }
+
+    export interface IActionService {
+        init(ls: LayerService);
+        stop();
+        addFeature(feature: IFeature);
+        removeFeature(feature: IFeature);
+        selectFeature(feature: IFeature);
+        getFeatureActions(feature: IFeature): IActionOption[];
+        deselectFeature(feature: IFeature);
+        updateFeature(feuture: IFeature);
+    }
+
     /** describes a layer source, every layer has a layer source that is responsible for importing the data (e.g. geojson, wms, etc */
     export interface ILayerSource {
         title: string;
@@ -61,6 +79,8 @@ module csComp.Services {
         activeMapRenderer: IMapRenderer;                 // active map renderer
         /** list of all loaded types resources */
         typesResources: { [key: string]: ITypesResource };
+
+        actionServices: IActionService[] = [];
 
         public visual: VisualState = new VisualState();
 
@@ -146,6 +166,17 @@ module csComp.Services {
             });
         }
 
+        public addActionService(as: IActionService) {
+            this.actionServices.push(as);
+            as.init(this);
+        }
+
+        public removeActionService(as: IActionService) {
+            as.stop();
+        }
+
+
+
         /**
          * Initialize the available layer sources
          */
@@ -180,6 +211,12 @@ module csComp.Services {
 
             // add RSS data source
             this.layerSources["rss"] = new RssDataSource(this);
+
+            // add Accessibility data source
+            this.layerSources["accessibility"] = new AccessibilityDataSource(this);
+
+            // add Database data source
+            this.layerSources["database"] = new DatabaseSource(this);
 
             // check for every feature (de)select if layers should automatically be activated
             this.checkFeatureSubLayers();
@@ -235,30 +272,36 @@ module csComp.Services {
                                 feature.layer.lastSelectedFeature = feature;
 
                                 var l = feature.properties[prop.label];
-
-                                var pl = new ProjectLayer();
-                                if (typeof l === 'string') {
-                                    pl.url = l;
+                                var pl = this.findLayer(l);
+                                if (pl) {
+                                    this.addLayer(pl);
                                 }
                                 else {
-                                    pl = l;
-                                }
+                                    if (typeof l === 'string') {
 
-                                if (!pl.id) pl.id = l;
-                                if (!pl.group) {
-                                    pl.group = feature.layer.group;
-                                }
-                                else {
-                                    if (typeof pl.group === 'string') {
-                                        pl.group = this.findGroupById(<any>pl.group);
+                                        pl.url = l;
                                     }
+                                    else {
+                                        pl = l;
+                                    }
+
+                                    if (!pl.id) pl.id = l;
+                                    if (!pl.group) {
+                                        pl.group = feature.layer.group;
+                                    }
+                                    else {
+                                        if (typeof pl.group === 'string') {
+                                            pl.group = this.findGroupById(<any>pl.group);
+                                        }
+                                    }
+                                    if (!pl.type) pl.type = feature.layer.type;
+                                    if (!pl.title) pl.title = feature.properties["Name"] + " " + prop.title;
+                                    if (!pl.defaultFeatureType) pl.defaultFeatureType = "link";
+                                    //pl.parentFeature = feature;
+                                    pl.group.layers.push(pl);
                                 }
-                                if (!pl.type) pl.type = feature.layer.type;
-                                if (!pl.title) pl.title = feature.properties["Name"] + " " + prop.title;
-                                if (!pl.defaultFeatureType) pl.defaultFeatureType = "link";
-                                //pl.parentFeature = feature;
-                                pl.group.layers.push(pl);
                                 this.addLayer(pl);
+
                             }
                         });
                         break;
@@ -294,7 +337,7 @@ module csComp.Services {
                     // make sure all existising active layers are disabled
                     if (layer.group.oneLayerActive) {
                         layer.group.layers.forEach((l: ProjectLayer) => {
-                            if (l !== layer && l.enabled) {
+                            if (l.id !== layer.id && l.enabled) {
                                 disableLayers.push(l);
                             }
                         });
@@ -316,6 +359,17 @@ module csComp.Services {
                     if (this.layerSources.hasOwnProperty(layerSource)) {
                         layer.layerSource = this.layerSources[layerSource];
                         // load layer from source
+                        if (layer.type === 'database') {
+                            this.$messageBusService.serverSubscribe(layer.id, "layer", (sub: string, msg: any) => {
+                                console.log(msg);
+                                if (msg.action === "layer-update") {
+                                    if (!msg.data.group) {
+                                        msg.data.group = this.findGroupByLayerId(msg.data);
+                                    }
+                                    this.addLayer(msg.data, () => { });
+                                }
+                            });
+                        }
                         layer.layerSource.addLayer(layer, (l) => {
                             l.enabled = true;
                             this.loadedLayers[layer.id] = l;
@@ -328,6 +382,7 @@ module csComp.Services {
                             if (layerloaded) layerloaded(layer);
                         });
                     }
+                    this.$messageBusService.publish("timeline", "updateFeatures");
                     callback(null, null);
                 },
                 (callback) => {
@@ -525,12 +580,19 @@ module csComp.Services {
         public selectFeature(feature: IFeature) {
             feature.isSelected = !feature.isSelected;
 
+            this.actionServices.forEach((as: IActionService) => {
+                as.selectFeature(feature);
+            })
+
             // deselect last feature and also update
             if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature) {
                 this.lastSelectedFeature.isSelected = false;
                 this.calculateFeatureStyle(this.lastSelectedFeature);
                 this.activeMapRenderer.updateFeature(this.lastSelectedFeature);
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
+                this.actionServices.forEach((as: IActionService) => {
+                    as.deselectFeature(feature);
+                })
             }
             this.lastSelectedFeature = feature;
 
@@ -740,6 +802,7 @@ module csComp.Services {
 
 
                 if (applyDigest && this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+                this.$messageBusService.publish("timeline", "updateFeatures");
             }
             return feature.type;
         }
@@ -784,6 +847,7 @@ module csComp.Services {
             }
 
             feature.gui['style'] = {};
+            s.opacity = s.opacity * (feature.layer.opacity / 100);
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     //delete feature.gui[gs.property];
@@ -903,13 +967,24 @@ module csComp.Services {
          * @layerId {string}
          * @featureIndex {number}
          */
-        findFeatureById(layerId: string, featureIndex: number): IFeature {
+        findFeatureByIndex(layerId: string, featureIndex: number): IFeature {
             for (var i = 0; i < this.project.features.length; i++) {
                 var feature = this.project.features[i];
                 if (featureIndex === feature.index && layerId === feature.layerId)
                     return feature;
             }
         }
+
+        /**
+         * Find a feature by layerId and FeatureId.
+         * @layerId {string}
+         * @featureIndex {number}
+         */
+        findFeatureById(featureId: string): IFeature {
+            return _.find(this.project.features, (f: IFeature) => { return f.id === featureId })
+        }
+
+
 
         /**
          * Find a group by id
@@ -919,6 +994,28 @@ module csComp.Services {
                 if (this.project.groups[i].id === id) return this.project.groups[i];
             }
             return null;
+        }
+
+        /**
+         * Find a group by id
+         */
+        findGroupByLayerId(layer: csComp.Services.ProjectLayer): ProjectGroup {
+            if (!layer.id) return null;
+            var matchedGroup;
+            this.project.groups.some((group) => {
+                if (group.layers) {
+                    group.layers.some((l) => {
+                        if (l.id === layer.id) {
+                            matchedGroup = group;
+                            return true;
+                        }
+                        return false;
+                    });
+                }
+                if (matchedGroup) return true;
+                return false;
+            });
+            return matchedGroup;
         }
 
         /**
@@ -1189,6 +1286,26 @@ module csComp.Services {
         }
 
         /**
+         * Returs propertytype for a specific property in a feature
+         */
+        public getPropertyType(feature: IFeature, property: string): IPropertyType {
+            var res: IPropertyType;
+            // search for local propertytypes in featuretype
+            if (feature.fType && feature.fType.propertyTypeData) {
+                res = _.find(feature.fType.propertyTypeData, (pt: IPropertyType) => { return pt.label === property });
+            }
+
+            if (!res && feature.fType.propertyTypeKeys && feature.layer.typeUrl && this.typesResources.hasOwnProperty(feature.layer.typeUrl)) {
+                var rt = this.typesResources[feature.layer.typeUrl];
+                feature.fType.propertyTypeKeys.split(';').forEach((key: string) => {
+                    if (rt.propertyTypeData.hasOwnProperty(key) && rt.propertyTypeData[key].label === property) res = rt.propertyTypeData[key];
+                });
+            }
+
+            return res;
+        }
+
+        /**
         Returns the featureTypeId for specific feature.
         It looks for the FeatureTypeId property, defaultFeatureType of his layer
         and checks if it should be found in a resource file or within his own layer
@@ -1197,9 +1314,9 @@ module csComp.Services {
             if (!feature.hasOwnProperty('layer')) feature['layer'] = new ProjectLayer();
             var name = feature.properties['FeatureTypeId'] || feature.properties['featureTypeId'] || feature.layer.defaultFeatureType || 'Default';
 
-            //if (name.toLowerCase().startsWith("http://")) return name;
-
-            //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
+            // if (name.toLowerCase().startsWith("http://")) return name;
+            // if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
+            if (/^http:\/\//.test(name.toLowerCase())) return name;
             if (feature.layer.typeUrl) return feature.layer.typeUrl + "#" + name;
             return feature.layer.url
                 ? feature.layer.url + "#" + name
@@ -1330,6 +1447,7 @@ module csComp.Services {
             if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             this.$messageBusService.publish('layer', 'deactivate', layer);
             this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
+            this.$messageBusService.publish("timeline", "updateFeatures");
         }
 
         /***
@@ -1508,8 +1626,6 @@ module csComp.Services {
                         }
                     }
                 ]);
-
-
 
                 if (!this.project.dataSets)
                     this.project.dataSets = [];
@@ -1891,6 +2007,9 @@ module csComp.Services {
          */
         public updateMapFilter(group: ProjectGroup) {
             this.activeMapRenderer.updateMapFilter(group);
+            // update timeline list
+            this.$messageBusService.publish("timeline", "updateFeatures");
+
         }
 
         public resetMapFilter(group: ProjectGroup) {

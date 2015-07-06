@@ -98,7 +98,7 @@ module Filters {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
                 else {
                     if (d.properties[filter.property] != null) {
-                        var a = parseInt(d.properties[filter.property]);
+                        var a = parseFloat(d.properties[filter.property]);
                         if (a >= min && a <= max) {
                             return Math.floor(a / binWidth) * binWidth;
                         } else {
@@ -158,7 +158,7 @@ module Filters {
 
             filterFrom.on('change', () => {
                 if ($.isNumeric(filterFrom.val())) {
-                    var min = parseInt(filterFrom.val());
+                    var min = parseFloat(filterFrom.val());
                     var filters = this.dcChart.filters();
                     if (filters.length > 0) {
                         filters[0][0] = min;
@@ -172,7 +172,7 @@ module Filters {
             });
             filterTo.on('change', () => {
                 if ($.isNumeric(filterTo.val())) {
-                    var max = parseInt(filterTo.val());
+                    var max = parseFloat(filterTo.val());
                     var filters = this.dcChart.filters();
                     if (filters.length > 0) {
                         filters[0][1] = max;
@@ -237,8 +237,8 @@ module Filters {
                 else {
                     if (d.properties[filter.property] != null) {
 
-                        var a = parseInt(d.properties[filter.property]);
-                        var b = parseInt(d.properties[filter.property2]);
+                        var a = parseFloat(d.properties[filter.property]);
+                        var b = parseFloat(d.properties[filter.property2]);
                         if (a >= info.sdMin && a <= info.sdMax) {
                             return [a, b];
                             //return Math.floor(a / binWidth) * binWidth;

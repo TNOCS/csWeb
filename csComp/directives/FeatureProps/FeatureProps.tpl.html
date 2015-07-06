@@ -81,9 +81,16 @@
             <feature-type-editor featureType="featureType"></feature-type-editor>
         </div>
     </div>
-
+    <div ng-if="callOut.feature.gui.actions" class="featureProps-actions">
+        <ul>
+            <li ng-repeat="action in callOut.feature.gui.actions">
+                <a class="featureProps-action" ng-click="action.callback(callOut.feature, vm.$layerService);">{{action.title}}</a>
+            </li>
+        </ul>
+    </div>
     <div ng-hide="configMode" class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
         <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="(sectionTitle, section) in callOut.sections">
+
             <!--<td>
                     <span class="dropdown">
                         <a href class="fa fa-circle-o makeNarrow dropdown-toggle"></a>
@@ -135,8 +142,10 @@
                                         <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.enabled=!item.enabled" style="cursor: pointer"></a>
                                     </div>
                                     <div data-ng-switch="item.propertyType.type" style="float:right;">
-                                        <div ng-switch-when="date" class="text-right">{{item.feature.properties[item.property] | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</div>
+                                        <div ng-switch-when="date" class="text-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
+                                            {{item.feature.properties[item.property] | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</div>
                                         <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
+                                        <div ng-switch-when="category" class="text-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                         <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                     </div>

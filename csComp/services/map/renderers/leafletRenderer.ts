@@ -52,7 +52,7 @@ module csComp.Services {
             var lb = L.latLngBounds(southWest, northEast);
             try {
                 this.service.$mapService.map.fitBounds(lb);
-            } catch (e) {}
+            } catch (e) { }
         }
 
         public getZoom() {
@@ -92,14 +92,14 @@ module csComp.Services {
                                 try {
                                     m.removeLayer(layer.group.markers[feature.id]);
                                     delete layer.group.markers[feature.id];
-                                } catch (error) {}
+                                } catch (error) { }
                             }
                         });
                     } else {
                         if (this.service.map.map && layer.mapLayer)
                             try {
                                 this.service.map.map.removeLayer(layer.mapLayer);
-                            } catch (error) {}
+                            } catch (error) { }
                     }
                     break;
                 default:
@@ -175,6 +175,8 @@ module csComp.Services {
                         if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
                     });
                     layer.isLoading = true;
+
+
                     //this.$rootScope.$apply();
                     break;
                 case "wms":
@@ -204,6 +206,7 @@ module csComp.Services {
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                     this.service.map.map.addLayer(layer.mapLayer);
                     if (!layer.data || !layer.data.features) break;
+
                     (<any>layer.data).features.forEach((f: IFeature) => {
                         var marker = this.addFeature(f);
                         if (marker) layer.group.markers[f.id] = marker;
@@ -320,7 +323,7 @@ module csComp.Services {
                 marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
             } else {
                 marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
-                marker.bringToFront();
+                if (feature.layer && feature.layer.type !== 'accessibility') marker.bringToFront();
             }
         }
 

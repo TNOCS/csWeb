@@ -912,8 +912,10 @@ html, body, #container {
     border-width: 1px;
     border-color: gray;
     border-bottom-style: none;
-    width: 50px;
-    right: 10px;
+    pointer-events: auto;
+    cursor:pointer;
+    width: 75px;
+    right: 110px;
     height: 20px
 }
 .callout.top::before {
@@ -928,14 +930,18 @@ html, body, #container {
     border: 0.8em solid transparent;
     position: absolute;
 }
+.pintimeButton{
+    margin: 3px;
+    cursor: pointer;
+}
 .focustimeButton {
     margin: 3px;
     cursor: pointer;
 }
 #focustimeContainer {
-    width: 150px;
+    width: 100px;
     cursor: e-resize;
-    height: 75px;
+    height: 67px;
     right: 200px;
     /*bottom: 105px;*/
     bottom: 45px;
@@ -947,7 +953,12 @@ html, body, #container {
 .timelineControl {
     background: black;
     height: 23px;
+    visibility: hidden;
 }
+#focustimeContainer:hover .timelineControl{
+    visibility: visible;
+}
+
 .isPlaying {
     background: gray;
 }
@@ -960,7 +971,7 @@ html, body, #container {
     bottom: 0;
     position: absolute;
     width: 100%;
-    height: 52px;
+    height: 45px;
 }
 .pinButton {
     color: red;

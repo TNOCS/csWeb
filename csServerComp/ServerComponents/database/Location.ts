@@ -11,5 +11,6 @@ class Location {
     pandidentificatie: string;
     gebruiksdoelverblijfsobject: string;
     oppervlakteverblijfsobject: string;
+    contour: string;
 }
 export = Location;

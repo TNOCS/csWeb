@@ -223,12 +223,16 @@ export class DynamicProjectService {
     public Start(server: express.Express) {
         console.log("Start project service");
         this.messageBus.subscribe('dynamic_project_layer', (title: string, data: any) => {
-            // find project
-            if (this.projects.hasOwnProperty(data.project)) {
-                var dp = this.projects[data.project];
-                //console.log("adding layer");
-                dp.AddLayer(data);
-                this.projectParameters[data.group] = data;
+            if (title === 'send-layer') {
+                this.connection.publish(data.id, "layer", "layer-update", data);
+            } else {
+                // find project
+                if (this.projects.hasOwnProperty(data.project)) {
+                    var dp = this.projects[data.project];
+                    //console.log("adding layer");
+                    dp.AddLayer(data);
+                    this.projectParameters[data.group] = data;
+                }
             }
         });
 

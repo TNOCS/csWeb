@@ -265,6 +265,14 @@ module FeatureProps {
             'messageBusService'
         ];
 
+        public getActions(feature: IFeature) {
+            var options = [];
+            this.$layerService.actionServices.forEach((as: csComp.Services.IActionService) => {
+                options = options.concat(as.getFeatureActions(feature));
+            });
+            return options;
+        }
+
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
@@ -425,6 +433,7 @@ module FeatureProps {
 
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
+            feature.gui["actions"] = this.getActions(feature);
             var featureType = feature.fType;
             this.$scope.featureType = featureType;
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
@@ -518,6 +527,13 @@ module FeatureProps {
                 }
             }
             return time;
+        }
+
+        public zoomToDate(date: Date) {
+            var d = new Date(date.toString());
+            this.$layerService.project.timeLine.isLive = false;
+            this.$layerService.project.timeLine.setFocus(d);
+            this.$messageBusService.publish("timeline", "setFocus", d);
         }
 
         setTime(time: { title: string; timestamp: number }) {

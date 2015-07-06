@@ -78,7 +78,8 @@ class ImporterRepositoryService implements IImporterRepositoryService {
             importer.lastRun = new Date();
 
             var sourceRequest = request({ url: importer.sourceUrl });
-            var stream: NodeJS.ReadWriteStream = sourceRequest.pipe(split());
+            // var stream: NodeJS.ReadWriteStream = sourceRequest.pipe(split());
+            var stream: NodeJS.ReadWriteStream = null;
 
             importer.transformers.forEach(transformerDefinition=>{
               var transformerInstance = this.getTransformerInstance(transformerDefinition);
@@ -112,28 +113,28 @@ class ImporterRepositoryService implements IImporterRepositoryService {
               var jsonData = JSON.parse(data);
 
               var folder = "public/data";
-              var fileName = "";
+              var fileName = "zorgkaart";
 
               if (jsonData.features[0].properties[importer.title]) {
-                fileName = jsonData.features[0].properties[importer.title];
-                //folder = "public/data/" + jsonData.features[0].properties[importer.title];
-              }
-              else {
-                fileName = importer.title;
-                //folder = "public/data/" + importer.title;
+                // fileName = jsonData.features[0].properties[importer.title];
+                var subfolder = jsonData.features[0].properties[importer.title];
+                subfolder = subfolder.replace(/[\/\\\|&;\$%@"<>\(\)\+,]/g, "");
+                console.log(subfolder);
+                folder = "public/data/" + subfolder;
+              } else {
+                // fileName = importer.title;
+                folder = "public/data/" + importer.title;
               }
 
-              /*
               if (!fs.existsSync(folder)) {
                 console.log("Folder does not exist, create");
                 fs.mkdirSync(folder);
               }
-              */
 
               var outputFileStream = fs.createWriteStream(folder + "/" + fileName + ".json");
               outputFileStream.write(data, "utf8");
 
-              console.log("Output written to " + folder + "/kvk.json");
+              console.log("Output written to " + folder + "/" + fileName + ".json");
 
               var currTs = new Date();
               var diff = (currTs.getTime() - prevTs.getTime());

@@ -183,6 +183,7 @@ module csComp.Services {
         targetrelation?: string;
         targetproperty?: string;
         options?: string[];
+        categories?: string[];
         languages?: ILanguageData;
         legend?: Legend;
         activation?: string;
