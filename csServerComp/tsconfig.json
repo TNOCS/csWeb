@@ -24,6 +24,7 @@
         "./Scripts/typings/cs/cs-offline-search.d.ts",
         "./Scripts/typings/express/express.d.ts",
         "./Scripts/typings/form-data/form-data.d.ts",
+        "./Scripts/typings/hypertimer/hypertimer.d.ts",
         "./Scripts/typings/jquery/jquery.d.ts",
         "./Scripts/typings/node/node.d.ts",
         "./Scripts/typings/pg/pg.d.ts",
@@ -69,6 +70,9 @@
         "./ServerComponents/import/ImporterRepositoryService.ts",
         "./ServerComponents/import/RepeatEnum.ts",
         "./ServerComponents/import/SplitAdresTransformer.ts",
-        "./ServerComponents/import/Store.ts"
+        "./ServerComponents/import/Store.ts",
+        "./ServerComponents/rules/Rule.ts",
+        "./ServerComponents/rules/RuleEngine.ts",
+        "./ServerComponents/rules/WorldState.ts"
     ]
 }

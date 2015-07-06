@@ -1,46 +1,39 @@
 require('rootpath')();
 import express = require('express')
+import events = require("events");
 import ClientConnection = require('ClientConnection');
 import MessageBus = require('../bus/MessageBus');
 import fs = require('fs');
 import path = require('path');
-
+import utils = require('../helpers/Utils');
 
 export interface IDynamicLayer {
     getLayer(req: express.Request, res: express.Response);
     getDataSource(req: express.Request, res: express.Response);
+    addFeature?: (feature: any) => void;
     layerId: string;
     start();
+    on?: (event: string, listener: Function) => events.EventEmitter;
 }
 
-export class DynamicLayer implements IDynamicLayer {
+export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
+    private file: string;
     /**
      * Working copy of geojson file
      */
     public geojson: any;
-    private file: string;
     public server: express.Express;
     public messageBus: MessageBus.MessageBusService;
     public connection: ClientConnection.ConnectionManager;
-    public featureUpdated: Function;
-
     public startDate: number;
 
     constructor(public layerId: string, file: string, server: express.Express, messageBus: MessageBus.MessageBusService, connection: ClientConnection.ConnectionManager) {
+        super();
         this.geojson = { features: [] };
         this.file = file;
         this.server = server;
         this.messageBus = messageBus;
         this.connection = connection;
-    }
-
-    public S4(): string {
-        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-    }
-
-    public getGuid(): string {
-        var guid = (this.S4() + this.S4() + "-" + this.S4() + "-4" + this.S4().substr(0, 3) + "-" + this.S4() + "-" + this.S4() + this.S4() + this.S4()).toLowerCase();
-        return guid;
     }
 
     public getLayer(req: express.Request, res: express.Response) {
@@ -67,7 +60,7 @@ export class DynamicLayer implements IDynamicLayer {
     }
 
     public initFeature(f: any) {
-        if (!f.id) f.id = this.getGuid();
+        if (!f.id) f.id = utils.newGuid();
     }
 
     public updateSensorValue(ss: any, date: number, value: number) {
@@ -116,7 +109,7 @@ export class DynamicLayer implements IDynamicLayer {
                         }
                     }
                     console.log("Log update" + featureId);
-                    this.featureUpdated(featureId);
+                    this.emit("featureUpdated", this.layerId, featureId);
                     break;
                 case "featureUpdate":
                     var ft = <csComp.Services.IFeature>msg.object;
@@ -130,7 +123,7 @@ export class DynamicLayer implements IDynamicLayer {
                         this.geojson.features.push(ft);
                     }
                     this.connection.updateFeature(this.layerId, ft, "feature-update", client);
-                    this.featureUpdated(featureId);
+                    this.emit("featureUpdated", this.layerId, ft.id);
                     break;
             }
         });
