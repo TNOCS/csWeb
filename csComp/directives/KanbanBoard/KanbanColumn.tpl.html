@@ -64,6 +64,12 @@
                                 </form>
                             </div>
                         </div>
+                        <div ng-if="feature.properties[fields['media']]" style="margin-left:30px">
+                            <div ng-repeat="media in feature.properties[fields['media']]">
+
+                                <img src="{{media}}" style="height:50px"></img>
+                            </div>
+                        </div>
 
                         <!-- <span ng-repeat="t in feature.properties['tags']">[{{t}}]</span> -->
 

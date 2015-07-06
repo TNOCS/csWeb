@@ -939,7 +939,7 @@ html, body, #container {
     cursor: pointer;
 }
 #focustimeContainer {
-    width: 100px;
+    width: 130px;
     cursor: e-resize;
     height: 67px;
     right: 200px;

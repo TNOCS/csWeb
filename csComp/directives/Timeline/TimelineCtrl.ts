@@ -293,7 +293,7 @@ module Timeline {
             var tl = this.$scope.timeline;
             if (this.$layerService.project.timeLine.isLive) {
                 var pos = tl._toScreen(new Date());
-                $("#focustimeContainer").css('left', pos - 75);
+                $("#focustimeContainer").css('left', pos - 65);
                 if (this.isPinned)
                     tl.moveTo(new Date(), { animation: { duration: 500, easingFunction: 'linear' } });
                 this.updateFocusTime();
@@ -359,7 +359,7 @@ module Timeline {
                     this.focusDate = new Date();
                 }
                 else {
-                    this.focusDate = new Date(this.$scope.timeline._toTime(pos + 3));
+                    this.focusDate = new Date(this.$scope.timeline._toTime(pos + 1));
                 }
 
                 this.startDate = range.start; //new Date(range.start); //this.$scope.timeline.screenToTime(0));

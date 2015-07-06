@@ -147,6 +147,13 @@
                                         <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
                                         <div ng-switch-when="category" class="text-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
+                                        <div ng-switch-when="media">
+                                            <div ng-if="feature.properties[item.property]]" style="margin-left:30px">
+                                                <div ng-repeat="media in feature.properties[item.properties]]">
+                                                    <img src="{{media}}" style="height:50px"></img>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                     </div>
                                     <div style="overflow:hidden;padding-left:4px;padding-right:20px;">
