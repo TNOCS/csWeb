@@ -43,10 +43,10 @@ module Timeline {
         public timer: any;
         public isPlaying: boolean;
         public showControl: boolean;
-        public isPinned: boolean;
+        public isPinned: boolean = true;
 
         public options: any;
-        public expandButtonBottom = 40;
+        public expandButtonBottom = 52;
         public items = new vis.DataSet();
 
         // dependencies are injected via AngularJS $injector
@@ -64,13 +64,24 @@ module Timeline {
 
             this.options = {
                 'width': '100%',
-                "eventMargin": 0,
-                "eventMarginAxis": (this.expanded) ? 65 : 0,
                 'editable': false,
-                'layout': 'box'
+                'margin': 0,
+                'height': "54px"
+                //'layout': 'box'
             };
 
             $scope.vm = this;
+
+            this.$messageBusService.subscribe("project", (s: string, data: any) => {
+                setTimeout(() => {
+                    //    this.initTimeline();
+                    this.updateFocusTime();
+                    this.updateDragging();
+                    this.myTimer();
+                    if (this.$layerService.project.timeLine.isLive) this.goLive();
+                }, 0);
+
+            });
 
             this.initTimeline();
 
@@ -84,14 +95,7 @@ module Timeline {
                     }
                 }
             });
-            this.$messageBusService.subscribe("project", (s: string, data: any) => {
-                setTimeout(() => {
-                    this.updateFocusTime();
-                    this.updateDragging();
-                    this.myTimer();
-                }, 0);
 
-            });
 
             //$scope.focusDate = $layerService.project.timeLine.focusDate();
 
@@ -174,9 +178,7 @@ module Timeline {
 
             //var options = this.TimelineService.getTimelineOptions();
             // Configuration for the Timeline
-            var options = {
-                height: "150px"
-            };
+
             //options.locale = this.$layerService.currentLocale;
             var container = document.getElementById('timeline');
 
@@ -190,7 +192,7 @@ module Timeline {
             { id: 6, content: 'item 6', start: '2014-04-27', type: 'point' }*/
             //]);
 
-            this.$layerService.timeline = this.$scope.timeline = new vis.Timeline(container, this.items, options);
+            this.$layerService.timeline = this.$scope.timeline = new vis.Timeline(container, this.items, this.options);
 
             this.$layerService.timeline.redraw();
             /*vis.events.addListener(this.$scope.timeline, 'rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
@@ -200,8 +202,10 @@ module Timeline {
                 }
             });*/
 
-            if (typeof this.$layerService.project !== 'undefined' && this.$layerService.project.timeLine !== null)
+            if (this.$layerService.project && this.$layerService.project.timeLine !== null) {
                 this.$scope.timeline.setWindow(this.$layerService.project.timeLine.start, this.$layerService.project.timeLine.end);
+                if (this.$layerService.project.timeLine.isLive) this.goLive();
+            }
             this.updateDragging();
             this.updateFocusTime();
 
@@ -212,6 +216,8 @@ module Timeline {
                     if (f) this.$layerService.selectFeature(f);
                 }
             });
+
+
 
             this.$scope.timeline.addEventListener('rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
 
@@ -233,10 +239,12 @@ module Timeline {
         }
 
         public expandToggle() {
-            console.log('expanding timeline');
             this.expanded = !this.expanded;
-            this.options.eventMarginAxis = (this.expanded) ? 65 : 0;
-            this.expandButtonBottom = (this.expanded) ? 170 : 40;
+            //    this.options.margin = {};
+            //    this.options.margin['item'] = (this.expanded) ? 65 : 0;
+            this.options.height = (this.expanded) ? 150 : 54;
+
+            this.expandButtonBottom = (this.expanded) ? 149 : 52;
             this.$layerService.timeline.setOptions(this.options);
             this.$layerService.timeline.redraw();
             // .config(TimelineServiceProvider => {
@@ -261,27 +269,41 @@ module Timeline {
             this.timer = setInterval(() => { this.myTimer(); }, 500);
         }
 
-        public toggleLive() {
-            if (!this.$layerService.project) return;
+        public goLive() {
             this.stop();
-            this.$layerService.project.timeLine.isLive = !this.$layerService.project.timeLine.isLive;
+            this.$layerService.project.timeLine.isLive = true;
             this.isPlaying = false;
             if (this.$layerService.project.timeLine.isLive) {
                 this.myTimer();
                 this.start();
             }
             this.updateDragging();
-            //this.isPlaying = this.isLive;
         }
+
+        public stopLive() {
+            if (!this.$layerService.project) return;
+            this.stop();
+            this.$layerService.project.timeLine.isLive = false;
+            this.isPlaying = false;
+            this.updateDragging();
+        }
+
 
         public myTimer() {
             var tl = this.$scope.timeline;
             if (this.$layerService.project.timeLine.isLive) {
                 var pos = tl._toScreen(new Date());
                 $("#focustimeContainer").css('left', pos - 75);
+                if (this.isPinned)
+                    tl.moveTo(new Date(), { animation: { duration: 500, easingFunction: 'linear' } });
                 this.updateFocusTime();
             } else if (this.isPlaying) {
-                tl.move(0.005);
+                var w = tl.getWindow();
+                var dif = (w.end.getTime() - w.start.getTime()) / 200;
+
+                tl.setWindow(w.start.getTime() + dif, w.end.getTime() + dif, { animation: { duration: 500, easingFunction: 'linear' } });
+
+                //tl.move(0.005);
                 this.updateFocusTime();
             }
         }
@@ -295,6 +317,14 @@ module Timeline {
 
         public mouseLeave() {
             if (!this.isPlaying) this.showControl = false;
+        }
+
+        public pin() {
+            this.isPinned = true;
+        }
+
+        public unPin() {
+            this.isPinned = false;
         }
 
         public pinToNow() {
@@ -329,7 +359,7 @@ module Timeline {
                     this.focusDate = new Date();
                 }
                 else {
-                    this.focusDate = new Date(this.$scope.timeline.screenToTime(pos + 3));
+                    this.focusDate = new Date(this.$scope.timeline._toTime(pos + 3));
                 }
 
                 this.startDate = range.start; //new Date(range.start); //this.$scope.timeline.screenToTime(0));

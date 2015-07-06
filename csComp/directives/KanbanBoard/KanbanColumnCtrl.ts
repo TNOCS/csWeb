@@ -107,7 +107,9 @@ module KanbanColumn {
             if (this.$layerService.lockFeature(feature)) {
                 feature.gui["questions"] = [];
                 feature.properties[this.column.fields['question']].forEach((s: string) => {
-                    feature.gui["questions"].push(s);
+                    var pt = this.$layerService.getPropertyType(feature, s);
+
+                    feature.gui["questions"].push({ property: s, ptype: pt });
                 });
             }
         }
@@ -120,6 +122,14 @@ module KanbanColumn {
 
         }
 
+        public saveCategory(feature: csComp.Services.IFeature, property: string, value: string) {
+            feature.properties["answered"] = true;
+            feature.properties[property] = value;
+            delete feature.gui["questions"];
+            this.$layerService.unlockFeature(feature);
+            this.$layerService.saveFeature(feature, true);
+        }
+
         public updateTime() {
             this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
                 if (feature.properties.hasOwnProperty('date')) {
@@ -130,6 +140,12 @@ module KanbanColumn {
                 }
                 return "";
             })
+        }
+
+        public addRole(feature: csComp.Services.IFeature, role: string) {
+            if (!feature.properties.hasOwnProperty('roles')) feature.properties['roles'] = [];
+            if (feature.properties['roles'].indexOf(role) === -1) feature.properties['roles'].push(role);
+            this.$layerService.saveFeature(feature, true);
         }
 
         public logFilter(feature: csComp.Services.IFeature) {
@@ -166,7 +182,12 @@ module KanbanColumn {
         }
 
         selectFeature(feature: csComp.Services.IFeature) {
-            this.$layerService.selectFeature(feature);
+            if (feature.properties.hasOwnProperty(this.column.fields['question'])) {
+                this.createForm(feature);
+            } else {
+                this.$layerService.selectFeature(feature);
+            }
+
         }
 
         editFeature(feature: csComp.Services.IFeature) {

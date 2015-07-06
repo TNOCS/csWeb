@@ -272,30 +272,36 @@ module csComp.Services {
                                 feature.layer.lastSelectedFeature = feature;
 
                                 var l = feature.properties[prop.label];
-
-                                var pl = new ProjectLayer();
-                                if (typeof l === 'string') {
-                                    pl.url = l;
+                                var pl = this.findLayer(l);
+                                if (pl) {
+                                    this.addLayer(pl);
                                 }
                                 else {
-                                    pl = l;
-                                }
+                                    if (typeof l === 'string') {
 
-                                if (!pl.id) pl.id = l;
-                                if (!pl.group) {
-                                    pl.group = feature.layer.group;
-                                }
-                                else {
-                                    if (typeof pl.group === 'string') {
-                                        pl.group = this.findGroupById(<any>pl.group);
+                                        pl.url = l;
                                     }
+                                    else {
+                                        pl = l;
+                                    }
+
+                                    if (!pl.id) pl.id = l;
+                                    if (!pl.group) {
+                                        pl.group = feature.layer.group;
+                                    }
+                                    else {
+                                        if (typeof pl.group === 'string') {
+                                            pl.group = this.findGroupById(<any>pl.group);
+                                        }
+                                    }
+                                    if (!pl.type) pl.type = feature.layer.type;
+                                    if (!pl.title) pl.title = feature.properties["Name"] + " " + prop.title;
+                                    if (!pl.defaultFeatureType) pl.defaultFeatureType = "link";
+                                    //pl.parentFeature = feature;
+                                    pl.group.layers.push(pl);
                                 }
-                                if (!pl.type) pl.type = feature.layer.type;
-                                if (!pl.title) pl.title = feature.properties["Name"] + " " + prop.title;
-                                if (!pl.defaultFeatureType) pl.defaultFeatureType = "link";
-                                //pl.parentFeature = feature;
-                                pl.group.layers.push(pl);
                                 this.addLayer(pl);
+
                             }
                         });
                         break;
@@ -841,6 +847,7 @@ module csComp.Services {
             }
 
             feature.gui['style'] = {};
+            s.opacity = s.opacity * (feature.layer.opacity / 100);
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     //delete feature.gui[gs.property];
@@ -1276,6 +1283,26 @@ module csComp.Services {
             filter.group.filters = filter.group.filters.filter(f=> { return f != filter; });
             this.resetMapFilter(filter.group);
             this.mb.publish("filters", "updated");
+        }
+
+        /**
+         * Returs propertytype for a specific property in a feature
+         */
+        public getPropertyType(feature: IFeature, property: string): IPropertyType {
+            var res: IPropertyType;
+            // search for local propertytypes in featuretype
+            if (feature.fType && feature.fType.propertyTypeData) {
+                res = _.find(feature.fType.propertyTypeData, (pt: IPropertyType) => { return pt.label === property });
+            }
+
+            if (!res && feature.fType.propertyTypeKeys && feature.layer.typeUrl && this.typesResources.hasOwnProperty(feature.layer.typeUrl)) {
+                var rt = this.typesResources[feature.layer.typeUrl];
+                feature.fType.propertyTypeKeys.split(';').forEach((key: string) => {
+                    if (rt.propertyTypeData.hasOwnProperty(key) && rt.propertyTypeData[key].label === property) res = rt.propertyTypeData[key];
+                });
+            }
+
+            return res;
         }
 
         /**

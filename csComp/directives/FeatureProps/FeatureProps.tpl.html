@@ -145,6 +145,7 @@
                                         <div ng-switch-when="date" class="text-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
                                             {{item.feature.properties[item.property] | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</div>
                                         <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
+                                        <div ng-switch-when="category" class="text-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                         <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                     </div>
