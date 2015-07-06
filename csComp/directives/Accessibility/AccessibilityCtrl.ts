@@ -4,10 +4,21 @@ module Accessibility {
         vm: AccessibilityCtrl;
     }
 
+    export interface IOtpUrlParameters {
+        [key: string]: any;
+    }
+
     export class AccessibilityCtrl {
         private scope: IAccessibilityScope;
         public layer: csComp.Services.ProjectLayer;
+        private urlAddress: string;
+        private urlParameters: IOtpUrlParameters;
+        private transportModes: { [key: string]: any };
+        private transportMode: string;
         private walkSpeed: number;
+        private cutoffTimes: number[];
+        public urlKeys = ['arriveBy', 'fromPlace', 'date', 'time', 'mode', 'maxWalkDistance', 'walkSpeed', 'bikeSpeed',
+            'maxTimeSec', 'precisionMeters', 'zDataType', 'coordinateOrigin', 'cutoffSec'];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -35,26 +46,61 @@ module Accessibility {
             this.scope = $scope;
             $scope.vm = this;
             this.layer = $scope.$parent["data"];
+            this.cutoffTimes = [];
+            this.urlParameters = {};
+            this.urlKeys.forEach((key) => { this.urlParameters[key] = 0});
+            this.transportModes = {};
+            this.transportModes["Walking"] = "WALK";
+            this.transportModes["Biking"] = "BICYCLE";
+            //this.transportModes["Car"] = "CAR";
         }
 
         public refreshAccessibility() {
-            var urlParams = this.layer.url.split('&');
-            var locationIndex = -1;
-            urlParams.some((param, index) => {
-                if (param.substring(0,9) === 'walkSpeed') {
-                    locationIndex = index;
-                    return true;
+            var url = this.urlAddress + '?';
+            for (var key in this.urlParameters) {
+                if (this.urlParameters.hasOwnProperty(key) && key !== 'cutoffSec') {
+                    url = url + key + '=' + this.urlParameters[key] + '&';
                 }
-                return false;
-            });
-            urlParams[locationIndex] = 'walkSpeed=' + this.walkSpeed;
-            this.layer.url = urlParams.join('&');
+            }
+            this.cutoffTimes.forEach((co) => {
+                url = url + 'cutoffSec=' + (co*60) + '&';
+            })
+            url = url.substring(0, url.length-1);
+            this.layer.url = url;
             if (!this.layer.enabled) {
                 this.$layerService.addLayer(this.layer);
             } else {
                 if (this.layer.layerSource) this.layer.layerSource.refreshLayer(this.layer);
             }
             this.$layerService.visual.rightPanelVisible = true;
+        }
+
+        public parseUrl() {
+            this.urlParameters = {};
+            this.urlAddress = this.layer.url.split('?')[0];
+            var croppedUrl = this.layer.url.split('?')[1]; // Remove the address of the url, keep the parameters
+            var splittedUrl = croppedUrl.split('&');
+            splittedUrl.forEach((param) => {
+                var keyValue = param.split('=');
+                if (keyValue[0] === 'cutoffSec') {
+                    this.cutoffTimes.push((+keyValue[1])/60);
+                }
+                this.urlParameters[keyValue[0]] = (isNaN(+keyValue[1])) ? keyValue[1] : +keyValue[1];
+            });
+            this.transportMode = this.urlParameters['mode'];
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+        }
+
+        private addCutoffTime() {
+            this.cutoffTimes.push(0);
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+        }
+
+        private removeCutoffTime(index: number) {
+            if (index < this.cutoffTimes.length && index > -1) {
+                this.cutoffTimes.splice(index, 1);
+            }
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
         }
     }
 }
