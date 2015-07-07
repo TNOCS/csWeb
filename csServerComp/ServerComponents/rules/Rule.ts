@@ -156,10 +156,11 @@ export class Rule implements IRule {
                 switch (key.toLowerCase()) {
                     case "add":
                         // add feature
-                        service.timer.setTimeout(() => {
+                        let id = service.timer.setTimeout(() => {
                             console.log('Add feature ' + this.feature.id);
                             service.layer.addFeature(this.feature)
                         }, this.getDelay(a, 1));
+                        console.log(`Timer ${id}: Add feature ${this.feature.id}`)
                         break;
                     case "set":
                         // Set, property, value [, delay]
@@ -169,13 +170,14 @@ export class Rule implements IRule {
                         }
                         var key = a[1];
                         if (typeof key === 'string') {
-                            service.timer.setTimeout(() => {
+                            let id = service.timer.setTimeout(() => {
                                 console.log(`Feature ${this.feature.id}`);
-                                console.log(`set ${key}: ${a[2]}`);
+                                console.log(`setting ${key}: ${a[2]}`);
                                 this.feature.properties[key] = a[2];
                                 service.updateFeature(this.feature);
                                 /*this.updateProperty(worldState, service, key, a[2]);*/
                             }, this.getDelay(a, 3));
+                            console.log(`Timer ${id}: set ${key}: ${a[2]}`)
                         }
                         break;
                     case "push":
@@ -186,9 +188,9 @@ export class Rule implements IRule {
                         }
                         var key = a[1];
                         if (typeof key === 'string') {
-                            service.timer.setTimeout(() => {
+                            let id = service.timer.setTimeout(() => {
                                 console.log(`Feature ${this.feature.id}`);
-                                console.log(`push ${key}: ${a[2]}`);
+                                console.log(`pushing ${key}: ${a[2]}`);
                                 if (!this.feature.properties.hasOwnProperty(key))
                                     this.feature.properties[key] = [a[2]];
                                 else
@@ -196,9 +198,10 @@ export class Rule implements IRule {
                                 service.updateFeature(this.feature);
                                 //this.updateProperty(worldState, service, key, this.feature.properties[key]);
                             }, this.getDelay(a, 3));
+                            console.log(`Timer ${id}: push ${key}: ${a[2]}`)
                         }
                         break;
-                    case "showgeometry":
+                    /*case "showgeometry":
                         // unhide the geometry by removing the underscore from the property
                         service.timer.setTimeout(() => {
                             if (!this.feature.hasOwnProperty("_geometry")) return;
@@ -219,7 +222,7 @@ export class Rule implements IRule {
                             delete this.feature["geometry"];
                             service.updateFeature(this.feature);
                         }, this.getDelay(a, 1));
-                        break;
+                        break;*/
                 }
             } else {
                 console.warn(`Rule ${this.id} contains an invalid action (ignored): ${a}!`);
