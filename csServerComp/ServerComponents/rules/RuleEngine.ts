@@ -53,12 +53,13 @@ export class RuleEngine {
         this.service.activateRule = (ruleId: string) => this.activateRule(ruleId);
         this.service.deactivateRule = (ruleId: string) => this.deactivateRule(ruleId);
         this.service.timer = this.timer;
+        /*this.worldState.features = layer.geojson.features;*/
 
         layer.on("featureUpdated", (layerId: string, featureId: string) => {
             console.log(`Feature update with id ${featureId} and layer id ${layerId} received in the rule engine.`)
 
             this.worldState.activeFeature = undefined;
-            this.worldState.features.some(f => {
+            layer.geojson.features.some(f => {
                 if (f.id !== featureId) return false;
                 this.worldState.activeFeature = f;
                 this.evaluateRules(f);
@@ -150,7 +151,6 @@ export class RuleEngine {
      * Evaluate the rules, processing the current feature
      */
     evaluateRules(feature?: GeoJSON.IFeature) {
-        console.log('evaluating rules...');
         if (this.isBusy) {
             console.warn("Added feature ${feature.id} to the queue (#items: $this.featureQueue.length}).");
             this.featureQueue.push(feature);
@@ -160,6 +160,7 @@ export class RuleEngine {
         // Update the set of applicable rules
         this.activeRules   = this.activeRules.filter(r => r.isActive);
         this.inactiveRules = this.inactiveRules.filter(r => !r.isActive);
+        console.log(`Starting to evaluate ${this.activeRules.length} rules...`);
         // Process all rules
         this.worldState.activeFeature = feature;
         this.activeRules.forEach(r => r.process(this.worldState, this.service));
@@ -191,5 +192,6 @@ export class RuleEngine {
             var f = this.featureQueue.pop();
             this.evaluateRules(f);
         }
+        console.log('Ready evaluating rules...');
     }
 }

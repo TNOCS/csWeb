@@ -9,6 +9,7 @@ import utils = require('../helpers/Utils');
 import GeoJSON = require("../helpers/GeoJSON");
 
 export interface IDynamicLayer {
+    connection?: ClientConnection.ConnectionManager;
     getLayer(req: express.Request, res: express.Response);
     getDataSource(req: express.Request, res: express.Response);
     addFeature?: (feature: any) => void;
@@ -142,7 +143,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
             this.connection.updateFeature(this.layerId, msgBody, "logs-update", client);
         }
         console.log("Log update" + featureId);
-        this.emit("featureUpdated", this.layerId, featureId);
+        if (notify) this.emit("featureUpdated", this.layerId, featureId);
     }
 
     updateFeature(ft: GeoJSON.IFeature, client?: string, notify?: boolean) {
