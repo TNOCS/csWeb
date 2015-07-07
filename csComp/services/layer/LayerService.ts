@@ -1943,14 +1943,14 @@ module csComp.Services {
             f.gui["lastUpdate"] = log.ts;
         }
 
-        private trackFeature(f: IFeature): {} {
+        private trackFeature(feature: IFeature): {} {
             var result = {};
-            for (var key in f.properties) {
-                if (!f.propertiesOld.hasOwnProperty(key)) {
-                    this.trackProperty(f, key, result);
+            for (var key in feature.properties) {
+                if (!feature.propertiesOld.hasOwnProperty(key)) {
+                    this.trackProperty(feature, key, result);
                 }
-                else if (JSON.stringify(f.propertiesOld[key]) != JSON.stringify(f.properties[key])) {
-                    this.trackProperty(f, key, result);
+                else if (JSON.stringify(feature.propertiesOld[key]) != JSON.stringify(feature.properties[key])) {
+                    this.trackProperty(feature, key, result);
                 }
             }
             return result;
