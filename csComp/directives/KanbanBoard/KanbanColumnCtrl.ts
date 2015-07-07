@@ -59,6 +59,7 @@ module KanbanColumn {
 
             if ($scope.fields.hasOwnProperty('prio')) this.sortOptions = this.sortOptions.concat(['High priority', 'Low Priority']);
             if ($scope.fields.hasOwnProperty('date')) this.sortOptions = this.sortOptions.concat(['New', 'Old']);
+            if ($scope.fields.hasOwnProperty('updated')) this.sortOptions = this.sortOptions.concat(['Updated']);
             this.sortOptions = this.sortOptions.concat(['Title']);
 
             // check if layers should be enabled
@@ -173,6 +174,7 @@ module KanbanColumn {
                 case 'Low Priority': this.$scope.columnOrderBy = "-properties." + this.$scope.fields['prio']; break;
                 case 'New': this.$scope.columnOrderBy = "-properties." + this.$scope.fields['date']; break;
                 case 'Old': this.$scope.columnOrderBy = "properties." + this.$scope.fields['date']; break;
+                case 'Updated': this.$scope.columnOrderBy = "-properties." + this.$scope.fields['updated']; break;
                 case 'Title': this.$scope.columnOrderBy = "properties." + this.$scope.fields['title']; break;
             }
         }
