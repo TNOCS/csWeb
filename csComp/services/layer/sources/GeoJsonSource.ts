@@ -286,23 +286,42 @@ module csComp.Services {
             layer.type = 'accessibility';
             // Open a layer URL
             layer.isLoading = true;
-            layer.count = 0;
 
             $.getJSON('/api/accessibility', {
                 url: layer.url
-            }, (data, textStatus) => {
-                    layer.data = JSON.parse(data.body);//csComp.Helpers.GeoExtensions.createFeatureCollection(features);
+            }, ((data, textStatus) => { this.processReply(data, textStatus, callback) }))
 
-                    if (layer.data.geometries && !layer.data.features) {
-                        layer.data.features = layer.data.geometries;
-                    }
-                    layer.data.features.forEach((f) => {
-                        this.service.initFeature(f, layer);
+        }
+
+        private processReply(data, textStatus, clbk) {
+            var data = JSON.parse(data.body);
+            if (data.hasOwnProperty('features') || data.hasOwnProperty('geometries')) { // Reply is in geoJson format
+                if (this.layer.hasOwnProperty('data') && this.layer.data.hasOwnProperty('features')) {
+                    data.features.forEach((f) => {
+                        this.layer.data.features.push(f);
+                        this.service.initFeature(f, this.layer);
                     });
-
-                    layer.isLoading = false;
-                    callback(layer);
+                } else {
+                    this.layer.count = 0;
+                    this.layer.data = data;
+                    this.layer.data.features.forEach((f) => {
+                        this.service.initFeature(f, this.layer);
+                    });
+                }
+            } else { // Reply is in routeplanner format
+                //TODO: decode route which is in encoded polyline format: https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+                var fromLoc = data.plan.from;
+                var toLoc = data.plan.to;
+                this.layer.data = {};
+                this.layer.data.type = 'FeatureCollection';
+                this.layer.data.features = [];
+                this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature([[fromLoc.lon, fromLoc.lat], [toLoc.lon, toLoc.lat]], { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: data.plan.itineraries[0].duration }));
+                this.layer.data.features.forEach((f) => {
+                    this.service.initFeature(f, this.layer);
                 });
+            }
+            this.layer.isLoading = false;
+            clbk(this.layer);
         }
     }
 }

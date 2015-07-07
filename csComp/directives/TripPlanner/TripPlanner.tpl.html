@@ -1,0 +1,55 @@
+<div data-ng-cloak class="rightpanel-content" style="width:100%">
+    <h4 class="rightpanel-header">
+        <i class="layersIcon rightpanel-header-icon" />Bereikbaarheid parameters
+    </h4>
+
+    <div data-ng-cloak style="margin:5px;overflow-y:auto" resize resize-y="150">
+        <div ng-init="vm.parseUrl()">
+            <div style="padding: 5px 0;" class="row-fluid">
+                <span>
+                    <label>Transport mode</label>
+                    <select id="selectTransportMode" ng-model="vm.transportMode" class="form-control tt-input editor-text-input" style="display:inline-block" ng-options="value as key for (key, value) in vm.transportModes" ng-change="vm.updateTransportMode()">
+                    </select>
+                </span>
+            </div>
+
+            <div class="controls" ng-if="vm.transportMode === 'WALK'">
+                <span>
+                    <label class="input-xlarge" for="walkSpeed">Walk speed</label>
+                    <input id="walkSpeed" type="number" step="any" placeholder="Walk speed" class="input-xlarge" ng-model="vm.urlParameters['walkSpeed']" style="margin:5px; max-width:100px;">mph
+                </span>
+            </div>
+
+            <div class="controls" ng-if="vm.transportMode === 'BICYCLE'">
+                <span>
+                    <label class="input-xlarge" for="bikeSpeed">Bike speed</label>
+                    <input id="bikeSpeed" type="number" step="any" placeholder="Bike speed" class="input-xlarge" ng-model="vm.urlParameters['bikeSpeed']" style="margin:5px; max-width:100px;">mph
+                </span>
+            </div>
+
+            <div class="controls">
+                <span>
+                    <label class="input-xlarge" for="precisionMeters">Precision</label>
+                    <input id="precisionMeters" type="number" placeholder="Precision" class="input-xlarge" ng-model="vm.urlParameters['precisionMeters']" style="margin:5px; max-width:100px;">meter
+                </span>
+            </div>
+
+            <li ng-repeat="co in vm.cutoffTimes" class="row-fluid list-unstyled truncate">
+                <div class="controls">
+                    <span>
+                        <label class="input-xlarge" for="cutoff-${index}">Cut-off time {{$index}}</label>
+                        <input id="cutoff-${index}" type="number" placeholder="Cut-off time" class="input-xlarge" ng-model="co" style="margin:5px; max-width:100px;">minutes
+                        <button class="fa fa-remove rightpanel-header-button" style="float:right; margin:5px;" ng-click="vm.removeCutoffTime($index)"></button>
+                    </span>
+                </div>
+            </li>
+
+            <button class="rightpanel-header-button" ng-click="vm.addCutoffTime()"><span class="fa fa-plus" style="padding:5px;"><div style="margin-left:5px;display:inline-block;">Add cut-off time</div></span></button>
+
+            <div class="controls" style="margin-top:10px; margin-left:10px;">
+                <button class="btn" ng-click="vm.refreshAccessibility()">Refresh accessibility</button>
+            </div>
+        </div>
+
+    </div>
+</div>

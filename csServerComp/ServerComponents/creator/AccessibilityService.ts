@@ -29,7 +29,12 @@ class AccessibilityService implements IApiService {
         console.log('Accessibility request: ' + url);
         //feedUrl = 'http://rss.politie.nl/rss/algemeen/ab/algemeen.xml';
 
-        request(url, function (error, response) {
+        var options: request.Options = {
+            url: url,
+            headers: {'Accept': 'application/json'} //Required to receive a reply in json format instead of xml
+        };
+
+        request(options, function (error, response) {
           if (!error && response.statusCode == 200) {
               res.json(response);
           } else {
