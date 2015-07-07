@@ -63,7 +63,7 @@
 
                                 </form>
                             </div>
-                        </div>                        
+                        </div>
                         <div ng-if="feature.properties[fields['media']]" style="margin-left:30px">
                             <div ng-repeat="media in feature.properties[fields['media']]">
 
@@ -96,16 +96,17 @@
                                     <a data-ng-click="feature.properties[fields['prio']]=5;vm.updateFeature(feature)">5 - very low</a>
                                 </li>
                             </ul>
+                        </div>                        
+                        <div class="card-button card-share dropdown">
+                            <span href="" class="dropdown-toggle fa fa-share" data-toggle="dropdown"></span>
+                            <ul class="dropdown-menu" style="right:0;left:auto" role="menu">
+                                <li ng-repeat="role in column.roles" style="padding:3px;color:black">
+                                    <label><input type="checkbox" ng-model="feature.properties['roles'].indexOf(role)!==-1" style="margin:3px" data-ng-click="vm.toggleRole(feature,role)" style="float:left"><span style="font-size:14px">{{role}}</span></label>
+                                </li>
+                            </ul>
                         </div>
                         <div class="card-item-options">
-                            <div class="card-button card-share dropdown">
-                                <span href="" class="dropdown-toggle fa fa-share" data-toggle="dropdown"></span>
-                                <ul class="dropdown-menu" style="right:0;left:auto" role="menu">
-                                    <li>
-                                        <a data-ng-click="vm.addRole(feature,'oc')">OC</a>
-                                    </li>
-                                </ul>
-                            </div>
+
                             <div ng-click="vm.editFeature(feature)" class="card-button card-edit">
                                 <span href="" class="fa fa-pencil"></span>
                             </div>
