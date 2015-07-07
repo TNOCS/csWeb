@@ -1,16 +1,18 @@
 require('rootpath')();
 import express = require('express')
 import events = require("events");
-import ClientConnection = require('ClientConnection');
+import ClientConnection = require('./ClientConnection');
 import MessageBus = require('../bus/MessageBus');
 import fs = require('fs');
 import path = require('path');
 import utils = require('../helpers/Utils');
+import GeoJSON = require("../helpers/GeoJSON");
 
 export interface IDynamicLayer {
     getLayer(req: express.Request, res: express.Response);
     getDataSource(req: express.Request, res: express.Response);
     addFeature?: (feature: any) => void;
+    updateFeature?: (ft: GeoJSON.IFeature, client?: string, notify?: boolean) => void;
     layerId: string;
     start();
     on?: (event: string, listener: Function) => events.EventEmitter;
@@ -88,7 +90,31 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
                 case "logUpdate":
                     // find feature
                     var featureId = msg.object.featureId;
-                    var ff = this.geojson.features.filter((k) => { return k.id && k.id === featureId });
+                    var f: GeoJSON.IFeature;
+                    this.geojson.features.some(feature => {
+                        if (feature.id && feature.id === featureId) return false;
+                        // feature found
+                        f = feature;
+                        return true;
+                    });
+                    if (!f) return; // feature not found
+                    if (!f.hasOwnProperty('logs')) f.logs = {};
+                    if (!f.hasOwnProperty('properties')) f.properties = {};
+
+                    // apply changes
+                    var logs = msg.object.logs;
+
+                    for (var key in logs) {
+                        if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+                        logs[key].forEach(l=> {
+                            f.logs[key].push(l);
+                            f.properties[key] = l.value;
+                        });
+                        console.log(JSON.stringify(f));
+                        // send them to other clients
+                        this.connection.updateFeature(this.layerId, msg.object, "logs-update", client);
+                    }
+                    /*var ff = this.geojson.features.filter((k) => { return k.id && k.id === featureId });
                     if (ff.length > 0) {
                         var f = ff[0];
                         if (!f.hasOwnProperty('logs')) f.logs = {};
@@ -107,13 +133,14 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
                             // send them to other clients
                             this.connection.updateFeature(this.layerId, msg.object, "logs-update", client);
                         }
-                    }
+                    }*/
                     console.log("Log update" + featureId);
                     this.emit("featureUpdated", this.layerId, featureId);
                     break;
                 case "featureUpdate":
-                    var ft = <csComp.Services.IFeature>msg.object;
-                    this.initFeature(ft);
+                    var ft: GeoJSON.IFeature = msg.object;
+                    this.updateFeature(ft, client, true);
+                    /*this.initFeature(ft);
                     feature = this.geojson.features.filter((k) => { return k.id && k.id === ft.id });
                     if (feature && feature.length > 0) {
                         var index = this.geojson.features.indexOf(feature[0]);
@@ -123,11 +150,26 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
                         this.geojson.features.push(ft);
                     }
                     this.connection.updateFeature(this.layerId, ft, "feature-update", client);
-                    this.emit("featureUpdated", this.layerId, ft.id);
+                    this.emit("featureUpdated", this.layerId, ft.id);*/
                     break;
             }
         });
+    }
 
-
+    updateFeature(ft: GeoJSON.IFeature, client?: string, notify?: boolean) {
+        this.initFeature(ft);
+        var feature = this.geojson.features.filter((k) => { return k.id && k.id === ft.id });
+        if (feature && feature.length > 0) {
+            var index = this.geojson.features.indexOf(feature[0]);
+            this.geojson.features[index] = ft;
+        }
+        else {
+            this.geojson.features.push(ft);
+        }
+        if (client)
+            this.connection.updateFeature(this.layerId, ft, "feature-update", client);
+        else
+            this.connection.updateFeature(this.layerId, ft, "feature-update");
+        if (notify) this.emit("featureUpdated", this.layerId, ft.id);
     }
 }

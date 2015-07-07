@@ -4,6 +4,7 @@ import HyperTimer = require('hypertimer');
 import WorldState = require('./WorldState');
 import Rule = require('./Rule');
 import DynamicLayer = require("ServerComponents/dynamic/DynamicLayer");
+import GeoJSON = require("../helpers/GeoJSON");
 
 /**
  * Simplified abstraction of the ClientConnection.
@@ -14,7 +15,8 @@ export interface IConnectionService {
      * @action: logs-update, feature-update
      * @skip: this one will be skipped ( e.g original source)
      */
-    updateFeature(layer: string, object: any, action: string, skip?: string);
+     updateFeature(feature: GeoJSON.IFeature);
+    //updateFeature(layer: string, object: any, action: string, skip?: string);
 }
 
 export interface IRuleEngineService extends IConnectionService {
@@ -25,7 +27,7 @@ export interface IRuleEngineService extends IConnectionService {
 }
 
 export class RuleEngine {
-    private worldState: WorldState.WorldState = new WorldState.WorldState();
+    private worldState: WorldState = new WorldState();
     /** A set of rules that are active but have not yet fired. */
     private activeRules: Rule.IRule[] = [];
     /** A set of rules that are inactive and may become activated. */
@@ -35,7 +37,7 @@ export class RuleEngine {
     /** A set of rules to deactivate at the end of the rule evaluation cycle */
     private deactivateRules: string[] = [];
     /** Unprocessed features that haven't been evaluated yet */
-    private featureQueue: WorldState.IFeature[] = [];
+    private featureQueue: GeoJSON.IFeature[] = [];
     private isBusy: boolean;
     private timer: HyperTimer;
 
@@ -46,10 +48,10 @@ export class RuleEngine {
      */
     service: IRuleEngineService = { updateFeature: null };
 
-    constructor(updateService: IConnectionService, layer: DynamicLayer.IDynamicLayer) {
+    constructor(layer: DynamicLayer.IDynamicLayer) {
         this.timer = new HyperTimer( { rate: 1, time: new Date()});
 
-        this.service.updateFeature = updateService.updateFeature;
+        this.service.updateFeature = (feature: GeoJSON.IFeature) => layer.updateFeature(feature);
         this.service.layer = layer;
         this.service.activateRule = (ruleId: string) => this.activateRule(ruleId);
         this.service.deactivateRule = (ruleId: string) => this.deactivateRule(ruleId);
@@ -85,7 +87,7 @@ export class RuleEngine {
             if (rule.id !== ruleId) continue;
             rule.isActive = false;
             this.inactiveRules.push(rule);
-            // FIXME this.activeRules.splice(i, 1);
+            // FIXME <this.activeRules.splice(i, 1);
             return;
         }
     }
@@ -119,7 +121,7 @@ export class RuleEngine {
                 console.error(err);
                 return;
             }
-            var geojson: WorldState.IGeoJson = JSON.parse(data);
+            var geojson: GeoJSON.IGeoJson = JSON.parse(data);
             console.log("#features: " + geojson.features.length);
             geojson.features.forEach(f => {
                 this.worldState.features.push(f);
@@ -135,7 +137,7 @@ export class RuleEngine {
     /**
      * Add a rule to the engine.
      */
-    addRule(rule: Rule.IRule, feature?: WorldState.IFeature, activationTime?: Date) {
+    addRule(rule: Rule.IRule, feature?: GeoJSON.IFeature, activationTime?: Date) {
         if (typeof rule.actions === 'undefined' || rule.actions.length === 0 || rule.actions[0].length === 0) return;
         var newRule = new Rule.Rule(rule, activationTime);
         if (feature) {
@@ -150,7 +152,7 @@ export class RuleEngine {
     /**
      * Evaluate the rules, processing the current feature
      */
-    evaluateRules(feature?: WorldState.IFeature) {
+    evaluateRules(feature?: GeoJSON.IFeature) {
         console.log('evaluating rules...');
         if (this.isBusy) {
             console.warn("Added feature ${feature.id} to the queue (#items: $this.featureQueue.length}).");
@@ -158,6 +160,9 @@ export class RuleEngine {
             return;
         }
         this.isBusy = true;
+        // Update the set of applicable rules
+        this.activeRules   = this.activeRules.filter(r => r.isActive);
+        this.inactiveRules = this.inactiveRules.filter(r => !r.isActive);
         // Process all rules
         this.worldState.activeFeature = feature;
         this.activeRules.forEach(r => r.process(this.worldState, this.service));

@@ -1,6 +1,7 @@
 import RuleEngine = require('./RuleEngine');
 import WorldState = require('./WorldState');
 import Utils = require('../helpers/Utils')
+import GeoJSON = require("../helpers/GeoJSON");
 
 export interface IRule {
     /** Identifier */
@@ -20,7 +21,7 @@ export interface IRule {
     recurrence?: number;
 
     /** Feature this rule applies too */
-    feature?: WorldState.IFeature;
+    feature?: GeoJSON.IFeature;
 
     /**
      * (Set of) condition(s) that need to be fulfilled in order to process the actions.
@@ -32,7 +33,7 @@ export interface IRule {
     actions?: [[string | number | boolean]];
 
     /** Evaluate the rule and execute all actions, is applicable. */
-    process?: (worldState: WorldState.WorldState, service: RuleEngine.IRuleEngineService) => void;
+    process?: (worldState: WorldState, service: RuleEngine.IRuleEngineService) => void;
 }
 
 /**
@@ -55,7 +56,7 @@ export class Rule implements IRule {
     /** How many times can the rule be fired: -1 is indefinetely, default is once */
     recurrence: number = 1;
 
-    feature: WorldState.IFeature;
+    feature: GeoJSON.IFeature;
     /**
      * (Set of) condition(s) that need to be fulfilled in order to process the actions.
      * In case the condition is empty, the rule is always fired, on every process.
@@ -82,14 +83,13 @@ export class Rule implements IRule {
     }
 
     /** Evaluate the rule and execute all actions, is applicable. */
-    process(worldState: WorldState.WorldState, service: RuleEngine.IRuleEngineService) {
+    process(worldState: WorldState, service: RuleEngine.IRuleEngineService) {
         // Check if we need to do anything.
         if (!this.isActive || this.recurrence === 0) return;
         // Check if we are dealing with a rule that belongs to a feature, and that feature is being processed.
         if (typeof worldState.activeFeature !== 'undefined' && typeof this.feature !== 'undefined' && worldState.activeFeature.id === this.feature.id) return;
         // Finally, check the conditions, if any (if none, just go ahead and execute the actions)
-        if (typeof this.conditions === 'undefined' || this.evaluateConditions(worldState))
-        {
+        if (typeof this.conditions === 'undefined' || this.evaluateConditions(worldState)) {
             this.executeActions(worldState, service);
             this.recurrence--;
             if (this.recurrence === 0) service.deactivateRule(this.id);
@@ -97,13 +97,13 @@ export class Rule implements IRule {
     }
 
     /** Evaluate the conditions and check whether all of them are true (AND). */
-    private evaluateConditions(worldState: WorldState.WorldState) {
+    private evaluateConditions(worldState: WorldState) {
         for (let i = 0; i < this.conditions.length; i++) {
             var c = this.conditions[i];
-            var key = c[0];
-            if (typeof key === 'string') {
+            var check = c[0];
+            if (typeof check === 'string') {
                 var length = c.length;
-                switch (key.toLowerCase()) {
+                switch (check.toLowerCase()) {
                     case "propertyexists":
                         if (typeof worldState.activeFeature === 'undefined') return false;
                         if (length !== 2) {
@@ -121,9 +121,19 @@ export class Rule implements IRule {
                         var prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
-                            var propValue = worldState.activeFeature.properties[key];
+                            let propValue = worldState.activeFeature.properties[prop];
                             if (length === 2 && propValue === null) return false;
                             if (length === 3 && propValue !== c[2]) return false;
+                        }
+                        break;
+                    case "propertycontains":
+                        if (typeof worldState.activeFeature === 'undefined') return false;
+                        if (length < 3) return false;
+                        var prop = c[1];
+                        if (typeof prop === 'string') {
+                            if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
+                            let props: any[] = worldState.activeFeature.properties[prop];
+                            if (length === 3 && props instanceof Array && props.indexOf(c[2]) < 0) return false;
                         }
                         break;
                     default:
@@ -137,7 +147,7 @@ export class Rule implements IRule {
         return true;
     }
 
-    private executeActions(worldState: WorldState.WorldState, service: RuleEngine.IRuleEngineService) {
+    private executeActions(worldState: WorldState, service: RuleEngine.IRuleEngineService) {
         for (let i = 0; i < this.actions.length; i++) {
             var a = this.actions[i];
             var key = a[0];
@@ -147,33 +157,85 @@ export class Rule implements IRule {
                     case "add":
                         // add feature
                         service.timer.setTimeout(() => {
-                            console.log('Add feature');
-                            service.layer.addFeature(this.feature)},
-                            this.getDelay(a, 1));
+                            console.log('Add feature ' + this.feature.id);
+                            service.layer.addFeature(this.feature)
+                        }, this.getDelay(a, 1));
                         break;
                     case "set":
-                        // Set property
+                        // Set, property, value [, delay]
                         if (length < 3) {
                             console.warn(`Rule ${this.id} contains an invalid action (ignored): ${a}!`);
                             return;
                         }
                         var key = a[1];
                         if (typeof key === 'string') {
-                            service.timer.setTimeout( () => {
-                                    console.log(`set ${key}: ${a[2]}`);
-                                    this.feature.properties[key] = a[2];
-                                },
-                                this.getDelay(a, 3));
+                            service.timer.setTimeout(() => {
+                                console.log(`Feature ${this.feature.id}`);
+                                console.log(`set ${key}: ${a[2]}`);
+                                this.feature.properties[key] = a[2];
+                                service.updateFeature(this.feature);
+                                /*this.updateProperty(worldState, service, key, a[2]);*/
+                            }, this.getDelay(a, 3));
                         }
                         break;
-                    case "setGeometry":
-                        // set/activate the geometry
+                    case "push":
+                        // push property value [, delay]
+                        if (length < 3) {
+                            console.warn(`Rule ${this.id} contains an invalid action (ignored): ${a}!`);
+                            return;
+                        }
+                        var key = a[1];
+                        if (typeof key === 'string') {
+                            service.timer.setTimeout(() => {
+                                console.log(`Feature ${this.feature.id}`);
+                                console.log(`push ${key}: ${a[2]}`);
+                                if (!this.feature.properties.hasOwnProperty(key))
+                                    this.feature.properties[key] = [a[2]];
+                                else
+                                    this.feature.properties[key].push(a[2]);
+                                service.updateFeature(this.feature);
+                                //this.updateProperty(worldState, service, key, this.feature.properties[key]);
+                            }, this.getDelay(a, 3));
+                        }
+                        break;
+                    case "showgeometry":
+                        // unhide the geometry by removing the underscore from the property
+                        service.timer.setTimeout(() => {
+                            if (!this.feature.hasOwnProperty("_geometry")) return;
+                            console.log(`Feature ${this.feature.id}`);
+                            console.log(`showing geometry`);
+                            this.feature["geometry"] = this.feature["_geometry"];
+                            delete this.feature["_geometry"];
+                            service.updateFeature(this.feature);
+                        }, this.getDelay(a, 1));
+                        break;
+                    case "hidegeometry":
+                        // hide the geometry by adding an underscore to the property
+                        service.timer.setTimeout(() => {
+                            if (!this.feature.hasOwnProperty("geometry")) return;
+                            console.log(`Feature ${this.feature.id}`);
+                            console.log(`hiding geometry`);
+                            this.feature["_geometry"] = this.feature["geometry"];
+                            delete this.feature["geometry"];
+                            service.updateFeature(this.feature);
+                        }, this.getDelay(a, 1));
                         break;
                 }
             } else {
                 console.warn(`Rule ${this.id} contains an invalid action (ignored): ${a}!`);
             }
         }
+    }
+
+    private updateProperty(ws: WorldState, service: RuleEngine.IRuleEngineService, key: string, value: any) {
+        var f = this.feature;
+        if (!f.hasOwnProperty('logs')) f.logs = {};
+        if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+        var log = { "prop": key, "ts": service.timer.now(), "value": value};
+        f.logs[key].push(log);
+        var msg = { "featureId": this.feature.id, "logs": log };
+        service.updateFeature(this.feature);
+        //service.updateFeature(ws.activeLayerId, msg, "logs-update");
     }
 
     /** Get the delay, if present, otherwise return 0 */
