@@ -198,6 +198,31 @@
             return gjson;
         }
 
+        static createLineFeature(coordinates: Array<Array<number>>, properties?: Object): IGeoFeature {
+            if (coordinates === null) throw new Error('No coordinates passed');
+            for (var i = 0; i < coordinates.length; i++) {
+                var ring = coordinates[i];
+                if (ring.length < 2) {
+                    new Error('Each LineString of a Polygon must have 2 or more Positions.');
+                }
+            }
+
+            var lines: IGeoFeature = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": coordinates
+                },
+                "properties": properties
+            };
+
+            if (!lines.properties) {
+                lines.properties = {};
+            }
+
+            return lines;
+        }
+
         static createPropertyType(name: string, section?: string): csComp.Services.IPropertyType {
             if (!name) return;
             var propType: csComp.Services.IPropertyType = {

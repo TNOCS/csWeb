@@ -127,6 +127,8 @@
         "./directives/StyleList/StyleListCtrl.ts",
         "./directives/Timeline/Timeline.ts",
         "./directives/Timeline/TimelineCtrl.ts",
+        "./directives/TripPlanner/TripPlanner.ts",
+        "./directives/TripPlanner/TripPlannerCtrl.ts",
         "./directives/Voting/Voting.ts",
         "./directives/Widgets/Filters/BarFilterCtrl.ts",
         "./directives/Widgets/Filters/BoolFilterCtrl.ts",
