@@ -9,6 +9,7 @@ import utils = require('../helpers/Utils');
 import GeoJSON = require("../helpers/GeoJSON");
 
 export interface IDynamicLayer {
+    geojson?: GeoJSON.IGeoJson;
     connection?: ClientConnection.ConnectionManager;
     getLayer(req: express.Request, res: express.Response);
     getDataSource(req: express.Request, res: express.Response);
@@ -39,7 +40,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     /**
      * Working copy of geojson file
      */
-    public geojson: any;
+    public geojson: GeoJSON.IGeoJson;
     public server: express.Express;
     public messageBus: MessageBus.MessageBusService;
     public connection: ClientConnection.ConnectionManager;
