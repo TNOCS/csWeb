@@ -108,6 +108,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
                 case "logUpdate":
                     // find feature
                     var featureId = msg.object.featureId;
+
                     this.updateLog(featureId, msg.object, client, true);
                     break;
                 case "featureUpdate":
@@ -120,6 +121,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
 
     updateLog(featureId: string, msgBody: IMessageBody, client?: string, notify?: boolean) {
         var f: GeoJSON.IFeature;
+        console.log(JSON.stringify(msgBody));
         this.geojson.features.some(feature => {
             if (feature.id && feature.id === featureId) return false;
             // feature found
@@ -139,7 +141,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
                 f.logs[key].push(l);
                 f.properties[key] = l.value;
             });
-            console.log(JSON.stringify(f));
+
             // send them to other clients
             this.connection.updateFeature(this.layerId, msgBody, "logs-update", client);
         }

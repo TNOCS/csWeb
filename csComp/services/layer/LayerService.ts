@@ -1935,7 +1935,7 @@ module csComp.Services {
             var log = <Log>{
                 ts: new Date().getTime(), prop: key, value: f.properties[key]
             };
-            f.propertiesOld[key] = f.properties[key];
+            f.propertiesOld[key] = JSON.parse(JSON.stringify(f.properties[key]));
             if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
             if (!result.hasOwnProperty(key)) result[key] = [];
             f.logs[key].push(log);
@@ -1979,7 +1979,7 @@ module csComp.Services {
 
         public saveFeature(f: IFeature, logs: boolean = false) {
             console.log('saving feature');
-            f.properties["updated"] = new Date().getTime();
+            //f.properties["updated"] = new Date().getTime();
             // check if feature is in dynamic layer
             if (f.layer.type.toLowerCase() === "dynamicgeojson") {
                 var l = this.trackFeature(f);
@@ -1989,8 +1989,9 @@ module csComp.Services {
                     s.layerId = f.layerId;
                     s.action = "logUpdate";
                     s.object = { featureId: f.id, logs: l };
+                    console.log(JSON.stringify(s));
                     this.$messageBusService.serverPublish("layer", s);
-                    console.log(l);
+
                 }
                 else {
                     var s = new LayerMessage();
