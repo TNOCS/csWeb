@@ -163,6 +163,7 @@ export class Rule implements IRule {
                         let id = service.timer.setTimeout(() => {
                             console.log('Add feature ' + this.feature.id);
                             if (!this.feature.properties.hasOwnProperty('date')) this.feature.properties['date'] = new Date();
+                            if (!this.feature.properties.hasOwnProperty('roles')) this.feature.properties['roles'] = ["rti"];
                             service.layer.addFeature(this.feature)
                         }, this.getDelay(a, 1));
                         console.log(`Timer ${id}: Add feature ${this.feature.id}`)
