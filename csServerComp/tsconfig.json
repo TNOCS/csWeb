@@ -53,7 +53,6 @@
         "./ServerComponents/dynamic/DynamicLayer.ts",
         "./ServerComponents/dynamic/DynamicProject.ts",
         "./ServerComponents/dynamic/LayerDirectory.ts",
-        "./ServerComponents/helpers/GeoJSON.ts",
         "./ServerComponents/helpers/Rss.ts",
         "./ServerComponents/helpers/RssGeoJSON.ts",
         "./ServerComponents/helpers/Utils.ts",

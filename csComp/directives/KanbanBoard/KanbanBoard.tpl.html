@@ -24,6 +24,23 @@
             height: 100%;
         }
 
+        .card-new-button {
+            position: absolute;
+            top:20px;
+            right:-25px;
+            width: 50px;
+            height:50px;
+            color:white;
+            background-color: gray;
+            border-radius:  25px;
+            cursor:pointer;
+
+        }
+
+        .card-new-button:hover{
+            background-color:black;
+        }
+
         .card-item {
             min-height: 65px;
             margin-bottom: 20px;
@@ -173,4 +190,11 @@
             <kanban-column column="column" class="kanbanColumn-column" />
 
         </div>
+        <div class="card-new-button" class="dropdown">
+            <span class="fa fa-2x fa-plus" style="margin-left:14px;margin-top:12px;"></span>
+        </div>
+        <ul class="dropdown-menu" role="menu">
+            <li>test</li>
+            <li>test 2</li>
+        </ul>
     </div>
