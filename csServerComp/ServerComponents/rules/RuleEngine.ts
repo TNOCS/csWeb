@@ -6,20 +6,16 @@ import Rule = require('./Rule');
 import DynamicLayer = require("ServerComponents/dynamic/DynamicLayer");
 import GeoJSON = require("../helpers/GeoJSON");
 
-/**
- * Simplified abstraction of the ClientConnection.
- */
-export interface IConnectionService {
+export interface IRuleEngineService {
     /**
      * Send update to all clients.
      * @action: logs-update, feature-update
      * @skip: this one will be skipped ( e.g original source)
      */
-     updateFeature(feature: GeoJSON.IFeature);
-    //updateFeature(layer: string, object: any, action: string, skip?: string);
-}
+    updateFeature?: (feature: GeoJSON.IFeature) => void;
+    /** Update log message */
+    updateLog?: (featureId: string, msgBody: DynamicLayer.IMessageBody) => void;
 
-export interface IRuleEngineService extends IConnectionService {
     layer?: DynamicLayer.IDynamicLayer;
     activateRule?: (ruleId: string) => void;
     deactivateRule?: (ruleId: string) => void;
@@ -46,12 +42,13 @@ export class RuleEngine {
      * @action: logs-update, feature-update
      * @skip: this one will be skipped ( e.g original source)
      */
-    service: IRuleEngineService = { updateFeature: null };
+    service: IRuleEngineService = {};
 
     constructor(layer: DynamicLayer.IDynamicLayer) {
         this.timer = new HyperTimer( { rate: 1, time: new Date()});
 
         this.service.updateFeature = (feature: GeoJSON.IFeature) => layer.updateFeature(feature);
+        this.service.updateLog = (featureId: string, msgBody: DynamicLayer.IMessageBody) => layer.updateLog(featureId, msgBody);
         this.service.layer = layer;
         this.service.activateRule = (ruleId: string) => this.activateRule(ruleId);
         this.service.deactivateRule = (ruleId: string) => this.deactivateRule(ruleId);
