@@ -294,32 +294,31 @@ module csComp.Services {
         }
 
         private processReply(data, textStatus, clbk) {
-            var data = JSON.parse(data.body);
-            if (data.hasOwnProperty('features') || data.hasOwnProperty('geometries')) { // Reply is in geoJson format
+            var parsedData = JSON.parse(data.body);
+            if (parsedData.hasOwnProperty('features') || parsedData.hasOwnProperty('geometries')) { // Reply is in geoJson format
                 if (this.layer.hasOwnProperty('data') && this.layer.data.hasOwnProperty('features')) {
-                    data.features.forEach((f) => {
+                    parsedData.features.forEach((f) => {
                         this.layer.data.features.push(f);
-                        this.service.initFeature(f, this.layer);
                     });
                 } else {
                     this.layer.count = 0;
-                    this.layer.data = data;
-                    this.layer.data.features.forEach((f) => {
-                        this.service.initFeature(f, this.layer);
-                    });
+                    this.layer.data = parsedData;
                 }
             } else { // Reply is in routeplanner format
                 //TODO: decode route which is in encoded polyline format: https://developers.google.com/maps/documentation/utilities/polylinealgorithm
-                var fromLoc = data.plan.from;
-                var toLoc = data.plan.to;
+                var fromLoc = parsedData.plan.from;
+                var toLoc = parsedData.plan.to;
                 this.layer.data = {};
                 this.layer.data.type = 'FeatureCollection';
                 this.layer.data.features = [];
-                this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature([[fromLoc.lon, fromLoc.lat], [toLoc.lon, toLoc.lat]], { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: data.plan.itineraries[0].duration }));
-                this.layer.data.features.forEach((f) => {
-                    this.service.initFeature(f, this.layer);
-                });
+                var route: L.Polyline = L.Polyline.fromEncoded(parsedData.plan.itineraries[0].legs[0].legGeometry.points);
+                var geoRoute = route.toGeoJSON();
+                this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates, { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: parsedData.plan.itineraries[0].duration }));
             }
+            this.layer.data.features.forEach((f: IFeature) => {
+                f.isInitialized = false;
+                this.service.initFeature(f, this.layer);
+            });
             this.layer.isLoading = false;
             clbk(this.layer);
         }

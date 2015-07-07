@@ -50,6 +50,7 @@
         "./ServerComponents/bus/MessageBus.d.ts",
         "./ServerComponents/configuration/ConfigurationService.d.ts",
         "./ServerComponents/configuration/IConfiguration.d.ts",
+        "./ServerComponents/creator/AccessibilityService.d.ts",
         "./ServerComponents/creator/IGeoJsonFeature.d.ts",
         "./ServerComponents/creator/IProjectRepositoryService.d.ts",
         "./ServerComponents/creator/MapLayerFactory.d.ts",
