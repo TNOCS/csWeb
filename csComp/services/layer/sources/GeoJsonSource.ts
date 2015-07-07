@@ -324,4 +324,16 @@ module csComp.Services {
             clbk(this.layer);
         }
     }
+
+    export class EsriJsonSource extends GeoJsonSource {
+        title = "esrijson";
+        connection: Connection;
+
+        constructor(public service: LayerService) {
+            super(service);
+            // subscribe
+        }
+
+
+    }
 }
