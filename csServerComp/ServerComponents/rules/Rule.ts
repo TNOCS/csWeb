@@ -162,6 +162,7 @@ export class Rule implements IRule {
                         // add feature
                         let id = service.timer.setTimeout(() => {
                             console.log('Add feature ' + this.feature.id);
+                            if (!this.feature.properties.hasOwnProperty('date')) this.feature.properties['date'] = new Date();
                             service.layer.addFeature(this.feature)
                         }, this.getDelay(a, 1));
                         console.log(`Timer ${id}: Add feature ${this.feature.id}`)
@@ -238,7 +239,7 @@ export class Rule implements IRule {
         var f = this.feature;
         if (!f.hasOwnProperty('logs')) f.logs = {};
         if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
-        var log: DynamicLayer.IPropertyUpdate = { "prop": key, "ts": service.timer.now(), "value": value};
+        var log: DynamicLayer.IPropertyUpdate = { "prop": key, "ts": service.timer.now(), "value": value };
         f.logs[key].push(log);
         var msg: DynamicLayer.IMessageBody = { "featureId": this.feature.id, "logs": f.logs[key] };
         service.layer.connection.updateFeature(service.layer.layerId, msg, "logs-update");
