@@ -1,46 +1,56 @@
 require('rootpath')();
 import express = require('express')
-import ClientConnection = require('ClientConnection');
+import events = require("events");
+import ClientConnection = require('./ClientConnection');
 import MessageBus = require('../bus/MessageBus');
 import fs = require('fs');
 import path = require('path');
-
+import utils = require('../helpers/Utils');
+import GeoJSON = require("../helpers/GeoJSON");
 
 export interface IDynamicLayer {
     getLayer(req: express.Request, res: express.Response);
     getDataSource(req: express.Request, res: express.Response);
+    addFeature?: (feature: any) => void;
+    updateFeature?: (ft: GeoJSON.IFeature, client?: string, notify?: boolean) => void;
+    updateLog?: (featureId: string, msgBody: IMessageBody, client?: string, notify?: boolean) => void;
     layerId: string;
     start();
+    on?: (event: string, listener: Function) => events.EventEmitter;
 }
 
-export class DynamicLayer implements IDynamicLayer {
+export interface IPropertyUpdate {
+    /** Timestamp */
+    ts: number;
+    /** Property key */
+    prop: string;
+    /** Property value */
+    value: any;
+}
+
+export interface IMessageBody {
+    featureId: string;
+    logs?: { [prop: string]: IPropertyUpdate[] };
+}
+
+export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
+    private file: string;
     /**
      * Working copy of geojson file
      */
     public geojson: any;
-    private file: string;
     public server: express.Express;
     public messageBus: MessageBus.MessageBusService;
     public connection: ClientConnection.ConnectionManager;
-    public featureUpdated: Function;
-
     public startDate: number;
 
     constructor(public layerId: string, file: string, server: express.Express, messageBus: MessageBus.MessageBusService, connection: ClientConnection.ConnectionManager) {
+        super();
         this.geojson = { features: [] };
         this.file = file;
         this.server = server;
         this.messageBus = messageBus;
         this.connection = connection;
-    }
-
-    public S4(): string {
-        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-    }
-
-    public getGuid(): string {
-        var guid = (this.S4() + this.S4() + "-" + this.S4() + "-4" + this.S4().substr(0, 3) + "-" + this.S4() + "-" + this.S4() + this.S4() + this.S4()).toLowerCase();
-        return guid;
     }
 
     public getLayer(req: express.Request, res: express.Response) {
@@ -67,7 +77,7 @@ export class DynamicLayer implements IDynamicLayer {
     }
 
     public initFeature(f: any) {
-        if (!f.id) f.id = this.getGuid();
+        if (!f.id) f.id = utils.newGuid();
     }
 
     public updateSensorValue(ss: any, date: number, value: number) {
@@ -76,7 +86,8 @@ export class DynamicLayer implements IDynamicLayer {
         this.connection.updateSensorValue(ss.id, date, value);
     }
 
-    addFeature(f) {
+    addFeature(f, updated = true) {
+        if (updated) f.properties['updated'] = new Date().getTime();
         this.initFeature(f);
         this.geojson.features.push(f);
         f.insertDate = new Date().getTime();
@@ -95,46 +106,59 @@ export class DynamicLayer implements IDynamicLayer {
                 case "logUpdate":
                     // find feature
                     var featureId = msg.object.featureId;
-                    var ff = this.geojson.features.filter((k) => { return k.id && k.id === featureId });
-                    if (ff.length > 0) {
-                        var f = ff[0];
-                        if (!f.hasOwnProperty('logs')) f.logs = {};
-                        if (!f.hasOwnProperty('properties')) f.properties = {};
-
-                        // apply changes
-                        var logs = msg.object.logs;
-
-                        for (var key in logs) {
-                            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
-                            logs[key].forEach(l=> {
-                                f.logs[key].push(l);
-                                f.properties[key] = l.value;
-                            });
-                            console.log(JSON.stringify(f));
-                            // send them to other clients
-                            this.connection.updateFeature(this.layerId, msg.object, "logs-update", client);
-                        }
-                    }
-                    console.log("Log update" + featureId);
-                    this.featureUpdated(featureId);
+                    this.updateLog(featureId, msg.object, client, true);
                     break;
                 case "featureUpdate":
-                    var ft = <csComp.Services.IFeature>msg.object;
-                    this.initFeature(ft);
-                    feature = this.geojson.features.filter((k) => { return k.id && k.id === ft.id });
-                    if (feature && feature.length > 0) {
-                        var index = this.geojson.features.indexOf(feature[0]);
-                        this.geojson.features[index] = ft;
-                    }
-                    else {
-                        this.geojson.features.push(ft);
-                    }
-                    this.connection.updateFeature(this.layerId, ft, "feature-update", client);
-                    this.featureUpdated(featureId);
+                    var ft: GeoJSON.IFeature = msg.object;
+                    this.updateFeature(ft, client, true);
                     break;
             }
         });
+    }
 
+    updateLog(featureId: string, msgBody: IMessageBody, client?: string, notify?: boolean) {
+        var f: GeoJSON.IFeature;
+        this.geojson.features.some(feature => {
+            if (feature.id && feature.id === featureId) return false;
+            // feature found
+            f = feature;
+            return true;
+        });
+        if (!f) return; // feature not found
+        if (!f.hasOwnProperty('logs')) f.logs = {};
+        if (!f.hasOwnProperty('properties')) f.properties = {};
 
+        // apply changes
+        var logs = msgBody.logs;
+
+        for (var key in logs) {
+            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+            logs[key].forEach(l=> {
+                f.logs[key].push(l);
+                f.properties[key] = l.value;
+            });
+            console.log(JSON.stringify(f));
+            // send them to other clients
+            this.connection.updateFeature(this.layerId, msgBody, "logs-update", client);
+        }
+        console.log("Log update" + featureId);
+        this.emit("featureUpdated", this.layerId, featureId);
+    }
+
+    updateFeature(ft: GeoJSON.IFeature, client?: string, notify?: boolean) {
+        this.initFeature(ft);
+        var feature = this.geojson.features.filter((k) => { return k.id && k.id === ft.id });
+        if (feature && feature.length > 0) {
+            var index = this.geojson.features.indexOf(feature[0]);
+            this.geojson.features[index] = ft;
+        }
+        else {
+            this.geojson.features.push(ft);
+        }
+        if (client)
+            this.connection.updateFeature(this.layerId, ft, "feature-update", client);
+        else
+            this.connection.updateFeature(this.layerId, ft, "feature-update");
+        if (notify) this.emit("featureUpdated", this.layerId, ft.id);
     }
 }

@@ -24,6 +24,7 @@
         "./Scripts/typings/cs/cs-offline-search.d.ts",
         "./Scripts/typings/express/express.d.ts",
         "./Scripts/typings/form-data/form-data.d.ts",
+        "./Scripts/typings/hypertimer/hypertimer.d.ts",
         "./Scripts/typings/jquery/jquery.d.ts",
         "./Scripts/typings/node/node.d.ts",
         "./Scripts/typings/pg/pg.d.ts",
@@ -52,14 +53,17 @@
         "./ServerComponents/dynamic/DynamicLayer.ts",
         "./ServerComponents/dynamic/DynamicProject.ts",
         "./ServerComponents/dynamic/LayerDirectory.ts",
+        "./ServerComponents/helpers/GeoJSON.ts",
         "./ServerComponents/helpers/Rss.ts",
         "./ServerComponents/helpers/RssGeoJSON.ts",
         "./ServerComponents/helpers/Utils.ts",
         "./ServerComponents/import/BagDetailsTransformer.ts",
         "./ServerComponents/import/BaseTransformer.ts",
+        "./ServerComponents/import/CollateStreamTransformer.ts",
         "./ServerComponents/import/CsvToJsonTransformer.ts",
         "./ServerComponents/import/FieldFilterTransformer.ts",
         "./ServerComponents/import/GeoJsonAggregateTransformer.ts",
+        "./ServerComponents/import/GeoJsonFeaturesTransformer.ts",
         "./ServerComponents/import/GeoJsonOutputTransformer.ts",
         "./ServerComponents/import/GeoJsonSplitTransformer.ts",
         "./ServerComponents/import/IImport.ts",
@@ -70,6 +74,9 @@
         "./ServerComponents/import/ImporterRepositoryService.ts",
         "./ServerComponents/import/RepeatEnum.ts",
         "./ServerComponents/import/SplitAdresTransformer.ts",
-        "./ServerComponents/import/Store.ts"
+        "./ServerComponents/import/Store.ts",
+        "./ServerComponents/rules/Rule.ts",
+        "./ServerComponents/rules/RuleEngine.ts",
+        "./ServerComponents/rules/WorldState.ts"
     ]
 }

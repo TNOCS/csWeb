@@ -529,6 +529,13 @@ module FeatureProps {
             return time;
         }
 
+        public zoomToDate(date: Date) {
+            var d = new Date(date.toString());
+            this.$layerService.project.timeLine.isLive = false;
+            this.$layerService.project.timeLine.setFocus(d);
+            this.$messageBusService.publish("timeline", "setFocus", d);
+        }
+
         setTime(time: { title: string; timestamp: number }) {
             this.focusTime = time.title;
             this.$layerService.project.timeLine.setFocus(new Date(time.timestamp));

@@ -101,8 +101,8 @@ module OfflineSearch {
             for (var j in searchWords) {
                 var result = this.getKeywordHits(searchWords[j]);
                 totResults = !totResults
-                ? result
-                : this.mergeResults(totResults, result);
+                    ? result
+                    : this.mergeResults(totResults, result);
             }
             var searchResults: OfflineSearchResultViewModel[] = [];
             var layers = this.offlineSearchResult.layers;
@@ -195,8 +195,8 @@ module OfflineSearch {
             //     this.$mapService.zoomToLocation(new L.LatLng($item.lat, $item.lng), 12);
             // }
 
-            var layerIndex   = selectedItem.entry.layerIndex;
-            var layer        = this.offlineSearchResult.layers[layerIndex];
+            var layerIndex = selectedItem.entry.layerIndex;
+            var layer = this.offlineSearchResult.layers[layerIndex];
             var projectLayer = this.$layerService.findLayer(layer.id);
 
             console.log(selectedItem);
@@ -222,7 +222,7 @@ module OfflineSearch {
         }
 
         private selectFeature(layerId: string, featureIndex: number) {
-            var feature = this.$layerService.findFeatureById(layerId, featureIndex);
+            var feature = this.$layerService.findFeatureByIndex(layerId, featureIndex);
             if (feature == null) return;
             this.$mapService.zoomTo(feature);
             this.$layerService.selectFeature(feature);

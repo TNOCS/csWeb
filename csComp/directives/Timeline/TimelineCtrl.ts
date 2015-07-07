@@ -1,5 +1,5 @@
 module Timeline {
-    declare var links;
+    declare var vis;
 
     export interface ITimelineScope extends ng.IScope {
         vm: TimelineCtrl;
@@ -7,9 +7,18 @@ module Timeline {
         timeline: any;
     }
 
+    export interface timelineItem {
+        id: any;
+        content: string;
+        start: Date;
+    }
+
+    declare var vis;
+
     export class TimelineCtrl {
         private scope: ITimelineScope;
         private locale = "en-us";
+
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -23,6 +32,8 @@ module Timeline {
             'TimelineService'
         ];
 
+
+
         public focusDate: Date;
         public line1: string;
         public line2: string;
@@ -32,10 +43,11 @@ module Timeline {
         public timer: any;
         public isPlaying: boolean;
         public showControl: boolean;
-        public isPinned: boolean;
+        public isPinned: boolean = true;
 
         public options: any;
-        public expandButtonBottom = 40;
+        public expandButtonBottom = 52;
+        public items = new vis.DataSet();
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -48,43 +60,42 @@ module Timeline {
             ) {
             this.loadLocales();
 
+
+
             this.options = {
                 'width': '100%',
-                "eventMargin": 0,
-                "eventMarginAxis": (this.expanded) ? 65 : 0,
                 'editable': false,
-                'layout': 'box'
+                'margin': 0,
+                'height': "54px"
+                //'layout': 'box'
             };
 
             $scope.vm = this;
 
-            this.initTimeline();
-
-            this.$messageBusService.subscribe("timeline", (s: string, data: any) => {
-                switch (s) {
-                    case "updateTimerange":
-                        this.$scope.timeline.setVisibleChartRange(data.start, data.end);
-                        this.updateFocusTime();
-                        break;
-                    case "loadProjectTimeRange":
-                        if (typeof $layerService.project === 'undefined'
-                            || $layerService.project === null
-                            || typeof $layerService.project.timeLine === 'undefined'
-                            || $layerService.project.timeLine === null) return;
-                        this.$scope.timeline.setVisibleChartRange($layerService.project.timeLine.start, $layerService.project.timeLine.end);
-                        this.updateFocusTime();
-                        break;
-                }
-            });
-
             this.$messageBusService.subscribe("project", (s: string, data: any) => {
                 setTimeout(() => {
+                    //    this.initTimeline();
                     this.updateFocusTime();
                     this.updateDragging();
                     this.myTimer();
+                    if (this.$layerService.project.timeLine.isLive) this.goLive();
                 }, 0);
 
             });
+
+            this.initTimeline();
+
+            this.$messageBusService.subscribe("timeline", (s: string, data: any) => { this.update(s, data) });
+
+
+            this.$messageBusService.subscribe('feature', (s: string, feature: csComp.Services.IFeature) => {
+                if (s === 'onFeatureSelect' && feature) {
+                    if (this.ids.indexOf(feature.id) != -1) {
+                        this.$scope.timeline.setSelection(feature.id);
+                    }
+                }
+            });
+
 
             //$scope.focusDate = $layerService.project.timeLine.focusDate();
 
@@ -99,24 +110,119 @@ module Timeline {
             });
         }
 
-        private initTimeline() {
-            var options = this.TimelineService.getTimelineOptions();
-            options.locale = this.$layerService.currentLocale;
+        private update(s, data) {
+            {
+                switch (s) {
+                    case "updateTimerange":
+                        this.$scope.timeline.setWindow(data.start, data.end);
+                        this.updateFocusTime();
+                        break;
+                    case "loadProjectTimeRange":
+                        if (typeof this.$layerService.project === 'undefined'
+                            || this.$layerService.project === null
+                            || typeof this.$layerService.project.timeLine === 'undefined'
+                            || this.$layerService.project.timeLine === null) return;
+                        this.$scope.timeline.setWindow(this.$layerService.project.timeLine.start, this.$layerService.project.timeLine.end);
+                        this.updateFocusTime();
+                        break;
+                    case "setFocus":
+                        this.$scope.timeline.moveTo(data);
+                        break;
+                    case "updateFeatures":
 
-            this.$layerService.timeline = this.$scope.timeline = new links.Timeline(document.getElementById('timeline'), options);
+                        console.log("timeline:updating features");
+                        this.updateFeatures();
 
-            this.$scope.timeline.draw();
-            links.events.addListener(this.$scope.timeline, 'rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
-            links.events.addListener(this.$scope.timeline, 'rangechange', () => {
-                if (this.$layerService.project && this.$layerService.project.timeLine.isLive) {
-                    this.myTimer();
+                        break;
+                }
+            }
+        }
+
+        private ids: string[] = [];
+
+        private updateFeatures() {
+            //this.items = [];
+            //this.$scope.timeline.redraw();
+            var temp: string[] = [];
+
+            // check for new items
+            this.$layerService.project.features.forEach((f: csComp.Services.IFeature) => {
+                if (f.properties.hasOwnProperty('date')) {
+                    temp.push(f.id);
+                    if (this.ids.indexOf(f.id) === -1) {
+                        var t = { id: f.id, group: 'all', content: f.properties['Name'], start: new Date(f.properties['date']) };
+                        this.items.update(t);
+                        this.ids.push(f.id);
+                    }
                 }
             });
 
-            if (typeof this.$layerService.project !== 'undefined' && this.$layerService.project.timeLine !== null)
-                this.$scope.timeline.setVisibleChartRange(this.$layerService.project.timeLine.start, this.$layerService.project.timeLine.end);
+            // check for old items
+            this.ids.forEach((s) => {
+                if (temp.indexOf(s) === -1) {
+                    // remove item
+                    var i = this.items.remove(s);
+                    this.ids = this.ids.filter((t) => s != t);
+                }
+            })
+
+
+
+            //this.$scope.timeline.setItems(i);
+            this.$scope.timeline.redraw();
+
+
+        }
+
+        private initTimeline() {
+
+            //var options = this.TimelineService.getTimelineOptions();
+            // Configuration for the Timeline
+
+            //options.locale = this.$layerService.currentLocale;
+            var container = document.getElementById('timeline');
+
+            // Create a DataSet (allows two way data-binding)
+            //this.items = new vis.DataSet([
+            /*{ id: 1, content: 'item 1', start: '2014-04-20' },
+            { id: 2, content: 'item 2', start: '2014-04-14' },
+            { id: 3, content: 'item 3', start: '2014-04-18' },
+            { id: 4, content: 'item 4', start: '2014-04-16', end: '2014-04-19' },
+            { id: 5, content: 'item 5', start: '2014-04-25' },
+            { id: 6, content: 'item 6', start: '2014-04-27', type: 'point' }*/
+            //]);
+
+            this.$layerService.timeline = this.$scope.timeline = new vis.Timeline(container, this.items, this.options);
+
+            this.$layerService.timeline.redraw();
+            /*vis.events.addListener(this.$scope.timeline, 'rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
+            vis.events.addListener(this.$scope.timeline, 'rangechange', () => {
+                if (this.$layerService.project && this.$layerService.project.timeLine.isLive) {
+                    this.myTimer();
+                }
+            });*/
+
+            if (this.$layerService.project && this.$layerService.project.timeLine !== null) {
+                this.$scope.timeline.setWindow(this.$layerService.project.timeLine.start, this.$layerService.project.timeLine.end);
+                if (this.$layerService.project.timeLine.isLive) this.goLive();
+            }
             this.updateDragging();
             this.updateFocusTime();
+
+            this.$scope.timeline.on('select', (properties) => {
+                if (properties.items && properties.items.length > 0) {
+                    var id = properties.items[0];
+                    var f = this.$layerService.findFeatureById(id);
+                    if (f) this.$layerService.selectFeature(f);
+                }
+            });
+
+
+
+            this.$scope.timeline.addEventListener('rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
+
+
+
         }
 
         public updateDragging() {
@@ -134,8 +240,11 @@ module Timeline {
 
         public expandToggle() {
             this.expanded = !this.expanded;
-            this.options.eventMarginAxis = (this.expanded) ? 65 : 0;
-            this.expandButtonBottom = (this.expanded) ? 170 : 40;
+            //    this.options.margin = {};
+            //    this.options.margin['item'] = (this.expanded) ? 65 : 0;
+            this.options.height = (this.expanded) ? 150 : 54;
+
+            this.expandButtonBottom = (this.expanded) ? 149 : 52;
             this.$layerService.timeline.setOptions(this.options);
             this.$layerService.timeline.redraw();
             // .config(TimelineServiceProvider => {
@@ -149,7 +258,7 @@ module Timeline {
         }
 
 
-        public onRangeChanged(properties) {
+        public onRangeChanged(prop) {
             this.updateFocusTime();
         }
 
@@ -160,27 +269,41 @@ module Timeline {
             this.timer = setInterval(() => { this.myTimer(); }, 500);
         }
 
-        public toggleLive() {
-            if (!this.$layerService.project) return;
+        public goLive() {
             this.stop();
-            this.$layerService.project.timeLine.isLive = !this.$layerService.project.timeLine.isLive;
+            this.$layerService.project.timeLine.isLive = true;
             this.isPlaying = false;
             if (this.$layerService.project.timeLine.isLive) {
                 this.myTimer();
                 this.start();
             }
             this.updateDragging();
-            //this.isPlaying = this.isLive;
         }
+
+        public stopLive() {
+            if (!this.$layerService.project) return;
+            this.stop();
+            this.$layerService.project.timeLine.isLive = false;
+            this.isPlaying = false;
+            this.updateDragging();
+        }
+
 
         public myTimer() {
             var tl = this.$scope.timeline;
             if (this.$layerService.project.timeLine.isLive) {
-                var pos = tl.timeToScreen(new Date());
-                $("#focustimeContainer").css('left', pos - 75);
+                var pos = tl._toScreen(new Date());
+                $("#focustimeContainer").css('left', pos - 65);
+                if (this.isPinned)
+                    tl.moveTo(new Date(), { animation: { duration: 500, easingFunction: 'linear' } });
                 this.updateFocusTime();
             } else if (this.isPlaying) {
-                tl.move(0.005);
+                var w = tl.getWindow();
+                var dif = (w.end.getTime() - w.start.getTime()) / 200;
+
+                tl.setWindow(w.start.getTime() + dif, w.end.getTime() + dif, { animation: { duration: 500, easingFunction: 'linear' } });
+
+                //tl.move(0.005);
                 this.updateFocusTime();
             }
         }
@@ -194,6 +317,14 @@ module Timeline {
 
         public mouseLeave() {
             if (!this.isPlaying) this.showControl = false;
+        }
+
+        public pin() {
+            this.isPinned = true;
+        }
+
+        public unPin() {
+            this.isPinned = false;
         }
 
         public pinToNow() {
@@ -220,7 +351,7 @@ module Timeline {
 
                 //var end = $("#timeline").width;
 
-                var range = this.$scope.timeline.getVisibleChartRange();
+                var range = this.$scope.timeline.getWindow();
                 //tl.calcConversionFactor();
                 var pos = $("#focustimeContainer").position().left + $("#focustimeContainer").width() / 2;
 
@@ -228,7 +359,7 @@ module Timeline {
                     this.focusDate = new Date();
                 }
                 else {
-                    this.focusDate = new Date(this.$scope.timeline.screenToTime(pos + 3));
+                    this.focusDate = new Date(this.$scope.timeline._toTime(pos + 1));
                 }
 
                 this.startDate = range.start; //new Date(range.start); //this.$scope.timeline.screenToTime(0));
@@ -273,14 +404,14 @@ module Timeline {
         * @seealso: http://almende.github.io/chap-links-library/downloads.html
         */
         loadLocales() {
-            if (typeof links === 'undefined') {
-                links = {};
-                links.locales = {};
-            } else if (typeof links.locales === 'undefined') {
-                links.locales = {};
+            if (typeof vis === 'undefined') {
+                vis = {};
+                vis.locales = {};
+            } else if (typeof vis.locales === 'undefined') {
+                vis.locales = {};
             }
             // English ===================================================
-            links.locales['en'] = {
+            vis.locales['en'] = {
                 'MONTHS': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
                 'MONTHS_SHORT': ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
                 'DAYS': ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
@@ -293,10 +424,10 @@ module Timeline {
                 'CREATE_NEW_EVENT': "Create new event"
             };
 
-            links.locales['en_US'] = links.locales['en'];
-            links.locales['en_UK'] = links.locales['en'];
+            vis.locales['en_US'] = vis.locales['en'];
+            vis.locales['en_UK'] = vis.locales['en'];
             // French ===================================================
-            links.locales['fr'] = {
+            vis.locales['fr'] = {
                 'MONTHS': ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
                 'MONTHS_SHORT': ["Jan", "Fev", "Mar", "Avr", "Mai", "Jun", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec"],
                 'DAYS': ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
@@ -309,11 +440,11 @@ module Timeline {
                 'CREATE_NEW_EVENT': "Créer un nouvel évènement"
             };
 
-            links.locales['fr_FR'] = links.locales['fr'];
-            links.locales['fr_BE'] = links.locales['fr'];
-            links.locales['fr_CA'] = links.locales['fr'];
+            vis.locales['fr_FR'] = vis.locales['fr'];
+            vis.locales['fr_BE'] = vis.locales['fr'];
+            vis.locales['fr_CA'] = vis.locales['fr'];
             // German ===================================================
-            links.locales['de'] = {
+            vis.locales['de'] = {
                 'MONTHS': ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
                 'MONTHS_SHORT': ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
                 'DAYS': ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
@@ -326,10 +457,10 @@ module Timeline {
                 'CREATE_NEW_EVENT': "Neues Ereignis erzeugen"
             };
 
-            links.locales['de_DE'] = links.locales['de'];
-            links.locales['de_CH'] = links.locales['de'];
+            vis.locales['de_DE'] = vis.locales['de'];
+            vis.locales['de_CH'] = vis.locales['de'];
             // Dutch =====================================================
-            links.locales['nl'] = {
+            vis.locales['nl'] = {
                 'MONTHS': ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"],
                 'MONTHS_SHORT': ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"],
                 'DAYS': ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"],
@@ -342,8 +473,8 @@ module Timeline {
                 'CREATE_NEW_EVENT': "Nieuwe gebeurtenis maken"
             };
 
-            links.locales['nl_NL'] = links.locales['nl'];
-            links.locales['nl_BE'] = links.locales['nl'];
+            vis.locales['nl_NL'] = vis.locales['nl'];
+            vis.locales['nl_BE'] = vis.locales['nl'];
         }
     }
 }
