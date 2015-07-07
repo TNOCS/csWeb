@@ -7,7 +7,7 @@
     <div style="margin-right:10px;margin-top:12px;position:absolute;right:0;top:0">
         <!-- <span class="fa fa-cog kanbanColumn-option" style="color:gray"></span> -->
         <div ng-if="fields['prio']" class="dropdown kanbanColumn-option">
-            <span tooltip=" {{columnOrderTitle}} on top" tooltip-placement="bottom" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="fa fa-sort-amount-asc dropdown-toggle" data-toggle="dropdown" style="color:gray"></span>
+            <span tooltip=" {{columnOrderTitle}} on top" tooltip-append-to-body="true" class="fa fa-sort-amount-asc dropdown-toggle" data-toggle="dropdown" style="color:gray"></span>
             <ul class="dropdown-menu" role="menu">
                 <li ng-repeat="order in vm.sortOptions" class="kanbanColumn-order-option" style="position:relative">
                     <div style="width:20px;top:2px;left:2px;position:absolute">
@@ -77,7 +77,7 @@
                             <span  class="fa fa-clock-o"/>
                             {{feature.gui.relativeTime}}
                         </span>
-                        <div ng-if="fields['prio']" class="card-prio dropdown" ng-click="vm.clickPrio($event)" ng-style="vm.getPrioColor(feature)">
+                        <div ng-if="fields['prio']" tooltip="Set priority" tooltip-append-to-body="true" class="card-prio dropdown" ng-click="vm.clickPrio($event)" ng-style="vm.getPrioColor(feature)">
                             <span href="" class="dropdown-toggle" data-toggle="dropdown">{{feature.properties[fields['prio']]}}</span>
                             <ul class="dropdown-menu" style="right:0;left:auto" role="menu">
                                 <li>
@@ -97,7 +97,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="card-button card-share dropdown">
+                        <div class="card-button card-share dropdown" tooltip="Share" tooltip-append-to-body="true" >
                             <span href="" class="dropdown-toggle fa fa-share" data-toggle="dropdown"></span>
                             <ul class="dropdown-menu" style="right:0;left:auto" role="menu">
                                 <li ng-repeat="role in column.roles" style="padding:3px;color:black">
@@ -107,11 +107,11 @@
                         </div>
                         <div class="card-item-options">
 
-                            <div ng-click="vm.editFeature(feature)" class="card-button card-edit">
+                            <div tooltip="Edit feature" tooltip-append-to-body="true" ng-click="vm.editFeature(feature)" class="card-button card-edit">
                                 <span href="" class="fa fa-pencil"></span>
                             </div>
 
-                            <div ng-show="feature.geometry" ng-click="vm.searchFeature(feature)" class="card-button card-map">
+                            <div ng-show="feature.geometry" tooltip="Show on map" tooltip-append-to-body="true" ng-click="vm.searchFeature(feature)" class="card-button card-map">
                                 <span href="" class="fa fa-search"></span>
                             </div>
 
