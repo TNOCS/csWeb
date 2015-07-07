@@ -76,7 +76,8 @@ export class DynamicLayer implements IDynamicLayer {
         this.connection.updateSensorValue(ss.id, date, value);
     }
 
-    addFeature(f) {
+    addFeature(f, updated = true) {
+        if (updated) f.properties['updated'] = new Date().getTime();
         this.initFeature(f);
         this.geojson.features.push(f);
         f.insertDate = new Date().getTime();
