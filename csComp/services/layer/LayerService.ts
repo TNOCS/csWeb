@@ -1935,7 +1935,7 @@ module csComp.Services {
             var log = <Log>{
                 ts: new Date().getTime(), prop: key, value: f.properties[key]
             };
-            f.propertiesOld[key] = f.properties[key];
+            f.propertiesOld[key] = JSON.parse(JSON.stringify(f.properties[key]));
             if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
             if (!result.hasOwnProperty(key)) result[key] = [];
             f.logs[key].push(log);
@@ -1943,14 +1943,14 @@ module csComp.Services {
             f.gui["lastUpdate"] = log.ts;
         }
 
-        private trackFeature(f: IFeature): {} {
+        private trackFeature(feature: IFeature): {} {
             var result = {};
-            for (var key in f.properties) {
-                if (!f.propertiesOld.hasOwnProperty(key)) {
-                    this.trackProperty(f, key, result);
+            for (var key in feature.properties) {
+                if (!feature.propertiesOld.hasOwnProperty(key)) {
+                    this.trackProperty(feature, key, result);
                 }
-                else if (JSON.stringify(f.propertiesOld[key]) != JSON.stringify(f.properties[key])) {
-                    this.trackProperty(f, key, result);
+                else if (JSON.stringify(feature.propertiesOld[key]) != JSON.stringify(feature.properties[key])) {
+                    this.trackProperty(feature, key, result);
                 }
             }
             return result;
@@ -1989,8 +1989,9 @@ module csComp.Services {
                     s.layerId = f.layerId;
                     s.action = "logUpdate";
                     s.object = { featureId: f.id, logs: l };
+                    console.log(JSON.stringify(s));
                     this.$messageBusService.serverPublish("layer", s);
-                    console.log(l);
+
                 }
                 else {
                     var s = new LayerMessage();

@@ -183,6 +183,11 @@
             right: -15px;
             overflow-y: scroll;
         }
+
+        .available-featuretype
+        {
+            font-size:14px;
+        }
     </style>
 
     <div id="columns">
@@ -190,11 +195,13 @@
             <kanban-column column="column" class="kanbanColumn-column" />
 
         </div>
-        <div class="card-new-button" class="dropdown">
-            <span class="fa fa-2x fa-plus" style="margin-left:14px;margin-top:12px;"></span>
+
+        <div class="card-new-button dropdown" tooltip="add new card"  tooltip-placement="right" tooltip-trigger="mouseenter" tooltip-append-to-body="true">
+            <span class="fa fa-2x fa-plus" style="margin-left:14px;margin-top:12px;" data-toggle="dropdown"></span>
+            <ul class="dropdown-menu" role="menu" style="color:black">
+                <li class="available-featuretype" ng-repeat="(key,val) in vm.featureTypes">{{key}}</li>
+            </ul>
         </div>
-        <ul class="dropdown-menu" role="menu">
-            <li>test</li>
-            <li>test 2</li>
-        </ul>
+
+
     </div>

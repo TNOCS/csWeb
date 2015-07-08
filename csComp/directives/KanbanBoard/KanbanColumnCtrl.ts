@@ -18,6 +18,7 @@ module KanbanColumn {
 
     export class Column {
         filters: ColumnFilter;
+        roles: string[];
         fields: any;
         orderBy: string;
         actions: string[];
@@ -143,9 +144,12 @@ module KanbanColumn {
             })
         }
 
-        public addRole(feature: csComp.Services.IFeature, role: string) {
+        public toggleRole(feature: csComp.Services.IFeature, role: string) {
             if (!feature.properties.hasOwnProperty('roles')) feature.properties['roles'] = [];
-            if (feature.properties['roles'].indexOf(role) === -1) feature.properties['roles'].push(role);
+            if (feature.properties['roles'].indexOf(role) === -1) { feature.properties['roles'].push(role); }
+            else {
+                feature.properties['roles'] = feature.properties['roles'].filter((s: string) => s != role);
+            }
             this.$layerService.saveFeature(feature, true);
         }
 
