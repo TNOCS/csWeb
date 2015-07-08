@@ -16,14 +16,14 @@
             <div class="controls" ng-if="vm.transportMode === 'WALK'">
                 <span>
                     <label class="input-xlarge" for="walkSpeed">Walk speed</label>
-                    <input id="walkSpeed" type="number" step="any" placeholder="Walk speed" class="input-xlarge" ng-model="vm.urlParameters['walkSpeed']" style="margin:5px; max-width:100px;">mph
+                    <input id="walkSpeed" type="number" step="any" placeholder="Walk speed" class="input-xlarge" ng-model="vm.walkSpeedKm" style="margin:5px; max-width:100px;">km/u
                 </span>
             </div>
 
             <div class="controls" ng-if="vm.transportMode === 'BICYCLE'">
                 <span>
                     <label class="input-xlarge" for="bikeSpeed">Bike speed</label>
-                    <input id="bikeSpeed" type="number" step="any" placeholder="Bike speed" class="input-xlarge" ng-model="vm.urlParameters['bikeSpeed']" style="margin:5px; max-width:100px;">mph
+                    <input id="bikeSpeed" type="number" step="any" placeholder="Bike speed" class="input-xlarge" ng-model="vm.bikeSpeedKm" style="margin:5px; max-width:100px;">km/u
                 </span>
             </div>
 

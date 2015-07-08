@@ -157,16 +157,25 @@ export class Rule implements IRule {
             var action = a[0];
             var key: string | number | boolean;
             if (typeof action === 'string') {
-                let length = a.length;
+                var length = a.length;
                 switch (action.toLowerCase()) {
                     case "add":
                         // add feature
                         var id = service.timer.setTimeout(() => {
-                            console.log('Add feature ' + this.feature.id);
-                            if (!this.feature.properties.hasOwnProperty('date')) this.feature.properties['date'] = new Date();
-                            if (!this.feature.properties.hasOwnProperty('roles')) this.feature.properties['roles'] = ["rti"];
-                            service.layer.addFeature(this.feature)
-                        }, this.getDelay(a, 1));
+                            var feature = this.feature;
+                            console.log('Add feature ' + feature.id);
+                            if (length === 3) {
+                                var featureId = <string>a[1];
+                                worldState.features.some(f => {
+                                if (f && f.id !== featureId) return false;
+                                    feature = f;
+                                    return true;
+                                });
+                            }
+                            if (!feature.properties.hasOwnProperty('date')) feature.properties['date'] = new Date();
+                            if (!feature.properties.hasOwnProperty('roles')) feature.properties['roles'] = ["rti"];
+                            service.layer.addFeature(feature)
+                        }, this.getDelay(a, length-1));
                         console.log(`Timer ${id}: Add feature ${this.feature.id}`)
                         break;
                     case "set":
