@@ -60,8 +60,8 @@ module TripPlanner {
 
         public planRoute() {
             this.urlParameters['mode'] = this.transportMode;
-            this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);
-            this.urlParameters['bikeSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.bikeSpeedKm);
+            if (this.walkSpeedKm) this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);
+            if (this.bikeSpeedKm) this.urlParameters['bikeSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.bikeSpeedKm);
             this.layer.url = csComp.Helpers.joinUrlParameters(this.urlParameters, '?', '&', '=');
             if (!this.layer.enabled) {
                 this.$layerService.addLayer(this.layer);
