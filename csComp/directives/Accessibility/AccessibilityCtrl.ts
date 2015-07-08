@@ -15,7 +15,8 @@ module Accessibility {
         private urlParameters: IOtpUrlParameters;
         private transportModes: { [key: string]: any };
         private transportMode: string;
-        private walkSpeed: number;
+        private walkSpeedKm: number;
+        private bikeSpeedKm: number;
         private cutoffTimes: number[];
         public urlKeys = ['arriveBy', 'fromPlace', 'date', 'time', 'mode', 'maxWalkDistance', 'walkSpeed', 'bikeSpeed',
             'maxTimeSec', 'precisionMeters', 'zDataType', 'coordinateOrigin', 'cutoffSec'];
@@ -48,7 +49,9 @@ module Accessibility {
             this.layer = $scope.$parent["data"];
             this.cutoffTimes = [];
             this.urlParameters = {};
-            this.urlKeys.forEach((key) => { this.urlParameters[key] = 0});
+            this.bikeSpeedKm;
+            this.walkSpeedKm;
+            this.urlKeys.forEach((key) => { this.urlParameters[key] = 0 });
             this.transportModes = {};
             this.transportModes["Walking"] = "WALK";
             this.transportModes["Biking"] = "BICYCLE";
@@ -56,6 +59,8 @@ module Accessibility {
         }
 
         public refreshAccessibility() {
+            this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);
+            this.urlParameters['bikeSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.bikeSpeedKm);
             var url = this.urlAddress + '?';
             for (var key in this.urlParameters) {
                 if (this.urlParameters.hasOwnProperty(key) && key !== 'cutoffSec') {
@@ -63,9 +68,9 @@ module Accessibility {
                 }
             }
             this.cutoffTimes.forEach((co) => {
-                url = url + 'cutoffSec=' + (co*60) + '&';
+                url = url + 'cutoffSec=' + (co * 60) + '&';
             })
-            url = url.substring(0, url.length-1);
+            url = url.substring(0, url.length - 1);
             this.layer.url = url;
             if (!this.layer.enabled) {
                 this.$layerService.addLayer(this.layer);
@@ -83,11 +88,14 @@ module Accessibility {
             splittedUrl.forEach((param) => {
                 var keyValue = param.split('=');
                 if (keyValue[0] === 'cutoffSec') {
-                    this.cutoffTimes.push((+keyValue[1])/60);
+                    this.cutoffTimes.push((+keyValue[1]) / 60);
                 }
                 this.urlParameters[keyValue[0]] = (isNaN(+keyValue[1])) ? keyValue[1] : +keyValue[1];
             });
             this.transportMode = this.urlParameters['mode'];
+            if (this.urlParameters.hasOwnProperty('walkSpeed')) this.walkSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['walkSpeed']).toFixed(2);
+            if (this.urlParameters.hasOwnProperty('bikeSpeed')) this.bikeSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['bikeSpeed']).toFixed(2);
+
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
         }
 

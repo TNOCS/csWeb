@@ -237,5 +237,14 @@
             return propType;
         }
 
+        static convertMileToKm(miles: number) {
+            if (!miles || isNaN(miles)) return;
+            return (miles * 1.609344);
+        }
+
+        static convertKmToMile(km: number) {
+            if (!km || isNaN(km)) return;
+            return (km * 0.621371192);
+        }
     }
 }
