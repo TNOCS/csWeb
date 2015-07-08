@@ -123,7 +123,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
         var f: GeoJSON.IFeature;
         console.log(JSON.stringify(msgBody));
         this.geojson.features.some(feature => {
-            if (feature.id && feature.id === featureId) return false;
+            if (!feature.id || feature.id !== featureId) return false;
             // feature found
             f = feature;
             return true;
