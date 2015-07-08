@@ -57,21 +57,27 @@ module KanbanColumn {
             this.kanban = par.widget.data;
 
             this.$messageBus.subscribe("typesource", (s: string) => {
-                console.log('kanban:loaded project');
-                var layerId = this.kanban.columns[0].filters.layerIds[0];
-                this.layer = this.$layerService.findLayer(layerId);
-                if (this.layer) {
-                    if (this.layer.typeUrl && this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
-                        this.featureTypes = this.$layerService.typesResources[this.layer.typeUrl].featureTypes;
-                        console.log('feature types');
-                        console.log(this.featureTypes);
-                    }
-                }
+                this.initLayer();
             });
 
+            this.initLayer();
 
-            console.log('init board');
 
+
+        }
+
+        private initLayer() {
+            console.log('kanban:loaded project');
+
+            var layerId = this.kanban.columns[0].filters.layerIds[0];
+            this.layer = this.$layerService.findLayer(layerId);
+            if (this.layer) {
+                if (this.layer.typeUrl && this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
+                    this.featureTypes = this.$layerService.typesResources[this.layer.typeUrl].featureTypes;
+                    console.log('feature types');
+                    console.log(this.featureTypes);
+                }
+            }
 
         }
     }
