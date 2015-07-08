@@ -212,7 +212,7 @@ module csComp.Services {
                                 })
                             }
                             catch (e) {
-                                console.warn('error updating feature');
+                                console.warn('Error updating feature: ' + JSON.stringify(e,null,2));
                             }
                         }
                         break;

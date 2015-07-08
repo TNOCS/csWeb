@@ -46,7 +46,7 @@ export class RuleEngine {
     service: IRuleEngineService = {};
 
     constructor(layer: DynamicLayer.IDynamicLayer) {
-        this.timer = new HyperTimer( { rate: 1, time: new Date()});
+        this.timer = new HyperTimer();
 
         this.service.updateFeature = (feature: GeoJSON.IFeature) => layer.updateFeature(feature);
         this.service.updateLog = (featureId: string, msgBody: DynamicLayer.IMessageBody) => layer.updateLog(featureId, msgBody);
@@ -54,6 +54,9 @@ export class RuleEngine {
         this.service.activateRule = (ruleId: string) => this.activateRule(ruleId);
         this.service.deactivateRule = (ruleId: string) => this.deactivateRule(ruleId);
         this.service.timer = this.timer;
+        this.timer.on('error', (err) => {
+            console.log('Error:', err);
+        });
 
         layer.on("featureUpdated", (layerId: string, featureId: string) => {
             console.log(`Feature update with id ${featureId} and layer id ${layerId} received in the rule engine.`)
@@ -71,8 +74,11 @@ export class RuleEngine {
             switch (msg.data) {
                 case "restart":
                     console.log("Rule engine: restarting script");
-                    this.timer.clear();
-                    this.timer = new HyperTimer( { rate: 1, time: new Date()});
+                    this.timer.destroy();
+                    this.timer = new HyperTimer();
+                    this.timer.on('error', (err) => {
+                        console.log('Error:', err);
+                    });
                     this.worldState = new WorldState();
                     this.activeRules = [];
                     this.inactiveRules = [];
