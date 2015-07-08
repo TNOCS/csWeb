@@ -311,9 +311,13 @@ module csComp.Services {
                 this.layer.data = {};
                 this.layer.data.type = 'FeatureCollection';
                 this.layer.data.features = [];
-                var route: L.Polyline = L.Polyline.fromEncoded(parsedData.plan.itineraries[0].legs[0].legGeometry.points);
-                var geoRoute = route.toGeoJSON();
-                this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates, { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: parsedData.plan.itineraries[0].duration }));
+                parsedData.plan.itineraries.forEach((it) => {
+                    it.legs.forEach((leg) => {
+                        var route: L.Polyline = L.Polyline.fromEncoded(leg.legGeometry.points);
+                        var geoRoute = route.toGeoJSON();
+                        this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates, { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: leg.duration }));
+                    });
+                });
             }
             this.layer.data.features.forEach((f: IFeature) => {
                 f.isInitialized = false;
