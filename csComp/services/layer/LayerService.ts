@@ -406,6 +406,7 @@ module csComp.Services {
                             success = true;
                             resource.url = url;
                             this.initTypeResources(resource);
+                            this.$messageBusService.publish("typesource", url, resource);
                             callback();
                         });
                         setTimeout(() => {
@@ -1979,7 +1980,7 @@ module csComp.Services {
 
         public saveFeature(f: IFeature, logs: boolean = false) {
             console.log('saving feature');
-            //f.properties["updated"] = new Date().getTime();
+            f.properties["updated"] = new Date().getTime();
             // check if feature is in dynamic layer
             if (f.layer.type.toLowerCase() === "dynamicgeojson") {
                 var l = this.trackFeature(f);

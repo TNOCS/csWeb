@@ -406,4 +406,34 @@
         rpt.icon = icon || 'tachometer';
         return rpt;
     }
+
+    /**
+     * Helper function to parse a query of an url (e.g localhost:8080/api?a=1&b=2&c=3)
+     */
+    export function parseUrlParameters(url: string, baseDelimiter: string, subDelimiter: string, valueDelimiter: string): {[key: string]: any} {
+        var baseUrl = url.split(baseDelimiter)[0];
+        var croppedUrl = url.split(baseDelimiter)[1];
+        var splittedUrl = croppedUrl.split(subDelimiter);
+        var urlParameters: {[key: string]: any} = {};
+        splittedUrl.forEach((param) => {
+            var keyValue = param.split(valueDelimiter);
+            urlParameters[keyValue[0]] = (isNaN(+keyValue[1])) ? keyValue[1] : +keyValue[1]; //Store as number when possible
+        });
+        urlParameters['baseUrl'] = baseUrl;
+        return urlParameters;
+    }
+
+    /**
+     * Helper function to parse a query of an url (e.g localhost:8080/api?a=1&b=2&c=3)
+     */
+    export function joinUrlParameters(params: {[key: string]: any}, baseDelimiter: string, subDelimiter: string, valueDelimiter: string): string {
+        var url = params['baseUrl'] + baseDelimiter;
+        for (var key in params) {
+            if (params.hasOwnProperty(key) && key !== 'baseUrl') {
+                url = url + key + valueDelimiter + params[key] + subDelimiter;
+            }
+        }
+        url = url.substring(0, url.length-1);
+        return url;
+    }
 }
