@@ -59,8 +59,8 @@ module Accessibility {
         }
 
         public refreshAccessibility() {
-            this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);
-            this.urlParameters['bikeSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.bikeSpeedKm);
+            if(this.walkSpeedKm) this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);
+            if(this.bikeSpeedKm) this.urlParameters['bikeSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.bikeSpeedKm);
             var url = this.urlAddress + '?';
             for (var key in this.urlParameters) {
                 if (this.urlParameters.hasOwnProperty(key) && key !== 'cutoffSec') {
