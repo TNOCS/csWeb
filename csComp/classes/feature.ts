@@ -227,6 +227,7 @@ module csComp.Services {
         id?: string;
         name?: string;
         style?: IFeatureTypeStyle;
+        properties?: {};
         propertyTypeData?: IPropertyType[];
         showAllProperties?: boolean;
         /**

@@ -406,6 +406,7 @@ module csComp.Services {
                             success = true;
                             resource.url = url;
                             this.initTypeResources(resource);
+                            this.$messageBusService.publish("typesource", url, resource);
                             callback();
                         });
                         setTimeout(() => {

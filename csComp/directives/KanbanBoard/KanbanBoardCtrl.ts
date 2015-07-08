@@ -26,6 +26,25 @@ module KanbanColumn {
             'messageBusService'
         ];
 
+        public addFeature(key: string) {
+            var f = new csComp.Services.Feature();
+            f.properties = {};
+            var ft = this.featureTypes[key];
+            if (ft.properties) {
+                for (var k in ft.properties) {
+                    f.properties[k] = JSON.parse(JSON.stringify(ft.properties[k]));
+                }
+            }
+            f.properties["date"] = new Date();
+            f.properties["updated"] = new Date();
+            f.properties["featureTypeId"] = key;
+            f.properties["roles"] = ["rti"];
+            if (!f.properties.hasOwnProperty('Name')) f.properties['Name'] = ft.name;
+            this.layer.data.features.push(f);
+            this.$layerService.initFeature(f, this.layer);
+            this.$layerService.editFeature(f);
+        }
+
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
@@ -37,7 +56,7 @@ module KanbanColumn {
             var par = <any>$scope.$parent;
             this.kanban = par.widget.data;
 
-            this.$messageBus.subscribe("project", (s: string) => {
+            this.$messageBus.subscribe("typesource", (s: string) => {
                 console.log('kanban:loaded project');
                 var layerId = this.kanban.columns[0].filters.layerIds[0];
                 this.layer = this.$layerService.findLayer(layerId);
