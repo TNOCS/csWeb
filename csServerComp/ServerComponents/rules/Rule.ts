@@ -154,13 +154,14 @@ export class Rule implements IRule {
     private executeActions(worldState: WorldState, service: RuleEngine.IRuleEngineService) {
         for (let i = 0; i < this.actions.length; i++) {
             var a = this.actions[i];
-            var key = a[0];
-            if (typeof key === 'string') {
+            var action = a[0];
+            var key: string | number | boolean;
+            if (typeof action === 'string') {
                 let length = a.length;
-                switch (key.toLowerCase()) {
+                switch (action.toLowerCase()) {
                     case "add":
                         // add feature
-                        let id = service.timer.setTimeout(() => {
+                        var id = service.timer.setTimeout(() => {
                             console.log('Add feature ' + this.feature.id);
                             if (!this.feature.properties.hasOwnProperty('date')) this.feature.properties['date'] = new Date();
                             if (!this.feature.properties.hasOwnProperty('roles')) this.feature.properties['roles'] = ["rti"];
@@ -176,15 +177,8 @@ export class Rule implements IRule {
                         }
                         var key = a[1];
                         if (typeof key === 'string') {
-                            let id = service.timer.setTimeout(() => {
-                                console.log(`Feature ${this.feature.id}`);
-                                console.log(`setting ${key}: ${a[2]}`);
-                                this.feature.properties[key] = a[2];
-                                //service.updateFeature(this.feature);
-                                this.updateProperty(service, key, this.feature.properties[key]);
-                            }, this.getDelay(a, 3));
-                            console.log(`Timer ${id}: set ${key}: ${a[2]}`)
-                        }
+                            this.setTimerForProperty(service, key, a[2], this.getDelay(a, 3));
+                    }
                         break;
                     case "push":
                         // push property value [, delay]
@@ -194,41 +188,20 @@ export class Rule implements IRule {
                         }
                         var key = a[1];
                         if (typeof key === 'string') {
-                            let id = service.timer.setTimeout(() => {
+                            var valp = a[2];
+                            var id = service.timer.setTimeout(() => {
                                 console.log(`Feature ${this.feature.id}`);
-                                console.log(`pushing ${key}: ${a[2]}`);
+                                console.log(`pushing ${key}: ${valp}`);
                                 if (!this.feature.properties.hasOwnProperty(key))
-                                    this.feature.properties[key] = [a[2]];
+                                    this.feature.properties[key] = [valp];
                                 else
-                                    this.feature.properties[key].push(a[2]);
+                                    this.feature.properties[key].push(valp);
                                 //service.updateFeature(this.feature);
                                 this.updateProperty(service, key, this.feature.properties[key]);
                             }, this.getDelay(a, 3));
-                            console.log(`Timer ${id}: push ${key}: ${a[2]}`)
+                            console.log(`Timer ${id}: push ${key}: ${valp}`)
                         }
                         break;
-                    /*case "showgeometry":
-                        // unhide the geometry by removing the underscore from the property
-                        service.timer.setTimeout(() => {
-                            if (!this.feature.hasOwnProperty("_geometry")) return;
-                            console.log(`Feature ${this.feature.id}`);
-                            console.log(`showing geometry`);
-                            this.feature["geometry"] = this.feature["_geometry"];
-                            delete this.feature["_geometry"];
-                            service.updateFeature(this.feature);
-                        }, this.getDelay(a, 1));
-                        break;
-                    case "hidegeometry":
-                        // hide the geometry by adding an underscore to the property
-                        service.timer.setTimeout(() => {
-                            if (!this.feature.hasOwnProperty("geometry")) return;
-                            console.log(`Feature ${this.feature.id}`);
-                            console.log(`hiding geometry`);
-                            this.feature["_geometry"] = this.feature["geometry"];
-                            delete this.feature["geometry"];
-                            service.updateFeature(this.feature);
-                        }, this.getDelay(a, 1));
-                        break;*/
                 }
             } else {
                 console.warn(`Rule ${this.id} contains an invalid action (ignored): ${a}!`);
@@ -236,13 +209,51 @@ export class Rule implements IRule {
         }
     }
 
+    private setTimerForProperty(service: RuleEngine.IRuleEngineService, key: string, value: any, delay = 0) {
+        var id = service.timer.setTimeout(() => {
+            console.log(`Timers: ${service.timer.list()}`);
+            console.log(`Feature ${this.feature.id}`);
+            console.log(`setting ${key}: ${value}`);
+            this.feature.properties[key] = value;
+            //service.updateFeature(this.feature);
+            this.updateProperty(service, key, this.feature.properties[key]);
+        }, delay);
+        console.log(`Timer ${id}: set ${key}: ${value}`)
+        console.log('Timers: ' + service.timer.list());
+    }
+
     private updateProperty(service: RuleEngine.IRuleEngineService, key: string, value: any) {
         var f = this.feature;
         if (!f.hasOwnProperty('logs')) f.logs = {};
-        if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
-        var log: DynamicLayer.IPropertyUpdate = { "prop": key, "ts": service.timer.now(), "value": value };
-        f.logs[key].push(log);
-        var msg: DynamicLayer.IMessageBody = { "featureId": this.feature.id, "logs": f.logs[key] };
+        var logs: { [prop: string]: DynamicLayer.IPropertyUpdate[] } = {};
+            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+            var log: DynamicLayer.IPropertyUpdate = {
+                "prop": key,
+                "ts": service.timer.now(),
+                "value": value
+            };
+            f.logs[key].push(log);
+            logs[key] = f.logs[key];
+
+            // FIXME Duplicate code
+            key = "updated";
+            value = service.timer.now();
+            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+            var log: DynamicLayer.IPropertyUpdate = {
+                "prop": key,
+                "ts": service.timer.now(),
+                "value": value
+            };
+            f.logs[key].push(log);
+            logs[key] = f.logs[key];
+
+        var msg: DynamicLayer.IMessageBody = {
+            "featureId": this.feature.id,
+            "logs": logs
+        };
+        //msg.logs.push(f.logs[key]);
+        console.log('Log message: ');
+        console.log(JSON.stringify(msg, null, 2));
         service.layer.connection.updateFeature(service.layer.layerId, msg, "logs-update");
         //service.updateLog(this.feature.id, msg);
         //service.updateFeature(ws.activeLayerId, msg, "logs-update");
