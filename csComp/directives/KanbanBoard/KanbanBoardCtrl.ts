@@ -11,6 +11,8 @@ module KanbanColumn {
     export class KanbanBoardCtrl {
         private scope: IKanbanBoardScope;
         public feeds: csComp.Services.Feed[] = [];
+        public layer: csComp.Services.ProjectLayer;
+        public featureTypes: { [key: string]: csComp.Services.IFeatureType } = {};
 
         public kanban: KanbanColumn.KanbanConfig;
 
@@ -34,6 +36,21 @@ module KanbanColumn {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.kanban = par.widget.data;
+
+            this.$messageBus.subscribe("project", (s: string) => {
+                console.log('kanban:loaded project');
+                var layerId = this.kanban.columns[0].filters.layerIds[0];
+                this.layer = this.$layerService.findLayer(layerId);
+                if (this.layer) {
+                    if (this.layer.typeUrl && this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
+                        this.featureTypes = this.$layerService.typesResources[this.layer.typeUrl].featureTypes;
+                        console.log('feature types');
+                        console.log(this.featureTypes);
+                    }
+                }
+            });
+
+
             console.log('init board');
 
 
