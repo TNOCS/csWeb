@@ -137,7 +137,13 @@ module csComp.Services {
             this.$layerService.visual.rightPanelVisible = true;
             var content = tab.container + "-content";
             $("#" + tab.container + "-tab").remove();
-            $("#" + content).remove();
+            var c = $("#" + content);
+            try {
+                if (c) c.remove();
+            }
+            catch (e) {
+
+            }
             var popoverString = '';
             if (tab.popover !== '' && (this.$mapService.expertMode === Expertise.Beginner || this.$mapService.expertMode === Expertise.Intermediate)) {
                 popoverString = "popover='" + tab.popover + "' popover-placement='left' popover-trigger='mouseenter' popover-append-to-body='true'";
@@ -160,7 +166,10 @@ module csComp.Services {
             this.$layerService.visual.rightPanelVisible = false;
             var content = container + "-content";
             $("#" + container + "-tab").remove();
-            $("#" + content).remove();
+            try {
+                $("#" + content).remove();
+            }
+            catch (e) { }
             this.$timeout(() => { }, 0);
         }
 

@@ -150,9 +150,9 @@
                                         <div ng-switch-when="media">
 
                                                 <div ng-repeat="media in feature.properties[item.property]">
-                                                    <img src="{{media}}" style="height:50px; float:left;margin:5px"></img>
+                                                    <img src="{{media}}" style="width:300px; float:left;margin:5px"></img>
                                                 </div>
-                                            
+
                                         </div>
                                         <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                     </div>
