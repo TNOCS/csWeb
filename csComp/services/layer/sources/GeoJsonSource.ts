@@ -276,18 +276,22 @@ module csComp.Services {
 
     export class AccessibilityDataSource extends GeoJsonSource {
         title = "Accessibility datasource";
-        private routers = {};
+        private routers;
+        private isInitialized = false;
 
         constructor(public service: csComp.Services.LayerService) {
             super(service);
-            //this.init();
         }
 
         public init() {
-            //Get a list of OTP routers and the geographic area they cover
-            $.getJSON('/api/accessibility', {
-                url: 'http://localhost:8080/otp/routers'
-            }, ((data, textStatus) => { this.initRouters(data, textStatus) }))
+            this.routers = {};
+            if (this.service.project.otpServer && this.service.project.otpServer !== '') {
+                //Get a list of OTP routers and the geographic area they cover
+                $.getJSON('/api/accessibility', {
+                    url: this.service.project.otpServer
+                }, ((data, textStatus) => { this.initRouters(data, textStatus) }))
+            }
+            this.isInitialized = true;
         }
 
         private initRouters(data, textStatus) {
@@ -316,6 +320,7 @@ module csComp.Services {
         }
 
         public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
+            if (!this.isInitialized) this.init();
             this.layer = layer;
             layer.type = 'accessibility';
             // Open a layer URL
@@ -334,12 +339,13 @@ module csComp.Services {
             var urlParameters = csComp.Helpers.parseUrlParameters(this.layer.url, '?', '&', '=');
             if (urlParameters.hasOwnProperty('fromPlace')) {
                 var coords = urlParameters['fromPlace'].split('%2C');
+                if (isNaN(+coords[0]) || isNaN(+coords[1])) return url;
                 var latlng = new L.LatLng(+coords[0], +coords[1]);
                 for (var key in this.routers) {
                     if (this.routers.hasOwnProperty(key)) {
                         var polygon: L.Polygon = this.routers[key];
                         if (polygon.getBounds().contains(latlng)) {
-                            url = url.replace('/default/', '/'+key+'/');
+                            url = url.replace('/default/', '/' + key + '/');
                         }
                     }
                 }
@@ -382,7 +388,8 @@ module csComp.Services {
                             });
                         });
                         var geoRoute = route.toGeoJSON();
-                        this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates, { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: it.duration }));
+                        this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates,
+                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: it.duration, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString()}));
                     });
                 }
                 this.layer.data.features.forEach((f: IFeature) => {
