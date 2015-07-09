@@ -32,8 +32,6 @@ module Timeline {
             'TimelineService'
         ];
 
-
-
         public focusDate: Date;
         public line1: string;
         public line2: string;
@@ -48,6 +46,9 @@ module Timeline {
         public options: any;
         public expandButtonBottom = 52;
         public items = new vis.DataSet();
+        private debounceUpdate: Function;
+        private ids: string[] = [];
+
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -69,6 +70,8 @@ module Timeline {
                 'height': "54px"
                 //'layout': 'box'
             };
+
+            this.debounceUpdate = _.debounce(this.updateFeatures, 500);
 
             $scope.vm = this;
 
@@ -129,25 +132,23 @@ module Timeline {
                         this.$scope.timeline.moveTo(data);
                         break;
                     case "updateFeatures":
-
-                        console.log("timeline:updating features");
-                        this.updateFeatures();
-
+                        this.debounceUpdate();
                         break;
                 }
             }
         }
 
-        private ids: string[] = [];
+
 
         private updateFeatures() {
+            console.log("timeline:updating features");
             //this.items = [];
             //this.$scope.timeline.redraw();
             var temp: string[] = [];
 
             // check for new items
             this.$layerService.project.features.forEach((f: csComp.Services.IFeature) => {
-                if (f.properties.hasOwnProperty('date')) {
+                if (f.layer.showOnTimeline && f.properties.hasOwnProperty('date')) {
                     temp.push(f.id);
                     if (this.ids.indexOf(f.id) === -1) {
                         var t = { id: f.id, group: 'all', content: f.properties['Name'], start: new Date(f.properties['date']) };
@@ -176,31 +177,12 @@ module Timeline {
 
         private initTimeline() {
 
-            //var options = this.TimelineService.getTimelineOptions();
-            // Configuration for the Timeline
-
-            //options.locale = this.$layerService.currentLocale;
             var container = document.getElementById('timeline');
 
-            // Create a DataSet (allows two way data-binding)
-            //this.items = new vis.DataSet([
-            /*{ id: 1, content: 'item 1', start: '2014-04-20' },
-            { id: 2, content: 'item 2', start: '2014-04-14' },
-            { id: 3, content: 'item 3', start: '2014-04-18' },
-            { id: 4, content: 'item 4', start: '2014-04-16', end: '2014-04-19' },
-            { id: 5, content: 'item 5', start: '2014-04-25' },
-            { id: 6, content: 'item 6', start: '2014-04-27', type: 'point' }*/
-            //]);
 
             this.$layerService.timeline = this.$scope.timeline = new vis.Timeline(container, this.items, this.options);
 
             this.$layerService.timeline.redraw();
-            /*vis.events.addListener(this.$scope.timeline, 'rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
-            vis.events.addListener(this.$scope.timeline, 'rangechange', () => {
-                if (this.$layerService.project && this.$layerService.project.timeLine.isLive) {
-                    this.myTimer();
-                }
-            });*/
 
             if (this.$layerService.project && this.$layerService.project.timeLine !== null) {
                 this.$scope.timeline.setWindow(this.$layerService.project.timeLine.start, this.$layerService.project.timeLine.end);
@@ -217,9 +199,8 @@ module Timeline {
                 }
             });
 
-
-
             this.$scope.timeline.addEventListener('rangechange', _.throttle((prop) => this.onRangeChanged(prop), 200));
+            //this.addEventListener('featureschanged', _.throttle((prop) => this.updateFeatures(), 200));
 
 
 
@@ -247,14 +228,6 @@ module Timeline {
             this.expandButtonBottom = (this.expanded) ? 149 : 52;
             this.$layerService.timeline.setOptions(this.options);
             this.$layerService.timeline.redraw();
-            // .config(TimelineServiceProvider => {
-            // TimelineServiceProvider.setTimelineOptions({
-            //     'width': '100%',
-            //     "eventMargin": 0,
-            //     "eventMarginAxis": 0,
-            //     'editable': false,
-            //     'layout': 'box'
-            // });
         }
 
 
