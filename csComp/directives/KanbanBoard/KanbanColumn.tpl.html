@@ -37,7 +37,7 @@
 
         <div class="card-list-container">
             <ul class="card-list">
-                <li class="card-item" ng-class="{ true : 'isQuestion' } [feature.properties[fields['question']]!=null]" } ng-repeat="feature in vm.$layerService.project.features | orderBy:columnOrderBy:false | filter:query | filter:columnFilter">
+                <li class="card-item" ng-class="{ true : 'isQuestion' } [feature.properties[fields['question']]!=null]" } ng-repeat="feature in vm.layer.data.features | orderBy:columnOrderBy:false | filter:query | filter:columnFilter">
                     <div style="float:left">
                         <img ng-src="{{feature.effectiveStyle.iconUri}}" style="width:20px;height:20px;margin-right:5px"></img>
                     </div>
