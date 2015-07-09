@@ -15,15 +15,16 @@ export class RestAPI implements LayerManager.IApiInterface {
         //this.server.get("/testje", (req: any, res: any) => {
         //    this.manager.addFeature({ test: 'bla' });
         //});
-        this.server.post("/feature", (req: any, res: any) => {
-            this.manager.addFeature({ test: 'bla' });
+        this.server.post("/feature", (req: express.Request, res: express.Response) => {
+            this.manager.addFeature(req.body);
         });
 
-        this.server.get("/feature/:id", (req: any, res: any) => {
+        this.server.get("/feature/:id", (req: express.Request, res: express.Response) => {
             this.manager.getFeature({ id: req.params.id});
         });
 
-        this.server.delete("/feature/:id", (req: any, res: any) => {
+        // for some reason (TS?) express doesn't work with del as http verb
+        this.server.delete("/feature/:id", (req: express.Request, res: express.Response) => {
             this.manager.addFeature({ id: req.params.id });
         });
 
