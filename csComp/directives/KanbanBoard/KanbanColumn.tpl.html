@@ -39,7 +39,7 @@
             <ul class="card-list">
                 <li class="card-item" ng-class="{ true : 'isQuestion' } [feature.properties[fields['question']]!=null]" } ng-repeat="feature in vm.$layerService.project.features | orderBy:columnOrderBy:false | filter:query | filter:columnFilter">
                     <div style="float:left">
-                        <img src="{{feature.effectiveStyle.iconUri}}" style="width:20px;height:20px;margin-right:5px"></img>
+                        <img ng-src="{{feature.effectiveStyle.iconUri}}" style="width:20px;height:20px;margin-right:5px"></img>
                     </div>
 
                         <div ng-click="vm.selectFeature(feature)" class="card-title">{{feature.properties[fields['title']]}}</div>
@@ -67,7 +67,7 @@
                         <div ng-if="feature.properties[fields['media']]" style="margin-left:30px">
                             <div ng-repeat="media in feature.properties[fields['media']]">
 
-                                <img ng-click="vm.selectFeature(feature)" src="{{media}}" style="height:50px;cursor:pointer"></img>
+                                <img ng-click="vm.selectFeature(feature)" ng-src="{{media}}" style="height:50px;cursor:pointer"></img>
                             </div>
                         </div>
 
