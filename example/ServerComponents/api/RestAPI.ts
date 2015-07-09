@@ -12,8 +12,8 @@ export class RestAPI implements LayerManager.IApiInterface {
     public init(layerManager: LayerManager.LayerManager, options: any) {
         this.manager = layerManager;
         console.log('init Rest API');
-        this.server.get("/testje", (req: any, res: any) => {
-            this.manager.addFeature({ test: 'bla' });
+        this.server.get("/layer/", (req: any, res: any) => {
+            //5this.manager.({ test: 'bla' });
         });
 
 
