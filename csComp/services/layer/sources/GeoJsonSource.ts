@@ -362,7 +362,8 @@ module csComp.Services {
                     //Add arrival times when leaving now
                     var startTime = new Date(Date.now());
                     parsedData.features.forEach((f) => {
-                        f.properties['arriveTime'] = (new Date(startTime.getTime() + f.properties['time'] * 1000)).toISOString();
+                        f.properties['time'] = f.properties['time'] * 1000;
+                        f.properties['arriveTime'] = (new Date(startTime.getTime() + f.properties['time'])).toISOString();
                     });
                     if (this.layer.hasOwnProperty('data') && this.layer.data.hasOwnProperty('features')) {
                         parsedData.features.forEach((f) => {
@@ -388,7 +389,7 @@ module csComp.Services {
                         });
                         var geoRoute = route.toGeoJSON();
                         this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates,
-                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: it.duration, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString() }));
+                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: (+it.duration)*1000, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString() }));
                     });
                 }
                 this.layer.data.features.forEach((f: IFeature) => {
