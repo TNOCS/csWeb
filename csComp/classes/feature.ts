@@ -30,6 +30,7 @@ module csComp.Services {
         fType?: IFeatureType;
         effectiveStyle: IFeatureTypeStyle;
         isInitialized?: boolean;
+        lastUpdated: number;
         gui: Object;
         sensors?: { [id: string]: any[] }
 
@@ -59,6 +60,7 @@ module csComp.Services {
         isSelected: boolean;
         htmlStyle: string;
         featureTypeName: string;
+        lastUpdated: number;
         gui: Object = {};
         /** resolved feature type */
         fType: IFeatureType;
