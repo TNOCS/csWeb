@@ -71,6 +71,7 @@ module KanbanColumn {
             else
                 this.setOrder(this.sortOptions[0]);
 
+            // FIXME Isn't it easier to immediately return false instead of using an object.
             $scope.columnFilter = (feature: csComp.Services.IFeature) => {
                 var result = true;
                 if (!$scope.column) return false;
@@ -88,6 +89,7 @@ module KanbanColumn {
                             if (_.contains(feature.properties['tags'], t)) result = false;
                         }
                         else if (!_.contains(feature.properties['tags'], tag)) result = false;
+                        // FIXME should return false I guess
                         return;
                     })
                 }
