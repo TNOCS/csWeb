@@ -11,6 +11,8 @@ module KanbanColumn {
     export class KanbanBoardCtrl {
         private scope: IKanbanBoardScope;
         public feeds: csComp.Services.Feed[] = [];
+        public layer: csComp.Services.ProjectLayer;
+        public featureTypes: { [key: string]: csComp.Services.IFeatureType } = {};
 
         public kanban: KanbanColumn.KanbanConfig;
 
@@ -24,6 +26,25 @@ module KanbanColumn {
             'messageBusService'
         ];
 
+        public addFeature(key: string) {
+            var f = new csComp.Services.Feature();
+            f.properties = {};
+            var ft = this.featureTypes[key];
+            if (ft.properties) {
+                for (var k in ft.properties) {
+                    f.properties[k] = JSON.parse(JSON.stringify(ft.properties[k]));
+                }
+            }
+            f.properties["date"] = new Date();
+            f.properties["updated"] = new Date();
+            f.properties["featureTypeId"] = key;
+            f.properties["roles"] = ["rti"];
+            if (!f.properties.hasOwnProperty('Name')) f.properties['Name'] = ft.name;
+            this.layer.data.features.push(f);
+            this.$layerService.initFeature(f, this.layer);
+            this.$layerService.editFeature(f);
+        }
+
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
@@ -34,8 +55,29 @@ module KanbanColumn {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.kanban = par.widget.data;
-            console.log('init board');
 
+            this.$messageBus.subscribe("typesource", (s: string) => {
+                this.initLayer();
+            });
+
+            this.initLayer();
+
+
+
+        }
+
+        private initLayer() {
+            console.log('kanban:loaded project');
+
+            var layerId = this.kanban.columns[0].filters.layerIds[0];
+            this.layer = this.$layerService.findLayer(layerId);
+            if (this.layer) {
+                if (this.layer.typeUrl && this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
+                    this.featureTypes = this.$layerService.typesResources[this.layer.typeUrl].featureTypes;
+                    console.log('feature types');
+                    console.log(this.featureTypes);
+                }
+            }
 
         }
     }

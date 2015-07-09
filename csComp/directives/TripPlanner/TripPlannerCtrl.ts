@@ -15,10 +15,13 @@ module TripPlanner {
         private urlParameters: IOtpUrlParameters;
         private transportModes: { [key: string]: any };
         private transportMode: string;
-        private walkSpeed: number;
-        private cutoffTimes: number[];
+        private walkSpeedKm: number;
+        private bikeSpeedKm: number;
+        private time: string;
+        private fromLoc: number;
+        private toLoc: number;
         public urlKeys = ['arriveBy', 'fromPlace', 'toPlace', 'intermediatePlaces', 'date', 'time', 'mode', 'maxWalkDistance', 'walkSpeed', 'bikeSpeed',
-            'maxTimeSec', 'precisionMeters', 'zDataType', 'coordinateOrigin', 'cutoffSec'];
+            'maxTimeSec', 'precisionMeters', 'zDataType', 'coordinateOrigin'];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -46,27 +49,23 @@ module TripPlanner {
             this.scope = $scope;
             $scope.vm = this;
             this.layer = $scope.$parent["data"];
-            this.cutoffTimes = [];
             this.urlParameters = {};
-            this.urlKeys.forEach((key) => { this.urlParameters[key] = 0});
+            this.urlKeys.forEach((key) => { this.urlParameters[key] = 0 });
+            this.bikeSpeedKm;
+            this.walkSpeedKm;
             this.transportModes = {};
             this.transportModes["Walking"] = "WALK";
             this.transportModes["Biking"] = "BICYCLE";
+            this.transportModes["Public transport"] = "TRANSIT";
             //this.transportModes["Car"] = "CAR";
         }
 
-        public refreshAccessibility() {
-            var url = this.urlAddress + '?';
-            for (var key in this.urlParameters) {
-                if (this.urlParameters.hasOwnProperty(key) && key !== 'cutoffSec') {
-                    url = url + key + '=' + this.urlParameters[key] + '&';
-                }
-            }
-            this.cutoffTimes.forEach((co) => {
-                url = url + 'cutoffSec=' + (co*60) + '&';
-            })
-            url = url.substring(0, url.length-1);
-            this.layer.url = url;
+        public planRoute() {
+            this.urlParameters['time'] = encodeURIComponent(this.time);
+            this.urlParameters['mode'] = this.transportMode;
+            if (this.walkSpeedKm) this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);
+            if (this.bikeSpeedKm) this.urlParameters['bikeSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.bikeSpeedKm);
+            this.layer.url = csComp.Helpers.joinUrlParameters(this.urlParameters, '?', '&', '=');
             if (!this.layer.enabled) {
                 this.$layerService.addLayer(this.layer);
             } else {
@@ -76,31 +75,17 @@ module TripPlanner {
         }
 
         public parseUrl() {
-            this.urlParameters = {};
-            this.urlAddress = this.layer.url.split('?')[0];
-            var croppedUrl = this.layer.url.split('?')[1]; // Remove the address of the url, keep the parameters
-            var splittedUrl = croppedUrl.split('&');
-            splittedUrl.forEach((param) => {
-                var keyValue = param.split('=');
-                if (keyValue[0] === 'cutoffSec') {
-                    this.cutoffTimes.push((+keyValue[1])/60);
-                }
-                this.urlParameters[keyValue[0]] = (isNaN(+keyValue[1])) ? keyValue[1] : +keyValue[1];
-            });
+            this.urlParameters = csComp.Helpers.parseUrlParameters(this.layer.url, '?', '&', '=');
+            var d = new Date(Date.now());
+            this.time = ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+            this.urlParameters['date'] = (d.getMonth()+1) + '-' + d.getDate() + '-' + d.getFullYear();
             this.transportMode = this.urlParameters['mode'];
+            if (this.urlParameters.hasOwnProperty('walkSpeed')) this.walkSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['walkSpeed']).toFixed(2);
+            if (this.urlParameters.hasOwnProperty('bikeSpeed')) this.bikeSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['bikeSpeed']).toFixed(2);
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
         }
 
         private addCutoffTime() {
-            this.cutoffTimes.push(0);
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
-        }
-
-        private removeCutoffTime(index: number) {
-            if (index < this.cutoffTimes.length && index > -1) {
-                this.cutoffTimes.splice(index, 1);
-            }
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
         }
     }
 }

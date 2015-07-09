@@ -9,6 +9,8 @@ import utils = require('../helpers/Utils');
 import GeoJSON = require("../helpers/GeoJSON");
 
 export interface IDynamicLayer {
+    geojson?: GeoJSON.IGeoJson;
+    connection?: ClientConnection.ConnectionManager;
     getLayer(req: express.Request, res: express.Response);
     getDataSource(req: express.Request, res: express.Response);
     addFeature?: (feature: any) => void;
@@ -38,7 +40,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     /**
      * Working copy of geojson file
      */
-    public geojson: any;
+    public geojson: GeoJSON.IGeoJson;
     public server: express.Express;
     public messageBus: MessageBus.MessageBusService;
     public connection: ClientConnection.ConnectionManager;
@@ -106,6 +108,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
                 case "logUpdate":
                     // find feature
                     var featureId = msg.object.featureId;
+
                     this.updateLog(featureId, msg.object, client, true);
                     break;
                 case "featureUpdate":
@@ -118,8 +121,9 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
 
     updateLog(featureId: string, msgBody: IMessageBody, client?: string, notify?: boolean) {
         var f: GeoJSON.IFeature;
+        console.log(JSON.stringify(msgBody));
         this.geojson.features.some(feature => {
-            if (feature.id && feature.id === featureId) return false;
+            if (!feature.id || feature.id !== featureId) return false;
             // feature found
             f = feature;
             return true;
@@ -137,12 +141,12 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
                 f.logs[key].push(l);
                 f.properties[key] = l.value;
             });
-            console.log(JSON.stringify(f));
+
             // send them to other clients
             this.connection.updateFeature(this.layerId, msgBody, "logs-update", client);
         }
         console.log("Log update" + featureId);
-        this.emit("featureUpdated", this.layerId, featureId);
+        if (notify) this.emit("featureUpdated", this.layerId, featureId);
     }
 
     updateFeature(ft: GeoJSON.IFeature, client?: string, notify?: boolean) {

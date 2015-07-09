@@ -110,16 +110,17 @@ module csComp.Services {
 
         }
 
+        baseLayer: L.ILayer;
+
         public changeBaseLayer(layerObj: BaseLayer) {
             if (layerObj == this.service.$mapService.activeBaseLayer) return;
+            if (this.baseLayer) this.service.map.map.removeLayer(this.baseLayer);
+            this.baseLayer = this.createBaseLayer(layerObj);
 
-            var layer: L.ILayer = this.createBaseLayer(layerObj);
+            this.service.map.map.addLayer(this.baseLayer);
 
-            this.service.map.map.addLayer(layer);
-            if (this.service.$mapService.activeBaseLayer)
-                this.service.map.map.removeLayer(this.createBaseLayer(this.service.$mapService.activeBaseLayer));
             this.service.map.map.setZoom(this.service.map.map.getZoom());
-            this.service.map.map.fire('baselayerchange', { layer: layer });
+            this.service.map.map.fire('baselayerchange', { layer: this.baseLayer });
             console.log('changebaselayer');
         }
 
@@ -362,6 +363,7 @@ module csComp.Services {
                 case 'Point':
                     var icon = this.getPointIcon(feature);
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), { icon: icon });
+
                     break;
                 default:
                     marker = L.GeoJSON.geometryToLayer(<any>feature);

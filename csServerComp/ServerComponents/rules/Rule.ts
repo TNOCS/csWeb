@@ -2,6 +2,7 @@ import RuleEngine = require('./RuleEngine');
 import WorldState = require('./WorldState');
 import Utils = require('../helpers/Utils')
 import GeoJSON = require("../helpers/GeoJSON");
+import DynamicLayer = require("../dynamic/DynamicLayer");
 
 export interface IRule {
     /** Identifier */
@@ -87,7 +88,7 @@ export class Rule implements IRule {
         // Check if we need to do anything.
         if (!this.isActive || this.recurrence === 0) return;
         // Check if we are dealing with a rule that belongs to a feature, and that feature is being processed.
-        if (typeof worldState.activeFeature !== 'undefined' && typeof this.feature !== 'undefined' && worldState.activeFeature.id === this.feature.id) return;
+        if (typeof worldState.activeFeature !== 'undefined' && typeof this.feature !== 'undefined' && worldState.activeFeature.id !== this.feature.id) return;
         // Finally, check the conditions, if any (if none, just go ahead and execute the actions)
         if (typeof this.conditions === 'undefined' || this.evaluateConditions(worldState)) {
             this.executeActions(worldState, service);
@@ -113,6 +114,7 @@ export class Rule implements IRule {
                         var prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
+                            console.log(`Property ${prop} exists.`);
                         }
                         break;
                     case "propertyisset":
@@ -124,6 +126,7 @@ export class Rule implements IRule {
                             let propValue = worldState.activeFeature.properties[prop];
                             if (length === 2 && propValue === null) return false;
                             if (length === 3 && propValue !== c[2]) return false;
+                            console.log(`Property ${prop} is set` + (length === 2 ? '.' : ' ' + c[2]));
                         }
                         break;
                     case "propertycontains":
@@ -134,6 +137,7 @@ export class Rule implements IRule {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
                             let props: any[] = worldState.activeFeature.properties[prop];
                             if (length === 3 && props instanceof Array && props.indexOf(c[2]) < 0) return false;
+                            console.log(`Property ${prop} contains ${c[2]}.`);
                         }
                         break;
                     default:
@@ -150,16 +154,29 @@ export class Rule implements IRule {
     private executeActions(worldState: WorldState, service: RuleEngine.IRuleEngineService) {
         for (let i = 0; i < this.actions.length; i++) {
             var a = this.actions[i];
-            var key = a[0];
-            if (typeof key === 'string') {
-                let length = a.length;
-                switch (key.toLowerCase()) {
+            var action = a[0];
+            var key: string | number | boolean;
+            if (typeof action === 'string') {
+                var length = a.length;
+                switch (action.toLowerCase()) {
                     case "add":
                         // add feature
-                        service.timer.setTimeout(() => {
-                            console.log('Add feature ' + this.feature.id);
-                            service.layer.addFeature(this.feature)
-                        }, this.getDelay(a, 1));
+                        var id = service.timer.setTimeout(() => {
+                            var feature = this.feature;
+                            console.log('Add feature ' + feature.id);
+                            if (length === 3) {
+                                var featureId = <string>a[1];
+                                worldState.features.some(f => {
+                                if (f && f.id !== featureId) return false;
+                                    feature = f;
+                                    return true;
+                                });
+                            }
+                            if (!feature.properties.hasOwnProperty('date')) feature.properties['date'] = new Date();
+                            if (!feature.properties.hasOwnProperty('roles')) feature.properties['roles'] = ["rti"];
+                            service.layer.addFeature(feature)
+                        }, this.getDelay(a, length-1));
+                        console.log(`Timer ${id}: Add feature ${this.feature.id}`)
                         break;
                     case "set":
                         // Set, property, value [, delay]
@@ -169,14 +186,8 @@ export class Rule implements IRule {
                         }
                         var key = a[1];
                         if (typeof key === 'string') {
-                            service.timer.setTimeout(() => {
-                                console.log(`Feature ${this.feature.id}`);
-                                console.log(`set ${key}: ${a[2]}`);
-                                this.feature.properties[key] = a[2];
-                                service.updateFeature(this.feature);
-                                /*this.updateProperty(worldState, service, key, a[2]);*/
-                            }, this.getDelay(a, 3));
-                        }
+                            this.setTimerForProperty(service, key, a[2], this.getDelay(a, 3));
+                    }
                         break;
                     case "push":
                         // push property value [, delay]
@@ -186,39 +197,19 @@ export class Rule implements IRule {
                         }
                         var key = a[1];
                         if (typeof key === 'string') {
-                            service.timer.setTimeout(() => {
+                            var valp = a[2];
+                            var id = service.timer.setTimeout(() => {
                                 console.log(`Feature ${this.feature.id}`);
-                                console.log(`push ${key}: ${a[2]}`);
+                                console.log(`pushing ${key}: ${valp}`);
                                 if (!this.feature.properties.hasOwnProperty(key))
-                                    this.feature.properties[key] = [a[2]];
+                                    this.feature.properties[key] = [valp];
                                 else
-                                    this.feature.properties[key].push(a[2]);
-                                service.updateFeature(this.feature);
-                                //this.updateProperty(worldState, service, key, this.feature.properties[key]);
+                                    this.feature.properties[key].push(valp);
+                                //service.updateFeature(this.feature);
+                                this.updateProperty(service, key, this.feature.properties[key]);
                             }, this.getDelay(a, 3));
+                            console.log(`Timer ${id}: push ${key}: ${valp}`)
                         }
-                        break;
-                    case "showgeometry":
-                        // unhide the geometry by removing the underscore from the property
-                        service.timer.setTimeout(() => {
-                            if (!this.feature.hasOwnProperty("_geometry")) return;
-                            console.log(`Feature ${this.feature.id}`);
-                            console.log(`showing geometry`);
-                            this.feature["geometry"] = this.feature["_geometry"];
-                            delete this.feature["_geometry"];
-                            service.updateFeature(this.feature);
-                        }, this.getDelay(a, 1));
-                        break;
-                    case "hidegeometry":
-                        // hide the geometry by adding an underscore to the property
-                        service.timer.setTimeout(() => {
-                            if (!this.feature.hasOwnProperty("geometry")) return;
-                            console.log(`Feature ${this.feature.id}`);
-                            console.log(`hiding geometry`);
-                            this.feature["_geometry"] = this.feature["geometry"];
-                            delete this.feature["geometry"];
-                            service.updateFeature(this.feature);
-                        }, this.getDelay(a, 1));
                         break;
                 }
             } else {
@@ -227,14 +218,53 @@ export class Rule implements IRule {
         }
     }
 
-    private updateProperty(ws: WorldState, service: RuleEngine.IRuleEngineService, key: string, value: any) {
+    private setTimerForProperty(service: RuleEngine.IRuleEngineService, key: string, value: any, delay = 0) {
+        var id = service.timer.setTimeout(() => {
+            console.log(`Timers: ${service.timer.list()}`);
+            console.log(`Feature ${this.feature.id}`);
+            console.log(`setting ${key}: ${value}`);
+            this.feature.properties[key] = value;
+            //service.updateFeature(this.feature);
+            this.updateProperty(service, key, this.feature.properties[key]);
+        }, delay);
+        console.log(`Timer ${id}: set ${key}: ${value}`)
+        console.log('Timers: ' + service.timer.list());
+    }
+
+    private updateProperty(service: RuleEngine.IRuleEngineService, key: string, value: any) {
         var f = this.feature;
         if (!f.hasOwnProperty('logs')) f.logs = {};
-        if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
-        var log = { "prop": key, "ts": service.timer.now(), "value": value};
-        f.logs[key].push(log);
-        var msg = { "featureId": this.feature.id, "logs": log };
-        service.updateFeature(this.feature);
+        var logs: { [prop: string]: DynamicLayer.IPropertyUpdate[] } = {};
+            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+            var log: DynamicLayer.IPropertyUpdate = {
+                "prop": key,
+                "ts": service.timer.now(),
+                "value": value
+            };
+            f.logs[key].push(log);
+            logs[key] = f.logs[key];
+
+            // FIXME Duplicate code
+            key = "updated";
+            value = service.timer.now();
+            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+            var log: DynamicLayer.IPropertyUpdate = {
+                "prop": key,
+                "ts": service.timer.now(),
+                "value": value
+            };
+            f.logs[key].push(log);
+            logs[key] = f.logs[key];
+
+        var msg: DynamicLayer.IMessageBody = {
+            "featureId": this.feature.id,
+            "logs": logs
+        };
+        //msg.logs.push(f.logs[key]);
+        console.log('Log message: ');
+        console.log(JSON.stringify(msg, null, 2));
+        service.layer.connection.updateFeature(service.layer.layerId, msg, "logs-update");
+        //service.updateLog(this.feature.id, msg);
         //service.updateFeature(ws.activeLayerId, msg, "logs-update");
     }
 

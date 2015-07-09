@@ -23,6 +23,7 @@ export interface IRuleEngineService {
 }
 
 export class RuleEngine {
+    private loadedScripts: string[] = []; // needed to restart
     private worldState: WorldState = new WorldState();
     /** A set of rules that are active but have not yet fired. */
     private activeRules: Rule.IRule[] = [];
@@ -45,7 +46,7 @@ export class RuleEngine {
     service: IRuleEngineService = {};
 
     constructor(layer: DynamicLayer.IDynamicLayer) {
-        this.timer = new HyperTimer( { rate: 1, time: new Date()});
+        this.timer = new HyperTimer();
 
         this.service.updateFeature = (feature: GeoJSON.IFeature) => layer.updateFeature(feature);
         this.service.updateLog = (featureId: string, msgBody: DynamicLayer.IMessageBody) => layer.updateLog(featureId, msgBody);
@@ -53,17 +54,44 @@ export class RuleEngine {
         this.service.activateRule = (ruleId: string) => this.activateRule(ruleId);
         this.service.deactivateRule = (ruleId: string) => this.deactivateRule(ruleId);
         this.service.timer = this.timer;
+        this.timer.on('error', (err) => {
+            console.log('Error:', err);
+        });
 
         layer.on("featureUpdated", (layerId: string, featureId: string) => {
             console.log(`Feature update with id ${featureId} and layer id ${layerId} received in the rule engine.`)
 
             this.worldState.activeFeature = undefined;
-            this.worldState.features.some(f => {
+            layer.geojson.features.some(f => {
                 if (f.id !== featureId) return false;
                 this.worldState.activeFeature = f;
                 this.evaluateRules(f);
                 return true;
             });
+        });
+
+        layer.connection.subscribe("rti", (msg: { action: string; data: any }, id: string) => {
+            switch (msg.data) {
+                case "restart":
+                    console.log("Rule engine: restarting script");
+                    this.timer.destroy();
+                    this.timer = new HyperTimer();
+                    this.timer.on('error', (err) => {
+                        console.log('Error:', err);
+                    });
+                    this.worldState = new WorldState();
+                    this.activeRules = [];
+                    this.inactiveRules = [];
+                    this.activateRules = [];
+                    this.deactivateRules = [];
+                    this.featureQueue = [];
+                    this.isBusy = false;
+                    var scriptCount = this.loadedScripts.length;
+                    this.loadedScripts.forEach(s => {
+                        this.loadRuleFile(s, this.timer.getTime());
+                    });
+                    break;
+            }
         });
     }
 
@@ -73,7 +101,6 @@ export class RuleEngine {
             if (rule.id !== ruleId) continue;
             rule.isActive = true;
             this.activeRules.push(rule);
-            // FIXME this.inactiveRules.splice(i, 1);
             return;
         }
     }
@@ -84,7 +111,6 @@ export class RuleEngine {
             if (rule.id !== ruleId) continue;
             rule.isActive = false;
             this.inactiveRules.push(rule);
-            // FIXME <this.activeRules.splice(i, 1);
             return;
         }
     }
@@ -100,7 +126,7 @@ export class RuleEngine {
      * @activationTime: Optional date that indicates when the rules are activated.
      */
     loadRules(filename: string | string[], activationTime?: Date) {
-        if (typeof activationTime === 'undefined') activationTime = new Date();
+        if (typeof activationTime === 'undefined') activationTime = this.timer.getTime();
         if (typeof filename === "string") {
             this.loadRuleFile(filename, activationTime);
         } else {
@@ -112,6 +138,8 @@ export class RuleEngine {
      * Internal method to actually load a rule file.
      */
     private loadRuleFile(filename: string, activationTime: Date) {
+        if (this.loadedScripts.indexOf(filename) < 0) this.loadedScripts.push(filename);
+
         fs.readFile(filename, 'utf8', (err, data) => {
             if (err) {
                 console.error('Error opening rules: ' + filename);
@@ -123,11 +151,11 @@ export class RuleEngine {
             geojson.features.forEach(f => {
                 this.worldState.features.push(f);
                 if (typeof f.properties === 'undefined' || !f.properties.hasOwnProperty("_rules")) return;
-                // TODO Add feature to world state.
                 var rules = f.properties["_rules"];
                 /*console.log(JSON.stringify(rules, null, 2));*/
                 rules.forEach(r => this.addRule(r, f, activationTime));
             });
+            this.evaluateRules();
         });
     }
 
@@ -150,7 +178,6 @@ export class RuleEngine {
      * Evaluate the rules, processing the current feature
      */
     evaluateRules(feature?: GeoJSON.IFeature) {
-        console.log('evaluating rules...');
         if (this.isBusy) {
             console.warn("Added feature ${feature.id} to the queue (#items: $this.featureQueue.length}).");
             this.featureQueue.push(feature);
@@ -160,6 +187,7 @@ export class RuleEngine {
         // Update the set of applicable rules
         this.activeRules   = this.activeRules.filter(r => r.isActive);
         this.inactiveRules = this.inactiveRules.filter(r => !r.isActive);
+        console.log(`Starting to evaluate ${this.activeRules.length} rules...`);
         // Process all rules
         this.worldState.activeFeature = feature;
         this.activeRules.forEach(r => r.process(this.worldState, this.service));
@@ -191,5 +219,6 @@ export class RuleEngine {
             var f = this.featureQueue.pop();
             this.evaluateRules(f);
         }
+        console.log('Ready evaluating rules...');
     }
 }

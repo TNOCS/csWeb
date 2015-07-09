@@ -24,6 +24,23 @@
             height: 100%;
         }
 
+        .card-new-button {
+            position: absolute;
+            top:20px;
+            right:-25px;
+            width: 50px;
+            height:50px;
+            color:white;
+            background-color: gray;
+            border-radius:  25px;
+            cursor:pointer;
+
+        }
+
+        .card-new-button:hover{
+            background-color:black;
+        }
+
         .card-item {
             min-height: 65px;
             margin-bottom: 20px;
@@ -166,6 +183,11 @@
             right: -15px;
             overflow-y: scroll;
         }
+
+        .available-featuretype
+        {
+            font-size:14px;
+        }
     </style>
 
     <div id="columns">
@@ -173,4 +195,14 @@
             <kanban-column column="column" class="kanbanColumn-column" />
 
         </div>
+
+        <div class="card-new-button dropdown" tooltip="add new card"  tooltip-placement="right" tooltip-trigger="mouseenter" tooltip-append-to-body="false">
+            <span class="fa fa-2x fa-plus" style="margin-left:14px;margin-top:12px;" data-toggle="dropdown"></span>
+            <ul class="dropdown-menu" role="menu" style="color:black">
+                <li class="available-featuretype" ng-repeat="(key,val) in vm.featureTypes">
+                    <a ng-click="vm.addFeature(key)"><img ng-src="{{val.style.iconUri}}"><span style="margin-left:8px;font-size:18px">{{val.name}}</span></a></li>
+            </ul>
+        </div>
+
+
     </div>

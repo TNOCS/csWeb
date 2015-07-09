@@ -212,7 +212,7 @@ module csComp.Services {
                                 })
                             }
                             catch (e) {
-                                console.warn('error updating feature');
+                                console.warn('Error updating feature: ' + JSON.stringify(e, null, 2));
                             }
                         }
                         break;
@@ -276,16 +276,58 @@ module csComp.Services {
 
     export class AccessibilityDataSource extends GeoJsonSource {
         title = "Accessibility datasource";
+        private routers;
+        private isInitialized = false;
 
         constructor(public service: csComp.Services.LayerService) {
             super(service);
         }
 
+        public init() {
+            this.routers = {};
+            if (this.service.project.otpServer && this.service.project.otpServer !== '') {
+                //Get a list of OTP routers and the geographic area they cover
+                $.getJSON('/api/accessibility', {
+                    url: this.service.project.otpServer
+                }, ((data, textStatus) => { this.initRouters(data, textStatus) }))
+            }
+            this.isInitialized = true;
+        }
+
+        private initRouters(data, textStatus) {
+            var parsedData = JSON.parse(data.body);
+            if (parsedData.hasOwnProperty('error')) {
+                console.log('Error initializing routers: ' + parsedData['error'].msg);
+            }
+            else { // There is data
+                if (parsedData.hasOwnProperty('routerInfo')) {
+                    var routerInfo = parsedData['routerInfo'];
+                    var initCount = 0;
+                    routerInfo.forEach((ri) => {
+                        if (ri.hasOwnProperty('routerId') && ri.hasOwnProperty('polygon')) {
+                            var poly = new L.Polygon([]);
+                            var coords = ri.polygon.coordinates;
+                            coords[0].forEach((c) => {
+                                poly.addLatLng(new L.LatLng(c[1], c[0]));
+                            });
+                            this.routers[ri.routerId] = poly;
+                            initCount += 1;
+                        }
+                    });
+                    console.log('OTP server initialized ' + initCount + '/' + routerInfo.length + ' routers');
+                }
+            }
+        }
+
         public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
+            if (!this.isInitialized) this.init();
             this.layer = layer;
             layer.type = 'accessibility';
             // Open a layer URL
             layer.isLoading = true;
+
+            // Find suitable router
+            layer.url = this.chooseRouter(layer.url);
 
             $.getJSON('/api/accessibility', {
                 url: layer.url
@@ -293,35 +335,95 @@ module csComp.Services {
 
         }
 
+        private chooseRouter(url: string): string {
+            var urlParameters = csComp.Helpers.parseUrlParameters(this.layer.url, '?', '&', '=');
+            if (urlParameters.hasOwnProperty('fromPlace')) {
+                var coords = urlParameters['fromPlace'].split('%2C');
+                if (isNaN(+coords[0]) || isNaN(+coords[1])) return url;
+                var latlng = new L.LatLng(+coords[0], +coords[1]);
+                for (var key in this.routers) {
+                    if (this.routers.hasOwnProperty(key)) {
+                        var polygon: L.Polygon = this.routers[key];
+                        if (polygon.getBounds().contains(latlng)) {
+                            url = url.replace(this.getCurrentRouter(urlParameters['baseUrl']), key);
+                        }
+                    }
+                }
+            }
+            return url;
+        }
+
+        private getCurrentRouter(base: string) {
+            var splitted = base.split('/');
+            var routerIndex = -1;
+            splitted.some((s, index) => {
+                if (s === 'routers') {
+                    routerIndex = index + 1;
+                    return true;
+                }
+                return false;
+            });
+            return splitted[routerIndex];
+        }
+
         private processReply(data, textStatus, clbk) {
-            var data = JSON.parse(data.body);
-            if (data.hasOwnProperty('features') || data.hasOwnProperty('geometries')) { // Reply is in geoJson format
-                if (this.layer.hasOwnProperty('data') && this.layer.data.hasOwnProperty('features')) {
-                    data.features.forEach((f) => {
-                        this.layer.data.features.push(f);
-                        this.service.initFeature(f, this.layer);
+            var parsedData = JSON.parse(data.body);
+            if (parsedData.hasOwnProperty('error')) {
+                console.log('Error: ' + parsedData['error'].msg);
+            }
+            else { // There is data
+                if (parsedData.hasOwnProperty('features')) { // Reply is in geoJson format
+                    //Add arrival times when leaving now
+                    var startTime = new Date(Date.now());
+                    parsedData.features.forEach((f) => {
+                        f.properties['arriveTime'] = (new Date(startTime.getTime() + f.properties['time'] * 1000)).toISOString();
                     });
-                } else {
-                    this.layer.count = 0;
-                    this.layer.data = data;
-                    this.layer.data.features.forEach((f) => {
-                        this.service.initFeature(f, this.layer);
+                    if (this.layer.hasOwnProperty('data') && this.layer.data.hasOwnProperty('features')) {
+                        parsedData.features.forEach((f) => {
+                            this.layer.data.features.push(f);
+                        });
+                    } else {
+                        this.layer.count = 0;
+                        this.layer.data = parsedData;
+                    }
+                } else { // Reply is in routeplanner format
+                    var fromLoc = parsedData.plan.from;
+                    var toLoc = parsedData.plan.to;
+                    this.layer.data = {};
+                    this.layer.data.type = 'FeatureCollection';
+                    this.layer.data.features = [];
+                    parsedData.plan.itineraries.forEach((it) => {
+                        var route = new L.Polyline([]);
+                        it.legs.forEach((leg) => {
+                            var polyLeg: L.Polyline = L.Polyline.fromEncoded(leg.legGeometry.points);
+                            polyLeg.getLatLngs().forEach((ll) => {
+                                route.addLatLng(ll);
+                            });
+                        });
+                        var geoRoute = route.toGeoJSON();
+                        this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates,
+                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: it.duration, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString() }));
                     });
                 }
-            } else { // Reply is in routeplanner format
-                //TODO: decode route which is in encoded polyline format: https://developers.google.com/maps/documentation/utilities/polylinealgorithm
-                var fromLoc = data.plan.from;
-                var toLoc = data.plan.to;
-                this.layer.data = {};
-                this.layer.data.type = 'FeatureCollection';
-                this.layer.data.features = [];
-                this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature([[fromLoc.lon, fromLoc.lat], [toLoc.lon, toLoc.lat]], { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: data.plan.itineraries[0].duration }));
-                this.layer.data.features.forEach((f) => {
+                this.layer.data.features.forEach((f: IFeature) => {
+                    f.isInitialized = false;
                     this.service.initFeature(f, this.layer);
                 });
             }
             this.layer.isLoading = false;
             clbk(this.layer);
         }
+    }
+
+    export class EsriJsonSource extends GeoJsonSource {
+        title = "esrijson";
+        connection: Connection;
+
+        constructor(public service: LayerService) {
+            super(service);
+            // subscribe
+        }
+
+
     }
 }

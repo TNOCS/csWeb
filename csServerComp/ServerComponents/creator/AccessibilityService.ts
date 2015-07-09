@@ -27,7 +27,6 @@ class AccessibilityService implements IApiService {
 
     private getAccessibility(url: string, res: express.Response) {
         console.log('Accessibility request: ' + url);
-        //feedUrl = 'http://rss.politie.nl/rss/algemeen/ab/algemeen.xml';
 
         var options: request.Options = {
             url: url,

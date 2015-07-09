@@ -16,14 +16,14 @@
             <div class="controls" ng-if="vm.transportMode === 'WALK'">
                 <span>
                     <label class="input-xlarge" for="walkSpeed">Walk speed</label>
-                    <input id="walkSpeed" type="number" step="any" placeholder="Walk speed" class="input-xlarge" ng-model="vm.urlParameters['walkSpeed']" style="margin:5px; max-width:100px;">mph
+                    <input id="walkSpeed" type="number" step="any" placeholder="Walk speed" class="input-xlarge" ng-model="vm.walkSpeedKm" style="margin:5px; max-width:100px;">km/u
                 </span>
             </div>
 
             <div class="controls" ng-if="vm.transportMode === 'BICYCLE'">
                 <span>
                     <label class="input-xlarge" for="bikeSpeed">Bike speed</label>
-                    <input id="bikeSpeed" type="number" step="any" placeholder="Bike speed" class="input-xlarge" ng-model="vm.urlParameters['bikeSpeed']" style="margin:5px; max-width:100px;">mph
+                    <input id="bikeSpeed" type="number" step="any" placeholder="Bike speed" class="input-xlarge" ng-model="vm.bikeSpeedKm" style="margin:5px; max-width:100px;">km/u
                 </span>
             </div>
 
@@ -31,6 +31,20 @@
                 <span>
                     <label class="input-xlarge" for="precisionMeters">Precision</label>
                     <input id="precisionMeters" type="number" placeholder="Precision" class="input-xlarge" ng-model="vm.urlParameters['precisionMeters']" style="margin:5px; max-width:100px;">meter
+                </span>
+            </div>
+
+            <div class="controls">
+                <span>
+                    <label class="input-xlarge" for="date">Date</label>
+                    <input id="date" type="text" placeholder="mm-dd-yyyy" class="input-xlarge" ng-model="vm.urlParameters['date']" style="margin:5px; max-width:100px;">
+                </span>
+            </div>
+
+            <div class="controls">
+                <span>
+                    <label class="input-xlarge" for="time">Time</label>
+                    <input id="time" type="text" placeholder="hh:mm" class="input-xlarge" ng-model="vm.time" style="margin:5px; max-width:100px;">
                 </span>
             </div>
 
@@ -44,7 +58,11 @@
                 </div>
             </li>
 
-            <button class="rightpanel-header-button" ng-click="vm.addCutoffTime()"><span class="fa fa-plus" style="padding:5px;"><div style="margin-left:5px;display:inline-block;">Add cut-off time</div></span></button>
+            <button class="rightpanel-header-button" ng-click="vm.addCutoffTime()">
+                <span class="fa fa-plus" style="padding:5px;">
+                    <div style="margin-left:5px;display:inline-block;">Add cut-off time</div>
+                </span>
+            </button>
 
             <div class="controls" style="margin-top:10px; margin-left:10px;">
                 <button class="btn" ng-click="vm.refreshAccessibility()">Refresh accessibility</button>
