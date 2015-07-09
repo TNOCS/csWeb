@@ -83,6 +83,7 @@ module csComp.Services {
         actionServices: IActionService[] = [];
 
         public visual: VisualState = new VisualState();
+        throttleTimelineUpdate: Function;
 
         static $inject = [
             '$location',
@@ -130,6 +131,8 @@ module csComp.Services {
             //this.mapRenderers["leaflet"].enable();
 
             this.initLayerSources();
+            this.throttleTimelineUpdate = _.throttle(this.updateAllLogs, 500);
+
 
             //this.$dashboardService.init();
 
@@ -137,7 +140,8 @@ module csComp.Services {
                 switch (trigger) {
                     case 'focusChange':
                         this.updateSensorData();
-                        this.updateAllLogs();
+                        this.throttleTimelineUpdate();
+                        //this.updateAllLogs();
                         break;
                 }
             });
@@ -419,6 +423,7 @@ module csComp.Services {
             ]);
         }
 
+
         /** load external type resource for a project or layer */
         public loadTypeResources(url: any, requestReload: boolean, callback: Function) {
             if (url) {
@@ -642,7 +647,7 @@ module csComp.Services {
         public updateAllLogs() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
             this.project.features.forEach((f: IFeature) => {
-                if (f.layer.layerSource.title.toLowerCase() === "dynamicgeojson") {
+                if (f.layer.isDynamic) {
                     //if (f.gui.hasOwnProperty("lastUpdate") && this.project.timeLine.focusDate < f.gui["lastUpdate"])
                     this.updateLog(f);
                 }
@@ -668,6 +673,8 @@ module csComp.Services {
         public updateLog(f: IFeature) {
 
             var date = this.project.timeLine.focus;
+            //if (f.gui["lastCheck"] && f.gui["lastCheck"] > f.lastUpdated) return;
+            //console.log("updating log");
             var changed = false;
             if (f.logs && !this.isLocked(f)) {
                 // find all keys
@@ -684,15 +691,14 @@ module csComp.Services {
                             changed = true;
                         }
                     }
-
-
-
                 }
 
                 if (changed) {
+
                     this.calculateFeatureStyle(f);
                     this.activeMapRenderer.updateFeature(f);
                 }
+                f.gui["lastCheck"] = this.project.timeLine.focus;
             }
         }
 
@@ -808,6 +814,7 @@ module csComp.Services {
 
                 // add to crossfilter
                 layer.group.ndx.add([feature]);
+                feature.lastUpdated = new Date().getTime();
 
                 // resolve feature type
                 feature.fType = this.getFeatureType(feature);
@@ -820,6 +827,9 @@ module csComp.Services {
                 if (!feature.properties.hasOwnProperty('Name'))
                     Helpers.setFeatureName(feature, this.propertyTypeData);
 
+                this.calculateFeatureLastUpdated(feature);
+
+
                 this.calculateFeatureStyle(feature);
                 feature.propertiesOld = {};
                 this.trackFeature(feature);
@@ -829,6 +839,15 @@ module csComp.Services {
                 this.$messageBusService.publish("timeline", "updateFeatures");
             }
             return feature.type;
+        }
+
+        private calculateFeatureLastUpdated(feature: IFeature) {
+            if (feature.logs) {
+                for (var l in feature.logs) {
+                    var last = feature.logs[l][feature.logs[l].length - 1];
+                    if (last.ts > feature.lastUpdated) feature.lastUpdated = last.ts;
+                }
+            }
         }
 
         /** remove feature */
@@ -2006,7 +2025,7 @@ module csComp.Services {
             console.log('saving feature');
             f.properties["updated"] = new Date().getTime();
             // check if feature is in dynamic layer
-            if (f.layer.type.toLowerCase() === "dynamicgeojson") {
+            if (f.layer.isDynamic) {
                 var l = this.trackFeature(f);
 
                 if (logs) {
