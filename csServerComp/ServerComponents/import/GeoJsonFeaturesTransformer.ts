@@ -29,15 +29,15 @@ class GeoJsonFeaturesTransformer implements transform.ITransform {
 
     create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
       var t = new stream.Transform();
-      stream.Transform.call(t);
+      /*stream.Transform.call(t);*/
 
       var split = -1;
       var headers :string[] = this.headers;
 
       t.setEncoding("utf8");
       t._transform = (chunk, encoding, done) => {
-          // console.log("##### GJFT #####");
-          // console.log(chunk.toString("utf8"));
+           /*console.log("##### GJFT #####");*/
+           /*console.log(chunk.toString("utf8"));*/
 
           var line :string= chunk.toString("utf8");
 

@@ -9,6 +9,7 @@ import request                    = require("request");
 import JSONStream                 = require('JSONStream');
 import CsvToJsonTransformer = require("./CsvToJsonTransformer");
 import fs = require("fs");
+import util = require("util");
 
 var split = require("split");
 var es = require('event-stream');
@@ -78,11 +79,14 @@ class ImporterRepositoryService implements IImporterRepositoryService {
             importer.lastRun = new Date();
 
             var sourceRequest = request({ url: importer.sourceUrl });
-            // var stream: NodeJS.ReadWriteStream = sourceRequest.pipe(split());
-            var stream: NodeJS.ReadWriteStream = null;
+            var stream: NodeJS.ReadWriteStream = sourceRequest.pipe(split());
+            // var stream: NodeJS.ReadWriteStream = null;
 
             importer.transformers.forEach(transformerDefinition=>{
               var transformerInstance = this.getTransformerInstance(transformerDefinition);
+
+              transformerInstance.initialize(transformerDefinition)
+
               if (!transformerInstance) {
                 console.error("Unknown transformer type: " + transformerDefinition.type);
               }
@@ -103,38 +107,11 @@ class ImporterRepositoryService implements IImporterRepositoryService {
 
             stream.on("end", ()=> {
               var currTs = new Date();
-              var diff = (currTs.getTime() - startTs.getTime())/1000;
-              console.log("Finished: " + index + " (" + diff + "s)");
+              var diff = ( currTs.getTime() - startTs.getTime() ) / 1000;
+              console.log(new Date() + ": Finished in " + diff + " seconds");
             });
 
             stream.pipe(es.mapSync(function(data) {
-              console.log("##### Output record:");
-
-              var jsonData = JSON.parse(data);
-
-              var folder = "public/data";
-              var fileName = "zorgkaart";
-
-              if (jsonData.features[0].properties[importer.title]) {
-                // fileName = jsonData.features[0].properties[importer.title];
-                var subfolder = jsonData.features[0].properties[importer.title];
-                subfolder = subfolder.replace(/[\/\\\|&;\$%@"<>\(\)\+,]/g, "");
-                console.log(subfolder);
-                folder = "public/data/" + subfolder;
-              } else {
-                // fileName = importer.title;
-                folder = "public/data/" + importer.title;
-              }
-
-              if (!fs.existsSync(folder)) {
-                console.log("Folder does not exist, create");
-                fs.mkdirSync(folder);
-              }
-
-              var outputFileStream = fs.createWriteStream(folder + "/" + fileName + ".json");
-              outputFileStream.write(data, "utf8");
-
-              console.log("Output written to " + folder + "/" + fileName + ".json");
 
               var currTs = new Date();
               var diff = (currTs.getTime() - prevTs.getTime());
@@ -182,7 +159,9 @@ class ImporterRepositoryService implements IImporterRepositoryService {
     getTransformerInstance(transformerDefinition: transform.ITransform) : transform.ITransform {
       var transformer = this.transformers.filter(t=>t.type == transformerDefinition.type)[0];
 
-      return transformer;
+      var instance = Object.create(transformer);
+
+      return instance;
 /*
       var newInstance: any;
 

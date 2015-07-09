@@ -17,13 +17,13 @@
 html, body, #map {
     font-family: ROSans;
     height: 100%;
-    overflow: hidden;
+    overflow-y: none;
     width: 100%;
     background: beige;
 }
 html, body, #container {
-    height: 100%;
-    overflow: hidden;
+    height: calc( 100% - 15px );
+    overflow-y: none;
     width: 100%;
 }
 body {
