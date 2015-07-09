@@ -1,19 +1,6 @@
 module csComp.Services {
 
-    export interface IEvent {
-        id: string;
-        title: string;
-        color: string;
-        start: number;
-    }
 
-    export class Event implements IEvent {
-        id: string;
-        title: string;
-        color: string;
-        start: number;
-        startDate = (): Date => { return new Date(this.start); }
-    }
 
     export class Log {
         /**
