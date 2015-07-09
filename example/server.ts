@@ -1,19 +1,24 @@
 require('rootpath')();
-﻿import express                  = require('express');
-import http                     = require('http');
-import path                     = require('path');
+﻿import express = require('express');
+import http = require('http');
+import path = require('path');
 //import offlineSearch          = require('cs-offline-search');
-import cc                       = require("ServerComponents/dynamic/ClientConnection");
-import creator                  = require('ServerComponents/creator/MapLayerFactory');
+import cc = require("ServerComponents/dynamic/ClientConnection");
+import creator = require('ServerComponents/creator/MapLayerFactory');
 import ProjectRepositoryService = require('ServerComponents/creator/ProjectRepositoryService');
-import DataSource               = require("ServerComponents/dynamic/DataSource");
-import MessageBus               = require('ServerComponents/bus/MessageBus');
-import BagDatabase              = require('ServerComponents/database/BagDatabase');
-import ConfigurationService     = require('ServerComponents/configuration/ConfigurationService');
-import DynamicProject           = require("ServerComponents/dynamic/DynamicProject");
-import LayerDirectory           = require("ServerComponents/dynamic/LayerDirectory");
-import store                    = require('ServerComponents/import/Store');
-import ApiServiceManager        = require('ServerComponents/api/ApiServiceManager');
+import DataSource = require("ServerComponents/dynamic/DataSource");
+import MessageBus = require('ServerComponents/bus/MessageBus');
+import BagDatabase = require('ServerComponents/database/BagDatabase');
+import ConfigurationService = require('ServerComponents/configuration/ConfigurationService');
+import DynamicProject = require("ServerComponents/dynamic/DynamicProject");
+import LayerDirectory = require("ServerComponents/dynamic/LayerDirectory");
+import store = require('ServerComponents/import/Store');
+import ApiServiceManager = require('ServerComponents/api/ApiServiceManager');
+
+import LayerManager = require('ServerComponents/api/LayerManager');
+import RestAPI = require('ServerComponents/api/RestAPI');
+import SocketIOAPI = require('ServerComponents/api/SocketIOAPI');
+import MongoDB = require('ServerComponents/api/MongoDB');
 
 /**
  * Create a search index file which can be loaded statically.
@@ -24,14 +29,16 @@ import ApiServiceManager        = require('ServerComponents/api/ApiServiceManage
 // });
 
 // setup socket.io object
-var favicon    = require('serve-favicon');
+var favicon = require('serve-favicon');
 var bodyParser = require('body-parser')
-var server     = express();
+var server = express();
+
+
 
 var httpServer = require('http').Server(server);
-var cm         = new cc.ConnectionManager(httpServer);
+var cm = new cc.ConnectionManager(httpServer);
 var messageBus = new MessageBus.MessageBusService();
-var config     = new ConfigurationService('./configuration.json');
+var config = new ConfigurationService('./configuration.json');
 
 //This line is required when using JX to run the server, or else the input-messages coming from the Excel file will cause an error: https://github.com/jxcore/jxcore/issues/119
 //require('http').setMaxHeaderLength(26214400);
@@ -69,6 +76,21 @@ apiServiceMgr.addService(resourceTypeStore);
 
 server.use(express.static(path.join(__dirname, 'public')));
 console.log("started");
+
+
+
+var layers = new LayerManager.LayerManager();
+layers.init();
+
+var restApi = new RestAPI.RestAPI(server);
+layers.addInterface("rest", restApi, {});
+
+var socketIoApi = new SocketIOAPI.SocketIOAPI(server);
+layers.addInterface("socketio", socketIoApi, {});
+
+var mongoDbStorage = new MongoDB.MongoDBStorage();
+layers.addStorage("mongo", mongoDbStorage, {});
+
 
 httpServer.listen(server.get('port'), () => {
     console.log('Express server listening on port ' + server.get('port'));
