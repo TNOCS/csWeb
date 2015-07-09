@@ -5,10 +5,14 @@ export interface IApiInterface {
 export interface IStorage {
     init(layerManager: LayerManager, options: any)
     addLayer(layer: Layer);
+    delFeature(layer: Layer, featureId: string);
+    addFeature(layer: Layer, feature: any);
+    getFeature(layer: Layer, featureId: string);
 }
 
 export class Layer {
     public storage: string;
+    public id: string;
     public features: any[] = [];
 }
 
@@ -38,9 +42,21 @@ export class LayerManager {
         s.init(this, options);
     }
 
-    public addFeature(f: any) {
+    public addFeature(layer: Layer, f: any) {
         console.log('feature added');
+        //volg ik het zo goed?
+        var s = this.storages[f.storage];
+        s.addFeature(layer, f);
+    }
 
+    public getFeature(layer: Layer, featureId: string) {
+      var s = this.storages[layer.storage];
+      s.getFeature(layer, featureId);
+    }
+
+    public delFeature(layer: Layer, featureId: string) {
+      var s = this.storages[layer.storage];
+      s.delFeature(layer, featureId);
     }
 
 }
