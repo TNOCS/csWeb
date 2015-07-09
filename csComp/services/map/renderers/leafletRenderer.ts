@@ -20,9 +20,33 @@ module csComp.Services {
                 //var tl  = L.map("mapleft", {
                 zoomControl: false,
                 maxZoom: 19,
-                attributionControl: true
+                attributionControl: true,
+                contextmenu: true,
+                contextmenuWidth: 140,
+                contextmenuItems: [{
+                    text: 'Show coordinates',
+                    callback: () => { alert('test') }
+                }, {
+                        text: 'Center map here',
+                        callback: () => { alert('test') }
+                    }, '-', {
+                        text: 'Zoom in',
+                        icon: 'images/zoom-in.png',
+                        callback: () => { alert('test') }
+                    }, {
+                        text: 'Zoom out',
+                        icon: 'images/zoom-out.png',
+                        callback: () => { alert('test') }
+                    }]
+
             });
             this.map = this.service.$mapService.map;
+
+
+            /*this.map.on('contextmenu', (e: any) => {
+                alert(e.latlng);
+            });*/
+
 
             this.service.$mapService.map.on('moveend', (t, event: any) => {
                 var b = (<L.Map>(this.service.$mapService.map)).getBounds();
@@ -353,7 +377,7 @@ module csComp.Services {
         }
 
         /**
-         * add a feature
+         * add a feature 
          */
         public createFeature(feature: IFeature): any {
             //this.service.initFeature(feature,layer);
@@ -362,7 +386,14 @@ module csComp.Services {
             switch (feature.geometry.type) {
                 case 'Point':
                     var icon = this.getPointIcon(feature);
-                    marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), { icon: icon });
+                    marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
+                        icon: icon,
+                        contextmenu: true,
+                        contextmenuInheritItems: false,
+                        contextmenuItems: [{
+                            text: 'Marker item'
+                        }]
+                    });
 
                     break;
                 default:
