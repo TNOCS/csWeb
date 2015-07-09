@@ -794,7 +794,7 @@ module csComp.Services {
 
                 // Do we have a name?
                 if (!feature.properties.hasOwnProperty('Name'))
-                    Helpers.setFeatureName(feature);
+                    Helpers.setFeatureName(feature, this.propertyTypeData);
 
                 this.calculateFeatureStyle(feature);
                 feature.propertiesOld = {};

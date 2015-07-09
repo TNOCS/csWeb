@@ -42,6 +42,7 @@ module KanbanColumn {
         ];
 
         public sortOptions = [];
+        public layer: csComp.Services.ProjectLayer;
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -208,20 +209,24 @@ module KanbanColumn {
             //this.$layerService.selectFeature(feature);
         }
 
-        /** make sure all layers/feeds are loaded */
+        /** make sure all layers/feeds are loaded
+        we only use the first one for now
+         */
         initLayers() {
             var c = this.$scope.column;
 
 
-            if (c.filters.layerIds) {
-                c.filters.layerIds.forEach((layer: string) => {
-                    var l = this.$layerService.findLayer(layer);
-                    if (l) {
-                        this.$layerService.addLayer(l, (t) => {
 
-                        });
-                    }
-                });
+
+            if (c.filters.layerIds && c.filters.layerIds.length > 0) {
+                var lid = c.filters.layerIds[0];
+                this.layer = this.$layerService.findLayer(lid);
+                if (this.layer) {
+                    this.$layerService.addLayer(this.layer, (t) => {
+                    });
+                }
+
+
 
 
             };

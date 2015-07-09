@@ -54,20 +54,6 @@ module csComp.Services {
                                 data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
                             }
 
-                            // check if there are events definined
-                            if (data.events && this.service.timeline) {
-                                layer.events = data.events;
-                                var devents = [];
-                                layer.events.forEach((e: Event) => {
-                                    if (!e.id) e.id = Helpers.getGuid();
-                                    devents.push({
-                                        'start': new Date(e.start),
-                                        'content': e.title
-                                    });
-                                });
-                                this.service.timeline.draw(devents);
-                            }
-
                             // add featuretypes to global featuretype list
                             if (data.featureTypes) for (var featureTypeName in data.featureTypes) {
                                 if (!data.featureTypes.hasOwnProperty(featureTypeName)) continue;
@@ -276,18 +262,22 @@ module csComp.Services {
 
     export class AccessibilityDataSource extends GeoJsonSource {
         title = "Accessibility datasource";
-        private routers = {};
+        private routers;
+        private isInitialized = false;
 
         constructor(public service: csComp.Services.LayerService) {
             super(service);
-            //this.init();
         }
 
         public init() {
-            //Get a list of OTP routers and the geographic area they cover
-            $.getJSON('/api/accessibility', {
-                url: 'http://localhost:8080/otp/routers'
-            }, ((data, textStatus) => { this.initRouters(data, textStatus) }))
+            this.routers = {};
+            if (this.service.project.otpServer && this.service.project.otpServer !== '') {
+                //Get a list of OTP routers and the geographic area they cover
+                $.getJSON('/api/accessibility', {
+                    url: this.service.project.otpServer
+                }, ((data, textStatus) => { this.initRouters(data, textStatus) }))
+            }
+            this.isInitialized = true;
         }
 
         private initRouters(data, textStatus) {
@@ -316,6 +306,7 @@ module csComp.Services {
         }
 
         public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
+            if (!this.isInitialized) this.init();
             this.layer = layer;
             layer.type = 'accessibility';
             // Open a layer URL
@@ -334,17 +325,31 @@ module csComp.Services {
             var urlParameters = csComp.Helpers.parseUrlParameters(this.layer.url, '?', '&', '=');
             if (urlParameters.hasOwnProperty('fromPlace')) {
                 var coords = urlParameters['fromPlace'].split('%2C');
+                if (isNaN(+coords[0]) || isNaN(+coords[1])) return url;
                 var latlng = new L.LatLng(+coords[0], +coords[1]);
                 for (var key in this.routers) {
                     if (this.routers.hasOwnProperty(key)) {
                         var polygon: L.Polygon = this.routers[key];
                         if (polygon.getBounds().contains(latlng)) {
-                            url = url.replace('/default/', '/'+key+'/');
+                            url = url.replace(this.getCurrentRouter(urlParameters['baseUrl']), key);
                         }
                     }
                 }
             }
             return url;
+        }
+
+        private getCurrentRouter(base: string) {
+            var splitted = base.split('/');
+            var routerIndex = -1;
+            splitted.some((s, index) => {
+                if (s === 'routers') {
+                    routerIndex = index + 1;
+                    return true;
+                }
+                return false;
+            });
+            return splitted[routerIndex];
         }
 
         private processReply(data, textStatus, clbk) {
@@ -357,7 +362,8 @@ module csComp.Services {
                     //Add arrival times when leaving now
                     var startTime = new Date(Date.now());
                     parsedData.features.forEach((f) => {
-                        f.properties['arriveTime'] = (new Date(startTime.getTime() + f.properties['time'] * 1000)).toISOString();
+                        f.properties['time'] = f.properties['time'] * 1000;
+                        f.properties['arriveTime'] = (new Date(startTime.getTime() + f.properties['time'])).toISOString();
                     });
                     if (this.layer.hasOwnProperty('data') && this.layer.data.hasOwnProperty('features')) {
                         parsedData.features.forEach((f) => {
@@ -382,7 +388,8 @@ module csComp.Services {
                             });
                         });
                         var geoRoute = route.toGeoJSON();
-                        this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates, { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: it.duration }));
+                        this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates,
+                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: (+it.duration)*1000, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString() }));
                     });
                 }
                 this.layer.data.features.forEach((f: IFeature) => {

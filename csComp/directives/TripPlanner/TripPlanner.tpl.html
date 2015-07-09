@@ -45,6 +45,20 @@
 
             <div class="controls">
                 <span>
+                    <label class="input-xlarge" for="date">Date</label>
+                    <input id="date" type="text" placeholder="mm-dd-yyyy" class="input-xlarge" ng-model="vm.urlParameters['date']" style="margin:5px; max-width:100px;">
+                </span>
+            </div>
+
+            <div class="controls">
+                <span>
+                    <label class="input-xlarge" for="time">Time</label>
+                    <input id="time" type="text" placeholder="hh:mm" class="input-xlarge" ng-model="vm.time" style="margin:5px; max-width:100px;">
+                </span>
+            </div>
+
+            <div class="controls">
+                <span>
                     <label class="input-xlarge" for="precisionMeters">Precision</label>
                     <input id="precisionMeters" type="number" placeholder="Precision" class="input-xlarge" ng-model="vm.urlParameters['precisionMeters']" style="margin:5px; max-width:100px;">meter
                 </span>

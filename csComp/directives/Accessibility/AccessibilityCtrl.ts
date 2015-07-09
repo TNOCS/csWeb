@@ -17,6 +17,7 @@ module Accessibility {
         private transportMode: string;
         private walkSpeedKm: number;
         private bikeSpeedKm: number;
+        private time: string;
         private cutoffTimes: number[];
         public urlKeys = ['arriveBy', 'fromPlace', 'date', 'time', 'mode', 'maxWalkDistance', 'walkSpeed', 'bikeSpeed',
             'maxTimeSec', 'precisionMeters', 'zDataType', 'coordinateOrigin', 'cutoffSec'];
@@ -59,6 +60,8 @@ module Accessibility {
         }
 
         public refreshAccessibility() {
+            this.urlParameters['mode'] = this.transportMode;
+            this.urlParameters['time'] = encodeURIComponent(this.time);
             if(this.walkSpeedKm) this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);
             if(this.bikeSpeedKm) this.urlParameters['bikeSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.bikeSpeedKm);
             var url = this.urlAddress + '?';
@@ -92,6 +95,9 @@ module Accessibility {
                 }
                 this.urlParameters[keyValue[0]] = (isNaN(+keyValue[1])) ? keyValue[1] : +keyValue[1];
             });
+            var d = new Date(Date.now());
+            this.time = ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+            this.urlParameters['date'] = (d.getMonth()+1) + '-' + d.getDate() + '-' + d.getFullYear();
             this.transportMode = this.urlParameters['mode'];
             if (this.urlParameters.hasOwnProperty('walkSpeed')) this.walkSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['walkSpeed']).toFixed(2);
             if (this.urlParameters.hasOwnProperty('bikeSpeed')) this.bikeSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['bikeSpeed']).toFixed(2);

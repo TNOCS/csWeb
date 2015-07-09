@@ -36,12 +36,22 @@ class BagDetailsTransformer implements transform.ITransform {
     }
 
     var t = new stream.Transform();
-    stream.Transform.call(t);
+    /*stream.Transform.call(t);*/
 
     var bagDb = new BagDatabase(config);
 
+    var index = 1;
+    var prevTs = new Date();
+
     t.setEncoding("utf8");
     t._transform =  (chunk, encoding, done) => {
+      /*console.log(".");*/
+
+      if (index % 100 == 0) {
+        var currTs = new Date();
+        console.log(new Date() + ": " + index + " entries processed; " + ( (currTs.getTime() - prevTs.getTime()) / 1000 / 100) + "s per feature");
+        prevTs = currTs;
+      }
       // console.log("##### BDT #####");
 
       // var startTs = new Date();
@@ -93,7 +103,10 @@ class BagDetailsTransformer implements transform.ITransform {
         });
       } catch(error) {
         console.log("Error querying bag: " + error);
+        index++;
+        prevTs = currTs;
       }
+      index++;
     };
 
     return t;
