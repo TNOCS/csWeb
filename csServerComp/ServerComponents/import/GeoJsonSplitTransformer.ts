@@ -74,19 +74,22 @@ class GeoJsonSplitTransformer implements transform.ITransform {
 
   create(config, opt?: transform.ITransformFactoryOptions): NodeJS.ReadWriteStream {
     var t = new stream.Transform();
-    stream.Transform.call(t);
+    /*stream.Transform.call(t);*/
 
     var baseGeo: any;
 
     var accumulator:any = {};
 
     t.setEncoding("utf8");
+    var index = 0;
     t._transform =  (chunk, encoding, done) => {
-      // var startTs = new Date();
-      // console.log((new Date().getTime() - startTs.getTime()) + ": start");
+       /*var startTs = new Date();*/
+       /*console.log((new Date().getTime() - startTs.getTime()) + ": start");*/
+       /*console.log(index++);*/
       var feature = JSON.parse(chunk);
 
       if (!feature.geometry) {
+        console.log("No geometry");
         done();
         return;
       }
@@ -126,15 +129,15 @@ class GeoJsonSplitTransformer implements transform.ITransform {
       done();
       // console.log((new Date().getTime() - startTs.getTime()) + ": finish");
     };
-
     t._flush = (done) => {
       try {
 
         var keys = Object.keys(accumulator);
-        // console.log(JSON.stringify(keys));
+         /*console.log(JSON.stringify(keys));*/
         // for(var wijkCode in keys) {
+        console.log(keys.length);
         keys.forEach(key=> {
-          // console.log(wijkCode);
+          /*console.log(key);*/
           var group = accumulator[key];
           // console.log ("#### push wijk: " + wijkCode + " - " + wijkFeatures.length + " features");
 
@@ -143,7 +146,6 @@ class GeoJsonSplitTransformer implements transform.ITransform {
             type: "FeatureCollection",
             features: group
           };
-
           t.push(JSON.stringify(groupGeoJson));
         });
         done();

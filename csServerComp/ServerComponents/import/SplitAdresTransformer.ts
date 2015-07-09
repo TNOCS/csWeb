@@ -42,7 +42,7 @@ class SplitAdresTransformer implements transform.ITransform {
 
   create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
     var t = new stream.Transform();
-    stream.Transform.call(t);
+    /*stream.Transform.call(t);*/
 
     t.setEncoding("utf8");
     t._transform =  (chunk, encoding, done) => {

@@ -58,15 +58,17 @@ class GeoJsonSaveTransformer implements transform.ITransform {
 
   create(config, opt?: transform.ITransformFactoryOptions): NodeJS.ReadWriteStream {
     var t = new stream.Transform();
-    stream.Transform.call(t);
+    /*stream.Transform.call(t);*/
 
+var index = 0;
     t.setEncoding("utf8");
     t._transform =  (chunk, encoding, done) => {
-      // var startTs = new Date();
+       var startTs = new Date();
       // console.log((new Date().getTime() - startTs.getTime()) + ": start");
+      /*console.log(index++);*/
       var featureCollection = JSON.parse(chunk);
 
-      // console.log("##### GJOT #####");
+       /*console.log("##### GJST #####");*/
       // console.log("=== Before:")
       // console.log(feature);
 
@@ -75,6 +77,7 @@ class GeoJsonSaveTransformer implements transform.ITransform {
         filename = featureCollection.features[0].properties[this.filenameKey] + ".json";
         filename = filename.replace(/[\/\\\|&;\$%@"<>\(\)\+,]/g, "");
       }
+
 
       if (!fs.existsSync(this.targetFolder)) {
         console.log("Folder does not exist, create " + this.targetFolder);
@@ -92,7 +95,6 @@ class GeoJsonSaveTransformer implements transform.ITransform {
       t.push(JSON.stringify(featureCollection));
 
       done();
-      // console.log((new Date().getTime() - startTs.getTime()) + ": finish");
     };
 
     return t;

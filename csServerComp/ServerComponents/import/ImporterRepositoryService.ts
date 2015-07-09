@@ -101,13 +101,30 @@ class ImporterRepositoryService implements IImporterRepositoryService {
               }
             });
 
+            var index = 0;
             var startTs = new Date();
+            var prevTs = new Date();
 
             stream.on("end", ()=> {
               var currTs = new Date();
               var diff = ( currTs.getTime() - startTs.getTime() ) / 1000;
               console.log(new Date() + ": Finished in " + diff + " seconds");
             });
+
+            stream.pipe(es.mapSync(function(data) {
+
+              var currTs = new Date();
+              var diff = (currTs.getTime() - prevTs.getTime());
+              if ( (index % 100) == 0) {
+
+                console.log(new Date() + ": " + index + "(" + diff / 100 + "ms per feature)");
+
+                prevTs = currTs;
+
+              }
+              // console.log(data);
+              index++;
+            }));
 
             console.log(new Date() + ": Started");
             res.send("");

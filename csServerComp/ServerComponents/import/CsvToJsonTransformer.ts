@@ -31,7 +31,7 @@ class CsvToJsonTransformer implements transform.ITransform {
 
     create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
       var t = new stream.Transform();
-      stream.Transform.call(t);
+      /*stream.Transform.call(t);*/
 
       var split = -1;
       var headers :string[] = this.headers;
