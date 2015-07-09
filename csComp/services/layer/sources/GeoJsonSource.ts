@@ -345,12 +345,25 @@ module csComp.Services {
                     if (this.routers.hasOwnProperty(key)) {
                         var polygon: L.Polygon = this.routers[key];
                         if (polygon.getBounds().contains(latlng)) {
-                            url = url.replace('/default/', '/' + key + '/');
+                            url = url.replace(this.getCurrentRouter(urlParameters['baseUrl']), key);
                         }
                     }
                 }
             }
             return url;
+        }
+
+        private getCurrentRouter(base: string) {
+            var splitted = base.split('/');
+            var routerIndex = -1;
+            splitted.some((s, index) => {
+                if (s === 'routers') {
+                    routerIndex = index + 1;
+                    return true;
+                }
+                return false;
+            });
+            return splitted[routerIndex];
         }
 
         private processReply(data, textStatus, clbk) {
@@ -389,7 +402,7 @@ module csComp.Services {
                         });
                         var geoRoute = route.toGeoJSON();
                         this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates,
-                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: it.duration, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString()}));
+                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: it.duration, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString() }));
                     });
                 }
                 this.layer.data.features.forEach((f: IFeature) => {
