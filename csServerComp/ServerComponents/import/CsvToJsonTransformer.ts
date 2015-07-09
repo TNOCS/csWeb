@@ -2,6 +2,8 @@ import Utils     = require("../helpers/Utils");
 import transform = require("./ITransform");
 import stream  = require('stream');
 
+var splitStream = require("split");
+
 class CsvToJsonTransformer implements transform.ITransform {
     id:          string;
     description: string;
@@ -48,7 +50,8 @@ class CsvToJsonTransformer implements transform.ITransform {
           }
 
           var lineMod = line.slice(1, line.length-1);
-          var fields = line.split(/\",\"/);
+          var fields = lineMod.split(/\",\"/);
+          // console.log(line);
 
           if (!headers) {
             headers = [];
@@ -72,6 +75,8 @@ class CsvToJsonTransformer implements transform.ITransform {
             done();
           }
         }
+
+    //var s = splitStream().pipe(t);
 
     return t;
   }

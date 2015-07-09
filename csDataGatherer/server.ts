@@ -18,9 +18,10 @@ import FieldFilterTransformer = require('./ServerComponents/import/FieldFilterTr
 import GeoJsonSplitTransformer = require('./ServerComponents/import/GeoJsonSplitTransformer');
 import GeoJsonFeaturesTransformer = require('./ServerComponents/import/GeoJsonFeaturesTransformer');
 import CollateStreamTransformer = require('./ServerComponents/import/CollateStreamTransformer');
+import GeoJsonSaveTransformer = require('./ServerComponents/import/GeoJsonSaveTransformer');
 
 var favicon = require('serve-favicon');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 
 var config = new ConfigurationService('./configuration.json');
 
@@ -55,16 +56,13 @@ var transformers = [
   new GeoJsonOutputTransformer("GeoJSON output"),
   new GeoJsonSplitTransformer("GeoJSON split"),
   new GeoJsonFeaturesTransformer("GeoJSON features input"),
-  new CollateStreamTransformer("Wait for complete stream")
+  new CollateStreamTransformer("Wait for complete stream"),
+  new GeoJsonSaveTransformer("Save GeoJSON")
 ]
 
 console.log(transformers.length);
+
 transformers.forEach( (t:any)=>{
-  t.initialize((error)=>{
-    if (error) {
-      throw new Error(error);
-    }
-  });
   repoService.addTransformer(t);
 });
 

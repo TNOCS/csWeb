@@ -65,6 +65,7 @@
         "./ServerComponents/import/GeoJsonAggregateTransformer.ts",
         "./ServerComponents/import/GeoJsonFeaturesTransformer.ts",
         "./ServerComponents/import/GeoJsonOutputTransformer.ts",
+        "./ServerComponents/import/GeoJsonSaveTransformer.ts",
         "./ServerComponents/import/GeoJsonSplitTransformer.ts",
         "./ServerComponents/import/IImport.ts",
         "./ServerComponents/import/IImporterRepositoryService.ts",

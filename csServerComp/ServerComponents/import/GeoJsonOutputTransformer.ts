@@ -26,8 +26,10 @@ class GeoJsonOutputTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(callback: (error)=>void) {
-
+  initialize(opt?: transform.ITransformFactoryOptions[], callback?: (error)=>void) {
+    if (callback) {
+      callback(null);
+    }
   }
 
   create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
