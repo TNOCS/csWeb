@@ -175,7 +175,31 @@ module csComp.Services {
             as.stop();
         }
 
+        /** Find a dashboard by ID */
+        public findDashboardById(dashboardId: string) {
+            var dashboard: csComp.Services.Dashboard;
+            this.project.dashboards.some(d => {
+                if (d.id !== dashboardId) return false;
+                dashboard = d;
+                return true;
+            });
+            return dashboard;
+        }
 
+        /** Find a widget by ID, optionally supplying its parent dashboard id. */
+        public findWidgetById(widgetId: string, dashboardId?: string) {
+            if (dashboardId) {
+                var dashboard = this.findDashboardById(dashboardId);
+                if (!dashboard) return null;
+                var widget: csComp.Services.IWidget;
+                dashboard.widgets.some(w => {
+                    if (w.id !== widgetId) return false;
+                    widget = w;
+                    return true;
+                });
+                return widget;
+            }
+        }
 
         /**
          * Initialize the available layer sources
