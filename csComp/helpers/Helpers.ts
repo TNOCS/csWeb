@@ -444,7 +444,7 @@
     export function joinUrlParameters(params: {[key: string]: any}, baseDelimiter: string, subDelimiter: string, valueDelimiter: string): string {
         var url = params['baseUrl'] + baseDelimiter;
         for (var key in params) {
-            if (params.hasOwnProperty(key) && key !== 'baseUrl') {
+            if (params.hasOwnProperty(key) && key !== 'baseUrl' && params[key]) {
                 url = url + key + valueDelimiter + params[key] + subDelimiter;
             }
         }
