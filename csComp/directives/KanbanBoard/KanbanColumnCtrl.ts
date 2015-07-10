@@ -100,6 +100,14 @@ module KanbanColumn {
             setInterval(() => { this.updateTime() }, 1000);
         }
 
+        public getClass(feature: csComp.Services.IFeature) {
+            if (typeof feature.properties === 'undefined') return "";
+            if (!feature.properties.hasOwnProperty("question")) return "";
+            return (feature.properties.hasOwnProperty("answered") && feature.properties["answered"] === true)
+                ? "isAnsweredQuestion"
+                : "isQuestion";
+        }
+
         public clickPrio($event) {
             // var dropdown: any = $($event.target, "> ul");
             // dropdown.css('top', angular.element($event.target).prop('offsetLeft') + "px");
