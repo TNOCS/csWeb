@@ -73,29 +73,58 @@ module KanbanColumn {
             else
                 this.setOrder(this.sortOptions[0]);
 
-            // FIXME Isn't it easier to immediately return false instead of using an object.
             $scope.columnFilter = (feature: csComp.Services.IFeature) => {
                 var result = true;
                 if (!$scope.column) return false;
+                // Check that the layerId is applicable.
+                if (result && !_.contains(this.column.filters.layerIds, feature.layerId)) return false;
+                // Role filter: is a simple AND filter.
                 if (this.column.filters.roles && feature.properties.hasOwnProperty('roles')) {
                     this.column.filters.roles.forEach((r: string) => {
                         if (!_.contains(feature.properties['roles'], r)) result = false;
                     });
                 }
-                if (result && !_.contains(this.column.filters.layerIds, feature.layerId)) return false;
-                if (result && this.column.filters.tags) {
-                    if (!feature.properties.hasOwnProperty('tags') && this.column.filters.tags && this.column.filters.tags.length > 0) return false;
-                    this.column.filters.tags.forEach((tag: string) => {
-                        if (tag[0] === "!") {
-                            var t = tag.slice(1, tag.length);
-                            if (_.contains(feature.properties['tags'], t)) result = false;
+                // Tag filter: complex filter, combines AND (nothing or +), OR (-), and NOT (~) operations. Based on first character:
+                if (result && this.column.filters.tags && this.column.filters.tags.length > 0) {
+                    if (!feature.properties.hasOwnProperty('tags')) return false;
+                    var tags = feature.properties['tags'];
+                    var or = false;
+                    this.column.filters.tags.some((tag: string) => {
+                        switch (tag[0]) {
+                            case '!':
+                            case '~':
+                                var t = tag.substr(1, tag.length-1);
+                                if (_.contains(tags, t)) result = false;
+                                break;
+                            case '-':
+                                or = true;
+                                break;
+                            default:
+                                if (!_.contains(tags, tag)) result = false;
+                                break;
                         }
-                        else if (!_.contains(feature.properties['tags'], tag)) result = false;
-                        // FIXME should return false I guess
-                        return;
-                    })
+                        return !result;
+                    });
+                    // Add the OR features: if any of the OR tags are true, the result is true
+                    if (result && or) {
+                        or = false;
+                        // Only check if there are OR tags (or === true), and we are still showing this item (result === true).
+                        this.column.filters.tags.some((tag: string) => {
+                            switch (tag[0]) {
+                                case '-':
+                                    var t = tag.substr(1, tag.length-1);
+                                    if (_.contains(tags, t)) or = true;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            return or;
+                        });
+                    } else {
+                        or = true;
+                    }
                 }
-                return result;
+                return result && or;
             }
             setInterval(() => { this.updateTime() }, 1000);
         }
