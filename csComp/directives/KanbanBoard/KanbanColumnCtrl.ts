@@ -17,6 +17,7 @@ module KanbanColumn {
     }
 
     export class Column {
+        id: string;
         filters: ColumnFilter;
         roles: string[];
         fields: any;
@@ -100,12 +101,9 @@ module KanbanColumn {
         }
 
         public clickPrio($event) {
-
-
             // var dropdown: any = $($event.target, "> ul");
             // dropdown.css('top', angular.element($event.target).prop('offsetLeft') + "px");
             // dropdown.css('left', angular.element($event.target).prop('offsetTop') + "px");
-
         }
 
         public createForm(feature: csComp.Services.IFeature) {
@@ -124,7 +122,6 @@ module KanbanColumn {
             delete feature.gui["questions"];
             this.$layerService.unlockFeature(feature);
             this.$layerService.saveFeature(feature, true);
-
         }
 
         public saveCategory(feature: csComp.Services.IFeature, property: string, value: string) {
@@ -157,7 +154,6 @@ module KanbanColumn {
         }
 
         public logFilter(feature: csComp.Services.IFeature) {
-
         }
 
         public startAction(action: string, feature: csComp.Services.IFeature) {
@@ -196,7 +192,6 @@ module KanbanColumn {
             } else {
                 this.$layerService.selectFeature(feature);
             }
-
         }
 
         editFeature(feature: csComp.Services.IFeature) {
@@ -215,9 +210,6 @@ module KanbanColumn {
         initLayers() {
             var c = this.$scope.column;
 
-
-
-
             if (c.filters.layerIds && c.filters.layerIds.length > 0) {
                 var lid = c.filters.layerIds[0];
                 this.layer = this.$layerService.findLayer(lid);
@@ -225,10 +217,6 @@ module KanbanColumn {
                     this.$layerService.addLayer(this.layer, (t) => {
                     });
                 }
-
-
-
-
             };
         }
     }
