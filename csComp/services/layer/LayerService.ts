@@ -1097,50 +1097,54 @@ module csComp.Services {
          * Creates a GroupStyle based on a property and adds it to a group.
          * If the group already has a style which contains legends, those legends are copied into the newly created group.
          * Already existing groups (for the same visualAspect) are replaced by the new group
+         * Restoring a previously used groupstyle is possible by sending that GroupStyle object
          */
-        public setStyle(property: any, openStyleTab = false, customStyleInfo?: PropertyInfo) {
+        public setStyle(property: any, openStyleTab = false, customStyleInfo?: PropertyInfo, groupStyle?: GroupStyle) {
             // parameter property is of the type ICallOutProperty. explicit declaration gives the red squigglies
             var f: IFeature = property.feature;
             if (f != null) {
                 var ft = this.getFeatureType(f);
 
-                // for debugging: what do these properties contain?
-                var layer = f.layer;
-                var lg = layer.group;
-
-                var gs = new GroupStyle(this.$translate);
-                gs.id = Helpers.getGuid();
-                gs.title = property.key;
-                gs.meta = property.meta;
-                gs.visualAspect = (ft.style && ft.style.drawingMode && ft.style.drawingMode.toLowerCase() == 'line') ? 'strokeColor' : 'fillColor';
-                gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
-
-                gs.property = property.property;
-                if (customStyleInfo) {
-                    gs.info = customStyleInfo;
-                    gs.fixedColorRange = true;
+                // use the groupstyle that was passed along, or create a new groupstyle if none is present
+                var gs;
+                if (groupStyle) {
+                    gs = groupStyle;
+                    gs.info = this.calculatePropertyInfo(f.layer.group, property.property);
                 } else {
-                    if (gs.info == null) gs.info = this.calculatePropertyInfo(layer.group, property.property);
-                }
+                    gs = new GroupStyle(this.$translate);
+                    gs.id = Helpers.getGuid();
+                    gs.title = property.key;
+                    gs.meta = property.meta;
+                    gs.visualAspect = (ft.style && ft.style.drawingMode && ft.style.drawingMode.toLowerCase() == 'line') ? 'strokeColor' : 'fillColor';
+                    gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
 
-                gs.enabled = true;
-                gs.group = layer.group;
-                gs.meta = property.meta;
+                    gs.property = property.property;
+                    if (customStyleInfo) {
+                        gs.info = customStyleInfo;
+                        gs.fixedColorRange = true;
+                    } else {
+                        if (gs.info == null) gs.info = this.calculatePropertyInfo(f.layer.group, property.property);
+                    }
 
-                var ptd = this.propertyTypeData[property.property];
-                if (ptd && ptd.legend) {
-                    gs.activeLegend = ptd.legend;
-                    gs.legends[ptd.title] = ptd.legend;
-                    gs.colorScales[ptd.title] = ['purple', 'purple'];
+                    gs.enabled = true;
+                    gs.group = f.layer.group;
+                    gs.meta = property.meta;
+
+                    var ptd = this.propertyTypeData[property.property];
+                    if (ptd && ptd.legend) {
+                        gs.activeLegend = ptd.legend;
+                        gs.legends[ptd.title] = ptd.legend;
+                        gs.colorScales[ptd.title] = ['purple', 'purple'];
+                    }
+                    if (ft.style && ft.style.fillColor) {
+                        gs.colors = ['white', 'orange'];
+                    } else {
+                        gs.colors = ['red', 'white', 'blue'];
+                    }
                 }
-                if (ft.style && ft.style.fillColor) {
-                    gs.colors = ['white', 'orange'];
-                } else {
-                    gs.colors = ['red', 'white', 'blue'];
-                }
-                this.saveStyle(layer.group, gs);
+                this.saveStyle(f.layer.group, gs);
                 this.project.features.forEach((fe: IFeature) => {
-                    if (fe.layer.group == layer.group) {
+                    if (fe.layer.group == f.layer.group) {
                         this.calculateFeatureStyle(fe);
                         this.activeMapRenderer.updateFeature(fe);
                     }
@@ -1731,12 +1735,18 @@ module csComp.Services {
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
                                     l.layerSource.refreshLayer(g.layers[g.layers.length - 1]);
                                 } else {
+                                    var currentStyle = g.styles;
                                     if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
-                                    l.layerSource.refreshLayer(g.layers[layerIndex]);
+                                    l.group = g;
+                                    //l.layerSource.refreshLayer(g.layers[layerIndex]);
+                                    this.removeLayer(g.layers[layerIndex]);
+                                    this.addLayer(g.layers[layerIndex], () => {
+                                        if (currentStyle && currentStyle.length > 0)
+                                            this.setStyle({feature: {featureTypeName: l.url + "#" + l.defaultFeatureType, layer: l}, property: currentStyle[0].property, key: currentStyle[0].title, meta: currentStyle[0].meta }, false, null, currentStyle[0]);
+                                    });
                                 }
                                 if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
-
                             });
 
                             // init group
