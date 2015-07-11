@@ -206,7 +206,7 @@ export class Rule implements IRule {
                                 else
                                     this.feature.properties[key].push(valp);
                                 //service.updateFeature(this.feature);
-                                this.updateProperty(service, key, this.feature.properties[key]);
+                                this.updateProperty(this.feature, service, key, this.feature.properties[key]);
                             }, this.getDelay(a, 3));
                             console.log(`Timer ${id}: push ${key}: ${valp}`)
                         }
@@ -219,20 +219,20 @@ export class Rule implements IRule {
     }
 
     private setTimerForProperty(service: RuleEngine.IRuleEngineService, key: string, value: any, delay = 0) {
-        var id = service.timer.setTimeout(() => {
+        var id = service.timer.setTimeout(function(f, k, v, service, updateProperty) { return () => {
             console.log(`Timers: ${service.timer.list()}`);
-            console.log(`Feature ${this.feature.id}`);
-            console.log(`setting ${key}: ${value}`);
-            this.feature.properties[key] = value;
+            console.log(`Feature ${f.id}`);
+            console.log(`setting ${k}: ${v}`);
+            f.properties[k] = v;
             //service.updateFeature(this.feature);
-            this.updateProperty(service, key, this.feature.properties[key]);
-        }, delay);
+            updateProperty(f, service, k, f.properties[key]);
+        }}(this.feature, key, value, service, this.updateProperty), delay);
         console.log(`Timer ${id}: set ${key}: ${value}`)
         console.log('Timers: ' + service.timer.list());
     }
 
-    private updateProperty(service: RuleEngine.IRuleEngineService, key: string, value: any) {
-        var f = this.feature;
+    private updateProperty(f: GeoJSON.IFeature, service: RuleEngine.IRuleEngineService, key: string, value: any) {
+        //var f = this.feature;
         if (!f.hasOwnProperty('logs')) f.logs = {};
         var logs: { [prop: string]: DynamicLayer.IPropertyUpdate[] } = {};
             if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
@@ -257,7 +257,7 @@ export class Rule implements IRule {
             logs[key] = f.logs[key];
 
         var msg: DynamicLayer.IMessageBody = {
-            "featureId": this.feature.id,
+            "featureId": f.id,
             "logs": logs
         };
         //msg.logs.push(f.logs[key]);

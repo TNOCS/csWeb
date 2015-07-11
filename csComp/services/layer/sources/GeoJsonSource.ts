@@ -263,6 +263,7 @@ module csComp.Services {
     export class AccessibilityDataSource extends GeoJsonSource {
         title = "Accessibility datasource";
         private routers;
+        private latlng: L.LatLng;
         private isInitialized = false;
 
         constructor(public service: csComp.Services.LayerService) {
@@ -326,11 +327,11 @@ module csComp.Services {
             if (urlParameters.hasOwnProperty('fromPlace')) {
                 var coords = urlParameters['fromPlace'].split('%2C');
                 if (isNaN(+coords[0]) || isNaN(+coords[1])) return url;
-                var latlng = new L.LatLng(+coords[0], +coords[1]);
+                this.latlng = new L.LatLng(+coords[0], +coords[1]);
                 for (var key in this.routers) {
                     if (this.routers.hasOwnProperty(key)) {
                         var polygon: L.Polygon = this.routers[key];
-                        if (polygon.getBounds().contains(latlng)) {
+                        if (csComp.Helpers.GeoExtensions.pointInsidePolygon([this.latlng.lng, this.latlng.lat], polygon.toGeoJSON().geometry.coordinates[0])) {
                             url = url.replace(this.getCurrentRouter(urlParameters['baseUrl']), key);
                         }
                     }
@@ -362,10 +363,18 @@ module csComp.Services {
                     //Add arrival times when leaving now
                     var startTime = new Date(Date.now());
                     parsedData.features.forEach((f) => {
-                        f.properties['time'] = f.properties['time'] * 1000;
+                        f.properties['seconds'] = f.properties['time'];
+                        f.properties['time'] = f.properties['seconds'] * 1000;
                         f.properties['arriveTime'] = (new Date(startTime.getTime() + f.properties['time'])).toISOString();
+                        f.properties['latlng'] = [this.latlng.lat, this.latlng.lng];
                     });
                     if (this.layer.hasOwnProperty('data') && this.layer.data.hasOwnProperty('features')) {
+                        for (let index = 0; index < this.layer.data.features.length; index++) {
+                            var f = this.layer.data.features[index];
+                            if (f.properties.hasOwnProperty('latlng') && f.properties['latlng'][0] === this.latlng.lat && f.properties['latlng'][1] === this.latlng.lng) {
+                                this.layer.data.features.splice(index--, 1);
+                            }
+                        }
                         parsedData.features.forEach((f) => {
                             this.layer.data.features.push(f);
                         });

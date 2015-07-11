@@ -61,9 +61,6 @@ module KanbanColumn {
             });
 
             this.initLayer();
-
-
-
         }
 
         private initLayer() {
@@ -78,7 +75,6 @@ module KanbanColumn {
                     console.log(this.featureTypes);
                 }
             }
-
         }
     }
 }

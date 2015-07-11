@@ -17,6 +17,7 @@ module KanbanColumn {
     }
 
     export class Column {
+        id: string;
         filters: ColumnFilter;
         roles: string[];
         fields: any;
@@ -75,35 +76,71 @@ module KanbanColumn {
             $scope.columnFilter = (feature: csComp.Services.IFeature) => {
                 var result = true;
                 if (!$scope.column) return false;
+                // Check that the layerId is applicable.
+                if (result && !_.contains(this.column.filters.layerIds, feature.layerId)) return false;
+                // Role filter: is a simple AND filter.
                 if (this.column.filters.roles && feature.properties.hasOwnProperty('roles')) {
                     this.column.filters.roles.forEach((r: string) => {
                         if (!_.contains(feature.properties['roles'], r)) result = false;
                     });
                 }
-                if (result && !_.contains(this.column.filters.layerIds, feature.layerId)) return false;
-                if (result && this.column.filters.tags) {
-                    if (!feature.properties.hasOwnProperty('tags') && this.column.filters.tags && this.column.filters.tags.length > 0) return false;
-                    this.column.filters.tags.forEach((tag: string) => {
-                        if (tag[0] === "!") {
-                            var t = tag.slice(1, tag.length);
-                            if (_.contains(feature.properties['tags'], t)) result = false;
+                // Tag filter: complex filter, combines AND (nothing or +), OR (-), and NOT (~) operations. Based on first character:
+                if (result && this.column.filters.tags && this.column.filters.tags.length > 0) {
+                    if (!feature.properties.hasOwnProperty('tags')) return false;
+                    var tags = feature.properties['tags'];
+                    var or = false;
+                    this.column.filters.tags.some((tag: string) => {
+                        switch (tag[0]) {
+                            case '!':
+                            case '~':
+                                var t = tag.substr(1, tag.length-1);
+                                if (_.contains(tags, t)) result = false;
+                                break;
+                            case '-':
+                                or = true;
+                                break;
+                            default:
+                                if (!_.contains(tags, tag)) result = false;
+                                break;
                         }
-                        else if (!_.contains(feature.properties['tags'], tag)) result = false;
-                        return;
-                    })
+                        return !result;
+                    });
+                    // Add the OR features: if any of the OR tags are true, the result is true
+                    if (result && or) {
+                        or = false;
+                        // Only check if there are OR tags (or === true), and we are still showing this item (result === true).
+                        this.column.filters.tags.some((tag: string) => {
+                            switch (tag[0]) {
+                                case '-':
+                                    var t = tag.substr(1, tag.length-1);
+                                    if (_.contains(tags, t)) or = true;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            return or;
+                        });
+                    } else {
+                        or = true;
+                    }
                 }
-                return result;
+                return result && or;
             }
             setInterval(() => { this.updateTime() }, 1000);
         }
 
+        public getClass(feature: csComp.Services.IFeature) {
+            if (typeof feature.properties === 'undefined') return "";
+            if (!feature.properties.hasOwnProperty("question")) return "";
+            return (feature.properties.hasOwnProperty("answered") && feature.properties["answered"] === true)
+                ? "isAnsweredQuestion"
+                : "isQuestion";
+        }
+
         public clickPrio($event) {
-
-
             // var dropdown: any = $($event.target, "> ul");
             // dropdown.css('top', angular.element($event.target).prop('offsetLeft') + "px");
             // dropdown.css('left', angular.element($event.target).prop('offsetTop') + "px");
-
         }
 
         public createForm(feature: csComp.Services.IFeature) {
@@ -122,7 +159,6 @@ module KanbanColumn {
             delete feature.gui["questions"];
             this.$layerService.unlockFeature(feature);
             this.$layerService.saveFeature(feature, true);
-
         }
 
         public saveCategory(feature: csComp.Services.IFeature, property: string, value: string) {
@@ -155,7 +191,6 @@ module KanbanColumn {
         }
 
         public logFilter(feature: csComp.Services.IFeature) {
-
         }
 
         public startAction(action: string, feature: csComp.Services.IFeature) {
@@ -194,7 +229,6 @@ module KanbanColumn {
             } else {
                 this.$layerService.selectFeature(feature);
             }
-
         }
 
         editFeature(feature: csComp.Services.IFeature) {
@@ -213,9 +247,6 @@ module KanbanColumn {
         initLayers() {
             var c = this.$scope.column;
 
-
-
-
             if (c.filters.layerIds && c.filters.layerIds.length > 0) {
                 var lid = c.filters.layerIds[0];
                 this.layer = this.$layerService.findLayer(lid);
@@ -223,10 +254,6 @@ module KanbanColumn {
                     this.$layerService.addLayer(this.layer, (t) => {
                     });
                 }
-
-
-
-
             };
         }
     }
