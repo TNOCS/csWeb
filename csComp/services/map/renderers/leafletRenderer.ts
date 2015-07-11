@@ -43,9 +43,7 @@ module csComp.Services {
             this.map = this.service.$mapService.map;
 
 
-            /*this.map.on('contextmenu', (e: any) => {
-                alert(e.latlng);
-            });*/
+
 
 
             this.service.$mapService.map.on('moveend', (t, event: any) => {
@@ -377,7 +375,7 @@ module csComp.Services {
         }
 
         /**
-         * add a feature 
+         * add a feature
          */
         public createFeature(feature: IFeature): any {
             //this.service.initFeature(feature,layer);
@@ -387,13 +385,11 @@ module csComp.Services {
                 case 'Point':
                     var icon = this.getPointIcon(feature);
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
-                        icon: icon,
-                        contextmenu: true,
-                        contextmenuInheritItems: false,
-                        contextmenuItems: [{
-                            text: 'Marker item'
-                        }]
+                        icon: icon
+
                     });
+
+
 
                     break;
                 default:

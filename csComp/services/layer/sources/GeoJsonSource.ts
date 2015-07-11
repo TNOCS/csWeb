@@ -389,7 +389,7 @@ module csComp.Services {
                         });
                         var geoRoute = route.toGeoJSON();
                         this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates,
-                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: (+it.duration)*1000, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString() }));
+                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: (+it.duration) * 1000, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString() }));
                     });
                 }
                 this.layer.data.features.forEach((f: IFeature) => {
@@ -409,6 +409,10 @@ module csComp.Services {
         constructor(public service: LayerService) {
             super(service);
             // subscribe
+        }
+
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
+            this.baseAddLayer(layer, callback);
         }
 
 

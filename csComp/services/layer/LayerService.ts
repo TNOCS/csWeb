@@ -801,7 +801,7 @@ module csComp.Services {
 
                 // Do we have a name?
                 if (!feature.properties.hasOwnProperty('Name'))
-                    Helpers.setFeatureName(feature, this.propertyTypeData);
+                    Helpers.setFeatureName(feature);
 
                 this.calculateFeatureLastUpdated(feature);
 
