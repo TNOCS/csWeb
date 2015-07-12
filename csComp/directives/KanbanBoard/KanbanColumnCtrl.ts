@@ -149,7 +149,6 @@ module KanbanColumn {
                 feature.gui["questions"] = [];
                 feature.properties[this.column.fields['question']].forEach((s: string) => {
                     var pt = this.$layerService.getPropertyType(feature, s);
-
                     feature.gui["questions"].push({ property: s, ptype: pt });
                 });
             }

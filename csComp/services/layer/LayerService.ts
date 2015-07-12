@@ -624,7 +624,6 @@ module csComp.Services {
         }
 
         public editFeature(feature: IFeature) {
-
             feature.gui["editMode"] = true;
             this.selectFeature(feature);
         }
@@ -694,7 +693,6 @@ module csComp.Services {
         }
 
         public updateLog(f: IFeature) {
-
             var date = this.project.timeLine.focus;
             var changed = false;
             if (f.logs && !this.isLocked(f)) {
@@ -712,9 +710,6 @@ module csComp.Services {
                             changed = true;
                         }
                     }
-
-
-
                 }
 
                 if (changed) {
@@ -723,7 +718,6 @@ module csComp.Services {
                 }
             }
         }
-
 
         /** update for all features the active sensor data values and update styles */
         public updateSensorData() {

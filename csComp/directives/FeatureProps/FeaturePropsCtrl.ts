@@ -105,12 +105,9 @@ module FeatureProps {
             this.setTitle();
             this.setIcon(feature);
 
-
             var infoCallOutSection = new CallOutSection('fa-info');
             var searchCallOutSection = new CallOutSection('fa-filter');
             var hierarchyCallOutSection = new CallOutSection('fa-link');
-
-
 
             var displayValue: string;
             if (type != null) {
@@ -199,7 +196,6 @@ module FeatureProps {
             var first = this.sections[keys[0]];
             return first;
         }
-
 
         public lastSection(): ICallOutSection {
             var keys = Object.keys(this.sections);
@@ -299,7 +295,6 @@ module FeatureProps {
             }
 
             $scope.autocollapse = function(initializeTabPosition = false) {
-
                 var tabs = $('#featureTabs');
 
                 if (tabs.outerWidth() < widthOfList() || parseFloat(tabs.css('margin-left')) < 0) {
@@ -333,7 +328,6 @@ module FeatureProps {
         public saveFeature() {
             this.$layerService.unlockFeature(this.$scope.feature);
             this.$layerService.saveFeature(this.$scope.feature);
-
         }
 
         public editFeature() {
@@ -357,7 +351,6 @@ module FeatureProps {
                 var link = property.feature.properties[property.propertyType.label];
                 alert(link);
             }
-
         }
 
         public createScatter(property: FeatureProps.CallOutProperty) {
