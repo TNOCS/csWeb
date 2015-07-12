@@ -20,24 +20,7 @@ module csComp.Services {
                 //var tl  = L.map("mapleft", {
                 zoomControl: false,
                 maxZoom: 19,
-                attributionControl: true,
-                contextmenu: true,
-                contextmenuWidth: 140,
-                contextmenuItems: [{
-                    text: 'Show coordinates',
-                    callback: () => { alert('test') }
-                }, {
-                        text: 'Center map here',
-                        callback: () => { alert('test') }
-                    }, '-', {
-                        text: 'Zoom in',
-                        icon: 'images/zoom-in.png',
-                        callback: () => { alert('test') }
-                    }, {
-                        text: 'Zoom out',
-                        icon: 'images/zoom-out.png',
-                        callback: () => { alert('test') }
-                    }]
+                attributionControl: true
 
             });
             this.map = this.service.$mapService.map;
@@ -386,9 +369,25 @@ module csComp.Services {
                     var icon = this.getPointIcon(feature);
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
                         icon: icon
-
                     });
 
+                    marker.on('contextmenu', (e: any) => {
+                        this.service._activeContextMenu = this.service.getActions(feature);
+
+                        //e.stopPropagation();
+                        var button: any = $("#map-contextmenu-button");
+                        var menu: any = $("#map-contextmenu");
+                        button.dropdown('toggle');
+                        var mapSize = this.map.getSize();
+                        menu.css("left", e.originalEvent.x + 5);
+                        menu.css("top", e.originalEvent.y - 35);
+
+                        /*var containerSize = this.getElementSize(container),
+                            anchor;*/
+                        console.log(e);
+                        //L.DomEvent.apply(e, "click");
+                        //alert(e.latlng);
+                    });
 
 
                     break;
@@ -404,6 +403,8 @@ module csComp.Services {
 
             return marker;
         }
+
+
 
         /**
          * create icon based of feature style

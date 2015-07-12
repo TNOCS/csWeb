@@ -67,6 +67,7 @@ module csComp.Services {
         lastSelectedFeature: IFeature;
         selectedLayerId: string;
         timeline: any;
+        _activeContextMenu: IActionOption[];
 
         currentLocale: string;
         /** layers that are currently active */
@@ -127,7 +128,7 @@ module csComp.Services {
             this.mapRenderers["cesium"] = new CesiumRenderer();
             this.mapRenderers["cesium"].init(this);
 
-            this.selectRenderer("leaflet");
+
             //this.mapRenderers["leaflet"].enable();
 
             this.initLayerSources();
@@ -168,6 +169,17 @@ module csComp.Services {
                 }
 
             });
+        }
+
+        public getActions(feature: IFeature): IActionOption[] {
+            var options = [];
+            this.actionServices.forEach((as: csComp.Services.IActionService) => {
+                options = options.concat(as.getFeatureActions(feature));
+            });
+            options.forEach((a: IActionOption) => {
+                a.feature = feature;
+            })
+            return options;
         }
 
         public addActionService(as: IActionService) {
@@ -1743,7 +1755,7 @@ module csComp.Services {
                                     this.removeLayer(g.layers[layerIndex]);
                                     this.addLayer(g.layers[layerIndex], () => {
                                         if (currentStyle && currentStyle.length > 0)
-                                            this.setStyle({feature: {featureTypeName: l.url + "#" + l.defaultFeatureType, layer: l}, property: currentStyle[0].property, key: currentStyle[0].title, meta: currentStyle[0].meta }, false, null, currentStyle[0]);
+                                            this.setStyle({ feature: { featureTypeName: l.url + "#" + l.defaultFeatureType, layer: l }, property: currentStyle[0].property, key: currentStyle[0].title, meta: currentStyle[0].meta }, false, null, currentStyle[0]);
                                     });
                                 }
                                 if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
