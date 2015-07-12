@@ -241,6 +241,7 @@ module csComp.Services {
             this.layerSources["geojson"] = geojsonsource;
             this.layerSources["topojson"] = geojsonsource;
             this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
+            this.layerSources["esrijson"] = new EsriJsonSource(this);
 
             // add wms source
             this.layerSources["wms"] = new WmsSource(this);

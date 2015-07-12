@@ -43,6 +43,7 @@
         "./ServerComponents/creator/IProjectRepositoryService.ts",
         "./ServerComponents/creator/MapLayerFactory.ts",
         "./ServerComponents/creator/ProjectRepositoryService.ts",
+        "./ServerComponents/creator/ProxyService.ts",
         "./ServerComponents/creator/RssService.ts",
         "./ServerComponents/database/BagDatabase.ts",
         "./ServerComponents/database/IBagAddress.ts",

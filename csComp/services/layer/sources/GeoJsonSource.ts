@@ -49,31 +49,7 @@ module csComp.Services {
                             this.service.$messageBusService.notify('ERROR loading ' + layer.title, error);
                             this.service.$messageBusService.publish('layer', 'error', layer);
                         } else {
-                            // if this is a topojson layer, convert to geojson first
-                            if (layer.type.toLowerCase() === 'topojson') {
-                                data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
-                            }
-
-                            // add featuretypes to global featuretype list
-                            if (data.featureTypes) for (var featureTypeName in data.featureTypes) {
-                                if (!data.featureTypes.hasOwnProperty(featureTypeName)) continue;
-                                var featureType: IFeatureType = data.featureTypes[featureTypeName];
-
-                                // give it a unique name
-                                featureTypeName = layer.url + '#' + featureTypeName;
-                                this.service._featureTypes[featureTypeName] = featureType;
-                            }
-
-                            if (data.timestamps) layer.timestamps = data.timestamps;
-
-                            // store raw result in layer
-                            layer.data = <any>data;
-                            if (layer.data.geometries && !layer.data.features) {
-                                layer.data.features = layer.data.geometries;
-                            }
-                            layer.data.features.forEach((f) => {
-                                this.service.initFeature(f, layer);
-                            });
+                            this.initLayer(data, layer);
                         }
                         cb(null, null);
                     });
@@ -83,6 +59,34 @@ module csComp.Services {
                     callback(layer);
                 }
             ]);
+        }
+
+        protected initLayer(data: any, layer: ProjectLayer) {
+            // if this is a topojson layer, convert to geojson first
+            if (layer.type.toLowerCase() === 'topojson') {
+                data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
+            }
+
+            // add featuretypes to global featuretype list
+            if (data.featureTypes) for (var featureTypeName in data.featureTypes) {
+                if (!data.featureTypes.hasOwnProperty(featureTypeName)) continue;
+                var featureType: IFeatureType = data.featureTypes[featureTypeName];
+
+                // give it a unique name
+                featureTypeName = layer.url + '#' + featureTypeName;
+                this.service._featureTypes[featureTypeName] = featureType;
+            }
+
+            if (data.timestamps) layer.timestamps = data.timestamps;
+
+            // store raw result in layer
+            layer.data = <any>data;
+            if (layer.data.geometries && !layer.data.features) {
+                layer.data.features = layer.data.geometries;
+            }
+            layer.data.features.forEach((f) => {
+                this.service.initFeature(f, layer);
+            });
         }
 
         removeLayer(layer: ProjectLayer) {
@@ -411,6 +415,7 @@ module csComp.Services {
         }
     }
 
+
     export class EsriJsonSource extends GeoJsonSource {
         title = "esrijson";
         connection: Connection;
@@ -421,7 +426,32 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
-            this.baseAddLayer(layer, callback);
+            layer.renderType = "geojson";
+            // Open a layer URL
+
+            layer.isLoading = true;
+            $.getJSON('/api/proxy', {
+                url: layer.url
+            }, (data, textStatus) => {
+                    var s = new esriJsonConverter.esriJsonConverter();
+                    var geojson = s.toGeoJson(JSON.parse(data));
+                    console.log(geojson);
+
+                    layer.data = geojson;//csComp.Helpers.GeoExtensions.createFeatureCollection(features);
+
+                    if (layer.data.geometries && !layer.data.features) {
+                        layer.data.features = layer.data.geometries;
+                    }
+                    layer.data.features.forEach((f) => {
+                        this.service.initFeature(f, layer);
+                    });
+
+                    layer.isLoading = false;
+                    callback(layer);
+
+                });
+
+            //this.baseAddLayer(layer, callback);
         }
 
 
