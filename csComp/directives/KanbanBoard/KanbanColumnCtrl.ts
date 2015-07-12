@@ -79,13 +79,13 @@ module KanbanColumn {
                 // Check that the layerId is applicable.
                 if (result && !_.contains(this.column.filters.layerIds, feature.layerId)) return false;
                 // Role filter: is a simple AND filter.
-                if (this.column.filters.roles && feature.properties.hasOwnProperty('roles')) {
+                if (this.column.filters.roles && this.column.filters.roles.length > 0 && feature.properties.hasOwnProperty('roles')) {
                     this.column.filters.roles.forEach((r: string) => {
                         if (!_.contains(feature.properties['roles'], r)) result = false;
                     });
                 }
                 // Tag filter: complex filter, combines AND (nothing or +), OR (-), and NOT (~) operations. Based on first character:
-                if (result && this.column.filters.tags && this.column.filters.tags.length > 0) {
+                if (result && this.column.filters.tags && this.column.filters.tags.length > 0 && this.column.filters.tags.length > 0) {
                     if (!feature.properties.hasOwnProperty('tags')) return false;
                     var tags = feature.properties['tags'];
                     var or = false;
@@ -123,8 +123,9 @@ module KanbanColumn {
                     } else {
                         or = true;
                     }
+                    result = result && or;
                 }
-                return result && or;
+                return result;
             }
             setInterval(() => { this.updateTime() }, 1000);
         }
