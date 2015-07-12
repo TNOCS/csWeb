@@ -147,7 +147,7 @@ export class Rule implements IRule {
                         break;
                     case "propertygreaterorequalthan":
                         if (typeof worldState.activeFeature === 'undefined') return false;
-                        if (length < 3) return this.showWarning(c);
+                        if (length !== 3) return this.showWarning(c);
                         var prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
@@ -158,7 +158,7 @@ export class Rule implements IRule {
                         break;
                     case "propertygreaterthan":
                         if (typeof worldState.activeFeature === 'undefined') return false;
-                        if (length < 3) return this.showWarning(c);
+                        if (length !== 3) return this.showWarning(c);
                         var prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
@@ -169,7 +169,7 @@ export class Rule implements IRule {
                         break;
                     case "propertyequals":
                         if (typeof worldState.activeFeature === 'undefined') return false;
-                        if (length < 3) return this.showWarning(c);
+                        if (length !== 3) return this.showWarning(c);
                         var prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
@@ -181,7 +181,7 @@ export class Rule implements IRule {
                     case "propertydoesnotequal":
                     case "propertynotequal":
                         if (typeof worldState.activeFeature === 'undefined') return false;
-                        if (length < 3) return this.showWarning(c);
+                        if (length !== 3) return this.showWarning(c);
                         var prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
@@ -192,7 +192,7 @@ export class Rule implements IRule {
                         break;
                     case "propertylessthan":
                         if (typeof worldState.activeFeature === 'undefined') return false;
-                        if (length < 3) return this.showWarning(c);
+                        if (length !== 3) return this.showWarning(c);
                         var prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
@@ -203,7 +203,7 @@ export class Rule implements IRule {
                         break;
                     case "propertylessorequalthan":
                         if (typeof worldState.activeFeature === 'undefined') return false;
-                        if (length < 3) return this.showWarning(c);
+                        if (length !== 3) return this.showWarning(c);
                         var prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
@@ -214,12 +214,12 @@ export class Rule implements IRule {
                         break;
                     case "propertycontains":
                         if (typeof worldState.activeFeature === 'undefined') return false;
-                        if (length < 3) return this.showWarning(c);
+                        if (length !== 3) return this.showWarning(c);
                         var prop = c[1];
                         if (typeof prop === 'string') {
                             if (!worldState.activeFeature.properties.hasOwnProperty(prop)) return false;
                             let props: any[] = worldState.activeFeature.properties[prop];
-                            if (length === 3 && props instanceof Array && props.indexOf(c[2]) < 0) return false;
+                            if (props instanceof Array && props.indexOf(c[2]) < 0) return false;
                             console.log(`Property ${prop} contains ${c[2]}.`);
                         }
                         break;
@@ -249,22 +249,22 @@ export class Rule implements IRule {
                 switch (action.toLowerCase()) {
                     case "add":
                         // add feature
-                        var id = service.timer.setTimeout(() => {
-                            var feature = this.feature;
-                            console.log('Add feature ' + feature.id);
-                            if (length === 3) {
+                        var id = service.timer.setTimeout(function(f, fid, service) { return () => {
+                            var feature = f;
+                            if (length > 1) {
                                 var featureId = <string>a[1];
-                                worldState.features.some(f => {
-                                if (f && f.id !== featureId) return false;
-                                    feature = f;
+                                worldState.features.some(feat => {
+                                if (feat && feat.id !== fid) return false;
+                                    feature = feat;
                                     return true;
                                 });
                             }
+                            console.log('Add feature ' + feature.id);
                             if (!feature.properties.hasOwnProperty('date')) feature.properties['date'] = new Date();
                             if (!feature.properties.hasOwnProperty('roles')) feature.properties['roles'] = ["rti"];
                             service.layer.addFeature(feature)
-                        }, this.getDelay(a, length-1));
-                        console.log(`Timer ${id}: Add feature ${this.feature.id}`)
+                        }}(this.feature, length > 1 ? <string>a[1] : "", service), this.getDelay(a, length-1));
+                        console.log(`Timer ${id}: Add feature ${this.isGenericRule ? a[1] : this.feature.id}`)
                         break;
                     case "set":
                         // Set, property, value [, delay]
