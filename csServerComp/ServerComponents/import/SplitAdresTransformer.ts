@@ -24,7 +24,7 @@ class SplitAdresTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt?: transform.ITransformFactoryOptions, callback?: (error)=>void) {
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
     var zipcodeCityPropertyParameter = opt.parameters.filter(p=>p.type.title == "zipcodeCityProperty")[0];
     if (zipcodeCityPropertyParameter) {
       this.zipcodeCityProperty = <string>zipcodeCityPropertyParameter.value;
@@ -35,9 +35,7 @@ class SplitAdresTransformer implements transform.ITransform {
       this.streetHouseNumberProperty = <string>streetHouseNumberPropertyParameter.value;
     }
 
-    if (callback) {
-      callback(null);
-    }
+    callback(null);
   }
 
   create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {

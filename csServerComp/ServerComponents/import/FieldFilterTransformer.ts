@@ -29,22 +29,18 @@ class FieldFilterTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt?: transform.ITransformFactoryOptions, callback?: (error)=>void) {
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
     var filterPropertyParameter = opt.parameters.filter((p)=>p.type.title == "property")[0];
     if (!filterPropertyParameter) {
-      if (callback) {
-        callback("property missing");
-      }
+      callback("property missing");
       return;
     }
     this.filterProperty = <string>filterPropertyParameter.value;
 
     var filterValueParameter = opt.parameters.filter((p)=>p.type.title == "value")[0];
     if (!filterValueParameter) {
-      if (callback) {
-        console.log("value missing");
-        callback("value missing");
-      }
+      /*console.log("value missing");*/
+      callback("value missing");
       return;
     }
 
@@ -53,7 +49,7 @@ class FieldFilterTransformer implements transform.ITransform {
       try {
         var regExp = new RegExp(strValue);
         this.filterValue = regExp;
-        console.log(strValue + ": regex");
+        /*console.log(strValue + ": regex");*/
       } catch(error) {
         callback("Error parsing regex: " + strValue);
         return;
@@ -63,9 +59,7 @@ class FieldFilterTransformer implements transform.ITransform {
       console.log(strValue + ": number");
     }
 
-    if (callback) {
-      callback(null);
-    }
+    callback(null);
   }
 
   create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {

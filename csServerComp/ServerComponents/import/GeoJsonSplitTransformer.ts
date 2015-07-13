@@ -28,31 +28,25 @@ class GeoJsonSplitTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt?: transform.ITransformFactoryOptions, callback?: (error)=>void) {
-    console.log(JSON.stringify(opt,null,4));
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
+    /*console.log(JSON.stringify(opt,null,4));*/
 
     var splitShapeUrlParameter = opt.parameters.filter((p)=>p.type.title == "splitShapeUrl")[0];
     if (!splitShapeUrlParameter) {
-      if (callback) {
-        callback("splitShapeUrl missing");
-      }
+      callback("splitShapeUrl missing");
       return;
     }
 
     var keyPropertyParameter = opt.parameters.filter(p=>p.type.title == "splitShapeKeyProperty")[0];
     if (!keyPropertyParameter) {
-      if (callback) {
-        callback("splitShapeKeyProperty missing")
-      }
+      callback("splitShapeKeyProperty missing")
       return;
     }
     this.keyProperty = <string>keyPropertyParameter.value;
 
     var identifierPropertyParameter = opt.parameters.filter(p=>p.type.title == "splitShapeIdentifierProperty")[0];
     if (!identifierPropertyParameter) {
-      if (callback) {
-        callback("splitShapeIdentifierProperty missing")
-      }
+      callback("splitShapeIdentifierProperty missing")
       return;
     }
     this.identifierProperty = <string>identifierPropertyParameter.value;
@@ -66,10 +60,9 @@ class GeoJsonSplitTransformer implements transform.ITransform {
       this.geometry = JSON.parse(body);
       console.log("Split shape geojson loaded");
 
-      if (callback) {
-        callback(null);
-      }
+      callback(null);
     });
+
   }
 
   create(config, opt?: transform.ITransformFactoryOptions): NodeJS.ReadWriteStream {
@@ -94,9 +87,11 @@ class GeoJsonSplitTransformer implements transform.ITransform {
         return;
       }
 
-      // console.log("##### GJST #####");
+       /*console.log("##### GJST #####");*/
       // console.log("=== Before:")
       // console.log(feature);
+
+
 
       this.geometry.features.forEach((f)=>{
         // console.log("=== Gemeente feature:")
@@ -135,7 +130,7 @@ class GeoJsonSplitTransformer implements transform.ITransform {
         var keys = Object.keys(accumulator);
          /*console.log(JSON.stringify(keys));*/
         // for(var wijkCode in keys) {
-        console.log(keys.length);
+        /*console.log(keys.length);*/
         keys.forEach(key=> {
           /*console.log(key);*/
           var group = accumulator[key];
