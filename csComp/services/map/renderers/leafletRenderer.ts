@@ -28,7 +28,8 @@ module csComp.Services {
                 var b = (<L.Map>(this.service.$mapService.map)).getBounds();
                 this.$messageBusService.publish("mapbbox", "update", b.toBBoxString());
 
-                //this.service.$mapService.maxBounds = new csComp.Seb;
+                var boundingBox: csComp.Services.IBoundingBox = { southWest: [b.getSouthWest().lat, b.getSouthWest().lng], northEast: [b.getNorthEast().lat, b.getNorthEast().lng] };
+                this.service.$mapService.maxBounds = boundingBox;
             });
         }
 
