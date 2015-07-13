@@ -3,15 +3,14 @@ import Layer = LayerManager.Layer;
 import mongodb = require('mongodb');
 
 
-
 export class MongoDBStorage implements LayerManager.IStorage {
     public manager: LayerManager.LayerManager
 
-    public db : mongodb.MongoClient;
+    public db : mongodb.Db;
 
 
 
-    constructor(public server: string, public port : int) {
+    constructor(public server: string, public port : number) {
 
     }
 
@@ -21,36 +20,42 @@ export class MongoDBStorage implements LayerManager.IStorage {
 
     }
 
-    public addFeature(layerId: string, f: any) {
-        var collection = db.collection(layerId);
-        db.collection.insert({
-            "testje": true
-        }, function(e, results) {
-                if (e) return next(e)
-                res.send(results)
-            });
-          }
-
-    public delFeature(layerID: string, f: string) {
-        //todo
+    public addFeature(layerId: string, feature: any) {
+      // normally, you'd take the layerID here and toString it
+      // so you can enter a collection dynamically
+      var collection = this.db.collection("testFeatures");
+      collection.insert({hello: 'Isitmeyourelookingfor'}, function (err) {
+        if (err)
+          console.log(err);
+        else
+          console.log("inserted 1 document");
+      } );
     }
 
-    public getFeature(layerID: string, i: string) {
+    public getAllFeatures(layer: Layer) {
 
     }
 
-    public upsertFeature() {
-        //todo
+    public delFeature(layer: Layer, f: string) {
+
+    }
+
+    public getFeature(layer: Layer, i: string) {
+
+    }
+
+    public updateFeature(layer: Layer, feature: any) {
+
     }
 
     public init(layerManager: LayerManager.LayerManager, options: any) {
-        this.manager = layerManager;
-        // set up connection here?
-
-         this.db = new mongodb.Server(this.server, this.port, { auto_reconnect: true })
-        
-        var db = (this.db, { safe: true });
-        console.log('init MongoDB Storage');
+      this.manager = layerManager;
+      // set up connection
+      var server = new mongodb.Server('localhost', 27017, {auto_reconnect: true})
+      //set up the db instance
+      this.db = new mongodb.Db('mydb', server, { w: 1 });
+      this.db.open(function() {});
+      console.log('init MongoDB Storage');
 
     }
 }

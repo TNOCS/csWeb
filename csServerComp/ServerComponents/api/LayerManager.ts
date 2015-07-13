@@ -3,11 +3,13 @@ export interface IApiInterface {
 }
 
 export interface IStorage {
-    init(layerManager: LayerManager, options: any)
+    init(layerManager: LayerManager, options: any);
     addLayer(layer: Layer);
     delFeature(layer: Layer, featureId: string);
-    addFeature(layer: Layer, feature: any);
+    addFeature(layerId: string, feature: any);
     getFeature(layer: Layer, featureId: string);
+    updateFeature(layer: Layer, feature: any);
+    getAllFeatures(layer: Layer);
 }
 
 export class Layer {
@@ -42,16 +44,30 @@ export class LayerManager {
         s.init(this, options);
     }
 
-    public addFeature(layer: Layer, f: any) {
+    public addFeature(layerId: string, f: any) {
         console.log('feature added');
-        //volg ik het zo goed?
         var s = this.storages[f.storage];
-        s.addFeature(layer, f);
+        s.addFeature('testje', f);
+    }
+
+    // TODO: Arnoud, I'm not sure where you want me to go with this. If we
+    // intend to store layers at a collection level we might need to draw out
+    // how everything is going to look. The code to store features will not make
+    // much sense as a feature is a single document in mongo and conceptually
+    // belongs to a layer.
+    public updateFeature(layer: Layer, feature: any) {
+      var s = this.storages[feature.storage];
+      s.updateFeature(layer, feature);
     }
 
     public getFeature(layer: Layer, featureId: string) {
       var s = this.storages[layer.storage];
       s.getFeature(layer, featureId);
+    }
+
+    public getAllFeatures(layer: Layer) {
+      var s = this.storages[layer.storage];
+      s.getAllFeatures(layer);
     }
 
     public delFeature(layer: Layer, featureId: string) {
