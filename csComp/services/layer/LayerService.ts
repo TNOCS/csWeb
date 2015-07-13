@@ -67,6 +67,7 @@ module csComp.Services {
         lastSelectedFeature: IFeature;
         selectedLayerId: string;
         timeline: any;
+        _activeContextMenu: IActionOption[];
 
         currentLocale: string;
         /** layers that are currently active */
@@ -83,6 +84,7 @@ module csComp.Services {
         actionServices: IActionService[] = [];
 
         public visual: VisualState = new VisualState();
+        throttleTimelineUpdate: Function;
 
         static $inject = [
             '$location',
@@ -126,10 +128,12 @@ module csComp.Services {
             this.mapRenderers["cesium"] = new CesiumRenderer();
             this.mapRenderers["cesium"].init(this);
 
-            this.selectRenderer("leaflet");
+
             //this.mapRenderers["leaflet"].enable();
 
             this.initLayerSources();
+            this.throttleTimelineUpdate = _.throttle(this.updateAllLogs, 500);
+
 
             //this.$dashboardService.init();
 
@@ -137,7 +141,8 @@ module csComp.Services {
                 switch (trigger) {
                     case 'focusChange':
                         this.updateSensorData();
-                        this.updateAllLogs();
+                        this.throttleTimelineUpdate();
+                        //this.updateAllLogs();
                         break;
                 }
             });
@@ -166,6 +171,17 @@ module csComp.Services {
             });
         }
 
+        public getActions(feature: IFeature): IActionOption[] {
+            var options = [];
+            this.actionServices.forEach((as: csComp.Services.IActionService) => {
+                options = options.concat(as.getFeatureActions(feature));
+            });
+            options.forEach((a: IActionOption) => {
+                a.feature = feature;
+            })
+            return options;
+        }
+
         public addActionService(as: IActionService) {
             this.actionServices.push(as);
             as.init(this);
@@ -175,7 +191,42 @@ module csComp.Services {
             as.stop();
         }
 
+        /** Find a dashboard by ID */
+        public findDashboardById(dashboardId: string) {
+            var dashboard: csComp.Services.Dashboard;
+            this.project.dashboards.some(d => {
+                if (d.id !== dashboardId) return false;
+                dashboard = d;
+                return true;
+            });
+            return dashboard;
+        }
 
+        /** Find a widget by ID, optionally supplying its parent dashboard id. */
+        public findWidgetById(widgetId: string, dashboardId?: string) {
+            var dashboard: csComp.Services.Dashboard;
+            var widget: csComp.Services.IWidget;
+            if (dashboardId) {
+                dashboard = this.findDashboardById(dashboardId);
+                if (!dashboard) return null;
+                dashboard.widgets.some(w => {
+                    if (w.id !== widgetId) return false;
+                    widget = w;
+                    return true;
+                });
+            } else {
+                this.project.dashboards.some(d => {
+                    d.widgets.some(w => {
+                        if (w.id !== widgetId) return false;
+                        widget = w;
+                        return true;
+                    });
+                    if (!widget) return false;
+                    return true;
+                });
+            }
+            return widget;
+        }
 
         /**
          * Initialize the available layer sources
@@ -190,6 +241,7 @@ module csComp.Services {
             this.layerSources["geojson"] = geojsonsource;
             this.layerSources["topojson"] = geojsonsource;
             this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
+            this.layerSources["esrijson"] = new EsriJsonSource(this);
 
             // add wms source
             this.layerSources["wms"] = new WmsSource(this);
@@ -572,7 +624,6 @@ module csComp.Services {
         }
 
         public editFeature(feature: IFeature) {
-
             feature.gui["editMode"] = true;
             this.selectFeature(feature);
         }
@@ -642,7 +693,6 @@ module csComp.Services {
         }
 
         public updateLog(f: IFeature) {
-
             var date = this.project.timeLine.focus;
             var changed = false;
             if (f.logs && !this.isLocked(f)) {
@@ -660,9 +710,6 @@ module csComp.Services {
                             changed = true;
                         }
                     }
-
-
-
                 }
 
                 if (changed) {
@@ -671,7 +718,6 @@ module csComp.Services {
                 }
             }
         }
-
 
         /** update for all features the active sensor data values and update styles */
         public updateSensorData() {
@@ -1058,50 +1104,54 @@ module csComp.Services {
          * Creates a GroupStyle based on a property and adds it to a group.
          * If the group already has a style which contains legends, those legends are copied into the newly created group.
          * Already existing groups (for the same visualAspect) are replaced by the new group
+         * Restoring a previously used groupstyle is possible by sending that GroupStyle object
          */
-        public setStyle(property: any, openStyleTab = false, customStyleInfo?: PropertyInfo) {
+        public setStyle(property: any, openStyleTab = false, customStyleInfo?: PropertyInfo, groupStyle?: GroupStyle) {
             // parameter property is of the type ICallOutProperty. explicit declaration gives the red squigglies
             var f: IFeature = property.feature;
             if (f != null) {
                 var ft = this.getFeatureType(f);
 
-                // for debugging: what do these properties contain?
-                var layer = f.layer;
-                var lg = layer.group;
-
-                var gs = new GroupStyle(this.$translate);
-                gs.id = Helpers.getGuid();
-                gs.title = property.key;
-                gs.meta = property.meta;
-                gs.visualAspect = (ft.style && ft.style.drawingMode && ft.style.drawingMode.toLowerCase() == 'line') ? 'strokeColor' : 'fillColor';
-                gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
-
-                gs.property = property.property;
-                if (customStyleInfo) {
-                    gs.info = customStyleInfo;
-                    gs.fixedColorRange = true;
+                // use the groupstyle that was passed along, or create a new groupstyle if none is present
+                var gs;
+                if (groupStyle) {
+                    gs = groupStyle;
+                    gs.info = this.calculatePropertyInfo(f.layer.group, property.property);
                 } else {
-                    if (gs.info == null) gs.info = this.calculatePropertyInfo(layer.group, property.property);
-                }
+                    gs = new GroupStyle(this.$translate);
+                    gs.id = Helpers.getGuid();
+                    gs.title = property.key;
+                    gs.meta = property.meta;
+                    gs.visualAspect = (ft.style && ft.style.drawingMode && ft.style.drawingMode.toLowerCase() == 'line') ? 'strokeColor' : 'fillColor';
+                    gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
 
-                gs.enabled = true;
-                gs.group = layer.group;
-                gs.meta = property.meta;
+                    gs.property = property.property;
+                    if (customStyleInfo) {
+                        gs.info = customStyleInfo;
+                        gs.fixedColorRange = true;
+                    } else {
+                        if (gs.info == null) gs.info = this.calculatePropertyInfo(f.layer.group, property.property);
+                    }
 
-                var ptd = this.propertyTypeData[property.property];
-                if (ptd && ptd.legend) {
-                    gs.activeLegend = ptd.legend;
-                    gs.legends[ptd.title] = ptd.legend;
-                    gs.colorScales[ptd.title] = ['purple', 'purple'];
+                    gs.enabled = true;
+                    gs.group = f.layer.group;
+                    gs.meta = property.meta;
+
+                    var ptd = this.propertyTypeData[property.property];
+                    if (ptd && ptd.legend) {
+                        gs.activeLegend = ptd.legend;
+                        gs.legends[ptd.title] = ptd.legend;
+                        gs.colorScales[ptd.title] = ['purple', 'purple'];
+                    }
+                    if (ft.style && ft.style.fillColor) {
+                        gs.colors = ['white', 'orange'];
+                    } else {
+                        gs.colors = ['red', 'white', 'blue'];
+                    }
                 }
-                if (ft.style && ft.style.fillColor) {
-                    gs.colors = ['white', 'orange'];
-                } else {
-                    gs.colors = ['red', 'white', 'blue'];
-                }
-                this.saveStyle(layer.group, gs);
+                this.saveStyle(f.layer.group, gs);
                 this.project.features.forEach((fe: IFeature) => {
-                    if (fe.layer.group == layer.group) {
+                    if (fe.layer.group == f.layer.group) {
                         this.calculateFeatureStyle(fe);
                         this.activeMapRenderer.updateFeature(fe);
                     }
@@ -1692,12 +1742,18 @@ module csComp.Services {
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
                                     l.layerSource.refreshLayer(g.layers[g.layers.length - 1]);
                                 } else {
+                                    var currentStyle = g.styles;
                                     if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
                                     if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
-                                    l.layerSource.refreshLayer(g.layers[layerIndex]);
+                                    l.group = g;
+                                    //l.layerSource.refreshLayer(g.layers[layerIndex]);
+                                    this.removeLayer(g.layers[layerIndex]);
+                                    this.addLayer(g.layers[layerIndex], () => {
+                                        if (currentStyle && currentStyle.length > 0)
+                                            this.setStyle({ feature: { featureTypeName: l.url + "#" + l.defaultFeatureType, layer: l }, property: currentStyle[0].property, key: currentStyle[0].title, meta: currentStyle[0].meta }, false, null, currentStyle[0]);
+                                    });
                                 }
                                 if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
-
                             });
 
                             // init group

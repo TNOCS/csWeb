@@ -49,31 +49,7 @@ module csComp.Services {
                             this.service.$messageBusService.notify('ERROR loading ' + layer.title, error);
                             this.service.$messageBusService.publish('layer', 'error', layer);
                         } else {
-                            // if this is a topojson layer, convert to geojson first
-                            if (layer.type.toLowerCase() === 'topojson') {
-                                data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
-                            }
-
-                            // add featuretypes to global featuretype list
-                            if (data.featureTypes) for (var featureTypeName in data.featureTypes) {
-                                if (!data.featureTypes.hasOwnProperty(featureTypeName)) continue;
-                                var featureType: IFeatureType = data.featureTypes[featureTypeName];
-
-                                // give it a unique name
-                                featureTypeName = layer.url + '#' + featureTypeName;
-                                this.service._featureTypes[featureTypeName] = featureType;
-                            }
-
-                            if (data.timestamps) layer.timestamps = data.timestamps;
-
-                            // store raw result in layer
-                            layer.data = <any>data;
-                            if (layer.data.geometries && !layer.data.features) {
-                                layer.data.features = layer.data.geometries;
-                            }
-                            layer.data.features.forEach((f) => {
-                                this.service.initFeature(f, layer);
-                            });
+                            this.initLayer(data, layer);
                         }
                         cb(null, null);
                     });
@@ -83,6 +59,34 @@ module csComp.Services {
                     callback(layer);
                 }
             ]);
+        }
+
+        protected initLayer(data: any, layer: ProjectLayer) {
+            // if this is a topojson layer, convert to geojson first
+            if (layer.type.toLowerCase() === 'topojson') {
+                data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
+            }
+
+            // add featuretypes to global featuretype list
+            if (data.featureTypes) for (var featureTypeName in data.featureTypes) {
+                if (!data.featureTypes.hasOwnProperty(featureTypeName)) continue;
+                var featureType: IFeatureType = data.featureTypes[featureTypeName];
+
+                // give it a unique name
+                featureTypeName = layer.url + '#' + featureTypeName;
+                this.service._featureTypes[featureTypeName] = featureType;
+            }
+
+            if (data.timestamps) layer.timestamps = data.timestamps;
+
+            // store raw result in layer
+            layer.data = <any>data;
+            if (layer.data.geometries && !layer.data.features) {
+                layer.data.features = layer.data.geometries;
+            }
+            layer.data.features.forEach((f) => {
+                this.service.initFeature(f, layer);
+            });
         }
 
         removeLayer(layer: ProjectLayer) {
@@ -263,6 +267,7 @@ module csComp.Services {
     export class AccessibilityDataSource extends GeoJsonSource {
         title = "Accessibility datasource";
         private routers;
+        private latlng: L.LatLng;
         private isInitialized = false;
 
         constructor(public service: csComp.Services.LayerService) {
@@ -326,11 +331,11 @@ module csComp.Services {
             if (urlParameters.hasOwnProperty('fromPlace')) {
                 var coords = urlParameters['fromPlace'].split('%2C');
                 if (isNaN(+coords[0]) || isNaN(+coords[1])) return url;
-                var latlng = new L.LatLng(+coords[0], +coords[1]);
+                this.latlng = new L.LatLng(+coords[0], +coords[1]);
                 for (var key in this.routers) {
                     if (this.routers.hasOwnProperty(key)) {
                         var polygon: L.Polygon = this.routers[key];
-                        if (polygon.getBounds().contains(latlng)) {
+                        if (csComp.Helpers.GeoExtensions.pointInsidePolygon([this.latlng.lng, this.latlng.lat], polygon.toGeoJSON().geometry.coordinates[0])) {
                             url = url.replace(this.getCurrentRouter(urlParameters['baseUrl']), key);
                         }
                     }
@@ -362,9 +367,18 @@ module csComp.Services {
                     //Add arrival times when leaving now
                     var startTime = new Date(Date.now());
                     parsedData.features.forEach((f) => {
-                        f.properties['arriveTime'] = (new Date(startTime.getTime() + f.properties['time'] * 1000)).toISOString();
+                        f.properties['seconds'] = f.properties['time'];
+                        f.properties['time'] = f.properties['seconds'] * 1000;
+                        f.properties['arriveTime'] = (new Date(startTime.getTime() + f.properties['time'])).toISOString();
+                        f.properties['latlng'] = [this.latlng.lat, this.latlng.lng];
                     });
                     if (this.layer.hasOwnProperty('data') && this.layer.data.hasOwnProperty('features')) {
+                        for (let index = 0; index < this.layer.data.features.length; index++) {
+                            var f = this.layer.data.features[index];
+                            if (f.properties.hasOwnProperty('latlng') && f.properties['latlng'][0] === this.latlng.lat && f.properties['latlng'][1] === this.latlng.lng) {
+                                this.layer.data.features.splice(index--, 1);
+                            }
+                        }
                         parsedData.features.forEach((f) => {
                             this.layer.data.features.push(f);
                         });
@@ -388,7 +402,7 @@ module csComp.Services {
                         });
                         var geoRoute = route.toGeoJSON();
                         this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates,
-                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: it.duration, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString() }));
+                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: (+it.duration) * 1000, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString() }));
                     });
                 }
                 this.layer.data.features.forEach((f: IFeature) => {
@@ -401,6 +415,7 @@ module csComp.Services {
         }
     }
 
+
     export class EsriJsonSource extends GeoJsonSource {
         title = "esrijson";
         connection: Connection;
@@ -408,6 +423,35 @@ module csComp.Services {
         constructor(public service: LayerService) {
             super(service);
             // subscribe
+        }
+
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
+            layer.renderType = "geojson";
+            // Open a layer URL
+
+            layer.isLoading = true;
+            $.getJSON('/api/proxy', {
+                url: layer.url
+            }, (data, textStatus) => {
+                    var s = new esriJsonConverter.esriJsonConverter();
+                    var geojson = s.toGeoJson(JSON.parse(data));
+                    console.log(geojson);
+
+                    layer.data = geojson;//csComp.Helpers.GeoExtensions.createFeatureCollection(features);
+
+                    if (layer.data.geometries && !layer.data.features) {
+                        layer.data.features = layer.data.geometries;
+                    }
+                    layer.data.features.forEach((f) => {
+                        this.service.initFeature(f, layer);
+                    });
+
+                    layer.isLoading = false;
+                    callback(layer);
+
+                });
+
+            //this.baseAddLayer(layer, callback);
         }
 
 

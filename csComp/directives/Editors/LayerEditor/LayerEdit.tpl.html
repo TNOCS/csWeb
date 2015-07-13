@@ -24,6 +24,7 @@
                 <select data-ng-model="vm.layer.type" class="form-control tt-input editor-text-input">
                     <option value="geojson">Geojson</option>
                     <option value="dynamicgeojson">Dynamic Geojson</option>
+                    <option value="esrijson">Esri Json</option>
                     <option value="wms">Wms</option>
                     <option value="rss">Rss</option>
                 </select>
@@ -36,7 +37,7 @@
                 <label class="editor-title input-xlarge" for="resourceUrl">Types Resource Url</label>
                 <input id="typeUrl" name="textinput" type="text" ng-model="vm.layer.typeUrl" placeholder="Types Resource Url" class="input-xlarge editor-text-input">
             </div>
-            <div ng-show="vm.layer.type=='geojson' || vm.layer.type=='rss' || vm.layer.type=='dynamicgeojson'">
+            <div ng-show="vm.layer.type=='geojson' || vm.layer.type=='rss' || vm.layer.type=='dynamicgeojson' || vm.layer.type=='esrijson'">
                 <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
                     <input disabled="true" type="checkbox" id="useProxy-{{vm.layer.id}}" ng-model="group.useProxy">
                     <label for="useProxy-{{vm.layer.id}}">use proxy (used for external urls)</label>

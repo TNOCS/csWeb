@@ -105,12 +105,9 @@ module FeatureProps {
             this.setTitle();
             this.setIcon(feature);
 
-
             var infoCallOutSection = new CallOutSection('fa-info');
             var searchCallOutSection = new CallOutSection('fa-filter');
             var hierarchyCallOutSection = new CallOutSection('fa-link');
-
-
 
             var displayValue: string;
             if (type != null) {
@@ -200,7 +197,6 @@ module FeatureProps {
             return first;
         }
 
-
         public lastSection(): ICallOutSection {
             var keys = Object.keys(this.sections);
             keys.sort();
@@ -265,13 +261,7 @@ module FeatureProps {
             'messageBusService'
         ];
 
-        public getActions(feature: IFeature) {
-            var options = [];
-            this.$layerService.actionServices.forEach((as: csComp.Services.IActionService) => {
-                options = options.concat(as.getFeatureActions(feature));
-            });
-            return options;
-        }
+
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -305,7 +295,6 @@ module FeatureProps {
             }
 
             $scope.autocollapse = function(initializeTabPosition = false) {
-
                 var tabs = $('#featureTabs');
 
                 if (tabs.outerWidth() < widthOfList() || parseFloat(tabs.css('margin-left')) < 0) {
@@ -339,7 +328,6 @@ module FeatureProps {
         public saveFeature() {
             this.$layerService.unlockFeature(this.$scope.feature);
             this.$layerService.saveFeature(this.$scope.feature);
-
         }
 
         public editFeature() {
@@ -363,7 +351,6 @@ module FeatureProps {
                 var link = property.feature.properties[property.propertyType.label];
                 alert(link);
             }
-
         }
 
         public createScatter(property: FeatureProps.CallOutProperty) {
@@ -433,7 +420,7 @@ module FeatureProps {
 
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
-            feature.gui["actions"] = this.getActions(feature);
+            feature.gui["actions"] = this.$layerService.getActions(feature);
             var featureType = feature.fType;
             this.$scope.featureType = featureType;
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
