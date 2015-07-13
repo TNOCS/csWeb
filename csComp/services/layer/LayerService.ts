@@ -766,7 +766,7 @@ module csComp.Services {
         /**
          * init feature (add to feature list, crossfilter)
          */
-        public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = true): IFeatureType {
+        public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false): IFeatureType {
             if (!feature.isInitialized) {
                 feature.isInitialized = true;
                 feature.gui = {};
