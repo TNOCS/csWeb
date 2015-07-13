@@ -7,6 +7,7 @@ export interface IStorage {
     addLayer(layer: Layer);
     delFeature(layer: Layer, featureId: string);
     addFeature(layerId: string, feature: any);
+    addFeature2();
     getFeature(layer: Layer, featureId: string);
     updateFeature(layer: Layer, feature: any);
     getAllFeatures(layer: Layer);
@@ -48,6 +49,11 @@ export class LayerManager {
         console.log('feature added');
         var s = this.storages[f.storage];
         s.addFeature('testje', f);
+    }
+
+    public addFeature2(something: string) {
+      console.log("inside the Layer Manager now..");
+    //  s.addFeature2();
     }
 
     // TODO: Arnoud, I'm not sure where you want me to go with this. If we

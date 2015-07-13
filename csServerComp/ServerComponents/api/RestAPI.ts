@@ -15,10 +15,11 @@ export class RestAPI implements LayerManager.IApiInterface {
         console.log('init Rest API');
 
 
-        //use this for testing. Serves no real purpose. 
+        //use this for testing. Serves no real purpose.
         this.server.get("/test",(req: express.Request, res: express.Response) => {
             console.log("received something.. hello world!");
             res.send({Hello: "World"});
+            this.manager.addFeature2(".."); // for testing
         });
 
         // gets the entire layer, which is stored as a single collection
@@ -43,7 +44,7 @@ export class RestAPI implements LayerManager.IApiInterface {
             this.manager.addFeature(req.params.layer, req.params.id);
         });
 
-        // updates all features corresponding to query on ID
+        // updates all features corresponding to query on ID (should be one)
         this.server.put("/:layer/feature/:id", (req: express.Request, res: express.Response) => {
             this.manager.updateFeature(req.params.layer, req.params.id);
         });

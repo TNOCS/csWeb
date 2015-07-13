@@ -20,6 +20,18 @@ export class MongoDBStorage implements LayerManager.IStorage {
 
     }
 
+    public addFeature2() {
+      // normally, you'd take the layerID here and toString it
+      // so you can enter a collection dynamically
+      var collection = this.db.collection("testFeatures");
+      collection.insert({hello: 'Isitmeyourelookingfor'}, function (err) {
+        if (err)
+          console.log(err);
+        else
+          console.log("inserted 1 document");
+      } );
+    }
+
     public addFeature(layerId: string, feature: any) {
       // normally, you'd take the layerID here and toString it
       // so you can enter a collection dynamically
