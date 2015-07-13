@@ -317,8 +317,8 @@ module csComp.Services {
                                 });
                                 this.updateGroupFeatures(feature.layer.group);
                             }
-                            if (prop.type === "layer" && prop.activation === "automatic" && feature.properties.hasOwnProperty(prop.label)) {
-                                this.removeSubLayers(feature.layer.lastSelectedFeature);
+                            if (prop.type === "layer" && feature.properties.hasOwnProperty(prop.label)) {
+                                if (prop.activation === "automatic") this.removeSubLayers(feature.layer.lastSelectedFeature);
 
                                 feature.layer.lastSelectedFeature = feature;
 
