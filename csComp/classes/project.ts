@@ -106,8 +106,8 @@ module csComp.Services {
 
     /** bouding box to specify a region. */
     export interface IBoundingBox {
-        southWest: L.LatLng;
-        northEast: L.LatLng;
+        southWest: number[];
+        northEast: number[];
     }
 
     export interface ITimelineOptions {
@@ -123,16 +123,18 @@ module csComp.Services {
     }
 
     /** project configuration. */
-    export class Project implements ITypesResource, ISerializable<Project>  {
+    export class Project implements ISerializable<Project>  {
         id: string;
         title: string;
         description: string;
         logo: string;
+        otpServer: string;
         url: string;
         /** true if a dynamic project and you want to subscribe to project changes using socket.io */
         connected: boolean;
         activeDashboard: Dashboard;
         baselayers: IBaseLayer[];
+        allFeatureTypes: { [id: string]: IFeatureType };
         featureTypes: { [id: string]: IFeatureType }
         propertyTypeData: { [id: string]: IPropertyType }
         groups: ProjectGroup[];
@@ -141,6 +143,7 @@ module csComp.Services {
         timeLine: DateRange;
         mcas: Mca.Models.Mca[];
         dashboards: Dashboard[];
+        typeUrls: string[];
         datasources: DataSource[];
         dataSets: DataSet[];
         viewBounds: IBoundingBox;
@@ -171,6 +174,15 @@ module csComp.Services {
             }, 2);
         }
 
+        public static serializeFeatureType(ft: IFeatureType): Object {
+            return {
+                name: ft.name,
+                style: ft.style,
+                propertyTypeKeys: ft.propertyTypeKeys,
+                showAllProperties: ft.showAllProperties
+            }
+        }
+
         /**
          * Returns an object which contains all the data that must be serialized.
          */
@@ -180,19 +192,20 @@ module csComp.Services {
                 title: project.title,
                 description: project.description,
                 logo: project.logo,
+                otpServer: project.otpServer,
                 url: project.url,
                 connected: project.connected,
                 startPosition: project.startposition,
                 timeLine: project.timeLine,
                 mcas: project.mcas,
-                datasources: project.datasources,
+                datasources: csComp.Helpers.serialize<DataSource>(project.datasources, DataSource.serializeableData),
                 dashboards: csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
                 viewBounds: project.viewBounds,
                 userPrivileges: project.userPrivileges,
                 languages: project.languages,
                 expertMode: project.expertMode,
                 baselayers: project.baselayers,
-                featureTypes: project.featureTypes,
+                featureTypes: project.featureTypes, //reset
                 propertyTypeData: project.propertyTypeData,
                 groups: csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData)
             };

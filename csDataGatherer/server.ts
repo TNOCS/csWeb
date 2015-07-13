@@ -2,14 +2,28 @@ import express                   = require('express');
 import http                      = require('http');
 import path                      = require('path');
 import ITransform                = require('./ServerComponents/import/ITransform');
-import BaseTransformer           = require('./ServerComponents/import/BaseTransformer');
 import Store                     = require('./ServerComponents/import/Store');
 import ImporterRepositoryService = require('./ServerComponents/import/ImporterRepositoryService');
+import ProjectRepositoryService  = require('./ServerComponents/creator/ProjectRepositoryService');
 import ConfigurationService      = require('./ServerComponents/configuration/ConfigurationService');
 import ApiServiceManager         = require('./ServerComponents/api/ApiServiceManager');
 
+import BaseTransformer           = require('./ServerComponents/import/BaseTransformer');
+import CsvToJsonTransformer      = require('./ServerComponents/import/CsvToJsonTransformer');
+import KvKToJsonTransformer      = require('./ServerComponents/import/KvKToJsonTransformer');
+import SplitAdresTransformer      = require('./ServerComponents/import/SplitAdresTransformer');
+import BagDetailsTransformer      = require('./ServerComponents/import/BagDetailsTransformer');
+import GeoJsonAggregateTransformer = require('./ServerComponents/import/GeoJsonAggregateTransformer');
+import GeoJsonOutputTransformer = require('./ServerComponents/import/GeoJsonOutputTransformer');
+import FieldFilterTransformer = require('./ServerComponents/import/FieldFilterTransformer');
+import GeoJsonSplitTransformer = require('./ServerComponents/import/GeoJsonSplitTransformer');
+import GeoJsonFeaturesTransformer = require('./ServerComponents/import/GeoJsonFeaturesTransformer');
+import CollateStreamTransformer = require('./ServerComponents/import/CollateStreamTransformer');
+import GeoJsonSaveTransformer = require('./ServerComponents/import/GeoJsonSaveTransformer');
+import BushalteAggregateTransformer = require('./ServerComponents/import/BushalteAggregateTransformer');
+
 var favicon = require('serve-favicon');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 
 var config = new ConfigurationService('./configuration.json');
 
@@ -31,12 +45,46 @@ server.use(express.static(path.join(__dirname, 'public')));
 
 // Create the API service manager and add the services that you need
 var apiServiceMgr = new ApiServiceManager(server, config);
-var repoService = new ImporterRepositoryService(new Store.FileStore(config));
+var repoService = new ImporterRepositoryService(new Store.FileStore({ storageFile: "importers.json" }));
 apiServiceMgr.addService(repoService);
 
-repoService.addTransformer(new BaseTransformer("Test 1"));
-repoService.addTransformer(new BaseTransformer("Test 2"));
-repoService.addTransformer(new BaseTransformer("Test 3"));
+
+var transformers = [
+  new CsvToJsonTransformer("Convert Csv to JSON"),
+  new KvKToJsonTransformer("Convert KvK to JSON"),
+  new SplitAdresTransformer("Split adres"),
+  new BagDetailsTransformer("Lookup BAG details"),
+  new GeoJsonAggregateTransformer("GeoJSON aggregate"),
+  new FieldFilterTransformer("Filter gemeente Utrecht"),
+  new GeoJsonOutputTransformer("GeoJSON output"),
+  new GeoJsonSplitTransformer("GeoJSON split"),
+  new GeoJsonFeaturesTransformer("GeoJSON features input"),
+  new CollateStreamTransformer("Wait for complete stream"),
+  new GeoJsonSaveTransformer("Save GeoJSON"),
+  new BushalteAggregateTransformer("Aggegreer Bushaltedata")
+]
+
+console.log(transformers.length);
+
+transformers.forEach( (t:any)=>{
+  repoService.addTransformer(t);
+});
+
+
+/*
+repoService.addTransformer(new CsvToJsonTransformer("Convert to JSON"));
+//repoService.addTransformer(new BaseTransformer("Lookup BAG details"));
+repoService.addTransformer(new SplitAdresTransformer("Split adres"));
+repoService.addTransformer(new BagDetailsTransformer("Lookup BAG details"));
+*/
+
+// Resource types
+var resourceTypeStore = new ProjectRepositoryService(new Store.FileStore({ storageFile: "resourceTypes.json" }))
+apiServiceMgr.addService(resourceTypeStore);
+
+// Resource types
+var resourceTypeStore = new ProjectRepositoryService(new Store.FileStore({ storageFile: "resourceTypes.json" }))
+apiServiceMgr.addService(resourceTypeStore);
 
 // development only
 // if ('development' == server.get('env')) {

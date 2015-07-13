@@ -1,67 +1,82 @@
 <div>
-  <h3 class="leftpanel-header" style="width: 100%">
-  Widget Editor
-</h3>
+    <h4 class="rightpanel-header">&nbsp;&nbsp;Widget Editor</h4>
 
-<div data-ng-cloak style="margin:5px">
-  <style>
-   .widget-row
-   {
-     margin-top: 5px;
-   }
-  </style>
-  <div class="row widget-row" >
+    <div data-ng-cloak style="margin:5px">
+        <style>
+            .widget-row {
+                margin-top: 5px;
+            }
+        </style>
+        <div class="row widget-row">
 
-  <div class="col-md-6">
-    <label class="control-label" for="widgetWidth">Width</label>
-    <input id="widgetWidth" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.width" placeholder="width" class="input-xlarge">
-  </div>
-  <div class="col-md-6">
-    <label class="control-label" for="widgetHeight">Height</label>
-    <input id="widgetHeight" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.height" placeholder="height" class="input-xlarge">
-  </div>
-</div>
-<div class="row widget-row">
-  <div class="col-md-6">
-    <label class="control-label" for="widgetLeft">Left</label>
-    <input id="widgetLeft" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.left" placeholder="left" class="input-xlarge">
-  </div>
-  <div class="col-md-6">
-    <label class="control-label" for="widgetRight">Right</label>
-    <input id="widgetRight" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.right" placeholder="right" class="input-xlarge">
-  </div>
-</div>
-<div class="row widget-row">
-  <div class="col-md-6">
-    <label class="control-label" for="widgetTop">Top</label>
-    <input id="widgetTop" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.top" placeholder="top" class="input-xlarge">
-  </div>
-  <div class="col-md-6">
-    <label class="control-label" for="widgetBottom">Bottom</label>
-    <input id="widgetBottom" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.bottom" placeholder="bottom" class="input-xlarge">
-  </div>
-</div>
+            <div class="col-md-6">
+                <label class="control-label" for="widgetWidth">Width</label>
+                <input id="widgetWidth" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.width" placeholder="width" class="input-xlarge">
+            </div>
+            <div class="col-md-6">
+                <label class="control-label" for="widgetHeight">Height</label>
+                <input id="widgetHeight" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.height" placeholder="height" class="input-xlarge">
+            </div>
+        </div>
+        <div class="row widget-row">
+            <div class="col-md-6">
+                <label class="control-label" for="widgetLeft">Left</label>
+                <input id="widgetLeft" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.left" placeholder="left" class="input-xlarge">
+            </div>
+            <div class="col-md-6">
+                <label class="control-label" for="widgetRight">Right</label>
+                <input id="widgetRight" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.right" placeholder="right" class="input-xlarge">
+            </div>
+        </div>
 
-<div class="row widget-row">
-  <div class="col-md-6">
-    <label class="control-label" for="widgetBorderWidth">Border Width</label>
-    <input id="widgetBorderWidth" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.borderWidth" placeholder="border width" class="input-xlarge">
-  </div>
-  <div class="col-md-6">
-    <label class="control-label" for="widgetBorderColor">Border Color</label><br/>
-    <spectrum-colorpicker data-ng-model="vm.$dashboardService.activeWidget.borderColor" options="{cancelText: 'Annuleren', chooseText: 'Kiezen'}"></spectrum-colorpicker>
-  </div>
-</div>
+        <div class="row widget-row">
+            <div class="col-md-6">
+                <label class="control-label" for="widgetTop">Top</label>
+                <input id="widgetTop" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.top" placeholder="top" class="input-xlarge">
+            </div>
+            <div class="col-md-6">
+                <label class="control-label" for="widgetBottom">Bottom</label>
+                <input id="widgetBottom" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.bottom" placeholder="bottom" class="input-xlarge">
+            </div>
+        </div>
 
-<div class="row widget-row">
-  <div class="col-md-6">
-    <label class="control-label" for="widgetBorderRadius">Border Radius</label>
-    <input id="widgetBorderRadius" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.borderradius" placeholder="border radius" class="input-xlarge">
-  </div>
-  <div class="col-md-6">
-    <label class="control-label" for="widgetBackground">Background</label><br/>
-    <spectrum-colorpicker data-ng-model="vm.$dashboardService.activeWidget.background" options="{cancelText: 'Cancel', chooseText: 'Select'}"></spectrum-colorpicker>
-  </div>
-</div>
-</div>
+        <div class="row widget-row">
+            <div class="col-md-6">
+                <label class="control-label" for="widgetBorderWidth">Border Width</label>
+                <input id="widgetBorderWidth" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.borderWidth" placeholder="border width" class="input-xlarge">
+            </div>
+            <div class="col-md-6">
+                <label class="control-label" for="widgetBorderColor">Border Color</label>
+                <input id="widgetBorderColor" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.borderColor" placeholder="border color" class="input-xlarge">
+            </div>
+            <!-- <div class="col-md-6">
+                <label class="control-label" for="widgetBorderColor">Border Color</label>
+                <br/>
+                <spectrum-colorpicker data-ng-model="vm.$dashboardService.activeWidget.borderColor" options="{cancelText: 'Cancel', chooseText: 'Select',format: 'hex'}"></spectrum-colorpicker>
+            </div> -->
+        </div>
+
+        <div class="row widget-row">
+            <div class="col-md-6">
+                <label class="control-label" for="widgetBackground">Background</label>
+                <input id="widgetBackground" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.background" placeholder="background color" class="input-xlarge">
+            </div>
+            <div class="col-md-6">
+                <label class="control-label" for="widgetOpacity">Opacity</label>
+                <input id="widgetOpacity" name="textinput" type="text" ng-model="vm.$dashboardService.activeWidget.opacity" placeholder="left" class="input-xlarge">
+            </div>
+        </div>
+
+        <div class="row widget-row">
+            <div class="col-md-6">
+                <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+                  <input type="checkbox" id="hideIfLeftPanel-{{vm.$dashboardService.activeWidget.id}}" ng-model="vm.$dashboardService.activeWidget.hideIfLeftPanel">
+                  <label for="hideIfLeftPanel-{{vm.$dashboardService.activeWidget.id}}">Hide if Left Panel Visible</label>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
 </div>

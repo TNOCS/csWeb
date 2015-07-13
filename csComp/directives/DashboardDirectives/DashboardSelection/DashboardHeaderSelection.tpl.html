@@ -3,8 +3,22 @@
     <!--<li data-ng-class="{ active: vm.isActive('/map')}"><a href="#/map" data-ng-click="showMap=true">Map</a></li>
     <li data-ng-class="{ active: vm.isActive('/table')}"><a href="#/table" data-ng-click="vm.showTable()">Table</a></li>-->
     <li ng-repeat="v in vm.$layerService.project.dashboards" class="dashboard-selection" ng-class="{dashboardselectionactive: v == vm.$layerService.project.activeDashboard}">
-        <a ng-class="{dashboardactivelink: v == vm.$layerService.project.activeDashboard}" ng-click="vm.$dashboardService.selectDashboard(v,'main')">
+        <a data-toggle="dropdown" ng-hide="v.parents != null" class="dropdown-toggle" ng-class="{dashboardactivelink: v == vm.$layerService.project.activeDashboard}" ng-click="vm.$dashboardService.selectDashboard(v,'main')">
             <span style="color:white;font-size:20px;cursor:pointer">{{v.name}}</span>
         </a>
+        <ul class="dropdown-menu" role="menu" ng-if="vm.childDashboards(v).length>0">
+            <li>
+                <a data-ng-click="vm.$dashboardService.selectDashboard(v,'main')">
+                    <!-- <span class="beginnerUserIcon" style="margin-left: -10px; width: 40px; height: 32px"></span> -->
+                    <div>{{v.name}}</div>
+                </a>
+            </li>
+            <li ng-repeat="sv in vm.childDashboards(v)" >
+                <a data-ng-click="vm.$dashboardService.selectDashboard(sv,'main')">
+                    <!-- <span class="beginnerUserIcon" style="margin-left: -10px; width: 40px; height: 32px"></span> -->
+                    <div>{{sv.name}}</div>
+                </a>
+            </li>
+        </ul>
     </li>
 </ul>

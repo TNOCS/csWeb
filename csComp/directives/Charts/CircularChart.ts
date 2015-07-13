@@ -20,6 +20,7 @@ module Charts {
         value: number;
         min: number;
         max: number;
+        update: boolean;
         color?: string;
         titleClass: string;
         title: string;
@@ -48,6 +49,7 @@ module Charts {
                     value: '=',
                     max: '=',
                     title: '=',
+                    update: '=',
                     valueString: '=',
                     color: '=',
                     valueClass: '@',
@@ -67,7 +69,7 @@ module Charts {
                 //        };
                 //    }
                 //],
-                link: function(scope: ICircularchartScope, element, attrs) {
+                link: (scope: ICircularchartScope, element, attrs)=> {
 
 
 
@@ -135,6 +137,12 @@ module Charts {
 
                     doDraw();
                     scope.$watch("value", () => {
+                        doDraw();
+                    })
+                    scope.$watch("color", () => {
+                        doDraw();
+                    })
+                    scope.$watch("update", () => {
                         doDraw();
                     })
                     //scope.closed = true;

@@ -13,8 +13,8 @@
     },
     "layerDirectory": "/layerDirectory",
     "datasources": [{
-        "url": "/datasource",
-        "type": "dynamic",
+        "url": "/data/projects/20141104_csMap/datasource.json",
+        "type": "static",
         "sensors": {
             "test": {
                 "propertyTypeKey": "sensor_test"
@@ -29,7 +29,8 @@
         "name": "Home",
         "showTimeline": true,
         "showLeftmenu": true,
-        "showMap": true
+        "showMap": true,
+        "visiblelayers": ["zorgkantoor"]
 
     }, {
         "id": "datatable",
@@ -54,31 +55,23 @@
             "Hospitals"
         ],
         "widgets": [{
+            "id": "wachtlijsten",
             "directive": "indicators",
-            "title": "Mobility",
             "left": "10px",
-            "top": "10px",
-            "borderwidth": 5,
-            "bordercolor": "red",
+            "top": "80px",
             "width": "225px",
-            "height": "365px",
+            "height": "295px",
             "data": {
-                "title": "Mobility",
+                "title": "Wachtlijsten",
+                "orientation": "vertical",
                 "indicators": [{
-                    "title": "Traffic performance",
-                    "visual": "circular",
-                    "sensor": "datasource/tp",
-                    "indexValue": 500000
-                }, {
-                    "title": "Relative speed (% of max)",
-                    "visual": "sparkline",
-                    "sensor": "datasource/speed",
-                    "layer": "live_traffic/speed"
-                }, {
-                    "title": "Density (veh/km)",
-                    "visual": "sparkline",
-                    "sensor": "datasource/density",
-                    "layer": "live_traffic/density"
+                    "title": "Wachtlijsten",
+                    "visual": "bullet",
+                    "usesSelectedFeature": true,
+                    "featureTypeName": "data/resourceTypes/Zorgkantoor.json#Zorgkantoor",
+                    "propertyTypes": ["tote", "toti"],
+                    "sensor": "",
+                    "dashboard": "health"
                 }]
             }
         }, {
@@ -160,29 +153,6 @@
         "clustering": true,
         "clusterLevel": 12,
         "layers": [{
-            "id": "Hospitals_voronoi",
-            "reference": "Hospitals (Voronoi Transformation)",
-            "languages": {
-                "nl": {
-                    "title": "Ziekenhuizen (Voronoi Transformation)",
-                    "description": "De locaties van de Nederlandse ziekenhuizen."
-                },
-                "en": {
-                    "title": "Hospitals (Voronoi Transformation)",
-                    "description": "These are the locations of the Dutch hospitals."
-                }
-            },
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/Ziekenhuizen.json",
-            "typeUrl": "data/projects/resources/resources.json",
-            "enabled": false,
-            "transformations": [{
-                "id": "voronoi",
-                "enabled": true,
-                "options": {}
-            }],
-            "opacity": 100
-        }, {
             "id": "Hospitals",
             "reference": "Hospitals",
             "languages": {
@@ -197,7 +167,7 @@
             },
             "type": "GeoJson",
             "url": "data/projects/20141104_csMap/Ziekenhuizen.json",
-            "typeUrl": "data/projects/resources/resources.json",
+            "typeUrl": "data/resourceTypes/resources.json",
             "enabled": false,
             "opacity": 100
         }, {
@@ -215,7 +185,7 @@
             },
             "type": "GeoJson",
             "url": "data/projects/20141104_csMap/brandweerposten.json",
-            "typeUrl": "data/projects/resources/resources.json",
+            "typeUrl": "data/resourceTypes/resources.json",
             "enabled": false,
             "opacity": 100
         }, {
@@ -233,115 +203,38 @@
             },
             "type": "GeoJson",
             "url": "data/projects/20141104_csMap/aanrijtijden.json",
-            "typeUrl": "data/projects/resources/resources.json",
+            "typeUrl": "data/resourceTypes/resources.json",
             "enabled": false,
             "opacity": 100
         }]
-    }, {
-        "title": "EFFECTS 3D",
-        "description": "Demonstrates EFFECTS.",
-        "clustering": false,
-        "layers": [{
-            "id": "NGD_grid_0m",
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/NGD_grid_0m.geojson"
-        }, {
-            "id": "NGD_grid_50m",
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/NGD_grid_50m.geojson"
-        }, {
-            "id": "NGD_grid_100m",
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/NGD_grid_100m.geojson"
-        }, {
-            "id": "NGD_grid_150m",
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/NGD_grid_150m.geojson"
-        }, {
-            "id": "receptoren",
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/amsterdam-sound.json"
-        }],
-        "enabled": false,
-        "opacity": 100
-    },{
-        "title": "EFFECTS 3D Isolines",
-        "description": "Demonstrates EFFECTS.",
-        "clustering": false,
-        "layers": [{
-            "id": "NGD_grid_0m_isolines",
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/NGD_grid_0m.geojson",
-            "transformations": [{
-                "id": "isolines",
-                "enabled": true,
-                "options": {
-                    "propertyName": "Concentratie",
-                    "breaks": [0.000001, 0.000002, 0.000003, 0.000004, 0.000005],
-                    "resolution": 15
-                }
-            }]
-        }, {
-            "id": "NGD_grid_50m_isolines",
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/NGD_grid_50m.geojson",
-            "transformations": [{
-                "id": "isolines",
-                "enabled": true,
-                "options": {
-                    "propertyName": "Concentratie",
-                    "breaks": [0.000001, 0.000002, 0.000003, 0.000004, 0.000005],
-                    "resolution": 15
-                }
-            }]
-        }, {
-            "id": "NGD_grid_100m_isolines",
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/NGD_grid_100m.geojson",
-            "transformations": [{
-                "id": "isolines",
-                "enabled": true,
-                "options": {
-                    "propertyName": "Concentratie",
-                    "breaks": [0.000001, 0.000002, 0.000003, 0.000004, 0.000005],
-                    "resolution": 15
-                }
-            }]
-        }, {
-            "id": "NGD_grid_150m_isolines",
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/NGD_grid_150m.geojson",
-            "transformations": [{
-                "id": "isolines",
-                "enabled": true,
-                "options": {
-                    "propertyName": "Concentratie",
-                    "breaks": [0.000001, 0.000002, 0.000003, 0.000004, 0.000005],
-                    "resolution": 15
-                }
-            }]
-        }, {
-            "id": "receptoren_isolines",
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/amsterdam-sound.json",
-            "transformations": [{
-                "id": "isolines",
-                "enabled": true,
-                "options": {
-                    "propertyName": "I_LDEN",
-                    "breaks": [10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90],
-                    "resolution": 15
-                }
-            }]
-        }],
-        "enabled": false,
-        "opacity": 100
     }, {
         "title": "WMS",
         "description": "Demonstrates WMS layers.",
         "clustering": false,
         "oneLayerActive": true,
         "layers": [{
+            "id": "bagcontouren",
+            "reference": "bagcontouren",
+            "languages": {
+                "nl": {
+                    "title": "BAG Contouren",
+                    "description": "Basis Administratie Gebouwen (Bron: Kadaster)."
+                },
+                "en": {
+                    "title": "BAG Contours",
+                    "description": "Dutch Cadastre's Basis Administratie Gebouwen. (Source: Kadaster.)"
+                }
+            },
+			"clustering": false,
+			"refreshBBOX": true,
+			"defaultFeatureType": "BagPanden",
+			"typeUrl": "data/resourceTypes/BagPanden.json",
+            "type": "database",
+			"url": "bagcontours",
+			"renderType": "geojson",
+            "enabled": false
+        },
+		{
             "id": "bag",
             "reference": "bag",
             "languages": {
@@ -438,7 +331,7 @@
             "type": "wms",
             "wmsLayers": "cbs_buurten_2013",
             "url": "http://geodata.nationaalgeoregister.nl/wijkenbuurten2013/wms?",
-            "typeUrl": "data/projects/resources/resources.json",
+            "typeUrl": "data/resourceTypes/resources.json",
             "enabled": false,
             "opacity": 50
         }, {
@@ -476,11 +369,13 @@
         "layers": [
 
             {
-                "id": "9d1dc210f8f5474f977c9d0f24df2ff8",
+                "id": "zorgkantoor",
                 "reference": "zorgkantoor",
                 "title": "Health regions",
                 "description": "Data at the health office regions. (Source: CBS, BAG, TNO, DigiMV.)",
                 "type": "GeoJson",
+				"defaultFeatureType": "Zorgkantoor",
+				"typeUrl": "data/resourceTypes/Zorgkantoor.json",
                 "url": "data/projects/20141104_csMap/Regio ZK ZZP CBS.json",
                 "enabled": false,
                 "opacity": 100
@@ -498,8 +393,9 @@
                     }
                 },
                 "type": "GeoJson",
+                "defaultFeatureType": "VestigingVeiligheidsregio",
                 "url": "data/projects/20141104_csMap/veiligheidsregios.json",
-                "typeUrl": "data/projects/resources/resources.json",
+                "typeUrl": "data/resourceTypes/resources.json",
                 "enabled": false,
                 "opacity": 100
             }, {
@@ -516,7 +412,9 @@
                     }
                 },
                 "type": "GeoJson",
+                "defaultFeatureType": "gemeente",
                 "url": "data/projects/20141104_csMap/gemeente.json",
+                "typeUrl": "data/resourceTypes/resources.json",
                 "enabled": false,
                 "opacity": 100
             }, {
@@ -534,37 +432,20 @@
                 },
                 "type": "GeoJson",
                 "url": "data/projects/20141104_csMap/localized_city_data.json",
-                "typeUrl": "data/projects/resources/resources.json",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "defaultFeatureType": "gemeente",
                 "enabled": false,
                 "opacity": 50
-            }, {
-                "id": "topo_cities",
-                "reference": "topo_cities",
-                "title": "TopoJSON Cities",
-                "description": "Statistical data per city. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)",
-                "type": "TopoJson",
-                "url": "data/projects/20141104_csMap/gemeente.topo.json",
-                "typeUrl": "data/projects/resources/resources.json",
-                "enabled": false,
-                "opacity": 100
-            }, {
-                "id": "p4",
-                "reference": "p4",
-                "title": "P4 topojson",
-                "description": "Statistical data per city. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)",
-                "type": "TopoJson",
-                "url": "data/projects/20141104_csMap/postcode4-nl.topo.json",
-                "typeUrl": "data/projects/resources/resources.json",
-                "enabled": false,
-                "opacity": 100
-            }, {
+            },
+             {
                 "id": "p4geo",
                 "reference": "p4geo",
                 "title": "P4 geojson",
                 "description": "Statistical data per city. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)",
-                "type": "TopoJson",
+                "type": "GeoJson",
                 "url": "data/projects/20141104_csMap/postcode4-nl.geo.json",
-                "typeUrl": "data/projects/resources/resources.json",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "defaultFeatureType" : "gemeente",
                 "enabled": false,
                 "opacity": 100
             }, {
@@ -614,7 +495,7 @@
             },
             "title": "Huisartsen",
             "url": "data/projects/20141104_csMap/huisartsen.json",
-            "typeUrl": "data/projects/resources/resources.json",
+            "typeUrl": "data/resourceTypes/resources.json",
             "opacity": 50
         }, {
             "description": "Verzorgingshuizen in Nederland",
@@ -626,47 +507,9 @@
             },
             "title": "Verzorgingshuizen",
             "url": "data/projects/20141104_csMap/verzorgingshuizen.json",
-            "typeUrl": "data/projects/resources/resources.json",
+            "typeUrl": "data/resourceTypes/resources.json",
             "opacity": 50
         }]
-    }, {
-        "title": "3D",
-        "clustering": false,
-        "oneLayerActive": true,
-        "layers": [{
-            "id": "3Dtestamsterdam",
-            "reference": "3D Test Amsterdam",
-            "languages": {
-                "nl": {
-                    "title": "3D Buildings Amsterdam",
-                    "description": "TOP10NL."
-                },
-                "en": {
-                    "title": "3D Buildings Amsterdam",
-                    "description": "TOP10NL."
-                }
-            },
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/amsterdam.json",
-            "enabled": false,
-            "opacity": 100
-        }, {
-            "id": "3Dtestamsterdamarena",
-            "reference": "3D Test Amsterdam Arena",
-            "languages": {
-                "nl": {
-                    "title": "3D Buildings Amsterdam Arena",
-                    "description": "TOP10NL."
-                },
-                "en": {
-                    "title": "3D Buildings Amsterdam Arena",
-                    "description": "TOP10NL."
-                }
-            },
-            "type": "GeoJson",
-            "url": "data/projects/20141104_csMap/arena.json",
-            "enabled": false,
-            "opacity": 100
-        }]
+    
     }]
 }

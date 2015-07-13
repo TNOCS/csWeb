@@ -1,4 +1,4 @@
-﻿module csComp.StringExt {
+module csComp.StringExt {
     export function isNullOrEmpty(s: string): boolean {
         return !isNumber(s) && !s;
     }
@@ -21,6 +21,13 @@
     /*
      * Returns true if we are dealing with a number, false otherwise.
      */
+    export function isDate(n: any): boolean {
+        return moment(n, moment.ISO_8601).isValid();
+    }
+
+    /*
+     * Returns true if we are dealing with a number, false otherwise.
+     */
     export function isNumber(n: any): boolean {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
@@ -30,6 +37,14 @@
      */
     export function isBoolean(s: any): boolean {
         return s === 'true' || s === 'false';
+        if (typeof s === 'boolean') return true;
+    }
+
+    /*
+     * Returns true if we are dealing with a array, false otherwise.
+     */
+    export function isArray(s: any): boolean {
+        return s && s.constructor === Array;
     }
 
     /*

@@ -40,13 +40,13 @@ module LayersDirective {
         }
 
         public editGroup(group: csComp.Services.ProjectGroup) {
-            var rpt = csComp.Helpers.createRightPanelTab("edit", "groupedit", group, "Edit group");
-            this.$messageBusService.publish("rightpanel", "activate", rpt);
+            var rpt = csComp.Helpers.createRightPanelTab('edit', 'groupedit', group, 'Edit group', 'Edit group');
+            this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
         public editLayer(layer: csComp.Services.ProjectLayer) {
-            var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", layer, "Edit layer");
-            this.$messageBusService.publish("rightpanel", "activate", rpt);
+            var rpt = csComp.Helpers.createRightPanelTab('edit', 'layeredit', layer, 'Edit layer', 'Edit layer');
+            this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
         public openLayerMenu(e) {

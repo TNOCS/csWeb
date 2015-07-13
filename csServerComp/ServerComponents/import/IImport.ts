@@ -1,4 +1,4 @@
-import ITransform = require("./ITransform");
+import transform  = require("./ITransform");
 import RepeatEnum = require("./RepeatEnum");
 
 interface IImport {
@@ -16,7 +16,7 @@ interface IImport {
     contributor?:  string;
     image?:        string;
     tags?:         { [text: string]: string };
-    transformers?: ITransform[];
+    transformers?: transform.ITransform[];
 
     repeat?:       RepeatEnum;
     lastRun?:      Date;

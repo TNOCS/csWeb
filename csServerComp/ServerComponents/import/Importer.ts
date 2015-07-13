@@ -2,6 +2,7 @@ import IImport    = require("./IImport");
 import ITransform = require("./ITransform");
 import Utils      = require("../helpers/Utils");
 import RepeatEnum = require("./RepeatEnum");
+import transform  = require("./ITransform");
 
 export class BaseImport implements IImport {
     id:           string;
@@ -11,7 +12,7 @@ export class BaseImport implements IImport {
     contributor:  string;
     destination:  string;
     tags:         { [text: string]: string } = {};
-    transformers: ITransform[] = [];
+    transformers: transform.ITransform[] = [];
     repeat:       RepeatEnum = RepeatEnum.never;
     lastRun:      Date;
 

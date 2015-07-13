@@ -42,21 +42,30 @@ module csComp.Services {
             this.changeBaseLayer(this.service.$mapService.activeBaseLayer);
         }
 
+        public getExtent(): csComp.Services.IBoundingBox {
+            var r = <IBoundingBox>{};
+            return r;
+
+        }
+
         public getZoom() {
             // we dont get nearby relations for now
             return 0;
         }
 
-        public fitBounds(bounds: L.LatLngBounds) {
+
+        public fitBounds(bounds: csComp.Services.IBoundingBox) {
             var ellipsoid = Cesium.Ellipsoid.WGS84;
+            if (bounds) {
 
-            var west = Cesium.Math.toRadians(bounds.getSouthWest().lng);
-            var south = Cesium.Math.toRadians(bounds.getSouthWest().lat);
-            var east = Cesium.Math.toRadians(bounds.getNorthEast().lng);
-            var north = Cesium.Math.toRadians(bounds.getNorthEast().lat);
+                var west = Cesium.Math.toRadians(bounds.southWest[1]);
+                var south = Cesium.Math.toRadians(bounds.southWest[0]);
+                var east = Cesium.Math.toRadians(bounds.northEast[1]);
+                var north = Cesium.Math.toRadians(bounds.northEast[0]);
 
-            var extent = new Cesium.Rectangle(west, south, east, north);
-            this.camera.viewRectangle(extent, ellipsoid);
+                var extent = new Cesium.Rectangle(west, south, east, north);
+                this.camera.viewRectangle(extent, ellipsoid);
+            }
         }
 
         public setUpMouseHandlers() {
@@ -77,26 +86,6 @@ module csComp.Services {
                     $(".cesiumPopup").fadeOut('fast').remove();
             }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-            // zoom to mouse
-            var eventHandler, mousePosition;
-
-            this.scene.screenSpaceCameraController.enableZoom = false;
-            eventHandler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
-
-            eventHandler.setInputAction((event) => {
-                mousePosition = event.endPosition;
-            }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-            eventHandler.setInputAction((wheelZoomAmount) => {
-                var cameraHeight, directionToZoom, zoomAmount;
-                if (mousePosition) {
-                    cameraHeight = this.scene.globe.ellipsoid.cartesianToCartographic(this.camera.position).height || Number.MAX_VALUE;
-                    directionToZoom = this.camera.getPickRay(mousePosition).direction;
-                    zoomAmount = wheelZoomAmount * cameraHeight / 1000;
-
-                    this.camera.move(directionToZoom, zoomAmount);
-                }
-            }, Cesium.ScreenSpaceEventType.WHEEL);
         }
 
         public disable() {
@@ -272,7 +261,6 @@ module csComp.Services {
         }
 
         public updateMapFilter(group: ProjectGroup) {
-            console.log(group);
             var dfd = jQuery.Deferred();
             setTimeout(() => {
                 this.viewer.entities.values.forEach((entity) => {
@@ -506,16 +494,20 @@ module csComp.Services {
             }
 
             // add a 3D model if we have one
-            if (feature.effectiveStyle.modelUri !== undefined) {
+            if (feature.properties["FeatureTypeId"] === "3Dmodel") {
+                var modelUri = feature.effectiveStyle.modelUri || feature.properties["modelUri"] || "";
+                var modelScale = feature.effectiveStyle.modelScale || feature.properties["modelScale"] || 1;
+                var modelMinimumPixelSize = feature.effectiveStyle.modelMinimumPixelSize || feature.properties["modelMinimumPixelSize"] || 32;
+
                 entity.model = new Cesium.ModelGraphics({
-                    uri: feature.effectiveStyle.modelUri,
-                    scale: feature.effectiveStyle.modelScale,
-                    minimumPixelSize: feature.effectiveStyle.modelMinimumPixelSize,
+                    uri: modelUri,
+                    scale: modelScale,
+                    minimumPixelSize: modelMinimumPixelSize,
                 });
 
                 // Hide icon and point when we have a 3D model
-                entity.billboard.show = false;
-                entity.point.show = false;
+                if (entity.billboard !== undefined) entity.billboard.show = false;
+                if (entity.point !== undefined) entity.point.show = false;
             }
 
             //account for rotation

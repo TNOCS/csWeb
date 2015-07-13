@@ -42,6 +42,12 @@ module csComp.Services {
         useProxy?: boolean;
         /** force refresh on chaning bounding box */
         refreshBBOX?: boolean;
+        /** if this is a feed, the layer features can be shown on timeline and  */
+        isDynamic?: boolean;
+        /** indicates if features should be shown on timeline */
+        showOnTimeline?: boolean;
+        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
+        dynamicResource?: boolean;
 
         layerSource: ILayerSource;
         /**
@@ -132,8 +138,12 @@ module csComp.Services {
         group: ProjectGroup;
         /** proxy url, using own server, not implemented */
         useProxy: boolean;
+        /** indicates if features should be shown on timeline */
+        showOnTimeline: boolean;
         /** if true, use the current bounding box to retreive data from the server */
         refreshBBOX: boolean;
+        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
+        dynamicResource: boolean;
         /** The current bounding box to retreive data from the server */
         BBOX: string;
         layerSource: ILayerSource;
@@ -190,9 +200,11 @@ module csComp.Services {
 
         /** key name of default feature type */
         defaultFeatureType: string;
-
         /** List of transformations that will be applied to this layer including their properties */
         transformations: IAppliedTransformation[];
+
+        isDynamic: boolean;
+
 
         /**
          * Returns an object which contains all the data that must be serialized.
@@ -209,7 +221,6 @@ module csComp.Services {
                 url: pl.url,
                 typeUrl: pl.typeUrl,
                 wmsLayers: pl.wmsLayers,
-                enabled: pl.enabled,
                 opacity: pl.opacity,
                 isSublayer: pl.isSublayer,
                 BBOX: pl.BBOX,

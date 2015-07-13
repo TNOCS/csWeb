@@ -1,0 +1,8 @@
+<div>
+    <div style='position:relative' context-menu="options()">
+        <h4>{{filter.title}}</h4>
+        <div class="left-menu dropdown-toggle pull-left" ng-click="vm.openLayerMenu($event)"></div>
+        <a class='btn fa fa-remove' style='position:absolute;top:-5px;right:0' ng-click="vm.remove()"></a>
+        <div id="filter_{{filter.id}}"></div>
+    </div>
+</div>

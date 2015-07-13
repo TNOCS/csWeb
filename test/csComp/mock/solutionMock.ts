@@ -1,5 +1,5 @@
 angular.module('solutionMock', [])
-  .value('defaultSolution', [{
+  .value('defaultSolution', {
       "title": "csMap",
       "maxBounds": {
           "southWest": [49.2, 1.0],
@@ -45,4 +45,4 @@ angular.module('solutionMock', [])
 
       ]
   }
-]);
+);

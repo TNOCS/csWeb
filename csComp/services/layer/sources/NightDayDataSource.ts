@@ -7,27 +7,6 @@
  http://mathematica.stackexchange.com/questions/3326/composition-how-to-make-a-day-and-night-world-map
 */
 
-interface Date {
-    getJulian(): number;
-    getGMST(): number;
-}
-
-Date.prototype.getJulian = function() {
-    /* Calculate the present UTC Julian Date. Function is valid after
-     * the beginning of the UNIX epoch 1970-01-01 and ignores leap
-     * seconds. */
-    return (this / 86400000) + 2440587.5;
-}
-
-Date.prototype.getGMST = function() {
-    /* Calculate Greenwich Mean Sidereal Time according to
-       http://aa.usno.navy.mil/faq/docs/GAST.php */
-    var julianDay = this.getJulian();
-    var d = julianDay - 2451545.0;
-    // Low precision equation is good enough for our purposes.
-    return (18.697374558 + 24.06570982441908 * d) % 24;
-}
-
 declare module L {
     export class Terminator extends L.Polygon {
         constructor(options?: Object);
@@ -190,8 +169,6 @@ module csComp.Services {
 
         public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
             this.layer = layer;
-            layer.type = 'geojson';
-            // Open a layer URL
             layer.isLoading = true;
             layer.count = 0;
 
@@ -223,7 +200,7 @@ module csComp.Services {
             if (layer.data.geometries && !layer.data.features) {
                 layer.data.features = layer.data.geometries;
             }
-            layer.data.features.forEach((f) => {
+            layer.data.features.forEach((f: IFeature) => {
                 this.service.initFeature(f, layer);
             });
 

@@ -31,10 +31,12 @@
     <link rel="stylesheet" href="bower_components/leaflet.locatecontrol/src/L.Control.Locate.css" />
     <link rel="stylesheet" href="bower_components/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" />
     <link rel="stylesheet" href="bower_components/spectrum/spectrum.css" rel="stylesheet" />
+    <link rel="stylesheet" href="bower_components/angular-ui-select/dist/select.css" rel="stylesheet" />
 
     <link rel="stylesheet" href="cs/css/animate.min.css" />
     <link rel="stylesheet" href="cs/css/timeline.css" />
     <link rel="stylesheet" href="cs/css/widgets.css" />
+    <link rel="stylesheet" href="cs/css/d3_bulletchart.css" />
     <link rel="stylesheet" href="cs/css/pnotify.custom.min.css" />
     <link rel="stylesheet" href="cs/css/xbbcode.css">
     <link rel="stylesheet" href="cs/css/csStyles.css" />
@@ -49,7 +51,7 @@
     <!-- build:js csMap.js -->
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
     <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
     <script src="bower_components/angular-translate/angular-translate.min.js"></script>
@@ -63,16 +65,20 @@
     <script src="bower_components/angular-utils-pagination/dirPagination.js"></script>
     <script src="bower_components/angular-local-storage/dist/angular-local-storage.min.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="bower_components/angular-ui-select/dist/select.js"></script>
     <script src="bower_components/chroma-js/chroma.min.js"></script>
     <script src="bower_components/d3/d3.min.js"></script>
     <script src="bower_components/d3-tip/index.js"></script>
     <script src="bower_components/crossfilter/crossfilter.min.js"></script>
-    <script src="bower_components/dcjs/dc.min.js"></script>
+
     <script src="bower_components/async/lib/async.js"></script>
     <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
     <script src="bower_components/underscore/underscore-min.js"></script>
     <script src="bower_components/moment/min/moment.min.js"></script>
     <script src="bower_components/spectrum/spectrum.js"></script>
+    <script src="cs/js/angular-moment.min.js"></script>
+<script src="cs/js/datetime-picker.js"></script>
+    <script src="cs/js/dc.js"></script>
     <script src="cs/js/angular-spectrum-colorpicker.min.js"></script>
     <script src="cs/js/stringformat-1.09.min.min.js"></script>
     <script src="cs/js/stringformat.nl-NL.min.js"></script>
@@ -82,7 +88,7 @@
     <script src="cs/js/jqueryinjectCSS.min.js"></script>
     <script src="cs/js/timeline.min.js"></script>
     <script src="cs/js/wizMarkdown.min.js"></script>
-    <script src="//api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js"></script>
+	<script src="cs/js/d3_bulletChart.js"></script>
 
     <script src="cs/js/csComp.js"></script>
     <script src="app/app.js"></script>
@@ -93,7 +99,7 @@
     <div role="navigation" class="navbar navbar-inverse navbar-fixed-top">
 
         <div class="navbar-header" data-ng-cloak>
-            <a class="menutoggle" ng-click="vm.$layerService.visual.leftPanelVisible = !vm.$layerService.visual.leftPanelVisible"><i class="fa fa-bars"></i></a>
+            <a class="menutoggle" ng-click="vm.$layerService.visual.leftPanelVisible = !vm.$layerService.visual.leftPanelVisible" popover="{{'TOGGLE_MENU' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true"><i class="fa fa-bars"></i></a>
             <!--<a class="navbar-brand" style="margin-top: -5px;" href="{{vm.$layerService.project.url}}" target="_blank">
                 <img data-ng-src="{{vm.$layerService.project.logo}}" alt="{{vm.$layerService.project.title}}" width="32" height="32" />
                 {{vm.$layerService.project.title}}
@@ -114,7 +120,7 @@
             </ul>
 
             <!-- Search form -->
-            <offline-search class="navbar-form navbar-right" style="margin-right:0"></offline-search>
+            <!-- <offline-search class="navbar-form navbar-right" style="margin-right:0"></offline-search> -->
             <!-- Expert mode switch -->
             <expert-mode class="navbar-form navbar-right" style="outline:none; margin: 5px -10px 0 0; color: white"></expert-mode>
             <!-- Language switch -->
@@ -133,48 +139,55 @@
               <!-- Nav tabs -->
               <ul class="nav nav-tabs tabs-left" id="leftPanelTab">
                   <!-- 'tabs-right' for right tabs -->
-                  <li>
+                  <li popover="{{'BASESTYLES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                       <a href="#basestyles" data-toggle="tab" data-ng-if="vm.$mapService.isIntermediate">
                           <div class="mapIcon"></div>
                       </a>
                   </li>
-                  <li class="active">
+                  <li class="active" popover="{{'LAYERS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                       <a href="#layers" data-toggle="tab">
                           <div class="layersIcon"></div>
                       </a>
                   </li>
-                  <li>
+                  <li popover="{{'FILTERS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                       <a href="#filters" data-toggle="tab">
                           <div class="filtersIcon"></div>
                       </a>
                   </li>
-                  <li>
+                  <li popover="{{'STYLES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                       <a href="#styles" data-toggle="tab">
                           <div class="stylesIcon"></div>
                       </a>
                   </li>
-                  <li>
+                  <li popover="{{'MCA.NAME' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                       <a href="#mca" data-toggle="tab" data-ng-if="vm.$mapService.isExpert">
                           <div class="mcaIcon"></div>
                       </a>
                   </li>
-                  <li>
+                  <li popover="{{'HEATMAP.NAME' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                       <a href="#heatmap" data-toggle="tab" data-ng-if="vm.$mapService.isExpert">
                           <div class="heatmapIcon"></div>
                       </a>
                   </li>
-                  <li>
+                  <li popover="{{'FEATURES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                       <a href="#features" data-toggle="tab">
                           <div class="featuresIcon"></div>
                       </a>
                   </li>
-                  <li>
+                  <li popover="{{'LEGEND' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                       <a href="#legend" data-toggle="tab">
                           <div class="mainLegendIcon"></div>
                       </a>
                   </li>
-                  <li><a href="#dashboardselection" data-ng-if="vm.$mapService.isExpert" data-toggle="tab"><i class="fa fa-tachometer fa-2x" style="color: black"></i></a></li>
-                  <li><a href="#settings" data-toggle="tab"><i class="fa fa-gear fa-2x" style="color: black"></i></a></li>
+                  <li popover="{{'DASHBOARD_SELECTION' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                      <a href="#dashboardselection" data-ng-if="vm.$mapService.isExpert" data-toggle="tab"><i class="fa fa-tachometer fa-2x" style="color: black"></i>
+                      </a>
+                  </li>
+                  <li popover="{{'SETTINGS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                      <a href="#settings" data-toggle="tab" data-ng-if="vm.$mapService.isAdminExpert">
+                          <i class="fa fa-gear fa-2x" style="color: black"></i>
+                      </a>
+                  </li>
               </ul>
           </div>
 
@@ -210,7 +223,7 @@
           <div id="rightpanelTabContainer" class="tabbable tabs-left" style="display:table; height:100%; padding:0px;">
               <!-- Nav tabs -->
               <ul id="rightpanelTabs" class="nav nav-tabs" style="margin-right:0px; width:50px; height:100%; display:table-cell">
-                <li style="margin-top:10px" ng-style="!vm.$layerService.visual.rightPanelVisible && {'opacity':0}" ng-click="vm.$layerService.visual.rightPanelVisible = false">
+                <li style="margin-top:10px" ng-style="!vm.$layerService.visual.rightPanelVisible && {'opacity':0}" ng-click="vm.$layerService.visual.rightPanelVisible = false" popover="{{'HIDE_PANEL' | translate}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true">
                     <a class="rightpanel-hidetab">
                         <span class="fa fa-2x fa-chevron-right"></span>
                     </a>
@@ -251,7 +264,7 @@
         </div>
 
     <!--Loading spinner-->
-    <div data-ng-show="layersLoading" id="loadingspinner" style="margin:0px auto; width:200px; height:100px;">
+    <div data-ng-show="layersLoading>0" id="loadingspinner" style="margin:0px auto; width:200px; height:100px;">
         <div class="spinner" style="position: initial; margin-top:60px;">
             <div class="bounce1" style="width:16px; height:16px;"></div>
             <div class="bounce2" style="width:16px; height:16px;"></div>

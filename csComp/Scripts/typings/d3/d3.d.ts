@@ -4,6 +4,8 @@
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
 declare module D3 {
+
+
     export interface Selectors {
         /**
         * Select an element from the current document
@@ -58,6 +60,11 @@ declare module D3 {
     }
 
     export interface Base extends Selectors {
+        /**
+        * AvL voor bulletcharts
+        */
+        bullet():any;
+
         /**
         * EV
         */

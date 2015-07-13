@@ -20,6 +20,24 @@
         return result;
     }
 
+    export function getDefaultFeatureStyle(): csComp.Services.IFeatureTypeStyle {
+        //TODO: check compatibility for both heatmaps and other features
+        var s: csComp.Services.IFeatureTypeStyle = {
+            nameLabel:   "Name",
+            strokeWidth: 1,
+            strokeColor: "#GGBBAA",
+            fillOpacity: 0.75,
+            opacity:     1,
+            fillColor:   "#FFFF00",
+            stroke:      true,
+            rotate:      0,
+            iconUri:     "cs/images/marker.png",
+            iconHeight:  32,
+            iconWidth:   32
+        };
+        return s;
+    }
+
     /**
      * Export data to the file system.
      */
@@ -31,7 +49,7 @@
             // IE 10+
             var link: any = document.createElement('a');
             link.addEventListener("click", event => {
-                var blob = new Blob([data], {"type": "text/" + fileType + ";charset=utf-8;"});
+                var blob = new Blob([data], { "type": "text/" + fileType + ";charset=utf-8;" });
                 navigator.msSaveBlob(blob, filename);
             }, false);
             document.body.appendChild(link);
@@ -87,7 +105,7 @@
     /**
      * Collect all the property types that are referenced by a feature type.
      */
-    export function getPropertyTypes(type: csComp.Services.IFeatureType, propertyTypeData: csComp.Services.IPropertyTypeData) {
+    export function getPropertyTypes(type: csComp.Services.IFeatureType, propertyTypeData: csComp.Services.IPropertyTypeData, feature?: csComp.Services.IFeature) {
         var propertyTypes: Array<csComp.Services.IPropertyType> = [];
 
         if (type.propertyTypeKeys != null) {
@@ -102,44 +120,93 @@
                 }
             });
         }
+        if (type.showAllProperties && feature && feature.properties) {
+            for (var key in feature.properties) {
+                if (!propertyTypes.some((pt: csComp.Services.IPropertyType) => pt.label == key)) {
+                    //var pt =
+                }
+            }
+        }
         if (type.propertyTypeData != null) {
-            type.propertyTypeData.forEach((pt) => {
-                propertyTypes.push(pt);
-            });
+            if (type.propertyTypeData.forEach) {
+                type.propertyTypeData.forEach((pt) => {
+                    propertyTypes.push(pt);
+                });
+            } else {
+                for (var ptlabel in type.propertyTypeData) {
+                    if (type.propertyTypeData.hasOwnProperty(ptlabel)) {
+                        propertyTypes.push(type.propertyTypeData[ptlabel]);
+                    }
+                }
+            }
         }
         return propertyTypes;
     }
 
-    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType : csComp.Services.IFeatureType) : csComp.Services.IFeatureType
-    {
-      var type = featureType;
-      if (!type.propertyTypeData) type.propertyTypeData = [];
+    export function getMissingPropertyTypes(feature: csComp.Services.IFeature): csComp.Services.IPropertyType[] {
+        //var type = featureType;
+        var res = <csComp.Services.IPropertyType[]>[];
+        //        if (!type.propertyTypeData) type.propertyTypeData = [];
 
-      for (var key in feature.properties) {
-        if (!type.propertyTypeData.some((pt : csComp.Services.IPropertyType)=>{return pt.label === key;}))
-        {
-          if (!feature.properties.hasOwnProperty(key)) continue;
-          var propertyType: csComp.Services.IPropertyType = [];
-          propertyType.label = key;
-          propertyType.title = key.replace('_', ' ');
-          propertyType.isSearchable = true;
-          propertyType.visibleInCallOut = true;
-          propertyType.canEdit = false;
-          var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
-          if (StringExt.isNumber(value))
-              propertyType.type = 'number';
-          else if (StringExt.isBoolean(value))
-              propertyType.type = 'boolean';
-          else if (StringExt.isBbcode(value))
-              propertyType.type = 'bbcode';
-          else
-              propertyType.type = 'text';
+        for (var key in feature.properties) {
 
-          type.propertyTypeData.push(propertyType);
+            //if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
+            if (!feature.properties.hasOwnProperty(key)) continue;
+            var propertyType: csComp.Services.IPropertyType = [];
+            propertyType.label = key;
+            propertyType.title = key.replace('_', ' ');
+            propertyType.isSearchable = true;
+            propertyType.visibleInCallOut = true;
+            propertyType.canEdit = false;
+            var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+            if (StringExt.isDate(value))
+                propertyType.type = 'date';
+            else if (StringExt.isNumber(value))
+                propertyType.type = 'number';
+            else if (StringExt.isBoolean(value))
+                propertyType.type = 'boolean';
+            else if (StringExt.isArray(value))
+                propertyType.type = 'tags';
+            else if (StringExt.isBbcode(value))
+                propertyType.type = 'bbcode';
+            else
+                propertyType.type = 'text';
+            res.push(propertyType);
+            //}
         }
-      }
 
-      return type;
+        return res;
+    }
+
+    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType): csComp.Services.IFeatureType {
+        var type = featureType;
+        if (!type.propertyTypeData) type.propertyTypeData = [];
+
+        for (var key in feature.properties) {
+            if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
+                if (!feature.properties.hasOwnProperty(key)) continue;
+                var propertyType: csComp.Services.IPropertyType = [];
+                propertyType.label = key;
+                propertyType.title = key.replace('_', ' ');
+                propertyType.isSearchable = true;
+                propertyType.visibleInCallOut = true;
+                propertyType.canEdit = false;
+                var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+
+                if (StringExt.isNumber(value))
+                    propertyType.type = 'number';
+                else if (StringExt.isBoolean(value))
+                    propertyType.type = 'boolean';
+                else if (StringExt.isBbcode(value))
+                    propertyType.type = 'bbcode';
+                else
+                    propertyType.type = 'text';
+
+                type.propertyTypeData.push(propertyType);
+            }
+        }
+
+        return type;
     }
 
     /**
@@ -147,10 +214,10 @@
      */
     export function createDefaultType(feature: csComp.Services.IFeature): csComp.Services.IFeatureType {
         var type: csComp.Services.IFeatureType = {};
-        type.style = { nameLabel: 'Name' };
+        type.style = getDefaultFeatureStyle();
         type.propertyTypeData = [];
 
-        this.addPropertyTypes(feature,type);
+        this.addPropertyTypes(feature, type);
 
         return type;
     }
@@ -160,8 +227,8 @@
      */
     export function convertPropertyInfo(pt: csComp.Services.IPropertyType, text: any): string {
         var displayValue: string;
-        if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
-            text = text.replace(/&amp;/g, '&');
+        // if (!csComp.StringExt.isNullOrEmpty(text) && !$.isNumeric(text))
+        //     text = text.replace(/&amp;/g, '&');
         if (csComp.StringExt.isNullOrEmpty(text)) return text;
         if (!pt.type) return text;
         switch (pt.type) {
@@ -190,7 +257,7 @@
                 if (pt.stringFormat)
                     displayValue = String.format(pt.stringFormat, rank[0], rank[1]);
                 else
-                    displayValue = String.format("{0) / {1}", rank[0], rank[1]);
+                    displayValue = String.format("{0} / {1}", rank[0], rank[1]);
                 break;
             case "hierarchy":
                 var hierarchy = text.split(";");
@@ -201,7 +268,18 @@
             case "date":
                 var d = new Date(Date.parse(text));
                 displayValue = d.toLocaleString();
-                  break;
+                break;
+            case "duration": //in ms
+                if (!$.isNumeric(text)) {
+                    displayValue = text;
+                } else {
+                    var d0 = new Date(0); var d1 = new Date(text);
+                    var h = d1.getHours() - d0.getHours();
+                    var m = d1.getMinutes() - d0.getMinutes();
+                    var s = d1.getSeconds() - d0.getSeconds();
+                    displayValue = ('0'+h).slice(-2) + 'h' + ('0'+m).slice(-2) + 'm' + ('0'+s).slice(-2) + 's';
+                }
+                break;
             default:
                 displayValue = text;
                 break;
@@ -213,14 +291,20 @@
     * Set the name of a feature.
     * @param {csComp.Services.IFeature} feature
     */
-    export function setFeatureName(feature: csComp.Services.IFeature) {
+    export function setFeatureName(feature: csComp.Services.IFeature, propertyTypeData?: csComp.Services.IPropertyTypeData) {
         // Case one: we don't need to set it, as it's already present.
-        if (feature.properties.hasOwnProperty('Name')) return;
+        if (feature.properties.hasOwnProperty('Name')) return feature;
         // Case two: the feature's style tells us what property to use for the name.
-        var nameLabel = feature.fType.style.nameLabel;
-        if (nameLabel && feature.properties.hasOwnProperty(nameLabel)) {
-            feature.properties['Name'] = feature.properties[nameLabel];
-            return;
+        if (feature.fType && feature.fType.style && feature.fType.style.nameLabel) {
+            var nameLabel = feature.fType.style.nameLabel;
+            if (nameLabel && feature.properties.hasOwnProperty(nameLabel)) {
+                if (propertyTypeData && propertyTypeData.hasOwnProperty(nameLabel)) {
+                    feature.properties['Name'] = convertPropertyInfo(propertyTypeData[nameLabel], feature.properties[nameLabel]);
+                } else {
+                    feature.properties['Name'] = feature.properties[nameLabel];
+                }
+                return feature;
+            }
         }
         // Case three: the feature has a Name property which specifies a string format, meaning that the Name is derived from several existing properties.
         if (feature.fType.propertyTypeData != null) {
@@ -228,16 +312,17 @@
                 var propertyType = feature.fType.propertyTypeData[i];
                 if (propertyType.label !== 'Name') continue;
                 feature.properties['Name'] = Helpers.convertStringFormat(feature, propertyType.stringFormat);
-                return;
+                return feature;
             }
         }
         // If all else fails, use the first property
         for (var prop in feature.properties) {
             feature.properties['Name'] = prop.toString();
-            return;
+            return feature;
         }
         // Finally, just create a GUID.
         feature.properties['Name'] = Helpers.getGuid();
+        return feature;
     }
 
     /**
@@ -262,6 +347,7 @@
     * @param {string} find
     */
     export function indexes(source: string, find: string) {
+        if (!source) return [];
         var result: number[] = [];
         for (var i = 0; i < source.length; i++) {
             if (source.substr(i, find.length) === find) result.push(i);
@@ -274,7 +360,7 @@
         return guid;
     }
 
-     export function S4() {
+    export function S4() {
         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
     }
 
@@ -283,11 +369,11 @@
      * GeoJSON file that represents all visible items.
      * Also loads the keys into the featuretype's propertyTypeData collection.
      */
-     export function loadMapLayers(layerService: Services.LayerService) : Services.IGeoJsonFile {
-        var data         : Services.IGeoJsonFile = {
-            type         : '',
-            features     : [],
-            featureTypes : {}
+    export function loadMapLayers(layerService: Services.LayerService): Services.IGeoJsonFile {
+        var data: Services.IGeoJsonFile = {
+            type: '',
+            features: [],
+            featureTypes: {}
         };
         // If we are filtering, load the filter results
         layerService.project.groups.forEach((group) => {
@@ -300,7 +386,7 @@
 
         data.features.forEach((f: Services.IFeature) => {
             if (!(data.featureTypes.hasOwnProperty(f.featureTypeName))) {
-                var featureType = layerService.featureTypes[f.featureTypeName];
+                var featureType = layerService.getFeatureType(f);
                 if (!featureType.name) featureType.name = f.featureTypeName.replace('_Default', '');
                 data.featureTypes[f.featureTypeName] = featureType;
                 if (featureType.propertyTypeKeys) {
@@ -325,13 +411,44 @@
      * @return {RightPanelTab}    Returns the RightPanelTab instance. Add it to the
      * rightpanel by publishing it on the MessageBus.
      */
-    export function createRightPanelTab(container: string, directive: string, data: any, title: string, icon?: string) : Services.RightPanelTab {
-      var rpt = new Services.RightPanelTab();
-      rpt.container = container;
-      rpt.data = data;
-      rpt.title = title;
-      rpt.directive = directive;
-      rpt.icon = icon || "tachometer";
-      return rpt;
+    export function createRightPanelTab(container: string, directive: string, data: any, title: string, popover?: string, icon?: string): Services.RightPanelTab {
+        var rpt = new Services.RightPanelTab();
+        rpt.container = container;
+        rpt.data = data;
+        rpt.title = title;
+        rpt.directive = directive;
+        rpt.popover = popover || '';
+        rpt.icon = icon || 'tachometer';
+        return rpt;
+    }
+
+    /**
+     * Helper function to parse a query of an url (e.g localhost:8080/api?a=1&b=2&c=3)
+     */
+    export function parseUrlParameters(url: string, baseDelimiter: string, subDelimiter: string, valueDelimiter: string): {[key: string]: any} {
+        var baseUrl = url.split(baseDelimiter)[0];
+        var croppedUrl = url.split(baseDelimiter)[1];
+        var splittedUrl = croppedUrl.split(subDelimiter);
+        var urlParameters: {[key: string]: any} = {};
+        splittedUrl.forEach((param) => {
+            var keyValue = param.split(valueDelimiter);
+            urlParameters[keyValue[0]] = (isNaN(+keyValue[1])) ? keyValue[1] : +keyValue[1]; //Store as number when possible
+        });
+        urlParameters['baseUrl'] = baseUrl;
+        return urlParameters;
+    }
+
+    /**
+     * Helper function to parse a query of an url (e.g localhost:8080/api?a=1&b=2&c=3)
+     */
+    export function joinUrlParameters(params: {[key: string]: any}, baseDelimiter: string, subDelimiter: string, valueDelimiter: string): string {
+        var url = params['baseUrl'] + baseDelimiter;
+        for (var key in params) {
+            if (params.hasOwnProperty(key) && key !== 'baseUrl' && params[key]) {
+                url = url + key + valueDelimiter + params[key] + subDelimiter;
+            }
+        }
+        url = url.substring(0, url.length-1);
+        return url;
     }
 }

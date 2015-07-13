@@ -10,6 +10,13 @@
     <div class="controls">
       <input id="dashboardTitle" name="textinput" type="text" ng-model="vm.dashboard.name" placeholder="placeholder" class="input-xlarge">
     </div>
+    <div class="controls">
+        <label class="editor-title input-xlarge">Parent</label>
+        <input type="checkbox" ng-model="vm.hasParent" ng-click="vm.toggleMap()">
+        <select data-ng-model="vm.parent" class="form-control tt-input editor-text-input" ng-click="vm.updateHasParent()">
+            <option ng-repeat="db in vm.$layerService.project.dashboards" ng-value="db.id">{{db.name}}</option>
+        </select>
+    </div>
     <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
       <input type="checkbox" id="showmap-{{vm.dashboard.id}}" ng-model="vm.dashboard.showMap" ng-click="vm.toggleMap()">
       <label for="showmap-{{vm.dashboard.id}}">Show Map</label>
@@ -23,8 +30,13 @@
       <label for="image-{{vm.dashboard.id}}">Show Image</label>
     </div>
     <div style="margin-left: 20px">
-      <input type="text" ng-model="vm.dashboard.backgroundimage">      
+      <input type="text" ng-model="vm.dashboard.backgroundimage">
     </div>
+    <div class="btn">
+        <button ng-click="vm.setExtent()">Set Extent</button>
+        <button ng-click="vm.setVisibleLayers()">Set Visible Layers</button>
+    </div>
+
 
   </div>
   <div style="float: left; margin-left: -5px; margin-top: 5px" data-toggle="collapse" data-target="#dashboardwidgets_{{vm.dashboard.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
@@ -33,7 +45,7 @@
     <ul data-ng-repeat="widget in vm.dashboard.widgets" class="widgets-edit-list">
       <li>
         <div ng-show="widget.enabled" class="widgeteditbutton" style="float:right;height:25px;width:25px" ng-class="{widgeteditmode : vm.$dashboardService.activeWidget == widget}">
-          <button ng-click="vm.$dashboardService.editWidget(widget)"  class="button fa fa-pencil leftpanel-header-button" />
+          <button ng-click="vm.$dashboardService.editWidget(widget)"  class="button fa fa-cog leftpanel-header-button" />
         </div>
         <div class="checkbox dashboard-edit-checkbox" ng-mouseover="vm.widgetHighlight(widget)" ng-mouseleave="vm.widgetStopHighlight(widget)" style="margin-left: 20px;margin-right:40px">
           <input type="checkbox" ng-model="widget.enabled" id="widget-{{vm.dashboard.id}}-{{widget.id}}">
@@ -42,7 +54,7 @@
 
       </li>
     </ul>
-
+    <button class="rightpanel-header-button" ng-click="vm.addWidget($event)"><span class="fa fa-plus" style="padding:5px;"><div style="margin-left:5px;display:inline-block;">Add widget</div></span></button>
   </div>
 </div>
 </div>

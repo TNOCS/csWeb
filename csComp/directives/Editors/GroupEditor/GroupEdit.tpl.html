@@ -20,6 +20,9 @@
       <input ng-disabled="vm.noLayerSelected" type="checkbox" id="oneLayerActive-{{vm.group.id}}" ng-model="group.oneLayerActive" >
       <label for="oneLayerActive-{{vm.group.id}}">One layer active</label>
     </div>
+    <div class="controls">
+      <button class="btn" ng-click="vm.removeGroup()">remove</button>
+    </div>
 
 </div>
 </div>

@@ -1,4 +1,4 @@
-﻿module ExpertMode {
+module ExpertMode {
     import Expertise = csComp.Services.Expertise;
 
     export interface IExpertModeScope extends ng.IScope {
@@ -50,7 +50,7 @@
                     return 'expertUserIcon';
                     break;
                 case Expertise.Admin:
-                    return 'expertUserIcon';
+                    return 'adminExpertUserIcon';
                     break;
             }
         }

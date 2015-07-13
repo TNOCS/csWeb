@@ -6,6 +6,10 @@ module csComp.Services {
         (title: string, data?: any): any;
     }
 
+    export class ClientMessage {
+        constructor(public action: string, public data: any) { }
+    }
+
     declare var io;
 
     // Handle returned when subscribing to a topic
@@ -117,6 +121,7 @@ module csComp.Services {
                 sub.callbacks.push(callback);
                 this.subscriptions[sub.id] = sub;
                 sub.serverCallback = (r) => {
+                    //console.log(r.action);
                     sub.callbacks.forEach(cb => cb(sub.id, r));
                 };
                 this.socket.on(sub.id, sub.serverCallback);
@@ -159,7 +164,7 @@ module csComp.Services {
 
         }
 
-        public disconnect() {}
+        public disconnect() { }
     }
 
     export enum NotifyLocation {
@@ -167,6 +172,13 @@ module csComp.Services {
         BottomLeft,
         TopRight,
         TopLeft
+    }
+
+    export enum NotifyType {
+        Normal,
+        Info,
+        Error,
+        Success
     }
 
     export class ServerSubscription {
@@ -228,6 +240,17 @@ module csComp.Services {
             c.socket.emit(topic, message);
         }
 
+        public serverSendMessage(msg: ClientMessage, serverId = "") {
+            var c = this.getConnection(serverId);
+            if (c == null) return null;
+            c.socket.emit("msg", msg);
+        }
+
+        public serverSendMessageAction(action: string, data: any, serverId = "") {
+            var cm = new ClientMessage(action, data);
+            this.serverSendMessage(cm, serverId);
+        }
+
         public serverSubscribe(target: string, type: string, callback: IMessageBusCallback, serverId = ""): MessageBusHandle {
             var c = this.getConnection(serverId);
             if (c == null) return null;
@@ -261,44 +284,61 @@ module csComp.Services {
          * @title:       the title of the notification
          * @text:        the contents of the notification
          * @location:    the location on the screen where the notification is shown (default bottom right)
+         * @notifyType:  the type of notification
 		 */
-        notify(title: string, text: string, location = NotifyLocation.BottomRight) {
-            var cssLocation: string,
-                dir1: string,
-                dir2: string;
-
+        public notify(title: string, text: string, location = NotifyLocation.TopRight, notifyType = NotifyType.Normal) {
+            var cssLocation: string;
+            var cornerglass: string = 'ui-pnotify-sharp';
+            var myStack : { dir1: string, dir2: string } = { dir1: "", dir2: "" };
             switch (location) {
                 case NotifyLocation.BottomLeft:
                     cssLocation = 'stack-bottomleft';
-                    dir1 = 'up';
-                    dir2 = 'right';
-                    break;
-                case NotifyLocation.TopRight:
-                    cssLocation = 'stack-topright';
-                    dir1 = 'down';
-                    dir2 = 'left';
+                    myStack.dir1 = 'up';
+                    myStack.dir2 = 'right';
                     break;
                 case NotifyLocation.TopLeft:
                     cssLocation = 'stack-topleft';
-                    dir1 = 'down';
-                    dir2 = 'right';
+                    myStack.dir1 = 'down';
+                    myStack.dir2 = 'right';
                     break;
                 default:
-                    cssLocation = 'stack-bottomright';
-                    dir1 = 'up';
-                    dir2 = 'left';
+                //case NotifyLocation.TopRight:
+                    cssLocation = 'stack-topright';
+                    myStack.dir1 = 'down';
+                    myStack.dir2 = 'left';
                     break;
+                // default:
+                //     cssLocation = 'stack-bar-top';
+                //     myStack.dir1 = 'down';
+                //     myStack.dir2 = 'left';
+                //     break;
             }
 
             var options: pnotifyDefaults = {
                 title: title,
                 text: text,
-                icon: 'fa fa-info',
-                cornerclass: 'ui-pnotify-sharp',
+                cornerclass: cornerglass,
                 addclass: cssLocation,
-                stack: { "dir1": dir1, "dir2": dir2, "firstpos1": 25, "firstpos2": 25 }
+                stack: myStack
             };
 
+            switch (notifyType) {
+                default:
+                    options.icon = 'fa fa-info';
+                    break;
+                case NotifyType.Info:
+                    options.icon = 'fa fa-info-circle';
+                    options.type = 'info';
+                    break;
+                case NotifyType.Error:
+                    options.icon = 'fa fa-exclamation-triangle';
+                    options.type = 'error';
+                    break;
+                case NotifyType.Success:
+                    options.icon = 'fa fa-thumbs-o-up';
+                    options.type = 'success';
+                    break;
+            }
             var pn = new PNotify(options);
         }
 
