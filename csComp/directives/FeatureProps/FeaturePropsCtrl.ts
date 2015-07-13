@@ -231,12 +231,13 @@ module FeatureProps {
 
         public static title(type: IFeatureType, feature: IFeature): string {
             var title = '';
-            if (type != null && type.style != null && type.style.nameLabel)
-                title = feature.properties[type.style.nameLabel];
-            else {
+            if (feature.hasOwnProperty('properties')) {
                 if (feature.properties.hasOwnProperty('Name')) title = feature.properties['Name'];
                 else if (feature.properties.hasOwnProperty('name')) title = feature.properties['name'];
                 else if (feature.properties.hasOwnProperty('naam')) title = feature.properties['naam'];
+            }
+            else if (type != null && type.style != null && type.style.nameLabel) {
+                title = feature.properties[type.style.nameLabel];
             }
             if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
                 title = title.replace(/&amp;/g, '&');
