@@ -85,26 +85,6 @@ module csComp.Services {
                     $(".cesiumPopup").fadeOut('fast').remove();
             }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-            // zoom to mouse
-            var eventHandler, mousePosition;
-
-            this.scene.screenSpaceCameraController.enableZoom = false;
-            eventHandler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
-
-            eventHandler.setInputAction((event) => {
-                mousePosition = event.endPosition;
-            }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-            eventHandler.setInputAction((wheelZoomAmount) => {
-                var cameraHeight, directionToZoom, zoomAmount;
-                if (mousePosition) {
-                    cameraHeight = this.scene.globe.ellipsoid.cartesianToCartographic(this.camera.position).height || Number.MAX_VALUE;
-                    directionToZoom = this.camera.getPickRay(mousePosition).direction;
-                    zoomAmount = wheelZoomAmount * cameraHeight / 1000;
-
-                    this.camera.move(directionToZoom, zoomAmount);
-                }
-            }, Cesium.ScreenSpaceEventType.WHEEL);
         }
 
         public disable() {
