@@ -39,8 +39,8 @@
                 bounds.yMin = bounds.yMin < b[0][1] ? bounds.yMin : b[0][1];
                 bounds.yMax = bounds.yMax > b[1][1] ? bounds.yMax : b[1][1];
             }
-            bounds.southWest = [bounds.yMin,bounds.xMin];
-            bounds.northEast = [bounds.yMax,bounds.xMax];
+            bounds.southWest = [bounds.yMin, bounds.xMin];
+            bounds.northEast = [bounds.yMax, bounds.xMax];
 
             // Returns an object that contains the bounds of this GeoJSON
             // data. The keys of this object describe a box formed by the
@@ -237,5 +237,40 @@
             return propType;
         }
 
+        static convertMileToKm(miles: number) {
+            if (!miles || isNaN(miles)) return;
+            return (miles * 1.609344);
+        }
+
+        static convertKmToMile(km: number) {
+            if (!km || isNaN(km)) return;
+            return (km * 0.621371192);
+        }
+
+        /**
+         * pointInsidePolygon returns true if a 2D point lies within a polygon of 2D points
+         * @param  {number[]}   point   [lat, lng]
+         * @param  {number[][]} polygon [[lat, lng], [lat,lng],...]
+         * @return {boolean}            Inside == true
+         */
+        static pointInsidePolygon(point: number[], polygon: number[][]): boolean {
+            // https://github.com/substack/point-in-polygon
+            // ray-casting algorithm based on
+            // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+            var x = point[0];
+            var y = point[1];
+
+            var inside = false;
+            for (var i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                var xi = polygon[i][0], yi = polygon[i][1];
+                var xj = polygon[j][0], yj = polygon[j][1];
+
+                var intersect = ((yi > y) != (yj > y))
+                    && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+
+            return inside;
+        }
     }
 }

@@ -15,6 +15,9 @@ module TripPlanner {
         private urlParameters: IOtpUrlParameters;
         private transportModes: { [key: string]: any };
         private transportMode: string;
+        private walkSpeedKm: number;
+        private bikeSpeedKm: number;
+        private time: string;
         private fromLoc: number;
         private toLoc: number;
         public urlKeys = ['arriveBy', 'fromPlace', 'toPlace', 'intermediatePlaces', 'date', 'time', 'mode', 'maxWalkDistance', 'walkSpeed', 'bikeSpeed',
@@ -47,14 +50,21 @@ module TripPlanner {
             $scope.vm = this;
             this.layer = $scope.$parent["data"];
             this.urlParameters = {};
-            this.urlKeys.forEach((key) => { this.urlParameters[key] = 0});
+            this.urlKeys.forEach((key) => { this.urlParameters[key] = 0 });
+            this.bikeSpeedKm;
+            this.walkSpeedKm;
             this.transportModes = {};
             this.transportModes["Walking"] = "WALK";
             this.transportModes["Biking"] = "BICYCLE";
+            this.transportModes["Public transport"] = "TRANSIT";
             //this.transportModes["Car"] = "CAR";
         }
 
         public planRoute() {
+            this.urlParameters['time'] = encodeURIComponent(this.time);
+            this.urlParameters['mode'] = this.transportMode;
+            if (this.walkSpeedKm) this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);
+            if (this.bikeSpeedKm) this.urlParameters['bikeSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.bikeSpeedKm);
             this.layer.url = csComp.Helpers.joinUrlParameters(this.urlParameters, '?', '&', '=');
             if (!this.layer.enabled) {
                 this.$layerService.addLayer(this.layer);
@@ -66,7 +76,12 @@ module TripPlanner {
 
         public parseUrl() {
             this.urlParameters = csComp.Helpers.parseUrlParameters(this.layer.url, '?', '&', '=');
+            var d = new Date(Date.now());
+            this.time = ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
+            this.urlParameters['date'] = (d.getMonth()+1) + '-' + d.getDate() + '-' + d.getFullYear();
             this.transportMode = this.urlParameters['mode'];
+            if (this.urlParameters.hasOwnProperty('walkSpeed')) this.walkSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['walkSpeed']).toFixed(2);
+            if (this.urlParameters.hasOwnProperty('bikeSpeed')) this.bikeSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['bikeSpeed']).toFixed(2);
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
         }
 

@@ -81,13 +81,13 @@
             <feature-type-editor featureType="featureType"></feature-type-editor>
         </div>
     </div>
-    <div ng-if="callOut.feature.gui.actions" class="featureProps-actions">
+    <!-- <div ng-if="callOut.feature.gui.actions" class="featureProps-actions">
         <ul>
             <li ng-repeat="action in callOut.feature.gui.actions">
                 <a class="featureProps-action" ng-click="action.callback(callOut.feature, vm.$layerService);">{{action.title}}</a>
             </li>
         </ul>
-    </div>
+    </div> -->
     <div ng-hide="configMode" class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
         <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="(sectionTitle, section) in callOut.sections">
 
@@ -150,11 +150,11 @@
                                         <div ng-switch-when="media">
 
                                                 <div ng-repeat="media in feature.properties[item.property]">
-                                                    <img src="{{media}}" style="height:50px; float:left;margin:5px"></img>
+                                                    <img ng-src="{{media}}" style="width:300px; float:left;margin:5px"></img>
                                                 </div>
-                                            
+
                                         </div>
-                                        <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
+                                        <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.value)"></div>
                                     </div>
                                     <div style="overflow:hidden;padding-left:4px;padding-right:20px;">
                                         {{item.key}}

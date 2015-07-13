@@ -1,19 +1,6 @@
 module csComp.Services {
 
-    export interface IEvent {
-        id: string;
-        title: string;
-        color: string;
-        start: number;
-    }
 
-    export class Event implements IEvent {
-        id: string;
-        title: string;
-        color: string;
-        start: number;
-        startDate = (): Date => { return new Date(this.start); }
-    }
 
     export class Log {
         /**
@@ -43,6 +30,7 @@ module csComp.Services {
         fType?: IFeatureType;
         effectiveStyle: IFeatureTypeStyle;
         isInitialized?: boolean;
+        lastUpdated: number;
         gui: Object;
         sensors?: { [id: string]: any[] }
 
@@ -72,6 +60,7 @@ module csComp.Services {
         isSelected: boolean;
         htmlStyle: string;
         featureTypeName: string;
+        lastUpdated: number;
         gui: Object = {};
         /** resolved feature type */
         fType: IFeatureType;

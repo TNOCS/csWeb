@@ -163,6 +163,13 @@
             background-position: right;
         }
 
+        .isAnsweredQuestion {
+            background-color: #F5F5F5;
+            background-image: url("cs/images/check.png");
+            background-repeat: no-repeat;
+            background-position: right;
+        }
+
         .filter-row {
             position: relative;
             ;
@@ -196,11 +203,11 @@
 
         </div>
 
-        <div class="card-new-button dropdown" tooltip="add new card"  tooltip-placement="right" tooltip-trigger="mouseenter" tooltip-append-to-body="true">
+        <div class="card-new-button dropdown" tooltip="add new card"  tooltip-placement="right" tooltip-trigger="mouseenter" tooltip-append-to-body="false">
             <span class="fa fa-2x fa-plus" style="margin-left:14px;margin-top:12px;" data-toggle="dropdown"></span>
             <ul class="dropdown-menu" role="menu" style="color:black">
                 <li class="available-featuretype" ng-repeat="(key,val) in vm.featureTypes">
-                    <a ng-click="vm.addFeature(key)"><img src="{{val.style.iconUri}}"><span style="margin-left:8px;font-size:18px">{{val.name}}</span></a></li>
+                    <a ng-click="vm.addFeature(key)"><img ng-src="{{val.style.iconUri}}"><span style="margin-left:8px;font-size:18px">{{val.name}}</span></a></li>
             </ul>
         </div>
 

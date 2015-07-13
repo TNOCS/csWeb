@@ -128,6 +128,7 @@ describe('csComp.Services.LayerService', function() {
             it('should parse projects.json correctly',()=>{
                 layerService.$mapService = mapService;
                 mapService.map = <L.Map>{};
+                layerService.selectRenderer('leaflet');
                 mapService.map.setMaxBounds = function (a:any, b:any) {return new L.Map('mapId', {maxBounds: mockSolution.maxBounds})};
                 mapService.baseLayers = {};
                 spyOn(mapService.map, 'setMaxBounds');

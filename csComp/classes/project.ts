@@ -128,6 +128,7 @@ module csComp.Services {
         title: string;
         description: string;
         logo: string;
+        otpServer: string;
         url: string;
         /** true if a dynamic project and you want to subscribe to project changes using socket.io */
         connected: boolean;
@@ -191,6 +192,7 @@ module csComp.Services {
                 title: project.title,
                 description: project.description,
                 logo: project.logo,
+                otpServer: project.otpServer,
                 url: project.url,
                 connected: project.connected,
                 startPosition: project.startposition,

@@ -16,18 +16,31 @@ class SplitAdresTransformer implements transform.ITransform {
    */
   outputDataTypes: transform.OutputDataType[];
 
+  streetHouseNumberProperty: string;
+  zipcodeCityProperty: string;
+
   constructor(public title: string) {
       this.id = Utils.newGuid();
       //this.description = description;
   }
 
-  initialize(){
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
+    var zipcodeCityPropertyParameter = opt.parameters.filter(p=>p.type.title == "zipcodeCityProperty")[0];
+    if (zipcodeCityPropertyParameter) {
+      this.zipcodeCityProperty = <string>zipcodeCityPropertyParameter.value;
+    }
 
+    var streetHouseNumberPropertyParameter = opt.parameters.filter(p=>p.type.title == "streetHouseNumberProperty")[0];
+    if (streetHouseNumberPropertyParameter) {
+      this.streetHouseNumberProperty = <string>streetHouseNumberPropertyParameter.value;
+    }
+
+    callback(null);
   }
 
   create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
     var t = new stream.Transform();
-    stream.Transform.call(t);
+    /*stream.Transform.call(t);*/
 
     t.setEncoding("utf8");
     t._transform =  (chunk, encoding, done) => {
@@ -37,21 +50,24 @@ class SplitAdresTransformer implements transform.ITransform {
       // console.log("=== Before:")
       // console.log(feature);
 
-      var adres:string = feature.adres;
-      var pc_plaats:string = feature.pc_plaats;
+      if (this.streetHouseNumberProperty) {
+        var adres:string = feature.properties[this.streetHouseNumberProperty];
+        // console.log(this.streetHouseNumberProperty + ": " + adres);
 
-      var street = adres.slice(0,adres.search(/\d/)).trim();
-      var addressNumberWithAddition = adres.slice(adres.search(/\d/)).trim();
-      var strAddressNumber = addressNumberWithAddition.slice(0,addressNumberWithAddition.search(/\D/)).trim();
-      var addressNumber = parseInt(strAddressNumber);
+        var street = adres.slice(0,adres.search(/\d/)).trim();
+        var addressNumberWithAddition = adres.slice(adres.search(/\d/)).trim();
+        var strAddressNumber = addressNumberWithAddition.slice(0,addressNumberWithAddition.search(/\D/)).trim();
+        var addressNumber = parseInt(strAddressNumber);
+        feature.straat = street;
+        feature.properties.huisnummer = addressNumber;
+      }
 
-      feature.straat = street;
-      feature.huisnummer = addressNumber;
+      if (this.zipcodeCityProperty) {
+        var pc_plaats:string = feature.properties[this.zipcodeCityProperty];
+        var postcode = pc_plaats.slice(0,7);
+        feature.properties.postcode = postcode;
+      }
 
-      var pcPlaats = feature.pc_plaats;
-      var postcode = pcPlaats.slice(0,7);
-
-      feature.postcode = postcode;
 
       t.push(JSON.stringify(feature));
 

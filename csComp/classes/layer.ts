@@ -44,6 +44,8 @@ module csComp.Services {
         refreshBBOX?: boolean;
         /** if this is a feed, the layer features can be shown on timeline and  */
         isDynamic?: boolean;
+        /** indicates if features should be shown on timeline */
+        showOnTimeline?: boolean;
         /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
         dynamicResource?: boolean;
 
@@ -134,6 +136,8 @@ module csComp.Services {
         group: ProjectGroup;
         /** proxy url, using own server, not implemented */
         useProxy: boolean;
+        /** indicates if features should be shown on timeline */
+        showOnTimeline: boolean;
         /** if true, use the current bounding box to retreive data from the server */
         refreshBBOX: boolean;
         /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */

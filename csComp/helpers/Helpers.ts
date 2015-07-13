@@ -269,6 +269,17 @@
                 var d = new Date(Date.parse(text));
                 displayValue = d.toLocaleString();
                 break;
+            case "duration": //in ms
+                if (!$.isNumeric(text)) {
+                    displayValue = text;
+                } else {
+                    var d0 = new Date(0); var d1 = new Date(text);
+                    var h = d1.getHours() - d0.getHours();
+                    var m = d1.getMinutes() - d0.getMinutes();
+                    var s = d1.getSeconds() - d0.getSeconds();
+                    displayValue = ('0'+h).slice(-2) + 'h' + ('0'+m).slice(-2) + 'm' + ('0'+s).slice(-2) + 's';
+                }
+                break;
             default:
                 displayValue = text;
                 break;
@@ -280,14 +291,18 @@
     * Set the name of a feature.
     * @param {csComp.Services.IFeature} feature
     */
-    export function setFeatureName(feature: csComp.Services.IFeature) {
+    export function setFeatureName(feature: csComp.Services.IFeature, propertyTypeData?: csComp.Services.IPropertyTypeData) {
         // Case one: we don't need to set it, as it's already present.
         if (feature.properties.hasOwnProperty('Name')) return feature;
         // Case two: the feature's style tells us what property to use for the name.
         if (feature.fType && feature.fType.style && feature.fType.style.nameLabel) {
             var nameLabel = feature.fType.style.nameLabel;
             if (nameLabel && feature.properties.hasOwnProperty(nameLabel)) {
-                feature.properties['Name'] = feature.properties[nameLabel];
+                if (propertyTypeData && propertyTypeData.hasOwnProperty(nameLabel)) {
+                    feature.properties['Name'] = convertPropertyInfo(propertyTypeData[nameLabel], feature.properties[nameLabel]);
+                } else {
+                    feature.properties['Name'] = feature.properties[nameLabel];
+                }
                 return feature;
             }
         }
@@ -429,7 +444,7 @@
     export function joinUrlParameters(params: {[key: string]: any}, baseDelimiter: string, subDelimiter: string, valueDelimiter: string): string {
         var url = params['baseUrl'] + baseDelimiter;
         for (var key in params) {
-            if (params.hasOwnProperty(key) && key !== 'baseUrl') {
+            if (params.hasOwnProperty(key) && key !== 'baseUrl' && params[key]) {
                 url = url + key + valueDelimiter + params[key] + subDelimiter;
             }
         }

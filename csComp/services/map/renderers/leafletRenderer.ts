@@ -21,8 +21,13 @@ module csComp.Services {
                 zoomControl: false,
                 maxZoom: 19,
                 attributionControl: true
+
             });
             this.map = this.service.$mapService.map;
+
+
+
+
 
             this.service.$mapService.map.on('moveend', (t, event: any) => {
                 var b = (<L.Map>(this.service.$mapService.map)).getBounds();
@@ -111,16 +116,17 @@ module csComp.Services {
 
         }
 
+        baseLayer: L.ILayer;
+
         public changeBaseLayer(layerObj: BaseLayer) {
             if (layerObj == this.service.$mapService.activeBaseLayer) return;
+            if (this.baseLayer) this.service.map.map.removeLayer(this.baseLayer);
+            this.baseLayer = this.createBaseLayer(layerObj);
 
-            var layer: L.ILayer = this.createBaseLayer(layerObj);
+            this.service.map.map.addLayer(this.baseLayer);
 
-            this.service.map.map.addLayer(layer);
-            if (this.service.$mapService.activeBaseLayer)
-                this.service.map.map.removeLayer(this.createBaseLayer(this.service.$mapService.activeBaseLayer));
             this.service.map.map.setZoom(this.service.map.map.getZoom());
-            this.service.map.map.fire('baselayerchange', { layer: layer });
+            this.service.map.map.fire('baselayerchange', { layer: this.baseLayer });
             console.log('changebaselayer');
         }
 
@@ -362,7 +368,29 @@ module csComp.Services {
             switch (feature.geometry.type) {
                 case 'Point':
                     var icon = this.getPointIcon(feature);
-                    marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), { icon: icon });
+                    marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
+                        icon: icon
+                    });
+
+                    marker.on('contextmenu', (e: any) => {
+                        this.service._activeContextMenu = this.service.getActions(feature);
+
+                        //e.stopPropagation();
+                        var button: any = $("#map-contextmenu-button");
+                        var menu: any = $("#map-contextmenu");
+                        button.dropdown('toggle');
+                        var mapSize = this.map.getSize();
+                        menu.css("left", e.originalEvent.x + 5);
+                        menu.css("top", e.originalEvent.y - 35);
+
+                        /*var containerSize = this.getElementSize(container),
+                            anchor;*/
+                        console.log(e);
+                        //L.DomEvent.apply(e, "click");
+                        //alert(e.latlng);
+                    });
+
+
                     break;
                 default:
                     marker = L.GeoJSON.geometryToLayer(<any>feature);
@@ -376,6 +404,8 @@ module csComp.Services {
 
             return marker;
         }
+
+
 
         /**
          * create icon based of feature style
