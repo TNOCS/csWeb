@@ -172,6 +172,7 @@ module csComp.Services {
         }
 
         public getActions(feature: IFeature): IActionOption[] {
+            if (!feature) return;
             var options = [];
             this.actionServices.forEach((as: csComp.Services.IActionService) => {
                 options = options.concat(as.getFeatureActions(feature));

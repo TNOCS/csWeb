@@ -421,7 +421,6 @@ module FeatureProps {
 
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
-            feature.gui["actions"] = this.$layerService.getActions(feature);
             var featureType = feature.fType;
             this.$scope.featureType = featureType;
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
