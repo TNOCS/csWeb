@@ -26,7 +26,7 @@ class GeoJsonAggregateTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt?: transform.ITransformFactoryOptions[], callback?: (error)=>void) {
+  initialize(opt: transform.ITransformFactoryOptions[], callback: (error)=>void) {
     request({ url: "http://localhost:3456/data/wijk-empty.geojson" }, (error, response, body)=>{
       if (error) {
         callback(error);
@@ -36,9 +36,7 @@ class GeoJsonAggregateTransformer implements transform.ITransform {
       console.log("Gemeente geojson loaded");
       this.geometry = JSON.parse(body);
 
-      if (callback) {
-        callback(null);
-      }
+      callback(null);
     });
   }
 

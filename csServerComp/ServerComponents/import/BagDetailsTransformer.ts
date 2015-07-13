@@ -25,8 +25,8 @@ class BagDetailsTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(){
-
+  initialize(opt, callback){
+    callback(null);
   }
 
   create(config: ConfigurationService, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {

@@ -23,8 +23,8 @@ class CollateStreamTransformer implements transform.ITransform {
         //this.description = description;
     }
 
-    initialize(){
-
+    initialize(opt, callback) {
+      callback(null);
     }
 
     create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {

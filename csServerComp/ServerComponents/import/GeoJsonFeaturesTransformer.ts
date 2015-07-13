@@ -23,8 +23,8 @@ class GeoJsonFeaturesTransformer implements transform.ITransform {
         //this.description = description;
     }
 
-    initialize(){
-
+    initialize(opt, callback){
+      callback(null);
     }
 
     create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
@@ -36,7 +36,6 @@ class GeoJsonFeaturesTransformer implements transform.ITransform {
 
       t.setEncoding("utf8");
       t._transform = (chunk, encoding, done) => {
-           /*console.log("##### GJFT #####");*/
            /*console.log(chunk.toString("utf8"));*/
 
           var line :string= chunk.toString("utf8");
@@ -53,7 +52,7 @@ class GeoJsonFeaturesTransformer implements transform.ITransform {
             var geoJson = JSON.parse(line);
           }
           catch(err) {
-            console.error(err);
+            console.error("Error parsing input feature:" + err);
             done();
             return;
           }

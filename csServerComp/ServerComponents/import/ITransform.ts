@@ -54,7 +54,7 @@ export interface ITransform {
 
     create?(config: ConfigurationService, opt?: ITransformFactoryOptions): NodeJS.ReadWriteStream;
 
-    initialize(opt?: ITransformFactoryOptions, callback?: (error)=>void);
+    initialize(opt: ITransformFactoryOptions, callback: (error)=>void);
 }
 
 // import s = require('stream');

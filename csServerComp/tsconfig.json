@@ -20,6 +20,7 @@
     "files": [
         "./Classes/Feature.ts",
         "./Scripts/typings/JSONStream/JSONStream.d.ts",
+        "./Scripts/typings/async/async.d.ts",
         "./Scripts/typings/body-parser/body-parser.d.ts",
         "./Scripts/typings/cs/cs-offline-search.d.ts",
         "./Scripts/typings/express/express.d.ts",
@@ -60,6 +61,7 @@
         "./ServerComponents/helpers/Utils.ts",
         "./ServerComponents/import/BagDetailsTransformer.ts",
         "./ServerComponents/import/BaseTransformer.ts",
+        "./ServerComponents/import/BushalteAggregateTransformer.ts",
         "./ServerComponents/import/CollateStreamTransformer.ts",
         "./ServerComponents/import/CsvToJsonTransformer.ts",
         "./ServerComponents/import/FieldFilterTransformer.ts",
@@ -74,6 +76,7 @@
         "./ServerComponents/import/ITransform.ts",
         "./ServerComponents/import/Importer.ts",
         "./ServerComponents/import/ImporterRepositoryService.ts",
+        "./ServerComponents/import/KvKToJsonTransformer.ts",
         "./ServerComponents/import/RepeatEnum.ts",
         "./ServerComponents/import/SplitAdresTransformer.ts",
         "./ServerComponents/import/Store.ts",

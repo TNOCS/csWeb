@@ -10,6 +10,7 @@ import ApiServiceManager         = require('./ServerComponents/api/ApiServiceMan
 
 import BaseTransformer           = require('./ServerComponents/import/BaseTransformer');
 import CsvToJsonTransformer      = require('./ServerComponents/import/CsvToJsonTransformer');
+import KvKToJsonTransformer      = require('./ServerComponents/import/KvKToJsonTransformer');
 import SplitAdresTransformer      = require('./ServerComponents/import/SplitAdresTransformer');
 import BagDetailsTransformer      = require('./ServerComponents/import/BagDetailsTransformer');
 import GeoJsonAggregateTransformer = require('./ServerComponents/import/GeoJsonAggregateTransformer');
@@ -19,6 +20,7 @@ import GeoJsonSplitTransformer = require('./ServerComponents/import/GeoJsonSplit
 import GeoJsonFeaturesTransformer = require('./ServerComponents/import/GeoJsonFeaturesTransformer');
 import CollateStreamTransformer = require('./ServerComponents/import/CollateStreamTransformer');
 import GeoJsonSaveTransformer = require('./ServerComponents/import/GeoJsonSaveTransformer');
+import BushalteAggregateTransformer = require('./ServerComponents/import/BushalteAggregateTransformer');
 
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser');
@@ -48,7 +50,8 @@ apiServiceMgr.addService(repoService);
 
 
 var transformers = [
-  new CsvToJsonTransformer("Convert to JSON"),
+  new CsvToJsonTransformer("Convert Csv to JSON"),
+  new KvKToJsonTransformer("Convert KvK to JSON"),
   new SplitAdresTransformer("Split adres"),
   new BagDetailsTransformer("Lookup BAG details"),
   new GeoJsonAggregateTransformer("GeoJSON aggregate"),
@@ -57,7 +60,8 @@ var transformers = [
   new GeoJsonSplitTransformer("GeoJSON split"),
   new GeoJsonFeaturesTransformer("GeoJSON features input"),
   new CollateStreamTransformer("Wait for complete stream"),
-  new GeoJsonSaveTransformer("Save GeoJSON")
+  new GeoJsonSaveTransformer("Save GeoJSON"),
+  new BushalteAggregateTransformer("Aggegreer Bushaltedata")
 ]
 
 console.log(transformers.length);

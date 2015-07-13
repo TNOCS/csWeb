@@ -29,7 +29,7 @@ class GeoJsonSaveTransformer implements transform.ITransform {
       //this.description = description;
   }
 
-  initialize(opt?: transform.ITransformFactoryOptions, callback?: (error)=>void) {
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
     var keyPropertyParameter = opt.parameters.filter(p=>p.type.title == "filenameKeyProperty")[0];
     if (keyPropertyParameter) {
       this.filenameKey = <string>keyPropertyParameter.value;
@@ -46,14 +46,11 @@ class GeoJsonSaveTransformer implements transform.ITransform {
     }
 
     if (!this.filename && !this.filenameKey) {
-      if (callback) {
-        callback(new Error("Either filename or filenameKey must be specified"));
-      }
+      callback("Either filename or filenameKey must be specified");
+      return
     }
 
-    if (callback) {
-      callback(null);
-    }
+    callback(null);
   }
 
   create(config, opt?: transform.ITransformFactoryOptions): NodeJS.ReadWriteStream {

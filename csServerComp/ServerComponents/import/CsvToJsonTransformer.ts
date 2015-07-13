@@ -20,13 +20,38 @@ class CsvToJsonTransformer implements transform.ITransform {
 
     //create?(opt?: ITransformFactoryOptions[]): stream.Readable | stream.Writable | stream.Transform;
 
+    fieldDelimiter:string;
+    textQualifier:string;
+    latField:string;
+    longField:string;
+
     constructor(public title: string) {
         this.id = Utils.newGuid();
         //this.description = description;
     }
 
-    initialize(){
-      this.headers = ["Registerletter","Dossiernummer","Subdossiernummer","Vestigingsnummer","Handelsnaam","adres","pc_plaats","adres_CA", "pc_plaats_CA", "Handelsnaam1x2x30", "Handelsnaam2x2x30", "Handelsnaam1x45", "postcode", "postcode_CA", "BeherendKamer-nummer", "GeografischKamer-nummer", "BoekjaarDeponeringJaarstuk", "DatumOpheffing", "DatumOprichting", "DatumVestiging", "DatumVestigingHuidigAdres", "Domeinnaam", "HoofdzaakFiliaalIndicatie", "IndicatieEconomischActief","NonMailingindicator", "Rechtsvorm", "RSIN", "Telefoonnummer", "gemeentecode", "HoofdactiviteitenCode", "NevenactiviteitenCode1", "NevenactiviteitenCode2", "HoofdactiviteitenOmschrijving", "HandelsnaamVolledig", "VennootschapnaamVolledig", "straat", "huisnummer", "toevoeging", "postcode", "woonplaats", "straat_CA", "huisnummer_CA", "toevoeging_CA", "postcode_CA", "woonplaats_CA"];
+    initialize(opt, callback) {
+      var propertyParameter = opt.parameters.filter((p)=>p.type.title == "fieldDelimiter")[0];
+      if (propertyParameter) {
+        this.fieldDelimiter = propertyParameter.value;
+      }
+
+      propertyParameter = opt.parameters.filter((p)=>p.type.title == "textQualifier")[0];
+      if (propertyParameter) {
+        this.textQualifier = propertyParameter.value;
+      }
+
+      propertyParameter = opt.parameters.filter((p)=>p.type.title == "latField")[0];
+      if (propertyParameter) {
+        this.latField = propertyParameter.value;
+      }
+
+      propertyParameter = opt.parameters.filter((p)=>p.type.title == "longField")[0];
+      if (propertyParameter) {
+        this.longField = propertyParameter.value;
+      }
+
+      callback(null);
     }
 
     create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
@@ -34,11 +59,12 @@ class CsvToJsonTransformer implements transform.ITransform {
       /*stream.Transform.call(t);*/
 
       var split = -1;
-      var headers :string[] = this.headers;
+      var headers :string[];
 
       t.setEncoding("utf8");
+
       t._transform = (chunk, encoding, done) => {
-          // console.log("##### CTJT #####");
+           /*console.log("##### CTJT #####");*/
           // console.log(chunk.toString("utf8"));
 
           var line :string= chunk.toString("utf8");
@@ -49,8 +75,22 @@ class CsvToJsonTransformer implements transform.ITransform {
             return;
           }
 
-          var lineMod = line.slice(1, line.length-1);
-          var fields = lineMod.split(/\",\"/);
+          var textQualifierRegExp = new RegExp("(?:\\s*(?:" + this.textQualifier + "([^" + this.textQualifier + "]*)" + this.textQualifier + "|([^" + this.fieldDelimiter + "]+))?\\s*" + this.fieldDelimiter + "?)+?","g");
+          var fields:string[] = [];
+          var result:RegExpExecArray;
+          var prevIndex = -1;
+          while ((result = textQualifierRegExp.exec(line)).index > prevIndex) {
+            if (result[1] && result[1].length > 0) {
+              fields.push(result[1]);
+            } else if (result[2] && result[2].length > 0) {
+              fields.push(result[2]);
+            } else {
+              fields.push('');
+            }
+            prevIndex = result.index;
+          }
+
+          /*var fields = line.split(this.fieldDelimiter);*/
           // console.log(line);
 
           if (!headers) {
@@ -58,9 +98,9 @@ class CsvToJsonTransformer implements transform.ITransform {
             fields.forEach(f=>{
               headers.push(f);
             });
-
-            // console.log(headers);
+            console.log(headers);
             done();
+            return;
           }
           else {
             var obj:any = {properties:{}};
@@ -69,6 +109,26 @@ class CsvToJsonTransformer implements transform.ITransform {
               var hIndex = headers.indexOf(h);
               obj.properties[h] = fields[hIndex];
             })
+
+            /*console.log(obj);*/
+
+            if (this.latField && this.longField && !obj.geometry) {
+              var strLat:string = obj.properties[this.longField];
+              var strLong:string = obj.properties[this.latField];
+              strLat = strLat.replace(/,/g,'.');
+              strLong = strLong.replace(/,/g,'.');
+              var lat = parseFloat(strLat);
+              var long = parseFloat(strLong);
+
+              /*console.log(lat + " - " + long);*/
+
+
+              obj.geometry = {
+                type: "Point",
+                coordinates: [lat, long]
+              }
+
+            }
 
             // console.log(obj);
             t.push(JSON.stringify(obj));
