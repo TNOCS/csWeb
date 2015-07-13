@@ -266,16 +266,18 @@ export class Rule implements IRule {
                         }}(this.feature, length > 1 ? <string>a[1] : "", service), this.getDelay(a, length-1));
                         console.log(`Timer ${id}: Add feature ${this.isGenericRule ? a[1] : this.feature.id}`)
                         break;
+                    case "answer":
                     case "set":
-                        // Set, property, value [, delay]
+                        // Anwer, property, value [, delay], as set, but also sets answered to true and removes the action tag.
+                        // Set, property, value [, delay] sets value and updated.
                         if (length < 3) {
                             console.warn(`Rule ${this.id} contains an invalid action (ignored): ${a}!`);
                             return;
                         }
                         var key = a[1];
                         if (typeof key === 'string') {
-                            this.setTimerForProperty(service, key, a[2], this.getDelay(a, 3));
-                    }
+                            this.setTimerForProperty(service, key, a[2], this.getDelay(a, 3), action === 'answer');
+                        }
                         break;
                     case "push":
                         // push property value [, delay]
@@ -287,13 +289,11 @@ export class Rule implements IRule {
                         if (typeof key === 'string') {
                             var valp = a[2];
                             var id = service.timer.setTimeout(function(f, k, v, service, updateProperty) { return () => {
-                                console.log(`Feature ${f.id}`);
-                                console.log(`pushing ${k}: ${v}`);
+                                console.log(`Feature ${f.id}. Pushing ${k}: ${v}`);
                                 if (!f.properties.hasOwnProperty(k))
                                     f.properties[k] = [v];
                                 else
                                     f.properties[k].push(v);
-                                //service.updateFeature(this.feature);
                                 updateProperty(f, service, k, f.properties[k]);
                             }}(this.feature, key, valp, service, this.updateProperty), this.getDelay(a, 3));
                             console.log(`Timer ${id}: push ${key}: ${valp}`)
@@ -306,51 +306,75 @@ export class Rule implements IRule {
         }
     }
 
-    private setTimerForProperty(service: RuleEngine.IRuleEngineService, key: string, value: any, delay = 0) {
+    private setTimerForProperty(service: RuleEngine.IRuleEngineService, key: string, value: any, delay = 0, isAnswer = false) {
         var id = service.timer.setTimeout(function(f, k, v, service, updateProperty) { return () => {
-            console.log(`Timers: ${service.timer.list()}`);
-            console.log(`Feature ${f.id}`);
-            console.log(`setting ${k}: ${v}`);
+            console.log(`Feature ${f.id}: ${k} = ${v}`);
             f.properties[k] = v;
-            //service.updateFeature(this.feature);
-            updateProperty(f, service, k, f.properties[key]);
+            updateProperty(f, service, k, f.properties[key], isAnswer);
         }}(this.feature, key, value, service, this.updateProperty), delay);
-        console.log(`Timer ${id}: set ${key}: ${value}`)
-        console.log('Timers: ' + service.timer.list());
+        console.log(`Timer ${id}: ${key} = ${value}`)
     }
 
-    private updateProperty(f: GeoJSON.IFeature, service: RuleEngine.IRuleEngineService, key: string, value: any) {
-        //var f = this.feature;
+    private updateProperty(f: GeoJSON.IFeature, service: RuleEngine.IRuleEngineService, key: string, value: any, isAnswer = false) {
+        var now = service.timer.now();
         if (!f.hasOwnProperty('logs')) f.logs = {};
         var logs: { [prop: string]: DynamicLayer.IPropertyUpdate[] } = {};
+        if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+        var log: DynamicLayer.IPropertyUpdate = {
+            "prop": key,
+            "ts": now,
+            "value": value
+        };
+        f.logs[key].push(log);
+        logs[key] = f.logs[key];
+
+        // FIXME Duplicate code
+        key = "updated";
+        value = now;
+        if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+        var log: DynamicLayer.IPropertyUpdate = {
+            "prop": key,
+            "ts": now,
+            "value": value
+        };
+        f.logs[key].push(log);
+
+        // FIXME Duplicate code
+        if (isAnswer) {
+            key = "answered";
+            value = true;
             if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
             var log: DynamicLayer.IPropertyUpdate = {
                 "prop": key,
-                "ts": service.timer.now(),
+                "ts": now,
                 "value": value
             };
             f.logs[key].push(log);
             logs[key] = f.logs[key];
 
-            // FIXME Duplicate code
-            key = "updated";
-            value = service.timer.now();
-            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
-            var log: DynamicLayer.IPropertyUpdate = {
-                "prop": key,
-                "ts": service.timer.now(),
-                "value": value
-            };
-            f.logs[key].push(log);
-            logs[key] = f.logs[key];
-
+            key = "tags";
+            if (f.properties.hasOwnProperty(key) ) {
+                let index = f.properties[key].indexOf('action');
+                if (index >= 0) {
+                    f.properties[key].splice(index, 1);
+                    if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+                    var log: DynamicLayer.IPropertyUpdate = {
+                        "prop": key,
+                        "ts": now,
+                        "value": f.properties[key]
+                    };
+                    f.logs[key].push(log);
+                    logs[key] = f.logs[key];
+                }
+            }
+        }
         var msg: DynamicLayer.IMessageBody = {
             "featureId": f.id,
             "logs": logs
         };
         //msg.logs.push(f.logs[key]);
         console.log('Log message: ');
-        console.log(JSON.stringify(msg, null, 2));
+        /*console.log(JSON.stringify(msg, null, 2));*/
         service.layer.connection.updateFeature(service.layer.layerId, msg, "logs-update");
         //service.updateLog(this.feature.id, msg);
         //service.updateFeature(ws.activeLayerId, msg, "logs-update");

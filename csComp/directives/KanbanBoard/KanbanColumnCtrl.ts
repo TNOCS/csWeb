@@ -224,6 +224,7 @@ module KanbanColumn {
         }
 
         selectFeature(feature: csComp.Services.IFeature) {
+            this.$messageBus.publish('kanban', 'onItemSelect', feature);
             if (feature.properties.hasOwnProperty(this.column.fields['question'])) {
                 this.createForm(feature);
             } else {
