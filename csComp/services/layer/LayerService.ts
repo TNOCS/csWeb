@@ -812,7 +812,7 @@ module csComp.Services {
         /**
          * init feature (add to feature list, crossfilter)
          */
-        public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = true): IFeatureType {
+        public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false): IFeatureType {
             if (!feature.isInitialized) {
                 feature.isInitialized = true;
                 feature.gui = {};
@@ -840,7 +840,7 @@ module csComp.Services {
 
                 // Do we have a name?
                 if (!feature.properties.hasOwnProperty('Name'))
-                    Helpers.setFeatureName(feature);
+                    Helpers.setFeatureName(feature, this.propertyTypeData);
 
                 this.calculateFeatureStyle(feature);
                 feature.propertiesOld = {};
