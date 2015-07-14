@@ -12,7 +12,7 @@ export interface IStorage {
     addLayer(layer: Layer);
     delFeature(layerId: string, featureId: string);
     addFeature(layerId: string, feature: any);
-    addFeature2();
+    addFeature2(layerId: string);
     getFeature(layer: Layer, featureId: string);
     updateFeature(layer: Layer, feature: any);
     getLayer(layerId: string, callback: Function);
@@ -45,7 +45,7 @@ export class LayerManager {
         i.init(this, options);
     }
 
-    public addStorage(key: string, s: IStorage, options: any) {
+      public addStorage(key: string, s: IStorage, options: any) {
         console.log('Adding storage ' + key);
         this.storages[key] = s;
         s.init(this, options);
@@ -57,16 +57,13 @@ export class LayerManager {
         s.addFeature('testje', f);
     }
 
-    public addFeature2(something: string) {
+    public addFeature2(layerId: string) {
+        var s = this.storages["mongo"];
         console.log("inside the Layer Manager now..");
-        //  s.addFeature2();
+        s.addFeature2(layerId);
     }
 
-    // TODO: Arnoud, I'm not sure where you want me to go with this. If we
-    // intend to store layers at a collection level we might need to draw out
-    // how everything is going to look. The code to store features will not make
-    // much sense as a feature is a single document in mongo and conceptually
-    // belongs to a layer.
+
     public updateFeature(layer: Layer, feature: any) {
         var s = this.storages[layer.storage];
         s.updateFeature(layer, feature);
@@ -78,14 +75,14 @@ export class LayerManager {
     }
 
     public getLayer(layerId: string, callback: Function) {
-        var s = this.storages[0];
+        var s = this.storages["mongo"];
         s.getLayer(layerId, (r: CallbackResult) => {
             callback(r);
         });
     }
 
     public delFeature(layerId: string, featureId: string) {
-        var s = this.storages[0];
+        var s = this.storages["mongo"];
         s.delFeature(layerId, featureId);
     }
 
