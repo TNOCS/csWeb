@@ -20,7 +20,7 @@ export class MqttAPI implements LayerManager.IApiInterface {
         this.manager = layerManager;
         console.log('init mqtt API');
 
-        var client = mqtt.connect("mqtt://" + this.server + ":" + this.port);
+        /*var client = mqtt.connect("mqtt://" + this.server + ":" + this.port);
 
         client.on('error', (e) => {
             console.log('error');
@@ -31,14 +31,14 @@ export class MqttAPI implements LayerManager.IApiInterface {
         });
 
         client.on('reconnect', () => {
-            console.log("mqtt reconnected");
+            console.log("mqtt reconnecting");
         });
 
         client.subscribe('test');
         client.on('message', (topic, message) => {
             console.log(message.toString());
             client.publish('testje', message.toString());
-        });
+        });*/
 
         // express api aanmaken
         // vb. addFeature,

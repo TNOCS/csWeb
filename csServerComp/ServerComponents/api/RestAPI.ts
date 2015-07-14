@@ -28,17 +28,18 @@ export class RestAPI implements LayerManager.IApiInterface {
         // adds a layer, using HTTP PUT, stores it in a collection of choice
         // TODO: error checking: you might not want to overwrite another layer
         // Or post to a layer collection that should be shielded-off (e.g. system or users)
-        // And what if an agent starts sending gibberish? 
-        this.server.post('/layers/:layer', (req: any, res: any) => {
+        // And what if an agent starts sending gibberish?
+        this.server.post('/layers/:layer', (req: express.Request, res: express.Response) => {
             var layer = new Layer();
-            layer.features = req.body;
+            console.log(req.body);
+            layer = req.body;
             layer.id = req.params.layer;
             this.manager.addLayer(layer, (result: CallbackResult) => {
-               //todo: check errors
-               //returns success of insert operation
-               res.send(result);
-           });
-       })
+                //todo: check errors
+                //returns success of insert operation
+                res.send(result);
+            });
+        })
 
         // gets the entire layer, which is stored as a single collection
         // TODO: what to do when this gets really big? Offer a promise?
@@ -46,6 +47,15 @@ export class RestAPI implements LayerManager.IApiInterface {
             this.manager.getLayer(req.params.layer, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result.layer);
+            });
+        })
+
+        // gets the entire layer, which is stored as a single collection
+        // TODO: what to do when this gets really big? Offer a promise?
+        this.server.delete('/layers/:layerId', (req: any, res: any) => {
+            this.manager.deleteLayer(req.params.layerId, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
             });
         })
 

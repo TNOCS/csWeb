@@ -3,6 +3,7 @@ export interface IApiInterface {
 }
 
 export class CallbackResult {
+    public result: string;
     public error: any;
     public layer: Layer;
 }
@@ -12,6 +13,7 @@ export interface IStorage {
     //Layer methods
     addLayer(layer: Layer, Function);
     getLayer(layerId: string, callback: Function);
+    deleteLayer(layerId: string, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any);
     addFeature2(layerId: string);
@@ -42,7 +44,7 @@ export class LayerManager {
         i.init(this, options);
     }
 
-      public addStorage(key: string, s: IStorage, options: any) {
+    public addStorage(key: string, s: IStorage, options: any) {
         console.log('Adding storage ' + key);
         this.storages[key] = s;
         s.init(this, options);
@@ -61,6 +63,13 @@ export class LayerManager {
     public getLayer(layerId: string, callback: Function) {
         var s = this.storages["mongo"];
         s.getLayer(layerId, (r: CallbackResult) => {
+            callback(r);
+        });
+    }
+
+    public deleteLayer(layerId: string, callback: Function) {
+        var s = this.storages["mongo"];
+        s.deleteLayer(layerId, (r: CallbackResult) => {
             callback(r);
         });
     }

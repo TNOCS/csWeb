@@ -89,8 +89,8 @@ layers.addInterface("rest", restApi, {});
 var socketIoApi = new SocketIOAPI.SocketIOAPI(server);
 layers.addInterface("socketio", socketIoApi, {});
 
-var mqttApi = new MqttAPI.MqttAPI("cool3.sensorlab.tno.nl", 8026);
-layers.addInterface("mqtt", mqttApi);
+//var mqttApi = new MqttAPI.MqttAPI("cool3.sensorlab.tno.nl", 8026);
+//layers.addInterface("mqtt", mqttApi);
 
 var mongoDbStorage = new MongoDB.MongoDBStorage("127.0.0.1", 27017);
 layers.addStorage("mongo", mongoDbStorage, {});

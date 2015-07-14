@@ -18,28 +18,36 @@ export class MongoDBStorage implements LayerManager.IStorage {
         var collection = this.db.collection(layer.id);
         collection.insert(layer.features, {}, function(e, result) {
             if (e)
-                callback(<CallbackResult>{ error: e });
+                callback(<CallbackResult>{ result: "Error", error: e });
             else
-                callback(<CallbackResult>result);
+                callback(<CallbackResult> { result: "OK" });
         });
     }
 
     //TODO: Arnoud, what to do with this?
     public getLayer(layerId: string, callback: Function) {
         var collection = this.db.collection(layerId);
-        collection.find({}, { sort: [['_id', 1]] })
-            .toArray(function(e, results) {
+        collection.findOne({}, (e: Error, result: any) => {
             if (e) {
-                callback(<CallbackResult>{ error: e });
+                callback(<CallbackResult>{ result: "Error" });
             }
             else {
                 //todo create layer;
-                var l = new Layer();
-                l.features = results;
-                callback(<CallbackResult>{ layer: l });
+                var l = <Layer>result;
+                callback(<CallbackResult>{ result: "OK", layer: l });
             }
-            // this contains the result set, but needs to be tied to express someway
-            //res.send(results)
+        });
+    }
+
+    public deleteLayer(layerId: string, callback: Function) {
+        var collection = this.db.collection(layerId);
+        collection.remove((err, removed) => {
+            if (!err) {
+                callback(<CallbackResult>{ result: "OK" });
+            }
+            else {
+                callback(<CallbackResult>{ result: "Error" });
+            }
         });
     }
 
