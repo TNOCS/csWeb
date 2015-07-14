@@ -15,6 +15,7 @@
     "body-parser": "^1.12.4",
     "chokidar": "^1.0.1",
     "express": "^4.12.4",
+    "mongodb": "^2.0.37",
     "pg": "^4.3.0",
     "proj4": "^2.3.6",
     "rootpath": "^0.1.2",

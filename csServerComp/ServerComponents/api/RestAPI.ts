@@ -1,4 +1,4 @@
-import LayerManager = require('LayerManager');
+import LayerManager = require('./LayerManager');
 import express = require('express')
 import Layer = LayerManager.Layer;
 import CallbackResult = LayerManager.CallbackResult;

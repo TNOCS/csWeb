@@ -1,4 +1,4 @@
-import LayerManager = require('LayerManager');
+import LayerManager = require('./LayerManager');
 import Layer = LayerManager.Layer;
 import CallbackResult = LayerManager.CallbackResult;
 import mongodb = require('mongodb');
@@ -7,8 +7,6 @@ export class MongoDBStorage implements LayerManager.IStorage {
     public manager: LayerManager.LayerManager
 
     public db: mongodb.Db;
-
-
 
     constructor(public server: string, public port: number) {
 
@@ -88,11 +86,13 @@ export class MongoDBStorage implements LayerManager.IStorage {
     public init(layerManager: LayerManager.LayerManager, options: any) {
         this.manager = layerManager;
         // set up connection
-        var server = new mongodb.Server('localhost', 27017, { auto_reconnect: true })
+        var server = new mongodb.Server(this.server, this.port, { auto_reconnect: true })
         //set up the db instance
 
         this.db = new mongodb.Db('commonSenseWeb', server, { w: 1 });
-        this.db.open(function() { });
+        this.db.open(() => {
+            console.log('connection succes');
+        });
         console.log('init MongoDB Storage');
 
     }

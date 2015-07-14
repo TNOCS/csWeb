@@ -52,7 +52,6 @@
         "./ServerComponents/api/LayerManager.d.ts",
         "./ServerComponents/api/MongoDB.d.ts",
         "./ServerComponents/api/RestAPI.d.ts",
-        "./ServerComponents/api/RestAPI.ts",
         "./ServerComponents/api/SocketIOAPI.d.ts",
         "./ServerComponents/api/Storage.d.ts",
         "./ServerComponents/bus/MessageBus.d.ts",
