@@ -16,8 +16,8 @@ export interface IStorage {
     deleteLayer(layerId: string, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any, callback: Function);
-    getFeature(layer: Layer, featureId: string, callback: Function);
-    updateFeature(layer: Layer, feature: any, callback: Function);
+    getFeature(layerId: string, featureId: string, callback: Function);
+    updateFeature(layerId: string, feature: any, callback: Function);
     deleteFeature(layerId: string, featureId: string, callback: Function);
 }
 
@@ -31,8 +31,9 @@ export class LayerManager {
 
     public interfaces: { [key: string]: IApiInterface } = {}
     public storages: { [key: string]: IStorage } = {}
-
     public layers: { [key: string]: Layer } = {}
+
+    public defaultStorage = "file";
 
     public init() {
         console.log('init layer manager');
@@ -49,10 +50,34 @@ export class LayerManager {
         s.init(this, options);
     }
 
+    /**
+     * Find layer for a specific layerId
+     */
+    public findLayer(layerId: string): Layer {
+        if (this.layers.hasOwnProperty(layerId)) {
+            return this.layers[layerId];
+        }
+        return null;
+    }
+
+    /**
+     * Find storage for a layer
+     */
+    public findStorage(layer: Layer): IStorage {
+        var storage = layer.storage || this.defaultStorage;
+        if (this.storages.hasOwnProperty(storage)) return this.storages[storage];
+        return null;
+    }
+
+    public findStorageForLayerId(layerId: string): IStorage {
+        var layer = this.findLayer(layerId);
+        if (layer) return this.findStorage(layer);
+    }
+
     //layer methods start here, in CRUD order.
 
     public addLayer(layer: Layer, callback: Function) {
-        var s = this.storages["mongo"];
+        var s = this.findStorage(layer);
         s.addLayer(layer, (r: CallbackResult) => {
             callback(r);
         });
@@ -60,14 +85,14 @@ export class LayerManager {
 
 
     public getLayer(layerId: string, callback: Function) {
-        var s = this.storages["mongo"];
+        var s = this.findStorageForLayerId(layerId);
         s.getLayer(layerId, (r: CallbackResult) => {
             callback(r);
         });
     }
 
     public deleteLayer(layerId: string, callback: Function) {
-        var s = this.storages["mongo"];
+        var s = this.findStorageForLayerId(layerId);
         s.deleteLayer(layerId, (r: CallbackResult) => {
             callback(r);
         });
@@ -79,22 +104,22 @@ export class LayerManager {
 
     public addFeature(layerId: string, f: any, callback: Function) {
         console.log('feature added');
-        var s = this.storages["mongo"];
+        var s = this.findStorageForLayerId(layerId);
         s.addFeature(layerId, f, (result) => callback(result));
     }
 
-    public getFeature(layer: Layer, featureId: string, callback: Function) {
-        var s = this.storages["mongo"];
-        s.getFeature(layer, featureId, (result) => callback(result));
+    public getFeature(layerId: string, featureId: string, callback: Function) {
+        var s = this.findStorageForLayerId(layerId);
+        s.getFeature(layerId, featureId, (result) => callback(result));
     }
 
-    public updateFeature(layer: Layer, feature: any, callback: Function) {
-        var s = this.storages["mongo"];
-        s.updateFeature(layer, feature, (result) => callback(result));
+    public updateFeature(layerId: string, feature: any, callback: Function) {
+        var s = this.findStorageForLayerId(layerId);
+        s.updateFeature(layerId, feature, (result) => callback(result));
     }
 
-    public delFeature(layerId: string, featureId: string, callback: Function) {
-        var s = this.storages["mongo"];
+    public deleteFeature(layerId: string, featureId: string, callback: Function) {
+        var s = this.findStorageForLayerId(layerId);
         s.deleteFeature(layerId, featureId, (result) => callback(result));
     }
 

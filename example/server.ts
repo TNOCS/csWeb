@@ -20,6 +20,7 @@ import RestAPI = require('ServerComponents/api/RestAPI');
 import MqttAPI = require('ServerComponents/api/MqttAPI');
 import SocketIOAPI = require('ServerComponents/api/SocketIOAPI');
 import MongoDB = require('ServerComponents/api/MongoDB');
+import FileStorage = require('ServerComponents/api/FileStorage');
 
 /**
  * Create a search index file which can be loaded statically.
@@ -94,6 +95,9 @@ layers.addInterface("socketio", socketIoApi, {});
 
 var mongoDbStorage = new MongoDB.MongoDBStorage("127.0.0.1", 27017);
 layers.addStorage("mongo", mongoDbStorage, {});
+
+var fileStorage = new FileStorage.FileStorage("data/layers/");
+layers.addStorage("file", fileStorage, {});
 
 
 httpServer.listen(server.get('port'), () => {

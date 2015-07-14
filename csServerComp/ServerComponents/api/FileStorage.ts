@@ -57,12 +57,12 @@ export class FileStorage implements LayerManager.IStorage {
 
 
     //TODO: implement
-    public getFeature(layer: Layer, i: string, callback: Function) {
+    public getFeature(layerId: string, i: string, callback: Function) {
 
     }
 
     //TODO: implement
-    public updateFeature(layer: Layer, feature: any, callback: Function) {
+    public updateFeature(layerId: string, feature: any, callback: Function) {
 
     }
 
