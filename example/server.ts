@@ -17,6 +17,7 @@ import ApiServiceManager = require('ServerComponents/api/ApiServiceManager');
 
 import LayerManager = require('ServerComponents/api/LayerManager');
 import RestAPI = require('ServerComponents/api/RestAPI');
+import MqttAPI = require('ServerComponents/api/MqttAPI');
 import SocketIOAPI = require('ServerComponents/api/SocketIOAPI');
 import MongoDB = require('ServerComponents/api/MongoDB');
 
@@ -87,6 +88,9 @@ layers.addInterface("rest", restApi, {});
 
 var socketIoApi = new SocketIOAPI.SocketIOAPI(server);
 layers.addInterface("socketio", socketIoApi, {});
+
+var mqttApi = new MqttAPI.MqttAPI("cool3.sensorlab.tno.nl", 8026);
+layers.addInterface("mqtt", mqttApi);
 
 var mongoDbStorage = new MongoDB.MongoDBStorage("127.0.0.1", 27017);
 layers.addStorage("mongo", mongoDbStorage, {});
