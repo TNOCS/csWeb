@@ -9,13 +9,15 @@ export class CallbackResult {
 
 export interface IStorage {
     init(layerManager: LayerManager, options: any);
+    //Layer methods
     addLayer(layer: Layer);
-    delFeature(layerId: string, featureId: string);
+    getLayer(layerId: string, callback: Function);
+    //feature methods
     addFeature(layerId: string, feature: any);
     addFeature2(layerId: string);
     getFeature(layer: Layer, featureId: string);
     updateFeature(layer: Layer, feature: any);
-    getLayer(layerId: string, callback: Function);
+    delFeature(layerId: string, featureId: string);
 }
 
 export class Layer {
@@ -35,11 +37,6 @@ export class LayerManager {
         console.log('init layer manager');
     }
 
-    public addLayer(layer: Layer) {
-        var s = this.storages[layer.storage];
-        s.addLayer(layer);
-    }
-
     public addInterface(key: string, i: IApiInterface, options: any) {
         this.interfaces[key] = i;
         i.init(this, options);
@@ -51,9 +48,27 @@ export class LayerManager {
         s.init(this, options);
     }
 
+    //layer methods start here, in CRUD order.
+
+    public addLayer(layer: Layer) {
+        var s = this.storages["mongo"];
+        s.addLayer(layer);
+    }
+
+    public getLayer(layerId: string, callback: Function) {
+        var s = this.storages["mongo"];
+        s.getLayer(layerId, (r: CallbackResult) => {
+            callback(r);
+        });
+    }
+
+
+
+    // Feature methods start here, in CRUD order.
+
     public addFeature(layerId: string, f: any) {
         console.log('feature added');
-        var s = this.storages[f.storage];
+        var s = this.storages["mongo"];
         s.addFeature('testje', f);
     }
 
@@ -63,22 +78,14 @@ export class LayerManager {
         s.addFeature2(layerId);
     }
 
-
-    public updateFeature(layer: Layer, feature: any) {
-        var s = this.storages[layer.storage];
-        s.updateFeature(layer, feature);
-    }
-
     public getFeature(layer: Layer, featureId: string) {
-        var s = this.storages[layer.storage];
+        var s = this.storages["mongo"];
         s.getFeature(layer, featureId);
     }
 
-    public getLayer(layerId: string, callback: Function) {
+    public updateFeature(layer: Layer, feature: any) {
         var s = this.storages["mongo"];
-        s.getLayer(layerId, (r: CallbackResult) => {
-            callback(r);
-        });
+        s.updateFeature(layer, feature);
     }
 
     public delFeature(layerId: string, featureId: string) {
