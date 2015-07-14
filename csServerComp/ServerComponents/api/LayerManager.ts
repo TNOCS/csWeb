@@ -2,6 +2,11 @@ export interface IApiInterface {
     init(layerManager: LayerManager, options: any)
 }
 
+export class CallbackResult {
+    public error: any;
+    public layer: Layer;
+}
+
 export interface IStorage {
     init(layerManager: LayerManager, options: any);
     addLayer(layer: Layer);
@@ -10,7 +15,7 @@ export interface IStorage {
     addFeature2();
     getFeature(layer: Layer, featureId: string);
     updateFeature(layer: Layer, feature: any);
-    getAllFeatures(layerId: string);
+    getLayer(layerId: string, callback: Function);
 }
 
 export class Layer {
@@ -41,6 +46,7 @@ export class LayerManager {
     }
 
     public addStorage(key: string, s: IStorage, options: any) {
+        console.log('Adding storage ' + key);
         this.storages[key] = s;
         s.init(this, options);
     }
@@ -52,8 +58,8 @@ export class LayerManager {
     }
 
     public addFeature2(something: string) {
-      console.log("inside the Layer Manager now..");
-    //  s.addFeature2();
+        console.log("inside the Layer Manager now..");
+        //  s.addFeature2();
     }
 
     // TODO: Arnoud, I'm not sure where you want me to go with this. If we
@@ -62,23 +68,25 @@ export class LayerManager {
     // much sense as a feature is a single document in mongo and conceptually
     // belongs to a layer.
     public updateFeature(layer: Layer, feature: any) {
-      var s = this.storages[layer.storage];
-      s.updateFeature(layer, feature);
+        var s = this.storages[layer.storage];
+        s.updateFeature(layer, feature);
     }
 
     public getFeature(layer: Layer, featureId: string) {
-      var s = this.storages[layer.storage];
-      s.getFeature(layer, featureId);
+        var s = this.storages[layer.storage];
+        s.getFeature(layer, featureId);
     }
 
-    public getAllFeatures(layer: Layer) {
-      var s = this.storages[layer.storage];
-      s.getAllFeatures(layerId);
+    public getLayer(layerId: string, callback: Function) {
+        var s = this.storages[0];
+        s.getLayer(layerId, (r: CallbackResult) => {
+            callback(r);
+        });
     }
 
-    public delFeature(layer: Layer, featureId: string) {
-      var s = this.storages[layer.storage];
-      s.delFeature(layerId, featureId);
+    public delFeature(layerId: string, featureId: string) {
+        var s = this.storages[0];
+        s.delFeature(layerId, featureId);
     }
 
 }

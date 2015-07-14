@@ -88,7 +88,7 @@ layers.addInterface("rest", restApi, {});
 var socketIoApi = new SocketIOAPI.SocketIOAPI(server);
 layers.addInterface("socketio", socketIoApi, {});
 
-var mongoDbStorage = new MongoDB.MongoDBStorage();
+var mongoDbStorage = new MongoDB.MongoDBStorage("localhost", 27017);
 layers.addStorage("mongo", mongoDbStorage, {});
 
 
