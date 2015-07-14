@@ -3,6 +3,7 @@ import Layer = LayerManager.Layer;
 import mongodb = require('mongodb');
 
 
+
 export class MongoDBStorage implements LayerManager.IStorage {
     public manager: LayerManager.LayerManager
 
@@ -55,9 +56,13 @@ export class MongoDBStorage implements LayerManager.IStorage {
       });
     }
 
-    //TODO: implement
-    public delFeature(layer: Layer, f: string) {
-
+    //TODO: test further. Result is the # of deleted docs.
+    public delFeature(layerId: string, featureId: string) {
+      var collection = this.db.collection(layerId);
+      collection.remove({'_id': featureId}, function(e, result) {
+          if (e) return e;
+          //res.send(result);
+      } )
     }
 
     //TODO: implement

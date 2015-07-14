@@ -5,7 +5,7 @@ export interface IApiInterface {
 export interface IStorage {
     init(layerManager: LayerManager, options: any);
     addLayer(layer: Layer);
-    delFeature(layer: Layer, featureId: string);
+    delFeature(layerId: string, featureId: string);
     addFeature(layerId: string, feature: any);
     addFeature2();
     getFeature(layer: Layer, featureId: string);
@@ -78,7 +78,7 @@ export class LayerManager {
 
     public delFeature(layer: Layer, featureId: string) {
       var s = this.storages[layer.storage];
-      s.delFeature(layer, featureId);
+      s.delFeature(layerId, featureId);
     }
 
 }
