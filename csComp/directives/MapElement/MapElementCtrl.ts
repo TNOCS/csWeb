@@ -1,4 +1,4 @@
-﻿module MapElement {
+module MapElement {
     declare var links;
     declare var Cesium;
 
@@ -11,6 +11,7 @@
     export class MapElementCtrl {
         private scope: IMapElementScope;
         private locale = "en-us";
+        public options = ["test", "boe"];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -33,13 +34,14 @@
             ) {
             $scope.vm = this;
 
-            //this.initMap();
+            this.initMap();
 
             $scope.initMap = () => this.initMap();
         }
 
         public initMap() {
-                     //alert(this.$scope.mapId);
+            this.$layerService.selectRenderer("leaflet");
+            //alert(this.$scope.mapId);
         }
     }
 }

@@ -95,6 +95,12 @@ export class RuleEngine {
         });
     }
 
+    /**
+     * Activate a specific rule.
+     * @method activateRule
+     * @param  {string}     ruleId The Id of the rule
+     * @return {void}
+     */
     activateRule(ruleId: string) {
         for (let i = 0; i < this.inactiveRules.length; i++) {
             var rule = this.inactiveRules[i];
@@ -105,6 +111,12 @@ export class RuleEngine {
         }
     }
 
+    /**
+     * Deactivate a specific rule.
+     * @method deactivateRule
+     * @param  {string}       ruleId The Id of the rule
+     * @return {void}
+     */
     deactivateRule(ruleId: string) {
         for (let i = 0; i < this.activeRules.length; i++) {
             var rule = this.activeRules[i];
@@ -122,8 +134,10 @@ export class RuleEngine {
 
     /**
      * Load one or more rule files.
-     * @filename: String or string[] with the full filename.
-     * @activationTime: Optional date that indicates when the rules are activated.
+     * @method loadRules
+     * @param  {string | string[]}    filename String or string[] with the full filename
+     * @param  {Date}      activationTime Optional date that indicates when the rules are activated.
+     * @return {void}
      */
     loadRules(filename: string | string[], activationTime?: Date) {
         if (typeof activationTime === 'undefined') activationTime = this.timer.getTime();
@@ -165,7 +179,7 @@ export class RuleEngine {
     addRule(rule: Rule.IRule, feature?: GeoJSON.IFeature, activationTime?: Date) {
         if (typeof rule.actions === 'undefined' || rule.actions.length === 0 || rule.actions[0].length === 0) return;
         var newRule = new Rule.Rule(rule, activationTime);
-        if (feature) {
+        if (!rule.isGenericRule && feature) {
             newRule.feature = feature;
         }
         if (newRule.isActive)

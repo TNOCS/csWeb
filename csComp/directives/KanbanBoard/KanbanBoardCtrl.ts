@@ -4,9 +4,9 @@ module KanbanColumn {
     }
 
     export class KanbanConfig {
+        featureTypesToAdd: string[];
         columns: Column[];
     }
-
 
     export class KanbanBoardCtrl {
         private scope: IKanbanBoardScope;
@@ -38,7 +38,6 @@ module KanbanColumn {
             f.properties["date"] = new Date();
             f.properties["updated"] = new Date();
             f.properties["featureTypeId"] = key;
-            f.properties["roles"] = ["rti"];
             if (!f.properties.hasOwnProperty('Name')) f.properties['Name'] = ft.name;
             this.layer.data.features.push(f);
             this.$layerService.initFeature(f, this.layer);
@@ -61,9 +60,6 @@ module KanbanColumn {
             });
 
             this.initLayer();
-
-
-
         }
 
         private initLayer() {
@@ -73,12 +69,19 @@ module KanbanColumn {
             this.layer = this.$layerService.findLayer(layerId);
             if (this.layer) {
                 if (this.layer.typeUrl && this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
-                    this.featureTypes = this.$layerService.typesResources[this.layer.typeUrl].featureTypes;
+                    if (this.kanban.featureTypesToAdd) {
+                        this.featureTypes = {};
+                        for (var ft in this.$layerService.typesResources[this.layer.typeUrl].featureTypes) {
+                            if (this.kanban.featureTypesToAdd.indexOf(ft) > -1) this.featureTypes[ft] = this.$layerService.typesResources[this.layer.typeUrl].featureTypes[ft];
+                        }
+                    }
+                    else {
+                        this.featureTypes = this.$layerService.typesResources[this.layer.typeUrl].featureTypes;
+                    }
                     console.log('feature types');
                     console.log(this.featureTypes);
                 }
             }
-
         }
     }
 }

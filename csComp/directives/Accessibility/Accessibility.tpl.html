@@ -34,17 +34,35 @@
                 </span>
             </div>
 
+            <div class="controls">
+                <span>
+                    <label class="input-xlarge" for="date">Date</label>
+                    <input id="date" type="text" placeholder="mm-dd-yyyy" class="input-xlarge" ng-model="vm.urlParameters['date']" style="margin:5px; max-width:100px;">
+                </span>
+            </div>
+
+            <div class="controls">
+                <span>
+                    <label class="input-xlarge" for="time">Time</label>
+                    <input id="time" type="text" placeholder="hh:mm" class="input-xlarge" ng-model="vm.time" style="margin:5px; max-width:100px;">
+                </span>
+            </div>
+
             <li ng-repeat="co in vm.cutoffTimes" class="row-fluid list-unstyled truncate">
                 <div class="controls">
                     <span>
                         <label class="input-xlarge" for="cutoff-${index}">Cut-off time {{$index}}</label>
-                        <input id="cutoff-${index}" type="number" placeholder="Cut-off time" class="input-xlarge" ng-model="co" style="margin:5px; max-width:100px;">minutes
+                        <input id="cutoff-${index}" type="number" placeholder="Cut-off time" class="input-xlarge" ng-model="vm.cutoffTimes[$index]" style="margin:5px; max-width:100px;">minutes
                         <button class="fa fa-remove rightpanel-header-button" style="float:right; margin:5px;" ng-click="vm.removeCutoffTime($index)"></button>
                     </span>
                 </div>
             </li>
 
-            <button class="rightpanel-header-button" ng-click="vm.addCutoffTime()"><span class="fa fa-plus" style="padding:5px;"><div style="margin-left:5px;display:inline-block;">Add cut-off time</div></span></button>
+            <button class="rightpanel-header-button" ng-click="vm.addCutoffTime()">
+                <span class="fa fa-plus" style="padding:5px;">
+                    <div style="margin-left:5px;display:inline-block;">Add cut-off time</div>
+                </span>
+            </button>
 
             <div class="controls" style="margin-top:10px; margin-left:10px;">
                 <button class="btn" ng-click="vm.refreshAccessibility()">Refresh accessibility</button>

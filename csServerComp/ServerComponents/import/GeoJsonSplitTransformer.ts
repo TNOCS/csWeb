@@ -20,47 +20,78 @@ class GeoJsonSplitTransformer implements transform.ITransform {
   outputDataTypes: transform.OutputDataType[];
 
   geometry: any;
+  keyProperty: string;
+  identifierProperty: string;
 
   constructor(public title: string) {
       this.id = Utils.newGuid();
       //this.description = description;
   }
 
-  initialize(callback: (error)=>void) {
-    request({ url: "http://localhost:3456/data/gemeente-empty.geojson" }, (error, response, body)=>{
+  initialize(opt: transform.ITransformFactoryOptions, callback: (error)=>void) {
+    /*console.log(JSON.stringify(opt,null,4));*/
+
+    var splitShapeUrlParameter = opt.parameters.filter((p)=>p.type.title == "splitShapeUrl")[0];
+    if (!splitShapeUrlParameter) {
+      callback("splitShapeUrl missing");
+      return;
+    }
+
+    var keyPropertyParameter = opt.parameters.filter(p=>p.type.title == "splitShapeKeyProperty")[0];
+    if (!keyPropertyParameter) {
+      callback("splitShapeKeyProperty missing")
+      return;
+    }
+    this.keyProperty = <string>keyPropertyParameter.value;
+
+    var identifierPropertyParameter = opt.parameters.filter(p=>p.type.title == "splitShapeIdentifierProperty")[0];
+    if (!identifierPropertyParameter) {
+      callback("splitShapeIdentifierProperty missing")
+      return;
+    }
+    this.identifierProperty = <string>identifierPropertyParameter.value;
+
+    request({ url: <string>splitShapeUrlParameter.value }, (error, response, body)=>{
       if (error) {
         callback(error);
         return;
       }
 
-      console.log("Gemeente geojson loaded");
       this.geometry = JSON.parse(body);
+      console.log("Split shape geojson loaded");
+
       callback(null);
     });
+
   }
 
-  create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
+  create(config, opt?: transform.ITransformFactoryOptions): NodeJS.ReadWriteStream {
     var t = new stream.Transform();
-    stream.Transform.call(t);
+    /*stream.Transform.call(t);*/
 
     var baseGeo: any;
 
     var accumulator:any = {};
 
     t.setEncoding("utf8");
+    var index = 0;
     t._transform =  (chunk, encoding, done) => {
-      // var startTs = new Date();
-      // console.log((new Date().getTime() - startTs.getTime()) + ": start");
+       /*var startTs = new Date();*/
+       /*console.log((new Date().getTime() - startTs.getTime()) + ": start");*/
+       /*console.log(index++);*/
       var feature = JSON.parse(chunk);
 
       if (!feature.geometry) {
+        console.log("No geometry");
         done();
         return;
       }
 
-      // console.log("##### GJST #####");
+       /*console.log("##### GJST #####");*/
       // console.log("=== Before:")
       // console.log(feature);
+
+
 
       this.geometry.features.forEach((f)=>{
         // console.log("=== Gemeente feature:")
@@ -71,14 +102,17 @@ class GeoJsonSplitTransformer implements transform.ITransform {
           // console.log(feature.properties.Gemeente + "<-- matched -->" + f.properties.Name);
           // feature.properties.wk_code = f.properties.wk_code;
           // feature.properties.wk_naam = f.properties.wk_naam;
-          feature.properties.Gemeente = f.properties.Name;
-          var accEntry = accumulator[f.properties.Name];
+          //feature.properties.Gemeente = f.properties.Name;
+
+          feature.properties[this.identifierProperty] = f.properties[this.keyProperty];
+
+          var accEntry = accumulator[f.properties[this.keyProperty]];
           if (accEntry) {
             accEntry.push(feature);
           }
           else {
             accEntry = [feature];
-            accumulator[f.properties.Name] = accEntry;
+            accumulator[f.properties[this.keyProperty]] = accEntry;
           }
         }
       });
@@ -90,25 +124,24 @@ class GeoJsonSplitTransformer implements transform.ITransform {
       done();
       // console.log((new Date().getTime() - startTs.getTime()) + ": finish");
     };
-
     t._flush = (done) => {
       try {
 
         var keys = Object.keys(accumulator);
-        // console.log(JSON.stringify(keys));
+         /*console.log(JSON.stringify(keys));*/
         // for(var wijkCode in keys) {
-        keys.forEach(wijkCode=> {
-          // console.log(wijkCode);
-          var wijkFeatures = accumulator[wijkCode];
+        /*console.log(keys.length);*/
+        keys.forEach(key=> {
+          /*console.log(key);*/
+          var group = accumulator[key];
           // console.log ("#### push wijk: " + wijkCode + " - " + wijkFeatures.length + " features");
 
           // console.log(wijkAcc);
-          var wijkGeoJson = {
+          var groupGeoJson = {
             type: "FeatureCollection",
-            features: wijkFeatures
+            features: group
           };
-
-          t.push(JSON.stringify(wijkGeoJson));
+          t.push(JSON.stringify(groupGeoJson));
         });
         done();
       }

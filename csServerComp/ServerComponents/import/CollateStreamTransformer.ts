@@ -23,13 +23,13 @@ class CollateStreamTransformer implements transform.ITransform {
         //this.description = description;
     }
 
-    initialize(){
-
+    initialize(opt, callback) {
+      callback(null);
     }
 
     create(config, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
       var t = new stream.Transform();
-      stream.Transform.call(t);
+      /*stream.Transform.call(t);*/
 
       var split = -1;
       var buffer = "";
@@ -46,9 +46,12 @@ class CollateStreamTransformer implements transform.ITransform {
 
       t._flush = (done) => {
         try {
-          // console.log("push buffer: ");
-          // console.log(buffer);
-          t.push(buffer);
+           /*console.log("push buffer: ");*/
+           /*console.log(buffer);*/
+          if (buffer) {
+            t.push(buffer);
+            buffer = null;
+          }
           done();
         }
         catch(error) {

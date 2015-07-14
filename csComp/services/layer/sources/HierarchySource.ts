@@ -69,19 +69,7 @@ module csComp.Services {
                                 data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
                             }
 
-                            // check if there are events definined
-                            if (data.events && this.service.timeline) {
-                                layer.events = data.events;
-                                var devents = [];
-                                layer.events.forEach((e: Event) => {
-                                    if (!e.id) e.id = Helpers.getGuid();
-                                    devents.push({
-                                        'start': new Date(e.start),
-                                        'content': e.title
-                                    });
-                                });
-                                this.service.timeline.draw(devents);
-                            }
+                            
 
                             // add featuretypes to global featuretype list
                             if (data.featureTypes) for (var featureTypeName in data.featureTypes) {

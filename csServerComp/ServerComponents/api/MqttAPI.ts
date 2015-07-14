@@ -28,12 +28,16 @@ export class MqttAPI implements LayerManager.IApiInterface {
 
         client.on('connect', () => {
             console.log("mqtt connected");
+        });
 
-            client.subscribe('test');
-            client.on('message', (topic, message) => {
-                console.log(message.toString());
-                client.publish('testje', message.toString());
-            });
+        client.on('reconnect', () => {
+            console.log("mqtt reconnected");
+        });
+
+        client.subscribe('test');
+        client.on('message', (topic, message) => {
+            console.log(message.toString());
+            client.publish('testje', message.toString());
         });
 
         // express api aanmaken
