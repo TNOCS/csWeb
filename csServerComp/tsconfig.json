@@ -36,6 +36,7 @@
         "./Scripts/typings/socketio/socket.io.d.ts",
         "./Scripts/typings/xml2js/xml2js.d.ts",
         "./ServerComponents/api/ApiServiceManager.ts",
+        "./ServerComponents/api/FileStorage.ts",
         "./ServerComponents/api/IApiService.ts",
         "./ServerComponents/api/IApiServiceManager.ts",
         "./ServerComponents/api/LayerManager.ts",

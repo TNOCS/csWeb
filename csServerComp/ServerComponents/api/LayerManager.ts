@@ -15,11 +15,10 @@ export interface IStorage {
     getLayer(layerId: string, callback: Function);
     deleteLayer(layerId: string, callback: Function);
     //feature methods
-    addFeature(layerId: string, feature: any);
-    addFeature2(layerId: string);
-    getFeature(layer: Layer, featureId: string);
-    updateFeature(layer: Layer, feature: any);
-    delFeature(layerId: string, featureId: string);
+    addFeature(layerId: string, feature: any, callback: Function);
+    getFeature(layer: Layer, featureId: string, callback: Function);
+    updateFeature(layer: Layer, feature: any, callback: Function);
+    deleteFeature(layerId: string, featureId: string, callback: Function);
 }
 
 export class Layer {
@@ -78,30 +77,25 @@ export class LayerManager {
 
     // Feature methods start here, in CRUD order.
 
-    public addFeature(layerId: string, f: any) {
+    public addFeature(layerId: string, f: any, callback: Function) {
         console.log('feature added');
         var s = this.storages["mongo"];
-        s.addFeature(layerId, f);
+        s.addFeature(layerId, f, (result) => callback(result));
     }
 
-    public addFeature2(layerId: string) {
+    public getFeature(layer: Layer, featureId: string, callback: Function) {
         var s = this.storages["mongo"];
-        s.addFeature2(layerId);
+        s.getFeature(layer, featureId, (result) => callback(result));
     }
 
-    public getFeature(layer: Layer, featureId: string) {
+    public updateFeature(layer: Layer, feature: any, callback: Function) {
         var s = this.storages["mongo"];
-        s.getFeature(layer, featureId);
+        s.updateFeature(layer, feature, (result) => callback(result));
     }
 
-    public updateFeature(layer: Layer, feature: any) {
+    public delFeature(layerId: string, featureId: string, callback: Function) {
         var s = this.storages["mongo"];
-        s.updateFeature(layer, feature);
-    }
-
-    public delFeature(layerId: string, featureId: string) {
-        var s = this.storages["mongo"];
-        s.delFeature(layerId, featureId);
+        s.deleteFeature(layerId, featureId, (result) => callback(result));
     }
 
 }

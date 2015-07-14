@@ -16,7 +16,7 @@ export class MongoDBStorage implements LayerManager.IStorage {
 
     public addLayer(layer: Layer, callback: Function) {
         var collection = this.db.collection(layer.id);
-        collection.insert(layer.features, {}, function(e, result) {
+        collection.insert(layer, {}, function(e, result) {
             if (e)
                 callback(<CallbackResult>{ result: "Error", error: e });
             else
@@ -54,7 +54,7 @@ export class MongoDBStorage implements LayerManager.IStorage {
 
     // feature methods, in crud order
 
-    public addFeature(layerId: string, feature: any) {
+    public addFeature(layerId: string, feature: any, callback: Function) {
         // not completely sure if this will work, might have toString it.
         var collection = this.db.collection(layerId);
         collection.insert(feature, {}, function(e) {
@@ -65,32 +65,18 @@ export class MongoDBStorage implements LayerManager.IStorage {
         });
     }
 
-    //TODO: remove this code before pushing
-    public addFeature2(layerId: string) {
-        // normally, you'd take the layerID here and toString it
-        // so you can enter a collection dynamically
-        console.log("inside the inserting method");
-        var collection = this.db.collection("testFeatures");
-        collection.insert({ hello: 'Isitmeyourelookingfor' }, function(err) {
-            if (err)
-                console.log(err);
-            else
-                console.log("inserted 1 document");
-        });
-    }
-
     //TODO: implement
-    public getFeature(layer: Layer, i: string) {
+    public getFeature(layer: Layer, i: string, callback: Function) {
 
     }
 
     //TODO: implement
-    public updateFeature(layer: Layer, feature: any) {
+    public updateFeature(layer: Layer, feature: any, callback: Function) {
 
     }
 
     //TODO: test further. Result is the # of deleted docs.
-    public delFeature(layerId: string, featureId: string) {
+    public deleteFeature(layerId: string, featureId: string) {
         var collection = this.db.collection(layerId);
         collection.remove({ '_id': featureId }, function(e, result) {
             if (e) return e;
