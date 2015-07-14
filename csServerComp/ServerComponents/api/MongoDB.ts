@@ -12,37 +12,17 @@ export class MongoDBStorage implements LayerManager.IStorage {
 
     }
 
-    public addLayer(layer: Layer) {
-        //TODO: add support for inserting an entire layer,
-        // although the addFeature should also be able to cope with it
-    }
+    // layer methods first, in crud order.
 
-    //TODO: remove this code before pushing
-    public addFeature2(layerId: string) {
-        // normally, you'd take the layerID here and toString it
-        // so you can enter a collection dynamically
-        console.log("inside the inserting method");
-        var collection = this.db.collection("testFeatures");
-        collection.insert({ hello: 'Isitmeyourelookingfor' }, function(err) {
-            if (err)
-                console.log(err);
-            else
-                console.log("inserted 1 document");
-        });
-    }
-
-    public addFeature(layerId: string, feature: any) {
-        // not completely sure if this will work, might have toString it.
-        var collection = this.db.collection(layerId);
-        collection.insert(feature, {}, function(e) {
+    public addLayer(layer: Layer, callback: Function) {
+        var collection = this.db.collection(layer.id);
+        collection.insert(layer.features, {}, function(e, result) {
             if (e)
-                console.log(e);
+                callback(<CallbackResult>{ error: e });
             else
-                console.log("inserted a document");
+                callback(<CallbackResult>result);
         });
     }
-
-
 
     //TODO: Arnoud, what to do with this?
     public getLayer(layerId: string, callback: Function) {
@@ -63,13 +43,32 @@ export class MongoDBStorage implements LayerManager.IStorage {
         });
     }
 
-    //TODO: test further. Result is the # of deleted docs.
-    public delFeature(layerId: string, featureId: string) {
+
+    // feature methods, in crud order
+
+    public addFeature(layerId: string, feature: any) {
+        // not completely sure if this will work, might have toString it.
         var collection = this.db.collection(layerId);
-        collection.remove({ '_id': featureId }, function(e, result) {
-            if (e) return e;
-            //res.send(result);
-        })
+        collection.insert(feature, {}, function(e) {
+            if (e)
+                console.log(e);
+            else
+                console.log("inserted a document");
+        });
+    }
+
+    //TODO: remove this code before pushing
+    public addFeature2(layerId: string) {
+        // normally, you'd take the layerID here and toString it
+        // so you can enter a collection dynamically
+        console.log("inside the inserting method");
+        var collection = this.db.collection("testFeatures");
+        collection.insert({ hello: 'Isitmeyourelookingfor' }, function(err) {
+            if (err)
+                console.log(err);
+            else
+                console.log("inserted 1 document");
+        });
     }
 
     //TODO: implement
@@ -80,6 +79,15 @@ export class MongoDBStorage implements LayerManager.IStorage {
     //TODO: implement
     public updateFeature(layer: Layer, feature: any) {
 
+    }
+
+    //TODO: test further. Result is the # of deleted docs.
+    public delFeature(layerId: string, featureId: string) {
+        var collection = this.db.collection(layerId);
+        collection.remove({ '_id': featureId }, function(e, result) {
+            if (e) return e;
+            //res.send(result);
+        })
     }
 
     //TODO: Move connection set-up params from static to parameterized.
