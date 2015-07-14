@@ -6,10 +6,20 @@ import CallbackResult = LayerManager.CallbackResult;
 export class FileStorage implements LayerManager.IStorage {
     public manager: LayerManager.LayerManager
 
-    public Layers: { [key: string]: Layer } = {}
+    public layers: { [key: string]: Layer } = {}
 
     constructor(public rootpath: string) {
         // load layers
+    }
+
+    /**
+     * Find layer for a specific layerId (can return null)
+     */
+    public findLayer(layerId: string): Layer {
+        if (this.layers.hasOwnProperty(layerId)) {
+            return this.layers[layerId];
+        } else { return null; };
+
     }
 
     // layer methods first, in crud order.
@@ -17,7 +27,7 @@ export class FileStorage implements LayerManager.IStorage {
     public addLayer(layer: Layer, callback: Function) {
         console.log('Add file layer');
         try {
-            this.Layers[layer.id] = layer;
+            this.layers[layer.id] = layer;
             callback(<CallbackResult> { result: "OK" });
         }
         catch (e) {
@@ -27,8 +37,8 @@ export class FileStorage implements LayerManager.IStorage {
 
     //TODO: Arnoud, what to do with this?
     public getLayer(layerId: string, callback: Function) {
-        if (this.Layers.hasOwnProperty(layerId)) {
-            callback(<CallbackResult>{ result: "OK", layer: this.Layers[layerId] });
+        if (this.layers.hasOwnProperty(layerId)) {
+            callback(<CallbackResult>{ result: "OK", layer: this.layers[layerId] });
         }
         else {
             callback(<CallbackResult>{ result: "Error" });
@@ -36,8 +46,8 @@ export class FileStorage implements LayerManager.IStorage {
     }
 
     public deleteLayer(layerId: string, callback: Function) {
-        if (this.Layers.hasOwnProperty(layerId)) {
-            delete this.Layers[layerId];
+        if (this.layers.hasOwnProperty(layerId)) {
+            delete this.layers[layerId];
             callback(<CallbackResult>{ result: "OK", layer: null });
         }
         else {
@@ -46,15 +56,15 @@ export class FileStorage implements LayerManager.IStorage {
 
     }
 
-
     // feature methods, in crud order
-
     public addFeature(layerId: string, feature: any, callback: Function) {
-        if (true) {
-            callback(<CallbackResult>{ result: "Error" });
+        var layer = this.findLayer(layerId);
+        if (layer) {
+            layer.features.push(feature);
+            callback(<CallbackResult>{ result: "OK", layer: null });
         }
         else {
-            callback(<CallbackResult>{ result: "OK", layer: null });
+            callback(<CallbackResult>{ result: "Error" });
         }
     }
 
@@ -67,6 +77,7 @@ export class FileStorage implements LayerManager.IStorage {
 
     //TODO: implement
     public updateFeature(layerId: string, feature: any, callback: Function) {
+
 
     }
 

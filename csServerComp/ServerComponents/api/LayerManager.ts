@@ -24,7 +24,19 @@ export interface IStorage {
 export class Layer {
     public storage: string;
     public id: string;
-    public features: any[] = [];
+    public features: Feature[] = [];
+}
+
+export class Geometry {
+    public type: string;
+    public coordinates: number[];
+}
+
+export class Feature {
+    public id: string;
+    public geometry: Geometry;
+    public properties: { [key: string]: any };
+
 }
 
 export class LayerManager {
