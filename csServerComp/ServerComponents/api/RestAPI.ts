@@ -21,8 +21,17 @@ export class RestAPI implements LayerManager.IApiInterface {
         this.server.get("/test", (req: express.Request, res: express.Response) => {
             console.log("received something.. hello world!");
             res.send({ Hello: "World" });
-            this.manager.addFeature2(".."); // for testing
         });
+
+        // layer functions, in CRUD order
+
+        // adds a layer, using HTTP PUT, stores it in a collection of choice
+        this.server.post('/layers/:layer', (req: any, res: any) => {
+           this.manager.getLayer(req.params.layer, (result: CallbackResult) => {
+               //todo: check error
+               res.send(result.layer);
+           });
+       })
 
         // gets the entire layer, which is stored as a single collection
         this.server.get('/layers/:layer', (req: any, res: any) => {

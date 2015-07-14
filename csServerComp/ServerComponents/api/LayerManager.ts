@@ -55,6 +55,7 @@ export class LayerManager {
         s.addLayer(layer);
     }
 
+
     public getLayer(layerId: string, callback: Function) {
         var s = this.storages["mongo"];
         s.getLayer(layerId, (r: CallbackResult) => {
@@ -69,12 +70,11 @@ export class LayerManager {
     public addFeature(layerId: string, f: any) {
         console.log('feature added');
         var s = this.storages["mongo"];
-        s.addFeature('testje', f);
+        s.addFeature(layerId, f);
     }
 
     public addFeature2(layerId: string) {
         var s = this.storages["mongo"];
-        console.log("inside the Layer Manager now..");
         s.addFeature2(layerId);
     }
 

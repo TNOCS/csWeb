@@ -15,7 +15,6 @@ export class MongoDBStorage implements LayerManager.IStorage {
     public addLayer(layer: Layer) {
         //TODO: add support for inserting an entire layer,
         // although the addFeature should also be able to cope with it
-
     }
 
     //TODO: remove this code before pushing
