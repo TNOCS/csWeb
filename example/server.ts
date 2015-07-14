@@ -1,15 +1,19 @@
 require('rootpath')();
-﻿import express              = require('express');
-import http                 = require('http');
-import path                 = require('path');
-//import offlineSearch        = require('cs-offline-search');
-import cc                   = require("ServerComponents/dynamic/ClientConnection");
-import creator              = require('ServerComponents/creator/MapLayerFactory');
-import DataSource           = require("ServerComponents/dynamic/DataSource");
-import MessageBus           = require('ServerComponents/bus/MessageBus');
-import BagDatabase          = require('ServerComponents/database/BagDatabase');
-import ConfigurationService = require('ServerComponents/configuration/ConfigurationService');
-import DynamicProject       = require("ServerComponents/dynamic/DynamicProject");
+﻿import express                  = require('express');
+import http                     = require('http');
+import path                     = require('path');
+//import offlineSearch          = require('cs-offline-search');
+import cc                       = require("ServerComponents/dynamic/ClientConnection");
+import creator                  = require('ServerComponents/creator/MapLayerFactory');
+import ProjectRepositoryService = require('ServerComponents/creator/ProjectRepositoryService');
+import DataSource               = require("ServerComponents/dynamic/DataSource");
+import MessageBus               = require('ServerComponents/bus/MessageBus');
+import BagDatabase              = require('ServerComponents/database/BagDatabase');
+import ConfigurationService     = require('ServerComponents/configuration/ConfigurationService');
+import DynamicProject           = require("ServerComponents/dynamic/DynamicProject");
+import LayerDirectory           = require("ServerComponents/dynamic/LayerDirectory");
+import store                    = require('ServerComponents/import/Store');
+import ApiServiceManager        = require('ServerComponents/api/ApiServiceManager');
 
 /**
  * Create a search index file which can be loaded statically.
@@ -29,30 +33,43 @@ var cm         = new cc.ConnectionManager(httpServer);
 var messageBus = new MessageBus.MessageBusService();
 var config     = new ConfigurationService('./configuration.json');
 
+//This line is required when using JX to run the server, or else the input-messages coming from the Excel file will cause an error: https://github.com/jxcore/jxcore/issues/119
+//require('http').setMaxHeaderLength(26214400);
 
 // all environments
 var port = "3002";
 server.set('port', port);
 server.use(favicon(__dirname + '/public/favicon.ico'));
-server.use(bodyParser.json()); // support json encoded bodies
-server.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+//increased limit size, see: http://stackoverflow.com/questions/19917401/node-js-express-request-entity-too-large
+server.use(bodyParser.json({ limit: '25mb' })); // support json encoded bodies
+server.use(bodyParser.urlencoded({ limit: '25mb', extended: true })); // support encoded bodies
 
 config.add("server", "http://localhost:" + port);
 
-var pr = new DynamicProject.DynamicProjectService(server,cm,messageBus);
+var ld = new LayerDirectory.LayerDirectory(server, cm);
+ld.Start();
+
+var pr = new DynamicProject.DynamicProjectService(server, cm, messageBus);
 pr.Start(server);
 
-var ds = new DataSource.DataSourceService(cm,"DataSource");
-ds.Start();
-server.get("/datasource", ds.GetDataSource);
+var ds = new DataSource.DataSourceService(cm, "DataSource");
+ds.start();
+server.get("/datasource", ds.getDataSource);
 
 var bagDatabase = new BagDatabase(config);
 var mapLayerFactory = new creator.MapLayerFactory(bagDatabase, messageBus);
 server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res));
+server.post('/bagcontours', (req, res) => mapLayerFactory.processBagContours(req, res));
+
+// Create the API service manager and add the services that you need
+var apiServiceMgr = new ApiServiceManager(server, config);
+// Resource types
+var resourceTypeStore = new ProjectRepositoryService(new store.FolderStore({ storageFolder: "public/data/resourceTypes" }))
+apiServiceMgr.addService(resourceTypeStore);
 
 server.use(express.static(path.join(__dirname, 'public')));
 console.log("started");
 
-httpServer.listen(server.get('port'),() => {
+httpServer.listen(server.get('port'), () => {
     console.log('Express server listening on port ' + server.get('port'));
 });

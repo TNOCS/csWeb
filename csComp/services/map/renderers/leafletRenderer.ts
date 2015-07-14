@@ -4,6 +4,7 @@ module csComp.Services {
         title = "leaflet";
         service: LayerService;
         $messageBusService: MessageBusService;
+        map: L.Map;
 
         private popup: L.Popup;
 
@@ -15,21 +16,49 @@ module csComp.Services {
         public enable() {
             if ($("map").length !== 1) return;
             this.service.$mapService.map = L.map("map", {
+
                 //var tl  = L.map("mapleft", {
                 zoomControl: false,
                 maxZoom: 19,
                 attributionControl: true
+
             });
+            this.map = this.service.$mapService.map;
+
+
+
+
+
             this.service.$mapService.map.on('moveend', (t, event: any) => {
                 var b = (<L.Map>(this.service.$mapService.map)).getBounds();
                 this.$messageBusService.publish("mapbbox", "update", b.toBBoxString());
 
-                this.service.$mapService.maxBounds = b;
+                var boundingBox: csComp.Services.IBoundingBox = { southWest: [b.getSouthWest().lat, b.getSouthWest().lng], northEast: [b.getNorthEast().lat, b.getNorthEast().lng] };
+                this.service.$mapService.maxBounds = boundingBox;
             });
         }
 
-        public fitBounds(bounds: L.LatLngBounds) {
-            this.service.$mapService.map.fitBounds(bounds);
+        public getExtent(): csComp.Services.IBoundingBox {
+
+            var r = <IBoundingBox>{};
+            if (this.map) {
+                var b = this.map.getBounds();
+                var sw = b.getSouthWest();
+                var ne = b.getNorthEast();
+                r.southWest = [sw.lat, sw.lng];
+                r.northEast = [ne.lat, ne.lng];
+            }
+            return r;
+
+        }
+
+        public fitBounds(bounds: csComp.Services.IBoundingBox) {
+            var southWest = L.latLng(bounds.southWest[0], bounds.southWest[1]);
+            var northEast = L.latLng(bounds.northEast[0], bounds.northEast[1]);
+            var lb = L.latLngBounds(southWest, northEast);
+            try {
+                this.service.$mapService.map.fitBounds(lb);
+            } catch (e) { }
         }
 
         public getZoom() {
@@ -69,37 +98,40 @@ module csComp.Services {
                                 try {
                                     m.removeLayer(layer.group.markers[feature.id]);
                                     delete layer.group.markers[feature.id];
-                                } catch (error) {
-
-                                }
+                                } catch (error) { }
                             }
                         });
                     } else {
-                        this.service.map.map.removeLayer(layer.mapLayer);
+                        if (this.service.map.map && layer.mapLayer)
+                            try {
+                                this.service.map.map.removeLayer(layer.mapLayer);
+                            } catch (error) { }
                     }
                     break;
                 default:
-                    this.service.map.map.removeLayer(layer.mapLayer);
+
+                    if (this.service.map.map && layer.mapLayer) this.service.map.map.removeLayer(layer.mapLayer);
                     break;
             }
 
         }
 
+        baseLayer: L.ILayer;
+
         public changeBaseLayer(layerObj: BaseLayer) {
             if (layerObj == this.service.$mapService.activeBaseLayer) return;
+            if (this.baseLayer) this.service.map.map.removeLayer(this.baseLayer);
+            this.baseLayer = this.createBaseLayer(layerObj);
 
-            var layer: L.ILayer = this.createBaseLayer(layerObj);
+            this.service.map.map.addLayer(this.baseLayer);
 
-            this.service.map.map.addLayer(layer);
-            if (this.service.$mapService.activeBaseLayer)
-                this.service.map.map.removeLayer(this.createBaseLayer(this.service.$mapService.activeBaseLayer));
             this.service.map.map.setZoom(this.service.map.map.getZoom());
-            this.service.map.map.fire('baselayerchange', { layer: layer });
+            this.service.map.map.fire('baselayerchange', { layer: this.baseLayer });
             console.log('changebaselayer');
         }
 
         private createBaseLayer(layerObj: BaseLayer) {
-            var options: L.TileLayerOptions = {};
+            var options: L.TileLayerOptions = { noWrap: true };
             options['subtitle'] = layerObj.subtitle;
             options['preview'] = layerObj.preview;
             if (layerObj.subdomains != null) options['subdomains'] = layerObj.subdomains;
@@ -150,6 +182,8 @@ module csComp.Services {
                         if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
                     });
                     layer.isLoading = true;
+
+
                     //this.$rootScope.$apply();
                     break;
                 case "wms":
@@ -179,8 +213,10 @@ module csComp.Services {
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                     this.service.map.map.addLayer(layer.mapLayer);
                     if (!layer.data || !layer.data.features) break;
+
                     (<any>layer.data).features.forEach((f: IFeature) => {
-                        layer.group.markers[f.id] = this.addFeature(f);
+                        var marker = this.addFeature(f);
+                        if (marker) layer.group.markers[f.id] = marker;
                     });
                     //var v = L.geoJson(layer.data, {
                     //    style: (f: IFeature, m) => {
@@ -294,30 +330,32 @@ module csComp.Services {
                 marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
             } else {
                 marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
+                if (feature.layer && feature.layer.type !== 'accessibility') marker.bringToFront();
             }
         }
 
         public addFeature(feature: IFeature): any {
-            var m = this.createFeature(feature);
-            var l = <ProjectLayer>feature.layer;
-            l.group.markers[feature.id] = m;
-            m.on({
-                mouseover: (a) => this.showFeatureTooltip(a, l.group),
-                mouseout: (s) => this.hideFeatureTooltip(s),
-                mousemove: (d) => this.updateFeatureTooltip(d),
-                click: () => this.service.selectFeature(feature)
-            });
-            m.feature = feature;
-            if (l.group.clustering) {
-                l.group.cluster.addLayer(m);
-            }
-            else {
-                if (l.mapLayer) {
-                    l.mapLayer.addLayer(m);
+            if (feature.geometry != null) {
+                var m = this.createFeature(feature);
+                var l = <ProjectLayer>feature.layer;
+                l.group.markers[feature.id] = m;
+                m.on({
+                    mouseover: (a) => this.showFeatureTooltip(a, l.group),
+                    mouseout: (s) => this.hideFeatureTooltip(s),
+                    mousemove: (d) => this.updateFeatureTooltip(d),
+                    click: () => this.service.selectFeature(feature)
+                });
+                m.feature = feature;
+                if (l.group.clustering) {
+                    l.group.cluster.addLayer(m);
                 }
-            }
-
-            return m;
+                else {
+                    if (l.mapLayer) {
+                        l.mapLayer.addLayer(m);
+                    }
+                }
+                return m;
+            } else return null;
         }
 
         /**
@@ -330,7 +368,29 @@ module csComp.Services {
             switch (feature.geometry.type) {
                 case 'Point':
                     var icon = this.getPointIcon(feature);
-                    marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), { icon: icon });
+                    marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
+                        icon: icon
+                    });
+
+                    marker.on('contextmenu', (e: any) => {
+                        this.service._activeContextMenu = this.service.getActions(feature);
+
+                        //e.stopPropagation();
+                        var button: any = $("#map-contextmenu-button");
+                        var menu: any = $("#map-contextmenu");
+                        button.dropdown('toggle');
+                        var mapSize = this.map.getSize();
+                        menu.css("left", e.originalEvent.x + 5);
+                        menu.css("top", e.originalEvent.y - 35);
+
+                        /*var containerSize = this.getElementSize(container),
+                            anchor;*/
+                        console.log(e);
+                        //L.DomEvent.apply(e, "click");
+                        //alert(e.latlng);
+                    });
+
+
                     break;
                 default:
                     marker = L.GeoJSON.geometryToLayer(<any>feature);
@@ -344,6 +404,8 @@ module csComp.Services {
 
             return marker;
         }
+
+
 
         /**
          * create icon based of feature style
@@ -362,7 +424,7 @@ module csComp.Services {
                 var ft = this.service.getFeatureType(feature);
 
                 //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
-                var iconUri = ft.style.iconUri;
+                var iconUri = feature.effectiveStyle.iconUri; //ft.style.iconUri;
                 //if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
 
                 // TODO refactor to object
@@ -372,7 +434,7 @@ module csComp.Services {
                 props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
                 props['border-style'] = 'solid';
                 props['border-color'] = feature.effectiveStyle.strokeColor;
-                props['border-width'] = feature.effectiveStyle.stroke;
+                props['border-width'] = feature.effectiveStyle.strokeWidth;
                 props['opacity'] = feature.effectiveStyle.opacity;
 
                 if (feature.isSelected) {

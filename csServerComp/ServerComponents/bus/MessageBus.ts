@@ -1,9 +1,12 @@
+require('rootpath')();
+import ClientConnection = require("ServerComponents/dynamic/ClientConnection");
+
 /**
  * Interface for message bus callbacks, i.e. (data: any) => any,
  * so you can supply a single data argument of any type, and it may return any type.
  */
 export interface IMessageBusCallback {
-    (title: string, data?: any): any;
+    (title: string, data?: any, sender?: string): any;
 }
 
 /**
@@ -24,6 +27,10 @@ export class MessageBusHandle {
  */
 export class MessageBusService {
     private static cache: { [topic: string]: Array<IMessageBusCallback> } = {};
+
+    // constructor(public Connection: ClientConnection.ConnectionManager) {
+    // }
+
 
     /**
      * Publish to a topic

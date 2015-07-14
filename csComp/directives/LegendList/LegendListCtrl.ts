@@ -1,13 +1,13 @@
-﻿module LegendList {
+module LegendList {
     export interface ILegendItem {
         title: string;
-        uri : string;
+        uri: string;
     }
 
     export interface ILegendListScope extends ng.IScope {
-        vm           : LegendListCtrl;
+        vm: LegendListCtrl;
         numberOfItems: number;
-        legendItems  : ILegendItem[];
+        legendItems: ILegendItem[];
     }
 
     export class LegendListCtrl {
@@ -25,9 +25,9 @@
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope            : ILegendListScope,
-            private $layerService     : csComp.Services.LayerService,
-            private $mapService       : csComp.Services.MapService,
+            private $scope: ILegendListScope,
+            private $layerService: csComp.Services.LayerService,
+            private $mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
@@ -51,11 +51,11 @@
 
         private updateLegendItems() {
             var legendItems: Array<ILegendItem> = [];
-            var existingItems: Array<String>    = [];
-            for (var key in this.$layerService.featureTypes) {
-                var ft           = this.$layerService.featureTypes[key];
-                var uri          = this.getImageUri(ft);
-                var title        = this.getName(key, ft);
+            var existingItems: Array<String> = [];
+            for (var key in this.$layerService._featureTypes) {
+                var ft = this.$layerService._featureTypes[key];
+                var uri = this.getImageUri(ft);
+                var title = this.getName(key, ft);
                 var existingItem = name + uri;
                 if (existingItems.indexOf(existingItem) < 0) {
                     existingItems.push(existingItem);
@@ -72,20 +72,20 @@
 
         private getImageUri(ft: csComp.Services.IFeatureType): string {
             var iconUri = ft.style.iconUri;
-            if (iconUri == null) iconUri = "includes/images/marker.png";
+            if (iconUri == null) iconUri = "cs/images/marker.png";
             if (iconUri.indexOf('{') >= 0) iconUri = iconUri.replace('{', '').replace('}', '');
 
-            if (ft.style != null && ft.style.drawingMode!=null && ft.style.drawingMode.toLowerCase() != "point") {
+            if (ft.style != null && ft.style.drawingMode != null && ft.style.drawingMode.toLowerCase() != "point") {
                 if (iconUri.indexOf('_Media') < 0)
                     return iconUri;
                 else
-                    return "includes/images/polygon.png";
+                    return "cs/images/polygon.png";
             }
             else if (ft.style != null && iconUri != null) {
                 return iconUri;
             }
             else {
-                return "includes/images/marker.png";
+                return "cs/images/marker.png";
             }
         }
 

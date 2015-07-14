@@ -1,0 +1,21 @@
+Instructions for creating a stand-alone version of csWeb:
+---------------------------------------------------------
+
+1) Install jxCore (the version I used is 2.3.7 / 32-bit)
+2) Run updateAll.bat to make sure the latest changes are compiled.
+3) Run 'gulp create_dist_of_client_and_server' which will create a 'dist'-folder.
+4) Change the directory to that 'dist'-folder and run 'jx package server.js csServer -native --max-stack-size=1000000000'
+5) Now a file 'csServer.exe' has been created, which will run the csWeb server. 
+  To open csWeb:
+    - run csServer.exe
+    - open localhost:3002 in your browser
+
+In order to be able to add/change/remove project files in the stand-alone version, it is recommended to 
+move the dist/public/data and dist/public/images folders to a temporary folder before performing step 4). 
+When csServer.exe has been created, copy the folders back such that you get the following structure
+ > someFolder/csServer.exe
+ > someFolder/public/images/*
+ > someFolder/public/data/*
+
+It is now possible to changes files in these to folders, after which csServer will use the changed files. This
+is for example convenient when creating layer with the Excel2map tool. 

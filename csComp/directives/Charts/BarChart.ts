@@ -18,6 +18,7 @@ module Charts {
 
     export interface IBarchartScope extends ng.IScope {
         data: number[];
+        update: boolean;
     }
 
     myModule.directive('barChart', ['$filter',
@@ -27,6 +28,7 @@ module Charts {
                     restrict: 'EA',       // E = elements, other options are A=attributes and C=classes
                     scope: {
                         data: '=',
+                        update: '='
                     },
                     link: function(scope: IBarchartScope, element, attrs) {
                         //in D3, any selection[0] contains the group

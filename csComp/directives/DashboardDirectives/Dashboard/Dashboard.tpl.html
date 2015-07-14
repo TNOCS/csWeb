@@ -1,33 +1,32 @@
 <div class="dashboard-main">
-  <style>
-  .backgroundImage{
-  /* Set rules to fill background */
-  min-height: 100%;
-  min-width: 1024px;
-
-  /* Set up proportionate scaling */
-  width: 100%;
-  height: auto;
-
-  /* Set up positioning */
-  position: fixed;
-  top: 0;
-  left: 0;}
-  </style>
-  <div style="position:relative;width:100%; height:100%;pointer-events: none">
-    <img ng-show="dashboard.showBackgroundImage" class="backgroundImage" src="{{dashboard.backgroundimage}}"></img>
-    <ul style="padding:0;pointer-events: none">
-      <li ng-repeat="widget in dashboard.widgets" class="widget-parent" ng-class="{widgethover : widget.hover}" ng-show="widget.enabled">
-        <div class="widget-container widget-entrance" ng-hide="widget.collapse" style="position:absolute" ng-style="{'background' : widget.background,'border-color':widget.borderColor,'top':widget.top,'left':widget.left,'right':widget.right,'border-width':widget.borderWidth,'border-radius':widget.borderRadius,'width':widget.width,'height':widget.height}">
-          <!-- ,'border-color':widget.borderColor,'border-width':widget.borderwidth,'border-radius':widget.borderradius,'top':widget.top;'bottom':widget.bottom;'left':widget.left;'right':widget.right;'position': absolute;'width':widget.width;'height':widget.height} -->
-          <!-- <div class="widget-container widget-entrance" ng-hide="widget.collapse" style="background:{{widget.background}};border-color:{{widget.borderColor}};border-width:{{widget.borderwidth}};border-radius:{{widget.borderradius}};top: {{widget.top}};bottom: {{widget.bottom}};left:{{widget.left}};right:{{widget.right}};position: absolute;width:{{widget.width}};height:{{widget.height}}"> -->
-          <div id="{{widget.elementId}}" when-ready="vm.isReady(widget)" class="box-content" style="width:100%;height:100%">
-          </div>
-          <div ng-show="vm.$dashboardService.editMode" class="widgeteditbutton" ng-class="{widgeteditmode : vm.$dashboardService.activeWidget == widget}" style="position:absolute;top:0;right:0">
-            <button ng-click="vm.$dashboardService.editWidget(widget)" class="button fa fa-pencil leftpanel-header-button" />
-          </div>
-        </div>
-      </li>
-    </ul>
-  </div>
+    <style>
+        .backgroundImage {
+            /* Set rules to fill background */
+            min-height: 100%;
+            min-width: 1024px;
+            /* Set up proportionate scaling */
+            width: 100%;
+            height: auto;
+            /* Set up positioning */
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+    </style>
+    <div style="position:relative;width:100%; height:100%;pointer-events: none">
+        <img ng-show="dashboard.showBackgroundImage" class="backgroundImage" src="{{dashboard.backgroundimage}}"></img>
+        <ul style="padding:0;pointer-events: none; height:100%">
+            <li ng-repeat="widget in dashboard.widgets" class="widget-parent" ng-class="{widgethover : widget.hover}" ng-show="widget.enabled && !(!vm.$mapService.isAdminExpert && widget.hideIfLeftPanel && vm.$layerService.visual.leftPanelVisible)">
+                <div class="widget-container widget-entrance" ng-hide="widget.collapse" style="position:absolute" ng-style="{'background' : widget.background,'border-color':widget.borderColor,'top':widget.top,'left':widget.left,'right':widget.right,'border-width':widget.borderWidth,'border-radius':widget.borderRadius,'width':widget.width,'height':widget.height,'opacity' : widget.opacity}">
+                    <!-- ,'border-color':widget.borderColor,'border-width':widget.borderwidth,'border-radius':widget.borderradius,'top':widget.top;'bottom':widget.bottom;'left':widget.left;'right':widget.right;'position': absolute;'width':widget.width;'height':widget.height} -->
+                    <!-- <div class="widget-container widget-entrance" ng-hide="widget.collapse" style="background:{{widget.background}};border-color:{{widget.borderColor}};border-width:{{widget.borderwidth}};border-radius:{{widget.borderradius}};top: {{widget.top}};bottom: {{widget.bottom}};left:{{widget.left}};right:{{widget.right}};position: absolute;width:{{widget.width}};height:{{widget.height}}"> -->
+                    <div id="{{widget.elementId}}" when-ready="vm.isReady(widget)" class="box-content" style="width:100%;height:100%">
+                    </div>
+                    <div ng-show="vm.$mapService.isAdminExpert" class="widgeteditbutton" ng-class="{widgeteditmode : vm.$dashboardService.activeWidget == widget}" style="position:absolute;top:0;right:0">
+                        <button ng-click="vm.$dashboardService.editWidget(widget)" class="button fa fa-cog leftpanel-header-button" />
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
 </div>

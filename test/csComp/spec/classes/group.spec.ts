@@ -9,7 +9,7 @@ describe('ProjectGroup', function() {
         projectgroup = new csComp.Services.ProjectGroup();
     });
 
-    describe('initial state', () => {
+    describe('Projectgroup initial state', () => {
         it('should have an undefined id and title', function() {
             expect(projectgroup.id).toBeUndefined();
             expect(projectgroup.title).toBeUndefined();
@@ -32,6 +32,45 @@ describe('ProjectGroup', function() {
             expect(result.id).toEqual('newName');
             expect(result.title).toEqual('newTitle');
             expect(result.ndx).toBeUndefined();
+        });
+    });
+});
+
+
+class MockColorTranslation{
+    then = function(translation) {
+        translation('color');
+    }
+    constructor() {}
+};
+
+describe('csComp.Services.GroupStyle', function() {
+
+    // load the module
+    beforeEach(module('csComp'));
+
+    var mockTranslate;
+    beforeEach(() => {
+        module(function($provide) {
+            $provide.value('$translate', mockTranslate);
+        });
+        mockTranslate = function(key) {
+            var mct = new MockColorTranslation();
+            return mct;
+        };
+    });
+
+    var groupStyle: csComp.Services.GroupStyle;
+    var translate;
+    beforeEach(inject(function($translate) {
+        translate = $translate;
+        groupStyle = new csComp.Services.GroupStyle(translate);
+    }));
+
+    describe('Groupstyle initial state', () => {
+        it('should have an undefined id and title', function() {
+            expect(groupStyle.id).toBeUndefined();
+            expect(groupStyle.title).toBeUndefined();
         });
     });
 });

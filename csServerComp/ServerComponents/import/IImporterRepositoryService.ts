@@ -1,10 +1,13 @@
+import IApiService = require('../api/IApiService');
 import IImport = require("./IImport");
+import transform   = require("./ITransform");
 
-interface IImporterRepositoryService {
-    getAll() : IImport[];
-    get(id: string) : IImport;
+interface IImporterRepositoryService extends IApiService {
+    getAll(): Object[];
+    get(id: string): Object;
     delete(id: string);
-    create(importer: IImport): IImport;
-    update(importer: IImport);
+    create(id: string, importer: Object): Object;
+    update(importer: Object);
+    addTransformer(transformer: transform.ITransform);
 }
 export = IImporterRepositoryService;

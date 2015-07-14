@@ -1,4 +1,4 @@
-﻿module Dashboard {
+module Dashboard {
     /**
       * Config
       */
@@ -9,7 +9,7 @@
       */
     export var myModule;
     try {
-    myModule = angular.module(moduleName);
+        myModule = angular.module(moduleName);
 
     } catch (err) {
         // named module does not exist, so create one
@@ -18,59 +18,59 @@
 
 
     myModule.directive('whenReady', ['$interpolate', function($interpolate) {
-      return {
-        restrict: 'A',
-        priority: Number.MIN_VALUE, // execute last, after all other directives if any.
-        link: function($scope, $element, $attributes) {
-          var expressions = $attributes.whenReady.split(';');
-          var waitForInterpolation = false;
-          var hasReadyCheckExpression = false;
+        return {
+            restrict: 'A',
+            priority: Number.MIN_VALUE, // execute last, after all other directives if any.
+            link: function($scope, $element, $attributes) {
+                var expressions = $attributes.whenReady.split(';');
+                var waitForInterpolation = false;
+                var hasReadyCheckExpression = false;
 
-          function evalExpressions(expressions) {
-            expressions.forEach(function(expression) {
-              $scope.$eval(expression);
-            });
-          }
+                function evalExpressions(expressions) {
+                    expressions.forEach(function(expression) {
+                        $scope.$eval(expression);
+                    });
+                }
 
-          if ($attributes.whenReady.trim().length === 0) { return; }
+                if ($attributes.whenReady.trim().length === 0) { return; }
 
-        if ($attributes.waitForInterpolation && $scope.$eval($attributes.waitForInterpolation)) {
-            waitForInterpolation = true;
-        }
+                if ($attributes.waitForInterpolation && $scope.$eval($attributes.waitForInterpolation)) {
+                    waitForInterpolation = true;
+                }
 
-          if ($attributes.readyCheck) {
-            hasReadyCheckExpression = true;
-          }
+                if ($attributes.readyCheck) {
+                    hasReadyCheckExpression = true;
+                }
 
-          if (waitForInterpolation || hasReadyCheckExpression) {
-            requestAnimationFrame(function checkIfReady() {
-              var isInterpolated = false;
-              var isReadyCheckTrue = false;
+                if (waitForInterpolation || hasReadyCheckExpression) {
+                    requestAnimationFrame(function checkIfReady() {
+                        var isInterpolated = false;
+                        var isReadyCheckTrue = false;
 
-              if (waitForInterpolation && $element.text().indexOf($interpolate.startSymbol()) >= 0) { // if the text still has {{placeholders}}
-                isInterpolated = false;
-              }
-              else {
-                isInterpolated = true;
-              }
+                        if (waitForInterpolation && $element.text().indexOf($interpolate.startSymbol()) >= 0) { // if the text still has {{placeholders}}
+                            isInterpolated = false;
+                        }
+                        else {
+                            isInterpolated = true;
+                        }
 
-              if (hasReadyCheckExpression && !$scope.$eval($attributes.readyCheck)) { // if the ready check expression returns false
-                isReadyCheckTrue = false;
-              }
-              else {
-                isReadyCheckTrue = true;
-              }
+                        if (hasReadyCheckExpression && !$scope.$eval($attributes.readyCheck)) { // if the ready check expression returns false
+                            isReadyCheckTrue = false;
+                        }
+                        else {
+                            isReadyCheckTrue = true;
+                        }
 
-              if (isInterpolated && isReadyCheckTrue) { evalExpressions(expressions); }
-              else { requestAnimationFrame(checkIfReady); }
+                        if (isInterpolated && isReadyCheckTrue) { evalExpressions(expressions); }
+                        else { requestAnimationFrame(checkIfReady); }
 
-            });
-          }
-          else {
-            evalExpressions(expressions);
-          }
-        }
-      };
+                    });
+                }
+                else {
+                    evalExpressions(expressions);
+                }
+            }
+        };
     }]);
 
     /**
@@ -87,7 +87,7 @@
                 }, // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 //template: html, // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
                 templateUrl: 'directives/DashboardDirectives/Dashboard/Dashboard.tpl.html',
-                link: (scope: any, element, attrs) => {
+                link: (scope: any, element, attrs) => {                    
                     // Deal with resizing the element list
                     angular.element($window).bind('resize', () => {
                         //scope.onResizeFunction();
@@ -98,7 +98,7 @@
                     //var s = jQuery.parseJSON(attrs.param);
                     scope.initDashboard();
                 },
-                replace:false,
+                replace: false,
                 transclude: true, // Add elements and attributes to the template
                 controller: DashboardCtrl
             }

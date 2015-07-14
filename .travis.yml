@@ -3,10 +3,11 @@ language: node_js
 node_js:
   - "0.12"
 install:
-  - "npm install -g typescript"
+  - "npm install -g typescript@1.5.0-beta"
   - "npm install -g bower"
 script:
     - ./updateAll.sh
     - cd example && karma start ../test/karma.conf.js
+    - cd .. && cat coverage/*/lcov.info | example/node_modules/coveralls/bin/coveralls.js
 notifications:
   slack: webcs:AnvBbkHIi7v9aTiS2H4suMkr

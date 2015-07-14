@@ -4,13 +4,13 @@
 
 // Configure gulp scripts
 var appName = 'csWebApp';
+var path2csWeb = '../';
 
-var gulp = require('gulp'),
-    // uglify = require('gulp-uglify'),
-    useref = require('gulp-useref'),
-    concat = require('gulp-concat'),
+var gulp    = require('gulp'),
+    useref  = require('gulp-useref'),
+    concat  = require('gulp-concat'),
     plumber = require('gulp-plumber'),
-    watch = require('gulp-watch');
+    watch   = require('gulp-watch');
 
 gulp.task('copy_csServerComp', function() {
     return gulp.src('../csServerComp/ServerComponents/**/*.js')
@@ -19,33 +19,20 @@ gulp.task('copy_csServerComp', function() {
 });
 
 gulp.task('built_csServerComp.d.ts', function() {
-    gulp.src('../csServerComp/ServerComponents/**/*.d.ts')
+    gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts')
         .pipe(plumber())
       //  .pipe(concat('csServerComp.d.ts'))
         .pipe(gulp.dest('./ServerComponents'));
         //.pipe(gulp.dest('./public/cs/js'));
+    gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts')
+        .pipe(gulp.dest(path2csWeb + 'test/Scripts/typings/cs'));
 });
 
 gulp.task('copy_csServerComp_scripts', function() {
-    return gulp.src('../csServerComp/Scripts/**/*.ts')
+    return gulp.src(path2csWeb + 'csServerComp/Scripts/**/*.ts')
         //.pipe(concat('csComp.js'))
         .pipe(gulp.dest('./Scripts'));
 });
-
-gulp.task('create_templateCache', function() {
-    console.log('Creating templateCache.')
-    var options = {
-        module: appName,
-        filename: 'csTemplates.js'
-    }
-
-    gulp.src('../../../csWeb/csComp/**/*.tpl.html')
-        // .pipe(debug({
-        //     title: 'create_templateCache:'
-        // }))
-        .pipe(templateCache(options))
-        .pipe(gulp.dest('public/cs/js'))
-})
 
 gulp.task('create_dist', function() {
     var assets = useref.assets();

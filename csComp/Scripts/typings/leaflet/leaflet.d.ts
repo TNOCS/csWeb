@@ -3343,7 +3343,12 @@ declare module L {
           * Returns the LatLngBounds of the polyline.
           */
         getBounds(): LatLngBounds;
-
+        
+        /**
+         * Decodes an encoded polyline to a leaflet Polyline
+         */
+        static fromEncoded(encodedPolyline: string): Polyline;
+        
         /**
           * Returns a GeoJSON representation of the polyline (GeoJSON LineString Feature).
           */

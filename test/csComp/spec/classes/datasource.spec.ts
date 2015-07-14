@@ -9,6 +9,12 @@ describe('DataSource', function() {
         datasource = new csComp.Services.DataSource();
     });
 
+    beforeEach(module('mockedDataSource'));
+    var mockJSON;
+    beforeEach(inject(function(defaultJSON) {
+        mockJSON = defaultJSON;
+    }));
+
     describe('initial state', () => {
         it('should have an undefined id and index', function() {
             expect(datasource.id).toBeUndefined();
@@ -33,13 +39,20 @@ describe('DataSource', function() {
             expect($.getJSON).toHaveBeenCalledWith('./path/to/json', jasmine.any(Function));
         });
 
-        xit('should parse the data correctly', function() {
-            spyOn($, 'getJSON');
-            datasource.url = '../../mock/classes/datasourceMock.json';
-            csComp.Services.DataSource.LoadData(datasource, () => {
-                expect(datasource.id).toEqual('datasource');
-                expect(datasource.sensors.hasOwnProperty('test')).toBeTruthy();
+        it('should parse the data correctly', function() {
+            //var jsonSpy = spyOn($, 'getJSON').and.callFake(function(url, callback) {
+            //    callback({ 'id' : 'datasource', 'title' : 'test', 'sensors' : {'test' : {'id' : 'test', 'timestamps': [1, 2], 'values' : [2, 3] } } });
+            //});
+            var jsonSpy = spyOn($, 'getJSON').and.callFake(function(url, callback) {
+               callback(mockJSON);
             });
+            datasource.url = 'test.json';
+            csComp.Services.DataSource.LoadData(datasource, () => {
+            });
+
+            expect(datasource.id).toEqual('datasource');
+            expect(datasource.hasOwnProperty('sensors')).toBeTruthy();
+            expect(datasource.sensors.hasOwnProperty('test')).toBeTruthy();
         });
     });
 });

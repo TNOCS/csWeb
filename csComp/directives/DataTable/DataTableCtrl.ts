@@ -1,11 +1,11 @@
-﻿module DataTable {
+module DataTable {
     import IGeoJsonFile = csComp.Services.IGeoJsonFile;
     import IPropertyType = csComp.Services.IPropertyType;
     import IFeature = csComp.Services.IFeature;
     import ProjectLayer = csComp.Services.ProjectLayer;
 
     export interface IDataTableViewScope extends ng.IScope {
-        vm             : DataTableCtrl;
+        vm: DataTableCtrl;
         //numberOfItems  : number;
         //selectedLayerId: string;
     }
@@ -15,22 +15,22 @@
      * The value is the actual displayValue shown, the type is the propertyType type (e.g. number or text, useful when aligning the data), and the header is used for sorting.
      */
     export class TableField {
-        constructor(public displayValue: string, public originalValue: any, public type: string, public header: string) {}
+        constructor(public displayValue: string, public originalValue: any, public type: string, public header: string) { }
     }
 
     declare var String;
 
     export class DataTableCtrl {
-        public mapLabel        : string = "map";
-        public dataset         : IGeoJsonFile;
-        public selectedType   : csComp.Services.IFeatureType;
-        public numberOfItems   : number = 10;
-        public selectedLayerId : string;
-        public layerOptions    : Array<any> = [];
+        public mapLabel: string = "map";
+        public dataset: IGeoJsonFile;
+        public selectedType: csComp.Services.IFeatureType;
+        public numberOfItems: number = 10;
+        public selectedLayerId: string;
+        public layerOptions: Array<any> = [];
         public propertyTypes: Array<IPropertyType> = [];
-        public headers         : Array<string> = [];
-        public sortingColumn   : number;
-        public rows            : Array<Array<TableField>> = [];
+        public headers: Array<string> = [];
+        public sortingColumn: number;
+        public rows: Array<Array<TableField>> = [];
         private mapFeatureTitle: string;
 
         // $inject annotation.
@@ -51,22 +51,24 @@
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope               : IDataTableViewScope,
-            private $http                : ng.IHttpService,
-            private $sce                 : ng.ISCEService,
-            private $translate           : ng.translate.ITranslateService,
-            private $timeout             : ng.ITimeoutService,
-            private $layerService        : csComp.Services.LayerService,
-            private $localStorageService : ng.localStorage.ILocalStorageService,
-            private $messageBusService   : csComp.Services.MessageBusService
+            private $scope: IDataTableViewScope,
+            private $http: ng.IHttpService,
+            private $sce: ng.ISCEService,
+            private $translate: ng.translate.ITranslateService,
+            private $timeout: ng.ITimeoutService,
+            private $layerService: csComp.Services.LayerService,
+            private $localStorageService: ng.localStorage.ILocalStorageService,
+            private $messageBusService: csComp.Services.MessageBusService
             ) {
             // 'vm' stands for 'view model'. We're adding a reference to the controller to the scope
             // for its methods to be accessible from view / HTML
             $scope.vm = this;
 
-            $translate('MAP_FEATURES').then(translation => {
-                this.layerOptions[0].title = translation;
-            });
+            if (this.layerOptions && this.layerOptions.length > 0) {
+                $translate('MAP_FEATURES').then(translation => {
+                    this.layerOptions[0].title = translation;
+                });
+            }
 
             this.bindToStorage('vm.numberOfItems', 10);
             this.numberOfItems = $localStorageService.get('vm.numberOfItems');
@@ -93,16 +95,16 @@
          */
         private updateLayerOptions() {
             this.layerOptions.push({
-                "group" : '',
-                "id"    : this.mapLabel,
-                "title" : this.mapFeatureTitle
+                "group": '',
+                "id": this.mapLabel,
+                "title": this.mapFeatureTitle
             });
             if (this.$layerService.project == null || this.$layerService.project.groups == null) return;
             this.$layerService.project.groups.forEach((group) => {
                 group.layers.forEach((layer) => {
                     this.layerOptions.push({
                         "group": group.title,
-                        "id"   : layer.id,
+                        "id": layer.id,
                         "title": layer.title
                     });
                 });
@@ -116,18 +118,23 @@
             if (selectedLayer == null) return this.loadMapLayers();
             this.$http.get(selectedLayer.url).
                 success((data: IGeoJsonFile) => {
-                    this.dataset = data;
-                    if (data.featureTypes == null) data.featureTypes = {};
+                this.dataset = data;
+                if (data.featureTypes == null) data.featureTypes = {};
+                if (data.features) {
                     data.features.forEach((f: IFeature) => {
-                        f.featureTypeName = f.properties['FeatureTypeId'];
+                        if (f.properties.hasOwnProperty('FeatureTypeId')) {
+                            f.featureTypeName = f.properties['FeatureTypeId'];
+                        } else if (data.featureTypes.hasOwnProperty('Default')) {
+                            f.featureTypeName = 'Default';
+                        }
                         if (!(f.featureTypeName in data.featureTypes))
-                            data.featureTypes[f.featureTypeName] = this.$layerService.featureTypes[f.featureTypeName];
+                            data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
                     });
-
                     this.updatepropertyType(data);
-                }).
+                }
+            }).
                 error((data, status, headers, config) => {
-                    this.$messageBusService.notify("ERROR opening " + selectedLayer.title, "Could not get the data.");
+                this.$messageBusService.notify("ERROR opening " + selectedLayer.title, "Could not get the data.");
             });
         }
 
@@ -152,27 +159,27 @@
 
             data.features.forEach((f: IFeature) => {
                 if (!(f.featureTypeName in data.featureTypes))
-                    data.featureTypes[f.featureTypeName] = this.$layerService.featureTypes[f.featureTypeName];
+                    data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
             });
 
             this.dataset = data;
             this.updatepropertyType(data);
         }
 
-        private updatepropertyType(data: IGeoJsonFile) : void {
+        private updatepropertyType(data: IGeoJsonFile): void {
             this.propertyTypes = [];
-            this.headers   = [];
-            this.rows      = [];
+            this.headers = [];
+            this.rows = [];
             var titles: Array<string> = [];
             var mis: Array<IPropertyType> = [];
             // Push the Name, so it always appears on top.
             mis.push({
-                label           : "Name",
+                label: "Name",
                 visibleInCallOut: true,
-                title           : "Naam",
-                type            : "text",
-                filterType      : "text",
-                isSearchable    : true
+                title: "Naam",
+                type: "text",
+                filterType: "text",
+                isSearchable: true
             });
             var featureType: csComp.Services.IFeatureType;
             for (var key in data.featureTypes) {
@@ -197,6 +204,10 @@
                     }
                 });
             }
+            // Add lat-lon coordinates for point features
+            this.propertyTypes.push(csComp.Helpers.GeoExtensions.createPropertyType('Lat'));
+            this.propertyTypes.push(csComp.Helpers.GeoExtensions.createPropertyType('Lon'));
+
             // Select the first couple of headers
             var nmbrOfDefaultSelectedHeaders = 3;
             for (var i = 0; i < nmbrOfDefaultSelectedHeaders; i++) {
@@ -218,7 +229,7 @@
             this.rows = this.getRows();
         }
 
-        private findLayerById(id: string) : ProjectLayer {
+        private findLayerById(id: string): ProjectLayer {
             for (var i = 0; i < this.$layerService.project.groups.length; i++) {
                 var group = this.$layerService.project.groups[i];
                 for (var j = 0; j < group.layers.length; j++) {
@@ -242,34 +253,44 @@
             });
             var props: Array<Array<TableField>> = [];
             var displayValue: string;
-            this.dataset.features.forEach((f: IFeature) => {
-                var row: Array<TableField> = [];
-                meta.forEach((mi) => {
-                    var text = f.properties[mi.label];
-                    displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
-                    //if (!text)
-                    //    text = ' ';
-                    //else if (!$.isNumeric(text))
-                    //    text = text.replace(/&amp;/g, '&');
-                    //switch (mi.type) {
-                    //    case "bbcode":
-                    //        displayValue = XBBCODE.process({ text: text }).html;
-                    //        break;
-                    //    case "number":
-                    //        if (!$.isNumeric(text)) displayValue ='??';
-                    //        else if (!mi.stringFormat)
-                    //            displayValue = text.toString();
-                    //        else
-                    //            displayValue = String.format(mi.stringFormat, parseFloat(text));
-                    //        break;
-                    //    default:
-                    //        displayValue = text;
-                    //        break;
-                    //}
-                    row.push(new TableField(displayValue, text, mi.type, mi.title));
+            if (this.dataset && this.dataset.features) {
+                this.dataset.features.forEach((f: IFeature) => {
+                    var row: Array<TableField> = [];
+                    meta.forEach((mi) => {
+                        if (mi.label === 'Lat') {
+                            (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[1] : displayValue = '';
+                            text = displayValue;
+                        } else if (mi.label === 'Lon') {
+                            (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[0] : displayValue = '';
+                            text = displayValue;
+                        } else {
+                            var text = f.properties[mi.label];
+                            displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
+                        }
+                        //if (!text)
+                        //    text = ' ';
+                        //else if (!$.isNumeric(text))
+                        //    text = text.replace(/&amp;/g, '&');
+                        //switch (mi.type) {
+                        //    case "bbcode":
+                        //        displayValue = XBBCODE.process({ text: text }).html;
+                        //        break;
+                        //    case "number":
+                        //        if (!$.isNumeric(text)) displayValue ='??';
+                        //        else if (!mi.stringFormat)
+                        //            displayValue = text.toString();
+                        //        else
+                        //            displayValue = String.format(mi.stringFormat, parseFloat(text));
+                        //        break;
+                        //    default:
+                        //        displayValue = text;
+                        //        break;
+                        //}
+                        row.push(new TableField(displayValue, text, mi.type, mi.title));
+                    });
+                    props.push(row);
                 });
-                props.push(row);
-            });
+            }
             return props;
         }
 
@@ -303,6 +324,35 @@
                 else
                     return -1;
             });
+        }
+
+        public downloadGeoJson() {
+            var geoJsonString = '{"type": "FeatureCollection",' +
+                '"featureTypes": ' +
+                JSON.stringify(this.dataset.featureTypes, (key, val) => { return (key === '$$hashKey') ? undefined : val; });
+            //geoJsonString += ', "features" : [';
+            geoJsonString += ', "features": [';
+            this.dataset.features.forEach((f) => {
+                var cleanFeature = new csComp.Services.Feature();
+                cleanFeature.type = f.type;
+                cleanFeature.properties = f.properties;
+                cleanFeature.geometry = f.geometry;
+                geoJsonString += JSON.stringify(cleanFeature) + ',';
+            });
+            geoJsonString = geoJsonString.substring(0, geoJsonString.length - 1) + ']}';
+
+            var filename = this.mapLabel;
+            if (this.selectedLayerId !== this.mapLabel) {
+                var layer = this.findLayerById(this.selectedLayerId);
+                if (layer) filename = layer.title.replace(' ', '_');
+            }
+
+            this.$timeout(() => {
+                var data = this.$layerService.project.serialize();
+                //console.log(data);
+                console.log("Save settings: ");
+                csComp.Helpers.saveData(geoJsonString, filename, "json");
+            }, 0);
         }
 
         public downloadCsv() {
