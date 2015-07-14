@@ -15,13 +15,13 @@ export class MongoDBStorage implements LayerManager.IStorage {
     public addLayer(layer: Layer) {
         //TODO: add support for inserting an entire layer,
         // although the addFeature should also be able to cope with it
-
     }
 
     //TODO: remove this code before pushing
-    public addFeature2() {
+    public addFeature2(layerId: string) {
         // normally, you'd take the layerID here and toString it
         // so you can enter a collection dynamically
+        console.log("inside the inserting method");
         var collection = this.db.collection("testFeatures");
         collection.insert({ hello: 'Isitmeyourelookingfor' }, function(err) {
             if (err)
@@ -86,7 +86,7 @@ export class MongoDBStorage implements LayerManager.IStorage {
     public init(layerManager: LayerManager.LayerManager, options: any) {
         this.manager = layerManager;
         // set up connection
-        var server = new mongodb.Server(this.server, this.port, { auto_reconnect: true })
+        var server = new mongodb.Server(this.server, this.port, { auto_reconnect: true });
         //set up the db instance
 
         this.db = new mongodb.Db('commonSenseWeb', server, { w: 1 });
