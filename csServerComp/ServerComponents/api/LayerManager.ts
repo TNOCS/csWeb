@@ -10,7 +10,7 @@ export class CallbackResult {
 export interface IStorage {
     init(layerManager: LayerManager, options: any);
     //Layer methods
-    addLayer(layer: Layer);
+    addLayer(layer: Layer, Function);
     getLayer(layerId: string, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any);
@@ -50,9 +50,11 @@ export class LayerManager {
 
     //layer methods start here, in CRUD order.
 
-    public addLayer(layer: Layer) {
+    public addLayer(layer: Layer, callback: Function) {
         var s = this.storages["mongo"];
-        s.addLayer(layer);
+        s.addLayer(layer, (r: CallbackResult) => {
+            callback(r);
+        });
     }
 
 
