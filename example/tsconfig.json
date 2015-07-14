@@ -37,6 +37,7 @@
         "./Scripts/typings/leaflet/control-sidebar.d.ts",
         "./Scripts/typings/leaflet/leaflet.d.ts",
         "./Scripts/typings/lodash/lodash.d.ts",
+        "./Scripts/typings/mongodb/mongodb.d.ts",
         "./Scripts/typings/node/node.d.ts",
         "./Scripts/typings/pg/pg.d.ts",
         "./Scripts/typings/proj4/proj4.d.ts",

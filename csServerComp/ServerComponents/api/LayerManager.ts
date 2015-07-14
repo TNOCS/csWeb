@@ -10,7 +10,7 @@ export interface IStorage {
     addFeature2();
     getFeature(layer: Layer, featureId: string);
     updateFeature(layer: Layer, feature: any);
-    getAllFeatures(layer: Layer);
+    getAllFeatures(layerId: string);
 }
 
 export class Layer {
@@ -62,7 +62,7 @@ export class LayerManager {
     // much sense as a feature is a single document in mongo and conceptually
     // belongs to a layer.
     public updateFeature(layer: Layer, feature: any) {
-      var s = this.storages[feature.storage];
+      var s = this.storages[layer.storage];
       s.updateFeature(layer, feature);
     }
 
@@ -73,7 +73,7 @@ export class LayerManager {
 
     public getAllFeatures(layer: Layer) {
       var s = this.storages[layer.storage];
-      s.getAllFeatures(layer);
+      s.getAllFeatures(layerId);
     }
 
     public delFeature(layer: Layer, featureId: string) {
