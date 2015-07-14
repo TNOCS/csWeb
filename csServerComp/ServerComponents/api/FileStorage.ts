@@ -6,40 +6,44 @@ import CallbackResult = LayerManager.CallbackResult;
 export class FileStorage implements LayerManager.IStorage {
     public manager: LayerManager.LayerManager
 
+    public Layers: { [key: string]: Layer } = {}
 
     constructor(public rootpath: string) {
+        // load layers
     }
 
     // layer methods first, in crud order.
 
     public addLayer(layer: Layer, callback: Function) {
-
-        if (true)
-            callback(<CallbackResult>{ result: "Error", error: null });
-        else
+        console.log('Add file layer');
+        try {
+            this.Layers[layer.id] = layer;
             callback(<CallbackResult> { result: "OK" });
-
+        }
+        catch (e) {
+            callback(<CallbackResult>{ result: "Error", error: null });
+        }
     }
 
     //TODO: Arnoud, what to do with this?
     public getLayer(layerId: string, callback: Function) {
-
-        if (true) {
-            callback(<CallbackResult>{ result: "Error" });
+        if (this.Layers.hasOwnProperty(layerId)) {
+            callback(<CallbackResult>{ result: "OK", layer: this.Layers[layerId] });
         }
         else {
-            callback(<CallbackResult>{ result: "OK", layer: null });
+            callback(<CallbackResult>{ result: "Error" });
         }
-
     }
 
     public deleteLayer(layerId: string, callback: Function) {
-        if (true) {
-            callback(<CallbackResult>{ result: "Error" });
-        }
-        else {
+        if (this.Layers.hasOwnProperty(layerId)) {
+            delete this.Layers[layerId];
             callback(<CallbackResult>{ result: "OK", layer: null });
         }
+        else {
+            callback(<CallbackResult>{ result: "Error" });
+        }
+
     }
 
 

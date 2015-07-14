@@ -43,8 +43,8 @@ export class RestAPI implements LayerManager.IApiInterface {
 
         // gets the entire layer, which is stored as a single collection
         // TODO: what to do when this gets really big? Offer a promise?
-        this.server.get('/layers/:layer', (req: any, res: any) => {
-            this.manager.getLayer(req.params.layer, (result: CallbackResult) => {
+        this.server.get('/layers/:layerId', (req: any, res: any) => {
+            this.manager.getLayer(req.params.layerId, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result.layer);
             });
@@ -62,24 +62,24 @@ export class RestAPI implements LayerManager.IApiInterface {
         //------ feature API paths, in CRUD order
 
         //adds a feature
-        this.server.post("/layers/:layer/feature", (req: express.Request, res: express.Response) => {
-            this.manager.addFeature(req.params.layer, req.body, (result: CallbackResult) => {
+        this.server.post("/layers/:layerId/feature", (req: express.Request, res: express.Response) => {
+            this.manager.addFeature(req.params.layerId, req.body, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
         });
 
         //returns a feature
-        this.server.get("/layers/:layer/:id", (req: express.Request, res: express.Response) => {
-            this.manager.getFeature(req.params.layer, req.params.id, (result: CallbackResult) => {
+        this.server.get("/layers/:layerId/:id", (req: express.Request, res: express.Response) => {
+            this.manager.getFeature(req.params.layerId, req.params.id, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
         });
 
         // updates all features corresponding to query on ID (should be one)
-        this.server.put("/layers/:layer/feature/:id", (req: express.Request, res: express.Response) => {
-            this.manager.updateFeature(req.params.layer, req.params.id, (result: CallbackResult) => {
+        this.server.put("/layers/:layerId/feature/:id", (req: express.Request, res: express.Response) => {
+            this.manager.updateFeature(req.params.layerId, req.params.id, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -88,8 +88,8 @@ export class RestAPI implements LayerManager.IApiInterface {
         // for some reason (TS?) express doesn't work with del as http verb
         // unlike the JS version, which simply uses del as a keyword.
         // deletes a feature
-        this.server.delete("/layers/:layer/feature/:id", (req: express.Request, res: express.Response) => {
-            this.manager.addFeature(req.params.layer, req.params.id, (result: CallbackResult) => {
+        this.server.delete("/layers/:layerId/feature/:id", (req: express.Request, res: express.Response) => {
+            this.manager.addFeature(req.params.layerId, req.params.id, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });

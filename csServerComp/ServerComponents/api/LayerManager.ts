@@ -51,27 +51,31 @@ export class LayerManager {
     }
 
     /**
-     * Find layer for a specific layerId
+     * Find layer for a specific layerId (can return null)
      */
     public findLayer(layerId: string): Layer {
         if (this.layers.hasOwnProperty(layerId)) {
             return this.layers[layerId];
-        }
-        return null;
+        } else { return null; };
+
     }
 
     /**
      * Find storage for a layer
      */
     public findStorage(layer: Layer): IStorage {
-        var storage = layer.storage || this.defaultStorage;
+        var storage = (layer && layer.storage) || this.defaultStorage;
         if (this.storages.hasOwnProperty(storage)) return this.storages[storage];
         return null;
     }
 
+    /**
+     * Lookup layer and return storage engine for this layer
+     */
     public findStorageForLayerId(layerId: string): IStorage {
         var layer = this.findLayer(layerId);
-        if (layer) return this.findStorage(layer);
+        return this.findStorage(layer);
+
     }
 
     //layer methods start here, in CRUD order.
