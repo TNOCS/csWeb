@@ -299,6 +299,10 @@ declare module "mongodb" {
 
     insert(query: any, callback: (err: Error, result: any) => void): void;
     insert(query: any, options: { safe?: any; continueOnError?: boolean; keepGoing?: boolean; serializeFunctions?: boolean; }, callback: (err: Error, result: any) => void): void;
+    insertOne(doc: any, callback: (err: Error, result: any) => void): void;
+    insertOne(doc: any, options: { w?: any; wtimeout?: number; j?: boolean; serializeFunctions?: boolean; forceServerObjectId?: boolean }, callback: (err: Error, result: any) => void): void;
+    insertMany(docs: any[], callback: (err: Error, result: any) => void): void;
+    insertMany(docs: any[], options: { w?: any; wtimeout?: number; j?: boolean; serializeFunctions?: boolean; forceServerObjectId?: boolean }, callback: (err: Error, result: any) => void): void;
 
     remove(selector: Object, callback?: (err: Error, result: any) => void): void;
     remove(selector: Object, options: { safe?: any; single?: boolean; }, callback?: (err: Error, result: any) => void): void;
@@ -310,6 +314,10 @@ declare module "mongodb" {
 
     update(selector: Object, document: any, callback?: (err: Error, result: any) => void): void;
     update(selector: Object, document: any, options: { safe?: boolean; upsert?: any; multi?: boolean; serializeFunctions?: boolean; }, callback: (err: Error, result: any) => void): void;
+    updateOne(selector: Object, document: any, callback?: (err: Error, result: any) => void): void;
+    updateOne(selector: Object, document: any, options: { w?: any; wtimeout?: number; j?: boolean; }, callback: (err: Error, result: any) => void): void;
+    updateMany(selector: Object, document: any, callback?: (err: Error, result: any) => void): void;
+    updateMany(selector: Object, document: any, options: { w?: any; wtimeout?: number; j?: boolean; }, callback: (err: Error, result: any) => void): void;
 
     distinct(key: string, query: Object, callback: (err: Error, result: any) => void): void;
     distinct(key: string, query: Object, options: { readPreference: string; }, callback: (err: Error, result: any) => void): void;
@@ -410,7 +418,8 @@ declare module "mongodb" {
 
     rewind() : Cursor;
     toArray(callback: (err: Error, results: any[]) => any) : void;
-    each(callback: (err: Error, item: any) => void) : void;
+    each(callback: (err: Error, item: any) => void): void;
+    forEach(iterator: (document: any) => void, callback: (err: Error) => void): void;
     count(applySkipLimit: boolean, callback: (err: Error, count: number) => void) : void;
 
     sort(keyOrList: any, callback? : (err: Error, result: any) => void): Cursor;
@@ -422,7 +431,8 @@ declare module "mongodb" {
     skip(skip: number, callback?: (err: Error, result: any) => void): Cursor;
     batchSize(batchSize: number, callback?: (err: Error, result: any) => void): Cursor;
 
-    nextObject(callback: (err: Error, doc: any) => void) : void;
+    nextObject(callback: (err: Error, doc: any) => void): void;
+    next(callback: (err: Error, doc: any) => void): void;
     explain(callback: (err: Error, result: any) => void) : void;
 
     stream(): CursorStream;
