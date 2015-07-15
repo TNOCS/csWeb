@@ -27,12 +27,31 @@
     "dashboards": [{
         "id": "home",
         "name": "Home",
-        "showTimeline": true,
+        "showTimeline": false,
         "showLeftmenu": true,
         "showMap": true,
         "visiblelayers": [""]
-
-    }, {
+    },
+    {
+        "id": "adamsound",
+        "name": "Amsterdam Sound",
+        "showTimeline": false,
+        "showLeftmenu": true,
+        "showMap": true,
+        "visiblelayers": ["amsterdamsound"],
+        "widgets": [
+        {
+            "directive": "legend-directive",
+            "title": "Sound Intensity (dB)",
+            "right": "10px",
+            "top": "50px",
+            "width": "180px",
+            "data": {
+                "propertyTypeKey": "I_LDEN",
+                "mode": "lastSelectedStyle"
+            }
+        }]
+    },{
         "id": "datatable",
         "name": "Table",
         "showTimeline": false,
@@ -616,8 +635,8 @@
         "oneLayerActive": false,
         "layers": [
             {
-                "id": "Amsterdamsound",
-                "reference": "AmsterdamSound",
+                "id": "amsterdamsound",
+                "reference": "amsterdamsound",
                 "languages": {
                     "nl": {
                         "title": "Amsterdam Sound 3D",
@@ -654,6 +673,20 @@
                 "typeUrl": "data/resourceTypes/resources.json",
                 "enabled": false,
                 "opacity": 100,
+                "legend": {
+                    "description": "Intensity (dB)",
+                    "legendKind": "discrete",
+                    "visualAspect": "fillColor",
+                    "legendEntries": [
+                        { "label": "0 - 10", "color": "#008000 ", "interval": {"min": "0", "max": "10" } },
+                        { "label": "10 - 20", "color": "#00FF00 ", "interval": {"min": "10", "max": "20" } },
+                        { "label": "20 - 30", "color": "#FFFF00 ", "interval": {"min": "20", "max": "30" } },
+                        { "label": "30 - 40", "color": "#FF0000 ", "interval": {"min": "30", "max": "40" } },
+                        { "label": "40 - 50", "color": "#800000 ", "interval": {"min": "40", "max": "50" } },
+                        { "label": "50 - 100", "color": "#0000FF ", "interval": {"min": "50", "max": "100" } }
+                    ]
+                },
+                "defaultLegendProperty": "I_LDEN",
                 "defaultFeatureType": "SOUND",
                 "transformations": [
                     {

@@ -47,16 +47,7 @@
                 "iconHeight": 10,
                 "opacity": 50
             },
-            "propertyTypeKeys": "I_LDEN",
-            "propertyTypeData": [{
-                "label": "I_LDEN",
-                "type": "number",
-                "title": "I_LDEN",
-                "section": "Details",
-                "visibleInCallOut": true,
-                "canEdit": true,
-                "isSearchable": false
-            }]
+            "propertyTypeKeys": "I_LDEN"
         },
         "transform_test_polygon": {
             "name": "transform_test_polygon",
@@ -3431,6 +3422,24 @@
             "label": "PlaneType",
             "type": "text",
             "title": "PlaneType"
+        },
+        "I_LDEN": {
+            "label": "I_LDEN",
+            "type": "number",
+            "title": "I_LDEN",
+            "section": "Details",
+            "visibleInCallOut": true,
+            "canEdit": true,
+            "isSearchable": false,
+            "legend": {
+                "description": "Intensity (dB)",
+                "legendKind": "interpolated",
+                "visualAspect": "fillColor",
+                "legendEntries": [
+                    { "label": "45", "color": "#0000FF", "value": "45" },
+                    { "label": "75", "color": "#FF0000", "value": "75" }
+                ]
+            }
         }
     }
 }
