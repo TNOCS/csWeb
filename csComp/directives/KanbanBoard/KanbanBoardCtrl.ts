@@ -8,7 +8,6 @@ module KanbanColumn {
         columns: Column[];
     }
 
-
     export class KanbanBoardCtrl {
         private scope: IKanbanBoardScope;
         public feeds: csComp.Services.Feed[] = [];
@@ -33,15 +32,12 @@ module KanbanColumn {
             var ft = this.featureTypes[key];
             if (ft.properties) {
                 for (var k in ft.properties) {
-
                     f.properties[k] = JSON.parse(JSON.stringify(ft.properties[k]));
-
                 }
             }
             f.properties["date"] = new Date();
             f.properties["updated"] = new Date();
             f.properties["featureTypeId"] = key;
-            f.properties["roles"] = ["rti"];
             if (!f.properties.hasOwnProperty('Name')) f.properties['Name'] = ft.name;
             this.layer.data.features.push(f);
             this.$layerService.initFeature(f, this.layer);

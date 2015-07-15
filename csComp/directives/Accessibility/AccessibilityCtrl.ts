@@ -2,11 +2,7 @@ import IFeature = csComp.Services.IFeature;
 import IActionOption = csComp.Services.IActionOption;
 
 module Accessibility {
-
-
-
     export class AccessibilityModel implements csComp.Services.IActionService {
-
         private layerService: csComp.Services.LayerService
 
         stop() { }
