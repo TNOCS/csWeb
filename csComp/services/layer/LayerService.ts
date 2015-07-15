@@ -1992,6 +1992,7 @@ module csComp.Services {
                 var mid = this.propertyTypeData[property];
                 if (mid.maxValue != null) r.sdMax = mid.maxValue;
                 if (mid.minValue != null) r.sdMin = mid.minValue;
+                if (mid.minValue && mid.maxValue) r.mean = (r.sdMax + r.sdMin) / 2;
             }
             return r;
         }
