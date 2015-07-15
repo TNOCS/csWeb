@@ -84,8 +84,8 @@ module csComp.Helpers {
             return getColorFromLegend(v, gs.activeLegend)
         }
 
-        if (v > gs.info.sdMax) return gs.colors[gs.colors.length - 1];
-        if (v < gs.info.sdMin) return gs.colors[0];
+        //if (v > gs.info.sdMax) return gs.colors[gs.colors.length - 1];
+        //if (v < gs.info.sdMin) return gs.colors[0];
         //var bezInterpolator = chroma.interpolate.bezier(gs.colors);
         //var r = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
         var color = d3.scale.linear()

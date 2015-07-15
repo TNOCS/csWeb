@@ -32,15 +32,16 @@ module csComp.Services {
         name = "Voronoi Contour Transformation";
         apply(layer: ProjectLayer, options: Object) {
             console.log('voronoi transformation called');
-
             var result = turf.tin(layer.data).features;
 
             result.forEach((f: IFeature) => {
                 f.properties["FeatureTypeId"] = "transform_test_polygon";
+                f.properties["Name"] = "Voronoi Triangle";
                 f.layerId = layer.id;
             });
             layer.group.filterResult = layer.group.filterResult.filter((f: IFeature) => f.layer.id !== layer.id);
             layer.group.filterResult = layer.group.filterResult.concat(result);
+
         }
     }
 
@@ -53,8 +54,13 @@ module csComp.Services {
 
             result.forEach((f: IFeature) => {
                 f.properties["FeatureTypeId"] = "transform_test_linestring";
+                f.geometry.coordinates.forEach(c => {
+                    c[2] = layer.data.features[0].geometry.coordinates[2];
+                });
                 f.layerId = layer.id;
             });
+
+
             layer.group.filterResult = layer.group.filterResult.filter((f: IFeature) => f.layer.id !== layer.id);
             layer.group.filterResult = layer.group.filterResult.concat(result);
         }

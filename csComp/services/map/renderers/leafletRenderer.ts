@@ -214,7 +214,7 @@ module csComp.Services {
                     this.service.map.map.addLayer(layer.mapLayer);
                     if (!layer.data || !layer.data.features) break;
 
-                    (<any>layer.data).features.forEach((f: IFeature) => {
+                    layer.group.filterResult.forEach((f: IFeature) => {
                         var marker = this.addFeature(f);
                         if (marker) layer.group.markers[f.id] = marker;
                     });

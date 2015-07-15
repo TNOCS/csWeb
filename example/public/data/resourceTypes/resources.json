@@ -1,5 +1,108 @@
 {
     "featureTypes": {
+        "EFFECTS": {
+            "name": "EFFECTS",
+            "style": {
+                "strokeColor": "#ffffff",
+                "fillColor": "#ffffff",
+                "drawingMode": "Point",
+                "strokeWidth": 0,
+                "iconWidth": 10,
+                "iconHeight": 10,
+                "opacity": 50
+            },
+            "propertyTypeKeys": "Concentratie",
+
+            "propertyTypeData": [{
+                "label": "Concentratie",
+                "type": "number",
+                "title": "Concentratie",
+                "section": "Details",
+                "visibleInCallOut": true,
+                "canEdit": true,
+                "isSearchable": false
+            }]
+        },
+        "BUILDING": {
+            "name": "BUILDING",
+            "style": {
+                "strokeColor": "#ffffff",
+                "fillColor": "#DCDCDC",
+                "drawingMode": "Polygon",
+                "strokeWidth": 0,
+                "iconWidth": 10,
+                "iconHeight": 10,
+                "opacity": 50,
+                "fillOpacity": 0.7
+            }
+        },
+        "SOUND": {
+            "name": "SOUND",
+            "style": {
+                "strokeColor": "#ffffff",
+                "fillColor": "#ffffff",
+                "drawingMode": "Point",
+                "strokeWidth": 0,
+                "iconWidth": 10,
+                "iconHeight": 10,
+                "opacity": 50
+            },
+            "propertyTypeKeys": "I_LDEN",
+            "propertyTypeData": [{
+                "label": "I_LDEN",
+                "type": "number",
+                "title": "I_LDEN",
+                "section": "Details",
+                "visibleInCallOut": true,
+                "canEdit": true,
+                "isSearchable": false
+            }]
+        },
+        "transform_test_polygon": {
+            "name": "transform_test_polygon",
+            "style": {
+                "strokeColor": "#8DA8A5",
+                "fillColor": "#8DA8A5",
+                "drawingMode": "Polygon",
+                "strokeWidth": 0,
+                "iconWidth": 10,
+                "iconHeight": 10,
+                "opacity": 10,
+                "fillOpacity": 0.1
+            },
+            "propertyTypeKeys": ""
+        },
+        "transform_test_linestring": {
+            "name": "transform_test_linestring",
+            "style": {
+                "strokeColor": "#ffffff",
+                "fillColor": "#ffffff",
+                "drawingMode": "LineString",
+                "strokeWidth": 3,
+                "iconWidth": 10,
+                "iconHeight": 10,
+                "opacity": 50
+            },
+            "propertyTypeData": [{
+                "label": "Concentratie",
+                "type": "number",
+                "title": "Concentratie",
+                "section": "Details",
+                "visibleInCallOut": true,
+                "canEdit": true,
+                "isSearchable": false
+            },
+            {
+                "label": "I_LDEN",
+                "type": "number",
+                "title": "I_LDEN",
+                "section": "Details",
+                "visibleInCallOut": true,
+                "canEdit": true,
+                "isSearchable": false
+            }
+            ]
+        },
         "gemeente": {
             "name": "Gemeente",
             "style": {

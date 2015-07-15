@@ -873,18 +873,16 @@ module csComp.Services {
                 feature.fType = this.getFeatureType(feature);
                 this.initFeatureType(feature.fType);
 
+
                 // add missing properties
                 if (feature.fType.showAllProperties) csComp.Helpers.addPropertyTypes(feature, feature.fType);
 
                 // Do we have a name?
                 if (!feature.properties.hasOwnProperty('Name'))
                     Helpers.setFeatureName(feature, this.propertyTypeData);
-
                 this.calculateFeatureStyle(feature);
                 feature.propertiesOld = {};
-                this.trackFeature(feature);
-
-
+                /*this.trackFeature(feature);*/
                 if (applyDigest && this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
                 this.$messageBusService.publish("timeline", "updateFeatures");
             }

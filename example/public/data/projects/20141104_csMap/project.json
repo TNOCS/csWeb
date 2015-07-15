@@ -30,7 +30,7 @@
         "showTimeline": true,
         "showLeftmenu": true,
         "showMap": true,
-        "visiblelayers": ["zorgkantoor"]
+        "visiblelayers": [""]
 
     }, {
         "id": "datatable",
@@ -170,6 +170,30 @@
             "typeUrl": "data/resourceTypes/resources.json",
             "enabled": false,
             "opacity": 100
+        },{
+            "id": "Hospitalsvoronoi",
+            "reference": "Hospitalsvoronoi",
+            "languages": {
+                "nl": {
+                    "title": "Ziekenhuizen Voronoi",
+                    "description": "De locaties van de Nederlandse ziekenhuizen."
+                },
+                "en": {
+                    "title": "Hospitals Voronoi",
+                    "description": "These are the locations of the Dutch hospitals."
+                }
+            },
+            "type": "GeoJson",
+            "url": "data/projects/20141104_csMap/Ziekenhuizen.json",
+            "typeUrl": "data/resourceTypes/resources.json",
+            "enabled": false,
+            "opacity": 100,
+            "transformations": [
+                {
+                    "id": "voronoi",
+                    "enabled": true
+                }
+            ]
         }, {
             "id": "firestation",
             "reference": "firestation",
@@ -356,6 +380,356 @@
     }, {
         "languages": {
             "nl": {
+                "title": "Effects 3D",
+                "description": "Demonstreert Effects 3D."
+            },
+            "en": {
+                "title": "Effects 3D",
+                "description": "Demonstrates Effects 3D."
+            }
+        },
+        "clustering": false,
+        "oneLayerActive": false,
+        "layers": [
+            {
+                "id": "Effects0m",
+                "reference": "EFFECTS",
+                "languages": {
+                    "nl": {
+                        "title": "Effects 0m",
+                        "description": "Effects 0m."
+                    },
+                    "en": {
+                        "title": "Effects 0m",
+                        "description": "Effects 0m."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/NGD_grid_0m.geojson",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "EFFECTS",
+                "transformations": []
+            },
+            {
+                "id": "Effects50m",
+                "reference": "EFFECTS",
+                "languages": {
+                    "nl": {
+                        "title": "Effects 50m",
+                        "description": "Effects 50m."
+                    },
+                    "en": {
+                        "title": "Effects 50m",
+                        "description": "Effects 50m."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/NGD_grid_50m.geojson",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "EFFECTS",
+                "transformations": []
+            },
+            {
+                "id": "Effects100m",
+                "reference": "EFFECTS",
+                "languages": {
+                    "nl": {
+                        "title": "Effects 100m",
+                        "description": "Effects 100m."
+                    },
+                    "en": {
+                        "title": "Effects 100m",
+                        "description": "Effects 100m."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/NGD_grid_100m.geojson",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "EFFECTS",
+                "transformations": []
+            },
+            {
+                "id": "Effects150m",
+                "reference": "EFFECTS",
+                "languages": {
+                    "nl": {
+                        "title": "Effects 150m",
+                        "description": "Effects 150m."
+                    },
+                    "en": {
+                        "title": "Effects 150m",
+                        "description": "Effects 150m."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/NGD_grid_150m.geojson",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "EFFECTS",
+                "transformations": []
+            },
+            {
+                "id": "Effects0mIsolines",
+                "reference": "EFFECTS",
+                "languages": {
+                    "nl": {
+                        "title": "Effects 0m Isolines",
+                        "description": "Effects 0m Isolines."
+                    },
+                    "en": {
+                        "title": "Effects 0m Isolines",
+                        "description": "Effects 0m Isolines."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/NGD_grid_0m.geojson",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "EFFECTS",
+                "transformations": [
+                    {
+                        "enabled": true,
+                        "id": "isolines",
+                        "options": {
+                            "propertyName": "Concentratie",
+                            "resolution": 35,
+                            "breaks": [0.000001, 0.000002, 0.000003, 0.000004, 0.000005, 0.000006, 0.000007, 0.000008, 0.000009, 0.000010]
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "Effects50mIsolines",
+                "reference": "EFFECTS",
+                "languages": {
+                    "nl": {
+                        "title": "Effects 50m Isolines",
+                        "description": "Effects 50m Isolines."
+                    },
+                    "en": {
+                        "title": "Effects 50m Isolines",
+                        "description": "Effects 50m Isolines."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/NGD_grid_50m.geojson",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "EFFECTS",
+                "transformations": [
+                    {
+                        "enabled": true,
+                        "id": "isolines",
+                        "options": {
+                            "propertyName": "Concentratie",
+                            "resolution": 35,
+                            "breaks": [0.000001, 0.000002, 0.000003, 0.000004, 0.000005, 0.000006, 0.000007, 0.000008, 0.000009, 0.000010, 0.000011, 0.000012, 0.000013, 0.000014, 0.000015, 0.000016, 0.000017, 0.000018, 0.000019, 0.000020]
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "Effects100mIsolines",
+                "reference": "EFFECTS",
+                "languages": {
+                    "nl": {
+                        "title": "Effects 100m Isolines",
+                        "description": "Effects 100m Isolines."
+                    },
+                    "en": {
+                        "title": "Effects 100m Isolines",
+                        "description": "Effects 100m Isolines."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/NGD_grid_100m.geojson",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "EFFECTS",
+                "transformations": [
+                    {
+                        "enabled": true,
+                        "id": "isolines",
+                        "options": {
+                            "propertyName": "Concentratie",
+                            "resolution": 35,
+                            "breaks": [0.000001, 0.000002, 0.000003, 0.000004, 0.000005, 0.000006, 0.000007, 0.000008, 0.000009, 0.000010]
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "Effects150mIsolines",
+                "reference": "EFFECTS",
+                "languages": {
+                    "nl": {
+                        "title": "Effects 150m Isolines",
+                        "description": "Effects 150m Isolines."
+                    },
+                    "en": {
+                        "title": "Effects 150m Isolines",
+                        "description": "Effects 150m Isolines."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/NGD_grid_150m.geojson",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "EFFECTS",
+                "transformations": [
+                    {
+                        "enabled": true,
+                        "id": "isolines",
+                        "options": {
+                            "propertyName": "Concentratie",
+                            "resolution": 35,
+                            "breaks": [0.000001, 0.000002, 0.000003, 0.000004, 0.000005, 0.000006, 0.000007, 0.000008, 0.000009, 0.000010]
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "languages": {
+            "nl": {
+                "title": "Amsterdam Sound 3D",
+                "description": "Demonstreert Amsterdam Sound 3D."
+            },
+            "en": {
+                "title": "Amsterdam Sound 3D",
+                "description": "Demonstrates Amsterdam Sound 3D."
+            }
+        },
+        "clustering": false,
+        "oneLayerActive": false,
+        "layers": [
+            {
+                "id": "Amsterdamsound",
+                "reference": "AmsterdamSound",
+                "languages": {
+                    "nl": {
+                        "title": "Amsterdam Sound 3D",
+                        "description": "Amsterdam Sound 3D."
+                    },
+                    "en": {
+                        "title": "Amsterdam Sound 3D",
+                        "description": "Amsterdam Sound 3D."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/amsterdam-sound.json",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "SOUND",
+                "transformations": []
+            },
+            {
+                "id": "AmsterdamsoundIsoLines",
+                "reference": "AmsterdamSound",
+                "languages": {
+                    "nl": {
+                        "title": "Amsterdam Sound 3D IsoLines",
+                        "description": "Amsterdam Sound 3D IsoLines."
+                    },
+                    "en": {
+                        "title": "Amsterdam Sound 3D IsoLines",
+                        "description": "Amsterdam Sound 3D IsoLines."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/amsterdam-sound.json",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "SOUND",
+                "transformations": [
+                    {
+                        "enabled": true,
+                        "id": "isolines",
+                        "options": {
+                            "propertyName": "I_LDEN",
+                            "resolution": 10,
+                            "breaks": [10,15,20,25,30,35,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,65,70,75,80,85,90]
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "languages": {
+            "nl": {
+                "title": "3D Models",
+                "description": "Demonstreert 3D Models."
+            },
+            "en": {
+                "title": "3D Models",
+                "description": "Demonstrates 3D Models."
+            }
+        },
+        "clustering": false,
+        "oneLayerActive": false,
+        "layers": [
+            {
+                "id": "BuildingsArena",
+                "reference": "Buildings",
+                "languages": {
+                    "nl": {
+                        "title": "Buildings Arena",
+                        "description": "Buildings Arena."
+                    },
+                    "en": {
+                        "title": "Buildings Arena",
+                        "description": "Buildings Arena."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/arena.json",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "BUILDING",
+                "transformations": []
+            },
+            {
+                "id": "BuildingsAmsterdam",
+                "reference": "Buildings",
+                "languages": {
+                    "nl": {
+                        "title": "Buildings Amsterdam",
+                        "description": "Buildings Amsterdam."
+                    },
+                    "en": {
+                        "title": "Buildings Amsterdam",
+                        "description": "Buildings Amsterdam."
+                    }
+                },
+                "type": "GeoJson",
+                "url": "data/projects/20141104_csMap/amsterdam.json",
+                "typeUrl": "data/resourceTypes/resources.json",
+                "enabled": false,
+                "opacity": 100,
+                "defaultFeatureType": "BUILDING",
+                "transformations": []
+            }
+        ]
+    },
+    {
+        "languages": {
+            "nl": {
                 "title": "Gebieden",
                 "description": "Demonstreert lagen gebaseerd op gebieden."
             },
@@ -510,6 +884,6 @@
             "typeUrl": "data/resourceTypes/resources.json",
             "opacity": 50
         }]
-    
+
     }]
 }
