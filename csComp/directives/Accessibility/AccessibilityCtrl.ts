@@ -4,7 +4,7 @@ import IActionOption = csComp.Services.IActionOption;
 module Accessibility {
     export class AccessibilityModel implements csComp.Services.IActionService {
         private layerService: csComp.Services.LayerService
-
+        id = "accessibilityActions";
         stop() { }
         addFeature(feature: IFeature) { }
         removeFeature(feature: IFeature) { }
