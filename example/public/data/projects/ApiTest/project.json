@@ -1,0 +1,65 @@
+{
+    "title": "csWeb Showcases",
+    "description": "csMap is developed by the Dutch Research Organisation TNO, in first instance for the Dutch Ministry of Health (VWS).",
+    "url": "https://github.com/TNOCS/csMap",
+    "logo": "images/CommonSenseRound.png",
+    "connected": true,
+    "timeLine": {
+        "start": 1375315200000,
+        "end": 1425168000000,
+        "range": 34128000000,
+        "zoomLevelName": "years",
+        "isLive": false
+    },
+    "layerDirectory": "/layerDirectory",
+    "dashboards": [{
+        "id": "home",
+        "name": "Home",
+        "showTimeline": true,
+        "showLeftmenu": true,
+        "showMap": true,
+        "visiblelayers": ["Hospitals"]
+    }],
+    "expertMode": 3,
+    "userPrivileges": {
+        "mca": {
+            "expertMode": true
+        },
+        "heatmap": {
+            "expertMode": true
+        }
+    },
+    "groups": [{
+        "languages": {
+            "nl": {
+                "title": "Locaties",
+                "description": "Demonstreert kaartlagen gebaseerd op specifieke locaties"
+            },
+            "en": {
+                "title": "Features",
+                "description": "Demonstrates layers based on points"
+            }
+        },
+        "clustering": true,
+        "clusterLevel": 12,
+        "layers": [{
+            "id": "test",
+            "reference": "test",
+            "languages": {
+                "nl": {
+                    "title": "test",
+                    "description": "De locaties van de Nederlandse ziekenhuizen."
+                },
+                "en": {
+                    "title": "test",
+                    "description": "These are the locations of the Dutch hospitals."
+                }
+            },
+            "type": "DynamicGeoJson",
+            "url": "layers/test",
+            "typeUrl": "data/resourceTypes/resources.json",
+            "enabled": false,
+            "opacity": 100
+        }]
+    }]
+}
