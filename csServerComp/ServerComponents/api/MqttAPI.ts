@@ -10,8 +10,6 @@ export class MqttAPI implements LayerManager.IApiInterface {
 
     public manager: LayerManager.LayerManager
 
-
-
     constructor(public server: string, public port: number = 1883) {
 
     }
@@ -19,6 +17,7 @@ export class MqttAPI implements LayerManager.IApiInterface {
     public init(layerManager: LayerManager.LayerManager, options: any) {
         this.manager = layerManager;
         console.log('init mqtt API');
+
 
         /*var client = mqtt.connect("mqtt://" + this.server + ":" + this.port);
 
@@ -47,6 +46,9 @@ export class MqttAPI implements LayerManager.IApiInterface {
 
         // doorzetten naar de layermanager
 
+
+    }
+    public initLayer(layer: Layer) {
 
     }
 

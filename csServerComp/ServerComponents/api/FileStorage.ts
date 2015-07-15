@@ -1,5 +1,7 @@
 import LayerManager = require('./LayerManager');
 import Layer = LayerManager.Layer;
+import Feature = LayerManager.Feature;
+import Log = LayerManager.Log;
 import CallbackResult = LayerManager.CallbackResult;
 
 
@@ -19,7 +21,6 @@ export class FileStorage implements LayerManager.IStorage {
         if (this.layers.hasOwnProperty(layerId)) {
             return this.layers[layerId];
         } else { return null; };
-
     }
 
     // layer methods first, in crud order.
@@ -57,7 +58,7 @@ export class FileStorage implements LayerManager.IStorage {
     }
 
     // feature methods, in crud order
-    public addFeature(layerId: string, feature: any, callback: Function) {
+    public addFeature(layerId: string, feature: Feature, callback: Function) {
         var layer = this.findLayer(layerId);
         if (layer) {
             layer.features.push(feature);
@@ -72,6 +73,9 @@ export class FileStorage implements LayerManager.IStorage {
 
     }
 
+    public updateLogs(layerId: string, featureId: string, logs: Log[], callback: Function) {
+
+    }
 
 
 
@@ -82,7 +86,17 @@ export class FileStorage implements LayerManager.IStorage {
 
     //TODO: implement
     public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
-
+        var layer = this.findLayer(layerId);
+        var f = layer.features.filter((k) => { return k.id && k.id === feature.id });
+        if (f && f.length > 0) {
+            var index = layer.features.indexOf(f[0]);
+            layer.features[index] = feature;
+        }
+        else {
+            layer.features.push(feature);
+        }
+        callback(<CallbackResult>{ result: "OK", layer: null });
+        console.log("file: update feature")
 
     }
 

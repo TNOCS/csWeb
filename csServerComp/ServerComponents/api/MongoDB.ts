@@ -1,6 +1,7 @@
 import LayerManager = require('./LayerManager');
 import Layer = LayerManager.Layer;
 import CallbackResult = LayerManager.CallbackResult;
+import Log = LayerManager.Log;
 import mongodb = require('mongodb');
 
 export class MongoDBStorage implements LayerManager.IStorage {
@@ -85,6 +86,10 @@ export class MongoDBStorage implements LayerManager.IStorage {
     }
 
     public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
+
+    }
+
+    public updateLogs(layerId: string, featureId: string, logs: Log[], callback: Function) {
 
     }
 

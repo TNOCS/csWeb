@@ -12,6 +12,9 @@ export class RestAPI implements LayerManager.IApiInterface {
 
     }
 
+
+
+
     public init(layerManager: LayerManager.LayerManager, options: any) {
         this.manager = layerManager;
         console.log('init Rest API');
@@ -78,8 +81,10 @@ export class RestAPI implements LayerManager.IApiInterface {
         });
 
         // updates all features corresponding to query on ID (should be one)
-        this.server.put("/layers/:layerId/features/:featureId", (req: express.Request, res: express.Response) => {
-            this.manager.updateFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
+        this.server.put("/layers/:layerId/:featureId", (req: express.Request, res: express.Response) => {
+            var feature = req.body;
+            feature.id = req.params.featureId;
+            this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -103,6 +108,10 @@ export class RestAPI implements LayerManager.IApiInterface {
             });
         });
 
+
+    }
+
+    public initLayer(layer: Layer) {
 
     }
 
