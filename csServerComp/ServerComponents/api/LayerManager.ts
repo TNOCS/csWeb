@@ -17,12 +17,14 @@ export interface IStorage {
     //feature methods
     addFeature(layerId: string, feature: any, callback: Function);
     getFeature(layerId: string, featureId: string, callback: Function);
-    updateFeature(layerId: string, feature: any, callback: Function);
+    updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function);
+    updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function);
     deleteFeature(layerId: string, featureId: string, callback: Function);
 }
 
 export class Layer {
     public storage: string;
+    public useLog: boolean;
     public id: string;
     public features: Feature[] = [];
 }
@@ -46,6 +48,7 @@ export class LayerManager {
     public layers: { [key: string]: Layer } = {}
 
     public defaultStorage = "file";
+    public defaultLogging = false;
 
     public init() {
         console.log('init layer manager');
@@ -120,8 +123,16 @@ export class LayerManager {
 
     public addFeature(layerId: string, f: any, callback: Function) {
         console.log('feature added');
-        var s = this.findStorageForLayerId(layerId);
+        var layer = this.findLayer(layerId);
+        var s = this.findStorage(layer);
         s.addFeature(layerId, f, (result) => callback(result));
+    }
+
+    public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
+        var layer = this.findLayer(layerId);
+        var s = this.findStorage(layer);
+        this.updateProperty(layerId, featureId, property, value, useLog, (r) => callback(r));
+
     }
 
     public getFeature(layerId: string, featureId: string, callback: Function) {
@@ -131,7 +142,7 @@ export class LayerManager {
 
     public updateFeature(layerId: string, feature: any, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
-        s.updateFeature(layerId, feature, (result) => callback(result));
+        s.updateFeature(layerId, feature, true, (result) => callback(result));
     }
 
     public deleteFeature(layerId: string, featureId: string, callback: Function) {

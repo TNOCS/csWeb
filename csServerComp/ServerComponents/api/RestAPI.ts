@@ -85,6 +85,14 @@ export class RestAPI implements LayerManager.IApiInterface {
             });
         });
 
+        // updates all features corresponding to query on ID (should be one)
+        this.server.put("/layers/:layerId/:featureId/:property", (req: express.Request, res: express.Response) => {
+            this.manager.updateProperty(req.params.layerId, req.params.featureId, req.params.property, req.body, true, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        });
+
         // for some reason (TS?) express doesn't work with del as http verb
         // unlike the JS version, which simply uses del as a keyword.
         // deletes a feature

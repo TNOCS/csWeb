@@ -71,7 +71,7 @@ export class MongoDBStorage implements LayerManager.IStorage {
     }
 
     //TODO: implement
-    public updateFeature(layerId: string, feature: any, callback: Function) {
+    public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
 
     }
 
@@ -83,6 +83,11 @@ export class MongoDBStorage implements LayerManager.IStorage {
             //res.send(result);
         })
     }
+
+    public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
+
+    }
+
 
     //TODO: Move connection set-up params from static to parameterized.
     public init(layerManager: LayerManager.LayerManager, options: any) {

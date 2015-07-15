@@ -68,6 +68,11 @@ export class FileStorage implements LayerManager.IStorage {
         }
     }
 
+    public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
+
+    }
+
+
 
 
     //TODO: implement
@@ -76,7 +81,7 @@ export class FileStorage implements LayerManager.IStorage {
     }
 
     //TODO: implement
-    public updateFeature(layerId: string, feature: any, callback: Function) {
+    public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
 
 
     }
