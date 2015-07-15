@@ -16,7 +16,7 @@ export class MongoDBStorage implements LayerManager.IStorage {
 
     public addLayer(layer: Layer, callback: Function) {
         var collection = this.db.collection(layer.id);
-        collection.insert(layer, {}, function(e, result) {
+        collection.insert(layer.features, {}, function(e, result) {
             if (e)
                 callback(<CallbackResult>{ result: "Error", error: e });
             else
@@ -24,16 +24,19 @@ export class MongoDBStorage implements LayerManager.IStorage {
         });
     }
 
-    //TODO: Arnoud, what to do with this?
     public getLayer(layerId: string, callback: Function) {
         var collection = this.db.collection(layerId);
-        collection.findOne({}, (e: Error, result: any) => {
+        collection.find({}, (e: Error, result: any) => {
             if (e) {
                 callback(<CallbackResult>{ result: "Error" });
             }
             else {
+                var l = new Layer();
+                l.features = result;
+                l.id = layerId;
+                console.log("get succesful");
                 //todo create layer;
-                var l = <Layer>result;
+                //var l = <Layer>result;
                 callback(<CallbackResult>{ result: "OK", layer: l });
             }
         });

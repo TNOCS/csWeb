@@ -32,7 +32,7 @@ export class RestAPI implements LayerManager.IApiInterface {
         this.server.post('/layers/:layer', (req: express.Request, res: express.Response) => {
             var layer = new Layer();
             console.log(req.body);
-            layer = req.body;
+            layer.features = req.body.features;
             layer.id = req.params.layer;
             this.manager.addLayer(layer, (result: CallbackResult) => {
                 //todo: check errors
