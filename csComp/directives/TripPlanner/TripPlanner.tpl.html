@@ -3,71 +3,137 @@
         <i class="layersIcon rightpanel-header-icon" />Routeplanner
     </h4>
 
-    <div data-ng-cloak style="margin:5px;overflow-y:auto" resize resize-y="150">
-        <div ng-init="vm.parseUrl()">
-            <div class="controls">
-                <span>
-                    <label class="input-xlarge" for="fromLoc">From location</label>
-                    <input id="fromLoc" placeholder="52.081154%2C4.3243597" class="input-xlarge" ng-model="vm.urlParameters['fromPlace']" style="margin:5px;">
-                </span>
-            </div>
+    <div class="container-fluid rightpanel-tabs" style="position: relative;height:45px">
 
-            <div class="controls">
-                <span>
-                    <label class="input-xlarge" for="toLoc">To location</label>
-                    <input id="toLoc" placeholder="Lat" class="input-xlarge" ng-model="vm.urlParameters['toPlace']" style="margin:5px;">
-                </span>
-            </div>
+        <div class="row" style="overflow:hidden">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
+                <li data-toggle="tab" data-ng-class="{active : $first}" data-ng-repeat="t in vm.tabs">
+                    <a ng-href="#rp-{{$index}}" data-toggle="tab" ng-click="vm.featureTabActivated(t.title)"><i class="fa {{t.icon}}"></i></a>
+                </li>
+            </ul>
+        </div>
 
-            <button class="rightpanel-header-button" ng-click="vm.addCutoffTime()"><span class="fa fa-plus" style="padding:5px;"><div style="margin-left:5px;display:inline-block;">Add destination</div></span></button>
+        <div ng-if="vm.activeTab === 'Edit'">
+            <div data-ng-cloak style="margin:5px;overflow-y:auto" resize resize-y="150">
+                <div ng-init="vm.parseUrl()">
+                    <div class="controls">
+                        <span>
+                            <label class="input-xlarge" for="fromLoc">From location</label>
+                            <input id="fromLoc" placeholder="52.081154%2C4.3243597" class="input-xlarge" ng-model="vm.urlParameters['fromPlace']" style="margin:5px;">
+                        </span>
+                    </div>
 
-            <div style="padding: 5px 0;" class="row-fluid">
-                <span>
-                    <label>Transport mode</label>
-                    <select id="selectTransportMode" ng-model="vm.transportMode" class="form-control tt-input editor-text-input" style="display:inline-block" ng-options="value as key for (key, value) in vm.transportModes" ng-change="vm.updateTransportMode()">
-                    </select>
-                </span>
-            </div>
+                    <div class="controls">
+                        <span>
+                            <label class="input-xlarge" for="toLoc">To location</label>
+                            <input id="toLoc" placeholder="Lat" class="input-xlarge" ng-model="vm.urlParameters['toPlace']" style="margin:5px;">
+                        </span>
+                    </div>
 
-            <div class="controls" ng-if="vm.transportMode === 'WALK'">
-                <span>
-                    <label class="input-xlarge" for="walkSpeed">Walk speed</label>
-                    <input id="walkSpeed" type="number" step="any" placeholder="Walk speed" class="input-xlarge" ng-model="vm.walkSpeedKm" style="margin:5px; max-width:100px;">km/u
-                </span>
-            </div>
+                    <button class="rightpanel-header-button" ng-click="vm.addCutoffTime()">
+                        <span class="fa fa-plus" style="padding:5px;">
+                            <div style="margin-left:5px;display:inline-block;">Add destination</div>
+                        </span>
+                    </button>
 
-            <div class="controls" ng-if="vm.transportMode === 'BICYCLE'">
-                <span>
-                    <label class="input-xlarge" for="bikeSpeed">Bike speed</label>
-                    <input id="bikeSpeed" type="number" step="any" placeholder="Bike speed" class="input-xlarge" ng-model="vm.bikeSpeedKm" style="margin:5px; max-width:100px;">km/u
-                </span>
-            </div>
+                    <div style="padding: 5px 0;" class="row-fluid">
+                        <span>
+                            <label>Transport mode</label>
+                            <select id="selectTransportMode" ng-model="vm.transportMode" class="form-control tt-input editor-text-input" style="display:inline-block" ng-options="value as key for (key, value) in vm.transportModes" ng-change="vm.updateTransportMode()">
+                            </select>
+                        </span>
+                    </div>
 
-            <div class="controls">
-                <span>
-                    <label class="input-xlarge" for="date">Date</label>
-                    <input id="date" type="text" placeholder="mm-dd-yyyy" class="input-xlarge" ng-model="vm.urlParameters['date']" style="margin:5px; max-width:100px;">
-                </span>
-            </div>
+                    <div class="controls" ng-if="vm.transportMode === 'WALK'">
+                        <span>
+                            <label class="input-xlarge" for="walkSpeed">Walk speed</label>
+                            <input id="walkSpeed" type="number" step="any" placeholder="Walk speed" class="input-xlarge" ng-model="vm.walkSpeedKm" style="margin:5px; max-width:100px;">km/u
+                        </span>
+                    </div>
 
-            <div class="controls">
-                <span>
-                    <label class="input-xlarge" for="time">Time</label>
-                    <input id="time" type="text" placeholder="hh:mm" class="input-xlarge" ng-model="vm.time" style="margin:5px; max-width:100px;">
-                </span>
-            </div>
+                    <div class="controls" ng-if="vm.transportMode === 'BICYCLE'">
+                        <span>
+                            <label class="input-xlarge" for="bikeSpeed">Bike speed</label>
+                            <input id="bikeSpeed" type="number" step="any" placeholder="Bike speed" class="input-xlarge" ng-model="vm.bikeSpeedKm" style="margin:5px; max-width:100px;">km/u
+                        </span>
+                    </div>
 
-            <div class="controls">
-                <span>
-                    <label class="input-xlarge" for="precisionMeters">Precision</label>
-                    <input id="precisionMeters" type="number" placeholder="Precision" class="input-xlarge" ng-model="vm.urlParameters['precisionMeters']" style="margin:5px; max-width:100px;">meter
-                </span>
-            </div>
+                    <div class="controls">
+                        <span>
+                            <label class="input-xlarge" for="date">Date</label>
+                            <input id="date" type="text" placeholder="mm-dd-yyyy" class="input-xlarge" ng-model="vm.urlParameters['date']" style="margin:5px; max-width:100px;">
+                        </span>
+                    </div>
 
-            <div class="controls" style="margin-top:10px; margin-left:10px;">
-                <button class="btn" ng-click="vm.planRoute()">Plan route</button>
+                    <div class="controls">
+                        <span>
+                            <label class="input-xlarge" for="time">Time</label>
+                            <input id="time" type="text" placeholder="hh:mm" class="input-xlarge" ng-model="vm.time" style="margin:5px; max-width:100px;">
+                        </span>
+                    </div>
+
+                    <div class="controls">
+                        <span>
+                            <label class="input-xlarge" for="precisionMeters">Precision</label>
+                            <input id="precisionMeters" type="number" placeholder="Precision" class="input-xlarge" ng-model="vm.urlParameters['precisionMeters']" style="margin:5px; max-width:100px;">meter
+                        </span>
+                    </div>
+
+                    <div class="controls" style="margin-top:10px; margin-left:10px;">
+                        <button class="btn" ng-click="vm.planRoute()">Plan route</button>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <div ng-if="vm.activeTab === 'Route'">
+            <div data-ng-cloak style="margin:5px;overflow-y:auto" resize resize-y="150">
+                <div ng-if="!vm.itineraries" style="margin:25px">
+                    Select a route
+                </div>
+                <div ng-if="vm.itineraries" style="margin:5px">
+                    <div ng-repeat="it in vm.itineraries track by $index" class="row-fluid list-unstyled truncate">
+                        <div class="controls">
+                            <span style="display:block">
+                                <div style="font-weight:700; font-size:18px; display:inline">Duration</div>
+                                <div style="display:inline; font-size:18px; margin-left:10px;">{{it.Name}}</div>
+                            </span>
+                            <span style="display:block">
+                                <div style="font-weight:700; font-size:18px; display:inline">Transfers</div>
+                                <div style="display:inline; font-size:18px; margin-left:10px;">{{it.transfers}}</div>
+                            </span>
+                            <li ng-repeat="leg in it.legs track by $index" class="row-fluid list-unstyled truncate" style="margin:10px">
+                                <span style="display:block">
+                                    <div style="font-weight:700; display:inline">Mode</div>
+                                    <div style="display:inline; margin-left:10px;">{{leg.mode}} {{leg.route || ''}}</div>
+                                </span>
+                                <span style="display:block" ng-if="leg.route">
+                                    <div style="font-weight:700; display:inline">Route</div>
+                                    <div style="display:inline; margin-left:10px;">{{leg.routeName}}</div>
+                                </span>
+                                <span style="display:block" ng-if="leg.agency">
+                                    <div style="font-weight:700; display:inline">Agency</div>
+                                    <div style="display:inline; margin-left:10px;">{{leg.agency}}</div>
+                                </span>
+                                <span style="display:block">
+                                    <div style="font-weight:700; display:inline">Duration</div>
+                                    <div style="display:inline; margin-left:10px;">{{leg.duration}}</div>
+                                </span>
+                                <span style="display:block">
+                                    <div style="font-weight:700; display:inline">Start</div>
+                                    <div style="display:inline; margin-left:10px;">{{leg.start | amDateFormat:'h:mm:ss a (MMMM Do)'}}</div>
+                                </span>
+                                <span style="display:block">
+                                    <div style="font-weight:700; display:inline">Arrival</div>
+                                    <div style="display:inline; margin-left:10px;">{{leg.arrive | amDateFormat:'h:mm:ss a (MMMM Do)'}}</div>
+                                </span>
+                            </li>
+                        </div>
+                    </div>
+                </div>
+                <div style="height:40px;"></div>
+            </div>
+        </div>
     </div>
 </div>

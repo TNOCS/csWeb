@@ -9,6 +9,7 @@ module csComp.Services {
     }
 
     export interface IActionService {
+        id: string;
         init(ls: LayerService);
         stop();
         addFeature(feature: IFeature);
@@ -196,8 +197,20 @@ module csComp.Services {
         }
 
         public addActionService(as: IActionService) {
-            this.actionServices.push(as);
-            as.init(this);
+            var asAlreadyExists = false;
+            this.actionServices.some((actServ) => {
+                if (actServ.id === as.id) {
+                    asAlreadyExists = true;
+                    return true;
+                }
+                return false;
+            });
+            if (asAlreadyExists) {
+                console.log('Actionservice ' + as.id + ' already exists.')
+            } else {
+                this.actionServices.push(as);
+                as.init(this);
+            }
         }
 
         public removeActionService(as: IActionService) {
