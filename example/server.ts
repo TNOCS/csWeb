@@ -79,25 +79,23 @@ apiServiceMgr.addService(resourceTypeStore);
 server.use(express.static(path.join(__dirname, 'public')));
 console.log("started");
 
-
-
 var layers = new LayerManager.LayerManager();
 layers.init();
 
 var restApi = new RestAPI.RestAPI(server);
-layers.addInterface("rest", restApi, {});
+layers.addConnector("rest", restApi, {});
 
 var socketIoApi = new SocketIOAPI.SocketIOAPI(cm);
-layers.addInterface("socketio", socketIoApi, {});
+layers.addConnector("socketio", socketIoApi, {});
 
 //var mqttApi = new MqttAPI.MqttAPI("cool3.sensorlab.tno.nl", 8026);
 //layers.addInterface("mqtt", mqttApi);
 
 var mongoDbStorage = new MongoDB.MongoDBStorage("127.0.0.1", 27017);
-layers.addStorage("mongo", mongoDbStorage, {});
+layers.addConnector("mongo", mongoDbStorage, {});
 
 var fileStorage = new FileStorage.FileStorage("data/layers/");
-layers.addStorage("file", fileStorage, {});
+layers.addConnector("file", fileStorage, {});
 
 
 httpServer.listen(server.get('port'), () => {

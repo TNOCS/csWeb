@@ -1,17 +1,17 @@
 import LayerManager = require('./LayerManager');
 import express = require('express')
 import Layer = LayerManager.Layer;
+import BaseConnector = require('./BaseConnector');
 import CallbackResult = LayerManager.CallbackResult;
 
 
-export class RestAPI implements LayerManager.IApiInterface {
+export class RestAPI extends BaseConnector.BaseConnector {
 
     public manager: LayerManager.LayerManager
 
     constructor(public server: express.Express) {
-
+        super();
     }
-
 
 
 

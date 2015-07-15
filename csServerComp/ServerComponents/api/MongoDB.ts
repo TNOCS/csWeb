@@ -4,12 +4,16 @@ import CallbackResult = LayerManager.CallbackResult;
 import Log = LayerManager.Log;
 import mongodb = require('mongodb');
 
-export class MongoDBStorage implements LayerManager.IStorage {
+export class MongoDBStorage implements LayerManager.IConnector {
     public manager: LayerManager.LayerManager
 
     public db: mongodb.Db;
 
     constructor(public server: string, public port: number) {
+
+    }
+
+    public initLayer(layer: Layer) {
 
     }
 

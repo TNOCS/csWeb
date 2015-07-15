@@ -1,7 +1,4 @@
-export interface IApiInterface {
-    init(layerManager: LayerManager, options: any);
-    initLayer(layer: Layer);
-}
+
 
 export class CallbackResult {
     public result: string;
@@ -9,9 +6,9 @@ export class CallbackResult {
     public layer: Layer;
 }
 
-export interface IStorage {
+export interface IConnector {
     init(layerManager: LayerManager, options: any);
-
+    initLayer(layer: Layer);
     //Layer methods
     addLayer(layer: Layer, Function);
     getLayer(layerId: string, callback: Function);
@@ -52,8 +49,7 @@ export class Log {
 
 export class LayerManager {
 
-    public interfaces: { [key: string]: IApiInterface } = {}
-    public storages: { [key: string]: IStorage } = {}
+    public connectors: { [key: string]: IConnector } = {}
     public layers: { [key: string]: Layer } = {}
 
     public defaultStorage = "file";
@@ -63,14 +59,11 @@ export class LayerManager {
         console.log('init layer manager');
     }
 
-    public addInterface(key: string, i: IApiInterface, options: any) {
-        this.interfaces[key] = i;
-        i.init(this, options);
-    }
 
-    public addStorage(key: string, s: IStorage, options: any) {
+
+    public addConnector(key: string, s: IConnector, options: any) {
         console.log('Adding storage ' + key);
-        this.storages[key] = s;
+        this.connectors[key] = s;
         s.init(this, options);
     }
 
@@ -87,16 +80,16 @@ export class LayerManager {
     /**
      * Find storage for a layer
      */
-    public findStorage(layer: Layer): IStorage {
+    public findStorage(layer: Layer): IConnector {
         var storage = (layer && layer.storage) || this.defaultStorage;
-        if (this.storages.hasOwnProperty(storage)) return this.storages[storage];
+        if (this.connectors.hasOwnProperty(storage)) return this.connectors[storage];
         return null;
     }
 
     /**
      * Lookup layer and return storage engine for this layer
      */
-    public findStorageForLayerId(layerId: string): IStorage {
+    public findStorageForLayerId(layerId: string): IConnector {
         var layer = this.findLayer(layerId);
         return this.findStorage(layer);
 
@@ -107,8 +100,8 @@ export class LayerManager {
         var s = this.findStorage(layer);
 
         s.addLayer(layer, (r: CallbackResult) => {
-            for (var i in this.interfaces) {
-                this.interfaces[i].initLayer(layer);
+            for (var i in this.connectors) {
+                this.connectors[i].initLayer(layer);
             }
             callback(r);
         });

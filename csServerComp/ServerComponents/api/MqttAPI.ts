@@ -3,15 +3,16 @@ import express = require('express')
 import Layer = LayerManager.Layer;
 import CallbackResult = LayerManager.CallbackResult;
 import mqtt = require("mqtt");
+import BaseConnector = require('./BaseConnector');
 
 //declare var mqtt;
 
-export class MqttAPI implements LayerManager.IApiInterface {
+export class MqttAPI extends BaseConnector.BaseConnector {
 
     public manager: LayerManager.LayerManager
 
     constructor(public server: string, public port: number = 1883) {
-
+        super();
     }
 
     public init(layerManager: LayerManager.LayerManager, options: any) {

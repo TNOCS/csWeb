@@ -4,13 +4,14 @@ import Layer = LayerManager.Layer;
 import Feature = LayerManager.Feature;
 import ClientConnection = require('./../dynamic/ClientConnection');
 import MessageBus = require('../bus/MessageBus');
+import BaseConnector = require('./BaseConnector');
 
-export class SocketIOAPI implements LayerManager.IApiInterface {
+export class SocketIOAPI extends BaseConnector.BaseConnector {
 
     public manager: LayerManager.LayerManager
 
     constructor(public connection: ClientConnection.ConnectionManager) {
-
+        super();
     }
 
     public init(layerManager: LayerManager.LayerManager, options: any) {
@@ -30,7 +31,7 @@ export class SocketIOAPI implements LayerManager.IApiInterface {
                     break;
                 case "featureUpdate":
                     var ft: Feature = msg.object;
-                    this.updateFeature(layer, ft, client, true);
+                    this.manager.updateFeature(layer.id, ft, (r) => { });
                     break;
             }
         });
@@ -66,14 +67,6 @@ export class SocketIOAPI implements LayerManager.IApiInterface {
         //if (notify) this.emit("featureUpdated", this.layerId, featureId);
     }
 
-    updateFeature(layer: Layer, ft: Feature, client?: string, notify?: boolean) {
-        this.manager.updateFeature(layer.id, ft, (r) => { });
-        /*
-        if (client)
-            this.connection.updateFeature(this.layerId, ft, "feature-update", client);
-        else
-            this.connection.updateFeature(this.layerId, ft, "feature-update");
-        if (notify) this.emit("featureUpdated", this.layerId, ft.id);*/
-    }
+
 
 }

@@ -49,6 +49,7 @@
         "./Scripts/typings/xbbcode/xbbcode.d.ts",
         "./Scripts/typings/xml2js/xml2js.d.ts",
         "./ServerComponents/api/ApiServiceManager.d.ts",
+        "./ServerComponents/api/BaseConnector.d.ts",
         "./ServerComponents/api/FileStorage.d.ts",
         "./ServerComponents/api/IApiService.d.ts",
         "./ServerComponents/api/IApiServiceManager.d.ts",

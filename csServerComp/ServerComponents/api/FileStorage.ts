@@ -3,14 +3,16 @@ import Layer = LayerManager.Layer;
 import Feature = LayerManager.Feature;
 import Log = LayerManager.Log;
 import CallbackResult = LayerManager.CallbackResult;
+import BaseConnector = require('./BaseConnector');
 
 
-export class FileStorage implements LayerManager.IStorage {
+export class FileStorage extends BaseConnector.BaseConnector {
     public manager: LayerManager.LayerManager
 
     public layers: { [key: string]: Layer } = {}
 
     constructor(public rootpath: string) {
+        super();
         // load layers
     }
 
