@@ -87,7 +87,7 @@ layers.init();
 var restApi = new RestAPI.RestAPI(server);
 layers.addInterface("rest", restApi, {});
 
-var socketIoApi = new SocketIOAPI.SocketIOAPI(server);
+var socketIoApi = new SocketIOAPI.SocketIOAPI(cm);
 layers.addInterface("socketio", socketIoApi, {});
 
 //var mqttApi = new MqttAPI.MqttAPI("cool3.sensorlab.tno.nl", 8026);

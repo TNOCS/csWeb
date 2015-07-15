@@ -1,5 +1,6 @@
 export interface IApiInterface {
-    init(layerManager: LayerManager, options: any)
+    init(layerManager: LayerManager, options: any);
+    initLayer(layer: Layer);
 }
 
 export class CallbackResult {
@@ -10,6 +11,7 @@ export class CallbackResult {
 
 export interface IStorage {
     init(layerManager: LayerManager, options: any);
+
     //Layer methods
     addLayer(layer: Layer, Function);
     getLayer(layerId: string, callback: Function);
@@ -19,6 +21,7 @@ export interface IStorage {
     getFeature(layerId: string, featureId: string, callback: Function);
     updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function);
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function);
+    updateLogs(layerId: string, featureId: string, logs: Log[], callback: Function);
     deleteFeature(layerId: string, featureId: string, callback: Function);
 }
 
@@ -38,7 +41,13 @@ export class Feature {
     public id: string;
     public geometry: Geometry;
     public properties: { [key: string]: any };
+    public logs: { [key: string]: Log[] };
+}
 
+export class Log {
+    public timeStamp: number;
+    public property: string;
+    public value: any;
 }
 
 export class LayerManager {
@@ -94,10 +103,13 @@ export class LayerManager {
     }
 
     //layer methods start here, in CRUD order.
-
     public addLayer(layer: Layer, callback: Function) {
         var s = this.findStorage(layer);
+
         s.addLayer(layer, (r: CallbackResult) => {
+            for (var i in this.interfaces) {
+                this.interfaces[i].initLayer(layer);
+            }
             callback(r);
         });
     }
