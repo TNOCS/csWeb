@@ -47,12 +47,19 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         // doorzetten naar de layermanager
     }
 
+    public addLayer(layer: Layer, callback: Function) {
+        this.client.publish('layers', JSON.stringify(layer));
+        callback(<CallbackResult> { result: "OK" });
+    }
+
     public addFeature(layerId: string, feature: any, callback: Function) {
         this.client.publish('layers/' + layerId, JSON.stringify(feature));
+        callback(<CallbackResult> { result: "OK" });
     }
 
     public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
         this.client.publish('layers/' + layerId, JSON.stringify(feature));
+        callback(<CallbackResult> { result: "OK" });
     }
 
     private sendFeature(layerId: string, featureId: string) {
@@ -65,10 +72,12 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
     public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
         this.sendFeature(layerId, featureId);
+        callback(<CallbackResult> { result: "OK" });
     }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
         this.sendFeature(layerId, featureId);
+        callback(<CallbackResult> { result: "OK" });
     }
 
     public initLayer(layer: Layer) {

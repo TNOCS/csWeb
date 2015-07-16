@@ -1,9 +1,13 @@
 import LayerManager = require('./LayerManager');
 import Layer = LayerManager.Layer;
+import fs = require('fs');
+import path = require('path');
 import Feature = LayerManager.Feature;
 import Log = LayerManager.Log;
 import CallbackResult = LayerManager.CallbackResult;
 import BaseConnector = require('./BaseConnector');
+import _ = require('underscore');
+var chokidar = require('chokidar');
 
 
 export class FileStorage extends BaseConnector.BaseConnector {
@@ -13,7 +17,87 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     constructor(public rootpath: string) {
         super();
+        // check if rootpath exists
+        if (!fs.existsSync(rootpath)) {
+            fs.mkdirSync(rootpath);
+        }
         // load layers
+        this.watchFolder();
+
+    }
+
+    public watchFolder() {
+        console.log('watch folder:' + this.rootpath);
+        setTimeout(() => {
+            var watcher = chokidar.watch(this.rootpath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
+            watcher.on('all', ((action, path) => {
+                if (action == "add") {
+                    this.openFile(path);
+                    //this.addLayer(path);
+                }
+                if (action == "unlink") {
+                    //this.closeFile(path);
+                    //this.removeLayer(path);
+                }
+                if (action == "change") {
+                    //this.addLayer(path);
+                }
+            }));
+        }, 1000);
+        //console.log(action + " - " + path); });
+    }
+
+
+    saveFileDounce = _.debounce((layer: Layer) => {
+        this.saveFile(layer);
+    }, 5000);
+
+    private getFilename(layerId: string) {
+        return path.join(this.rootpath, layerId + ".json");
+    }
+
+    /*private saveFileDounce(layer: Layer) {
+        this.saveFile(layer);
+        //_.debounce(() => { this.saveFile(layer) }, 5000);
+    }*/
+
+    private saveFile(layer: Layer) {
+        var fn = this.getFilename(layer.id);
+        fs.writeFile(fn, JSON.stringify(layer), (error) => {
+            if (error) {
+                console.log('error writing file : ' + fn);
+            }
+            else {
+                console.log('file saved : ' + fn);
+            }
+        });
+    }
+
+    private getLayerId(fileName: string) {
+        return path.basename(fileName).toLowerCase().replace('.json', '');
+    }
+
+    private closeFile(fileName: string) {
+        var id = this.getLayerId(fileName);
+        this.manager.deleteLayer(id, () => { });
+    }
+
+    private openFile(fileName: string) {
+        var id = this.getLayerId(fileName);
+        console.log('openfile ' + id);
+        if (!this.manager.layers.hasOwnProperty(id) && !this.layers.hasOwnProperty(id)) {
+            fs.readFile(fileName, "utf-8", (err, data) => {
+                if (!err) {
+                    var layer = <Layer>JSON.parse(data);
+                    layer.storage = this.id;
+                    this.layers[id] = layer;
+                    this.manager.addLayer(layer, () => { });
+
+                }
+            });
+        }
+
+        if (path.basename(fileName) === 'project.json') return;
     }
 
     /**
@@ -31,6 +115,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         console.log('Add file layer');
         try {
             this.layers[layer.id] = layer;
+            this.saveFileDounce(layer);
             callback(<CallbackResult> { result: "OK" });
         }
         catch (e) {
@@ -64,6 +149,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var layer = this.findLayer(layerId);
         if (layer) {
             layer.features.push(feature);
+            this.saveFileDounce(layer);
             callback(<CallbackResult>{ result: "OK", layer: null });
         }
         else {
@@ -103,6 +189,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
             // send them to other clients
             //
         }
+        this.saveFileDounce(layer);
         callback(<CallbackResult>{ result: "OK", layer: null });
     }
 
@@ -131,6 +218,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         else {
             layer.features.push(feature);
         }
+        this.saveFileDounce(layer);
         callback(<CallbackResult>{ result: "OK", layer: null });
         console.log("file: update feature")
 
@@ -143,6 +231,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
             if (e) return e;
             //res.send(result);
         })*/
+        //this.saveFileDounce(layer);
     }
 
     //TODO: Move connection set-up params from static to parameterized.

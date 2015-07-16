@@ -88,7 +88,7 @@ layers.addConnector("rest", new RestAPI.RestAPI(server), {});
 layers.addConnector("socketio", new SocketIOAPI.SocketIOAPI(cm), {});
 layers.addConnector("mqtt", new MqttAPI.MqttAPI("cool3.sensorlab.tno.nl", 8026), {});
 layers.addConnector("mongo", new MongoDB.MongoDBStorage("127.0.0.1", 27017), {});
-layers.addConnector("file", new FileStorage.FileStorage("data/layers/"), {});
+layers.addConnector("file", new FileStorage.FileStorage(path.join(path.resolve(__dirname), "public/data/layers/")), {});
 
 
 httpServer.listen(server.get('port'), () => {

@@ -8,6 +8,7 @@ export class CallbackResult {
 }
 
 export interface IConnector {
+    id: string;
     isInterface: boolean;
     init(layerManager: LayerManager, options: any);
     initLayer(layer: Layer);
@@ -65,6 +66,7 @@ export class LayerManager {
 
     public addConnector(key: string, s: IConnector, options: any) {
         console.log('Adding storage ' + key);
+        s.id = key;
         this.connectors[key] = s;
         s.init(this, options);
     }
@@ -105,12 +107,19 @@ export class LayerManager {
     //layer methods start here, in CRUD order.
     public addLayer(layer: Layer, callback: Function) {
         var s = this.findStorage(layer);
+        if (!this.layers.hasOwnProperty(layer.id)) {
+            this.layers[layer.id] = <Layer>{ id: layer.id, storage: s.id };
+        }
 
         s.addLayer(layer, (r: CallbackResult) => {
             for (var i in this.connectors) {
                 this.connectors[i].initLayer(layer);
             }
             callback(r);
+        });
+
+        this.getInterfaces().forEach((i: IConnector) => {
+            i.addLayer(layer, () => { });
         });
     }
 

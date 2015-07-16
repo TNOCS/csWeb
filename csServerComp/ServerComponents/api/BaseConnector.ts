@@ -6,7 +6,8 @@ import Log = LayerManager.Log;
 export class BaseConnector implements LayerManager.IConnector {
     public manager: LayerManager.LayerManager
 
-    public isInterface;
+    public id: string;
+    public isInterface: boolean;
 
     public initLayer(layer: Layer) {
 
@@ -59,7 +60,6 @@ export class BaseConnector implements LayerManager.IConnector {
 
     //TODO: Move connection set-up params from static to parameterized.
     public init(layerManager: LayerManager.LayerManager, options: any) {
-
 
     }
 }
