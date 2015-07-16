@@ -3,7 +3,7 @@ import path = require('path');
 import HyperTimer = require('hypertimer');
 import WorldState = require('./WorldState');
 import Rule = require('./Rule');
-import DynamicLayer = require("ServerComponents/dynamic/DynamicLayer");
+import DynamicLayer = require("../dynamic/DynamicLayer");
 import GeoJSON = require("../helpers/GeoJSON");
 
 export interface IRuleEngineService {

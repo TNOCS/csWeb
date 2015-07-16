@@ -48,7 +48,7 @@
                 </span>
             </div>
 
-            <li ng-repeat="co in vm.cutoffTimes" class="row-fluid list-unstyled truncate">
+            <li ng-repeat="co in vm.cutoffTimes track by $index" class="row-fluid list-unstyled truncate">
                 <div class="controls">
                     <span>
                         <label class="input-xlarge" for="cutoff-${index}">Cut-off time {{$index}}</label>
