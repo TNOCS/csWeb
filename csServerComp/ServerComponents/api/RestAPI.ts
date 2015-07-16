@@ -1,5 +1,6 @@
 import LayerManager = require('./LayerManager');
 import express = require('express')
+import cors = require('cors')
 import Layer = LayerManager.Layer;
 import Logs = LayerManager.Log;
 import BaseConnector = require('./BaseConnector');
@@ -19,6 +20,8 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.manager = layerManager;
         console.log('init Rest API');
 
+        //enables cors, used for external swagger requests
+        this.server.use(cors());
 
         //use this for testing. Serves no real purpose.
         this.server.get("/test", (req: express.Request, res: express.Response) => {
