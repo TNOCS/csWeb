@@ -114,7 +114,7 @@ module csComp.Services {
                         f.properties = value.properties;
                         f.geometry = value.geometry;
                         this.service.calculateFeatureStyle(f);
-                        this.service.activeMapRenderer.updateFeature(f);
+                        this.service.updateFeature(f);
                         done = true;
                         //  console.log('updating feature');
                         return true;
@@ -145,7 +145,7 @@ module csComp.Services {
                         f.properties = value.properties;
                         f.geometry = value.geometry;
                         this.service.calculateFeatureStyle(f);
-                        this.service.activeMapRenderer.updateFeature(f);
+                        this.service.updateFeature(f);
                         done = true;
                         //  console.log('updating feature');
                         return true;

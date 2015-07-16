@@ -680,13 +680,14 @@ module csComp.Services {
 
         private lookupLog(logs: Log[], timestamp: number): Log {
             if (!logs || logs.length == 0) return <Log>{};
+            var d = logs; //_.sortBy(logs, 'ts');
 
-            if (timestamp <= logs[0].ts) return logs[0];
-            if (timestamp >= logs[logs.length - 1].ts) return logs[logs.length - 1];
+            if (timestamp <= d[0].ts) return d[0];
+            if (timestamp >= d[logs.length - 1].ts) return d[d.length - 1];
             var res = <Log>{};
-            for (var i = 0; i < logs.length; i++) {
-                if (logs[i].ts > timestamp) {
-                    res = logs[i];
+            for (var i = 0; i < d.length; i++) {
+                if (d[i].ts > timestamp) {
+                    res = d[i];
                     break;
                 }
             }
@@ -708,6 +709,7 @@ module csComp.Services {
                     }
                     else {
                         if (f.properties[key] != l.value) {
+                            console.log(key + " = " + l.value);
                             f.properties[key] = l.value;
                             changed = true;
                         }
@@ -716,9 +718,18 @@ module csComp.Services {
 
                 if (changed) {
                     this.calculateFeatureStyle(f);
-                    this.activeMapRenderer.updateFeature(f);
+                    this.updateFeature(f);
                 }
             }
+        }
+
+        public updateFeature(feature: IFeature) {
+            this.activeMapRenderer.updateFeature(feature);
+            if (feature === this.lastSelectedFeature) {
+                this.$messageBusService.publish("feature", "onFeatureUpdated");
+            }
+
+
         }
 
         /** update for all features the active sensor data values and update styles */

@@ -3,14 +3,15 @@ import Layer = LayerManager.Layer;
 import CallbackResult = LayerManager.CallbackResult;
 import Log = LayerManager.Log;
 import mongodb = require('mongodb');
+import BaseConnector = require('./BaseConnector');
 
-export class MongoDBStorage implements LayerManager.IConnector {
+export class MongoDBStorage extends BaseConnector.BaseConnector {
     public manager: LayerManager.LayerManager
 
     public db: mongodb.Db;
 
     constructor(public server: string, public port: number) {
-
+        super();
     }
 
     public initLayer(layer: Layer) {
@@ -96,9 +97,6 @@ export class MongoDBStorage implements LayerManager.IConnector {
 
     }
 
-    public updateLogs(layerId: string, featureId: string, logs: Log[], callback: Function) {
-
-    }
 
 
     //TODO: Move connection set-up params from static to parameterized.

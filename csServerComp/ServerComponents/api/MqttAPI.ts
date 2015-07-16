@@ -1,6 +1,7 @@
 import LayerManager = require('./LayerManager');
 import express = require('express')
 import Layer = LayerManager.Layer;
+import Log = LayerManager.Log;
 import CallbackResult = LayerManager.CallbackResult;
 import mqtt = require("mqtt");
 import BaseConnector = require('./BaseConnector');
@@ -10,9 +11,11 @@ import BaseConnector = require('./BaseConnector');
 export class MqttAPI extends BaseConnector.BaseConnector {
 
     public manager: LayerManager.LayerManager
+    public client: any;
 
     constructor(public server: string, public port: number = 1883) {
         super();
+        this.isInterface = true;
     }
 
     public init(layerManager: LayerManager.LayerManager, options: any) {
@@ -20,36 +23,57 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         console.log('init mqtt API');
 
 
-        /*var client = mqtt.connect("mqtt://" + this.server + ":" + this.port);
+        this.client = (<any>mqtt).connect("mqtt://" + this.server + ":" + this.port);
 
-        client.on('error', (e) => {
+        this.client.on('error', (e) => {
             console.log('error');
         });
 
-        client.on('connect', () => {
+        this.client.on('connect', () => {
             console.log("mqtt connected");
         });
 
-        client.on('reconnect', () => {
+        this.client.on('reconnect', () => {
             console.log("mqtt reconnecting");
         });
 
-        client.subscribe('test');
-        client.on('message', (topic, message) => {
-            console.log(message.toString());
-            client.publish('testje', message.toString());
-        });*/
+
+        this.client.on('message', (topic, message) => {
+            console.log(topic + "-" + message.toString());
+        });
 
         // express api aanmaken
         // vb. addFeature,
-
-
-
         // doorzetten naar de layermanager
-
-
     }
+
+    public addFeature(layerId: string, feature: any, callback: Function) {
+        this.client.publish('layers/' + layerId, JSON.stringify(feature));
+    }
+
+    public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
+        this.client.publish('layers/' + layerId, JSON.stringify(feature));
+    }
+
+    private sendFeature(layerId: string, featureId: string) {
+        this.manager.findFeature(layerId, featureId, (r: CallbackResult) => {
+            if (r.result === "OK") {
+                this.client.publish('layers/' + layerId, JSON.stringify(r.feature));
+            }
+        });
+    }
+
+    public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
+        this.sendFeature(layerId, featureId);
+    }
+
+    public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
+        this.sendFeature(layerId, featureId);
+    }
+
     public initLayer(layer: Layer) {
+        this.client.subscribe('layers/' + layer.id + "/#");
+        console.log('mqtt:initlayer');
 
     }
 

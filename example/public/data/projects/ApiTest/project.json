@@ -9,7 +9,7 @@
         "end": 1425168000000,
         "range": 34128000000,
         "zoomLevelName": "years",
-        "isLive": false
+        "isLive": true
     },
     "layerDirectory": "/layerDirectory",
     "dashboards": [{
@@ -55,7 +55,7 @@
                     "description": "These are the locations of the Dutch hospitals."
                 }
             },
-            "type": "DynamicGeoJson",
+            "type": "dynamicgeojson",
             "url": "layers/test",
             "typeUrl": "data/resourceTypes/resources.json",
             "enabled": false,

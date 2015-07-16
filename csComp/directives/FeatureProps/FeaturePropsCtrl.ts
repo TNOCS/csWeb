@@ -283,7 +283,7 @@ module FeatureProps {
             };
 
             //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
-            //$messageBusService.subscribe("feature", this.featureMessageReceived);
+            $messageBusService.subscribe("feature", this.featureMessageReceived);
 
             var widthOfList = function() {
                 var itemsWidth = 0;
@@ -328,7 +328,7 @@ module FeatureProps {
 
         public saveFeature() {
             this.$layerService.unlockFeature(this.$scope.feature);
-            this.$layerService.saveFeature(this.$scope.feature);
+            this.$layerService.saveFeature(this.$scope.feature, true);
         }
 
         public editFeature() {
@@ -394,7 +394,7 @@ module FeatureProps {
         }
 
         private featureMessageReceived = (title: string, feature: IFeature): void => {
-            //console.log("FPC: featureMessageReceived");
+            console.log("FPC: featureMessageReceived");
 
             switch (title) {
                 case "onFeatureSelect":

@@ -2,6 +2,7 @@ import LayerManager = require('LayerManager');
 import express = require('express')
 import Layer = LayerManager.Layer;
 import Feature = LayerManager.Feature;
+import Log = LayerManager.Log;
 import ClientConnection = require('./../dynamic/ClientConnection');
 import MessageBus = require('../bus/MessageBus');
 import BaseConnector = require('./BaseConnector');
@@ -12,6 +13,7 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
 
     constructor(public connection: ClientConnection.ConnectionManager) {
         super();
+        this.isInterface = true;
     }
 
     public init(layerManager: LayerManager.LayerManager, options: any) {
@@ -22,12 +24,17 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
     public initLayer(layer: Layer) {
         console.log('init layer ' + layer.id);
         this.connection.registerLayer(layer.id, (action: string, msg: ClientConnection.LayerMessage, client: string) => {
-            var feature;
+            console.log('socketio action:' + action);
             switch (action) {
                 case "logUpdate":
                     // find feature
                     var featureId = msg.object.featureId;
-                    this.updateLog(layer, featureId, msg.object, client, true);
+                    var logs: { [key: string]: Log[] } = msg.object["logs"];
+                    this.manager.updateLogs(layer.id, featureId, logs, () => { });
+                    console.log(JSON.stringify(msg));
+
+                    //this.manager.updateLogs(layer.id,featureId,)
+                    //this.updateLog(layer, featureId, msg.object, client, true);
                     break;
                 case "featureUpdate":
                     var ft: Feature = msg.object;
@@ -37,35 +44,21 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
         });
     }
 
-    updateLog(layer: Layer, featureId: string, msgBody: any, client?: string, notify?: boolean) {
-        console.log("Log update" + featureId);
-        var f: Feature;
-        layer.features.some(feature => {
-            if (!feature.id || feature.id !== featureId) return false;
-            // feature found
-            f = feature;
-            return true;
-        });
-        if (!f) return; // feature not found
-        if (!f.hasOwnProperty('logs')) f.logs = {};
-        if (!f.hasOwnProperty('properties')) f.properties = {};
-
-        // apply changes
-        var logs = msgBody.logs;
-
-        for (var key in logs) {
-            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
-            logs[key].forEach(l=> {
-                f.logs[key].push(l);
-                f.properties[key] = l.value;
-            });
-
-            // send them to other clients
-            //this.connection.updateFeature(this.layerId, msgBody, "logs-update", client);
-        }
-
-        //if (notify) this.emit("featureUpdated", this.layerId, featureId);
+    public addFeature(layerId: string, feature: Feature, callback: Function) {
+        this.connection.updateFeature(layerId, feature, "feature-update");
     }
+
+    public updateFeature(layerId: string, feature: Feature, useLog: boolean, callback: Function) {
+        console.log('socketio: update feature');
+        this.connection.updateFeature(layerId, feature, "feature-update");
+    }
+
+    public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
+        var body = { action: "logUpdate", layerId: layerId, featureId: featureId, logs: logs };
+        this.connection.updateFeature(layerId, body, "logs-update");
+    }
+
+
 
 
 

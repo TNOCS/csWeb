@@ -16,7 +16,7 @@ module ClientConnection {
     }
 
     export class LayerMessage {
-        constructor(public layerId: string, public action: string, public object: any)
+        constructor(public layerId: string, public action: string, public object: any, public featureId: string)
         { }
     }
 

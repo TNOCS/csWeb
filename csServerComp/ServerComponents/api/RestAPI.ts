@@ -1,6 +1,7 @@
 import LayerManager = require('./LayerManager');
 import express = require('express')
 import Layer = LayerManager.Layer;
+import Logs = LayerManager.Log;
 import BaseConnector = require('./BaseConnector');
 import CallbackResult = LayerManager.CallbackResult;
 
@@ -11,9 +12,8 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
     constructor(public server: express.Express) {
         super();
+        this.isInterface = true;
     }
-
-
 
     public init(layerManager: LayerManager.LayerManager, options: any) {
         this.manager = layerManager;
@@ -91,10 +91,21 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
 
         // updates all features corresponding to query on ID (should be one)
-        this.server.put("/layers/:layerId/:featureId/:property", (req: express.Request, res: express.Response) => {
+        this.server.put("/layers/:layerId/:featureId/prop/:property", (req: express.Request, res: express.Response) => {
             this.manager.updateProperty(req.params.layerId, req.params.featureId, req.params.property, req.body, true, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
+            });
+        });
+
+        // updates all features corresponding to query on ID (should be one)
+        this.server.put("/layers/:layerId/:featureId/logs", (req: express.Request, res: express.Response) => {
+            var logs: { [key: string]: Logs[] };
+            logs = req.body;
+            this.manager.updateLogs(req.params.layerId, req.params.featureId, logs, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+
             });
         });
 

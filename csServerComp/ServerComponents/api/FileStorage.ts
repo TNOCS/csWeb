@@ -75,16 +75,50 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     }
 
-    public updateLogs(layerId: string, featureId: string, logs: Log[], callback: Function) {
+    public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
+        var f: Feature;
+        var layer = this.findLayer(layerId);
+        layer.features.some(feature => {
+            if (!feature.id || feature.id !== featureId) return false;
+            // feature found
+            f = feature;
+            return true;
+        });
+        if (!f) {
+            callback(<CallbackResult>{ result: "Error" });
+            return; // feature not found
+        }
+        if (!f.hasOwnProperty('logs')) f.logs = {};
+        if (!f.hasOwnProperty('properties')) f.properties = {};
 
+        // apply changes
+
+        for (var key in logs) {
+            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+            logs[key].forEach(l=> {
+                f.logs[key].push(l);
+                f.properties[key] = l.value;
+            });
+
+            // send them to other clients
+            //
+        }
+        callback(<CallbackResult>{ result: "OK", layer: null });
     }
 
 
 
-    //TODO: implement
-    public getFeature(layerId: string, i: string, callback: Function) {
-
+    public getFeature(layerId: string, featureId: string, callback: Function) {
+        var l = this.layers[layerId];
+        var found = false;
+        l.features.forEach((f: Feature) => {
+            if (f.id === featureId)
+                found = true;
+            callback(<CallbackResult> { result: "OK", feature: f });
+        })
+        if (!found) callback(<CallbackResult>{ result: "Error" });
     }
+
 
     //TODO: implement
     public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {

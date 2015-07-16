@@ -4,9 +4,11 @@ export class CallbackResult {
     public result: string;
     public error: any;
     public layer: Layer;
+    public feature: Feature;
 }
 
 export interface IConnector {
+    isInterface: boolean;
     init(layerManager: LayerManager, options: any);
     initLayer(layer: Layer);
     //Layer methods
@@ -18,7 +20,7 @@ export interface IConnector {
     getFeature(layerId: string, featureId: string, callback: Function);
     updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function);
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function);
-    updateLogs(layerId: string, featureId: string, logs: Log[], callback: Function);
+    updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function);
     deleteFeature(layerId: string, featureId: string, callback: Function);
 }
 
@@ -42,8 +44,8 @@ export class Feature {
 }
 
 export class Log {
-    public timeStamp: number;
-    public property: string;
+    public ts: number;
+    public prop: string;
     public value: any;
 }
 
@@ -74,7 +76,12 @@ export class LayerManager {
         if (this.layers.hasOwnProperty(layerId)) {
             return this.layers[layerId];
         } else { return null; };
+    }
 
+    public findFeature(layerId: string, featureId: string, callback: Function) {
+        var layer = this.findLayer(layerId);
+        var s = this.findStorage(layer);
+        s.getFeature(layerId, featureId, (r) => callback(r));
     }
 
     /**
@@ -122,22 +129,46 @@ export class LayerManager {
         });
     }
 
-
+    public getInterfaces(): IConnector[] {
+        var res = [];
+        for (var i in this.connectors) {
+            if (this.connectors[i].isInterface) res.push(this.connectors[i]);
+        }
+        return res;
+    }
 
     // Feature methods start here, in CRUD order.
 
-    public addFeature(layerId: string, f: any, callback: Function) {
+    public addFeature(layerId: string, feature: any, callback: Function) {
         console.log('feature added');
         var layer = this.findLayer(layerId);
         var s = this.findStorage(layer);
-        s.addFeature(layerId, f, (result) => callback(result));
+        s.addFeature(layerId, feature, (result) => callback(result));
+        this.getInterfaces().forEach((i: IConnector) => {
+            i.addFeature(layerId, feature, () => { });
+        });
+
     }
 
     public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
         var layer = this.findLayer(layerId);
         var s = this.findStorage(layer);
         this.updateProperty(layerId, featureId, property, value, useLog, (r) => callback(r));
+    }
 
+    public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
+        var layer = this.findLayer(layerId);
+        var s = this.findStorage(layer);
+        // check if timestamps are set (if not, do it)
+        for (var p in logs) {
+            logs[p].forEach((l: Log) => {
+                if (!l.ts) l.ts = new Date().getTime();
+            });
+        }
+        s.updateLogs(layerId, featureId, logs, (r) => callback(r));
+        this.getInterfaces().forEach((i: IConnector) => {
+            i.updateLogs(layerId, featureId, logs, () => { });
+        });
     }
 
     public getFeature(layerId: string, featureId: string, callback: Function) {
@@ -148,6 +179,9 @@ export class LayerManager {
     public updateFeature(layerId: string, feature: any, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
         s.updateFeature(layerId, feature, true, (result) => callback(result));
+        this.getInterfaces().forEach((i: IConnector) => {
+            i.updateFeature(layerId, feature, false, () => { });
+        });
     }
 
     public deleteFeature(layerId: string, featureId: string, callback: Function) {

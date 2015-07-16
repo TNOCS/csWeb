@@ -6,6 +6,7 @@ import Log = LayerManager.Log;
 export class BaseConnector implements LayerManager.IConnector {
     public manager: LayerManager.LayerManager
 
+    public isInterface;
 
     public initLayer(layer: Layer) {
 
@@ -51,7 +52,7 @@ export class BaseConnector implements LayerManager.IConnector {
 
     }
 
-    public updateLogs(layerId: string, featureId: string, logs: Log[], callback: Function) {
+    public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
 
     }
 
