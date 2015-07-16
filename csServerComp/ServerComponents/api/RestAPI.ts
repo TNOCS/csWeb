@@ -26,6 +26,11 @@ export class RestAPI extends BaseConnector.BaseConnector {
             res.send({ Hello: "World" });
         });
 
+        this.server.get('/layers', (req: express.Request, res: express.Response) => {
+
+            res.send(JSON.stringify(this.manager.layers));
+        });
+
         //------ layer API paths, in CRUD order
 
         // adds a layer, using HTTP PUT, stores it in a collection of choice
@@ -34,7 +39,6 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // And what if an agent starts sending gibberish?
         this.server.post('/layers/:layer', (req: express.Request, res: express.Response) => {
             var layer = new Layer();
-            console.log(req.body);
             layer.features = req.body.features;
             layer.id = req.params.layer;
             this.manager.addLayer(layer, (result: CallbackResult) => {
