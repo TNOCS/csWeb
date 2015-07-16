@@ -26,11 +26,7 @@ paths:
       # used as the method name of the controller
       operationId: getLayer
       parameters:
-        - name: layerId
-          in: query
-          description: The name or id of the layer to return to the caller
-          required: true
-          type: string
+        
       responses:
         "200":
           description: Success
