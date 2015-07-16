@@ -34,6 +34,7 @@
         "./Scripts/typings/proj4/proj4.d.ts",
         "./Scripts/typings/request/request.d.ts",
         "./Scripts/typings/socketio/socket.io.d.ts",
+        "./Scripts/typings/underscore/underscore.d.ts",
         "./Scripts/typings/xml2js/xml2js.d.ts",
         "./ServerComponents/api/ApiServiceManager.ts",
         "./ServerComponents/api/BaseConnector.ts",
