@@ -23,14 +23,19 @@ export class FileStorage extends BaseConnector.BaseConnector {
         // load layers
     }
 
+
+    saveFileDounce = _.debounce((layer: Layer) => {
+        this.saveFile(layer);
+    }, 5000);
+
     private getFilename(layerId: string) {
         return path.join(this.rootpath, layerId + ".json");
     }
 
-    private saveFileDounce(layer: Layer) {
+    /*private saveFileDounce(layer: Layer) {
         this.saveFile(layer);
         //_.debounce(() => { this.saveFile(layer) }, 5000);
-    }
+    }*/
 
     private saveFile(layer: Layer) {
         var fn = this.getFilename(layer.id);
