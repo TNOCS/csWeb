@@ -1,6 +1,9 @@
 
 
 export class CallbackResult {
+    /**
+     * OK, Error
+     */
     public result: string;
     public error: any;
     public layer: Layer;
@@ -26,6 +29,9 @@ export interface IConnector {
 }
 
 export class Layer {
+    /**
+     * id of storage connector
+     */
     public storage: string;
     public useLog: boolean;
     public id: string;
@@ -52,7 +58,14 @@ export class Log {
 
 export class LayerManager {
 
+    /**
+     * Dictionary of connectors (e.g. storage, interface, etc.)
+     */
     public connectors: { [key: string]: IConnector } = {}
+
+    /**
+     * Dictionary of layers (doesn't contain actual data)
+     */
     public layers: { [key: string]: Layer } = {}
 
     public defaultStorage = "file";
@@ -62,10 +75,10 @@ export class LayerManager {
         console.log('init layer manager');
     }
 
-
-
+    /**
+     * Add connector to available connectors
+     */
     public addConnector(key: string, s: IConnector, options: any) {
-        console.log('Adding storage ' + key);
         s.id = key;
         this.connectors[key] = s;
         s.init(this, options);
@@ -77,9 +90,13 @@ export class LayerManager {
     public findLayer(layerId: string): Layer {
         if (this.layers.hasOwnProperty(layerId)) {
             return this.layers[layerId];
-        } else { return null; };
+        }
+        return null;;
     }
 
+    /**
+     * find feature in a layer by featureid
+     */
     public findFeature(layerId: string, featureId: string, callback: Function) {
         var layer = this.findLayer(layerId);
         var s = this.findStorage(layer);
@@ -107,18 +124,19 @@ export class LayerManager {
     //layer methods start here, in CRUD order.
     public addLayer(layer: Layer, callback: Function) {
         var s = this.findStorage(layer);
+
+        // check if layer already exists
         if (!this.layers.hasOwnProperty(layer.id)) {
             this.layers[layer.id] = <Layer>{ id: layer.id, storage: s.id };
         }
 
+        // store layer
         s.addLayer(layer, (r: CallbackResult) => {
-            for (var i in this.connectors) {
-                this.connectors[i].initLayer(layer);
-            }
             callback(r);
         });
 
         this.getInterfaces().forEach((i: IConnector) => {
+            i.initLayer(layer);
             i.addLayer(layer, () => { });
         });
     }
