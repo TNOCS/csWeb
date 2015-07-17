@@ -84,6 +84,8 @@ module csComp.Services {
 
         actionServices: IActionService[] = [];
 
+        locationFilter: L.LocationFilter;
+
         public visual: VisualState = new VisualState();
         throttleTimelineUpdate: Function;
 
@@ -134,7 +136,6 @@ module csComp.Services {
 
             this.initLayerSources();
             this.throttleTimelineUpdate = _.throttle(this.updateAllLogs, 500);
-
 
             //this.$dashboardService.init();
 
@@ -1229,6 +1230,45 @@ module csComp.Services {
             group.filters.push(filter);
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
             this.mb.publish("filters", "updated");
+        }
+
+        updateLocationFilter(bounds: L.LatLngBounds) {
+            this.project.groups.forEach(g => {
+                g.filterResult = [];
+                $.each(g.markers, (key, marker) => {
+                    if (marker.feature && marker.feature.layer && marker.feature.layer.enabled) {
+                        if (marker.getLatLng && bounds.contains(marker.getLatLng())) {
+                            g.filterResult.push(marker.feature);
+                        } else if (marker.getLatLngs && bounds.contains(marker.getLatLngs())) {
+                            g.filterResult.push(marker.feature);
+                        }
+                    }
+                });
+                this.updateMapFilter(g);
+            });
+        }
+
+        setLocationFilter() {
+            if (!this.locationFilter) {
+                this.locationFilter = new L.LocationFilter().addTo(this.map.map);
+                this.locationFilter.on('change', (e) => {
+                    this.updateLocationFilter(e.bounds);
+                });
+                this.locationFilter.on('enabled', (e) => {
+                    this.updateLocationFilter(e.bounds);
+                });
+                this.locationFilter.on('disabled', (e) => {
+                    this.project.groups.forEach(g => {
+                        this.resetMapFilter(g);
+                    });
+                });
+                this.locationFilter.enable();
+                this.updateLocationFilter(this.locationFilter.getBounds());
+            } else if (this.locationFilter.isEnabled()) {
+                this.locationFilter.disable();
+            } else {
+                this.locationFilter.enable();
+            }
         }
 
         /**

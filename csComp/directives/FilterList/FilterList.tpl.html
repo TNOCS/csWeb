@@ -1,6 +1,13 @@
 <div>
     <h4 class="leftpanel-header" translate="FILTERS"></h4>
+    <a ng-click="vm.$layerService.setLocationFilter()" style="margin-bottom:10px; display:block;">
+        <span class="fa fa-filter"></span>
+        <div style="display:inline" ng-show="!vm.$layerService.locationFilter || !vm.$layerService.locationFilter.isEnabled()"> Enable location filter</div>
+        <div style="display:inline" ng-show="vm.$layerService.locationFilter.isEnabled()"> Disable location filter</div>
+    </a>
+
     <div ng-show="vm.noFilters" translate="FILTER_INFO"></div>
+
     <a ng-hide="vm.noFilters" ng-click="vm.$layerService.resetFilters()">
         <span class="fa fa-refresh"></span> reset</a>
     <div id="filterChart"></div>
