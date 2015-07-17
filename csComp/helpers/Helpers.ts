@@ -25,7 +25,7 @@
         var s: csComp.Services.IFeatureTypeStyle = {
             nameLabel:   "Name",
             strokeWidth: 1,
-            strokeColor: "#GGBBAA",
+            strokeColor: "#0033ff",
             fillOpacity: 0.75,
             opacity:     1,
             fillColor:   "#FFFF00",
