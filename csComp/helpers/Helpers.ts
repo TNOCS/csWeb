@@ -294,6 +294,10 @@
     export function setFeatureName(feature: csComp.Services.IFeature, propertyTypeData?: csComp.Services.IPropertyTypeData) {
         // Case one: we don't need to set it, as it's already present.
         if (feature.properties.hasOwnProperty('Name')) return feature;
+        if (feature.properties.hasOwnProperty('name')) {
+            feature.properties['Name'] = feature.properties['name'];
+            return feature;
+        }
         // Case two: the feature's style tells us what property to use for the name.
         if (feature.fType && feature.fType.style && feature.fType.style.nameLabel) {
             var nameLabel = feature.fType.style.nameLabel;
@@ -310,14 +314,14 @@
         if (feature.fType.propertyTypeData != null) {
             for (var i = 0; i < feature.fType.propertyTypeData.length; i++) {
                 var propertyType = feature.fType.propertyTypeData[i];
-                if (propertyType.label !== 'Name') continue;
+                if (propertyType.label !== 'Name' || !propertyType.stringFormat) continue;
                 feature.properties['Name'] = Helpers.convertStringFormat(feature, propertyType.stringFormat);
                 return feature;
             }
         }
         // If all else fails, use the first property
         for (var prop in feature.properties) {
-            feature.properties['Name'] = prop.toString();
+            feature.properties['Name'] = feature.properties[prop];
             return feature;
         }
         // Finally, just create a GUID.
