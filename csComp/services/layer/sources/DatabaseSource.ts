@@ -80,7 +80,7 @@ module csComp.Services {
                 var projLayer = this.service.findLayer(layer.id);
                 if (projLayer) {projLayer.isLoading = false; projLayer.enabled = true;}
                 layer.data.features.forEach((f) => {
-                    this.service.initFeature(f, layer, false);
+                    this.service.initFeature(f, layer, false, false);
                 });
                 if (this.service.$rootScope.$root.$$phase != '$apply' && this.service.$rootScope.$root.$$phase != '$digest') { this.service.$rootScope.$apply(); }
                 callback(layer);
