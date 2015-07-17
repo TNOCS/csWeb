@@ -1,5 +1,5 @@
-﻿module csComp.Helpers {
-    declare var omnivore;
+module csComp.Helpers {
+    declare var topojson;
 
     export interface IGeoFeature {
         type: string;
@@ -53,13 +53,21 @@
         */
         static convertTopoToGeoJson(data) {
             // Convert topojson to geojson format
-            var topo = omnivore.topojson.parse(data);
+            var o = typeof data === 'string'
+                ? JSON.parse(data)
+                : data;
             var newData: any = {};
             newData.featureTypes = data.featureTypes;
             newData.features = [];
-            topo.eachLayer((l) => {
-                newData.features.push(l.feature);
-            });
+            for (var i in o.objects) {
+                var ft = topojson.feature(o, o.objects[i]);
+                if (ft.features) {
+                    // ft contains multiple features
+                    ft.features.forEach(f => newData.features.push(f));
+                } else {
+                    newData.features.push(ft);
+                }
+            }
             return newData;
         }
 
