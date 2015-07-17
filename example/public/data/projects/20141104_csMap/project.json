@@ -208,6 +208,56 @@
             "opacity": 100
         }]
     }, {
+        "languages": {
+            "nl": {
+                "title": "Netwerken",
+                "description": "Demonstreert kaartlagen gebaseerd op lijnen"
+            },
+            "en": {
+                "title": "Networks",
+                "description": "Demonstrates layers based on lines"
+            }
+        },
+        "clustering": true,
+        "clusterLevel": 12,
+        "layers": [{
+            "id": "net",
+            "reference": "net",
+            "languages": {
+                "nl": {
+                    "title": "Elektriciteitsnet",
+                    "description": "De locaties van de elektriciteitsnetwerken in de Benelux."
+                },
+                "en": {
+                    "title": "Electricity net",
+                    "description": "These are the locations of the electricity networks in the Benelux."
+                }
+            },
+            "type": "kml",
+            "url": "data/projects/20141104_csMap/Standaardnetkaart-van-de-Benelux.kml",
+            "typeUrl": "data/resourceTypes/resources.json",
+            "enabled": false,
+            "opacity": 100
+        }, {
+            "id": "testLinestring",
+            "reference": "testLinestring",
+            "languages": {
+                "nl": {
+                    "title": "testLinestring",
+                    "description": "De locaties van de elektriciteitsnetwerken in de Benelux."
+                },
+                "en": {
+                    "title": "testLinestring",
+                    "description": "These are the locations of the electricity networks in the Benelux."
+                }
+            },
+            "type": "geojson",
+            "url": "data/projects/20141104_csMap/testLinestring.json",
+            "typeUrl": "data/resourceTypes/resources.json",
+            "enabled": false,
+            "opacity": 100
+        }]
+    }, {
         "title": "WMS",
         "description": "Demonstrates WMS layers.",
         "clustering": false,
@@ -436,16 +486,23 @@
                 "defaultFeatureType": "gemeente",
                 "enabled": false,
                 "opacity": 50
-            },
-             {
-                "id": "p4geo",
-                "reference": "p4geo",
-                "title": "P4 geojson",
-                "description": "Statistical data per city. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)",
-                "type": "GeoJson",
-                "url": "data/projects/20141104_csMap/postcode4-nl.geo.json",
+            }, {
+                "id": "p4_topo",
+                "reference": "p4_topo",
+                "languages": {
+                    "nl": {
+                        "title": "Postcode4 - TopoJSON",
+                        "description": "Statistische data per gemeente. (Bron: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)"
+                    },
+                    "en": {
+                        "title": "Zip codes - TopoJSON",
+                        "description": "Statistical data per city in Dutch. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)"
+                    }
+                },
+                "type": "topojson",
+                "defaultFeatureType": "gemeente",
+                "url": "data/projects/20141104_csMap/postcode4.topo.json",
                 "typeUrl": "data/resourceTypes/resources.json",
-                "defaultFeatureType" : "gemeente",
                 "enabled": false,
                 "opacity": 100
             }, {
@@ -510,6 +567,6 @@
             "typeUrl": "data/resourceTypes/resources.json",
             "opacity": 50
         }]
-    
+
     }]
 }

@@ -161,6 +161,7 @@
         "./services/layer/sources/GridDataSource.ts",
         "./services/layer/sources/HeatmapSource.ts",
         "./services/layer/sources/HierarchySource.ts",
+        "./services/layer/sources/KmlDataSource.ts",
         "./services/layer/sources/NightDayDataSource.ts",
         "./services/layer/sources/RssDataSource.ts",
         "./services/layer/sources/TileLayerSource.ts",

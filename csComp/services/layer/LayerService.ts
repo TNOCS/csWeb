@@ -258,6 +258,9 @@ module csComp.Services {
             this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
             this.layerSources["esrijson"] = new EsriJsonSource(this);
 
+            // add kml source
+            this.layerSources["kml"] = new KmlDataSource(this);
+
             // add wms source
             this.layerSources["wms"] = new WmsSource(this);
 
@@ -827,7 +830,7 @@ module csComp.Services {
         /**
          * init feature (add to feature list, crossfilter)
          */
-        public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false): IFeatureType {
+        public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false, publishToTimeline: boolean = true): IFeatureType {
             if (!feature.isInitialized) {
                 feature.isInitialized = true;
                 feature.gui = {};
@@ -861,9 +864,8 @@ module csComp.Services {
                 feature.propertiesOld = {};
                 this.trackFeature(feature);
 
-
                 if (applyDigest && this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
-                this.$messageBusService.publish("timeline", "updateFeatures");
+                if (publishToTimeline) this.$messageBusService.publish("timeline", "updateFeatures");
             }
             return feature.type;
         }
