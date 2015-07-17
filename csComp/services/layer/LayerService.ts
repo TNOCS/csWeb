@@ -1405,21 +1405,7 @@ module csComp.Services {
             }
             feature.fType = this._featureTypes[feature.featureTypeName];
             return feature.fType;
-            //
-            // //    if (feature.fType) return feature.fType;
-            // var projectFeatureTypeName = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
-            // var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
-            // if (!(this._featureTypes.hasOwnProperty(featureTypeName))) {
-            //     if (this._featureTypes.hasOwnProperty(projectFeatureTypeName))
-            //         featureTypeName = projectFeatureTypeName;
-            //     else
-            //         this._featureTypes[featureTypeName] = csComp.Helpers.createDefaultType(feature);
-            // }
-            // feature.featureTypeName = featureTypeName;
-            // return inthis._featureTypes[featureTypeName];
         }
-
-
 
         resetFilters() {
             dc.filterAll();
