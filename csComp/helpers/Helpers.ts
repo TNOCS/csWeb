@@ -71,8 +71,6 @@
         }
     }
 
-
-
     declare var String;//: StringExt.IStringExt;
 
     export function supportsDataUri() {
@@ -321,7 +319,7 @@
         }
         // If all else fails, use the first property
         for (var prop in feature.properties) {
-            feature.properties['Name'] = feature.properties[prop];
+            feature.properties['Name'] = prop.toString(); //feature.properties[prop];
             return feature;
         }
         // Finally, just create a GUID.
