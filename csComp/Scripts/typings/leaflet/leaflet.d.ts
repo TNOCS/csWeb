@@ -10,7 +10,17 @@ declare module L {
 
 }
 
+declare module L {
+    export class LocationFilter {
+        on(type: string, fn: (e) => void, context?: any);
+        addTo(map: Map): LocationFilter;
+        enable(): void;
+        disable(): void;
+        isEnabled(): boolean;
+        getBounds(): LatLngBounds;
+    }
 
+}
  
 declare module L {
 

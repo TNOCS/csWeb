@@ -330,7 +330,12 @@ module csComp.Services {
                 marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
             } else {
                 marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
-                if (feature.layer && feature.layer.type !== 'accessibility') marker.bringToFront();
+                if (feature.isSelected && feature.layer && feature.layer.type !== 'accessibility' && feature.layer.group) {
+                    if ((feature.layer.group.clustering && feature.layer.group.cluster.hasLayer(marker))
+                        || feature.layer.group.vectors.hasLayer(marker)) {
+                        marker.bringToFront();
+                    }
+                }
             }
         }
 
