@@ -42,7 +42,6 @@
         "./Scripts/typings/cs/creator/RssService.d.ts",
         "./Scripts/typings/cs/cs-offline-search.d.ts",
         "./Scripts/typings/cs/csComp.d.ts",
-        "./Scripts/typings/cs/csServerComp.d.ts",
         "./Scripts/typings/cs/database/BagDatabase.d.ts",
         "./Scripts/typings/cs/database/IBagAddress.d.ts",
         "./Scripts/typings/cs/database/IBagOptions.d.ts",
