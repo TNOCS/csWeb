@@ -132,9 +132,8 @@ module csComp.Services {
                         var count = 0;
                         var last  = layer.data.features.length-1;
                         layer.data.features.forEach((f) => {
-                            this.service.initFeature(f, layer, count++ === last);
+                            this.service.initFeature(f, layer, false, false);
                         });
-                        //if (this.service..$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
 
                         layer.isLoading = false;
                         cb(null, null);

@@ -69,7 +69,7 @@ module csComp.Services {
                                 data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
                             }
 
-                            
+
 
                             // add featuretypes to global featuretype list
                             if (data.featureTypes) for (var featureTypeName in data.featureTypes) {
@@ -89,8 +89,9 @@ module csComp.Services {
                                 layer.data.features = layer.data.geometries;
                             }
                             layer.data.features.forEach((f) => {
-                                this.service.initFeature(f, layer);
+                                this.service.initFeature(f, layer, false, false);
                             });
+                            this.service.$messageBusService.publish("timeline", "updateFeatures");
                         }
                         cb(null, null);
                     });

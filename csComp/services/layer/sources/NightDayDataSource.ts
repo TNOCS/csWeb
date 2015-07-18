@@ -201,7 +201,7 @@ module csComp.Services {
                 layer.data.features = layer.data.geometries;
             }
             layer.data.features.forEach((f: IFeature) => {
-                this.service.initFeature(f, layer);
+                this.service.initFeature(f, layer, false, false);
             });
 
             layer.isLoading = false;

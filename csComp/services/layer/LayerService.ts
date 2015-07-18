@@ -84,6 +84,8 @@ module csComp.Services {
 
         actionServices: IActionService[] = [];
 
+        locationFilter: L.LocationFilter;
+
         public visual: VisualState = new VisualState();
         throttleTimelineUpdate: Function;
 
@@ -134,7 +136,6 @@ module csComp.Services {
 
             this.initLayerSources();
             this.throttleTimelineUpdate = _.throttle(this.updateAllLogs, 500);
-
 
             //this.$dashboardService.init();
 
@@ -257,6 +258,11 @@ module csComp.Services {
             this.layerSources["topojson"] = geojsonsource;
             this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
             this.layerSources["esrijson"] = new EsriJsonSource(this);
+
+            // add kml source
+            var kmlDataSource = new KmlDataSource(this);
+            this.layerSources["kml"] = kmlDataSource;
+            this.layerSources["gpx"] = kmlDataSource;
 
             // add wms source
             this.layerSources["wms"] = new WmsSource(this);
@@ -838,7 +844,7 @@ module csComp.Services {
         /**
          * init feature (add to feature list, crossfilter)
          */
-        public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false): IFeatureType {
+        public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false, publishToTimeline: boolean = true): IFeatureType {
             if (!feature.isInitialized) {
                 feature.isInitialized = true;
                 feature.gui = {};
@@ -872,9 +878,8 @@ module csComp.Services {
                 feature.propertiesOld = {};
                 this.trackFeature(feature);
 
-
                 if (applyDigest && this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
-                this.$messageBusService.publish("timeline", "updateFeatures");
+                if (publishToTimeline) this.$messageBusService.publish("timeline", "updateFeatures");
             }
             return feature.type;
         }
@@ -1240,6 +1245,45 @@ module csComp.Services {
             this.mb.publish("filters", "updated");
         }
 
+        updateLocationFilter(bounds: L.LatLngBounds) {
+            this.project.groups.forEach(g => {
+                g.filterResult = [];
+                $.each(g.markers, (key, marker) => {
+                    if (marker.feature && marker.feature.layer && marker.feature.layer.enabled) {
+                        if (marker.getLatLng && bounds.contains(marker.getLatLng())) {
+                            g.filterResult.push(marker.feature);
+                        } else if (marker.getLatLngs && bounds.contains(marker.getLatLngs())) {
+                            g.filterResult.push(marker.feature);
+                        }
+                    }
+                });
+                this.updateMapFilter(g);
+            });
+        }
+
+        setLocationFilter() {
+            if (!this.locationFilter) {
+                this.locationFilter = new L.LocationFilter().addTo(this.map.map);
+                this.locationFilter.on('change', (e) => {
+                    this.updateLocationFilter(e.bounds);
+                });
+                this.locationFilter.on('enabled', (e) => {
+                    this.updateLocationFilter(e.bounds);
+                });
+                this.locationFilter.on('disabled', (e) => {
+                    this.project.groups.forEach(g => {
+                        this.resetMapFilter(g);
+                    });
+                });
+                this.locationFilter.enable();
+                this.updateLocationFilter(this.locationFilter.getBounds());
+            } else if (this.locationFilter.isEnabled()) {
+                this.locationFilter.disable();
+            } else {
+                this.locationFilter.enable();
+            }
+        }
+
         /**
         * enable a filter for a specific property
         */
@@ -1414,21 +1458,7 @@ module csComp.Services {
             }
             feature.fType = this._featureTypes[feature.featureTypeName];
             return feature.fType;
-            //
-            // //    if (feature.fType) return feature.fType;
-            // var projectFeatureTypeName = feature.properties['FeatureTypeId'] || feature.layer.defaultFeatureType || 'Default';
-            // var featureTypeName = feature.layerId + '_' + projectFeatureTypeName;
-            // if (!(this._featureTypes.hasOwnProperty(featureTypeName))) {
-            //     if (this._featureTypes.hasOwnProperty(projectFeatureTypeName))
-            //         featureTypeName = projectFeatureTypeName;
-            //     else
-            //         this._featureTypes[featureTypeName] = csComp.Helpers.createDefaultType(feature);
-            // }
-            // feature.featureTypeName = featureTypeName;
-            // return inthis._featureTypes[featureTypeName];
         }
-
-
 
         resetFilters() {
             dc.filterAll();
@@ -1710,13 +1740,10 @@ module csComp.Services {
 
                 if (this.project.groups && this.project.groups.length > 0) {
                     this.project.groups.forEach((group: ProjectGroup) => {
-
                         this.initGroup(group, layerIds);
 
                         if (prj.startposition)
                             this.$mapService.zoomToLocation(new L.LatLng(prj.startposition.latitude, prj.startposition.longitude));
-
-
                     });
                 }
                 if (this.project.connected) {

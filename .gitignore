@@ -11,6 +11,8 @@ csCompTests/csComp/
 csComp/js/
 csComp/node_modules/
 csServerComp/node_modules/
+csServerComp/Classes/**/*.d.ts
+csServerComp/Classes/**/*.js
 csServerComp/ServerComponents/**/*.d.ts
 csServerComp/ServerComponents/**/*.js
 csDataGatherer/node_modules/
@@ -48,3 +50,4 @@ test/csComp/spec/**/*.spec.js
 csDataGatherer/public/data/
 test/csComp/spec/directives/**/*.spec.js
 OfflineSearch
+example/public/data/projects/DynamicExample/
