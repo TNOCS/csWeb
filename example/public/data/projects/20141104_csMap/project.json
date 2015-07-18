@@ -239,6 +239,24 @@
             "enabled": false,
             "opacity": 100
         }, {
+            "id": "gpx",
+            "reference": "gpx",
+            "languages": {
+                "nl": {
+                    "title": "GPX track voorbeeld",
+                    "description": "Voorbeeld GPX track van http://software.frankingermann.de/gpxtrackmap/gtm-examples#h2-full-featured-example-nbsp."
+                },
+                "en": {
+                    "title": "GPX track example",
+                    "description": "Example GPX track from http://software.frankingermann.de/gpxtrackmap/gtm-examples#h2-full-featured-example-nbsp."
+                }
+            },
+            "type": "gpx",
+            "url": "data/projects/20141104_csMap/kuhkopfsteig-fv.gpx",
+            "typeUrl": "data/resourceTypes/resources.json",
+            "enabled": false,
+            "opacity": 100
+        }, {
             "id": "testLinestring",
             "reference": "testLinestring",
             "languages": {

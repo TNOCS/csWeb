@@ -19,63 +19,17 @@ module csComp.Services {
             layer.isLoading = true;
             // get data
             $.ajax(layer.url)
-                .done((kml) => {
+                .done((xml) => {
                     layer.count = 0;
                     layer.isLoading = false;
-                    // Convert kml to geojson
-                    var data: csComp.Services.IGeoJsonFile = toGeoJSON.kml(kml);
-                    // Extract style information: first, get all styles
-                    var styleIndex = {},
-                        styles = this.get(kml, 'Style'),
-                        styleMaps = this.get(kml, 'StyleMap');
-                    for (var k = 0; k < styles.length; k++) {
-                        styleIndex['#' + this.attr(styles[k], 'id')] = styles[k];
-                    }
-                    // Next, get all stylemaps (and link the normal version to its style)
-                    for (var k = 0; k < styleMaps.length; k++) {
-                        var styleMap = styleMaps[k];
-                        var pairs = this.get(styleMap, 'Pair');
-                        if (!pairs) continue;
-                        for (let i = 0; i < pairs.length; i++) {
-                            let p = pairs[i];
-                            var key = this.get(p, 'key');
-                            if (!key || key.length === 0 || key[0].childNodes[0].nodeValue !== 'normal') continue;
-                            var styleNames = this.get(p, 'styleUrl');
-                            if (styleNames && styleNames.length > 0) {
-                                let styleMapName = '#' + this.attr(styleMap, 'id');
-                                let styleName = styleNames[0].childNodes[0].nodeValue;
-                                styleIndex[styleMapName] = styleIndex[styleName];
-                            }
+                    switch (layer.type.toLowerCase()) {
+                        case "kml":
+                            this.convertKmlToGeoJSON(layer, xml);
                             break;
-                        }
+                        case "gpx":
+                            this.convertGpxToGeoJSON(layer, xml);
+                            break;
                     }
-                    // Create the style and add it to the service._featureTypes.
-                    data.features.forEach(f => {
-                        if (!f.properties.hasOwnProperty('styleUrl')) return;
-                        var styleUrl = f.properties['styleUrl'],
-                            styleName = layer.typeUrl + styleUrl;
-                        // Strip the # from the style name and copy it to the featureTypeId
-                        f.properties['featureTypeId'] = styleUrl.substring(1);
-                        // Remove the styleUrl and styleHash
-                        delete f.properties['styleUrl'];
-                        delete f.properties['styleHash'];
-                        if (this.service._featureTypes.hasOwnProperty(styleName)) return;
-                        var style = styleIndex[styleUrl];
-                        this.service._featureTypes[styleName] = <IFeatureType>{
-                            name: styleName,
-                            showAllProperties: false,
-                            style: {
-                                fillColor: this.getFillColor(style),
-                                strokeColor: this.getLineColor(style),
-                                strokeWidth: this.getLineWidth(style),
-                                stroke: true,
-                                iconUri: this.getIcon(layer, style)
-                            }
-                        };
-                        //console.log(toGeoJSON.xml2str(styleIndex[f.properties['featureTypeId']]));
-                    });
-                    //this.layer.
-                    this.initLayer(data, layer);
                     callback(layer);
                 })
                 .fail((error) => {
@@ -84,6 +38,67 @@ module csComp.Services {
                     this.service.$messageBusService.publish('layer', 'error', layer);
                     callback(layer);
                 });
+        }
+
+        private convertGpxToGeoJSON(layer: csComp.Services.ProjectLayer, gpx) {
+            var data: csComp.Services.IGeoJsonFile = toGeoJSON.gpx(gpx);
+            this.initLayer(data, layer);
+        }
+
+        private convertKmlToGeoJSON(layer: csComp.Services.ProjectLayer, kml) {
+            // Convert kml to geojson
+            var data: csComp.Services.IGeoJsonFile = toGeoJSON.kml(kml);
+            // Extract style information: first, get all styles
+            var styleIndex = {},
+                styles = this.get(kml, 'Style'),
+                styleMaps = this.get(kml, 'StyleMap');
+            for (var k = 0; k < styles.length; k++) {
+                styleIndex['#' + this.attr(styles[k], 'id')] = styles[k];
+            }
+            // Next, get all stylemaps (and link the normal version to its style)
+            for (var k = 0; k < styleMaps.length; k++) {
+                var styleMap = styleMaps[k];
+                var pairs = this.get(styleMap, 'Pair');
+                if (!pairs) continue;
+                for (let i = 0; i < pairs.length; i++) {
+                    let p = pairs[i];
+                    var key = this.get(p, 'key');
+                    if (!key || key.length === 0 || key[0].childNodes[0].nodeValue !== 'normal') continue;
+                    var styleNames = this.get(p, 'styleUrl');
+                    if (styleNames && styleNames.length > 0) {
+                        let styleMapName = '#' + this.attr(styleMap, 'id');
+                        let styleName = styleNames[0].childNodes[0].nodeValue;
+                        styleIndex[styleMapName] = styleIndex[styleName];
+                    }
+                    break;
+                }
+            }
+            // Create the style and add it to the service._featureTypes.
+            data.features.forEach(f => {
+                if (!f.properties.hasOwnProperty('styleUrl')) return;
+                var styleUrl = f.properties['styleUrl'],
+                    styleName = layer.typeUrl + styleUrl;
+                // Strip the # from the style name and copy it to the featureTypeId
+                f.properties['featureTypeId'] = styleUrl.substring(1);
+                // Remove the styleUrl and styleHash
+                delete f.properties['styleUrl'];
+                delete f.properties['styleHash'];
+                if (this.service._featureTypes.hasOwnProperty(styleName)) return;
+                var style = styleIndex[styleUrl];
+                this.service._featureTypes[styleName] = <IFeatureType>{
+                    name: styleName,
+                    showAllProperties: false,
+                    style: {
+                        fillColor: this.getFillColor(style),
+                        strokeColor: this.getLineColor(style),
+                        strokeWidth: this.getLineWidth(style),
+                        stroke: true,
+                        iconUri: this.getIcon(layer, style)
+                    }
+                };
+                //console.log(toGeoJSON.xml2str(styleIndex[f.properties['featureTypeId']]));
+            });
+            this.initLayer(data, layer);
         }
 
         private getIcon(layer: csComp.Services.ProjectLayer, style) {

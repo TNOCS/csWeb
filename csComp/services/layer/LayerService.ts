@@ -260,7 +260,9 @@ module csComp.Services {
             this.layerSources["esrijson"] = new EsriJsonSource(this);
 
             // add kml source
-            this.layerSources["kml"] = new KmlDataSource(this);
+            var kmlDataSource = new KmlDataSource(this);
+            this.layerSources["kml"] = kmlDataSource;
+            this.layerSources["gpx"] = kmlDataSource;
 
             // add wms source
             this.layerSources["wms"] = new WmsSource(this);
@@ -1727,13 +1729,10 @@ module csComp.Services {
 
                 if (this.project.groups && this.project.groups.length > 0) {
                     this.project.groups.forEach((group: ProjectGroup) => {
-
                         this.initGroup(group, layerIds);
 
                         if (prj.startposition)
                             this.$mapService.zoomToLocation(new L.LatLng(prj.startposition.latitude, prj.startposition.longitude));
-
-
                     });
                 }
                 if (this.project.connected) {
