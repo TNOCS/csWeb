@@ -9,11 +9,16 @@ import CallbackResult = LayerManager.CallbackResult;
 
 export class RestAPI extends BaseConnector.BaseConnector {
 
-    public manager: LayerManager.LayerManager
+    public manager: LayerManager.LayerManager;
+    public layersUrl;
+    public sensorsUrl;
 
-    constructor(public server: express.Express, public baseUrl: string = "/api/layers/") {
+
+    constructor(public server: express.Express, public baseUrl: string = "/api") {
         super();
         this.isInterface = true;
+        this.layersUrl = baseUrl + "/layers/";
+        this.sensorsUrl = baseUrl + "/sensors/";
     }
 
     public init(layerManager: LayerManager.LayerManager, options: any) {
@@ -24,7 +29,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.use(cors());
 
 
-        this.server.get(this.baseUrl, (req: express.Request, res: express.Response) => {
+        this.server.get(this.layersUrl, (req: express.Request, res: express.Response) => {
             res.send(JSON.stringify(this.manager.layers));
         });
 
@@ -34,7 +39,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // TODO: error checking: you might not want to overwrite another layer
         // Or post to a layer collection that should be shielded-off (e.g. system or users)
         // And what if an agent starts sending gibberish?
-        this.server.post(this.baseUrl + ':layer', (req: express.Request, res: express.Response) => {
+        this.server.post(this.layersUrl + ':layer', (req: express.Request, res: express.Response) => {
             var layer = new Layer();
             layer.features = req.body.features;
             layer.id = req.params.layer;
@@ -47,7 +52,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         // gets the entire layer, which is stored as a single collection
         // TODO: what to do when this gets really big? Offer a promise?
-        this.server.get(this.baseUrl + ':layerId', (req: any, res: any) => {
+        this.server.get(this.layersUrl + ':layerId', (req: any, res: any) => {
             this.manager.getLayer(req.params.layerId, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result.layer);
@@ -56,7 +61,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         // gets the entire layer, which is stored as a single collection
         // TODO: what to do when this gets really big? Offer a promise?
-        this.server.delete(this.baseUrl + ':layerId', (req: any, res: any) => {
+        this.server.delete(this.layersUrl + ':layerId', (req: any, res: any) => {
             this.manager.deleteLayer(req.params.layerId, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
@@ -66,7 +71,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         //------ feature API paths, in CRUD order
 
         //adds a feature
-        this.server.post(this.baseUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
+        this.server.post(this.layersUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
             this.manager.addFeature(req.params.layerId, req.body, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
@@ -74,7 +79,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
 
         //returns a feature
-        this.server.get(this.baseUrl + ":layerId/:featureId", (req: express.Request, res: express.Response) => {
+        this.server.get(this.layersUrl + ":layerId/:featureId", (req: express.Request, res: express.Response) => {
             this.manager.getFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
@@ -82,7 +87,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
 
         // updates all features corresponding to query on ID (should be one)
-        this.server.put(this.baseUrl + ":layerId/:featureId", (req: express.Request, res: express.Response) => {
+        this.server.put(this.layersUrl + ":layerId/:featureId", (req: express.Request, res: express.Response) => {
             var feature = req.body;
             feature.id = req.params.featureId;
             this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {
@@ -92,7 +97,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
 
         // updates all features corresponding to query on ID (should be one)
-        this.server.put(this.baseUrl + ":layerId/:featureId/prop/:property", (req: express.Request, res: express.Response) => {
+        this.server.put(this.layersUrl + ":layerId/:featureId/prop/:property", (req: express.Request, res: express.Response) => {
             this.manager.updateProperty(req.params.layerId, req.params.featureId, req.params.property, req.body, true, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
@@ -100,7 +105,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
 
         // updates all features corresponding to query on ID (should be one)
-        this.server.put(this.baseUrl + ":layerId/:featureId/logs", (req: express.Request, res: express.Response) => {
+        this.server.put(this.layersUrl + ":layerId/:featureId/logs", (req: express.Request, res: express.Response) => {
             var logs: { [key: string]: Logs[] };
             logs = req.body;
             this.manager.updateLogs(req.params.layerId, req.params.featureId, logs, (result: CallbackResult) => {
@@ -113,7 +118,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // for some reason (TS?) express doesn't work with del as http verb
         // unlike the JS version, which simply uses del as a keyword.
         // deletes a feature
-        this.server.delete(this.baseUrl + ":layerId/features/:featureId", (req: express.Request, res: express.Response) => {
+        this.server.delete(this.layersUrl + ":layerId/features/:featureId", (req: express.Request, res: express.Response) => {
             this.manager.addFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);

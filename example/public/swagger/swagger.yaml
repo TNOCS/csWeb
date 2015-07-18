@@ -18,7 +18,7 @@ consumes:
 produces:
   - application/json
 paths:
-  /layers:
+  /api/layers:
     # binds a127 app logic to a route
     x-swagger-router-controller: feature
     get:
@@ -26,7 +26,7 @@ paths:
       # used as the method name of the controller
       operationId: getLayer
       parameters:
-        
+
       responses:
         "200":
           description: Success

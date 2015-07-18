@@ -1,4 +1,4 @@
-﻿// Type definitions for Underscore 1.6.0
+// Type definitions for Underscore 1.6.0
 // Project: http://underscorejs.org/
 // Definitions by: Boris Yankov <https://github.com/borisyankov/>
 // Definitions by: Josh Baldwin <https://github.com/jbaldwin/>

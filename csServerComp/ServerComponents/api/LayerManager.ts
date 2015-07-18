@@ -26,7 +26,23 @@ export interface IConnector {
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function);
     updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function);
     deleteFeature(layerId: string, featureId: string, callback: Function);
+
 }
+
+export class Sensor {
+    title: string;
+    type: string;
+    values: any[];
+}
+
+export class SensorSet {
+    timestamps: number[] = [];
+    sensors: { [key: string]: Sensor };
+
+    constructor(public id: string) {
+    }
+}
+
 
 export class Layer {
     /**
@@ -66,7 +82,12 @@ export class LayerManager {
     /**
      * Dictionary of layers (doesn't contain actual data)
      */
-    public layers: { [key: string]: Layer } = {}
+    public layers: { [key: string]: Layer } = {};
+
+    /**
+     * Dictionary of sensor sets
+     */
+    public sensors: { [key: string]: SensorSet } = {};
 
     public defaultStorage = "file";
     public defaultLogging = false;
