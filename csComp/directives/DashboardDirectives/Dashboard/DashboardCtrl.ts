@@ -2,7 +2,7 @@ module Dashboard {
 
     import Dashboard = csComp.Services.Dashboard;
 
-    declare var c3;
+    declare var interact;
 
     export interface IDashboardScope extends ng.IScope {
         vm: DashboardCtrl;
@@ -75,6 +75,7 @@ module Dashboard {
                             break;
                     }
                 });
+
                 //this.updateDashboard();
                 //alert($scope.dashboard.name);
             };
@@ -181,6 +182,49 @@ module Dashboard {
 
         public isReady(widget: csComp.Services.IWidget) {
             setTimeout(() => {
+                console.log('init interact:' + widget.elementId);
+                /*var s = $('#dashboardwidgets');
+                interact('li', {
+                    context: s
+                })
+                    .draggable({})
+                    .on('dragstart', (e) => console.log(e));*/
+                //console.log(s);
+                interact('#' + widget.elementId + '-parent')
+                    .draggable({
+
+                })
+                    .resizable({
+                    inertia: true
+                })
+                    .on('dragstart', (e) => console.log(e))
+                    .on('dragmove', (event) => {
+
+                    /*event.interaction.x += event.dx;
+                    event.interaction.y += event.dy;*/
+                    var left = parseInt(widget.left.replace('px', ''));
+                    left += event.dx;
+                    widget.left = left + "px";
+                    var top = parseInt(widget.top.replace('px', ''));
+                    top += event.dy;
+                    widget.top = top + "px";
+
+                    if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+
+                })
+                    .on('resizemove', (event) => {
+                    var height = parseInt(widget.height.replace('px', ''));
+                    height += event.dy;
+                    widget.height = height + "px";
+
+                    var width = parseInt(widget.width.replace('px', ''));
+                    width += event.dx;
+                    widget.width = width + "px";
+
+                    if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+
+                })
+                
                 //this.updateWidget(widget);
             }, 10);
 
