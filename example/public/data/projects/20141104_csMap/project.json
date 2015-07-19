@@ -24,7 +24,68 @@
             }
         }
     }],
-    "dashboards": [{
+    "dashboards": [
+        {
+            "id": "health",
+            "name": "Health",
+            "showTimeline": false,
+            "showLeftmenu": true,
+            "showMap": true,
+            "visiblelayers": [
+                "zorgkantoor",
+                "Hospitals"
+            ],
+            "widgets": [{
+                "id": "wachtlijsten",
+                "directive": "indicators",
+                "left": "10px",
+                "top": "80px",
+                "width": "225px",
+                "height": "295px",
+                "data": {
+                    "title": "Wachtlijsten",
+                    "orientation": "vertical",
+                    "indicators": [{
+                        "title": "Wachtlijsten",
+                        "visual": "bullet",
+                        "usesSelectedFeature": true,
+                        "featureTypeName": "data/resourceTypes/Zorgkantoor.json#Zorgkantoor",
+                        "propertyTypes": ["tote", "toti"],
+                        "sensor": "",
+                        "dashboard": "health"
+                    }]
+                }
+            }, {
+                "directive": "indicators",
+                "title": "Mobility",
+                "left": "10px",
+                "top": "385px",
+                "width": "225px",
+                "height": "295px",
+                "data": {
+                    "title": "Verkeer",
+                    "indicators": [{
+                        "title": "Licht verkeer",
+                        "visual": "sparkline",
+                        "sensor": "datasource/lv"
+                    }, {
+                        "title": "Middel-zwaar verkeer",
+                        "visual": "sparkline",
+                        "sensor": "datasource/mv"
+                    }, {
+                        "title": "Zwaar verkeer",
+                        "visual": "sparkline",
+                        "sensor": "datasource/z"
+                    }]
+                }
+            }],
+            "viewBounds": {
+                "southWest": [50.7, 3.3],
+                "northEast": [53.5, 7.3]
+            },
+            "baselayer": "Satellite Day"
+        },
+        {
         "id": "home",
         "name": "Home",
         "showTimeline": true,
@@ -44,66 +105,7 @@
             "width": "100%",
             "height": "100%"
         }]
-    }, {
-        "id": "health",
-        "name": "Health",
-        "showTimeline": false,
-        "showLeftmenu": true,
-        "showMap": true,
-        "visiblelayers": [
-            "zorgkantoor",
-            "Hospitals"
-        ],
-        "widgets": [{
-            "id": "wachtlijsten",
-            "directive": "indicators",
-            "left": "10px",
-            "top": "80px",
-            "width": "225px",
-            "height": "295px",
-            "data": {
-                "title": "Wachtlijsten",
-                "orientation": "vertical",
-                "indicators": [{
-                    "title": "Wachtlijsten",
-                    "visual": "bullet",
-                    "usesSelectedFeature": true,
-                    "featureTypeName": "data/resourceTypes/Zorgkantoor.json#Zorgkantoor",
-                    "propertyTypes": ["tote", "toti"],
-                    "sensor": "",
-                    "dashboard": "health"
-                }]
-            }
-        }, {
-            "directive": "indicators",
-            "title": "Mobility",
-            "left": "10px",
-            "top": "385px",
-            "width": "225px",
-            "height": "295px",
-            "data": {
-                "title": "Verkeer",
-                "indicators": [{
-                    "title": "Licht verkeer",
-                    "visual": "sparkline",
-                    "sensor": "datasource/lv"
-                }, {
-                    "title": "Middel-zwaar verkeer",
-                    "visual": "sparkline",
-                    "sensor": "datasource/mv"
-                }, {
-                    "title": "Zwaar verkeer",
-                    "visual": "sparkline",
-                    "sensor": "datasource/z"
-                }]
-            }
-        }],
-        "viewBounds": {
-            "southWest": [50.7, 3.3],
-            "northEast": [53.5, 7.3]
-        },
-        "baselayer": "Satellite Day"
-    }, {
+    },  {
         "id": "nomap",
         "name": "No Map",
         "showTimeline": false,

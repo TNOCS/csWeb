@@ -180,6 +180,13 @@ module Dashboard {
             }
         }
 
+        private setValue(diff: number, value: string): string {
+            if (!value || value.indexOf('%') >= 0) return value;
+            var left = parseInt(value.replace('px', ''));
+            left += diff;
+            return left + "px";
+        }
+
         public isReady(widget: csComp.Services.IWidget) {
             setTimeout(() => {
                 console.log('init interact:' + widget.elementId);
@@ -199,32 +206,37 @@ module Dashboard {
                 })
                     .on('dragstart', (e) => console.log(e))
                     .on('dragmove', (event) => {
-
-                    /*event.interaction.x += event.dx;
-                    event.interaction.y += event.dy;*/
-                    var left = parseInt(widget.left.replace('px', ''));
-                    left += event.dx;
-                    widget.left = left + "px";
-                    var top = parseInt(widget.top.replace('px', ''));
-                    top += event.dy;
-                    widget.top = top + "px";
+                    if (widget.left || (!widget.left && widget.left !== "")) {
+                        widget.left = this.setValue(event.dx, widget.left);
+                        if (widget.width && widget.width !== "") {
+                            widget.right = "";
+                        } else {
+                            widget.right = this.setValue(-event.dx, widget.right);
+                        }
+                    }
+                    else {
+                        if (!widget.right || widget.right === "") {
+                            widget.right = 1000 + "px";
+                        }
+                        widget.right = this.setValue(-event.dx, widget.right);
+                    }
+                    widget.top = this.setValue(event.dy, widget.top);
 
                     if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
-
                 })
                     .on('resizemove', (event) => {
-                    var height = parseInt(widget.height.replace('px', ''));
-                    height += event.dy;
-                    widget.height = height + "px";
-
-                    var width = parseInt(widget.width.replace('px', ''));
-                    width += event.dx;
-                    widget.width = width + "px";
-
+                    widget.height = this.setValue(event.dy, widget.height);
+                    if (widget.left && widget.right) {
+                        widget.right = this.setValue(-event.dx, widget.right);
+                    }
+                    else {
+                        if (!widget.width) widget.width = "300px";
+                        widget.width = this.setValue(event.dx, widget.width);
+                    }
                     if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
 
                 })
-                
+
                 //this.updateWidget(widget);
             }, 10);
 
