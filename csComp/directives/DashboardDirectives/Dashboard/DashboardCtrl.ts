@@ -189,14 +189,9 @@ module Dashboard {
 
         public isReady(widget: csComp.Services.IWidget) {
             setTimeout(() => {
-                console.log('init interact:' + widget.elementId);
-                /*var s = $('#dashboardwidgets');
-                interact('li', {
-                    context: s
-                })
-                    .draggable({})
-                    .on('dragstart', (e) => console.log(e));*/
-                //console.log(s);
+                if (widget._interaction) return;
+                widget._interaction = true;
+
                 interact('#' + widget.elementId + '-parent')
                     .draggable({
 
@@ -204,7 +199,8 @@ module Dashboard {
                     .resizable({
                     inertia: true
                 })
-                    .on('dragstart', (e) => console.log(e))
+                    .on('down', (e) => widget._isMoving = true)
+                    .on('up', (e) => widget._isMoving = false)
                     .on('dragmove', (event) => {
                     if (widget.left || (!widget.left && widget.left !== "")) {
                         widget.left = this.setValue(event.dx, widget.left);
@@ -220,7 +216,19 @@ module Dashboard {
                         }
                         widget.right = this.setValue(-event.dx, widget.right);
                     }
-                    widget.top = this.setValue(event.dy, widget.top);
+                    if (widget.top && widget.top !== "") {
+                        widget.top = this.setValue(event.dy, widget.top);
+                        if (widget.bottom) {
+                            if (widget.height) {
+                                widget.bottom = "";
+                            }
+                            else
+                            { widget.bottom = this.setValue(-event.dy, widget.bottom); }
+                        }
+                    }
+                    else {
+                        widget.bottom = this.setValue(-event.dy, widget.bottom);
+                    }
 
                     if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
                 })

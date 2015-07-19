@@ -44,6 +44,9 @@ module csComp.Services {
         hover: boolean;
         messageBusService?: csComp.Services.MessageBusService;
         layerService?: csComp.Services.LayerService;
+
+        _interaction: boolean;
+        _isMoving: boolean;
     }
 
     export class BaseWidget implements IWidget {
@@ -78,6 +81,8 @@ module csComp.Services {
         public messageBusService: csComp.Services.MessageBusService;
         public layerService: csComp.Services.LayerService;
         public hover: boolean;
+
+        public _interaction: boolean;
 
         //public static deserialize(input: IWidget): IWidget {
         //    var loader = new InstanceLoader(window);
