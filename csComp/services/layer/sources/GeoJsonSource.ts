@@ -346,7 +346,7 @@ module csComp.Services {
                 for (var key in this.routers) {
                     if (this.routers.hasOwnProperty(key)) {
                         var polygon: L.Polygon = this.routers[key];
-                        if (csComp.Helpers.GeoExtensions.pointInsidePolygon([this.latlng.lng, this.latlng.lat], polygon.toGeoJSON().geometry.coordinates[0])) {
+                        if (csComp.Helpers.GeoExtensions.pointInsidePolygon([this.latlng.lng, this.latlng.lat], polygon.toGeoJSON().geometry.coordinates)) {
                             url = url.replace(this.getCurrentRouter(urlParameters['baseUrl']), key);
                         }
                     }

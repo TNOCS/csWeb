@@ -138,6 +138,7 @@ module csComp.Services {
         featureTypes: { [id: string]: IFeatureType }
         propertyTypeData: { [id: string]: IPropertyType }
         groups: ProjectGroup[];
+        mapFilterResult: L.Marker[];
         startposition: Coordinates;
         features: IFeature[];
         timeLine: DateRange;

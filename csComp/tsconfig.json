@@ -130,6 +130,7 @@
         "./directives/TripPlanner/TripPlanner.ts",
         "./directives/TripPlanner/TripPlannerCtrl.ts",
         "./directives/Voting/Voting.ts",
+        "./directives/Widgets/Filters/AreaFilter.ts",
         "./directives/Widgets/Filters/BarFilterCtrl.ts",
         "./directives/Widgets/Filters/BoolFilterCtrl.ts",
         "./directives/Widgets/Filters/DateFilterCtrl.ts",
