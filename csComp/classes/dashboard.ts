@@ -31,6 +31,7 @@ module csComp.Services {
         opacity?: number;
         disableIfLeftPanel?: boolean;
 
+
         name: string; id: string;
         properties: {};
         dataSets?: DataSet[];
@@ -45,8 +46,8 @@ module csComp.Services {
         messageBusService?: csComp.Services.MessageBusService;
         layerService?: csComp.Services.LayerService;
 
-        _interaction: boolean;
-        _isMoving: boolean;
+        _interaction?: boolean;
+        _isMoving?: boolean;
     }
 
     export class BaseWidget implements IWidget {
@@ -83,6 +84,7 @@ module csComp.Services {
         public hover: boolean;
 
         public _interaction: boolean;
+        public _isMoving: boolean;
 
         //public static deserialize(input: IWidget): IWidget {
         //    var loader = new InstanceLoader(window);
@@ -167,6 +169,7 @@ module csComp.Services {
         background: string;
         backgroundimage: string;
         visiblelayers: string[];
+        visibleLeftMenuItems: string[];
         baselayer: string;
         viewBounds: IBoundingBox;
         timeline: DateRange;
@@ -197,7 +200,8 @@ module csComp.Services {
                 visiblelayers: d.visiblelayers,
                 baselayer: d.baselayer,
                 viewBounds: d.viewBounds,
-                widgets: csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData)
+                widgets: csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData),
+                visibleLeftMenuItems: d.visibleLeftMenuItems
             }
         }
 

@@ -90,6 +90,12 @@ module csComp.Services {
 
         }
 
+        public leftMenuVisible(id: string): boolean {
+            var d = this.$layerService.project.activeDashboard;
+            if (!d.visibleLeftMenuItems) return true;
+            return (d.visibleLeftMenuItems.indexOf(id) >= 0);
+        }
+
         public selectDashboard(dashboard: csComp.Services.Dashboard, container: string) {
 
             this.$layerService.project.activeDashboard = dashboard;
