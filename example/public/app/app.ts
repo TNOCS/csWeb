@@ -33,6 +33,8 @@ module App {
             'dashboardService'
         ];
 
+        public areaFilter: AreaFilter.AreaFilterModel;
+
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
@@ -50,11 +52,16 @@ module App {
             $scope.featureSelected = false;
             $scope.layersLoading = 0;
 
-            $messageBusService.subscribe("project", () => {
-                // NOTE EV: You may run into problems here when calling this inside an angular apply cycle.
-                // Alternatively, check for it or use (dependency injected) $timeout.
-                // E.g. if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
-                $scope.$apply();
+            $messageBusService.subscribe("project", (action: string) => {
+                if (action === "loaded") {
+                    this.areaFilter = new AreaFilter.AreaFilterModel();
+                    this.$layerService.addActionService(this.areaFilter);
+
+                    // NOTE EV: You may run into problems here when calling this inside an angular apply cycle.
+                    // Alternatively, check for it or use (dependency injected) $timeout.
+                    // E.g. if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                    $scope.$apply();
+                }
             });
 
             //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);

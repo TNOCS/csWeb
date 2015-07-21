@@ -1246,14 +1246,14 @@ module csComp.Services {
         }
 
         updateLocationFilter(bounds: L.LatLngBounds) {
+            this.project.mapFilterResult = [];
             this.project.groups.forEach(g => {
-                g.filterResult = [];
                 $.each(g.markers, (key, marker) => {
                     if (marker.feature && marker.feature.layer && marker.feature.layer.enabled) {
                         if (marker.getLatLng && bounds.contains(marker.getLatLng())) {
-                            g.filterResult.push(marker.feature);
+                            this.project.mapFilterResult.push(marker);
                         } else if (marker.getLatLngs && bounds.contains(marker.getLatLngs())) {
-                            g.filterResult.push(marker.feature);
+                            this.project.mapFilterResult.push(marker);
                         }
                     }
                 });
@@ -1271,8 +1271,9 @@ module csComp.Services {
                     this.updateLocationFilter(e.bounds);
                 });
                 this.locationFilter.on('disabled', (e) => {
+                    this.project.mapFilterResult = [];
                     this.project.groups.forEach(g => {
-                        this.resetMapFilter(g);
+                        this.updateMapFilter(g);
                     });
                 });
                 this.locationFilter.enable();
@@ -1282,6 +1283,44 @@ module csComp.Services {
             } else {
                 this.locationFilter.enable();
             }
+        }
+
+        setFeatureAreaFilter(f: IFeature) {
+            if (this.locationFilter && this.locationFilter.isEnabled()) {
+                this.locationFilter.disable();
+            }
+            var isInsideFunction;
+            if (f.geometry.type === 'Polygon') {
+                isInsideFunction = csComp.Helpers.GeoExtensions.pointInsidePolygon;
+            } else if (f.geometry.type === 'MultiPolygon') {
+                isInsideFunction = csComp.Helpers.GeoExtensions.pointInsideMultiPolygon;
+            } else {
+                isInsideFunction = () => {return false};
+            }
+
+            this.project.mapFilterResult = [];
+            this.project.groups.forEach(g => {
+                $.each(g.markers, (key, marker) => {
+                    if (marker.feature && marker.feature.layer && marker.feature.layer.enabled) {
+                        if (marker.feature.layer.id === f.layer.id) {
+                            this.project.mapFilterResult.push(marker);
+                        }
+                        else if (marker.feature.geometry.type === 'Point' && isInsideFunction(marker.feature.geometry.coordinates, f.geometry.coordinates)) {
+                            this.project.mapFilterResult.push(marker);
+                        } /*else if (marker.feature.geometry.type === 'Polygon' && csComp.Helpers.GeoExtensions.polygonInsidePolygon(marker.feature.geometry.coordinates, f.geometry.coordinates)) {
+                            this.project.mapFilterResult.push(marker);
+                        }*/
+                    }
+                });
+                this.updateMapFilter(g);
+            });
+        }
+
+        resetFeatureAreaFilter() {
+            this.project.mapFilterResult = [];
+            this.project.groups.forEach(g => {
+                this.updateMapFilter(g);
+            });
         }
 
         /**
@@ -1402,6 +1441,7 @@ module csComp.Services {
             filter.dimension.dispose();
             filter.group.filters = filter.group.filters.filter(f=> { return f != filter; });
             this.resetMapFilter(filter.group);
+            this.updateMapFilter(filter.group);
             this.mb.publish("filters", "updated");
         }
 
