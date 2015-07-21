@@ -76,6 +76,7 @@ module Dashboard {
                     }
                 });
 
+                //this.project.activeDashboard.widgets
                 //this.updateDashboard();
                 //alert($scope.dashboard.name);
             };
@@ -88,7 +89,9 @@ module Dashboard {
         }
 
         public updateWidget(w: csComp.Services.IWidget) {
-            //alert('updatewidget');
+            if (w._initialized && this.$scope.dashboard._initialized) return;
+            w._initialized = true;
+            
             //this.$dashboardService.updateWidget(w);
             //var newElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
             console.log('updating widget');
@@ -289,6 +292,7 @@ module Dashboard {
         public updateDashboard() {
             var d = this.$scope.dashboard;
             if (!d) return;
+
             this.checkMap();
             this.checkTimeline();
             this.checkLayers();
@@ -303,6 +307,12 @@ module Dashboard {
                 d.widgets.forEach((w: any) => {
                     this.updateWidget(w);
                 });
+                d._initialized = true;
+                this.$scope.$watchCollection('dashboard.widgets', (da) => {
+                    this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
+                        this.updateWidget(w);
+                    });
+                })
             }, 100);
 
             //this.$layerService.rightMenuVisible = d.showLeftmenu;

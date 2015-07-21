@@ -1,4 +1,4 @@
-﻿module DashboardSelection {
+module DashboardSelection {
     export interface IDashboardSelectionScope extends ng.IScope {
         vm: any; //DashboardSelectionCtrl;
         addWidget: Function;
@@ -6,10 +6,12 @@
 
     }
 
+    declare var interact;
+
     export class DashboardSelectionCtrl {
         public scope: any;
-        public project : csComp.Services.SolutionProject;
-        public activeWidget : csComp.Services.BaseWidget;
+        public project: csComp.Services.SolutionProject;
+        public activeWidget: csComp.Services.BaseWidget;
 
 
 
@@ -30,7 +32,7 @@
         constructor(
             private $scope: any,
             private $layerService: csComp.Services.LayerService,
-            public $dashboardService : csComp.Services.DashboardService,
+            public $dashboardService: csComp.Services.DashboardService,
             private $mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService
             ) {
@@ -49,29 +51,76 @@
 
         }
 
-        public startWidgetEdit(widget : csComp.Services.BaseWidget)
-        {
-          this.$dashboardService.editWidget(widget);
+        public initDrag(key: string) {
+            var transformProp;
+            var startx, starty;
+
+            interact('#widgettype-' + key)
+                .draggable({ max: Infinity })
+                .on('dragstart', (event) => {
+                startx = 0;
+                starty = 0;
+                event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
+                event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
+                event.target.style.width = "300px";
+                event.target.style.height = "300px";
+            })
+                .on('dragmove', (event) => {
+                event.interaction.x += event.dx;
+                event.interaction.y += event.dy;
+
+
+                event.target.style.left = event.interaction.x + 'px';
+                event.target.style.top = event.interaction.y + 'px';
+
+            })
+                .on('dragend', (event) => {
+                var widget = <csComp.Services.IWidget>{};
+                widget.directive = key;
+                widget.id = csComp.Helpers.getGuid();
+                widget.left = (event.clientX - 350) + "px"; //(parseInt(event.target.style.left.replace('px', '')) - 150) + "px";
+                widget.top = (event.clientY - 50) + "px"; //(parseInt(event.target.style.top.replace('px', '')) - 150) + "px";
+                widget.data = {};
+                widget.width = '300px';
+                widget.height = '300px';
+                widget.enabled = true;
+                this.$layerService.project.dashboards[0].widgets.push(widget);
+                //this.$dashboardService.mainDashboard.widgets.push(widget);
+                event.target.setAttribute('data-x', 0);
+                event.target.setAttribute('data-y', 0);
+                event.target.style.left = '0px';
+                event.target.style.top = '0px';
+                event.target.style.width = "100px";
+                event.target.style.height = "100px";
+
+                this.$dashboardService.editWidget(widget)
+
+                console.log(key);
+            });
+        }
+
+        public startWidgetEdit(widget: csComp.Services.BaseWidget) {
+            this.$dashboardService.editWidget(widget);
         }
 
         /***
         Start editing a specific dashboard
         */
-        public startDashboardEdit(dashboard : csComp.Services.Dashboard) {
+        public startDashboardEdit(dashboard: csComp.Services.Dashboard) {
 
-          var rpt = new  csComp.Services.RightPanelTab();
-          rpt.container = "dashboard";
-          rpt.data = dashboard;
-          rpt.directive = "dashboardedit";
-          this.$messageBusService.publish("rightpanel","activate",rpt);
+            var rpt = new csComp.Services.RightPanelTab();
+            rpt.container = "dashboard";
+            rpt.data = dashboard;
+            rpt.directive = "dashboardedit";
+            this.$messageBusService.publish("rightpanel", "activate", rpt);
 
             this.$layerService.project.dashboards.forEach((d: csComp.Services.Dashboard) => {
                 if (d.id !== dashboard.id) {
-                  d.editMode = false;
-                  d.disabled = true;
+                    d.editMode = false;
+                    d.disabled = true;
                 }
-              }
-            );
+            }
+                );
             this.$dashboardService.stopEditWidget();
         }
 
@@ -79,20 +128,19 @@
         /***
         Stop editing a specific dashboard
         */
-        public stopDashboardEdit(dashboard : csComp.Services.Dashboard)
-        {
-          this.$layerService.project.dashboards.forEach((d: csComp.Services.Dashboard) => {
+        public stopDashboardEdit(dashboard: csComp.Services.Dashboard) {
+            this.$layerService.project.dashboards.forEach((d: csComp.Services.Dashboard) => {
                 d.disabled = false;
                 d.editMode = false;
             }
-          );
-          this.$dashboardService.stopEditWidget();
+                );
+            this.$dashboardService.stopEditWidget();
         }
 
         public stopEdit() {
             this.stopDashboardEdit(this.$layerService.project.activeDashboard);
             //for (var property in this.group.dashboards) {
-                //this.group.dashboards[property].editMode = false;
+            //this.group.dashboards[property].editMode = false;
             //}
             //this.activeWidget = null;
 
@@ -102,18 +150,16 @@
 
         public startEdit() {
 
-             //this.$scope.gridsterOptions.draggable.enabled = true;
+            //this.$scope.gridsterOptions.draggable.enabled = true;
             //this.$scope.gridsterOptions.resizable.enabled = true;
         }
 
-        public widgetHighlight(widget : csComp.Services.BaseWidget)
-        {
-          widget.hover = true;
+        public widgetHighlight(widget: csComp.Services.BaseWidget) {
+            widget.hover = true;
         }
 
-        public widgetStopHighlight(widget : csComp.Services.BaseWidget)
-        {
-          widget.hover = false;
+        public widgetStopHighlight(widget: csComp.Services.BaseWidget) {
+            widget.hover = false;
         }
 
         /** Add new dashboard */
@@ -129,11 +175,11 @@
 
         /** Remove existing dashboard */
         public removeDashboard(key: string) {
-            this.$layerService.project.dashboards = this.$layerService.project.dashboards.filter((s : csComp.Services.Dashboard) => s.id !== key);
+            this.$layerService.project.dashboards = this.$layerService.project.dashboards.filter((s: csComp.Services.Dashboard) => s.id !== key);
 
         }
 
-        
+
 
 
 
@@ -147,9 +193,8 @@
         /** Select an active dashboard */
         public selectDashboard(dashboard: csComp.Services.Dashboard) {
             //var res = JSON.stringify(this.$dashboardService.dashboards);
-            for (var key in this.$layerService.project.dashboards)
-            {
-              this.$layerService.project.dashboards[key].editMode = false;
+            for (var key in this.$layerService.project.dashboards) {
+                this.$layerService.project.dashboards[key].editMode = false;
             }
 
             if (dashboard) {

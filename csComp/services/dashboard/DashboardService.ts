@@ -20,7 +20,7 @@ module csComp.Services {
         public editMode: boolean;
         public activeWidget: IWidget;
         public dashboards: any;
-        public widgetTypes: { [key: string]: IWidget };
+        public widgetTypes: { [key: string]: IWidget } = {};
         public socket;
         public editWidgetMode: boolean; 5
 
@@ -56,7 +56,8 @@ module csComp.Services {
             this.mainDashboard = new csComp.Services.Dashboard();
             this.dashboards = [];
             this.dashboards["main"] = this.mainDashboard;
-            this.widgetTypes = {};
+            this.widgetTypes["indicators"] = <IWidget>{};
+            this.widgetTypes["markdown"] = <IWidget>{};
 
             this.$messageBusService.subscribe("dashboard", (event: string, id: string) => {
                 alert(event);

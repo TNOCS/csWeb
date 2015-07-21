@@ -46,6 +46,7 @@ module csComp.Services {
         messageBusService?: csComp.Services.MessageBusService;
         layerService?: csComp.Services.LayerService;
 
+        _initialized?: boolean;
         _interaction?: boolean;
         _isMoving?: boolean;
     }
@@ -83,6 +84,7 @@ module csComp.Services {
         public layerService: csComp.Services.LayerService;
         public hover: boolean;
 
+        public _initialized: boolean;
         public _interaction: boolean;
         public _isMoving: boolean;
 
@@ -175,8 +177,9 @@ module csComp.Services {
         timeline: DateRange;
         id: string;
         name: string;
-        disabled: boolean = false;
+        disabled: boolean;
         parents: string[];
+        _initialized: boolean;
 
         constructor() {
             this.widgets = [];
