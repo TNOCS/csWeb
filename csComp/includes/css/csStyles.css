@@ -1189,3 +1189,13 @@ html, body, #container {
 a:focus {
     color: #FFF;
 }
+
+/* Area / locationfilter style */
+div.leaflet-marker-icon.location-filter.resize-marker {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAMCAMAAACOacfrAAAALVBMVEUiDQ0iDQ0iDQ0iDQ0iDQ0zICAyHx8rFxdDMTJZSkstGRkqFRYlEBDl4+b7+/+nLPGjAAAADXRSTlMAERc1TczY8PDw9vj7dZmqRQAAAClJREFUeAG9xzcBACAAA8EPvfuXC0sscNtBqZYhtm0jvB37Ms1uC1AyuBBbBg3H+NahAAAAAElFTkSuQmCC) no-repeat;  
+    cursor: move;
+}
+div.leaflet-marker-icon.location-filter.move-marker {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAARVBMVEUAAABOUVRPUVNPUVRPUlVQUlRRVFdRVFhSVFZSVFdSVFhiZGdjZGRkZGVvcHFwcHFwcHJwcXJxcXFxcXJxcXOCg4SDg4NMud+xAAAAAXRSTlMAQObYZgAAAE5JREFUeNqNzjkSgCAQRNFmU3EYEFnuf1QpBlPLDl74q6EPDcFsBpwYAkVCaQVC7hlfc95NJMUpYBEZ9wi8/KioXQH2tAjrxuAiCdReJw9PVAP1TnoDEQAAAABJRU5ErkJggg==) no-repeat;  
+    cursor: move;
+}
