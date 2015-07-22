@@ -71,7 +71,6 @@ module Legend {
                     $scope.legend = ptd.legend;
                 }
             });
-
         }
     }
 }
