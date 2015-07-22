@@ -142,6 +142,7 @@ export class LayerManager {
 
     }
 
+
     //layer methods start here, in CRUD order.
     public addLayer(layer: Layer, callback: Function) {
         var s = this.findStorage(layer);
@@ -173,6 +174,7 @@ export class LayerManager {
     public deleteLayer(layerId: string, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
         s.deleteLayer(layerId, (r: CallbackResult) => {
+            delete this.layers[layerId];
             callback(r);
         });
     }

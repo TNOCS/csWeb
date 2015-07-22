@@ -48,9 +48,10 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         });
     }
 
+    // drops a collection
     public deleteLayer(layerId: string, callback: Function) {
         var collection = this.db.collection(layerId);
-        collection.remove((err, removed) => {
+        collection.drop((err, removed) => {
             if (!err) {
                 callback(<CallbackResult>{ result: "OK" });
             }

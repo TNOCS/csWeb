@@ -6,7 +6,6 @@ import Logs = LayerManager.Log;
 import BaseConnector = require('./BaseConnector');
 import CallbackResult = LayerManager.CallbackResult;
 
-
 export class RestAPI extends BaseConnector.BaseConnector {
 
     public manager: LayerManager.LayerManager;
@@ -23,7 +22,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
     public init(layerManager: LayerManager.LayerManager, options: any) {
         this.manager = layerManager;
-        console.log('init Rest API');
+        console.log('init Rest API on port ' + this.server.get('port')+ '. Base path is '+ this.layersUrl);
 
         //enables cors, used for external swagger requests
         this.server.use(cors());
