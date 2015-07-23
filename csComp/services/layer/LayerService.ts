@@ -1296,7 +1296,7 @@ module csComp.Services {
             } else if (f.geometry.type === 'MultiPolygon') {
                 isInsideFunction = csComp.Helpers.GeoExtensions.pointInsideMultiPolygon;
             } else {
-                isInsideFunction = () => {return false};
+                isInsideFunction = () => { return false };
             }
 
             this.project.mapFilterResult = [];
@@ -1649,6 +1649,15 @@ module csComp.Services {
                     }
                 }
 
+                if (!solution.widgetTemplates) {
+                    var defaultWidget = new BaseWidget();
+                    defaultWidget.background = "red";
+                    solution.widgetTemplates = {
+                        "default": defaultWidget
+                    };
+
+                }
+
                 this.solution = solution;
             });
         }
@@ -1921,7 +1930,7 @@ module csComp.Services {
             }
             if (group.clustering) {
                 group.cluster = new L.MarkerClusterGroup({
-                    maxClusterRadius: (zoom) => {if (zoom > 18) {return 2;} else { return group.maxClusterRadius || 80}},
+                    maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
 

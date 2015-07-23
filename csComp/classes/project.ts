@@ -86,6 +86,7 @@ module csComp.Services {
         maxBounds: IBoundingBox;
         viewBounds: IBoundingBox;
         baselayers: IBaseLayer[];
+        widgetTemplates: { [key: string]: IWidget } = {};
         projects: SolutionProject[];
     }
 

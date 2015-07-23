@@ -56,7 +56,7 @@
                 }
             },
             "type": "dynamicgeojson",
-            "url": "layers/test",
+            "url": "api/layers/test",
             "typeUrl": "data/resourceTypes/resources.json",
             "enabled": false,
             "opacity": 100

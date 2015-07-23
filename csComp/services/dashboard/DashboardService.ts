@@ -21,9 +21,9 @@ module csComp.Services {
         public activeWidget: IWidget;
         public dashboards: any;
         public widgetTypes: { [key: string]: IWidget } = {};
+
         public socket;
         public editWidgetMode: boolean;
-        public defaultWidgetStyle: IWidget;
 
         public static $inject = [
             '$rootScope',
@@ -76,12 +76,9 @@ module csComp.Services {
                 }
             });
 
-            this.defaultWidgetStyle = new BaseWidget();
-            this.defaultWidgetStyle.width = "300px";
-            this.defaultWidgetStyle.height = "300px";
 
-            this.widgetTypes["indicators"] = JSON.parse(JSON.stringify(this.defaultWidgetStyle));
-            this.widgetTypes["indicators"].background = "red";
+            /*this.widgetTypes["indicators"] = JSON.parse(JSON.stringify(this.defaultWidgetStyle));
+            this.widgetTypes["indicators"].background = "red";*/
 
 
 

@@ -283,7 +283,8 @@ module FeatureProps {
             };
 
             //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
-            $messageBusService.subscribe("feature", this.featureMessageReceived);
+            console.log('init featurepropsctrl');
+            //$messageBusService.subscribe("feature", this.featureMessageReceived);
 
             var widthOfList = function() {
                 var itemsWidth = 0;
