@@ -904,7 +904,8 @@ module csComp.Services {
                 if (ft.style.fillOpacity) s.fillOpacity = ft.style.fillOpacity;
                 if (ft.style.opacity) s.opacity = ft.style.opacity;
                 if (ft.style.fillColor) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
-                if (ft.style.stroke) s.stroke = ft.style.stroke;
+                // Stroke is a boolean property, so you have to check whether it is undefined.
+                if (typeof ft.style.stroke !== 'undefined') s.stroke = ft.style.stroke;
                 if (ft.style.strokeColor) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
                 if (ft.style.strokeWidth) s.strokeWidth = ft.style.strokeWidth;
                 if (ft.style.selectedStrokeColor) s.selectedStrokeColor = csComp.Helpers.getColorString(ft.style.selectedStrokeColor, '#000');
@@ -1920,7 +1921,7 @@ module csComp.Services {
             }
             if (group.clustering) {
                 group.cluster = new L.MarkerClusterGroup({
-                    maxClusterRadius: group.maxClusterRadius || 80,
+                    maxClusterRadius: (zoom) => {if (zoom > 18) {return 2;} else { return group.maxClusterRadius || 80}},
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
 
