@@ -78,7 +78,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
 
         //returns a feature
-        this.server.get(this.layersUrl + ":layerId/:featureId", (req: express.Request, res: express.Response) => {
+        this.server.get(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
             this.manager.getFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
@@ -113,12 +113,11 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
             });
         });
-
         // for some reason (TS?) express doesn't work with del as http verb
         // unlike the JS version, which simply uses del as a keyword.
         // deletes a feature
-        this.server.delete(this.layersUrl + ":layerId/features/:featureId", (req: express.Request, res: express.Response) => {
-            this.manager.addFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
+        this.server.delete(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
+            this.manager.deleteFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });

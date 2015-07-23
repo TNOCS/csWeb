@@ -1,5 +1,6 @@
 import LayerManager = require('./LayerManager');
 import Layer = LayerManager.Layer;
+import Feature = LayerManager.Feature;
 import CallbackResult = LayerManager.CallbackResult;
 import Log = LayerManager.Log;
 import mongodb = require('mongodb');
@@ -19,7 +20,6 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
     }
 
     // layer methods first, in crud order.
-
     public addLayer(layer: Layer, callback: Function) {
         var collection = this.db.collection(layer.id);
         collection.insert(layer.features, {}, function(e, result) {
@@ -30,6 +30,12 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         });
     }
 
+    //inserts a large layer (1000+ features) with bulk insert
+    public addLayerBulk(layer: Layer, callback: Function) {
+      //TODO
+    }
+
+    //TODO: fix
     public getLayer(layerId: string, callback: Function) {
         var collection = this.db.collection(layerId);
         collection.find({}, (e: Error, result: any) => {
@@ -37,18 +43,18 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
                 callback(<CallbackResult>{ result: "Error" });
             }
             else {
-                var l = new Layer();
-                l.features = result;
-                l.id = layerId;
+                //var l = new Layer();
+                //l.features = "";
+                //l.id = layerId;
                 console.log("get succesful");
                 //todo create layer;
-                //var l = <Layer>result;
-                callback(<CallbackResult>{ result: "OK", layer: l });
+                //var l = result;
+                callback(<CallbackResult>{ result:  result });
             }
         });
     }
 
-    // drops a collection
+    // drops a collection (-completely removes, no recovery)
     public deleteLayer(layerId: string, callback: Function) {
         var collection = this.db.collection(layerId);
         collection.drop((err, removed) => {
@@ -61,23 +67,36 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         });
     }
 
+    public updateLayer(layerId: string, update: any, callback: Function) {
+      //TODO: implement
+    }
 
     // feature methods, in crud order
 
+    // adds a single feature to an existing collection
     public addFeature(layerId: string, feature: any, callback: Function) {
-        // not completely sure if this will work, might have toString it.
         var collection = this.db.collection(layerId);
-        collection.insert(feature, {}, function(e) {
-            if (e)
-                console.log(e);
-            else
-                console.log("inserted a document");
+        feature.id = new mongodb.ObjectID(feature.id);
+        collection.insert(feature, {}, function(e, response) {
+            if (e) {
+              callback(<CallbackResult>{ result: "Error" });
+            } else {
+              callback(<CallbackResult>{ result: "OK  " });
+            }
         });
     }
 
     //TODO: implement
-    public getFeature(layerId: string, i: string, callback: Function) {
-
+    public getFeature(layerId: string, featureId: string, callback: Function) {
+      var collection = this.db.collection(layerId);
+      collection.findOne({_id: new mongodb.ObjectID(featureId)}, function(e, response) {
+          if (e) {
+            callback(<CallbackResult>{ result: "Error"});
+          } else {
+            var f = <Feature> response;
+            callback(<CallbackResult>{ result: "OK", feature: f});
+          }
+      });
     }
 
     //TODO: implement
@@ -86,15 +105,40 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
     }
 
     //TODO: test further. Result is the # of deleted docs.
-    public deleteFeature(layerId: string, featureId: string) {
+    public deleteFeature(layerId: string, featureId: string, callback: Function) {
         var collection = this.db.collection(layerId);
-        collection.remove({ '_id': featureId }, function(e, result) {
-            if (e) return e;
-            //res.send(result);
-        })
+        console.log("Deleting feature with ID "+ new mongodb.ObjectID(featureId));
+        collection.remove({_id: new mongodb.ObjectID(featureId)}, function(e, response) {
+          if (e) {
+            callback(<CallbackResult>{ result: "Error"});
+          } else {
+            callback(<CallbackResult>{ result: "OK"});
+          }
+      });
     }
 
     public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
+      //Might have to look at how different this will be from existing updateLayer/Feature functionality
+      //TODO: implement
+    }
+
+    // fetches all points in a given [].
+    // So in Mongo, this needs to take four coordinate pair params. Do we solve this algoritmically or just ask for four params?
+    // Todo: implement
+    public getBoundingBox(layerId: string, southWestLat: number, southWestLng: number, northEastLat: number, northEastLng: number, callback: Function) {
+      //
+    }
+
+    // Similar to BBox, but instead fetches all points in a circle. Starts with nearest point and returns documents outwards.
+    public getSphere(layerId: string, maxDistance: number, latitude: number, lontitude: number, callback: Function) {
+      //todo
+    }
+
+    // So I figured that the ability to get something within a polygon would be
+    // an interesting functionality. E.g. getting something within a region specified by
+    // a GeoJSON polygon. Think about selecting all features within Amsterdam's
+    // borders based on another GeoJSON containing the polygon of that area.
+    public getWithinPolygon(layerId: string, feature: any, callback: Function) {
 
     }
 
