@@ -89,9 +89,11 @@ module Dashboard {
         }
 
         public updateWidget(w: csComp.Services.IWidget) {
+
             if (w._initialized && this.$scope.dashboard._initialized) return;
             w._initialized = true;
-            
+            console.log('really update widget');
+
             //this.$dashboardService.updateWidget(w);
             //var newElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
             console.log('updating widget');
@@ -304,7 +306,8 @@ module Dashboard {
                 this.$layerService.visual.rightPanelVisible = d.showRightmenu;
             }
             this.$timeout(() => {
-                d.widgets.forEach((w: any) => {
+                d.widgets.forEach((w: csComp.Services.IWidget) => {
+                    w._initialized = false;
                     this.updateWidget(w);
                 });
                 d._initialized = true;

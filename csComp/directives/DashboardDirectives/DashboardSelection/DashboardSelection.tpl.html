@@ -49,6 +49,7 @@
           <tab heading="Widgets">
               <ul  class="widgettypes-list" style="padding: 0;list-style-type: none" >
                   <li id="widgettype-{{key}}" when-ready="vm.initDrag(key)" class="draggable" data-ng-repeat="(key,type) in vm.$dashboardService.widgetTypes">
+                      <img src="/images/widgets/{{key}}.png"></img>
                       <span class="dashboard-item" >{{key}}</span>
                   </li>
               </ul>

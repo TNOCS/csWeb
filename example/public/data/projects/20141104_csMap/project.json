@@ -1440,6 +1440,1478 @@
       "stringFormat": "{0:0.0}",
       "title": "New MCA criterion",
       "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
+    },
+    {
+      "userWeight": 1,
+      "propValues": [],
+      "criteria": [
+        {
+          "userWeight": 2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot Huisartsenpost",
+          "label": "AF_ARTSPO",
+          "color": "#a50026",
+          "weight": 0.3333333333333333,
+          "scores": "[0,0 10,1]"
+        },
+        {
+          "userWeight": -2,
+          "propValues": [],
+          "criteria": [],
+          "isPlaUpdated": false,
+          "isPlaScaled": true,
+          "x": [],
+          "y": [],
+          "title": "Gemiddelde afstand tot café",
+          "label": "AF_CAFE",
+          "color": "#313695",
+          "weight": -0.6666666666666666,
+          "scores": "[0,0 10,1]"
+        }
+      ],
+      "isPlaUpdated": false,
+      "isPlaScaled": false,
+      "x": [],
+      "y": [],
+      "userWeightMax": 5,
+      "featureIds": [
+        "P4regios_Default"
+      ],
+      "weight": 1,
+      "stringFormat": "{0:0.0}",
+      "title": "New MCA criterion",
+      "label": "mca_New_MCA criterion"
     }
   ],
   "datasources": [
@@ -1448,8 +2920,8 @@
       "url": "/data/projects/20141104_csMap/datasource.json",
       "type": "static",
       "sensors": {
-        "test": "{\n  \"id\": \"test\",\n  \"propertyTypeKey\": \"sensor-d0ffc879-737d-404d-a4bc-321eea3674fd\"\n}",
-        "test2": "{\n  \"id\": \"test2\",\n  \"propertyTypeKey\": \"sensor-b3253815-084f-43b6-c589-6733804244c0\"\n}"
+        "test": "{\n  \"id\": \"test\",\n  \"propertyTypeKey\": \"sensor-d12926e4-4783-496f-2262-bba60ec983fe\"\n}",
+        "test2": "{\n  \"id\": \"test2\",\n  \"propertyTypeKey\": \"sensor-2f35eb16-1470-4a8c-9bb5-94369e0acd12\"\n}"
       }
     }
   ],
@@ -1478,161 +2950,7 @@
           7.3
         ]
       },
-      "widgets": [
-        {
-          "id": "wachtlijsten",
-          "directive": "indicators",
-          "data": {
-            "title": "Wachtlijsten",
-            "orientation": "vertical",
-            "indicators": [
-              {
-                "title": "Wachtlijsten",
-                "visual": "bullet",
-                "usesSelectedFeature": true,
-                "featureTypeName": "data/resourceTypes/Zorgkantoor.json#Zorgkantoor",
-                "propertyTypes": [
-                  "tote",
-                  "toti"
-                ],
-                "sensor": "",
-                "dashboard": "health",
-                "id": "circ-a1c6c99f-48d3-4342-c6a5-873d00dcabbd",
-                "sensorSet": {
-                  "max": 28.68028727582017,
-                  "min": 0,
-                  "propertyType": {
-                    "title": "Totaal Extramuraal"
-                  },
-                  "activeValue": 37
-                },
-                "focusTime": 66,
-                "indicatorWidth": 200,
-                "data": "[{\"title\":\"Totaal Extramuraal\",\"subtitle\":\"\",\"ranges\":[37,37],\"measures\":[37],\"markers\":[37],\"barColor\":\"red\"},{\"title\":\"Totaal Intramuraal\",\"subtitle\":\"\",\"ranges\":[9,9],\"measures\":[3],\"markers\":[3],\"barColor\":\"red\"}]",
-                "toggleUpdate": false
-              }
-            ]
-          },
-          "elementId": "widget-wachtlijsten",
-          "enabled": true,
-          "left": "17px",
-          "right": "",
-          "top": "40px",
-          "width": "225px",
-          "height": "295px"
-        },
-        {
-          "id": "42f4bfd3-3115-409c-0b29-0450bd72942b",
-          "directive": "indicators",
-          "title": "Mobility",
-          "data": {
-            "title": "Verkeer",
-            "indicators": [
-              {
-                "title": "Licht verkeer",
-                "visual": "sparkline",
-                "sensor": "datasource/lv",
-                "id": "circ-79728a3b-a8c3-4fbd-883b-f0a190a85a63",
-                "focusTime": 66
-              },
-              {
-                "title": "Middel-zwaar verkeer",
-                "visual": "sparkline",
-                "sensor": "datasource/mv",
-                "id": "circ-1056a1d2-f8ba-4e87-c48d-4288fc836497",
-                "focusTime": 66
-              },
-              {
-                "title": "Zwaar verkeer",
-                "visual": "sparkline",
-                "sensor": "datasource/z",
-                "id": "circ-c85ace58-f0ee-4d30-1fb8-2b1f0a0ca505",
-                "focusTime": 66
-              }
-            ]
-          },
-          "elementId": "widget-42f4bfd3-3115-409c-0b29-0450bd72942b",
-          "enabled": true,
-          "left": "250px",
-          "right": "",
-          "top": "40px",
-          "width": "225px",
-          "height": "295px"
-        },
-        {
-          "id": "261e9a31-b18a-42fb-bb7a-f78cd9bbf474",
-          "directive": "indicators",
-          "data": {
-            "title": "test",
-            "indicators": [
-              {
-                "toggleUpdate": true,
-                "indicatorWidth": 200,
-                "title": "New Indicator",
-                "visual": "singlevalue",
-                "sensor": "",
-                "usesSelectedFeature": true,
-                "featureTypeName": "data/resourceTypes/Zorgkantoor.json#Zorgkantoor",
-                "propertyTypes": [
-                  "vve"
-                ],
-                "id": "48e93784-06c7-462c-23cd-8b4332a37a5a",
-                "sensorSet": {
-                  "max": 16.416239019794737,
-                  "min": 0,
-                  "propertyType": {
-                    "title": "V&V Extramuraal"
-                  },
-                  "activeValue": 24
-                },
-                "propertyTypeTitles": [
-                  "V&V Extramuraal"
-                ],
-                "data": "[{\"title\":\"6VV\",\"subtitle\":\"\",\"ranges\":[1812,1812],\"measures\":[1274],\"markers\":[1274],\"barColor\":\"red\"},{\"title\":\"7VV\",\"subtitle\":\"\",\"ranges\":[1118,1118],\"measures\":[606],\"markers\":[606],\"barColor\":\"red\"},{\"title\":\"9VVB\",\"subtitle\":\"\",\"ranges\":[89,89],\"measures\":[14],\"markers\":[14],\"barColor\":\"red\"},{\"title\":\"10VV\",\"subtitle\":\"\",\"ranges\":[65,65],\"measures\":[3],\"markers\":[3],\"barColor\":\"red\"}]"
-              },
-              {
-                "toggleUpdate": true,
-                "indicatorWidth": 200,
-                "title": "New Indicator",
-                "visual": "circular",
-                "sensor": "",
-                "usesSelectedFeature": true,
-                "featureTypeName": "",
-                "propertyTypes": [],
-                "id": "3c9a47d5-2c32-4bd3-973a-0afcc9e3d48f",
-                "sensorSet": {
-                  "max": 100,
-                  "min": 0,
-                  "propertyType": {
-                    "title": ""
-                  }
-                }
-              }
-            ]
-          },
-          "elementId": "widget-261e9a31-b18a-42fb-bb7a-f78cd9bbf474",
-          "enabled": true,
-          "left": "801px",
-          "right": "",
-          "top": "28px",
-          "width": "316px",
-          "height": "369px"
-        },
-        {
-          "id": "297d1fd8-ca3a-4c9a-7466-1f507466f071",
-          "directive": "indicators",
-          "data": {
-            "title": "test"
-          },
-          "elementId": "widget-297d1fd8-ca3a-4c9a-7466-1f507466f071",
-          "enabled": true,
-          "left": "16px",
-          "right": "",
-          "top": "341px",
-          "width": "300px",
-          "height": "300px"
-        }
-      ],
+      "widgets": null,
       "visibleLeftMenuItems": [
         "layers"
       ]
@@ -1780,9 +3098,25 @@
       "label": "sensor-6e8d2f40-ebea-4678-c0a1-e7aa3c0ac808"
     },
     "sensor-d0ffc879-737d-404d-a4bc-321eea3674fd": {
-      "title": "test"
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-d0ffc879-737d-404d-a4bc-321eea3674fd"
     },
     "sensor-b3253815-084f-43b6-c589-6733804244c0": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-b3253815-084f-43b6-c589-6733804244c0"
+    },
+    "sensor-d12926e4-4783-496f-2262-bba60ec983fe": {
+      "title": "test"
+    },
+    "sensor-2f35eb16-1470-4a8c-9bb5-94369e0acd12": {
       "title": "test2"
     }
   },

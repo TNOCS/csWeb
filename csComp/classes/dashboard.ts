@@ -7,18 +7,18 @@ module csComp.Services {
     }
 
     export interface IWidget {
-        directive: string;  // name of the directive that should be used as widget
-        data: Object;  // json object that can hold parameters for the directive
-        url: string;  // url of the html page that should be used as widget
-        template: string;  // name of the template that should be shown as widget
-        title: string;  // title of the widget
-        elementId: string;
-        enabled: boolean;
+        directive?: string;  // name of the directive that should be used as widget
+        data?: Object;  // json object that can hold parameters for the directive
+        url?: string;  // url of the html page that should be used as widget
+        template?: string;  // name of the template that should be shown as widget
+        title?: string;  // title of the widget
+        elementId?: string;
+        enabled?: boolean;
 
         parentDashboard?: csComp.Services.Dashboard;
         renderer?: Function;
         resize?: Function;
-        background: string;
+        background?: string;
         init?: Function;
         start?: Function;
         left?: string;
@@ -32,17 +32,17 @@ module csComp.Services {
         disableIfLeftPanel?: boolean;
 
 
-        name: string; id: string;
-        properties: {};
+        name?: string; id: string;
+        properties?: {};
         dataSets?: DataSet[];
-        range: csComp.Services.DateRange;
+        range?: csComp.Services.DateRange;
         updateDateRange?: Function;
-        collapse: boolean;
-        canCollapse: boolean;
-        width: string;
-        height: string;
-        allowFullscreen: boolean;
-        hover: boolean;
+        collapse?: boolean;
+        canCollapse?: boolean;
+        width?: string;
+        height?: string;
+        allowFullscreen?: boolean;
+        hover?: boolean;
         messageBusService?: csComp.Services.MessageBusService;
         layerService?: csComp.Services.LayerService;
 
