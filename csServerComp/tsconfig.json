@@ -22,7 +22,6 @@
         "./Scripts/typings/JSONStream/JSONStream.d.ts",
         "./Scripts/typings/async/async.d.ts",
         "./Scripts/typings/body-parser/body-parser.d.ts",
-        "./Scripts/typings/colors/colors.d.ts",
         "./Scripts/typings/cors/cors.d.ts",
         "./Scripts/typings/cs/cs-offline-search.d.ts",
         "./Scripts/typings/express/express.d.ts",

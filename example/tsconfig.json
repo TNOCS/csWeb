@@ -25,7 +25,6 @@
         "./Scripts/typings/body-parser/body-parser.d.ts",
         "./Scripts/typings/chokidar/chokidar.d.ts",
         "./Scripts/typings/chroma-js/chroma-js.d.ts",
-        "./Scripts/typings/colors/colors.d.ts",
         "./Scripts/typings/cors/cors.d.ts",
         "./Scripts/typings/crossfilter/crossfilter.d.ts",
         "./Scripts/typings/cs/cs-offline-search.d.ts",
