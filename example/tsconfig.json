@@ -60,7 +60,6 @@
         "./ServerComponents/api/RestAPI.d.ts",
         "./ServerComponents/api/RestAPI.ts",
         "./ServerComponents/api/SocketIOAPI.d.ts",
-        "./ServerComponents/api/Storage.d.ts",
         "./ServerComponents/bus/MessageBus.d.ts",
         "./ServerComponents/configuration/ConfigurationService.d.ts",
         "./ServerComponents/configuration/IConfiguration.d.ts",
