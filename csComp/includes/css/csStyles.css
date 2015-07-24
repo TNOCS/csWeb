@@ -268,6 +268,11 @@ html, body, #container {
     display: block;
 }
 
+#featureTabs > .dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+ }
+
 /* End LayersList */
 
 .background-image {
