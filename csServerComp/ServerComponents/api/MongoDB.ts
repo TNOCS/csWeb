@@ -37,7 +37,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
 
     // I know this code is far from consistent with the rest, but it works
     // The result from the find operation is a cursor, so this needs to be .toArray'ed
-    // in order to form a proper layer for our callbackresult. 
+    // in order to form a proper layer for our callbackresult.
     public getLayer(layerId: string, callback: Function) {
         var collection = this.db.collection(layerId);
         collection.find({}, {sort: [['_id', 1]]}).toArray(function(e, response){
@@ -65,8 +65,24 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         });
     }
 
+    // Okay so. This updates ALL documents in a given collection with given field.
+    // If the field is not initially present, it will be created.
+    // If the field is already present, it will be OVERWRITTEN.
+    // e.g if the update is for { properties: "I want pistachios for breakfast" }
+    // properties will just contain that silly line of text instead of our data.
+    // Ergo, be careful with this.
+    // TODO: Arnoud: should this take a query parameter? How would it be different
+    // from updateFeature?
     public updateLayer(layerId: string, update: any, callback: Function) {
-      //TODO: implement
+      var collection = this.db.collection(layerId);
+      collection.update({}, {$set: update}, {safe: true, multi: true}, (err, response) => {
+          if (!err) {
+              callback(<CallbackResult>{ result: "OK" });
+          }
+          else {
+              callback(<CallbackResult>{ result: "Error" });
+          }
+      });
     }
 
     // feature methods, in crud order

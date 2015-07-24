@@ -34,7 +34,6 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //------ layer API paths, in CRUD order
 
-        // adds a layer, using HTTP PUT, stores it in a collection of choice
         // TODO: error checking: you might not want to overwrite another layer
         // Or post to a layer collection that should be shielded-off (e.g. system or users)
         // And what if an agent starts sending gibberish?
@@ -53,6 +52,14 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // TODO: what to do when this gets really big? Offer a promise?
         this.server.get(this.layersUrl + ':layerId', (req: any, res: any) => {
             this.manager.getLayer(req.params.layerId, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        })
+
+        //Updates EVERY feature in the layer.
+        this.server.put(this.layersUrl + ':layerId', (req: any, res: any) => {
+            this.manager.updateLayer(req.params.layerId, req.body, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
