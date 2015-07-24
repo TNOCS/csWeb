@@ -34,6 +34,8 @@ class GeoJsonOutputTransformer implements transform.ITransform {
     var t = new stream.Transform();
     /*stream.Transform.call(t);*/
 
+    this.geoJson = [];
+
     t.setEncoding("utf8");
     t._transform =  (chunk, encoding, done) => {
       // var startTs = new Date();
@@ -66,6 +68,7 @@ class GeoJsonOutputTransformer implements transform.ITransform {
         // console.log(result);
         t.push(strResult);
 
+        this.geoJson = [];
         done();
       }
       catch(error) {
