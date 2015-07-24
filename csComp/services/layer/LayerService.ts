@@ -1649,13 +1649,12 @@ module csComp.Services {
                     }
                 }
 
-                if (!solution.widgetTemplates) {
-                    var defaultWidget = new BaseWidget();
-                    defaultWidget.background = "red";
-                    solution.widgetTemplates = {
-                        "default": defaultWidget
-                    };
-
+                // make sure a default WidgetStyle exists
+                if (!solution.widgetStyles) solution.widgetStyles = {};
+                if (!solution.widgetStyles.hasOwnProperty('default')) {
+                    var defaultStyle = new WidgetStyle();
+                    defaultStyle.background = "red";
+                    solution.widgetStyles["default"] = defaultStyle;
                 }
 
                 this.solution = solution;
@@ -1699,7 +1698,8 @@ module csComp.Services {
             //typesResources
 
             $.getJSON(solutionProject.url, (prj: Project) => {
-                this.project = new Project().deserialize(prj);
+                this.project = new Project().deserialize(prj, this.solution);
+
 
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();

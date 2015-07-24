@@ -355,18 +355,6 @@ module FeatureProps {
             }
         }
 
-        public createScatter(property: FeatureProps.CallOutProperty) {
-            var sc = new csComp.Services.GroupFilter();
-            sc.property = property.property;
-            sc.property2 = "opp_land";
-            sc.id = csComp.Helpers.getGuid();
-            sc.filterType = "scatter";
-            sc.title = sc.property;
-            var l = this.$layerService.findLayer(this.$scope.feature.layerId);
-            this.$layerService.setFilter(sc, l.group);
-            //alert('scatter ' + property.property);
-        }
-
         /**
          * Callback function
          * @see {http://stackoverflow.com/questions/12756423/is-there-an-alias-for-this-in-typescript}

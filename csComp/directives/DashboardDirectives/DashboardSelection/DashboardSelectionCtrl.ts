@@ -2,6 +2,8 @@ module DashboardSelection {
     export interface IDashboardSelectionScope extends ng.IScope {
         vm: any; //DashboardSelectionCtrl;
         addWidget: Function;
+
+        widgetStyle: csComp.Services.WidgetStyle;
         title: string;
 
     }
@@ -12,6 +14,7 @@ module DashboardSelection {
         public scope: any;
         public project: csComp.Services.SolutionProject;
         public activeWidget: csComp.Services.BaseWidget;
+        public style: string;
 
 
 
@@ -38,6 +41,10 @@ module DashboardSelection {
             ) {
 
             $scope.vm = this;
+            this.$messageBusService.subscribe('project', (s, a) => {
+                this.style = "default";
+                this.selectStyle();
+            })
 
         }
 
@@ -75,8 +82,9 @@ module DashboardSelection {
                     widget.data = {};
                     widget.width = '300px';
                     widget.height = '300px';
+                    widget.style = this.style;
                     widget.enabled = true;
-                    csComp.Services.Dashboard.addNewWidget(widget, this.$layerService.project.dashboards[0]);
+                    csComp.Services.Dashboard.addNewWidget(widget, this.$layerService.project.dashboards[0], this.$layerService.solution);
                     this.$dashboardService.editWidget(widget)
 
                 }, 100);
@@ -86,8 +94,8 @@ module DashboardSelection {
                 event.target.setAttribute('data-y', 0);
                 event.target.style.left = '0px';
                 event.target.style.top = '0px';
-                event.target.style.width = "100px";
-                event.target.style.height = "100px";
+                event.target.style.width = "75px";
+                event.target.style.height = "75px";
 
 
 
@@ -167,9 +175,10 @@ module DashboardSelection {
 
         }
 
-
-
-
+        public selectStyle() {
+            this.$scope.widgetStyle = this.$layerService.solution.widgetStyles[this.style];
+            console.log(this.$scope.widgetStyle);
+        }
 
 
 

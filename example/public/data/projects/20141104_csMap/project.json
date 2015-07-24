@@ -20,8 +20,8 @@
       "url": "/data/projects/20141104_csMap/datasource.json",
       "type": "static",
       "sensors": {
-        "test": "{\n  \"id\": \"test\",\n  \"propertyTypeKey\": \"sensor-d12926e4-4783-496f-2262-bba60ec983fe\"\n}",
-        "test2": "{\n  \"id\": \"test2\",\n  \"propertyTypeKey\": \"sensor-2f35eb16-1470-4a8c-9bb5-94369e0acd12\"\n}"
+        "test": "{\n  \"id\": \"test\",\n  \"propertyTypeKey\": \"sensor-b4074fd1-a355-4827-dfc9-4243085b8b55\"\n}",
+        "test2": "{\n  \"id\": \"test2\",\n  \"propertyTypeKey\": \"sensor-1ed2d091-4cc8-4e75-9fed-c5791bfd6b0a\"\n}"
       }
     }
   ],
@@ -50,7 +50,21 @@
           7.3
         ]
       },
-      "widgets": null,
+      "widgets": [
+        {
+          "id": "569c1117-b9b6-494e-5859-7535f3140ad6",
+          "directive": "indicators",
+          "data": {},
+          "elementId": "widget-569c1117-b9b6-494e-5859-7535f3140ad6",
+          "style" : "default",
+          "enabled": true,
+          "left": "56px",
+          "right": "",
+          "top": "74px",
+          "width": "300px",
+          "height": "300px"
+        }
+      ],
       "visibleLeftMenuItems": [
         "layers"
       ]
@@ -214,9 +228,25 @@
       "label": "sensor-b3253815-084f-43b6-c589-6733804244c0"
     },
     "sensor-d12926e4-4783-496f-2262-bba60ec983fe": {
-      "title": "test"
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-d12926e4-4783-496f-2262-bba60ec983fe"
     },
     "sensor-2f35eb16-1470-4a8c-9bb5-94369e0acd12": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-2f35eb16-1470-4a8c-9bb5-94369e0acd12"
+    },
+    "sensor-b4074fd1-a355-4827-dfc9-4243085b8b55": {
+      "title": "test"
+    },
+    "sensor-1ed2d091-4cc8-4e75-9fed-c5791bfd6b0a": {
       "title": "test2"
     }
   },

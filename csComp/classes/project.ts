@@ -14,7 +14,7 @@ module csComp.Services {
     * @see http://stackoverflow.com/a/22886730/319711
     */
     export interface ISerializable<T> {
-        deserialize(input: Object): T;
+        deserialize(input: Object, solution?: Solution): T;
     }
 
     export class VisualState {
@@ -86,7 +86,7 @@ module csComp.Services {
         maxBounds: IBoundingBox;
         viewBounds: IBoundingBox;
         baselayers: IBaseLayer[];
-        widgetTemplates: { [key: string]: IWidget } = {};
+        widgetStyles: { [key: string]: WidgetStyle } = {};
         projects: SolutionProject[];
     }
 
@@ -138,6 +138,7 @@ module csComp.Services {
         allFeatureTypes: { [id: string]: IFeatureType };
         featureTypes: { [id: string]: IFeatureType }
         propertyTypeData: { [id: string]: IPropertyType }
+        solution: Solution;
         groups: ProjectGroup[];
         mapFilterResult: L.Marker[];
         startposition: Coordinates;
@@ -213,13 +214,14 @@ module csComp.Services {
             };
         }
 
-        public deserialize(input: Project): Project {
+        public deserialize(input: Project, solution: Solution): Project {
             var res = <Project>jQuery.extend(new Project(), input);
+            res.solution = solution;
             if (input.timeLine) res.timeLine = DateRange.deserialize(input.timeLine); // <DateRange>jQuery.extend(new DateRange(), input.timeLine);
             if (input.dashboards) {
                 res.dashboards = [];
                 input.dashboards.forEach((d) => {
-                    res.dashboards.push(Dashboard.deserialize(d));
+                    res.dashboards.push(Dashboard.deserialize(d, solution));
                 });
 
                 for (var index in input.mcas) {

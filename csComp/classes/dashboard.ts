@@ -6,31 +6,54 @@ module csComp.Services {
         constructor() { }
     }
 
+    export class WidgetStyle {
+        background: string;
+        borderWidth: string;
+        borderColor: string;
+        borderRadius: string;
+        opacity: number;
+        disableIfLeftPanel: boolean;
+    }
+
     export interface IWidget {
-        directive?: string;  // name of the directive that should be used as widget
-        data?: Object;  // json object that can hold parameters for the directive
-        url?: string;  // url of the html page that should be used as widget
-        template?: string;  // name of the template that should be shown as widget
-        title?: string;  // title of the widget
+        /**
+         * name of the directive that should be used as widget
+         */
+        directive?: string;
+        /**
+         * json object that can hold parameters for the directive
+         */
+        data?: Object;
+        /**
+         * url of the html page that should be used as widget
+         */
+        url?: string;
+        /**
+         * name of the template that should be shown as widget
+         */
+        template?: string;
+        /**
+         * title of the widget
+         */
+        title?: string;
         elementId?: string;
         enabled?: boolean;
+        style?: string;
+        customStyle?: WidgetStyle;
+        effectiveStyle?: WidgetStyle;
 
         parentDashboard?: csComp.Services.Dashboard;
         renderer?: Function;
         resize?: Function;
-        background?: string;
+
         init?: Function;
         start?: Function;
         left?: string;
         right?: string;
         top?: string;
         bottom?: string;
-        borderWidth?: string;
-        borderColor?: string;
-        borderRadius?: string;
-        opacity?: number;
-        disableIfLeftPanel?: boolean;
 
+        icon?: string;
 
         name?: string; id: string;
         properties?: {};
@@ -53,18 +76,18 @@ module csComp.Services {
 
     export class BaseWidget implements IWidget {
         public directive: string;
-        public template: string;
         public title: string;
         public data: {};
         public url: string;
         public elementId: string;
         public parentDashboard: csComp.Services.Dashboard;
         public enabled: boolean = true;
-        public borderWidth: string = "1px";
-        public borderColor: string = "green";
-        public borderRadius: string = "5px";
+        public style: string;
+        public customStyle: WidgetStyle;
+
         public opacity: number = 1;
         public hideIfLeftPanel: boolean;
+        public icon: string;
 
         public background: string = "white";
         public left: string;
@@ -83,6 +106,7 @@ module csComp.Services {
         public messageBusService: csComp.Services.MessageBusService;
         public layerService: csComp.Services.LayerService;
         public hover: boolean;
+        public effectiveStyle: WidgetStyle;
 
         public _initialized: boolean;
         public _interaction: boolean;
@@ -112,10 +136,8 @@ module csComp.Services {
                 url: w.url,
                 elementId: w.elementId,
                 enabled: w.enabled,
-                borderWidth: w.borderWidth,
-                borderColor: w.borderColor,
-                borderRadius: w.borderRadius,
-                background: w.background,
+                customStyle: w.customStyle,
+                style: w.style,
                 left: w.left,
                 right: w.right,
                 top: w.top,
@@ -208,19 +230,19 @@ module csComp.Services {
             }
         }
 
-        public static deserialize(input: Dashboard): Dashboard {
+        public static deserialize(input: Dashboard, solution: Solution): Dashboard {
             var res = <Dashboard>$.extend(new Dashboard(), input);
 
             res.widgets = [];
             if (input.widgets) input.widgets.forEach((w: IWidget) => {
-                this.addNewWidget(w, res);
+                this.addNewWidget(w, res, solution);
             });
             if (input.timeline) res.timeline = $.extend(new DateRange(), input.timeline);
 
             return res;
         }
 
-        public static addNewWidget(widget: IWidget, dashboard: Dashboard): IWidget {
+        public static addNewWidget(widget: IWidget, dashboard: Dashboard, solution: Solution): IWidget {
             //var loader = new InstanceLoader(window);
             //var w = <IWidget>loader.getInstance(widget.widgetType);
             //w.messageBusService = this.$messageBusService;
@@ -231,6 +253,13 @@ module csComp.Services {
             //alert(widget.id);
             widget.elementId = "widget-" + widget.id;
             widget.parentDashboard = dashboard;
+            if (widget.style && widget.style !== "custom") {
+                if (!solution.widgetStyles.hasOwnProperty(widget.style)) widget.style = "default";
+                widget.effectiveStyle = solution.widgetStyles[widget.style];
+            }
+            else {
+                widget.effectiveStyle = widget.customStyle;
+            }
             dashboard.widgets.push(widget);
             /*if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             setTimeout(() => {

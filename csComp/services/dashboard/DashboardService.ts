@@ -75,14 +75,7 @@ module csComp.Services {
                         break;
                 }
             });
-
-
-            /*this.widgetTypes["indicators"] = JSON.parse(JSON.stringify(this.defaultWidgetStyle));
-            this.widgetTypes["indicators"].background = "red";*/
-
-
-
-
+            this.widgetTypes["indicators"] = <IWidget>{ id: "indicators", icon: "cs/images/widgets/indicators.png" };
             this.widgetTypes["markdown"] = <IWidget>{};
         }
 

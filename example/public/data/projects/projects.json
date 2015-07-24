@@ -8,9 +8,18 @@
         "southWest": [50.7, 3.3],
         "northEast": [53.5, 7.3]
     },
-    "widgetTemplates" :{
+    "widgetStyles" :{
         "default" : {
-            "background" : "blue"
+            "borderWidth" : 1,
+            "background" : "white"
+        },
+        "simple" : {
+            "borderWidth" : 1,
+            "background" : "white"
+        },
+        "red" : {
+            "borderWidth" : 3,
+            "background" : "red"
         }
     },
     "baselayers": [{
@@ -134,14 +143,13 @@
     }],
     "projects": [
         {
+            "title": "csWeb Showcases",
+            "url": "data/projects/20141104_csMap/project.json"
+        },
+        {
             "title": "API Example",
             "url": "data/projects/ApiTest/project.json",
             "dynamic": true
-        },
-        {
-            "title": "csWeb Showcases",
-            "url": "data/projects/20141104_csMap/project.json"
         }
-
     ]
 }
