@@ -54,7 +54,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.get(this.layersUrl + ':layerId', (req: any, res: any) => {
             this.manager.getLayer(req.params.layerId, (result: CallbackResult) => {
                 //todo: check error
-                res.send(result.layer);
+                res.send(result);
             });
         })
 
@@ -86,7 +86,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
 
         // updates all features corresponding to query on ID (should be one)
-        this.server.put(this.layersUrl + ":layerId/:featureId", (req: express.Request, res: express.Response) => {
+        this.server.put(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
             var feature = req.body;
             feature.id = req.params.featureId;
             this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {

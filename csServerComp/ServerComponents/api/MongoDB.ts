@@ -35,21 +35,19 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
       //TODO
     }
 
-    //TODO: fix
+    // I know this code is far from consistent with the rest, but it works
+    // The result from the find operation is a cursor, so this needs to be .toArray'ed
+    // in order to form a proper layer for our callbackresult. 
     public getLayer(layerId: string, callback: Function) {
         var collection = this.db.collection(layerId);
-        collection.find({}, (e: Error, result: any) => {
+        collection.find({}, {sort: [['_id', 1]]}).toArray(function(e, response){
             if (e) {
-                callback(<CallbackResult>{ result: "Error" });
+              callback(<CallbackResult>{ result: "Error" });
             }
             else {
-                //var l = new Layer();
-                //l.features = "";
-                //l.id = layerId;
-                console.log("get succesful");
-                //todo create layer;
-                //var l = result;
-                callback(<CallbackResult>{ result:  result });
+              var results = new Layer();
+              results.features = response;
+              callback(<CallbackResult>{ result: "OK", layer: results});
             }
         });
     }
@@ -73,7 +71,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
 
     // feature methods, in crud order
 
-    // adds a single feature to an existing collection
+
     public addFeature(layerId: string, feature: any, callback: Function) {
         var collection = this.db.collection(layerId);
         feature.id = new mongodb.ObjectID(feature.id);
@@ -86,7 +84,6 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         });
     }
 
-    //TODO: implement
     public getFeature(layerId: string, featureId: string, callback: Function) {
       var collection = this.db.collection(layerId);
       collection.findOne({_id: new mongodb.ObjectID(featureId)}, function(e, response) {
@@ -104,7 +101,6 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
 
     }
 
-    //TODO: test further. Result is the # of deleted docs.
     public deleteFeature(layerId: string, featureId: string, callback: Function) {
         var collection = this.db.collection(layerId);
         console.log("Deleting feature with ID "+ new mongodb.ObjectID(featureId));
