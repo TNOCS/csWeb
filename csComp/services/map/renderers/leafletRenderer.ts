@@ -33,7 +33,8 @@ module csComp.Services {
                 var b = (<L.Map>(this.service.$mapService.map)).getBounds();
                 this.$messageBusService.publish("mapbbox", "update", b.toBBoxString());
 
-                //this.service.$mapService.maxBounds = new csComp.Seb;
+                var boundingBox: csComp.Services.IBoundingBox = { southWest: [b.getSouthWest().lat, b.getSouthWest().lng], northEast: [b.getNorthEast().lat, b.getNorthEast().lng] };
+                this.service.$mapService.maxBounds = boundingBox;
             });
         }
 
@@ -74,7 +75,7 @@ module csComp.Services {
             // for clustering use a cluster layer
             if (group.clustering) {
                 group.cluster = new L.MarkerClusterGroup({
-                    maxClusterRadius: group.maxClusterRadius || 80,
+                    maxClusterRadius: (zoom) => {if (zoom > 18) {return 2;} else { return group.maxClusterRadius || 80}},
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
                 this.service.map.map.addLayer(group.cluster);
@@ -101,10 +102,16 @@ module csComp.Services {
                             }
                         });
                     } else {
-                        if (this.service.map.map && layer.mapLayer)
+                        this.service.project.features.forEach((feature: IFeature) => {
+                            if (feature.layerId === layer.id && layer.group.markers.hasOwnProperty(feature.id)) {
+                                delete layer.group.markers[feature.id];
+                            }
+                        });
+                        if (this.service.map.map && layer.mapLayer) {
                             try {
                                 this.service.map.map.removeLayer(layer.mapLayer);
                             } catch (error) { }
+                        }
                     }
                     break;
                 default:
@@ -296,8 +303,18 @@ module csComp.Services {
          */
         public updateMapFilter(group: ProjectGroup) {
             $.each(group.markers, (key, marker) => {
-                var included;
-                if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+                var includedPropFilter, includedMapFilter, included;
+                if (group.filterResult && group.filters.length > 0) {
+                    includedPropFilter = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+                } else {
+                    includedPropFilter = true;
+                }
+                if (this.service.project.mapFilterResult && this.service.project.mapFilterResult.length > 0) {
+                    includedMapFilter = this.service.project.mapFilterResult.filter((m: any) => m.feature.id === key).length > 0;
+                } else {
+                    includedMapFilter = true;
+                }
+                included = (includedPropFilter && includedMapFilter);
                 if (group.clustering) {
                     var incluster = group.cluster.hasLayer(marker);
                     if (!included && incluster) group.cluster.removeLayer(marker);
@@ -329,7 +346,12 @@ module csComp.Services {
                 marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
             } else {
                 marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
-                if (feature.layer && feature.layer.type !== 'accessibility') marker.bringToFront();
+                if (feature.isSelected && feature.layer && feature.layer.type !== 'accessibility' && feature.layer.group) {
+                    if ((feature.layer.group.clustering && feature.layer.group.cluster.hasLayer(marker))
+                        || feature.layer.group.vectors.hasLayer(marker)) {
+                        marker.bringToFront();
+                    }
+                }
             }
         }
 
@@ -381,10 +403,10 @@ module csComp.Services {
                         var mapSize = this.map.getSize();
                         menu.css("left", e.originalEvent.x + 5);
                         menu.css("top", e.originalEvent.y - 35);
-
+                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
                         /*var containerSize = this.getElementSize(container),
                             anchor;*/
-                        console.log(e);
+                        //console.log(e);
                         //L.DomEvent.apply(e, "click");
                         //alert(e.latlng);
                     });
@@ -394,6 +416,19 @@ module csComp.Services {
                 default:
                     marker = L.GeoJSON.geometryToLayer(<any>feature);
                     marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
+
+                    marker.on('contextmenu', (e: any) => {
+                        this.service._activeContextMenu = this.service.getActions(feature);
+
+                        //e.stopPropagation();
+                        var button: any = $("#map-contextmenu-button");
+                        var menu: any = $("#map-contextmenu");
+                        button.dropdown('toggle');
+                        var mapSize = this.map.getSize();
+                        menu.css("left", e.originalEvent.x + 5);
+                        menu.css("top", e.originalEvent.y - 35);
+                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+                    });
 
                     //marker = L.multiPolygon(latlng, polyoptions);
                     break;

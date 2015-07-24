@@ -76,8 +76,8 @@
         </div>
     </h4>
 
-    <div ng-show="vm.$mapService.isAdminExpert">
-        <div ng-show="configMode" style="margin:5px">
+    <div ng-if="vm.$mapService.isAdminExpert">
+        <div ng-if="configMode" style="margin:5px">
             <feature-type-editor featureType="featureType"></feature-type-editor>
         </div>
     </div>
@@ -147,12 +147,12 @@
                                         <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
                                         <div ng-switch-when="category" class="text-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
+                                        <div ng-switch-when="bbcode" style="text-right" ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                         <div ng-switch-when="media">
-
-                                                <div ng-repeat="media in feature.properties[item.property]">
-                                                    <img ng-src="{{media}}" style="width:300px; float:left;margin:5px"></img>
-                                                </div>
-
+                                            <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img>
+                                            <div ng-repeat="media in item.feature.properties[item.property]">
+                                                <img ng-src="{{media}}" style="width:300px; float:left;margin:5px"></img>
+                                            </div>
                                         </div>
                                         <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.value)"></div>
                                     </div>

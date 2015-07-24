@@ -49,6 +49,9 @@ export class DynamicProject {
                 features: combinedjson.features
             };
         }
+        if (combinedjson.hasOwnProperty('timestamps')) {
+            geojson['timestamps'] = combinedjson['timestamps'];
+        }
         if (combinedjson.hasOwnProperty('featureTypes')) {
             for (var ftName in combinedjson.featureTypes) {
                 if (combinedjson.featureTypes.hasOwnProperty(ftName)) {

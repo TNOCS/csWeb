@@ -2,13 +2,9 @@ import IFeature = csComp.Services.IFeature;
 import IActionOption = csComp.Services.IActionOption;
 
 module Accessibility {
-
-
-
     export class AccessibilityModel implements csComp.Services.IActionService {
-
         private layerService: csComp.Services.LayerService
-
+        id = "accessibilityActions";
         stop() { }
         addFeature(feature: IFeature) { }
         removeFeature(feature: IFeature) { }
@@ -22,9 +18,9 @@ module Accessibility {
             }
             accessibilityOption1.callback = this.showAccessibility;
             var accessibilityOption2 = <IActionOption>{
-                title: "Hide accessibility"
+                title: "Remove accessibility"
             }
-            accessibilityOption2.callback = this.hideAccessibility;
+            accessibilityOption2.callback = this.removeAccessibility;
             var accessibilityOption3 = <IActionOption>{
                 title: "Plan route from"
             }
@@ -67,14 +63,15 @@ module Accessibility {
             }
         }
 
-        public hideAccessibility(feature: IFeature, layerService: csComp.Services.LayerService) {
-            console.log('accessibility:hideAccessibility');
+        public removeAccessibility(feature: IFeature, layerService: csComp.Services.LayerService) {
+            console.log('accessibility:removeAccessibility');
             var accessibilityLayer = layerService.findLayer('accessibility');
             if (accessibilityLayer) {
                 var wasRightPanelVisible = layerService.visual.rightPanelVisible;
                 if (accessibilityLayer.enabled) {
                     layerService.removeLayer(accessibilityLayer);
                 }
+                delete accessibilityLayer.data;
                 layerService.visual.rightPanelVisible = wasRightPanelVisible;
             }
         }
@@ -143,8 +140,8 @@ module Accessibility {
         private bikeSpeedKm: number;
         private time: string;
         private cutoffTimes: number[];
-        public urlKeys = ['arriveBy', 'fromPlace', 'date', 'time', 'mode', 'maxWalkDistance', 'walkSpeed', 'bikeSpeed',
-            'maxTimeSec', 'precisionMeters', 'zDataType', 'coordinateOrigin', 'cutoffSec'];
+        public urlKeys = ['arriveBy', 'fromPlace', 'date', 'time', 'mode', 'walkSpeed', 'bikeSpeed',
+             'precisionMeters', 'cutoffSec'];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -184,6 +181,12 @@ module Accessibility {
         }
 
         public refreshAccessibility() {
+            if (this.$layerService.lastSelectedFeature) {
+                var lsf =  this.$layerService.lastSelectedFeature;
+                if (lsf.geometry && lsf.geometry.type === 'Point') {
+                    this.urlParameters['fromPlace'] = lsf.geometry.coordinates[1] + '%2C' + lsf.geometry.coordinates[0];
+                }
+             }
             this.urlParameters['mode'] = this.transportMode;
             this.urlParameters['time'] = encodeURIComponent(this.time);
             if (this.walkSpeedKm) this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);

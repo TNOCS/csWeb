@@ -231,12 +231,13 @@ module FeatureProps {
 
         public static title(type: IFeatureType, feature: IFeature): string {
             var title = '';
-            if (type != null && type.style != null && type.style.nameLabel)
-                title = feature.properties[type.style.nameLabel];
-            else {
+            if (feature.hasOwnProperty('properties')) {
                 if (feature.properties.hasOwnProperty('Name')) title = feature.properties['Name'];
                 else if (feature.properties.hasOwnProperty('name')) title = feature.properties['name'];
                 else if (feature.properties.hasOwnProperty('naam')) title = feature.properties['naam'];
+            }
+            else if (type != null && type.style != null && type.style.nameLabel) {
+                title = feature.properties[type.style.nameLabel];
             }
             if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
                 title = title.replace(/&amp;/g, '&');
@@ -420,7 +421,6 @@ module FeatureProps {
 
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
-            feature.gui["actions"] = this.$layerService.getActions(feature);
             var featureType = feature.fType;
             this.$scope.featureType = featureType;
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart

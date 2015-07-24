@@ -329,7 +329,7 @@ export class MapLayerFactory {
                     }
                 }
             }
-            realSensors.push(sensors);
+            if (Object.keys(sensors).length !== 0) realSensors.push(sensors);
             realProperties.push(realProperty);
         });
         if (realSensors.length > 0) template.sensors = realSensors;
@@ -458,7 +458,7 @@ export class MapLayerFactory {
             },
             properties: properties
         }
-        if (sensors !== {}) {
+        if (Object.keys(sensors).length !== 0) {
             gjson["sensors"] = sensors;
         }
         return gjson;

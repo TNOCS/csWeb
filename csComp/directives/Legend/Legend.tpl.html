@@ -1,13 +1,5 @@
 <div>
     <!-- todo: don't let the legend container (widget) appear (at all) when the legend is empty  -->
-
-    <!--<div>title = {{title}}</div>
-    <div>timestamp = {{timestamp}}</div>
-    <div>s1 = {{s1}}</div>
-    <div>s2 = {{s2}}</div>
-    <div>s3 = {{s3}}</div>
-    <div>propertyTypeKey = {{data.propertyTypeKey}}</div>-->
-
     <div data-ng-if="legend" style="float:left;clear:left">
         <div data-ng-if="legend.legendKind === 'discrete' || legend.legendKind === 'discretestrings'  ">
             <div class="legend-description">{{legend.description}}</div>
@@ -26,7 +18,7 @@
                 <li data-ng-repeat="(key, le) in legend.legendEntries | reverse" class="legend-entry-item-i">
                     <div ng-if="key < legend.legendEntries.length-1"
                          class="legend-color-gradient-rect"
-                         style="float: left; position: relative; top: 10px; background: linear-gradient(to bottom, {{le.color}}, {{legend.legendEntries[legend.legendEntries.length-key-2].color}}"></div>
+                         ng-style="vm.getStyle(legend, le, key)"></div>
                     <div class="legend-label-i">{{le.label}}</div>
                     <!-- die &nbsp; is echt nodig... -->
                     <div>&nbsp;</div>

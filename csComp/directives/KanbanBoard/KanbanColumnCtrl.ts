@@ -93,7 +93,7 @@ module KanbanColumn {
                         switch (tag[0]) {
                             case '!':
                             case '~':
-                                var t = tag.substr(1, tag.length-1);
+                                var t = tag.substr(1, tag.length - 1);
                                 if (_.contains(tags, t)) result = false;
                                 break;
                             case '-':
@@ -112,7 +112,7 @@ module KanbanColumn {
                         this.column.filters.tags.some((tag: string) => {
                             switch (tag[0]) {
                                 case '-':
-                                    var t = tag.substr(1, tag.length-1);
+                                    var t = tag.substr(1, tag.length - 1);
                                     if (_.contains(tags, t)) or = true;
                                     break;
                                 default:
@@ -145,7 +145,11 @@ module KanbanColumn {
         }
 
         public createForm(feature: csComp.Services.IFeature) {
-            if (this.$layerService.lockFeature(feature)) {
+            if (feature.gui["questions"]) {
+                delete feature.gui["questions"];
+                this.$layerService.unlockFeature(feature);
+            }
+            else if (this.$layerService.lockFeature(feature)) {
                 feature.gui["questions"] = [];
                 feature.properties[this.column.fields['question']].forEach((s: string) => {
                     var pt = this.$layerService.getPropertyType(feature, s);
