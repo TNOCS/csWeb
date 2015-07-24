@@ -16,8 +16,9 @@ export interface IConnector {
     init(layerManager: LayerManager, options: any);
     initLayer(layer: Layer);
     //Layer methods
-    addLayer(layer: Layer, Function);
+    addLayer(layer: Layer, callback: Function);
     getLayer(layerId: string, callback: Function);
+    updateLayer(layerId: string, update: any, callback: Function)
     deleteLayer(layerId: string, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any, callback: Function);
@@ -169,6 +170,13 @@ export class LayerManager {
         s.getLayer(layerId, (r: CallbackResult) => {
             callback(r);
         });
+    }
+
+    public updateLayer(layerId: string, update: any, callback: Function) {
+      var s = this.findStorageForLayerId(layerId);
+      s.updateLayer(layerId, update, (r, CallbackResult) => {
+        callback(r);
+      });
     }
 
     public deleteLayer(layerId: string, callback: Function) {

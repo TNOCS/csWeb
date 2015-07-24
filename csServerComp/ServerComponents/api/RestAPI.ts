@@ -2,6 +2,7 @@ import LayerManager = require('./LayerManager');
 import express = require('express')
 import cors = require('cors')
 import Layer = LayerManager.Layer;
+import Feature = LayerManager.Feature;
 import Logs = LayerManager.Log;
 import BaseConnector = require('./BaseConnector');
 import CallbackResult = LayerManager.CallbackResult;
@@ -34,7 +35,6 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //------ layer API paths, in CRUD order
 
-        // adds a layer, using HTTP PUT, stores it in a collection of choice
         // TODO: error checking: you might not want to overwrite another layer
         // Or post to a layer collection that should be shielded-off (e.g. system or users)
         // And what if an agent starts sending gibberish?
@@ -54,7 +54,15 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.get(this.layersUrl + ':layerId', (req: any, res: any) => {
             this.manager.getLayer(req.params.layerId, (result: CallbackResult) => {
                 //todo: check error
-                res.send(result.layer);
+                res.send(result);
+            });
+        })
+
+        //Updates EVERY feature in the layer.
+        this.server.put(this.layersUrl + ':layerId', (req: any, res: any) => {
+            this.manager.updateLayer(req.params.layerId, req.body, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
             });
         })
 
@@ -85,11 +93,12 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         });
 
-        // updates all features corresponding to query on ID (should be one)
-        this.server.put(this.layersUrl + ":layerId/:featureId", (req: express.Request, res: express.Response) => {
-            var feature = req.body;
-            feature.id = req.params.featureId;
-            this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {
+        // updates a feature corresponding to a query on ID (should be one)
+        // Takes a feature as input in the body of the PUT request
+        this.server.put(this.layersUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
+          var feature = new Feature();
+          feature = req.body;
+          this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
