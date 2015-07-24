@@ -21,6 +21,10 @@ import GeoJsonFeaturesTransformer = require('./ServerComponents/import/GeoJsonFe
 import CollateStreamTransformer = require('./ServerComponents/import/CollateStreamTransformer');
 import GeoJsonSaveTransformer = require('./ServerComponents/import/GeoJsonSaveTransformer');
 import BushalteAggregateTransformer = require('./ServerComponents/import/BushalteAggregateTransformer');
+import MergeGeoJsonTransformer = require('./ServerComponents/import/MergeGeoJsonTransformer');
+import AggregateOpportunitiesToOrganisationTransformer = require('./ServerComponents/import/AggregateOpportunitiesToOrganisationTransformer');
+import FieldSplitTransformer = require('./ServerComponents/import/FieldSplitTransformer');
+import AggregateOpportunitiesToGeoJsonTransformer = require('./ServerComponents/import/AggregateOpportunitiesToGeoJsonTransformer');
 
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser');
@@ -61,8 +65,12 @@ var transformers = [
   new GeoJsonFeaturesTransformer("GeoJSON features input"),
   new CollateStreamTransformer("Wait for complete stream"),
   new GeoJsonSaveTransformer("Save GeoJSON"),
-  new BushalteAggregateTransformer("Aggegreer Bushaltedata")
-]
+  new BushalteAggregateTransformer("Aggegreer Bushaltedata"),
+  new MergeGeoJsonTransformer("Merge GeoJSON"),
+  new AggregateOpportunitiesToOrganisationTransformer("Aggregate opportunities"),
+  new FieldSplitTransformer("Split on field"),
+  new AggregateOpportunitiesToGeoJsonTransformer("Aggregate opportunities to GeoJson")
+];
 
 console.log(transformers.length);
 
