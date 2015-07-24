@@ -112,9 +112,20 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
       });
     }
 
-    //TODO: implement
-    public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
 
+
+    public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
+      var collection = this.db.collection(layerId);
+      var featureId = new mongodb.ObjectID(feature._id);
+      delete feature._id;
+      collection.update({_id: featureId}, {$set: feature}, {safe: true, multi: false}, (err, response) => {
+          if (!err) {
+              callback(<CallbackResult>{ result: "OK" });
+          }
+          else {
+              callback(<CallbackResult>{ result: "Error" });
+          }
+      });
     }
 
     public deleteFeature(layerId: string, featureId: string, callback: Function) {

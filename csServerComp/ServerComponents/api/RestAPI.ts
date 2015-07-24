@@ -2,6 +2,7 @@ import LayerManager = require('./LayerManager');
 import express = require('express')
 import cors = require('cors')
 import Layer = LayerManager.Layer;
+import Feature = LayerManager.Feature;
 import Logs = LayerManager.Log;
 import BaseConnector = require('./BaseConnector');
 import CallbackResult = LayerManager.CallbackResult;
@@ -92,11 +93,12 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         });
 
-        // updates all features corresponding to query on ID (should be one)
-        this.server.put(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
-            var feature = req.body;
-            feature.id = req.params.featureId;
-            this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {
+        // updates a feature corresponding to a query on ID (should be one)
+        // Takes a feature as input in the body of the PUT request
+        this.server.put(this.layersUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
+          var feature = new Feature();
+          feature = req.body;
+          this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
