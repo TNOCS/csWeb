@@ -1,70 +1,85 @@
-
 <div>
-<style>
-    .draggable {
-        position: relative;
-        z-index: 10;
-        width: 75px;
-        height:75px;
-        border-color: #000;
-        background: white;
-        border-width: 1px;
-        border-style: solid;
-        color: #000;
+    <style>
+        .draggable {
+            position: relative;
+            z-index: 10;
+            width: 75px;
+            height: 75px;
+            border-color: #000;
+            background: white;
+            border-width: 1px;
+            border-style: solid;
+            color: #000;
+            vertical-align: middle;
+            margin: 5px;
+            -ms-touch-action: none;
+            touch-action: none;
+        }
 
-        vertical-align: middle;
-        margin:5px;
-        -ms-touch-action: none;
-        touch-action: none;
-    }
+        .widgetType-title{
+            font-size: 20px;
+            font-weight: 800;
+        }
 
-    .widgettypes-list {}
-</style>
+        .widgetType-description{
+            font-size: 15px;
+            clear: left;
+        }
 
-  <h3 class="leftpanel-header" style="width: 100%">
-    Dashboards
-    <div class="leftpanel-header-button-container">
-      <!-- <button ng-show="vm.$dashboardService.editMode" ng-click="vm.$dashboardService.editMode = false; vm.stopEdit()" class="button fa fa-check leftpanel-header-button" /> -->
-      <button ng-show="vm.$mapService.isAdminExpert"  class="button fa fa-plus leftpanel-header-button" ng-click="vm.addDashboard()" />
-      <!-- <button ng-hide="vm.$dashboardService.editMode" ng-click="vm.$dashboardService.editMode = true; vm.startEdit()" class="button fa fa-pencil leftpanel-header-button" /> -->
+        .widgettypes-list {}
+    </style>
+
+    <h3 class="leftpanel-header" style="width: 100%">
+        Dashboards
+        <div class="leftpanel-header-button-container">
+            <!-- <button ng-show="vm.$dashboardService.editMode" ng-click="vm.$dashboardService.editMode = false; vm.stopEdit()" class="button fa fa-check leftpanel-header-button" /> -->
+            <button ng-show="vm.$mapService.isAdminExpert" class="button fa fa-plus leftpanel-header-button" ng-click="vm.addDashboard()" />
+            <!-- <button ng-hide="vm.$dashboardService.editMode" ng-click="vm.$dashboardService.editMode = true; vm.startEdit()" class="button fa fa-pencil leftpanel-header-button" /> -->
+        </div>
+    </h3>
+    <div>
+        <tabset>
+            <tab heading="Dashboards">
+                <ul style="padding: 0;list-style-type: none">
+                    <li data-ng-repeat="value in vm.$layerService.project.dashboards">
+                        <div ng-click="vm.$dashboardService.selectDashboard(value,'main')" ng-class="{'dashboard-selected' : value == vm.$layerService.project.activeDashboard}" class="dashboard-item">
+                            <span class="dashboard-name">{{value.name}}</span>
+                            <div class="leftpanel-header-button-container">
+                                <button ng-click="vm.removeDashboard(value.id)" class="button fa fa-trash leftpanel-header-button" />
+                                <div ng-show="value == vm.$layerService.project.activeDashboard" style="float:right">
+                                    <button ng-show="vm.$mapService.isAdminExpert" ng-click="value.editMode = true; vm.startDashboardEdit(value)" class="button fa fa-cog leftpanel-header-button" />
+                                    <!-- <button ng-show="value.editMode" ng-click="value.editMode = false; vm.stopDashboardEdit(value)" class="button fa fa-check leftpanel-header-button" /> -->
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </tab>
+            <tab ng-show="vm.$mapService.isAdminExpert" heading="Widgets">
+                <div style="margin-right:10px">
+                    <label class="editor-title input-xlarge">Widget Style</label>
+                    <select data-ng-model="vm.style" ng-change="vm.selectStyle()" class="form-control">
+                        <option data-ng-repeat="(st,key) in vm.$layerService.solution.widgetStyles" ng-value="st">{{st}}</option>
+                    </select>
+
+                    <ul class="widgettypes-list" style="padding: 0;list-style-type: none">
+                        <li data-ng-repeat="(key,type) in vm.$dashboardService.widgetTypes" style="height:85px">
+                            <div style="width:100%;height:85px"  >
+                                <div style="float:left;padding:20px" id="widgettype-{{key}}" when-ready="vm.initDrag(key)" class="draggable" ng-style="{'background' : widgetStyle.background,'border-color':widgetStyle.borderColor,'border-width':widgetStyle.borderWidth,'border-radius':widgetStyle.borderRadius,'opacity' : widgetStyle.opacity}">
+                                    <img src="{{type.icon}}"></img>
+                                </div>
+                                <div style="position:absolute;left:100px">
+                                <div class="widgetType-title">{{key}}</div>
+                                <div class="widgetType-description">Description</div>
+                            </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </tab>
+            <!-- <tab heading="Long Justified">Long Labeled Justified content</tab> -->
+        </tabset>
     </div>
-  </h3>
-  <div>
-      <tabset>
-          <tab heading="Dashboards">
-              <ul style="padding: 0;list-style-type: none" >
-                <li data-ng-repeat="value in vm.$layerService.project.dashboards">
-                  <div ng-click="vm.$dashboardService.selectDashboard(value,'main')"  ng-class="{'dashboard-selected' : value == vm.$layerService.project.activeDashboard}" class="dashboard-item">
-                    <span class="dashboard-name">{{value.name}}</span>
-                    <div class="leftpanel-header-button-container">
-                      <button ng-click="vm.removeDashboard(value.id)" class="button fa fa-trash leftpanel-header-button" />
-                      <div ng-show="value == vm.$layerService.project.activeDashboard" style="float:right">
-                        <button ng-show="vm.$mapService.isAdminExpert"  ng-click="value.editMode = true; vm.startDashboardEdit(value)" class="button fa fa-cog leftpanel-header-button" />
-                        <!-- <button ng-show="value.editMode" ng-click="value.editMode = false; vm.stopDashboardEdit(value)" class="button fa fa-check leftpanel-header-button" /> -->
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-          </tab>
-          <tab ng-show="vm.$mapService.isAdminExpert" heading="Widgets">
-              <div >
-                  <label class="editor-title input-xlarge">Widget Style</label>
-                  <select data-ng-model="vm.style" ng-change="vm.selectStyle()" class="form-control">
-                      <option data-ng-repeat="(st,key) in vm.$layerService.solution.widgetStyles" ng-value="st">{{st}}</option>
-                  </select>
-
-              <ul  class="widgettypes-list" style="padding: 0;list-style-type: none" >
-                  <li id="widgettype-{{key}}" when-ready="vm.initDrag(key)" class="draggable" data-ng-repeat="(key,type) in vm.$dashboardService.widgetTypes" ng-style="{'background' : widgetStyle.background,'border-color':widgetStyle.borderColor,'border-width':widgetStyle.borderWidth,'border-radius':widgetStyle.borderRadius,'opacity' : widgetStyle.opacity}">
-                      <img src="{{type.icon}}"></img>
-                      <span class="dashboard-item" style="vertical-align:bottom" >{{key}}</span>
-                  </li>
-              </ul>
-          </div>
-
-          </tab>
-          <!-- <tab heading="Long Justified">Long Labeled Justified content</tab> -->
-      </tabset>
-  </div>
 
 </div>

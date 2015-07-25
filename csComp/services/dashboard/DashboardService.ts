@@ -148,6 +148,8 @@ module csComp.Services {
             var rpt = csComp.Helpers.createRightPanelTab('widget', 'widgetedit', widget, 'Edit widget', 'Edit widget', 'th-large');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
 
+            //widget.startEdit();
+
             // check if editor exists
             if (this.$injector.has(widget.directive + 'EditDirective')) {
                 var rptc = csComp.Helpers.createRightPanelTab('widget-content', widget.directive + "-edit", widget, 'Edit widget', 'Edit widget', 'cog');
