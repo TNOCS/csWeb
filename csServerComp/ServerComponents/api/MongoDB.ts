@@ -28,6 +28,13 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
             else
                 callback(<CallbackResult> { result: "OK" });
         });
+        collection.createIndex({'coordinates.geometry' : "2dsphere"}, function(e, indexname) {
+          if (!e) {
+            console.log("created a 2Dsphere geospatial index in layer "+layer.id+" upon insertion.");
+          } else {
+            console.log("Error during index creation");
+          }
+        });
     }
 
     //inserts a large layer (1000+ features) with bulk insert
