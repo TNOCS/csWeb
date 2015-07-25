@@ -42,7 +42,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         var collection = this.db.collection(layerId);
         collection.find({}, {sort: [['_id', 1]]}).toArray(function(e, response){
             if (e) {
-              callback(<CallbackResult>{ result: "Error" });
+              callback(<CallbackResult>{ result: "Error", error: e });
             }
             else {
               var results = new Layer();
@@ -60,12 +60,12 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
                 callback(<CallbackResult>{ result: "OK" });
             }
             else {
-                callback(<CallbackResult>{ result: "Error" });
+                callback(<CallbackResult>{ result: "Error", error: err });
             }
         });
     }
 
-    // Okay so. This updates ALL documents in a given collection with given field.
+    // This updates ALL documents in a given collection with given field.
     // If the field is not initially present, it will be created.
     // If the field is already present, it will be OVERWRITTEN.
     // e.g if the update is for { properties: "I want pistachios for breakfast" }
@@ -75,12 +75,12 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
     // from updateFeature?
     public updateLayer(layerId: string, update: any, callback: Function) {
       var collection = this.db.collection(layerId);
-      collection.update({}, {$set: update}, {safe: true, multi: true}, (err, response) => {
-          if (!err) {
+      collection.update({}, {$set: update}, {safe: true, multi: true}, (e, response) => {
+          if (!e) {
               callback(<CallbackResult>{ result: "OK" });
           }
           else {
-              callback(<CallbackResult>{ result: "Error" });
+              callback(<CallbackResult>{ result: "Error", error: e });
           }
       });
     }
@@ -93,7 +93,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         feature.id = new mongodb.ObjectID(feature.id);
         collection.insert(feature, {}, function(e, response) {
             if (e) {
-              callback(<CallbackResult>{ result: "Error" });
+              callback(<CallbackResult>{ result: "Error", error: e });
             } else {
               callback(<CallbackResult>{ result: "OK  " });
             }
@@ -104,7 +104,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
       var collection = this.db.collection(layerId);
       collection.findOne({_id: new mongodb.ObjectID(featureId)}, function(e, response) {
           if (e) {
-            callback(<CallbackResult>{ result: "Error"});
+            callback(<CallbackResult>{ result: "Error", error: e});
           } else {
             var f = <Feature> response;
             callback(<CallbackResult>{ result: "OK", feature: f});
@@ -118,12 +118,12 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
       var collection = this.db.collection(layerId);
       var featureId = new mongodb.ObjectID(feature._id);
       delete feature._id;
-      collection.update({_id: featureId}, {$set: feature}, {safe: true, multi: false}, (err, response) => {
-          if (!err) {
+      collection.update({_id: featureId}, {$set: feature}, {safe: true, multi: false}, (e, response) => {
+          if (!e) {
               callback(<CallbackResult>{ result: "OK" });
           }
           else {
-              callback(<CallbackResult>{ result: "Error" });
+              callback(<CallbackResult>{ result: "Error", error: e });
           }
       });
     }
@@ -133,7 +133,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         console.log("Deleting feature with ID "+ new mongodb.ObjectID(featureId));
         collection.remove({_id: new mongodb.ObjectID(featureId)}, function(e, response) {
           if (e) {
-            callback(<CallbackResult>{ result: "Error"});
+            callback(<CallbackResult>{ result: "Error", error: e});
           } else {
             callback(<CallbackResult>{ result: "OK"});
           }
