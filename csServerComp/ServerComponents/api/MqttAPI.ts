@@ -57,6 +57,10 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         callback(<CallbackResult> { result: "OK" });
     }
 
+    public updateLayer(layerId: string, update: any, callback: Function) {
+      //todo
+    }
+
     public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
         this.client.publish('layers/' + layerId, JSON.stringify(feature));
         callback(<CallbackResult> { result: "OK" });
@@ -83,7 +87,5 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     public initLayer(layer: Layer) {
         this.client.subscribe('layers/' + layer.id + "/addFeature");
         console.log('mqtt:initlayer');
-
     }
-
 }

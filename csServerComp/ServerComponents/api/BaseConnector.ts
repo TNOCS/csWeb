@@ -23,6 +23,9 @@ export class BaseConnector implements LayerManager.IConnector {
 
     }
 
+    public updateLayer(layerId: string, update: any, callback: Function) {
+    }
+
     public deleteLayer(layerId: string, callback: Function) {
 
     }

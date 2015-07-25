@@ -133,6 +133,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
     }
 
+    public updateLayer(layerId: string, update: any, callback: Function) {
+      //todo
+    }
+
     public deleteLayer(layerId: string, callback: Function) {
         if (this.layers.hasOwnProperty(layerId)) {
             delete this.layers[layerId];
