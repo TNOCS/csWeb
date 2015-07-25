@@ -34,9 +34,12 @@ module Indicators {
         }
     }
 
-    export interface IIndicatorsCtrl extends ng.IScope {
-        vm: IndicatorsCtrl;
+    export interface IWidgetCtrl extends ng.IScope {
+        startEdit: Function;
+    }
 
+    export interface IIndicatorsCtrl extends IWidgetCtrl {
+        vm: IndicatorsCtrl;
         data: indicatorData;
     }
 
@@ -70,7 +73,7 @@ module Indicators {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = par.widget;
-            if(!par.widget) return;
+            if (!par.widget) return;
             this.checkLayers();
             this.$messageBus.subscribe("layer", (s: string) => {
                 this.checkLayers();
@@ -78,8 +81,8 @@ module Indicators {
             $scope.data = <indicatorData>this.widget.data;
             $scope.$watchCollection('data.indicators', () => {
                 console.log('update data');
-                if ($scope.data.indicators && !$scope.data.indicators[$scope.data.indicators.length-1].id) {
-                    var i = $scope.data.indicators[$scope.data.indicators.length-1];
+                if ($scope.data.indicators && !$scope.data.indicators[$scope.data.indicators.length - 1].id) {
+                    var i = $scope.data.indicators[$scope.data.indicators.length - 1];
                     i.id = csComp.Helpers.getGuid();
                     this.$messageBus.subscribe('feature', (action: string, feature: any) => {
                         switch (action) {
@@ -144,6 +147,10 @@ module Indicators {
                 }
                 console.log('updateIndicator: sensor.activeValue = ' + i.sensorSet.activeValue);
             });
+        }
+
+        public startEdit() {
+
         }
 
         private checkLayers() {
@@ -259,13 +266,13 @@ module Indicators {
                         var dataInJson = [];
                         this.$layerService.project.features.forEach(
                             (f: csComp.Services.IFeature) => {
-                                 if (f.layerId === f.layer.id && f.properties.hasOwnProperty(property)) {
-                                     var s = f.properties[property];
-                                     var v = Number(s);
+                                if (f.layerId === f.layer.id && f.properties.hasOwnProperty(property)) {
+                                    var s = f.properties[property];
+                                    var v = Number(s);
                                     //  if (!isNaN(v)) {
                                     //  }
                                     var item = {
-//                                        'title': propTitles[0],
+                                        //                                        'title': propTitles[0],
                                         'title': f.properties["WIJKNAAM"],
                                         'subtitle': 'norm',
                                         'ranges': [4000, 12500],
@@ -274,9 +281,9 @@ module Indicators {
                                         'barColor': (v <= 0) ? 'green' : 'red'
                                     };
                                     dataInJson.push(item);
-                                 }
-                             }
-                        );
+                                }
+                            }
+                            );
                         i.indicatorWidth = 400;
                         i.data = JSON.stringify(dataInJson);
                     }

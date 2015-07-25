@@ -23,7 +23,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
     public init(layerManager: LayerManager.LayerManager, options: any) {
         this.manager = layerManager;
-        console.log('init Rest API on port ' + this.server.get('port')+ '. Base path is '+ this.layersUrl);
+        console.log('init Rest API on port ' + this.server.get('port') + '. Base path is ' + this.layersUrl);
 
         //enables cors, used for external swagger requests
         this.server.use(cors());
@@ -96,9 +96,9 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // updates a feature corresponding to a query on ID (should be one)
         // Takes a feature as input in the body of the PUT request
         this.server.put(this.layersUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
-          var feature = new Feature();
-          feature = req.body;
-          this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {
+            var feature = new Feature();
+            feature = req.body;
+            this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
