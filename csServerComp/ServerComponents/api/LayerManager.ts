@@ -24,9 +24,11 @@ export interface IConnector {
     addFeature(layerId: string, feature: any, callback: Function);
     getFeature(layerId: string, featureId: string, callback: Function);
     updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function);
+    deleteFeature(layerId: string, featureId: string, callback: Function);
+    //log methods
+    addLog(layerId: string, featureId: string, property: any, callback: Function);
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function);
     updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function);
-    deleteFeature(layerId: string, featureId: string, callback: Function);
 
 }
 
@@ -90,7 +92,7 @@ export class LayerManager {
      */
     public sensors: { [key: string]: SensorSet } = {};
 
-    public defaultStorage = "file";
+    public defaultStorage = "mongo";
     public defaultLogging = false;
 
     public init() {
@@ -247,4 +249,12 @@ export class LayerManager {
         s.deleteFeature(layerId, featureId, (result) => callback(result));
     }
 
+
+    //log stuff (new: 26/7)
+
+    public addLog(layerId: string, featureId: string, feature: any, callback: Function) {
+      var log = <Log>feature;
+      var s = this.findStorageForLayerId(layerId);
+      s.addLog(layerId, featureId, log, (result) =>callback(result));
+    }
 }

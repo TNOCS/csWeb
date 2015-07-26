@@ -28,11 +28,12 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
             else
                 callback(<CallbackResult> { result: "OK" });
         });
-        collection.createIndex({'coordinates.geometry' : "2dsphere"}, function(e, indexname) {
+        //ensure index will only create an index if none on the field are present, to avoid errors.
+        collection.ensureIndex({'coordinates.geometry' : "2dsphere"}, function(e, indexname) {
           if (!e) {
             console.log("created a 2Dsphere geospatial index in layer "+layer.id+" upon insertion.");
           } else {
-            console.log("Error during index creation");
+            console.log("Error during index creation. Error: "+e);
           }
         });
     }
@@ -147,16 +148,46 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
       });
     }
 
+    // Log methods:
+    // While these could be resolved via the updateFeature method, it serves the
+    // simplicity of the API greatly if they receive their own set of CRUDs (27/7)
+    //
+    // following Arnouds RTI example I've adopted the following format for logs:
+    // logs.<propertyname>.[{timestamp, property, value},{..}]
+    // Perhaps it could make sense to add the original here as well, but a call
+    // for that could perhaps come from the logic on the front.
+
+    public addLog(layerId: string, featureId: string, log: Log, callback: Function) {
+      // Going to assume we get data in the following format:
+      //
+      // {
+      //    prop: <Name>
+      //    value: <x>
+      // }
+      // can also send a feature id with this, which makes more sense.
+      var collection = this.db.collection(layerId);
+      // If the field is absent in the document to update, $push adds the array field with the value as its element.
+      // http://docs.mongodb.org/manual/reference/operator/update/push/
+      collection.update({_id: featureId}, {"$push": { 'logs': {log}}}, {multi: false}, (e, response) => {
+          if (!e) {
+              callback(<CallbackResult>{ result: "OK"});
+          }
+          else {
+              callback(<CallbackResult>{ result: "Error", error: e });
+          }
+      });
+    }
+
     public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
       //Might have to look at how different this will be from existing updateLayer/Feature functionality
-      //TODO: implement
+      // Edit: 26/7 Arnoud: this can be done via updateFeature, just make sure to send the entire feature along
     }
 
     // fetches all points in a given [].
     // So in Mongo, this needs to take four coordinate pair params. Do we solve this algoritmically or just ask for four params?
     // Todo: implement
     public getBoundingBox(layerId: string, southWestLat: number, southWestLng: number, northEastLat: number, northEastLng: number, callback: Function) {
-      //
+
     }
 
     // Similar to BBox, but instead fetches all points in a circle. Starts with nearest point and returns documents outwards.
