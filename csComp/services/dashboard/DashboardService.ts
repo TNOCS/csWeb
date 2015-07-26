@@ -75,8 +75,8 @@ module csComp.Services {
                         break;
                 }
             });
-            this.widgetTypes["indicators"] = <IWidget>{ id: "indicators", icon: "cs/images/widgets/indicators.png" };
-            this.widgetTypes["markdown"] = <IWidget>{};
+            this.widgetTypes["indicators"] = <IWidget>{ id: "indicators", icon: "cs/images/widgets/indicators.png", description: "Showing sensor data using charts" };
+            this.widgetTypes["markdown"] = <IWidget>{ id: "markdown", icon: "cs/images/widgets/markdown.png", description: "Show custom markdown or html content" };
         }
 
 
@@ -145,10 +145,13 @@ module csComp.Services {
             this.editWidgetMode = true;
             // $("#widgetEdit").addClass('active');
 
+
+
             var rpt = csComp.Helpers.createRightPanelTab('widget', 'widgetedit', widget, 'Edit widget', 'Edit widget', 'th-large');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
 
-            //widget.startEdit();
+            // call widgetctrl edit function
+            if (widget._ctrl) widget._ctrl.startEdit();
 
             // check if editor exists
             if (this.$injector.has(widget.directive + 'EditDirective')) {

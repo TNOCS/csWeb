@@ -13,7 +13,7 @@ declare module L {
     }
 }
 
-L.Terminator = L.Polygon.extend({
+L.Terminator = <any>L.Polygon.extend(<any>{
     options: {
         color: '#00',
         opacity: 0.5,
@@ -176,10 +176,10 @@ module csComp.Services {
             var defaultValue = 0;
             if (typeof layer.dataSourceParameters !== 'undefined') {
                 var gridParams = <INightDayDataSourceParameters> layer.dataSourceParameters;
-                if (typeof gridParams.showNight !== 'undefined') showNight    = gridParams.showNight;
-                if (typeof gridParams.value     !== 'undefined') defaultValue = gridParams.value;
+                if (typeof gridParams.showNight !== 'undefined') showNight = gridParams.showNight;
+                if (typeof gridParams.value !== 'undefined') defaultValue = gridParams.value;
             }
-            var terminator = new L.Terminator( {"showNight": showNight} );
+            var terminator = new L.Terminator({ "showNight": showNight });
             var geojson = terminator.toGeoJSON();
             if (showNight) {
                 geojson.properties["Name"] = "Night";

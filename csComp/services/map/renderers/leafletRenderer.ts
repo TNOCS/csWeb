@@ -75,7 +75,7 @@ module csComp.Services {
             // for clustering use a cluster layer
             if (group.clustering) {
                 group.cluster = new L.MarkerClusterGroup({
-                    maxClusterRadius: (zoom) => {if (zoom > 18) {return 2;} else { return group.maxClusterRadius || 80}},
+                    maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
                 this.service.map.map.addLayer(group.cluster);
@@ -193,7 +193,7 @@ module csComp.Services {
                     //this.$rootScope.$apply();
                     break;
                 case "wms":
-                    var wms: any = L.tileLayer.wms(layer.url, {
+                    var wms: any = L.tileLayer.wms(layer.url, <any>{
                         layers: layer.wmsLayers,
                         opacity: layer.opacity / 100,
                         format: 'image/png',
@@ -555,12 +555,12 @@ module csComp.Services {
             var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
             content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
 
-            this.popup = L.popup({
+            /*this.popup = L.popup({
                 offset: new L.Point(-widthInPixels / 2 - 40, -5),
                 closeOnClick: true,
                 autoPan: false,
                 className: 'featureTooltip'
-            }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
+            }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);*/
         }
 
         hideFeatureTooltip(e) {

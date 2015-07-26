@@ -34,17 +34,15 @@ module Indicators {
         }
     }
 
-    export interface IWidgetCtrl extends ng.IScope {
-        startEdit: Function;
-    }
 
-    export interface IIndicatorsCtrl extends IWidgetCtrl {
+
+    export interface IIndicatorsScope extends ng.IScope {
         vm: IndicatorsCtrl;
         data: indicatorData;
     }
 
-    export class IndicatorsCtrl {
-        private scope: IIndicatorsCtrl
+    export class IndicatorsCtrl implements csComp.Services.IWidgetCtrl {
+        private scope: IIndicatorsScope
         private widget: csComp.Services.IWidget;
 
         // $inject annotation.
@@ -62,7 +60,7 @@ module Indicators {
         ];
 
         constructor(
-            private $scope: IIndicatorsCtrl,
+            private $scope: IIndicatorsScope,
             private $timeout: ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
@@ -72,8 +70,11 @@ module Indicators {
             ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
-            this.widget = par.widget;
             if (!par.widget) return;
+
+            this.widget = par.widget;
+            this.widget._ctrl = this;
+
             this.checkLayers();
             this.$messageBus.subscribe("layer", (s: string) => {
                 this.checkLayers();
@@ -150,7 +151,7 @@ module Indicators {
         }
 
         public startEdit() {
-
+            //alert('start edit');
         }
 
         private checkLayers() {

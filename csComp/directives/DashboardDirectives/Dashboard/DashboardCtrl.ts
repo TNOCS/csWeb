@@ -129,6 +129,18 @@ module Dashboard {
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
         }
 
+        public toggleInteract(widget: csComp.Services.IWidget) {
+            widget._interaction = !widget._interaction;
+            if (widget._interaction) {
+                interact('#' + widget.elementId + '-parent').draggable(true);
+            }
+            else {
+                interact('#' + widget.elementId + '-parent').draggable(false);
+            }
+
+
+        }
+
         public checkMap() {
             if (this.$scope.dashboard.showMap != this.$layerService.visual.mapVisible) {
                 if (this.$scope.dashboard.showMap) {
@@ -194,67 +206,61 @@ module Dashboard {
 
         public isReady(widget: csComp.Services.IWidget) {
             setTimeout(() => {
-                if (widget._interaction) return;
-                widget._interaction = true;
+                if (!widget._ijs)
 
-                interact('#' + widget.elementId + '-parent')
-                    .draggable({
-
-                })
-                    .resizable({
-                    inertia: true
-                })
-                    .on('down', (e) => {
-                    widget._isMoving = true;
-                    if (this.$dashboardService.activeWidget != widget) {
-                        this.$dashboardService.editWidget(widget)
+                    widget._ijs = interact('#' + widget.elementId + '-parent')
+                        .resizable({ inertia: true })
+                        .on('down', (e) => {
+                        if (widget._interaction) widget._isMoving = true;
+                        if (this.$dashboardService.activeWidget != widget) {
+                            this.$dashboardService.editWidget(widget)
+                        }
                     }
-                }
-                    )
-                    .on('up', (e) => widget._isMoving = false)
-                    .on('dragmove', (event) => {
-                    if (widget.left || (!widget.left && widget.left !== "")) {
-                        widget.left = this.setValue(event.dx, widget.left);
-                        if (widget.width && widget.width !== "") {
-                            widget.right = "";
-                        } else {
+                        )
+                        .on('up', (e) => widget._isMoving = false)
+                        .on('dragmove', (event) => {
+                        if (widget.left || (!widget.left && widget.left !== "")) {
+                            widget.left = this.setValue(event.dx, widget.left);
+                            if (widget.width && widget.width !== "") {
+                                widget.right = "";
+                            } else {
+                                widget.right = this.setValue(-event.dx, widget.right);
+                            }
+                        }
+                        else {
+                            if (!widget.right || widget.right === "") {
+                                widget.right = 1000 + "px";
+                            }
                             widget.right = this.setValue(-event.dx, widget.right);
                         }
-                    }
-                    else {
-                        if (!widget.right || widget.right === "") {
-                            widget.right = 1000 + "px";
-                        }
-                        widget.right = this.setValue(-event.dx, widget.right);
-                    }
-                    if (widget.top && widget.top !== "") {
-                        widget.top = this.setValue(event.dy, widget.top);
-                        if (widget.bottom) {
-                            if (widget.height) {
-                                widget.bottom = "";
+                        if (widget.top && widget.top !== "") {
+                            widget.top = this.setValue(event.dy, widget.top);
+                            if (widget.bottom) {
+                                if (widget.height) {
+                                    widget.bottom = "";
+                                }
+                                else
+                                { widget.bottom = this.setValue(-event.dy, widget.bottom); }
                             }
-                            else
-                            { widget.bottom = this.setValue(-event.dy, widget.bottom); }
                         }
-                    }
-                    else {
-                        widget.bottom = this.setValue(-event.dy, widget.bottom);
-                    }
+                        else {
+                            widget.bottom = this.setValue(-event.dy, widget.bottom);
+                        }
 
-                    if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
-                })
-                    .on('resizemove', (event) => {
-                    widget.height = this.setValue(event.dy, widget.height);
-                    if (widget.left && widget.right) {
-                        widget.right = this.setValue(-event.dx, widget.right);
-                    }
-                    else {
-                        if (!widget.width) widget.width = "300px";
-                        widget.width = this.setValue(event.dx, widget.width);
-                    }
-                    if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                        if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                    })
+                        .on('resizemove', (event) => {
+                        widget.height = this.setValue(event.dy, widget.height);
+                        if (widget.left && widget.right) {
+                            widget.right = this.setValue(-event.dx, widget.right);
+                        }
+                        else {
+                            if (!widget.width) widget.width = "300px";
+                            widget.width = this.setValue(event.dx, widget.width);
+                        }
+                        if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
 
-                })
+                    })
 
                 //this.updateWidget(widget);
             }, 10);

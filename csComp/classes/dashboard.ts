@@ -15,6 +15,10 @@ module csComp.Services {
         disableIfLeftPanel: boolean;
     }
 
+    export interface IWidgetCtrl {
+        startEdit: Function;
+    }
+
     export interface IWidget {
         /**
          * name of the directive that should be used as widget
@@ -41,7 +45,7 @@ module csComp.Services {
         style?: string;
         customStyle?: WidgetStyle;
         effectiveStyle?: WidgetStyle;
-
+        description?: string;
         parentDashboard?: csComp.Services.Dashboard;
         renderer?: Function;
         resize?: Function;
@@ -69,6 +73,8 @@ module csComp.Services {
         messageBusService?: csComp.Services.MessageBusService;
         layerService?: csComp.Services.LayerService;
 
+        _ctrl?: IWidgetCtrl;
+        _ijs?: any;
         _initialized?: boolean;
         _interaction?: boolean;
         _isMoving?: boolean;
@@ -84,6 +90,7 @@ module csComp.Services {
         public enabled: boolean = true;
         public style: string;
         public customStyle: WidgetStyle;
+        public description: string;
 
         public opacity: number = 1;
         public hideIfLeftPanel: boolean;
@@ -108,6 +115,7 @@ module csComp.Services {
         public hover: boolean;
         public effectiveStyle: WidgetStyle;
 
+        public _ctrl: IWidgetCtrl;
         public _initialized: boolean;
         public _interaction: boolean;
         public _isMoving: boolean;
