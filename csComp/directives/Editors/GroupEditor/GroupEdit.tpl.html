@@ -21,6 +21,14 @@
       <label for="oneLayerActive-{{vm.group.id}}">One layer active</label>
     </div>
     <div class="controls">
+        <label class="editor-title input-xlarge" for="owsUrl">OWS Url</label>
+        <input id="owsUrl" name="textinput" type="text" ng-model="group.owsurl" placeholder="url" class="input-xlarge editor-text-input" ng-change="vm.updateOws()" ng-model-options="{ debounce: 2000 }">
+    </div>
+    <div ng-hide="group.owsurl==''" class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+      <input type="checkbox" id="group-ows-image-{{vm.group.id}}" ng-model="group.owsgeojson" ng-change="vm.updateOws()">
+      <label for="group-ows-image-{{vm.group.id}}">Use GeoJson</label>
+    </div>
+    <div class="controls" style="margin-top:10px">
       <button class="btn" ng-click="vm.removeGroup()">remove</button>
     </div>
 
