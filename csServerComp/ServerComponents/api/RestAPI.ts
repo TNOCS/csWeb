@@ -104,10 +104,13 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         });
 
-        // updates all features corresponding to query on ID (should be one)
-        this.server.put(this.layersUrl + ":layerId/:featureId/prop/:property", (req: express.Request, res: express.Response) => {
-            this.manager.updateProperty(req.params.layerId, req.params.featureId, req.params.property, req.body, true, (result: CallbackResult) => {
+        // LOGS
+
+        // addLog
+        this.server.put(this.layersUrl + ":layerId/:featureId/log", (req: express.Request, res: express.Response) => {
+            this.manager.addLog(req.params.layerId, req.params.featureId, req.body, (result: CallbackResult) => {
                 //todo: check error
+                console.log("received log");
                 res.send(result);
             });
         });
