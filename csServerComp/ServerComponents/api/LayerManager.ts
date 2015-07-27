@@ -30,24 +30,32 @@ export interface IConnector {
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function);
     updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function);
 
+    //sensor methods
+    addSensor(sensor: Sensor, callback: Function);
+    addSensorValue(sensorId: string, value: SensorValue, callback: Function);
+    getSensors(callback: Function);
+    getSensor(sensorId: string);
 }
 
-export class Sensor {
+export class SensorValue {
+    value: any;
+    timestamp: number;
+}
+
+export interface StorageObject {
+    id: string;
+    storage: string;
+}
+
+export class Sensor implements StorageObject {
+    id: string;
     title: string;
     type: string;
-    values: any[];
+    values: SensorValue[];
+    storage: string;
 }
 
-export class SensorSet {
-    timestamps: number[] = [];
-    sensors: { [key: string]: Sensor };
-
-    constructor(public id: string) {
-    }
-}
-
-
-export class Layer {
+export class Layer implements StorageObject {
     /**
      * id of storage connector
      */
@@ -90,7 +98,7 @@ export class LayerManager {
     /**
      * Dictionary of sensor sets
      */
-    public sensors: { [key: string]: SensorSet } = {};
+    public sensors: { [key: string]: Sensor } = {};
 
     public defaultStorage = "mongo";
     public defaultLogging = false;
@@ -130,8 +138,8 @@ export class LayerManager {
     /**
      * Find storage for a layer
      */
-    public findStorage(layer: Layer): IConnector {
-        var storage = (layer && layer.storage) || this.defaultStorage;
+    public findStorage(object: StorageObject): IConnector {
+        var storage = (object && object.storage) || this.defaultStorage;
         if (this.connectors.hasOwnProperty(storage)) return this.connectors[storage];
         return null;
     }
@@ -142,9 +150,7 @@ export class LayerManager {
     public findStorageForLayerId(layerId: string): IConnector {
         var layer = this.findLayer(layerId);
         return this.findStorage(layer);
-
     }
-
 
     //layer methods start here, in CRUD order.
     public addLayer(layer: Layer, callback: Function) {
@@ -175,10 +181,10 @@ export class LayerManager {
     }
 
     public updateLayer(layerId: string, update: any, callback: Function) {
-      var s = this.findStorageForLayerId(layerId);
-      s.updateLayer(layerId, update, (r, CallbackResult) => {
-        callback(r);
-      });
+        var s = this.findStorageForLayerId(layerId);
+        s.updateLayer(layerId, update, (r, CallbackResult) => {
+            callback(r);
+        });
     }
 
     public deleteLayer(layerId: string, callback: Function) {
@@ -253,8 +259,17 @@ export class LayerManager {
     //log stuff (new: 26/7)
 
     public addLog(layerId: string, featureId: string, feature: any, callback: Function) {
-      var log = <Log>feature;
-      var s = this.findStorageForLayerId(layerId);
-      s.addLog(layerId, featureId, log, (result) =>callback(result));
+        var log = <Log>feature;
+        var s = this.findStorageForLayerId(layerId);
+        s.addLog(layerId, featureId, log, (result) => callback(result));
+    }
+
+    public addSensor(sensor: Sensor, callback: Function) {
+
+    }
+    public addSensorValue(sensorId: string, value: SensorValue, callback: Function) { }
+
+    public initLayer(layer: Layer) {
+
     }
 }

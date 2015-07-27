@@ -4,6 +4,8 @@ import cors = require('cors')
 import Layer = LayerManager.Layer;
 import Feature = LayerManager.Feature;
 import Logs = LayerManager.Log;
+import Sensor = LayerManager.Sensor;
+import SensorValue = LayerManager.SensorValue;
 import BaseConnector = require('./BaseConnector');
 import CallbackResult = LayerManager.CallbackResult;
 
@@ -135,10 +137,10 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         });
 
+        this.server.post(this.sensorsUrl + ":sensorId", (req: express.Request, res: express.Response) => {
+            this.manager.addSensor(req.body, (result: CallbackResult) => { res.send(result) });
+        });
 
-    }
-
-    public initLayer(layer: Layer) {
 
     }
 
