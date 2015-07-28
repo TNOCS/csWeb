@@ -12,5 +12,6 @@ class Location {
     gebruiksdoelverblijfsobject: string;
     oppervlakteverblijfsobject: string;
     contour: string;
+    woningeninpand: number;
 }
 export = Location;

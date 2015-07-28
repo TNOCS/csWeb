@@ -1,7 +1,4 @@
 module csComp.Services {
-
-
-
     export class Log {
         /**
          * Timestamp, epoch ms
@@ -82,7 +79,6 @@ module csComp.Services {
             if (f.sensors) res.sensors = f.sensors;
             return res;
         }
-
     }
 
     export interface IProperty {
@@ -227,8 +223,6 @@ module csComp.Services {
         languages?: ILanguageData;
         isInitialized?: boolean;
     }
-
-
 
     export interface IGeoJsonFile {
         featureTypes?: { [key: string]: IFeatureType };

@@ -4,7 +4,7 @@ import IActionOption = csComp.Services.IActionOption;
 module Accessibility {
     export class AccessibilityModel implements csComp.Services.IActionService {
         private layerService: csComp.Services.LayerService
-
+        id = "accessibilityActions";
         stop() { }
         addFeature(feature: IFeature) { }
         removeFeature(feature: IFeature) { }
@@ -181,6 +181,12 @@ module Accessibility {
         }
 
         public refreshAccessibility() {
+            if (this.$layerService.lastSelectedFeature) {
+                var lsf =  this.$layerService.lastSelectedFeature;
+                if (lsf.geometry && lsf.geometry.type === 'Point') {
+                    this.urlParameters['fromPlace'] = lsf.geometry.coordinates[1] + '%2C' + lsf.geometry.coordinates[0];
+                }
+             }
             this.urlParameters['mode'] = this.transportMode;
             this.urlParameters['time'] = encodeURIComponent(this.time);
             if (this.walkSpeedKm) this.urlParameters['walkSpeed'] = csComp.Helpers.GeoExtensions.convertKmToMile(this.walkSpeedKm);

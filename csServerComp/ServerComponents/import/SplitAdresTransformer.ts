@@ -56,10 +56,18 @@ class SplitAdresTransformer implements transform.ITransform {
 
         var street = adres.slice(0,adres.search(/\d/)).trim();
         var addressNumberWithAddition = adres.slice(adres.search(/\d/)).trim();
-        var strAddressNumber = addressNumberWithAddition.slice(0,addressNumberWithAddition.search(/\D/)).trim();
+        var nonDigitIndex = addressNumberWithAddition.search(/\D/);
+        if (nonDigitIndex == -1) {
+          nonDigitIndex = addressNumberWithAddition.length;
+        }
+        var strAddressNumber = addressNumberWithAddition.slice(0,nonDigitIndex).trim();
         var addressNumber = parseInt(strAddressNumber);
-        feature.straat = street;
+        feature.properties.straat = street;
         feature.properties.huisnummer = addressNumber;
+
+        /*console.log(adres);
+        console.log(street + " " + strAddressNumber);*/
+        /*console.log(addressNumberWithAddition);*/
       }
 
       if (this.zipcodeCityProperty) {
