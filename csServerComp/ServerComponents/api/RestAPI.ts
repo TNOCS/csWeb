@@ -141,6 +141,10 @@ export class RestAPI extends BaseConnector.BaseConnector {
             this.manager.addSensor(req.body, (result: CallbackResult) => { res.send(result) });
         });
 
+        this.server.get(this.sensorsUrl, (req: express.Request, res: express.Response) => {
+            this.manager.getSensors((result: CallbackResult) => { res.send(result) });
+        });
+
 
     }
 

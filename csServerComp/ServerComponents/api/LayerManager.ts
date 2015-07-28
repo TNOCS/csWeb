@@ -265,7 +265,12 @@ export class LayerManager {
     }
 
     public addSensor(sensor: Sensor, callback: Function) {
+        console.log(JSON.stringify(sensor));
+        callback(<CallbackResult>{ result: "Ok" })
+    }
 
+    public getSensors(callback: Function) {
+        callback(<CallbackResult>{ result: "Ok" });
     }
     public addSensorValue(sensorId: string, value: SensorValue, callback: Function) { }
 
