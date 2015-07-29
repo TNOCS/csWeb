@@ -160,14 +160,6 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
     // Log methods:
     // While these could be resolved via the updateFeature method, it serves the
     // simplicity of the API greatly if they receive their own set of CRUDs (27/7)
-    //
-    // following Arnouds RTI example I've adopted the following format for logs:
-    // logs.<propertyname>.[{timestamp, property, value},{..}]
-    // Perhaps it could make sense to add the original value here as well, but a call
-    // for that could perhaps come from the logic on the front. We just add the log here.
-    //
-    // NOTE: the above format makes indexing impossible, because of the dynamic name.
-    //
 
     public addLog(layerId: string, featureId: string, log: Log, callback: Function) {
       var collection = this.db.collection(layerId);
@@ -182,6 +174,40 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
               "ts": log.ts,
               "prop": log.prop,
               "value": log.value
+            }
+          }
+        }, {multi: false}, (e, response) => {
+          if (!e) {
+              callback(<CallbackResult>{ result: "OK"});
+          }
+          else {
+              callback(<CallbackResult>{ result: "Error", error: e });
+          }
+      });
+    }
+
+    // Gets only the log entries corresponding to a feature.
+    public getLog(layerId: string, featureId: string, callback: Function) {
+      var collection = this.db.collection(layerId);
+      collection.findOne({_id: featureId}, {logs: 1}, function(e, response) {
+          if (e) {
+            callback(<CallbackResult>{ result: "Error", error: e});
+          } else {
+            var f = <Feature> response;
+            callback(<CallbackResult>{ result: "OK", feature: f});
+          }
+      });
+    }
+
+    public deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function) {
+      var collection = this.db.collection(layerId);
+      collection.update(
+        {_id: featureId},
+        { $pull:
+          { logs:
+            {
+              "ts": ts,
+              "prop": prop,
             }
           }
         }, {multi: false}, (e, response) => {

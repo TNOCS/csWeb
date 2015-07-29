@@ -26,7 +26,9 @@ export interface IConnector {
     updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function);
     deleteFeature(layerId: string, featureId: string, callback: Function);
     //log methods
-    addLog(layerId: string, featureId: string, property: any, callback: Function);
+    addLog(layerId: string, featureId: string, log: Log, callback: Function);
+    getLog(layerId: string, featureId: string, callback: Function);
+    deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function)
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function);
     updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function);
 
@@ -252,9 +254,19 @@ export class LayerManager {
 
     //log stuff (new: 26/7)
 
-    public addLog(layerId: string, featureId: string, feature: any, callback: Function) {
-      var log = <Log>feature;
+    public addLog(layerId: string, featureId: string, logAddition: any, callback: Function) {
+      var log = <Log>logAddition;
       var s = this.findStorageForLayerId(layerId);
       s.addLog(layerId, featureId, log, (result) =>callback(result));
+    }
+
+    public getLog(layerId: string, featureId: string, callback: Function) {
+      var s = this.findStorageForLayerId(layerId);
+      s.getLog(layerId, featureId, (result) => callback(result));
+    }
+
+    public deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function) {
+      var s = this.findStorageForLayerId(layerId);
+      s.deleteLog(layerId, featureId, ts, prop, (result) => callback(result));
     }
 }

@@ -104,6 +104,16 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         });
 
+        // for some reason (TS?) express doesn't work with del as http verb
+        // unlike the JS version, which simply uses del as a keyword.
+        // deletes a feature
+        this.server.delete(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
+            this.manager.deleteFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        });
+
         // LOGS
 
         // addLog
@@ -111,6 +121,22 @@ export class RestAPI extends BaseConnector.BaseConnector {
             this.manager.addLog(req.params.layerId, req.params.featureId, req.body, (result: CallbackResult) => {
                 //todo: check error
                 console.log("received log");
+                res.send(result);
+            });
+        });
+
+        //getLog (path doesnt make sense)
+        this.server.get(this.layersUrl + ":layerId/:featureId/log", (req: express.Request, res: express.Response) => {
+            this.manager.getLog(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        });
+        
+        //deleteLog
+        this.server.delete(this.layersUrl + ":layerId/:featureId/log", (req: express.Request, res: express.Response) => {
+          this.manager.deleteLog(req.params.layerId, req.params.featureId, req.body.ts, req.body.prop, (result: CallbackResult) => {
+                //todo: check error
                 res.send(result);
             });
         });
@@ -125,17 +151,6 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
             });
         });
-        // for some reason (TS?) express doesn't work with del as http verb
-        // unlike the JS version, which simply uses del as a keyword.
-        // deletes a feature
-        this.server.delete(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
-            this.manager.deleteFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
-                //todo: check error
-                res.send(result);
-            });
-        });
-
-
     }
 
     public initLayer(layer: Layer) {
