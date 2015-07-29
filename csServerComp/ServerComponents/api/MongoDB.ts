@@ -154,21 +154,28 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
     //
     // following Arnouds RTI example I've adopted the following format for logs:
     // logs.<propertyname>.[{timestamp, property, value},{..}]
-    // Perhaps it could make sense to add the original here as well, but a call
-    // for that could perhaps come from the logic on the front.
+    // Perhaps it could make sense to add the original value here as well, but a call
+    // for that could perhaps come from the logic on the front. We just add the log here.
+    //
+    // NOTE: the above format makes indexing impossible, because of the dynamic name.
+    //
 
     public addLog(layerId: string, featureId: string, log: Log, callback: Function) {
-      // Going to assume we get data in the following format:
-      //
-      // {
-      //    prop: <Name>
-      //    value: <x>
-      // }
-      // can also send a feature id with this, which makes more sense.
       var collection = this.db.collection(layerId);
+      log.ts = Date.now();
       // If the field is absent in the document to update, $push adds the array field with the value as its element.
       // http://docs.mongodb.org/manual/reference/operator/update/push/
-      collection.update({_id: featureId}, {"$push": { 'logs': {log}}}, {multi: false}, (e, response) => {
+      collection.update(
+        {_id: featureId},
+        { $push:
+          { logs:
+            {
+              "ts": log.ts,
+              "prop": log.prop,
+              "value": log.value
+            }
+          }
+        }, {multi: false}, (e, response) => {
           if (!e) {
               callback(<CallbackResult>{ result: "OK"});
           }
