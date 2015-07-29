@@ -33,7 +33,16 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
           if (!e) {
             console.log("created a 2Dsphere geospatial index in layer "+layer.id+" upon insertion.");
           } else {
-            console.log("Error during index creation. Error: "+e);
+            console.log("Error during geospatial index creation. Error: "+e);
+          }
+        });
+
+        // creating a sparse (= wont index if field is not present) index on logs.
+        collection.ensureIndex({'logs.prop' : 1}, {sparse: true}, function(e, indexname) {
+          if (!e) {
+            console.log("created a sparse index in layer "+layer.id+" upon insertion.");
+          } else {
+            console.log("Error during sparse index creation. Error: "+e);
           }
         });
     }
