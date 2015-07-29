@@ -228,9 +228,28 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
     // fetches all points in a given [].
     // So in Mongo, this needs to take four coordinate pair params. Do we solve this algoritmically or just ask for four params?
     // Todo: implement
-    public getBoundingBox(layerId: string, southWestLat: number, southWestLng: number, northEastLat: number, northEastLng: number, callback: Function) {
-
-    }
+    public getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) {
+      var collection = this.db.collection(layerId);
+      collection.find(
+        {
+        'geometry.coordinates': {
+          $geoWithin: {
+            $box:  [
+              southWest, northEast
+            ]
+          }
+        }
+      }).toArray(function(e, response){
+          if (e) {
+            callback(<CallbackResult>{ result: "Error", error: e });
+          }
+          else {
+            var results = new Layer();
+            results.features = response;
+            callback(<CallbackResult>{ result: "OK", layer: results});
+          }
+      });
+  }
 
     // Similar to BBox, but instead fetches all points in a circle. Starts with nearest point and returns documents outwards.
     public getSphere(layerId: string, maxDistance: number, latitude: number, lontitude: number, callback: Function) {

@@ -31,6 +31,8 @@ export interface IConnector {
     deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function)
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function);
     updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function);
+    //geospatial stuff
+    getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) 
 
 }
 
@@ -268,5 +270,12 @@ export class LayerManager {
     public deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function) {
       var s = this.findStorageForLayerId(layerId);
       s.deleteLog(layerId, featureId, ts, prop, (result) => callback(result));
+    }
+
+    //geospatial queries (thus only supported for mongo)
+
+    public getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) {
+      var s = this.findStorageForLayerId(layerId);
+      s.getBBox(layerId, southWest, northEast, (result) => callback(result));
     }
 }

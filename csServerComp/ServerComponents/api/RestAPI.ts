@@ -132,7 +132,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 res.send(result);
             });
         });
-        
+
         //deleteLog
         this.server.delete(this.layersUrl + ":layerId/:featureId/log", (req: express.Request, res: express.Response) => {
           this.manager.deleteLog(req.params.layerId, req.params.featureId, req.body.ts, req.body.prop, (result: CallbackResult) => {
@@ -149,6 +149,18 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 //todo: check error
                 res.send(result);
 
+            });
+        });
+
+        // Some geospatial queries that are only supported for mongo.
+        // We chose to work with GET and params here for ease of accessibility
+        // (majority of web APIs implement similar constructions)
+        this.server.get(this.layersUrl + ":layerId/bbox", (req: express.Request, res: express.Response) => {
+          var southWest:number[] = [Number(req.query.swlng), Number(req.query.swlat)];
+          var northEast:number[] = [Number(req.query.nelng), Number(req.query.nelat)];
+          this.manager.getBBox(req.params.layerId, southWest, northEast, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
             });
         });
     }
