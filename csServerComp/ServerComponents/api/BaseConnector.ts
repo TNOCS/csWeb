@@ -60,6 +60,18 @@ export class BaseConnector implements LayerManager.IConnector {
 
     }
 
+    public addLog(layerId: string, featureId: string, log: Log, callback: Function) {
+    }
+
+    public getLog(layerId: string, featureId: string, callback: Function) {
+    }
+
+    public deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function) {
+    }
+
+    public getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) {
+
+    }
 
     //TODO: Move connection set-up params from static to parameterized.
     public init(layerManager: LayerManager.LayerManager, options: any) {
