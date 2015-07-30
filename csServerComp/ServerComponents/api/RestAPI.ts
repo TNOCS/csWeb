@@ -13,7 +13,6 @@ export class RestAPI extends BaseConnector.BaseConnector {
     public layersUrl;
     public sensorsUrl;
 
-
     constructor(public server: express.Express, public baseUrl: string = "/api") {
         super();
         this.isInterface = true;
@@ -159,6 +158,14 @@ export class RestAPI extends BaseConnector.BaseConnector {
           var southWest:number[] = [Number(req.query.swlng), Number(req.query.swlat)];
           var northEast:number[] = [Number(req.query.nelng), Number(req.query.nelat)];
           this.manager.getBBox(req.params.layerId, southWest, northEast, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        });
+
+        // fetches all points in a spherical method
+        this.server.get(this.layersUrl + ":layerId/getsphere", (req: express.Request, res: express.Response) => {
+          this.manager.getSphere(req.params.layerId, Number(req.query.maxDistance), Number(req.query.lng), Number(req.query.lat), (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });

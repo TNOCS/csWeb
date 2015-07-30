@@ -18,7 +18,7 @@ export interface IConnector {
     //Layer methods
     addLayer(layer: Layer, callback: Function);
     getLayer(layerId: string, callback: Function);
-    updateLayer(layerId: string, update: any, callback: Function)
+    updateLayer(layerId: string, update: any, callback: Function);
     deleteLayer(layerId: string, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any, callback: Function);
@@ -28,12 +28,12 @@ export interface IConnector {
     //log methods
     addLog(layerId: string, featureId: string, log: Log, callback: Function);
     getLog(layerId: string, featureId: string, callback: Function);
-    deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function)
+    deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function);
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function);
     updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function);
     //geospatial stuff
-    getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) 
-
+    getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function);
+    getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, callback: Function);
 }
 
 export class Sensor {
@@ -58,6 +58,7 @@ export class Layer {
     public storage: string;
     public useLog: boolean;
     public id: string;
+    public type: string;
     public features: Feature[] = [];
 }
 
@@ -278,4 +279,10 @@ export class LayerManager {
       var s = this.findStorageForLayerId(layerId);
       s.getBBox(layerId, southWest, northEast, (result) => callback(result));
     }
+
+    public getSphere(layerId: string, maxDistance: number, lng: number, lat: number, callback: Function) {
+      var s = this.findStorageForLayerId(layerId);
+      s.getSphere(layerId, maxDistance, lng, lat, (result) => callback(result));
+    }
+
 }

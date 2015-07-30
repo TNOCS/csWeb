@@ -226,8 +226,6 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
     }
 
     // fetches all points in a given [].
-    // So in Mongo, this needs to take four coordinate pair params. Do we solve this algoritmically or just ask for four params?
-    // Todo: implement
     public getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) {
       var collection = this.db.collection(layerId);
       collection.find(
@@ -252,9 +250,32 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
   }
 
     // Similar to BBox, but instead fetches all points in a circle. Starts with nearest point and returns documents outwards.
-    public getSphere(layerId: string, maxDistance: number, latitude: number, lontitude: number, callback: Function) {
-      //todo
-    }
+    public getSphere(layerId: string, maxDistance: number, latitude: number, longtitude: number, callback: Function) {
+      var collection = this.db.collection(layerId);
+
+      collection.aggregate([
+        {
+          $geoNear: {
+             "near": [longtitude, latitude],
+             "maxDistance": Number(maxDistance),
+             "distanceField": "distance",
+             "distanceMultiplier": 6371,
+             "num": 2,
+             "spherical": true
+          }
+        }
+      ], function(e, response) {
+
+             if (e) {
+               callback(<CallbackResult>{ result: "Error", error: e});
+             } else {
+               var l = new Layer();
+               l.type = "FeatureCollection"
+               l = <Layer> response;
+               callback(<CallbackResult>{ result: "OK", layer: l});
+             }
+         });
+       }
 
     // So I figured that the ability to get something within a polygon would be
     // an interesting functionality. E.g. getting something within a region specified by
