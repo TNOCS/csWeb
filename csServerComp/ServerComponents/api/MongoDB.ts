@@ -250,17 +250,17 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
   }
 
     // Similar to BBox, but instead fetches all points in a circle. Starts with nearest point and returns documents outwards.
-    public getSphere(layerId: string, maxDistance: number, latitude: number, longtitude: number, callback: Function) {
+    public getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, callback: Function) {
       var collection = this.db.collection(layerId);
 
       collection.aggregate([
         {
           $geoNear: {
-             "near": [longtitude, latitude],
-             "maxDistance": Number(maxDistance),
+            near: { type: "Point" , coordinates: [longtitude, latitude] } ,
+             "maxDistance": maxDistance,
              "distanceField": "distance",
-             "distanceMultiplier": 6371,
-             "num": 2,
+             "distanceMultiplier": 1,
+             "num": 1000,
              "spherical": true
           }
         }
