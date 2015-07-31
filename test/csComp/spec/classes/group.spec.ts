@@ -34,6 +34,37 @@ describe('ProjectGroup', function() {
             expect(result.ndx).toBeUndefined();
         });
     });
+
+    describe('Loading data from OWS service', () =>{
+        var targetURL = '/ows';
+        var $httpBackend;
+        var fakeXML;
+
+        beforeEach(module("mockedOWSXML"));
+        beforeEach(inject(($injector, defaultXML) => {
+            $httpBackend = $injector.get('$httpBackend');
+            fakeXML = defaultXML;
+        }));
+
+        it('should load some layers', () => {
+            $httpBackend.whenGET(targetURL).respond(200, fakeXML);
+
+            projectgroup.owsurl = targetURL;
+            projectgroup.loadLayersFromOWS(fakeXML);
+            // TODO: should use $httpBackend instead of passing fake XML to
+            // loadLayersFromOWS (which was done just for this test).
+            // But $httpBackend loadLayersFromOWS seems not to work because
+            // $http is not properly injected in loadLayersFromOWS.
+
+            // $httpBackend.expectGET(targetURL);
+            // $httpBackend.flush();
+            // $httpBackend.verifyNoOutstandingExpectation();
+            // $httpBackend.verifyNoOutstandingRequest();
+
+            expect(projectgroup.layers).not.toBe(null);
+            expect(projectgroup.layers.length).toBeGreaterThan(0);
+        });
+    });
 });
 
 

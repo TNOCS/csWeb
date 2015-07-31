@@ -70,31 +70,41 @@ module csComp.Services {
             return res;
         }
 
-        public loadLayersFromOWS():void {
+        public loadLayersFromOWS(fakedata: string = ''):void {
             this.layers = [];   // add some layers here...
+
+            if(fakedata.length>0) {
+                this.parseXML(fakedata);
+                return;
+            }
+
+            // create an injector
+            var $injector = angular.injector(["ng"]);
+            $injector.invoke(($http) => {
+                // console.log("HTTP load OWSURL: " + this.owsurl);
+                $http.get(this.owsurl)
+                    .success((xml) => { this.parseXML(xml); })
+                    .error((xml, status) => {
+                        console.log("Unable to load OWSurl: " + this.owsurl);
+                        console.log("          HTTP status: " + status);
+                    });
+            });
+        }
+
+        private parseXML(xml: any): void {
             var theGroup = this;
-            $.ajax({
-                type: "GET",
-		        url: this.owsurl,
-                dataType: "xml",
-
-                success: (xml) => {
-                    $(xml).find("Layer").each(function() {
-                        // Remove ?service=wms&request=getCapabilities
-                        var baseurl = theGroup.owsurl.split("?")[0];
-
-                        // DO NOT use arrow notation (=>) as it will break this !!!
-                        var layerName = $(this).children("Name").text();
-                        if (layerName != null && layerName!="") {
-                            var title = $(this).children("Title").text();
-                            // TODO: should be using layerService.initLayer(theGroup, layer);
-                            // But I don't know how to 'inject' layerService :(
-                            var layer = theGroup.buildLayer(baseurl, title, layerName);
-                            theGroup.layers.push(layer);
-         				}
-        			});
-		        }
-	        })
+            var baseurl = this.owsurl.split("?")[0];
+            $(xml).find("Layer").each(function() {
+                // DO NOT use arrow notation (=>) as it will break this !!!
+                var layerName = $(this).children("Name").text();
+                if (layerName != null && layerName!="") {
+                    var title = $(this).children("Title").text();
+                    // TODO: should be using layerService.initLayer(theGroup, layer);
+                    // But I don't know how to 'inject' layerService :(
+                    var layer = theGroup.buildLayer(baseurl, title, layerName);
+                    theGroup.layers.push(layer);
+                }
+            });
         }
 
         private buildLayer(baseurl: string, title: string, layerName: string): ProjectLayer {
