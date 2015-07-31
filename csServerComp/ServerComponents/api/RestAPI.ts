@@ -155,7 +155,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // We chose to work with GET and params here for ease of accessibility
         // (majority of web APIs implement similar constructions)
 
-        //
+        // gets all points in a rectangular shape.
         this.server.get(this.layersUrl + ":layerId/bbox", (req: express.Request, res: express.Response) => {
           var southWest:number[] = [Number(req.query.swlng), Number(req.query.swlat)];
           var northEast:number[] = [Number(req.query.nelng), Number(req.query.nelat)];
@@ -181,9 +181,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 res.send(result);
             });
         });
-
     }
-
 
     public initLayer(layer: Layer) {
 
