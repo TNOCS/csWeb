@@ -1,5 +1,6 @@
 import LayerManager = require('./LayerManager');
 import Layer = LayerManager.Layer;
+import Feature = LayerManager.Feature;
 import CallbackResult = LayerManager.CallbackResult;
 import Log = LayerManager.Log;
 import Sensor = LayerManager.Sensor;
@@ -72,6 +73,29 @@ export class BaseConnector implements LayerManager.IConnector {
     public getSensors(callback: Function) { }
     public getSensor(sensorId: string) { }
 
+    public addLog(layerId: string, featureId: string, log: Log, callback: Function) {
+
+    }
+
+    public getLog(layerId: string, featureId: string, callback: Function) {
+
+    }
+
+    public deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function) {
+
+    }
+
+    public getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) {
+
+    }
+
+    public getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, callback: Function) {
+
+    }
+
+    public getWithinPolygon(layerId: string, feature: Feature, callback: Function) {
+
+    }
 
     //TODO: Move connection set-up params from static to parameterized.
     public init(layerManager: LayerManager.LayerManager, options: any) {

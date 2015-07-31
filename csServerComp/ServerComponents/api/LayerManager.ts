@@ -18,7 +18,7 @@ export interface IConnector {
     //Layer methods
     addLayer(layer: Layer, callback: Function);
     getLayer(layerId: string, callback: Function);
-    updateLayer(layerId: string, update: any, callback: Function)
+    updateLayer(layerId: string, update: any, callback: Function);
     deleteLayer(layerId: string, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any, callback: Function);
@@ -26,13 +26,15 @@ export interface IConnector {
     updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function);
     deleteFeature(layerId: string, featureId: string, callback: Function);
     //log methods
-    addLog(layerId: string, featureId: string, property: any, callback: Function);
+    addLog(layerId: string, featureId: string, log: Log, callback: Function);
+    getLog(layerId: string, featureId: string, callback: Function);
+    deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function);
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function);
     updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function);
-
-    //sensor methods
-    addSensor(sensor: Sensor, callback: Function);
-    addSensorValue(sensorId: string, value: SensorValue, callback: Function);
+    //geospatial stuff
+    getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function);
+    getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, callback: Function);
+    getWithinPolygon(layerId: string, feature: Feature, callback: Function);
     getSensors(callback: Function);
     getSensor(sensorId: string);
 }
@@ -62,6 +64,7 @@ export class Layer implements StorageObject {
     public storage: string;
     public useLog: boolean;
     public id: string;
+    public type: string;
     public features: Feature[] = [];
 }
 
@@ -258,8 +261,8 @@ export class LayerManager {
 
     //log stuff (new: 26/7)
 
-    public addLog(layerId: string, featureId: string, feature: any, callback: Function) {
-        var log = <Log>feature;
+    public addLog(layerId: string, featureId: string, logAddition: any, callback: Function) {
+      var log = <Log>logAddition;
         var s = this.findStorageForLayerId(layerId);
         s.addLog(layerId, featureId, log, (result) => callback(result));
     }
@@ -277,4 +280,32 @@ export class LayerManager {
     public initLayer(layer: Layer) {
 
     }
+
+    public getLog(layerId: string, featureId: string, callback: Function) {
+      var s = this.findStorageForLayerId(layerId);
+      s.getLog(layerId, featureId, (result) => callback(result));
+    }
+
+    public deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function) {
+      var s = this.findStorageForLayerId(layerId);
+      s.deleteLog(layerId, featureId, ts, prop, (result) => callback(result));
+    }
+
+    //geospatial queries (thus only supported for mongo)
+
+    public getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) {
+      var s = this.findStorageForLayerId(layerId);
+      s.getBBox(layerId, southWest, northEast, (result) => callback(result));
+    }
+
+    public getSphere(layerId: string, maxDistance: number, lng: number, lat: number, callback: Function) {
+      var s = this.findStorageForLayerId(layerId);
+      s.getSphere(layerId, maxDistance, lng, lat, (result) => callback(result));
+    }
+    public getWithinPolygon(layerId: string, feature: Feature, callback: Function) {
+      var s = this.findStorageForLayerId(layerId);
+      s.getWithinPolygon(layerId, feature, (result) => callback(result));
+    }
+
+
 }

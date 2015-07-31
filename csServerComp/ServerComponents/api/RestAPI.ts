@@ -15,7 +15,6 @@ export class RestAPI extends BaseConnector.BaseConnector {
     public layersUrl;
     public sensorsUrl;
 
-
     constructor(public server: express.Express, public baseUrl: string = "/api") {
         super();
         this.isInterface = true;
@@ -106,6 +105,16 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         });
 
+        // for some reason (TS?) express doesn't work with del as http verb
+        // unlike the JS version, which simply uses del as a keyword.
+        // deletes a feature
+        this.server.delete(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
+            this.manager.deleteFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        });
+
         // LOGS
 
         // addLog
@@ -113,6 +122,22 @@ export class RestAPI extends BaseConnector.BaseConnector {
             this.manager.addLog(req.params.layerId, req.params.featureId, req.body, (result: CallbackResult) => {
                 //todo: check error
                 console.log("received log");
+                res.send(result);
+            });
+        });
+
+        //getLog (path doesnt make sense)
+        this.server.get(this.layersUrl + ":layerId/:featureId/log", (req: express.Request, res: express.Response) => {
+            this.manager.getLog(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        });
+
+        //deleteLog
+        this.server.delete(this.layersUrl + ":layerId/:featureId/log", (req: express.Request, res: express.Response) => {
+          this.manager.deleteLog(req.params.layerId, req.params.featureId, req.body.ts, req.body.prop, (result: CallbackResult) => {
+                //todo: check error
                 res.send(result);
             });
         });
@@ -127,22 +152,42 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
             });
         });
-        // for some reason (TS?) express doesn't work with del as http verb
-        // unlike the JS version, which simply uses del as a keyword.
-        // deletes a feature
-        this.server.delete(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
-            this.manager.deleteFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
+
+        // Some geospatial queries that are only supported for mongo.
+        // We chose to work with GET and params here for ease of accessibility
+        // (majority of web APIs implement similar constructions)
+
+        // gets all points in a rectangular shape.
+        this.server.get(this.layersUrl + ":layerId/bbox", (req: express.Request, res: express.Response) => {
+          var southWest:number[] = [Number(req.query.swlng), Number(req.query.swlat)];
+          var northEast:number[] = [Number(req.query.nelng), Number(req.query.nelat)];
+          this.manager.getBBox(req.params.layerId, southWest, northEast, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
         });
 
+        // fetches all points in a spherical method
+        this.server.get(this.layersUrl + ":layerId/getsphere", (req: express.Request, res: express.Response) => {
+          this.manager.getSphere(req.params.layerId, Number(req.query.maxDistance), Number(req.query.lng), Number(req.query.lat), (result: CallbackResult) => {
         this.server.post(this.sensorsUrl + ":sensorId", (req: express.Request, res: express.Response) => {
             this.manager.addSensor(req.body, (result: CallbackResult) => { res.send(result) });
         });
+                //todo: check error
+                res.send(result);
+            });
+        });
 
+        //works with post - so we can receive a GeoJSON as input
+        this.server.post(this.layersUrl + ":layerId/getwithinpolygon", (req: express.Request, res: express.Response) => {
+          var feature:Feature = req.body;
         this.server.get(this.sensorsUrl, (req: express.Request, res: express.Response) => {
             this.manager.getSensors((result: CallbackResult) => { res.send(result) });
+        });
+          this.manager.getWithinPolygon(req.params.layerId, feature, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
         });
 
 
