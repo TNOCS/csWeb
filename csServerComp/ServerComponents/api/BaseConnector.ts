@@ -1,5 +1,6 @@
 import LayerManager = require('./LayerManager');
 import Layer = LayerManager.Layer;
+import Feature = LayerManager.Feature;
 import CallbackResult = LayerManager.CallbackResult;
 import Log = LayerManager.Log;
 
@@ -73,6 +74,14 @@ export class BaseConnector implements LayerManager.IConnector {
     }
 
     public getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) {
+
+    }
+
+    public getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, callback: Function) {
+
+    }
+
+    public getWithinPolygon(layerId: string, feature: Feature, callback: Function) {
 
     }
 

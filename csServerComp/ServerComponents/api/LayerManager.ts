@@ -34,6 +34,7 @@ export interface IConnector {
     //geospatial stuff
     getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function);
     getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, callback: Function);
+    getWithinPolygon(layerId: string, feature: Feature, callback: Function);
 }
 
 export class Sensor {
@@ -284,5 +285,10 @@ export class LayerManager {
       var s = this.findStorageForLayerId(layerId);
       s.getSphere(layerId, maxDistance, lng, lat, (result) => callback(result));
     }
+    public getWithinPolygon(layerId: string, feature: Feature, callback: Function) {
+      var s = this.findStorageForLayerId(layerId);
+      s.getWithinPolygon(layerId, feature, (result) => callback(result));
+    }
+
 
 }

@@ -154,6 +154,8 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // Some geospatial queries that are only supported for mongo.
         // We chose to work with GET and params here for ease of accessibility
         // (majority of web APIs implement similar constructions)
+
+        //
         this.server.get(this.layersUrl + ":layerId/bbox", (req: express.Request, res: express.Response) => {
           var southWest:number[] = [Number(req.query.swlng), Number(req.query.swlat)];
           var northEast:number[] = [Number(req.query.nelng), Number(req.query.nelat)];
@@ -170,7 +172,18 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 res.send(result);
             });
         });
+
+        //works with post - so we can receive a GeoJSON as input
+        this.server.post(this.layersUrl + ":layerId/getwithinpolygon", (req: express.Request, res: express.Response) => {
+          var feature:Feature = req.body;
+          this.manager.getWithinPolygon(req.params.layerId, feature, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        });
+
     }
+
 
     public initLayer(layer: Layer) {
 

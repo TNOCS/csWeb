@@ -252,7 +252,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
     // Similar to BBox, but instead fetches all points in a circle. Starts with nearest point and returns documents outwards.
     public getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, callback: Function) {
       var collection = this.db.collection(layerId);
-
+      //for now limiting this to 1000 results. Could be parameterized in the future
       collection.aggregate([
         {
           $geoNear: {
@@ -281,8 +281,32 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
     // an interesting functionality. E.g. getting something within a region specified by
     // a GeoJSON polygon. Think about selecting all features within Amsterdam's
     // borders based on another GeoJSON containing the polygon of that area.
-    public getWithinPolygon(layerId: string, feature: any, callback: Function) {
+    public getWithinPolygon(layerId: string, feature: Feature, callback: Function) {
+      var collection = this.db.collection(layerId);
+      console.log(JSON.stringify(feature));
+      collection.aggregate([
+        {
+            $match: {
+                'geometry.coordinates': {
+                    $geoWithin: {
+                        $geometry: {
+                            type: "Polygon",
+                            coordinates: feature.geometry.coordinates
+                        }
+                    }
+                }
+            }
+        }], function(e, response) {
 
+            if (e) {
+                callback(<CallbackResult>{ result: "Error", error: e });
+            } else {
+                var l = new Layer();
+                l.type = "FeatureCollection"
+                l = <Layer> response;
+                callback(<CallbackResult>{ result: "OK", layer: l });
+            }
+        });
     }
 
 
