@@ -501,6 +501,18 @@ module csComp.Services {
             }
         }
 
+        /**
+         * returns a list of all project layers in all groups
+         */
+        public allLayers(): ProjectLayer[] {
+            var res: ProjectLayer[] = [];
+            if (this.project == null || this.project.groups == null) return [];
+            this.project.groups.forEach((p: ProjectGroup) => {
+                if (p.layers) res = res.concat(p.layers);
+            });
+            return res;
+        }
+
         /** add a types resource (project, resource file or layer) */
         public initTypeResources(source: any) { //reset
             this.typesResources[source.url] = source;

@@ -20,8 +20,8 @@
       "url": "/data/projects/20141104_csMap/datasource.json",
       "type": "static",
       "sensors": {
-        "test": "{\n  \"id\": \"test\",\n  \"propertyTypeKey\": \"sensor-b4074fd1-a355-4827-dfc9-4243085b8b55\"\n}",
-        "test2": "{\n  \"id\": \"test2\",\n  \"propertyTypeKey\": \"sensor-1ed2d091-4cc8-4e75-9fed-c5791bfd6b0a\"\n}"
+        "test": "{\n  \"id\": \"test\",\n  \"propertyTypeKey\": \"sensor-5ed24cbd-c14c-4ebc-1b65-a443ee5346da\"\n}",
+        "test2": "{\n  \"id\": \"test2\",\n  \"propertyTypeKey\": \"sensor-4f3dcdb4-b124-42e0-152e-ba70c1f3fbb4\"\n}"
       }
     }
   ],
@@ -56,13 +56,27 @@
           "directive": "indicators",
           "data": {},
           "elementId": "widget-569c1117-b9b6-494e-5859-7535f3140ad6",
-          "style" : "default",
           "enabled": true,
-          "left": "56px",
+          "style": "default",
+          "left": "450px",
           "right": "",
-          "top": "74px",
-          "width": "300px",
+          "top": "18px",
+          "width": "541px",
           "height": "300px"
+        },
+        {
+          "id": "c91d8c0c-ac7c-42bc-9c66-23e11bb56fa5",
+          "directive": "kanbanboard",
+          "data": {},
+          "elementId": "widget-c91d8c0c-ac7c-42bc-9c66-23e11bb56fa5",
+          "enabled": true,
+          "style": "default",
+          "left": "",
+          "right": "",
+          "top": "0px",
+          "bottom": "0px",
+          "width": "420px",
+          "height": ""
         }
       ],
       "visibleLeftMenuItems": [
@@ -244,9 +258,57 @@
       "label": "sensor-2f35eb16-1470-4a8c-9bb5-94369e0acd12"
     },
     "sensor-b4074fd1-a355-4827-dfc9-4243085b8b55": {
-      "title": "test"
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-b4074fd1-a355-4827-dfc9-4243085b8b55"
     },
     "sensor-1ed2d091-4cc8-4e75-9fed-c5791bfd6b0a": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-1ed2d091-4cc8-4e75-9fed-c5791bfd6b0a"
+    },
+    "sensor-e5f76c90-4524-4ab5-35f9-7621d7076f81": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-e5f76c90-4524-4ab5-35f9-7621d7076f81"
+    },
+    "sensor-6a96ef21-e380-402c-66f5-3c0aa49f46d6": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-6a96ef21-e380-402c-66f5-3c0aa49f46d6"
+    },
+    "sensor-4362c2ab-7a03-474d-6661-a3d332d4fc2a": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-4362c2ab-7a03-474d-6661-a3d332d4fc2a"
+    },
+    "sensor-e4072a61-fa6a-4a13-c13c-9c215157e856": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-e4072a61-fa6a-4a13-c13c-9c215157e856"
+    },
+    "sensor-5ed24cbd-c14c-4ebc-1b65-a443ee5346da": {
+      "title": "test"
+    },
+    "sensor-4f3dcdb4-b124-42e0-152e-ba70c1f3fbb4": {
       "title": "test2"
     }
   },
