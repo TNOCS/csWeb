@@ -3,6 +3,8 @@ import Layer = LayerManager.Layer;
 import Feature = LayerManager.Feature;
 import CallbackResult = LayerManager.CallbackResult;
 import Log = LayerManager.Log;
+import Sensor = LayerManager.Sensor;
+import SensorValue = LayerManager.SensorValue;
 
 export class BaseConnector implements LayerManager.IConnector {
     public manager: LayerManager.LayerManager
@@ -57,9 +59,19 @@ export class BaseConnector implements LayerManager.IConnector {
 
     }
 
+    public addLog(layerId: string, featureId: string, property: any, callback: Function) {
+
+    }
+
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
 
     }
+
+    //sensor methods
+    public addSensor(sensor: Sensor, callback: Function) { }
+    public addSensorValue(sensorId: string, value: SensorValue, callback: Function) { }
+    public getSensors(callback: Function) { }
+    public getSensor(sensorId: string) { }
 
     public addLog(layerId: string, featureId: string, log: Log, callback: Function) {
 

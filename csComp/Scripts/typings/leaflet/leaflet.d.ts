@@ -288,6 +288,7 @@ declare module L {
           * constants.
           */
         static?: any;
+        [x: string]: any;
     }
 
     /**
@@ -345,7 +346,7 @@ declare module L {
         /**
          * The maximum radius that a cluster will cover from the central marker (in pixels). Default 80. Decreasing will make more smaller clusters. You can also use a function that accepts the current map zoom and returns the maximum cluster radius in pixels.
          */
-        maxClusterRadius?: number;
+        maxClusterRadius?: ((number) => number) | number;
         /**
          *  Increase from 1 to increase the distance away from the center that spiderfied markers are placed. Use if you are using big marker icons (Default:1)
          */
@@ -3523,6 +3524,7 @@ declare module L {
           * option).
           */
         closeOnClick?: boolean;
+        [x: string]: any;
     }
 }
 
@@ -4111,7 +4113,7 @@ declare module L {
           * Version of the WMS service to use.
           */
         version?: string;
-
+        [x: string]: any;
     }
 }
 

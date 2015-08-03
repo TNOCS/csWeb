@@ -20,9 +20,10 @@ module csComp.Services {
         public editMode: boolean;
         public activeWidget: IWidget;
         public dashboards: any;
-        public widgetTypes: { [key: string]: IWidget };
+        public widgetTypes: { [key: string]: IWidget } = {};
+
         public socket;
-        public editWidgetMode: boolean; 5
+        public editWidgetMode: boolean;
 
         public static $inject = [
             '$rootScope',
@@ -56,7 +57,7 @@ module csComp.Services {
             this.mainDashboard = new csComp.Services.Dashboard();
             this.dashboards = [];
             this.dashboards["main"] = this.mainDashboard;
-            this.widgetTypes = {};
+
 
             this.$messageBusService.subscribe("dashboard", (event: string, id: string) => {
                 alert(event);
@@ -74,21 +75,12 @@ module csComp.Services {
                         break;
                 }
             });
-
-            //this.widgetTypes["Title"] = new TitleWidget();
-            //this.widgetTypes["Text"] = new TextWidget();
-            //this.widgetTypes["DataSet"] = new DataSetWidget();
-            //this.widgetTypes["Layer"] = new LayerWidget();
-
-            //this.socket = new io();
-
-            //this.socket.on('update', (s) => {
-            //    alert(s.topic);
-
-            //});
-            //this.socket.connect();
-
+            this.widgetTypes["indicators"] = <IWidget>{ id: "indicators", icon: "cs/images/widgets/indicators.png", description: "Showing sensor data using charts" };
+            this.widgetTypes["markdown"] = <IWidget>{ id: "markdown", icon: "cs/images/widgets/markdown.png", description: "Show custom markdown or html content" };
+            this.widgetTypes["kanbanboard"] = <IWidget>{ id: "kanbanboard", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
         }
+
+
 
         public leftMenuVisible(id: string): boolean {
             var d = this.$layerService.project.activeDashboard;
@@ -101,41 +93,6 @@ module csComp.Services {
             this.$layerService.project.activeDashboard = dashboard;
             this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
         }
-
-        public addNewWidget(widget: IWidget, dashboard: Dashboard): IWidget {
-            //var loader = new InstanceLoader(window);
-            //var w = <IWidget>loader.getInstance(widget.widgetType);
-            //w.messageBusService = this.$messageBusService;
-            //w.layerService = this.$layerService;
-            //w.init();
-            //var w = BaseWidget();
-            if (!widget.id) widget.id = csComp.Helpers.getGuid();
-            widget.elementId = "widget-" + widget.id;
-            widget.parentDashboard = dashboard;
-            dashboard.widgets.push(widget);
-            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
-            setTimeout(() => {
-                //if (w != null) w.renderer(this.$compile, this.$rootScope);
-                this.updateWidget(widget);
-
-            }, 50);
-            //this.editWidget(w);
-            return widget;
-        }
-
-        public updateWidget(widget: csComp.Services.IWidget) {
-            //alert('hoi arnoud');
-            var d = JSON.stringify(widget.data);
-            var newElement = this.$compile("<" + widget.directive + " widget='" + d + "'></" + widget.directive + ">")(this.$rootScope);
-            var el = $("#" + widget.elementId);
-            el.empty();
-            el.append(newElement);
-        }
-
-        public addWidget(widget: IWidget): IWidget {
-            return this.addNewWidget(widget, this.mainDashboard);
-        }
-
 
 
         public activateTab(tab: RightPanelTab) {
@@ -189,8 +146,13 @@ module csComp.Services {
             this.editWidgetMode = true;
             // $("#widgetEdit").addClass('active');
 
+
+
             var rpt = csComp.Helpers.createRightPanelTab('widget', 'widgetedit', widget, 'Edit widget', 'Edit widget', 'th-large');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
+
+            // call widgetctrl edit function
+            if (widget._ctrl) widget._ctrl.startEdit();
 
             // check if editor exists
             if (this.$injector.has(widget.directive + 'EditDirective')) {

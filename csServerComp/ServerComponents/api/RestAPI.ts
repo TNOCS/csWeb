@@ -4,6 +4,8 @@ import cors = require('cors')
 import Layer = LayerManager.Layer;
 import Feature = LayerManager.Feature;
 import Logs = LayerManager.Log;
+import Sensor = LayerManager.Sensor;
+import SensorValue = LayerManager.SensorValue;
 import BaseConnector = require('./BaseConnector');
 import CallbackResult = LayerManager.CallbackResult;
 
@@ -22,7 +24,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
     public init(layerManager: LayerManager.LayerManager, options: any) {
         this.manager = layerManager;
-        console.log('init Rest API on port ' + this.server.get('port')+ '. Base path is '+ this.layersUrl);
+        console.log('init Rest API on port ' + this.server.get('port') + '. Base path is ' + this.layersUrl);
 
         //enables cors, used for external swagger requests
         this.server.use(cors());
@@ -95,9 +97,9 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // updates a feature corresponding to a query on ID (should be one)
         // Takes a feature as input in the body of the PUT request
         this.server.put(this.layersUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
-          var feature = new Feature();
-          feature = req.body;
-          this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {
+            var feature = new Feature();
+            feature = req.body;
+            this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -168,6 +170,9 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // fetches all points in a spherical method
         this.server.get(this.layersUrl + ":layerId/getsphere", (req: express.Request, res: express.Response) => {
           this.manager.getSphere(req.params.layerId, Number(req.query.maxDistance), Number(req.query.lng), Number(req.query.lat), (result: CallbackResult) => {
+        this.server.post(this.sensorsUrl + ":sensorId", (req: express.Request, res: express.Response) => {
+            this.manager.addSensor(req.body, (result: CallbackResult) => { res.send(result) });
+        });
                 //todo: check error
                 res.send(result);
             });
@@ -176,14 +181,15 @@ export class RestAPI extends BaseConnector.BaseConnector {
         //works with post - so we can receive a GeoJSON as input
         this.server.post(this.layersUrl + ":layerId/getwithinpolygon", (req: express.Request, res: express.Response) => {
           var feature:Feature = req.body;
+        this.server.get(this.sensorsUrl, (req: express.Request, res: express.Response) => {
+            this.manager.getSensors((result: CallbackResult) => { res.send(result) });
+        });
           this.manager.getWithinPolygon(req.params.layerId, feature, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
         });
-    }
 
-    public initLayer(layer: Layer) {
 
     }
 

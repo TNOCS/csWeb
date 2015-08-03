@@ -501,6 +501,18 @@ module csComp.Services {
             }
         }
 
+        /**
+         * returns a list of all project layers in all groups
+         */
+        public allLayers(): ProjectLayer[] {
+            var res: ProjectLayer[] = [];
+            if (this.project == null || this.project.groups == null) return [];
+            this.project.groups.forEach((p: ProjectGroup) => {
+                if (p.layers) res = res.concat(p.layers);
+            });
+            return res;
+        }
+
         /** add a types resource (project, resource file or layer) */
         public initTypeResources(source: any) { //reset
             this.typesResources[source.url] = source;
@@ -904,7 +916,8 @@ module csComp.Services {
                 if (ft.style.fillOpacity) s.fillOpacity = ft.style.fillOpacity;
                 if (ft.style.opacity) s.opacity = ft.style.opacity;
                 if (ft.style.fillColor) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
-                if (ft.style.stroke) s.stroke = ft.style.stroke;
+                // Stroke is a boolean property, so you have to check whether it is undefined.
+                if (typeof ft.style.stroke !== 'undefined') s.stroke = ft.style.stroke;
                 if (ft.style.strokeColor) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
                 if (ft.style.strokeWidth) s.strokeWidth = ft.style.strokeWidth;
                 if (ft.style.selectedStrokeColor) s.selectedStrokeColor = csComp.Helpers.getColorString(ft.style.selectedStrokeColor, '#000');
@@ -1295,7 +1308,7 @@ module csComp.Services {
             } else if (f.geometry.type === 'MultiPolygon') {
                 isInsideFunction = csComp.Helpers.GeoExtensions.pointInsideMultiPolygon;
             } else {
-                isInsideFunction = () => {return false};
+                isInsideFunction = () => { return false };
             }
 
             this.project.mapFilterResult = [];
@@ -1648,6 +1661,14 @@ module csComp.Services {
                     }
                 }
 
+                // make sure a default WidgetStyle exists
+                if (!solution.widgetStyles) solution.widgetStyles = {};
+                if (!solution.widgetStyles.hasOwnProperty('default')) {
+                    var defaultStyle = new WidgetStyle();
+                    defaultStyle.background = "red";
+                    solution.widgetStyles["default"] = defaultStyle;
+                }
+
                 this.solution = solution;
             });
         }
@@ -1689,7 +1710,8 @@ module csComp.Services {
             //typesResources
 
             $.getJSON(solutionProject.url, (prj: Project) => {
-                this.project = new Project().deserialize(prj);
+                this.project = new Project().deserialize(prj, this.solution);
+
 
                 if (!this.project.timeLine) {
                     this.project.timeLine = new DateRange();
@@ -1920,7 +1942,7 @@ module csComp.Services {
             }
             if (group.clustering) {
                 group.cluster = new L.MarkerClusterGroup({
-                    maxClusterRadius: group.maxClusterRadius || 80,
+                    maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
 

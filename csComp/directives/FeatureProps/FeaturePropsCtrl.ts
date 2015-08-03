@@ -283,7 +283,8 @@ module FeatureProps {
             };
 
             //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
-            $messageBusService.subscribe("feature", this.featureMessageReceived);
+            console.log('init featurepropsctrl');
+            //$messageBusService.subscribe("feature", this.featureMessageReceived);
 
             var widthOfList = function() {
                 var itemsWidth = 0;
@@ -352,18 +353,6 @@ module FeatureProps {
                 var link = property.feature.properties[property.propertyType.label];
                 alert(link);
             }
-        }
-
-        public createScatter(property: FeatureProps.CallOutProperty) {
-            var sc = new csComp.Services.GroupFilter();
-            sc.property = property.property;
-            sc.property2 = "opp_land";
-            sc.id = csComp.Helpers.getGuid();
-            sc.filterType = "scatter";
-            sc.title = sc.property;
-            var l = this.$layerService.findLayer(this.$scope.feature.layerId);
-            this.$layerService.setFilter(sc, l.group);
-            //alert('scatter ' + property.property);
         }
 
         /**

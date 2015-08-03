@@ -104,6 +104,7 @@
         "./directives/LayersList/AddLayerCtrl.ts",
         "./directives/LayersList/LayersDirective.ts",
         "./directives/LayersList/LayersDirectiveCtrl.ts",
+        "./directives/LeftMenu/LeftMenu.ts",
         "./directives/Legend/Legend.ts",
         "./directives/Legend/LegendCtrl.ts",
         "./directives/LegendList/LegendList.ts",

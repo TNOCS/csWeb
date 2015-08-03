@@ -92,6 +92,5 @@ module LegendList {
         private getName(key: string, ft: csComp.Services.IFeatureType): string {
             return ft.name || key.replace('_Default', '');
         }
-
     }
 }

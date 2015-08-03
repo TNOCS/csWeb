@@ -14,154 +14,14 @@
     "focus": 66,
     "zoomLevel": 604800000
   },
-  "mcas": [
-    {
-      "userWeight": 1,
-      "propValues": [],
-      "criteria": [
-        {
-          "userWeight": 2,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "Gemiddelde afstand tot Huisartsenpost",
-          "label": "AF_ARTSPO",
-          "color": "#a50026",
-          "weight": 0.3333333333333333,
-          "scores": "[0,0 10,1]"
-        },
-        {
-          "userWeight": -2,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "Gemiddelde afstand tot café",
-          "label": "AF_CAFE",
-          "color": "#313695",
-          "weight": -0.6666666666666666,
-          "scores": "[0,0 10,1]"
-        }
-      ],
-      "isPlaUpdated": false,
-      "isPlaScaled": false,
-      "x": [],
-      "y": [],
-      "userWeightMax": 5,
-      "featureIds": [
-        "P4regios_Default"
-      ],
-      "weight": 1,
-      "stringFormat": "{0:0.0}",
-      "title": "New MCA criterion",
-      "label": "mca_New_MCA criterion"
-    },
-    {
-      "userWeight": 1,
-      "propValues": [],
-      "criteria": [
-        {
-          "userWeight": 2,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "Gemiddelde afstand tot Huisartsenpost",
-          "label": "AF_ARTSPO",
-          "color": "#a50026",
-          "weight": 0.3333333333333333,
-          "scores": "[0,0 10,1]"
-        },
-        {
-          "userWeight": -2,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "Gemiddelde afstand tot café",
-          "label": "AF_CAFE",
-          "color": "#313695",
-          "weight": -0.6666666666666666,
-          "scores": "[0,0 10,1]"
-        }
-      ],
-      "isPlaUpdated": false,
-      "isPlaScaled": false,
-      "x": [],
-      "y": [],
-      "userWeightMax": 5,
-      "featureIds": [
-        "P4regios_Default"
-      ],
-      "weight": 1,
-      "stringFormat": "{0:0.0}",
-      "title": "New MCA criterion",
-      "label": "mca_New_MCA criterion"
-    },
-    {
-      "userWeight": 1,
-      "propValues": [],
-      "criteria": [
-        {
-          "userWeight": 2,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "Gemiddelde afstand tot Huisartsenpost",
-          "label": "AF_ARTSPO",
-          "color": "#a50026",
-          "weight": 0.3333333333333333,
-          "scores": "[0,0 10,1]"
-        },
-        {
-          "userWeight": -2,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "Gemiddelde afstand tot café",
-          "label": "AF_CAFE",
-          "color": "#313695",
-          "weight": -0.6666666666666666,
-          "scores": "[0,0 10,1]"
-        }
-      ],
-      "isPlaUpdated": false,
-      "isPlaScaled": false,
-      "x": [],
-      "y": [],
-      "userWeightMax": 5,
-      "featureIds": [
-        "P4regios_Default"
-      ],
-      "weight": 1,
-      "stringFormat": "{0:0.0}",
-      "title": "New MCA criterion",
-      "label": "mca_New_MCA criterion"
-    }
-  ],
   "datasources": [
     {
       "id": "datasource",
       "url": "/data/projects/20141104_csMap/datasource.json",
       "type": "static",
       "sensors": {
-        "test": "{\n  \"id\": \"test\",\n  \"propertyTypeKey\": \"sensor-41741a63-7a8c-4f76-6d42-426d76e5c6ac\"\n}",
-        "test2": "{\n  \"id\": \"test2\",\n  \"propertyTypeKey\": \"sensor-869dfc1e-adec-488c-8c11-faee0ccc8cb1\"\n}"
+        "test": "{\n  \"id\": \"test\",\n  \"propertyTypeKey\": \"sensor-5ed24cbd-c14c-4ebc-1b65-a443ee5346da\"\n}",
+        "test2": "{\n  \"id\": \"test2\",\n  \"propertyTypeKey\": \"sensor-4f3dcdb4-b124-42e0-152e-ba70c1f3fbb4\"\n}"
       }
     }
   ],
@@ -175,7 +35,6 @@
       "showLeftmenu": true,
       "showRightmenu": false,
       "showBackgroundImage": false,
-      "visibleLeftMenuItems" : ["layers"],
       "visiblelayers": [
         "zorgkantoor",
         "Hospitals"
@@ -193,81 +52,35 @@
       },
       "widgets": [
         {
-          "id": "wachtlijsten",
+          "id": "569c1117-b9b6-494e-5859-7535f3140ad6",
           "directive": "indicators",
-          "data": {
-            "title": "Wachtlijsten",
-            "orientation": "vertical",
-            "indicators": [
-              {
-                "title": "Wachtlijsten",
-                "visual": "bullet",
-                "usesSelectedFeature": true,
-                "featureTypeName": "data/resourceTypes/Zorgkantoor.json#Zorgkantoor",
-                "propertyTypes": [
-                  "tote",
-                  "toti"
-                ],
-                "sensor": "",
-                "dashboard": "health",
-                "id": "circ-dd938dde-e659-4774-5d05-76f67b4b9cf4",
-                "sensorSet": {
-                  "max": 100,
-                  "min": 0,
-                  "propertyType": {
-                    "title": ""
-                  }
-                },
-                "focusTime": 66
-              }
-            ]
-          },
-          "elementId": "widget-wachtlijsten",
+          "data": {},
+          "elementId": "widget-569c1117-b9b6-494e-5859-7535f3140ad6",
           "enabled": true,
-          "left": "17px",
+          "style": "default",
+          "left": "450px",
           "right": "",
-          "top": "40px",
-          "width": "225px",
-          "height": "295px"
+          "top": "18px",
+          "width": "541px",
+          "height": "300px"
         },
         {
-          "id": "42f4bfd3-3115-409c-0b29-0450bd72942b",
-          "directive": "indicators",
-          "title": "Mobility",
-          "data": {
-            "title": "Verkeer",
-            "indicators": [
-              {
-                "title": "Licht verkeer",
-                "visual": "sparkline",
-                "sensor": "datasource/lv",
-                "id": "circ-4ac39cf8-5721-4a15-dbee-c0a8f4b1bf0e",
-                "focusTime": 66
-              },
-              {
-                "title": "Middel-zwaar verkeer",
-                "visual": "sparkline",
-                "sensor": "datasource/mv",
-                "id": "circ-2f55c916-7879-4115-7185-29e9d759e9c5",
-                "focusTime": 66
-              },
-              {
-                "title": "Zwaar verkeer",
-                "visual": "sparkline",
-                "sensor": "datasource/z",
-                "id": "circ-8be4b448-4d6c-4fe0-7fba-03cdd33a9ff7",
-                "focusTime": 66
-              }
-            ]
-          },
-          "elementId": "widget-42f4bfd3-3115-409c-0b29-0450bd72942b",
+          "id": "c91d8c0c-ac7c-42bc-9c66-23e11bb56fa5",
+          "directive": "kanbanboard",
+          "data": {},
+          "elementId": "widget-c91d8c0c-ac7c-42bc-9c66-23e11bb56fa5",
           "enabled": true,
-          "left": "17px",
+          "style": "default",
+          "left": "",
           "right": "",
-          "top": "339px",
-          "width": "225px",
-          "height": "295px"
+          "top": "0px",
+          "bottom": "0px",
+          "width": "420px",
+          "height": ""
         }
+      ],
+      "visibleLeftMenuItems": [
+        "layers"
       ]
     },
     {
@@ -279,11 +92,13 @@
       "showLeftmenu": true,
       "showRightmenu": false,
       "showBackgroundImage": false,
-      "visibleLeftMenuItems" : ["!lm-layers"],
       "visiblelayers": [
         "zorgkantoor"
       ],
-      "widgets": null
+      "widgets": null,
+      "visibleLeftMenuItems": [
+        "!lm-layers"
+      ]
     },
     {
       "id": "datatable",
@@ -294,7 +109,6 @@
       "showLeftmenu": false,
       "showRightmenu": false,
       "showBackgroundImage": false,
-      "visibleLeftMenuItems" : [],
       "widgets": [
         {
           "id": "a098ba13-5258-4a50-4315-be6b266ecba7",
@@ -304,7 +118,8 @@
           "width": "100%",
           "height": "100%"
         }
-      ]
+      ],
+      "visibleLeftMenuItems": []
     },
     {
       "id": "nomap",
@@ -363,9 +178,137 @@
       "label": "sensor-a45381ed-cf0b-41c7-4486-1d696bf83ca7"
     },
     "sensor-41741a63-7a8c-4f76-6d42-426d76e5c6ac": {
-      "title": "test"
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-41741a63-7a8c-4f76-6d42-426d76e5c6ac"
     },
     "sensor-869dfc1e-adec-488c-8c11-faee0ccc8cb1": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-869dfc1e-adec-488c-8c11-faee0ccc8cb1"
+    },
+    "sensor-c315bc92-2867-4ba2-9827-3df753fe9c30": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-c315bc92-2867-4ba2-9827-3df753fe9c30"
+    },
+    "sensor-53bb4752-2845-43f4-18ba-8d54b8e53747": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-53bb4752-2845-43f4-18ba-8d54b8e53747"
+    },
+    "sensor-058a5b14-9c1e-461f-6cef-43a4067076bc": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-058a5b14-9c1e-461f-6cef-43a4067076bc"
+    },
+    "sensor-6e8d2f40-ebea-4678-c0a1-e7aa3c0ac808": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-6e8d2f40-ebea-4678-c0a1-e7aa3c0ac808"
+    },
+    "sensor-d0ffc879-737d-404d-a4bc-321eea3674fd": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-d0ffc879-737d-404d-a4bc-321eea3674fd"
+    },
+    "sensor-b3253815-084f-43b6-c589-6733804244c0": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-b3253815-084f-43b6-c589-6733804244c0"
+    },
+    "sensor-d12926e4-4783-496f-2262-bba60ec983fe": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-d12926e4-4783-496f-2262-bba60ec983fe"
+    },
+    "sensor-2f35eb16-1470-4a8c-9bb5-94369e0acd12": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-2f35eb16-1470-4a8c-9bb5-94369e0acd12"
+    },
+    "sensor-b4074fd1-a355-4827-dfc9-4243085b8b55": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-b4074fd1-a355-4827-dfc9-4243085b8b55"
+    },
+    "sensor-1ed2d091-4cc8-4e75-9fed-c5791bfd6b0a": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-1ed2d091-4cc8-4e75-9fed-c5791bfd6b0a"
+    },
+    "sensor-e5f76c90-4524-4ab5-35f9-7621d7076f81": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-e5f76c90-4524-4ab5-35f9-7621d7076f81"
+    },
+    "sensor-6a96ef21-e380-402c-66f5-3c0aa49f46d6": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-6a96ef21-e380-402c-66f5-3c0aa49f46d6"
+    },
+    "sensor-4362c2ab-7a03-474d-6661-a3d332d4fc2a": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-4362c2ab-7a03-474d-6661-a3d332d4fc2a"
+    },
+    "sensor-e4072a61-fa6a-4a13-c13c-9c215157e856": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-e4072a61-fa6a-4a13-c13c-9c215157e856"
+    },
+    "sensor-5ed24cbd-c14c-4ebc-1b65-a443ee5346da": {
+      "title": "test"
+    },
+    "sensor-4f3dcdb4-b124-42e0-152e-ba70c1f3fbb4": {
       "title": "test2"
     }
   },

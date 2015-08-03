@@ -146,7 +146,7 @@ gulp.task('create_dist', function() {
         .pipe(plumber())
         .pipe(gulp.dest('./dist/public/bower_components/angular-utils-pagination/'));
 
-    gulp.src(path2csWeb + 'csComp/includes/images/*.*')
+    gulp.src(path2csWeb + 'csComp/includes/images/**/*.*')
         .pipe(plumber())
         .pipe(gulp.dest('./dist/public/cs/images/'));
 
@@ -245,7 +245,7 @@ gulp.task('include_css', function() {
 });
 
 gulp.task('include_images', function() {
-    gulp.src(path2csWeb + 'csComp/includes/images/*.*')
+    gulp.src(path2csWeb + 'csComp/includes/images/**/*.*')
         .pipe(plumber())
         .pipe(gulp.dest('./public/cs/images/'));
 });
@@ -255,7 +255,7 @@ gulp.task('watch', function() {
     gulp.watch(path2csWeb + 'csServerComp/Scripts/**/*.ts', ['copy_csServerComp_scripts']);
     //gulp.watch(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts', ['built_csServerComp.d.ts']);
     gulp.watch(path2csWeb + 'csServerComp/ServerComponents/dynamic/ClientConnection.d.ts', ['built_csServerComp.d.ts']);
-    
+
 
     gulp.watch(path2csWeb + 'csComp/js/**/*.js', ['built_csComp']);
     gulp.watch(path2csWeb + 'csComp/js/**/*.d.ts', ['built_csComp.d.ts']);

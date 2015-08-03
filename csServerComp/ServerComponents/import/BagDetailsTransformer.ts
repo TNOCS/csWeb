@@ -76,7 +76,7 @@ class BagDetailsTransformer implements transform.ITransform {
           // console.log("=== Query bag result:");
           // console.log(addresses);
           if (!addresses || !(addresses[0]) ) {
-            // console.log("Address not found: " + postcode + " " + huisnummer);
+             console.log("Address not found: " + postcode + " " + huisnummer);
             done();
             return;
           }

@@ -4,6 +4,8 @@ module DashboardEdit {
     import IPropertyType = csComp.Services.IPropertyType;
     import IPropertyTypeData = csComp.Services.IPropertyTypeData;
 
+    declare var interact;
+
 
     export interface IDashboardEditScope extends ng.IScope {
         vm: DashboardEditCtrl;
@@ -32,7 +34,7 @@ module DashboardEdit {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope: IDashboardEditScope,
+            public $scope: IDashboardEditScope,
             private $mapService: csComp.Services.MapService,
             private $layerService: csComp.Services.LayerService,
             private $messageBusService: csComp.Services.MessageBusService,
@@ -43,7 +45,13 @@ module DashboardEdit {
             this.dashboard = $scope.$parent["data"];
             if (this.dashboard.parents && this.dashboard.parents.length > 0) this.parent = this.dashboard.parents[0];
             this.updateHasParent();
+            console.log(this.$dashboardService.widgetTypes);
+            // setup draggable elements.
+
+
         }
+
+
 
         public updateHasParent() {
             return;
@@ -74,21 +82,6 @@ module DashboardEdit {
                 this.checkMap();
             }, 100);
 
-        }
-
-        public addWidget(event) {
-            //if (event.target.tagName !== 'INPUT') return;
-            console.log("Add widget");
-            var w = <csComp.Services.IWidget>{};
-            w.directive = "indicators";
-            var idata = new Indicators.indicatorData();
-            idata.title = "NewWidget";
-            idata.orientation = "vertical";
-            w.data = idata;
-            w.enabled = true;
-            w.parentDashboard = this.dashboard;
-            this.$dashboardService.addNewWidget(w, this.dashboard);
-            this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
         }
 
         public checkMap() {
