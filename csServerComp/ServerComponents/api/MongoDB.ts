@@ -217,6 +217,34 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
     }
 
     /**
+     * Adds logs according to Arnoud's specification
+     * @param  {string}   layerId   [description]
+     * @param  {string}   featureId [description]
+     * @param  {Log}      log       [description]
+     * @param  {Function} callback  [description]
+     * @return {[type]}             [description]
+     */
+    public addLog(layerId: string, featureId: string, log: Log, callback: Function) {
+      var collection = this.db.collection(layerId);
+      var update = { "$push": {} };
+      update["$push"]["logs."+log.prop] = log;
+      log.ts = Date.now();
+      console.log(update);
+      // If the field is absent in the document to update, $push adds the array field with the value as its element.
+      // http://docs.mongodb.org/manual/reference/operator/update/push/
+      collection.update(
+        {_id: featureId},
+        update, {multi: false}, (e, response) => {
+          if (!e) {
+              callback(<CallbackResult>{ result: "OK"});
+          }
+          else {
+              callback(<CallbackResult>{ result: "Error", error: e });
+          }
+      });
+    }
+
+    /**
      * Adds a log to a document. Log is a JSON document containing the ts (added
      * here), the property name, and the (new) value.
      * TODO: Add it in the way Arnoud specified
@@ -226,7 +254,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback  [Callback]
      * @return {result}             [Success of the operation]
      */
-    public addLog(layerId: string, featureId: string, log: Log, callback: Function) {
+    public addLog2(layerId: string, featureId: string, log: Log, callback: Function) {
       var collection = this.db.collection(layerId);
       log.ts = Date.now();
       // If the field is absent in the document to update, $push adds the array field with the value as its element.
@@ -430,7 +458,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
     }
 
     /**
-     * [init description]
+     *
      * @param  {LayerManager.LayerManager} layerManager [layerManager]
      * @param  {any}                       options      [Any options]
      * @return {result}
