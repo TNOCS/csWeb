@@ -77,7 +77,7 @@ module csComp.Services {
             });
             this.widgetTypes["indicators"] = <IWidget>{ id: "indicators", icon: "cs/images/widgets/indicators.png", description: "Showing sensor data using charts" };
             this.widgetTypes["markdown"] = <IWidget>{ id: "markdown", icon: "cs/images/widgets/markdown.png", description: "Show custom markdown or html content" };
-            this.widgetTypes["kanban-board"] = <IWidget>{ id: "kanban-board", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
+            this.widgetTypes["kanbanboard"] = <IWidget>{ id: "kanbanboard", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
         }
 
 

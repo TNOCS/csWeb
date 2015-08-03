@@ -6,8 +6,20 @@
     <div data-ng-cloak tab-content isolate-scope style="margin:5px; overflow-y: auto; overflow-x: hidden;">
         <div class="row widget-row">
             <div class="col-md-6">
+                <label class="editor-title input-xlarge">Select Column</label>
+                <select data-ng-model="selectedColumn" class="form-control" ng-options='column.title for column in data.columns' ng-change="vm.selectColumn()"></select>
+            </div>
+        </div>
+        <div class="row widget-row">
+            <div class="col-md-6">
+                <label class="editor-title input-xlarge">Title</label>
+                <input type="text" ng-model="selectedColumn.title" class="input-xlarge editor-text-input">
+            </div>
+        </div>
+        <div class="row widget-row">
+            <div class="col-md-6">
                 <label class="editor-title input-xlarge">Layer Source</label>
-                <select data-ng-model="vm.layer" class="form-control" ng-change="vm.selectLayer()">
+                <select data-ng-model="selectedColumn.filters.layerId" class="form-control" ng-change="vm.selectLayer()">
                     <option data-ng-repeat="layer in vm.allLayers" ng-value="layer.id" >{{layer.title}}</option>
                 </select>
             </div>

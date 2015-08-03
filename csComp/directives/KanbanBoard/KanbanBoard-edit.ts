@@ -1,8 +1,5 @@
 module KanbanBoard {
 
-    export class kanboardData {
-
-    }
     /**
       * Config
       */
@@ -45,8 +42,8 @@ module KanbanBoard {
 
     export interface IKanbanBoardEditCtrl extends ng.IScope {
         vm: KanbanBoardEditCtrl;
-
-        data: kanboardData;
+        selectedColumn: KanbanColumn.Column;
+        data: KanbanColumn.KanbanConfig;
     }
 
     export class KanbanBoardEditCtrl {
@@ -80,7 +77,7 @@ module KanbanBoard {
             private $compile: any,
             private $layerService: csComp.Services.LayerService,
             private $templateCache: any,
-            private $messageBus: csComp.Services.MessageBusService,
+            public $messageBus: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService,
             private $dashboardService: csComp.Services.DashboardService
             ) {
@@ -91,16 +88,21 @@ module KanbanBoard {
             this.propertyTypes = [];
             var p: csComp.Services.ProjectLayer;
 
-            $scope.data = <kanboardData>this.widget.data;
+            $scope.data = <KanbanColumn.KanbanConfig>this.widget.data;
 
             this.allLayers = $layerService.allLayers();
+            if ($scope.data && $scope.data.columns && $scope.data.columns.length > 0)
+                $scope.selectedColumn = $scope.data.columns[0];
+            console.log($scope.data);
+        }
 
-
-
+        public selectColumn() {
+            console.log(this.$scope.selectedColumn);
         }
 
         public selectLayer() {
             console.log(this.layer);
+            this.$messageBus.publish("typesource", "", "");
         }
         //
         // //** select a typesResource collection from the dropdown */

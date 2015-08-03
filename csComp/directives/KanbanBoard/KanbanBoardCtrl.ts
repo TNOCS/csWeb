@@ -65,7 +65,7 @@ module KanbanColumn {
         private initLayer() {
             console.log('kanban:loaded project');
             if (this.kanban && this.kanban.columns && this.kanban.columns.length > 0) {
-                var layerId = this.kanban.columns[0].filters.layerIds[0];
+                var layerId = this.kanban.columns[0].filters.layerId;
                 this.layer = this.$layerService.findLayer(layerId);
                 if (this.layer) {
                     if (this.layer.typeUrl && this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
