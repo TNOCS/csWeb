@@ -1,8 +1,8 @@
-import LayerManager = require('./LayerManager');
+import ApiManager = require('./ApiManager');
 import express = require('express')
-import Layer = LayerManager.Layer;
-import Log = LayerManager.Log;
-import CallbackResult = LayerManager.CallbackResult;
+import Layer = ApiManager.Layer;
+import Log = ApiManager.Log;
+import CallbackResult = ApiManager.CallbackResult;
 import mqtt = require("mqtt");
 import BaseConnector = require('./BaseConnector');
 
@@ -10,7 +10,7 @@ import BaseConnector = require('./BaseConnector');
 
 export class MqttAPI extends BaseConnector.BaseConnector {
 
-    public manager: LayerManager.LayerManager
+    public manager: ApiManager.ApiManager
     public client: any;
 
     constructor(public server: string, public port: number = 1883) {
@@ -18,7 +18,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         this.isInterface = true;
     }
 
-    public init(layerManager: LayerManager.LayerManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;
         console.log('init mqtt API');
 
@@ -58,7 +58,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     }
 
     public updateLayer(layerId: string, update: any, callback: Function) {
-      //todo
+        //todo
     }
 
     public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {

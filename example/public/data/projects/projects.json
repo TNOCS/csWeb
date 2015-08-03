@@ -143,6 +143,10 @@
     }],
     "projects": [
         {
+            "title": "Dynamic",
+            "url": "project/DynamicExample"
+        },
+        {
             "title": "csWeb Showcases",
             "url": "data/projects/20141104_csMap/project.json"
         },

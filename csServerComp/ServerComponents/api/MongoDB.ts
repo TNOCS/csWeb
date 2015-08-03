@@ -1,8 +1,8 @@
-import LayerManager = require('./LayerManager');
-import Layer = LayerManager.Layer;
-import Feature = LayerManager.Feature;
-import CallbackResult = LayerManager.CallbackResult;
-import Log = LayerManager.Log;
+import ApiManager = require('./ApiManager');
+import Layer = ApiManager.Layer;
+import Feature = ApiManager.Feature;
+import CallbackResult = ApiManager.CallbackResult;
+import Log = ApiManager.Log;
 import mongodb = require('mongodb');
 import BaseConnector = require('./BaseConnector');
 
@@ -11,7 +11,7 @@ import BaseConnector = require('./BaseConnector');
  * Contains the MongoDB operations.
  */
 export class MongoDBStorage extends BaseConnector.BaseConnector {
-    public manager: LayerManager.LayerManager
+    public manager: ApiManager.ApiManager
 
     public db: mongodb.Db;
 
@@ -41,21 +41,21 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         });
 
         //ensures index will only create an index if none on the field are present, to avoid errors.
-        collection.ensureIndex({'coordinates.geometry' : "2dsphere"}, function(e, indexname) {
-          if (!e) {
-            console.log("created a 2Dsphere geospatial index in layer "+layer.id+" upon insertion.");
-          } else {
-            console.log("Error during geospatial index creation. Error: "+e);
-          }
+        collection.ensureIndex({ 'coordinates.geometry': "2dsphere" }, function(e, indexname) {
+            if (!e) {
+                console.log("created a 2Dsphere geospatial index in layer " + layer.id + " upon insertion.");
+            } else {
+                console.log("Error during geospatial index creation. Error: " + e);
+            }
         });
 
         // creating a sparse (= wont index if field is not present) index on logs.
-        collection.ensureIndex({'logs.prop' : 1}, {sparse: true}, function(e, indexname) {
-          if (!e) {
-            console.log("created a sparse index in layer "+layer.id+" upon insertion.");
-          } else {
-            console.log("Error during sparse index creation. Error: "+e);
-          }
+        collection.ensureIndex({ 'logs.prop': 1 }, { sparse: true }, function(e, indexname) {
+            if (!e) {
+                console.log("created a sparse index in layer " + layer.id + " upon insertion.");
+            } else {
+                console.log("Error during sparse index creation. Error: " + e);
+            }
         });
     }
 
@@ -66,7 +66,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @return {result}            [description]
      */
     public addLayerBulk(layer: Layer, callback: Function) {
-      //TODO
+        //TODO
     }
 
     /**
@@ -77,14 +77,14 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      */
     public getLayer(layerId: string, callback: Function) {
         var collection = this.db.collection(layerId);
-        collection.find({}, {sort: [['_id', 1]]}).toArray(function(e, response){
+        collection.find({}, { sort: [['_id', 1]] }).toArray(function(e, response) {
             if (e) {
-              callback(<CallbackResult>{ result: "Error", error: e });
+                callback(<CallbackResult>{ result: "Error", error: e });
             }
             else {
-              var results = new Layer();
-              results.features = response;
-              callback(<CallbackResult>{ result: "OK", layer: results});
+                var results = new Layer();
+                results.features = response;
+                callback(<CallbackResult>{ result: "OK", layer: results });
             }
         });
     }
@@ -120,15 +120,15 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @return {result}            [success of the operation]
      */
     public updateLayer(layerId: string, update: any, callback: Function) {
-      var collection = this.db.collection(layerId);
-      collection.update({}, {$set: update}, {safe: true, multi: true}, (e, response) => {
-          if (!e) {
-              callback(<CallbackResult>{ result: "OK" });
-          }
-          else {
-              callback(<CallbackResult>{ result: "Error", error: e });
-          }
-      });
+        var collection = this.db.collection(layerId);
+        collection.update({}, { $set: update }, { safe: true, multi: true }, (e, response) => {
+            if (!e) {
+                callback(<CallbackResult>{ result: "OK" });
+            }
+            else {
+                callback(<CallbackResult>{ result: "Error", error: e });
+            }
+        });
     }
 
     /**
@@ -143,9 +143,9 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         feature.id = new mongodb.ObjectID(feature.id);
         collection.insert(feature, {}, function(e, response) {
             if (e) {
-              callback(<CallbackResult>{ result: "Error", error: e });
+                callback(<CallbackResult>{ result: "Error", error: e });
             } else {
-              callback(<CallbackResult>{ result: "OK  " });
+                callback(<CallbackResult>{ result: "OK  " });
             }
         });
     }
@@ -159,15 +159,15 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @return {result}             [Success of the operation]
      */
     public getFeature(layerId: string, featureId: string, callback: Function) {
-      var collection = this.db.collection(layerId);
-      collection.findOne({_id: new mongodb.ObjectID(featureId)}, function(e, response) {
-          if (e) {
-            callback(<CallbackResult>{ result: "Error", error: e});
-          } else {
-            var f = <Feature> response;
-            callback(<CallbackResult>{ result: "OK", feature: f});
-          }
-      });
+        var collection = this.db.collection(layerId);
+        collection.findOne({ _id: new mongodb.ObjectID(featureId) }, function(e, response) {
+            if (e) {
+                callback(<CallbackResult>{ result: "Error", error: e });
+            } else {
+                var f = <Feature> response;
+                callback(<CallbackResult>{ result: "OK", feature: f });
+            }
+        });
     }
 
     /**
@@ -184,17 +184,17 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @return {result}            [Success of the operation]
      */
     public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
-      var collection = this.db.collection(layerId);
-      var featureId = new mongodb.ObjectID(feature._id);
-      delete feature._id;
-      collection.update({_id: featureId}, {$set: feature}, {safe: true, multi: false}, (e, response) => {
-          if (!e) {
-              callback(<CallbackResult>{ result: "OK" });
-          }
-          else {
-              callback(<CallbackResult>{ result: "Error", error: e });
-          }
-      });
+        var collection = this.db.collection(layerId);
+        var featureId = new mongodb.ObjectID(feature._id);
+        delete feature._id;
+        collection.update({ _id: featureId }, { $set: feature }, { safe: true, multi: false }, (e, response) => {
+            if (!e) {
+                callback(<CallbackResult>{ result: "OK" });
+            }
+            else {
+                callback(<CallbackResult>{ result: "Error", error: e });
+            }
+        });
     }
 
     /**
@@ -206,14 +206,14 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      */
     public deleteFeature(layerId: string, featureId: string, callback: Function) {
         var collection = this.db.collection(layerId);
-        console.log("Deleting feature with ID "+ new mongodb.ObjectID(featureId));
-        collection.remove({_id: new mongodb.ObjectID(featureId)}, function(e, response) {
-          if (e) {
-            callback(<CallbackResult>{ result: "Error", error: e});
-          } else {
-            callback(<CallbackResult>{ result: "OK"});
-          }
-      });
+        console.log("Deleting feature with ID " + new mongodb.ObjectID(featureId));
+        collection.remove({ _id: new mongodb.ObjectID(featureId) }, function(e, response) {
+            if (e) {
+                callback(<CallbackResult>{ result: "Error", error: e });
+            } else {
+                callback(<CallbackResult>{ result: "OK" });
+            }
+        });
     }
 
     /**
@@ -225,23 +225,23 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @return {[type]}             [description]
      */
     public addLog(layerId: string, featureId: string, log: Log, callback: Function) {
-      var collection = this.db.collection(layerId);
-      var update = { "$push": {} };
-      update["$push"]["logs."+log.prop] = log;
-      log.ts = Date.now();
-      console.log(update);
-      // If the field is absent in the document to update, $push adds the array field with the value as its element.
-      // http://docs.mongodb.org/manual/reference/operator/update/push/
-      collection.update(
-        {_id: featureId},
-        update, {multi: false}, (e, response) => {
-          if (!e) {
-              callback(<CallbackResult>{ result: "OK"});
-          }
-          else {
-              callback(<CallbackResult>{ result: "Error", error: e });
-          }
-      });
+        var collection = this.db.collection(layerId);
+        var update = { "$push": {} };
+        update["$push"]["logs." + log.prop] = log;
+        log.ts = Date.now();
+        console.log(update);
+        // If the field is absent in the document to update, $push adds the array field with the value as its element.
+        // http://docs.mongodb.org/manual/reference/operator/update/push/
+        collection.update(
+            { _id: featureId },
+            update, { multi: false }, (e, response) => {
+                if (!e) {
+                    callback(<CallbackResult>{ result: "OK" });
+                }
+                else {
+                    callback(<CallbackResult>{ result: "Error", error: e });
+                }
+            });
     }
 
     /**
@@ -255,28 +255,30 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @return {result}             [Success of the operation]
      */
     public addLog2(layerId: string, featureId: string, log: Log, callback: Function) {
-      var collection = this.db.collection(layerId);
-      log.ts = Date.now();
-      // If the field is absent in the document to update, $push adds the array field with the value as its element.
-      // http://docs.mongodb.org/manual/reference/operator/update/push/
-      collection.update(
-        {_id: featureId},
-        { $push:
-          { logs:
+        var collection = this.db.collection(layerId);
+        log.ts = Date.now();
+        // If the field is absent in the document to update, $push adds the array field with the value as its element.
+        // http://docs.mongodb.org/manual/reference/operator/update/push/
+        collection.update(
+            { _id: featureId },
             {
-              "ts": log.ts,
-              "prop": log.prop,
-              "value": log.value
-            }
-          }
-        }, {multi: false}, (e, response) => {
-          if (!e) {
-              callback(<CallbackResult>{ result: "OK"});
-          }
-          else {
-              callback(<CallbackResult>{ result: "Error", error: e });
-          }
-      });
+                $push:
+                {
+                    logs:
+                    {
+                        "ts": log.ts,
+                        "prop": log.prop,
+                        "value": log.value
+                    }
+                }
+            }, { multi: false }, (e, response) => {
+                if (!e) {
+                    callback(<CallbackResult>{ result: "OK" });
+                }
+                else {
+                    callback(<CallbackResult>{ result: "Error", error: e });
+                }
+            });
     }
 
     /**
@@ -287,15 +289,15 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @return {result}             [Result of the operation, a single feature]
      */
     public getLog(layerId: string, featureId: string, callback: Function) {
-      var collection = this.db.collection(layerId);
-      collection.findOne({_id: featureId}, {logs: 1}, function(e, response) {
-          if (e) {
-            callback(<CallbackResult>{ result: "Error", error: e});
-          } else {
-            var f = <Feature> response;
-            callback(<CallbackResult>{ result: "OK", feature: f});
-          }
-      });
+        var collection = this.db.collection(layerId);
+        collection.findOne({ _id: featureId }, { logs: 1 }, function(e, response) {
+            if (e) {
+                callback(<CallbackResult>{ result: "Error", error: e });
+            } else {
+                var f = <Feature> response;
+                callback(<CallbackResult>{ result: "OK", feature: f });
+            }
+        });
     }
 
     /**
@@ -312,24 +314,26 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @return {result}             [Result of the operation]
      */
     public deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function) {
-      var collection = this.db.collection(layerId);
-      collection.update(
-        {_id: featureId},
-        { $pull:
-          { logs:
+        var collection = this.db.collection(layerId);
+        collection.update(
+            { _id: featureId },
             {
-              "ts": ts,
-              "prop": prop,
-            }
-          }
-        }, {multi: false}, (e, response) => {
-          if (!e) {
-              callback(<CallbackResult>{ result: "OK"});
-          }
-          else {
-              callback(<CallbackResult>{ result: "Error", error: e });
-          }
-      });
+                $pull:
+                {
+                    logs:
+                    {
+                        "ts": ts,
+                        "prop": prop,
+                    }
+                }
+            }, { multi: false }, (e, response) => {
+                if (!e) {
+                    callback(<CallbackResult>{ result: "OK" });
+                }
+                else {
+                    callback(<CallbackResult>{ result: "Error", error: e });
+                }
+            });
     }
 
     /**
@@ -358,26 +362,26 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @return {result}             [Success of operation, layer]
      */
     public getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) {
-      var collection = this.db.collection(layerId);
-      collection.find(
-        {
-        'geometry.coordinates': {
-          $geoWithin: {
-            $box:  [
-              southWest, northEast
-            ]
-          }
-        }
-      }).toArray(function(e, response){
-          if (e) {
-            callback(<CallbackResult>{ result: "Error", error: e });
-          }
-          else {
-            var results = new Layer();
-            results.features = response;
-            callback(<CallbackResult>{ result: "OK", layer: results});
-          }
-      });
+        var collection = this.db.collection(layerId);
+        collection.find(
+            {
+                'geometry.coordinates': {
+                    $geoWithin: {
+                        $box: [
+                            southWest, northEast
+                        ]
+                    }
+                }
+            }).toArray(function(e, response) {
+            if (e) {
+                callback(<CallbackResult>{ result: "Error", error: e });
+            }
+            else {
+                var results = new Layer();
+                results.features = response;
+                callback(<CallbackResult>{ result: "OK", layer: results });
+            }
+        });
     }
 
     /**
@@ -392,30 +396,30 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @return {result}               [Success of operation, Layer]
      */
     public getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, callback: Function) {
-      var collection = this.db.collection(layerId);
-      //for now limiting this to 1000 results. Could be parameterized in the future
-      collection.aggregate([
-        {
-            $geoNear: {
-                near: { type: "Point", coordinates: [longtitude, latitude] },
-                "maxDistance": maxDistance,
-                "distanceField": "distance",
-                "distanceMultiplier": 1,
-                "num": 1000,
-                "spherical": true
+        var collection = this.db.collection(layerId);
+        //for now limiting this to 1000 results. Could be parameterized in the future
+        collection.aggregate([
+            {
+                $geoNear: {
+                    near: { type: "Point", coordinates: [longtitude, latitude] },
+                    "maxDistance": maxDistance,
+                    "distanceField": "distance",
+                    "distanceMultiplier": 1,
+                    "num": 1000,
+                    "spherical": true
+                }
             }
-        }
-      ], function(e, response) {
+        ], function(e, response) {
 
-            if (e) {
-                callback(<CallbackResult>{ result: "Error", error: e });
-            } else {
-                var l = new Layer();
-                l.type = "FeatureCollection"
-                l = <Layer> response;
-                callback(<CallbackResult>{ result: "OK", layer: l });
-            }
-        });
+                if (e) {
+                    callback(<CallbackResult>{ result: "Error", error: e });
+                } else {
+                    var l = new Layer();
+                    l.type = "FeatureCollection"
+                    l = <Layer> response;
+                    callback(<CallbackResult>{ result: "OK", layer: l });
+                }
+            });
     }
 
     /**
@@ -431,30 +435,30 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @return {result}            [Success of operation, layer]
      */
     public getWithinPolygon(layerId: string, feature: Feature, callback: Function) {
-      var collection = this.db.collection(layerId);
-      console.log(JSON.stringify(feature));
-      collection.aggregate([
-        {
-            $match: {
-                'geometry.coordinates': {
-                    $geoWithin: {
-                        $geometry: {
-                            type: "Polygon",
-                            coordinates: feature.geometry.coordinates
+        var collection = this.db.collection(layerId);
+        console.log(JSON.stringify(feature));
+        collection.aggregate([
+            {
+                $match: {
+                    'geometry.coordinates': {
+                        $geoWithin: {
+                            $geometry: {
+                                type: "Polygon",
+                                coordinates: feature.geometry.coordinates
+                            }
                         }
                     }
                 }
-            }
-        }], function(e, response) {
-            if (e) {
-                callback(<CallbackResult>{ result: "Error", error: e });
-            } else {
-                var l = new Layer();
-                l.type = "FeatureCollection"
-                l = <Layer> response;
-                callback(<CallbackResult>{ result: "OK", layer: l });
-            }
-        });
+            }], function(e, response) {
+                if (e) {
+                    callback(<CallbackResult>{ result: "Error", error: e });
+                } else {
+                    var l = new Layer();
+                    l.type = "FeatureCollection"
+                    l = <Layer> response;
+                    callback(<CallbackResult>{ result: "OK", layer: l });
+                }
+            });
     }
 
     /**
@@ -463,7 +467,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {any}                       options      [Any options]
      * @return {result}
      */
-    public init(layerManager: LayerManager.LayerManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;
         // set up connection
         var server = new mongodb.Server(this.server, this.port, { auto_reconnect: true });

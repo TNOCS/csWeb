@@ -1,17 +1,17 @@
-import LayerManager = require('./LayerManager');
-import Layer = LayerManager.Layer;
+import ApiManager = require('./ApiManager');
+import Layer = ApiManager.Layer;
 import fs = require('fs');
 import path = require('path');
-import Feature = LayerManager.Feature;
-import Log = LayerManager.Log;
-import CallbackResult = LayerManager.CallbackResult;
+import Feature = ApiManager.Feature;
+import Log = ApiManager.Log;
+import CallbackResult = ApiManager.CallbackResult;
 import BaseConnector = require('./BaseConnector');
 import _ = require('underscore');
 var chokidar = require('chokidar');
 
 
 export class FileStorage extends BaseConnector.BaseConnector {
-    public manager: LayerManager.LayerManager
+    public manager: ApiManager.ApiManager
 
     public layers: { [key: string]: Layer } = {}
 
@@ -27,10 +27,11 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     public watchFolder() {
-        console.log('watch folder:' + this.rootpath);
+        console.log('filestore: watch folder:' + this.rootpath);
         setTimeout(() => {
             var watcher = chokidar.watch(this.rootpath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
+                console.log('filestore: ' + action + " : " + path);
                 if (action == "add") {
                     this.openFile(path);
                     //this.addLayer(path);
@@ -84,12 +85,13 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     private openFile(fileName: string) {
         var id = this.getLayerId(fileName);
-        console.log('openfile ' + id);
+        console.log('filestore: openfile ' + id);
         if (!this.manager.layers.hasOwnProperty(id) && !this.layers.hasOwnProperty(id)) {
             fs.readFile(fileName, "utf-8", (err, data) => {
                 if (!err) {
                     var layer = <Layer>JSON.parse(data);
                     layer.storage = this.id;
+                    layer.id = id;
                     this.layers[id] = layer;
                     this.manager.addLayer(layer, () => { });
 
@@ -134,7 +136,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     public updateLayer(layerId: string, update: any, callback: Function) {
-      //todo
+        //todo
     }
 
     public deleteLayer(layerId: string, callback: Function) {
@@ -239,7 +241,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     //TODO: Move connection set-up params from static to parameterized.
-    public init(layerManager: LayerManager.LayerManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;
         // set up connection
 

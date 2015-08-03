@@ -1,22 +1,22 @@
-import LayerManager = require('LayerManager');
+import ApiManager = require('ApiManager');
 import express = require('express')
-import Layer = LayerManager.Layer;
-import Feature = LayerManager.Feature;
-import Log = LayerManager.Log;
+import Layer = ApiManager.Layer;
+import Feature = ApiManager.Feature;
+import Log = ApiManager.Log;
 import ClientConnection = require('./../dynamic/ClientConnection');
 import MessageBus = require('../bus/MessageBus');
 import BaseConnector = require('./BaseConnector');
 
 export class SocketIOAPI extends BaseConnector.BaseConnector {
 
-    public manager: LayerManager.LayerManager
+    public manager: ApiManager.ApiManager
 
     constructor(public connection: ClientConnection.ConnectionManager) {
         super();
         this.isInterface = true;
     }
 
-    public init(layerManager: LayerManager.LayerManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;
         console.log('init SocketIO API');
     }

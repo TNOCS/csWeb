@@ -1,13 +1,13 @@
-import LayerManager = require('./LayerManager');
-import Layer = LayerManager.Layer;
-import Feature = LayerManager.Feature;
-import CallbackResult = LayerManager.CallbackResult;
-import Log = LayerManager.Log;
-import Sensor = LayerManager.Sensor;
-import SensorValue = LayerManager.SensorValue;
+import ApiManager = require('./ApiManager');
+import Layer = ApiManager.Layer;
+import Feature = ApiManager.Feature;
+import CallbackResult = ApiManager.CallbackResult;
+import Log = ApiManager.Log;
+import Sensor = ApiManager.Sensor;
+import SensorValue = ApiManager.SensorValue;
 
-export class BaseConnector implements LayerManager.IConnector {
-    public manager: LayerManager.LayerManager
+export class BaseConnector implements ApiManager.IConnector {
+    public manager: ApiManager.ApiManager
 
     public id: string;
     public isInterface: boolean;
@@ -59,9 +59,9 @@ export class BaseConnector implements LayerManager.IConnector {
 
     }
 
-    public addLog(layerId: string, featureId: string, property: any, callback: Function) {
-
-    }
+    // public addLog(layerId: string, featureId: string, property: any, callback: Function) {
+    //
+    // }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
 
@@ -98,7 +98,7 @@ export class BaseConnector implements LayerManager.IConnector {
     }
 
     //TODO: Move connection set-up params from static to parameterized.
-    public init(layerManager: LayerManager.LayerManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any) {
 
     }
 }

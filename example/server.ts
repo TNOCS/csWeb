@@ -15,7 +15,7 @@ import LayerDirectory = require("ServerComponents/dynamic/LayerDirectory");
 import store = require('ServerComponents/import/Store');
 import ApiServiceManager = require('ServerComponents/api/ApiServiceManager');
 
-import LayerManager = require('ServerComponents/api/LayerManager');
+import ApiManager = require('ServerComponents/api/ApiManager');
 import RestAPI = require('ServerComponents/api/RestAPI');
 import MqttAPI = require('ServerComponents/api/MqttAPI');
 import SocketIOAPI = require('ServerComponents/api/SocketIOAPI');
@@ -81,7 +81,7 @@ apiServiceMgr.addService(resourceTypeStore);
 server.use(express.static(path.join(__dirname, 'public')));
 console.log("started");
 
-var layers = new LayerManager.LayerManager();
+var layers = new ApiManager.ApiManager();
 layers.init();
 
 layers.addConnector("rest", new RestAPI.RestAPI(server), {});

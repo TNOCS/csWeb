@@ -1,17 +1,17 @@
-import LayerManager = require('./LayerManager');
+import ApiManager = require('./ApiManager');
 import express = require('express')
 import cors = require('cors')
-import Layer = LayerManager.Layer;
-import Feature = LayerManager.Feature;
-import Logs = LayerManager.Log;
-import Sensor = LayerManager.Sensor;
-import SensorValue = LayerManager.SensorValue;
+import Layer = ApiManager.Layer;
+import Feature = ApiManager.Feature;
+import Logs = ApiManager.Log;
+import Sensor = ApiManager.Sensor;
+import SensorValue = ApiManager.SensorValue;
 import BaseConnector = require('./BaseConnector');
-import CallbackResult = LayerManager.CallbackResult;
+import CallbackResult = ApiManager.CallbackResult;
 
 export class RestAPI extends BaseConnector.BaseConnector {
 
-    public manager: LayerManager.LayerManager;
+    public manager: ApiManager.ApiManager;
     public layersUrl;
     public sensorsUrl;
 
@@ -22,7 +22,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.sensorsUrl = baseUrl + "/sensors/";
     }
 
-    public init(layerManager: LayerManager.LayerManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;
         console.log('init Rest API on port ' + this.server.get('port') + '. Base path is ' + this.layersUrl);
 
@@ -136,7 +136,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //deleteLog
         this.server.delete(this.layersUrl + ":layerId/:featureId/log", (req: express.Request, res: express.Response) => {
-          this.manager.deleteLog(req.params.layerId, req.params.featureId, req.body.ts, req.body.prop, (result: CallbackResult) => {
+            this.manager.deleteLog(req.params.layerId, req.params.featureId, req.body.ts, req.body.prop, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -159,9 +159,9 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         // gets all points in a rectangular shape.
         this.server.get(this.layersUrl + ":layerId/bbox", (req: express.Request, res: express.Response) => {
-          var southWest:number[] = [Number(req.query.swlng), Number(req.query.swlat)];
-          var northEast:number[] = [Number(req.query.nelng), Number(req.query.nelat)];
-          this.manager.getBBox(req.params.layerId, southWest, northEast, (result: CallbackResult) => {
+            var southWest: number[] = [Number(req.query.swlng), Number(req.query.swlat)];
+            var northEast: number[] = [Number(req.query.nelng), Number(req.query.nelat)];
+            this.manager.getBBox(req.params.layerId, southWest, northEast, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -169,10 +169,10 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         // fetches all points in a spherical method
         this.server.get(this.layersUrl + ":layerId/getsphere", (req: express.Request, res: express.Response) => {
-          this.manager.getSphere(req.params.layerId, Number(req.query.maxDistance), Number(req.query.lng), Number(req.query.lat), (result: CallbackResult) => {
-        this.server.post(this.sensorsUrl + ":sensorId", (req: express.Request, res: express.Response) => {
-            this.manager.addSensor(req.body, (result: CallbackResult) => { res.send(result) });
-        });
+            this.manager.getSphere(req.params.layerId, Number(req.query.maxDistance), Number(req.query.lng), Number(req.query.lat), (result: CallbackResult) => {
+                this.server.post(this.sensorsUrl + ":sensorId", (req: express.Request, res: express.Response) => {
+                    this.manager.addSensor(req.body, (result: CallbackResult) => { res.send(result) });
+                });
                 //todo: check error
                 res.send(result);
             });
@@ -180,11 +180,11 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //works with post - so we can receive a GeoJSON as input
         this.server.post(this.layersUrl + ":layerId/getwithinpolygon", (req: express.Request, res: express.Response) => {
-          var feature:Feature = req.body;
-        this.server.get(this.sensorsUrl, (req: express.Request, res: express.Response) => {
-            this.manager.getSensors((result: CallbackResult) => { res.send(result) });
-        });
-          this.manager.getWithinPolygon(req.params.layerId, feature, (result: CallbackResult) => {
+            var feature: Feature = req.body;
+            this.server.get(this.sensorsUrl, (req: express.Request, res: express.Response) => {
+                this.manager.getSensors((result: CallbackResult) => { res.send(result) });
+            });
+            this.manager.getWithinPolygon(req.params.layerId, feature, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });

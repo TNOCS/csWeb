@@ -13,7 +13,7 @@ export class CallbackResult {
 export interface IConnector {
     id: string;
     isInterface: boolean;
-    init(layerManager: LayerManager, options: any);
+    init(layerManager: ApiManager, options: any);
     initLayer(layer: Layer);
     //Layer methods
     addLayer(layer: Layer, callback: Function);
@@ -86,7 +86,7 @@ export class Log {
     public value: any;
 }
 
-export class LayerManager {
+export class ApiManager {
 
     /**
      * Dictionary of connectors (e.g. storage, interface, etc.)
@@ -262,7 +262,7 @@ export class LayerManager {
     //log stuff (new: 26/7)
 
     public addLog(layerId: string, featureId: string, logAddition: any, callback: Function) {
-      var log = <Log>logAddition;
+        var log = <Log>logAddition;
         var s = this.findStorageForLayerId(layerId);
         s.addLog(layerId, featureId, log, (result) => callback(result));
     }
@@ -282,29 +282,29 @@ export class LayerManager {
     }
 
     public getLog(layerId: string, featureId: string, callback: Function) {
-      var s = this.findStorageForLayerId(layerId);
-      s.getLog(layerId, featureId, (result) => callback(result));
+        var s = this.findStorageForLayerId(layerId);
+        s.getLog(layerId, featureId, (result) => callback(result));
     }
 
     public deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function) {
-      var s = this.findStorageForLayerId(layerId);
-      s.deleteLog(layerId, featureId, ts, prop, (result) => callback(result));
+        var s = this.findStorageForLayerId(layerId);
+        s.deleteLog(layerId, featureId, ts, prop, (result) => callback(result));
     }
 
     //geospatial queries (thus only supported for mongo)
 
     public getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) {
-      var s = this.findStorageForLayerId(layerId);
-      s.getBBox(layerId, southWest, northEast, (result) => callback(result));
+        var s = this.findStorageForLayerId(layerId);
+        s.getBBox(layerId, southWest, northEast, (result) => callback(result));
     }
 
     public getSphere(layerId: string, maxDistance: number, lng: number, lat: number, callback: Function) {
-      var s = this.findStorageForLayerId(layerId);
-      s.getSphere(layerId, maxDistance, lng, lat, (result) => callback(result));
+        var s = this.findStorageForLayerId(layerId);
+        s.getSphere(layerId, maxDistance, lng, lat, (result) => callback(result));
     }
     public getWithinPolygon(layerId: string, feature: Feature, callback: Function) {
-      var s = this.findStorageForLayerId(layerId);
-      s.getWithinPolygon(layerId, feature, (result) => callback(result));
+        var s = this.findStorageForLayerId(layerId);
+        s.getWithinPolygon(layerId, feature, (result) => callback(result));
     }
 
 
