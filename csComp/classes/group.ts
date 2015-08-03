@@ -70,18 +70,13 @@ module csComp.Services {
             return res;
         }
 
-        public loadLayersFromOWS(fakedata: string = ''):void {
+        public loadLayersFromOWS($injector: ng.auto.IInjectorService = null):void {
             this.layers = [];   // add some layers here...
 
-            if(fakedata.length>0) {
-                this.parseXML(fakedata);
-                return;
+            if($injector==null) {   // create an injector if not given
+                $injector = angular.injector(["ng"]);
             }
-
-            // create an injector
-            var $injector = angular.injector(["ng"]);
             $injector.invoke(($http) => {
-                // console.log("HTTP load OWSURL: " + this.owsurl);
                 $http.get(this.owsurl)
                     .success((xml) => { this.parseXML(xml); })
                     .error((xml, status) => {
