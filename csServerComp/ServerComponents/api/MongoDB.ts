@@ -2,6 +2,7 @@ import ApiManager = require('./ApiManager');
 import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import CallbackResult = ApiManager.CallbackResult;
+import ApiResult = ApiManager.ApiResult;
 import Log = ApiManager.Log;
 import mongodb = require('mongodb');
 import BaseConnector = require('./BaseConnector');
@@ -35,9 +36,9 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         var collection = this.db.collection(layer.id);
         collection.insert(layer.features, {}, function(e, result) {
             if (e)
-                callback(<CallbackResult>{ result: "Error", error: e });
+                callback(<CallbackResult>{ result: ApiResult.Error, error: e });
             else
-                callback(<CallbackResult> { result: "OK" });
+                callback(<CallbackResult> { result: ApiResult.OK });
         });
 
         //ensures index will only create an index if none on the field are present, to avoid errors.
@@ -79,12 +80,12 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         var collection = this.db.collection(layerId);
         collection.find({}, { sort: [['_id', 1]] }).toArray(function(e, response) {
             if (e) {
-                callback(<CallbackResult>{ result: "Error", error: e });
+                callback(<CallbackResult>{ result: ApiResult.Error, error: e });
             }
             else {
                 var results = new Layer();
                 results.features = response;
-                callback(<CallbackResult>{ result: "OK", layer: results });
+                callback(<CallbackResult>{ result: ApiResult.OK, layer: results });
             }
         });
     }
@@ -100,10 +101,10 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         var collection = this.db.collection(layerId);
         collection.drop((err, removed) => {
             if (!err) {
-                callback(<CallbackResult>{ result: "OK" });
+                callback(<CallbackResult>{ result: ApiResult.OK });
             }
             else {
-                callback(<CallbackResult>{ result: "Error", error: err });
+                callback(<CallbackResult>{ result: ApiResult.Error, error: err });
             }
         });
     }
@@ -123,10 +124,10 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         var collection = this.db.collection(layerId);
         collection.update({}, { $set: update }, { safe: true, multi: true }, (e, response) => {
             if (!e) {
-                callback(<CallbackResult>{ result: "OK" });
+                callback(<CallbackResult>{ result: ApiResult.OK });
             }
             else {
-                callback(<CallbackResult>{ result: "Error", error: e });
+                callback(<CallbackResult>{ result: ApiResult.Error, error: e });
             }
         });
     }
@@ -143,9 +144,9 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         feature.id = new mongodb.ObjectID(feature.id);
         collection.insert(feature, {}, function(e, response) {
             if (e) {
-                callback(<CallbackResult>{ result: "Error", error: e });
+                callback(<CallbackResult>{ result: ApiResult.Error, error: e });
             } else {
-                callback(<CallbackResult>{ result: "OK  " });
+                callback(<CallbackResult>{ result: ApiResult.OK });
             }
         });
     }
@@ -162,10 +163,10 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         var collection = this.db.collection(layerId);
         collection.findOne({ _id: new mongodb.ObjectID(featureId) }, function(e, response) {
             if (e) {
-                callback(<CallbackResult>{ result: "Error", error: e });
+                callback(<CallbackResult>{ result: ApiResult.Error, error: e });
             } else {
                 var f = <Feature> response;
-                callback(<CallbackResult>{ result: "OK", feature: f });
+                callback(<CallbackResult>{ result: ApiResult.OK, feature: f });
             }
         });
     }
@@ -189,10 +190,10 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         delete feature._id;
         collection.update({ _id: featureId }, { $set: feature }, { safe: true, multi: false }, (e, response) => {
             if (!e) {
-                callback(<CallbackResult>{ result: "OK" });
+                callback(<CallbackResult>{ result: ApiResult.OK });
             }
             else {
-                callback(<CallbackResult>{ result: "Error", error: e });
+                callback(<CallbackResult>{ result: ApiResult.Error, error: e });
             }
         });
     }
@@ -209,9 +210,9 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         console.log("Deleting feature with ID " + new mongodb.ObjectID(featureId));
         collection.remove({ _id: new mongodb.ObjectID(featureId) }, function(e, response) {
             if (e) {
-                callback(<CallbackResult>{ result: "Error", error: e });
+                callback(<CallbackResult>{ result: ApiResult.Error, error: e });
             } else {
-                callback(<CallbackResult>{ result: "OK" });
+                callback(<CallbackResult>{ result: ApiResult.OK });
             }
         });
     }
@@ -236,10 +237,10 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
             { _id: featureId },
             update, { multi: false }, (e, response) => {
                 if (!e) {
-                    callback(<CallbackResult>{ result: "OK" });
+                    callback(<CallbackResult>{ result: ApiResult.OK });
                 }
                 else {
-                    callback(<CallbackResult>{ result: "Error", error: e });
+                    callback(<CallbackResult>{ result: ApiResult.Error, error: e });
                 }
             });
     }
@@ -273,10 +274,10 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
                 }
             }, { multi: false }, (e, response) => {
                 if (!e) {
-                    callback(<CallbackResult>{ result: "OK" });
+                    callback(<CallbackResult>{ result: ApiResult.OK });
                 }
                 else {
-                    callback(<CallbackResult>{ result: "Error", error: e });
+                    callback(<CallbackResult>{ result: ApiResult.Error, error: e });
                 }
             });
     }
@@ -292,10 +293,10 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         var collection = this.db.collection(layerId);
         collection.findOne({ _id: featureId }, { logs: 1 }, function(e, response) {
             if (e) {
-                callback(<CallbackResult>{ result: "Error", error: e });
+                callback(<CallbackResult>{ result: ApiResult.Error, error: e });
             } else {
                 var f = <Feature> response;
-                callback(<CallbackResult>{ result: "OK", feature: f });
+                callback(<CallbackResult>{ result: ApiResult.OK, feature: f });
             }
         });
     }
@@ -328,10 +329,10 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
                 }
             }, { multi: false }, (e, response) => {
                 if (!e) {
-                    callback(<CallbackResult>{ result: "OK" });
+                    callback(<CallbackResult>{ result: ApiResult.OK });
                 }
                 else {
-                    callback(<CallbackResult>{ result: "Error", error: e });
+                    callback(<CallbackResult>{ result: ApiResult.Error, error: e });
                 }
             });
     }
@@ -374,12 +375,12 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
                 }
             }).toArray(function(e, response) {
             if (e) {
-                callback(<CallbackResult>{ result: "Error", error: e });
+                callback(<CallbackResult>{ result: ApiResult.Error, error: e });
             }
             else {
                 var results = new Layer();
                 results.features = response;
-                callback(<CallbackResult>{ result: "OK", layer: results });
+                callback(<CallbackResult>{ result: ApiResult.OK, layer: results });
             }
         });
     }
@@ -412,12 +413,12 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         ], function(e, response) {
 
                 if (e) {
-                    callback(<CallbackResult>{ result: "Error", error: e });
+                    callback(<CallbackResult>{ result: ApiResult.Error, error: e });
                 } else {
                     var l = new Layer();
                     l.type = "FeatureCollection"
                     l = <Layer> response;
-                    callback(<CallbackResult>{ result: "OK", layer: l });
+                    callback(<CallbackResult>{ result: ApiResult.OK, layer: l });
                 }
             });
     }
@@ -451,12 +452,12 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
                 }
             }], function(e, response) {
                 if (e) {
-                    callback(<CallbackResult>{ result: "Error", error: e });
+                    callback(<CallbackResult>{ result: ApiResult.Error, error: e });
                 } else {
                     var l = new Layer();
                     l.type = "FeatureCollection"
                     l = <Layer> response;
-                    callback(<CallbackResult>{ result: "OK", layer: l });
+                    callback(<CallbackResult>{ result: ApiResult.OK, layer: l });
                 }
             });
     }

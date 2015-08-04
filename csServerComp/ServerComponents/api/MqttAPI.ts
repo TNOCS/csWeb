@@ -3,8 +3,10 @@ import express = require('express')
 import Layer = ApiManager.Layer;
 import Log = ApiManager.Log;
 import CallbackResult = ApiManager.CallbackResult;
+import ApiResult = ApiManager.ApiResult;
 import mqtt = require("mqtt");
 import BaseConnector = require('./BaseConnector');
+
 
 //declare var mqtt;
 
@@ -49,12 +51,12 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
     public addLayer(layer: Layer, callback: Function) {
         this.client.publish('layers', JSON.stringify(layer));
-        callback(<CallbackResult> { result: "OK" });
+        callback(<CallbackResult> { result: ApiResult.OK });
     }
 
     public addFeature(layerId: string, feature: any, callback: Function) {
         this.client.publish('layers/' + layerId, JSON.stringify(feature));
-        callback(<CallbackResult> { result: "OK" });
+        callback(<CallbackResult> { result: ApiResult.OK });
     }
 
     public updateLayer(layerId: string, update: any, callback: Function) {
@@ -63,12 +65,12 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
     public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
         this.client.publish('layers/' + layerId, JSON.stringify(feature));
-        callback(<CallbackResult> { result: "OK" });
+        callback(<CallbackResult> { result: ApiResult.OK });
     }
 
     private sendFeature(layerId: string, featureId: string) {
         this.manager.findFeature(layerId, featureId, (r: CallbackResult) => {
-            if (r.result === "OK") {
+            if (r.result === ApiResult.OK) {
                 this.client.publish('layers/' + layerId, JSON.stringify(r.feature));
             }
         });
@@ -76,12 +78,12 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
     public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
         this.sendFeature(layerId, featureId);
-        callback(<CallbackResult> { result: "OK" });
+        callback(<CallbackResult> { result: ApiResult.OK });
     }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
         this.sendFeature(layerId, featureId);
-        callback(<CallbackResult> { result: "OK" });
+        callback(<CallbackResult> { result: ApiResult.OK });
     }
 
     public initLayer(layer: Layer) {

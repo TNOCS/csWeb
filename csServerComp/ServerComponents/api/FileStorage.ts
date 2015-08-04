@@ -5,6 +5,7 @@ import path = require('path');
 import Feature = ApiManager.Feature;
 import Log = ApiManager.Log;
 import CallbackResult = ApiManager.CallbackResult;
+import ApiResult = ApiManager.ApiResult;
 import BaseConnector = require('./BaseConnector');
 import _ = require('underscore');
 var chokidar = require('chokidar');
@@ -118,20 +119,20 @@ export class FileStorage extends BaseConnector.BaseConnector {
         try {
             this.layers[layer.id] = layer;
             this.saveFileDounce(layer);
-            callback(<CallbackResult> { result: "OK" });
+            callback(<CallbackResult> { result: ApiResult.OK });
         }
         catch (e) {
-            callback(<CallbackResult>{ result: "Error", error: null });
+            callback(<CallbackResult>{ result: ApiResult.OK, error: null });
         }
     }
 
     //TODO: Arnoud, what to do with this?
     public getLayer(layerId: string, callback: Function) {
         if (this.layers.hasOwnProperty(layerId)) {
-            callback(<CallbackResult>{ result: "OK", layer: this.layers[layerId] });
+            callback(<CallbackResult>{ result: ApiResult.OK, layer: this.layers[layerId] });
         }
         else {
-            callback(<CallbackResult>{ result: "Error" });
+            callback(<CallbackResult>{ result: ApiResult.Error });
         }
     }
 
@@ -142,10 +143,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public deleteLayer(layerId: string, callback: Function) {
         if (this.layers.hasOwnProperty(layerId)) {
             delete this.layers[layerId];
-            callback(<CallbackResult>{ result: "OK", layer: null });
+            callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
         }
         else {
-            callback(<CallbackResult>{ result: "Error" });
+            callback(<CallbackResult>{ result: ApiResult.Error });
         }
 
     }
@@ -156,10 +157,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (layer) {
             layer.features.push(feature);
             this.saveFileDounce(layer);
-            callback(<CallbackResult>{ result: "OK", layer: null });
+            callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
         }
         else {
-            callback(<CallbackResult>{ result: "Error" });
+            callback(<CallbackResult>{ result: ApiResult.Error });
         }
     }
 
@@ -177,7 +178,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
             return true;
         });
         if (!f) {
-            callback(<CallbackResult>{ result: "Error" });
+            callback(<CallbackResult>{ result: ApiResult.Error });
             return; // feature not found
         }
         if (!f.hasOwnProperty('logs')) f.logs = {};
@@ -196,7 +197,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
             //
         }
         this.saveFileDounce(layer);
-        callback(<CallbackResult>{ result: "OK", layer: null });
+        callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
     }
 
 
@@ -207,9 +208,9 @@ export class FileStorage extends BaseConnector.BaseConnector {
         l.features.forEach((f: Feature) => {
             if (f.id === featureId)
                 found = true;
-            callback(<CallbackResult> { result: "OK", feature: f });
+            callback(<CallbackResult> { result: ApiResult.OK, feature: f });
         })
-        if (!found) callback(<CallbackResult>{ result: "Error" });
+        if (!found) callback(<CallbackResult>{ result: ApiResult.Error });
     }
 
 
@@ -225,7 +226,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
             layer.features.push(feature);
         }
         this.saveFileDounce(layer);
-        callback(<CallbackResult>{ result: "OK", layer: null });
+        callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
         console.log("file: update feature")
 
     }

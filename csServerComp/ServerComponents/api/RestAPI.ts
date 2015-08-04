@@ -8,6 +8,7 @@ import Sensor = ApiManager.Sensor;
 import SensorValue = ApiManager.SensorValue;
 import BaseConnector = require('./BaseConnector');
 import CallbackResult = ApiManager.CallbackResult;
+import ApiResult = ApiManager.ApiResult;
 
 export class RestAPI extends BaseConnector.BaseConnector {
 
@@ -55,7 +56,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.get(this.layersUrl + ':layerId', (req: any, res: any) => {
             this.manager.getLayer(req.params.layerId, (result: CallbackResult) => {
                 //todo: check error
-                if (result.result === "OK")
+                if (result.result === ApiResult.OK)
                     res.send(result.layer);
             });
         })

@@ -1,10 +1,11 @@
 
+export enum ApiResult {
+    OK,
+    Error
+}
 
 export class CallbackResult {
-    /**
-     * OK, Error
-     */
-    public result: string;
+    public result: ApiResult;
     public error: any;
     public layer: Layer;
     public feature: Feature;
@@ -269,11 +270,11 @@ export class ApiManager {
 
     public addSensor(sensor: Sensor, callback: Function) {
         console.log(JSON.stringify(sensor));
-        callback(<CallbackResult>{ result: "Ok" })
+        callback(<CallbackResult>{ result: ApiResult.OK })
     }
 
     public getSensors(callback: Function) {
-        callback(<CallbackResult>{ result: "Ok" });
+        callback(<CallbackResult>{ result: ApiResult.OK });
     }
     public addSensorValue(sensorId: string, value: SensorValue, callback: Function) { }
 
