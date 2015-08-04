@@ -55,7 +55,8 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.get(this.layersUrl + ':layerId', (req: any, res: any) => {
             this.manager.getLayer(req.params.layerId, (result: CallbackResult) => {
                 //todo: check error
-                res.send(result);
+                if (result.result === "OK")
+                    res.send(result.layer);
             });
         })
 

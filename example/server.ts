@@ -81,14 +81,14 @@ apiServiceMgr.addService(resourceTypeStore);
 server.use(express.static(path.join(__dirname, 'public')));
 console.log("started");
 
-var layers = new ApiManager.ApiManager();
-layers.init();
+var api = new ApiManager.ApiManager();
+api.init();
 
-layers.addConnector("rest", new RestAPI.RestAPI(server), {});
-layers.addConnector("socketio", new SocketIOAPI.SocketIOAPI(cm), {});
-layers.addConnector("mqtt", new MqttAPI.MqttAPI("localhost", 1883), {});
-layers.addConnector("mongo", new MongoDB.MongoDBStorage("127.0.0.1", 27017), {});
-layers.addConnector("file", new FileStorage.FileStorage(path.join(path.resolve(__dirname), "public/data/layers/")), {});
+api.addConnector("rest", new RestAPI.RestAPI(server), {});
+api.addConnector("socketio", new SocketIOAPI.SocketIOAPI(cm), {});
+api.addConnector("mqtt", new MqttAPI.MqttAPI("localhost", 1883), {});
+api.addConnector("mongo", new MongoDB.MongoDBStorage("127.0.0.1", 27017), {});
+api.addConnector("file", new FileStorage.FileStorage(path.join(path.resolve(__dirname), "public/data/layers/")), {});
 
 
 httpServer.listen(server.get('port'), () => {
