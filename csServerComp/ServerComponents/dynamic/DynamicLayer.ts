@@ -6,15 +6,17 @@ import MessageBus = require('../bus/MessageBus');
 import fs = require('fs');
 import path = require('path');
 import utils = require('../helpers/Utils');
-import GeoJSON = require("../helpers/GeoJSON");
+import ApiManager = require('../api/ApiManager');
+import Layer = ApiManager.Layer;
+import Feature = ApiManager.Feature;
 
 export interface IDynamicLayer {
-    geojson?: GeoJSON.IGeoJson;
+    geojson?: Layer;
     connection?: ClientConnection.ConnectionManager;
     getLayer(req: express.Request, res: express.Response);
     getDataSource(req: express.Request, res: express.Response);
     addFeature?: (feature: any) => void;
-    updateFeature?: (ft: GeoJSON.IFeature, client?: string, notify?: boolean) => void;
+    updateFeature?: (ft: Feature, client?: string, notify?: boolean) => void;
     updateLog?: (featureId: string, msgBody: IMessageBody, client?: string, notify?: boolean) => void;
     layerId: string;
     start();
@@ -40,15 +42,15 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     /**
      * Working copy of geojson file
      */
-    public geojson: GeoJSON.IGeoJson;
+    public geojson: Layer;
     public server: express.Express;
     public messageBus: MessageBus.MessageBusService;
     public connection: ClientConnection.ConnectionManager;
     public startDate: number;
 
-    constructor(public layerId: string, file: string, server: express.Express, messageBus: MessageBus.MessageBusService, connection: ClientConnection.ConnectionManager) {
+    constructor(public manager: ApiManager.ApiManager, public layerId: string, file: string, server: express.Express, messageBus: MessageBus.MessageBusService, connection: ClientConnection.ConnectionManager) {
         super();
-        this.geojson = { features: [] };
+        this.geojson = new Layer();
         this.file = file;
         this.server = server;
         this.messageBus = messageBus;
@@ -63,7 +65,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
         fs.readFile(this.file, 'utf8', (err, data) => {
             if (!err) {
                 this.geojson = JSON.parse(data);
-                this.geojson.features.forEach((f: csComp.Services.IFeature) => {
+                this.geojson.features.forEach((f: Feature) => {
                     this.initFeature(f);
                 });
             }
@@ -112,7 +114,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
                     this.updateLog(featureId, msg.object, client, true);
                     break;
                 case "featureUpdate":
-                    var ft: GeoJSON.IFeature = msg.object;
+                    var ft: Feature = msg.object;
                     this.updateFeature(ft, client, true);
                     break;
             }
@@ -120,7 +122,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     }
 
     updateLog(featureId: string, msgBody: IMessageBody, client?: string, notify?: boolean) {
-        var f: GeoJSON.IFeature;
+        var f: Feature;
         console.log(JSON.stringify(msgBody));
         this.geojson.features.some(feature => {
             if (!feature.id || feature.id !== featureId) return false;
@@ -149,7 +151,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
         if (notify) this.emit("featureUpdated", this.layerId, featureId);
     }
 
-    updateFeature(ft: GeoJSON.IFeature, client?: string, notify?: boolean) {
+    updateFeature(ft: Feature, client?: string, notify?: boolean) {
         this.initFeature(ft);
         var feature = this.geojson.features.filter((k) => { return k.id && k.id === ft.id });
         if (feature && feature.length > 0) {

@@ -21,21 +21,18 @@ import MqttAPI = require('ServerComponents/api/MqttAPI');
 import SocketIOAPI = require('ServerComponents/api/SocketIOAPI');
 import MongoDB = require('ServerComponents/api/MongoDB');
 import FileStorage = require('ServerComponents/api/FileStorage');
+import Winston = require('winston');
 
-/**
- * Create a search index file which can be loaded statically.
- */
-// var offlineSearchManager = new offlineSearch('public/data/projects/projects.json', {
-//     propertyNames: ['Name', 'plaatnaam', 'postcode', 'Postcode', 'straat', 'loc_straat', 'KvK', 'gemeente', 'plaats', 'Naam_van_het_concern_DigiMV_2012'],
-//     stopWords    : ['de', 'het', 'een', 'en', 'van', 'aan']
-// });
+Winston.remove(Winston.transports.Console);
+Winston.add(Winston.transports.Console, {
+    colorize: true,
+    prettyPrint: true
+});
 
-// setup socket.io object
+
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser')
 var server = express();
-
-
 
 var httpServer = require('http').Server(server);
 var cm = new cc.ConnectionManager(httpServer);
@@ -79,7 +76,7 @@ var resourceTypeStore = new ProjectRepositoryService(new store.FolderStore({ sto
 apiServiceMgr.addService(resourceTypeStore);
 
 server.use(express.static(path.join(__dirname, 'public')));
-console.log("started");
+
 
 var api = new ApiManager.ApiManager();
 api.init();
@@ -92,5 +89,5 @@ api.addConnector("file", new FileStorage.FileStorage(path.join(path.resolve(__di
 
 
 httpServer.listen(server.get('port'), () => {
-    console.log('Express server listening on port ' + server.get('port'));
+    Winston.info('Express server listening on port ' + server.get('port'));
 });

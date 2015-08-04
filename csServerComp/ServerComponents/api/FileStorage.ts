@@ -9,6 +9,7 @@ import ApiResult = ApiManager.ApiResult;
 import BaseConnector = require('./BaseConnector');
 import _ = require('underscore');
 var chokidar = require('chokidar');
+import Winston = require('winston');
 
 
 export class FileStorage extends BaseConnector.BaseConnector {
@@ -28,11 +29,11 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     public watchFolder() {
-        console.log('filestore: watch folder:' + this.rootpath);
+        Winston.info('filestore: watch folder:' + this.rootpath);
         setTimeout(() => {
             var watcher = chokidar.watch(this.rootpath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
-                console.log('filestore: ' + action + " : " + path);
+                Winston.info('filestore: ' + action + " : " + path);
                 if (action == "add") {
                     this.openFile(path);
                     //this.addLayer(path);
@@ -46,7 +47,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                 }
             }));
         }, 1000);
-        //console.log(action + " - " + path); });
+        //Winston.info(action + " - " + path); });
     }
 
 
@@ -67,10 +68,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var fn = this.getFilename(layer.id);
         fs.writeFile(fn, JSON.stringify(layer), (error) => {
             if (error) {
-                console.log('error writing file : ' + fn);
+                Winston.info('error writing file : ' + fn);
             }
             else {
-                console.log('file saved : ' + fn);
+                Winston.info('file saved : ' + fn);
             }
         });
     }
@@ -86,7 +87,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     private openFile(fileName: string) {
         var id = this.getLayerId(fileName);
-        console.log('filestore: openfile ' + id);
+        Winston.info('filestore: openfile ' + id);
         if (!this.manager.layers.hasOwnProperty(id) && !this.layers.hasOwnProperty(id)) {
             fs.readFile(fileName, "utf-8", (err, data) => {
                 if (!err) {
@@ -115,7 +116,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     // layer methods first, in crud order.
 
     public addLayer(layer: Layer, callback: Function) {
-        console.log('Add file layer');
+        Winston.info('Add file layer');
         try {
             this.layers[layer.id] = layer;
             this.saveFileDounce(layer);
@@ -227,7 +228,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
         this.saveFileDounce(layer);
         callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
-        console.log("file: update feature")
+        Winston.info("file: update feature")
 
     }
 
@@ -246,7 +247,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.manager = layerManager;
         // set up connection
 
-        console.log('init File Storage');
+        Winston.info('init File Storage');
 
     }
 }

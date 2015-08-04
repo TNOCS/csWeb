@@ -6,7 +6,7 @@ import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
 import mqtt = require("mqtt");
 import BaseConnector = require('./BaseConnector');
-
+import Winston = require('winston');
 
 //declare var mqtt;
 
@@ -22,26 +22,26 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
     public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;
-        console.log('init mqtt API');
+        Winston.info('mqtt: init mqtt connector');
 
 
         this.client = (<any>mqtt).connect("mqtt://" + this.server + ":" + this.port);
 
         this.client.on('error', (e) => {
-            console.log('error');
+            Winston.warn('mqtt: error');
         });
 
         this.client.on('connect', () => {
-            console.log("mqtt connected");
+            Winston.info("mqtt: connected");
         });
 
         this.client.on('reconnect', () => {
-            console.log("mqtt reconnecting");
+            Winston.debug("mqtt: reconnecting");
         });
 
 
         this.client.on('message', (topic, message) => {
-            console.log(topic + "-" + message.toString());
+            Winston.debug("mqtt: " + topic + "-" + message.toString());
         });
 
         // express api aanmaken
@@ -88,6 +88,6 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
     public initLayer(layer: Layer) {
         this.client.subscribe('layers/' + layer.id + "/addFeature");
-        console.log('mqtt:initlayer');
+        Winston.info('mqtt:initlayer');
     }
 }

@@ -1,7 +1,8 @@
 import RuleEngine = require('./RuleEngine');
 import WorldState = require('./WorldState');
 import Utils = require('../helpers/Utils')
-import GeoJSON = require("../helpers/GeoJSON");
+import ApiManager = require('../api/ApiManager');
+import Feature = ApiManager.Feature;
 import DynamicLayer = require("../dynamic/DynamicLayer");
 
 export interface IRule {
@@ -34,7 +35,7 @@ export interface IRule {
     recurrence?: number;
 
     /** Feature this rule applies too */
-    feature?: GeoJSON.IFeature;
+    feature?: Feature;
 
     /**
      * (Set of) condition(s) that need to be fulfilled in order to process the actions.
@@ -71,7 +72,7 @@ export class Rule implements IRule {
     /** How many times can the rule be fired: -1 is indefinetely, default is once */
     recurrence: number = 1;
 
-    feature: GeoJSON.IFeature;
+    feature: Feature;
     /**
      * (Set of) condition(s) that need to be fulfilled in order to process the actions.
      * In case the condition is empty, the rule is always fired, on every process.
@@ -249,21 +250,23 @@ export class Rule implements IRule {
                 switch (action.toLowerCase()) {
                     case "add":
                         // add feature
-                        var id = service.timer.setTimeout(function(f, fid, service) { return () => {
-                            var feature = f;
-                            if (length > 1) {
-                                var featureId = <string>a[1];
-                                worldState.features.some(feat => {
-                                if (feat && feat.id !== fid) return false;
-                                    feature = feat;
-                                    return true;
-                                });
+                        var id = service.timer.setTimeout(function(f, fid, service) {
+                            return () => {
+                                var feature = f;
+                                if (length > 1) {
+                                    var featureId = <string>a[1];
+                                    worldState.features.some(feat => {
+                                        if (feat && feat.id !== fid) return false;
+                                        feature = feat;
+                                        return true;
+                                    });
+                                }
+                                console.log('Add feature ' + feature.id);
+                                if (!feature.properties.hasOwnProperty('date')) feature.properties['date'] = new Date();
+                                if (!feature.properties.hasOwnProperty('roles')) feature.properties['roles'] = ["rti"];
+                                service.layer.addFeature(feature)
                             }
-                            console.log('Add feature ' + feature.id);
-                            if (!feature.properties.hasOwnProperty('date')) feature.properties['date'] = new Date();
-                            if (!feature.properties.hasOwnProperty('roles')) feature.properties['roles'] = ["rti"];
-                            service.layer.addFeature(feature)
-                        }}(this.feature, length > 1 ? <string>a[1] : "", service), this.getDelay(a, length-1));
+                        } (this.feature, length > 1 ? <string>a[1] : "", service), this.getDelay(a, length - 1));
                         console.log(`Timer ${id}: Add feature ${this.isGenericRule ? a[1] : this.feature.id}`)
                         break;
                     case "answer":
@@ -288,14 +291,16 @@ export class Rule implements IRule {
                         var key = a[1];
                         if (typeof key === 'string') {
                             var valp = a[2];
-                            var id = service.timer.setTimeout(function(f, k, v, service, updateProperty) { return () => {
-                                console.log(`Feature ${f.id}. Pushing ${k}: ${v}`);
-                                if (!f.properties.hasOwnProperty(k))
-                                    f.properties[k] = [v];
-                                else
-                                    f.properties[k].push(v);
-                                updateProperty(f, service, k, f.properties[k]);
-                            }}(this.feature, key, valp, service, this.updateProperty), this.getDelay(a, 3));
+                            var id = service.timer.setTimeout(function(f, k, v, service, updateProperty) {
+                                return () => {
+                                    console.log(`Feature ${f.id}. Pushing ${k}: ${v}`);
+                                    if (!f.properties.hasOwnProperty(k))
+                                        f.properties[k] = [v];
+                                    else
+                                        f.properties[k].push(v);
+                                    updateProperty(f, service, k, f.properties[k]);
+                                }
+                            } (this.feature, key, valp, service, this.updateProperty), this.getDelay(a, 3));
                             console.log(`Timer ${id}: push ${key}: ${valp}`)
                         }
                         break;
@@ -307,15 +312,17 @@ export class Rule implements IRule {
     }
 
     private setTimerForProperty(service: RuleEngine.IRuleEngineService, key: string, value: any, delay = 0, isAnswer = false) {
-        var id = service.timer.setTimeout(function(f, k, v, service, updateProperty) { return () => {
-            console.log(`Feature ${f.id}: ${k} = ${v}`);
-            f.properties[k] = v;
-            updateProperty(f, service, k, f.properties[key], isAnswer);
-        }}(this.feature, key, value, service, this.updateProperty), delay);
+        var id = service.timer.setTimeout(function(f, k, v, service, updateProperty) {
+            return () => {
+                console.log(`Feature ${f.id}: ${k} = ${v}`);
+                f.properties[k] = v;
+                updateProperty(f, service, k, f.properties[key], isAnswer);
+            }
+        } (this.feature, key, value, service, this.updateProperty), delay);
         console.log(`Timer ${id}: ${key} = ${value}`)
     }
 
-    private updateProperty(f: GeoJSON.IFeature, service: RuleEngine.IRuleEngineService, key: string, value: any, isAnswer = false) {
+    private updateProperty(f: Feature, service: RuleEngine.IRuleEngineService, key: string, value: any, isAnswer = false) {
         var now = service.timer.now();
         if (!f.hasOwnProperty('logs')) f.logs = {};
         var logs: { [prop: string]: DynamicLayer.IPropertyUpdate[] } = {};
@@ -353,7 +360,7 @@ export class Rule implements IRule {
             logs[key] = f.logs[key];
 
             key = "tags";
-            if (f.properties.hasOwnProperty(key) ) {
+            if (f.properties.hasOwnProperty(key)) {
                 let index = f.properties[key].indexOf('action');
                 if (index >= 0) {
                     f.properties[key].splice(index, 1);

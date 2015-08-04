@@ -1,9 +1,16 @@
+import Winston = require('winston');
 
+/**
+ * Api Result status
+ */
 export enum ApiResult {
     OK,
     Error
 }
 
+/**
+ * Default result object for api calls
+ */
 export class CallbackResult {
     public result: ApiResult;
     public error: any;
@@ -66,6 +73,7 @@ export class Layer implements StorageObject {
     public useLog: boolean;
     public id: string;
     public type: string;
+    public dynamic: boolean;
     public features: Feature[] = [];
 }
 
@@ -79,6 +87,10 @@ export class Feature {
     public geometry: Geometry;
     public properties: { [key: string]: any };
     public logs: { [key: string]: Log[] };
+}
+
+export class Property {
+
 }
 
 export class Log {
@@ -108,7 +120,7 @@ export class ApiManager {
     public defaultLogging = false;
 
     public init() {
-        console.log('init layer manager');
+        Winston.info('init layer manager', { cat: "api" });
     }
 
     /**
@@ -158,6 +170,8 @@ export class ApiManager {
 
     //layer methods start here, in CRUD order.
     public addLayer(layer: Layer, callback: Function) {
+
+        Winston.info('add layer' + layer.id);
         var s = this.findStorage(layer);
 
         // check if layer already exists
@@ -210,7 +224,7 @@ export class ApiManager {
     // Feature methods start here, in CRUD order.
 
     public addFeature(layerId: string, feature: any, callback: Function) {
-        console.log('feature added');
+        Winston.info('feature added');
         var layer = this.findLayer(layerId);
         var s = this.findStorage(layer);
         s.addFeature(layerId, feature, (result) => callback(result));
@@ -269,7 +283,7 @@ export class ApiManager {
     }
 
     public addSensor(sensor: Sensor, callback: Function) {
-        console.log(JSON.stringify(sensor));
+        Winston.info(JSON.stringify(sensor));
         callback(<CallbackResult>{ result: ApiResult.OK })
     }
 

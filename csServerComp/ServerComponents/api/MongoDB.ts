@@ -6,6 +6,7 @@ import ApiResult = ApiManager.ApiResult;
 import Log = ApiManager.Log;
 import mongodb = require('mongodb');
 import BaseConnector = require('./BaseConnector');
+import Winston = require('winston');
 
 
 /**
@@ -44,18 +45,18 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         //ensures index will only create an index if none on the field are present, to avoid errors.
         collection.ensureIndex({ 'coordinates.geometry': "2dsphere" }, function(e, indexname) {
             if (!e) {
-                console.log("created a 2Dsphere geospatial index in layer " + layer.id + " upon insertion.");
+                Winston.info("created a 2Dsphere geospatial index in layer " + layer.id + " upon insertion.");
             } else {
-                console.log("Error during geospatial index creation. Error: " + e);
+                Winston.info("Error during geospatial index creation. Error: " + e);
             }
         });
 
         // creating a sparse (= wont index if field is not present) index on logs.
         collection.ensureIndex({ 'logs.prop': 1 }, { sparse: true }, function(e, indexname) {
             if (!e) {
-                console.log("created a sparse index in layer " + layer.id + " upon insertion.");
+                Winston.info("created a sparse index in layer " + layer.id + " upon insertion.");
             } else {
-                console.log("Error during sparse index creation. Error: " + e);
+                Winston.info("Error during sparse index creation. Error: " + e);
             }
         });
     }
@@ -207,7 +208,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      */
     public deleteFeature(layerId: string, featureId: string, callback: Function) {
         var collection = this.db.collection(layerId);
-        console.log("Deleting feature with ID " + new mongodb.ObjectID(featureId));
+        Winston.info("Deleting feature with ID " + new mongodb.ObjectID(featureId));
         collection.remove({ _id: new mongodb.ObjectID(featureId) }, function(e, response) {
             if (e) {
                 callback(<CallbackResult>{ result: ApiResult.Error, error: e });
@@ -230,7 +231,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         var update = { "$push": {} };
         update["$push"]["logs." + log.prop] = log;
         log.ts = Date.now();
-        console.log(update);
+    
         // If the field is absent in the document to update, $push adds the array field with the value as its element.
         // http://docs.mongodb.org/manual/reference/operator/update/push/
         collection.update(
@@ -437,7 +438,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      */
     public getWithinPolygon(layerId: string, feature: Feature, callback: Function) {
         var collection = this.db.collection(layerId);
-        console.log(JSON.stringify(feature));
+        Winston.info(JSON.stringify(feature));
         collection.aggregate([
             {
                 $match: {
@@ -475,8 +476,8 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
         //set up the db instance
         this.db = new mongodb.Db('commonSenseWeb', server, { w: 1 });
         this.db.open(() => {
-            console.log('connection succes');
+            Winston.info('connection succes');
         });
-        console.log('init MongoDB Storage');
+        Winston.info('init MongoDB Storage');
     }
 }
