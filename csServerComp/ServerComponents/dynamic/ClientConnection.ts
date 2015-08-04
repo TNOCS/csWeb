@@ -1,5 +1,7 @@
 import io = require('socket.io');
 import MessageBus = require("../bus/MessageBus");
+import Winston = require('winston');
+
 
 module ClientConnection {
     GetDataSource: Function;
@@ -43,12 +45,12 @@ module ClientConnection {
             this.Client.on(sub.id, (data) => {
                 switch (data.action) {
                     case "unsubscribe":
-                        console.log('unsubscribed');
+                        Winston.info('clientconnection: unsubscribed');
                         break;
                 }
             });
             this.Client.emit(sub.id, new ClientMessage("subscribed", ""));
-            console.log('subscribed to : ' + sub.target + " (" + sub.type + ")");
+            Winston.info('clientconnection: subscribed to : ' + sub.target + " (" + sub.type + ")");
         }
     }
 
@@ -65,17 +67,17 @@ module ClientConnection {
 
             this.server.on('connection', (socket: SocketIO.Socket) => {
                 // store user
-                console.log('user ' + socket.id + ' has connected');
+                Winston.info('clientconnection: user ' + socket.id + ' has connected');
                 var wc = new WebClient(socket);
                 this.users[socket.id] = wc;
 
                 socket.on('disconnect', (s: SocketIO.Socket) => {
                     delete this.users[socket.id];
-                    console.log('user ' + socket.id + ' disconnected');
+                    Winston.info('clientconnection: user ' + socket.id + ' disconnected');
                 });
 
                 socket.on('subscribe', (msg: msgSubscription) => {
-                    console.log('subscribe ' + JSON.stringify(msg.target));
+                    Winston.info('clientconnection: subscribe ' + JSON.stringify(msg.target));
                     wc.Subscribe(msg);
                     // wc.Client.emit('laag', 'test');
                     //socket.emit('laag', 'test');
@@ -91,7 +93,7 @@ module ClientConnection {
                 // create layers room
                 //var l = socket.join('layers');
                 //l.on('join',(j) => {
-                //    console.log("layers: "+ j);
+                //    Winston.info("layers: "+ j);
                 //});
             });
         }
@@ -129,27 +131,27 @@ module ClientConnection {
         }
 
         //
-        // //console.log('updateSensorValue:' + sensor);
+        // //Winston.info('updateSensorValue:' + sensor);
         // for (var uId in this.users) {
         //     //var sub = this.users[uId].FindSubscription(sensor,"sensor");
         //     for (var s in this.users[uId].Subscriptions) {
         //         var sub = this.users[uId].Subscriptions[s];
         //         if (sub.type == "sensor" && sub.target == sensor) {
-        //             //console.log('sending update:' + sub.id);
+        //             //Winston.info('sending update:' + sub.id);
         //             var cm = new ClientMessage("sensor-update", [{ sensor: sensor, date: date, value: value }]);
-        //             //console.log(JSON.stringify(cm));
+        //             //Winston.info(JSON.stringify(cm));
         //             this.users[uId].Client.emit(sub.id, cm);
         // }
         public updateSensorValue(sensor: string, date: number, value: number) {
-            //console.log('updateSensorValue:' + sensor);
+            //Winston.info('updateSensorValue:' + sensor);
             for (var uId in this.users) {
                 //var sub = this.users[uId].FindSubscription(sensor,"sensor");
                 for (var s in this.users[uId].Subscriptions) {
                     var sub = this.users[uId].Subscriptions[s];
                     if (sub.type == "sensor" && sub.target == sensor) {
-                        //console.log('sending update:' + sub.id);
+                        //Winston.info('sending update:' + sub.id);
                         var cm = new ClientMessage("sensor-update", [{ sensor: sensor, date: date, value: value }]);
-                        //console.log(JSON.stringify(cm));
+                        //Winston.info(JSON.stringify(cm));
                         this.users[uId].Client.emit(sub.id, cm);
                     }
                 }
@@ -160,7 +162,7 @@ module ClientConnection {
             for (var uId in this.users) {
                 var sub = this.users[uId].FindSubscription(key, type);
                 if (sub != null) {
-                    //console.log('sending update:' + sub.id);
+                    //Winston.info('sending update:' + sub.id);
                     this.users[uId].Client.emit(sub.id, new ClientMessage(command, object));
                 }
             }
@@ -172,12 +174,12 @@ module ClientConnection {
          * @skip: this one will be skipped ( e.g original source)
          */
         public updateFeature(layer: string, object: any, action: string, skip?: string) {
-            //console.log('update feature ' + layer);
+            //Winston.info('update feature ' + layer);
             for (var uId in this.users) {
                 if (!skip || uId != skip) {
                     var sub = this.users[uId].FindSubscription(layer, "layer");
                     if (sub != null) {
-                        //console.log('sending update:' + sub.id);
+                        //Winston.info('sending update:' + sub.id);
                         this.users[uId].Client.emit(sub.id, new ClientMessage(action, [object]));
                     }
                 }

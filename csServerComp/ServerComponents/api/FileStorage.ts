@@ -33,10 +33,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
         setTimeout(() => {
             var watcher = chokidar.watch(this.rootpath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
-                Winston.info('filestore: ' + action + " : " + path);
+
                 if (action == "add") {
+                    Winston.info('filestore: new file found : ' + path);
                     this.openFile(path);
-                    //this.addLayer(path);
                 }
                 if (action == "unlink") {
                     //this.closeFile(path);
@@ -116,7 +116,6 @@ export class FileStorage extends BaseConnector.BaseConnector {
     // layer methods first, in crud order.
 
     public addLayer(layer: Layer, callback: Function) {
-        Winston.info('Add file layer');
         try {
             this.layers[layer.id] = layer;
             this.saveFileDounce(layer);

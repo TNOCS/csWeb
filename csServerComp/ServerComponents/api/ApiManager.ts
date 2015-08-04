@@ -170,8 +170,7 @@ export class ApiManager {
 
     //layer methods start here, in CRUD order.
     public addLayer(layer: Layer, callback: Function) {
-
-        Winston.info('add layer' + layer.id);
+        Winston.info('api: add layer ' + layer.id);
         var s = this.findStorage(layer);
 
         // check if layer already exists

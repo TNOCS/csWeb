@@ -88,6 +88,6 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
     public initLayer(layer: Layer) {
         this.client.subscribe('layers/' + layer.id + "/addFeature");
-        Winston.info('mqtt:initlayer');
+        Winston.info('mqtt: init layer ' + layer.id);
     }
 }

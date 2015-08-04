@@ -55,8 +55,8 @@ config.add("server", "http://localhost:" + port);
 var ld = new LayerDirectory.LayerDirectory(server, cm);
 ld.Start();
 
-var pr = new DynamicProject.DynamicProjectService(server, cm, messageBus);
-pr.Start(server);
+//var pr = new DynamicProject.DynamicProjectService(server, cm, messageBus);
+//pr.Start(server);
 
 var ds = new DataSource.DataSourceService(cm, "DataSource");
 ds.start();

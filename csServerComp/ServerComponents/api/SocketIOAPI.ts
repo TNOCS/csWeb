@@ -6,6 +6,7 @@ import Log = ApiManager.Log;
 import ClientConnection = require('./../dynamic/ClientConnection');
 import MessageBus = require('../bus/MessageBus');
 import BaseConnector = require('./BaseConnector');
+import Winston = require('winston');
 
 export class SocketIOAPI extends BaseConnector.BaseConnector {
 
@@ -18,20 +19,20 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
 
     public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;
-        console.log('init SocketIO API');
+        Winston.info('socketio: init SocketIO API');
     }
 
     public initLayer(layer: Layer) {
-        console.log('init layer ' + layer.id);
+        Winston.info('socketio: init layer ' + layer.id);
         this.connection.registerLayer(layer.id, (action: string, msg: ClientConnection.LayerMessage, client: string) => {
-            console.log('socketio action:' + action);
+            Winston.debug('socketio: action:' + action);
             switch (action) {
                 case "logUpdate":
                     // find feature
                     var featureId = msg.object.featureId;
                     var logs: { [key: string]: Log[] } = msg.object["logs"];
                     this.manager.updateLogs(layer.id, featureId, logs, () => { });
-                    console.log(JSON.stringify(msg));
+                    Winston.info(JSON.stringify(msg));
 
                     //this.manager.updateLogs(layer.id,featureId,)
                     //this.updateLog(layer, featureId, msg.object, client, true);
@@ -49,7 +50,7 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
     }
 
     public updateFeature(layerId: string, feature: Feature, useLog: boolean, callback: Function) {
-        console.log('socketio: update feature');
+        Winston.info('socketio: update feature');
         this.connection.updateFeature(layerId, feature, "feature-update");
     }
 
