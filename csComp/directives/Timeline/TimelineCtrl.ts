@@ -179,7 +179,10 @@ module Timeline {
 
             var container = document.getElementById('timeline');
 
-
+            // Remove old timeline before initializing a new one
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
             this.$layerService.timeline = this.$scope.timeline = new vis.Timeline(container, this.items, this.options);
 
             this.$layerService.timeline.redraw();

@@ -46,12 +46,10 @@ module LayerEdit {
         }
 
         public addLayer() {
-
         }
 
         public removeLayer() {
             this.$layerService.removeLayer(this.layer, true);
-
         }
 
         public addFeatureType() {
@@ -68,7 +66,8 @@ module LayerEdit {
                             var ft = <csComp.Services.IFeatureType>{};
                             ft.id = this.layer.defaultFeatureType;
                             ft.name = ft.id;
-                            ft.style = csComp.Helpers.getDefaultFeatureStyle();
+                            // EV already called before.
+                            //ft.style = csComp.Helpers.getDefaultFeatureStyle();
                             //if (ft.name.toLowerCase().startsWith("http://")) id = ft.name;
                             //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
                             this.$layerService._featureTypes[id] = ft;

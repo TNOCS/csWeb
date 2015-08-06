@@ -1,5 +1,5 @@
-﻿module csComp.Helpers {
-    declare var omnivore;
+module csComp.Helpers {
+    declare var topojson;
 
     export interface IGeoFeature {
         type: string;
@@ -53,13 +53,21 @@
         */
         static convertTopoToGeoJson(data) {
             // Convert topojson to geojson format
-            var topo = omnivore.topojson.parse(data);
+            var o = typeof data === 'string'
+                ? JSON.parse(data)
+                : data;
             var newData: any = {};
             newData.featureTypes = data.featureTypes;
             newData.features = [];
-            topo.eachLayer((l) => {
-                newData.features.push(l.feature);
-            });
+            for (var i in o.objects) {
+                var ft = topojson.feature(o, o.objects[i]);
+                if (ft.features) {
+                    // ft contains multiple features
+                    ft.features.forEach(f => newData.features.push(f));
+                } else {
+                    newData.features.push(ft);
+                }
+            }
             return newData;
         }
 
@@ -253,23 +261,42 @@
          * @param  {number[][]} polygon [[lat, lng], [lat,lng],...]
          * @return {boolean}            Inside == true
          */
-        static pointInsidePolygon(point: number[], polygon: number[][]): boolean {
+        static pointInsidePolygon(point: number[], polygon: number[][][]): boolean {
             // https://github.com/substack/point-in-polygon
             // ray-casting algorithm based on
             // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
             var x = point[0];
             var y = point[1];
+            var p = polygon[0];
 
             var inside = false;
-            for (var i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-                var xi = polygon[i][0], yi = polygon[i][1];
-                var xj = polygon[j][0], yj = polygon[j][1];
+            for (var i = 0, j = p.length - 1; i < p.length; j = i++) {
+                var xi = p[i][0], yi = p[i][1];
+                var xj = p[j][0], yj = p[j][1];
 
                 var intersect = ((yi > y) != (yj > y))
                     && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
                 if (intersect) inside = !inside;
             }
 
+            return inside;
+        }
+
+        /**
+         * pointInsideMultiPolygon returns true if a 2D point lies within a multipolygon
+         * @param  {number[]}   point   [lat, lng]
+         * @param  {number[][][]} polygon [[[lat, lng], [lat,lng]],...]]
+         * @return {boolean}            Inside == true
+         */
+        static pointInsideMultiPolygon(point: number[], multipoly: number[][][][]): boolean {
+            // https://github.com/substack/point-in-polygon
+            // ray-casting algorithm based on
+            // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+            var inside = false;
+            for (var i = 0; i < multipoly.length; i++) {
+                var polygon = multipoly[i];
+                if (GeoExtensions.pointInsidePolygon(point, polygon)) inside = !inside;
+            }
             return inside;
         }
     }

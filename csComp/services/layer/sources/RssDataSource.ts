@@ -22,8 +22,9 @@ module csComp.Services {
                         layer.data.features = layer.data.geometries;
                     }
                     layer.data.features.forEach((f) => {
-                        this.service.initFeature(f, layer);
+                        this.service.initFeature(f, layer, false, false);
                     });
+                    this.service.$messageBusService.publish("timeline", "updateFeatures");
 
                     layer.isLoading = false;
                     callback(layer);

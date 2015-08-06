@@ -85,8 +85,9 @@ module csComp.Services {
                 layer.data.features = layer.data.geometries;
             }
             layer.data.features.forEach((f) => {
-                this.service.initFeature(f, layer);
+                this.service.initFeature(f, layer, false, false);
             });
+            this.service.$messageBusService.publish("timeline", "updateFeatures");
         }
 
         removeLayer(layer: ProjectLayer) {
@@ -345,7 +346,7 @@ module csComp.Services {
                 for (var key in this.routers) {
                     if (this.routers.hasOwnProperty(key)) {
                         var polygon: L.Polygon = this.routers[key];
-                        if (csComp.Helpers.GeoExtensions.pointInsidePolygon([this.latlng.lng, this.latlng.lat], polygon.toGeoJSON().geometry.coordinates[0])) {
+                        if (csComp.Helpers.GeoExtensions.pointInsidePolygon([this.latlng.lng, this.latlng.lat], polygon.toGeoJSON().geometry.coordinates)) {
                             url = url.replace(this.getCurrentRouter(urlParameters['baseUrl']), key);
                         }
                     }
@@ -438,8 +439,9 @@ module csComp.Services {
                 }
                 this.layer.data.features.forEach((f: IFeature) => {
                     f.isInitialized = false;
-                    this.service.initFeature(f, this.layer);
+                    this.service.initFeature(f, this.layer, false, false);
                 });
+                this.service.$messageBusService.publish("timeline", "updateFeatures");
             }
             this.layer.isLoading = false;
             clbk(this.layer);
@@ -474,8 +476,9 @@ module csComp.Services {
                         layer.data.features = layer.data.geometries;
                     }
                     layer.data.features.forEach((f) => {
-                        this.service.initFeature(f, layer);
+                        this.service.initFeature(f, layer, false, false);
                     });
+                    this.service.$messageBusService.publish("timeline", "updateFeatures");
 
                     layer.isLoading = false;
                     callback(layer);

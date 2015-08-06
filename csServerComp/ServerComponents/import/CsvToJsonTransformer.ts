@@ -76,17 +76,25 @@ class CsvToJsonTransformer implements transform.ITransform {
           }
 
           var textQualifierRegExp = new RegExp("(?:\\s*(?:" + this.textQualifier + "([^" + this.textQualifier + "]*)" + this.textQualifier + "|([^" + this.fieldDelimiter + "]+))?\\s*" + this.fieldDelimiter + "?)+?","g");
-          var fields:string[] = [];
+          var fields:any[] = [];
           var result:RegExpExecArray;
           var prevIndex = -1;
           while ((result = textQualifierRegExp.exec(line)).index > prevIndex) {
+            var strValue: string = '';
             if (result[1] && result[1].length > 0) {
-              fields.push(result[1]);
+              strValue = result[1];
             } else if (result[2] && result[2].length > 0) {
-              fields.push(result[2]);
-            } else {
-              fields.push('');
+              strValue = result[2];
             }
+
+              /*console.log("Number: '" + strValue + "': " + /^\-?[0-9]*(,|\.)?[0-9]+$/.test(strValue));*/
+            if (/^\-?[0-9]*(,|\.)?[0-9]+$/.test(strValue)) {
+              fields.push(parseInt(strValue.replace(/,/,'.')));
+            }
+            else {
+              fields.push(strValue);
+            }
+
             prevIndex = result.index;
           }
 
@@ -95,15 +103,15 @@ class CsvToJsonTransformer implements transform.ITransform {
 
           if (!headers) {
             headers = [];
-            fields.forEach(f=>{
-              headers.push(f);
+            fields.filter(f=>f && f!='').forEach(f=>{
+              headers.push(f.toString());
             });
             console.log(headers);
             done();
             return;
           }
           else {
-            var obj:any = {properties:{}};
+            var obj:any = {type:"Feature", properties:{}};
 
             headers.forEach(h=>{
               var hIndex = headers.indexOf(h);

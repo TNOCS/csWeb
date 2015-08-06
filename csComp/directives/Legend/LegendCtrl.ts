@@ -15,11 +15,6 @@ module Legend {
 
     export interface ILegendDirectiveScope extends ng.IScope {
         vm: LegendCtrl;
-        //title: string;
-        //timestamp: string;
-        //s1: string;
-        //s2: string;
-        //s3: string;
         data: LegendData;
         legend: csComp.Services.Legend;
     }
@@ -71,7 +66,16 @@ module Legend {
                     $scope.legend = ptd.legend;
                 }
             });
-
         }
+
+        getStyle(legend: csComp.Services.Legend, le: csComp.Services.LegendEntry, key: number) {
+            return {
+                'float': 'left',
+                'position': 'relative',
+                'top': '10px',
+                'background': `linear-gradient(to bottom, ${le.color}, ${legend.legendEntries[legend.legendEntries.length-key-2].color})`
+            }
+        }
+
     }
 }

@@ -57,7 +57,7 @@ class GeoJsonFeaturesTransformer implements transform.ITransform {
             return;
           }
 
-          console.log(geoJson.features.length);
+          /*console.log(geoJson.features.length);*/
           if (geoJson.features.length > 0) {
             geoJson.features.forEach(f=>{
               t.push(JSON.stringify(f));

@@ -245,6 +245,17 @@ export class MapLayerFactory {
                 }
                 this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.All, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 break;
+            case "Postcode6_en_huisnummer_met_bag_en_woningtype":
+                if (!ld.parameter1) {
+                    console.log("Error: Parameter1 should be the name of the column containing the zip code!")
+                    return;
+                }
+                if (!ld.parameter2) {
+                    console.log("Error: Parameter2 should be the name of the column containing the house number!")
+                    return;
+                }
+                this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.AddressCountInBuilding, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                break;
             case "Latitude_and_longitude":
                 if (!ld.parameter1) {
                     console.log("Error: Parameter1 should be the name of the column containing the latitude!")
@@ -329,7 +340,7 @@ export class MapLayerFactory {
                     }
                 }
             }
-            realSensors.push(sensors);
+            if (Object.keys(sensors).length !== 0) realSensors.push(sensors);
             realProperties.push(realProperty);
         });
         if (realSensors.length > 0) template.sensors = realSensors;
@@ -458,7 +469,7 @@ export class MapLayerFactory {
             },
             properties: properties
         }
-        if (sensors !== {}) {
+        if (Object.keys(sensors).length !== 0) {
             gjson["sensors"] = sensors;
         }
         return gjson;
