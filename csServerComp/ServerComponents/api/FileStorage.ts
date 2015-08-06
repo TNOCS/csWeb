@@ -136,8 +136,14 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
     }
 
-    public updateLayer(layerId: string, update: any, callback: Function) {
-        //todo
+    public updateLayer(layerId: string, update: Layer, callback: Function) {
+        if (this.layers.hasOwnProperty(layerId)) {
+            this.layers[layerId] = update;
+            callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
+        }
+        else {
+            callback(<CallbackResult>{ result: ApiResult.Error });
+        }
     }
 
     public deleteLayer(layerId: string, callback: Function) {

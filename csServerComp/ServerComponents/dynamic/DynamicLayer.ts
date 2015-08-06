@@ -43,6 +43,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
      * Working copy of geojson file
      */
     public geojson: Layer;
+
     public server: express.Express;
     public messageBus: MessageBus.MessageBusService;
     public connection: ClientConnection.ConnectionManager;
@@ -58,6 +59,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     }
 
     public getLayer(req: express.Request, res: express.Response) {
+
         res.send(JSON.stringify(this.geojson));
     }
 
@@ -93,9 +95,12 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     addFeature(f, updated = true) {
         if (updated) f.properties['updated'] = new Date().getTime();
         this.initFeature(f);
-        this.geojson.features.push(f);
-        f.insertDate = new Date().getTime();
-        this.connection.updateFeature(this.layerId, f, "feature-update");
+        if (this.manager) this.manager.addFeature(this.layerId, f, (cb) => {
+
+        });
+
+        //f.insertDate = new Date().getTime();
+        //this.connection.updateFeature(this.layerId, f, "feature-update");
     }
 
     public start() {
@@ -104,21 +109,21 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
 
         this.startDate = new Date().getTime();
         //this.OpenFile();
-        this.connection.registerLayer(this.layerId, (action: string, msg: ClientConnection.LayerMessage, client: string) => {
-            var feature;
-            switch (action) {
-                case "logUpdate":
-                    // find feature
-                    var featureId = msg.object.featureId;
-
-                    this.updateLog(featureId, msg.object, client, true);
-                    break;
-                case "featureUpdate":
-                    var ft: Feature = msg.object;
-                    this.updateFeature(ft, client, true);
-                    break;
-            }
-        });
+        // this.connection.registerLayer(this.layerId, (action: string, msg: ClientConnection.LayerMessage, client: string) => {
+        //     var feature;
+        //     switch (action) {
+        //         case "logUpdate":
+        //             // find feature
+        //             var featureId = msg.object.featureId;
+        //
+        //             this.updateLog(featureId, msg.object, client, true);
+        //             break;
+        //         case "featureUpdate":
+        //             var ft: Feature = msg.object;
+        //             this.updateFeature(ft, client, true);
+        //             break;
+        //     }
+        // });
     }
 
     updateLog(featureId: string, msgBody: IMessageBody, client?: string, notify?: boolean) {

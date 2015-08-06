@@ -210,10 +210,17 @@ export class ApiManager {
     }
 
     public updateLayer(layerId: string, update: any, callback: Function) {
+
         var s = this.findStorageForLayerId(layerId);
-        s.updateLayer(layerId, update, (r, CallbackResult) => {
-            callback(r);
-        });
+        if (s) {
+            s.updateLayer(layerId, update, (r, CallbackResult) => {
+                Winston.warn('updating layer finished');
+                callback(r);
+            });
+        }
+        else {
+            callback(<CallbackResult>{ result: ApiResult.Error, error: 'layer not found' });
+        }
     }
 
     public deleteLayer(layerId: string, callback: Function) {
@@ -237,11 +244,17 @@ export class ApiManager {
     public addFeature(layerId: string, feature: any, callback: Function) {
         Winston.info('feature added');
         var layer = this.findLayer(layerId);
-        var s = this.findStorage(layer);
-        s.addFeature(layerId, feature, (result) => callback(result));
-        this.getInterfaces().forEach((i: IConnector) => {
-            i.addFeature(layerId, feature, () => { });
-        });
+        if (!layer) {
+            callback(<CallbackResult>{ result: ApiResult.Error, error: 'layer not found' });
+        }
+        else {
+            var s = this.findStorage(layer);
+            s.addFeature(layerId, feature, (result) => callback(result));
+            this.getInterfaces().forEach((i: IConnector) => {
+                i.addFeature(layerId, feature, () => { });
+            });
+        }
+
 
     }
 

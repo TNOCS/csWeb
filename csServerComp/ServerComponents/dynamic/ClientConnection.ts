@@ -162,7 +162,7 @@ module ClientConnection {
             for (var uId in this.users) {
                 var sub = this.users[uId].FindSubscription(key, type);
                 if (sub != null) {
-                    //Winston.info('sending update:' + sub.id);
+                    Winston.info('sending update:' + sub.id);
                     this.users[uId].Client.emit(sub.id, new ClientMessage(command, object));
                 }
             }
