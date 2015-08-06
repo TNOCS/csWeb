@@ -71,7 +71,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                 Winston.info('error writing file : ' + fn);
             }
             else {
-                Winston.info('file saved : ' + fn);
+                Winston.info('filestore: file saved : ' + fn);
             }
         });
     }
@@ -227,7 +227,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
         this.saveFileDounce(layer);
         callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
-        Winston.info("file: update feature")
+        Winston.info("filestore: update feature")
 
     }
 
@@ -246,7 +246,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.manager = layerManager;
         // set up connection
 
-        Winston.info('init File Storage');
+        Winston.info('filestore: init File Storage');
 
     }
 }

@@ -65,6 +65,9 @@ export class Sensor implements StorageObject {
     storage: string;
 }
 
+/**
+ * Geojson Layer definition
+ */
 export class Layer implements StorageObject {
     /**
      * id of storage connector
@@ -77,11 +80,17 @@ export class Layer implements StorageObject {
     public features: Feature[] = [];
 }
 
+/**
+ * Geojson geometry definition
+ */
 export class Geometry {
     public type: string;
     public coordinates: number[];
 }
 
+/**
+ * Geojson feature definition
+ */
 export class Feature {
     public id: string;
     public geometry: Geometry;
@@ -89,6 +98,9 @@ export class Feature {
     public logs: { [key: string]: Log[] };
 }
 
+/**
+ * Geojson property definition
+ */
 export class Property {
 
 }

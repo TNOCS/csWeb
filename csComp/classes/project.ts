@@ -214,7 +214,8 @@ module csComp.Services {
             };
         }
 
-        public deserialize(input: Project, solution: Solution): Project {
+        public deserialize(input: Project): Project {
+            var solution = input.solution;
             var res = <Project>jQuery.extend(new Project(), input);
             res.solution = solution;
             if (input.timeLine) res.timeLine = DateRange.deserialize(input.timeLine); // <DateRange>jQuery.extend(new DateRange(), input.timeLine);
