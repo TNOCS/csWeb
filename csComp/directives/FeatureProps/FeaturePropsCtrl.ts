@@ -284,7 +284,7 @@ module FeatureProps {
 
             //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
             console.log('init featurepropsctrl');
-            //$messageBusService.subscribe("feature", this.featureMessageReceived);
+            $messageBusService.subscribe("feature", this.featureMessageReceived);
 
             var widthOfList = function() {
                 var itemsWidth = 0;
@@ -330,6 +330,7 @@ module FeatureProps {
         public saveFeature() {
             this.$layerService.unlockFeature(this.$scope.feature);
             this.$layerService.saveFeature(this.$scope.feature, true);
+            this.displayFeature(this.$layerService.lastSelectedFeature);
         }
 
         public editFeature() {
@@ -383,8 +384,6 @@ module FeatureProps {
         }
 
         private featureMessageReceived = (title: string, feature: IFeature): void => {
-            console.log("FPC: featureMessageReceived");
-
             switch (title) {
                 case "onFeatureSelect":
                     this.displayFeature(this.$layerService.lastSelectedFeature);
@@ -415,9 +414,6 @@ module FeatureProps {
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
             if (typeof feature.sensors !== 'undefined' && typeof feature.timestamps === 'undefined')
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
-
-            //var pt = this.$layerService.getPropertyTypes(feature);
-            console.log('showing feature');
 
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService, this.$mapService);
         }

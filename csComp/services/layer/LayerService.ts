@@ -833,7 +833,8 @@ module csComp.Services {
                             this.calculateFeatureStyle(f);
                             this.activeMapRenderer.updateFeature(f);
 
-                            if (f.isSelected) this.$messageBusService.publish("feature", "onFeatureUpdated", f);
+                            if (f.isSelected)
+                                this.$messageBusService.publish("feature", "onFeatureUpdated", f);
                         }
                     }
                 }
