@@ -42,7 +42,7 @@ describe('ProjectGroup', function() {
         var fakeXML;
 
         beforeEach(module("mockedOWSXML"));
-        beforeEach(inject(($injector, $http, defaultXML) => {
+        beforeEach(inject(($injector, defaultXML) => {
             $httpBackend = $injector.get('$httpBackend');
             $myInjector = $injector;
             fakeXML = defaultXML;
