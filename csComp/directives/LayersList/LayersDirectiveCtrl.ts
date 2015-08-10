@@ -6,6 +6,7 @@ module LayersDirective {
 
     export class LayersDirectiveCtrl {
         private scope: ILayersDirectiveScope;
+        private allCollapsed: boolean;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -36,7 +37,7 @@ module LayersDirective {
                     return layer.layerSource.layerMenuOptions(layer);
                 }
             });
-
+            this.allCollapsed = false;
         }
 
         public editGroup(group: csComp.Services.ProjectGroup) {
@@ -92,6 +93,31 @@ module LayersDirective {
 
             // NOTE EV: You need to call apply only when an event is received outside the angular scope.
             // However, make sure you are not calling this inside an angular apply cycle, as it will generate an error.
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                this.$scope.$apply();
+            }
+        }
+
+        public collapseAll() {
+            this.$layerService.project.groups.forEach((g) => {
+                var id = "#layergroup_" + g.id;
+                (<any>$(id)).collapse("hide");
+            });
+            var x = (<any>$('layergroupStyle'));
+            (<any>$('div#layergroupStyle')).addClass('collapsed');
+            this.allCollapsed = true;
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                this.$scope.$apply();
+            }
+        }
+
+        public expandAll() {
+            this.$layerService.project.groups.forEach((g) => {
+                var id = "#layergroup_" + g.id;
+                (<any>$(id)).collapse("show");
+            });
+            (<any>$('div#layergroupStyle')).removeClass('collapsed');
+            this.allCollapsed = false;
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                 this.$scope.$apply();
             }

@@ -3,6 +3,8 @@ module Translations {
         public static locale: ng.translate.ITranslationTable = {
             CANCEL_BTN: 'Annuleren',
             OK_BTN: 'OK',
+            EXPAND_ALL: 'Alles uitklappen',
+            COLLAPSE_ALL: 'Alles inklappen',
             BASESTYLES: 'Basiskaarten',
             MAP: 'Kaarten',
             MAP_LABEL: 'Kaart',
