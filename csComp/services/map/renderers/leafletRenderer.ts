@@ -87,7 +87,6 @@ module csComp.Services {
 
         public removeLayer(layer: ProjectLayer) {
             switch (layer.renderType) {
-
                 case "geojson":
                     var g = layer.group;
                     //m = layer.group.vectors;
@@ -330,11 +329,41 @@ module csComp.Services {
         public removeGroup(group: ProjectGroup) { }
 
         public removeFeature(feature: IFeature) {
-            var marker = <L.Marker>feature.layer.group.markers[feature.id];
-            if (marker != null) {
-                feature.layer.mapLayer.removeLayer(marker);
-                delete feature.layer.group.markers[feature.id];
+            var layer = feature.layer;
+            switch (layer.renderType) {
+                case "geojson":
+                    var g = layer.group;
+
+                    if (g.clustering) {
+                        var m = g.cluster;
+
+
+                        try {
+                            m.removeLayer(layer.group.markers[feature.id]);
+                            delete layer.group.markers[feature.id];
+                        } catch (error) { }
+
+
+                    } else {
+
+                        if (layer.group.markers.hasOwnProperty(feature.id)) {
+                            layer.mapLayer.removeLayer(layer.group.markers[feature.id]);
+                            layer.group.vectors.removeLayer(layer.group.markers[feature.id]);
+                            delete layer.group.markers[feature.id];
+                        }
+
+
+                    }
+                    break;
+
             }
+
+
+            // var marker = <L.Marker>feature.layer.group.markers[feature.id];
+            // if (marker != null) {
+            //     feature.layer.mapLayer.removeLayer(marker);
+            //     delete feature.layer.group.markers[feature.id];
+            // }
         }
 
         public updateFeature(feature: IFeature) {

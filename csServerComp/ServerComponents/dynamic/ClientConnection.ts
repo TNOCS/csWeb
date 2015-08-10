@@ -17,9 +17,24 @@ module ClientConnection {
         public callback: MessageBus.IMessageBusCallback
     }
 
+
+
+    /**
+     * object for sending layer messages over socket.io channel
+     */
     export class LayerMessage {
-        constructor(public layerId: string, public action: string, public object: any, public featureId: string)
-        { }
+        public layerId: string;
+        public action: LayerMessageAction;
+        public object: any;
+        public featureId: string;
+    }
+
+    /**
+     * List of available action for sending/receiving layer actions over socket.io channel
+     */
+    export enum LayerMessageAction {
+        featureUpdate,
+        logUpdate
     }
 
     export class ClientMessage {
@@ -110,7 +125,7 @@ module ClientConnection {
         public checkLayerMessage(msg: LayerMessage, client: string) {
             this.subscriptions.forEach((s: LayerSubscription) => {
                 if (msg.layerId === s.layerId) {
-                    s.callback(msg.action, msg, client);
+                    s.callback(LayerMessageAction[msg.action], msg, client);
                 }
             });
         }

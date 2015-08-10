@@ -45,6 +45,7 @@ module Translations {
             SAVE: 'opslaan',
             CONFIG: 'config',
             EDIT: 'aanpassen',
+            REMOVE: 'verwijderen',
             EXPERTMODE: {
                 BEGINNER: 'Beginner',
                 INTERMEDIATE: 'Gevorderd',

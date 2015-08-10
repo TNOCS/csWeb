@@ -161,9 +161,17 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public addFeature(layerId: string, feature: Feature, callback: Function) {
         var layer = this.findLayer(layerId);
         if (layer) {
-            layer.features.push(feature);
-            this.saveFileDounce(layer);
-            callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
+            // check if id doesn't exist
+            if (!layer.features.some((f: Feature) => { return f.id === feature.id })) {
+                layer.features.push(feature);
+                this.saveFileDounce(layer);
+                callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
+            }
+            else {
+                Winston.error('filestorage: add feature: feature id already exists');
+                callback(<CallbackResult>{ result: ApiResult.Error, error: "Feature ID already exists" });
+            }
+
         }
         else {
             callback(<CallbackResult>{ result: ApiResult.Error });

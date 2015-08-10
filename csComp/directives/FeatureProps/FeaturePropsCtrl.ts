@@ -418,6 +418,10 @@ module FeatureProps {
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService, this.$mapService);
         }
 
+        public removeFeature() {
+            this.$layerService.removeFeature(this.$scope.feature, true);
+        }
+
         private updateHierarchyLinks(feature: IFeature): void {
             if (!feature) return;
             // Add properties defined inside of layers to the project-wide properties.

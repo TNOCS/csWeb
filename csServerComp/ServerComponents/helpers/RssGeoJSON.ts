@@ -8,6 +8,7 @@ export class RssGeoJSON {
 
 export class RssFeature {
     type = "Feature";
+    id: string;
     geometry: {
         type: string;
         coordinates: number[];

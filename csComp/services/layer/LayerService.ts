@@ -702,7 +702,7 @@ module csComp.Services {
         public updateAllLogs() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
             this.project.features.forEach((f: IFeature) => {
-                if (f.layer.layerSource.title.toLowerCase() === "dynamicgeojson") {
+                if (f.layer.isDynamic) {
                     //if (f.gui.hasOwnProperty("lastUpdate") && this.project.timeLine.focusDate < f.gui["lastUpdate"])
                     this.updateLog(f);
                 }
@@ -759,8 +759,6 @@ module csComp.Services {
             if (feature === this.lastSelectedFeature) {
                 this.$messageBusService.publish("feature", "onFeatureUpdated");
             }
-
-
         }
 
         /** update for all features the active sensor data values and update styles */
@@ -898,10 +896,15 @@ module csComp.Services {
         }
 
         /** remove feature */
-        public removeFeature(feature: IFeature) {
-            this.project.features = this.project.features.filter((f: IFeature) => { return f != feature; });
-            feature.layer.group.ndx.remove([feature]);
-            this.activeMapRenderer.removeFeature(feature);
+        public removeFeature(feature: IFeature, dynamic: boolean = false) {
+            if (dynamic) {
+                this.project.features = this.project.features.filter((f: IFeature) => { return f != feature; });
+                feature.layer.data.features = feature.layer.data.features.filter((f: IFeature) => { return f != feature; });
+                if (feature.layer.group.filterResult)
+                    feature.layer.group.filterResult = feature.layer.group.filterResult.filter((f: IFeature) => { return f != feature; });
+                feature.layer.group.ndx.remove([feature]);
+                this.activeMapRenderer.removeFeature(feature);
+            }
         }
 
         /**
@@ -2151,26 +2154,25 @@ module csComp.Services {
             delete f.gui['lock'];
         }
 
+
+
         public saveFeature(f: IFeature, logs: boolean = false) {
-            console.log('saving feature');
             f.properties["updated"] = new Date().getTime();
             // check if feature is in dynamic layer
-            if (f.layer.type.toLowerCase() === "dynamicgeojson") {
+            if (f.layer.isDynamic) {
                 var l = this.trackFeature(f);
 
                 if (logs) {
                     var s = new LayerMessage();
                     s.layerId = f.layerId;
-                    s.action = "logUpdate";
+                    s.action = LayerMessageAction.logUpdate;
                     s.object = { featureId: f.id, logs: l };
-                    console.log(JSON.stringify(s));
                     this.$messageBusService.serverPublish("layer", s);
-
                 }
                 else {
                     var s = new LayerMessage();
                     s.layerId = f.layerId;
-                    s.action = "featureUpdate";
+                    s.action = LayerMessageAction.featureUpdate;
                     s.object = Feature.serialize(f);
                     this.$messageBusService.serverPublish("layer", s);
                 }
@@ -2200,10 +2202,22 @@ module csComp.Services {
         }
     }
 
+    /**
+     * object for sending layer messages over socket.io channel
+     */
     export class LayerMessage {
         public layerId: string;
-        public action: string;
+        public action: LayerMessageAction;
         public object: any;
+        public featureId: string;
+    }
+
+    /**
+     * List of available action for sending/receiving layer actions over socket.io channel
+     */
+    export enum LayerMessageAction {
+        featureUpdate,
+        logUpdate
     }
 
     /**
