@@ -1645,7 +1645,7 @@ module csComp.Services {
 
                 this.solution = solution;
             }).fail((obj, text, error) => {
-                this.$messageBusService.notify('ERROR loading project', error + '\nwhile loading: ' + url);
+                this.$messageBusService.notify('ERROR loading solution', error + '\nwhile loading: ' + url);
             });
         }
 
