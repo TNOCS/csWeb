@@ -17,14 +17,12 @@ module ClientConnection {
         public callback: MessageBus.IMessageBusCallback
     }
 
-
-
     /**
      * object for sending layer messages over socket.io channel
      */
-    export class LayerMessage {
+    export class LayerUpdate {
         public layerId: string;
-        public action: LayerMessageAction;
+        public action: LayerUpdateAction;
         public object: any;
         public featureId: string;
     }
@@ -32,7 +30,7 @@ module ClientConnection {
     /**
      * List of available action for sending/receiving layer actions over socket.io channel
      */
-    export enum LayerMessageAction {
+    export enum LayerUpdateAction {
         featureUpdate,
         logUpdate
     }
@@ -73,7 +71,7 @@ module ClientConnection {
         private users: { [key: string]: WebClient } = {};
         public server: SocketIO.Server;
 
-        public subscriptions: LayerSubscription[] = [];
+        //public subscriptions: LayerSubscription[] = [];
         public msgSubscriptions: msgSubscription[] = [];
 
 
@@ -102,9 +100,9 @@ module ClientConnection {
                     this.checkClientMessage(msg, socket.id);
                 });
 
-                socket.on('layer', (msg: LayerMessage) => {
-                    this.checkLayerMessage(msg, socket.id);
-                });
+                // socket.on('layer', (msg: LayerMessage) => {
+                //     this.checkLayerMessage(msg, socket.id);
+                // });
                 // create layers room
                 //var l = socket.join('layers');
                 //l.on('join',(j) => {
@@ -122,20 +120,20 @@ module ClientConnection {
             });
         }
 
-        public checkLayerMessage(msg: LayerMessage, client: string) {
-            this.subscriptions.forEach((s: LayerSubscription) => {
-                if (msg.layerId === s.layerId) {
-                    s.callback(LayerMessageAction[msg.action], msg, client);
-                }
-            });
-        }
+        // public checkLayerMessage(msg: LayerMessage, client: string) {
+        //     this.subscriptions.forEach((s: LayerSubscription) => {
+        //         if (msg.layerId === s.layerId) {
+        //             s.callback(LayerMessageAction[msg.action], msg, client);
+        //         }
+        //     });
+        // }
 
         public registerLayer(layerId: string, callback: MessageBus.IMessageBusCallback) {
             var sub = new LayerSubscription();
             sub.layerId = layerId;
 
             sub.callback = callback;
-            this.subscriptions.push(sub);
+            //this.subscriptions.push(sub);
         }
 
         public subscribe(on: string, callback: Function) {

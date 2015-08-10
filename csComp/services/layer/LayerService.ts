@@ -2163,18 +2163,19 @@ module csComp.Services {
                 var l = this.trackFeature(f);
 
                 if (logs) {
-                    var s = new LayerMessage();
+                    var s = new LayerUpdate();
                     s.layerId = f.layerId;
-                    s.action = LayerMessageAction.logUpdate;
+                    s.action = LayerUpdateAction.logUpdate;
                     s.object = { featureId: f.id, logs: l };
-                    this.$messageBusService.serverPublish("layer", s);
+                    //this.$messageBusService.serverPublish("layer", s);
+                    this.$messageBusService.serverSendMessageAction("layer", s);
                 }
                 else {
-                    var s = new LayerMessage();
+                    var s = new LayerUpdate();
                     s.layerId = f.layerId;
-                    s.action = LayerMessageAction.featureUpdate;
+                    s.action = LayerUpdateAction.featureUpdate;
                     s.object = Feature.serialize(f);
-                    this.$messageBusService.serverPublish("layer", s);
+                    this.$messageBusService.serverSendMessageAction("layer", s);
                 }
             }
         }
@@ -2205,9 +2206,9 @@ module csComp.Services {
     /**
      * object for sending layer messages over socket.io channel
      */
-    export class LayerMessage {
+    export class LayerUpdate {
         public layerId: string;
-        public action: LayerMessageAction;
+        public action: LayerUpdateAction;
         public object: any;
         public featureId: string;
     }
@@ -2215,7 +2216,7 @@ module csComp.Services {
     /**
      * List of available action for sending/receiving layer actions over socket.io channel
      */
-    export enum LayerMessageAction {
+    export enum LayerUpdateAction {
         featureUpdate,
         logUpdate
     }

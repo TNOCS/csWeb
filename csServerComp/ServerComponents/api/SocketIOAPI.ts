@@ -20,28 +20,36 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
     public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;
         Winston.info('socketio: init SocketIO API');
+        this.connection.subscribe('layer', (result: ClientConnection.ClientMessage) => {
+            var lu = <ClientConnection.LayerUpdate>result.data;
+            if (lu) {
+                ///TODO: check if lu.layerId really exists
+                switch (lu.action) {
+                    case ClientConnection.LayerUpdateAction.logUpdate:
+                        // find feature
+                        var featureId = lu.object.featureId;
+                        var logs: { [key: string]: Log[] } = lu.object["logs"];
+                        this.manager.updateLogs(lu.layerId, featureId, logs, () => { });
+
+
+                        //this.manager.updateLogs(layer.id,featureId,)
+                        //this.updateLog(layer, featureId, msg.object, client, true);
+                        break;
+                    case ClientConnection.LayerUpdateAction.featureUpdate:
+                        var ft: Feature = lu.object;
+                        this.manager.updateFeature(lu.layerId, ft, (r) => { });
+                        break;
+                }
+            }
+            //result.data
+        })
     }
 
     public initLayer(layer: Layer) {
         Winston.info('socketio: init layer ' + layer.id);
-        this.connection.registerLayer(layer.id, (action: string, msg: ClientConnection.LayerMessage, client: string) => {
+        this.connection.registerLayer(layer.id, (action: string, msg: ClientConnection.LayerUpdate, client: string) => {
             Winston.debug('socketio: action:' + action);
-            switch (action) {
-                case "logUpdate":
-                    // find feature
-                    var featureId = msg.object.featureId;
-                    var logs: { [key: string]: Log[] } = msg.object["logs"];
-                    this.manager.updateLogs(layer.id, featureId, logs, () => { });
-                    Winston.info(JSON.stringify(msg));
 
-                    //this.manager.updateLogs(layer.id,featureId,)
-                    //this.updateLog(layer, featureId, msg.object, client, true);
-                    break;
-                case "featureUpdate":
-                    var ft: Feature = msg.object;
-                    this.manager.updateFeature(layer.id, ft, (r) => { });
-                    break;
-            }
         });
     }
 
