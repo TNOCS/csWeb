@@ -948,10 +948,74 @@
                 "dataSourceParameters": {
                     "gridType": "esri"
                 },
-                "url": "data/projects/20141104_csMap/esri_ascii_grid.txt",
+                "url": "data/projects/20141104_csMap/esri_test.txt",
                 "enabled": false,
                 "opacity": 50
+            },{
+                "id": "ESRIGridtranspoint",
+                "reference": "Esritranspoint",
+                "languages": {
+                    "nl": {
+                        "title": "ESRI Grid (transformed to points)",
+                        "description": "Test voor het inlezen van een ESRI Grid bestand."
+                    },
+                    "en": {
+                        "title": "ESRI Grid (transformed to points)",
+                        "description": "Test reading an ESRI Grid file."
+                    }
+                },
+                "type": "grid",
+                "renderType": "geojson",
+                "dataSourceParameters": {
+                    "gridType": "esri"
+                },
+                "url": "data/projects/20141104_csMap/esri_test.txt",
+                "enabled": false,
+                "opacity": 50,
+                "transformations": [
+                    {
+                        "enabled": true,
+                        "id": "polygontopoint"
+                    }
+                ]
+            },
+            {
+                "id": "ESRIGridtrans",
+                "reference": "Esritrans",
+                "languages": {
+                    "nl": {
+                        "title": "ESRI Grid (transformed)",
+                        "description": "Test voor het inlezen van een ESRI Grid bestand."
+                    },
+                    "en": {
+                        "title": "ESRI Grid (transformed)",
+                        "description": "Test reading an ESRI Grid file."
+                    }
+                },
+                "type": "grid",
+                "renderType": "geojson",
+                "dataSourceParameters": {
+                    "gridType": "esri"
+                },
+                "url": "data/projects/20141104_csMap/esri_test.txt",
+                "enabled": false,
+                "opacity": 50,
+                "transformations": [
+                    {
+                        "enabled": true,
+                        "id": "polygontopoint"
+                    },
+                    {
+                        "enabled": true,
+                        "id": "isolines",
+                        "options": {
+                            "propertyName": "v",
+                            "resolution": 10                            
+                        }
+                    }
+                ]
             }
+
         ]
     }, {
         "languages": {

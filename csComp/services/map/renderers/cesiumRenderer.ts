@@ -233,10 +233,10 @@ module csComp.Services {
 
         public removeLayer(layer: ProjectLayer) {
             var dfd = jQuery.Deferred();
-            switch (layer.type.toUpperCase()) {
-                case "GEOJSON":
-                case "DYNAMICGEOJSON":
-                case "TOPOJSON":
+            switch (layer.renderType) {
+                case "geojson":
+                case "dynamicgeojson":
+                case "topojson":
                     setTimeout(() => {
                         layer.group.filterResult.forEach((f: IFeature) => {
                             if (f.layerId === layer.id)
@@ -247,7 +247,7 @@ module csComp.Services {
 
                     break;
 
-                case "WMS":
+                case "wms":
                     this.viewer.imageryLayers._layers.forEach(ilayer => {
                         if (ilayer.id == layer.id)
                             this.viewer.imageryLayers.remove(ilayer);
@@ -346,14 +346,19 @@ module csComp.Services {
                 entity.billboard.height = feature.effectiveStyle.iconHeight;
             }
 
+
             var fillColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
             if (feature.effectiveStyle.fillOpacity !== undefined)
                 fillColor.alpha = feature.effectiveStyle.fillOpacity;
+
+            if (feature.effectiveStyle.stroke)
+                fillColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
+
             var pointSize = feature.effectiveStyle.iconWidth;
 
             //adaptive opacity
             //adaptive pointsize
-            if (feature.layer.group.styles.length == 1) {
+            if (false) { //feature.layer.group.styles.length == 1) {
                 var v = Number(feature.properties[feature.layer.group.styles[0].property]);
                 var min = feature.layer.group.styles[0].info.min;
                 var max = feature.layer.group.styles[0].info.max;
@@ -428,6 +433,9 @@ module csComp.Services {
             var fillColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
             if (feature.effectiveStyle.fillOpacity !== undefined)
                 fillColor.alpha = feature.effectiveStyle.fillOpacity;
+
+            if (feature.effectiveStyle.stroke)
+                fillColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
             switch (feature.geometry.type.toUpperCase()) {
                 case "POINT":
                     // if there is no icon, a PointGraphics object is used as a fallback mechanism

@@ -144,6 +144,7 @@ module csComp.Services {
             this.transformations["conrec"] = new CONRECContourTransformation();
             this.transformations["voronoi"] = new VoronoiContourTransformation();
             this.transformations["isolines"] = new IsolinesTransformation();
+            this.transformations["polygontopoint"] = new PolygonToPointTransformation();
 
             this.initLayerSources();
             this.throttleTimelineUpdate = _.throttle(this.updateAllLogs, 500);
@@ -488,6 +489,9 @@ module csComp.Services {
         /** call the correct transformation class(es) for this layer */
         public transformLayer(layer: ProjectLayer) {
             if (layer.transformations.length > 0) {
+                console.log(layer.transformations);
+                layer.group.filterResult = layer.data.features;
+
                 layer.transformations.forEach((transformation: IAppliedTransformation) => {
                     if (this.transformations[transformation.id] !== undefined) {
                         if (transformation.enabled)
