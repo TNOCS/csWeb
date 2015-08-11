@@ -179,7 +179,6 @@ module csComp.Services {
                                 var lu = <LayerUpdate>msg.data;
                                 switch (lu.action) {
                                     case LayerUpdateAction.updateLog:
-                                        alert('going to update log')
                                         // find feature
                                         var fId = lu.featureId;
                                         var logs: { [key: string]: Log[] } = lu.object;
@@ -198,10 +197,6 @@ module csComp.Services {
                                                 return true;
                                             }
                                             return false;
-
-
-                                            // calculate active properties
-
                                         })
                                         break;
                                     case LayerUpdateAction.updateFeature:
@@ -212,7 +207,12 @@ module csComp.Services {
                                         });
                                         break;
                                     case LayerUpdateAction.deleteFeature:
-                                        alert('going to delete a feature')
+                                        var feature = this.service.findFeature(layer, lu.featureId);
+                                        if (feature) {
+                                            this.service.removeFeature(feature, false);
+                                        }
+
+                                        lu.featureId
                                         // lu.object.forEach((f) => {
                                         //
                                         //     //this.service.removeFeature(f);

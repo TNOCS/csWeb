@@ -897,14 +897,15 @@ module csComp.Services {
 
         /** remove feature */
         public removeFeature(feature: IFeature, dynamic: boolean = false) {
-            if (dynamic) {
-                this.project.features = this.project.features.filter((f: IFeature) => { return f != feature; });
-                feature.layer.data.features = feature.layer.data.features.filter((f: IFeature) => { return f != feature; });
-                if (feature.layer.group.filterResult)
-                    feature.layer.group.filterResult = feature.layer.group.filterResult.filter((f: IFeature) => { return f != feature; });
-                feature.layer.group.ndx.remove([feature]);
-                this.activeMapRenderer.removeFeature(feature);
 
+            this.project.features = this.project.features.filter((f: IFeature) => { return f != feature; });
+            feature.layer.data.features = feature.layer.data.features.filter((f: IFeature) => { return f != feature; });
+            if (feature.layer.group.filterResult)
+                feature.layer.group.filterResult = feature.layer.group.filterResult.filter((f: IFeature) => { return f != feature; });
+            feature.layer.group.ndx.remove([feature]);
+            this.activeMapRenderer.removeFeature(feature);
+
+            if (dynamic) {
                 var s = new LayerUpdate();
                 s.layerId = feature.layerId;
                 s.action = LayerUpdateAction.deleteFeature;
@@ -1076,15 +1077,21 @@ module csComp.Services {
         }
 
         /**
-         * Find a feature by layerId and FeatureId.
-         * @layerId {string}
-         * @featureIndex {number}
+         * Find a feature by FeatureId
+         * @featureId {number}
          */
         findFeatureById(featureId: string): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.id === featureId })
         }
 
-
+        /**
+         * Find a feature by layerId and FeatureId.
+         * @layer {ProjectLayer}
+         * @featureId {number}
+         */
+        findFeature(layer: ProjectLayer, featureId: string): IFeature {
+            return _.find(layer.data.features, (f: IFeature) => { return f.id === featureId })
+        }
 
         /**
          * Find a group by id
@@ -1099,7 +1106,7 @@ module csComp.Services {
         /**
          * Find a group by id
          */
-        findGroupByLayerId(layer: csComp.Services.ProjectLayer): ProjectGroup {
+        findGroupByLayerId(layer: ProjectLayer): ProjectGroup {
             if (!layer.id) return null;
             var matchedGroup;
             this.project.groups.some((group) => {

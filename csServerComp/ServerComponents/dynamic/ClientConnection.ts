@@ -187,12 +187,11 @@ module ClientConnection {
         /**
          * Send update to all clients.
          * @action: logs-update, feature-update
-         * @skip: this one will be skipped ( e.g original source)
+         * @meta: used to determine source/user, will skip
          */
         public updateFeature(layer: string, update: LayerUpdate, meta: ApiMeta) {
             //Winston.info('update feature ' + layer);
             var skip = (meta.source === "socketio") ? meta.user : undefined;
-            Winston.error('skip : ' + skip);
             for (var uId in this.users) {
                 if (!skip || uId != skip) {
                     var sub = this.users[uId].FindSubscription(layer, "layer");
@@ -203,14 +202,7 @@ module ClientConnection {
             }
         }
 
-        public deleteFeature(layer: string, feature: any) {
-            for (var uId in this.users) {
-                var sub = this.users[uId].FindSubscription(layer, "layer");
-                if (sub != null) {
-                    this.users[uId].Client.emit(sub.id, new ClientMessage("feature-delete", [feature.id]));
-                }
-            }
-        }
+
     }
 }
 export = ClientConnection;

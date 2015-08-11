@@ -172,6 +172,7 @@
         "./services/map/renderers/leafletRenderer.ts",
         "./services/search/SearchFormCtrl.ts",
         "./translations/locale-en.ts",
-        "./translations/locale-nl.ts"
+        "./translations/locale-nl.ts",
+        "./typings/tsd.d.ts"
     ]
 }
