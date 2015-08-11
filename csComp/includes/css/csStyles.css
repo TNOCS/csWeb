@@ -730,6 +730,11 @@ html, body, #container {
     float: right;
     margin-right: 10px;
 }
+.leftpanel-header-button-container-left {
+    float: left;
+    margin-left: -5px;
+    margin-right: 5px;
+}
 
 /* dashboard */
 
