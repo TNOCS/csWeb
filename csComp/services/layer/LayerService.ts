@@ -1253,7 +1253,9 @@ module csComp.Services {
 
         setLocationFilter() {
             if (!this.locationFilter) {
-                this.locationFilter = new L.LocationFilter().addTo(this.map.map);
+                var bounds = this.map.map.getBounds();
+                bounds = bounds.pad(-0.75);
+                this.locationFilter = new L.LocationFilter({bounds: bounds}).addTo(this.map.map);
                 this.locationFilter.on('change', (e) => {
                     this.updateLocationFilter(e.bounds);
                 });
