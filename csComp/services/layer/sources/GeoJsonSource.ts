@@ -179,7 +179,7 @@ module csComp.Services {
                                 var lu = <LayerUpdate>msg.data;
                                 switch (lu.action) {
                                     case LayerUpdateAction.updateLog:
-
+                                        alert('going to update log')
                                         // find feature
                                         var fId = lu.featureId;
                                         var logs: { [key: string]: Log[] } = lu.object;
@@ -212,9 +212,11 @@ module csComp.Services {
                                         });
                                         break;
                                     case LayerUpdateAction.deleteFeature:
-                                        lu.object.forEach((f) => {
-                                            //this.service.removeFeature(f);
-                                        });
+                                        alert('going to delete a feature')
+                                        // lu.object.forEach((f) => {
+                                        //
+                                        //     //this.service.removeFeature(f);
+                                        // });
                                         break;
                                 }
 

@@ -1,6 +1,8 @@
 import io = require('socket.io');
 import MessageBus = require("../bus/MessageBus");
 import Winston = require('winston');
+import ApiManager = require('../api/ApiManager');
+import ApiMeta = ApiManager.ApiMeta;
 
 
 module ClientConnection {
@@ -187,8 +189,10 @@ module ClientConnection {
          * @action: logs-update, feature-update
          * @skip: this one will be skipped ( e.g original source)
          */
-        public updateFeature(layer: string, update: LayerUpdate, skip?: string) {
+        public updateFeature(layer: string, update: LayerUpdate, meta: ApiMeta) {
             //Winston.info('update feature ' + layer);
+            var skip = (meta.source === "socketio") ? meta.user : undefined;
+            Winston.error('skip : ' + skip);
             for (var uId in this.users) {
                 if (!skip || uId != skip) {
                     var sub = this.users[uId].FindSubscription(layer, "layer");

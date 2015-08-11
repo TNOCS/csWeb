@@ -9,6 +9,7 @@ import SensorValue = ApiManager.SensorValue;
 import BaseConnector = require('./BaseConnector');
 import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
+import ApiMeta = ApiManager.ApiMeta;
 
 export class RestAPI extends BaseConnector.BaseConnector {
 
@@ -44,7 +45,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
             var layer = new Layer();
             layer.features = req.body.features;
             layer.id = req.params.layer;
-            this.manager.addLayer(layer, (result: CallbackResult) => {
+            this.manager.addLayer(layer, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check errors
                 //returns success of insert operation
                 res.send(result);
@@ -54,7 +55,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // gets the entire layer, which is stored as a single collection
         // TODO: what to do when this gets really big? Offer a promise?
         this.server.get(this.layersUrl + ':layerId', (req: any, res: any) => {
-            this.manager.getLayer(req.params.layerId, (result: CallbackResult) => {
+            this.manager.getLayer(req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 if (result.result === ApiResult.OK)
                     res.send(result.layer);
@@ -63,7 +64,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //Updates EVERY feature in the layer.
         this.server.put(this.layersUrl + ':layerId', (req: any, res: any) => {
-            this.manager.updateLayer(req.params.layerId, req.body, (result: CallbackResult) => {
+            this.manager.updateLayer(req.params.layerId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -72,7 +73,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // gets the entire layer, which is stored as a single collection
         // TODO: what to do when this gets really big? Offer a promise?
         this.server.delete(this.layersUrl + ':layerId', (req: any, res: any) => {
-            this.manager.deleteLayer(req.params.layerId, (result: CallbackResult) => {
+            this.manager.deleteLayer(req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -82,7 +83,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //adds a feature
         this.server.post(this.layersUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
-            this.manager.addFeature(req.params.layerId, req.body, (result: CallbackResult) => {
+            this.manager.addFeature(req.params.layerId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -90,7 +91,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //returns a feature
         this.server.get(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
-            this.manager.getFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
+            this.manager.getFeature(req.params.layerId, req.params.featureId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -101,7 +102,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.put(this.layersUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
             var feature = new Feature();
             feature = req.body;
-            this.manager.updateFeature(req.params.layerId, feature, (result: CallbackResult) => {
+            this.manager.updateFeature(req.params.layerId, feature, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -111,7 +112,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // unlike the JS version, which simply uses del as a keyword.
         // deletes a feature
         this.server.delete(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
-            this.manager.deleteFeature(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
+            this.manager.deleteFeature(req.params.layerId, req.params.featureId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -121,7 +122,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         // addLog
         this.server.put(this.layersUrl + ":layerId/:featureId/log", (req: express.Request, res: express.Response) => {
-            this.manager.addLog(req.params.layerId, req.params.featureId, req.body, (result: CallbackResult) => {
+            this.manager.addLog(req.params.layerId, req.params.featureId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 console.log("received log");
                 res.send(result);
@@ -130,7 +131,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //getLog (path doesnt make sense)
         this.server.get(this.layersUrl + ":layerId/:featureId/log", (req: express.Request, res: express.Response) => {
-            this.manager.getLog(req.params.layerId, req.params.featureId, (result: CallbackResult) => {
+            this.manager.getLog(req.params.layerId, req.params.featureId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -138,7 +139,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //deleteLog
         this.server.delete(this.layersUrl + ":layerId/:featureId/log", (req: express.Request, res: express.Response) => {
-            this.manager.deleteLog(req.params.layerId, req.params.featureId, req.body.ts, req.body.prop, (result: CallbackResult) => {
+            this.manager.deleteLog(req.params.layerId, req.params.featureId, req.body.ts, req.body.prop, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -148,10 +149,9 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.put(this.layersUrl + ":layerId/:featureId/logs", (req: express.Request, res: express.Response) => {
             var logs: { [key: string]: Logs[] };
             logs = req.body;
-            this.manager.updateLogs(req.params.layerId, req.params.featureId, logs, (result: CallbackResult) => {
+            this.manager.updateLogs(req.params.layerId, req.params.featureId, logs, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
-
             });
         });
 
@@ -163,7 +163,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.get(this.layersUrl + ":layerId/bbox", (req: express.Request, res: express.Response) => {
             var southWest: number[] = [Number(req.query.swlng), Number(req.query.swlat)];
             var northEast: number[] = [Number(req.query.nelng), Number(req.query.nelat)];
-            this.manager.getBBox(req.params.layerId, southWest, northEast, (result: CallbackResult) => {
+            this.manager.getBBox(req.params.layerId, southWest, northEast, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -171,10 +171,10 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         // fetches all points in a spherical method
         this.server.get(this.layersUrl + ":layerId/getsphere", (req: express.Request, res: express.Response) => {
-            this.manager.getSphere(req.params.layerId, Number(req.query.maxDistance), Number(req.query.lng), Number(req.query.lat), (result: CallbackResult) => {
-                this.server.post(this.sensorsUrl + ":sensorId", (req: express.Request, res: express.Response) => {
-                    this.manager.addSensor(req.body, (result: CallbackResult) => { res.send(result) });
-                });
+            this.manager.getSphere(req.params.layerId, Number(req.query.maxDistance), Number(req.query.lng), Number(req.query.lat), <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                // this.server.post(this.sensorsUrl + ":sensorId", (req: express.Request, res: express.Response) => {
+                //     this.manager.addSensor(req.body, (result: CallbackResult) => { res.send(result) });
+                // });
                 //todo: check error
                 res.send(result);
             });
@@ -183,10 +183,10 @@ export class RestAPI extends BaseConnector.BaseConnector {
         //works with post - so we can receive a GeoJSON as input
         this.server.post(this.layersUrl + ":layerId/getwithinpolygon", (req: express.Request, res: express.Response) => {
             var feature: Feature = req.body;
-            this.server.get(this.sensorsUrl, (req: express.Request, res: express.Response) => {
-                this.manager.getSensors((result: CallbackResult) => { res.send(result) });
-            });
-            this.manager.getWithinPolygon(req.params.layerId, feature, (result: CallbackResult) => {
+            // this.server.get(this.sensorsUrl, (req: express.Request, res: express.Response) => {
+            //     this.manager.getSensors((result: CallbackResult) => { res.send(result) });
+            // });
+            this.manager.getWithinPolygon(req.params.layerId, feature, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });

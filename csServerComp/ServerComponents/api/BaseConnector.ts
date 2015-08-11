@@ -5,6 +5,7 @@ import CallbackResult = ApiManager.CallbackResult;
 import Log = ApiManager.Log;
 import Sensor = ApiManager.Sensor;
 import SensorValue = ApiManager.SensorValue;
+import ApiMeta = ApiManager.ApiMeta;
 
 export class BaseConnector implements ApiManager.IConnector {
     public manager: ApiManager.ApiManager
@@ -18,44 +19,44 @@ export class BaseConnector implements ApiManager.IConnector {
 
     // layer methods first, in crud order.
 
-    public addLayer(layer: Layer, callback: Function) {
+    public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
 
     }
 
-    public getLayer(layerId: string, callback: Function) {
+    public getLayer(layerId: string, meta: ApiMeta, callback: Function) {
 
     }
 
-    public updateLayer(layerId: string, update: any, callback: Function) {
+    public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
     }
 
-    public deleteLayer(layerId: string, callback: Function) {
+    public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {
 
     }
 
 
     // feature methods, in crud order
 
-    public addFeature(layerId: string, feature: any, callback: Function) {
+    public addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
 
     }
 
     //TODO: implement
-    public getFeature(layerId: string, i: string, callback: Function) {
+    public getFeature(layerId: string, i: string, meta: ApiMeta, callback: Function) {
 
     }
 
     //TODO: implement
-    public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
+    public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
 
     }
 
     //TODO: test further. Result is the # of deleted docs.
-    public deleteFeature(layerId: string, featureId: string, callback: Function) {
+    public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
 
     }
 
-    public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
+    public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, meta: ApiMeta, callback: Function) {
 
     }
 
@@ -63,37 +64,37 @@ export class BaseConnector implements ApiManager.IConnector {
     //
     // }
 
-    public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
+    public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function) {
 
     }
 
     //sensor methods
-    public addSensor(sensor: Sensor, callback: Function) { }
-    public addSensorValue(sensorId: string, value: SensorValue, callback: Function) { }
-    public getSensors(callback: Function) { }
-    public getSensor(sensorId: string) { }
+    public addSensor(sensor: Sensor, meta: ApiMeta, callback: Function) { }
+    public addSensorValue(sensorId: string, value: SensorValue, meta: ApiMeta, callback: Function) { }
+    public getSensors(meta: ApiMeta, callback: Function) { }
+    public getSensor(sensorId: string, meta: ApiMeta) { }
 
-    public addLog(layerId: string, featureId: string, log: Log, callback: Function) {
-
-    }
-
-    public getLog(layerId: string, featureId: string, callback: Function) {
+    public addLog(layerId: string, featureId: string, log: Log, meta: ApiMeta, callback: Function) {
 
     }
 
-    public deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function) {
+    public getLog(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
 
     }
 
-    public getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) {
+    public deleteLog(layerId: string, featureId: string, ts: number, prop: string, meta: ApiMeta, callback: Function) {
 
     }
 
-    public getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, callback: Function) {
+    public getBBox(layerId: string, southWest: number[], northEast: number[], meta: ApiMeta, callback: Function) {
 
     }
 
-    public getWithinPolygon(layerId: string, feature: Feature, callback: Function) {
+    public getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public getWithinPolygon(layerId: string, feature: Feature, meta: ApiMeta, callback: Function) {
 
     }
 

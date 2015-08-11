@@ -4,6 +4,7 @@ import Feature = ApiManager.Feature;
 import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
 import Log = ApiManager.Log;
+import ApiMeta = ApiManager.ApiMeta;
 import mongodb = require('mongodb');
 import BaseConnector = require('./BaseConnector');
 import Winston = require('winston');
@@ -33,7 +34,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback [Callback]
      * @return {result}            [Success of operation]
      */
-    public addLayer(layer: Layer, callback: Function) {
+    public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layer.id);
         collection.insert(layer.features, {}, function(e, result) {
             if (e)
@@ -77,7 +78,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback [Callback]
      * @return {result}            [Success: Layer, Failure: error]
      */
-    public getLayer(layerId: string, callback: Function) {
+    public getLayer(layerId: string, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         collection.find({}, { sort: [['_id', 1]] }).toArray(function(e, response) {
             if (e) {
@@ -98,7 +99,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback [callback]
      * @return {result}            [Success of the operation]
      */
-    public deleteLayer(layerId: string, callback: Function) {
+    public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         collection.drop((err, removed) => {
             if (!err) {
@@ -121,7 +122,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback [callback]
      * @return {result}            [success of the operation]
      */
-    public updateLayer(layerId: string, update: any, callback: Function) {
+    public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         collection.update({}, { $set: update }, { safe: true, multi: true }, (e, response) => {
             if (!e) {
@@ -140,7 +141,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback [Callback]
      * @return {result}            [Success of the operation]
      */
-    public addFeature(layerId: string, feature: any, callback: Function) {
+    public addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         feature.id = new mongodb.ObjectID(feature.id);
         collection.insert(feature, {}, function(e, response) {
@@ -160,7 +161,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback  [callback]
      * @return {result}             [Success of the operation]
      */
-    public getFeature(layerId: string, featureId: string, callback: Function) {
+    public getFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         collection.findOne({ _id: new mongodb.ObjectID(featureId) }, function(e, response) {
             if (e) {
@@ -185,7 +186,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback [Callback]
      * @return {result}            [Success of the operation]
      */
-    public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
+    public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         var featureId = new mongodb.ObjectID(feature._id);
         delete feature._id;
@@ -206,7 +207,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback  [Callback]
      * @return {result}             [The success of the operation]
      */
-    public deleteFeature(layerId: string, featureId: string, callback: Function) {
+    public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         Winston.info("Deleting feature with ID " + new mongodb.ObjectID(featureId));
         collection.remove({ _id: new mongodb.ObjectID(featureId) }, function(e, response) {
@@ -226,12 +227,12 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback  [description]
      * @return {[type]}             [description]
      */
-    public addLog(layerId: string, featureId: string, log: Log, callback: Function) {
+    public addLog(layerId: string, featureId: string, log: Log, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         var update = { "$push": {} };
         update["$push"]["logs." + log.prop] = log;
         log.ts = Date.now();
-    
+
         // If the field is absent in the document to update, $push adds the array field with the value as its element.
         // http://docs.mongodb.org/manual/reference/operator/update/push/
         collection.update(
@@ -256,7 +257,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback  [Callback]
      * @return {result}             [Success of the operation]
      */
-    public addLog2(layerId: string, featureId: string, log: Log, callback: Function) {
+    public addLog2(layerId: string, featureId: string, log: Log, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         log.ts = Date.now();
         // If the field is absent in the document to update, $push adds the array field with the value as its element.
@@ -290,7 +291,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback  [Callback]
      * @return {result}             [Result of the operation, a single feature]
      */
-    public getLog(layerId: string, featureId: string, callback: Function) {
+    public getLog(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         collection.findOne({ _id: featureId }, { logs: 1 }, function(e, response) {
             if (e) {
@@ -315,7 +316,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback  [Callback]
      * @return {result}             [Result of the operation]
      */
-    public deleteLog(layerId: string, featureId: string, ts: number, prop: string, callback: Function) {
+    public deleteLog(layerId: string, featureId: string, ts: number, prop: string, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         collection.update(
             { _id: featureId },
@@ -350,7 +351,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback  [Callback]
      * @return {result}             [result of operation]
      */
-    public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
+    public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, meta: ApiMeta, callback: Function) {
 
     }
 
@@ -363,7 +364,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback  [Callback]
      * @return {result}             [Success of operation, layer]
      */
-    public getBBox(layerId: string, southWest: number[], northEast: number[], callback: Function) {
+    public getBBox(layerId: string, southWest: number[], northEast: number[], meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         collection.find(
             {
@@ -397,7 +398,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback    [Callback]
      * @return {result}               [Success of operation, Layer]
      */
-    public getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, callback: Function) {
+    public getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         //for now limiting this to 1000 results. Could be parameterized in the future
         collection.aggregate([
@@ -436,7 +437,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback [Callback]
      * @return {result}            [Success of operation, layer]
      */
-    public getWithinPolygon(layerId: string, feature: Feature, callback: Function) {
+    public getWithinPolygon(layerId: string, feature: Feature, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         Winston.info(JSON.stringify(feature));
         collection.aggregate([

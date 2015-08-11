@@ -95,7 +95,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     addFeature(f, updated = true) {
         if (updated) f.properties['updated'] = new Date().getTime();
         this.initFeature(f);
-        if (this.manager) this.manager.addFeature(this.layerId, f, (cb) => {
+        if (this.manager) this.manager.addFeature(this.layerId, f, {}, (cb) => {
 
         });
 

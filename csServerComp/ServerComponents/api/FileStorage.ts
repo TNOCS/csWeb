@@ -6,6 +6,7 @@ import Feature = ApiManager.Feature;
 import Log = ApiManager.Log;
 import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
+import ApiMeta = ApiManager.ApiMeta;
 import BaseConnector = require('./BaseConnector');
 import _ = require('underscore');
 var chokidar = require('chokidar');
@@ -82,7 +83,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     private closeFile(fileName: string) {
         var id = this.getLayerId(fileName);
-        this.manager.deleteLayer(id, () => { });
+        this.manager.deleteLayer(id, {}, () => { });
     }
 
     private openFile(fileName: string) {
@@ -95,7 +96,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     layer.storage = this.id;
                     layer.id = id;
                     this.layers[id] = layer;
-                    this.manager.addLayer(layer, () => { });
+                    this.manager.addLayer(layer, {}, () => { });
 
                 }
             });
@@ -115,7 +116,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     // layer methods first, in crud order.
 
-    public addLayer(layer: Layer, callback: Function) {
+    public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         try {
             this.layers[layer.id] = layer;
             this.saveFileDounce(layer);
@@ -127,7 +128,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     //TODO: Arnoud, what to do with this?
-    public getLayer(layerId: string, callback: Function) {
+    public getLayer(layerId: string, meta: ApiMeta, callback: Function) {
         if (this.layers.hasOwnProperty(layerId)) {
             callback(<CallbackResult>{ result: ApiResult.OK, layer: this.layers[layerId] });
         }
@@ -136,7 +137,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
     }
 
-    public updateLayer(layerId: string, update: Layer, callback: Function) {
+    public updateLayer(layerId: string, update: Layer, meta: ApiMeta, callback: Function) {
         if (this.layers.hasOwnProperty(layerId)) {
             this.layers[layerId] = update;
             callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
@@ -146,7 +147,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
     }
 
-    public deleteLayer(layerId: string, callback: Function) {
+    public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {
         if (this.layers.hasOwnProperty(layerId)) {
             delete this.layers[layerId];
             callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
@@ -158,7 +159,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     // feature methods, in crud order
-    public addFeature(layerId: string, feature: Feature, callback: Function) {
+    public addFeature(layerId: string, feature: Feature, meta: ApiMeta, callback: Function) {
         var layer = this.findLayer(layerId);
         if (layer) {
             // check if id doesn't exist
@@ -178,11 +179,11 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
     }
 
-    public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, callback: Function) {
+    public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, meta: ApiMeta, callback: Function) {
 
     }
 
-    public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
+    public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function) {
         var f: Feature;
         var layer = this.findLayer(layerId);
         layer.features.some(feature => {
@@ -216,7 +217,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
 
 
-    public getFeature(layerId: string, featureId: string, callback: Function) {
+    public getFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var l = this.layers[layerId];
         var found = false;
         l.features.forEach((f: Feature) => {
@@ -229,7 +230,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
 
     //TODO: implement
-    public updateFeature(layerId: string, feature: any, useLog: boolean, callback: Function) {
+    public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
         var layer = this.findLayer(layerId);
         var f = layer.features.filter((k) => { return k.id && k.id === feature.id });
         if (f && f.length > 0) {
@@ -246,7 +247,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     //TODO: test further. Result is the # of deleted docs.
-    public deleteFeature(layerId: string, featureId: string, callback: Function) {
+    public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var layer = this.findLayer(layerId);
         layer.features = layer.features.filter((k) => { return k.id && k.id !== featureId });
         callback(<CallbackResult>{ result: ApiResult.OK });
