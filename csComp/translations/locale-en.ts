@@ -5,6 +5,8 @@ module Translations {
             OK_BTN: 'OK',
             EXPAND_ALL: 'Expand all',
             COLLAPSE_ALL: 'Collapse all',
+            SELECT_ALL: 'Select all',
+            DESELECT_ALL: 'Deselect all',
             CHOOSE_DROPDOWN: 'Choose...',
             BASESTYLES: 'Baselayers',
             MAP: 'Maps',

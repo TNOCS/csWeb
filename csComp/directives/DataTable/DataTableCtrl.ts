@@ -32,6 +32,8 @@ module DataTable {
         public sortingColumn: number;
         public rows: Array<Array<TableField>> = [];
         private mapFeatureTitle: string;
+        private selectAllText: string;
+        private selectAllBool: boolean;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -77,6 +79,11 @@ module DataTable {
             if (this.$layerService.project == null || this.$layerService.project.groups == null) return;
             this.updateLayerOptions();
             this.loadLayer();
+
+            this.selectAllBool = false;
+            $translate('SELECT_ALL').then(translation => {
+                this.selectAllText = translation;
+            });
 
             $messageBusService.publish('timeline', 'isEnabled', 'false');
         }
@@ -406,6 +413,32 @@ module DataTable {
         //         document.body.removeChild(a);
         //     }
         // }
+
+        private selectAll() {
+            if (this.selectAllBool) {
+                this.$translate('SELECT_ALL').then(translation => {
+                    this.selectAllText = translation;
+                });
+                this.propertyTypes.forEach((mi) => {
+                    var idx = this.headers.indexOf(mi.title);
+                    if (idx > -1) {
+                        this.headers.splice(idx, 1);
+                    }
+                });
+                this.rows = this.getRows();
+            } else {
+                this.$translate('DESELECT_ALL').then(translation => {
+                    this.selectAllText = translation;
+                });
+                this.propertyTypes.forEach((mi) => {
+                    if (this.headers.indexOf(mi.title) <= -1) {
+                        this.headers.push(mi.title);
+                    }
+                });
+                this.rows = this.getRows();
+            }
+            this.selectAllBool = !this.selectAllBool;
+        }
 
         /**
          * Convert to trusted html string.
