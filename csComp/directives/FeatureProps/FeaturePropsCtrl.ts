@@ -248,6 +248,7 @@ module FeatureProps {
     export class FeaturePropsCtrl {
         private scope: IFeaturePropsScope;
         public lastSelectedProperty: IPropertyType;
+        private defaultDropdownTitle: string;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -259,7 +260,8 @@ module FeatureProps {
             '$sce',
             'mapService',
             'layerService',
-            'messageBusService'
+            'messageBusService',
+            '$translate'
         ];
 
 
@@ -272,8 +274,11 @@ module FeatureProps {
             private $sce: ng.ISCEService,
             private $mapService: csComp.Services.MapService,
             private $layerService: csComp.Services.LayerService,
-            private $messageBusService: csComp.Services.MessageBusService
+            private $messageBusService: csComp.Services.MessageBusService,
+            private $translate: ng.translate.ITranslateService
             ) {
+            this.setDropdownTitle();
+
             this.scope = $scope;
             $scope.vm = this;
             $scope.showMenu = false;
@@ -527,6 +532,18 @@ module FeatureProps {
             this.focusTime = time.title;
             this.$layerService.project.timeLine.setFocus(new Date(time.timestamp));
             this.$messageBusService.publish("timeline", "focusChange", time.timestamp);
+        }
+
+
+        //When a feature has multiple sections, a dropdown list is created with the title defined in the language entry "CHOOSE_DROPDOWN" (e.g. "Choose..." or "Data...")
+        private setDropdownTitle() {
+            this.$translate("CHOOSE_DROPDOWN").then(translation => {
+                if (typeof translation === 'string' && translation.length > 0) {
+                    this.defaultDropdownTitle = translation;
+                } else {
+                    this.defaultDropdownTitle = '...';
+                }
+            });
         }
     }
 }

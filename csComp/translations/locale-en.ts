@@ -5,6 +5,7 @@ module Translations {
             OK_BTN: 'OK',
             EXPAND_ALL: 'Expand all',
             COLLAPSE_ALL: 'Collapse all',
+            CHOOSE_DROPDOWN: 'Choose...',
             BASESTYLES: 'Baselayers',
             MAP: 'Maps',
             MAP_LABEL: 'Map',
