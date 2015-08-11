@@ -33,7 +33,7 @@ module Filters {
             private $timeout: ng.ITimeoutService
             ) {
             $scope.vm = this;
-
+            $scope.editMode = true;
 
 
             var par = <any>$scope.$parent.$parent;
@@ -155,7 +155,7 @@ module Filters {
                     this.$layerService.updateMapFilter(group);
                 }, 100);
             });
-            //this.displayFilterRange(min,max);
+            this.displayFilterRange(min,max);
 
 
             this.dcChart.xUnits(() => { return 13; });

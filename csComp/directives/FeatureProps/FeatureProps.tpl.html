@@ -122,7 +122,7 @@
                                 </ng-form>
                             </div>
                         </div>
-                        <div ng-show="!feature.gui.editMode" class="panel-heading" style="min-height: 36px">
+                        <div ng-show="!feature.gui.editMode" class="panel-heading" style="min-height: 36px;background:{{item.feature.gui['style'][item.property]}};">
 
                             <div data-ng-switch="item.propertyType.type">
                                 <div ng-switch-when="layer">
@@ -132,7 +132,7 @@
                                     <div class="pull-left accordionIcon">
                                         <a class="fa fa-filter makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
                                     </div>
-                                    <div data-ng-show="item.canStyle" class="pull-left accordionIcon style-icon" style="background:{{item.feature.gui['style'][item.property]}}">
+                                    <div data-ng-show="item.canStyle" class="pull-left accordionIcon style-icon">
                                         <a class="smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
                                     </div>
                                     <div ng-show="item.isSensor" style="margin-left:8px" class="pull-left accordionIcon">
@@ -141,9 +141,9 @@
                                     <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-left accordionIcon">
                                         <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.enabled=!item.enabled" style="cursor: pointer"></a>
                                     </div>
-                                    <div data-ng-switch="item.propertyType.type" style="float:right;">
+                                    <div ng-hide="item.isSensor" data-ng-switch="item.propertyType.type" style="float:right">
                                         <div ng-switch-when="date" class="text-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
-                                            {{item.feature.properties[item.property] | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</div>
+                                            {{item.feature.properties[item.property] | amDateFormat:'DD MMMM YYYY'}}</div>
                                         <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
                                         <div ng-switch-when="category" class="text-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>

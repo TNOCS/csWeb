@@ -678,9 +678,11 @@ module csComp.Services {
                 var rpt = new RightPanelTab();
                 rpt.container = 'featureprops';
                 this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+                rpt.container = 'featurerelations';
+                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
-                // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
-                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
