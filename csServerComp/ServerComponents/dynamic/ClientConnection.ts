@@ -31,8 +31,9 @@ module ClientConnection {
      * List of available action for sending/receiving layer actions over socket.io channel
      */
     export enum LayerUpdateAction {
-        featureUpdate,
-        logUpdate
+        updateFeature,
+        updateLog,
+        deleteFeature
     }
 
     export class ClientMessage {
@@ -186,14 +187,13 @@ module ClientConnection {
          * @action: logs-update, feature-update
          * @skip: this one will be skipped ( e.g original source)
          */
-        public updateFeature(layer: string, object: any, action: string, skip?: string) {
+        public updateFeature(layer: string, update: LayerUpdate, skip?: string) {
             //Winston.info('update feature ' + layer);
             for (var uId in this.users) {
                 if (!skip || uId != skip) {
                     var sub = this.users[uId].FindSubscription(layer, "layer");
                     if (sub != null) {
-                        //Winston.info('sending update:' + sub.id);
-                        this.users[uId].Client.emit(sub.id, new ClientMessage(action, [object]));
+                        this.users[uId].Client.emit(sub.id, new ClientMessage("layer", update));
                     }
                 }
             }

@@ -904,6 +904,12 @@ module csComp.Services {
                     feature.layer.group.filterResult = feature.layer.group.filterResult.filter((f: IFeature) => { return f != feature; });
                 feature.layer.group.ndx.remove([feature]);
                 this.activeMapRenderer.removeFeature(feature);
+
+                var s = new LayerUpdate();
+                s.layerId = feature.layerId;
+                s.action = LayerUpdateAction.deleteFeature;
+                s.object = feature.id;
+                this.$messageBusService.serverSendMessageAction("layer", s);
             }
         }
 
@@ -2165,7 +2171,7 @@ module csComp.Services {
                 if (logs) {
                     var s = new LayerUpdate();
                     s.layerId = f.layerId;
-                    s.action = LayerUpdateAction.logUpdate;
+                    s.action = LayerUpdateAction.updateLog;
                     s.object = { featureId: f.id, logs: l };
                     //this.$messageBusService.serverPublish("layer", s);
                     this.$messageBusService.serverSendMessageAction("layer", s);
@@ -2173,7 +2179,7 @@ module csComp.Services {
                 else {
                     var s = new LayerUpdate();
                     s.layerId = f.layerId;
-                    s.action = LayerUpdateAction.featureUpdate;
+                    s.action = LayerUpdateAction.updateFeature;
                     s.object = Feature.serialize(f);
                     this.$messageBusService.serverSendMessageAction("layer", s);
                 }
@@ -2217,8 +2223,9 @@ module csComp.Services {
      * List of available action for sending/receiving layer actions over socket.io channel
      */
     export enum LayerUpdateAction {
-        featureUpdate,
-        logUpdate
+        updateFeature,
+        updateLog,
+        deleteFeature
     }
 
     /**

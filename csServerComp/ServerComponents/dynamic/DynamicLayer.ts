@@ -150,7 +150,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
             });
 
             // send them to other clients
-            this.connection.updateFeature(this.layerId, msgBody, "logs-update", client);
+            //this.connection.updateFeature(this.layerId, msgBody, "logs-update", client);
         }
         console.log("Log update" + featureId);
         if (notify) this.emit("featureUpdated", this.layerId, featureId);
@@ -166,10 +166,10 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
         else {
             this.geojson.features.push(ft);
         }
-        if (client)
-            this.connection.updateFeature(this.layerId, ft, "feature-update", client);
-        else
-            this.connection.updateFeature(this.layerId, ft, "feature-update");
+        //if (client)
+        //this.connection.updateFeature(this.layerId, ft, "feature-update", client);
+        //else
+        //this.connection.updateFeature(this.layerId, ft, "feature-update");
         if (notify) this.emit("featureUpdated", this.layerId, ft.id);
     }
 }

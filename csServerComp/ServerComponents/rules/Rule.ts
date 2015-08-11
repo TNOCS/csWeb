@@ -382,7 +382,7 @@ export class Rule implements IRule {
         //msg.logs.push(f.logs[key]);
         console.log('Log message: ');
         /*console.log(JSON.stringify(msg, null, 2));*/
-        service.layer.connection.updateFeature(service.layer.layerId, msg, "logs-update");
+        //service.layer.connection.updateFeature(service.layer.layerId, msg, "logs-update");
         //service.updateLog(this.feature.id, msg);
         //service.updateFeature(ws.activeLayerId, msg, "logs-update");
     }

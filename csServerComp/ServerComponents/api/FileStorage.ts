@@ -247,12 +247,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     //TODO: test further. Result is the # of deleted docs.
     public deleteFeature(layerId: string, featureId: string, callback: Function) {
-        /*var collection = this.db.collection(layerId);
-        collection.remove({ '_id': featureId }, function(e, result) {
-            if (e) return e;
-            //res.send(result);
-        })*/
-        //this.saveFileDounce(layer);
+        var layer = this.findLayer(layerId);
+        layer.features = layer.features.filter((k) => { return k.id && k.id !== featureId });
+        callback(<CallbackResult>{ result: ApiResult.OK });
+        this.saveFileDounce(layer);
     }
 
     //TODO: Move connection set-up params from static to parameterized.

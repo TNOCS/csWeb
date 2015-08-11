@@ -4,6 +4,8 @@ import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import Log = ApiManager.Log;
 import ClientConnection = require('./../dynamic/ClientConnection');
+import LayerUpdate = ClientConnection.LayerUpdate;
+import LayerUpdateAction = ClientConnection.LayerUpdateAction;
 import MessageBus = require('../bus/MessageBus');
 import BaseConnector = require('./BaseConnector');
 import Winston = require('winston');
@@ -25,19 +27,18 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
             if (lu) {
                 ///TODO: check if lu.layerId really exists
                 switch (lu.action) {
-                    case ClientConnection.LayerUpdateAction.logUpdate:
+                    case ClientConnection.LayerUpdateAction.updateLog:
                         // find feature
                         var featureId = lu.object.featureId;
                         var logs: { [key: string]: Log[] } = lu.object["logs"];
                         this.manager.updateLogs(lu.layerId, featureId, logs, () => { });
-
-
-                        //this.manager.updateLogs(layer.id,featureId,)
-                        //this.updateLog(layer, featureId, msg.object, client, true);
                         break;
-                    case ClientConnection.LayerUpdateAction.featureUpdate:
+                    case ClientConnection.LayerUpdateAction.updateFeature:
                         var ft: Feature = lu.object;
                         this.manager.updateFeature(lu.layerId, ft, (r) => { });
+                        break;
+                    case ClientConnection.LayerUpdateAction.deleteFeature:
+                        this.manager.deleteFeature(lu.layerId, lu.object, (r) => { });
                         break;
                 }
             }
@@ -54,17 +55,19 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
     }
 
     public addFeature(layerId: string, feature: Feature, callback: Function) {
-        this.connection.updateFeature(layerId, feature, "feature-update");
+        var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.updateFeature, object: feature };
+        this.connection.updateFeature(layerId, lu);
     }
 
     public updateFeature(layerId: string, feature: Feature, useLog: boolean, callback: Function) {
         Winston.info('socketio: update feature');
-        this.connection.updateFeature(layerId, feature, "feature-update");
+        var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.updateFeature, object: feature };
+        this.connection.updateFeature(layerId, lu);
     }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, callback: Function) {
-        var body = { action: "logUpdate", layerId: layerId, featureId: featureId, logs: logs };
-        this.connection.updateFeature(layerId, body, "logs-update");
+        var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.updateLog, object: logs, featureId: featureId };
+        this.connection.updateFeature(layerId, lu);
     }
 
 

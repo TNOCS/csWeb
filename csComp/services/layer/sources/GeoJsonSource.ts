@@ -167,71 +167,66 @@ module csComp.Services {
         }
 
         public initSubscriptions(layer: ProjectLayer) {
-            layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, "layer", (topic: string, msg: any) => {
+            layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, "layer", (topic: string, msg: ClientMessage) => {
                 console.log("action:" + msg.action);
                 switch (msg.action) {
                     case "subscribed":
                         console.log('sucesfully subscribed');
                         break;
-                    case "logs-update":
-                        console.log('receiving feature updates');
+                    case "layer":
                         if (msg.data != null) {
                             try {
-                                msg.data.forEach((data: any) => {
-                                    // find feature
-                                    var fId = data.featureId;
-                                    var logs: { [key: string]: Log[] } = data.logs;
-                                    var ff = <IFeature[]>(<any>this.layer.data).features;
-                                    ff.forEach((f: IFeature) => {
-                                        if (f.id === fId) {
-                                            if (!f.logs) f.logs = {};
-                                            for (var k in logs) {
-                                                if (!f.logs.hasOwnProperty(k)) f.logs[k] = [];
-                                                logs[k].forEach((li: Log) => f.logs[k].push(li));
-                                            }
-                                            // update logs
-                                            this.service.$rootScope.$apply(() => {
-                                                this.service.updateLog(f);
-                                            });
-                                            return true;
-                                        }
-                                        return false;
-                                    });
+                                var lu = <LayerUpdate>msg.data;
+                                switch (lu.action) {
+                                    case LayerUpdateAction.updateLog:
 
-                                    // calculate active properties
-                                    console.log(data);
-                                })
+                                        // find feature
+                                        var fId = lu.featureId;
+                                        var logs: { [key: string]: Log[] } = lu.object;
+                                        var ff = <IFeature[]>(<any>this.layer.data).features;
+                                        ff.forEach((f: IFeature) => {
+                                            if (f.id === fId) {
+                                                if (!f.logs) f.logs = {};
+                                                for (var k in logs) {
+                                                    if (!f.logs.hasOwnProperty(k)) f.logs[k] = [];
+                                                    logs[k].forEach((li: Log) => f.logs[k].push(li));
+                                                }
+                                                // update logs
+                                                this.service.$rootScope.$apply(() => {
+                                                    this.service.updateLog(f);
+                                                });
+                                                return true;
+                                            }
+                                            return false;
+
+
+                                            // calculate active properties
+
+                                        })
+                                        break;
+                                    case LayerUpdateAction.updateFeature:
+                                        lu.object.forEach((f: IFeature) => {
+                                            this.service.$rootScope.$apply(() => {
+                                                this.updateFeatureByProperty("id", f.id, f);
+                                            });
+                                        });
+                                        break;
+                                    case LayerUpdateAction.deleteFeature:
+                                        lu.object.forEach((f) => {
+                                            //this.service.removeFeature(f);
+                                        });
+                                        break;
+                                }
+
+
+
                             }
                             catch (e) {
                                 console.warn('Error updating feature: ' + JSON.stringify(e, null, 2));
                             }
                         }
                         break;
-                    case "feature-update":
-                        if (msg.data != null) {
-                            try {
-                                msg.data.forEach((f: IFeature) => {
-                                    this.service.$rootScope.$apply(() => {
-                                        this.updateFeatureByProperty("id", f.id, f);
-                                    });
-                                });
-                            }
-                            catch (e) {
-                                console.warn('error updating feature');
-                            }
-                        }
-                        break;
-                    case "feature-delete":
-                        if (msg.data != null) {
-                            try {
-                                msg.data.forEach((f) => {
-                                    //this.service.removeFeature(f);
-                                });
-                            } catch (e) {
-                                console.warn('error deleting feature');
-                            }
-                        }
-                        break;
+
                 }
             });
         }
@@ -416,7 +411,7 @@ module csComp.Services {
                                 mode: leg.mode,
                                 start: new Date(leg.startTime).toISOString(),
                                 arrive: new Date(leg.endTime).toISOString(),
-                                duration: csComp.Helpers.convertPropertyInfo({type: "duration"}, (+leg.duration) * 1000)
+                                duration: csComp.Helpers.convertPropertyInfo({ type: "duration" }, (+leg.duration) * 1000)
                             };
                             (leg.agencyName) ? legDetails.agency = leg.agencyName : null;
                             (leg.routeShortName) ? legDetails.route = leg.routeShortName : null;
