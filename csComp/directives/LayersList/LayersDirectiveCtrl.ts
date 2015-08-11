@@ -38,6 +38,15 @@ module LayersDirective {
                 }
             });
             this.allCollapsed = false;
+            this.$messageBusService.subscribe('project', (title: string, project: csComp.Services.Project) => {
+                if (title !== 'loaded' || !project) return;
+                if (project.hasOwnProperty('collapseAllLayers') && project.collapseAllLayers === true){
+                    this.collapseAll();
+                    this.allCollapsed = true;
+                } else {
+                    this.allCollapsed = false;
+                }
+            });
         }
 
         public editGroup(group: csComp.Services.ProjectGroup) {
