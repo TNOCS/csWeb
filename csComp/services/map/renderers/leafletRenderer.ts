@@ -75,7 +75,7 @@ module csComp.Services {
             // for clustering use a cluster layer
             if (group.clustering) {
                 group.cluster = new L.MarkerClusterGroup({
-                    maxClusterRadius: (zoom) => {if (zoom > 18) {return 2;} else { return group.maxClusterRadius || 80}},
+                    maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
                 this.service.map.map.addLayer(group.cluster);
@@ -561,6 +561,14 @@ module csComp.Services {
                 autoPan: false,
                 className: 'featureTooltip'
             }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
+
+            //In case a BAG contour is available, show it.
+            if (this.service.currentContour) this.service.map.map.removeLayer(this.service.currentContour);
+            if (feature.properties.hasOwnProperty('_bag_contour')) {
+                var geoContour: L.GeoJSON = JSON.parse(feature.properties['_bag_contour']);
+                this.service.currentContour = L.geoJson(geoContour);
+                this.service.currentContour.addTo(this.service.map.map);
+            }
         }
 
         hideFeatureTooltip(e) {
@@ -569,6 +577,7 @@ module csComp.Services {
                 //this.map.map.closePopup(this.popup);
                 this.popup = null;
             }
+            if (this.service.currentContour) this.service.map.map.removeLayer(this.service.currentContour);
         }
 
         updateFeatureTooltip(e) {

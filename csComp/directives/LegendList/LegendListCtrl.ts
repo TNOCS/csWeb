@@ -56,7 +56,7 @@ module LegendList {
                 var ft = this.$layerService._featureTypes[key];
                 var uri = this.getImageUri(ft);
                 var title = this.getName(key, ft);
-                var existingItem = name + uri;
+                var existingItem = title + uri;
                 if (existingItems.indexOf(existingItem) < 0) {
                     existingItems.push(existingItem);
                     legendItems.push({ "title": title, "uri": uri });

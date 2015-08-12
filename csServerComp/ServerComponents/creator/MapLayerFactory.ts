@@ -436,27 +436,29 @@ export class MapLayerFactory {
         if (!properties) callback();
         var todo = properties.length;
         properties.forEach((prop, index) => {
-            var zip = prop[zipCode].replace(/ /g, '');
-            var nmb = prop[houseNumber];
-            this.bag.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
-                //console.log(todo);
-                todo--;
-                if (!locations || locations.length === 0) {
-                    console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
-                    this.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
-                } else {
-                    for (var key in locations[0]) {
-                        if (key !== "lon" && key !== "lat") {
-                            if (locations[0][key]) {
-                                prop[(key.charAt(0).toUpperCase() + key.slice(1))] = locations[0][key];
-                                this.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), "BAG");
+            if (prop.hasOwnProperty(zipCode) && typeof prop[zipCode] === 'string'){
+                var zip = prop[zipCode].replace(/ /g, '');
+                var nmb = prop[houseNumber];
+                this.bag.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
+                    //console.log(todo);
+                    todo--;
+                    if (!locations || locations.length === 0) {
+                        console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
+                        this.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
+                    } else {
+                        for (var key in locations[0]) {
+                            if (key !== "lon" && key !== "lat") {
+                                if (locations[0][key]) {
+                                    prop[(key.charAt(0).toUpperCase() + key.slice(1))] = locations[0][key];
+                                    this.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), "BAG");
+                                }
                             }
                         }
+                        features.push(this.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
                     }
-                    features.push(this.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
-                }
-                if (todo <= 0) callback();
-            });
+                    if (todo <= 0) callback();
+                });
+            }
         });
     }
 

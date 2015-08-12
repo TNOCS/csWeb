@@ -86,6 +86,8 @@ module csComp.Services {
 
         locationFilter: L.LocationFilter;
 
+        currentContour: L.GeoJSON;
+
         public visual: VisualState = new VisualState();
         throttleTimelineUpdate: Function;
 
@@ -1916,6 +1918,23 @@ module csComp.Services {
                 group.cluster = new L.MarkerClusterGroup({
                     maxClusterRadius: (zoom) => {if (zoom > 18) {return 2;} else { return group.maxClusterRadius || 80}},
                     disableClusteringAtZoom: group.clusterLevel || 0
+                });
+                group.cluster.on('clustermouseover', (a) => {
+                    if (this.currentContour) this.map.map.removeLayer(this.currentContour);
+                    if (a.layer._childClusters.length === 0) {
+                        var childs = a.layer.getAllChildMarkers();
+                        if (childs[0] && childs[0].hasOwnProperty('feature')) {
+                            var f = childs[0].feature;
+                            if (f.properties.hasOwnProperty('_bag_contour')) {
+                                var geoContour: L.GeoJSON = JSON.parse(f.properties['_bag_contour']);
+                                this.currentContour = L.geoJson(geoContour);
+                                this.currentContour.addTo(this.map.map);
+                            }
+                        }
+                    }
+                });
+                group.cluster.on('clustermouseout', (a) => {
+                    if (this.currentContour) this.map.map.removeLayer(this.currentContour);
                 });
 
                 this.map.map.addLayer(group.cluster);
