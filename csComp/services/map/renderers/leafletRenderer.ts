@@ -518,18 +518,26 @@ module csComp.Services {
                 //if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
 
                 // TODO refactor to object
+                var iconPlusBorderWidth, iconPlusBorderHeight;
+                if (feature.effectiveStyle.hasOwnProperty('strokeWidth') && feature.effectiveStyle.strokeWidth > 0) {
+                    iconPlusBorderWidth = feature.effectiveStyle.iconWidth + (2 * feature.effectiveStyle.strokeWidth);
+                    iconPlusBorderHeight = feature.effectiveStyle.iconHeight + (2 * feature.effectiveStyle.strokeWidth);
+                } else {
+                    iconPlusBorderWidth = feature.effectiveStyle.iconWidth;
+                    iconPlusBorderHeight = feature.effectiveStyle.iconHeight;
+                }
                 props['background'] = feature.effectiveStyle.fillColor;
-                props['width'] = feature.effectiveStyle.iconWidth + 'px';
-                props['height'] = feature.effectiveStyle.iconHeight + 'px';
+                props['width'] = iconPlusBorderWidth + 'px';
+                props['height'] = iconPlusBorderWidth + 'px';
                 props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
                 props['border-style'] = 'solid';
                 props['border-color'] = feature.effectiveStyle.strokeColor;
-                props['border-width'] = feature.effectiveStyle.strokeWidth;
+                props['border-width'] = feature.effectiveStyle.strokeWidth + 'px';
                 props['opacity'] = feature.effectiveStyle.opacity;
 
-                if (feature.isSelected) {
-                    props['border-width'] = '3px';
-                }
+                //if (feature.isSelected) {
+                    //props['border-width'] = '3px';
+                //}
 
                 html += ' style=\'display: inline-block;vertical-align: middle;text-align: center;';
                 for (var key in props) {
@@ -545,7 +553,7 @@ module csComp.Services {
                     // Must the iconUri be formatted?
                     if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
 
-                    html += '<img src=\'' + iconUri + '\' style=\'width:' + (feature.effectiveStyle.iconWidth - 6) + 'px;height:' + (feature.effectiveStyle.iconHeight - 6) + 'px';
+                    html += '<img src=\'' + iconUri + '\' style=\'width:' + (feature.effectiveStyle.iconWidth) + 'px;height:' + (feature.effectiveStyle.iconHeight) + 'px';
                     if (feature.effectiveStyle.rotate && feature.effectiveStyle.rotate > 0) html += ';transform:rotate(' + feature.effectiveStyle.rotate + 'deg)';
                     html += '\' />';
                 }
@@ -554,7 +562,7 @@ module csComp.Services {
 
                 icon = new L.DivIcon({
                     className: '',
-                    iconSize: new L.Point(feature.effectiveStyle.iconWidth, feature.effectiveStyle.iconHeight),
+                    iconSize: new L.Point(iconPlusBorderWidth, iconPlusBorderHeight),
                     html: html
                 });
                 //icon = new L.DivIcon({
