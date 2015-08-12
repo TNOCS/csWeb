@@ -736,7 +736,6 @@ module csComp.Services {
                     var l = this.lookupLog(f.logs[key], date);
                     if (key === "~geometry") {
                         if (l.value != f.geometry) {
-                            console.log('update geometry');
                             f.geometry = <IGeoJsonGeometry>l.value;
                             changed = true;
                         }
@@ -1303,7 +1302,7 @@ module csComp.Services {
             if (!this.locationFilter) {
                 var bounds = this.map.map.getBounds();
                 bounds = bounds.pad(-0.75);
-                this.locationFilter = new L.LocationFilter({bounds: bounds}).addTo(this.map.map);
+                this.locationFilter = new L.LocationFilter({ bounds: bounds }).addTo(this.map.map);
                 this.locationFilter.on('change', (e) => {
                     this.updateLocationFilter(e.bounds);
                 });
