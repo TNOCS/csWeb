@@ -74,7 +74,7 @@ export class BaseConnector implements ApiManager.IConnector {
     public getSensors(meta: ApiMeta, callback: Function) { }
     public getSensor(sensorId: string, meta: ApiMeta) { }
 
-    public addLog(layerId: string, featureId: string, log: Log, meta: ApiMeta, callback: Function) {
+    public addLog(layerId: string, featureId: string, property: string, log: Log, meta: ApiMeta, callback: Function) {
 
     }
 

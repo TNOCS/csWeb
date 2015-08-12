@@ -39,7 +39,7 @@ export interface IConnector {
     updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function);
     deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function);
     //log methods
-    addLog(layerId: string, featureId: string, log: Log, meta: ApiMeta, callback: Function);
+    addLog(layerId: string, featureId: string, property: string, log: Log, meta: ApiMeta, callback: Function);
     getLog(layerId: string, featureId: string, meta: ApiMeta, callback: Function);
     deleteLog(layerId: string, featureId: string, ts: number, prop: string, meta: ApiMeta, callback: Function);
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, meta: ApiMeta, callback: Function);
@@ -308,10 +308,9 @@ export class ApiManager {
 
     //log stuff (new: 26/7)
 
-    public addLog(layerId: string, featureId: string, logAddition: any, meta: ApiMeta, callback: Function) {
-        var log = <Log>logAddition;
+    public addLog(layerId: string, featureId: string, property: string, log: Log, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
-        s.addLog(layerId, featureId, log, meta, (result) => callback(result));
+        s.addLog(layerId, featureId, property, log, meta, (result) => callback(result));
     }
 
     public addSensor(sensor: Sensor, meta: ApiMeta, callback: Function) {

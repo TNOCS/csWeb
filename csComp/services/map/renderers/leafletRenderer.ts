@@ -25,10 +25,6 @@ module csComp.Services {
             });
             this.map = this.service.$mapService.map;
 
-
-
-
-
             this.service.$mapService.map.on('moveend', (t, event: any) => {
                 var b = (<L.Map>(this.service.$mapService.map)).getBounds();
                 this.$messageBusService.publish("mapbbox", "update", b.toBBoxString());
@@ -270,7 +266,9 @@ module csComp.Services {
                                         mouseover: (a) => this.showFeatureTooltip(a, layer.group),
                                         mouseout: (s) => this.hideFeatureTooltip(s),
                                         mousemove: (d) => this.updateFeatureTooltip(d),
-                                        click: () => this.service.selectFeature(feature)
+                                        click: () => {
+                                            this.selectFeature(feature);
+                                        }
                                     });
                                 },
                                 style: (f: IFeature, m) => {
@@ -345,14 +343,11 @@ module csComp.Services {
 
 
                     } else {
-
                         if (layer.group.markers.hasOwnProperty(feature.id)) {
                             layer.mapLayer.removeLayer(layer.group.markers[feature.id]);
                             layer.group.vectors.removeLayer(layer.group.markers[feature.id]);
                             delete layer.group.markers[feature.id];
                         }
-
-
                     }
                     break;
 
@@ -370,6 +365,7 @@ module csComp.Services {
             if (feature.layer.group == null) return;
             var marker = feature.layer.group.markers[feature.id];
             if (marker == null) return;
+
             if (feature.geometry.type === 'Point') {
                 marker.setIcon(this.getPointIcon(feature));
                 marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
@@ -382,6 +378,20 @@ module csComp.Services {
                     }
                 }
             }
+            if (feature.layer.isDynamic) {
+                if (this.canDrag(feature)) { marker.dragging.enable(); } else {
+                    marker.dragging.disable();
+                };
+            }
+        }
+
+        public selectFeature(feature) {
+            if (feature.gui.hasOwnProperty("dragged")) {
+                delete feature.gui["dragged"];
+            }
+            else {
+                this.service.selectFeature(feature);
+            }
         }
 
         public addFeature(feature: IFeature): any {
@@ -393,7 +403,9 @@ module csComp.Services {
                     mouseover: (a) => this.showFeatureTooltip(a, l.group),
                     mouseout: (s) => this.hideFeatureTooltip(s),
                     mousemove: (d) => this.updateFeatureTooltip(d),
-                    click: () => this.service.selectFeature(feature)
+                    click: () => {
+                        this.selectFeature(feature);
+                    }
                 });
                 m.feature = feature;
                 if (l.group.clustering) {
@@ -408,6 +420,11 @@ module csComp.Services {
             } else return null;
         }
 
+        private canDrag(feature: IFeature): boolean {
+            return feature.gui.hasOwnProperty('editMode') && feature.gui['editMode'] == true;
+        }
+
+
         /**
          * add a feature
          */
@@ -417,10 +434,13 @@ module csComp.Services {
             var marker;
             switch (feature.geometry.type) {
                 case 'Point':
+                    console.log('create feature');
                     var icon = this.getPointIcon(feature);
+
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
-                        icon: icon
+                        icon: icon, draggable: this.canDrag(feature)
                     });
+
 
                     marker.on('contextmenu', (e: any) => {
                         this.service._activeContextMenu = this.service.getActions(feature);
@@ -433,11 +453,18 @@ module csComp.Services {
                         menu.css("left", e.originalEvent.x + 5);
                         menu.css("top", e.originalEvent.y - 35);
                         if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
-                        /*var containerSize = this.getElementSize(container),
-                            anchor;*/
-                        //console.log(e);
-                        //L.DomEvent.apply(e, "click");
-                        //alert(e.latlng);
+                    });
+
+                    marker.on('dragstart', (event: L.LeafletEvent) => {
+                        feature.gui["dragged"] = true;
+                    });
+
+                    marker.on('dragend', (event: L.LeafletEvent) => {
+                        var marker = event.target;
+                        var position = marker.getLatLng();
+                        feature.geometry.coordinates = [position.lng, position.lat];
+                        //marker.setLatLng(new L.LatLng(), { draggable: 'false' });
+                        //map.panTo(new L.LatLng(position.lat, position.lng))
                     });
 
 

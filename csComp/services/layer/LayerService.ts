@@ -734,15 +734,23 @@ module csComp.Services {
                 for (var key in f.logs) {
                     // lookup value
                     var l = this.lookupLog(f.logs[key], date);
-                    if (!f.properties.hasOwnProperty(key)) {
-                        f.properties[key] = l.value;
-                        changed = true;
+                    if (key === "~geometry") {
+                        if (l.value != f.geometry) {
+                            console.log('update geometry');
+                            f.geometry = <IGeoJsonGeometry>l.value;
+                            changed = true;
+                        }
                     }
                     else {
-                        if (f.properties[key] != l.value) {
-                            console.log(key + " = " + l.value);
+                        if (!f.properties.hasOwnProperty(key)) {
                             f.properties[key] = l.value;
                             changed = true;
+                        }
+                        else {
+                            if (f.properties[key] != l.value) {
+                                f.properties[key] = l.value;
+                                changed = true;
+                            }
                         }
                     }
                 }
@@ -2121,6 +2129,19 @@ module csComp.Services {
                 $('#filtergroupcount_' + group.id).text(group.filterResult.length + ' objecten geselecteerd');
         }
 
+        private trackGeometry(f: IFeature, result: {}) {
+            var key = "~geometry";
+            var log = <Log>{
+                ts: new Date().getTime(), prop: key, value: f.geometry
+            };
+            f.propertiesOld[key] = JSON.parse(JSON.stringify(f.geometry));
+            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+            if (!result.hasOwnProperty(key)) result[key] = [];
+            f.logs[key].push(log);
+            result[key].push(log);
+            f.gui["lastUpdate"] = log.ts;
+        }
+
         private trackProperty(f: IFeature, key: string, result: {}) {
             var log = <Log>{
                 ts: new Date().getTime(), prop: key, value: f.properties[key]
@@ -2143,6 +2164,8 @@ module csComp.Services {
                     this.trackProperty(feature, key, result);
                 }
             }
+            if (JSON.stringify(feature.propertiesOld["~geometry"]) != JSON.stringify(feature.geometry))
+                this.trackGeometry(feature, result);
             return result;
         }
 

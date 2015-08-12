@@ -127,7 +127,6 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
     }
 
-    //TODO: Arnoud, what to do with this?
     public getLayer(layerId: string, meta: ApiMeta, callback: Function) {
         if (this.layers.hasOwnProperty(layerId)) {
             callback(<CallbackResult>{ result: ApiResult.OK, layer: this.layers[layerId] });
@@ -204,8 +203,9 @@ export class FileStorage extends BaseConnector.BaseConnector {
         for (var key in logs) {
             if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
             logs[key].forEach(l=> {
+                delete l.prop;
                 f.logs[key].push(l);
-                f.properties[key] = l.value;
+                if (key != "~geometry") f.properties[key] = l.value;
             });
 
             // send them to other clients

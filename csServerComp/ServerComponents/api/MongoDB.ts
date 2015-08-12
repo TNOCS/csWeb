@@ -227,7 +227,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback  [description]
      * @return {[type]}             [description]
      */
-    public addLog(layerId: string, featureId: string, log: Log, meta: ApiMeta, callback: Function) {
+    public addLog(layerId: string, featureId: string, property: string, log: Log, meta: ApiMeta, callback: Function) {
         var collection = this.db.collection(layerId);
         var update = { "$push": {} };
         update["$push"]["logs." + log.prop] = log;

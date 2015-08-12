@@ -330,12 +330,19 @@ module FeatureProps {
         public saveFeature() {
             this.$layerService.unlockFeature(this.$scope.feature);
             this.$layerService.saveFeature(this.$scope.feature, true);
+            this.$layerService.updateFeature(this.$scope.feature);
             this.displayFeature(this.$layerService.lastSelectedFeature);
+        }
+
+        public startEditFeature() {
+            this.$scope.feature.gui["editMode"] = true;
+            this.$layerService.updateFeature(this.$scope.feature);
         }
 
         public editFeature() {
             var rpt = csComp.Helpers.createRightPanelTab("featuretype", "featuretype", this.$layerService.lastSelectedFeature, "Edit group");
             this.$messageBusService.publish("rightpanel", "activate", rpt);
+            this.$layerService.updateFeature(this.$layerService.lastSelectedFeature);
         }
 
         public toTrusted(html: string): string {

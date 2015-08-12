@@ -122,7 +122,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         // addLog
         this.server.put(this.layersUrl + ":layerId/:featureId/log", (req: express.Request, res: express.Response) => {
-            this.manager.addLog(req.params.layerId, req.params.featureId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            this.manager.addLog(req.params.layerId, req.params.featureId, req.body.prop, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 console.log("received log");
                 res.send(result);
