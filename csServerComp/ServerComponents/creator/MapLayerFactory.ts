@@ -188,6 +188,7 @@ export class MapLayerFactory {
                 iconHeight: ld.iconSize,
                 drawingMode: ld.drawingMode,
                 stroke: ld.strokeWidth > 0,
+                strokeWidth: ld.strokeWidth || 3,
                 strokeColor: ld.strokeColor || "#000",
                 selectedStrokeColor: ld.selectedStrokeColor || "#00f",
                 fillColor: ld.fillColor || "#ff0",

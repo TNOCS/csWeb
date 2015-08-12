@@ -95,7 +95,7 @@ describe('Helpers', function() {
         it('should create default types', function() {
             var f = <csComp.Services.IFeature>{};
             var result = csComp.Helpers.createDefaultType(f);
-            expect(result.style).toEqual({ nameLabel: 'Name', strokeWidth: 1, strokeColor: '#0033ff', fillOpacity: 0.75, fillColor: '#FFFF00', stroke: true, opacity: 1, rotate: 0, iconUri: 'cs/images/marker.png', iconHeight: 32, iconWidth: 32 });
+            expect(result.style).toEqual({ nameLabel: 'Name', strokeWidth: 3, strokeColor: '#0033ff', fillOpacity: 0.75, fillColor: '#FFFF00', stroke: true, opacity: 1, rotate: 0, iconUri: 'cs/images/marker.png', iconHeight: 32, iconWidth: 32 });
             expect(result.propertyTypeData).toEqual([]);
         });
 
