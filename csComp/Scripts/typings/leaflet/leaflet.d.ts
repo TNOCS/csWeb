@@ -10,6 +10,7 @@ declare module L {
 
 declare module L {
     export class LocationFilter {
+        constructor(options: any);
         on(type: string, fn: (e) => void, context?: any);
         addTo(map: Map): LocationFilter;
         enable(): void;
