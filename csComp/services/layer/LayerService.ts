@@ -896,7 +896,8 @@ module csComp.Services {
                 // Stroke is a boolean property, so you have to check whether it is undefined.
                 if (typeof ft.style.stroke !== 'undefined') s.stroke = ft.style.stroke;
                 if (ft.style.strokeColor) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
-                if (ft.style.strokeWidth) s.strokeWidth = ft.style.strokeWidth;
+                // StrokeWidth can be 0 (interpreted as false), so you have to check whether it is undefined.
+                if (typeof ft.style.strokeWidth !== 'undefined') s.strokeWidth = ft.style.strokeWidth;
                 if (ft.style.selectedStrokeColor) s.selectedStrokeColor = csComp.Helpers.getColorString(ft.style.selectedStrokeColor, '#000');
                 if (ft.style.selectedFillColor) s.selectedFillColor = csComp.Helpers.getColorString(ft.style.selectedFillColor);
                 if (ft.style.selectedStrokeWidth) s.selectedStrokeWidth = ft.style.selectedStrokeWidth;
@@ -955,7 +956,7 @@ module csComp.Services {
             });
 
             if (feature.isSelected) {
-                s.strokeWidth = s.selectedStrokeWidth || 5;
+                s.strokeWidth = s.selectedStrokeWidth || 3;
                 s.strokeColor = s.selectedStrokeColor || 'black';
                 if (s.selectedFillColor) s.fillColor = s.selectedFillColor;
             }
