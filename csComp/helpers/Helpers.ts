@@ -24,7 +24,7 @@
         //TODO: check compatibility for both heatmaps and other features
         var s: csComp.Services.IFeatureTypeStyle = {
             nameLabel:   "Name",
-            strokeWidth: 1,
+            strokeWidth: 3,
             strokeColor: "#0033ff",
             fillOpacity: 0.75,
             opacity:     1,
