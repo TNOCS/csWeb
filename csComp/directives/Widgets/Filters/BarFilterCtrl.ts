@@ -135,7 +135,7 @@ module Filters {
 
                 return s;
             })
-                .on('filtered', (e) => {
+                .on('renderlet', (e) => {
                 var fil = e.hasFilter();
                 var s = '';
                 if (e.filters.length > 0) {
