@@ -43,8 +43,9 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // And what if an agent starts sending gibberish?
         this.server.post(this.layersUrl + ':layer', (req: express.Request, res: express.Response) => {
             var layer = new Layer();
-            layer.features = req.body.features;
-            layer.id = req.params.layer;
+            console.log(JSON.stringify(req.body));
+            //layer.features = req.body.features;
+            layer = req.body;
             this.manager.addLayer(layer, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check errors
                 //returns success of insert operation

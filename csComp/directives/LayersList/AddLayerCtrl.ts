@@ -37,7 +37,7 @@ module LayersDirective {
             this.project = this.layerService.project;
             if (this.project.layerDirectory) {
                 $.getJSON(this.project.layerDirectory, (result) => {
-                    this.layers = result.layers;
+                    this.layers = result;
                 });
             }
         }

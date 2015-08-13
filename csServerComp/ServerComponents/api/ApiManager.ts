@@ -82,6 +82,9 @@ export class Layer implements StorageObject {
     public id: string;
     public type: string;
     public dynamic: boolean;
+    public title: string;
+    public description: string;
+    public url: string;
     public features: Feature[] = [];
 }
 
@@ -133,7 +136,7 @@ export class ApiManager {
      */
     public sensors: { [key: string]: Sensor } = {};
 
-    public defaultStorage = "mongo";
+    public defaultStorage = "file";
     public defaultLogging = false;
 
     public init() {
@@ -189,10 +192,19 @@ export class ApiManager {
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         Winston.info('api: add layer ' + layer.id);
         var s = this.findStorage(layer);
-
         // check if layer already exists
         if (!this.layers.hasOwnProperty(layer.id)) {
-            this.layers[layer.id] = <Layer>{ id: layer.id, storage: s.id };
+            if (!layer.hasOwnProperty('type')) layer.type = "geojson";
+            this.layers[layer.id] = <Layer>{
+                id: layer.id,
+                storage: s.id,
+                title: layer.title,
+                description: layer.description,
+                type: layer.type,
+                url: "/api/layers/" + layer.id
+            };
+
+
         }
 
         // store layer

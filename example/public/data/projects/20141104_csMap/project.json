@@ -26,6 +26,23 @@
     }
   ],
   "dashboards": [
+      {
+        "id": "home",
+        "name": "Home",
+        "editMode": false,
+        "showMap": true,
+        "showTimeline": true,
+        "showLeftmenu": true,
+        "showRightmenu": false,
+        "showBackgroundImage": false,
+        "visiblelayers": [
+          "zorgkantoor"
+        ],
+        "widgets": null,
+        "visibleLeftMenuItems": [
+          "!lm-layers"
+        ]
+      },
     {
       "id": "health",
       "name": "Health",
@@ -83,23 +100,7 @@
         "layers"
       ]
     },
-    {
-      "id": "home",
-      "name": "Home",
-      "editMode": false,
-      "showMap": true,
-      "showTimeline": true,
-      "showLeftmenu": true,
-      "showRightmenu": false,
-      "showBackgroundImage": false,
-      "visiblelayers": [
-        "zorgkantoor"
-      ],
-      "widgets": null,
-      "visibleLeftMenuItems": [
-        "!lm-layers"
-      ]
-    },
+
     {
       "id": "datatable",
       "name": "Table",

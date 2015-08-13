@@ -1409,14 +1409,14 @@ module csComp.Services {
                         gf.title = property.key;
                         gf.rangex = [0, 1];
 
-                        if (gf.filterType === 'text') {
-                            var old = layer.group.filters.filter((flt: GroupFilter) => flt.filterType === 'text');
-                            old.forEach((groupFilter: GroupFilter) => {
-                                groupFilter.dimension.filterAll();
-                                groupFilter.dimension.dispose();
-                            });
-                            layer.group.filters = layer.group.filters.filter((groupFilter: GroupFilter) => groupFilter.filterType !== 'text');
-                        }
+                        // if (gf.filterType === 'text') {
+                        //     var old = layer.group.filters.filter((flt: GroupFilter) => flt.filterType === 'text');
+                        //     old.forEach((groupFilter: GroupFilter) => {
+                        //         groupFilter.dimension.filterAll();
+                        //         groupFilter.dimension.dispose();
+                        //     });
+                        //     layer.group.filters = layer.group.filters.filter((groupFilter: GroupFilter) => groupFilter.filterType !== 'text');
+                        // }
                         // add filter
                         layer.group.filters.push(gf);
                     } else {
@@ -1737,6 +1737,7 @@ module csComp.Services {
             //typesResources
 
             $.getJSON(solutionProject.url, (prj: Project) => {
+                prj.solution = this.solution;
                 this.project = new Project().deserialize(prj);
 
 

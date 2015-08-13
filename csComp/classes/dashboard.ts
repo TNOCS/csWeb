@@ -262,7 +262,7 @@ module csComp.Services {
             widget.elementId = "widget-" + widget.id;
             widget.parentDashboard = dashboard;
             if (widget.style && widget.style !== "custom") {
-                if (!solution.widgetStyles.hasOwnProperty(widget.style)) widget.style = "default";
+                if (!solution.hasOwnProperty('widgetStyles') || !solution.widgetStyles.hasOwnProperty(widget.style)) widget.style = "default";
                 widget.effectiveStyle = solution.widgetStyles[widget.style];
             }
             else {

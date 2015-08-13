@@ -1,4 +1,4 @@
-﻿module csComp.Services {
+module csComp.Services {
 
     export enum LayerType {
         GeoJson,
@@ -13,33 +13,33 @@
      * If clustering is enabled all features in all layers are grouped together
      */
     export class ProjectGroup {
-        id              : string;
-        title           : string;
-        description     : string;
-        layers          : Array<ProjectLayer>;
-        filters         : Array<GroupFilter>;
+        id: string;
+        title: string;
+        description: string;
+        layers: Array<ProjectLayer>;
+        filters: Array<GroupFilter>;
         /* Including styles in (projectgroups in) project.json files is probably not a good idea, in case the layers
            in the group have properties (attributes), as for example in geojson files.
            This is because when selecting a property for styling, the call to setStyle leads to the creation of a new
            group and deletion of existing styles. */
-        styles          : Array<GroupStyle>;
-        showTitle       : boolean;
-        cluster         : L.MarkerClusterGroup;
-        vectors         : L.LayerGroup<L.ILayer>;
+        styles: Array<GroupStyle>;
+        showTitle: boolean;
+        cluster: L.MarkerClusterGroup;
+        vectors: L.LayerGroup<L.ILayer>;
         /** Turn on the leaflet markercluster */
-        clustering      : boolean;
+        clustering: boolean;
         /** If set, at this zoom level and below markers will not be clustered. This defaults to disabled */
-        clusterLevel    : number;
+        clusterLevel: number;
         /**  The maximum radius that a cluster will cover from the central marker (in pixels). Default 80. Decreasing will make more smaller clusters. You can also use a function that accepts the current map zoom and returns the maximum cluster radius in pixels. */
         maxClusterRadius: number;
-        clusterFunction : Function;
+        clusterFunction: Function;
         /** Creates radio buttons instead of checkboxes in the level */
-        oneLayerActive  : boolean;
-        ndx             : any;
-        filterResult    : IFeature[];
-        public markers  : any;
-        styleProperty   : string;
-        languages       : ILanguageData;
+        oneLayerActive: boolean;
+        ndx: any;
+        filterResult: IFeature[];
+        public markers: any;
+        styleProperty: string;
+        languages: ILanguageData;
 
 
 
@@ -48,17 +48,17 @@
          */
         public static serializeableData(projectGroup: ProjectGroup): Object {
             return {
-                id:               projectGroup.id,
-                title:            projectGroup.title,
-                description:      projectGroup.description,
-                showTitle:        projectGroup.showTitle,
-                clustering:       projectGroup.clustering,
-                clusterLevel:     projectGroup.clusterLevel,
+                id: projectGroup.id,
+                title: projectGroup.title,
+                description: projectGroup.description,
+                showTitle: projectGroup.showTitle,
+                clustering: projectGroup.clustering,
+                clusterLevel: projectGroup.clusterLevel,
                 maxClusterRadius: projectGroup.maxClusterRadius,
-                oneLayerActive:   projectGroup.oneLayerActive,
-                styleProperty:    projectGroup.styleProperty,
-                languages:        projectGroup.languages,
-                layers:           csComp.Helpers.serialize<ProjectLayer>(projectGroup.layers, ProjectLayer.serializeableData)
+                oneLayerActive: projectGroup.oneLayerActive,
+                styleProperty: projectGroup.styleProperty,
+                languages: projectGroup.languages,
+                layers: csComp.Helpers.serialize<ProjectLayer>(projectGroup.layers, ProjectLayer.serializeableData)
             };
         }
     }
@@ -67,41 +67,43 @@
      * Filters are used to select a subset of features within a group.
      */
     export class GroupFilter {
-        id         : string;
-        title      : string;
-        enabled    : boolean;
-        filterType : string;
-        property   : string;
-        property2  : string;
-        criteria   : string;
-        group      : ProjectGroup;
-        dimension  : any;
-        value      : any;
+        id: string;
+        title: string;
+        enabled: boolean;
+        filterType: string;
+        property: string;
+        property2: string;
+        criteria: string;
+        group: ProjectGroup;
+        dimension: any;
+        value: any;
         stringValue: string;
-        rangex     : number[];
-        meta       : IPropertyType;
+        rangex: number[];
+        meta: IPropertyType;
+        to: number;
+        from: number;
     }
 
     /**
      * Styles can determine how features are shown on the map
      */
     export class GroupStyle {
-        id              : string;
-        title           : string;
-        enabled         : boolean;
-        layers          : string[];
-        visualAspect    : string;
-        property        : string;
-        colors          : string[];
-        group           : ProjectGroup;
+        id: string;
+        title: string;
+        enabled: boolean;
+        layers: string[];
+        visualAspect: string;
+        property: string;
+        colors: string[];
+        group: ProjectGroup;
         availableAspects: string[];
-        canSelectColor  : boolean;
-        colorScales     : any;
-        info            : PropertyInfo;
-        meta            : IPropertyType;
-        legends         : { [key: string] : Legend; }
-        activeLegend    : Legend;
-	    fixedColorRange : boolean;
+        canSelectColor: boolean;
+        colorScales: any;
+        info: PropertyInfo;
+        meta: IPropertyType;
+        legends: { [key: string]: Legend; }
+        activeLegend: Legend;
+        fixedColorRange: boolean;
 
         constructor($translate: ng.translate.ITranslateService) {
 
@@ -157,24 +159,24 @@
      * (see also the function getColor())
     */
     export class Legend {
-        id:            string;
-        description:   string;
-        legendKind:    string;
-        visualAspect:  string;
+        id: string;
+        description: string;
+        legendKind: string;
+        visualAspect: string;
         legendEntries: LegendEntry[];
         // it is assumed that the legendentries have their values and/or intervals
         // sorted in ascending order
     }
 
     export class LegendEntry {
-        label:       string;
-        interval:    {
-            min:     number;
-            max:     number;
+        label: string;
+        interval: {
+            min: number;
+            max: number;
         };                 // either interval or value is used, depending on legendtype (discrete or interpolated)
-        value:       number;
+        value: number;
         stringValue: string;
-        color:       string;  // hex string; rgb
+        color: string;  // hex string; rgb
     }
 
 }

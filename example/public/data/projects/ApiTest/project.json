@@ -11,7 +11,7 @@
         "zoomLevelName": "years",
         "isLive": true
     },
-    "layerDirectory": "/layerDirectory",
+    "layerDirectory": "/api/layers",
     "dashboards": [{
         "id": "home",
         "name": "Home",

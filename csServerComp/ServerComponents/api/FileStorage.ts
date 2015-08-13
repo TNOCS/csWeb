@@ -40,7 +40,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     this.openFile(path);
                 }
                 if (action == "unlink") {
-                    //this.closeFile(path);
+                    this.closeFile(path);
                     //this.removeLayer(path);
                 }
                 if (action == "change") {
@@ -96,8 +96,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     layer.storage = this.id;
                     layer.id = id;
                     this.layers[id] = layer;
+                    layer.title = id;
+                    layer.type = "geojson";
+                    layer.url = "/api/layers/" + id;
                     this.manager.addLayer(layer, {}, () => { });
-
                 }
             });
         }
