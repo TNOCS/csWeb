@@ -396,8 +396,10 @@ html, body, #container {
     border: none;
 }
 .legendText {
+    display:inline-block;
     overflow-wrap: break-word;
     margin-top: 3px;
+    margin-left: 5px;
     float: inherit;
     position: absolute;
     width: 200px;
