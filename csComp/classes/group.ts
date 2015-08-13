@@ -80,6 +80,8 @@
         stringValue: string;
         rangex     : number[];
         meta       : IPropertyType;
+        to         : number;
+        from       : number;
     }
 
     /**
