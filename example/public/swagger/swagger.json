@@ -18,22 +18,34 @@
   "tags": [
     {
       "name": "layers",
-      "description": "A list of methods that return, insert, modify, or give details about layers (FeatureCollections)",
+      "description": "All operations concerning layers (FeatureCollections)",
       "externalDocs": {
         "description": "Find out more",
         "url": "https://github.com/TNOCS/csWeb/wiki/api"
       }
     },
     {
-      "name": "store",
-      "description": "Access to Petstore orders"
+      "name": "feature",
+      "description": "All operations concerning features",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "https://github.com/TNOCS/csWeb/wiki/api"
+      }
     },
     {
-      "name": "user",
-      "description": "Operations about user",
+      "name": "log",
+      "description": "All operations concerning log files",
       "externalDocs": {
-        "description": "Find out more about our store",
-        "url": "http://swagger.io"
+        "description": "Find out more",
+        "url": "https://github.com/TNOCS/csWeb/wiki/api"
+      }
+    },
+    {
+      "name": "special",
+      "description": "All special operations",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "https://github.com/TNOCS/csWeb/wiki/api"
       }
     }
   ],
@@ -41,31 +53,36 @@
     "http"
   ],
   "paths": {
-    "/pet": {
+    "/layers/{layerId}": {
       "post": {
         "tags": [
-          "pet"
+          "layer"
         ],
-        "summary": "Add a new pet to the store",
-        "description": "",
-        "operationId": "addPet",
+        "summary": "Add a new layer to the system",
+        "description": "Adds a new layer",
+        "operationId": "addLayer",
         "consumes": [
-          "application/json",
-          "application/xml"
+          "application/json"
         ],
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
           {
             "in": "body",
             "name": "body",
-            "description": "Pet object that needs to be added to the store",
+            "description": "Layer object that needs to be added to the datastorage",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Pet"
+              "$ref": "#/definitions/Layer"
             }
+          },
+          {
+            "name": "layerId",
+            "in": "path",
+            "description": "ID or Name of the Layer to insert",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
@@ -106,6 +123,13 @@
             "schema": {
               "$ref": "#/definitions/Pet"
             }
+          },
+          {
+            "name": "layerId",
+            "in": "path",
+            "description": "ID or Name of the Layer to insert",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
@@ -113,7 +137,7 @@
             "description": "Invalid ID supplied"
           },
           "404": {
-            "description": "Pet not found"
+            "description": "Layer not found"
           },
           "405": {
             "description": "Validation exception"
@@ -940,14 +964,19 @@
         "name": "User"
       }
     },
-    "Tag": {
+    "Feature": {
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
-        "name": {
+        "geometry": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "string"
+        },
+        "logs": {
           "type": "string"
         }
       },
@@ -955,52 +984,48 @@
         "name": "Tag"
       }
     },
-    "Pet": {
+    "Layer": {
       "type": "object",
       "required": [
-        "name",
-        "photoUrls"
+        "type",
+        "features"
       ],
       "properties": {
+        "storage": {
+          "type": "string",
+          "example": "file"
+        },
+        "useLog": {
+          "type": "boolean",
+          "default": false
+        },
+        "features": {
+          "type": "object",
+          "$ref": "#/definitions/Feature"
+        },
         "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "category": {
-          "$ref": "#/definitions/Category"
-        },
-        "name": {
           "type": "string",
-          "example": "doggie"
+          "example": "nameOfYourCollection"
         },
-        "photoUrls": {
-          "type": "array",
-          "xml": {
-            "name": "photoUrl",
-            "wrapped": true
-          },
-          "items": {
-            "type": "string"
-          }
+        "dynamic": {
+          "type": "boolean",
+          "default": false
         },
-        "tags": {
-          "type": "array",
-          "xml": {
-            "name": "tag",
-            "wrapped": true
-          },
-          "items": {
-            "$ref": "#/definitions/Tag"
-          }
-        },
-        "status": {
+        "title": {
           "type": "string",
-          "description": "pet status in the store",
-          "enum": [
-            "available",
-            "pending",
-            "sold"
-          ]
+          "example": "Test"
+        },
+        "type": {
+          "type": "string",
+          "example": "FeatureCollection"
+        },
+        "url": {
+          "type": "string",
+          "example": "your resource location"
+        },
+        "description": {
+          "type": "string",
+          "example": "This is a test"
         }
       },
       "xml": {
@@ -1024,7 +1049,7 @@
     }
   },
   "externalDocs": {
-    "description": "Find out more about Swagger",
-    "url": "http://swagger.io"
+    "description": "Find out more about the Common Sense API",
+    "url": "https://github.com/TNOCS/csWeb/"
   }
 }
