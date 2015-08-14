@@ -139,7 +139,7 @@ class BagDatabase {
             // If we have a house letter, add it to the query
             if (houseLetter) {
                 sql = sql.replace(/adres\.huisletter IS NULL/g, `adres.huisletter='${houseLetter}'`);
-                console.log(sql);
+                //console.log(sql);
             }
 
             client.query(sql, (err, result) => {
