@@ -213,227 +213,168 @@
         }
       }
     },
-    "/pet/findByTags": {
-      "get": {
+    "/layers/{layerId}/feature/{featureId}": {
+      "put": {
         "tags": [
-          "pet"
+          "feature"
         ],
-        "summary": "Finds Pets by tags",
-        "description": "Muliple tags can be provided with comma seperated strings. Use tag1, tag2, tag3 for testing.",
-        "operationId": "findPetsByTags",
+        "summary": "Update a single pre-existing feature",
+        "description": "",
+        "operationId": "updateFeature",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
           {
-            "name": "tags",
-            "in": "query",
-            "description": "Tags to filter by",
+            "in": "body",
+            "name": "body",
+            "description": "JSON that will be used to update the feature",
             "required": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "csv"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Pet"
-              }
+              "$ref": "#/definitions/Feature"
             }
           },
-          "400": {
-            "description": "Invalid tag value"
-          }
-        },
-        "security": [
           {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
+            "name": "layerId",
+            "in": "path",
+            "description": "ID or Name of the Layer to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "featureId",
+            "in": "path",
+            "description": "ID of the feature to update",
+            "required": true,
+            "type": "string"
           }
-        ]
-      }
-    },
-    "/pet/{petId}": {
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Feature not found"
+          },
+          "405": {
+            "description": "Validation exception"
+          }
+        }
+      },
       "get": {
         "tags": [
-          "pet"
+          "feature"
         ],
-        "summary": "Find pet by ID",
-        "description": "Returns a single pet",
-        "operationId": "getPetById",
+        "summary": "Find feature by ID",
+        "description": "Returns a single feature",
+        "operationId": "getFeature",
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
           {
-            "name": "petId",
+            "name": "featureId",
             "in": "path",
-            "description": "ID of pet to return",
+            "description": "ID of the feature to be returned",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
+          },
+          {
+            "name": "layerId",
+            "in": "path",
+            "description": "ID of the layer in which the feature is located",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/Pet"
+              "$ref": "#/definitions/Feature"
             }
           },
           "400": {
             "description": "Invalid ID supplied"
           },
           "404": {
-            "description": "Pet not found"
+            "description": "Layer or feature not found"
           }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "pet"
-        ],
-        "summary": "Updates a pet in the store with form data",
-        "description": "",
-        "operationId": "updatePetWithForm",
-        "consumes": [
-          "application/x-www-form-urlencoded"
-        ],
-        "produces": [
-          "application/xml",
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "petId",
-            "in": "path",
-            "description": "ID of pet that needs to be updated",
-            "required": true,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "name",
-            "in": "formData",
-            "description": "Updated name of the pet",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "status",
-            "in": "formData",
-            "description": "Updated status of the pet",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "405": {
-            "description": "Invalid input"
-          }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
+        }
       },
       "delete": {
         "tags": [
-          "pet"
+          "feature"
         ],
-        "summary": "Deletes a pet",
-        "description": "",
-        "operationId": "deletePet",
+        "summary": "Delete a feature by ID",
+        "description": "Deletes an entire layer",
+        "operationId": "deleteFeature",
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
           {
-            "name": "api_key",
-            "in": "header",
-            "required": false,
+            "name": "featureId",
+            "in": "path",
+            "description": "ID of feature to be deleted",
+            "required": true,
             "type": "string"
           },
           {
-            "name": "petId",
+            "name": "layerId",
             "in": "path",
-            "description": "Pet id to delete",
+            "description": "ID of the layer where the feature is located",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           }
         ],
         "responses": {
+          "200": {
+            "description": "successful operation"
+          },
           "400": {
-            "description": "Invalid pet value"
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Layer or feature not found"
           }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
+        }
       }
     },
-    "/pet/{petId}/uploadImage": {
+    "/layers/{layerId}/feature": {
       "post": {
         "tags": [
-          "pet"
+          "feature"
         ],
-        "summary": "uploads an image",
+        "summary": "Adds a feature",
         "description": "",
-        "operationId": "uploadFile",
+        "operationId": "addFeature",
         "consumes": [
-          "multipart/form-data"
+          "application/json"
         ],
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "name": "petId",
+            "name": "layerId",
             "in": "path",
-            "description": "ID of pet to update",
+            "description": "ID of layer to add the feature to",
             "required": true,
             "type": "integer",
             "format": "int64"
           },
           {
-            "name": "additionalMetadata",
-            "in": "formData",
-            "description": "Additional data to pass to server",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "file",
-            "in": "formData",
-            "description": "file to upload",
-            "required": false,
-            "type": "file"
+            "in": "body",
+            "name": "body",
+            "description": "JSON that will be used to insert the feature",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Feature"
+            }
           }
         ],
         "responses": {
@@ -443,15 +384,7 @@
               "$ref": "#/definitions/ApiResponse"
             }
           }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
+        }
       }
     },
     "/store/inventory": {
