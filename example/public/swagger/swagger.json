@@ -1,23 +1,15 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "This is the Swagger documentation for the Common Sense API. You can find out more about the Common Sense project by going to [https://github.com/TNOCS/csWeb](https://github.com/TNOCS/csWeb). We welcome collaboration! You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).",
+    "description": "This is the Swagger documentation for the Common Sense API. You can find out more about the Common Sense project by going to [https://github.com/TNOCS/csWeb](https://github.com/TNOCS/csWeb) or by joining our [slack hangout](https://webcs.slack.com/). We welcome collaboration! This API documentation page was made with Swagger. You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).",
     "version": "1.0.0",
-    "title": "Common Sense API",
-    "termsOfService": "http://swagger.io/terms/",
-    "contact": {
-      "email": "apiteam@swagger.io"
-    },
-    "license": {
-      "name": "Apache 2.0",
-      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-    }
+    "title": "Common Sense API"
   },
   "host": "localhost:3002",
   "basePath": "/api",
   "tags": [
     {
-      "name": "layers",
+      "name": "layer",
       "description": "All operations concerning layers (FeatureCollections)",
       "externalDocs": {
         "description": "Find out more",
@@ -89,45 +81,35 @@
           "405": {
             "description": "Invalid input"
           }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
+        }
       },
       "put": {
         "tags": [
-          "pet"
+          "layer"
         ],
-        "summary": "Update an existing pet",
+        "summary": "Update an existing layer",
         "description": "",
-        "operationId": "updatePet",
+        "operationId": "updateLayer",
         "consumes": [
-          "application/json",
-          "application/xml"
+          "application/json"
         ],
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
           {
             "in": "body",
             "name": "body",
-            "description": "Pet object that needs to be added to the store",
+            "description": "JSON that will be used to update the layer",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Pet"
+              "$ref": "#/definitions/Feature"
             }
           },
           {
             "name": "layerId",
             "in": "path",
-            "description": "ID or Name of the Layer to insert",
+            "description": "ID or Name of the Layer to update",
             "required": true,
             "type": "string"
           }
@@ -142,70 +124,93 @@
           "405": {
             "description": "Validation exception"
           }
-        },
-        "security": [
-          {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
-          }
-        ]
-      }
-    },
-    "/pet/findByStatus": {
+        }
+      },
       "get": {
         "tags": [
-          "pet"
+          "layer"
         ],
-        "summary": "Finds Pets by status",
-        "description": "Multiple status values can be provided with comma seperated strings",
-        "operationId": "findPetsByStatus",
+        "summary": "Find layer by ID",
+        "description": "Returns a single layer",
+        "operationId": "getLayer",
         "produces": [
-          "application/xml",
           "application/json"
         ],
         "parameters": [
           {
-            "name": "status",
-            "in": "query",
-            "description": "Status values that need to be considered for filter",
+            "name": "layerId",
+            "in": "path",
+            "description": "ID of the layer to be returned",
             "required": true,
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "available",
-                "pending",
-                "sold"
-              ],
-              "default": "available"
-            },
-            "collectionFormat": "csv"
+            "type": "string"
           }
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Pet"
-              }
+              "$ref": "#/definitions/Layer"
             }
           },
           "400": {
-            "description": "Invalid status value"
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Layer not found"
           }
-        },
-        "security": [
+        }
+      },
+      "delete": {
+        "tags": [
+          "layer"
+        ],
+        "summary": "Delete a layer by ID",
+        "description": "Deletes an entire layer",
+        "operationId": "deleteLayer",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
           {
-            "petstore_auth": [
-              "write:pets",
-              "read:pets"
-            ]
+            "name": "layerId",
+            "in": "path",
+            "description": "ID of layer to be deleted",
+            "required": true,
+            "type": "string"
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Layer not found"
+          }
+        }
+      }
+    },
+    "/layers/": {
+      "get": {
+        "tags": [
+          "layer"
+        ],
+        "summary": "Returns a list of all layers and their associated storage engine",
+        "description": "Returns a list of all layers and their associated storage",
+        "operationId": "allLayers",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Cannot GET /layers/"
+          }
+        }
       }
     },
     "/pet/findByTags": {
@@ -1050,6 +1055,6 @@
   },
   "externalDocs": {
     "description": "Find out more about the Common Sense API",
-    "url": "https://github.com/TNOCS/csWeb/"
+    "url": "https://github.com/TNOCS/csWeb/wiki/api"
   }
 }
