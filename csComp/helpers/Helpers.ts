@@ -506,7 +506,7 @@
 
         html += '</div>';
 
-        var iconHtml = {};
+        var iconHtml: {[key:string]: any} = {};
         iconHtml['html'] = html;
         iconHtml['iconPlusBorderWidth'] = iconPlusBorderWidth;
         iconHtml['iconPlusBorderHeight'] = iconPlusBorderHeight;

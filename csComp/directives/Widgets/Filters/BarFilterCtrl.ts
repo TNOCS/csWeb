@@ -163,7 +163,7 @@ module Filters {
                 var s = '';
                 if (e.filters.length > 0) {
                     var localFilter = e.filters[0];
-                    this.displayFilterRange(+localFilter[0].toFixed(2), +localFilter[1].toFixed(2))
+                    this.displayFilterRange(+(localFilter[0]).toFixed(2), (+localFilter[1]).toFixed(2))
                     s += localFilter[0];
                 }
                 dc.events.trigger(() => {
