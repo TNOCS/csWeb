@@ -50,7 +50,7 @@
                         <i class="fa {{firstCallOutsection.sectionIcon}}"></i>
                     </a>
                 </li>
-                <li class="dropdown" ng-init="selectedSection.title='Kies...'">
+                <li class="dropdown" ng-init="selectedSection.title=vm.defaultDropdownTitle">
                     <a style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="!($first && callOut.hasInfoSection)">

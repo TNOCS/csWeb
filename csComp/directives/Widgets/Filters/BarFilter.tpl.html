@@ -12,8 +12,8 @@
     </div>
     <div ng-show="editMode">
       <div style="position:relative">
-        <b>from</b><br/><input type="text" ng-model="filter.from" /><br/>
-        <b>to</b><br/><input  style="postion:absolute;right:125px" type="text" ng-model="filter.to" />
+        <b>{{'FROM' | translate}}</b><br/><input type="text" ng-model="filter.from" /><br/>
+        <b>{{'TO' | translate}}</b><br/><input  style="postion:absolute;right:125px" type="text" ng-model="filter.to" />
       </div>
       <button class="btn fa fa-check" style="float:right; margin-left:4px" ng-click="vm.updateRange();editMode=false"></button>
     </div>

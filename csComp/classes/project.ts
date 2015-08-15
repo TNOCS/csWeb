@@ -148,6 +148,7 @@ module csComp.Services {
         datasources: DataSource[];
         dataSets: DataSet[];
         viewBounds: IBoundingBox;
+        collapseAllLayers: boolean;
         userPrivileges: IPrivileges;
         languages: ILanguageData;
         /** link to layer directory, if empty do not use it */
@@ -202,6 +203,7 @@ module csComp.Services {
                 datasources: csComp.Helpers.serialize<DataSource>(project.datasources, DataSource.serializeableData),
                 dashboards: csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
                 viewBounds: project.viewBounds,
+                collapseAllLayers: project.collapseAllLayers,
                 userPrivileges: project.userPrivileges,
                 languages: project.languages,
                 expertMode: project.expertMode,

@@ -124,7 +124,7 @@ export class MapLayerFactory {
                 geojson: geojson,
                 enabled: ld.isEnabled
             };
-            if ((Object.keys(this.featuresNotFound).length !== 0) && ld.geometryType.indexOf('Postcode') > -1) {
+            if (Object.keys(this.featuresNotFound).length !== 0) {
                 console.log('Adresses that could not be found are:');
                 console.log('-------------------------------------');
                 for (var key in this.featuresNotFound) {
@@ -188,6 +188,7 @@ export class MapLayerFactory {
                 iconHeight: ld.iconSize,
                 drawingMode: ld.drawingMode,
                 stroke: ld.strokeWidth > 0,
+                strokeWidth: ld.strokeWidth || 3,
                 strokeColor: ld.strokeColor || "#000",
                 selectedStrokeColor: ld.selectedStrokeColor || "#00f",
                 fillColor: ld.fillColor || "#ff0",
@@ -367,6 +368,7 @@ export class MapLayerFactory {
         }
         var fts = templateJson.features;
         properties.forEach((p, index) => {
+            var foundFeature = false;
             fts.some((f) => {
                 if (f.properties["Name"] === p[par1]) {
                     console.log(p[par1]);
@@ -386,11 +388,16 @@ export class MapLayerFactory {
                         featureJson["sensors"] = sensors[index];
                     }
                     features.push(featureJson);
+                    foundFeature = true;
                     return true;
                 } else {
                     return false;
                 }
-            })
+            });
+            if (!foundFeature) {
+                console.log('Warning: Could not find: ' + p[par1]);
+                this.featuresNotFound[`${p[par1]}`] = { zip: `${p[par1]}`, number: '' };
+            }
         });
         callback();
     }
