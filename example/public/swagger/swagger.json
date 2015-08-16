@@ -517,46 +517,173 @@
           }
         }
       }
+    },
+    "/layers/{layerId}/bbox": {
+      "get": {
+        "tags": [
+          "special"
+        ],
+        "summary": "Gets all and any points in a (bounding box) ractangle.",
+        "description": "Takes two lng/lat pairs as input. These MUST be the south-west (bottom left) and northeast (top right) coordinates expressed as floating point numbers.",
+        "operationId": "bbox",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "swlng",
+            "in": "query",
+            "description": "Southwestern longtitude used to calculate the bbox",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          },
+          {
+            "name": "swlat",
+            "in": "query",
+            "description": "Southwestern latitude used to calculate the bbox",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          },
+          {
+            "name": "nelng",
+            "in": "query",
+            "description": "Northeastern longtitude used to calculate the bbox",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          },
+          {
+            "name": "nelat",
+            "in": "query",
+            "description": "Northeastern latitude used to calculate the bbox",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          },
+          {
+            "name": "layerId",
+            "in": "path",
+            "description": "ID of the layer",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Layer not found"
+          }
+        }
+      }
+    },
+    "/layers/{layerId}/getsphere": {
+      "get": {
+        "tags": [
+          "special"
+        ],
+        "summary": "Gets all and any points in a sphere defined by its center coordinate.",
+        "description": "takes the center coordinate (Lat:lng) and distance (radius) as arguments to provide a list of coordinates starting with the closest coordinates to the center.",
+        "operationId": "getsphere",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "lng",
+            "in": "query",
+            "description": "Longtitude used to calculate the sphere",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "description": "Latitude used to calculate the sphere",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          },
+          {
+            "name": "Distance",
+            "in": "query",
+            "description": "Max distane in meters",
+            "required": true,
+            "type": "number",
+            "format": "float"
+          },
+          {
+            "name": "layerId",
+            "in": "path",
+            "description": "ID of the layer",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Layer not found"
+          }
+        }
+      }
+    },
+    "/layers/{layerId}/getwithinpolygon": {
+      "post": {
+        "tags": [
+          "special"
+        ],
+        "summary": "Gets all and any points that are within a user-supplied polygon in a GeoJSON document.",
+        "description": "Takes a GeoJSON specification compliant document as input. This method can be used to determine the points within a special area, such as municipial borders.",
+        "operationId": "getwithinpolygon",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "feature",
+            "description": "JSON that will be used to query the layer",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Feature"
+            }
+          },
+          {
+            "name": "layerId",
+            "in": "path",
+            "description": "ID of the layer",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid ID supplied"
+          },
+          "404": {
+            "description": "Layer not found"
+          }
+        }
+      }
     }
   },
   "definitions": {
-    "Order": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "petId": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "quantity": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "shipDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "status": {
-          "type": "string",
-          "description": "Order Status",
-          "enum": [
-            "placed",
-            "approved",
-            "delivered"
-          ]
-        },
-        "complete": {
-          "type": "boolean",
-          "default": false
-        }
-      },
-      "xml": {
-        "name": "Order"
-      }
-    },
     "Geometry": {
       "type": "object",
       "properties": {
