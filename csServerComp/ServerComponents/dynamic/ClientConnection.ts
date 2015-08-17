@@ -35,7 +35,8 @@ module ClientConnection {
     export enum LayerUpdateAction {
         updateFeature,
         updateLog,
-        deleteFeature
+        deleteFeature,
+        addLayer
     }
 
     export class ClientMessage {
@@ -182,6 +183,10 @@ module ClientConnection {
                     this.users[uId].Client.emit(sub.id, new ClientMessage(command, object));
                 }
             }
+        }
+
+        public updateDirectory(layer: string) {
+
         }
 
         /**

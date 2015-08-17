@@ -41,7 +41,7 @@ module csComp.Services {
 
         static deserialize(input: DateRange): DateRange {
             var res = <DateRange>$.extend(new DateRange(), input);
-            if (typeof res.focus === 'undefined' || res.focus === null) res.focus = Date.now();
+            if (typeof res.focus === "undefined" || res.focus === null) { res.focus = Date.now(); }
             return res;
         }
 
@@ -50,8 +50,8 @@ module csComp.Services {
         */
         setFocus(d: Date, s?: Date, e?: Date) {
             this.focus = d.getTime();
-            if (s) this.start = s.getTime();
-            if (e) this.end = e.getTime();
+            if (s) { this.start = s.getTime(); }
+            if (e) { this.end = e.getTime(); }
             var newRange = this.end - this.start;
             if (this.range !== newRange) {
                 this.range = newRange;
@@ -64,16 +64,16 @@ module csComp.Services {
         }
 
         startDate = () => {
-            if (this.focus < this.start) this.start = this.focus - this.range / 5;
+            if (this.focus < this.start) { this.start = this.focus - this.range / 5; }
             return new Date(this.start);
-        }
+        };
 
-        focusDate = () => { return new Date(this.focus); }
+        focusDate = () => { return new Date(this.focus); };
 
         endDate = () => {
-            if (this.focus > this.end) this.end = this.focus + this.range / 5;
+            if (this.focus > this.end) { this.end = this.focus + this.range / 5; }
             return new Date(this.end);
-        }
+        };
     }
 
     /**
@@ -101,8 +101,8 @@ module csComp.Services {
     * Simple class to hold the user privileges.
     */
     export interface IPrivileges {
-        mca: { expertMode: boolean; }
-        heatmap: { expertMode: boolean; }
+        mca: { expertMode: boolean; };
+        heatmap: { expertMode: boolean; };
     }
 
     /** bouding box to specify a region. */
@@ -124,7 +124,7 @@ module csComp.Services {
     }
 
     /** project configuration. */
-    export class Project implements ISerializable<Project>  {
+    export class Project implements ISerializable<Project> {
         id: string;
         title: string;
         description: string;
@@ -137,8 +137,8 @@ module csComp.Services {
         activeDashboard: Dashboard;
         baselayers: IBaseLayer[];
         allFeatureTypes: { [id: string]: IFeatureType };
-        featureTypes: { [id: string]: IFeatureType }
-        propertyTypeData: { [id: string]: IPropertyType }
+        featureTypes: { [id: string]: IFeatureType };
+        propertyTypeData: { [id: string]: IPropertyType };
         solution: Solution;
         groups: ProjectGroup[];
         mapFilterResult: L.Marker[];
@@ -185,7 +185,7 @@ module csComp.Services {
                 style: ft.style,
                 propertyTypeKeys: ft.propertyTypeKeys,
                 showAllProperties: ft.showAllProperties
-            }
+            };
         }
 
         /**
@@ -221,7 +221,7 @@ module csComp.Services {
             var solution = input.solution;
             var res = <Project>jQuery.extend(new Project(), input);
             res.solution = solution;
-            if (input.timeLine) res.timeLine = DateRange.deserialize(input.timeLine); // <DateRange>jQuery.extend(new DateRange(), input.timeLine);
+            if (input.timeLine) { res.timeLine = DateRange.deserialize(input.timeLine); }// <DateRange>jQuery.extend(new DateRange(), input.timeLine);
             if (input.dashboards) {
                 res.dashboards = [];
                 input.dashboards.forEach((d) => {
@@ -233,9 +233,15 @@ module csComp.Services {
                     res.mcas.push(new Mca.Models.Mca().deserialize(mca));
                 }
             }
-            if (!res.propertyTypeData) res.propertyTypeData = {};
-            if (!res.mcas) res.mcas = [];
-            if (res.id == null) res.id = res.title;
+            if (!res.propertyTypeData) { res.propertyTypeData = {}; }
+            if (!res.mcas) { res.mcas = []; }
+            if (input.groups) {
+                res.groups = [];
+                input.groups.forEach(group => {
+                    res.groups.push(ProjectGroup.deserialize(group));
+                });
+            }
+            if (res.id == null) { res.id = res.title; }
             return res;
         }
     }

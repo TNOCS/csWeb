@@ -18,7 +18,6 @@ export class BaseConnector implements ApiManager.IConnector {
     }
 
     // layer methods first, in crud order.
-
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
 
     }

@@ -63,7 +63,7 @@ module LayersDirective {
                 this.layerService.initLayer(group, this.selectedLayer);
                 group.layers.push(this.selectedLayer);
             }
-            this.$modalInstance.close("done");
+            this.done();
         }
 
         public addLayer() {
@@ -77,8 +77,7 @@ module LayersDirective {
                 var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", l, "Edit layer");
                 this.messageBusService.publish("rightpanel", "activate", rpt);
             }
-
-            this.$modalInstance.close("done");
+            this.done();
         }
 
         public done() {
