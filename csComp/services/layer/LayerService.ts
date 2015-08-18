@@ -403,7 +403,6 @@ module csComp.Services {
             if (layer.isLoading) return;
             layer.isLoading = true;
             this.$messageBusService.publish('layer', 'loading', layer);
-            this.$messageBusService.publish('updatelegend', 'updatedstyle');
             var disableLayers = [];
             async.series([
                 (callback) => {
@@ -453,6 +452,7 @@ module csComp.Services {
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
                             this.$messageBusService.publish('layer', 'activated', layer);
+                            this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             if (layerloaded) layerloaded(layer);
                         });
                     }
