@@ -68,30 +68,31 @@ module Legend {
                         (<any>$scope.$parent).widget['enabled'] = true;
                     }
                 }
-            }
-            if (!this.subscribeHandle) {
-                this.subscribeHandle = this.$messageBus.subscribe("updatelegend", (title: string, ptdataKey: string) => {
-                    switch (title) {
-                        case 'removelegend':
-                            this.$messageBus.unsubscribe(this.subscribeHandle);
-                            break;
-                        default:
-                            if (ptd && ptd.legend) {
-                                $scope.legend = ptd.legend;
-                            }
-                            if ($scope.data.mode = 'lastSelectedStyle') {
-                                $scope.legend = this.createLegend();
-                                if ($scope.$parent.hasOwnProperty('widget')) {
-                                    if (!$scope.legend.hasOwnProperty('legendEntries')) {
-                                        (<any>$scope.$parent).widget['enabled'] = false;
-                                    } else {
-                                        (<any>$scope.$parent).widget['enabled'] = true;
+
+                if (!this.subscribeHandle) {
+                    this.subscribeHandle = this.$messageBus.subscribe("updatelegend", (title: string, ptdataKey: string) => {
+                        switch (title) {
+                            case 'removelegend':
+                                this.$messageBus.unsubscribe(this.subscribeHandle);
+                                break;
+                            default:
+                                if (ptd && ptd.legend) {
+                                    $scope.legend = ptd.legend;
+                                }
+                                if ($scope.data.mode = 'lastSelectedStyle') {
+                                    $scope.legend = this.createLegend();
+                                    if ($scope.$parent.hasOwnProperty('widget')) {
+                                        if (!$scope.legend.hasOwnProperty('legendEntries')) {
+                                            (<any>$scope.$parent).widget['enabled'] = false;
+                                        } else {
+                                            (<any>$scope.$parent).widget['enabled'] = true;
+                                        }
                                     }
                                 }
-                            }
-                            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
-                    }
-                });
+                                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                        }
+                    });
+                }
             }
         }
 

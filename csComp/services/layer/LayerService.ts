@@ -403,6 +403,7 @@ module csComp.Services {
             if (layer.isLoading) return;
             layer.isLoading = true;
             this.$messageBusService.publish('layer', 'loading', layer);
+            this.$messageBusService.publish('updatelegend', 'updatedstyle');
             var disableLayers = [];
             async.series([
                 (callback) => {
@@ -558,6 +559,16 @@ module csComp.Services {
                 });
                 // upon deactivation of the layer? (but other layers can also have active styles)
                 this.mb.publish('updatelegend', 'title', property);
+            } else {
+                //when no layer is defined, set the given propertytype as styled property (and trigger creating a dynamic legend subsequently)
+                this.project.features.some((f) => {
+                    if (f.properties.hasOwnProperty(property)) {
+                        var pt = this.getPropertyType(f, property);
+                        this.setStyle({ feature: f, property: property, key: pt.title || property});
+                        return true;
+                    }
+                    return false;
+                });
             }
         }
 
