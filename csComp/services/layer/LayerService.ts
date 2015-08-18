@@ -403,7 +403,6 @@ module csComp.Services {
             if (layer.isLoading) return;
             layer.isLoading = true;
             this.$messageBusService.publish('layer', 'loading', layer);
-            this.$messageBusService.publish('updatelegend', 'title', layer.defaultLegendProperty);
             var disableLayers = [];
             async.series([
                 (callback) => {
@@ -583,7 +582,7 @@ module csComp.Services {
         removeStyle(style: GroupStyle) {
             var g = style.group;
             g.styles = g.styles.filter((s: GroupStyle) => s.id !== style.id);
-
+            this.$messageBusService.publish('updatelegend', 'updatedstyle');
             this.updateGroupFeatures(g);
         }
 
@@ -599,8 +598,11 @@ module csComp.Services {
                 var e1: LegendEntry = l.legendEntries[0];
                 var e2: LegendEntry = l.legendEntries[l.legendEntries.length - 1];
                 parent.style.colors = [e1.color, e2.color];
+            } else {
+                parent.style.colors = v;
             }
             parent.style.activeLegend = l;
+            this.$messageBusService.publish('updatelegend', 'updatedstyle');
         }
 
         updateStyle(style: GroupStyle) {
@@ -1169,8 +1171,9 @@ module csComp.Services {
                         gs.legends[ptd.title] = ptd.legend;
                         gs.colorScales[ptd.title] = ['purple', 'purple'];
                     }
+
                     if (ft.style && ft.style.fillColor) {
-                        gs.colors = ['white', 'orange'];
+                        gs.colors = ['white', '#FF5500'];
                     } else {
                         gs.colors = ['red', 'white', 'blue'];
                     }
@@ -1182,6 +1185,7 @@ module csComp.Services {
                         this.activeMapRenderer.updateFeature(fe);
                     }
                 });
+
                 if (openStyleTab) (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
                 return gs;
             }
@@ -1196,6 +1200,7 @@ module csComp.Services {
             else {
                 s.filter((s: GroupStyle) => s.property === property.property).forEach((st: GroupStyle) => this.removeStyle(st));
             }
+            this.$messageBusService.publish('updatelegend', 'updatedstyle');
         }
 
         /**
@@ -1652,7 +1657,7 @@ module csComp.Services {
         /**
         * Clear all layers.
         */
-        private clearLayers() {
+        public clearLayers() {
             if (this.project == null || this.project.groups == null) return;
             this.project.groups.forEach((group) => {
                 group.layers.forEach((layer: ProjectLayer) => {

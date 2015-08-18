@@ -126,8 +126,9 @@ html, body, #container {
 
 .legend-description {
     display: block;
-    font-size: 16px;
-    color: blue;
+    font-size: 16px;    
+    font-weight: bold;
+    color: black;
 }
 .legend-entry-item-d {
     list-style-type: none;

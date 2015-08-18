@@ -121,9 +121,6 @@
             $translate('RED_GREEN').then((translation) => {
                 this.colorScales[translation] = ['red', 'green'];
             });
-            $translate('WHITE_ORANGE').then((translation) => {
-                this.colorScales[translation] = ['white', 'orange'];
-            });
             $translate('BLUE_RED').then((translation) => {
                 this.colorScales[translation] = ['#F04030', '#3040F0'];
             });
@@ -143,10 +140,10 @@
                 this.colorScales[translation] = ['green', 'white'];
             });
             $translate('WHITE_ORANGE').then((translation) => {
-                this.colorScales[translation] = ['white', 'orange'];
+                this.colorScales[translation] = ['white', '#FF5500'];
             });
             $translate('ORANGE_WHITE').then((translation) => {
-                this.colorScales[translation] = ['orange', 'white'];
+                this.colorScales[translation] = ['#FF5500', 'white'];
             });
             $translate('RED_WHITE_BLUE').then((translation) => {
                 this.colorScales[translation] = ['red', 'white', 'blue'];
