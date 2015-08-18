@@ -1586,6 +1586,7 @@ module csComp.Services {
             if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0) {
                 g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
                 g.filters = [];
+                g.styles.forEach(s => { this.removeStyle(s); });
                 g.styles = [];
             }
 

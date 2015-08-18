@@ -59,7 +59,7 @@ module Legend {
             // if ($scope.data.mode = 'lastSelectedStyle') {
             //     $scope.legend = this.createLegend($scope.data.propertyTypeKey);
             // }
-            if ($scope.data.mode = 'lastSelectedStyle') {
+            if ($scope.data && $scope.data.mode === 'lastSelectedStyle') {
                 $scope.legend = this.createLegend();
                 if ($scope.$parent.hasOwnProperty('widget')) {
                     if (!$scope.legend.hasOwnProperty('legendEntries')) {
@@ -71,26 +71,26 @@ module Legend {
             }
             if (!this.subscribeHandle) {
                 this.subscribeHandle = this.$messageBus.subscribe("updatelegend", (title: string, ptdataKey: string) => {
-                    //this.passcount++;
-                    //$scope.s3 = 'passcount=' + this.passcount.toString();
-                    //$scope.s1 = title;
-                    //$scope.s2 = ptdataKey;
-                    //var ptd = this.$layerService.project.propertyTypeData[ptdataKey];
-                    if (ptd && ptd.legend) {
-                        //$scope.s3 = ptd.legend.description;
-                        $scope.legend = ptd.legend;
-                    }
-                    if ($scope.data.mode = 'lastSelectedStyle') {
-                        $scope.legend = this.createLegend();
-                        if ($scope.$parent.hasOwnProperty('widget')) {
-                            if (!$scope.legend.hasOwnProperty('legendEntries')) {
-                                (<any>$scope.$parent).widget['enabled'] = false;
-                            } else {
-                                (<any>$scope.$parent).widget['enabled'] = true;
+                    switch (title) {
+                        case 'removelegend':
+                            this.$messageBus.unsubscribe(this.subscribeHandle);
+                            break;
+                        default:
+                            if (ptd && ptd.legend) {
+                                $scope.legend = ptd.legend;
                             }
-                        }
+                            if ($scope.data.mode = 'lastSelectedStyle') {
+                                $scope.legend = this.createLegend();
+                                if ($scope.$parent.hasOwnProperty('widget')) {
+                                    if (!$scope.legend.hasOwnProperty('legendEntries')) {
+                                        (<any>$scope.$parent).widget['enabled'] = false;
+                                    } else {
+                                        (<any>$scope.$parent).widget['enabled'] = true;
+                                    }
+                                }
+                            }
+                            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
                     }
-                    if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
                 });
             }
         }
