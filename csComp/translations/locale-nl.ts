@@ -13,6 +13,8 @@ module Translations {
             DESELECT_ALL: 'Deselecteer alles',
             ENABLE_LOCATION_FILTER: 'Activeer locatiefilter',
             DISABLE_LOCATION_FILTER: 'Deactiveer locatiefilter',
+            SELECT_FEATURE_FOR_WIDGET: 'Selecteer een gebied om de widget te tonen.',
+            NO_RELATIONS_FOUND: 'Geen relaties voor het geselecteerde item gevonden. Ofwel het zoomniveau is te laag, er zijn teveel items zichtbaar of er zijn geen relaties gedefiniëerd.',
             CHOOSE_DROPDOWN: 'Kies...',
             BASESTYLES: 'Basiskaarten',
             MAP: 'Kaarten',

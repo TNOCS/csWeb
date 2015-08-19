@@ -41,9 +41,9 @@
         <div class="row" style="overflow:hidden" ng-if="callOut.sectionCount() < 3" ng-hide="configMode">
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
-                <li data-toggle="tab" data-ng-class="{active : $first}" data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="section.hasProperties()">
-                    <a ng-href="#rp-{{$index}}" data-toggle="tab" data-ng-if="section.showSectionIcon()" ng-click="featureTabActivated(sectionTitle, section)"><i class="fa {{section.sectionIcon}}"></i></a>
-                    <a ng-href="#rp-{{$index}}" data-toggle="tab" data-ng-if="!section.showSectionIcon()" ng-click="featureTabActivated(sectionTitle, section)">{{sectionTitle}}</a>
+                <li data-toggle="tab" data-ng-class="{active : $first}" data-ng-repeat="key in callOut.sectionKeys" ng-if="callOut.sections[key].hasProperties()">
+                    <a ng-href="#rp-{{$index}}" data-toggle="tab" data-ng-if="callOut.sections[key].showSectionIcon()" ng-click="featureTabActivated(key, callOut.sections[key])"><i class="fa {{callOut.sections[key].sectionIcon}}"></i></a>
+                    <a ng-href="#rp-{{$index}}" data-toggle="tab" data-ng-if="!callOut.sections[key].showSectionIcon()" ng-click="featureTabActivated(key, callOut.sections[key])">{{key}}</a>
                 </li>
             </ul>
         </div>
@@ -58,8 +58,9 @@
                 <li class="dropdown" ng-init="selectedSection.title=vm.defaultDropdownTitle">
                     <a style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="!($first && callOut.hasInfoSection)">
-                            <a ng-href="#rp-{{$index}}" ng-click="selectedSection.title = sectionTitle" data-toggle="tab">{{sectionTitle}}</a>
+                        <!-- alphabetic sorting disappeared in 1.4 https://docs.angularjs.org/api/ng/directive/ngRepeat -->
+                        <li data-ng-repeat="key in callOut.sectionKeys" ng-if="!($first && callOut.hasInfoSection)">
+                            <a ng-href="#rp-{{$index}}" ng-click="selectedSection.title = key" data-toggle="tab">{{key}}</a>
                         </li>
                     </ul>
                 </li>
@@ -94,7 +95,7 @@
         </ul>
     </div> -->
     <div ng-hide="configMode" class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
-        <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="(sectionTitle, section) in callOut.sections">
+        <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="key in callOut.sectionKeys">
 
             <!--<td>
                     <span class="dropdown">
@@ -107,7 +108,7 @@
                 </td>-->
             <div class="panel-group" id="accordion">
                 <form name="form" class="css-form" novalidate>
-                    <div class="panel" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in section.properties">
+                    <div class="panel" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
                         <div ng-show="feature.gui.editMode" class="property-edit">
                             <div>
                                 <div>{{item.propertyType.title}}</div>

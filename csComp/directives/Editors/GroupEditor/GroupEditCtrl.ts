@@ -58,9 +58,8 @@ module GroupEdit {
             console.log('toggle clustering');
         }
 
-
-
-
-
+        public updateOws() {
+            this.$scope.group.loadLayersFromOWS();
+        }
     }
 }

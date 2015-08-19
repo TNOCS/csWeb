@@ -14,6 +14,8 @@ module Translations {
             CHOOSE_DROPDOWN: 'Choose...',
             ENABLE_LOCATION_FILTER: 'Enable location filter',
             DISABLE_LOCATION_FILTER: 'Disable location filter',
+            SELECT_FEATURE_FOR_WIDGET: 'Please select a feature to show the widget.',
+            NO_RELATIONS_FOUND: 'No relations can be shown for the selected feature. Either the zoom level is too low, there are too many features in the view or there are no relations defined.',
             BASESTYLES: 'Baselayers',
             MAP: 'Maps',
             MAP_LABEL: 'Map',

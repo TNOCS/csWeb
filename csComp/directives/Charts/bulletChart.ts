@@ -64,7 +64,7 @@ module Charts {
                     //.data(demoData)
                         .enter().append("svg")
                         .attr("class", "bullet")
-                        .attr("width", scope.width)
+                        .attr("width", scope.width+15)
                         .attr("height", +scope.height + 40)
                         .append("g")
                         .attr("transform", "translate(7,20)")

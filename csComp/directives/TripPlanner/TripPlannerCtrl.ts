@@ -42,7 +42,6 @@ module TripPlanner {
         // See http://docs.angularjs.org/guide/di
         public static $inject = [
             '$scope',
-            '$http',
             'mapService',
             'layerService',
             'messageBusService',
@@ -53,7 +52,6 @@ module TripPlanner {
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope: ITripPlannerScope,
-            private $http: ng.IHttpService,
             private $mapService: csComp.Services.MapService,
             private $layerService: csComp.Services.LayerService,
             private $messageBusService: csComp.Services.MessageBusService,
