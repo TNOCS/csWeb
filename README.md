@@ -41,6 +41,14 @@ Just copy the example folder to a public folder and open the public\index.html f
 * Code review
 * Other guidelines
 
+#### Testing ####
+
+
+
+```
+karma start test/karma.conf.js
+```
+
 ### Who do I talk to? ###
 
 * Repo owner or admin
