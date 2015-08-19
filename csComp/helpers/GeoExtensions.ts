@@ -82,6 +82,62 @@ module csComp.Helpers {
         }
 
         /**
+         * Convert RD (Rijksdriehoek) coordinates to WGS84.
+         * @param  {number} x [RD X coordinate]
+         * @param  {number} y [RD Y coordinate]
+         * @return {[type]}   [object with latitude and longitude coordinate in WGS84]
+         * Source: http://home.solcon.nl/pvanmanen/Download/Transformatieformules.pdf, http://www.roelvanlisdonk.nl/?p=2950
+         */
+        static convertRDToWGS84(x: number, y: number)
+        {
+            // The city "Amsterfoort" is used as reference.
+            var referenceRdX = 155000, // "Rijksdriehoek" coordinate
+                referenceRdY = 463000,
+                referenceWgs84X = 52.15517, //"WGS84" coordinate
+                referenceWgs84Y = 5.387206;
+
+            var dX = (x - referenceRdX) * Math.pow(10,-5),
+                dY = (y - referenceRdY) * Math.pow(10,-5);
+
+            var sumN =
+                (3235.65389 * dY) +
+                (-32.58297 * dX * dX) +
+                (-0.2475 * dY * dY) +
+                (-0.84978 * dX * dX * dY) +
+                (-0.0655 * Math.pow(dY, 3)) +
+                (-0.01709 * dX * dX * dY * dY) +
+                (-0.00738 * dX) +
+                (0.0053 * Math.pow(dX, 4)) +
+                (-0.00039 * dX * dX * Math.pow(dY, 3)) +
+                (0.00033 * Math.pow(dX, 4) * dY) +
+                (-0.00012 * dX * dY);
+            var sumE =
+                (5260.52916 * dX) +
+                (105.94684 * dX * dY) +
+                (2.45656 * dX * dY * dY) +
+                (-0.81885 * Math.pow(dX, 3)) +
+                (0.05594 * dX * Math.pow(dY, 3)) +
+                (-0.05607 * Math.pow(dX, 3) * dY) +
+                (0.01199 * dY) +
+                (-0.00256 * Math.pow(dX, 3) * dY * dY) +
+                (0.00128 * dX * Math.pow(dY, 4)) +
+                (0.00022 * dY * dY) +
+                (-0.00022 * dX * dX) +
+                (0.00026 * Math.pow(dX, 5));
+
+            var latitude = referenceWgs84X + (sumN / 3600),
+                longitude = referenceWgs84Y + (sumE / 3600);
+
+            // Input
+            // x = 122202
+            // y = 487250
+            //
+            // Result
+            // "52.372143838117, 4.90559760435224"
+            return { latitude: latitude, longitude: longitude };
+        }
+
+        /**
         * Calculate the log base 10 of val
         */
         static log10(val) {
