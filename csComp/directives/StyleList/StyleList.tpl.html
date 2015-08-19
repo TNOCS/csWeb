@@ -20,7 +20,7 @@
                                     <style>
                                     </style>
                                     <!--<img src="includes/images/fillcolor.png" style="width: 32px; height:32px" />-->
-                                    <div id="colors" style="border-radius: 50%;width: 20px;height:20px;border-style:solid;border-color: black;border-width: 1px;background: linear-gradient(to right, {{style.colors[0]}} , {{style.colors[1]}})">
+                                    <div id="colors" style="border-radius: 50%;width: 20px;height:20px;border-style:solid;border-color: black;border-width: 1px;" ng-style="{'background-image': 'linear-gradient(to right,'+style.colors[0]+','+style.colors[1]+')'}">
                                     </div>
                                     <b class="caret"></b>
                                 </div>

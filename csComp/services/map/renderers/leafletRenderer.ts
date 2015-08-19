@@ -75,7 +75,7 @@ module csComp.Services {
             // for clustering use a cluster layer
             if (group.clustering) {
                 group.cluster = new L.MarkerClusterGroup({
-                    maxClusterRadius: (zoom) => {if (zoom > 18) {return 2;} else { return group.maxClusterRadius || 80}},
+                    maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
                 this.service.map.map.addLayer(group.cluster);
@@ -347,8 +347,8 @@ module csComp.Services {
             } else {
                 marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
                 if (feature.isSelected && feature.layer && feature.layer.type !== 'accessibility' && feature.layer.group) {
-                    if ((feature.layer.group.clustering && feature.layer.group.cluster.hasLayer(marker))
-                        || feature.layer.group.vectors.hasLayer(marker)) {
+                    if ((feature.layer.group.clustering && feature.layer.group.cluster && feature.layer.group.cluster.hasLayer(marker))
+                        || feature.layer.group.markers.hasOwnProperty(marker.feature.id)) {
                         marker.bringToFront();
                     }
                 }
@@ -453,61 +453,12 @@ module csComp.Services {
                     html: feature.htmlStyle
                 });
             } else {
-                var html = '<div ';
-                var props = {};
-                var ft = this.service.getFeatureType(feature);
-
-                //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
-                var iconUri = feature.effectiveStyle.iconUri; //ft.style.iconUri;
-                //if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
-
-                // TODO refactor to object
-                var iconPlusBorderWidth, iconPlusBorderHeight;
-                if (feature.effectiveStyle.hasOwnProperty('strokeWidth') && feature.effectiveStyle.strokeWidth > 0) {
-                    iconPlusBorderWidth = feature.effectiveStyle.iconWidth + (2 * feature.effectiveStyle.strokeWidth);
-                    iconPlusBorderHeight = feature.effectiveStyle.iconHeight + (2 * feature.effectiveStyle.strokeWidth);
-                } else {
-                    iconPlusBorderWidth = feature.effectiveStyle.iconWidth;
-                    iconPlusBorderHeight = feature.effectiveStyle.iconHeight;
-                }
-                props['background'] = feature.effectiveStyle.fillColor;
-                props['width'] = iconPlusBorderWidth + 'px';
-                props['height'] = iconPlusBorderWidth + 'px';
-                props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
-                props['border-style'] = 'solid';
-                props['border-color'] = feature.effectiveStyle.strokeColor;
-                props['border-width'] = feature.effectiveStyle.strokeWidth + 'px';
-                props['opacity'] = feature.effectiveStyle.opacity;
-
-                //if (feature.isSelected) {
-                    //props['border-width'] = '3px';
-                //}
-
-                html += ' style=\'display: inline-block;vertical-align: middle;text-align: center;';
-                for (var key in props) {
-                    if (!props.hasOwnProperty(key)) continue;
-                    html += key + ':' + props[key] + ';';
-                }
-
-                html += '\'>';
-                if (feature.effectiveStyle.innerTextProperty != null && feature.properties.hasOwnProperty(feature.effectiveStyle.innerTextProperty)) {
-                    html += "<span style='font-size:12px;vertical-align:-webkit-baseline-middle'>" + feature.properties[feature.effectiveStyle.innerTextProperty] + "</span>";
-                }
-                else if (iconUri != null) {
-                    // Must the iconUri be formatted?
-                    if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
-
-                    html += '<img src=\'' + iconUri + '\' style=\'width:' + (feature.effectiveStyle.iconWidth) + 'px;height:' + (feature.effectiveStyle.iconHeight) + 'px';
-                    if (feature.effectiveStyle.rotate && feature.effectiveStyle.rotate > 0) html += ';transform:rotate(' + feature.effectiveStyle.rotate + 'deg)';
-                    html += '\' />';
-                }
-
-                html += '</div>';
+                var iconHtml = csComp.Helpers.createIconHtml(feature, this.service.getFeatureType(feature));
 
                 icon = new L.DivIcon({
                     className: '',
-                    iconSize: new L.Point(iconPlusBorderWidth, iconPlusBorderHeight),
-                    html: html
+                    iconSize: new L.Point(iconHtml['iconPlusBorderWidth'], iconHtml['iconPlusBorderHeight']),
+                    html: iconHtml['html']
                 });
                 //icon = new L.DivIcon({
                 //    className: "style" + feature.poiTypeName,
@@ -569,6 +520,14 @@ module csComp.Services {
                 autoPan: false,
                 className: 'featureTooltip'
             }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
+
+            //In case a BAG contour is available, show it.
+            if (this.service.currentContour) this.service.map.map.removeLayer(this.service.currentContour);
+            if (feature.properties.hasOwnProperty('_bag_contour')) {
+                var geoContour: L.GeoJSON = JSON.parse(feature.properties['_bag_contour']);
+                this.service.currentContour = L.geoJson(geoContour);
+                this.service.currentContour.addTo(this.service.map.map);
+            }
         }
 
         hideFeatureTooltip(e) {
@@ -577,6 +536,7 @@ module csComp.Services {
                 //this.map.map.closePopup(this.popup);
                 this.popup = null;
             }
+            if (this.service.currentContour) this.service.map.map.removeLayer(this.service.currentContour);
         }
 
         updateFeatureTooltip(e) {

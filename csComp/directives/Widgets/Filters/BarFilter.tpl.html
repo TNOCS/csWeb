@@ -1,20 +1,24 @@
-<div>
-  <div style='position:relative' context-menu="options()">
-    <h4>{{filter.title}}</h4>
-    <div class="left-menu dropdown-toggle pull-left" ng-click="vm.openLayerMenu($event)"></div>
-    <a class='btn fa fa-remove' style='position:absolute;top:-5px;right:0' ng-click="vm.remove()"></a>
-    <div id="filter_{{filter.id}}"></div>
-
-    <div ng-hide="editMode">
-      <div>from <b>{{filter.from}}</b> to <b>{{filter.to}}</b>
-        <button class="btn fa fa-cog" ng-click="editMode=true" style="float:right; margin-left:4px"/>
-      </div>
+<div style="margin-top:5px">
+    <div context-menu="options()">
+        <h4>{{filter.title}}</h4>
+        <div class="left-menu dropdown-toggle pull-left" ng-click="vm.openLayerMenu($event)"></div>
+        <a class='btn fa fa-remove' style='position:absolute;top:-5px;right:0' ng-click="vm.remove()"></a>
+        <div id="filter_{{filter.id}}"></div>
+        <div ng-hide="editMode">
+            <div>from <b>{{filter.from}}</b> to <b>{{filter.to}}</b>
+                <button class="btn fa fa-cog" ng-click="editMode=true" style="float:right; margin-right:10px" />
+            </div>
+        </div>
+        <div ng-show="editMode">
+            <span>
+                <div>
+                    <b>{{'FROM' | translate}}</b>
+                    <input style="max-width: 60px;" type="text" ng-model="filter.from" />
+                    <b>{{'TO' | translate}}</b>
+                    <input style="max-width: 60px;" type="text" ng-model="filter.to" />
+                    <button class="btn fa fa-check makeNarrow" style="margin-left:4px" ng-click="vm.updateRange();editMode=false"></button>
+                    <button class="btn fa fa-remove makeNarrow" style="margin-left:4px" ng-click="editMode=false"></button>
+                </div>
+            </span>
+        </div>
     </div>
-    <div ng-show="editMode">
-      <div style="position:relative">
-        <b>{{'FROM' | translate}}</b><br/><input type="text" ng-model="filter.from" /><br/>
-        <b>{{'TO' | translate}}</b><br/><input  style="postion:absolute;right:125px" type="text" ng-model="filter.to" />
-      </div>
-      <button class="btn fa fa-check" style="float:right; margin-left:4px" ng-click="vm.updateRange();editMode=false"></button>
-    </div>
-  </div>

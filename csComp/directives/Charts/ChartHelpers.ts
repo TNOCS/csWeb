@@ -4,7 +4,7 @@
     declare var String;
 
     export class ChartHelpers {
-        /** 
+        /**
         * Returns the index and value of the maximum.
         */
         static max(arr: number[]) {
@@ -20,7 +20,7 @@
             return { maxIndex: maxIndex, max: max };
         }
 
-        /** 
+        /**
         * Returns the index and value of the minimum.
         */
         static min(arr: number[]) {
@@ -37,13 +37,13 @@
         }
 
         /**
-        * Convert a timestamp to string. 
+        * Convert a timestamp to string.
         */
         static timestampToString(ts: number) {
             var date = new Date(ts);
             var dateString = String.format("{0}-{1:00}-{2:00}", date.getFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
-            if (date.getUTCHours() > 0 || date.getUTCMinutes() > 0)
-                dateString += String.format(" {0:00}:{1:00}", date.getUTCHours(), date.getUTCMinutes());
+            //if (date.getUTCHours() > 0 || date.getUTCMinutes() > 0)
+            //    dateString += String.format(" {0:00}:{1:00}", date.getUTCHours(), date.getUTCMinutes());
             return dateString;
         }
 
@@ -166,4 +166,4 @@
 
 
 
-} 
+}
