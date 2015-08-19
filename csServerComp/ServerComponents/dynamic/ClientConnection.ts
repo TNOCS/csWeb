@@ -94,6 +94,7 @@ module ClientConnection {
                 });
 
                 socket.on('subscribe', (msg: msgSubscription) => {
+                    Winston.error(JSON.stringify(msg));
                     Winston.info('clientconnection: subscribe ' + JSON.stringify(msg.target));
                     wc.Subscribe(msg);
                     // wc.Client.emit('laag', 'test');

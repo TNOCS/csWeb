@@ -364,8 +364,7 @@
             "in": "path",
             "description": "ID of layer to add the feature to",
             "required": true,
-            "type": "integer",
-            "format": "int64"
+            "type": "string"
           },
           {
             "in": "body",
@@ -687,11 +686,14 @@
     "Geometry": {
       "type": "object",
       "properties": {
+        "type":{
+          "type": "string",
+          "enum": ["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon"]
+        },
         "coordinates": {
           "type": "array",
           "items": {
-            "type": "integer",
-            "format": "int64",
+            "type": "number",
             "example": [4.49965, 52.06891]
           }
         }
@@ -724,8 +726,9 @@
         "geometry": {
           "$ref": "#/definitions/Geometry"
         },
+        "type" : { "type" : "string"},
         "properties": {
-          "type": "string"
+          "type": "object"
         },
         "logs": {
           "properties": {

@@ -132,6 +132,7 @@ module csComp.Services {
         otpServer: string;
         storage: string;
         url: string;
+        opacity: number;
         /** true if a dynamic project and you want to subscribe to project changes using socket.io */
         connected: boolean;
         activeDashboard: Dashboard;
@@ -202,6 +203,7 @@ module csComp.Services {
                 connected: project.connected,
                 startPosition: project.startposition,
                 timeLine: project.timeLine,
+                opacity: project.opacity,
                 mcas: project.mcas,
                 datasources: csComp.Helpers.serialize<DataSource>(project.datasources, DataSource.serializeableData),
                 dashboards: csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
@@ -221,6 +223,7 @@ module csComp.Services {
             var solution = input.solution;
             var res = <Project>jQuery.extend(new Project(), input);
             res.solution = solution;
+            if (!input.opacity) input.opacity = 100;
             if (input.timeLine) { res.timeLine = DateRange.deserialize(input.timeLine); }// <DateRange>jQuery.extend(new DateRange(), input.timeLine);
             if (input.dashboards) {
                 res.dashboards = [];
