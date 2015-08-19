@@ -96,10 +96,12 @@ module FeatureProps {
         public title: string;
         public icon: string;
         public sections: { [title: string]: ICallOutSection; };
+        public sectionKeys: string[];
         public hasInfoSection: boolean;
 
         constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: IPropertyTypeData, private layerservice: csComp.Services.LayerService, private mapservice: csComp.Services.MapService) {
             this.sections = {};
+            this.sectionKeys = [];
             this.hasInfoSection = false;
             //if (type == null) this.createDefaultType();
             this.setTitle();
@@ -151,12 +153,14 @@ module FeatureProps {
             }
             if (infoCallOutSection.properties.length > 0) {
                 this.hasInfoSection = true;
-                this.sections['Aaa Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
+                this.sections['Aaa Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically (not anymore in angular 1.4!!!)
+                this.sectionKeys.push('Aaa Info');
             } else {
                 this.hasInfoSection = false;
             }
-            if (hierarchyCallOutSection.properties.length > 0) this.sections['hierarchy'] = hierarchyCallOutSection;
-            //if (searchCallOutSection.properties.length > 0) this.sections['zzz Search'] = searchCallOutSection;
+            if (hierarchyCallOutSection.properties.length > 0) {this.sections['hierarchy'] = hierarchyCallOutSection; this.sectionKeys.push('hierarchy');}
+            //if (searchCallOutSection.properties.length > 0) {this.sections['zzz Search'] = searchCallOutSection; this.sectionKeys.push('zzz Search');}
+            this.sectionKeys = this.sectionKeys.sort();
         }
 
         private calculateHierarchyValue(mi: IPropertyType, feature: IFeature, propertyTypeData: IPropertyTypeData, layerservice: csComp.Services.LayerService): number {
@@ -187,20 +191,16 @@ module FeatureProps {
         }
 
         public sectionCount(): number {
-            return Object.keys(this.sections).length;
+            return this.sectionKeys.length;
         }
 
         public firstSection(): ICallOutSection {
-            var keys = Object.keys(this.sections);
-            keys.sort();
-            var first = this.sections[keys[0]];
+            var first = this.sections[this.sectionKeys[0]];
             return first;
         }
 
         public lastSection(): ICallOutSection {
-            var keys = Object.keys(this.sections);
-            keys.sort();
-            var last = this.sections[keys[this.sectionCount() - 1]];
+            var last = this.sections[this.sectionKeys[this.sectionKeys.length - 1]];
             return last;
         }
 
@@ -211,6 +211,7 @@ module FeatureProps {
             if (sectionTitle in this.sections)
                 return this.sections[sectionTitle];
             this.sections[sectionTitle] = new CallOutSection();
+            this.sectionKeys.push(sectionTitle);
             return this.sections[sectionTitle];
         }
 
