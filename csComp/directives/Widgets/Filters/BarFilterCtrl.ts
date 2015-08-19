@@ -111,8 +111,8 @@ module Filters {
             var info = this.$layerService.calculatePropertyInfo(group, filter.property);
 
             var nBins = 20;
-            var min = info.sdMin;
-            var max = info.sdMax + (info.sdMax - info.sdMin) * 0.01;
+            var min = info.min;
+            var max = info.max;
             filter.rangex[0] = min;
             filter.rangex[1] = max;
             filter.from = min;

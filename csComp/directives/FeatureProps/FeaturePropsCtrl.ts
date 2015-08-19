@@ -129,6 +129,7 @@ module FeatureProps {
                 propertyTypes.forEach((mi: IPropertyType) => {
                     if (feature.properties.hasOwnProperty(mi.label) && mi.visibleInCallOut) {
                         var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
+                        if (callOutSection.propertyTypes.hasOwnProperty(mi.label)) return; // Prevent duplicate properties in the same  section
                         callOutSection.propertyTypes[mi.label] = mi;
                         var text = feature.properties[mi.label]; if (mi.type === "hierarchy") {
                             var count = this.calculateHierarchyValue(mi, feature, propertyTypeData, layerservice);

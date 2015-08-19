@@ -62,7 +62,7 @@ module Filters {
             filter.dimension = dcDim;
             filter.group = group;
             dcDim.filterFunction((d: string) => {
-                if (d != null) return (d.toLowerCase().indexOf(filter.stringValue.toLowerCase()) > -1);
+                if (d != null && typeof d.toLowerCase === 'function') return (d.toLowerCase().indexOf(filter.stringValue.toLowerCase()) > -1);
                 return false;
             });
         }
@@ -75,7 +75,7 @@ module Filters {
                 f.dimension.filterAll();
             } else {
                 f.dimension.filterFunction((d: string) => {
-                    if (d != null) return (d.toLowerCase().indexOf(f.stringValue.toLowerCase()) > -1);
+                    if (d != null && typeof d.toLowerCase === 'function') return (d.toLowerCase().indexOf(f.stringValue.toLowerCase()) > -1);
                     return false;
                 });
             }
