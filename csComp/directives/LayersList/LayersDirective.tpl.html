@@ -21,8 +21,10 @@
                     <!--bs-popover>-->
                     <div context-menu="options(layer)" style="list-style-type: none; padding: 0;" data-ng-class="{indent: layer.isSublayer}">
                         <!--<button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." data-original-title="" title="">Right</button>-->
-                        <div ng-if="!group.oneLayerActive" class="checkbox checkbox-primary" style="margin-left: 20px">
-                            <input type="checkbox" id="cblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
+                        <div ng-class="{false : 'checkbox checkbox-primary', true:'radio radio-primary'}[group.oneLayerActive==true]" style="margin-left: 20px">
+                            <input ng-if="!group.oneLayerActive" type="checkbox" id="cblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
+                            <input ng-if="group.oneLayerActive" type="radio" ng-value="true" id="cblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
+
                             <label for="cblayer{{layer.id}}">
                                 {{layer.title}}
                             </label>
@@ -34,24 +36,7 @@
                                 <div class="bounce3"></div>
                             </div>
                             <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:20px;top:3px;cursor:pointer" ng-click="vm.editLayer(layer)"></div>
-                        </div>
-                        <div ng-if="group.oneLayerActive" class="radio radio-primary" style="margin-left: 20px">
-                            <input type="radio" ng-value="true" id="rblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
-                            <label for="rblayer{{layer.id}}">
-                                {{layer.title}}
-                            </label>
-                            <div ng-show="layer.enabled" class="left-menu dropdown-toggle pull-left" ng-click="vm.openLayerMenu($event)">
-                            </div>
-                            <div ng-show="layer.isLoading" class="spinner">
-                                <div class="bounce1"></div>
-                                <div class="bounce2"></div>
-                                <div class="bounce3"></div>
-                            </div>
-                            <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:4px;top:3px;cursor:pointer" ng-click="vm.editLayer(layer)"></div>
-                        </div>
-                        <!-- <div>
-                            <input type="number" data-ng-model="layer.opacity">
-                        </div> -->
+                        </div>                        
                     </div>
                 </div>
             </div>
