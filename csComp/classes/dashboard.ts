@@ -194,6 +194,7 @@ module csComp.Services {
         showMap: boolean;
         showTimeline: boolean = true;
         showLeftmenu: boolean;
+        showLegend: boolean = false;
         showRightmenu: boolean = false;
         showBackgroundImage: boolean = false;
         draggable: boolean = true;
@@ -226,6 +227,7 @@ module csComp.Services {
                 showMap: d.showMap,
                 showTimeline: d.showTimeline,
                 showLeftmenu: d.showLeftmenu,
+                showLegend: d.showLegend,
                 showRightmenu: d.showRightmenu,
                 showBackgroundImage: d.showBackgroundImage,
                 background: d.background,

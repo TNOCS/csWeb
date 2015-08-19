@@ -86,6 +86,8 @@ module csComp.Services {
 
         locationFilter: L.LocationFilter;
 
+        currentContour: L.GeoJSON;
+
         public visual: VisualState = new VisualState();
         throttleTimelineUpdate: Function;
 
@@ -401,7 +403,6 @@ module csComp.Services {
             if (layer.isLoading) return;
             layer.isLoading = true;
             this.$messageBusService.publish('layer', 'loading', layer);
-            this.$messageBusService.publish('updatelegend', 'title', layer.defaultLegendProperty);
             var disableLayers = [];
             async.series([
                 (callback) => {
@@ -451,6 +452,7 @@ module csComp.Services {
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
                             this.$messageBusService.publish('layer', 'activated', layer);
+                            this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             if (layerloaded) layerloaded(layer);
                         });
                     }
@@ -569,6 +571,16 @@ module csComp.Services {
                 });
                 // upon deactivation of the layer? (but other layers can also have active styles)
                 this.mb.publish('updatelegend', 'title', property);
+            } else {
+                //when no layer is defined, set the given propertytype as styled property (and trigger creating a dynamic legend subsequently)
+                this.project.features.some((f) => {
+                    if (f.properties.hasOwnProperty(property)) {
+                        var pt = this.getPropertyType(f, property);
+                        this.setStyle({ feature: f, property: property, key: pt.title || property});
+                        return true;
+                    }
+                    return false;
+                });
             }
         }
 
@@ -593,7 +605,7 @@ module csComp.Services {
         removeStyle(style: GroupStyle) {
             var g = style.group;
             g.styles = g.styles.filter((s: GroupStyle) => s.id !== style.id);
-
+            this.$messageBusService.publish('updatelegend', 'updatedstyle');
             this.updateGroupFeatures(g);
         }
 
@@ -609,8 +621,11 @@ module csComp.Services {
                 var e1: LegendEntry = l.legendEntries[0];
                 var e2: LegendEntry = l.legendEntries[l.legendEntries.length - 1];
                 parent.style.colors = [e1.color, e2.color];
+            } else {
+                parent.style.colors = v;
             }
             parent.style.activeLegend = l;
+            this.$messageBusService.publish('updatelegend', 'updatedstyle');
         }
 
         updateStyle(style: GroupStyle) {
@@ -690,9 +705,11 @@ module csComp.Services {
                 var rpt = new RightPanelTab();
                 rpt.container = 'featureprops';
                 this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+                rpt.container = 'featurerelations';
+                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
-                // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
-                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
@@ -1212,8 +1229,9 @@ module csComp.Services {
                         gs.legends[ptd.title] = ptd.legend;
                         gs.colorScales[ptd.title] = ['purple', 'purple'];
                     }
+
                     if (ft.style && ft.style.fillColor) {
-                        gs.colors = ['white', 'orange'];
+                        gs.colors = ['white', '#FF5500'];
                     } else {
                         gs.colors = ['red', 'white', 'blue'];
                     }
@@ -1225,6 +1243,7 @@ module csComp.Services {
                         this.activeMapRenderer.updateFeature(fe);
                     }
                 });
+
                 if (openStyleTab) (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
                 return gs;
             }
@@ -1239,6 +1258,7 @@ module csComp.Services {
             else {
                 s.filter((s: GroupStyle) => s.property === property.property).forEach((st: GroupStyle) => this.removeStyle(st));
             }
+            this.$messageBusService.publish('updatelegend', 'updatedstyle');
         }
 
         /**
@@ -1621,9 +1641,10 @@ module csComp.Services {
             }
 
             // check if there are no more active layers in group and remove filters/styles
-            if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0) {
+            if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0 || g.oneLayerActive === true) {
                 g.filters.forEach((f: GroupFilter) => { if (f.dimension != null) f.dimension.dispose(); });
                 g.filters = [];
+                g.styles.forEach(s => { this.removeStyle(s); });
                 g.styles = [];
             }
 
@@ -1703,7 +1724,7 @@ module csComp.Services {
         /**
         * Clear all layers.
         */
-        private clearLayers() {
+        public clearLayers() {
             if (this.project == null || this.project.groups == null) return;
             this.project.groups.forEach((group) => {
                 group.layers.forEach((layer: ProjectLayer) => {
@@ -1972,6 +1993,23 @@ module csComp.Services {
                 group.cluster = new L.MarkerClusterGroup({
                     maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
                     disableClusteringAtZoom: group.clusterLevel || 0
+                });
+                group.cluster.on('clustermouseover', (a) => {
+                    if (this.currentContour) this.map.map.removeLayer(this.currentContour);
+                    if (a.layer._childClusters.length === 0) {
+                        var childs = a.layer.getAllChildMarkers();
+                        if (childs[0] && childs[0].hasOwnProperty('feature')) {
+                            var f = childs[0].feature;
+                            if (f.properties.hasOwnProperty('_bag_contour')) {
+                                var geoContour: L.GeoJSON = JSON.parse(f.properties['_bag_contour']);
+                                this.currentContour = L.geoJson(geoContour);
+                                this.currentContour.addTo(this.map.map);
+                            }
+                        }
+                    }
+                });
+                group.cluster.on('clustermouseout', (a) => {
+                    if (this.currentContour) this.map.map.removeLayer(this.currentContour);
                 });
 
                 this.map.map.addLayer(group.cluster);

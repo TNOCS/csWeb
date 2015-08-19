@@ -33,7 +33,7 @@
         "showMap": true,
         "showTimeline": true,
         "showLeftmenu": true,
-        "showRightmenu": false,
+        "showLegend": true,
         "showBackgroundImage": false,
         "visiblelayers": [
           "zorgkantoor"
@@ -669,7 +669,7 @@
           "description": "Data at the health office regions. (Source: CBS, BAG, TNO, DigiMV.)",
           "type": "geojson",
           "renderType": "geojson",
-          "heatmapItems": null,
+                "defaultLegendProperty": "aant_inw",
           "url": "data/projects/20141104_csMap/Regio ZK ZZP CBS.json",
           "typeUrl": "data/resourceTypes/Zorgkantoor.json",
           "opacity": 100,

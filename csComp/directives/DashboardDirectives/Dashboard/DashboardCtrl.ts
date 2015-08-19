@@ -267,35 +267,27 @@ module Dashboard {
 
         }
 
-        public checkLeftMenuItems() {
-            var d = this.$scope.dashboard;
-            var items = $('#leftPanelTab>li').toArray();
-            items.forEach((i) => {
-                console.log(i.id);
-                if (!d.visibleLeftMenuItems || d.visibleLeftMenuItems.length === 0 || d.visibleLeftMenuItems.indexOf(i.id) >= 0) {
-                    $('#' + i.id).show();
+        
+            if (!d.widgets) d.widgets = [];
+            if (d.showLegend) {
+                var legendWidgetPresent = false;
+                d.widgets.forEach(w => {
+                    if(w.id === 'legend') legendWidgetPresent = true;
+                });
+                if (!legendWidgetPresent) {
+                    console.log('Create legend');
+                    var w = <csComp.Services.IWidget>{};
+                    w.directive = 'legend-directive';
+                    w.id = 'legend';
+                    w.title = 'Legenda';
+                    w.data = {mode: 'lastSelectedStyle'};
+                    w.left = '10px';
+                    w.top = '20px';
+                    w.width = '150px';
+                    w.enabled = true;
+                    this.$dashboardService.addNewWidget(w, d);
+                    //this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
                 }
-                else if (d.visibleLeftMenuItems.indexOf('!' + i.id) >= 0) {
-                    $('#' + i.id).hide();
-                }
-            });
-            /*for (var index in items) {
-                var i = items[index];
-
-                (<any>i).hide();
-                if (!d.visibleLeftMenuItems || d.visibleLeftMenuItems.length === 0 || d.visibleLeftMenuItems.indexOf(i.id) >= 0) {
-                    //$(i).show();
-                }
-                else {
-                    (<any>i).hide();
-                }
-                //console.log(i);
-            }*/
-
-
-
-
-        }
 
         public updateDashboard() {
             var d = this.$scope.dashboard;
@@ -305,7 +297,7 @@ module Dashboard {
             this.checkTimeline();
             this.checkLayers();
             this.checkViewbound();
-            this.checkLeftMenuItems();
+
             //this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
             if (!this.$mapService.isAdminExpert) {
                 this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
