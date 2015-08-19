@@ -26,6 +26,10 @@
       <label for="timeline-{{vm.dashboard.id}}">Show Timeline</label>
     </div>
     <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+      <input type="checkbox" id="legend-{{vm.dashboard.id}}" ng-model="vm.dashboard.showLegend" ng-click="vm.toggleLegend()">
+      <label for="legend-{{vm.dashboard.id}}">Show Legend</label>
+    </div>
+    <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
       <input type="checkbox" id="image-{{vm.dashboard.id}}" ng-model="vm.dashboard.showBackgroundImage" ng-click="vm.toggleImage()">
       <label for="image-{{vm.dashboard.id}}">Show Image</label>
     </div>

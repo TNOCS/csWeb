@@ -57,6 +57,11 @@ module DashboardEdit {
             this.$layerService.project.dashboards
         }
 
+        public toggleLegend() {
+            this.checkLegend();
+            this.$layerService.project.dashboards
+        }
+
         public setExtent() {
             this.dashboard.viewBounds = this.$layerService.activeMapRenderer.getExtent();
             console.log('set extent');
@@ -133,6 +138,18 @@ module DashboardEdit {
             }
         }
 
+        public checkLegend(){
+            var db = this.$layerService.project.activeDashboard;
+            if (!db.showLegend) {
+                var idxDelete = -1;
+                db.widgets.forEach((w,idx) => {
+                    if(w.id === 'legend') {idxDelete = idx;}
+                });
+                if (idxDelete > -1) db.widgets.splice(idxDelete, 1);
+            }
+            this.$dashboardService.selectDashboard(db, 'main');
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+        }
 
     }
 }
