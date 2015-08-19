@@ -88,8 +88,9 @@ module csComp.Helpers {
         if (v < gs.info.sdMin) return gs.colors[0];
         //var bezInterpolator = chroma.interpolate.bezier(gs.colors);
         //var r = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
+        //return r;
         var color = d3.scale.linear()
-            .domain([gs.info.sdMin, gs.info.mean, gs.info.sdMax])
+            .domain([gs.info.sdMin, gs.info.sdMax])//domain and range should have the same arraylength!!!
             .range(gs.colors);
         var hexColor = color(v).toString();
         return hexColor;

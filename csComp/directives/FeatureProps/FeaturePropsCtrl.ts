@@ -530,6 +530,16 @@ module FeatureProps {
             this.$messageBusService.publish("timeline", "focusChange", time.timestamp);
         }
 
+        getFormattedDate(fp, pt: IPropertyType): string {
+            if (!fp) return;
+            var format: string;
+            if (pt && pt.hasOwnProperty('stringFormat')) {
+                format = pt.stringFormat;
+            } else {
+                format = 'DD MMMM YYYY';
+            }
+            return moment(fp, 'YYYYMMDD').format(format);
+        }
 
         //When a feature has multiple sections, a dropdown list is created with the title defined in the language entry "CHOOSE_DROPDOWN" (e.g. "Choose..." or "Data...")
         private setDropdownTitle() {

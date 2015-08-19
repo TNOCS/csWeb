@@ -40,8 +40,8 @@ module csComp.Services {
         public markers: any;
         styleProperty: string;
         languages: ILanguageData;
-
-
+        owsurl          : string;
+        owsgeojson      : boolean;
 
         /**
          * Returns an object which contains all the data that must be serialized.
@@ -60,6 +60,63 @@ module csComp.Services {
                 languages: projectGroup.languages,
                 layers: csComp.Helpers.serialize<ProjectLayer>(projectGroup.layers, ProjectLayer.serializeableData)
             };
+        }
+
+        public static deserialize(input: Object): ProjectGroup {
+            var res = <ProjectGroup>$.extend(new ProjectGroup(), input);
+            if (res.owsurl) {
+                res.loadLayersFromOWS();
+            }
+            return res;
+        }
+
+        public loadLayersFromOWS():void {
+            this.layers = [];   // add some layers here...
+            var theGroup = this;
+            $.ajax({
+                type: "GET",
+		        url: this.owsurl,
+                dataType: "xml",
+
+                success: (xml) => {
+                    $(xml).find("Layer").each(function() {
+                        // Remove ?service=wms&request=getCapabilities
+                        var baseurl = theGroup.owsurl.split("?")[0];
+
+                        // DO NOT use arrow notation (=>) as it will break this !!!
+                        var layerName = $(this).children("Name").text();
+                        if (layerName != null && layerName!="") {
+                            var title = $(this).children("Title").text();
+                            // TODO: should be using layerService.initLayer(theGroup, layer);
+                            // But I don't know how to 'inject' layerService :(
+                            var layer = theGroup.buildLayer(baseurl, title, layerName);
+                            theGroup.layers.push(layer);
+         				}
+        			});
+		        }
+	        })
+        }
+
+        private buildLayer(baseurl: string, title: string, layerName: string): ProjectLayer {
+            var extraInfo = {
+                "id": Helpers.getGuid(),
+                "reference": layerName,
+                "title": title,
+                "enabled":false,
+                "group": this
+            }
+            // Image layers
+            if(this.owsgeojson) {
+                extraInfo["type"] = "geojson";
+                extraInfo["url"] = baseurl + "?service=wfs&request=getFeature" +
+                        "&outputFormat=application/json&typeName=" + layerName;
+            } else {
+                extraInfo["type"] = "wms";
+                extraInfo["wmsLayers"] = layerName;
+                extraInfo["url"] = baseurl;
+            }
+            var layer = <ProjectLayer> jQuery.extend(new ProjectLayer(), extraInfo);
+            return layer;
         }
     }
 
@@ -121,9 +178,6 @@ module csComp.Services {
             $translate('RED_GREEN').then((translation) => {
                 this.colorScales[translation] = ['red', 'green'];
             });
-            $translate('WHITE_ORANGE').then((translation) => {
-                this.colorScales[translation] = ['white', 'orange'];
-            });
             $translate('BLUE_RED').then((translation) => {
                 this.colorScales[translation] = ['#F04030', '#3040F0'];
             });
@@ -143,10 +197,10 @@ module csComp.Services {
                 this.colorScales[translation] = ['green', 'white'];
             });
             $translate('WHITE_ORANGE').then((translation) => {
-                this.colorScales[translation] = ['white', 'orange'];
+                this.colorScales[translation] = ['white', '#FF5500'];
             });
             $translate('ORANGE_WHITE').then((translation) => {
-                this.colorScales[translation] = ['orange', 'white'];
+                this.colorScales[translation] = ['#FF5500', 'white'];
             });
             $translate('RED_WHITE_BLUE').then((translation) => {
                 this.colorScales[translation] = ['red', 'white', 'blue'];

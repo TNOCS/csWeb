@@ -59,7 +59,7 @@
             "url": "api/layers/test",
             "typeUrl": "data/resourceTypes/resources.json",
             "enabled": false,
-            "opacity": 100
+            "opacity": 50
         }]
     }]
 }

@@ -1,0 +1,2822 @@
+{
+  "features": [{
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.920000, 52.405278]
+    },
+    "properties": {
+      "naam": "Boven IJ ziekenhuis",
+      "Name": "Boven IJ ziekenhuis",
+      "adres": "Statenjachtstraat 1",
+      "postcode": "1034 CS",
+      "plaats": "Amsterdam",
+      "Postadres": "Postbus 37610",
+      "Postadres_postcode": "1030 BD",
+      "Postadres_plaats": "Amsterdam",
+      "telefoonalgemeen": "020-6346346",
+      "telefoonSEH": "020-6346200",
+      "lon_dms": "4.55.12",
+      "lat_dms": "52.24.19",
+      "bedden": 300,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "a68000b1-2ad6-420e-aae6-a922566c33bf",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.838333, 52.371389]
+    },
+    "properties": {
+      "naam": "Sint Lucas Andreas ziekenhuis",
+      "Name": "Sint Lucas Andreas ziekenhuis",
+      "adres": "Jan Tooropstraat 164",
+      "postcode": "1061 AE",
+      "plaats": "Amsterdam",
+      "Postadres": "Postbus 9243",
+      "Postadres_postcode": "1006 AE",
+      "Postadres_plaats": "Amsterdam",
+      "telefoonalgemeen": "020-5108911",
+      "telefoonSEH": "020-5108161",
+      "lon_dms": "4.50.18",
+      "lat_dms": "52.22.17",
+      "bedden": 551,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 3,
+      "Id": "a46b4423-0f22-4d42-b77f-e2897d951680",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.824444, 52.348889]
+    },
+    "properties": {
+      "naam": "Slotervaart ziekenhuis",
+      "Name": "Slotervaart ziekenhuis",
+      "adres": "Louwesweg 6",
+      "postcode": "1066 EC",
+      "plaats": "Amsterdam",
+      "Postadres": "Postbus 90440",
+      "Postadres_postcode": "1006 BK",
+      "Postadres_plaats": "Amsterdam",
+      "telefoonalgemeen": "020-5129333",
+      "telefoonSEH": "020-5124113",
+      "lon_dms": "4.49.28",
+      "lat_dms": "52.20.56",
+      "bedden": 310,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "1286c49c-985e-4dcd-8f86-d6ff44cda5a7",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.859167, 52.335000]
+    },
+    "properties": {
+      "naam": "VU Medisch Centrum",
+      "Name": "VU Medisch Centrum",
+      "adres": "De Boelelaan 1117",
+      "postcode": "1081 HV",
+      "plaats": "Amsterdam",
+      "Postadres": "Postbus 7057",
+      "Postadres_postcode": "1007 MB",
+      "Postadres_plaats": "Amsterdam",
+      "telefoonalgemeen": "020-4444444",
+      "telefoonSEH": "020-4443636",
+      "lon_dms": "4.51.33",
+      "lat_dms": "52.20.06",
+      "bedden": 713,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 4,
+      "t2": 8,
+      "Id": "ceecc913-e1b8-461a-b7d9-13ef5685c3b8",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.919722, 52.359167]
+    },
+    "properties": {
+      "naam": "Onze Lieve Vrouwe Gasthuis",
+      "Name": "Onze Lieve Vrouwe Gasthuis",
+      "adres": "Oosterpark 9",
+      "postcode": "1091 AC",
+      "plaats": "Amsterdam",
+      "Postadres": "Postbus 95500",
+      "Postadres_postcode": "1090 HM",
+      "Postadres_plaats": "Amsterdam",
+      "telefoonalgemeen": "020-5999111",
+      "telefoonSEH": "020-5993016",
+      "lon_dms": "4.55.11",
+      "lat_dms": "52.21.33",
+      "bedden": 530,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 3,
+      "Id": "4e375f3d-f73b-4431-b69c-6d043cab758e",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.957222, 52.294722]
+    },
+    "properties": {
+      "naam": "Academisch Medisch Centrum",
+      "Name": "Academisch Medisch Centrum",
+      "adres": "Meibergdreef 9",
+      "postcode": "1105 AZ",
+      "plaats": "Amsterdam",
+      "Postadres": "Postbus 22660",
+      "Postadres_postcode": "1100 DD",
+      "Postadres_plaats": "Amsterdam",
+      "telefoonalgemeen": "020-5669111",
+      "telefoonSEH": "020-5663333",
+      "lon_dms": "4.57.26",
+      "lat_dms": "52.17.41",
+      "bedden": 1200,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 5,
+      "t2": 10,
+      "Id": "f56a65a7-9a30-4b26-9dd3-016c524a69d3",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.201111, 52.216944]
+    },
+    "properties": {
+      "naam": "Tergooiziekenhuizen",
+      "Name": "Tergooiziekenhuizen",
+      "locatie": "locatie Hilversum",
+      "adres": "Van Riebeeckweg 212",
+      "postcode": "1213 XZ",
+      "plaats": "Hilversum",
+      "Postadres": "Postbus 10016",
+      "Postadres_postcode": "1201 DA",
+      "Postadres_plaats": "Hilversum",
+      "telefoonalgemeen": "035-6887777",
+      "telefoonSEH": "035-6887001",
+      "lon_dms": "5.12.04",
+      "lat_dms": "52.13.01",
+      "bedden": 489,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "69d5e530-b412-4c0a-bbb2-4f5b92a30c69",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.207500, 52.266389]
+    },
+    "properties": {
+      "naam": "Tergooiziekenhuizen",
+      "Name": "Tergooiziekenhuizen",
+      "locatie": "locatie Blaricum",
+      "adres": "Rijksstraatweg 1",
+      "postcode": "1261 AN",
+      "plaats": "Blaricum",
+      "Postadres": "Postbus 900",
+      "Postadres_postcode": "1250 CA",
+      "Postadres_plaats": "Laren",
+      "telefoonalgemeen": "035-5391111",
+      "telefoonSEH": "035-5391585",
+      "lon_dms": "5.12.27",
+      "lat_dms": "52.15.59",
+      "bedden": 446,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "81fba257-67e8-4d7e-b6c8-47953d34edd0",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.223333, 52.369722]
+    },
+    "properties": {
+      "naam": "Flevoziekenhuis",
+      "Name": "Flevoziekenhuis",
+      "adres": "Hospitalweg 1",
+      "postcode": "1315 RA",
+      "plaats": "Almere",
+      "Postadres": "Postbus 3005",
+      "Postadres_postcode": "1300 EG",
+      "Postadres_plaats": "Almere",
+      "telefoonalgemeen": "036-5398765",
+      "telefoonSEH": "036-5398811",
+      "lon_dms": "5.13.24",
+      "lat_dms": "52.22.11",
+      "bedden": 386,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "94473f9a-e7ae-4911-b5be-ccb0cbe8bf31",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.963611, 52.500833]
+    },
+    "properties": {
+      "naam": "Waterland ziekenhuis",
+      "Name": "Waterland ziekenhuis",
+      "adres": "Waterlandlaan  250",
+      "postcode": "1440 AG",
+      "plaats": "Purmerend",
+      "Postadres": "Postbus 250",
+      "Postadres_postcode": "1440 AG",
+      "Postadres_plaats": "Purmerend",
+      "telefoonalgemeen": "0299-457457",
+      "telefoonSEH": "0299-457620",
+      "lon_dms": "4.57.49",
+      "lat_dms": "52.30.03",
+      "bedden": 347,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "0cc3edf1-b986-41ee-9d88-e49776cdaa94",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.826111, 52.453333]
+    },
+    "properties": {
+      "naam": "Zaans medisch centrum",
+      "Name": "Zaans medisch centrum",
+      "adres": "Kon. Julianaplein 58",
+      "postcode": "1502 DV",
+      "plaats": "Zaandam",
+      "Postadres": "Postbus 210",
+      "Postadres_postcode": "1500 EE",
+      "Postadres_plaats": "Zaandam",
+      "telefoonalgemeen": "075-6502911",
+      "telefoonSEH": "075-6502600",
+      "lon_dms": "4.49.34",
+      "lat_dms": "52.27.12",
+      "bedden": 456,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "10c8df3a-cb36-4aa7-afaf-d3467ee0a4c1",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.052222, 52.647222]
+    },
+    "properties": {
+      "naam": "Westfriesgasthuis",
+      "Name": "Westfriesgasthuis",
+      "adres": "Fr. Maelsonstraat  3",
+      "postcode": "1624 NP",
+      "plaats": "Hoorn",
+      "Postadres": "Postbus 600",
+      "Postadres_postcode": "1620 AR",
+      "Postadres_plaats": "Hoorn",
+      "telefoonalgemeen": "0229-257257",
+      "telefoonSEH": "0229-208381",
+      "lon_dms": "5.03.08",
+      "lat_dms": "52.38.50",
+      "bedden": 506,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 3,
+      "Id": "7d99d898-a5f3-4247-88d9-2beb6cc03372",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.743333, 52.958333]
+    },
+    "properties": {
+      "naam": "Gemini ziekenhuis",
+      "Name": "Gemini ziekenhuis",
+      "adres": "Huisduinerweg 3",
+      "postcode": "1782 GZ",
+      "plaats": "Den Helder",
+      "Postadres": "Postbus 750",
+      "Postadres_postcode": "1780 AT",
+      "Postadres_plaats": "Den Helder",
+      "telefoonalgemeen": "0223-696969",
+      "telefoonSEH": "0223-696600",
+      "lon_dms": "4.44.36",
+      "lat_dms": "52.57.30",
+      "bedden": 300,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "59fa099c-422f-4ecd-b23f-0e2973f8fa20",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.737222, 52.626944]
+    },
+    "properties": {
+      "naam": "Medisch centrum Alkmaar",
+      "Name": "Medisch centrum Alkmaar",
+      "adres": "Wilhelminalaan 12",
+      "postcode": "1815 JD",
+      "plaats": "Alkmaar",
+      "Postadres": "Postbus 501",
+      "Postadres_postcode": "1800 AM",
+      "Postadres_plaats": "Alkmaar",
+      "telefoonalgemeen": "072-5484444",
+      "telefoonSEH": "072-5484444",
+      "lon_dms": "4.44.14",
+      "lat_dms": "52.37.37",
+      "bedden": 913,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 5,
+      "t2": 9,
+      "Id": "b4f6f310-3668-491e-991d-7b7d55223880",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.650278, 52.478611]
+    },
+    "properties": {
+      "naam": "Rode Kruis ziekenhuis",
+      "Name": "Rode Kruis ziekenhuis",
+      "adres": "Vondellaan 13",
+      "postcode": "1942 LE",
+      "plaats": "Beverwijk",
+      "Postadres": "Postbus 1074",
+      "Postadres_postcode": "1942 EB",
+      "Postadres_plaats": "Beverwiik",
+      "telefoonalgemeen": "0251-265555",
+      "telefoonSEH": "0251-265470",
+      "lon_dms": "4.39.01",
+      "lat_dms": "52.28.43",
+      "bedden": 384,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "7cbc42d3-7b56-41da-8563-7ac813354972",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.651389, 52.367500]
+    },
+    "properties": {
+      "naam": "Kennemer gasthuis",
+      "Name": "Kennemer gasthuis",
+      "locatie": "locatie zuid",
+      "adres": "Boerhaavelaan  22",
+      "postcode": "2035 RC",
+      "plaats": "Haarlem",
+      "Postadres": "Postbus 417",
+      "Postadres_postcode": "2000 AH",
+      "Postadres_plaats": "Haarlem",
+      "telefoonalgemeen": "023-5453545",
+      "telefoonSEH": "023-5453880",
+      "lon_dms": "4.39.05",
+      "lat_dms": "52.22.03",
+      "bedden": 800,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 2,
+      "t2": 4,
+      "Id": "3c1330aa-c4f9-4c3a-ae15-919db51f5eaf",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.652222, 52.325000]
+    },
+    "properties": {
+      "naam": "Spaarne ziekenhuis",
+      "Name": "Spaarne ziekenhuis",
+      "locatie": "locatie Hoofddorp",
+      "adres": "Spaarnepoort 1",
+      "postcode": "2134 TM",
+      "plaats": "Hoofddorp",
+      "Postadres": "Postbus 770",
+      "Postadres_postcode": "2130 AT",
+      "Postadres_plaats": "Hoofddorp",
+      "telefoonalgemeen": "023-8908900",
+      "telefoonSEH": "023-8907520",
+      "lon_dms": "4.39.08",
+      "lat_dms": "52.19.30",
+      "bedden": 455,
+      "Type": "Hospital",
+      "Id": "09bddc72-db8e-40fd-ad8e-aae7670e11a2",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.381944, 52.092222]
+    },
+    "properties": {
+      "naam": "Medisch centrum Haaglanden",
+      "Name": "Medisch centrum Haaglanden",
+      "locatie": "locatie Antoniushove",
+      "adres": "Burg. Banninglaan 1",
+      "postcode": "2262 BA",
+      "plaats": "Leidschendam",
+      "Postadres": "Postbus 411",
+      "Postadres_postcode": "2260 AK",
+      "Postadres_plaats": "Leidschendam",
+      "telefoonalgemeen": "070-3574444",
+      "telefoonSEH": "070-3574202",
+      "lon_dms": "4.22.55",
+      "lat_dms": "52.05.32",
+      "bedden": 250,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 1,
+      "Id": "9f53a6a6-9b1a-4c03-a5da-dac8ee2c67f6",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.477500, 52.166389]
+    },
+    "properties": {
+      "naam": "Leids Universitair medisch centrum",
+      "Name": "Leids Universitair medisch centrum",
+      "adres": "Albinusdreef 2",
+      "postcode": "2333 ZA",
+      "plaats": "Leiden",
+      "Postadres": "Postbus 9600",
+      "Postadres_postcode": "2300 RC",
+      "Postadres_plaats": "Leiden",
+      "telefoonalgemeen": "071-5269111",
+      "telefoonSEH": "071-5262025",
+      "lon_dms": "4.28.39",
+      "lat_dms": "52.09.59",
+      "bedden": 882,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 4,
+      "t2": 9,
+      "Id": "71659703-7772-4133-adc5-83cdd14a418e",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.541667, 52.156389]
+    },
+    "properties": {
+      "naam": "Rijnland zorggroep",
+      "Name": "Rijnland zorggroep",
+      "locatie": "locatie Leiderdorp",
+      "adres": "Simon Smitweg 1",
+      "postcode": "2353 GA",
+      "plaats": "Leiderdorp",
+      "Postadres": "Postbus 4220",
+      "Postadres_postcode": "2350 CC",
+      "Postadres_plaats": "Leiderdorp",
+      "telefoonalgemeen": "071-5828282",
+      "telefoonSEH": "071-5828282",
+      "lon_dms": "4.32.30",
+      "lat_dms": "52.09.23",
+      "bedden": 470,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "596a5c24-6675-433a-b0a2-3d77e8b83632",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.298333, 52.074167]
+    },
+    "properties": {
+      "naam": "Medisch centrum Haaglanden",
+      "Name": "Medisch centrum Haaglanden",
+      "locatie": "locatie Westeinde",
+      "adres": "Lijnbaan 432",
+      "postcode": "2512 VA",
+      "plaats": "s Gravenhage",
+      "Postadres": "Postbus 432",
+      "Postadres_postcode": "2501 CK",
+      "Postadres_plaats": "s Gravenhage",
+      "telefoonalgemeen": "070-3302000",
+      "telefoonSEH": "070-3302380",
+      "lon_dms": "4.17.54",
+      "lat_dms": "52.04.27",
+      "bedden": 527,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 3,
+      "t2": 6,
+      "Id": "ff154fb8-b313-4a6a-ac94-b23e12b772b5",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.264444, 52.055833]
+    },
+    "properties": {
+      "naam": "Haga ziekenhuis",
+      "Name": "Haga ziekenhuis",
+      "locatie": "locatie Leyweg",
+      "adres": "Leyweg  275",
+      "postcode": "2545 CH",
+      "plaats": "s Gravenhage",
+      "Postadres": "Postbus 40551",
+      "Postadres_postcode": "2504 LN",
+      "Postadres_plaats": "s Gravenhage",
+      "telefoonalgemeen": "070-2100000",
+      "telefoonSEH": "070-3592060",
+      "lon_dms": "4.15.52",
+      "lat_dms": "52.03.21",
+      "bedden": 489,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 3,
+      "t2": 6,
+      "Id": "c1584b77-05ea-421b-9240-098d5ce8d1e1",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.263333, 52.081389]
+    },
+    "properties": {
+      "naam": "Haga ziekenhuis",
+      "Name": "Haga ziekenhuis",
+      "locatie": "locatie Sportlaan",
+      "adres": "Sportlaan 600",
+      "postcode": "2566 MJ",
+      "plaats": "s Gravenhage",
+      "Postadres": "Postbus 40551",
+      "Postadres_postcode": "2504 LN",
+      "Postadres_plaats": "s Gravenhage",
+      "telefoonalgemeen": "070-2100000",
+      "telefoonSEH": "070-3126664",
+      "lon_dms": "4.15.48",
+      "lat_dms": "52.04.53",
+      "bedden": 227,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "5b338e6c-404b-4c13-8f80-6d47c24489c7",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.315833, 52.101944]
+    },
+    "properties": {
+      "naam": "Bronovo ziekenhuis",
+      "Name": "Bronovo ziekenhuis",
+      "adres": "Bronovolaan 5",
+      "postcode": "2597 AX",
+      "plaats": "s Gravenhage",
+      "Postadres": "Postbus 96900",
+      "Postadres_postcode": "2509 JH",
+      "Postadres_plaats": "s Gravenhage",
+      "telefoonalgemeen": "070-3124600",
+      "telefoonSEH": "070-3124445",
+      "lon_dms": "4.18.57",
+      "lat_dms": "52.06.07",
+      "bedden": 415,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "0eee348e-514e-4fc3-b20b-cb24d1097902",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.340833, 51.998056]
+    },
+    "properties": {
+      "naam": "Reinier de  Graaf ziekenhuis",
+      "Name": "Reinier de  Graaf ziekenhuis",
+      "locatie": "Locatie Delft",
+      "adres": "Reinier de Graafweg 3",
+      "postcode": "2625 AD",
+      "plaats": "Delft",
+      "Postadres": "Postbus 5011",
+      "Postadres_postcode": "2600 GA",
+      "Postadres_plaats": "Delft",
+      "telefoonalgemeen": "015-2603060",
+      "telefoonSEH": "015-2603845",
+      "lon_dms": "4.20.27",
+      "lat_dms": "51.59.53",
+      "bedden": 881,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 2,
+      "t2": 4,
+      "Id": "c3d0c141-f597-4255-869b-787b9d292301",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.498889, 52.069167]
+    },
+    "properties": {
+      "naam": "t Lange Land Ziekenhuis",
+      "Name": "t Lange Land Ziekenhuis",
+      "adres": "Toneellaan  1",
+      "postcode": "2725 NA",
+      "plaats": "Zoetermeer",
+      "Postadres": "Postbus 3015",
+      "Postadres_postcode": "2700 KJ",
+      "Postadres_plaats": "Zoetermeer",
+      "telefoonalgemeen": "079-3462626",
+      "telefoonSEH": "079-3462536",
+      "lon_dms": "4.29.56",
+      "lat_dms": "52.04.09",
+      "bedden": 233,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 1,
+      "Id": "7bf753c5-4e70-492f-85b0-e13c25e88d72",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.706667, 52.021111]
+    },
+    "properties": {
+      "naam": "Groene Hart ziekenhuis",
+      "Name": "Groene Hart ziekenhuis",
+      "locatie": "locatie Bleuland",
+      "adres": "Bleulandweg 10",
+      "postcode": "2803 HH",
+      "plaats": "Gouda",
+      "Postadres": "Postbus 1098",
+      "Postadres_postcode": "2800 BB",
+      "Postadres_plaats": "Gouda",
+      "telefoonalgemeen": "0182-505050",
+      "telefoonSEH": "0182-505327",
+      "lon_dms": "4.42.24",
+      "lat_dms": "52.01.16",
+      "bedden": 500,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 2,
+      "t2": 3,
+      "Id": "1a77ea8f-3e88-4f8d-be0d-45ebd9845951",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.562222, 51.938333]
+    },
+    "properties": {
+      "naam": "IJsselland ziekenhuis",
+      "Name": "IJsselland ziekenhuis",
+      "adres": "Prins Constantijnweg 2",
+      "postcode": "2906 ZC",
+      "plaats": "Capelle a/d IJssel",
+      "Postadres": "Postbus 690",
+      "Postadres_postcode": "2900 AR",
+      "Postadres_plaats": "Capelle a/d IJssel",
+      "telefoonalgemeen": "010-2585000",
+      "telefoonSEH": "010-2585125",
+      "lon_dms": "4.33.44",
+      "lat_dms": "51.56.18",
+      "bedden": 380,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "2722ac22-8558-4e6e-94ba-09516eca2a7c",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.497778, 51.920278]
+    },
+    "properties": {
+      "naam": "Haven ziekenhuis",
+      "Name": "Haven ziekenhuis",
+      "adres": "Haringvliet 2",
+      "postcode": "3011 TD",
+      "plaats": "Rotterdam",
+      "Postadres": "Postbus 70031",
+      "Postadres_postcode": "3000 LN",
+      "Postadres_plaats": "Rotterdam",
+      "telefoonalgemeen": "010-4043300",
+      "telefoonSEH": "010-4043300",
+      "lon_dms": "4.29.52",
+      "lat_dms": "51.55.13",
+      "bedden": 260,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "04fb3778-3377-4a18-88e7-7cdbf67ba23f",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.466944, 51.910833]
+    },
+    "properties": {
+      "naam": "Erasmus MC",
+      "Name": "Erasmus MC",
+      "adres": "sGravendijkwal 230",
+      "postcode": "3015 GD",
+      "plaats": "Rotterdam",
+      "Postadres": "Postbus 2040",
+      "Postadres_postcode": "3000 CA",
+      "Postadres_plaats": "Rotterdam",
+      "telefoonalgemeen": "010-7040704",
+      "telefoonSEH": "010-4633592",
+      "lon_dms": "4.28.01",
+      "lat_dms": "51.54.39",
+      "bedden": 1221,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 4,
+      "t2": 8,
+      "Id": "d093e764-9ac9-473e-9619-a42d4e870d11",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.461389, 51.942222]
+    },
+    "properties": {
+      "naam": "Sint Franciscus Gasthuis",
+      "Name": "Sint Franciscus Gasthuis",
+      "adres": "Kleiweg 500 500",
+      "postcode": "3045 PM",
+      "plaats": "Rotterdam",
+      "Postadres": "Postbus 10900",
+      "Postadres_postcode": "3004 BA",
+      "Postadres_plaats": "Rotterdam",
+      "telefoonalgemeen": "010-4616161",
+      "telefoonSEH": "010-4616720",
+      "lon_dms": "4.27.41",
+      "lat_dms": "51.56.32",
+      "bedden": 613,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 2,
+      "t2": 3,
+      "Id": "1d591fe3-87b0-4fd5-b9f7-ae6d70284dbe",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.504444, 51.883889]
+    },
+    "properties": {
+      "naam": "Medisch centrum Rijnmond zuid",
+      "Name": "Medisch centrum Rijnmond zuid",
+      "locatie": "locatie Zuider",
+      "adres": "Groene Hilledijk 315",
+      "postcode": "3075 EA",
+      "plaats": "Rotterdam",
+      "Postadres": "Postbus 9100",
+      "Postadres_postcode": "3007 AC",
+      "Postadres_plaats": "Rotterdam",
+      "telefoonalgemeen": "010-2903000",
+      "telefoonSEH": "010-2913599",
+      "lon_dms": "4.30.16",
+      "lat_dms": "51.53.02",
+      "bedden": 379,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "54ac578d-c38c-4435-8de3-7a810956f429",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.490833, 51.889167]
+    },
+    "properties": {
+      "naam": "Ikazia ziekenhuis",
+      "Name": "Ikazia ziekenhuis",
+      "adres": "Montesoriweg  1",
+      "postcode": "3083 AN",
+      "plaats": "Rotterdam",
+      "Postadres": "Postbus 5009",
+      "Postadres_postcode": "3008 AA",
+      "Postadres_plaats": "Rotterdam",
+      "telefoonalgemeen": "010-2975000",
+      "telefoonSEH": "010-2975300",
+      "lon_dms": "4.29.27",
+      "lat_dms": "51.53.21",
+      "bedden": 352,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "25ee4790-598b-45a0-ab63-75b67bd68ce5",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.395000, 51.911389]
+    },
+    "properties": {
+      "naam": "Vlietland ziekenhuis",
+      "Name": "Vlietland ziekenhuis",
+      "locatie": "locatie Schiedam",
+      "adres": "Burg. Knappertlaan 25",
+      "postcode": "3116 BA",
+      "plaats": "Schiedam",
+      "Postadres": "Postbus 215",
+      "Postadres_postcode": "3100 AE",
+      "Postadres_plaats": "Schiedam",
+      "telefoonalgemeen": "010-2044000",
+      "telefoonSEH": "010-2044000",
+      "lon_dms": "4.23.42",
+      "lat_dms": "51.54.41",
+      "bedden": 300,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "008ca9ec-cf5e-430b-a2c9-854155216338",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.345556, 51.924167]
+    },
+    "properties": {
+      "naam": "Vlietland ziekenhuis",
+      "Name": "Vlietland ziekenhuis",
+      "locatie": "locatie Vlaardingen",
+      "adres": "Holysingel 3",
+      "postcode": "3136 LA",
+      "plaats": "Vlaardingen",
+      "Postadres": "Postbus 215",
+      "Postadres_postcode": "3100 AE",
+      "Postadres_plaats": "Schiedam",
+      "telefoonalgemeen": "010-2493000",
+      "telefoonSEH": "010-2493640",
+      "lon_dms": "4.20.44",
+      "lat_dms": "51.55.27",
+      "bedden": 270,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "7bf74b22-c004-469d-a7b3-8c40d0a03d4f",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.338333, 51.846667]
+    },
+    "properties": {
+      "naam": "Ruwaard van Putten ziekenhuis",
+      "Name": "Ruwaard van Putten ziekenhuis",
+      "adres": "Ruwaard van Puttenweg  500",
+      "postcode": "3201 GZ",
+      "plaats": "Spijkenisse",
+      "Postadres": "Postbus 777",
+      "Postadres_postcode": "3200 GA",
+      "Postadres_plaats": "Spijkenisse",
+      "telefoonalgemeen": "0181-658888",
+      "telefoonSEH": "0181-658777",
+      "lon_dms": "4.20.18",
+      "lat_dms": "51.50.48",
+      "bedden": 288,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "991e86f9-2d66-44e6-93ea-85f1dfd54e4f",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.101667, 51.750278]
+    },
+    "properties": {
+      "naam": "Van Weel Bethesda ziekenhuis",
+      "Name": "Van Weel Bethesda ziekenhuis",
+      "adres": "Stationsweg 22",
+      "postcode": "3247 BW",
+      "plaats": "Dirksland",
+      "Postadres": "Postbus 153",
+      "Postadres_postcode": "3240 AD",
+      "Postadres_plaats": "Middelharnis",
+      "telefoonalgemeen": "0187-607300",
+      "telefoonSEH": "0178-607290",
+      "lon_dms": "4.06.06",
+      "lat_dms": "51.45.01",
+      "bedden": 140,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "785d9077-4af0-450c-8995-1c61d5b4ea68",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.682222, 51.791944]
+    },
+    "properties": {
+      "naam": "Albert Schweitzer ziekenhuis",
+      "Name": "Albert Schweitzer ziekenhuis",
+      "locatie": "locatie Dordwijk",
+      "adres": "Alb. Schweitzerplaats  25",
+      "postcode": "3318 AT",
+      "plaats": "Dordrecht",
+      "Postadres": "Postbus 444",
+      "Postadres_postcode": "3300 AK",
+      "Postadres_plaats": "Dordrecht",
+      "telefoonalgemeen": "078-6541111",
+      "telefoonSEH": "078-6542997",
+      "lon_dms": "4.40.56",
+      "lat_dms": "51.47.31",
+      "bedden": 483,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "136ec977-5aac-41d1-a08c-554746d1e896",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.629167, 51.825833]
+    },
+    "properties": {
+      "naam": "Albert Schweitzer ziekenhuis",
+      "Name": "Albert Schweitzer ziekenhuis",
+      "locatie": "locatie Zwijndrecht",
+      "adres": "Langeweg  336",
+      "postcode": "3331 LZ",
+      "plaats": "Zwijndrecht",
+      "Postadres": "Postbus 444",
+      "Postadres_postcode": "3300 AK",
+      "Postadres_plaats": "Dordrecht",
+      "telefoonalgemeen": "078-6541111",
+      "telefoonSEH": "078-6541962",
+      "lon_dms": "4.37.45",
+      "lat_dms": "51.49.33",
+      "bedden": 170,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "52fbb9d5-cca4-4155-acef-aed0951d27b3",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.080833, 52.025833]
+    },
+    "properties": {
+      "naam": "Sint Antonius ziekenhuis",
+      "Name": "Sint Antonius ziekenhuis",
+      "adres": "Koekoekslaan 1",
+      "postcode": "3435 CM",
+      "plaats": "Nieuwegein",
+      "Postadres": "Postbus 2500",
+      "Postadres_postcode": "3430 EM",
+      "Postadres_plaats": "Nieuwegein",
+      "telefoonalgemeen": "030-6099111",
+      "telefoonSEH": "030-6092001",
+      "lon_dms": "5.04.51",
+      "lat_dms": "52.01.33",
+      "bedden": 584,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 3,
+      "Id": "bda4785e-dcd2-437d-91be-42b1f1a577bb",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.891944, 52.078611]
+    },
+    "properties": {
+      "naam": "Zuwe Hofpoort ziekenhuis",
+      "Name": "Zuwe Hofpoort ziekenhuis",
+      "adres": "Polanerbaan  2",
+      "postcode": "3447 GN",
+      "plaats": "Woerden",
+      "Postadres": "Postbus 8000",
+      "Postadres_postcode": "3440 JD",
+      "Postadres_plaats": "Woerden",
+      "telefoonalgemeen": "0348-427911",
+      "telefoonSEH": "0348-427205",
+      "lon_dms": "4.53.31",
+      "lat_dms": "52.04.43",
+      "bedden": 262,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "67540c20-2574-446b-a516-f5b810f26d3a",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.089722, 52.078889]
+    },
+    "properties": {
+      "naam": "Mesos medisch centrum",
+      "Name": "Mesos medisch centrum",
+      "locatie": "locatie Oudenrijn",
+      "adres": "Van Heuven Goedhartlaan 1",
+      "postcode": "3527 CE",
+      "plaats": "Utrecht",
+      "Postadres": "Postbus 8605",
+      "Postadres_postcode": "3503 RP",
+      "Postadres_plaats": "Utrecht",
+      "telefoonalgemeen": "030-2953953",
+      "telefoonSEH": "030-2953442",
+      "lon_dms": "5.05.23",
+      "lat_dms": "52.04.44",
+      "bedden": 529,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "1f83248a-5abc-44c6-b41d-8651cb06df9a",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.137222, 52.080833]
+    },
+    "properties": {
+      "naam": "Diaconessenhuis",
+      "Name": "Diaconessenhuis",
+      "adres": "Bosboomstraat 1",
+      "postcode": "3582 KE",
+      "plaats": "Utrecht",
+      "Postadres": "Postbus 80250",
+      "Postadres_postcode": "3508 TG",
+      "Postadres_plaats": "Utrecht",
+      "telefoonalgemeen": "030-2566566",
+      "telefoonSEH": "030-2566211",
+      "lon_dms": "5.08.14",
+      "lat_dms": "52.04.51",
+      "bedden": 400,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "89f253ce-376b-4b67-a4ec-69238c0469f8",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.261667, 52.091389]
+    },
+    "properties": {
+      "naam": "Diaconessenhuis",
+      "Name": "Diaconessenhuis",
+      "adres": "Prof. Lorentzlaan 76",
+      "postcode": "3707 HL",
+      "plaats": "Zeist",
+      "Postadres": "Postbus 1002",
+      "Postadres_postcode": "3700 BA",
+      "Postadres_plaats": "Zeist",
+      "telefoonalgemeen": "030-6989911",
+      "telefoonSEH": "030-6989356",
+      "lon_dms": "5.15.42",
+      "lat_dms": "52.05.29",
+      "bedden": 180,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "69706f78-6347-43f9-b84c-c5fe248bc59b",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.179722, 52.085278]
+    },
+    "properties": {
+      "naam": "Centraal Militair Hospital",
+      "Name": "Centraal Militair Hospital",
+      "adres": "Heidelberglaan 100",
+      "postcode": "3584 CX",
+      "plaats": "Utrecht",
+      "Postadres": "Postbus 90000",
+      "Postadres_postcode": "3509 AA",
+      "Postadres_plaats": "Utrecht",
+      "telefoonalgemeen": "030-2502000",
+      "telefoonSEH": "030-2502000",
+      "lon_dms": "5.10.47",
+      "lat_dms": "52.05.07",
+      "bedden": 100,
+      "Type": "Hospital",
+      "Id": "7ea754ce-4c1b-4204-8b6c-6b1c2b070fa1",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.181111, 52.086944]
+    },
+    "properties": {
+      "naam": "Universitair medisch centrum",
+      "Name": "Universitair medisch centrum",
+      "locatie": "Utrecht",
+      "adres": "Heidelberglaan 100",
+      "postcode": "3584 CX",
+      "plaats": "Utrecht",
+      "Postadres": "Postbus 85090",
+      "Postadres_postcode": "3508 AB",
+      "Postadres_plaats": "Utrecht",
+      "telefoonalgemeen": "088-7555555",
+      "telefoonSEH": "088-7566666",
+      "lon_dms": "5.10.52",
+      "lat_dms": "52.05.13",
+      "bedden": 882,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 4,
+      "t2": 9,
+      "Id": "0bc8fa7d-ff8b-4a2c-b2d4-449f501fd533",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.368333, 52.144444]
+    },
+    "properties": {
+      "naam": "Meander medisch centrum",
+      "Name": "Meander medisch centrum",
+      "locatie": "locatie Lichtenberg",
+      "adres": "Utrechtseweg 160",
+      "postcode": "3818 ES",
+      "plaats": "Amersfoort",
+      "Postadres": "Postbus 1502",
+      "Postadres_postcode": "3800 BM",
+      "Postadres_plaats": "Amersfoort",
+      "telefoonalgemeen": "033-8505050",
+      "telefoonSEH": "033-8505050",
+      "lon_dms": "5.22.06",
+      "lat_dms": "52.08.40",
+      "bedden": 982,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 3,
+      "Id": "b03b5e68-7402-4b45-8fd4-5644a9d7c3ba",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.615278, 52.342500]
+    },
+    "properties": {
+      "naam": "Ziekenhuis St. Jansdal",
+      "Name": "Ziekenhuis St. Jansdal",
+      "adres": "Weth. Jansenlaan  90",
+      "postcode": "3844 DG",
+      "plaats": "Harderwijk",
+      "Postadres": "Postbus 138",
+      "Postadres_postcode": "3840 AC",
+      "Postadres_plaats": "Harderwijk",
+      "telefoonalgemeen": "0341-463911",
+      "telefoonSEH": "0341-463855",
+      "lon_dms": "5.36.55",
+      "lat_dms": "52.20.33",
+      "bedden": 341,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "98cfeb0f-e8c3-4f42-bdf4-a114fe30a188",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.415833, 51.889444]
+    },
+    "properties": {
+      "naam": "Ziekenhus Rivierenland",
+      "Name": "Ziekenhus Rivierenland",
+      "adres": "Pres. Kennedylaan 1",
+      "postcode": "4002 WP",
+      "plaats": "Tiel",
+      "Postadres": "Postbus 6024",
+      "Postadres_postcode": "4000 HA",
+      "Postadres_plaats": "Tiel",
+      "telefoonalgemeen": "0344-674911",
+      "telefoonSEH": "0344-674600",
+      "lon_dms": "5.24.57",
+      "lat_dms": "51.53.22",
+      "bedden": 373,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "4a1b7bc3-9d78-45af-ae86-a55f1c75acf0",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.958611, 51.838611]
+    },
+    "properties": {
+      "naam": "Rivas zorggroep",
+      "Name": "Rivas zorggroep",
+      "locatie": "locatie Beatrixziekenhuis",
+      "adres": "Banneweg 57",
+      "postcode": "4204 AA",
+      "plaats": "Gorinchem",
+      "Postadres": "Postbus 90",
+      "Postadres_postcode": "4200 AB",
+      "Postadres_plaats": "Gorinchem",
+      "telefoonalgemeen": "0183-644444",
+      "telefoonSEH": "0183-644412",
+      "lon_dms": "4.57.31",
+      "lat_dms": "51.50.19",
+      "bedden": 323,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "072657d4-3798-49e3-a288-877f4de3bcb4",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [3.565000, 51.451111]
+    },
+    "properties": {
+      "naam": "Ziekenhuis Walcheren",
+      "Name": "Ziekenhuis Walcheren",
+      "adres": "Koudekerkseweg 88",
+      "postcode": "4382 EE",
+      "plaats": "Vlissingen",
+      "Postadres": "Postbus 3200",
+      "Postadres_postcode": "4380 DD",
+      "Postadres_plaats": "Vlissingen",
+      "telefoonalgemeen": "0118-425000",
+      "telefoonSEH": "0118-425000",
+      "lon_dms": "3.33.54",
+      "lat_dms": "51.27.04",
+      "bedden": 369,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "ba546f38-1fe4-460b-ab2f-26ac540bed0f",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [3.905833, 51.484444]
+    },
+    "properties": {
+      "naam": "Oosterschelde ziekenhuis",
+      "Name": "Oosterschelde ziekenhuis",
+      "locatie": "locatie Goes",
+      "adres": "s Gravenpolderseweg 114",
+      "postcode": "4462 RA",
+      "plaats": "Goes",
+      "Postadres": "Postbus 106",
+      "Postadres_postcode": "4460 BB",
+      "Postadres_plaats": "Goes",
+      "telefoonalgemeen": "0113-234000",
+      "telefoonSEH": "0113-234250",
+      "lon_dms": "3.54.21",
+      "lat_dms": "51.29.04",
+      "bedden": 364,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "53a97d47-2dd5-4136-98f5-755edda3ace8",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [3.482500, 51.325000]
+    },
+    "properties": {
+      "naam": "Ziekenhuis Zeeuws Vlaanderen",
+      "Name": "Ziekenhuis Zeeuws Vlaanderen",
+      "locatie": "locatie Antonius",
+      "adres": "Pastoor van Genklaan 6",
+      "postcode": "4501 AJ",
+      "plaats": "Oostburg",
+      "Postadres": "Postbus 147",
+      "Postadres_postcode": "4500 NA",
+      "Postadres_plaats": "Oostburg",
+      "telefoonalgemeen": "0117-459000",
+      "telefoonSEH": "0117-459044",
+      "lon_dms": "3.28.57",
+      "lat_dms": "51.19.30",
+      "bedden": 109,
+      "Type": "Hospital",
+      "Id": "52a7d987-354d-4ff3-bcc2-46411b432fb4",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.313889, 51.486944]
+    },
+    "properties": {
+      "naam": "Ziekenhuis Lievensberg",
+      "Name": "Ziekenhuis Lievensberg",
+      "adres": "Boerhaaveplein 1",
+      "postcode": "4624 VT",
+      "plaats": "Bergen op Zoom",
+      "Postadres": "Postbus 135",
+      "Postadres_postcode": "4600 AC",
+      "Postadres_plaats": "Bergen op Zoom",
+      "telefoonalgemeen": "0164-278000",
+      "telefoonSEH": "0164-278302",
+      "lon_dms": "4.18.50",
+      "lat_dms": "51.29.13",
+      "bedden": 367,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "4363578e-d667-4ab5-ab68-183d46af19a4",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.438333, 51.528611]
+    },
+    "properties": {
+      "naam": "St.Franciscus ziekenhuis",
+      "Name": "St.Franciscus ziekenhuis",
+      "adres": "Boerhaavelaan 25",
+      "postcode": "4708 AE",
+      "plaats": "Roosendaal",
+      "Postadres": "Postbus 999",
+      "Postadres_postcode": "4700 AZ",
+      "Postadres_plaats": "Roosendaal",
+      "telefoonalgemeen": "0165-588000",
+      "telefoonSEH": "0165-588889",
+      "lon_dms": "4.26.18",
+      "lat_dms": "51.31.43",
+      "bedden": 450,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "7834bfc4-684c-4cb6-829f-11766276e19a",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.797500, 51.581667]
+    },
+    "properties": {
+      "naam": "Amphia ziekenhuis",
+      "Name": "Amphia ziekenhuis",
+      "locatie": "locatie Molengracht",
+      "adres": "Molengracht 21",
+      "postcode": "4818 CK",
+      "plaats": "Breda",
+      "Postadres": "Postbus 90158",
+      "Postadres_postcode": "4800 RK",
+      "Postadres_plaats": "Breda",
+      "telefoonalgemeen": "076-5953000",
+      "telefoonSEH": "076-5951000",
+      "lon_dms": "4.47.51",
+      "lat_dms": "51.34.54",
+      "bedden": 1368,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 5,
+      "t2": 5,
+      "Id": "626ddc0c-8708-4a5a-8210-ec80154ada3e",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.102778, 51.540278]
+    },
+    "properties": {
+      "naam": "Sint Elisabeth ziekenhuis",
+      "Name": "Sint Elisabeth ziekenhuis",
+      "adres": "Hilvarenbeekseweg 60",
+      "postcode": "5022 GC",
+      "plaats": "Tilburg",
+      "Postadres": "Postbus 90151",
+      "Postadres_postcode": "5000 LC",
+      "Postadres_plaats": "Tilburg",
+      "telefoonalgemeen": "013-5391313",
+      "telefoonSEH": "013-5398010",
+      "lon_dms": "5.06.10",
+      "lat_dms": "51.32.25",
+      "bedden": 673,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 3,
+      "t2": 7,
+      "Id": "028b2385-13c5-4377-a06f-40d330134125",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.059722, 51.577500]
+    },
+    "properties": {
+      "naam": "TweeSteden ziekenhuis",
+      "Name": "TweeSteden ziekenhuis",
+      "locatie": "locatie Tilburg",
+      "adres": "Dr. Deelenlaan 5",
+      "postcode": "5042 AD",
+      "plaats": "Tilburg",
+      "Postadres": "Postbus 90107",
+      "Postadres_postcode": "5000 TA",
+      "Postadres_plaats": "Tilburg",
+      "telefoonalgemeen": "013-4655655",
+      "telefoonSEH": "013-4655216",
+      "lon_dms": "5.03.35",
+      "lat_dms": "51.34.39",
+      "bedden": 576,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "51ffd8cd-3381-4efd-b63b-193aa9b9caf7",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.305000, 51.691389]
+    },
+    "properties": {
+      "naam": "Jeroen Bosch ziekenhuis",
+      "Name": "Jeroen Bosch ziekenhuis",
+      "locatie": "locatie Groot Ziekengasthuis",
+      "adres": "Tolbrugstraat 11",
+      "postcode": "5211 RW",
+      "plaats": "s Hertogenbosch",
+      "Postadres": "Postbus 90153",
+      "Postadres_postcode": "5200 ME",
+      "Postadres_plaats": "s Hertogenbosch",
+      "telefoonalgemeen": "073-6992000",
+      "telefoonSEH": "073-6992700",
+      "lon_dms": "5.18.18",
+      "lat_dms": "51.41.29",
+      "bedden": 800,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 2,
+      "t2": 3,
+      "Id": "949afe54-334f-4f71-ab75-c66a76248d78",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.321111, 51.702778]
+    },
+    "properties": {
+      "naam": "Jeroen Bosch ziekenhuis",
+      "Name": "Jeroen Bosch ziekenhuis",
+      "locatie": "locatie Carolus",
+      "adres": "Hervensebaan 4",
+      "postcode": "5232 JL",
+      "plaats": "s Hertogenbosch",
+      "Postadres": "Postbus 90153",
+      "Postadres_postcode": "5200 ME",
+      "Postadres_plaats": "s Hertogenbosch",
+      "telefoonalgemeen": "073-6996000",
+      "telefoonSEH": "073-6996161",
+      "lon_dms": "5.19.16",
+      "lat_dms": "51.42.10",
+      "bedden": 321,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "6f04cbbc-5879-4baf-8871-7a4bb978f0cc",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.519167, 51.754167]
+    },
+    "properties": {
+      "naam": "Ziekenhuis Bernhoven",
+      "Name": "Ziekenhuis Bernhoven",
+      "locatie": "locatie Oss",
+      "adres": "Joannes Zwijsenlaan 121",
+      "postcode": "5342 BT",
+      "plaats": "Oss",
+      "Postadres": "Postbus 10",
+      "Postadres_postcode": "5340 BE",
+      "Postadres_plaats": "Oss",
+      "telefoonalgemeen": "0412-621911",
+      "telefoonSEH": "0412-621361",
+      "lon_dms": "5.31.09",
+      "lat_dms": "51.45.15",
+      "bedden": 220,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "c4c56df4-bcb2-4202-99cf-3b8483f8e53e",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.540278, 51.620000]
+    },
+    "properties": {
+      "naam": "Ziekenhuis Bernhoven",
+      "Name": "Ziekenhuis Bernhoven",
+      "locatie": "locatie Veghel",
+      "adres": "Burg. De Kuyperlaan  7",
+      "postcode": "5461 AA",
+      "plaats": "Veghel",
+      "Postadres": "Postbus 10000",
+      "Postadres_postcode": "5460 DA",
+      "Postadres_plaats": "Veghel",
+      "telefoonalgemeen": "0413-381260",
+      "telefoonSEH": "0413-381144",
+      "lon_dms": "5.32.25",
+      "lat_dms": "51.37.12",
+      "bedden": 207,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "e62ef59c-e442-4a38-994b-4a0e7e379679",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.416389, 51.405833]
+    },
+    "properties": {
+      "naam": "Maxima medisch centrum",
+      "Name": "Maxima medisch centrum",
+      "locatie": "locatie Veldhoven",
+      "adres": "De Run 4600",
+      "postcode": "5504 DB",
+      "plaats": "Veldhoven",
+      "Postadres": "Postbus 7777",
+      "Postadres_postcode": "5500 MB",
+      "Postadres_plaats": "Veldhoven",
+      "telefoonalgemeen": "040-8888000",
+      "telefoonSEH": "040-8888832",
+      "lon_dms": "5.24.59",
+      "lat_dms": "51.24.21",
+      "bedden": 469,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "06003989-3835-4737-9b58-9a48bdb3b6b8",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.488333, 51.455278]
+    },
+    "properties": {
+      "naam": "Maxima medisch centrum",
+      "Name": "Maxima medisch centrum",
+      "locatie": "locatie Eindhoven",
+      "adres": "Ds. Th. Fliednerstraat 1",
+      "postcode": "5631 BM",
+      "plaats": "Eindhoven",
+      "Postadres": "Postbus 90053",
+      "Postadres_postcode": "5600 PD",
+      "Postadres_plaats": "Eindhoven",
+      "telefoonalgemeen": "040-8888000",
+      "telefoonSEH": "040-8885166",
+      "lon_dms": "5.29.18",
+      "lat_dms": "51.27.19",
+      "bedden": 365,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "d7dc4202-defe-480e-a5c6-4c125618e7d9",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.557500, 51.419167]
+    },
+    "properties": {
+      "naam": "Sint Anna ziekenhuis",
+      "Name": "Sint Anna ziekenhuis",
+      "adres": "Bogardeind 2",
+      "postcode": "5664 EH",
+      "plaats": "Geldrop",
+      "Postadres": "Postbus 90",
+      "Postadres_postcode": "5660 AB",
+      "Postadres_plaats": "Geldrop",
+      "telefoonalgemeen": "040-2864040",
+      "telefoonSEH": "040-2864152",
+      "lon_dms": "5.33.27",
+      "lat_dms": "51.25.09",
+      "bedden": 321,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "55bfa6a0-f109-4714-9406-ae696ca8161c",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.641667, 51.482778]
+    },
+    "properties": {
+      "naam": "Elkerliek ziekenhuis",
+      "Name": "Elkerliek ziekenhuis",
+      "adres": "Wesselmanlaan 25",
+      "postcode": "5707 HA",
+      "plaats": "Helmond",
+      "Postadres": "Postbus 98",
+      "Postadres_postcode": "5700 AB",
+      "Postadres_plaats": "Helmond",
+      "telefoonalgemeen": "0492-595400",
+      "telefoonSEH": "0492-595571",
+      "lon_dms": "5.38.30",
+      "lat_dms": "51.28.58",
+      "bedden": 524,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 3,
+      "Id": "cc263076-f749-46da-a230-104b6e50933a",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.962222, 51.645556]
+    },
+    "properties": {
+      "naam": "Maasziekenhuis Pantein",
+      "Name": "Maasziekenhuis Pantein",
+      "adres": "Loerangelsestraat 1",
+      "postcode": "5831 HA",
+      "plaats": "Boxmeer",
+      "Postadres": "Postbus 55",
+      "Postadres_postcode": "5830 AB",
+      "Postadres_plaats": "Boxmeer",
+      "telefoonalgemeen": "0485-567567",
+      "telefoonSEH": "0485-567325",
+      "lon_dms": "5.57.44",
+      "lat_dms": "51.38.44",
+      "bedden": 214,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "d65b48c8-376f-4c1e-8b06-a722bacc3020",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.153611, 51.356111]
+    },
+    "properties": {
+      "naam": "VieCuri medisch centrum",
+      "Name": "VieCuri medisch centrum",
+      "locatie": "locatie Venlo",
+      "adres": "Tegelseweg 210",
+      "postcode": "5912 BL",
+      "plaats": "Venlo",
+      "Postadres": "Postbus 1926",
+      "Postadres_postcode": "5900 BX",
+      "Postadres_plaats": "Venlo",
+      "telefoonalgemeen": "077-3205555",
+      "telefoonSEH": "077-3205810",
+      "lon_dms": "6.09.13",
+      "lat_dms": "51.21.22",
+      "bedden": 569,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 3,
+      "Id": "b12b207c-cfa5-4c6c-a2ef-e5888c6b2b91",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.713611, 51.254722]
+    },
+    "properties": {
+      "naam": "Sint Jans gasthuis",
+      "Name": "Sint Jans gasthuis",
+      "adres": "Vogelsbleek  5",
+      "postcode": "6001 BE",
+      "plaats": "Weert",
+      "Postadres": "Postbus 29",
+      "Postadres_postcode": "6000 AA",
+      "Postadres_plaats": "Weert",
+      "telefoonalgemeen": "0495-572100",
+      "telefoonSEH": "0495-572610",
+      "lon_dms": "5.42.49",
+      "lat_dms": "51.15.17",
+      "bedden": 297,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 1,
+      "Id": "09411e47-9843-4440-a7dc-dc6eeb3a5368",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.998611, 51.191667]
+    },
+    "properties": {
+      "naam": "Laurentius ziekenhuis",
+      "Name": "Laurentius ziekenhuis",
+      "adres": "Mgr. Driessenstraat 6",
+      "postcode": "6043 CV",
+      "plaats": "Roermond",
+      "Postadres": "Postbus 920",
+      "Postadres_postcode": "6040 AX",
+      "Postadres_plaats": "Roermond",
+      "telefoonalgemeen": "0475-382222",
+      "telefoonSEH": "0475-382254",
+      "lon_dms": "5.59.55",
+      "lat_dms": "51.11.30",
+      "bedden": 429,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "fb79f5e2-e782-4826-8e50-f8e4a51a455f",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.863056, 51.001944]
+    },
+    "properties": {
+      "naam": "Maasland ziekenhuis",
+      "Name": "Maasland ziekenhuis",
+      "adres": "Walraamstraat 23",
+      "postcode": "6131 BK",
+      "plaats": "Sittard",
+      "Postadres": "Postbus 5500",
+      "Postadres_postcode": "6130 MB",
+      "Postadres_plaats": "Sittard",
+      "telefoonalgemeen": "046-4597777",
+      "telefoonSEH": "046-4597876",
+      "lon_dms": "5.51.47",
+      "lat_dms": "51.00.07",
+      "bedden": 441,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 3,
+      "Id": "81352bb6-26cd-41a2-9878-cab225d668d7",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.713333, 50.834167]
+    },
+    "properties": {
+      "naam": "Academisch ziekenhuis Maastricht",
+      "Name": "Academisch ziekenhuis Maastricht",
+      "adres": "P. Debeijelaan 25",
+      "postcode": "6229 HX",
+      "plaats": "Maastricht",
+      "Postadres": "Postbus 5800",
+      "Postadres_postcode": "6202 AZ",
+      "Postadres_plaats": "Maastricht",
+      "telefoonalgemeen": "043-3876543",
+      "telefoonSEH": "043-3876700",
+      "lon_dms": "5.42.48",
+      "lat_dms": "50.50.03",
+      "bedden": 715,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 4,
+      "t2": 7,
+      "Id": "2555c302-f70e-4a2b-ad3e-6d76bfd04cf0",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.975833, 50.871389]
+    },
+    "properties": {
+      "naam": "Atrium medisch centrum",
+      "Name": "Atrium medisch centrum",
+      "adres": "Henri Dunantstraat 5",
+      "postcode": "6419 PC",
+      "plaats": "Heerlen",
+      "Postadres": "Postbus 4446",
+      "Postadres_postcode": "6401 CX",
+      "Postadres_plaats": "Heerlen",
+      "telefoonalgemeen": "045-5766666",
+      "telefoonSEH": "045-5767200",
+      "lon_dms": "5.58.33",
+      "lat_dms": "50.52.17",
+      "bedden": 562,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 4,
+      "t2": 7,
+      "Id": "71b8f2ee-cdb6-445e-a88c-ff7917a9dc68",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.471944, 51.465556]
+    },
+    "properties": {
+      "naam": "Catharina ziekenhuis",
+      "Name": "Catharina ziekenhuis",
+      "adres": "Michelangelolaan 2",
+      "postcode": "5623 EJ",
+      "plaats": "Eindhoven",
+      "Postadres": "Postbus 1350",
+      "Postadres_postcode": "5602 ZA",
+      "Postadres_plaats": "Eindhoven",
+      "telefoonalgemeen": "040-2399111",
+      "telefoonSEH": "040-2398580",
+      "lon_dms": "5.28.19",
+      "lat_dms": "51.27.56",
+      "bedden": 600,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 2,
+      "t2": 3,
+      "Id": "1ec49770-579d-40c7-b575-c1ef951851ff",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.860000, 51.823611]
+    },
+    "properties": {
+      "naam": "Universitair medisch centrum",
+      "Name": "Universitair medisch centrum",
+      "locatie": "St. Radboud",
+      "adres": "G. Grooteplein zuid 10",
+      "postcode": "6525 GA",
+      "plaats": "Nijmegen",
+      "Postadres": "Postbus 9101",
+      "Postadres_postcode": "6500 HB",
+      "Postadres_plaats": "Nijmegen",
+      "telefoonalgemeen": "024-3611111",
+      "telefoonSEH": "024-3614187",
+      "lon_dms": "5.51.36",
+      "lat_dms": "51.49.25",
+      "bedden": 953,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 5,
+      "t2": 10,
+      "Id": "a6625b4f-52a9-4afe-ae6c-fc9c238d27b6",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.829722, 51.817778]
+    },
+    "properties": {
+      "naam": "Canisius-Wilhelmina ziekenhuis",
+      "Name": "Canisius-Wilhelmina ziekenhuis",
+      "adres": "Weg door Jonker 100",
+      "postcode": "6532 SZ",
+      "plaats": "Nijmegen",
+      "Postadres": "Postbus 9015",
+      "Postadres_postcode": "6500 GS",
+      "Postadres_plaats": "Nijmegen",
+      "telefoonalgemeen": "024-3657657",
+      "telefoonSEH": "024-3657657",
+      "lon_dms": "5.49.47",
+      "lat_dms": "51.49.04",
+      "bedden": 653,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 2,
+      "t2": 3,
+      "Id": "3b2f042b-3dd7-4d11-a826-77d5e9af59d6",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.645556, 52.021944]
+    },
+    "properties": {
+      "naam": "Ziekenhuis Gelderse Vallei",
+      "Name": "Ziekenhuis Gelderse Vallei",
+      "adres": "Willy Brandtlaan 10",
+      "postcode": "6716 RP",
+      "plaats": "Ede",
+      "Postadres": "Postbus 9025",
+      "Postadres_postcode": "6710 HN",
+      "Postadres_plaats": "Ede",
+      "telefoonalgemeen": "0318-434343",
+      "telefoonSEH": "0318-433700",
+      "lon_dms": "5.38.44",
+      "lat_dms": "52.01.19",
+      "bedden": 500,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 2,
+      "t2": 3,
+      "Id": "71261c00-355f-4ae1-8e16-e8396f83575a",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.911111, 52.000556]
+    },
+    "properties": {
+      "naam": "Ziekenhuis Rijnstate",
+      "Name": "Ziekenhuis Rijnstate",
+      "adres": "Wagnerlaan 55",
+      "postcode": "6815 AD",
+      "plaats": "Arnhem",
+      "Postadres": "Postbus 9555",
+      "Postadres_postcode": "6800 TA",
+      "Postadres_plaats": "Arnhem",
+      "telefoonalgemeen": "026-37888888",
+      "telefoonSEH": "026-3786680",
+      "lon_dms": "5.54.40",
+      "lat_dms": "52.00.02",
+      "bedden": 750,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 2,
+      "t2": 4,
+      "Id": "acdeca2a-016a-4842-9040-2f1059eaa0a7",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.069167, 51.942500]
+    },
+    "properties": {
+      "naam": "Streekziekenhuis Zevenaar",
+      "Name": "Streekziekenhuis Zevenaar",
+      "adres": "Hunneveldweg 14",
+      "postcode": "6903 ZN",
+      "plaats": "Zevenaar",
+      "Postadres": "Postbus 9000",
+      "Postadres_postcode": "6900 GA",
+      "Postadres_plaats": "Zevenaar",
+      "telefoonalgemeen": "0316-599999",
+      "telefoonSEH": "0316-599999",
+      "lon_dms": "6.04.09",
+      "lat_dms": "51.56.33",
+      "bedden": 203,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "38427e36-1e01-4104-b2e1-1b4d5cdad3a7",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.285556, 51.976111]
+    },
+    "properties": {
+      "naam": "Slingeland ziekenhuis",
+      "Name": "Slingeland ziekenhuis",
+      "adres": "Kruisbergseweg  25",
+      "postcode": "7009 BL",
+      "plaats": "Doetinchem",
+      "Postadres": "Postbus 169",
+      "Postadres_postcode": "7000 AD",
+      "Postadres_plaats": "Doetinchem",
+      "telefoonalgemeen": "0314-329911",
+      "telefoonSEH": "0314-329537",
+      "lon_dms": "6.17.08",
+      "lat_dms": "51.58.34",
+      "bedden": 448,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "fd7b1ebb-da4f-427e-9efd-a65837a0c9b9",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.698889, 51.979167]
+    },
+    "properties": {
+      "naam": "Koningin Beatrix ziekenhuis",
+      "Name": "Koningin Beatrix ziekenhuis",
+      "adres": "Beatrixpark 1",
+      "postcode": "7101 BN",
+      "plaats": "Winterswijk",
+      "Postadres": "Postbus 9005",
+      "Postadres_postcode": "7100 GG",
+      "Postadres_plaats": "Winterswijk",
+      "telefoonalgemeen": "0543-544444",
+      "telefoonSEH": "0543-542422",
+      "lon_dms": "6.41.56",
+      "lat_dms": "51.58.45",
+      "bedden": 314,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "a7413ccd-2c37-4ec0-89df-c88548cc2492",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.218611, 52.124444]
+    },
+    "properties": {
+      "naam": "Gelre ziekenhuizen",
+      "Name": "Gelre ziekenhuizen",
+      "locatie": "locatie Spittal",
+      "adres": "Ooyerhoekseweg 8",
+      "postcode": "7207 BA",
+      "plaats": "Zutphen",
+      "Postadres": "Postbus 9020",
+      "Postadres_postcode": "7200 GZ",
+      "Postadres_plaats": "Zutphen",
+      "telefoonalgemeen": "0575-592760",
+      "telefoonSEH": "0575-592356",
+      "lon_dms": "6.13.07",
+      "lat_dms": "52.07.28",
+      "bedden": 327,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "fc7da819-dcba-4c9b-a481-082ec600659f",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.947500, 52.180833]
+    },
+    "properties": {
+      "naam": "Gelre ziekenhuizen",
+      "Name": "Gelre ziekenhuizen",
+      "locatie": "locatie Lukas",
+      "adres": "Alb. Schweitzerlaan 31",
+      "postcode": "7334 DZ",
+      "plaats": "Apeldoorn",
+      "Postadres": "Postbus 9014",
+      "Postadres_postcode": "7300 DS",
+      "Postadres_plaats": "Apeldoorn",
+      "telefoonalgemeen": "055-5818181",
+      "telefoonSEH": "055-5818181",
+      "lon_dms": "5.56.51",
+      "lat_dms": "52.10.51",
+      "bedden": 658,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "6cf0b337-cfbe-4fce-a500-06e936878735",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.169722, 52.261944]
+    },
+    "properties": {
+      "naam": "Deventer ziekenhuis",
+      "Name": "Deventer ziekenhuis",
+      "locatie": "locatie Geertruiden",
+      "adres": "Fesevurstraat 7",
+      "postcode": "7415 CM",
+      "plaats": "Deventer",
+      "Postadres": "Postbus 5001",
+      "Postadres_postcode": "7400 GC",
+      "Postadres_plaats": "Deventer",
+      "telefoonalgemeen": "0570-646666",
+      "telefoonSEH": "0570-646266",
+      "lon_dms": "6.10.11",
+      "lat_dms": "52.15.43",
+      "bedden": 414,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 1,
+      "t2": 2,
+      "Id": "7ecf1cfe-b36e-4765-a8f0-2f3486d1a9bf",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.888333, 52.218611]
+    },
+    "properties": {
+      "naam": "Medisch spectrum Twente",
+      "Name": "Medisch spectrum Twente",
+      "locatie": "locatie Haaksbergerstraat",
+      "adres": "Haaksbergerstraat 55",
+      "postcode": "7513 ER",
+      "plaats": "Enschede",
+      "Postadres": "Postbus 50000",
+      "Postadres_postcode": "7500 KA",
+      "Postadres_plaats": "Enschede",
+      "telefoonalgemeen": "053-4872000",
+      "telefoonSEH": "053-4873333",
+      "lon_dms": "6.53.18",
+      "lat_dms": "52.13.07",
+      "bedden": 885,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 2,
+      "t2": 5,
+      "Id": "2626ac82-1703-42fe-9bac-c7371da54d0b",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.769722, 52.263611]
+    },
+    "properties": {
+      "naam": "Streekziekenhuis Midden Twente",
+      "Name": "Streekziekenhuis Midden Twente",
+      "adres": "Geerdinksweg 141",
+      "postcode": "7555 DL",
+      "plaats": "Hengelo",
+      "Postadres": "Postbus 546",
+      "Postadres_postcode": "7550 AM",
+      "Postadres_plaats": "Hengelo",
+      "telefoonalgemeen": "074-2905905",
+      "telefoonSEH": "074-2905356",
+      "lon_dms": "6.46.11",
+      "lat_dms": "52.15.49",
+      "bedden": 392,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "6025a924-a780-4e2c-95b4-eb303531ff5d",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.930833, 52.307778]
+    },
+    "properties": {
+      "naam": "Medisch spectrum Twente",
+      "Name": "Medisch spectrum Twente",
+      "locatie": "locatie Oldenzaal",
+      "adres": "Prins Bernhardstraat 17",
+      "postcode": "7573 AM",
+      "plaats": "Oldenzaal",
+      "Postadres": "Postbus 50000",
+      "Postadres_postcode": "7500 KA",
+      "Postadres_plaats": "Enschede",
+      "telefoonalgemeen": "0541-574000",
+      "telefoonSEH": "0541-574147",
+      "lon_dms": "6.55.51",
+      "lat_dms": "52.18.28",
+      "bedden": 185,
+      "Type": "Hospital",
+      "level": "0",
+      "Id": "71700a70-5435-4ada-a7df-befb0a7a0085",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.640278, 52.336111]
+    },
+    "properties": {
+      "naam": "Twenteborg ziekenhuis",
+      "Name": "Twenteborg ziekenhuis",
+      "adres": "Zilvermeeuw 1",
+      "postcode": "7609 PP",
+      "plaats": "Almelo",
+      "Postadres": "Postbus 7600",
+      "Postadres_postcode": "7600 SZ",
+      "Postadres_plaats": "Almelo",
+      "telefoonalgemeen": "0546-693693",
+      "telefoonSEH": "0546-693280",
+      "lon_dms": "6.38.25",
+      "lat_dms": "52.20.10",
+      "bedden": 617,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 2,
+      "t2": 3,
+      "Id": "fdac5580-286a-4282-82b1-7aa70714dd44",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.632222, 52.572222]
+    },
+    "properties": {
+      "naam": "R?pke-Zweers ziekenhuis",
+      "Name": "R?pke-Zweers ziekenhuis",
+      "adres": "J. Weitkamplaan 4A 4A",
+      "postcode": "7772 SE",
+      "plaats": "Hardenberg",
+      "Postadres": "Postbus 1",
+      "Postadres_postcode": "7770 AA",
+      "Postadres_plaats": "Hardenberg",
+      "telefoonalgemeen": "0523-276000",
+      "telefoonSEH": "0523-276666",
+      "lon_dms": "6.37.56",
+      "lat_dms": "52.34.20",
+      "bedden": 210,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "861c2324-aae0-434a-aacc-973ae2f83a43",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.911389, 52.785556]
+    },
+    "properties": {
+      "naam": "Leveste zhs (Scheper)",
+      "Name": "Leveste zhs (Scheper)",
+      "locatie": "locatie Emmen",
+      "adres": "Boermarkeweg 60",
+      "postcode": "7824 AA",
+      "plaats": "Emmen",
+      "Postadres": "Postbus 30002",
+      "Postadres_postcode": "7800 RA",
+      "Postadres_plaats": "Emmen",
+      "telefoonalgemeen": "0591-691911",
+      "telefoonSEH": "0591-691222",
+      "lon_dms": "6.54.41",
+      "lat_dms": "52.47.08",
+      "bedden": 381,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "5a12bf3c-9cff-4fa1-9897-00300e723a8f",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.460278, 52.726667]
+    },
+    "properties": {
+      "naam": "Ziekenhuis Bethesda",
+      "Name": "Ziekenhuis Bethesda",
+      "adres": "Dr. G.H. Amshoffweg 1",
+      "postcode": "7909 AA",
+      "plaats": "Hoogeveen",
+      "Postadres": "Postbus 30000",
+      "Postadres_postcode": "7900 RA",
+      "Postadres_plaats": "Hoogeveen",
+      "telefoonalgemeen": "0528-286222",
+      "telefoonSEH": "0528-286222",
+      "lon_dms": "6.27.37",
+      "lat_dms": "52.43.36",
+      "bedden": 272,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "cf3d13f9-aeb3-49f6-8a6d-01bde727d8ee",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.218611, 52.690278]
+    },
+    "properties": {
+      "naam": "Diaconessenhuis",
+      "Name": "Diaconessenhuis",
+      "adres": "Hoogeveenseweg 38",
+      "postcode": "7943 KA",
+      "plaats": "Meppel",
+      "Postadres_plaats": "Meppel",
+      "telefoonalgemeen": "0522-233333",
+      "telefoonSEH": "0522-233273",
+      "lon_dms": "6.13.07",
+      "lat_dms": "52.41.25",
+      "bedden": 330,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "9e9d7eda-152a-48de-a8fd-eaf1afec300a",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.100278, 52.509722]
+    },
+    "properties": {
+      "naam": "Isala klinieken",
+      "Name": "Isala klinieken",
+      "locatie": "localie Weezenlanden",
+      "adres": "Groot Weezenland 20",
+      "postcode": "8011 JW",
+      "plaats": "Zwolle",
+      "Postadres": "Postbus 10500",
+      "Postadres_postcode": "8000 GM",
+      "Postadres_plaats": "Zwolle",
+      "telefoonalgemeen": "038-4242737",
+      "telefoonSEH": "038-4242000",
+      "lon_dms": "6.06.01",
+      "lat_dms": "52.30.35",
+      "bedden": 0,
+      "Type": "Hospital",
+      "Id": "dfda07d3-60a5-436a-87b5-53bc52dca8fa",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.124444, 52.513333]
+    },
+    "properties": {
+      "naam": "Isala klinieken",
+      "Name": "Isala klinieken",
+      "locatie": "locatie Sophia",
+      "adres": "Dr. Van Heesweg 2",
+      "postcode": "8025 AB",
+      "plaats": "Zwolle",
+      "Postadres": "Postbus 10400",
+      "Postadres_postcode": "8000 CK",
+      "Postadres_plaats": "Zwolle",
+      "telefoonalgemeen": "038-4242000",
+      "telefoonSEH": "038-4245000",
+      "lon_dms": "6.07.28",
+      "lat_dms": "52.30.48",
+      "bedden": 1004,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 4,
+      "t2": 6,
+      "Id": "97e43216-7c68-4527-9697-4a7308b3ffc2",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.476667, 52.504722]
+    },
+    "properties": {
+      "naam": "IJsselmeer ziekenhuizen",
+      "Name": "IJsselmeer ziekenhuizen",
+      "locatie": "locatie Lelystad",
+      "adres": "Ziekenhuisweg 100",
+      "postcode": "8233 AA",
+      "plaats": "Lelystad",
+      "telefoonalgemeen": "0320-271911",
+      "telefoonSEH": "0320-271750",
+      "lon_dms": "5.28.36",
+      "lat_dms": "52.30.17",
+      "bedden": 210,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "e040e10d-87a7-4b84-a532-27135aef3ceb",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.918333, 52.966389]
+    },
+    "properties": {
+      "naam": "De Tjongerschans",
+      "Name": "De Tjongerschans",
+      "adres": "Thialfweg 44",
+      "postcode": "8441 PW",
+      "plaats": "Heerenveen",
+      "Postadres": "Postbus 10500",
+      "Postadres_postcode": "8440 MA",
+      "Postadres_plaats": "Heerenveen",
+      "telefoonalgemeen": "0513-685685",
+      "telefoonSEH": "0513-685470",
+      "lon_dms": "5.55.06",
+      "lat_dms": "52.57.59",
+      "bedden": 210,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "994a4542-c35c-42c8-b66f-f9b8d33d1107",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.643056, 53.034722]
+    },
+    "properties": {
+      "naam": "Antonius ziekenhuis",
+      "Name": "Antonius ziekenhuis",
+      "adres": "Bolswardbaan 1 1",
+      "postcode": "8601 ZK",
+      "plaats": "Sneek",
+      "Postadres": "Postbus 20000",
+      "Postadres_postcode": "8600 BA",
+      "Postadres_plaats": "Sneek",
+      "telefoonalgemeen": "0515-488888",
+      "telefoonSEH": "0515-488888",
+      "lon_dms": "5.38.35",
+      "lat_dms": "53.02.05",
+      "bedden": 304,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "3b73d481-ccca-4aeb-a39d-728ba7a66f41",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.805000, 53.189167]
+    },
+    "properties": {
+      "naam": "Medisch centrum Leeuwarden",
+      "Name": "Medisch centrum Leeuwarden",
+      "adres": "Henri Dunantweg  2",
+      "postcode": "8934 AD",
+      "plaats": "Leeuwarden",
+      "Postadres": "Postbus 888",
+      "Postadres_postcode": "8901 BR",
+      "Postadres_plaats": "Leeuwarden",
+      "telefoonalgemeen": "058-2866666",
+      "telefoonSEH": "058-2866400",
+      "lon_dms": "5.48.18",
+      "lat_dms": "53.11.21",
+      "bedden": 930,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "58b17ed1-f26c-4d7a-bbae-3564fbb5dffc",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [5.991111, 53.320278]
+    },
+    "properties": {
+      "naam": "Talma Sionsberg",
+      "Name": "Talma Sionsberg",
+      "adres": "Birdaadersstraatweg 68-70",
+      "postcode": "9101 DC",
+      "plaats": "Dokkum",
+      "Postadres": "Postbus 39",
+      "Postadres_postcode": "9100 AA",
+      "Postadres_plaats": "Dokkum",
+      "telefoonalgemeen": "0519-291234",
+      "telefoonSEH": "0519-291299",
+      "lon_dms": "5.59.28",
+      "lat_dms": "53.19.13",
+      "bedden": 138,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "f4f39b34-a6f2-4ad8-93fc-7cc8d4f77913",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.111944, 53.099167]
+    },
+    "properties": {
+      "naam": "Ziekenhuis Nij Smellinghe",
+      "Name": "Ziekenhuis Nij Smellinghe",
+      "adres": "Compagnonsplein 1",
+      "postcode": "9202 NN",
+      "plaats": "Drachten",
+      "Postadres": "Postbus 20200",
+      "Postadres_postcode": "9200 DA",
+      "Postadres_plaats": "Drachten",
+      "telefoonalgemeen": "0512-588888",
+      "telefoonSEH": "0512-588146",
+      "lon_dms": "6.06.43",
+      "lat_dms": "53.05.57",
+      "bedden": 339,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "340862fb-60c2-4c52-bad2-91a78f24d8b3",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.564444, 52.984167]
+    },
+    "properties": {
+      "naam": "Wilhelmina ziekenhuis",
+      "Name": "Wilhelmina ziekenhuis",
+      "adres": "Europaweg zuid  1",
+      "postcode": "9401 RK",
+      "plaats": "Assen",
+      "Postadres": "Postbus 30001",
+      "Postadres_postcode": "9400 RA",
+      "Postadres_plaats": "Assen",
+      "telefoonalgemeen": "0592-325555",
+      "telefoonSEH": "0592-325278",
+      "lon_dms": "6.33.52",
+      "lat_dms": "52.59.03",
+      "bedden": 340,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 2,
+      "Id": "a01a24bb-e09b-4557-ad30-c9de38d60fa8",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.935556, 53.001667]
+    },
+    "properties": {
+      "naam": "Refaja ziekenhuis",
+      "Name": "Refaja ziekenhuis",
+      "adres": "Boerhaavestraat 1",
+      "postcode": "9501 HE",
+      "plaats": "Stadskanaal",
+      "Postadres": "Postbus 109",
+      "Postadres_postcode": "9500 AC",
+      "Postadres_plaats": "Stadskanaal",
+      "telefoonalgemeen": "0599-654654",
+      "telefoonSEH": "0599-654654",
+      "lon_dms": "6.56.08",
+      "lat_dms": "53.00.06",
+      "bedden": 200,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "42b2801e-3906-4e6f-a308-4271adcff622",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [7.036111, 53.146389]
+    },
+    "properties": {
+      "naam": "Sint Lucas ziekenhuis",
+      "Name": "Sint Lucas ziekenhuis",
+      "adres": "Gassingel 18",
+      "postcode": "9671 CX",
+      "plaats": "Winschoten",
+      "Postadres": "Postbus 30000",
+      "Postadres_postcode": "9670 RA",
+      "Postadres_plaats": "Winschoten",
+      "telefoonalgemeen": "0597-459111",
+      "telefoonSEH": "0597-459111",
+      "lon_dms": "7.02.10",
+      "lat_dms": "53.08.47",
+      "bedden": 240,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "e05eb545-5b85-464a-b08c-05a3c0b1ccf0",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.576944, 53.220833]
+    },
+    "properties": {
+      "naam": "Universitair medisch centrum",
+      "Name": "Universitair medisch centrum",
+      "locatie": "Groningen",
+      "adres": "Hanzeplein  1",
+      "postcode": "9713 GZ",
+      "plaats": "Groningen",
+      "Postadres": "Postbus 30001",
+      "Postadres_postcode": "9700 RB",
+      "Postadres_plaats": "Groningen",
+      "telefoonalgemeen": "050-3616161",
+      "telefoonSEH": "050-3618020",
+      "lon_dms": "6.34.37",
+      "lat_dms": "53.13.15",
+      "bedden": 1339,
+      "Type": "Hospital",
+      "level": "1",
+      "t1": 5,
+      "t2": 11,
+      "Id": "96ed7df8-a72e-4b46-acf8-511e583485ad",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.551111, 53.191667]
+    },
+    "properties": {
+      "naam": "Martini ziekenhuis",
+      "Name": "Martini ziekenhuis",
+      "locatie": "locatie Van Swietenplein",
+      "adres": "Van Swietenplein 1",
+      "postcode": "9728 NZ",
+      "plaats": "Groningen",
+      "Postadres": "Postbus 30033",
+      "Postadres_postcode": "9700 RM",
+      "Postadres_plaats": "Groningen",
+      "telefoonalgemeen": "050-5245245",
+      "telefoonSEH": "050-5247607",
+      "lon_dms": "6.33.04",
+      "lat_dms": "53.11.30",
+      "bedden": 600,
+      "Type": "Hospital",
+      "level": "2",
+      "t1": 1,
+      "t2": 3,
+      "Id": "3496e796-073f-44dc-87c5-a36a75d46919",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [6.405833, 53.325556]
+    },
+    "properties": {
+      "naam": "Delfzicht ziekenhuis",
+      "Name": "Delfzicht ziekenhuis",
+      "adres": "Jachtlaan 50",
+      "postcode": "9934 JD",
+      "plaats": "Delfzijl",
+      "Postadres": "Postbus 30000",
+      "Postadres_postcode": "9930 RA",
+      "Postadres_plaats": "Delfzijl",
+      "telefoonalgemeen": "0596-644444",
+      "telefoonSEH": "0596-644550",
+      "lon_dms": "6.24.21",
+      "lat_dms": "53.19.32",
+      "bedden": 186,
+      "Type": "Hospital",
+      "level": "3",
+      "Id": "610a0864-9903-4bdf-bda7-a236a9ab3d1a",
+      "FeatureTypeId": "Hospital"
+    }
+  }, {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [4.469722, 51.911389]
+    },
+    "properties": {
+      "naam": "Erasmus MC",
+      "Name": "Erasmus MC",
+      "locatie": "locatie Sophia",
+      "adres": "Dr. Molenwaterplein 60",
+      "postcode": "3015GJ",
+      "plaats": "Rotterdam",
+      "Postadres_plaats": "Rotterdam",
+      "telefoonalgemeen": "010-4636945",
+      "telefoonSEH": "010-4636157",
+      "lon_dms": "4.28.11",
+      "lat_dms": "51.54.41",
+      "bedden": 300,
+      "Type": "Hospital",
+      "Id": "32faf23c-d92d-4c93-9a67-d8aa2cb0ec63",
+      "FeatureTypeId": "Hospital"
+    }
+  }]
+}

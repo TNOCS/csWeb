@@ -35,7 +35,8 @@ module ClientConnection {
     export enum LayerUpdateAction {
         updateFeature,
         updateLog,
-        deleteFeature
+        deleteFeature,
+        addLayer
     }
 
     export class ClientMessage {
@@ -93,6 +94,7 @@ module ClientConnection {
                 });
 
                 socket.on('subscribe', (msg: msgSubscription) => {
+                    Winston.error(JSON.stringify(msg));
                     Winston.info('clientconnection: subscribe ' + JSON.stringify(msg.target));
                     wc.Subscribe(msg);
                     // wc.Client.emit('laag', 'test');
@@ -182,6 +184,10 @@ module ClientConnection {
                     this.users[uId].Client.emit(sub.id, new ClientMessage(command, object));
                 }
             }
+        }
+
+        public updateDirectory(layer: string) {
+
         }
 
         /**

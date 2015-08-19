@@ -137,6 +137,50 @@ gulp.task('create_templateCache', function() {
         .pipe(gulp.dest('public/cs/js'))
 })
 
+gulp.task('gh_pages', function() {
+    // Create a distribution for the GitHub Pages.
+    // Basically the same as the create_dist function, except that a different output folder is used.
+    // http://yeoman.io/learning/deployment.html
+    console.log('Creating distribution for GitHub Pages');
+    console.log('Use the following command to push the gh_pages folder to gh-pages.');
+    console.log('git subtree push --prefix example/gh_pages origin gh-pages');
+    gulp.src('public/images/**/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./gh_pages/images/'));
+
+    gulp.src('public/bower_components/angular-utils-pagination/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./gh_pages/bower_components/angular-utils-pagination/'));
+
+    gulp.src(path2csWeb + 'csComp/includes/images/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./gh_pages/cs/images/'));
+
+    gulp.src('public/data/**/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./gh_pages/data/'));
+
+    gulp.src('public/cs/css/ROsanswebtextregular.ttf')
+        .pipe(plumber())
+        .pipe(gulp.dest('./gh_pages/css/'));
+
+    gulp.src('public/cs/js/cesium.js')
+        .pipe(plumber())
+        .pipe(gulp.dest('./gh_pages/cs/js/'));
+
+    gulp.src('public/bower_components/Font-Awesome/fonts/*.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./gh_pages/fonts/'));
+
+    var assets = useref.assets();
+
+    return gulp.src('./public/*.html')
+        .pipe(assets)
+        .pipe(assets.restore())
+        .pipe(useref())
+        .pipe(gulp.dest('./gh_pages/'));
+});
+
 gulp.task('create_dist', function() {
     gulp.src('public/images/**/*.*')
         .pipe(plumber())

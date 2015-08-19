@@ -6,6 +6,8 @@ module Filters {
         filter: csComp.Services.GroupFilter;
         options: Function;
         editMode: boolean;
+        removeString: string;
+        createScatterString: string;
     }
 
     export class BarFilterCtrl {
@@ -20,8 +22,8 @@ module Filters {
             '$scope',
             'layerService',
             'messageBusService',
-            '$timeout'
-
+            '$timeout',
+            '$translate'
         ];
 
         // dependencies are injected via AngularJS $injector
@@ -30,11 +32,18 @@ module Filters {
             public $scope: IBarFilterScope,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
-            private $timeout: ng.ITimeoutService
+            private $timeout: ng.ITimeoutService,
+            private $translate: ng.translate.ITranslateService
             ) {
             $scope.vm = this;
+            $scope.editMode = true;
 
-
+            $translate('REMOVE').then((translation) => {
+                $scope.removeString = translation;
+            });
+            $translate('CREATE_SCATTER').then((translation) => {
+                $scope.createScatterString = translation;
+            });
 
             var par = <any>$scope.$parent.$parent;
 
@@ -50,10 +59,10 @@ module Filters {
 
                 $scope.options = (() => {
                     var res = [];
-                    res.push(['remove', () => this.remove()]);
+                    res.push([$scope.removeString, () => this.remove()]);
                     $scope.filter.group.filters.forEach((gf: csComp.Services.GroupFilter) => {
                         if (gf.filterType == "bar" && gf.property != $scope.filter.property) {
-                            res.push(['create scatter with ' + gf.title, () => this.createScatter(gf)]);
+                            res.push([$scope.createScatterString + ' ' + gf.title, () => this.createScatter(gf)]);
                         }
                     });
 
@@ -70,10 +79,20 @@ module Filters {
         }
 
         private displayFilterRange(min, max) {
-            console.log('display filter range : ' + min + " - " + max);
+            if (min > max) {
+                min = max;
+            }
             var filter = this.$scope.filter;
-            filter.from = min;
-            filter.to = max;
+            if (filter.rangex[0] < min) {
+                filter.from = min;
+            } else {
+                filter.from = filter.rangex[0];
+            }
+            if (filter.rangex[1] > max) {
+                filter.to = max;
+            } else {
+                filter.to = filter.rangex[1];
+            }
             this.$scope.$apply();
         }
 
@@ -94,6 +113,10 @@ module Filters {
             var nBins = 20;
             var min = info.sdMin;
             var max = info.sdMax + (info.sdMax - info.sdMin) * 0.01;
+            filter.rangex[0] = min;
+            filter.rangex[1] = max;
+            filter.from = min;
+            filter.to = max;
 
             var binWidth = (max - min) / nBins;
 
@@ -140,7 +163,7 @@ module Filters {
                 var s = '';
                 if (e.filters.length > 0) {
                     var localFilter = e.filters[0];
-                    this.displayFilterRange(+localFilter[0].toFixed(2), +localFilter[1].toFixed(2))
+                    this.displayFilterRange(+(localFilter[0]).toFixed(2), (+localFilter[1]).toFixed(2))
                     s += localFilter[0];
                 }
                 dc.events.trigger(() => {
@@ -176,6 +199,7 @@ module Filters {
             this.dcChart.xAxis().ticks(5);
             //this.dcChart.mouseZoomable(true);
             dc.renderAll();
+            this.updateRange();
             //  this.updateChartRange(this.dcChart,filter);
 
         }

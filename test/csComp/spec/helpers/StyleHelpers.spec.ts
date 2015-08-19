@@ -81,15 +81,15 @@ describe('StyleHelpers', function() {
 
         it('should have function getColor', function() {
             groupStyle.info = {sdMax: 1, sdMin: 0, mean:0.5};
-            groupStyle.colors = ['#000000', '#002200', '#004400'];
+            groupStyle.colors = ['#000000', '#002200'];
             var color = csComp.Helpers.getColor(0, groupStyle);
             expect(color).toEqual('#000000');
             color = csComp.Helpers.getColor(-0.1, groupStyle);
             expect(color).toEqual('#000000');
             color = csComp.Helpers.getColor(0.5, groupStyle);
-            expect(color).toEqual('#002200');
+            expect(color).toEqual('#001100');
             color = csComp.Helpers.getColor(1.1, groupStyle);
-            expect(color).toEqual('#004400');
+            expect(color).toEqual('#002200');
         });
 
         it('should have function getColorString', function() {

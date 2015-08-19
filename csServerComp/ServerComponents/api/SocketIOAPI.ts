@@ -48,11 +48,15 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
         })
     }
 
+    public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+        //this.connection.publish();
+        Winston.error('add layer ' + layer.title);
+    }
+
     public initLayer(layer: Layer) {
         Winston.info('socketio: init layer ' + layer.id);
         this.connection.registerLayer(layer.id, (action: string, msg: ClientConnection.LayerUpdate, client: string) => {
             Winston.debug('socketio: action:' + action);
-
         });
     }
 

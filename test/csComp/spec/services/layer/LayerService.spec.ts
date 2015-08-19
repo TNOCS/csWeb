@@ -102,7 +102,6 @@ describe('csComp.Services.LayerService', function() {
         it('should publish to layer and updatelegend', () => {
             layerService.addLayer(fakeLayer);
             expect(msgBusService.publish).toHaveBeenCalledWith('layer', 'loading', fakeLayer);
-            expect(msgBusService.publish).toHaveBeenCalledWith('updatelegend', 'title', undefined);
         });
         xit('should call loadTypeResources', () => {
             spyOn(layerService, 'loadTypeResources');

@@ -29,7 +29,6 @@ Winston.add(Winston.transports.Console, {
     prettyPrint: true
 });
 
-
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser')
 var server = express();

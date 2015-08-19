@@ -152,6 +152,7 @@
         "./helpers/StringScore.ts",
         "./helpers/StyleHelpers.ts",
         "./helpers/Utils.ts",
+        "./helpers/conrec.ts",
         "./helpers/esriJsonConverter.ts",
         "./services/bus/MessageBus.ts",
         "./services/connection/ConnectionService.ts",
