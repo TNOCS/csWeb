@@ -79,7 +79,7 @@ module Filters {
         }
 
         private displayFilterRange(min, max) {
-            if (min > max) {
+            if ((+min) > (+max)) {
                 min = max;
             }
             var filter = this.$scope.filter;
