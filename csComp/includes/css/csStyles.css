@@ -126,7 +126,7 @@ html, body, #container {
 
 .legend-description {
     display: block;
-    font-size: 16px;    
+    font-size: 16px;
     font-weight: bold;
     color: black;
 }
@@ -1208,7 +1208,7 @@ html, body, #container {
     display: none;
 }
 a:focus {
-    color: #FFF;
+    color: #0D5088;
 }
 
 /* Area / locationfilter style */
