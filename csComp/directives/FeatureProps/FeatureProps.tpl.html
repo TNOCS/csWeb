@@ -27,8 +27,13 @@
     </style>
 
     <h4 class="rightpanel-header">
-        <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
-
+        <!-- Show popup with complete title for long names -->
+        <div ng-if="callOut.title.length >= 27" popover="{{callOut.title}}" popover-placement="bottom" popover-trigger="mouseenter" popover-append-to-body="true">
+            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
+        </div>
+        <div ng-if="callOut.title.length < 27">
+            <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
+        </div>
     </h4>
 
     <div class="container-fluid rightpanel-tabs" style="position: relative;height:45px">
@@ -36,9 +41,9 @@
         <div class="row" style="overflow:hidden" ng-if="callOut.sectionCount() < 3" ng-hide="configMode">
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
-                <li data-toggle="tab" data-ng-class="{active : $first}" data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="section.hasProperties()">
-                    <a ng-href="#rp-{{$index}}" data-toggle="tab" data-ng-if="section.showSectionIcon()" ng-click="featureTabActivated(sectionTitle, section)"><i class="fa {{section.sectionIcon}}"></i></a>
-                    <a ng-href="#rp-{{$index}}" data-toggle="tab" data-ng-if="!section.showSectionIcon()" ng-click="featureTabActivated(sectionTitle, section)">{{sectionTitle}}</a>
+                <li data-toggle="tab" data-ng-class="{active : $first}" data-ng-repeat="key in callOut.sectionKeys" ng-if="callOut.sections[key].hasProperties()">
+                    <a ng-href="#rp-{{$index}}" data-toggle="tab" data-ng-if="callOut.sections[key].showSectionIcon()" ng-click="featureTabActivated(key, callOut.sections[key])"><i class="fa {{callOut.sections[key].sectionIcon}}"></i></a>
+                    <a ng-href="#rp-{{$index}}" data-toggle="tab" data-ng-if="!callOut.sections[key].showSectionIcon()" ng-click="featureTabActivated(key, callOut.sections[key])">{{key}}</a>
                 </li>
             </ul>
         </div>
@@ -50,11 +55,12 @@
                         <i class="fa {{firstCallOutsection.sectionIcon}}"></i>
                     </a>
                 </li>
-                <li class="dropdown" ng-init="selectedSection.title='Kies...'">
+                <li class="dropdown" ng-init="selectedSection.title=vm.defaultDropdownTitle">
                     <a style="cursor:pointer" data-toggle="dropdown">{{selectedSection.title}} <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li data-ng-repeat="(sectionTitle, section) in callOut.sections" ng-if="!($first && callOut.hasInfoSection)">
-                            <a ng-href="#rp-{{$index}}" ng-click="selectedSection.title = sectionTitle" data-toggle="tab">{{sectionTitle}}</a>
+                        <!-- alphabetic sorting disappeared in 1.4 https://docs.angularjs.org/api/ng/directive/ngRepeat -->
+                        <li data-ng-repeat="key in callOut.sectionKeys" ng-if="!($first && callOut.hasInfoSection)">
+                            <a ng-href="#rp-{{$index}}" ng-click="selectedSection.title = key" data-toggle="tab">{{key}}</a>
                         </li>
                     </ul>
                 </li>
@@ -76,8 +82,8 @@
         </div>
     </h4>
 
-    <div ng-show="vm.$mapService.isAdminExpert">
-        <div ng-show="configMode" style="margin:5px">
+    <div ng-if="vm.$mapService.isAdminExpert">
+        <div ng-if="configMode" style="margin:5px">
             <feature-type-editor featureType="featureType"></feature-type-editor>
         </div>
     </div>
@@ -89,7 +95,7 @@
         </ul>
     </div> -->
     <div ng-hide="configMode" class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
-        <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="(sectionTitle, section) in callOut.sections">
+        <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="key in callOut.sectionKeys">
 
             <!--<td>
                     <span class="dropdown">
@@ -102,7 +108,7 @@
                 </td>-->
             <div class="panel-group" id="accordion">
                 <form name="form" class="css-form" novalidate>
-                    <div class="panel" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in section.properties">
+                    <div class="panel" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
                         <div ng-show="feature.gui.editMode" class="property-edit">
                             <div>
                                 <div>{{item.propertyType.title}}</div>
@@ -122,18 +128,23 @@
                                 </ng-form>
                             </div>
                         </div>
-                        <div ng-show="!feature.gui.editMode" class="panel-heading" style="min-height: 36px">
 
+                        <!-- Currently-styled-property background gray -->
+                        <div ng-show="!feature.gui.editMode" class="panel-heading" style="border-radius: 3px; min-height: 36px; border: none;" ng-style="(item.feature.gui['style'][item.property]) && {'border':'1px solid blue', 'background': 'lightgray'}">
+                        <!-- Currently-styled-property background styleColor -->
+                        <!-- <div ng-show="!feature.gui.editMode" class="panel-heading" style="border-radius: 3px; min-height: 36px; border: none;" ng-style="(item.feature.gui['style'][item.property]) && {'border':'1px solid blue', 'background': item.feature.gui.style[item.property]}"> -->
                             <div data-ng-switch="item.propertyType.type">
                                 <div ng-switch-when="layer">
                                     <a ng-click="vm.openLayer(item)">{{item.propertyType.title}}</a>
                                 </div>
                                 <div ng-switch-default>
                                     <div class="pull-left accordionIcon">
-                                        <a class="fa fa-filter makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
+                                        <a data-ng-show="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
+                                        <a data-ng-show="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFilterIconSelected makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
                                     </div>
-                                    <div data-ng-show="item.canStyle" class="pull-left accordionIcon style-icon" style="background:{{item.feature.gui['style'][item.property]}}">
-                                        <a class="smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
+                                    <div data-ng-show="item.canStyle" class="pull-left accordionIcon style-icon">
+                                        <a data-ng-hide="item.feature.gui['style'][item.property]" class="smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
+                                        <a data-ng-show="item.feature.gui['style'][item.property]" class="smallStyleIcon smallStyleIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
                                     </div>
                                     <div ng-show="item.isSensor" style="margin-left:8px" class="pull-left accordionIcon">
                                         <a class="fa fa-area-chart makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" href="#sensor{{item.property}}" style="cursor: pointer"></a>
@@ -141,12 +152,13 @@
                                     <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-left accordionIcon">
                                         <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.enabled=!item.enabled" style="cursor: pointer"></a>
                                     </div>
-                                    <div data-ng-switch="item.propertyType.type" style="float:right;">
+                                    <div ng-hide="item.isSensor" data-ng-switch="item.propertyType.type" style="float:right">
                                         <div ng-switch-when="date" class="text-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
-                                            {{item.feature.properties[item.property] | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</div>
+                                            {{vm.getFormattedDate(item.feature.properties[item.property], item.propertyType)}}</div>
                                         <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
                                         <div ng-switch-when="category" class="text-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
                                         <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
+                                        <div ng-switch-when="bbcode" style="text-right" ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                         <div ng-switch-when="media">
                                             <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img>
                                             <div ng-repeat="media in item.feature.properties[item.property]">

@@ -179,6 +179,28 @@ module Dashboard {
             }
         }
 
+        public checkLegend() {
+            if (this.$scope.dashboard.showLegend) {
+                var legendWidgetPresent = false;
+                this.$scope.dashboard.widgets.forEach(w => {
+                    if (w.id === 'legend') legendWidgetPresent = true;
+                });
+                if (!legendWidgetPresent) {
+                    console.log('Create legend');
+                    var w = <csComp.Services.IWidget>{};
+                    w.directive = 'legend-directive';
+                    w.id = 'legend';
+                    w.title = 'Legenda';
+                    w.data = { mode: 'lastSelectedStyle' };
+                    w.left = '10px';
+                    w.top = '20px';
+                    w.width = '150px';
+                    w.enabled = true;
+                    this.$dashboardService.addNewWidget(w, this.$scope.dashboard);
+                }
+            }
+        }
+
         public isReady(widget: csComp.Services.IWidget) {
             setTimeout(() => {
                 //this.updateWidget(widget);
@@ -189,13 +211,9 @@ module Dashboard {
         public updateDashboard() {
             var d = this.$scope.dashboard;
             if (!d) return;
-            if (d.widgets && d.widgets.length > 0) {
+            if (!d.widgets) d.widgets = [];
 
-                // d.widgets.forEach((w: csComp.Services.IWidget) => {
-                //     this.updateWidget(w);
-                // });
-
-            }
+            this.checkLegend();
             this.checkMap();
             this.checkTimeline();
             this.checkLayers();

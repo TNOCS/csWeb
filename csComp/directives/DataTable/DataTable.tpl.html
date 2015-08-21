@@ -5,6 +5,13 @@
             <select data-ng-model="vm.selectedLayerId" data-ng-change="vm.loadLayer()" data-ng-options="layer.id as layer.title group by layer.group for layer in vm.layerOptions" class="form-control tt-input"></select>
             <!-- List of headers -->
             <ul class="form-group" style="margin-top: 1em; margin-left: -2em; overflow-y: auto; overflow-x: hidden;" resize resize-y="150">
+                <!-- Select/deselect all -->
+                <li class="list-unstyled" style="white-space: nowrap; text-overflow: ellipsis; border-bottom: 1px solid #DADADA; margin-bottom: 10px;">
+                    <label>
+                        <input type="checkbox" name="selectAll" value="{{vm.selectAllText}}" data-ng-checked="vm.selectAllBool" data-ng-click="vm.selectAll()">&nbsp;&nbsp;{{vm.selectAllText}}
+                    </label>
+                </li>
+                <!-- PropertyTypes -->
                 <li ng-repeat="mi in vm.propertyTypes" class="list-unstyled" style="white-space: nowrap; text-overflow: ellipsis">
                     <label>
                         <input type="checkbox" name="vm.selectedTitles[]" value="{{mi.title}}" data-ng-checked="vm.headers.indexOf(mi.title) > -1" data-ng-click="vm.toggleSelection(mi.title)">&nbsp;&nbsp;{{mi.title}}
@@ -17,6 +24,8 @@
                         </label>
                     </div>-->
                 </li>
+                <!-- Empty space to prevent items hiding under timeline -->
+                <li class="list-unstyled" style="margin-bottom: 30px" />
             </ul>
             <!--       <pre>{{vm.headers|json}}</pre>-->
         </div>

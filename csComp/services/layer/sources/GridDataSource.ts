@@ -78,7 +78,11 @@ module csComp.Services {
         /**
          * The input values to be NoData in the output raster. Optional. Default is -9999.
          */
-        noDataValue: number
+        noDataValue: number,
+        /** If true, use the CONREC contouring algorithm to create isoline contours */
+        useContour?: boolean,
+        /** When using contours, this specifies the number of contour levels to use. */
+        contourLevels?: number
     }
 
     /**
@@ -86,6 +90,8 @@ module csComp.Services {
      * and each newline indicates a new row of data.
      */
     export class GridDataSource extends csComp.Services.GeoJsonSource {
+        /** Convert a grid point to a Feature. Default implementation is to convert it to a square grid cell (convertPointToPolygon). */
+        private convertDataToFeatureCollection: (data: string, gridParams: IGridDataSourceParameters) => { fc: csComp.Helpers.IGeoFeatureCollection, desc: string };
         title = "grid";
         gridParams: IGridDataSourceParameters;
 
@@ -100,10 +106,16 @@ module csComp.Services {
                 return;
             }
             this.gridParams = <IGridDataSourceParameters> layer.dataSourceParameters;
+            // Select the appropriate converter for converting points to features:
+            if (this.gridParams.useContour) {
+                this.convertDataToFeatureCollection = this.convertDataToIsoLines;
+            } else {
+                this.convertDataToFeatureCollection = this.convertDataToPolygonGrid;
+            }
+
             // Open a layer URL
             layer.isLoading = true;
             // get data
-
             $.get(layer.url, (result: string, status: string) => {
                 // https://github.com/caolan/async#seriestasks-callback
                 async.series([
@@ -112,7 +124,7 @@ module csComp.Services {
                         if (typeof this.gridParams.gridType !== 'undefined' && this.gridParams.gridType === 'esri') {
                             this.convertEsriHeaderToGridParams(result);
                         }
-                        var data = this.convertDataToGeoJSON(result, this.gridParams);
+                        var data = this.convertDataToFeatureCollection(result, this.gridParams);
                         if (data.fc.features.length > 10000) {
                             console.warn('Grid is very big! Number of features: ' + data.fc.features.length);
                         }
@@ -130,11 +142,10 @@ module csComp.Services {
                             layer.data.features = layer.data.geometries;
                         }
                         var count = 0;
-                        var last  = layer.data.features.length-1;
+                        var last = layer.data.features.length - 1;
                         layer.data.features.forEach((f) => {
-                            this.service.initFeature(f, layer, count++ === last);
+                            this.service.initFeature(f, layer, false, false);
                         });
-                        //if (this.service..$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
 
                         layer.isLoading = false;
                         cb(null, null);
@@ -224,7 +235,7 @@ Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so
                         break;
                     case 'cellsize':
                         // Cell size. Greater than 0.
-                        this.gridParams.deltaLon =  value;
+                        this.gridParams.deltaLon = value;
                         this.gridParams.deltaLat = -value;
                         break;
                     case 'nodata_value':
@@ -250,20 +261,131 @@ Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so
             }
         }
 
+
         /**
-         * Convert data to GeoJSON.
+         * Convert data to a set of isolines.
          */
-        private convertDataToGeoJSON(data: string, gridParams: IGridDataSourceParameters): {fc: csComp.Helpers.IGeoFeatureCollection, desc: string} {
+        private convertDataToIsoLines(data: string, gridParams: IGridDataSourceParameters): { fc: csComp.Helpers.IGeoFeatureCollection, desc: string } {
             var propertyName = gridParams.propertyName || "v";
-            var noDataValue  = gridParams.noDataValue || -9999;
+            var noDataValue = gridParams.noDataValue || -9999;
 
             var skipLinesAfterComment = gridParams.skipLinesAfterComment,
-                skipSpacesFromLine    = gridParams.skipSpacesFromLine,
-                skipFirstRow          = gridParams.skipFirstRow || false,
-                skipFirstColumn       = gridParams.skipFirstColumn || false;
+                skipSpacesFromLine = gridParams.skipSpacesFromLine,
+                skipFirstRow = gridParams.skipFirstRow || false,
+                skipFirstColumn = gridParams.skipFirstColumn || false;
 
-            var separatorCharacter    = gridParams.separatorCharacter || ' ',
-                splitCellsRegex       = new RegExp("[^"+ separatorCharacter +"]+","g");
+            var separatorCharacter = gridParams.separatorCharacter || ' ',
+                splitCellsRegex = new RegExp("[^" + separatorCharacter + "]+", "g");
+
+            var deltaLon = gridParams.deltaLon,
+                deltaLat = gridParams.deltaLat,
+                lat = gridParams.startLat,
+                lon = gridParams.startLon;
+
+            var features: csComp.Helpers.IGeoFeature[] = [];
+            var max = -Number.MAX_VALUE,
+                min =  Number.MAX_VALUE;
+            var lines = data.split('\n');
+            if (gridParams.skipLines) lines.splice(0, gridParams.skipLines);
+
+            var rowsToProcess = gridParams.rows || Number.MAX_VALUE;
+
+            var conrec = new csComp.Helpers.Conrec(),
+                nrIsoLevels = gridParams.contourLevels || 10,
+                longitudes: number[] = [],
+                latitudes: number[] = [],
+                gridData: number[][] = [],
+                i = 0;
+            lines.forEach((line) => {
+                if (gridParams.commentCharacter)
+                    if (line.substr(0, 1) === gridParams.commentCharacter) {
+                        console.log(line);
+                        return;
+                    }
+
+                if (skipLinesAfterComment && skipLinesAfterComment > 0) {
+                    skipLinesAfterComment--;
+                    return;
+                }
+
+                if (skipFirstRow) {
+                    skipFirstRow = false;
+                    return;
+                }
+                rowsToProcess--;
+                if (rowsToProcess < 0) return;
+
+                var cells: RegExpMatchArray;
+                if (skipSpacesFromLine)
+                    cells = line.substr(skipSpacesFromLine).match(splitCellsRegex);
+                else
+                    cells = line.match(splitCellsRegex);
+
+                if (skipFirstColumn && cells.length > 1) cells = cells.splice(1);
+
+                if (!cells || (!gridParams.skipFirstColumn && cells.length < gridParams.columns)) return;
+
+                gridData[i] = [];
+                if (i === 0) {
+                    cells.forEach(c => {
+                        gridData[i].push(+c);
+                        longitudes.push(lon);
+                        lon += deltaLon;
+                        if (lon > 180) lon -= 360;
+                    });
+                } else {
+                    cells.forEach(c => gridData[i].push(+c));
+                }
+                max = gridParams.maxThreshold || Math.max(max, d3.max(gridData[i]));
+                min = gridParams.minThreshold || Math.min(min, d3.min(gridData[i]));
+                latitudes.push(lat);
+                lat += deltaLat;
+                i++;
+            });
+            var isoLevels: number[] = [];
+            var dl = (max - min) / nrIsoLevels;
+            for (let l = min+dl/2; l<max; l+=dl) isoLevels.push(Math.round(l*10)/10); // round to nearest decimal.
+            conrec.contour(gridData, 0, i-1, 0, gridData[0].length-1, latitudes, longitudes, nrIsoLevels, isoLevels);
+            var contourList = conrec.contourList;
+            contourList.forEach(contour => {
+                var result: IProperty = {};
+                result[propertyName] = contour.level;
+                var feature = <csComp.Helpers.IGeoFeature>{
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Polygon'
+                    },
+                    properties: result
+                };
+                var ring: number[][] = [];
+                feature.geometry.coordinates = [ring];
+                contour.forEach(p => {
+                    ring.push([p.y, p.x]);
+                });
+                features.push(feature);
+            });
+
+            var desc = "# Number of features above the threshold: " + features.length + ".\r\n";
+            return {
+                fc: csComp.Helpers.GeoExtensions.createFeatureCollection(features),
+                desc: desc
+            };
+        } // convertDataToIsoLines
+
+        /**
+         * Convert data to a grid of square GeoJSON polygons, so each drawable point is converted to a square polygon.
+         */
+        private convertDataToPolygonGrid(data: string, gridParams: IGridDataSourceParameters): { fc: csComp.Helpers.IGeoFeatureCollection, desc: string } {
+            var propertyName = gridParams.propertyName || "v";
+            var noDataValue = gridParams.noDataValue || -9999;
+
+            var skipLinesAfterComment = gridParams.skipLinesAfterComment,
+                skipSpacesFromLine = gridParams.skipSpacesFromLine,
+                skipFirstRow = gridParams.skipFirstRow || false,
+                skipFirstColumn = gridParams.skipFirstColumn || false;
+
+            var separatorCharacter = gridParams.separatorCharacter || ' ',
+                splitCellsRegex = new RegExp("[^" + separatorCharacter + "]+", "g");
 
             var deltaLon = gridParams.deltaLon,
                 deltaLat = gridParams.deltaLat,
@@ -311,12 +433,12 @@ Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so
                 cells.forEach((n) => {
                     var value = +n;
                     if (value !== noDataValue && minThreshold <= value && value <= maxThreshold) {
+                        var result: IProperty = {};
+                        result[propertyName] = value;
                         var tl = [lon, lat + deltaLat],
                             tr = [lon + deltaLon, lat + deltaLat],
                             bl = [lon, lat],
-                            br = [lon + deltaLon, lat],
-                            result: IProperty = { };
-                            result[propertyName] = value;
+                            br = [lon + deltaLon, lat];
 
                         var pg = csComp.Helpers.GeoExtensions.createPolygonFeature([[tl, tr, br, bl, tl]], result);
                         features.push(pg);
@@ -332,6 +454,6 @@ Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so
                 fc: csComp.Helpers.GeoExtensions.createFeatureCollection(features),
                 desc: desc
             };
-        }
+        } // convertDataToGeoJSON
     }
 }

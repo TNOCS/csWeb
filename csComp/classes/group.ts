@@ -70,31 +70,36 @@ module csComp.Services {
             return res;
         }
 
-        public loadLayersFromOWS():void {
+        public loadLayersFromOWS($injector: ng.auto.IInjectorService = null):void {
             this.layers = [];   // add some layers here...
+
+            if($injector==null) {   // create an injector if not given
+                $injector = angular.injector(["ng"]);
+            }
+            $injector.invoke(($http) => {
+                $http.get(this.owsurl)
+                    .success((xml) => { this.parseXML(xml); })
+                    .error((xml, status) => {
+                        console.log("Unable to load OWSurl: " + this.owsurl);
+                        console.log("          HTTP status: " + status);
+                    });
+            });
+        }
+
+        private parseXML(xml: any): void {
             var theGroup = this;
-            $.ajax({
-                type: "GET",
-		        url: this.owsurl,
-                dataType: "xml",
-
-                success: (xml) => {
-                    $(xml).find("Layer").each(function() {
-                        // Remove ?service=wms&request=getCapabilities
-                        var baseurl = theGroup.owsurl.split("?")[0];
-
-                        // DO NOT use arrow notation (=>) as it will break this !!!
-                        var layerName = $(this).children("Name").text();
-                        if (layerName != null && layerName!="") {
-                            var title = $(this).children("Title").text();
-                            // TODO: should be using layerService.initLayer(theGroup, layer);
-                            // But I don't know how to 'inject' layerService :(
-                            var layer = theGroup.buildLayer(baseurl, title, layerName);
-                            theGroup.layers.push(layer);
-         				}
-        			});
-		        }
-	        })
+            var baseurl = this.owsurl.split("?")[0];
+            $(xml).find("Layer").each(function() {
+                // DO NOT use arrow notation (=>) as it will break this !!!
+                var layerName = $(this).children("Name").text();
+                if (layerName != null && layerName!="") {
+                    var title = $(this).children("Title").text();
+                    // TODO: should be using layerService.initLayer(theGroup, layer);
+                    // But I don't know how to 'inject' layerService :(
+                    var layer = theGroup.buildLayer(baseurl, title, layerName);
+                    theGroup.layers.push(layer);
+                }
+            });
         }
 
         private buildLayer(baseurl: string, title: string, layerName: string): ProjectLayer {
@@ -137,6 +142,8 @@ module csComp.Services {
         stringValue: string;
         rangex     : number[];
         meta       : IPropertyType;
+        to         : number;
+        from       : number;
     }
 
     /**
@@ -176,9 +183,6 @@ module csComp.Services {
             $translate('RED_GREEN').then((translation) => {
                 this.colorScales[translation] = ['red', 'green'];
             });
-            $translate('WHITE_ORANGE').then((translation) => {
-                this.colorScales[translation] = ['white', 'orange'];
-            });
             $translate('BLUE_RED').then((translation) => {
                 this.colorScales[translation] = ['#F04030', '#3040F0'];
             });
@@ -198,10 +202,10 @@ module csComp.Services {
                 this.colorScales[translation] = ['green', 'white'];
             });
             $translate('WHITE_ORANGE').then((translation) => {
-                this.colorScales[translation] = ['white', 'orange'];
+                this.colorScales[translation] = ['white', '#FF5500'];
             });
             $translate('ORANGE_WHITE').then((translation) => {
-                this.colorScales[translation] = ['orange', 'white'];
+                this.colorScales[translation] = ['#FF5500', 'white'];
             });
             $translate('RED_WHITE_BLUE').then((translation) => {
                 this.colorScales[translation] = ['red', 'white', 'blue'];

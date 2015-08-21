@@ -20,7 +20,7 @@
                                     <style>
                                     </style>
                                     <!--<img src="includes/images/fillcolor.png" style="width: 32px; height:32px" />-->
-                                    <div id="colors" style="border-radius: 50%;width: 20px;height:20px;border-style:solid;border-color: black;border-width: 1px;background: linear-gradient(to right, {{style.colors[0]}} , {{style.colors[1]}})">
+                                    <div id="colors" style="border-radius: 50%;width: 20px;height:20px;border-style:solid;border-color: black;border-width: 1px;" ng-style="{'background-image': 'linear-gradient(to right,'+style.colors[0]+','+style.colors[1]+')'}">
                                     </div>
                                     <b class="caret"></b>
                                 </div>
@@ -71,7 +71,7 @@
                                 <li data-ng-repeat="(key, le) in style.activeLegend.legendEntries | reverse" class="legend-entry-item-i">
                                     <div ng-if="key < style.activeLegend.legendEntries.length-1"
                                         class="legend-color-gradient-rect"
-                                        style="float: left; position: relative; top: 10px; background: linear-gradient(to bottom, {{le.color}}, {{style.activeLegend.legendEntries[style.activeLegend.legendEntries.length-key-2].color}}"></div>
+                                        ng-style="vm.getStyle(style.activeLegend, le, key)"></div>
                                     <div class="legend-label-i">{{le.label}}</div>
                                     <!-- die &nbsp; is echt nodig... -->
                                     <div>&nbsp;</div>

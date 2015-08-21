@@ -87,13 +87,6 @@ class BushalteAggregateTransformer implements transform.ITransform {
         return;
       }
 
-      if (index > 100) {
-        index++;
-        done();
-        return;
-      }
-
-
       // console.log("=== Before:")
       // console.log(feature);
       var found = false;
@@ -173,7 +166,6 @@ class BushalteAggregateTransformer implements transform.ITransform {
           var featureAcc = accumulator[key];
           /*console.log ("#### push feature");*/
           /*console.log(featureAcc);*/
-          var foo=[];
           featureAcc.feature.properties["routes"] = (<string[]>featureAcc["routes"]).join(";");
           featureAcc.feature.properties["routes_in_wijk"] = (<string[]>featureAcc["routes"]).length;
           featureAcc.feature.properties["bushaltes"] = featureAcc.nFeatures;

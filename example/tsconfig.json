@@ -97,6 +97,7 @@
         "./ServerComponents/rules/RuleEngine.d.ts",
         "./ServerComponents/rules/WorldState.d.ts",
         "./public/app/app.ts",
+        "./public/app/m.ts",
         "./server.ts"
     ]
 }

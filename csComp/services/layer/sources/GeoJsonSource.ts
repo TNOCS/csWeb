@@ -46,7 +46,7 @@ module csComp.Services {
                         layer.isLoading = false;
                         // check if loaded correctly
                         if (error) {
-                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, error);
+                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, error + '\nwhile loading: ' + u);
                             this.service.$messageBusService.publish('layer', 'error', layer);
                         } else {
                             this.initLayer(data, layer);
@@ -85,8 +85,9 @@ module csComp.Services {
                 layer.data.features = layer.data.geometries;
             }
             layer.data.features.forEach((f) => {
-                this.service.initFeature(f, layer);
+                this.service.initFeature(f, layer, false, false);
             });
+            this.service.$messageBusService.publish("timeline", "updateFeatures");
         }
 
         removeLayer(layer: ProjectLayer) {
@@ -264,6 +265,16 @@ module csComp.Services {
         }
     }
 
+    export interface IOtpLeg {
+        mode: string,
+        start: string,
+        arrive: string,
+        duration: string,
+        route?: string,
+        routeName?: string,
+        agency?: string
+    }
+
     export class AccessibilityDataSource extends GeoJsonSource {
         title = "Accessibility datasource";
         private routers;
@@ -335,7 +346,7 @@ module csComp.Services {
                 for (var key in this.routers) {
                     if (this.routers.hasOwnProperty(key)) {
                         var polygon: L.Polygon = this.routers[key];
-                        if (csComp.Helpers.GeoExtensions.pointInsidePolygon([this.latlng.lng, this.latlng.lat], polygon.toGeoJSON().geometry.coordinates[0])) {
+                        if (csComp.Helpers.GeoExtensions.pointInsidePolygon([this.latlng.lng, this.latlng.lat], polygon.toGeoJSON().geometry.coordinates)) {
                             url = url.replace(this.getCurrentRouter(urlParameters['baseUrl']), key);
                         }
                     }
@@ -394,21 +405,43 @@ module csComp.Services {
                     this.layer.data.features = [];
                     parsedData.plan.itineraries.forEach((it) => {
                         var route = new L.Polyline([]);
+                        var legs: IOtpLeg[] = [];
+                        var transfers = -1;
                         it.legs.forEach((leg) => {
                             var polyLeg: L.Polyline = L.Polyline.fromEncoded(leg.legGeometry.points);
                             polyLeg.getLatLngs().forEach((ll) => {
                                 route.addLatLng(ll);
                             });
+                            var legDetails: IOtpLeg = {
+                                mode: leg.mode,
+                                start: new Date(leg.startTime).toISOString(),
+                                arrive: new Date(leg.endTime).toISOString(),
+                                duration: csComp.Helpers.convertPropertyInfo({type: "duration"}, (+leg.duration) * 1000)
+                            };
+                            (leg.agencyName) ? legDetails.agency = leg.agencyName : null;
+                            (leg.routeShortName) ? legDetails.route = leg.routeShortName : null;
+                            (leg.routeLongName) ? legDetails.routeName = leg.routeLongName : null;
+                            if (leg.mode !== 'WALK' && leg.mode !== 'BICYCLE') transfers = transfers + 1;
+                            legs.push(legDetails);
                         });
                         var geoRoute = route.toGeoJSON();
                         this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates,
-                            { fromLoc: fromLoc.name, toLoc: toLoc.name, duration: (+it.duration) * 1000, arriveTime: new Date(it.endTime).toISOString(), startTime: new Date(it.startTime).toISOString() }));
+                            {
+                                fromLoc: fromLoc.name,
+                                toLoc: toLoc.name,
+                                duration: (+it.duration) * 1000,
+                                startTime: new Date(it.startTime).toISOString(),
+                                arriveTime: new Date(it.endTime).toISOString(),
+                                legs: legs,
+                                transfers: (transfers >= 0) ? transfers : 0
+                            }));
                     });
                 }
                 this.layer.data.features.forEach((f: IFeature) => {
                     f.isInitialized = false;
-                    this.service.initFeature(f, this.layer);
+                    this.service.initFeature(f, this.layer, false, false);
                 });
+                this.service.$messageBusService.publish("timeline", "updateFeatures");
             }
             this.layer.isLoading = false;
             clbk(this.layer);
@@ -443,8 +476,9 @@ module csComp.Services {
                         layer.data.features = layer.data.geometries;
                     }
                     layer.data.features.forEach((f) => {
-                        this.service.initFeature(f, layer);
+                        this.service.initFeature(f, layer, false, false);
                     });
+                    this.service.$messageBusService.publish("timeline", "updateFeatures");
 
                     layer.isLoading = false;
                     callback(layer);

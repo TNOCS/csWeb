@@ -102,7 +102,6 @@ describe('csComp.Services.LayerService', function() {
         it('should publish to layer and updatelegend', () => {
             layerService.addLayer(fakeLayer);
             expect(msgBusService.publish).toHaveBeenCalledWith('layer', 'loading', fakeLayer);
-            expect(msgBusService.publish).toHaveBeenCalledWith('updatelegend', 'title', undefined);
         });
         xit('should call loadTypeResources', () => {
             spyOn(layerService, 'loadTypeResources');
@@ -120,7 +119,11 @@ describe('csComp.Services.LayerService', function() {
     describe('Open solution', () => {
         describe('Open solution', () => {
             it('should load projects.json',()=>{
-                spyOn($, 'getJSON');
+                spyOn($, 'getJSON').and.callFake((req) => {
+                    var d = $.Deferred();
+                    d.resolve('{"fake_data": "true"}');
+                    return d.promise();
+                });
                 layerService.openSolution('projects.json');
                 expect($.getJSON).toHaveBeenCalledWith('projects.json', jasmine.any(Function));
             });
@@ -133,7 +136,11 @@ describe('csComp.Services.LayerService', function() {
                 mapService.baseLayers = {};
                 spyOn(mapService.map, 'setMaxBounds');
 
-                var jsonSpy = spyOn($, 'getJSON');
+                var jsonSpy = spyOn($, 'getJSON').and.callFake((req) => {
+                    var d = $.Deferred();
+                    d.resolve('{"fake_data": "true"}');
+                    return d.promise();
+                });
                 layerService.openSolution('projects.json');
                 expect($.getJSON).toHaveBeenCalledWith('projects.json', jasmine.any(Function));
                 jsonSpy.calls.mostRecent().args[1](mockSolution); //call callback with mocked json

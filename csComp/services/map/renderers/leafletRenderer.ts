@@ -75,7 +75,7 @@ module csComp.Services {
             // for clustering use a cluster layer
             if (group.clustering) {
                 group.cluster = new L.MarkerClusterGroup({
-                    maxClusterRadius: group.maxClusterRadius || 80,
+                    maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
                 this.service.map.map.addLayer(group.cluster);
@@ -102,10 +102,16 @@ module csComp.Services {
                             }
                         });
                     } else {
-                        if (this.service.map.map && layer.mapLayer)
+                        this.service.project.features.forEach((feature: IFeature) => {
+                            if (feature.layerId === layer.id && layer.group.markers.hasOwnProperty(feature.id)) {
+                                delete layer.group.markers[feature.id];
+                            }
+                        });
+                        if (this.service.map.map && layer.mapLayer) {
                             try {
                                 this.service.map.map.removeLayer(layer.mapLayer);
                             } catch (error) { }
+                        }
                     }
                     break;
                 default:
@@ -192,7 +198,8 @@ module csComp.Services {
                         opacity: layer.opacity / 100,
                         format: 'image/png',
                         transparent: true,
-                        attribution: layer.description
+                        attribution: layer.description,
+                        tiled: true
                     });
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                     this.service.map.map.addLayer(layer.mapLayer);
@@ -297,8 +304,18 @@ module csComp.Services {
          */
         public updateMapFilter(group: ProjectGroup) {
             $.each(group.markers, (key, marker) => {
-                var included;
-                if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+                var includedPropFilter, includedMapFilter, included;
+                if (group.filterResult && group.filters.length > 0) {
+                    includedPropFilter = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+                } else {
+                    includedPropFilter = true;
+                }
+                if (this.service.project.mapFilterResult && this.service.project.mapFilterResult.length > 0) {
+                    includedMapFilter = this.service.project.mapFilterResult.filter((m: any) => m.feature.id === key).length > 0;
+                } else {
+                    includedMapFilter = true;
+                }
+                included = (includedPropFilter && includedMapFilter);
                 if (group.clustering) {
                     var incluster = group.cluster.hasLayer(marker);
                     if (!included && incluster) group.cluster.removeLayer(marker);
@@ -330,7 +347,12 @@ module csComp.Services {
                 marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
             } else {
                 marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
-                if (feature.layer && feature.layer.type !== 'accessibility') marker.bringToFront();
+                if (feature.isSelected && feature.layer && feature.layer.type !== 'accessibility' && feature.layer.group) {
+                    if ((feature.layer.group.clustering && feature.layer.group.cluster && feature.layer.group.cluster.hasLayer(marker))
+                        || feature.layer.group.markers.hasOwnProperty(marker.feature.id)) {
+                        marker.bringToFront();
+                    }
+                }
             }
         }
 
@@ -382,10 +404,10 @@ module csComp.Services {
                         var mapSize = this.map.getSize();
                         menu.css("left", e.originalEvent.x + 5);
                         menu.css("top", e.originalEvent.y - 35);
-
+                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
                         /*var containerSize = this.getElementSize(container),
                             anchor;*/
-                        console.log(e);
+                        //console.log(e);
                         //L.DomEvent.apply(e, "click");
                         //alert(e.latlng);
                     });
@@ -395,6 +417,19 @@ module csComp.Services {
                 default:
                     marker = L.GeoJSON.geometryToLayer(<any>feature);
                     marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
+
+                    marker.on('contextmenu', (e: any) => {
+                        this.service._activeContextMenu = this.service.getActions(feature);
+
+                        //e.stopPropagation();
+                        var button: any = $("#map-contextmenu-button");
+                        var menu: any = $("#map-contextmenu");
+                        button.dropdown('toggle');
+                        var mapSize = this.map.getSize();
+                        menu.css("left", e.originalEvent.x + 5);
+                        menu.css("top", e.originalEvent.y - 35);
+                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+                    });
 
                     //marker = L.multiPolygon(latlng, polyoptions);
                     break;
@@ -419,53 +454,12 @@ module csComp.Services {
                     html: feature.htmlStyle
                 });
             } else {
-                var html = '<div ';
-                var props = {};
-                var ft = this.service.getFeatureType(feature);
-
-                //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
-                var iconUri = feature.effectiveStyle.iconUri; //ft.style.iconUri;
-                //if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
-
-                // TODO refactor to object
-                props['background'] = feature.effectiveStyle.fillColor;
-                props['width'] = feature.effectiveStyle.iconWidth + 'px';
-                props['height'] = feature.effectiveStyle.iconHeight + 'px';
-                props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
-                props['border-style'] = 'solid';
-                props['border-color'] = feature.effectiveStyle.strokeColor;
-                props['border-width'] = feature.effectiveStyle.strokeWidth;
-                props['opacity'] = feature.effectiveStyle.opacity;
-
-                if (feature.isSelected) {
-                    props['border-width'] = '3px';
-                }
-
-                html += ' style=\'display: inline-block;vertical-align: middle;text-align: center;';
-                for (var key in props) {
-                    if (!props.hasOwnProperty(key)) continue;
-                    html += key + ':' + props[key] + ';';
-                }
-
-                html += '\'>';
-                if (feature.effectiveStyle.innerTextProperty != null && feature.properties.hasOwnProperty(feature.effectiveStyle.innerTextProperty)) {
-                    html += "<span style='font-size:12px;vertical-align:-webkit-baseline-middle'>" + feature.properties[feature.effectiveStyle.innerTextProperty] + "</span>";
-                }
-                else if (iconUri != null) {
-                    // Must the iconUri be formatted?
-                    if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
-
-                    html += '<img src=\'' + iconUri + '\' style=\'width:' + (feature.effectiveStyle.iconWidth - 6) + 'px;height:' + (feature.effectiveStyle.iconHeight - 6) + 'px';
-                    if (feature.effectiveStyle.rotate && feature.effectiveStyle.rotate > 0) html += ';transform:rotate(' + feature.effectiveStyle.rotate + 'deg)';
-                    html += '\' />';
-                }
-
-                html += '</div>';
+                var iconHtml = csComp.Helpers.createIconHtml(feature, this.service.getFeatureType(feature));
 
                 icon = new L.DivIcon({
                     className: '',
-                    iconSize: new L.Point(feature.effectiveStyle.iconWidth, feature.effectiveStyle.iconHeight),
-                    html: html
+                    iconSize: new L.Point(iconHtml['iconPlusBorderWidth'], iconHtml['iconPlusBorderHeight']),
+                    html: iconHtml['html']
                 });
                 //icon = new L.DivIcon({
                 //    className: "style" + feature.poiTypeName,
@@ -527,6 +521,14 @@ module csComp.Services {
                 autoPan: false,
                 className: 'featureTooltip'
             }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
+
+            //In case a BAG contour is available, show it.
+            if (this.service.currentContour) this.service.map.map.removeLayer(this.service.currentContour);
+            if (feature.properties.hasOwnProperty('_bag_contour')) {
+                var geoContour: L.GeoJSON = JSON.parse(feature.properties['_bag_contour']);
+                this.service.currentContour = L.geoJson(geoContour);
+                this.service.currentContour.addTo(this.service.map.map);
+            }
         }
 
         hideFeatureTooltip(e) {
@@ -535,6 +537,7 @@ module csComp.Services {
                 //this.map.map.closePopup(this.popup);
                 this.popup = null;
             }
+            if (this.service.currentContour) this.service.map.map.removeLayer(this.service.currentContour);
         }
 
         updateFeatureTooltip(e) {

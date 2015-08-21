@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "Angular map directives",
     "dependencies": {
-        "gulp": "^3.8.11"
+        "gulp": "^3.9.0"
     },
     "devDependencies": {},
     "scripts": {

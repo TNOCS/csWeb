@@ -1,4 +1,4 @@
-﻿module csComp.Services {
+module csComp.Services {
     'use strict';
 
     export class HeatmapSource implements ILayerSource {
@@ -142,7 +142,7 @@
 
             if ((<any>(layer.data)) && (<any>(layer.data)).features) {
                 (<any>(layer.data)).features.forEach((f) => {
-                    this.service.initFeature(f, layer);
+                    this.service.initFeature(f, layer, false, false);
                     this.service.activeMapRenderer.addFeature(f);
                 });
 

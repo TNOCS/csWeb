@@ -124,7 +124,7 @@ export class MapLayerFactory {
                 geojson: geojson,
                 enabled: ld.isEnabled
             };
-            if ((Object.keys(this.featuresNotFound).length !== 0) && ld.geometryType.indexOf('Postcode') > -1) {
+            if (Object.keys(this.featuresNotFound).length !== 0) {
                 console.log('Adresses that could not be found are:');
                 console.log('-------------------------------------');
                 for (var key in this.featuresNotFound) {
@@ -188,6 +188,7 @@ export class MapLayerFactory {
                 iconHeight: ld.iconSize,
                 drawingMode: ld.drawingMode,
                 stroke: ld.strokeWidth > 0,
+                strokeWidth: (typeof ld.strokeWidth !== 'undefined') ? ld.strokeWidth : 3,
                 strokeColor: ld.strokeColor || "#000",
                 selectedStrokeColor: ld.selectedStrokeColor || "#00f",
                 fillColor: ld.fillColor || "#ff0",
@@ -244,6 +245,17 @@ export class MapLayerFactory {
                     return;
                 }
                 this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.All, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                break;
+            case "Postcode6_en_huisnummer_met_bag_en_woningtype":
+                if (!ld.parameter1) {
+                    console.log("Error: Parameter1 should be the name of the column containing the zip code!")
+                    return;
+                }
+                if (!ld.parameter2) {
+                    console.log("Error: Parameter2 should be the name of the column containing the house number!")
+                    return;
+                }
+                this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.AddressCountInBuilding, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 break;
             case "Latitude_and_longitude":
                 if (!ld.parameter1) {
@@ -329,7 +341,7 @@ export class MapLayerFactory {
                     }
                 }
             }
-            realSensors.push(sensors);
+            if (Object.keys(sensors).length !== 0) realSensors.push(sensors);
             realProperties.push(realProperty);
         });
         if (realSensors.length > 0) template.sensors = realSensors;
@@ -356,6 +368,7 @@ export class MapLayerFactory {
         }
         var fts = templateJson.features;
         properties.forEach((p, index) => {
+            var foundFeature = false;
             fts.some((f) => {
                 if (f.properties["Name"] === p[par1]) {
                     console.log(p[par1]);
@@ -375,11 +388,16 @@ export class MapLayerFactory {
                         featureJson["sensors"] = sensors[index];
                     }
                     features.push(featureJson);
+                    foundFeature = true;
                     return true;
                 } else {
                     return false;
                 }
-            })
+            });
+            if (!foundFeature) {
+                console.log('Warning: Could not find: ' + p[par1]);
+                this.featuresNotFound[`${p[par1]}`] = { zip: `${p[par1]}`, number: '' };
+            }
         });
         callback();
     }
@@ -425,27 +443,29 @@ export class MapLayerFactory {
         if (!properties) callback();
         var todo = properties.length;
         properties.forEach((prop, index) => {
-            var zip = prop[zipCode].replace(/ /g, '');
-            var nmb = prop[houseNumber];
-            this.bag.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
-                //console.log(todo);
-                todo--;
-                if (!locations || locations.length === 0) {
-                    console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
-                    this.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
-                } else {
-                    for (var key in locations[0]) {
-                        if (key !== "lon" && key !== "lat") {
-                            if (locations[0][key]) {
-                                prop[(key.charAt(0).toUpperCase() + key.slice(1))] = locations[0][key];
-                                this.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), "BAG");
+            if (prop.hasOwnProperty(zipCode) && typeof prop[zipCode] === 'string'){
+                var zip = prop[zipCode].replace(/ /g, '');
+                var nmb = prop[houseNumber];
+                this.bag.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
+                    //console.log(todo);
+                    todo--;
+                    if (!locations || locations.length === 0) {
+                        console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
+                        this.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
+                    } else {
+                        for (var key in locations[0]) {
+                            if (key !== "lon" && key !== "lat") {
+                                if (locations[0][key]) {
+                                    prop[(key.charAt(0).toUpperCase() + key.slice(1))] = locations[0][key];
+                                    this.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), "BAG");
+                                }
                             }
                         }
+                        features.push(this.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
                     }
-                    features.push(this.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
-                }
-                if (todo <= 0) callback();
-            });
+                    if (todo <= 0) callback();
+                });
+            }
         });
     }
 
@@ -458,7 +478,7 @@ export class MapLayerFactory {
             },
             properties: properties
         }
-        if (sensors !== {}) {
+        if (Object.keys(sensors).length !== 0) {
             gjson["sensors"] = sensors;
         }
         return gjson;

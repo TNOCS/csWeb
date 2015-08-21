@@ -130,6 +130,7 @@
         "./directives/TripPlanner/TripPlanner.ts",
         "./directives/TripPlanner/TripPlannerCtrl.ts",
         "./directives/Voting/Voting.ts",
+        "./directives/Widgets/Filters/AreaFilter.ts",
         "./directives/Widgets/Filters/BarFilterCtrl.ts",
         "./directives/Widgets/Filters/BoolFilterCtrl.ts",
         "./directives/Widgets/Filters/DateFilterCtrl.ts",
@@ -151,6 +152,7 @@
         "./helpers/StringScore.ts",
         "./helpers/StyleHelpers.ts",
         "./helpers/Utils.ts",
+        "./helpers/conrec.ts",
         "./helpers/esriJsonConverter.ts",
         "./services/bus/MessageBus.ts",
         "./services/connection/ConnectionService.ts",
@@ -161,6 +163,7 @@
         "./services/layer/sources/GridDataSource.ts",
         "./services/layer/sources/HeatmapSource.ts",
         "./services/layer/sources/HierarchySource.ts",
+        "./services/layer/sources/KmlDataSource.ts",
         "./services/layer/sources/NightDayDataSource.ts",
         "./services/layer/sources/RssDataSource.ts",
         "./services/layer/sources/TileLayerSource.ts",
@@ -170,6 +173,7 @@
         "./services/map/renderers/leafletRenderer.ts",
         "./services/search/SearchFormCtrl.ts",
         "./translations/locale-en.ts",
-        "./translations/locale-nl.ts"
+        "./translations/locale-nl.ts",
+        "./typings/tsd.d.ts"
     ]
 }

@@ -96,10 +96,12 @@ module FeatureProps {
         public title: string;
         public icon: string;
         public sections: { [title: string]: ICallOutSection; };
+        public sectionKeys: string[];
         public hasInfoSection: boolean;
 
         constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: IPropertyTypeData, private layerservice: csComp.Services.LayerService, private mapservice: csComp.Services.MapService) {
             this.sections = {};
+            this.sectionKeys = [];
             this.hasInfoSection = false;
             //if (type == null) this.createDefaultType();
             this.setTitle();
@@ -127,6 +129,7 @@ module FeatureProps {
                 propertyTypes.forEach((mi: IPropertyType) => {
                     if (feature.properties.hasOwnProperty(mi.label) && mi.visibleInCallOut) {
                         var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
+                        if (callOutSection.propertyTypes.hasOwnProperty(mi.label)) return; // Prevent duplicate properties in the same  section
                         callOutSection.propertyTypes[mi.label] = mi;
                         var text = feature.properties[mi.label]; if (mi.type === "hierarchy") {
                             var count = this.calculateHierarchyValue(mi, feature, propertyTypeData, layerservice);
@@ -151,12 +154,14 @@ module FeatureProps {
             }
             if (infoCallOutSection.properties.length > 0) {
                 this.hasInfoSection = true;
-                this.sections['Aaa Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically
+                this.sections['Aaa Info'] = infoCallOutSection; // The AAA is added as the sections are sorted alphabetically (not anymore in angular 1.4!!!)
+                this.sectionKeys.push('Aaa Info');
             } else {
                 this.hasInfoSection = false;
             }
-            if (hierarchyCallOutSection.properties.length > 0) this.sections['hierarchy'] = hierarchyCallOutSection;
-            //if (searchCallOutSection.properties.length > 0) this.sections['zzz Search'] = searchCallOutSection;
+            if (hierarchyCallOutSection.properties.length > 0) {this.sections['hierarchy'] = hierarchyCallOutSection; this.sectionKeys.push('hierarchy');}
+            //if (searchCallOutSection.properties.length > 0) {this.sections['zzz Search'] = searchCallOutSection; this.sectionKeys.push('zzz Search');}
+            this.sectionKeys = this.sectionKeys.sort();
         }
 
         private calculateHierarchyValue(mi: IPropertyType, feature: IFeature, propertyTypeData: IPropertyTypeData, layerservice: csComp.Services.LayerService): number {
@@ -187,20 +192,16 @@ module FeatureProps {
         }
 
         public sectionCount(): number {
-            return Object.keys(this.sections).length;
+            return this.sectionKeys.length;
         }
 
         public firstSection(): ICallOutSection {
-            var keys = Object.keys(this.sections);
-            keys.sort();
-            var first = this.sections[keys[0]];
+            var first = this.sections[this.sectionKeys[0]];
             return first;
         }
 
         public lastSection(): ICallOutSection {
-            var keys = Object.keys(this.sections);
-            keys.sort();
-            var last = this.sections[keys[this.sectionCount() - 1]];
+            var last = this.sections[this.sectionKeys[this.sectionKeys.length - 1]];
             return last;
         }
 
@@ -211,6 +212,7 @@ module FeatureProps {
             if (sectionTitle in this.sections)
                 return this.sections[sectionTitle];
             this.sections[sectionTitle] = new CallOutSection();
+            this.sectionKeys.push(sectionTitle);
             return this.sections[sectionTitle];
         }
 
@@ -248,6 +250,7 @@ module FeatureProps {
     export class FeaturePropsCtrl {
         private scope: IFeaturePropsScope;
         public lastSelectedProperty: IPropertyType;
+        private defaultDropdownTitle: string;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -259,7 +262,8 @@ module FeatureProps {
             '$sce',
             'mapService',
             'layerService',
-            'messageBusService'
+            'messageBusService',
+            '$translate'
         ];
 
 
@@ -272,8 +276,11 @@ module FeatureProps {
             private $sce: ng.ISCEService,
             private $mapService: csComp.Services.MapService,
             private $layerService: csComp.Services.LayerService,
-            private $messageBusService: csComp.Services.MessageBusService
+            private $messageBusService: csComp.Services.MessageBusService,
+            private $translate: ng.translate.ITranslateService
             ) {
+            this.setDropdownTitle();
+
             this.scope = $scope;
             $scope.vm = this;
             $scope.showMenu = false;
@@ -527,6 +534,28 @@ module FeatureProps {
             this.focusTime = time.title;
             this.$layerService.project.timeLine.setFocus(new Date(time.timestamp));
             this.$messageBusService.publish("timeline", "focusChange", time.timestamp);
+        }
+
+        getFormattedDate(fp, pt: IPropertyType): string {
+            if (!fp) return;
+            var format: string;
+            if (pt && pt.hasOwnProperty('stringFormat')) {
+                format = pt.stringFormat;
+            } else {
+                format = 'DD MMMM YYYY';
+            }
+            return moment(fp, 'YYYYMMDD').format(format);
+        }
+
+        //When a feature has multiple sections, a dropdown list is created with the title defined in the language entry "CHOOSE_DROPDOWN" (e.g. "Choose..." or "Data...")
+        private setDropdownTitle() {
+            this.$translate("CHOOSE_DROPDOWN").then(translation => {
+                if (typeof translation === 'string' && translation.length > 0) {
+                    this.defaultDropdownTitle = translation;
+                } else {
+                    this.defaultDropdownTitle = '...';
+                }
+            });
         }
     }
 }

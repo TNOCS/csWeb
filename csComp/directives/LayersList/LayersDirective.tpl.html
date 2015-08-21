@@ -1,5 +1,11 @@
 <div>
     <h3 class="leftpanel-header" style="width: 100%">
+        <div ng-show="vm.allCollapsed" class="leftpanel-header-button-container-left">
+            <button class="button fa fa-chevron-up leftpanel-header-button" ng-click="vm.expandAll()" popover="{{'EXPAND_ALL' | translate}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter" popover-append-to-body="true" />
+        </div>
+        <div ng-hide="vm.allCollapsed" class="leftpanel-header-button-container-left">
+            <button class="button fa fa-chevron-down leftpanel-header-button" ng-click="vm.collapseAll()" popover="{{'COLLAPSE_ALL' | translate}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter" popover-append-to-body="true" />
+        </div>
         <span translate="LAYERS" />
         <div ng-show="vm.$mapService.isAdminExpert" class="leftpanel-header-button-container">
             <button class="button fa fa-plus leftpanel-header-button" ng-click="vm.addLayer()" />
@@ -7,11 +13,11 @@
     </h3>
     <div style="overflow-y: auto; overflow-x: hidden; margin-top: -10px" resize resize-y="95">
         <div data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
-            <div style="float: left; margin-left: -5px; margin-top: 5px" data-toggle="collapse" data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
-            <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" class="group-title">{{group.title}}</div>
+            <div id="layergroupStyle" style="float: left; margin-left: -5px; margin-top: 5px" data-toggle="collapse" data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
+            <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true" class="group-title">{{group.title}}</div>
             <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:20px;top:3px;cursor:pointer" ng-click="vm.editGroup(group)"></div>
             <div id="layergroup_{{group.id}}" class="collapse in">
-                <div popover="{{(layer.description) ? layer.description : ''}}" popover-placement="right" popover-trigger="mouseenter" data-ng-repeat="layer in group.layers">
+                <div popover="{{(layer.description) ? layer.description : ''}}" popover-append-to-body="true" popover-placement="right" popover-trigger="mouseenter" data-ng-repeat="layer in group.layers">
                     <!--bs-popover>-->
                     <div context-menu="options(layer)" style="list-style-type: none; padding: 0;" data-ng-class="{indent: layer.isSublayer}">
                         <!--<button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." data-original-title="" title="">Right</button>-->

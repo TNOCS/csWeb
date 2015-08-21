@@ -8,6 +8,16 @@ module TripPlanner {
         [key: string]: any;
     }
 
+    export interface IOtpTab {
+        icon: string,
+        title: string
+    }
+
+    export interface IOtpItinerary {
+        duration: number,
+        legs: csComp.Services.IOtpLeg[];
+    }
+
     export class TripPlannerCtrl {
         private scope: ITripPlannerScope;
         public layer: csComp.Services.ProjectLayer;
@@ -20,6 +30,9 @@ module TripPlanner {
         private time: string;
         private fromLoc: number;
         private toLoc: number;
+        private tabs: IOtpTab[];
+        private activeTab: string;
+        private itineraries: IOtpItinerary[];
         public urlKeys = ['arriveBy', 'fromPlace', 'toPlace', 'intermediatePlaces', 'date', 'time', 'mode', 'maxWalkDistance', 'walkSpeed', 'bikeSpeed',
             'maxTimeSec', 'precisionMeters', 'zDataType', 'coordinateOrigin'];
 
@@ -29,7 +42,6 @@ module TripPlanner {
         // See http://docs.angularjs.org/guide/di
         public static $inject = [
             '$scope',
-            '$http',
             'mapService',
             'layerService',
             'messageBusService',
@@ -40,7 +52,6 @@ module TripPlanner {
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope: ITripPlannerScope,
-            private $http: ng.IHttpService,
             private $mapService: csComp.Services.MapService,
             private $layerService: csComp.Services.LayerService,
             private $messageBusService: csComp.Services.MessageBusService,
@@ -49,6 +60,10 @@ module TripPlanner {
             this.scope = $scope;
             $scope.vm = this;
             this.layer = $scope.$parent["data"];
+            this.tabs = [];
+            this.tabs.push({ icon: 'fa-edit', title: 'Edit' });
+            this.tabs.push({ icon: 'fa-map-marker', title: 'Route' });
+            this.activeTab = 'Edit';
             this.urlParameters = {};
             this.urlKeys.forEach((key) => { this.urlParameters[key] = 0 });
             this.bikeSpeedKm;
@@ -77,15 +92,28 @@ module TripPlanner {
         public parseUrl() {
             this.urlParameters = csComp.Helpers.parseUrlParameters(this.layer.url, '?', '&', '=');
             var d = new Date(Date.now());
-            this.time = ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
-            this.urlParameters['date'] = (d.getMonth()+1) + '-' + d.getDate() + '-' + d.getFullYear();
+            this.time = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+            this.urlParameters['date'] = (d.getMonth() + 1) + '-' + d.getDate() + '-' + d.getFullYear();
             this.transportMode = this.urlParameters['mode'];
             if (this.urlParameters.hasOwnProperty('walkSpeed')) this.walkSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['walkSpeed']).toFixed(2);
             if (this.urlParameters.hasOwnProperty('bikeSpeed')) this.bikeSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['bikeSpeed']).toFixed(2);
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
         }
 
-        private addCutoffTime() {
+        private featureTabActivated(title: string) {
+            console.log('activated tab' + title);
+            if (title === 'Route') {
+                var layer = this.$layerService.findLayer('tripplanner');
+                if (!layer) return;
+                if (!layer.data.features || layer.data.features.length === 0) return;
+                this.itineraries = [];
+                layer.data.features.forEach((f) => {
+                    this.itineraries.push(f.properties);
+                });
+                this.activeTab = 'Route';
+            } else {
+                this.activeTab = 'Edit';
+            }
         }
     }
 }

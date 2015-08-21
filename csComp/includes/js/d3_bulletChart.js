@@ -113,11 +113,11 @@ d3.bullet = function() {
           .attr("y2", height * 5 / 6);
 
       // Compute the tick format.
-      var format = tickFormat || x1.tickFormat(8);
+      var format = tickFormat || x1.tickFormat(5);
 
       // Update the tick groups.
       var tick = g.selectAll("g.tick")
-          .data(x1.ticks(8), function(d) {
+          .data(x1.ticks(5), function(d) {
             return this.textContent || format(d);
           });
 

@@ -23,17 +23,17 @@
     export function getDefaultFeatureStyle(): csComp.Services.IFeatureTypeStyle {
         //TODO: check compatibility for both heatmaps and other features
         var s: csComp.Services.IFeatureTypeStyle = {
-            nameLabel:   "Name",
-            strokeWidth: 1,
-            strokeColor: "#GGBBAA",
+            nameLabel: "Name",
+            strokeWidth: 3,
+            strokeColor: "#0033ff",
             fillOpacity: 0.75,
-            opacity:     1,
-            fillColor:   "#FFFF00",
-            stroke:      true,
-            rotate:      0,
-            iconUri:     "cs/images/marker.png",
-            iconHeight:  32,
-            iconWidth:   32
+            opacity: 1,
+            fillColor: "#FFFF00",
+            stroke: true,
+            rotate: 0,
+            iconUri: "cs/images/marker.png",
+            iconHeight: 32,
+            iconWidth: 32
         };
         return s;
     }
@@ -70,8 +70,6 @@
             document.body.removeChild(a);
         }
     }
-
-
 
     declare var String;//: StringExt.IStringExt;
 
@@ -277,7 +275,7 @@
                     var h = d1.getHours() - d0.getHours();
                     var m = d1.getMinutes() - d0.getMinutes();
                     var s = d1.getSeconds() - d0.getSeconds();
-                    displayValue = ('0'+h).slice(-2) + 'h' + ('0'+m).slice(-2) + 'm' + ('0'+s).slice(-2) + 's';
+                    displayValue = ('0' + h).slice(-2) + 'h' + ('0' + m).slice(-2) + 'm' + ('0' + s).slice(-2) + 's';
                 }
                 break;
             default:
@@ -294,6 +292,10 @@
     export function setFeatureName(feature: csComp.Services.IFeature, propertyTypeData?: csComp.Services.IPropertyTypeData) {
         // Case one: we don't need to set it, as it's already present.
         if (feature.properties.hasOwnProperty('Name')) return feature;
+        if (feature.properties.hasOwnProperty('name')) {
+            feature.properties['Name'] = feature.properties['name'];
+            return feature;
+        }
         // Case two: the feature's style tells us what property to use for the name.
         if (feature.fType && feature.fType.style && feature.fType.style.nameLabel) {
             var nameLabel = feature.fType.style.nameLabel;
@@ -310,14 +312,14 @@
         if (feature.fType.propertyTypeData != null) {
             for (var i = 0; i < feature.fType.propertyTypeData.length; i++) {
                 var propertyType = feature.fType.propertyTypeData[i];
-                if (propertyType.label !== 'Name') continue;
+                if (propertyType.label !== 'Name' || !propertyType.stringFormat) continue;
                 feature.properties['Name'] = Helpers.convertStringFormat(feature, propertyType.stringFormat);
                 return feature;
             }
         }
         // If all else fails, use the first property
         for (var prop in feature.properties) {
-            feature.properties['Name'] = prop.toString();
+            feature.properties['Name'] = prop.toString(); //feature.properties[prop];
             return feature;
         }
         // Finally, just create a GUID.
@@ -425,11 +427,11 @@
     /**
      * Helper function to parse a query of an url (e.g localhost:8080/api?a=1&b=2&c=3)
      */
-    export function parseUrlParameters(url: string, baseDelimiter: string, subDelimiter: string, valueDelimiter: string): {[key: string]: any} {
+    export function parseUrlParameters(url: string, baseDelimiter: string, subDelimiter: string, valueDelimiter: string): { [key: string]: any } {
         var baseUrl = url.split(baseDelimiter)[0];
         var croppedUrl = url.split(baseDelimiter)[1];
         var splittedUrl = croppedUrl.split(subDelimiter);
-        var urlParameters: {[key: string]: any} = {};
+        var urlParameters: { [key: string]: any } = {};
         splittedUrl.forEach((param) => {
             var keyValue = param.split(valueDelimiter);
             urlParameters[keyValue[0]] = (isNaN(+keyValue[1])) ? keyValue[1] : +keyValue[1]; //Store as number when possible
@@ -441,14 +443,73 @@
     /**
      * Helper function to parse a query of an url (e.g localhost:8080/api?a=1&b=2&c=3)
      */
-    export function joinUrlParameters(params: {[key: string]: any}, baseDelimiter: string, subDelimiter: string, valueDelimiter: string): string {
+    export function joinUrlParameters(params: { [key: string]: any }, baseDelimiter: string, subDelimiter: string, valueDelimiter: string): string {
         var url = params['baseUrl'] + baseDelimiter;
         for (var key in params) {
             if (params.hasOwnProperty(key) && key !== 'baseUrl' && params[key]) {
                 url = url + key + valueDelimiter + params[key] + subDelimiter;
             }
         }
-        url = url.substring(0, url.length-1);
+        url = url.substring(0, url.length - 1);
         return url;
+    }
+
+    export function createIconHtml(feature: IFeature, featureType: csComp.Services.IFeatureType): {[key:string]: any} {
+        var html = '<div ';
+        var props = {};
+        var ft = featureType;
+
+        //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
+        var iconUri = feature.effectiveStyle.iconUri; //ft.style.iconUri;
+        //if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
+
+        // TODO refactor to object
+        var iconPlusBorderWidth, iconPlusBorderHeight;
+        if (feature.effectiveStyle.hasOwnProperty('strokeWidth') && feature.effectiveStyle.strokeWidth > 0) {
+            iconPlusBorderWidth = feature.effectiveStyle.iconWidth + (2 * feature.effectiveStyle.strokeWidth);
+            iconPlusBorderHeight = feature.effectiveStyle.iconHeight + (2 * feature.effectiveStyle.strokeWidth);
+        } else {
+            iconPlusBorderWidth = feature.effectiveStyle.iconWidth;
+            iconPlusBorderHeight = feature.effectiveStyle.iconHeight;
+        }
+        props['background'] = feature.effectiveStyle.fillColor;
+        props['width'] = iconPlusBorderWidth + 'px';
+        props['height'] = iconPlusBorderWidth + 'px';
+        props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
+        props['border-style'] = 'solid';
+        props['border-color'] = feature.effectiveStyle.strokeColor;
+        props['border-width'] = feature.effectiveStyle.strokeWidth + 'px';
+        props['opacity'] = feature.effectiveStyle.opacity;
+
+        //if (feature.isSelected) {
+        //props['border-width'] = '3px';
+        //}
+
+        html += ' style=\'display: inline-block;vertical-align: middle;text-align: center;';
+        for (var key in props) {
+            if (!props.hasOwnProperty(key)) continue;
+            html += key + ':' + props[key] + ';';
+        }
+
+        html += '\'>';
+        if (feature.effectiveStyle.innerTextProperty != null && feature.properties.hasOwnProperty(feature.effectiveStyle.innerTextProperty)) {
+            html += "<span style='font-size:12px;vertical-align:-webkit-baseline-middle'>" + feature.properties[feature.effectiveStyle.innerTextProperty] + "</span>";
+        }
+        else if (iconUri != null) {
+            // Must the iconUri be formatted?
+            if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
+
+            html += '<img src=\'' + iconUri + '\' style=\'width:' + (feature.effectiveStyle.iconWidth) + 'px;height:' + (feature.effectiveStyle.iconHeight) + 'px';
+            if (feature.effectiveStyle.rotate && feature.effectiveStyle.rotate > 0) html += ';transform:rotate(' + feature.effectiveStyle.rotate + 'deg)';
+            html += '\' />';
+        }
+
+        html += '</div>';
+
+        var iconHtml: {[key:string]: any} = {};
+        iconHtml['html'] = html;
+        iconHtml['iconPlusBorderWidth'] = iconPlusBorderWidth;
+        iconHtml['iconPlusBorderHeight'] = iconPlusBorderHeight;
+        return iconHtml;
     }
 }

@@ -5,19 +5,23 @@
 
 declare module L {
     export class MapMarker extends Marker {
-        
     }
-
 }
 
-
- 
 declare module L {
+    export class LocationFilter {
+        constructor(options: any);
+        on(type: string, fn: (e) => void, context?: any);
+        addTo(map: Map): LocationFilter;
+        enable(): void;
+        disable(): void;
+        isEnabled(): boolean;
+        getBounds(): LatLngBounds;
+    }
+}
 
-
-
+declare module L {
     export interface AttributionOptions {
-
         /**
           * The position of the control (one of the map corners). See control positions.
           * Default value: 'bottomright'.
@@ -285,6 +289,7 @@ declare module L {
           * constants.
           */
         static?: any;
+        [x: string]: any;
     }
 
     /**
@@ -342,7 +347,7 @@ declare module L {
         /**
          * The maximum radius that a cluster will cover from the central marker (in pixels). Default 80. Decreasing will make more smaller clusters. You can also use a function that accepts the current map zoom and returns the maximum cluster radius in pixels.
          */
-        maxClusterRadius?: number;
+        maxClusterRadius?: ((number) => number) | number;
         /**
          *  Increase from 1 to increase the distance away from the center that spiderfied markers are placed. Use if you are using big marker icons (Default:1)
          */
@@ -3345,6 +3350,11 @@ declare module L {
         getBounds(): LatLngBounds;
 
         /**
+         * Decodes an encoded polyline to a leaflet Polyline
+         */
+        static fromEncoded(encodedPolyline: string): Polyline;
+
+        /**
           * Returns a GeoJSON representation of the polyline (GeoJSON LineString Feature).
           */
         toGeoJSON(): any;
@@ -3515,6 +3525,7 @@ declare module L {
           * option).
           */
         closeOnClick?: boolean;
+        [x: string]: any;
     }
 }
  
@@ -3728,44 +3739,44 @@ declare module L {
 
     module TileLayer {
 
-        // NOTE EV Added
-        export class WebGLHeatMap implements ILayer {
-            constructor(options: any); 
+        //// NOTE EV Added
+        //export class WebGLHeatMap implements ILayer {
+        //    constructor(options: any);
 
-            /**
-            * Adds the overlay to the map.
-            */
-            addTo(map: Map): ImageOverlay;
+        //    /**
+        //    * Adds the overlay to the map.
+        //    */
+        //    addTo(map: Map): ImageOverlay;
     
-            /**
-              * Sets the opacity of the overlay.
-              */
-            setOpacity(opacity: number): ImageOverlay;
+        //    /**
+        //      * Sets the opacity of the overlay.
+        //      */
+        //    setOpacity(opacity: number): ImageOverlay;
     
-            /**
-              * Brings the layer to the top of all overlays.
-              */
-            bringToFront(): ImageOverlay;
+        //    /**
+        //      * Brings the layer to the top of all overlays.
+        //      */
+        //    bringToFront(): ImageOverlay;
     
-            /**
-              * Brings the layer to the bottom of all overlays.
-              */
-            bringToBack(): ImageOverlay;
+        //    /**
+        //      * Brings the layer to the bottom of all overlays.
+        //      */
+        //    bringToBack(): ImageOverlay;
 
-            /**
-              * Should contain code that creates DOM elements for the overlay, adds them
-              * to map panes where they should belong and puts listeners on relevant map events.
-              * Called on map.addLayer(layer).
-              */
-            onAdd(map: Map): void;
+        //    /**
+        //      * Should contain code that creates DOM elements for the overlay, adds them
+        //      * to map panes where they should belong and puts listeners on relevant map events.
+        //      * Called on map.addLayer(layer).
+        //      */
+        //    onAdd(map: Map): void;
     
-            /**
-              * Should contain all clean up code that removes the overlay's elements from
-              * the DOM and removes listeners previously added in onAdd. Called on map.removeLayer(layer).
-              */
-            onRemove(map: Map): void;
-            addDataPoint(lat: number, lon: number, intensity: number): void;
-        }
+        //    /**
+        //      * Should contain all clean up code that removes the overlay's elements from
+        //      * the DOM and removes listeners previously added in onAdd. Called on map.removeLayer(layer).
+        //      */
+        //    onRemove(map: Map): void;
+        //    addDataPoint(lat: number, lon: number, intensity: number): void;
+        //}
 
         export class WMS {
 
@@ -4103,7 +4114,7 @@ declare module L {
           * Version of the WMS service to use.
           */
         version?: string;
-    
+        [x: string]: any;
     }
 }
  
