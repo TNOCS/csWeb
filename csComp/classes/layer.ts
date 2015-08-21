@@ -42,9 +42,14 @@ module csComp.Services {
         useProxy?: boolean;
         /** force refresh on chaning bounding box */
         refreshBBOX?: boolean;
-        /** if this is a feed, the layer features can be shown on timeline and  */
+        /** indicates that this is a dynamic layer (dynamicgeojson) */
         isDynamic?: boolean;
+        /**
+         * if layer is connected, indicate if it is online
+         */
+        isConnected?: boolean;
         /** indicates if features should be shown on timeline */
+
         showOnTimeline?: boolean;
         /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
         dynamicResource?: boolean;
@@ -201,6 +206,13 @@ module csComp.Services {
 
         isDynamic: boolean;
 
+        isConnected: boolean;
+
+        /**
+         * gui is used for setting temp. values for rendering
+         */
+        gui: any = {};
+
 
         /**
          * Returns an object which contains all the data that must be serialized.
@@ -228,7 +240,8 @@ module csComp.Services {
                 dataSourceParameters: pl.dataSourceParameters,
                 defaultFeatureType: pl.defaultFeatureType,
                 defaultLegendProperty: pl.defaultLegendProperty,
-                useProxy: pl.useProxy
+                useProxy: pl.useProxy,
+                gui: {}
             };
         }
     }

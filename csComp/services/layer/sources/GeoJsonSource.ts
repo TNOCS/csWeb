@@ -170,8 +170,14 @@ module csComp.Services {
             layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, "layer", (topic: string, msg: ClientMessage) => {
                 console.log("action:" + msg.action);
                 switch (msg.action) {
+                    case "unsubscribed":
+                        this.service.$rootScope.$apply(() => {
+                            layer.isConnected = false;
+                        });
+                        break;
                     case "subscribed":
-                        console.log('sucesfully subscribed');
+                        layer.isConnected = true;
+                        //console.log('sucesfully subscribed');
                         break;
                     case "layer":
                         if (msg.data != null) {
@@ -237,28 +243,72 @@ module csComp.Services {
             layer.isDynamic = true;
             this.baseAddLayer(layer, callback);
             this.initSubscriptions(layer);
-            //this.connection = this.service.$messageBusService.getConnection("");
-            //this.connection.events.add((status: string) => this.connectionEvent);
         }
 
-        connectionEvent(status: string) {
-            console.log("connected event");
-            switch (status) {
-                case "connected":
-                    console.log('connected');
-                    this.initSubscriptions(this.layer);
-                    break;
-            }
-        }
 
         removeLayer(layer: ProjectLayer) {
+            layer.isConnected = false;
+            if (layer.gui['editing']) this.stopAddingFeatures(layer);
             this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
         }
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
-            return [
-                ["Fit map", (($itemScope) => this.fitMap(layer))], null
+            var res: [[string, Function]] = [
+                ["Fit map", (($itemScope) => this.fitMap(layer))]
             ];
+            if (layer.gui["editing"]) {
+                res.push(["Stop editing items", (($itemScope) => this.stopAddingFeatures(layer))]);
+            }
+            else {
+                res.push(["Add items", (($itemScope) => this.startAddingFeatures(layer))]);
+            }
+            return res;
+        }
+
+        public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
+            this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
+                var v = false;
+                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
+                    if (l === layer) {
+                        v = true;
+                        l.gui['editing'] = true;
+                    }
+                    else {
+                        l.gui['editing'] = false;
+                    }
+                })
+                g.gui.editing = v;
+            });
+            this.service.editing = true;
+            this.initAvailableFeatureTypes(layer);
+        }
+
+        public initAvailableFeatureTypes(layer: csComp.Services.ProjectLayer) {
+            var featureTypes = {};
+
+
+
+            if (layer) {
+                if (layer.typeUrl && this.service.typesResources.hasOwnProperty(layer.typeUrl)) {
+                    for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
+                        featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
+                        featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
+                    }
+                }
+            }
+            layer.gui["featureTypes"] = featureTypes;
+
+        }
+
+        public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
+            delete layer.gui["featureTypes"];
+            this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
+                delete g.gui['editing'];
+                g.layers.forEach((l: csComp.Services.ProjectLayer) => {
+                    l.gui['editing'] = false;
+                })
+            });
+            this.service.editing = false;
         }
     }
 

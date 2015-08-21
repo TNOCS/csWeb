@@ -11,17 +11,17 @@
             <button class="button fa fa-plus leftpanel-header-button" ng-click="vm.addLayer()" />
         </div>
     </h3>
-    <div style="overflow-y: auto; overflow-x: hidden; margin-top: -10px" resize resize-y="95">
-        <div data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
-            <div id="layergroupStyle" style="float: left; margin-left: -5px; margin-top: 5px" data-toggle="collapse" data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
+    <div style="overflow-y: auto; overflow-x: hidden; margin-top: -10px; margin-left:-20px;padding-left:0px" resize resize-y="95">
+        <div ng-hide="vm.$layerService.editing && !group.gui.editing" data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
+            <div id="layergroupStyle" style="float: left; margin-left: 10px; margin-top: 5px" data-toggle="collapse" data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
             <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true" class="group-title">{{group.title}}</div>
-            <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:20px;top:3px;cursor:pointer" ng-click="vm.editGroup(group)"></div>
+            <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:25px;top:3px;cursor:pointer" ng-click="vm.editGroup(group)"></div>
             <div id="layergroup_{{group.id}}" class="collapse in">
-                <div popover="{{(layer.description) ? layer.description : ''}}" popover-append-to-body="true" popover-placement="right" popover-trigger="mouseenter" data-ng-repeat="layer in group.layers">
+                <div ng-class="{false : '', true:'layer-more'}[layer.gui.more==true]" ng-mouseenter="layer.gui.more = true" ng-mouseleave="layer.gui.more = false" ng-hide="vm.$layerService.editing && !layer.gui.editing" popover="{{(layer.description) ? layer.description : ''}}" popover-append-to-body="true" popover-placement="right" popover-trigger="mouseenter" data-ng-repeat="layer in group.layers">
                     <!--bs-popover>-->
-                    <div context-menu="options(layer)" style="list-style-type: none; padding: 0;" data-ng-class="{indent: layer.isSublayer}">
+                    <div  class="layer" context-menu="options(layer)" style="list-style-type: none;" data-ng-class="{indent: layer.isSublayer}">
                         <!--<button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." data-original-title="" title="">Right</button>-->
-                        <div ng-class="{false : 'checkbox checkbox-primary', true:'radio radio-primary'}[group.oneLayerActive==true]" style="margin-left: 20px">
+                        <div ng-class="{false : 'checkbox checkbox-primary', true:'radio radio-primary'}[group.oneLayerActive==true]" style="margin-top: 0px;margin-bottom: 0px;">
                             <input ng-if="!group.oneLayerActive" type="checkbox" id="cblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
                             <input ng-if="group.oneLayerActive" type="radio" ng-value="true" id="cblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
                             <label for="cblayer{{layer.id}}">
@@ -34,13 +34,30 @@
                                 <div class="bounce2"></div>
                                 <div class="bounce3"></div>
                             </div>
-                            <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:20px;top:3px;cursor:pointer" ng-click="vm.editLayer(layer)"></div>
+                            <div ng-show="layer.isDynamic && layer.gui.more" popover="add items" style="position:absolute;right:40px;top:3px;cursor:pointer" popover-append-to-body="true" popover-placement="top" popover-trigger="mouseenter"  class="fa fa-plus" ng-click="vm.startAddingFeatures(layer)"></div>
+                            <div ng-show="vm.$mapService.isAdminExpert && layer.gui.more" class="fa fa-cog" style="position:absolute;right:60px;top:3px;cursor:pointer" ng-click="vm.editLayer(layer)"></div>
+                            <div ng-show="layer.isDynamic" popover="{{(layer.isConnected) ? 'connected' : 'not connected'}}" popover-append-to-body="true" popover-placement="top" popover-trigger="mouseenter" class="fa fa-plug" ng-class="{false : 'disconnected-layer', true:'connected-layer'}[layer.isConnected==true]" style="position:absolute;right:20px;top:3px"></div>
                         </div>
                     </div>
-                    <div ng-show="layer.gui.more">
-                        <input type="range" min='0' max='100' ng-model="layer.opacity"/>
+                    <div ng-show="layer.gui.featureTypes && layer.gui.editing" style="position:relative; background:white">
+                        <div class="btn fa fa-check" ng-click="vm.stopAddingFeatures(layer)"> </div>
+                        <div ng-repeat="(key,legendItem) in layer.gui.featureTypes" class="legendItem">
+                            <span>
+                                <img ng-src="{{legendItem.u}}" class="legendImage" />
+
+                                <div class="legendText"> {{legendItem.name}} </div>
+                            </span>
+                        </div>
+
                     </div>
+
+                    <!-- <div ng-show="layer.gui.more && !layer.gui.editing" style="position:relative;min-height:30px">
+                        <div ng-show="layer.isDynamic" style="position:absolute;top:3px;right:5px" class="btn fa fa-plus" ng-click="vm.startAddingFeatures(layer)"></div>
+                        <input class="ui-slider" ng-change="vm.setLayerOpacity(layer)" style="position:absolute;top:3px;width:100px;left:40px" type="range" min='0' max='100' ng-model="layer.opacity"/>
+                    </div> -->
+
                 </div>
+
             </div>
         </div>
     </div>

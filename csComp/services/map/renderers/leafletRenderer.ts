@@ -77,6 +77,7 @@ module csComp.Services {
                 this.service.map.map.addLayer(group.cluster);
             } else {
                 group.vectors = new L.LayerGroup<L.ILayer>();
+
                 this.service.map.map.addLayer(group.vectors);
             }
         }
@@ -440,7 +441,6 @@ module csComp.Services {
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
                         icon: icon, draggable: this.canDrag(feature)
                     });
-
 
                     marker.on('contextmenu', (e: any) => {
                         this.service._activeContextMenu = this.service.getActions(feature);

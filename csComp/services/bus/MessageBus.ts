@@ -107,6 +107,14 @@ module csComp.Services {
             }
         }
 
+        public disconnectAll() {
+            console.log('resubscribing...');
+            for (var s in this.subscriptions) {
+                var sub = this.subscriptions[s];
+                sub.callbacks.forEach(cb => cb(sub.id, { action: "unsubscribed" }));
+            }
+        }
+
         public subscribe(target: string, type: string, callback: IMessageBusCallback): ServerSubscription {
             var sub: ServerSubscription;
             var subs = [];
@@ -148,9 +156,10 @@ module csComp.Services {
                 callback();
             });
             this.socket.on('disconnect', () => {
-                console.log('socket.io disconnected');
                 this.isConnecting = false;
                 this.isConnected = false;
+                this.disconnectAll();
+                this.events.trigger('disconnected');
             });
             this.socket.on('reconnect_attempt', () => {
                 console.log('socket.io reconnect attempt');
@@ -289,7 +298,7 @@ module csComp.Services {
         public notify(title: string, text: string, location = NotifyLocation.TopRight, notifyType = NotifyType.Normal) {
             var cssLocation: string;
             var cornerglass: string = 'ui-pnotify-sharp';
-            var myStack : { dir1: string, dir2: string } = { dir1: "", dir2: "" };
+            var myStack: { dir1: string, dir2: string } = { dir1: "", dir2: "" };
             switch (location) {
                 case NotifyLocation.BottomLeft:
                     cssLocation = 'stack-bottomleft';
@@ -302,7 +311,7 @@ module csComp.Services {
                     myStack.dir2 = 'right';
                     break;
                 default:
-                //case NotifyLocation.TopRight:
+                    //case NotifyLocation.TopRight:
                     cssLocation = 'stack-topright';
                     myStack.dir1 = 'down';
                     myStack.dir2 = 'left';

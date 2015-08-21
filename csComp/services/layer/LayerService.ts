@@ -69,6 +69,7 @@ module csComp.Services {
         selectedLayerId: string;
         timeline: any;
         _activeContextMenu: IActionOption[];
+        editing: boolean;
 
         currentLocale: string;
         /** layers that are currently active */
@@ -576,7 +577,7 @@ module csComp.Services {
                 this.project.features.some((f) => {
                     if (f.properties.hasOwnProperty(property)) {
                         var pt = this.getPropertyType(f, property);
-                        this.setStyle({ feature: f, property: property, key: pt.title || property});
+                        this.setStyle({ feature: f, property: property, key: pt.title || property });
                         return true;
                     }
                     return false;
@@ -643,6 +644,7 @@ module csComp.Services {
         }
 
         private updateGroupFeatures(group: ProjectGroup) {
+            if (!group) return;
             this.project.features.forEach((f: IFeature) => {
                 if (f.layer.group == group) {
                     this.calculateFeatureStyle(f);
@@ -650,6 +652,17 @@ module csComp.Services {
                 }
             });
         }
+
+        public updateLayerFeatures(layer: ProjectLayer) {
+            if (!layer) return;
+            this.project.features.forEach((f: IFeature) => {
+                if (f.layer.id === layer.id) {
+                    this.calculateFeatureStyle(f);
+                    this.activeMapRenderer.updateFeature(f);
+                }
+            });
+        }
+
 
         public updateFeatureTypes(featureType: IFeatureType) {
             this.project.features.forEach((f: IFeature) => {
@@ -974,6 +987,7 @@ module csComp.Services {
 
             feature.gui['style'] = {};
             s.opacity = s.opacity * (feature.layer.opacity / 100);
+            s.fillOpacity = s.fillOpacity * (feature.layer.opacity / 100);
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     //delete feature.gui[gs.property];
@@ -2037,7 +2051,9 @@ module csComp.Services {
         public initLayer(group: ProjectGroup, layer: ProjectLayer, layerIds?: string[]) {
             if (layer.id == null) layer.id = Helpers.getGuid();
             layer.type = (layer.type) ? layer.type.toLowerCase() : "geojson";
+            layer.gui = {};
             layer.renderType = (layer.renderType) ? layer.renderType.toLowerCase() : layer.type;
+            if (layer.type === "dynamicgeojson") layer.isDynamic = true;
             if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
             if (layer.title == null) layer.title = layer.id;
             if (layer.languages != null && this.currentLocale in layer.languages) {

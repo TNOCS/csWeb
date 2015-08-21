@@ -126,7 +126,7 @@ html, body, #container {
 
 .legend-description {
     display: block;
-    font-size: 16px;    
+    font-size: 16px;
     font-weight: bold;
     color: black;
 }
@@ -249,6 +249,17 @@ html, body, #container {
 
 
 /* Start LayersList */
+
+.disconnected-layer{
+    opacity: 0.5
+    
+}
+
+.connected-layer
+{
+    opacity:1
+
+}
 
 .left-menu {
     background: url("../../cs/images/menu-left.png");

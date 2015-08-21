@@ -40,8 +40,12 @@ module csComp.Services {
         public markers: any;
         styleProperty: string;
         languages: ILanguageData;
-        owsurl          : string;
-        owsgeojson      : boolean;
+        owsurl: string;
+        owsgeojson: boolean;
+        /**
+         * gui is used for setting temp. properties for rendering
+         */
+        gui: any = {};
 
         /**
          * Returns an object which contains all the data that must be serialized.
@@ -70,12 +74,12 @@ module csComp.Services {
             return res;
         }
 
-        public loadLayersFromOWS():void {
+        public loadLayersFromOWS(): void {
             this.layers = [];   // add some layers here...
             var theGroup = this;
             $.ajax({
                 type: "GET",
-		        url: this.owsurl,
+                url: this.owsurl,
                 dataType: "xml",
 
                 success: (xml) => {
@@ -85,16 +89,16 @@ module csComp.Services {
 
                         // DO NOT use arrow notation (=>) as it will break this !!!
                         var layerName = $(this).children("Name").text();
-                        if (layerName != null && layerName!="") {
+                        if (layerName != null && layerName != "") {
                             var title = $(this).children("Title").text();
                             // TODO: should be using layerService.initLayer(theGroup, layer);
                             // But I don't know how to 'inject' layerService :(
                             var layer = theGroup.buildLayer(baseurl, title, layerName);
                             theGroup.layers.push(layer);
-         				}
-        			});
-		        }
-	        })
+                        }
+                    });
+                }
+            })
         }
 
         private buildLayer(baseurl: string, title: string, layerName: string): ProjectLayer {
@@ -102,14 +106,14 @@ module csComp.Services {
                 "id": Helpers.getGuid(),
                 "reference": layerName,
                 "title": title,
-                "enabled":false,
+                "enabled": false,
                 "group": this
             }
             // Image layers
-            if(this.owsgeojson) {
+            if (this.owsgeojson) {
                 extraInfo["type"] = "geojson";
                 extraInfo["url"] = baseurl + "?service=wfs&request=getFeature" +
-                        "&outputFormat=application/json&typeName=" + layerName;
+                "&outputFormat=application/json&typeName=" + layerName;
             } else {
                 extraInfo["type"] = "wms";
                 extraInfo["wmsLayers"] = layerName;

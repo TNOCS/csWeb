@@ -7,6 +7,7 @@ module LayersDirective {
     export class LayersDirectiveCtrl {
         private scope: ILayersDirectiveScope;
         private allCollapsed: boolean;
+        public editing: boolean;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -40,7 +41,7 @@ module LayersDirective {
             this.allCollapsed = false;
             this.$messageBusService.subscribe('project', (title: string, project: csComp.Services.Project) => {
                 if (title !== 'loaded' || !project) return;
-                if (project.hasOwnProperty('collapseAllLayers') && project.collapseAllLayers === true){
+                if (project.hasOwnProperty('collapseAllLayers') && project.collapseAllLayers === true) {
                     this.collapseAll();
                     this.allCollapsed = true;
                 } else {
@@ -57,6 +58,18 @@ module LayersDirective {
         public editLayer(layer: csComp.Services.ProjectLayer) {
             var rpt = csComp.Helpers.createRightPanelTab('edit', 'layeredit', layer, 'Edit layer', 'Edit layer');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
+        }
+
+
+
+        updateLayerOpacity = _.debounce((layer: csComp.Services.ProjectLayer) => {
+            console.log('update opacity');
+            this.$layerService.updateLayerFeatures(layer);
+        }, 500);
+
+        public setLayerOpacity(layer: csComp.Services.ProjectLayer) {
+            this.updateLayerOpacity(layer);
+
         }
 
         public openLayerMenu(e) {
@@ -130,6 +143,14 @@ module LayersDirective {
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                 this.$scope.$apply();
             }
+        }
+
+        public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
+            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startAddingFeatures(layer);
+        }
+
+        public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
+            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopAddingFeatures(layer);
         }
     }
 }

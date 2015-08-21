@@ -1,5 +1,5 @@
 {
-    "title": "csWeb Showcases",
+    "title": "Api Test",
     "description": "csMap is developed by the Dutch Research Organisation TNO, in first instance for the Dutch Ministry of Health (VWS).",
     "url": "https://github.com/TNOCS/csMap",
     "logo": "images/CommonSenseRound.png",
@@ -18,7 +18,7 @@
         "showTimeline": true,
         "showLeftmenu": true,
         "showMap": true,
-        "visiblelayers": ["Hospitals"]
+        "visiblelayers": ["test"]
     }],
     "expertMode": 3,
     "userPrivileges": {
@@ -44,22 +44,95 @@
         "clusterLevel": 12,
         "layers": [{
             "id": "test",
-            "reference": "test",
-            "languages": {
-                "nl": {
-                    "title": "test",
-                    "description": "De locaties van de Nederlandse ziekenhuizen."
-                },
-                "en": {
-                    "title": "test",
-                    "description": "These are the locations of the Dutch hospitals."
-                }
-            },
             "type": "dynamicgeojson",
             "url": "api/layers/test",
             "typeUrl": "data/resourceTypes/resources.json",
-            "enabled": false,
-            "opacity": 50
+            "opacity": 100
+        },
+        {
+            "id": "test2",
+            "type": "dynamicgeojson",
+            "url": "api/layers/test",
+            "typeUrl": "data/resourceTypes/resources.json",
+            "opacity": 100
+        }
+    ]
+    }, {
+        "id": "b0e9e0cd-d6c1-44ac-8029-5c30dfe21878",
+        "title": "Features",
+        "description": "Demonstrates layers based on points",
+        "clustering": true,
+        "clusterLevel": 12,
+        "languages": {
+            "nl": {
+                "title": "Locaties",
+                "description": "Demonstreert kaartlagen gebaseerd op specifieke locaties"
+            },
+            "en": {
+                "title": "Features",
+                "description": "Demonstrates layers based on points"
+            }
+        },
+        "layers": [{
+            "id": "Hospitals",
+            "title": "Hospitals",
+            "description": "These are the locations of the Dutch hospitals.",
+            "type": "geojson",
+            "renderType": "geojson",
+            "heatmapItems": null,
+            "url": "data/projects/20141104_csMap/Ziekenhuizen.json",
+            "typeUrl": "data/resourceTypes/resources.json",
+            "opacity": 100,
+            "languages": {
+                "nl": {
+                    "title": "Ziekenhuizen",
+                    "description": "De locaties van de Nederlandse ziekenhuizen."
+                },
+                "en": {
+                    "title": "Hospitals",
+                    "description": "These are the locations of the Dutch hospitals."
+                }
+            }
+        }, {
+            "id": "firestation",
+            "title": "Fire stations",
+            "description": "These are the locations of the fire station. (Source: IFV, BAG, 1 november 2014.)",
+            "type": "geojson",
+            "renderType": "geojson",
+            "heatmapItems": null,
+            "url": "data/projects/20141104_csMap/brandweerposten.json",
+            "typeUrl": "data/resourceTypes/resources.json",
+            "opacity": 100,
+            "languages": {
+                "nl": {
+                    "title": "Brandweerkazernes",
+                    "description": "De locaties van de Nederlandse brandweerkazernes en opleidingscentra (Bron: IFV, BAG, 1 november 2014)."
+                },
+                "en": {
+                    "title": "Fire stations",
+                    "description": "These are the locations of the fire station. (Source: IFV, BAG, 1 november 2014.)"
+                }
+            }
+        }, {
+            "id": "traveltimes",
+            "title": "Travel times",
+            "description": "This is the travel time from the nearest fire station to a care institute. (Bron: IFV, BAG: 1 november 2014.)",
+            "type": "geojson",
+            "renderType": "geojson",
+            "heatmapItems": null,
+            "url": "data/projects/20141104_csMap/aanrijtijden.json",
+            "typeUrl": "data/resourceTypes/resources.json",
+            "opacity": 100,
+            "languages": {
+                "nl": {
+                    "title": "Reistijd",
+                    "description": "De reistijd van een brandweerkazerne naar de zorginstelling (Bron: IFV, BAG: 1 november 2014)."
+                },
+                "en": {
+                    "title": "Travel times",
+                    "description": "This is the travel time from the nearest fire station to a care institute. (Bron: IFV, BAG: 1 november 2014.)"
+                }
+            }
         }]
     }]
 }
