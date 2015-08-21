@@ -148,6 +148,10 @@ gulp.task('gh_pages', function() {
         .pipe(plumber())
         .pipe(gulp.dest('./gh_pages/images/'));
 
+    gulp.src('public/favicon.*')
+        .pipe(plumber())
+        .pipe(gulp.dest('./gh_pages'));
+
     gulp.src('public/bower_components/angular-utils-pagination/*.*')
         .pipe(plumber())
         .pipe(gulp.dest('./gh_pages/bower_components/angular-utils-pagination/'));
