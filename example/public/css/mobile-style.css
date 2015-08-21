@@ -12,6 +12,31 @@
   font-weight: normal;
 }*/
 
+.navbar-collapse {
+    width: auto;
+    border-top: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    padding-right: 0;
+    padding-left: 0;
+    max-height: 340px;
+}
+.navbar-collapse:before {
+    display: table;
+    content: " ";
+}
+.navbar-collapse:after,
+  clear: both;
+}
+.navbar-collapse.collapse {
+    display: block !important;
+    height: auto !important;
+    padding-bottom: 0;
+    overflow: visible !important;
+}
+.navbar-collapse.in {
+    overflow-y: visible;
+}
 .sidebar-wrapper {
     height: 100%;
     position: relative;
@@ -297,9 +322,9 @@ input[type="radio"], input[type="checkbox"] {
     width: 100%;
 }
 .leftpanel-container {
-    width:100vw;
-    height:100vh;
-    background:white
+    width: 100vw;
+    height: 100vh;
+    background: white
 }
 .leftpanel-tab {
     background-color: #B5A3C1;
