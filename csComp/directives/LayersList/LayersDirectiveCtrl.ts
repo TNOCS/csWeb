@@ -1,4 +1,7 @@
 module LayersDirective {
+
+    declare var interact;
+
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
         options: Function;
@@ -60,7 +63,49 @@ module LayersDirective {
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
+        public initDrag(key: string) {
 
+            var transformProp;
+            var startx, starty;
+
+            interact('#layerfeaturetype-' + key)
+                .draggable({ max: Infinity })
+                .on('dragstart', (event) => {
+                startx = 0;
+                starty = 0;
+                event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
+                event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
+                event.target.style.width = "300px";
+                event.target.style.height = "300px";
+            })
+                .on('dragmove', (event) => {
+                event.interaction.x += event.dx;
+                event.interaction.y += event.dy;
+
+
+                event.target.style.left = event.interaction.x + 'px';
+                event.target.style.top = event.interaction.y + 'px';
+
+            })
+                .on('dragend', (event) => {
+                setTimeout(() => {
+                    alert('done');
+
+                }, 100);
+
+                //this.$dashboardService.mainDashboard.widgets.push(widget);
+                event.target.setAttribute('data-x', 0);
+                event.target.setAttribute('data-y', 0);
+                event.target.style.left = '0px';
+                event.target.style.top = '0px';
+                event.target.style.width = "75px";
+                event.target.style.height = "75px";
+
+
+
+                console.log(key);
+            });
+        }
 
         updateLayerOpacity = _.debounce((layer: csComp.Services.ProjectLayer) => {
             console.log('update opacity');

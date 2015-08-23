@@ -166,6 +166,7 @@ module csComp.Services {
             }
         }
 
+
         public initSubscriptions(layer: ProjectLayer) {
             layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, "layer", (topic: string, msg: ClientMessage) => {
                 console.log("action:" + msg.action);
@@ -206,10 +207,9 @@ module csComp.Services {
                                         })
                                         break;
                                     case LayerUpdateAction.updateFeature:
-                                        lu.object.forEach((f: IFeature) => {
-                                            this.service.$rootScope.$apply(() => {
-                                                this.updateFeatureByProperty("id", f.id, f);
-                                            });
+                                        var f = lu.object;
+                                        this.service.$rootScope.$apply(() => {
+                                            this.updateFeatureByProperty("id", f.id, f);
                                         });
                                         break;
                                     case LayerUpdateAction.deleteFeature:

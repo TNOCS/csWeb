@@ -48,6 +48,10 @@ module csComp.Services {
          * if layer is connected, indicate if it is online
          */
         isConnected?: boolean;
+        /**
+         * when a log is used all property & geometry changes when saved are recorded in a log, this allows you to go back in time, otherwise the complete feature with all its properties and geometry is overwritten
+         */
+        useLog?: boolean;
         /** indicates if features should be shown on timeline */
 
         showOnTimeline?: boolean;
@@ -205,7 +209,7 @@ module csComp.Services {
         defaultFeatureType: string;
 
         isDynamic: boolean;
-
+        useLog: boolean;
         isConnected: boolean;
 
         /**
@@ -241,6 +245,8 @@ module csComp.Services {
                 defaultFeatureType: pl.defaultFeatureType,
                 defaultLegendProperty: pl.defaultLegendProperty,
                 useProxy: pl.useProxy,
+                isDynamic: pl.isDynamic,
+                useLog: pl.useLog,
                 gui: {}
             };
         }

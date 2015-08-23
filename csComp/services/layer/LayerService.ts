@@ -98,7 +98,8 @@ module csComp.Services {
             '$translate',
             'messageBusService',
             'mapService',
-            '$rootScope'
+            '$rootScope',
+            'geoService'
         ];
 
         constructor(
@@ -107,7 +108,8 @@ module csComp.Services {
             private $translate: ng.translate.ITranslateService,
             public $messageBusService: Services.MessageBusService,
             public $mapService: Services.MapService,
-            public $rootScope: any
+            public $rootScope: any,
+            public geoService: GeoService
             ) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
@@ -174,6 +176,16 @@ module csComp.Services {
                 }
 
             });
+
+            $messageBusService.subscribe("geo", (action, loc: csComp.Services.Geoposition) => {
+                switch (action) {
+                    case "pos":
+                        //alert(loc.coords.latitude + " - " + loc.coords.longitude);
+                        break;
+                }
+            });
+
+            this.geoService.start({});
         }
 
         public getActions(feature: IFeature): IActionOption[] {
@@ -737,7 +749,7 @@ module csComp.Services {
         public updateAllLogs() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
             this.project.features.forEach((f: IFeature) => {
-                if (f.layer.isDynamic) {
+                if (f.layer.isDynamic && f.layer.useLog) {
                     //if (f.gui.hasOwnProperty("lastUpdate") && this.project.timeLine.focusDate < f.gui["lastUpdate"])
                     this.updateLog(f);
                 }
@@ -1777,10 +1789,10 @@ module csComp.Services {
 
             $.getJSON(solutionProject.url,
                 (prj: Project) => {
-                    this.parseProject(prj,solutionProject,layerIds);
+                    this.parseProject(prj, solutionProject, layerIds);
                 }).fail((obj, text, error) => {
-                    this.$messageBusService.notify('ERROR loading project', error + '\nwhile loading: ' + solutionProject.url);
-                });
+                this.$messageBusService.notify('ERROR loading project', error + '\nwhile loading: ' + solutionProject.url);
+            });
         }
 
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
@@ -1840,7 +1852,7 @@ module csComp.Services {
                             if (ds.url) {
                                 DataSource.LoadData(ds, () => {
                                     console.log('datasource loaded');
-                                    if (ds.type === "dynamic") {this.checkDataSourceSubscriptions(ds);}
+                                    if (ds.type === "dynamic") { this.checkDataSourceSubscriptions(ds); }
 
                                     for (var s in ds.sensors) {
                                         var ss: SensorSet = ds.sensors[s];
@@ -1942,7 +1954,7 @@ module csComp.Services {
                                 });
                             }
                             if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') {
-                                 this.$rootScope.$apply();
+                                this.$rootScope.$apply();
                             }
                         });
 
@@ -2210,7 +2222,10 @@ module csComp.Services {
             f.gui["lastUpdate"] = log.ts;
         }
 
-        private trackProperty(f: IFeature, key: string, result: {}) {
+        /**
+         * Check for property changes inside a feature, return a set of logs in result
+         */
+        private trackPropertyLog(f: IFeature, key: string, result: {}) {
             var log = <Log>{
                 ts: new Date().getTime(), prop: key, value: f.properties[key]
             };
@@ -2226,10 +2241,10 @@ module csComp.Services {
             var result = {};
             for (var key in feature.properties) {
                 if (!feature.propertiesOld.hasOwnProperty(key)) {
-                    this.trackProperty(feature, key, result);
+                    this.trackPropertyLog(feature, key, result);
                 }
                 else if (JSON.stringify(feature.propertiesOld[key]) != JSON.stringify(feature.properties[key])) {
-                    this.trackProperty(feature, key, result);
+                    this.trackPropertyLog(feature, key, result);
                 }
             }
             if (JSON.stringify(feature.propertiesOld["~geometry"]) != JSON.stringify(feature.geometry))
@@ -2266,7 +2281,7 @@ module csComp.Services {
             if (f.layer.isDynamic) {
                 var l = this.trackFeature(f);
 
-                if (logs) {
+                if (f.layer.useLog) {
                     var s = new LayerUpdate();
                     s.layerId = f.layerId;
                     s.action = LayerUpdateAction.updateLog;

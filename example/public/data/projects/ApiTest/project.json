@@ -45,7 +45,7 @@
         "layers": [{
             "id": "test",
             "type": "dynamicgeojson",
-            "url": "api/layers/test",
+            "url": "api/layers/test",            
             "typeUrl": "data/resourceTypes/resources.json",
             "opacity": 100
         },

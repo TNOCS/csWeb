@@ -30,7 +30,8 @@ module App {
             'mapService',
             'layerService',
             'messageBusService',
-            'dashboardService'
+            'dashboardService',
+            'geoService'
         ];
 
         public areaFilter: AreaFilter.AreaFilterModel;
@@ -43,7 +44,8 @@ module App {
             private $mapService: csComp.Services.MapService,
             private $layerService: csComp.Services.LayerService,
             private $messageBusService: csComp.Services.MessageBusService,
-            private $dashboardService: csComp.Services.DashboardService
+            private $dashboardService: csComp.Services.DashboardService,
+            private geoService: csComp.Services.GeoService
             ) {
             sffjs.setCulture("nl-NL");
 
@@ -69,6 +71,11 @@ module App {
             $messageBusService.subscribe("layer", this.layerMessageReceived);
 
             this.$layerService.openSolution("data/projects/projects.json", $location.$$search.layers);
+
+            
+
+
+
             //$messageBusService.notify('Welcome to csMap', 'Your mapping solution.');
 
             //this.$dashboardService.openRightTab('featuretype','featuretypes',null);
