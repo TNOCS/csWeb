@@ -34,6 +34,35 @@ describe('ProjectGroup', function() {
             expect(result.ndx).toBeUndefined();
         });
     });
+
+    describe('Loading data from OWS service', () =>{
+        var targetURL = '/ows';
+        var $httpBackend;
+        var $myInjector;
+        var fakeXML;
+
+        beforeEach(module("mockedOWSXML"));
+        beforeEach(inject(($injector, defaultXML) => {
+            $httpBackend = $injector.get('$httpBackend');
+            $myInjector = $injector;
+            fakeXML = defaultXML;
+        }));
+
+        it('should load some layers', () => {
+            $httpBackend.whenGET(targetURL).respond(200, fakeXML);
+
+            projectgroup.owsurl = targetURL;
+            projectgroup.loadLayersFromOWS($myInjector);
+
+            $httpBackend.expectGET(targetURL);
+            $httpBackend.flush();
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+
+            expect(projectgroup.layers).not.toBe(null);
+            expect(projectgroup.layers.length).toBeGreaterThan(0);
+        });
+    });
 });
 
 

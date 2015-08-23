@@ -433,7 +433,8 @@ Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so
                 cells.forEach((n) => {
                     var value = +n;
                     if (value !== noDataValue && minThreshold <= value && value <= maxThreshold) {
-                        var result: IProperty = { propertyName: value };
+                        var result: IProperty = {};
+                        result[propertyName] = value;
                         var tl = [lon, lat + deltaLat],
                             tr = [lon + deltaLon, lat + deltaLat],
                             bl = [lon, lat],

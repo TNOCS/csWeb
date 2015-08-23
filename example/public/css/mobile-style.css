@@ -12,6 +12,31 @@
   font-weight: normal;
 }*/
 
+.navbar-collapse {
+    width: auto;
+    border-top: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    padding-right: 0;
+    padding-left: 0;
+    max-height: 340px;
+}
+.navbar-collapse:before {
+    display: table;
+    content: " ";
+}
+.navbar-collapse:after,
+  clear: both;
+}
+.navbar-collapse.collapse {
+    display: block !important;
+    height: auto !important;
+    padding-bottom: 0;
+    overflow: visible !important;
+}
+.navbar-collapse.in {
+    overflow-y: visible;
+}
 .sidebar-wrapper {
     height: 100%;
     position: relative;
@@ -264,11 +289,6 @@ input[type="radio"], input[type="checkbox"] {
     background: #42145F;
     left: 0;
 }
-.leftpanel-tab {
-    background-color: #B5A3C1;
-    height: 100%;
-    width: 70px;
-}
 #rightPanelToggle {
     background: #B5A3C1;
     border-radius: 4px 0 0 4px;
@@ -301,6 +321,21 @@ input[type="radio"], input[type="checkbox"] {
     width: 100%;
     width: 100%;
 }
+.leftpanel-container {
+    width: 100vw;
+    height: 100vh;
+    background: white
+}
+.leftpanel-tab {
+    background-color: #B5A3C1;
+    height: 100%;
+    float: left;
+    position: relative;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+    width: 70px;
+}
 .leftpanel-header {
     font-size: 22px;
     font-weight: bold;
@@ -308,20 +343,26 @@ input[type="radio"], input[type="checkbox"] {
     padding-bottom: 10px;
     width: 100%;
 }
-.leftpanel-collapsed .navbar {
-    left: 0;
-}
 .leftpanel-content {
     border-top: solid 40px #B5A3C1;
-    width: 280px;
+    width: 100%;
+    position: relative;
+    min-height: 1px;
+    /*70px for margin + 15px for the vertical scrollbar, if any */
+    padding-right: 85px;
+    padding-left: 15px;
+    margin-left: 70px;
 }
-
-/* Header bar should be overwritten by children, so if you increase the border-top height above, you should match it here */
-
 .leftpanel-content > .tab-content {
     margin-right: -15px;
     margin-top: -40px;
 }
+.leftpanel-collapsed .navbar {
+    left: 0;
+}
+
+/* Header bar should be overwritten by children, so if you increase the border-top height above, you should match it here */
+
 .leftpanel-collapsed .leftpanel-content {
     display: none;
     width: 0;
@@ -337,6 +378,103 @@ input[type="radio"], input[type="checkbox"] {
 }
 .leftpanel-collapsed .leftpanelinner .sidebartitle {
     display: none;
+}
+.leftpanel-collapsed .nav-bracket {
+    margin: 5px;
+}
+.leftpanel-collapsed .nav-bracket li a {
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    padding: 10px;
+    position: relative;
+    text-align: center;
+}
+.leftpanel-collapsed .nav-bracket > li > a:hover {
+    border-radius: 2px 0 0 2px;
+}
+.leftpanel-collapsed .nav-bracket > li.nav-parent > a {
+    background-image: none;
+}
+.leftpanel-collapsed .nav-bracket > li > a > span:last-child {
+    -moz-border-radius: 0 2px 2px 0;
+    -moz-box-shadow: 0 3px 0 rgba(12, 12, 12, 0.03);
+    -webkit-border-radius: 0 2px 2px 0;
+    -webkit-box-shadow: 0 3px 0 rgba(12, 12, 12, 0.03);
+    background: #649EC9;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 3px 0 rgba(12, 12, 12, 0.03);
+    display: none;
+    left: 40px;
+    min-width: 209px;
+    padding: 10px 10px 10px 5px;
+    position: absolute;
+    text-align: left;
+    top: 0;
+    z-index: 100;
+}
+.leftpanel-collapsed .nav-bracket > li > a .badge {
+    display: none;
+}
+.leftpanel-collapsed .nav-bracket > li.active > a > span:last-child {
+    -moz-border-radius: 0 2px 0 0;
+    -webkit-border-radius: 0 2px 0 0;
+    border-radius: 0 2px 0 0;
+}
+.leftpanel-collapsed .nav-bracket ul {
+    display: none;
+}
+.leftpanel-collapsed .nav-bracket > li.nav-hover > a {
+    background: #649EC9;
+    color: #1d2939;
+}
+.leftpanel-collapsed .nav-bracket > li.nav-hover.active > a {
+    background: #649EC9;
+    color: #fff;
+}
+.leftpanel-collapsed .nav-bracket > li.nav-hover > a > span:last-child {
+    display: block;
+}
+.leftpanel-collapsed .nav-bracket > li.nav-hover.active > a > span:last-child {
+    background: #649EC9;
+    color: #fff;
+}
+.leftpanel-collapsed .nav-bracket li.nav-hover ul {
+    -moz-border-radius: 0 0 2px 0;
+    -webkit-border-radius: 0 0 2px 0;
+    background: white;
+    border-radius: 0 0 2px 0;
+    display: block;
+    left: 52px;
+    margin: 0;
+    min-width: 194px;
+    padding: 5px;
+    position: absolute;
+    top: 46px;
+    z-index: 100;
+}
+.leftpanel-collapsed .nav-bracket ul a {
+    padding: 6px 10px;
+    padding-left: 0;
+    text-align: left;
+}
+.leftpanel-collapsed .nav-bracket ul a:hover {
+    background: none;
+}
+.leftpanel-collapsed .nav-bracket li a i {
+    margin-right: 0;
+}
+.leftpanel-show section {
+    overflow-x: hidden;
+}
+.leftpanel-show .leftpanel {
+    display: block;
+}
+.leftpanel-show .mainpanel {
+    margin-left: 240px;
+}
+.leftpanel-collapsed .logopanel h1 {
+    visibility: hidden;
 }
 .sidebartitle {
     color: #999;
@@ -450,100 +588,6 @@ input[type="radio"], input[type="checkbox"] {
     border: 0;
     margin-left: 12px;
 }
-.leftpanel-collapsed .nav-bracket {
-    margin: 5px;
-}
-.leftpanel-collapsed .nav-bracket li a {
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    border-radius: 2px;
-    padding: 10px;
-    position: relative;
-    text-align: center;
-}
-.leftpanel-collapsed .nav-bracket > li > a:hover {
-    border-radius: 2px 0 0 2px;
-}
-.leftpanel-collapsed .nav-bracket > li.nav-parent > a {
-    background-image: none;
-}
-.leftpanel-collapsed .nav-bracket > li > a > span:last-child {
-    -moz-border-radius: 0 2px 2px 0;
-    -moz-box-shadow: 0 3px 0 rgba(12, 12, 12, 0.03);
-    -webkit-border-radius: 0 2px 2px 0;
-    -webkit-box-shadow: 0 3px 0 rgba(12, 12, 12, 0.03);
-    background: #649EC9;
-    border-radius: 0 2px 2px 0;
-    box-shadow: 0 3px 0 rgba(12, 12, 12, 0.03);
-    display: none;
-    left: 40px;
-    min-width: 209px;
-    padding: 10px 10px 10px 5px;
-    position: absolute;
-    text-align: left;
-    top: 0;
-    z-index: 100;
-}
-.leftpanel-collapsed .nav-bracket > li > a .badge {
-    display: none;
-}
-.leftpanel-collapsed .nav-bracket > li.active > a > span:last-child {
-    -moz-border-radius: 0 2px 0 0;
-    -webkit-border-radius: 0 2px 0 0;
-    border-radius: 0 2px 0 0;
-}
-.leftpanel-collapsed .nav-bracket ul {
-    display: none;
-}
-.leftpanel-collapsed .nav-bracket > li.nav-hover > a {
-    background: #649EC9;
-    color: #1d2939;
-}
-.leftpanel-collapsed .nav-bracket > li.nav-hover.active > a {
-    background: #649EC9;
-    color: #fff;
-}
-.leftpanel-collapsed .nav-bracket > li.nav-hover > a > span:last-child {
-    display: block;
-}
-.leftpanel-collapsed .nav-bracket > li.nav-hover.active > a > span:last-child {
-    background: #649EC9;
-    color: #fff;
-}
-.leftpanel-collapsed .nav-bracket li.nav-hover ul {
-    -moz-border-radius: 0 0 2px 0;
-    -webkit-border-radius: 0 0 2px 0;
-    background: white;
-    border-radius: 0 0 2px 0;
-    display: block;
-    left: 52px;
-    margin: 0;
-    min-width: 194px;
-    padding: 5px;
-    position: absolute;
-    top: 46px;
-    z-index: 100;
-}
-.leftpanel-collapsed .nav-bracket ul a {
-    padding: 6px 10px;
-    padding-left: 0;
-    text-align: left;
-}
-.leftpanel-collapsed .nav-bracket ul a:hover {
-    background: none;
-}
-.leftpanel-collapsed .nav-bracket li a i {
-    margin-right: 0;
-}
-.leftpanel-show section {
-    overflow-x: hidden;
-}
-.leftpanel-show .leftpanel {
-    display: block;
-}
-.leftpanel-show .mainpanel {
-    margin-left: 240px;
-}
 .logopanel {
     background: #fff;
     padding: 10px;
@@ -555,9 +599,6 @@ input[type="radio"], input[type="checkbox"] {
     letter-spacing: -1.5px;
     line-height: 30px;
     margin: 0;
-}
-.leftpanel-collapsed .logopanel h1 {
-    visibility: hidden;
 }
 .logopanel h1 span {
     color: #649EC9;

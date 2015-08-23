@@ -194,7 +194,8 @@ module csComp.Services {
                         opacity: layer.opacity / 100,
                         format: 'image/png',
                         transparent: true,
-                        attribution: layer.description
+                        attribution: layer.description,
+                        tiled: true
                     });
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                     this.service.map.map.addLayer(layer.mapLayer);

@@ -46,7 +46,7 @@ module csComp.Services {
                         layer.isLoading = false;
                         // check if loaded correctly
                         if (error) {
-                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, error);
+                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, error + '\nwhile loading: ' + u);
                             this.service.$messageBusService.publish('layer', 'error', layer);
                         } else {
                             this.initLayer(data, layer);

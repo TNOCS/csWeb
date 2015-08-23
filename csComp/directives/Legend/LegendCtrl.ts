@@ -114,11 +114,17 @@ module Legend {
             leg.legendKind = 'interpolated';
             leg.description = ptd.title;
             leg.legendEntries = [];
-            leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.sdMin));
-            leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, (activeStyle.info.sdMin + activeStyle.info.sdMax) / 4));
-            leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 2 * (activeStyle.info.sdMin + activeStyle.info.sdMax) / 4));
-            leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 3 * (activeStyle.info.sdMin + activeStyle.info.sdMax) / 4));
-            leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.sdMax));
+            if (activeStyle.activeLegend && activeStyle.activeLegend.legendEntries) {
+                activeStyle.activeLegend.legendEntries.forEach(le => {
+                    leg.legendEntries.push(le);
+                });
+            } else {
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.sdMin));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, (activeStyle.info.sdMin + activeStyle.info.sdMax) / 4));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 2 * (activeStyle.info.sdMin + activeStyle.info.sdMax) / 4));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 3 * (activeStyle.info.sdMin + activeStyle.info.sdMax) / 4));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.sdMax));
+            }
             return leg;
         }
 

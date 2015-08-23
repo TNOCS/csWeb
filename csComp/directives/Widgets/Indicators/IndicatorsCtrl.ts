@@ -230,8 +230,8 @@ module Indicators {
                     i.sensorSet.activeValue = propValues[0];
                     i.sensorSet.propertyType.title = propTitles[0];
                     var propInfo = this.$layerService.calculatePropertyInfo(f.layer.group, propTypes[0]);
-                    i.sensorSet.min = propInfo.sdMin;
-                    i.sensorSet.max = propInfo.sdMax;
+                    i.sensorSet.min = propInfo.min;
+                    i.sensorSet.max = propInfo.max*1.05;
 
                     if (i.visual === 'bullet') {
                         var dataInJson = [];

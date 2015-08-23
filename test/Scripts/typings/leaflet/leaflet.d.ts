@@ -289,6 +289,7 @@ declare module L {
           * constants.
           */
         static?: any;
+        [x: string]: any;
     }
 
     /**
@@ -3524,6 +3525,7 @@ declare module L {
           * option).
           */
         closeOnClick?: boolean;
+        [x: string]: any;
     }
 }
 
@@ -4112,7 +4114,7 @@ declare module L {
           * Version of the WMS service to use.
           */
         version?: string;
-
+        [x: string]: any;
     }
 }
 
