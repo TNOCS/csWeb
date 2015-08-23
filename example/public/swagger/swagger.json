@@ -46,43 +46,6 @@
   ],
   "paths": {
     "/layers/{layerId}": {
-      "post": {
-        "tags": [
-          "layer"
-        ],
-        "summary": "Add a new layer to the system",
-        "description": "Adds a new layer",
-        "operationId": "addLayer",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "Layer object that needs to be added to the datastorage",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Layer"
-            }
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID or Name of the Layer to insert",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "405": {
-            "description": "Invalid input"
-          }
-        }
-      },
       "put": {
         "tags": [
           "layer"
@@ -193,6 +156,43 @@
       }
     },
     "/layers/": {
+      "post": {
+        "tags": [
+          "layer"
+        ],
+        "summary": "Add a new layer to the system",
+        "description": "Adds a new layer",
+        "operationId": "addLayer",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Layer object that needs to be added to the datastorage",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Layer"
+            }
+          },
+          {
+            "name": "layerId",
+            "in": "path",
+            "description": "ID or Name of the Layer to insert",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      },
       "get": {
         "tags": [
           "layer"
@@ -522,7 +522,7 @@
         "tags": [
           "special"
         ],
-        "summary": "Gets all and any points in a (bounding box) ractangle.",
+        "summary": "Gets all and any points in a (bounding box) rectangle.",
         "description": "Takes two lng/lat pairs as input. These MUST be the south-west (bottom left) and northeast (top right) coordinates expressed as floating point numbers.",
         "operationId": "bbox",
         "produces": [
@@ -640,7 +640,7 @@
       }
     },
     "/layers/{layerId}/getwithinpolygon": {
-      "post": {
+      "get": {
         "tags": [
           "special"
         ],
