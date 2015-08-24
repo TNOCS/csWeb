@@ -544,7 +544,11 @@ module FeatureProps {
             } else {
                 format = 'DD MMMM YYYY';
             }
-            return moment(fp, 'YYYYMMDD').format(format);
+            if (moment(fp).format(format) === 'Invalid date') {
+                return moment(fp, 'YYYYMMDD').format(format);
+            } else {
+                return moment(fp).format(format);
+            }
         }
 
         //When a feature has multiple sections, a dropdown list is created with the title defined in the language entry "CHOOSE_DROPDOWN" (e.g. "Choose..." or "Data...")

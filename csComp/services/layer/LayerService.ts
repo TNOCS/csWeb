@@ -287,9 +287,6 @@ module csComp.Services {
             // add RSS data source
             this.layerSources["rss"] = new RssDataSource(this);
 
-            // add Accessibility data source
-            this.layerSources["accessibility"] = new AccessibilityDataSource(this);
-
             // add Database data source
             this.layerSources["database"] = new DatabaseSource(this);
 
