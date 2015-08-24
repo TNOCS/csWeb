@@ -31,16 +31,16 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
                 switch (lu.action) {
                     case ClientConnection.LayerUpdateAction.updateLog:
                         // find feature
-                        var featureId = lu.object.featureId;
-                        var logs: { [key: string]: Log[] } = lu.object["logs"];
+                        var featureId = lu.item.featureId;
+                        var logs: { [key: string]: Log[] } = lu.item["logs"];
                         this.manager.updateLogs(lu.layerId, featureId, logs, <ApiMeta>{ source: this.id, user: clientId }, () => { });
                         break;
                     case ClientConnection.LayerUpdateAction.updateFeature:
-                        var ft: Feature = lu.object;
+                        var ft: Feature = lu.item;
                         this.manager.updateFeature(lu.layerId, ft, <ApiMeta>{ source: this.id, user: clientId }, (r) => { });
                         break;
                     case ClientConnection.LayerUpdateAction.deleteFeature:
-                        this.manager.deleteFeature(lu.layerId, lu.object, <ApiMeta>{ source: this.id, user: clientId }, (r) => { });
+                        this.manager.deleteFeature(lu.layerId, lu.item, <ApiMeta>{ source: this.id, user: clientId }, (r) => { });
                         break;
                 }
             }
@@ -61,19 +61,19 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
     }
 
     public addFeature(layerId: string, feature: Feature, meta: ApiMeta, callback: Function) {
-        var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.updateFeature, object: feature };
+        var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.updateFeature, item: feature };
         this.connection.updateFeature(layerId, lu, meta);
     }
 
     public updateFeature(layerId: string, feature: Feature, useLog: boolean, meta: ApiMeta, callback: Function) {
         Winston.info('socketio: update feature');
-        var lu = <LayerUpdate>{ layerId: layerId, featureId: feature.id, action: LayerUpdateAction.updateFeature, object: feature };
+        var lu = <LayerUpdate>{ layerId: layerId, featureId: feature.id, action: LayerUpdateAction.updateFeature, item: feature };
         this.connection.updateFeature(layerId, lu, meta);
     }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function) {
         Winston.error('lu:' + JSON.stringify(logs));
-        var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.updateLog, object: logs, featureId: featureId };
+        var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.updateLog, item: logs, featureId: featureId };
         this.connection.updateFeature(layerId, lu, meta);
     }
 

@@ -41,7 +41,7 @@
                         </div>
                     </div>
                     <div ng-show="layer.gui.featureTypes && layer.gui.editing" style="background:white">
-                        <div class="btn fa fa-check" ng-click="vm.stopAddingFeatures(layer)"> </div>
+                        <div class="btn fa fa-check" ng-click="vm.stopAddingFeatures(layer)"><span translate="DONE"></span></div>
                         <div id="layerfeaturetype-{{key}}"  class="legendItem draggable" style="width:30px;height:30px" when-ready="vm.initDrag(key,layer)" ng-repeat="(key,legendItem) in layer.gui.featureTypes" >
                             <span>
                                 <img ng-src="{{legendItem.style.iconUri}}" style="margin-top: -12px;width: 20px;height: 20px;margin-left: 5px;" />

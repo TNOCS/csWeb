@@ -186,6 +186,8 @@ module csComp.Services {
             });
 
             this.geoService.start();
+
+            this.addActionService(new LayerActions());
         }
 
         public getActions(feature: IFeature): IActionOption[] {
@@ -963,7 +965,7 @@ module csComp.Services {
                 var s = new LayerUpdate();
                 s.layerId = feature.layerId;
                 s.action = LayerUpdateAction.deleteFeature;
-                s.object = feature.id;
+                s.item = feature.id;
                 this.$messageBusService.serverSendMessageAction("layer", s);
             }
         }
@@ -2285,7 +2287,7 @@ module csComp.Services {
                     var s = new LayerUpdate();
                     s.layerId = f.layerId;
                     s.action = LayerUpdateAction.updateLog;
-                    s.object = { featureId: f.id, logs: l };
+                    s.item = { featureId: f.id, logs: l };
                     //this.$messageBusService.serverPublish("layer", s);
                     this.$messageBusService.serverSendMessageAction("layer", s);
                 }
@@ -2293,7 +2295,7 @@ module csComp.Services {
                     var s = new LayerUpdate();
                     s.layerId = f.layerId;
                     s.action = LayerUpdateAction.updateFeature;
-                    s.object = Feature.serialize(f);
+                    s.item = Feature.serialize(f);
                     this.$messageBusService.serverSendMessageAction("layer", s);
                 }
             }
@@ -2328,7 +2330,7 @@ module csComp.Services {
     export class LayerUpdate {
         public layerId: string;
         public action: LayerUpdateAction;
-        public object: any;
+        public item: any;
         public featureId: string;
     }
 

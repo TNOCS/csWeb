@@ -113,9 +113,6 @@ module LayersDirective {
                     console.log(key);
                 }
             })
-
-
-
         }
 
         public startAddingFeatures(layer: csComp.Services.ProjectLayer) {

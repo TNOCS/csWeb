@@ -25,7 +25,7 @@ module ClientConnection {
     export class LayerUpdate {
         public layerId: string;
         public action: LayerUpdateAction;
-        public object: any;
+        public item: any;
         public featureId: string;
     }
 
@@ -202,6 +202,7 @@ module ClientConnection {
                 if (!skip || uId != skip) {
                     var sub = this.users[uId].FindSubscription(layer, "layer");
                     if (sub != null) {
+                        Winston.info('send to : ' + sub.id);
                         this.users[uId].Client.emit(sub.id, new ClientMessage("layer", update));
                     }
                 }

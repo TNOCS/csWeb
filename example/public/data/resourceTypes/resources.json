@@ -17,16 +17,19 @@
     "plane": {
       "name": "Vliegtuig",
       "style": {
-        "strokeColor": "#000000",
+        "strokeColor": "hsv(0, 83%, 40%)",
         "drawingMode": "Point",
-        "strokeWidth": 0,
+        "strokeWidth": 2,
         "iconWidth": 32,
         "iconHeight": 32,
         "iconUri": "images/vliegtuig.png",
         "modelUri": "models/plane.gltf",
         "modelScale": 1,
         "modelMinimumPixelSize": 32,
-        "rotateProperty": "Track"
+        "rotateProperty": "Track",
+        "fillColor": "hsv(0, 65%, 81%)",
+        "cornerRadius": 50,
+        "opacity": 0.4
       },
       "propertyTypeKeys": "PlaneType;Speed;Altitude;Track"
     },

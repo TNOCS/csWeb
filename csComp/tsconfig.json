@@ -158,6 +158,7 @@
         "./services/connection/ConnectionService.ts",
         "./services/dashboard/DashboardService.ts",
         "./services/geolocation/geolocation.ts",
+        "./services/layer/LayerActions.ts",
         "./services/layer/LayerService.ts",
         "./services/layer/sources/DatabaseSource.ts",
         "./services/layer/sources/GeoJsonSource.ts",

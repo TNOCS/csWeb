@@ -188,7 +188,7 @@ module csComp.Services {
                                     case LayerUpdateAction.updateLog:
                                         // find feature
                                         var fId = lu.featureId;
-                                        var logs: { [key: string]: Log[] } = lu.object;
+                                        var logs: { [key: string]: Log[] } = lu.item;
                                         var ff = <IFeature[]>(<any>this.layer.data).features;
                                         ff.forEach((f: IFeature) => {
                                             if (f.id === fId) {
@@ -207,7 +207,7 @@ module csComp.Services {
                                         })
                                         break;
                                     case LayerUpdateAction.updateFeature:
-                                        var f = lu.object;
+                                        var f = lu.item;
                                         this.service.$rootScope.$apply(() => {
                                             this.updateFeatureByProperty("id", f.id, f);
                                         });

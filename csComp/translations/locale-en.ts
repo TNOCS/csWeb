@@ -20,6 +20,7 @@ module Translations {
             MAP_LABEL: 'Map',
             TABLE_LABEL: 'Table',
             LAYERS: 'Layers',
+            DONE: 'done',
             FILTERS: 'Filters',
             FILTER_INFO: 'At the moment, no filters have been selected. In order to add a filter, click on an icon or area on the map, and click on the filter icon (<span class="fa fa-filter"></span>) in the right menu. This will create a filter for the selected property.',
             STYLES: 'Styles',
