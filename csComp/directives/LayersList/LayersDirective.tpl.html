@@ -11,8 +11,20 @@
             <button class="button fa fa-plus leftpanel-header-button" ng-click="vm.addLayer()" />
         </div>
     </h3>
+
+    <div ng-show="vm.layer.gui.featureTypes && vm.layer.gui.editing" style="background:white">
+        <div class="btn fa fa-check" ng-click="vm.stopAddingFeatures(vm.layer)"><span translate="DONE"></span></div>
+        <div id="layerfeaturetype-{{key}}"  class="legendItem draggable" style="width:30px;height:30px" when-ready="vm.initDrag(key,vm.layer)" ng-repeat="(key,legendItem) in vm.layer.gui.featureTypes" >
+            <span>
+                <img ng-src="{{legendItem.style.iconUri}}" style="margin-top: -12px;width: 20px;height: 20px;margin-left: 5px;" />
+
+                <div class="legendText" style="margin-left:5px"> {{legendItem.name}} </div>
+            </span>
+        </div>
+    </div>
+
     <!-- overflow-y: auto; overflow-x: hidden;  -->
-    <div style="margin-top: -10px; margin-left:-20px;padding-left:0px" resize resize-y="95">
+    <div ng-hide="vm.layer.gui.featureTypes && vm.layer.gui.editing" style="margin-top: -10px; margin-left:-20px;padding-left:0px;overflow-y: auto; overflow-x: hidden" resize resize-y="95">
         <div ng-hide="vm.$layerService.editing && !group.gui.editing" data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
             <div id="layergroupStyle" style="float: left; margin-left: 10px; margin-top: 5px" data-toggle="collapse" data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
             <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true" class="group-title">{{group.title}}</div>
@@ -40,17 +52,7 @@
                             <div ng-show="layer.isDynamic" popover="{{(layer.isConnected) ? 'connected' : 'not connected'}}" popover-append-to-body="true" popover-placement="top" popover-trigger="mouseenter" class="fa fa-plug" ng-class="{false : 'disconnected-layer', true:'connected-layer'}[layer.isConnected==true]" style="position:absolute;right:20px;top:3px"></div>
                         </div>
                     </div>
-                    <div ng-show="layer.gui.featureTypes && layer.gui.editing" style="background:white">
-                        <div class="btn fa fa-check" ng-click="vm.stopAddingFeatures(layer)"><span translate="DONE"></span></div>
-                        <div id="layerfeaturetype-{{key}}"  class="legendItem draggable" style="width:30px;height:30px" when-ready="vm.initDrag(key,layer)" ng-repeat="(key,legendItem) in layer.gui.featureTypes" >
-                            <span>
-                                <img ng-src="{{legendItem.style.iconUri}}" style="margin-top: -12px;width: 20px;height: 20px;margin-left: 5px;" />
 
-                                <div class="legendText" style="margin-left:5px"> {{legendItem.name}} </div>
-                            </span>
-                        </div>
-
-                    </div>
 
                     <!-- <div ng-show="layer.gui.more && !layer.gui.editing" style="position:relative;min-height:30px">
                         <div ng-show="layer.isDynamic" style="position:absolute;top:3px;right:5px" class="btn fa fa-plus" ng-click="vm.startAddingFeatures(layer)"></div>

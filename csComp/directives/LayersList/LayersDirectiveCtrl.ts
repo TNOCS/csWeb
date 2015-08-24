@@ -11,6 +11,7 @@ module LayersDirective {
         private scope: ILayersDirectiveScope;
         private allCollapsed: boolean;
         public editing: boolean;
+        public layer: csComp.Services.ProjectLayer;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -117,6 +118,7 @@ module LayersDirective {
 
         public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
             (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startAddingFeatures(layer);
+            this.layer = layer;
         }
 
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
