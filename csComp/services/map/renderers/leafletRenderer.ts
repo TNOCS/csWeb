@@ -347,7 +347,7 @@ module csComp.Services {
                 marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
             } else {
                 marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
-                if (feature.isSelected && feature.layer && feature.layer.type !== 'accessibility' && feature.layer.group) {
+                if (feature.isSelected && feature.layer && !feature.layer.disableMoveSelectionToFront && feature.layer.group) {
                     if ((feature.layer.group.clustering && feature.layer.group.cluster && feature.layer.group.cluster.hasLayer(marker))
                         || feature.layer.group.markers.hasOwnProperty(marker.feature.id)) {
                         marker.bringToFront();

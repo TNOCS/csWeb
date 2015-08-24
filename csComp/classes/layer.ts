@@ -48,6 +48,8 @@ module csComp.Services {
         showOnTimeline?: boolean;
         /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
         dynamicResource?: boolean;
+        /** If true (default false), do not move the selected feature to the front of the SVG stack */
+        disableMoveSelectionToFront: boolean;
 
         layerSource: ILayerSource;
         /**
@@ -138,6 +140,8 @@ module csComp.Services {
         useProxy: boolean;
         /** indicates if features should be shown on timeline */
         showOnTimeline: boolean;
+        /** If true (default false), do not move the selected feature to the front of the SVG stack */
+        disableMoveSelectionToFront: boolean;
         /** if true, use the current bounding box to retreive data from the server */
         refreshBBOX: boolean;
         /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
