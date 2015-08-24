@@ -63,48 +63,75 @@ module LayersDirective {
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
-        public initDrag(key: string) {
+        public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
 
             var transformProp;
             var startx, starty;
 
-            interact('#layerfeaturetype-' + key)
-                .draggable({ max: Infinity })
-                .on('dragstart', (event) => {
-                startx = 0;
-                starty = 0;
-                event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
-                event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
-                event.target.style.width = "300px";
-                event.target.style.height = "300px";
+            var i = interact('#layerfeaturetype-' + key)
+                .draggable({
+                max: Infinity,
+                onstart: (event) => {
+                    startx = 0;
+                    starty = 0;
+                    event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
+                    event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
+                },
+                onmove: (event) => {
+                    event.interaction.x += event.dx;
+                    event.interaction.y += event.dy;
+
+                    event.target.style.left = event.interaction.x + 'px';
+                    event.target.style.top = event.interaction.y + 'px';
+                },
+                onend: (event) => {
+                    setTimeout(() => {
+                        var x = event.clientX;
+                        var y = event.clientY;
+                        var pos = this.$layerService.activeMapRenderer.getLatLon(x, y - 50);
+                        console.log(pos);
+                        var f = new csComp.Services.Feature();
+
+                        f.layerId = layer.id;
+                        f.geometry = {
+                            type: 'Point', coordinates: [pos.lon, pos.lat]
+                        };
+                        //f.
+                        f.properties = { "featureTypeId": key };
+                        layer.data.features.push(f);
+                        this.$layerService.initFeature(f, layer);
+                        this.$layerService.activeMapRenderer.addFeature(f);
+                        this.$layerService.saveFeature(f);
+                    }, 100);
+
+                    //this.$dashboardService.mainDashboard.widgets.push(widget);
+                    event.target.setAttribute('data-x', 0);
+                    event.target.setAttribute('data-y', 0);
+                    event.target.style.left = '0px';
+                    event.target.style.top = '0px';
+
+                    console.log(key);
+                }
             })
-                .on('dragmove', (event) => {
-                event.interaction.x += event.dx;
-                event.interaction.y += event.dy;
-
-
-                event.target.style.left = event.interaction.x + 'px';
-                event.target.style.top = event.interaction.y + 'px';
-
-            })
-                .on('dragend', (event) => {
-                setTimeout(() => {
-                    alert('done');
-
-                }, 100);
-
-                //this.$dashboardService.mainDashboard.widgets.push(widget);
-                event.target.setAttribute('data-x', 0);
-                event.target.setAttribute('data-y', 0);
-                event.target.style.left = '0px';
-                event.target.style.top = '0px';
-                event.target.style.width = "75px";
-                event.target.style.height = "75px";
 
 
 
-                console.log(key);
-            });
+        }
+
+        public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
+            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startAddingFeatures(layer);
+        }
+
+        public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
+
+            if (layer.gui["featureTypes"]) {
+                for (var key in layer.gui["featureTypes"]) {
+                    interact('#layerfeaturetype-' + key).onstart = null;
+                    interact('#layerfeaturetype-' + key).onmove = null;
+                    interact('#layerfeaturetype-' + key).onend = null;
+                };
+            }
+            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopAddingFeatures(layer);
         }
 
         updateLayerOpacity = _.debounce((layer: csComp.Services.ProjectLayer) => {
@@ -190,12 +217,6 @@ module LayersDirective {
             }
         }
 
-        public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
-            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startAddingFeatures(layer);
-        }
 
-        public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
-            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopAddingFeatures(layer);
-        }
     }
 }

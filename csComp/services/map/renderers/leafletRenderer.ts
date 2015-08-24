@@ -34,6 +34,11 @@ module csComp.Services {
             });
         }
 
+        public getLatLon(x: number, y: number): { lat: number, lon: number } {
+            var position = this.map.containerPointToLatLng(new L.Point(x, y));
+            return { lat: position.lat, lon: position.lng };
+        }
+
         public getExtent(): csComp.Services.IBoundingBox {
 
             var r = <IBoundingBox>{};

@@ -185,7 +185,7 @@ module csComp.Services {
                 }
             });
 
-            this.geoService.start({});
+            this.geoService.start();
         }
 
         public getActions(feature: IFeature): IActionOption[] {

@@ -286,13 +286,14 @@ module csComp.Services {
         public initAvailableFeatureTypes(layer: csComp.Services.ProjectLayer) {
             var featureTypes = {};
 
-
-
             if (layer) {
                 if (layer.typeUrl && this.service.typesResources.hasOwnProperty(layer.typeUrl)) {
                     for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
-                        featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                        featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
+                        var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
+                        if (t.style.drawingMode === "Point") {
+                            featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
+                            featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
+                        }
                     }
                 }
             }

@@ -40,12 +40,12 @@
                 "description": "Demonstrates layers based on points"
             }
         },
-        "clustering": true,
+        "clustering": false,
         "clusterLevel": 12,
         "layers": [{
             "id": "test",
             "type": "dynamicgeojson",
-            "url": "api/layers/test",            
+            "url": "api/layers/test",
             "typeUrl": "data/resourceTypes/resources.json",
             "opacity": 100
         },
@@ -61,7 +61,7 @@
         "id": "b0e9e0cd-d6c1-44ac-8029-5c30dfe21878",
         "title": "Features",
         "description": "Demonstrates layers based on points",
-        "clustering": true,
+        "clustering": false,
         "clusterLevel": 12,
         "languages": {
             "nl": {
