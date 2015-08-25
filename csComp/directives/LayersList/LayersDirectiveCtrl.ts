@@ -41,7 +41,6 @@ module LayersDirective {
             this.$messageBusService.subscribe('project', (title: string, project: csComp.Services.Project) => {
                 if (title !== 'loaded' || !project) return;
                 if (project.hasOwnProperty('collapseAllLayers') && project.collapseAllLayers === true){
-                    this.collapseAll();
                     this.allCollapsed = true;
                 } else {
                     this.allCollapsed = false;
@@ -108,12 +107,7 @@ module LayersDirective {
         }
 
         public collapseAll() {
-            this.$layerService.project.groups.forEach((g) => {
-                var id = "#layergroup_" + g.id;
-                (<any>$(id)).collapse("hide");
-            });
-            var x = (<any>$('layergroupStyle'));
-            (<any>$('div#layergroupStyle')).addClass('collapsed');
+            this.$layerService.collapseAll();
             this.allCollapsed = true;
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                 this.$scope.$apply();
@@ -121,11 +115,7 @@ module LayersDirective {
         }
 
         public expandAll() {
-            this.$layerService.project.groups.forEach((g) => {
-                var id = "#layergroup_" + g.id;
-                (<any>$(id)).collapse("show");
-            });
-            (<any>$('div#layergroupStyle')).removeClass('collapsed');
+            this.$layerService.expandAll();
             this.allCollapsed = false;
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                 this.$scope.$apply();

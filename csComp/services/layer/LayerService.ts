@@ -471,6 +471,42 @@ module csComp.Services {
             ]);
         }
 
+        public expandGroup(layer: ProjectLayer) {
+            // expand the group in the layerlist if it is collapsed
+            if (!layer || !layer.group) return;
+            var id = "#layergroup_" + layer.group.id;
+            (<any>$(id)).collapse("show");
+            $('*[data-target="' + id + '"]').removeClass('collapsed');
+            //(<any>$('div#layergroupStyle')).removeClass('collapsed');
+            //
+            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+        }
+
+        public collapseAll() {
+            this.project.groups.forEach((g) => {
+                var layerEnabled = false;
+                g.layers.some((l) => {
+                    if (l.enabled) layerEnabled = true;
+                    return l.enabled;
+                });
+                if (!layerEnabled) {
+                    var id = "#layergroup_" + g.id;
+                    (<any>$(id)).collapse("hide");
+                    $('*[data-target="' + id + '"]').addClass('collapsed');
+                }
+            });
+        }
+
+        public expandAll() {
+            this.project.groups.forEach((g) => {
+                var id = "#layergroup_" + g.id;
+                if (!(<any>$(id)).hasClass("in")) {
+                    (<any>$(id)).collapse("show");
+                    $('*[data-target="' + id + '"]').removeClass('collapsed');
+                }
+            });
+        }
+
         /** load external type resource for a project or layer */
         public loadTypeResources(url: any, requestReload: boolean, callback: Function) {
             if (url) {
@@ -566,7 +602,7 @@ module csComp.Services {
                 this.project.features.some((f) => {
                     if (f.properties.hasOwnProperty(property)) {
                         var pt = this.getPropertyType(f, property);
-                        this.setStyle({ feature: f, property: property, key: pt.title || property});
+                        this.setStyle({ feature: f, property: property, key: pt.title || property });
                         return true;
                     }
                     return false;
@@ -1278,7 +1314,7 @@ module csComp.Services {
             if (!this.locationFilter) {
                 var bounds = this.map.map.getBounds();
                 bounds = bounds.pad(-0.75);
-                this.locationFilter = new L.LocationFilter({bounds: bounds}).addTo(this.map.map);
+                this.locationFilter = new L.LocationFilter({ bounds: bounds }).addTo(this.map.map);
                 this.locationFilter.on('change', (e) => {
                     this.updateLocationFilter(e.bounds);
                 });
@@ -1310,7 +1346,7 @@ module csComp.Services {
             } else if (f.geometry.type === 'MultiPolygon') {
                 isInsideFunction = csComp.Helpers.GeoExtensions.pointInsideMultiPolygon;
             } else {
-                isInsideFunction = () => {return false};
+                isInsideFunction = () => { return false };
             }
 
             this.project.mapFilterResult = [];
@@ -1705,10 +1741,10 @@ module csComp.Services {
 
             $.getJSON(solutionProject.url,
                 (prj: Project) => {
-                    this.parseProject(prj,solutionProject,layerIds);
+                    this.parseProject(prj, solutionProject, layerIds);
                 }).fail((obj, text, error) => {
-                    this.$messageBusService.notify('ERROR loading project', error + '\nwhile loading: ' + solutionProject.url);
-                });
+                this.$messageBusService.notify('ERROR loading project', error + '\nwhile loading: ' + solutionProject.url);
+            });
         }
 
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
@@ -1767,7 +1803,7 @@ module csComp.Services {
                             if (ds.url) {
                                 DataSource.LoadData(ds, () => {
                                     console.log('datasource loaded');
-                                    if (ds.type === "dynamic") {this.checkDataSourceSubscriptions(ds);}
+                                    if (ds.type === "dynamic") { this.checkDataSourceSubscriptions(ds); }
 
                                     for (var s in ds.sensors) {
                                         var ss: SensorSet = ds.sensors[s];
@@ -1869,7 +1905,7 @@ module csComp.Services {
                                 });
                             }
                             if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') {
-                                 this.$rootScope.$apply();
+                                this.$rootScope.$apply();
                             }
                         });
 
@@ -1901,6 +1937,11 @@ module csComp.Services {
 
                     }
                 });
+            }
+
+            if (prj.hasOwnProperty('collapseAllLayers') && prj.collapseAllLayers === true) {
+                this.collapseAll();
+                if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             }
 
             this.$messageBusService.publish('project', 'loaded', this.project);
@@ -1943,7 +1984,7 @@ module csComp.Services {
             }
             if (group.clustering) {
                 group.cluster = new L.MarkerClusterGroup({
-                    maxClusterRadius: (zoom) => {if (zoom > 18) {return 2;} else { return group.maxClusterRadius || 80}},
+                    maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
                 group.cluster.on('clustermouseover', (a) => {
@@ -1971,6 +2012,7 @@ module csComp.Services {
             }
             if (!group.layers) group.layers = [];
             group.layers.forEach((layer: ProjectLayer) => {
+
                 this.initLayer(group, layer, layerIds);
             });
 
@@ -2002,7 +2044,7 @@ module csComp.Services {
             if (!layer.groupId) layer.groupId = group.id;
             if (layer.enabled || (layerIds && layerIds.indexOf(layer.reference.toLowerCase()) >= 0)) {
                 layer.enabled = true;
-                this.activeMapRenderer.addLayer(layer);
+                this.addLayer(layer);
             }
         }
 
