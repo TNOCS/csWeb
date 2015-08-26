@@ -236,6 +236,5 @@ module Filters {
             }
         }
 
-
     }
 }
