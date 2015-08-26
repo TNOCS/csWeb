@@ -117,56 +117,65 @@ describe('csComp.Services.LayerService', function() {
 
 
     describe('Open solution', () => {
-        describe('Open solution', () => {
-            it('should load projects.json',()=>{
-                spyOn($, 'getJSON').and.callFake((req) => {
-                    var d = $.Deferred();
-                    d.resolve('{"fake_data": "true"}');
-                    return d.promise();
-                });
-                layerService.openSolution('projects.json');
-                expect($.getJSON).toHaveBeenCalledWith('projects.json', jasmine.any(Function));
+        var $httpBackend;
+        beforeEach(inject(($injector) => {
+            $httpBackend = $injector.get('$httpBackend');
+        }));
+
+        it('should load projects.json',()=>{
+            spyOn($, 'getJSON').and.callFake((req) => {
+                var d = $.Deferred();
+                d.resolve('{"fake_data": "true"}');
+                return d.promise();
             });
+            layerService.openSolution('projects.json');
+            expect($.getJSON).toHaveBeenCalledWith('projects.json', jasmine.any(Function));
+        });
 
-            it('should parse projects.json correctly',()=>{
-                layerService.$mapService = mapService;
-                mapService.map = <L.Map>{};
-                layerService.selectRenderer('leaflet');
-                mapService.map.setMaxBounds = function (a:any, b:any) {return new L.Map('mapId', {maxBounds: mockSolution.maxBounds})};
-                mapService.baseLayers = {};
-                spyOn(mapService.map, 'setMaxBounds');
+        it('should parse projects.json correctly',()=>{
+            // Mock for data sources...
+            $httpBackend.expectGET(mockProject.datasources[0].url);
+            $httpBackend.when('GET', mockProject.datasources[0].url)
+                .respond(mockDatasource);
 
-                var jsonSpy = spyOn($, 'getJSON').and.callFake((req) => {
-                    var d = $.Deferred();
-                    d.resolve('{"fake_data": "true"}');
-                    return d.promise();
-                });
-                layerService.openSolution('projects.json');
-                expect($.getJSON).toHaveBeenCalledWith('projects.json', jasmine.any(Function));
-                jsonSpy.calls.mostRecent().args[1](mockSolution); //call callback with mocked json
+            layerService.$mapService = mapService;
+            mapService.map = <L.Map>{};
+            layerService.selectRenderer('leaflet');
+            mapService.map.setMaxBounds = function (a:any, b:any) {return new L.Map('mapId', {maxBounds: mockSolution.maxBounds})};
+            mapService.baseLayers = {};
+            spyOn(mapService.map, 'setMaxBounds');
 
-                expect(layerService.loadedLayers).toEqual(new csComp.Helpers.Dictionary<csComp.Services.ProjectLayer>());
-                expect(layerService.maxBounds).toEqual(mockSolution.maxBounds);
-                expect(mapService.baseLayers.hasOwnProperty(mockSolution.baselayers[0].title)).toBeTruthy();
-
-                //Next, the project defined in the solution should be opened
-                layerService.map = mapService;
-                mapService.map = <L.Map>{};
-                mapService.map.addLayer = function (a:any) {return <L.Map>{}};
-
-                expect($.getJSON).toHaveBeenCalledWith(mockSolution.projects[0].url, jasmine.any(Function));
-                jsonSpy.calls.mostRecent().args[1](mockProject); //call callback with mocked json
-                expect(layerService.project.dashboards.length).toEqual(4);
-
-                //Next, the datasources defined in the project should be opened
-                expect($.getJSON).toHaveBeenCalledWith(mockProject.datasources[0].url, jasmine.any(Function));
-                jsonSpy.calls.mostRecent().args[1](mockDatasource); //call callback with mocked json
-                expect(layerService.project.datasources.length).toEqual(1);
-
-                var ds;
-                layerService.findSensorSet('datasource/test', (cb) => {ds = cb;} );
-                expect(ds.id).toEqual('test');
+            var jsonSpy = spyOn($, 'getJSON').and.callFake((req) => {
+                var d = $.Deferred();
+                d.resolve('{"fake_data": "true"}');
+                return d.promise();
             });
+            layerService.openSolution('projects.json');
+
+            expect($.getJSON).toHaveBeenCalledWith('projects.json', jasmine.any(Function));
+            jsonSpy.calls.mostRecent().args[1](mockSolution); //call callback with mocked json
+
+            expect(layerService.loadedLayers).toEqual(new csComp.Helpers.Dictionary<csComp.Services.ProjectLayer>());
+            expect(layerService.maxBounds).toEqual(mockSolution.maxBounds);
+            expect(mapService.baseLayers.hasOwnProperty(mockSolution.baselayers[0].title)).toBeTruthy();
+
+            //Next, the project defined in the solution should be opened
+            layerService.map = mapService;
+            mapService.map = <L.Map>{};
+            mapService.map.addLayer = function (a:any) {return <L.Map>{}};
+
+
+            jsonSpy.calls.mostRecent().args[1](mockProject); //call callback with mocked json
+            // Flush and verify calls to datasources
+            $httpBackend.flush();
+            $httpBackend.verifyNoOutstandingExpectation();
+
+            expect(layerService.project.dashboards.length).toEqual(4);
+            expect(layerService.project.datasources.length).toEqual(1);
+
+            var ds;
+            layerService.findSensorSet('datasource/test', (cb) => {ds = cb;} );
+            expect(ds.id).toEqual('test');
         });
     });
 

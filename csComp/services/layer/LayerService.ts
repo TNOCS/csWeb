@@ -95,15 +95,17 @@ module csComp.Services {
             '$location',
             '$compile',
             '$translate',
+            '$http',
             'messageBusService',
             'mapService',
-            '$rootScope'
+            '$rootScope',
         ];
 
         constructor(
             private $location: ng.ILocationService,
             public $compile: any,
             private $translate: ng.translate.ITranslateService,
+            public $http: ng.IHttpService,
             public $messageBusService: Services.MessageBusService,
             public $mapService: Services.MapService,
             public $rootScope: any
@@ -1743,8 +1745,8 @@ module csComp.Services {
                 (prj: Project) => {
                     this.parseProject(prj, solutionProject, layerIds);
                 }).fail((obj, text, error) => {
-                this.$messageBusService.notify('ERROR loading project', error + '\nwhile loading: ' + solutionProject.url);
-            });
+                    this.$messageBusService.notify('ERROR loading project', error + '\nwhile loading: ' + solutionProject.url);
+                });
         }
 
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
@@ -1801,8 +1803,7 @@ module csComp.Services {
                     if (this.project.datasources) {
                         this.project.datasources.forEach((ds: DataSource) => {
                             if (ds.url) {
-                                DataSource.LoadData(ds, () => {
-                                    console.log('datasource loaded');
+                                DataSource.LoadData(this.$http, ds, () => {
                                     if (ds.type === "dynamic") { this.checkDataSourceSubscriptions(ds); }
 
                                     for (var s in ds.sensors) {
@@ -2092,7 +2093,9 @@ module csComp.Services {
             if (kk.length == 2) {
                 var source = kk[0];
                 var sensorset = kk[1];
-                if (!this.project.datasources || this.project.datasources.length === 0) return null;
+                if (!this.project.datasources || this.project.datasources.length === 0) {
+                    return null;
+                }
                 this.project.datasources.forEach((ds: DataSource) => {
                     if (ds.id === source) {
                         if (ds.sensors.hasOwnProperty(sensorset)) {
