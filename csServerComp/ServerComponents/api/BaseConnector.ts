@@ -3,8 +3,7 @@ import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import CallbackResult = ApiManager.CallbackResult;
 import Log = ApiManager.Log;
-import Sensor = ApiManager.Sensor;
-import SensorValue = ApiManager.SensorValue;
+
 import ApiMeta = ApiManager.ApiMeta;
 
 export class BaseConnector implements ApiManager.IConnector {
@@ -12,6 +11,7 @@ export class BaseConnector implements ApiManager.IConnector {
 
     public id: string;
     public isInterface: boolean;
+    public receiveCopy = true;
 
     public initLayer(layer: Layer) {
 
@@ -67,11 +67,6 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
-    //sensor methods
-    public addSensor(sensor: Sensor, meta: ApiMeta, callback: Function) { }
-    public addSensorValue(sensorId: string, value: SensorValue, meta: ApiMeta, callback: Function) { }
-    public getSensors(meta: ApiMeta, callback: Function) { }
-    public getSensor(sensorId: string, meta: ApiMeta) { }
 
     public addLog(layerId: string, featureId: string, property: string, log: Log, meta: ApiMeta, callback: Function) {
 
@@ -97,8 +92,18 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
+    /** Get a list of available keys */
+    public getKeys(meta: ApiMeta, callback: Function) { }
+    /** Update the value for a given keyId */
+    public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) { }
+    /** Delete key */
+    public deleteKey(keyId: string, meta: ApiMeta, callback: Function) { }
+
+
     //TODO: Move connection set-up params from static to parameterized.
     public init(layerManager: ApiManager.ApiManager, options: any) {
 
     }
+    /** listen to key updates */
+    subscribeKey(keyPattern: string, meta: ApiMeta, callback: Function) { }
 }

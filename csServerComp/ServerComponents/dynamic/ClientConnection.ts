@@ -19,6 +19,11 @@ module ClientConnection {
         public callback: MessageBus.IMessageBusCallback
     }
 
+    export class KeySubscription {
+        public keyId: string;
+        public callback: MessageBus.IMessageBusCallback
+    }
+
     /**
      * object for sending layer messages over socket.io channel
      */
@@ -30,6 +35,15 @@ module ClientConnection {
     }
 
     /**
+     * object for sending layer messages over socket.io channel
+     */
+    export class KeyUpdate {
+        public keyId: string;
+        public action: KeyUpdateAction;
+        public item: any;
+    }
+
+    /**
      * List of available action for sending/receiving layer actions over socket.io channel
      */
     export enum LayerUpdateAction {
@@ -37,6 +51,13 @@ module ClientConnection {
         updateLog,
         deleteFeature,
         addLayer
+    }
+
+    /**
+     * List of available action for sending/receiving key actions over socket.io channel
+     */
+    export enum KeyUpdateAction {
+        updateKey
     }
 
     export class ClientMessage {

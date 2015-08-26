@@ -4,8 +4,6 @@ import cors = require('cors')
 import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import Logs = ApiManager.Log;
-import Sensor = ApiManager.Sensor;
-import SensorValue = ApiManager.SensorValue;
 import BaseConnector = require('./BaseConnector');
 import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
@@ -15,13 +13,13 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
     public manager: ApiManager.ApiManager;
     public layersUrl;
-    public sensorsUrl;
+    public keysUrl;
 
     constructor(public server: express.Express, public baseUrl: string = "/api") {
         super();
         this.isInterface = true;
         this.layersUrl = baseUrl + "/layers/";
-        this.sensorsUrl = baseUrl + "/sensors/";
+        this.keysUrl = baseUrl + "/keys/";
     }
 
     public init(layerManager: ApiManager.ApiManager, options: any) {
@@ -188,6 +186,15 @@ export class RestAPI extends BaseConnector.BaseConnector {
             //     this.manager.getSensors((result: CallbackResult) => { res.send(result) });
             // });
             this.manager.getWithinPolygon(req.params.layerId, feature, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        });
+
+
+        //adds a feature
+        this.server.post(this.keysUrl + ":keyId", (req: express.Request, res: express.Response) => {
+            this.manager.updateKey(req.params.keyId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });

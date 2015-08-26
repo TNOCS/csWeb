@@ -98,7 +98,7 @@ module LayersDirective {
                             type: 'Point', coordinates: [pos.lon, pos.lat]
                         };
                         //f.
-                        f.properties = { "featureTypeId": key };
+                        f.properties = { "featureTypeId": key, "Name": key };
                         layer.data.features.push(f);
                         this.$layerService.initFeature(f, layer);
                         this.$layerService.activeMapRenderer.addFeature(f);

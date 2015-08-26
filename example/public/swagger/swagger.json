@@ -178,13 +178,6 @@
             "schema": {
               "$ref": "#/definitions/Layer"
             }
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID or Name of the Layer to insert",
-            "required": true,
-            "type": "string"
           }
         ],
         "responses": {

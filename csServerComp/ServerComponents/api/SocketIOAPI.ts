@@ -45,6 +45,20 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
                 }
             }
             //result.data
+        });
+        this.connection.subscribe('key', (result: ClientConnection.ClientMessage, clientId: string) => {
+            var lu = <ClientConnection.KeyUpdate>result.data;
+            if (lu) {
+                ///TODO: check if lu.layerId really exists
+                switch (lu.action) {
+                    case ClientConnection.KeyUpdateAction.updateKey:
+                        // find feature
+                        var keyId = lu.item.keyId;
+                        this.manager.updateKey(lu.keyId, lu.item, <ApiMeta>{ source: this.id, user: clientId }, () => { });
+                        break;
+                }
+            }
+            //result.data
         })
     }
 
@@ -80,6 +94,10 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.deleteFeature, featureId: featureId };
         this.connection.updateFeature(layerId, lu, meta);
+    }
+
+    public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
+        Winston.error('socketio: update key');
     }
 
 

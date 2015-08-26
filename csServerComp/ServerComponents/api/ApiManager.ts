@@ -26,8 +26,11 @@ export class CallbackResult {
 export interface IConnector {
     id: string;
     isInterface: boolean;
+    /** If true (default), the manager will send a copy to the source (receiving) connector */
+    receiveCopy: boolean;
     init(layerManager: ApiManager, options: any);
     initLayer(layer: Layer, meta?: ApiMeta);
+
     //Layer methods
     addLayer(layer: Layer, meta: ApiMeta, callback: Function);
     getLayer(layerId: string, meta: ApiMeta, callback: Function);
@@ -48,25 +51,27 @@ export interface IConnector {
     getBBox(layerId: string, southWest: number[], northEast: number[], meta: ApiMeta, callback: Function);
     getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, meta: ApiMeta, callback: Function);
     getWithinPolygon(layerId: string, feature: Feature, meta: ApiMeta, callback: Function);
-    getSensors(meta: ApiMeta, callback: Function);
-    getSensor(sensorId: string, meta: ApiMeta);
+
+
+    /** Get a list of available keys */
+    getKeys(meta: ApiMeta, callback: Function);
+    /** Update the value for a given keyId */
+    updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function);
+    /** Delete key */
+    deleteKey(keyId: string, meta: ApiMeta, callback: Function);
+    /** listen to key updates */
+    subscribeKey(keyPattern: string, meta: ApiMeta, callback: Function);
 }
 
-export class SensorValue {
-    value: any;
-    timestamp: number;
-}
 
 export interface StorageObject {
     id: string;
     storage: string;
 }
 
-export class Sensor implements StorageObject {
+export class Key implements StorageObject {
     id: string;
     title: string;
-    type: string;
-    values: SensorValue[];
     storage: string;
 }
 
@@ -134,10 +139,15 @@ export class ApiManager {
     /**
      * Dictionary of sensor sets
      */
-    public sensors: { [key: string]: Sensor } = {};
+    public keys: { [keyId: string]: Key } = {};
 
     public defaultStorage = "file";
     public defaultLogging = false;
+    /** The ApiManager name can be used to identify this instance (e.g. mqtt can create a namespace/channel for this api) */
+    public name: string = "cs";
+
+    /** Create a new client, optionally specifying whether it should act as client. */
+    constructor(public isClient = false) { }
 
     public init() {
         Winston.info('init layer manager', { cat: "api" });
@@ -147,9 +157,11 @@ export class ApiManager {
      * Add connector to available connectors
      */
     public addConnector(key: string, s: IConnector, options: any) {
+        // TODO If client, check that only one interface is added (isInterface = true)
         s.id = key;
         this.connectors[key] = s;
         s.init(this, options);
+
     }
 
     /**
@@ -212,7 +224,7 @@ export class ApiManager {
             callback(r);
         });
 
-        this.getInterfaces().forEach((i: IConnector) => {
+        this.getInterfaces(meta).forEach((i: IConnector) => {
             i.initLayer(layer);
             i.addLayer(layer, meta, () => { });
         });
@@ -244,21 +256,24 @@ export class ApiManager {
         var s = this.findStorageForLayerId(layerId);
         s.deleteLayer(layerId, meta, (r: CallbackResult) => {
             delete this.layers[layerId];
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.deleteLayer(layerId, meta, () => { });
+            });
             callback(r);
         });
     }
 
-    public getInterfaces(): IConnector[] {
+    public getInterfaces(meta: ApiMeta): IConnector[] {
         var res = [];
         for (var i in this.connectors) {
-            if (this.connectors[i].isInterface) res.push(this.connectors[i]);
+            if (this.connectors[i].isInterface && (this.connectors[i].receiveCopy || meta.source !== i)) res.push(this.connectors[i]);
         }
         return res;
     }
 
     // Feature methods start here, in CRUD order.
 
-    public addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
+    public addFeature(layerId: string, feature: Feature, meta: ApiMeta, callback: Function) {
         Winston.info('feature added');
         var layer = this.findLayer(layerId);
         if (!layer) {
@@ -267,12 +282,10 @@ export class ApiManager {
         else {
             var s = this.findStorage(layer);
             s.addFeature(layerId, feature, meta, (result) => callback(result));
-            this.getInterfaces().forEach((i: IConnector) => {
+            this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.addFeature(layerId, feature, meta, () => { });
             });
         }
-
-
     }
 
     public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, meta: ApiMeta, callback: Function) {
@@ -291,7 +304,7 @@ export class ApiManager {
             });
         }
         s.updateLogs(layerId, featureId, logs, meta, (r) => callback(r));
-        this.getInterfaces().forEach((i: IConnector) => {
+        this.getInterfaces(meta).forEach((i: IConnector) => {
             i.updateLogs(layerId, featureId, logs, meta, () => { });
         });
     }
@@ -304,7 +317,7 @@ export class ApiManager {
     public updateFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
         s.updateFeature(layerId, feature, true, meta, (result) => callback(result));
-        this.getInterfaces().forEach((i: IConnector) => {
+        this.getInterfaces(meta).forEach((i: IConnector) => {
             i.updateFeature(layerId, feature, false, meta, () => { });
         });
     }
@@ -312,7 +325,7 @@ export class ApiManager {
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
         s.deleteFeature(layerId, featureId, meta, (result) => callback(result));
-        this.getInterfaces().forEach((i: IConnector) => {
+        this.getInterfaces(meta).forEach((i: IConnector) => {
             i.deleteFeature(layerId, featureId, meta, () => { });
         });
     }
@@ -324,16 +337,6 @@ export class ApiManager {
         var s = this.findStorageForLayerId(layerId);
         s.addLog(layerId, featureId, property, log, meta, (result) => callback(result));
     }
-
-    public addSensor(sensor: Sensor, meta: ApiMeta, callback: Function) {
-        Winston.info(JSON.stringify(sensor));
-        callback(<CallbackResult>{ result: ApiResult.OK })
-    }
-
-    public getSensors(meta: ApiMeta, callback: Function) {
-        callback(<CallbackResult>{ result: ApiResult.OK });
-    }
-    public addSensorValue(sensorId: string, value: SensorValue, meta: ApiMeta, callback: Function) { }
 
     public initLayer(layer: Layer) {
 
@@ -363,6 +366,25 @@ export class ApiManager {
     public getWithinPolygon(layerId: string, feature: Feature, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
         s.getWithinPolygon(layerId, feature, meta, (result) => callback(result));
+    }
+
+    private keySubscriptions: { [pattern: string]: Function[] } = {};
+
+    public subscribeKey(pattern: string, meta: ApiMeta, callback: Function) {
+        if (!this.keySubscriptions.hasOwnProperty(pattern)) {
+
+        }
+    }
+
+    public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
+        Winston.info('updatekey:received' + keyId);
+        this.getInterfaces(meta).forEach((i: IConnector) => {
+            Winston.info('updatekey:send to ' + i.id);
+            i.updateKey(keyId, value, meta, () => { });
+        });
+
+        // check subscriptions
+        callback(<CallbackResult>{ result: ApiResult.OK })
     }
 
 

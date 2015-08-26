@@ -117,6 +117,7 @@ module csComp.Services {
                         this.service.calculateFeatureStyle(f);
                         this.service.updateFeature(f);
                         done = true;
+                        this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + " updated");
                         //  console.log('updating feature');
                         return true;
                     } else {
@@ -128,6 +129,7 @@ module csComp.Services {
                     features.push(value);
                     this.service.initFeature(value, this.layer);
                     var m = this.service.activeMapRenderer.addFeature(value);
+                    this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + " added");
                 }
             } catch (e) {
                 console.log('error');
@@ -207,7 +209,8 @@ module csComp.Services {
                                         })
                                         break;
                                     case LayerUpdateAction.updateFeature:
-                                        var f = lu.item;
+                                        var f = <Feature>lu.item;
+
                                         this.service.$rootScope.$apply(() => {
                                             this.updateFeatureByProperty("id", f.id, f);
                                         });
@@ -215,6 +218,7 @@ module csComp.Services {
                                     case LayerUpdateAction.deleteFeature:
                                         var feature = this.service.findFeature(layer, lu.featureId);
                                         if (feature) {
+                                            this.service.$messageBusService.notify(this.layer.title, feature.properties['Name'] + " removed");
                                             this.service.removeFeature(feature, false);
                                         }
 
