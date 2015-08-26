@@ -124,6 +124,7 @@ module Legend {
                 leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 2 * (activeStyle.info.sdMin + activeStyle.info.sdMax) / 4));
                 leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 3 * (activeStyle.info.sdMin + activeStyle.info.sdMax) / 4));
                 leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.sdMax));
+                leg.legendEntries = leg.legendEntries.sort((a,b) => {return (a.value - b.value)} );
             }
             return leg;
         }

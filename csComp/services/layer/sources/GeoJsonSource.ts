@@ -67,6 +67,14 @@ module csComp.Services {
                 data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
             }
 
+            if (layer.id.toLowerCase() === 'accessibility' || layer.id.toLowerCase() === 'tripplanner') {
+                layer.disableMoveSelectionToFront = true;
+                this.processAccessibilityReply(data, layer, (processedLayer) => {
+                    data = layer.data;
+                    layer = processedLayer;
+                })
+            }
+
             // add featuretypes to global featuretype list
             if (data.featureTypes) for (var featureTypeName in data.featureTypes) {
                 if (!data.featureTypes.hasOwnProperty(featureTypeName)) continue;
@@ -92,6 +100,86 @@ module csComp.Services {
 
         removeLayer(layer: ProjectLayer) {
             //alert('remove layer');
+        }
+
+        private processAccessibilityReply(data, layer, clbk) {
+            if (data.hasOwnProperty('error')) {
+                console.log('Error in opentripplanner: ' + data['error'].msg);
+                clbk(layer);
+                return;
+            }
+            var latlng: L.LatLng;
+            var urlParameters = csComp.Helpers.parseUrlParameters(layer.url, '?', '&', '=');
+            if (urlParameters.hasOwnProperty('fromPlace')) {
+                var coords = urlParameters['fromPlace'].split('%2C');
+                if (isNaN(+coords[0]) || isNaN(+coords[1])) clbk(layer);
+                latlng = new L.LatLng(+coords[0], +coords[1]);
+            }
+            var parsedData = data;
+            if (parsedData.hasOwnProperty('features')) { // Reply is in geoJson format
+                //Add arrival times when leaving now
+                var startTime = new Date(Date.now());
+                parsedData.features.forEach((f) => {
+                    f.properties['seconds'] = f.properties['time'];
+                    f.properties['time'] = f.properties['seconds'] * 1000;
+                    f.properties['arriveTime'] = (new Date(startTime.getTime() + f.properties['time'])).toISOString();
+                    f.properties['latlng'] = [latlng.lat, latlng.lng];
+                });
+                if (layer.hasOwnProperty('data') && layer.data.hasOwnProperty('features')) {
+                    for (let index = 0; index < layer.data.features.length; index++) {
+                        var f = layer.data.features[index];
+                        if (f.properties.hasOwnProperty('latlng') && f.properties['latlng'][0] === latlng.lat && f.properties['latlng'][1] === latlng.lng) {
+                            layer.data.features.splice(index--, 1);
+                        }
+                    }
+                    parsedData.features.forEach((f) => {
+                        layer.data.features.push(f);
+                    });
+                } else {
+                    layer.count = 0;
+                    layer.data = parsedData;
+                }
+            } else { // Reply is in routeplanner format
+                var fromLoc = parsedData.plan.from;
+                var toLoc = parsedData.plan.to;
+                layer.data = {};
+                layer.data.type = 'FeatureCollection';
+                layer.data.features = [];
+                parsedData.plan.itineraries.forEach((it) => {
+                    var route = new L.Polyline([]);
+                    var legs: IOtpLeg[] = [];
+                    var transfers = -1;
+                    it.legs.forEach((leg) => {
+                        var polyLeg: L.Polyline = L.Polyline.fromEncoded(leg.legGeometry.points);
+                        polyLeg.getLatLngs().forEach((ll) => {
+                            route.addLatLng(ll);
+                        });
+                        var legDetails: IOtpLeg = {
+                            mode: leg.mode,
+                            start: new Date(leg.startTime).toISOString(),
+                            arrive: new Date(leg.endTime).toISOString(),
+                            duration: csComp.Helpers.convertPropertyInfo({ type: "duration" }, (+leg.duration) * 1000)
+                        };
+                        (leg.agencyName) ? legDetails.agency = leg.agencyName : null;
+                        (leg.routeShortName) ? legDetails.route = leg.routeShortName : null;
+                        (leg.routeLongName) ? legDetails.routeName = leg.routeLongName : null;
+                        if (leg.mode !== 'WALK' && leg.mode !== 'BICYCLE') transfers = transfers + 1;
+                        legs.push(legDetails);
+                    });
+                    var geoRoute = route.toGeoJSON();
+                    layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates,
+                        {
+                            fromLoc: fromLoc.name,
+                            toLoc: toLoc.name,
+                            duration: (+it.duration) * 1000,
+                            startTime: new Date(it.startTime).toISOString(),
+                            arriveTime: new Date(it.endTime).toISOString(),
+                            legs: legs,
+                            transfers: (transfers >= 0) ? transfers : 0
+                        }));
+                });
+            }
+            clbk(layer);
         }
     }
 
@@ -326,180 +414,6 @@ module csComp.Services {
         routeName?: string,
         agency?: string
     }
-
-    export class AccessibilityDataSource extends GeoJsonSource {
-        title = "Accessibility datasource";
-        private routers;
-        private latlng: L.LatLng;
-        private isInitialized = false;
-
-        constructor(public service: csComp.Services.LayerService) {
-            super(service);
-        }
-
-        public init() {
-            this.routers = {};
-            if (this.service.project.otpServer && this.service.project.otpServer !== '') {
-                //Get a list of OTP routers and the geographic area they cover
-                $.getJSON('/api/accessibility', {
-                    url: this.service.project.otpServer
-                }, ((data, textStatus) => { this.initRouters(data, textStatus) }))
-            }
-            this.isInitialized = true;
-        }
-
-        private initRouters(data, textStatus) {
-            var parsedData = JSON.parse(data.body);
-            if (parsedData.hasOwnProperty('error')) {
-                console.log('Error initializing routers: ' + parsedData['error'].msg);
-            }
-            else { // There is data
-                if (parsedData.hasOwnProperty('routerInfo')) {
-                    var routerInfo = parsedData['routerInfo'];
-                    var initCount = 0;
-                    routerInfo.forEach((ri) => {
-                        if (ri.hasOwnProperty('routerId') && ri.hasOwnProperty('polygon')) {
-                            var poly = new L.Polygon([]);
-                            var coords = ri.polygon.coordinates;
-                            coords[0].forEach((c) => {
-                                poly.addLatLng(new L.LatLng(c[1], c[0]));
-                            });
-                            this.routers[ri.routerId] = poly;
-                            initCount += 1;
-                        }
-                    });
-                    console.log('OTP server initialized ' + initCount + '/' + routerInfo.length + ' routers');
-                }
-            }
-        }
-
-        public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
-            if (!this.isInitialized) this.init();
-            this.layer = layer;
-            layer.type = 'accessibility';
-            // Open a layer URL
-            layer.isLoading = true;
-
-            // Find suitable router
-            layer.url = this.chooseRouter(layer.url);
-
-            $.getJSON('/api/accessibility', {
-                url: layer.url
-            }, ((data, textStatus) => { this.processReply(data, textStatus, callback) }))
-
-        }
-
-        private chooseRouter(url: string): string {
-            var urlParameters = csComp.Helpers.parseUrlParameters(this.layer.url, '?', '&', '=');
-            if (urlParameters.hasOwnProperty('fromPlace')) {
-                var coords = urlParameters['fromPlace'].split('%2C');
-                if (isNaN(+coords[0]) || isNaN(+coords[1])) return url;
-                this.latlng = new L.LatLng(+coords[0], +coords[1]);
-                for (var key in this.routers) {
-                    if (this.routers.hasOwnProperty(key)) {
-                        var polygon: L.Polygon = this.routers[key];
-                        if (csComp.Helpers.GeoExtensions.pointInsidePolygon([this.latlng.lng, this.latlng.lat], polygon.toGeoJSON().geometry.coordinates)) {
-                            url = url.replace(this.getCurrentRouter(urlParameters['baseUrl']), key);
-                        }
-                    }
-                }
-            }
-            return url;
-        }
-
-        private getCurrentRouter(base: string) {
-            var splitted = base.split('/');
-            var routerIndex = -1;
-            splitted.some((s, index) => {
-                if (s === 'routers') {
-                    routerIndex = index + 1;
-                    return true;
-                }
-                return false;
-            });
-            return splitted[routerIndex];
-        }
-
-        private processReply(data, textStatus, clbk) {
-            var parsedData = JSON.parse(data.body);
-            if (parsedData.hasOwnProperty('error')) {
-                console.log('Error: ' + parsedData['error'].msg);
-            }
-            else { // There is data
-                if (parsedData.hasOwnProperty('features')) { // Reply is in geoJson format
-                    //Add arrival times when leaving now
-                    var startTime = new Date(Date.now());
-                    parsedData.features.forEach((f) => {
-                        f.properties['seconds'] = f.properties['time'];
-                        f.properties['time'] = f.properties['seconds'] * 1000;
-                        f.properties['arriveTime'] = (new Date(startTime.getTime() + f.properties['time'])).toISOString();
-                        f.properties['latlng'] = [this.latlng.lat, this.latlng.lng];
-                    });
-                    if (this.layer.hasOwnProperty('data') && this.layer.data.hasOwnProperty('features')) {
-                        for (let index = 0; index < this.layer.data.features.length; index++) {
-                            var f = this.layer.data.features[index];
-                            if (f.properties.hasOwnProperty('latlng') && f.properties['latlng'][0] === this.latlng.lat && f.properties['latlng'][1] === this.latlng.lng) {
-                                this.layer.data.features.splice(index--, 1);
-                            }
-                        }
-                        parsedData.features.forEach((f) => {
-                            this.layer.data.features.push(f);
-                        });
-                    } else {
-                        this.layer.count = 0;
-                        this.layer.data = parsedData;
-                    }
-                } else { // Reply is in routeplanner format
-                    var fromLoc = parsedData.plan.from;
-                    var toLoc = parsedData.plan.to;
-                    this.layer.data = {};
-                    this.layer.data.type = 'FeatureCollection';
-                    this.layer.data.features = [];
-                    parsedData.plan.itineraries.forEach((it) => {
-                        var route = new L.Polyline([]);
-                        var legs: IOtpLeg[] = [];
-                        var transfers = -1;
-                        it.legs.forEach((leg) => {
-                            var polyLeg: L.Polyline = L.Polyline.fromEncoded(leg.legGeometry.points);
-                            polyLeg.getLatLngs().forEach((ll) => {
-                                route.addLatLng(ll);
-                            });
-                            var legDetails: IOtpLeg = {
-                                mode: leg.mode,
-                                start: new Date(leg.startTime).toISOString(),
-                                arrive: new Date(leg.endTime).toISOString(),
-                                duration: csComp.Helpers.convertPropertyInfo({ type: "duration" }, (+leg.duration) * 1000)
-                            };
-                            (leg.agencyName) ? legDetails.agency = leg.agencyName : null;
-                            (leg.routeShortName) ? legDetails.route = leg.routeShortName : null;
-                            (leg.routeLongName) ? legDetails.routeName = leg.routeLongName : null;
-                            if (leg.mode !== 'WALK' && leg.mode !== 'BICYCLE') transfers = transfers + 1;
-                            legs.push(legDetails);
-                        });
-                        var geoRoute = route.toGeoJSON();
-                        this.layer.data.features.push(csComp.Helpers.GeoExtensions.createLineFeature(geoRoute.geometry.coordinates,
-                            {
-                                fromLoc: fromLoc.name,
-                                toLoc: toLoc.name,
-                                duration: (+it.duration) * 1000,
-                                startTime: new Date(it.startTime).toISOString(),
-                                arriveTime: new Date(it.endTime).toISOString(),
-                                legs: legs,
-                                transfers: (transfers >= 0) ? transfers : 0
-                            }));
-                    });
-                }
-                this.layer.data.features.forEach((f: IFeature) => {
-                    f.isInitialized = false;
-                    this.service.initFeature(f, this.layer, false, false);
-                });
-                this.service.$messageBusService.publish("timeline", "updateFeatures");
-            }
-            this.layer.isLoading = false;
-            clbk(this.layer);
-        }
-    }
-
 
     export class EsriJsonSource extends GeoJsonSource {
         title = "esrijson";

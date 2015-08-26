@@ -1,6 +1,4 @@
 module csComp.Services {
-    'use strict'
-
     export interface IGridDataSourceParameters extends IProperty {
         /**
          * Grid type, for example 'custom' (default) or 'esri' ASCII Grid

@@ -291,6 +291,11 @@ html, body, #container {
     margin-top: 0;
  }
 
+.filter-dropdown .dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+}
+
 /* End LayersList */
 
 .background-image {

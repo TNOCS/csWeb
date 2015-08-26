@@ -1,10 +1,21 @@
 <div>
     <h4 class="leftpanel-header" translate="FILTERS"></h4>
-    <a ng-click="vm.$layerService.setLocationFilter()" style="margin-bottom:10px; display:block;">
+        <div class="filter-dropdown">
+        <div class="dropdown">
+            <a style="cursor:pointer" data-toggle="dropdown">Create location filter for group... <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+                <!-- alphabetic sorting disappeared in 1.4 https://docs.angularjs.org/api/ng/directive/ngRepeat -->
+                <li data-ng-repeat="group in vm.$layerService.project.groups">
+                    <a ng-click="vm.setLocationFilter(group)" style="margin-bottom:10px; display:block;">{{group.title}}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- <a ng-click="vm.$layerService.setLocationFilter()" style="margin-bottom:10px; display:block;">
         <span class="fa fa-filter"></span>
-        <div style="display:inline" ng-show="!vm.$layerService.locationFilter || !vm.$layerService.locationFilter.isEnabled()">{{'ENABLE_LOCATION_FILTER' | translate}}</div>
-        <div style="display:inline" ng-show="vm.$layerService.locationFilter.isEnabled()">{{'DISABLE_LOCATION_FILTER' | translate}}</div>
-    </a>
+        <div style="display:inline; cursor:pointer" ng-hide="vm.locationFilterActive">{{'ENABLE_LOCATION_FILTER' | translate}}</div>
+        <div style="display:inline; cursor:pointer" ng-show="vm.locationFilterActive">{{'DISABLE_LOCATION_FILTER' | translate}}</div>
+    </a> -->
 
     <div ng-show="vm.noFilters" translate="FILTER_INFO"></div>
 
@@ -23,6 +34,7 @@
                   <date-filter ng-if="filter.filterType == 'date'"></date-filter>
                   <bool-filter ng-if="filter.filterType == 'boolean'"></bool-filter>
                   <scatter-filter ng-if="filter.filterType == 'scatter'"></scatter-filter>
+                  <location-filter ng-if="filter.filterType == 'location'"></location-filter>
             </div>
         </div>
     </div>

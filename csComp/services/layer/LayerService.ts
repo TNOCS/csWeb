@@ -85,8 +85,6 @@ module csComp.Services {
 
         actionServices: IActionService[] = [];
 
-        locationFilter: L.LocationFilter;
-
         currentContour: L.GeoJSON;
 
         public visual: VisualState = new VisualState();
@@ -302,9 +300,6 @@ module csComp.Services {
             // add RSS data source
             this.layerSources["rss"] = new RssDataSource(this);
 
-            // add Accessibility data source
-            this.layerSources["accessibility"] = new AccessibilityDataSource(this);
-
             // add Database data source
             this.layerSources["database"] = new DatabaseSource(this);
 
@@ -487,6 +482,42 @@ module csComp.Services {
                     callback(null, null);
                 }
             ]);
+        }
+
+        public expandGroup(layer: ProjectLayer) {
+            // expand the group in the layerlist if it is collapsed
+            if (!layer || !layer.group) return;
+            var id = "#layergroup_" + layer.group.id;
+            (<any>$(id)).collapse("show");
+            $('*[data-target="' + id + '"]').removeClass('collapsed');
+            //(<any>$('div#layergroupStyle')).removeClass('collapsed');
+            //
+            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+        }
+
+        public collapseAll() {
+            this.project.groups.forEach((g) => {
+                var layerEnabled = false;
+                g.layers.some((l) => {
+                    if (l.enabled) layerEnabled = true;
+                    return l.enabled;
+                });
+                if (!layerEnabled) {
+                    var id = "#layergroup_" + g.id;
+                    (<any>$(id)).collapse("hide");
+                    $('*[data-target="' + id + '"]').addClass('collapsed');
+                }
+            });
+        }
+
+        public expandAll() {
+            this.project.groups.forEach((g) => {
+                var id = "#layergroup_" + g.id;
+                if (!(<any>$(id)).hasClass("in")) {
+                    (<any>$(id)).collapse("show");
+                    $('*[data-target="' + id + '"]').removeClass('collapsed');
+                }
+            });
         }
 
         /** load external type resource for a project or layer */
@@ -1336,52 +1367,20 @@ module csComp.Services {
             this.mb.publish("filters", "updated");
         }
 
-        updateLocationFilter(bounds: L.LatLngBounds) {
-            this.project.mapFilterResult = [];
-            this.project.groups.forEach(g => {
-                $.each(g.markers, (key, marker) => {
-                    if (marker.feature && marker.feature.layer && marker.feature.layer.enabled) {
-                        if (marker.getLatLng && bounds.contains(marker.getLatLng())) {
-                            this.project.mapFilterResult.push(marker);
-                        } else if (marker.getLatLngs && bounds.contains(marker.getLatLngs())) {
-                            this.project.mapFilterResult.push(marker);
-                        }
-                    }
-                });
-                this.updateMapFilter(g);
-            });
-        }
-
-        setLocationFilter() {
-            if (!this.locationFilter) {
-                var bounds = this.map.map.getBounds();
-                bounds = bounds.pad(-0.75);
-                this.locationFilter = new L.LocationFilter({ bounds: bounds }).addTo(this.map.map);
-                this.locationFilter.on('change', (e) => {
-                    this.updateLocationFilter(e.bounds);
-                });
-                this.locationFilter.on('enabled', (e) => {
-                    this.updateLocationFilter(e.bounds);
-                });
-                this.locationFilter.on('disabled', (e) => {
-                    this.project.mapFilterResult = [];
-                    this.project.groups.forEach(g => {
-                        this.updateMapFilter(g);
-                    });
-                });
-                this.locationFilter.enable();
-                this.updateLocationFilter(this.locationFilter.getBounds());
-            } else if (this.locationFilter.isEnabled()) {
-                this.locationFilter.disable();
-            } else {
-                this.locationFilter.enable();
-            }
+        setLocationFilter(group: ProjectGroup) {
+            if (group.filters.some((f)=>{return f.filterType==='location'})) return;
+            var gf = new GroupFilter();
+            gf.id = Helpers.getGuid();
+            gf.group = group;
+            gf.filterType = 'location';
+            gf.title = 'Location';
+            gf.rangex = [0, 1];
+            group.filters.push(gf);
+            (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+            this.mb.publish("filters", "updated");
         }
 
         setFeatureAreaFilter(f: IFeature) {
-            if (this.locationFilter && this.locationFilter.isEnabled()) {
-                this.locationFilter.disable();
-            }
             var isInsideFunction;
             if (f.geometry.type === 'Polygon') {
                 isInsideFunction = csComp.Helpers.GeoExtensions.pointInsidePolygon;
@@ -1990,6 +1989,11 @@ module csComp.Services {
                 });
             }
 
+            if (prj.hasOwnProperty('collapseAllLayers') && prj.collapseAllLayers === true) {
+                if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+                this.collapseAll();
+            }
+
             this.$messageBusService.publish('project', 'loaded', this.project);
             if (this.project.dashboards && this.project.dashboards.length > 0) {
                 this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
@@ -2058,6 +2062,7 @@ module csComp.Services {
             }
             if (!group.layers) group.layers = [];
             group.layers.forEach((layer: ProjectLayer) => {
+
                 this.initLayer(group, layer, layerIds);
             });
 
@@ -2091,7 +2096,7 @@ module csComp.Services {
             if (!layer.groupId) layer.groupId = group.id;
             if (layer.enabled || (layerIds && layerIds.indexOf(layer.reference.toLowerCase()) >= 0)) {
                 layer.enabled = true;
-                this.activeMapRenderer.addLayer(layer);
+                this.addLayer(layer);
             }
         }
 
