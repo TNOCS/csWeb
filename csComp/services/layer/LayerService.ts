@@ -84,8 +84,6 @@ module csComp.Services {
 
         actionServices: IActionService[] = [];
 
-        locationFilter: L.LocationFilter;
-
         currentContour: L.GeoJSON;
 
         public visual: VisualState = new VisualState();
@@ -1294,52 +1292,20 @@ module csComp.Services {
             this.mb.publish("filters", "updated");
         }
 
-        updateLocationFilter(bounds: L.LatLngBounds) {
-            this.project.mapFilterResult = [];
-            this.project.groups.forEach(g => {
-                $.each(g.markers, (key, marker) => {
-                    if (marker.feature && marker.feature.layer && marker.feature.layer.enabled) {
-                        if (marker.getLatLng && bounds.contains(marker.getLatLng())) {
-                            this.project.mapFilterResult.push(marker);
-                        } else if (marker.getLatLngs && bounds.contains(marker.getLatLngs())) {
-                            this.project.mapFilterResult.push(marker);
-                        }
-                    }
-                });
-                this.updateMapFilter(g);
-            });
-        }
-
-        setLocationFilter() {
-            if (!this.locationFilter) {
-                var bounds = this.map.map.getBounds();
-                bounds = bounds.pad(-0.75);
-                this.locationFilter = new L.LocationFilter({ bounds: bounds }).addTo(this.map.map);
-                this.locationFilter.on('change', (e) => {
-                    this.updateLocationFilter(e.bounds);
-                });
-                this.locationFilter.on('enabled', (e) => {
-                    this.updateLocationFilter(e.bounds);
-                });
-                this.locationFilter.on('disabled', (e) => {
-                    this.project.mapFilterResult = [];
-                    this.project.groups.forEach(g => {
-                        this.updateMapFilter(g);
-                    });
-                });
-                this.locationFilter.enable();
-                this.updateLocationFilter(this.locationFilter.getBounds());
-            } else if (this.locationFilter.isEnabled()) {
-                this.locationFilter.disable();
-            } else {
-                this.locationFilter.enable();
-            }
+        setLocationFilter(group: ProjectGroup) {
+            if (group.filters.some((f)=>{return f.filterType==='location'})) return;
+            var gf = new GroupFilter();
+            gf.id = Helpers.getGuid();
+            gf.group = group;
+            gf.filterType = 'location';
+            gf.title = 'Location';
+            gf.rangex = [0, 1];
+            group.filters.push(gf);
+            (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+            this.mb.publish("filters", "updated");
         }
 
         setFeatureAreaFilter(f: IFeature) {
-            if (this.locationFilter && this.locationFilter.isEnabled()) {
-                this.locationFilter.disable();
-            }
             var isInsideFunction;
             if (f.geometry.type === 'Polygon') {
                 isInsideFunction = csComp.Helpers.GeoExtensions.pointInsidePolygon;
