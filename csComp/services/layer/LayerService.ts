@@ -97,7 +97,8 @@ module csComp.Services {
             'messageBusService',
             'mapService',
             '$rootScope',
-            'geoService'
+            'geoService',
+            '$http'
         ];
 
         constructor(
@@ -107,7 +108,8 @@ module csComp.Services {
             public $messageBusService: Services.MessageBusService,
             public $mapService: Services.MapService,
             public $rootScope: any,
-            public geoService: GeoService
+            public geoService: GeoService,
+            public $http: ng.IHttpService
             ) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
@@ -458,16 +460,18 @@ module csComp.Services {
                             });
                         }
                         layer.layerSource.addLayer(layer, (l) => {
-                            l.enabled = true;
-                            this.loadedLayers[layer.id] = l;
-                            this.updateSensorData();
-                            this.updateAllLogs();
-                            this.activeMapRenderer.addLayer(layer);
-                            if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
-                            this.checkLayerTimer(layer);
-                            this.$messageBusService.publish('layer', 'activated', layer);
-                            this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             if (layerloaded) layerloaded(layer);
+                            this.$messageBusService.publish('layer', 'activated', layer);
+
+                            if (l.enabled) {
+                                this.loadedLayers[layer.id] = l;
+                                this.updateSensorData();
+                                this.updateAllLogs();
+                                this.activeMapRenderer.addLayer(layer);
+                                if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
+                                this.checkLayerTimer(layer);
+                                this.$messageBusService.publish('updatelegend', 'updatedstyle');
+                            }
                         });
                     }
                     this.$messageBusService.publish("timeline", "updateFeatures");
@@ -1368,7 +1372,7 @@ module csComp.Services {
         }
 
         setLocationFilter(group: ProjectGroup) {
-            if (group.filters.some((f)=>{return f.filterType==='location'})) return;
+            if (group.filters.some((f) => { return f.filterType === 'location' })) return;
             var gf = new GroupFilter();
             gf.id = Helpers.getGuid();
             gf.group = group;

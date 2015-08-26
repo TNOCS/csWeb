@@ -72,7 +72,7 @@ module App {
 
             this.$layerService.openSolution("data/projects/projects.json", $location.$$search.layers);
 
-            
+
 
 
 
@@ -202,7 +202,7 @@ module App {
         'angularUtils.directives.dirPagination',
         'pascalprecht.translate',
         'ngCookies', 'angularSpectrumColorpicker',
-        'wiz.markdown'
+        'wiz.markdown', 'ngAnimate'
     ])
         .config(localStorageServiceProvider => {
         localStorageServiceProvider.prefix = 'csMap';

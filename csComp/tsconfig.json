@@ -134,6 +134,7 @@
         "./directives/Widgets/Filters/BarFilterCtrl.ts",
         "./directives/Widgets/Filters/BoolFilterCtrl.ts",
         "./directives/Widgets/Filters/DateFilterCtrl.ts",
+        "./directives/Widgets/Filters/LocationFilterCtrl.ts",
         "./directives/Widgets/Filters/RowFilterCtrl.ts",
         "./directives/Widgets/Filters/ScatterFilterCtrl.ts",
         "./directives/Widgets/Filters/TextFilter.ts",

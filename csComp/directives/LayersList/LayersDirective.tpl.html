@@ -30,7 +30,7 @@
             <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true" class="group-title">{{group.title}}</div>
             <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:25px;top:3px;cursor:pointer" ng-click="vm.editGroup(group)"></div>
             <div id="layergroup_{{group.id}}" class="collapse in">
-                <div ng-class="{false : '', true:'layer-more'}[layer.gui.more==true]" ng-mouseenter="layer.gui.more = true" ng-mouseleave="layer.gui.more = false" ng-hide="vm.$layerService.editing && !layer.gui.editing" popover="{{(layer.description) ? layer.description : ''}}" popover-append-to-body="true" popover-placement="right" popover-trigger="mouseenter" data-ng-repeat="layer in group.layers">
+                <div ng-class="{false : '', true:'layer-more'}[layer.gui.more==true]"  ng-hide="vm.$layerService.editing && !layer.gui.editing" popover="{{(layer.description) ? layer.description : ''}}" popover-append-to-body="true" popover-placement="right" popover-trigger="mouseenter" data-ng-repeat="layer in group.layers">
                     <!--bs-popover>-->
                     <div  class="layer" context-menu="options(layer)" style="list-style-type: none;" data-ng-class="{indent: layer.isSublayer}">
                         <!--<button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." data-original-title="" title="">Right</button>-->
@@ -53,8 +53,7 @@
                         </div>
                     </div>
 
-                    <div ng-show="layer.gui.more && !layer.gui.editing" style="position:relative;min-height:30px">
-                        <div ng-show="layer.isDynamic" style="position:absolute;top:3px;right:5px" class="btn fa fa-plus" ng-click="vm.startAddingFeatures(layer)"></div>
+                    <div ng-show="layer.gui.more && !layer.gui.editing" style="position:relative;min-height:30px">                        
                         <input class="ui-slider" ng-change="vm.setLayerOpacity(layer)" style="position:absolute;top:3px;width:100px;left:40px" type="range" min='0' max='100' ng-model="layer.opacity"/>
                     </div>
 

@@ -1,6 +1,8 @@
 module csComp.Services {
     'use strict';
 
+
+
     export class GeoJsonSource implements ILayerSource {
         title = "geojson";
         layer: ProjectLayer;
@@ -41,17 +43,25 @@ module csComp.Services {
                     // get data
                     var u = layer.url.replace('[BBOX]', layer.BBOX);
 
-                    d3.json(u, (error, data) => {
+                    this.service.$http.get(u).success((data, status) => {
                         layer.count = 0;
                         layer.isLoading = false;
+                        layer.enabled = true;
                         // check if loaded correctly
-                        if (error) {
-                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, error + '\nwhile loading: ' + u);
-                            this.service.$messageBusService.publish('layer', 'error', layer);
-                        } else {
-                            this.initLayer(data, layer);
-                        }
+                        // if (error) {
+                        //     this.service.$messageBusService.notify('ERROR loading ' + layer.title, error + '\nwhile loading: ' + u);
+                        //     this.service.$messageBusService.publish('layer', 'error', layer);
+                        // } else {
+                        this.initLayer(data, layer);
+                        //}
                         cb(null, null);
+                    }).error((data, status) => {
+                        layer.isLoading = false;
+                        layer.enabled = false;
+                        layer.isConnected = false;
+                        this.service.$messageBusService.notify('ERROR loading ' + layer.title, 'while loading: ' + u);
+                        cb(null, null);
+                        //     this.service.$messageBusService.publish('layer', 'error', layer);
                     });
                 },
                 // Callback
@@ -333,8 +343,12 @@ module csComp.Services {
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
             layer.isDynamic = true;
-            this.baseAddLayer(layer, callback);
-            this.initSubscriptions(layer);
+            this.baseAddLayer(layer, (layer: ProjectLayer) => {
+                callback(layer);
+                if (layer.enabled) {
+                    this.initSubscriptions(layer);
+                }
+            });
         }
 
 
