@@ -37,12 +37,6 @@ module LayerEdit {
             this.layer = $scope.$parent["data"];
             this.getTypes();
             var ft = <csComp.Services.IFeatureType>{};
-
-
-            //this.layer.refreshTimer
-            //console.log(this.layer.refreshBBOX);
-
-
         }
 
         public addLayer() {
@@ -72,35 +66,23 @@ module LayerEdit {
                             //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
                             this.$layerService._featureTypes[id] = ft;
                             r.featureTypes[ft.id] = ft;
-                            //this.$layerService.getFeatureTypeId()
                         }
-
+                            //this.$layerService.getFeatureTypeId()
                     }
                 });
             }
-
-
-
-            console.log(this.layer.defaultFeatureType);
         }
 
-
         public getTypes() {
-            //var params = { address: address, sensor: false };
             console.log('its me babe');
-            $.getJSON(this.layer.typeUrl, (response: any) => {
-                setTimeout(() => {
-                    this.availabeTypes = response.featureTypes;
-                    console.log(this.availabeTypes);
-                }, 0);
-
-            });
-
+            this.$http.get(this.layer.typeUrl)
+                .success((response: any) => {
+                    setTimeout(() => {
+                        this.availabeTypes = response.featureTypes;
+                        console.log(this.availabeTypes);
+                    }, 0);
+                })
+                .error(() => { console.log('LayerEditCtl: error with $http'); });
         };
-
-
-
-
-
     }
 }
