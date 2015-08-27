@@ -67,7 +67,6 @@ module LayerEdit {
                             this.$layerService._featureTypes[id] = ft;
                             r.featureTypes[ft.id] = ft;
                         }
-                            //this.$layerService.getFeatureTypeId()
                     }
                 });
             }
