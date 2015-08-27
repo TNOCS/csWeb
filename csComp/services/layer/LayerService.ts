@@ -1315,28 +1315,45 @@ module csComp.Services {
                 isInsideFunction = () => { return false };
             }
 
-            this.project.mapFilterResult = [];
             this.project.groups.forEach(g => {
-                $.each(g.markers, (key, marker) => {
-                    if (marker.feature && marker.feature.layer && marker.feature.layer.enabled) {
-                        if (marker.feature.layer.id === f.layer.id) {
-                            this.project.mapFilterResult.push(marker);
-                        }
-                        else if (marker.feature.geometry.type === 'Point' && isInsideFunction(marker.feature.geometry.coordinates, f.geometry.coordinates)) {
-                            this.project.mapFilterResult.push(marker);
-                        } /*else if (marker.feature.geometry.type === 'Polygon' && csComp.Helpers.GeoExtensions.polygonInsidePolygon(marker.feature.geometry.coordinates, f.geometry.coordinates)) {
-                            this.project.mapFilterResult.push(marker);
-                        }*/
-                    }
-                });
-                this.updateMapFilter(g);
+                if (g.id === f.layer.group.id) return;
+                if (!g.filters.some((f)=>{return f.filterType==='area'})) {
+                    var gf = new GroupFilter();
+                    gf.id = Helpers.getGuid();
+                    gf.group = g;
+                    gf.filterType = 'area';
+                    gf.title = 'Area';
+                    gf.rangex = [0, 1];
+                    gf.value = f;
+                    g.filters.push(gf);
+                    g.filterResult = g.filterResult || [];
+                }
+                // $.each(g.markers, (key, marker) => {
+                //     if (marker.feature && marker.feature.layer && marker.feature.layer.enabled) {
+                //         if (marker.feature.layer.id === f.layer.id) {
+                //             g.filterResult.push(f);
+                //         }
+                //         else if (marker.feature.geometry.type === 'Point' && isInsideFunction(marker.feature.geometry.coordinates, f.geometry.coordinates)) {
+                //             g.filterResult.push(f);
+                //         } /*else if (marker.feature.geometry.type === 'Polygon' && csComp.Helpers.GeoExtensions.polygonInsidePolygon(marker.feature.geometry.coordinates, f.geometry.coordinates)) {
+                //             this.project.mapFilterResult.push(marker);
+                //         }*/
+                //     }
+                // });
+                // this.updateMapFilter(g);
             });
+            this.mb.publish("filters", "updated");
         }
 
         resetFeatureAreaFilter() {
-            this.project.mapFilterResult = [];
             this.project.groups.forEach(g => {
-                this.updateMapFilter(g);
+                g.filters.some((f)=>{
+                    if (f.filterType==='area') {
+                        this.removeFilter(f);
+                        return true;
+                    }
+                    return false;
+                });
             });
         }
 
@@ -1455,6 +1472,7 @@ module csComp.Services {
         /** remove filter from group */
         public removeFilter(filter: GroupFilter) {
             // dispose crossfilter dimension
+            filter.group.filterResult = filter.dimension.filterAll().top(Infinity);
             filter.dimension.dispose();
             filter.group.filters = filter.group.filters.filter(f=> { return f != filter; });
             this.resetMapFilter(filter.group);
@@ -2218,8 +2236,8 @@ module csComp.Services {
                     var incluster = group.cluster.hasLayer(marker);
                     if (!incluster) group.cluster.addLayer(marker);
                 } else {
-                    var onmap = group.vectors.hasLayer(marker);
-                    if (!onmap) group.vectors.addLayer(marker);
+                    var onmap = this.map.map.hasLayer(marker);
+                    if (!onmap) this.map.map.addLayer(marker);
                 }
             });
         }
