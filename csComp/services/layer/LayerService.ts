@@ -256,15 +256,15 @@ module csComp.Services {
             this.layerSources = {};
 
             // add a topo/geojson source
-            var geojsonsource = new GeoJsonSource(this);
+            var geojsonsource = new GeoJsonSource(this, this.$http);
 
             this.layerSources["geojson"] = geojsonsource;
             this.layerSources["topojson"] = geojsonsource;
-            this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
-            this.layerSources["esrijson"] = new EsriJsonSource(this);
+            this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this, this.$http);
+            this.layerSources["esrijson"] = new EsriJsonSource(this, this.$http);
 
             // add kml source
-            var kmlDataSource = new KmlDataSource(this);
+            var kmlDataSource = new KmlDataSource(this, this.$http);
             this.layerSources["kml"] = kmlDataSource;
             this.layerSources["gpx"] = kmlDataSource;
 
@@ -281,13 +281,13 @@ module csComp.Services {
             this.layerSources["hierarchy"] = new HierarchySource(this);
 
             //add grid layer
-            this.layerSources["grid"] = new GridDataSource(this);
+            this.layerSources["grid"] = new GridDataSource(this, this.$http);
 
             //add day or night data source
-            this.layerSources["daynight"] = new NightDayDataSource(this);
+            this.layerSources["daynight"] = new NightDayDataSource(this, this.$http);
 
             // add RSS data source
-            this.layerSources["rss"] = new RssDataSource(this);
+            this.layerSources["rss"] = new RssDataSource(this, this.$http);
 
             // add Database data source
             this.layerSources["database"] = new DatabaseSource(this);
