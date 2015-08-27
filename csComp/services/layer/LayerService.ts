@@ -1906,8 +1906,8 @@ module csComp.Services {
             }
 
             if (prj.hasOwnProperty('collapseAllLayers') && prj.collapseAllLayers === true) {
-                this.collapseAll();
                 if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+                this.collapseAll();
             }
 
             this.$messageBusService.publish('project', 'loaded', this.project);
