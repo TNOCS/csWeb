@@ -163,8 +163,8 @@ module csComp.Services {
     export class NightDayDataSource extends csComp.Services.GeoJsonSource {
         title = "Day Night regions on the Earth";
 
-        constructor(public service: csComp.Services.LayerService) {
-            super(service);
+        constructor(public service: csComp.Services.LayerService, $http: ng.IHttpService) {
+            super(service, $http);
         }
 
         public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {

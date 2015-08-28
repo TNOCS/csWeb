@@ -32,25 +32,6 @@ module csComp.Services {
         layerMenuOptions(layer: ProjectLayer): [[string, Function]];
     }
 
-    // export interface ILayerService {
-    //     title: string;
-    //     accentColor: string;
-    //     solution: Solution;
-    //     project: Project;
-    //     maxBounds: IBoundingBox;
-    //     findLayer(id: string): ProjectLayer;
-    //     findLoadedLayer(id: string): ProjectLayer;
-    //     //selectFeature(feature: Services.IFeature);
-    //     currentLocale: string;
-    //     activeMapRenderer: IMapRenderer;                    // active map renderer
-    //     mb: Services.MessageBusService;
-    //     map: Services.MapService;
-    //     //layerGroup: L.LayerGroup<L.ILayer>;
-    //     featureTypes: { [key: string]: Services.IFeatureType; };
-    //     propertyTypeData: { [key: string]: Services.IPropertyType; };
-    //     timeline: any;
-    // }
-
     /** layer service is responsible for reading and managing all project, layer and sensor related data */
     export class LayerService {
         maxBounds: IBoundingBox;
@@ -93,15 +74,17 @@ module csComp.Services {
             '$location',
             '$compile',
             '$translate',
+            '$http',
             'messageBusService',
             'mapService',
-            '$rootScope'
+            '$rootScope',
         ];
 
         constructor(
             private $location: ng.ILocationService,
             public $compile: any,
             private $translate: ng.translate.ITranslateService,
+            public $http: ng.IHttpService,
             public $messageBusService: Services.MessageBusService,
             public $mapService: Services.MapService,
             public $rootScope: any
@@ -113,12 +96,9 @@ module csComp.Services {
 
             this.accentColor = '';
             this.title = '';
-            //this.layerGroup       = new L.LayerGroup<L.ILayer>();
             this.typesResources = {};
             this._featureTypes = {};
             this.propertyTypeData = {};
-            //this.map.map.addLayer(this.layerGroup);
-            //this.noStyles = true;
             this.currentLocale = $translate.preferredLanguage();
             // init map renderers
             this.mapRenderers = {};
@@ -131,13 +111,8 @@ module csComp.Services {
             this.mapRenderers["cesium"] = new CesiumRenderer();
             this.mapRenderers["cesium"].init(this);
 
-
-            //this.mapRenderers["leaflet"].enable();
-
             this.initLayerSources();
             this.throttleTimelineUpdate = _.throttle(this.updateAllLogs, 500);
-
-            //this.$dashboardService.init();
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
@@ -169,7 +144,6 @@ module csComp.Services {
                         }
                     }
                 }
-
             });
         }
 
@@ -252,15 +226,15 @@ module csComp.Services {
             this.layerSources = {};
 
             // add a topo/geojson source
-            var geojsonsource = new GeoJsonSource(this);
+            var geojsonsource = new GeoJsonSource(this, this.$http);
 
             this.layerSources["geojson"] = geojsonsource;
             this.layerSources["topojson"] = geojsonsource;
-            this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this);
-            this.layerSources["esrijson"] = new EsriJsonSource(this);
+            this.layerSources["dynamicgeojson"] = new DynamicGeoJsonSource(this, this.$http);
+            this.layerSources["esrijson"] = new EsriJsonSource(this, this.$http);
 
             // add kml source
-            var kmlDataSource = new KmlDataSource(this);
+            var kmlDataSource = new KmlDataSource(this, this.$http);
             this.layerSources["kml"] = kmlDataSource;
             this.layerSources["gpx"] = kmlDataSource;
 
@@ -277,13 +251,13 @@ module csComp.Services {
             this.layerSources["hierarchy"] = new HierarchySource(this);
 
             //add grid layer
-            this.layerSources["grid"] = new GridDataSource(this);
+            this.layerSources["grid"] = new GridDataSource(this, this.$http);
 
             //add day or night data source
-            this.layerSources["daynight"] = new NightDayDataSource(this);
+            this.layerSources["daynight"] = new NightDayDataSource(this, this.$http);
 
             // add RSS data source
-            this.layerSources["rss"] = new RssDataSource(this);
+            this.layerSources["rss"] = new RssDataSource(this, this.$http);
 
             // add Database data source
             this.layerSources["database"] = new DatabaseSource(this);
@@ -512,15 +486,17 @@ module csComp.Services {
                 if (typeof url === 'string') {
                     if (!this.typesResources.hasOwnProperty(url) || requestReload) {
                         var success = false;
-                        $.getJSON(url, (resource: TypeResource) => {
-                            success = true;
-                            resource.url = url;
-                            this.initTypeResources(resource);
-                            this.$messageBusService.publish("typesource", url, resource);
-                            callback();
-                        }).fail((obj, text, error) => {
-                            this.$messageBusService.notify('ERROR loading TypeResources', error + '\nwhile loading: ' + url);
-                        });
+                        this.$http.get(url)
+                            .success((resource: TypeResource) => {
+                                success = true;
+                                resource.url = url;
+                                this.initTypeResources(resource);
+                                this.$messageBusService.publish("typesource", url, resource);
+                                callback();
+                            })
+                            .error(() => {
+                                this.$messageBusService.notify('ERROR loading TypeResources', 'While loading: ' + url);
+                            });
                         setTimeout(() => {
                             if (!success) {
                                 callback();
@@ -532,8 +508,7 @@ module csComp.Services {
                         this.initTypeResources(this.typesResources[url]);
                         callback();
                     }
-                }
-                else {
+                } else {
                     callback();
                 }
             }
@@ -1576,31 +1551,13 @@ module csComp.Services {
 
             }
 
-            //m = layer.group.vectors;
             this.activeMapRenderer.removeLayer(layer);
-            // if (g.clustering) {
-            //     m = g.cluster;
-            //     this.project.features.forEach((feature: IFeature) => {
-            //         if (feature.layerId === layer.id) {
-            //             try {
-            //                 m.removeLayer(layer.group.markers[feature.id]);
-            //                 delete layer.group.markers[feature.id];
-            //             } catch (error) {
-            //
-            //             }
-            //         }
-            //     });
-            // } else {
-            //
-            //     if (layer.mapLayer) this.map.map.removeLayer(layer.mapLayer);
-            // }
 
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
             var layerName = layer.id + '_';
             var featureTypes = this._featureTypes;
             for (var poiTypeName in featureTypes) {
                 if (!featureTypes.hasOwnProperty(poiTypeName)) continue;
-                //if (poiTypeName.lastIndexOf(layerName, 0) === 0) delete featureTypes[poiTypeName];
             }
 
             // check if there are no more active layers in group and remove filters/styles
@@ -1630,52 +1587,55 @@ module csComp.Services {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
             this.loadedLayers.clear();
 
-            $.getJSON(url, (solution: Solution) => {
-                //var projects = data;
-                if (solution.maxBounds) {
-                    this.maxBounds = solution.maxBounds;
-                    this.$mapService.map.setMaxBounds(new L.LatLngBounds(
-                        L.latLng(solution.maxBounds.southWest[0], solution.maxBounds.southWest[1]),
-                        L.latLng(solution.maxBounds.northEast[0], solution.maxBounds.northEast[1])));
-                }
-                if (solution.viewBounds)
-                    this.activeMapRenderer.fitBounds(solution.viewBounds);
-
-                solution.baselayers.forEach(b => {
-                    var baselayer: BaseLayer = new BaseLayer();
-
-                    if (b.subdomains != null) baselayer.subdomains = b.subdomains;
-                    if (b.maxZoom != null) baselayer.maxZoom = b.maxZoom;
-                    if (b.minZoom != null) baselayer.minZoom = b.minZoom;
-                    if (b.attribution != null) baselayer.attribution = b.attribution;
-                    if (b.id != null) baselayer.id = b.id;
-                    if (b.title != null) baselayer.title = b.title;
-                    if (b.subtitle != null) baselayer.subtitle = b.subtitle;
-                    if (b.preview != null) baselayer.preview = b.preview;
-                    if (b.url != null) baselayer.url = b.url;
-                    if (b.cesium_url != null) baselayer.cesium_url = b.cesium_url;
-                    if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
-
-                    this.$mapService.baseLayers[b.title] = baselayer;
-                    if (b.isDefault) {
-                        this.activeMapRenderer.changeBaseLayer(baselayer);
-                        this.$mapService.changeBaseLayer(b.title);
+            this.$http.get(url)
+                .success((solution: Solution) => {
+                    if (solution.maxBounds) {
+                        this.maxBounds = solution.maxBounds;
+                        this.$mapService.map.setMaxBounds(new L.LatLngBounds(
+                            L.latLng(solution.maxBounds.southWest[0], solution.maxBounds.southWest[1]),
+                            L.latLng(solution.maxBounds.northEast[0], solution.maxBounds.northEast[1])));
                     }
+                    if (solution.viewBounds) {
+                        this.activeMapRenderer.fitBounds(solution.viewBounds);
+                    }
+
+                    if(solution.baselayers) {
+                        solution.baselayers.forEach(b => {
+                            var baselayer: BaseLayer = new BaseLayer();
+
+                            if (b.subdomains != null) baselayer.subdomains = b.subdomains;
+                            if (b.maxZoom != null) baselayer.maxZoom = b.maxZoom;
+                            if (b.minZoom != null) baselayer.minZoom = b.minZoom;
+                            if (b.attribution != null) baselayer.attribution = b.attribution;
+                            if (b.id != null) baselayer.id = b.id;
+                            if (b.title != null) baselayer.title = b.title;
+                            if (b.subtitle != null) baselayer.subtitle = b.subtitle;
+                            if (b.preview != null) baselayer.preview = b.preview;
+                            if (b.url != null) baselayer.url = b.url;
+                            if (b.cesium_url != null) baselayer.cesium_url = b.cesium_url;
+                            if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
+
+                            this.$mapService.baseLayers[b.title] = baselayer;
+                            if (b.isDefault) {
+                                this.activeMapRenderer.changeBaseLayer(baselayer);
+                                this.$mapService.changeBaseLayer(b.title);
+                            }
+                        });
+                    }
+
+                    if (solution.projects && solution.projects.length > 0) {
+                        var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title === initialProject; })[0];
+                        if (p != null) {
+                            this.openProject(p, layers);
+                        } else {
+                            this.openProject(solution.projects[0], layers);
+                        }
+                    }
+                    this.solution = solution;
+                })
+                .error(() => {
+                    this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
                 });
-                //$scope.projects = projects.projects;
-                if (solution.projects.length > 0) {
-                    var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title === initialProject; })[0];
-                    if (p != null) {
-                        this.openProject(p, layers);
-                    } else {
-                        this.openProject(solution.projects[0], layers);
-                    }
-                }
-
-                this.solution = solution;
-            }).fail((obj, text, error) => {
-                this.$messageBusService.notify('ERROR loading solution', error + '\nwhile loading: ' + url);
-            });
         }
 
         /**
@@ -1711,12 +1671,13 @@ module csComp.Services {
             this.propertyTypeData = {};
             //typesResources
 
-            $.getJSON(solutionProject.url,
-                (prj: Project) => {
+            this.$http.get(solutionProject.url)
+                .success((prj: Project) => {
                     this.parseProject(prj, solutionProject, layerIds);
-                }).fail((obj, text, error) => {
-                this.$messageBusService.notify('ERROR loading project', error + '\nwhile loading: ' + solutionProject.url);
-            });
+                })
+                .error(() => {
+                    this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
+                });
         }
 
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
@@ -1773,8 +1734,7 @@ module csComp.Services {
                     if (this.project.datasources) {
                         this.project.datasources.forEach((ds: DataSource) => {
                             if (ds.url) {
-                                DataSource.LoadData(ds, () => {
-                                    console.log('datasource loaded');
+                                DataSource.LoadData(this.$http, ds, () => {
                                     if (ds.type === "dynamic") { this.checkDataSourceSubscriptions(ds); }
 
                                     for (var s in ds.sensors) {
@@ -1940,11 +1900,6 @@ module csComp.Services {
             group.ndx = crossfilter([]);
             if ((group.styles) && (group.styles.length > 0)) {
                 var styleId: string = group.styles[0].id;
-                //var legend: Legend;
-                //var url: string = "dummylegend.json";
-                //$.getJSON(url,(data: Legend) => {
-                //    legend = new Legend().deserialize(data);
-                //}
             };
             if (group.styles == null) group.styles = [];
             if (group.filters == null) group.filters = [];
@@ -1976,7 +1931,6 @@ module csComp.Services {
                 group.cluster.on('clustermouseout', (a) => {
                     if (this.currentContour) this.map.map.removeLayer(this.currentContour);
                 });
-
                 this.map.map.addLayer(group.cluster);
             } else {
                 group.vectors = new L.LayerGroup<L.ILayer>();
@@ -1984,7 +1938,6 @@ module csComp.Services {
             }
             if (!group.layers) group.layers = [];
             group.layers.forEach((layer: ProjectLayer) => {
-
                 this.initLayer(group, layer, layerIds);
             });
 
@@ -2064,7 +2017,9 @@ module csComp.Services {
             if (kk.length == 2) {
                 var source = kk[0];
                 var sensorset = kk[1];
-                if (!this.project.datasources || this.project.datasources.length === 0) return null;
+                if (!this.project.datasources || this.project.datasources.length === 0) {
+                    return null;
+                }
                 this.project.datasources.forEach((ds: DataSource) => {
                     if (ds.id === source) {
                         if (ds.sensors.hasOwnProperty(sensorset)) {
