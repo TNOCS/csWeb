@@ -1928,11 +1928,6 @@ module csComp.Services {
             group.ndx = crossfilter([]);
             if ((group.styles) && (group.styles.length > 0)) {
                 var styleId: string = group.styles[0].id;
-                //var legend: Legend;
-                //var url: string = "dummylegend.json";
-                //$.getJSON(url,(data: Legend) => {
-                //    legend = new Legend().deserialize(data);
-                //}
             };
             if (group.styles == null) group.styles = [];
             if (group.filters == null) group.filters = [];
