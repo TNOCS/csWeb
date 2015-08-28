@@ -877,6 +877,8 @@ input[type="radio"], input[type="checkbox"] {
 }
 .tab-pane.active {
     display: block !important;
+    float: left;
+    width: 100%;
 }
 .leaflet-popup-content-wrapper {
     background: #B5A3C1;
