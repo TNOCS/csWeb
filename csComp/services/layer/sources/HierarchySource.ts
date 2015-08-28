@@ -5,9 +5,10 @@ module csComp.Services {
         title = "hierarchy";
         layer: ProjectLayer;
         requiresLayer = true;
+        $http: ng.IHttpService;
 
-        public constructor(public service: LayerService) {
-
+        public constructor(public service: LayerService, $http: ng.IHttpService) {
+            this.$http = $http;
         }
 
         public refreshLayer(layer: ProjectLayer) {
@@ -56,20 +57,16 @@ module csComp.Services {
                     // Open a layer URL
                     layer.isLoading = true;
                     // get data
-                    d3.json(layer.url, (error, data) => {
-                        layer.count = 0;
-                        layer.isLoading = false;
-                        // check if loaded correctly
-                        if (error) {
-                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, error);
-                            this.service.$messageBusService.publish('layer', 'error', layer);
-                        } else {
+
+                    this.$http.get(layer.url)
+                        .success((data: any) => {
+                            layer.count = 0;
+                            layer.isLoading = false;
+
                             // if this is a topojson layer, convert to geojson first
                             if (layer.type.toLowerCase() === 'topojson') {
                                 data = csComp.Helpers.GeoExtensions.convertTopoToGeoJson(data);
                             }
-
-
 
                             // add featuretypes to global featuretype list
                             if (data.featureTypes) for (var featureTypeName in data.featureTypes) {
@@ -92,9 +89,16 @@ module csComp.Services {
                                 this.service.initFeature(f, layer, false, false);
                             });
                             this.service.$messageBusService.publish("timeline", "updateFeatures");
-                        }
-                        cb(null, null);
-                    });
+
+                            cb(null, null);
+                        })
+                        .error(() => {
+                            layer.count = 0;
+                            layer.isLoading = false;
+                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + layer.url);
+                            this.service.$messageBusService.publish('layer', 'error', layer);
+                            cb(null, null);
+                        });
                 },
                 // Callback
                 () => {
@@ -106,6 +110,5 @@ module csComp.Services {
         removeLayer(layer: ProjectLayer) {
             //alert('remove layer');
         }
-
     }
 }

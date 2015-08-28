@@ -248,7 +248,7 @@ module csComp.Services {
             this.layerSources["heatmap"] = new HeatmapSource(this);
 
             //add hierarchy layer
-            this.layerSources["hierarchy"] = new HierarchySource(this);
+            this.layerSources["hierarchy"] = new HierarchySource(this, this.$http);
 
             //add grid layer
             this.layerSources["grid"] = new GridDataSource(this, this.$http);
