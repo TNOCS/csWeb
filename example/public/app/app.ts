@@ -59,8 +59,8 @@ module App {
 
                     // NOTE EV: You may run into problems here when calling this inside an angular apply cycle.
                     // Alternatively, check for it or use (dependency injected) $timeout.
-                    // E.g. if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
-                    $scope.$apply();
+                    if ($scope.$root.$$phase != '$apply' && $scope.$root.$$phase != '$digest') { $scope.$apply(); }
+                    //$scope.$apply();
                 }
             });
 

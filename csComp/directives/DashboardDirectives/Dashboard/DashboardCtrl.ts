@@ -170,7 +170,7 @@ module Dashboard {
 
         public checkTimeline() {
             if (this.$scope.dashboard.showTimeline != this.$mapService.timelineVisible) {
-                if (this.$scope.dashboard.showTimeline) {
+                if (this.$scope.dashboard.showTimeline && this.$mapService.isIntermediate) {
                     this.$mapService.timelineVisible = true;
                 } else {
                     this.$mapService.timelineVisible = false;
