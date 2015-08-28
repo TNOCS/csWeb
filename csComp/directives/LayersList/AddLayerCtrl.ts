@@ -5,8 +5,6 @@ module LayersDirective {
         vm: AddLayerCtrl;
     }
 
-
-
     export class AddLayerCtrl {
 
         public groupTitle: string;
@@ -18,6 +16,7 @@ module LayersDirective {
 
         static $inject = [
             '$scope',
+            '$http',
             '$modalInstance',
             'layerService',
             '$translate',
@@ -27,18 +26,21 @@ module LayersDirective {
         public project: csComp.Services.Project;
 
         constructor(
-            private $scope: IAddLayerScope,
-            private $modalInstance: any,
-            public layerService: csComp.Services.LayerService,
-            private translate: ng.translate.ITranslateService,
-            private messageBusService: csComp.Services.MessageBusService
+                private $scope: IAddLayerScope,
+                private $http: ng.IHttpService,
+                private $modalInstance: any,
+                public layerService: csComp.Services.LayerService,
+                private translate: ng.translate.ITranslateService,
+                private messageBusService: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
             this.project = this.layerService.project;
             if (this.project.layerDirectory) {
-                $.getJSON(this.project.layerDirectory, (result) => {
-                    this.layers = result.layers;
-                });
+                $http.get(this.project.layerDirectory)
+                    .success((result: any) => {
+                        this.layers = result.layers;
+                    })
+                    .error(() => { console.log('AddLayerCtrl: error calling $http'); });
             }
         }
 
@@ -88,7 +90,5 @@ module LayersDirective {
             console.log('cancel');
             this.$modalInstance.dismiss('cancel');
         }
-
-
     }
 }
