@@ -73,7 +73,7 @@ module ClientConnection {
 
         public FindSubscription(target: string, type: string): msgSubscription {
             for (var k in this.Subscriptions) {
-                if (this.Subscriptions[k].target == target && this.Subscriptions[k].type == type) return this.Subscriptions[k];
+                if ((this.Subscriptions[k].type === "key" && type === "key") || (this.Subscriptions[k].target == target && this.Subscriptions[k].type == type)) return this.Subscriptions[k];
             }
             return null;
         }
@@ -216,15 +216,36 @@ module ClientConnection {
          * @action: logs-update, feature-update
          * @meta: used to determine source/user, will skip
          */
-        public updateFeature(layer: string, update: LayerUpdate, meta: ApiMeta) {
+        public updateFeature(layerId: string, update: LayerUpdate, meta: ApiMeta) {
             //Winston.info('update feature ' + layer);
             var skip = (meta.source === "socketio") ? meta.user : undefined;
             for (var uId in this.users) {
                 if (!skip || uId != skip) {
-                    var sub = this.users[uId].FindSubscription(layer, "layer");
+                    var sub = this.users[uId].FindSubscription(layerId, "layer");
                     if (sub != null) {
                         Winston.info('send to : ' + sub.id);
                         this.users[uId].Client.emit(sub.id, new ClientMessage("layer", update));
+                    }
+                }
+            }
+        }
+
+        /**
+         * Send update to all clients.
+         * @action: logs-update, feature-update
+         * @meta: used to determine source/user, will skip
+         */
+        public updateKey(keyId: string, update: KeyUpdate, meta: ApiMeta) {
+
+            //Winston.info('update feature ' + layer);
+            var skip = (meta.source === "socketio") ? meta.user : undefined;
+            for (var uId in this.users) {
+                if (!skip || uId != skip) {
+                    console.log(JSON.stringify(this.users[uId].Subscriptions));
+                    var sub = this.users[uId].FindSubscription(keyId, "key");
+                    if (sub != null) {
+                        Winston.info('send to : ' + sub.id);
+                        this.users[uId].Client.emit(sub.id, new ClientMessage("key", update));
                     }
                 }
             }

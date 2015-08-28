@@ -8,7 +8,6 @@ import ApiMeta = ApiManager.ApiMeta;
 import mqtt = require("mqtt");
 import BaseConnector = require('./BaseConnector');
 import Winston = require('winston');
-import mqttrouter = require('./mqtt-router');
 
 
 
@@ -57,6 +56,9 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
         this.client.on('message', (topic, message) => {
             Winston.info("mqtt: " + topic + "-" + message.toString());
+            //this.manager.updateKey(topic, message, <ApiMeta>{}, () => { });
+
+            //_.startsWith(topic,this.keyPrefix)
         });
 
 

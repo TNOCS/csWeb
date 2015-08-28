@@ -151,6 +151,15 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {
         if (this.layers.hasOwnProperty(layerId)) {
             delete this.layers[layerId];
+            var fn = this.getFilename(layerId);
+            fs.unlink(fn, (err) => {
+                if (err) {
+                    Winston.error('File: Error deleting ' + fn + " (" + err.message + ")");
+                }
+                else {
+                    Winston.info('File: deleted: ' + fn);
+                }
+            });
             callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
         }
         else {

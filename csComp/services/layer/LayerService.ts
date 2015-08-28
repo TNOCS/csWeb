@@ -1901,6 +1901,10 @@ module csComp.Services {
             if (this.project.connected) {
                 // check connection
                 this.$messageBusService.initConnection("", "", () => {
+                    var handle = this.$messageBusService.serverSubscribe("", "key", (topic: string, msg: ClientMessage) => {
+                        if (msg.action !== "subscribed") console.log(msg);
+                    });
+
                     // setTimeout(() => {
                     //     for (var ll in this.loadedLayers) {
                     //         var layer = <ProjectLayer>this.loadedLayers[ll];

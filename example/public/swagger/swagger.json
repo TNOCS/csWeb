@@ -1,808 +1,764 @@
 {
-  "swagger": "2.0",
-  "info": {
-    "description": "This is the Swagger documentation for the Common Sense API. You can find out more about the Common Sense project by going to [https://github.com/TNOCS/csWeb](https://github.com/TNOCS/csWeb) or by joining our [slack hangout](https://webcs.slack.com/). We welcome collaboration! This API documentation page was made with Swagger. You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).",
-    "version": "1.0.0",
-    "title": "Common Sense API"
-  },
-  "host": "localhost:3002",
-  "basePath": "/api",
-  "tags": [
-    {
-      "name": "layer",
-      "description": "All operations concerning layers (FeatureCollections)",
-      "externalDocs": {
-        "description": "Find out more",
-        "url": "https://github.com/TNOCS/csWeb/wiki/api"
-      }
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the Swagger documentation for the Common Sense API. You can find out more about the Common Sense project by going to [https://github.com/TNOCS/csWeb](https://github.com/TNOCS/csWeb) or by joining our [slack hangout](https://webcs.slack.com/). We welcome collaboration! This API documentation page was made with Swagger. You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).",
+        "version": "1.0.0",
+        "title": "Common Sense API"
     },
-    {
-      "name": "feature",
-      "description": "All operations concerning features",
-      "externalDocs": {
-        "description": "Find out more",
-        "url": "https://github.com/TNOCS/csWeb/wiki/api"
-      }
+    "host": "localhost:3002",
+    "basePath": "/api",
+    "tags": [{
+        "name": "layer",
+        "description": "All operations concerning layers (FeatureCollections)",
+        "externalDocs": {
+            "description": "Find out more",
+            "url": "https://github.com/TNOCS/csWeb/wiki/api"
+        }
+    }, {
+        "name": "feature",
+        "description": "All operations concerning features",
+        "externalDocs": {
+            "description": "Find out more",
+            "url": "https://github.com/TNOCS/csWeb/wiki/api"
+        }
+    }, {
+        "name": "log",
+        "description": "All operations concerning log files",
+        "externalDocs": {
+            "description": "Find out more",
+            "url": "https://github.com/TNOCS/csWeb/wiki/api"
+        }
+    }, {
+        "name": "special",
+        "description": "All special operations",
+        "externalDocs": {
+            "description": "Find out more",
+            "url": "https://github.com/TNOCS/csWeb/wiki/api"
+        }
+    }],
+    "schemes": [
+        "http"
+    ],
+    "paths": {
+        "/layers/{layerId}": {
+            "put": {
+                "tags": [
+                    "layer"
+                ],
+                "summary": "Update an existing layer",
+                "description": "",
+                "operationId": "updateLayer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON that will be used to update the layer",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Feature"
+                    }
+                }, {
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID or Name of the Layer to update",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "404": {
+                        "description": "Layer not found"
+                    },
+                    "405": {
+                        "description": "Validation exception"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "layer"
+                ],
+                "summary": "Find layer by ID",
+                "description": "Returns a single layer",
+                "operationId": "getLayer",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID of the layer to be returned",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Layer"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "404": {
+                        "description": "Layer not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "layer"
+                ],
+                "summary": "Delete a layer by ID",
+                "description": "Deletes an entire layer",
+                "operationId": "deleteLayer",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID of layer to be deleted",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "404": {
+                        "description": "Layer not found"
+                    }
+                }
+            }
+        },
+        "/layers/": {
+            "post": {
+                "tags": [
+                    "layer"
+                ],
+                "summary": "Add a new layer to the system",
+                "description": "Adds a new layer",
+                "operationId": "addLayer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "Layer object that needs to be added to the datastorage",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Layer"
+                    }
+                }],
+                "responses": {
+                    "406": {
+                        "description": "LayerId already exists"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "layer"
+                ],
+                "summary": "Returns a list of all layers and their associated storage engine",
+                "description": "Returns a list of all layers and their associated storage",
+                "operationId": "allLayers",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "object",
+                              "additionalProperties": {
+                                  "$ref": "#/definitions/Layer" }
+
+                        }
+
+                    },
+                    "404": {
+                        "description": "Cannot GET /layers/"
+                    }
+                }
+            }
+        },
+        "/layers/{layerId}/feature/{featureId}": {
+            "put": {
+                "tags": [
+                    "feature"
+                ],
+                "summary": "Update a single pre-existing feature",
+                "description": "",
+                "operationId": "updateFeature",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON that will be used to update the feature",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Feature"
+                    }
+                }, {
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID or Name of the Layer to update",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "name": "featureId",
+                    "in": "path",
+                    "description": "ID of the feature to update",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "404": {
+                        "description": "Feature not found"
+                    },
+                    "405": {
+                        "description": "Validation exception"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "feature"
+                ],
+                "summary": "Find feature by ID",
+                "description": "Returns a single feature",
+                "operationId": "getFeature",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "featureId",
+                    "in": "path",
+                    "description": "ID of the feature to be returned",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID of the layer in which the feature is located",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Feature"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "404": {
+                        "description": "Layer or feature not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "feature"
+                ],
+                "summary": "Delete a feature by ID",
+                "description": "Deletes an entire layer",
+                "operationId": "deleteFeature",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "featureId",
+                    "in": "path",
+                    "description": "ID of feature to be deleted",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID of the layer where the feature is located",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "404": {
+                        "description": "Layer or feature not found"
+                    }
+                }
+            }
+        },
+        "/layers/{layerId}/feature": {
+            "post": {
+                "tags": [
+                    "feature"
+                ],
+                "summary": "Adds a feature",
+                "description": "",
+                "operationId": "addFeature",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID of layer to add the feature to",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON that will be used to insert the feature",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Feature"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/layers/{layerId}/{featureId}/log": {
+            "put": {
+                "tags": [
+                    "log"
+                ],
+                "summary": "Adds a log to a feature by updating it with a log",
+                "description": "",
+                "operationId": "addLog",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON that will be used to update the feature",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Log"
+                    }
+                }, {
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID or Name of the Layer to update",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "name": "featureId",
+                    "in": "path",
+                    "description": "ID of the feature to update with the log",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "400": {
+                        "description": "Invalid IDs supplied"
+                    },
+                    "404": {
+                        "description": "Feature not found"
+                    },
+                    "405": {
+                        "description": "Validation exception"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "log"
+                ],
+                "summary": "Find the log file associated with a single feature",
+                "description": "Returns all logs associated with a feature",
+                "operationId": "getLog",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "featureId",
+                    "in": "path",
+                    "description": "ID of the feature to be returned",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID of the layer in which the feature is located",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Log"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "404": {
+                        "description": "Layer or feature not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "log"
+                ],
+                "summary": "Delete a log by supplying timestamp, value, and IDs",
+                "description": "Deletes a log by supplying the API with values for the TimeStamp, property name, and layer/feature identifiers",
+                "operationId": "deleteLog",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "featureId",
+                    "in": "path",
+                    "description": "ID of feature to be deleted",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID of the layer where the feature is located",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid IDs supplied"
+                    },
+                    "404": {
+                        "description": "Layer, log, or feature not found"
+                    }
+                }
+            }
+        },
+        "/layers/{layerId}/bbox": {
+            "get": {
+                "tags": [
+                    "special"
+                ],
+                "summary": "Gets all and any points in a (bounding box) rectangle.",
+                "description": "Takes two lng/lat pairs as input. These MUST be the south-west (bottom left) and northeast (top right) coordinates expressed as floating point numbers.",
+                "operationId": "bbox",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "swlng",
+                    "in": "query",
+                    "description": "Southwestern longtitude used to calculate the bbox",
+                    "required": true,
+                    "type": "number",
+                    "format": "float"
+                }, {
+                    "name": "swlat",
+                    "in": "query",
+                    "description": "Southwestern latitude used to calculate the bbox",
+                    "required": true,
+                    "type": "number",
+                    "format": "float"
+                }, {
+                    "name": "nelng",
+                    "in": "query",
+                    "description": "Northeastern longtitude used to calculate the bbox",
+                    "required": true,
+                    "type": "number",
+                    "format": "float"
+                }, {
+                    "name": "nelat",
+                    "in": "query",
+                    "description": "Northeastern latitude used to calculate the bbox",
+                    "required": true,
+                    "type": "number",
+                    "format": "float"
+                }, {
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID of the layer",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "404": {
+                        "description": "Layer not found"
+                    }
+                }
+            }
+        },
+        "/layers/{layerId}/getsphere": {
+            "get": {
+                "tags": [
+                    "special"
+                ],
+                "summary": "Gets all and any points in a sphere defined by its center coordinate.",
+                "description": "takes the center coordinate (Lat:lng) and distance (radius) as arguments to provide a list of coordinates starting with the closest coordinates to the center.",
+                "operationId": "getsphere",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "lng",
+                    "in": "query",
+                    "description": "Longtitude used to calculate the sphere",
+                    "required": true,
+                    "type": "number",
+                    "format": "float"
+                }, {
+                    "name": "lat",
+                    "in": "query",
+                    "description": "Latitude used to calculate the sphere",
+                    "required": true,
+                    "type": "number",
+                    "format": "float"
+                }, {
+                    "name": "Distance",
+                    "in": "query",
+                    "description": "Max distane in meters",
+                    "required": true,
+                    "type": "number",
+                    "format": "float"
+                }, {
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID of the layer",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "404": {
+                        "description": "Layer not found"
+                    }
+                }
+            }
+        },
+        "/layers/{layerId}/getwithinpolygon": {
+            "get": {
+                "tags": [
+                    "special"
+                ],
+                "summary": "Gets all and any points that are within a user-supplied polygon in a GeoJSON document.",
+                "description": "Takes a GeoJSON specification compliant document as input. This method can be used to determine the points within a special area, such as municipial borders.",
+                "operationId": "getwithinpolygon",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "feature",
+                    "description": "JSON that will be used to query the layer",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Feature"
+                    }
+                }, {
+                    "name": "layerId",
+                    "in": "path",
+                    "description": "ID of the layer",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "404": {
+                        "description": "Layer not found"
+                    }
+                }
+            }
+        }
     },
-    {
-      "name": "log",
-      "description": "All operations concerning log files",
-      "externalDocs": {
-        "description": "Find out more",
-        "url": "https://github.com/TNOCS/csWeb/wiki/api"
-      }
+    "definitions": {
+        "Geometry": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+
+                },
+                "coordinates": {
+                    "type": "array",
+                    "items": {
+                        "type": "number",
+                        "example": [4.49965, 52.06891]
+                    }
+                }
+            }
+        },
+        "Log": {
+            "type": "object",
+            "properties": {
+                "ts": {
+                    "type": "integer",
+                    "format": "int64",
+                    "example": 1436952578422
+                },
+                "prop": {
+                    "type": "string",
+                    "example": "Name"
+                },
+                "value": {
+                    "type": "string",
+                    "example": "The Rijksmuseum"
+                }
+            }
+        },
+        "Feature": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "geometry": {
+                    "$ref": "#/definitions/Geometry"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "properties": {
+                    "type": "object",
+                      "additionalProperties": {
+                          "type": "object" }
+                },
+                "logs": {
+                    "type": "object",
+                    "additionalProperties" :
+                    {
+                        "type" : "array",
+                        "items" : {
+                        "$ref": "#/definitions/Log"}
+                    }
+                }
+            }
+        },
+        "Layer": {
+            "type": "object",
+            "required": [
+                "type",
+                "features"
+            ],
+            "properties": {
+                "storage": {
+                    "type": "string",
+                    "example": "file"
+                },
+                "useLog": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "features": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Feature"
+                    }
+                },
+                "id": {
+                    "type": "string",
+                    "example": "nameOfYourCollection"
+                },
+                "dynamic": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Test"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "FeatureCollection"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "Your resource's location"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "This is a test"
+                }
+            }
+        },
+        "ApiResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
     },
-    {
-      "name": "special",
-      "description": "All special operations",
-      "externalDocs": {
-        "description": "Find out more",
+    "externalDocs": {
+        "description": "Find out more about the Common Sense API",
         "url": "https://github.com/TNOCS/csWeb/wiki/api"
-      }
     }
-  ],
-  "schemes": [
-    "http"
-  ],
-  "paths": {
-    "/layers/{layerId}": {
-      "put": {
-        "tags": [
-          "layer"
-        ],
-        "summary": "Update an existing layer",
-        "description": "",
-        "operationId": "updateLayer",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "JSON that will be used to update the layer",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Feature"
-            }
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID or Name of the Layer to update",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Layer not found"
-          },
-          "405": {
-            "description": "Validation exception"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "layer"
-        ],
-        "summary": "Find layer by ID",
-        "description": "Returns a single layer",
-        "operationId": "getLayer",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID of the layer to be returned",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Layer"
-            }
-          },
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Layer not found"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "layer"
-        ],
-        "summary": "Delete a layer by ID",
-        "description": "Deletes an entire layer",
-        "operationId": "deleteLayer",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID of layer to be deleted",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Layer not found"
-          }
-        }
-      }
-    },
-    "/layers/": {
-      "post": {
-        "tags": [
-          "layer"
-        ],
-        "summary": "Add a new layer to the system",
-        "description": "Adds a new layer",
-        "operationId": "addLayer",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "Layer object that needs to be added to the datastorage",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Layer"
-            }
-          }
-        ],
-        "responses": {
-          "405": {
-            "description": "Invalid input"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "layer"
-        ],
-        "summary": "Returns a list of all layers and their associated storage engine",
-        "description": "Returns a list of all layers and their associated storage",
-        "operationId": "allLayers",
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          },
-          "404": {
-            "description": "Cannot GET /layers/"
-          }
-        }
-      }
-    },
-    "/layers/{layerId}/feature/{featureId}": {
-      "put": {
-        "tags": [
-          "feature"
-        ],
-        "summary": "Update a single pre-existing feature",
-        "description": "",
-        "operationId": "updateFeature",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "JSON that will be used to update the feature",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Feature"
-            }
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID or Name of the Layer to update",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "featureId",
-            "in": "path",
-            "description": "ID of the feature to update",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Feature not found"
-          },
-          "405": {
-            "description": "Validation exception"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "feature"
-        ],
-        "summary": "Find feature by ID",
-        "description": "Returns a single feature",
-        "operationId": "getFeature",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "featureId",
-            "in": "path",
-            "description": "ID of the feature to be returned",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID of the layer in which the feature is located",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Feature"
-            }
-          },
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Layer or feature not found"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "feature"
-        ],
-        "summary": "Delete a feature by ID",
-        "description": "Deletes an entire layer",
-        "operationId": "deleteFeature",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "featureId",
-            "in": "path",
-            "description": "ID of feature to be deleted",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID of the layer where the feature is located",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Layer or feature not found"
-          }
-        }
-      }
-    },
-    "/layers/{layerId}/feature": {
-      "post": {
-        "tags": [
-          "feature"
-        ],
-        "summary": "Adds a feature",
-        "description": "",
-        "operationId": "addFeature",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID of layer to add the feature to",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "body",
-            "name": "body",
-            "description": "JSON that will be used to insert the feature",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Feature"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/ApiResponse"
-            }
-          }
-        }
-      }
-    },
-    "/layers/{layerId}/{featureId}/log": {
-      "put": {
-        "tags": [
-          "log"
-        ],
-        "summary": "Adds a log to a feature by updating it with a log",
-        "description": "",
-        "operationId": "addLog",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "description": "JSON that will be used to update the feature",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Log"
-            }
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID or Name of the Layer to update",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "featureId",
-            "in": "path",
-            "description": "ID of the feature to update with the log",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Invalid IDs supplied"
-          },
-          "404": {
-            "description": "Feature not found"
-          },
-          "405": {
-            "description": "Validation exception"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "log"
-        ],
-        "summary": "Find the log file associated with a single feature",
-        "description": "Returns all logs associated with a feature",
-        "operationId": "getLog",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "featureId",
-            "in": "path",
-            "description": "ID of the feature to be returned",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID of the layer in which the feature is located",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Log"
-            }
-          },
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Layer or feature not found"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "log"
-        ],
-        "summary": "Delete a log by supplying timestamp, value, and IDs",
-        "description": "Deletes a log by supplying the API with values for the TimeStamp, property name, and layer/feature identifiers",
-        "operationId": "deleteLog",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "featureId",
-            "in": "path",
-            "description": "ID of feature to be deleted",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID of the layer where the feature is located",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Invalid IDs supplied"
-          },
-          "404": {
-            "description": "Layer, log, or feature not found"
-          }
-        }
-      }
-    },
-    "/layers/{layerId}/bbox": {
-      "get": {
-        "tags": [
-          "special"
-        ],
-        "summary": "Gets all and any points in a (bounding box) rectangle.",
-        "description": "Takes two lng/lat pairs as input. These MUST be the south-west (bottom left) and northeast (top right) coordinates expressed as floating point numbers.",
-        "operationId": "bbox",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "swlng",
-            "in": "query",
-            "description": "Southwestern longtitude used to calculate the bbox",
-            "required": true,
-            "type": "number",
-            "format": "float"
-          },
-          {
-            "name": "swlat",
-            "in": "query",
-            "description": "Southwestern latitude used to calculate the bbox",
-            "required": true,
-            "type": "number",
-            "format": "float"
-          },
-          {
-            "name": "nelng",
-            "in": "query",
-            "description": "Northeastern longtitude used to calculate the bbox",
-            "required": true,
-            "type": "number",
-            "format": "float"
-          },
-          {
-            "name": "nelat",
-            "in": "query",
-            "description": "Northeastern latitude used to calculate the bbox",
-            "required": true,
-            "type": "number",
-            "format": "float"
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID of the layer",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Layer not found"
-          }
-        }
-      }
-    },
-    "/layers/{layerId}/getsphere": {
-      "get": {
-        "tags": [
-          "special"
-        ],
-        "summary": "Gets all and any points in a sphere defined by its center coordinate.",
-        "description": "takes the center coordinate (Lat:lng) and distance (radius) as arguments to provide a list of coordinates starting with the closest coordinates to the center.",
-        "operationId": "getsphere",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "lng",
-            "in": "query",
-            "description": "Longtitude used to calculate the sphere",
-            "required": true,
-            "type": "number",
-            "format": "float"
-          },
-          {
-            "name": "lat",
-            "in": "query",
-            "description": "Latitude used to calculate the sphere",
-            "required": true,
-            "type": "number",
-            "format": "float"
-          },
-          {
-            "name": "Distance",
-            "in": "query",
-            "description": "Max distane in meters",
-            "required": true,
-            "type": "number",
-            "format": "float"
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID of the layer",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Layer not found"
-          }
-        }
-      }
-    },
-    "/layers/{layerId}/getwithinpolygon": {
-      "get": {
-        "tags": [
-          "special"
-        ],
-        "summary": "Gets all and any points that are within a user-supplied polygon in a GeoJSON document.",
-        "description": "Takes a GeoJSON specification compliant document as input. This method can be used to determine the points within a special area, such as municipial borders.",
-        "operationId": "getwithinpolygon",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "feature",
-            "description": "JSON that will be used to query the layer",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Feature"
-            }
-          },
-          {
-            "name": "layerId",
-            "in": "path",
-            "description": "ID of the layer",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Invalid ID supplied"
-          },
-          "404": {
-            "description": "Layer not found"
-          }
-        }
-      }
-    }
-  },
-  "definitions": {
-    "Geometry": {
-      "type": "object",
-      "properties": {
-        "type":{
-          "type": "string",
-          "enum": ["Point","MultiPoint","LineString","MultiLineString","Polygon","MultiPolygon"]
-        },
-        "coordinates": {
-          "type": "array",
-          "items": {
-            "type": "number",
-            "example": [4.49965, 52.06891]
-          }
-        }
-      }
-    },
-    "Log": {
-      "type": "object",
-      "properties": {
-        "ts": {
-          "type": "integer",
-          "format": "int64",
-          "example": 1436952578422
-        },
-        "prop": {
-          "type": "string",
-          "example": "Name"
-        },
-        "value": {
-          "type": "string",
-          "example": "The Rijksmuseum"
-        }
-      }
-    },
-    "Feature": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "geometry": {
-          "$ref": "#/definitions/Geometry"
-        },
-        "type" : { "type" : "string"},
-        "properties": {
-          "type": "object"
-        },
-        "logs": {
-          "properties": {
-            "Name": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Log"
-              }
-            }
-          }
-        }
-      }
-    },
-    "Layer": {
-      "type": "object",
-      "required": [
-        "type",
-        "features"
-      ],
-      "properties": {
-        "storage": {
-          "type": "string",
-          "example": "file"
-        },
-        "useLog": {
-          "type": "boolean",
-          "default": false
-        },
-        "features": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Feature"
-          }
-        },
-        "id": {
-          "type": "string",
-          "example": "nameOfYourCollection"
-        },
-        "dynamic": {
-          "type": "boolean",
-          "default": false
-        },
-        "title": {
-          "type": "string",
-          "example": "Test"
-        },
-        "type": {
-          "type": "string",
-          "example": "FeatureCollection"
-        },
-        "url": {
-          "type": "string",
-          "example": "Your resource's location"
-        },
-        "description": {
-          "type": "string",
-          "example": "This is a test"
-        }
-      },
-      "xml": {
-        "name": "Pet"
-      }
-    },
-    "ApiResponse": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "type": {
-          "type": "string"
-        },
-        "message": {
-          "type": "string"
-        }
-      }
-    }
-  },
-  "externalDocs": {
-    "description": "Find out more about the Common Sense API",
-    "url": "https://github.com/TNOCS/csWeb/wiki/api"
-  }
 }

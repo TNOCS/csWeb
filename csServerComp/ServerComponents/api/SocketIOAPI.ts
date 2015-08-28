@@ -6,6 +6,8 @@ import Log = ApiManager.Log;
 import ClientConnection = require('./../dynamic/ClientConnection');
 import LayerUpdate = ClientConnection.LayerUpdate;
 import LayerUpdateAction = ClientConnection.LayerUpdateAction;
+import KeyUpdate = ClientConnection.KeyUpdate;
+import KeyUpdateAction = ClientConnection.KeyUpdateAction;
 import ApiMeta = ApiManager.ApiMeta;
 import MessageBus = require('../bus/MessageBus');
 import BaseConnector = require('./BaseConnector');
@@ -97,7 +99,8 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
     }
 
     public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
-        Winston.error('socketio: update key');
+        var ku = <KeyUpdate>{ keyId: keyId, action: KeyUpdateAction.updateKey, item: value };
+        this.connection.updateKey(keyId, ku, meta);
     }
 
 

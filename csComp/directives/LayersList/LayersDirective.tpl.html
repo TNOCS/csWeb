@@ -47,13 +47,13 @@
                                 <div class="bounce2"></div>
                                 <div class="bounce3"></div>
                             </div>
-                            <div ng-show="layer.isDynamic && layer.gui.more" popover="add items" style="position:absolute;right:40px;top:3px;cursor:pointer" popover-append-to-body="true" popover-placement="top" popover-trigger="mouseenter"  class="fa fa-plus" ng-click="vm.startAddingFeatures(layer)"></div>
+                            <div ng-show="layer.isDynamic" popover="add items" style="position:absolute;right:40px;top:3px;cursor:pointer" popover-append-to-body="true" popover-placement="top" popover-trigger="mouseenter"  class="fa fa-plus" ng-click="vm.startAddingFeatures(layer)"></div>
                             <div ng-show="vm.$mapService.isAdminExpert && layer.gui.more" class="fa fa-cog" style="position:absolute;right:60px;top:3px;cursor:pointer" ng-click="vm.editLayer(layer)"></div>
                             <div ng-show="layer.isDynamic" popover="{{(layer.isConnected) ? 'connected' : 'not connected'}}" popover-append-to-body="true" popover-placement="top" popover-trigger="mouseenter" class="fa fa-plug" ng-class="{false : 'disconnected-layer', true:'connected-layer'}[layer.isConnected==true]" style="position:absolute;right:20px;top:3px"></div>
                         </div>
                     </div>
 
-                    <div ng-show="layer.gui.more && !layer.gui.editing" style="position:relative;min-height:30px">                        
+                    <div ng-show="layer.gui.more && !layer.gui.editing" style="position:relative;min-height:30px">
                         <input class="ui-slider" ng-change="vm.setLayerOpacity(layer)" style="position:absolute;top:3px;width:100px;left:40px" type="range" min='0' max='100' ng-model="layer.opacity"/>
                     </div>
 

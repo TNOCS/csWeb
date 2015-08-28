@@ -36,18 +36,14 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //------ layer API paths, in CRUD order
 
-        // TODO: error checking: you might not want to overwrite another layer
         // Or post to a layer collection that should be shielded-off (e.g. system or users)
         // And what if an agent starts sending gibberish?
-        this.server.post(this.layersUrl + ':layer', (req: express.Request, res: express.Response) => {
+        this.server.post(this.layersUrl, (req: express.Request, res: express.Response) => {
             var layer = new Layer();
-            console.log(JSON.stringify(req.body));
             //layer.features = req.body.features;
             layer = req.body;
             this.manager.addLayer(layer, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                //todo: check errors
-                //returns success of insert operation
-                res.send(result);
+                res.status(result.result).send(result);
             });
         })
 

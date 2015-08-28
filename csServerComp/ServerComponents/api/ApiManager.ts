@@ -1,11 +1,16 @@
 import Winston = require('winston');
+import helpers = require('../helpers/Utils');
+
 
 /**
  * Api Result status
  */
 export enum ApiResult {
-    OK,
-    Error
+    OK = 200,
+    Error = 400,
+    LayerAlreadyExists = 406,
+    LayerNotFound = 407,
+    FeatureNotFound = 408
 }
 
 export interface ApiMeta {
@@ -202,6 +207,11 @@ export class ApiManager {
 
     //layer methods start here, in CRUD order.
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+        // give it an id if not available
+        if (!layer.hasOwnProperty('id')) layer.id = helpers.newGuid();
+        // take the id for the title if not available
+        if (!layer.hasOwnProperty('title')) layer.title = layer.id;
+        if (!layer.hasOwnProperty('features')) layer.features = [];
         Winston.info('api: add layer ' + layer.id);
         var s = this.findStorage(layer);
         // check if layer already exists
@@ -216,18 +226,21 @@ export class ApiManager {
                 url: "/api/layers/" + layer.id
             };
 
+            // store layer
+            s.addLayer(layer, meta, (r: CallbackResult) => {
+                callback(r);
+            });
 
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.initLayer(layer);
+                i.addLayer(layer, meta, () => { });
+            });
+        }
+        else {
+            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
         }
 
-        // store layer
-        s.addLayer(layer, meta, (r: CallbackResult) => {
-            callback(r);
-        });
 
-        this.getInterfaces(meta).forEach((i: IConnector) => {
-            i.initLayer(layer);
-            i.addLayer(layer, meta, () => { });
-        });
     }
 
 
