@@ -15,6 +15,7 @@ module Filters {
         private helperDim: any;
         private helperGroup: any;
         private isInsideFunction: Function;
+        private isEmpty: boolean;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -103,8 +104,8 @@ module Filters {
             });
 
             this.dcChart
-                .width(200)
-                .height(225)
+                .width(175)
+                .height(200)
                 .slicesCap(4)
                 .innerRadius(0)
                 .dimension(this.helperDim)
@@ -118,11 +119,12 @@ module Filters {
             this.updateAreaFilter(this.$scope.filter.value);
         }
 
-        public updateAreaFilter(bounds, triggerRender: boolean = true) {
+        public updateAreaFilter(feat: csComp.Services.IFeature, triggerRender: boolean = true) {
+            if (!feat) return;
             var f = this.$scope.filter;
-            var feat: csComp.Services.IFeature = f.value;
             if (!f.dimension) return;
             var group = f.group;
+            this.setAreaFilter(feat);
 
             f.dimension.filterFunction((d) => {
                 if (d != null) {
@@ -139,6 +141,8 @@ module Filters {
                     hg.value = f.dimension.groupAll().value() - f.dimension.top(Infinity).length;
                 }
             });
+
+            this.isEmpty = !(this.helperGroup.all().some((hg) => {return hg.value !== 0}));
 
             group.filterResult = f.dimension.top(Infinity);
 

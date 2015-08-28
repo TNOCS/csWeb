@@ -1293,7 +1293,7 @@ module csComp.Services {
         }
 
         setLocationFilter(group: ProjectGroup) {
-            if (group.filters.some((f)=>{return f.filterType==='location'})) return;
+            if (group.filters.some((f) => { return f.filterType === 'location' })) return;
             var gf = new GroupFilter();
             gf.id = Helpers.getGuid();
             gf.group = group;
@@ -1306,18 +1306,18 @@ module csComp.Services {
         }
 
         setFeatureAreaFilter(f: IFeature) {
-            var isInsideFunction;
-            if (f.geometry.type === 'Polygon') {
-                isInsideFunction = csComp.Helpers.GeoExtensions.pointInsidePolygon;
-            } else if (f.geometry.type === 'MultiPolygon') {
-                isInsideFunction = csComp.Helpers.GeoExtensions.pointInsideMultiPolygon;
-            } else {
-                isInsideFunction = () => { return false };
-            }
-
             this.project.groups.forEach(g => {
                 if (g.id === f.layer.group.id) return;
-                if (!g.filters.some((f)=>{return f.filterType==='area'})) {
+                var hasAreaFilter = g.filters.some((fil) => {
+                    if (fil.filterType === 'area') {
+                        var id = 'filter_' + fil.id;
+                        fil.value = f;
+                        if (angular.element('#' + id)) (<any>angular.element('#' + id).scope()).vm.updateAreaFilter(f);
+                        return true;
+                    }
+                    return false;
+                });
+                if (!hasAreaFilter) {
                     var gf = new GroupFilter();
                     gf.id = Helpers.getGuid();
                     gf.group = g;
@@ -1328,27 +1328,15 @@ module csComp.Services {
                     g.filters.push(gf);
                     g.filterResult = g.filterResult || [];
                 }
-                // $.each(g.markers, (key, marker) => {
-                //     if (marker.feature && marker.feature.layer && marker.feature.layer.enabled) {
-                //         if (marker.feature.layer.id === f.layer.id) {
-                //             g.filterResult.push(f);
-                //         }
-                //         else if (marker.feature.geometry.type === 'Point' && isInsideFunction(marker.feature.geometry.coordinates, f.geometry.coordinates)) {
-                //             g.filterResult.push(f);
-                //         } /*else if (marker.feature.geometry.type === 'Polygon' && csComp.Helpers.GeoExtensions.polygonInsidePolygon(marker.feature.geometry.coordinates, f.geometry.coordinates)) {
-                //             this.project.mapFilterResult.push(marker);
-                //         }*/
-                //     }
-                // });
-                // this.updateMapFilter(g);
             });
+            // if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             this.mb.publish("filters", "updated");
         }
 
         resetFeatureAreaFilter() {
             this.project.groups.forEach(g => {
-                g.filters.some((f)=>{
-                    if (f.filterType==='area') {
+                g.filters.some((f) => {
+                    if (f.filterType === 'area') {
                         this.removeFilter(f);
                         return true;
                     }
