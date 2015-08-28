@@ -139,7 +139,7 @@ module Filters {
 
         public updateLocationFilter(bounds, triggerRender: boolean = true) {
             var f = this.$scope.filter;
-            if (!f.dimension) return;
+            if (!f.dimension || !this.locationFilter.isEnabled()) return;
             var group = f.group;
 
             f.dimension.filterFunction((d: L.LatLngBounds) => {
