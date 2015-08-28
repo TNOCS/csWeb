@@ -123,53 +123,53 @@ describe('csComp.Services.LayerService', function() {
         }));
 
         it('should load projects.json',()=>{
-            spyOn($, 'getJSON').and.callFake((req) => {
-                var d = $.Deferred();
-                d.resolve('{"fake_data": "true"}');
-                return d.promise();
-            });
+            $httpBackend.expectGET('projects.json');
+            $httpBackend.when('GET', 'projects.json')
+                .respond({});
+
             layerService.openSolution('projects.json');
-            expect($.getJSON).toHaveBeenCalledWith('projects.json', jasmine.any(Function));
+
+            $httpBackend.flush();
+            $httpBackend.verifyNoOutstandingExpectation();
         });
 
         it('should parse projects.json correctly',()=>{
+            $httpBackend.expectGET('projects.json');
+            $httpBackend.when('GET', 'projects.json')
+                .respond(mockSolution);
+
             // Mock for data sources...
             $httpBackend.expectGET(mockProject.datasources[0].url);
             $httpBackend.when('GET', mockProject.datasources[0].url)
                 .respond(mockDatasource);
 
-            layerService.$mapService = mapService;
-            mapService.map = <L.Map>{};
-            layerService.selectRenderer('leaflet');
-            mapService.map.setMaxBounds = function (a:any, b:any) {return new L.Map('mapId', {maxBounds: mockSolution.maxBounds})};
-            mapService.baseLayers = {};
-            spyOn(mapService.map, 'setMaxBounds');
+            // $httpBackend.expectGET(mockSolution.projects[0].url);
+            $httpBackend.when('GET', mockSolution.projects[0].url)
+                .respond(mockProject);
 
-            var jsonSpy = spyOn($, 'getJSON').and.callFake((req) => {
-                var d = $.Deferred();
-                d.resolve('{"fake_data": "true"}');
-                return d.promise();
-            });
+            // Hacky map initialization...
+            layerService.$mapService = mapService;
+            layerService.$mapService.map = <L.Map>{};
+            layerService.$mapService.map.addLayer = function(group: any) { return null; };
+            layerService.selectRenderer('leaflet');
+            layerService.$mapService.map.setMaxBounds = function (a:any, b:any) {
+                // return new L.Map('mapId', {maxBounds: mockSolution.maxBounds});
+                return <L.Map>{};
+            };
+            layerService.$mapService.baseLayers = {};
+            layerService.map = layerService.$mapService;
+
             layerService.openSolution('projects.json');
 
-            expect($.getJSON).toHaveBeenCalledWith('projects.json', jasmine.any(Function));
-            jsonSpy.calls.mostRecent().args[1](mockSolution); //call callback with mocked json
+            $httpBackend.flush();
+            $httpBackend.verifyNoOutstandingExpectation();
 
+            // the project defined in the solution should be opened
             expect(layerService.loadedLayers).toEqual(new csComp.Helpers.Dictionary<csComp.Services.ProjectLayer>());
             expect(layerService.maxBounds).toEqual(mockSolution.maxBounds);
             expect(mapService.baseLayers.hasOwnProperty(mockSolution.baselayers[0].title)).toBeTruthy();
 
-            //Next, the project defined in the solution should be opened
-            layerService.map = mapService;
-            mapService.map = <L.Map>{};
-            mapService.map.addLayer = function (a:any) {return <L.Map>{}};
-
-
-            jsonSpy.calls.mostRecent().args[1](mockProject); //call callback with mocked json
             // Flush and verify calls to datasources
-            $httpBackend.flush();
-            $httpBackend.verifyNoOutstandingExpectation();
-
             expect(layerService.project.dashboards.length).toEqual(4);
             expect(layerService.project.datasources.length).toEqual(1);
 
