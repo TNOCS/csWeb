@@ -305,31 +305,22 @@ module csComp.Services {
         /***
          * Update map markers in cluster after changing filter
          */
-        public updateMapFilter(group: ProjectGroup) {
-            $.each(group.markers, (key, marker) => {
-                var includedPropFilter, includedMapFilter, included;
-                if (group.filterResult && group.filters.length > 0) {
-                    includedPropFilter = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
-                } else {
-                    includedPropFilter = true;
-                }
-                if (this.service.project.mapFilterResult && this.service.project.mapFilterResult.length > 0) {
-                    includedMapFilter = this.service.project.mapFilterResult.filter((m: any) => m.feature.id === key).length > 0;
-                } else {
-                    includedMapFilter = true;
-                }
-                included = (includedPropFilter && includedMapFilter);
-                if (group.clustering) {
-                    var incluster = group.cluster.hasLayer(marker);
-                    if (!included && incluster) group.cluster.removeLayer(marker);
-                    if (included && !incluster) group.cluster.addLayer(marker);
-                } else {
-                    var onmap = group.vectors.hasLayer(marker);
-                    if (!included && onmap) group.vectors.removeLayer(marker);
-                    if (included && !onmap) group.vectors.addLayer(marker);
-                }
-            });
-        }
+         public updateMapFilter(group: ProjectGroup) {
+             $.each(group.markers, (key, marker) => {
+                 var included;
+                 if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+                 if (group.clustering) {
+                     var incluster = group.cluster.hasLayer(marker);
+                     if (!included && incluster) group.cluster.removeLayer(marker);
+                     if (included && !incluster) group.cluster.addLayer(marker);
+                 } else {
+                     //var onmap = group.vectors.hasLayer(marker);
+                     var onmap = this.service.map.map.hasLayer(marker);
+                     if (!included && onmap) this.service.map.map.removeLayer(marker);
+                     if (included && !onmap) this.service.map.map.addLayer(marker);
+                 }
+             });
+         }
 
         public removeGroup(group: ProjectGroup) { }
 

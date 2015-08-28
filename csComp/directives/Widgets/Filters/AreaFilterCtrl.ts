@@ -1,20 +1,20 @@
 module Filters {
 
 
-    export interface ILocationFilterScope extends ng.IScope {
-        vm: LocationFilterCtrl;
+    export interface IAreaFilterScope extends ng.IScope {
+        vm: AreaFilterCtrl;
         filter: csComp.Services.GroupFilter;
         options: Function;
         removeString: string;
     }
 
-    export class LocationFilterCtrl {
-        private scope: ILocationFilterScope;
+    export class AreaFilterCtrl {
+        private scope: IAreaFilterScope;
         private widget: csComp.Services.IWidget;
-        private locationFilter: L.LocationFilter;
         private dcChart: any;
         private helperDim: any;
         private helperGroup: any;
+        private isInsideFunction: Function;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -31,7 +31,7 @@ module Filters {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            public $scope: ILocationFilterScope,
+            public $scope: IAreaFilterScope,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private $timeout: ng.ITimeoutService,
@@ -52,8 +52,8 @@ module Filters {
 
             }
             if ($scope && $scope.filter) {
-                setTimeout(() => this.initLocationFilter());
-                //$timeout.call(()=>this.initLocationFilter());
+                setTimeout(() => this.initAreaFilter());
+                //$timeout.call(()=>this.initAreaFilter());
 
                 $scope.options = (() => {
                     var res = [];
@@ -63,34 +63,22 @@ module Filters {
             }
         }
 
-        setLocationFilter() {
-            if (!this.locationFilter) {
-                var bounds = this.$layerService.map.map.getBounds();
-                bounds = bounds.pad(-0.75);
-                this.locationFilter = new L.LocationFilter({ bounds: bounds }).addTo(this.$layerService.map.map);
-                this.$scope.filter.value = bounds;
-                this.locationFilter.on('change', (e) => {
-                    this.updateLocationFilter(e.bounds);
-                });
-                this.locationFilter.on('enabled', (e) => {
-                    this.updateLocationFilter(e.bounds);
-                });
-                this.locationFilter.on('disabled', (e) => {
-                });
-                this.locationFilter.enable();
-                this.updateLocationFilter(this.locationFilter.getBounds());
-            } else if (this.locationFilter.isEnabled()) {
-                this.locationFilter.disable();
+        setAreaFilter(f) {
+            if (f.geometry.type === 'Polygon') {
+                this.isInsideFunction = csComp.Helpers.GeoExtensions.pointInsidePolygon;
+            } else if (f.geometry.type === 'MultiPolygon') {
+                this.isInsideFunction = csComp.Helpers.GeoExtensions.pointInsideMultiPolygon;
             } else {
-                this.locationFilter.enable();
+                this.isInsideFunction = () => { return false };
             }
         }
 
-        public initLocationFilter() {
+        public initAreaFilter() {
             var filter = this.$scope.filter;
+            var feature = filter.value;
             var group = filter.group;
             var divid = 'filter_' + filter.id;
-            this.setLocationFilter();
+            this.setAreaFilter(filter.value);
 
             this.dcChart = <any>dc.pieChart('#' + divid);
 
@@ -99,14 +87,8 @@ module Filters {
             var dcDim = group.ndx.dimension(d => {
                 if (d.id && d.layer && d.layer.group && d.layer.group.markers && d.layer.group.markers.hasOwnProperty(d.id)) {
                     var marker = d.layer.group.markers[d.id];
-                    if (marker.getBounds) {
-                        return marker.getBounds();
-                    } else if (marker.getLatLng) {
-                        return (new L.LatLngBounds(marker.getLatLng(), marker.getLatLng()));
-                    } else {
-                        //what else?
-                        null;
-                    }
+                    return (marker.feature.geometry.coordinates);
+                    group.filterResult.push(feature);
                 }
                 return null;
             });
@@ -131,19 +113,20 @@ module Filters {
                 .renderLabel(true)
                 .label(function(d) { return d.value; })
                 .on('renderlet', (e) => {
-                this.updateLocationFilter(this.locationFilter.getBounds(), false);
+                this.updateAreaFilter(this.$scope.filter.value, false);
             });
-            this.updateLocationFilter(this.$scope.filter.value);
+            this.updateAreaFilter(this.$scope.filter.value);
         }
 
-        public updateLocationFilter(bounds, triggerRender: boolean = true) {
+        public updateAreaFilter(bounds, triggerRender: boolean = true) {
             var f = this.$scope.filter;
+            var feat: csComp.Services.IFeature = f.value;
             if (!f.dimension) return;
             var group = f.group;
 
-            f.dimension.filterFunction((d: L.LatLngBounds) => {
+            f.dimension.filterFunction((d) => {
                 if (d != null) {
-                    return (bounds.contains(d));
+                    return (this.isInsideFunction(d, feat.geometry.coordinates));
                 }
                 return false;
             });
@@ -167,7 +150,6 @@ module Filters {
 
         public remove() {
             if (this.$scope.filter) {
-                this.locationFilter.disable();
                 this.$layerService.removeFilter(this.$scope.filter);
             }
         }
