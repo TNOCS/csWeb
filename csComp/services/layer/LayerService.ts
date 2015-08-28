@@ -1396,7 +1396,7 @@ module csComp.Services {
 
             this.project.groups.forEach(g => {
                 if (g.id === f.layer.group.id) return;
-                if (!g.filters.some((f)=>{return f.filterType==='area'})) {
+                if (!g.filters.some((f) => { return f.filterType === 'area' })) {
                     var gf = new GroupFilter();
                     gf.id = Helpers.getGuid();
                     gf.group = g;
@@ -1426,8 +1426,8 @@ module csComp.Services {
 
         resetFeatureAreaFilter() {
             this.project.groups.forEach(g => {
-                g.filters.some((f)=>{
-                    if (f.filterType==='area') {
+                g.filters.some((f) => {
+                    if (f.filterType === 'area') {
                         this.removeFilter(f);
                         return true;
                     }
@@ -1919,9 +1919,9 @@ module csComp.Services {
             if (this.project.connected) {
                 // check connection
                 this.$messageBusService.initConnection("", "", () => {
-                    var handle = this.$messageBusService.serverSubscribe("", "key", (topic: string, msg: ClientMessage) => {
-                        if (msg.action !== "subscribed") console.log(msg);
-                    });
+                    // var handle = this.$messageBusService.serverSubscribe("", "key", (topic: string, msg: ClientMessage) => {
+                    //     if (msg.action !== "subscribed") console.log(msg);
+                    // });
 
                     // setTimeout(() => {
                     //     for (var ll in this.loadedLayers) {
