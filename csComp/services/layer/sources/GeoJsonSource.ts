@@ -44,18 +44,20 @@ module csComp.Services {
                     // get data
                     var u = layer.url.replace('[BBOX]', layer.BBOX);
 
-                    d3.json(u, (error, data) => {
-                        layer.count = 0;
-                        layer.isLoading = false;
-                        // check if loaded correctly
-                        if (error) {
-                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, error + '\nwhile loading: ' + u);
-                            this.service.$messageBusService.publish('layer', 'error', layer);
-                        } else {
+                    this.$http.get(u)
+                        .success((data) => {
+                            layer.count = 0;
+                            layer.isLoading = false;
                             this.initLayer(data, layer);
-                        }
-                        cb(null, null);
-                    });
+                            cb(null, null);
+                        })
+                        .error(() => {
+                            layer.count = 0;
+                            layer.isLoading = false;
+                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
+                            this.service.$messageBusService.publish('layer', 'error', layer);
+                            cb(null, null);
+                        });
                 },
                 // Callback
                 () => {
