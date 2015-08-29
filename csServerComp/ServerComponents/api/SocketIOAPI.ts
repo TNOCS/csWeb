@@ -67,6 +67,8 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         //this.connection.publish();
         Winston.error('add layer ' + layer.title);
+        var lu = <LayerUpdate>{ layerId: layer.id, action: LayerUpdateAction.updateLayer, item: layer };
+        this.connection.updateLayer(layer.id, lu, meta);
     }
 
     public initLayer(layer: Layer) {

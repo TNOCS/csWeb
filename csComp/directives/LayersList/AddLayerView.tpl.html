@@ -37,7 +37,7 @@
     </div>
     <div class="modal-body container-fluid">
         <tabset>
-            <tab heading="Directory" ng-if="vm.project.layerDirectory">
+            <tab heading="Directory" >
                 <ul class="directory-list" ng-show="vm.selectedLayer == null">
                     <li class="directory-item" ng-repeat="layer in vm.layers" ng-click="vm.selectProjectLayer(layer)">
                         <button class="button fa fa-plus directory-item-addbutton" />
@@ -71,6 +71,7 @@
                 </div>
                 <button type="button" class="btn btn-primary" data-ng-click="vm.addLayer()">Next</button>
             </tab>
+
             <tab heading="New Group">
                 <div class="form-group">
                     <label for="groupName">Group Title</label>

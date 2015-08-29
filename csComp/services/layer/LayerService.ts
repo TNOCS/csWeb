@@ -1936,8 +1936,17 @@ module csComp.Services {
 
             // check if project is dynamic
             if (solutionProject.dynamic) {
+                // listen to directory updates
+                this.$messageBusService.serverSubscribe("", "directory", (sub: string, msg: any) => {
+                    var layer = <ProjectLayer>msg.data.item;
+                    if (layer) {
+                        var l = this.findLayer(layer.id);
+                        if (!l) {
+                            this.$messageBusService.notify('New layer available', layer.title);
+                        }
+                    }
+                });
                 this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
-                    console.log(msg);
                     if (msg.action === "layer-update") {
                         msg.data.layer.forEach((l: ProjectLayer) => {
                             var g: ProjectGroup;

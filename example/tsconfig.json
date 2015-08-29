@@ -63,6 +63,7 @@
         "./ServerComponents/api/SocketIOAPI.d.ts",
         "./ServerComponents/api/Storage.d.ts",
         "./ServerComponents/api/mqtt-router.d.ts",
+        "./ServerComponents/api/qlobber.d.ts",
         "./ServerComponents/bus/MessageBus.d.ts",
         "./ServerComponents/configuration/ConfigurationService.d.ts",
         "./ServerComponents/configuration/IConfiguration.d.ts",

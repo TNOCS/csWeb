@@ -95,6 +95,7 @@ export class Layer implements StorageObject {
     public title: string;
     public description: string;
     public url: string;
+    public tags: string[];
     public features: Feature[] = [];
 }
 
@@ -212,6 +213,7 @@ export class ApiManager {
         // take the id for the title if not available
         if (!layer.hasOwnProperty('title')) layer.title = layer.id;
         if (!layer.hasOwnProperty('features')) layer.features = [];
+        if (!layer.hasOwnProperty('tags')) layer.tags = [];
         Winston.info('api: add layer ' + layer.id);
         var s = this.findStorage(layer);
         // check if layer already exists

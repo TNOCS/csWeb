@@ -50,7 +50,7 @@ module ClientConnection {
         updateFeature,
         updateLog,
         deleteFeature,
-        addLayer
+        updateLayer
     }
 
     /**
@@ -223,6 +223,25 @@ module ClientConnection {
             for (var uId in this.users) {
                 if (!skip || uId != skip) {
                     var sub = this.users[uId].FindSubscription(layerId, "layer");
+                    if (sub != null) {
+                        Winston.info('send to : ' + sub.id);
+                        this.users[uId].Client.emit(sub.id, new ClientMessage("layer", update));
+                    }
+                }
+            }
+        }
+
+        /**
+         * Send update to all clients.
+         * @action: logs-update, feature-update
+         * @meta: used to determine source/user, will skip
+         */
+        public updateLayer(layerId: string, update: LayerUpdate, meta: ApiMeta) {
+            //Winston.info('update feature ' + layer);
+            var skip = (meta.source === "socketio") ? meta.user : undefined;
+            for (var uId in this.users) {
+                if (!skip || uId != skip) {
+                    var sub = this.users[uId].FindSubscription("", "directory");
                     if (sub != null) {
                         Winston.info('send to : ' + sub.id);
                         this.users[uId].Client.emit(sub.id, new ClientMessage("layer", update));
