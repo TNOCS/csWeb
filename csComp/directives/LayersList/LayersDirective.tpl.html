@@ -2,39 +2,29 @@
 
     <style>
         .addlayer-container {
-            height: 75px;
-            background: #eeeeee;
-            border-style: solid;
-            border-width: 1px;
-            border-color: black;
-            position: relative;
-            margin: 4px;
             cursor: pointer;
+            position:relative;
         }
 
         .addlayer-title {
-            height: 20px;
-            position: absolute;
-            bottom: 0px;
-            left: 0px;
-            background: black;
-            color: white;
-            width: 100%;
-        }
+                font-size: 18px;
+                margin-left: 10px;
+                margin-top: 6px;
+            }
 
-        .addlayer-container:hover {
-            background: blue;
-            border-color: blue;
-            border-width: 2px;
-        }
 
-        .addlayer-container:hover .addlayer-title {
-            background: blue;
-        }
+
 
         .addlayer-image {
-            width: 100%;
-            height: 100%;
+            width: 25px;
+            height: 25px;
+        }
+
+        .layer-dir-type
+        {
+            clear:left;
+            font-size:10px;
+            color:#aaaaaa;
         }
     </style>
 
@@ -50,10 +40,13 @@
         </h3>
         <div style="background:white">
             <div ng-show="vm.selectedLayer == null">
-                <div ng-repeat="layer in vm.directory" class="col-md-2 addlayer-container" ng-click="vm.selectProjectLayer(layer)">
-                    <img class="addlayer-image" src="http://www.tom-carden.co.uk/wp-content/uploads/2008/10/osm-yahoo-flash.png">
+                <div ng-repeat="layer in vm.directory" class="addlayer-container" ng-click="vm.selectProjectLayer(layer)" popover="{{layer.title}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true">
+                    <!-- <img class="addlayer-image" src="http://www.tom-carden.co.uk/wp-content/uploads/2008/10/osm-yahoo-flash.png"></img> -->
                     <div class="addlayer-title">
-                        {{layer.title}}</div>
+                        {{layer.title}}
+                        <div class="layer-dir-type">{{layer.type}}</div>
+                    </div>
+
                 </div>
             </div>
             <div ng-hide="vm.selectedLayer == null">

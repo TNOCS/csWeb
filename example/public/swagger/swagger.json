@@ -719,6 +719,15 @@
                     "type": "string",
                     "example": "nameOfYourCollection"
                 },
+                "updated" : {
+                    "type" : "number"
+                },
+                "tags" : {
+                    "type" : "array",
+                    "items" : {
+                        "type" : "string"
+                    }
+                },
                 "dynamic": {
                     "type": "boolean",
                     "default": false

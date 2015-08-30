@@ -88,6 +88,7 @@ export class Layer implements StorageObject {
      */
     public storage: string;
     public useLog: boolean;
+    public updated: number;
     public id: string;
     public type: string;
     public dynamic: boolean;
@@ -252,6 +253,7 @@ export class ApiManager {
         if (!layer.hasOwnProperty('title')) layer.title = layer.id;
         if (!layer.hasOwnProperty('features')) layer.features = [];
         if (!layer.hasOwnProperty('tags')) layer.tags = [];
+        this.setUpdateLayer(layer, meta);
         Winston.info('api: add layer ' + layer.id);
         var s = this.findStorage(layer);
         // check if layer already exists
@@ -324,6 +326,10 @@ export class ApiManager {
         return res;
     }
 
+    private setUpdateLayer(layer: Layer, meta: ApiMeta) {
+        layer.updated = new Date().getTime();
+    }
+
     // Feature methods start here, in CRUD order.
 
     public addFeature(layerId: string, feature: Feature, meta: ApiMeta, callback: Function) {
@@ -333,6 +339,7 @@ export class ApiManager {
             callback(<CallbackResult>{ result: ApiResult.Error, error: 'layer not found' });
         }
         else {
+            this.setUpdateLayer(layer, meta);
             var s = this.findStorage(layer);
             s.addFeature(layerId, feature, meta, (result) => callback(result));
             this.getInterfaces(meta).forEach((i: IConnector) => {
@@ -343,12 +350,14 @@ export class ApiManager {
 
     public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, meta: ApiMeta, callback: Function) {
         var layer = this.findLayer(layerId);
+        this.setUpdateLayer(layer, meta);
         var s = this.findStorage(layer);
         this.updateProperty(layerId, featureId, property, value, useLog, meta, (r) => callback(r));
     }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function) {
         var layer = this.findLayer(layerId);
+        this.setUpdateLayer(layer, meta);
         var s = this.findStorage(layer);
         // check if timestamps are set (if not, do it)
         for (var p in logs) {
