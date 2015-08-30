@@ -14,7 +14,6 @@ import DynamicProject = require("ServerComponents/dynamic/DynamicProject");
 import LayerDirectory = require("ServerComponents/dynamic/LayerDirectory");
 import store = require('ServerComponents/import/Store');
 import ApiServiceManager = require('ServerComponents/api/ApiServiceManager');
-
 import ApiManager = require('ServerComponents/api/ApiManager');
 import RestAPI = require('ServerComponents/api/RestAPI');
 import MqttAPI = require('ServerComponents/api/MqttAPI');
