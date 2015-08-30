@@ -7,8 +7,11 @@ module csComp.Services {
         title = "geojson";
         layer: ProjectLayer;
         requiresLayer = false;
+        $http: ng.IHttpService;
 
-        public constructor(public service: LayerService) { }
+        public constructor(public service: LayerService, $http: ng.IHttpService) {
+            this.$http = $http;
+        }
 
         public refreshLayer(layer: ProjectLayer) {
             this.service.removeLayer(layer);
@@ -43,26 +46,23 @@ module csComp.Services {
                     // get data
                     var u = layer.url.replace('[BBOX]', layer.BBOX);
 
-                    this.service.$http.get(u).success((data, status) => {
-                        layer.count = 0;
-                        layer.isLoading = false;
-                        layer.enabled = true;
-                        // check if loaded correctly
-                        // if (error) {
-                        //     this.service.$messageBusService.notify('ERROR loading ' + layer.title, error + '\nwhile loading: ' + u);
-                        //     this.service.$messageBusService.publish('layer', 'error', layer);
-                        // } else {
-                        this.initLayer(data, layer);
-                        //}
-                        cb(null, null);
-                    }).error((data, status) => {
-                        layer.isLoading = false;
-                        layer.enabled = false;
-                        layer.isConnected = false;
-                        this.service.$messageBusService.notify('ERROR loading ' + layer.title, 'while loading: ' + u);
-                        cb(null, null);
-                        //     this.service.$messageBusService.publish('layer', 'error', layer);
-                    });
+                    this.$http.get(u)
+                        .success((data) => {
+                            layer.count = 0;
+                            layer.isLoading = false;
+                        	layer.enabled = true;
+                        	this.initLayer(data, layer);
+                            cb(null, null);
+                        })
+                        .error(() => {
+                            layer.count = 0;
+                            layer.isLoading = false;
+                            layer.enabled = false;
+                            layer.isConnected = false;
+                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
+                            // this.service.$messageBusService.publish('layer', 'error', layer);
+                            cb(null, null);
+                        });
                 },
                 // Callback
                 () => {
@@ -197,8 +197,8 @@ module csComp.Services {
         title = "dynamicgeojson";
         connection: Connection;
 
-        constructor(public service: LayerService) {
-            super(service);
+        constructor(public service: LayerService, $http: ng.IHttpService) {
+            super(service, $http);
             // subscribe
         }
 
@@ -432,9 +432,10 @@ module csComp.Services {
     export class EsriJsonSource extends GeoJsonSource {
         title = "esrijson";
         connection: Connection;
+        $http: ng.IHttpService;
 
-        constructor(public service: LayerService) {
-            super(service);
+        constructor(public service: LayerService, $http: ng.IHttpService) {
+            super(service, $http);
             // subscribe
         }
 
@@ -443,9 +444,11 @@ module csComp.Services {
             // Open a layer URL
 
             layer.isLoading = true;
-            $.getJSON('/api/proxy', {
-                url: layer.url
-            }, (data, textStatus) => {
+            this.$http({
+                url: '/api/proxy',
+                method: "GET",
+                params: { url: layer.url }
+            }).success((data:string) => {
                     var s = new esriJsonConverter.esriJsonConverter();
                     var geojson = s.toGeoJson(JSON.parse(data));
                     console.log(geojson);
@@ -462,12 +465,10 @@ module csComp.Services {
 
                     layer.isLoading = false;
                     callback(layer);
-
-                });
-
-            //this.baseAddLayer(layer, callback);
+            })
+            .error(() => {
+                console.log('EsriJsonSource called $HTTP with errors...');
+            });
         }
-
-
     }
 }

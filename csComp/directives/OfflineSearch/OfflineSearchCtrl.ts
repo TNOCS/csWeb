@@ -35,6 +35,7 @@ module OfflineSearch {
         // See http://docs.angularjs.org/guide/di
         public static $inject = [
             '$scope',
+            '$http',
             'layerService',
             'mapService',
             'messageBusService'
@@ -44,6 +45,7 @@ module OfflineSearch {
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope: IOfflineSearchScope,
+            private $http: ng.IHttpService,
             private $layerService: csComp.Services.LayerService,
             private $mapService: csComp.Services.MapService,
             private $messageBus: csComp.Services.MessageBusService
@@ -72,22 +74,24 @@ module OfflineSearch {
          * Load the offline search results (json file).
          */
         private loadSearchResults(url: string) {
-            $.getJSON(url, (offlineSearchResult: OfflineSearchResult) => {
-                this.offlineSearchResult = offlineSearchResult;
-                var kwi = offlineSearchResult.keywordIndex;
+            this.$http.get(url)
+                .success((offlineSearchResult: OfflineSearchResult) => {
+                    this.offlineSearchResult = offlineSearchResult;
+                    var kwi = offlineSearchResult.keywordIndex;
 
-                var keywordIndex: KeywordIndex = {};
-                for (var key in kwi) {
-                    if (!kwi.hasOwnProperty(key)) continue;
-                    kwi[key].forEach((entry: any) => {
-                        if (!keywordIndex.hasOwnProperty(key))
-                            keywordIndex[key] = [];
-                        keywordIndex[key].push(new Entry(entry));
-                    });
-                }
-                this.offlineSearchResult.keywordIndex = keywordIndex;
-                this.isReady = true;
-            });
+                    var keywordIndex: KeywordIndex = {};
+                    for (var key in kwi) {
+                        if (!kwi.hasOwnProperty(key)) continue;
+                        kwi[key].forEach((entry: any) => {
+                            if (!keywordIndex.hasOwnProperty(key))
+                                keywordIndex[key] = [];
+                            keywordIndex[key].push(new Entry(entry));
+                        });
+                    }
+                    this.offlineSearchResult.keywordIndex = keywordIndex;
+                    this.isReady = true;
+                })
+                .error(() => { console.log("OfflineSearch: error with $http "); });
         }
 
         /**
@@ -188,13 +192,6 @@ module OfflineSearch {
          * When an item is selected, optionally open the layer and jump to the selected feature.
          */
         public onSelect(selectedItem: OfflineSearchResultViewModel) {
-            // if ($item.feature) {
-            //     this.$layerService.selectFeature($item.feature);
-            //     this.$mapService.zoomTo($item.feature);
-            // } else {
-            //     this.$mapService.zoomToLocation(new L.LatLng($item.lat, $item.lng), 12);
-            // }
-
             var layerIndex = selectedItem.entry.layerIndex;
             var layer = this.offlineSearchResult.layers[layerIndex];
             var projectLayer = this.$layerService.findLayer(layer.id);
@@ -212,11 +209,6 @@ module OfflineSearch {
                     this.selectFeature(layer.id, selectedItem.entry.featureIndex);
                     this.$messageBus.unsubscribe(handle);
                 });
-                // projectLayer       = new csComp.Services.ProjectLayer();
-                // projectLayer.id    = layer.id;
-                // projectLayer.title = layer.title;
-                // projectLayer.url   = layer.path;
-                // projectLayer.type  = layer.type;
                 this.$layerService.addLayer(projectLayer);
             }
         }
