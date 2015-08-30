@@ -12,12 +12,14 @@ import ApiMeta = ApiManager.ApiMeta;
 export class RestAPI extends BaseConnector.BaseConnector {
 
     public manager: ApiManager.ApiManager;
+    public resourceUrl;
     public layersUrl;
     public keysUrl;
 
     constructor(public server: express.Express, public baseUrl: string = "/api") {
         super();
         this.isInterface = true;
+        this.resourceUrl = baseUrl + "/resources/";
         this.layersUrl = baseUrl + "/layers/";
         this.keysUrl = baseUrl + "/keys/";
     }
@@ -29,6 +31,13 @@ export class RestAPI extends BaseConnector.BaseConnector {
         //enables cors, used for external swagger requests
         this.server.use(cors());
 
+        this.server.get(this.resourceUrl, (req: express.Request, res: express.Response) => {
+            res.send(JSON.stringify(this.manager.resources));
+        });
+
+        this.server.post(this.resourceUrl + ":resourceId", (req: express.Request, res: express.Response) => {
+            this.manager.updateResource(req.params.resourceId, req.body);
+        });
 
         this.server.get(this.layersUrl, (req: express.Request, res: express.Response) => {
             res.send(JSON.stringify(this.manager.layers));

@@ -11,7 +11,13 @@ module LayersDirective {
         private scope: ILayersDirectiveScope;
         private allCollapsed: boolean;
         public editing: boolean;
+        public state: string = "layers";
         public layer: csComp.Services.ProjectLayer;
+        public project: csComp.Services.Project;
+        public directory: csComp.Services.ProjectLayer[];
+        public selectedLayer: csComp.Services.ProjectLayer;
+        public layerGroup: any;
+
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -115,13 +121,28 @@ module LayersDirective {
             })
         }
 
+        public selectProjectLayer(layer: csComp.Services.ProjectLayer) {
+            this.selectedLayer = layer;
+        }
+
+        public addProjectLayer() {
+            var group = this.$layerService.findGroupById(this.layerGroup);
+            if (group) {
+                this.$layerService.initLayer(group, this.selectedLayer);
+                group.layers.push(this.selectedLayer);
+            }
+            this.selectedLayer = null;
+            this.state = "layers";
+        }
+
         public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
+            this.state = "editlayer";
             (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startAddingFeatures(layer);
             this.layer = layer;
         }
 
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
-
+            this.state = "layers";
             if (layer.gui["featureTypes"]) {
                 for (var key in layer.gui["featureTypes"]) {
                     interact('#layerfeaturetype-' + key).onstart = null;
@@ -149,6 +170,14 @@ module LayersDirective {
         }
 
         public addLayer() {
+            this.state = "directory";
+            this.project = this.$layerService.project;
+            if (this.project.layerDirectory) {
+                $.getJSON(this.project.layerDirectory, (result) => {
+                    this.directory = result;
+                });
+            }
+            return;
             var modalInstance = this.$modal.open({
                 templateUrl: 'directives/LayersList/AddLayerView.tpl.html',
                 controller: AddLayerCtrl,

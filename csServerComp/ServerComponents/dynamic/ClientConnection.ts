@@ -50,7 +50,8 @@ module ClientConnection {
         updateFeature,
         updateLog,
         deleteFeature,
-        updateLayer
+        updateLayer,
+        deleteLayer
     }
 
     /**

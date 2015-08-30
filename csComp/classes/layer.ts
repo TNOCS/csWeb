@@ -105,6 +105,9 @@ module csComp.Services {
         /** key name of default feature type */
         defaultFeatureType?: string;
 
+        /** image for this layer */
+        image?: string;
+
     }
 
     /** Layer information. a layer is described in a project file and is always part of a group */
@@ -220,6 +223,8 @@ module csComp.Services {
          * gui is used for setting temp. values for rendering
          */
         gui: any = {};
+        /** image for this layer */
+        image: string;
 
 
         /**

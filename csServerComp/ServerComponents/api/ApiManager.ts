@@ -93,6 +93,7 @@ export class Layer implements StorageObject {
     public type: string;
     public dynamic: boolean;
     public title: string;
+    public image: string;
     public description: string;
     public url: string;
     public tags: string[];
@@ -130,12 +131,31 @@ export class Log {
     public value: any;
 }
 
+export class FeatureType {
+
+}
+
+export class PropertyType {
+
+}
+
+export class ResourceFile {
+    featureTypes: { [key: string]: FeatureType };
+    propertyTypes: { [key: string]: PropertyType };
+
+}
+
 export class ApiManager {
 
     /**
      * Dictionary of connectors (e.g. storage, interface, etc.)
      */
     public connectors: { [key: string]: IConnector } = {}
+
+    /**
+     * Dictionary of resources
+     */
+    public resources: { [key: string]: ResourceFile } = {};
 
     /**
      * Dictionary of layers (doesn't contain actual data)
@@ -149,6 +169,7 @@ export class ApiManager {
 
     public defaultStorage = "file";
     public defaultLogging = false;
+    public resourceFolder = "/data/resourceTypes";
     /** The ApiManager name can be used to identify this instance (e.g. mqtt can create a namespace/channel for this api) */
     public name: string = "cs";
 
@@ -157,6 +178,22 @@ export class ApiManager {
 
     public init() {
         Winston.info('init layer manager', { cat: "api" });
+    }
+
+    /**
+     * Look for available resources (from folder)
+     */
+    public initResources() {
+
+        //TODO implement
+
+    }
+
+    /**
+     * Update/add a resource and save it to file
+     */
+    public updateResource(id: string, resource: ResourceFile) {
+        //TODO implement
     }
 
     /**
@@ -210,6 +247,8 @@ export class ApiManager {
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         // give it an id if not available
         if (!layer.hasOwnProperty('id')) layer.id = helpers.newGuid();
+        // make sure layerid is lowercase
+        layer.id = layer.id.toLowerCase();
         // take the id for the title if not available
         if (!layer.hasOwnProperty('title')) layer.title = layer.id;
         if (!layer.hasOwnProperty('features')) layer.features = [];

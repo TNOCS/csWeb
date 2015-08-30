@@ -9,6 +9,7 @@ import LayerUpdateAction = ClientConnection.LayerUpdateAction;
 import KeyUpdate = ClientConnection.KeyUpdate;
 import KeyUpdateAction = ClientConnection.KeyUpdateAction;
 import ApiMeta = ApiManager.ApiMeta;
+import ApiResult = ApiManager.ApiResult;
 import MessageBus = require('../bus/MessageBus');
 import BaseConnector = require('./BaseConnector');
 import Winston = require('winston');
@@ -66,9 +67,15 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
 
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         //this.connection.publish();
-        Winston.error('add layer ' + layer.title);
         var lu = <LayerUpdate>{ layerId: layer.id, action: LayerUpdateAction.updateLayer, item: layer };
         this.connection.updateLayer(layer.id, lu, meta);
+        // callback(<CallbackResult>{ result: ApiResult.OK })
+    }
+
+    public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {
+        var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.deleteLayer };
+        this.connection.updateLayer(layerId, lu, meta);
+        // callback(<CallbackResult>{ result: ApiResult.OK })
     }
 
     public initLayer(layer: Layer) {
