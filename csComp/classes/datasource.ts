@@ -25,7 +25,6 @@ module csComp.Services {
          * Serialize the project to a JSON string.
          */
         public serialize(): string {
-            //return SensorSet.serializeableData(this);
             return JSON.stringify(SensorSet.serializeableData(this), (key: string, value: any) => {
                 // Skip serializing certain keys
                 return value;
@@ -80,27 +79,30 @@ module csComp.Services {
          * Load JSON data.
          * @type {DataSource}
          *
+         * @param $http {ng.IHttpService}
          * @param ds {DataSource}
          * @param callback {Function}
          */
-        public static LoadData(ds: DataSource, callback: Function) {
+        public static LoadData($http: ng.IHttpService, ds: DataSource, callback: Function) {
             if (ds.url != null) {
-                $.getJSON(ds.url, (temp: DataSource) => {
-                    if (temp != null) {
-                        ds.id = temp.id;
-                        if (!ds.hasOwnProperty('sensors')) {
-                            ds.sensors = temp.sensors;
-                        } else {
-                            for (var s in temp.sensors) {
-                                if (temp.sensors.hasOwnProperty(s)) {
-                                    ds.sensors[s] = this.merge_sensor(ds.sensors[s], temp.sensors[s]);
+                $http.get(ds.url)
+                    .success((temp: DataSource) => {
+                            if (temp != null) {
+                                ds.id = temp.id;
+                                if (!ds.hasOwnProperty('sensors')) {
+                                    ds.sensors = temp.sensors;
+                                } else {
+                                    for (var s in temp.sensors) {
+                                        if (temp.sensors.hasOwnProperty(s)) {
+                                            ds.sensors[s] = this.merge_sensor(ds.sensors[s], temp.sensors[s]);
+                                        }
+                                    }
                                 }
+                                ds.title = temp.title;
+                                callback();
                             }
-                        }
-                        ds.title = temp.title;
-                        callback();
-                    }
-                });
+                        })
+                    .error(() => { console.log("Error on Data source -- do something ?"); });
             }
         }
     }

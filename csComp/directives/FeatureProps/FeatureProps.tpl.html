@@ -1,31 +1,4 @@
 <div data-ng-cloak class="rightpanel-content" id="featureprops-content" style="max-width: 355px">
-    <style>
-        .style-icon {
-            border-radius: 25%;
-            border: red;
-            width: 20px;
-            height: 20px;
-            padding-top: 2px;
-            padding-left: 4px;
-        }
-
-        .panel-group {
-            margin: 10px;
-        }
-
-        .property-edit {
-            clear: both;
-        }
-
-        .not-valid-input {
-            color: red;
-        }
-
-        #featureprops-content:hover leftpanel-header-button-container {
-            opacity: 0.5;
-        }
-    </style>
-
     <h4 class="rightpanel-header">
         <!-- Show popup with complete title for long names -->
         <div ng-if="callOut.title.length >= 27" popover="{{callOut.title}}" popover-placement="bottom" popover-trigger="mouseenter" popover-append-to-body="true">
@@ -130,26 +103,28 @@
 
                         <!-- Currently-styled-property background gray -->
                         <div ng-show="!feature.gui.editMode" class="panel-heading" style="border-radius: 3px; min-height: 36px; border: none;" ng-style="(item.feature.gui['style'][item.property]) && {'border':'1px solid blue', 'background': 'lightgray'}">
-                        <!-- Currently-styled-property background styleColor -->
-                        <!-- <div ng-show="!feature.gui.editMode" class="panel-heading" style="border-radius: 3px; min-height: 36px; border: none;" ng-style="(item.feature.gui['style'][item.property]) && {'border':'1px solid blue', 'background': item.feature.gui.style[item.property]}"> -->
+                            <!-- Currently-styled-property background styleColor -->
+                            <!-- <div ng-show="!feature.gui.editMode" class="panel-heading" style="border-radius: 3px; min-height: 36px; border: none;" ng-style="(item.feature.gui['style'][item.property]) && {'border':'1px solid blue', 'background': item.feature.gui.style[item.property]}"> -->
                             <div data-ng-switch="item.propertyType.type">
                                 <div ng-switch-when="layer">
                                     <a ng-click="vm.openLayer(item)">{{item.propertyType.title}}</a>
                                 </div>
                                 <div ng-switch-default>
-                                    <div class="pull-left accordionIcon">
-                                        <a data-ng-show="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
-                                        <a data-ng-show="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFilterIconSelected makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
-                                    </div>
-                                    <div data-ng-show="item.canStyle" class="pull-left accordionIcon style-icon">
-                                        <a data-ng-hide="item.feature.gui['style'][item.property]" class="smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
-                                        <a data-ng-show="item.feature.gui['style'][item.property]" class="smallStyleIcon smallStyleIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
-                                    </div>
-                                    <div ng-show="item.isSensor" style="margin-left:8px" class="pull-left accordionIcon">
-                                        <a class="fa fa-area-chart makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" href="#sensor{{item.property}}" style="cursor: pointer"></a>
-                                    </div>
-                                    <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-left accordionIcon">
-                                        <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.enabled=!item.enabled" style="cursor: pointer"></a>
+                                    <div class="icons-on-hover">
+                                        <div class="pull-left accordionIcon">
+                                            <a data-ng-show="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
+                                            <a data-ng-show="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFilterIconSelected makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
+                                        </div>
+                                        <div data-ng-show="item.canStyle" class="pull-left accordionIcon">
+                                            <a data-ng-hide="item.feature.gui['style'][item.property]" class="fa smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
+                                            <a data-ng-show="item.feature.gui['style'][item.property]" class="fa smallStyleIcon smallStyleIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
+                                        </div>
+                                        <div ng-show="item.isSensor" style="margin-left:8px" class="pull-left accordionIcon">
+                                            <a class="fa fa-area-chart makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" href="#sensor{{item.property}}" style="cursor: pointer"></a>
+                                        </div>
+                                        <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-left accordionIcon">
+                                            <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.enabled=!item.enabled" style="cursor: pointer"></a>
+                                        </div>
                                     </div>
                                     <div ng-hide="item.isSensor" data-ng-switch="item.propertyType.type" style="float:right">
                                         <div ng-switch-when="date" class="text-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">

@@ -3,10 +3,16 @@
         <div class="filter-dropdown">
         <div class="dropdown">
             <a style="cursor:pointer" data-toggle="dropdown">Create location filter for group... <span class="caret"></span></a>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu" ng-hide="vm.locationFilterActive">
                 <!-- alphabetic sorting disappeared in 1.4 https://docs.angularjs.org/api/ng/directive/ngRepeat -->
                 <li data-ng-repeat="group in vm.$layerService.project.groups">
                     <a ng-click="vm.setLocationFilter(group)" style="margin-bottom:10px; display:block;">{{group.title}}</a>
+                </li>
+            </ul>
+            <ul class="dropdown-menu" ng-show="vm.locationFilterActive">
+                <!-- alphabetic sorting disappeared in 1.4 https://docs.angularjs.org/api/ng/directive/ngRepeat -->
+                <li>
+                    Remove the other location filter first.
                 </li>
             </ul>
         </div>

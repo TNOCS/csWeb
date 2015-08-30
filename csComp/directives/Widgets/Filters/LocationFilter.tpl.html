@@ -6,5 +6,6 @@
             <a class='btn btn-filter-delete' ng-click="vm.remove()" style="float:right;"><i class='fa fa-remove'></i></a>
         </span>
     </div>
-    <div id="filter_{{filter.id}}" />
+    <div id="filter_{{filter.id}}" ng-hide="vm.isEmpty" />
+    <div ng-show="vm.isEmpty"> There are no features to filter in the current group. </div>
 </div>
