@@ -1,6 +1,4 @@
 module App {
-    'use strict';
-
     import IFeature = csComp.Services.IFeature;
 
     export interface IAppLocationService extends ng.ILocationService {

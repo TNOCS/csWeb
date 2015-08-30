@@ -1,7 +1,6 @@
 import Winston = require('winston');
 import helpers = require('../helpers/Utils');
 
-
 /**
  * Api Result status
  */

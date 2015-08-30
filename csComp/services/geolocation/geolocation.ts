@@ -12,11 +12,7 @@ module csComp.Services {
         public timestamp: number;
     }
 
-
     export class GeoService {
-
-
-
         public position: Geoposition;
 
         public geolocation_msgs = {
@@ -39,18 +35,19 @@ module csComp.Services {
             public $window: ng.IWindowService,
             public $q: ng.IQService
             ) {
-
         }
 
         public getLocation(): any {
             return this.position;
         }
 
-        public start() {
-            var opts = {
-                enableHighAccuracy: true,
-                maximumAge: 3000
-            };
+        public start(opts?: any) {
+            if (!opts) {
+                opts = {
+                    enableHighAccuracy: true,
+                    maximumAge: 3000
+                };
+            }
             if (this.$window.navigator && this.$window.navigator.geolocation) {
                 this.$window.navigator.geolocation.watchPosition((position: Geoposition) => {
                     this.position = position;
@@ -85,7 +82,6 @@ module csComp.Services {
             }
             return;
         }
-
     }
 
     /**
