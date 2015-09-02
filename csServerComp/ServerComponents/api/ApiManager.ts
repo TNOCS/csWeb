@@ -1,5 +1,6 @@
 import Winston = require('winston');
 import helpers = require('../helpers/Utils');
+import AuthApi = require('./AuthAPI');
 
 /**
  * Api Result status
@@ -146,7 +147,6 @@ export class ResourceFile {
 }
 
 export class ApiManager {
-
     /**
      * Dictionary of connectors (e.g. storage, interface, etc.)
      */
@@ -172,6 +172,7 @@ export class ApiManager {
     public resourceFolder = "/data/resourceTypes";
     /** The ApiManager name can be used to identify this instance (e.g. mqtt can create a namespace/channel for this api) */
     public name: string = "cs";
+    public authService : AuthApi.AuthAPI;
 
     /** Create a new client, optionally specifying whether it should act as client. */
     constructor(public isClient = false) { }
@@ -184,9 +185,7 @@ export class ApiManager {
      * Look for available resources (from folder)
      */
     public initResources() {
-
         //TODO implement
-
     }
 
     /**
@@ -204,7 +203,6 @@ export class ApiManager {
         s.id = key;
         this.connectors[key] = s;
         s.init(this, options);
-
     }
 
     /**
