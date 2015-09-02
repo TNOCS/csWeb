@@ -31,7 +31,7 @@ export class AuthAPI {
     constructor(private manager: ApiManager.ApiManager, private server: express.Express, private baseUrl: string = "/api") {
         User.manager = manager;
         baseUrl += '/auth/:teamId';
-        Winston.error('Path: ' + baseUrl);
+        Winston.info('Authentication REST service: ' + baseUrl);
         this.userUrl = baseUrl + '/me';
         this.loginUrl = baseUrl + '/login';
         this.signupUrl = baseUrl + '/signup';
@@ -155,22 +155,22 @@ export class AuthAPI {
 
     /** Ensure that the user is authenticated by verifying his authorization token. */
     private ensureAuthenticated(req: express.Request, res: express.Response, next: Function) {
-        Winston.error(`AuthN team ${req.params.teamId}`);
+        //Winston.error(`AuthN team ${req.params.teamId}`);
         if (!req.headers['authorization']) {
             return res.status(401).send({ message: 'Please make sure your request has an Authorization header' });
         }
         var token = req.headers['authorization'].split(' ')[1];
-        Winston.error(`Token received: ${token}`);
-        var user: IUser = { displayName: 'Erik', email: 'erik.vullings@gmail.com', password: '1234' };
-        var testPayload = AuthAPI.createJWT(user);
-        Winston.error(`Token expected: ${jwt.encode(testPayload, config.TOKEN_SECRET) }`);
+        //Winston.error(`Token received: ${token}`);
+        //var user: IUser = { displayName: 'Erik', email: 'erik.vullings@gmail.com', password: '1234' };
+        //var testPayload = AuthAPI.createJWT(user);
+        //Winston.error(`Token expected: ${jwt.encode(testPayload, config.TOKEN_SECRET) }`);
 
         var payload = null;
         try {
             payload = jwt.decode(token, config.TOKEN_SECRET);
-            Winston.error(`Payload: ${payload}`);
         }
         catch (err) {
+            Winston.error(`Error ${err.message}`);
             return res.status(401).send({ message: err.message });
         }
 
@@ -178,7 +178,7 @@ export class AuthAPI {
             return res.status(401).send({ message: 'Token has expired' });
         }
         req.user = payload.sub;
-        Winston.error('Passed ensureAuthenticated...')
+        //Winston.error('Passed ensureAuthenticated...')
         next();
     }
 
