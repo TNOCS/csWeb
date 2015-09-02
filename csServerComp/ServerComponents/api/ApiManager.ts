@@ -57,7 +57,6 @@ export interface IConnector {
     getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, meta: ApiMeta, callback: Function);
     getWithinPolygon(layerId: string, feature: Feature, meta: ApiMeta, callback: Function);
 
-
     /** Get a list of available keys */
     getKeys(meta: ApiMeta, callback: Function);
     /** Update the value for a given keyId */
@@ -242,7 +241,9 @@ export class ApiManager {
     }
 
     //layer methods start here, in CRUD order.
-    public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+
+    /** Create a new layer, store it, and return it. */
+    public addLayer(layer: Layer, meta: ApiMeta, callback: (result: CallbackResult) => void) {
         // give it an id if not available
         if (!layer.hasOwnProperty('id')) layer.id = helpers.newGuid();
         // make sure layerid is lowercase
@@ -255,7 +256,9 @@ export class ApiManager {
         Winston.info('api: add layer ' + layer.id);
         var s = this.findStorage(layer);
         // check if layer already exists
-        if (!this.layers.hasOwnProperty(layer.id)) {
+        if (this.layers.hasOwnProperty(layer.id)) {
+            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists", layer: this.layers[layer.id] });
+        } else {
             if (!layer.hasOwnProperty('type')) layer.type = "geojson";
             this.layers[layer.id] = <Layer>{
                 id: layer.id,
@@ -276,13 +279,7 @@ export class ApiManager {
                 i.addLayer(layer, meta, () => { });
             });
         }
-        else {
-            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
-        }
-
-
     }
-
 
     public getLayer(layerId: string, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
@@ -446,6 +443,4 @@ export class ApiManager {
         // check subscriptions
         callback(<CallbackResult>{ result: ApiResult.OK })
     }
-
-
 }

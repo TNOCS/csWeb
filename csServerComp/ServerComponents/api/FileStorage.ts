@@ -26,7 +26,6 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
         // load layers
         this.watchFolder();
-
     }
 
     public watchFolder() {
@@ -121,8 +120,9 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         try {
             this.layers[layer.id] = layer;
+            layer.features = [];
             this.saveFileDounce(layer);
-            callback(<CallbackResult> { result: ApiResult.OK });
+            callback(<CallbackResult> { result: ApiResult.OK, layer: layer });
         }
         catch (e) {
             callback(<CallbackResult>{ result: ApiResult.OK, error: null });
