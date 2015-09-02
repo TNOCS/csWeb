@@ -120,7 +120,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         try {
             this.layers[layer.id] = layer;
-            layer.features = [];
+            if (!layer.features) layer.features = [];
             this.saveFileDounce(layer);
             callback(<CallbackResult> { result: ApiResult.OK, layer: layer });
         }
