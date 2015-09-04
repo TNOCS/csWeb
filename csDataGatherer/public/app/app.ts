@@ -63,29 +63,30 @@ module App {
         }
 
         private refreshImporters() {
-            $.getJSON(this.BASE_URL, (data, err) => {
-                if (err !== 'success') {
-                    console.log(err);
-                    return;
-                }
-                console.log(data);
-                this.$timeout(() => { this.importers = data }, 0);
-            });
+            this.$http.get(this.BASE_URL)
+                .success((data: any) => {
+                    console.log(data);
+                    this.$timeout(() => { this.importers = data }, 0);
+                })
+                .error(() => {
+                    console.log("Error loading " + this.BASE_URL);
+                });
         }
 
         private refreshTransformers() {
-            $.getJSON(this.BASE_URL + "/transformers", (data, err) => {
-                if (err !== 'success') {
-                    console.log(err);
-                    return;
-                }
-                console.log(data);
-                this.$timeout(() => {
-                    this.transformers = data;
-                    if (this.transformers.length > 0)
-                        this.selectedTransformer = this.transformers[0];
-                }, 0);
-            });
+            this.$http.get(this.BASE_URL + "/transformers")
+                .success((data: any) => {
+                    console.log(data);
+                    this.$timeout(() => {
+                        this.transformers = data;
+                        if (this.transformers.length > 0) {
+                            this.selectedTransformer = this.transformers[0];
+                        }
+                    }, 0);
+                })
+                .error(() => {
+                    console.log("Error loading " + this.BASE_URL + "/transformers");
+                });
         }
 
         select(importer) {
