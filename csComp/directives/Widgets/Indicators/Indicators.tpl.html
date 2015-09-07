@@ -6,7 +6,7 @@
       float:left;
     }
     </style>
-    <ul class="indicator-list" data-ng-repeat="i in data.indicators" ng-switch on="i.visual">
+    <ul  class="indicator-list" data-ng-repeat="i in data.indicators" ng-switch on="i.visual" when-ready="vm.indicatorInit(i,this)">
         <div ng-init="vm.selectFeature(!vm.$layerService.lastSelectedFeature, i)"></div>
         <div ng-if="!vm.$layerService.lastSelectedFeature && i.usesSelectedFeature && $first">{{'SELECT_FEATURE_FOR_WIDGET' | translate}}</div>
         <li ng-class="{isActive : i.isActive, horizontalLayout : data.orientation === 'horizontal'}" class="indicator-group indicator-sparkline-group" ng-click="vm.selectIndicator(i)" ng-switch-when="sparkline">
@@ -14,8 +14,13 @@
             <sparkline-chart timestamps="i.sensorSet.timestamps" sensor="i.sensorSet.values" activeValue="i.focusTime" update="i.toggleUpdate" width="200" height="40" showaxis="false" closed="true"></sparkline-chart>
             <div class="indicator-sparkline-value">{{i.sensorSet.activeValueText()}}</div>
         </li>
+        <li ng-class="{isActive : i.isActive}" ng-click="vm.selectIndicator(i)" class="indicator-group indicator-circular-group"  ng-switch-when="singlevalue">
+            <div>value:{{((i.sensorSet.activeValue[i.property] || 1) * 10)}}</div>
+
+            <div>value:{{i.result | datasource:this }}</div>
+        </li>
         <li ng-class="{isActive : i.isActive}" ng-click="vm.selectIndicator(i)" class="indicator-group indicator-circular-group"  ng-switch-when="circular">
-          <circular-chart  title-class="indicator-circular-title" color="i.color" animationDuration="200" update="i.toggleUpdate" value-class="indicator-circular-value" value-string="i.sensorSet.activeValueText()" value="i.sensorSet.activeValue"  title="i.sensorSet.propertyType.title" min="0" max="i.sensorSet.max" width="320" height="320"></circular-chart>
+          <circular-chart  title-class="indicator-circular-title" color="i.color" animationDuration="200" update="i.toggleUpdate" value-class="indicator-circular-value" value-string="i.sensorSet.activeValueText()" value="i.result | checkmark:this"  title="i.sensorSet.propertyType.title" min="0" max="i.sensorSet.max" width="320" height="320"></circular-chart>
         </li>
         <li ng-class="{isActive : i.isActive}" ng-show="vm.$layerService.lastSelectedFeature || !i.usesSelectedFeature" class="indicator-group" ng-switch-when="bullet">
           <bullet-chart width="i.indicatorWidth" height="30" title="i.sensorSet.propertyType.title" data="i.data" update="i.toggleUpdate" style="width:calc(100% - 80px)"/>

@@ -110,7 +110,7 @@ module Indicators {
                 i.propertyTypes.push(pt.label);
                 i.propertyTypeTitles.push(pt.title);
             });
-            if (this.$layerService.lastSelectedFeature && i.usesSelectedFeature) {
+            if (this.$layerService.lastSelectedFeature && i.source === "feature") {
                 this.$messageBus.publish('feature', 'onUpdateWithLastSelected', { indicator: i, feature: undefined });
             }
             i.toggleUpdate = !i.toggleUpdate;
@@ -122,7 +122,7 @@ module Indicators {
             newIndicator.title = "New Indicator"
             newIndicator.visual = "circular";
             newIndicator.sensor = "";
-            newIndicator.usesSelectedFeature = true;
+            newIndicator.source = "feature";
             newIndicator.featureTypeName = "";
             newIndicator.propertyTypes = [];
             if (!this.$scope.data.indicators) this.$scope.data.indicators = [];

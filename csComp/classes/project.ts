@@ -215,20 +215,20 @@ module csComp.Services {
                 baselayers: project.baselayers,
                 featureTypes: project.featureTypes, //reset
                 propertyTypeData: project.propertyTypeData,
-                groups: csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData)
+                groups: csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData),
+                layerDirectory: project.layerDirectory
             };
         }
 
         public deserialize(input: Project): Project {
-            var solution = input.solution;
             var res = <Project>jQuery.extend(new Project(), input);
-            res.solution = solution;
+            res.solution = input.solution;
             if (!input.opacity) input.opacity = 100;
             if (input.timeLine) { res.timeLine = DateRange.deserialize(input.timeLine); }// <DateRange>jQuery.extend(new DateRange(), input.timeLine);
             if (input.dashboards) {
                 res.dashboards = [];
                 input.dashboards.forEach((d) => {
-                    res.dashboards.push(Dashboard.deserialize(d, solution));
+                    res.dashboards.push(Dashboard.deserialize(d, input.solution));
                 });
 
                 for (var index in input.mcas) {

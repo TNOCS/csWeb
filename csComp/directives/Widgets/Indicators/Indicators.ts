@@ -40,5 +40,11 @@ module Indicators {
                 controller: IndicatorsCtrl
             }
         }
-    ]);
+    ]).filter('datasource', () => {
+        return (input, scope: ng.IScope) => {
+            console.log(scope);
+            var r = scope.$parent.$eval(input);
+            return r;
+        };
+    });
 }

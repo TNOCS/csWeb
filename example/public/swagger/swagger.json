@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "This is the Swagger documentation for the Common Sense API. You can find out more about the Common Sense project by going to [https://github.com/TNOCS/csWeb](https://github.com/TNOCS/csWeb) or by joining our [slack hangout](https://webcs.slack.com/). We welcome collaboration! This API documentation page was made with Swagger. You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).",
-        "version": "1.0.0",
+        "version": "0.1.0",
         "title": "Common Sense API"
     },
     "host": "localhost:3002",
@@ -40,6 +40,40 @@
         "http"
     ],
     "paths": {
+        "/resources/{resourceId}":{
+          "get": {
+                "tags": [
+                    "resource"
+                ],
+                "summary": "Find resource by ID",
+                "description": "Returns a single resource",
+                "operationId": "getResource",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "resourceId",
+                    "in": "path",
+                    "description": "ID of the resource to be returned",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Resource"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "428": {
+                        "description": "Resource not found"
+                    }
+                }
+            }
+        },
         "/layers/{layerId}": {
             "put": {
                 "tags": [
@@ -632,6 +666,75 @@
         }
     },
     "definitions": {
+      "FeatureTypeStyle" : {
+        "type" : "object",
+        "properties": {
+          "nameLabel" : { "type" : "string"},
+          "fillColor" : { "type" : "string"},
+          "strokeColor" : { "type" : "string"},
+          "selectedFillColor" : { "type" : "string"},
+          "selectedStrokeColor" : { "type" : "string"},
+          "selectedStrokeWidth" : { "type" : "number"},
+          "height" : { "type" : "number"},
+          "opacity" : { "type" : "number"},
+          "fillOpacity" : { "type" : "number"},
+          "stroke" : { "type" : "number"},
+          "drawingMode" : { "type" : "string"},
+          "strokeWidth" : { "type" : "number"},
+          "iconWidth" : { "type" : "number"},
+          "iconHeight" : { "type" : "number"},
+          "iconUri" : { "type" : "string"},
+          "cornerRadius" : { "type" : "number"},
+          "maxTitleResolution" : { "type" : "number"},
+          "rotate" : { "type" : "number"},
+          "innerTextProperty" : { "type" : "number"},
+          "innerTextSize" : { "type" : "number"},
+          "rotateProperty" : { "type" : "string"}
+        }
+      },
+      "FeatureType":{
+        "type" : "object",
+        "properties":{
+          "id" : { "type" : "string"},
+          "name" : { "type" : "string"},
+          "showAllProperties" : { "type" : "boolean"},
+          "style" : { "$ref": "#/definitions/FeatureTypeStyle"}
+        }
+      },
+      "PropertyType":{
+         "type" : "object",
+        "properties": {
+          "label" : { "type" : "string"},
+          "title" : { "type" : "string"},
+          "description" : { "type" : "string"},
+          "type" : { "type" : "string"},
+          "section" : { "type" : "string"},
+          "stringFormat" : { "type" : "number"},
+          "visibleInCallout" : { "type" : "number"},
+          "canEdit" : { "type" : "boolean"},
+          "filterType" : { "type" : "string"},
+          "isSearchable" : { "type" : "boolean"},
+          "minValue" : { "type" : "number"},
+          "maxValue" : { "type" : "number"},
+          "defaultValue" : { "type" : "number"}
+        }
+      },
+        "Resource":{
+          "type" : "object",
+          "properties": {
+              "url":{ "type" : "string" },
+              "featureTypes" :
+                { "type": "object",
+                      "additionalProperties": {
+                          "$ref": "#/definitions/FeatureType" }
+                },
+                "propertyTypes" :
+                { "type": "object",
+                      "additionalProperties": {
+                          "$ref": "#/definitions/PropertyType" }
+                }
+        }
+        },
         "Geometry": {
             "type": "object",
             "properties": {
@@ -640,11 +743,7 @@
 
                 },
                 "coordinates": {
-                    "type": "array",
-                    "items": {
-                        "type": "number",
-                        "example": [4.49965, 52.06891]
-                    }
+                    "type": "object"
                 }
             }
         },
@@ -661,7 +760,7 @@
                     "example": "Name"
                 },
                 "value": {
-                    "type": "string",
+                    "type": "object",
                     "example": "The Rijksmuseum"
                 }
             }
@@ -747,6 +846,9 @@
                 "description": {
                     "type": "string",
                     "example": "This is a test"
+                },
+                "typeUrl" : {
+                    "type" : "string"
                 }
             }
         },

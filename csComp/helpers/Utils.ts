@@ -1,10 +1,20 @@
-﻿module csComp {
+module csComp {
     export enum FileType {
         Js, Css
     }
 
     export class Utils {
         static loadedFiles: string[] = [];
+
+        static twoDigitStr(v: Number) {
+            var s: string;
+            s = v.toString();
+            if (s.length === 1) {
+                s = '0' + s;
+            }
+            return (s)
+        };
+
 
         /**
         * Load a JavaScript or CSS file dynamically by adding it to the end of the HEAD section in your document.
@@ -18,8 +28,7 @@
                     var fileRef = document.createElement('script')
                     fileRef.setAttribute("type", "text/javascript")
                     fileRef.setAttribute("src", filename)
-                    if (callback)
-                    {
+                    if (callback) {
                         fileRef.onload = (evt: Event) => {
                             callback(evt);
                         }

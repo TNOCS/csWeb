@@ -102,11 +102,17 @@ module csComp.Services {
 
         parentFeature: IFeature;
 
+        /** list of tags describing this layer */
+        tags?: string;
+
         /** key name of default feature type */
         defaultFeatureType?: string;
 
         /** image for this layer */
         image?: string;
+
+        /** last updated time */
+        updated?: number;
 
     }
 
@@ -154,6 +160,13 @@ module csComp.Services {
         showOnTimeline: boolean;
         /** If true (default false), do not move the selected feature to the front of the SVG stack */
         disableMoveSelectionToFront: boolean;
+        /** if true, use the current focustime to retrieve data from the server */
+        refreshTime: boolean;
+        /** time interval for unique time requests, in milliseconds */
+        timeResolution: number;
+        /** format timerequest e.g. YYYYmmDDHH */
+        timeFormatString: string;
+
         /** if true, use the current bounding box to retreive data from the server */
         refreshBBOX: boolean;
         /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
@@ -226,6 +239,12 @@ module csComp.Services {
         /** image for this layer */
         image: string;
 
+        /** list of tags describing this layer */
+        tags: string;
+
+        /** last updated time */
+        updated: number;
+
 
         /**
          * Returns an object which contains all the data that must be serialized.
@@ -256,7 +275,9 @@ module csComp.Services {
                 useProxy: pl.useProxy,
                 isDynamic: pl.isDynamic,
                 useLog: pl.useLog,
-                gui: {}
+                gui: {},
+                tags: pl.tags,
+
             };
         }
     }

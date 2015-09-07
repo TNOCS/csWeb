@@ -1,5 +1,7 @@
 import Winston = require('winston');
 import helpers = require('../helpers/Utils');
+import fs = require('fs');
+import path = require('path');
 
 /**
  * Api Result status
@@ -9,7 +11,8 @@ export enum ApiResult {
     Error = 400,
     LayerAlreadyExists = 406,
     LayerNotFound = 407,
-    FeatureNotFound = 408
+    FeatureNotFound = 408,
+    ResourceNotFound = 428
 }
 
 export interface ApiMeta {
@@ -98,6 +101,7 @@ export class Layer implements StorageObject {
     public url: string;
     public tags: string[];
     public features: Feature[] = [];
+    public typeUrl: string;
 }
 
 /**
@@ -183,16 +187,40 @@ export class ApiManager {
     /**
      * Look for available resources (from folder)
      */
-    public initResources() {
-
+    public initResources(resourcesPath: string) {
         //TODO implement
+        if (!fs.existsSync(resourcesPath)) {
+            fs.mkdirSync(resourcesPath);
+        }
+        fs.readdir(resourcesPath, (e, f) => {
+            f.forEach((file) => {
+                var loc = path.join(resourcesPath, file);
+                fs.readFile(loc, "utf-8", (err, data) => {
+                    if (!err) {
+                        this.resources[file.replace('.json', '').toLowerCase()] = <ResourceFile>JSON.parse(data);
+                        console.log('opened ' + loc);
+                    };
+                });
 
+            });
+        });
     }
 
     /**
      * Update/add a resource and save it to file
      */
     public updateResource(id: string, resource: ResourceFile) {
+        //TODO implement
+    }
+
+    /**
+     * Update/add a resource and save it to file
+     */
+    public getResource(id: string): ResourceFile {
+        if (this.resources.hasOwnProperty(id)) {
+            return this.resources[id];
+        }
+        return null;
         //TODO implement
     }
 
@@ -263,6 +291,7 @@ export class ApiManager {
                 id: layer.id,
                 storage: s.id,
                 title: layer.title,
+                updated: layer.updated,
                 description: layer.description,
                 type: layer.type,
                 url: "/api/layers/" + layer.id

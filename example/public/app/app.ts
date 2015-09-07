@@ -246,6 +246,7 @@ module App {
             sticky: true,
             deepStateRedirect: true
         })
+
             .state('table', {
             url: "/table",
             template: "<datatable id='datatable'></datatable>",

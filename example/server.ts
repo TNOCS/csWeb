@@ -32,6 +32,8 @@ var favicon = require('serve-favicon');
 var bodyParser = require('body-parser')
 var server = express();
 
+
+
 var httpServer = require('http').Server(server);
 var cm = new cc.ConnectionManager(httpServer);
 var messageBus = new MessageBus.MessageBusService();
@@ -78,6 +80,7 @@ server.use(express.static(path.join(__dirname, 'public')));
 
 var api = new ApiManager.ApiManager();
 api.init();
+api.initResources(path.join(path.resolve(__dirname), "public/data/resourceTypes/"));
 
 api.addConnector("rest", new RestAPI.RestAPI(server), {});
 api.addConnector("socketio", new SocketIOAPI.SocketIOAPI(cm), {});

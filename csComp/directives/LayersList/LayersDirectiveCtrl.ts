@@ -125,6 +125,11 @@ module LayersDirective {
             this.selectedLayer = layer;
         }
 
+        public exitDirectory() {
+            this.selectedLayer = null;
+            this.state = 'layers';
+        }
+
         public addProjectLayer() {
             var group = this.$layerService.findGroupById(this.layerGroup);
             if (group) {

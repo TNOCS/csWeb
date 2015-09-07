@@ -39,6 +39,10 @@ export class RestAPI extends BaseConnector.BaseConnector {
             this.manager.updateResource(req.params.resourceId, req.body);
         });
 
+        this.server.get(this.resourceUrl + ":resourceId", (req: express.Request, res: express.Response) => {
+            res.send(JSON.stringify(this.manager.getResource(req.params.resourceId.toLowerCase())));
+        });
+
         this.server.get(this.layersUrl, (req: express.Request, res: express.Response) => {
             res.send(JSON.stringify(this.manager.layers));
         });
@@ -103,7 +107,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         // updates a feature corresponding to a query on ID (should be one)
         // Takes a feature as input in the body of the PUT request
-        this.server.put(this.layersUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
+        this.server.put(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
             var feature = new Feature();
             feature = req.body;
             this.manager.updateFeature(req.params.layerId, feature, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
@@ -197,7 +201,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
 
 
-        //adds a feature
+        //update a key
         this.server.post(this.keysUrl + ":keyId", (req: express.Request, res: express.Response) => {
             this.manager.updateKey(req.params.keyId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error

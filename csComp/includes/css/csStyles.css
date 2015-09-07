@@ -765,12 +765,21 @@ html, body, #container {
 
 .icons-on-hover {
     position: absolute;
-    left: 70px;
-    background-color: rgba(255, 255, 255, 1);
-    padding: 3px;
-    border-radius: 3px;
-    display: none;
-    margin-top:-3px;
+        /* left: 70px; */
+        /* background-color: rgba(255, 255, 255, 1); */
+        background: rgb(228, 228, 228);
+        padding: 3px;
+        border-radius: 3px;
+        height: 42px;
+        display: none;
+        margin-top: -11px;
+        padding-top: 12px;
+        left: 15px;
+        width: 60px;
+}
+
+.feature-prop-property:hover{
+        background-color: rgb(228, 228, 228);
 }
 
 .panel-heading:hover .icons-on-hover{

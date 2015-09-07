@@ -166,15 +166,34 @@ module csComp.Services {
         public addLayer(layer: ProjectLayer) {
             switch (layer.renderType) {
                 case "tilelayer":
-                    // check if we need to create a unique url to force a refresh
                     var u = layer.url;
-                    if (layer.disableCache) {
+                    if (layer.refreshTime) {
+                        // convert epoch to time string parameter
+                        var ft = this.service.project.timeLine.focus;
+                        if (layer.timeResolution) {
+                            var tr = layer.timeResolution;
+                            ft = Math.floor(ft / tr) * tr;
+                            console.log(ft.toString())
+                        };
+                        var d = new Date(0);
+                        d.setUTCSeconds(ft / 1000);
+                        d.setFullYear(2011); // so the current year becomes 2011. For easier testing.
+                        // this is for the Env4U project
+                        var sDate: string = d.yyyymmdd();
+                        var hrs = d.getHours();
+                        var mins = d.getMinutes();
+                        var secs = d.getSeconds();
+                        var sTime: string = Utils.twoDigitStr(hrs) +
+                            Utils.twoDigitStr(mins) + Utils.twoDigitStr(secs);
+                        u += "&time=" + sDate + sTime;
+                        //console.log(u);
+                    } else if (layer.disableCache) {
+                        // check if we need to create a unique url to force a refresh
                         layer.cacheKey = new Date().getTime().toString();
                         u += "&cache=" + layer.cacheKey;
                     }
 
                     var tileLayer: any = L.tileLayer(u, { attribution: layer.description });
-
                     layer.mapLayer = new L.LayerGroup<L.ILayer>();
                     tileLayer.setOpacity(layer.opacity / 100);
                     this.service.map.map.addLayer(layer.mapLayer);
@@ -190,9 +209,9 @@ module csComp.Services {
                     });
                     layer.isLoading = true;
 
-
                     //this.$rootScope.$apply();
                     break;
+
                 case "wms":
                     var wms: any = L.tileLayer.wms(layer.url, <any>{
                         layers: layer.wmsLayers,
@@ -305,22 +324,22 @@ module csComp.Services {
         /***
          * Update map markers in cluster after changing filter
          */
-         public updateMapFilter(group: ProjectGroup) {
-             $.each(group.markers, (key, marker) => {
-                 var included;
-                 if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
-                 if (group.clustering) {
-                     var incluster = group.cluster.hasLayer(marker);
-                     if (!included && incluster) group.cluster.removeLayer(marker);
-                     if (included && !incluster) group.cluster.addLayer(marker);
-                 } else {
-                     //var onmap = group.vectors.hasLayer(marker);
-                     var onmap = this.service.map.map.hasLayer(marker);
-                     if (!included && onmap) this.service.map.map.removeLayer(marker);
-                     if (included && !onmap) this.service.map.map.addLayer(marker);
-                 }
-             });
-         }
+        public updateMapFilter(group: ProjectGroup) {
+            $.each(group.markers, (key, marker) => {
+                var included;
+                if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+                if (group.clustering) {
+                    var incluster = group.cluster.hasLayer(marker);
+                    if (!included && incluster) group.cluster.removeLayer(marker);
+                    if (included && !incluster) group.cluster.addLayer(marker);
+                } else {
+                    //var onmap = group.vectors.hasLayer(marker);
+                    var onmap = this.service.map.map.hasLayer(marker);
+                    if (!included && onmap) this.service.map.map.removeLayer(marker);
+                    if (included && !onmap) this.service.map.map.addLayer(marker);
+                }
+            });
+        }
 
         public removeGroup(group: ProjectGroup) { }
 

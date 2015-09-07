@@ -32,15 +32,26 @@
                         </select>
                     </span>
                 </div>
-                <!-- <div>
-                    <label>Fill color</label>
-                    <spectrum-colorpicker format="'hex'" on-change="vm.colorUpdated(color, indic)" data-ng-model="indic.color" options="{ cancelText: 'Annuleren', chooseText: 'Kiezen'}"></spectrum-colorpicker>
-                </div> -->
-                <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
-                  <input type="checkbox" id="indicator-{{indic.id}}" ng-model="indic.usesSelectedFeature">
-                  <label for="indicator-{{indic.id}}">Uses selected feature</label>
+                <div style="padding: 5px 0;" class="row-fluid">
+                    <span>
+                        <label>Source</label>
+                        <select id="selectIndicatorSource" ng-model="indic.source" class="form-control tt-input editor-text-input" style="display:inline-block" ng-change="vm.updateIndicator(indic)">
+                            <option>sensor</option>
+                            <option>feature</option>
+                        </select>
+                    </span>
                 </div>
-                <div ng-if="indic.usesSelectedFeature">
+                <div ng-if="indic.source==='sensor'">
+                    <div style="padding: 5px 0;" class="row-fluid">
+                        <label>Sensor</label>
+                        <input name="textinput" type="text" ng-model="indic.sensor" placeholder="sensorsource" class="input-xlarge editor-text-input" ng-model-options="{ debounce: 500 }" ng-change="vm.sensorChanged(indic)">
+                    </div>
+                    <div style="padding: 5px 0;" class="row-fluid">
+                        <label>Property</label>
+                        <input name="textinput" type="text" ng-model="indic.property" placeholder="sensorproperty" class="input-xlarge editor-text-input" ng-model-options="{ debounce: 500 }" ng-change="vm.sensorChanged(indic)">
+                    </div>
+                </div>
+                <div ng-if="indic.source==='feature'">
                     <div style="padding: 5px 0;" class="row-fluid">
                         <span>
                             <label>Feature</label>
@@ -49,6 +60,10 @@
                                 <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
                             </select>
                         </span>
+                    </div>
+                    <div style="padding: 5px 0;" class="row-fluid">
+                        <label>Property</label>
+                        <input name="textinput" type="text" ng-model="indic.property" placeholder="sensorproperty" class="input-xlarge editor-text-input" ng-model-options="{ debounce: 500 }" ng-change="vm.sensorChanged(indic)">
                     </div>
                     <div style="padding: 5px 0;" class="row-fluid">
                         <span>
@@ -60,12 +75,7 @@
                         </span>
                     </div>
                 </div>
-                <div ng-if="!indic.usesSelectedFeature">
-                    <div style="padding: 5px 0;" class="row-fluid">
-                        <label>Sensor</label>
-                        <input name="textinput" type="text" ng-model="indic.sensor" placeholder="sensorsource" class="input-xlarge editor-text-input" ng-model-options="{ debounce: 500 }" ng-change="vm.sensorChanged(indic)">
-                    </div>
-                </div>
+                
             </div>
         </li>
 

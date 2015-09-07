@@ -80,7 +80,7 @@
                 </td>-->
             <div class="panel-group" id="accordion">
                 <form name="form" class="css-form" novalidate>
-                    <div class="panel" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
+                    <div class="panel feature-prop-property" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
                         <div ng-show="feature.gui.editMode" class="property-edit">
                             <div>
                                 <div>{{item.propertyType.title}}</div>
@@ -111,18 +111,18 @@
                                 </div>
                                 <div ng-switch-default>
                                     <div class="icons-on-hover">
-                                        <div class="pull-left accordionIcon">
+                                        <div class="pull-right accordionIcon">
                                             <a data-ng-show="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
                                             <a data-ng-show="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFilterIconSelected makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.$layerService.setPropertyFilter(item)" style="cursor: pointer"></a>
                                         </div>
-                                        <div data-ng-show="item.canStyle" class="pull-left accordionIcon">
+                                        <div data-ng-show="item.canStyle" class="pull-right accordionIcon">
                                             <a data-ng-hide="item.feature.gui['style'][item.property]" class="fa smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
                                             <a data-ng-show="item.feature.gui['style'][item.property]" class="fa smallStyleIcon smallStyleIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType)" style="cursor: pointer"></a>
                                         </div>
-                                        <div ng-show="item.isSensor" style="margin-left:8px" class="pull-left accordionIcon">
+                                        <div ng-show="item.isSensor" style="margin-left:8px" class="pull-right accordionIcon">
                                             <a class="fa fa-area-chart makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" href="#sensor{{item.property}}" style="cursor: pointer"></a>
                                         </div>
-                                        <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-left accordionIcon">
+                                        <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-right accordionIcon">
                                             <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.enabled=!item.enabled" style="cursor: pointer"></a>
                                         </div>
                                     </div>
