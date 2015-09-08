@@ -49,6 +49,7 @@
         "./ServerComponents/api/MqttAPI.ts",
         "./ServerComponents/api/RestAPI.ts",
         "./ServerComponents/api/SocketIOAPI.ts",
+        "./ServerComponents/api/imb.ts",
         "./ServerComponents/api/qlobber.ts",
         "./ServerComponents/bus/MessageBus.ts",
         "./ServerComponents/configuration/ConfigurationService.ts",
