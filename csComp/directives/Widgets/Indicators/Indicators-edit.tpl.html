@@ -16,18 +16,24 @@
             <label class="radio-inline"><input type="radio" name="indicatorOrientation">Vertical</label>
         </div> -->
 
-        <li ng-repeat="indic in data.indicators" class="row-fluid list-unstyled truncate">
+        <li ng-repeat="indic in data.indicators" class="row-fluid list-unstyled truncate" when-ready="vm.initIndicator(indic)" style="position:relative">
+            <div style="position:absolute;right:0;top:25px">
+                <div class ="btn fa fa-chevron-up" ng-click="vm.moveUp(indic)"></div>
+                <div class="btn fa fa-trash" ng-click="vm.deleteIndicator(indic.id)"></div>
+            </div>
             <div>
+
+
                 <h5 style="font-size: 20px; padding-top: 20px;">{{indic.title}}</h5>
                 <div style="padding: 5px 0;" class="row-fluid">
                         <label>Title</label>
-                        <input id="indicatorTitle" name="textinput" type="text" ng-model="indic.sensorSet.propertyType.title" placeholder="placeholder" class="input-xlarge editor-text-input">
+                        <input id="indicatorTitle" name="textinput" type="text" ng-model="indic.title" placeholder="placeholder" class="input-xlarge editor-text-input">
                 </div>
                 <div style="padding: 5px 0;" class="row-fluid">
                     <span>
                         <label>Visual</label>
                         <select id="selectIndicatorVisual" ng-model="indic.visual" class="form-control tt-input editor-text-input" style="display:inline-block"
-                        ng-options="types.id as types.title for (key, types) in vm.indicatorVisuals" ng-change="vm.updateIndicator(indic)">
+                        ng-options="types.id as types.title for (key, types) in vm.indicatorVisuals" ng-change="vm.updateVisual(indic)">
                             <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
                         </select>
                     </span>
@@ -46,10 +52,10 @@
                         <label>Sensor</label>
                         <input name="textinput" type="text" ng-model="indic.sensor" placeholder="sensorsource" class="input-xlarge editor-text-input" ng-model-options="{ debounce: 500 }" ng-change="vm.sensorChanged(indic)">
                     </div>
-                    <div style="padding: 5px 0;" class="row-fluid">
+                    <!-- <div style="padding: 5px 0;" class="row-fluid">
                         <label>Property</label>
                         <input name="textinput" type="text" ng-model="indic.property" placeholder="sensorproperty" class="input-xlarge editor-text-input" ng-model-options="{ debounce: 500 }" ng-change="vm.sensorChanged(indic)">
-                    </div>
+                    </div> -->
                 </div>
                 <div ng-if="indic.source==='feature'">
                     <div style="padding: 5px 0;" class="row-fluid">
@@ -61,7 +67,7 @@
                             </select>
                         </span>
                     </div>
-                    <div style="padding: 5px 0;" class="row-fluid">
+                    <!-- <div style="padding: 5px 0;" class="row-fluid">
                         <label>Property</label>
                         <input name="textinput" type="text" ng-model="indic.property" placeholder="sensorproperty" class="input-xlarge editor-text-input" ng-model-options="{ debounce: 500 }" ng-change="vm.sensorChanged(indic)">
                     </div>
@@ -71,11 +77,18 @@
                             <select id="selectIndicatorProperty" ng-model="vm.propertyTypes" class="form-control tt-input editor-text-input" style="display:inline-block"
                                     ng-options="pt as pt.title for pt in vm.propertyTypeData | filter:{type:'number'}" ng-change="vm.updateIndicator(indic)" ng-init="vm.updatePropertyTypes(indic)" multiple>
                                 <!-- <option ng-repeat="(key, types) in vm.indicatorVisuals" ng-value="key">{{types.title}}</option> -->
-                            </select>
+                    <!--        </select>
                         </span>
+                    </div> -->
+                </div>
+                <div>
+                    <div ng-repeat="(key,v) in indic.inputs">
+                        <div style="padding: 5px 0;" class="row-fluid">
+                            <label>{{key}}</label>
+                            <input name="textinput" type="text" ng-model="indic.inputs[key]" placeholder="expression" class="input-xlarge editor-text-input" ng-model-options="{ debounce: 500 }">
+                        </div>
                     </div>
                 </div>
-                
             </div>
         </li>
 

@@ -265,6 +265,11 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.saveFileDounce(layer);
     }
 
+    public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
+
+    }
+
+
     //TODO: Move connection set-up params from static to parameterized.
     public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;

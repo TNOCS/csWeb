@@ -848,11 +848,14 @@ module csComp.Services {
                 this.project.datasources.forEach((ds: DataSource) => {
                     for (var sensorTitle in ds.sensors) {
                         var sensor = <SensorSet>ds.sensors[sensorTitle];
+
                         if (sensor.timestamps) {
-                            for (var i = 1; i < sensor.timestamps.length; i++) {
+                            if (sensor.timestamps.length == 1) {
+                                sensor.activeValue = sensor.values[0];
+                            } else for (var i = 1; i < sensor.timestamps.length; i++) {
                                 if (sensor.timestamps[i] < date) {
                                     sensor.activeValue = sensor.values[i];
-                                    console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
+                                    //console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
                                     break;
                                 }
                             }
@@ -1875,8 +1878,14 @@ module csComp.Services {
                             if (msg.data) {
                                 var id = "keys/" + msg.data.keyId;
                                 this.findSensorSet(id, (ss: SensorSet) => {
-                                    ss.timestamps = [];
-                                    ss.values = [];
+                                    var time = new Date().getTime();
+                                    if (msg.data.item.hasOwnProperty('time')) {
+                                        time = msg.data.item['time'];
+                                    }
+                                    else {
+                                        ss.timestamps = [];
+                                        ss.values = [];
+                                    }
                                     ss.addValue(new Date().getTime(), msg.data.item);
                                     ss.activeValue = msg.data.item;
                                 });

@@ -30,7 +30,6 @@ module Indicators {
                 templateUrl: 'directives/Widgets/Indicators/Indicators.tpl.html',
                 compile: el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                     var fn = $compile(el);
-
                     return scope => {
                         fn(scope);
                     };
@@ -42,8 +41,8 @@ module Indicators {
         }
     ]).filter('datasource', () => {
         return (input, scope: ng.IScope) => {
-            console.log(scope);
-            var r = scope.$parent.$eval(input);
+            if (!input) return "";
+            var r = scope.$parent.$eval(input.replace('~', 'i._value'));
             return r;
         };
     });

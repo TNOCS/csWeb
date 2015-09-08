@@ -72,6 +72,10 @@ module csComp.Services {
             $("#map").empty();
         }
 
+        public refreshLayer() {
+
+        }
+
         public addGroup(group: ProjectGroup) {
             // for clustering use a cluster layer
             if (group.clustering) {

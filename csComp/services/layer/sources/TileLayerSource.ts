@@ -7,15 +7,16 @@ module csComp.Services {
         title = "tilelayer";
         //service : LayerService;
         requiresLayer = false;
+        private prevDateTimes: { [id: string]: string } = {};
         constructor(public service: LayerService) {
 
         }
 
         public refreshLayer(layer: ProjectLayer) {
-            console.log('refreshing');
+            //console.log('refreshing');
             if (layer.mapLayer.getLayers().length > 0) {
                 var l = <L.TileLayer>layer.mapLayer.getLayers()[0];
-
+                //console.log("layer ID: " + layer.id);
                 var u = layer.url;
                 if (layer.refreshTime) {
                     // convert epoch to time string parameter
@@ -23,19 +24,25 @@ module csComp.Services {
                     if (layer.timeResolution) {
                         var tr = layer.timeResolution;
                         ft = Math.floor(ft / tr) * tr;
-                        console.log(ft.toString())
+                        //console.log(ft.toString())
                     };
                     var d = new Date(0);
                     d.setUTCSeconds(ft / 1000);
-                    d.setFullYear(2011); // so the current year becomes 2011. For easier testing.
+                    //d.setFullYear(2011); // so the current year becomes 2011. For easier testing.
                     // this is for the Env4U project
                     var sDate: string = d.yyyymmdd();
                     var hrs = d.getHours();
                     var mins = d.getMinutes();
                     var secs = d.getSeconds();
-                    var sTime: string = Utils.twoDigitStr(hrs) +
+                    var sDateTime: string = sDate + Utils.twoDigitStr(hrs) +
                         Utils.twoDigitStr(mins) + Utils.twoDigitStr(secs);
-                    u += "&time=" + sDate + sTime;
+                    //console.log("DateTime: " + sDateTime);
+                    if (sDateTime === this.prevDateTimes[layer.id]) {
+                        //console.log("Same time stamp. No refresh");
+                        return
+                    }
+                    this.prevDateTimes[layer.id] = sDateTime;
+                    u += "&time=" + sDateTime;
                     //console.log(u);
                 } else if (layer.disableCache) {
                     // check if we need to create a unique url to force a refresh
@@ -43,15 +50,10 @@ module csComp.Services {
                     u += "&cache=" + layer.cacheKey;
                 }
                 l.setUrl(u);
-
-                //l.redraw();
             }
 
-
-            //console.log(
-            // this.service.removeLayer(layer);
-            // this.service.addLayer(layer);
         }
+
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
             return [

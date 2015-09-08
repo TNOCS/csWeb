@@ -46,6 +46,11 @@ module csComp.Services {
             return { lat: 53, lon: 5 };
         }
 
+
+        public refreshLayer() {
+
+        }
+
         public getExtent(): csComp.Services.IBoundingBox {
             var r = <IBoundingBox>{};
             return r;

@@ -209,6 +209,14 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         });
 
+        //update a key
+        this.server.get(this.keysUrl, (req: express.Request, res: express.Response) => {
+            this.manager.getKeys(<ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result.keys);
+            });
+        });
+
 
     }
 

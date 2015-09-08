@@ -17,7 +17,7 @@ module Indicators {
         indicatorWidth: number;
         property: string;
         sensor: string;
-        sensorSet: csComp.Services.SensorSet;
+        _sensorSet: csComp.Services.SensorSet;
         layer: string;
         /** dashboard to select after click */
         dashboard: string;
@@ -26,13 +26,14 @@ module Indicators {
         id: string;
         color: string;
         indexValue: number;   // the value that is treated as 100%
-        focusTime: number;
-        toggleUpdate: boolean;
-        result: any;
-        value: any;
+        _focusTime: number;
+        _toggleUpdate: boolean;
+        _value: any;
+        inputs: { [key: string]: any } = {};
+        _result: { [key: string]: any } = {};
 
         constructor() {
-            this.toggleUpdate = true;
+            this._toggleUpdate = true;
             this.indicatorWidth = 200;
         }
 
@@ -85,28 +86,28 @@ module Indicators {
                 this.checkLayers();
             });
             $scope.data = <indicatorData>this.widget.data;
-            $scope.$watchCollection('data.indicators', () => {
-                console.log('update data');
-                if ($scope.data.indicators && !$scope.data.indicators[$scope.data.indicators.length - 1].id) {
-                    var i = $scope.data.indicators[$scope.data.indicators.length - 1];
-                    i.id = csComp.Helpers.getGuid();
-                    this.$messageBus.subscribe('feature', (action: string, feature: any) => {
-                        switch (action) {
-                            case 'onFeatureSelect':
-                                this.selectFeature(feature, i);
-                                break;
-                            case 'onUpdateWithLastSelected':
-                                var indic = <indicator> feature.indicator; //variable called feature is actually an object containing the indicator and an (empty) feature
-                                var realFeature;
-                                if (this.$layerService.lastSelectedFeature) { realFeature = this.$layerService.lastSelectedFeature; };
-                                this.selectFeature(realFeature, indic);
-                                break;
-                            default:
-                                break;
-                        }
-                    });
-                }
-            })
+            // $scope.$watchCollection('data.indicators', () => {
+            //     console.log('update data');
+            //     if ($scope.data.indicators && !$scope.data.indicators[$scope.data.indicators.length - 1].id) {
+            //         var i = $scope.data.indicators[$scope.data.indicators.length - 1];
+            //         i.id = csComp.Helpers.getGuid();
+            //         this.$messageBus.subscribe('feature', (action: string, feature: any) => {
+            //             switch (action) {
+            //                 case 'onFeatureSelect':
+            //                     this.selectFeature(feature, i);
+            //                     break;
+            //                 case 'onUpdateWithLastSelected':
+            //                     var indic = <indicator> feature.indicator; //variable called feature is actually an object containing the indicator and an (empty) feature
+            //                     var realFeature;
+            //                     if (this.$layerService.lastSelectedFeature) { realFeature = this.$layerService.lastSelectedFeature; };
+            //                     this.selectFeature(realFeature, indic);
+            //                     break;
+            //                 default:
+            //                     break;
+            //             }
+            //         });
+            //     }
+            // })
             if (typeof $scope.data.indicators !== 'undefined') {
                 $scope.data.indicators.forEach((i: indicator) => {
                     i.id = "circ-" + csComp.Helpers.getGuid();
@@ -119,25 +120,22 @@ module Indicators {
 
         public forceUpdateIndicator(i: indicator, value: any) {
             setTimeout(() => {
-                i.value = value;
-                i.result = "";
+                i._value = value;
+                i._result = {};
                 this.$scope.$apply();
-                i.result = i.property;
+                for (var k in i.inputs) i._result[k] = i.inputs[k];
                 this.$scope.$apply();
             }, 0);
         }
 
-        public getValue() {
-            return 12;
-        }
 
         public updateIndicator(i: indicator) {
             var focusTime = this.$layerService.project.timeLine.focus;
             this.$layerService.findSensorSet(i.sensor, (ss: csComp.Services.SensorSet) => {
-                i.sensorSet = ss;
-                i.focusTime = focusTime;
-                if (i.sensorSet.propertyType && i.sensorSet.propertyType.legend) {
-                    i.color = csComp.Helpers.getColorFromLegend(i.sensorSet.activeValue, i.sensorSet.propertyType.legend);
+                i._sensorSet = ss;
+                i._focusTime = focusTime;
+                if (i._sensorSet.propertyType && i._sensorSet.propertyType.legend) {
+                    i.color = csComp.Helpers.getColorFromLegend(i._sensorSet.activeValue, i._sensorSet.propertyType.legend);
                 }
 
             });
@@ -156,7 +154,7 @@ module Indicators {
             var focusTime = this.$layerService.project.timeLine.focus;
             if (!this.$scope.data || !this.$scope.data.indicators) return;
             this.$scope.data.indicators.forEach((i) => {
-                i.focusTime = focusTime;
+                i._focusTime = focusTime;
 
                 if (i.layer != null) {
                     var ss = i.layer.split('/');
@@ -225,15 +223,7 @@ module Indicators {
                         this.$messageBus.subscribe(i.sensor, (action: string, data: any) => {
                             switch (action) {
                                 case "update":
-                                    this.forceUpdateIndicator(i, i.sensorSet.activeValue);
-                                    break;
-                            }
-                        });
-                        this.$messageBus.subscribe("sensor-" + i.sensor, (action: string, data: string) => {
-                            switch (action) {
-                                case "update":
-                                    //console.log("sensor update:" + data);
-                                    //this.updateIndicator(i);
+                                    this.forceUpdateIndicator(i, i._sensorSet.activeValue);
                                     break;
                             }
                         });
@@ -248,10 +238,10 @@ module Indicators {
 
             console.log('select feature called');
             console.log(f);
-            if (!i.sensorSet) {
+            if (!i._sensorSet) {
                 var ss = new csComp.Services.SensorSet();
                 ss.propertyType = { title: '' };
-                i.sensorSet = ss;
+                i._sensorSet = ss;
             }
 
             if (i.hasOwnProperty('featureTypeName')) {
@@ -334,7 +324,7 @@ module Indicators {
                     //     i.indicatorWidth = 400;
                     //     i.data = JSON.stringify(dataInJson);
                     // }
-                    i.toggleUpdate = !i.toggleUpdate; //Redraw the widget
+                    i._toggleUpdate = !i._toggleUpdate; //Redraw the widget
                 }
             }
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); };

@@ -28,6 +28,7 @@ export class CallbackResult {
     public error: any;
     public layer: Layer;
     public feature: Feature;
+    public keys: { [keyId: string]: Key };
 }
 
 export interface IConnector {
@@ -246,6 +247,16 @@ export class ApiManager {
     }
 
     /**
+     * Find layer for a specific layerId (can return null)
+     */
+    public findKey(keyId: string): Key {
+        if (this.keys.hasOwnProperty(keyId)) {
+            return this.keys[keyId];
+        }
+        return null;;
+    }
+
+    /**
      * find feature in a layer by featureid
      */
     public findFeature(layerId: string, featureId: string, callback: Function) {
@@ -269,6 +280,14 @@ export class ApiManager {
     public findStorageForLayerId(layerId: string): IConnector {
         var layer = this.findLayer(layerId);
         return this.findStorage(layer);
+    }
+
+    /**
+     * Lookup layer and return storage engine for this layer
+     */
+    public findStorageForKeyId(keyId: string): IConnector {
+        var key = this.findKey(keyId);
+        return this.findStorage(key);
     }
 
     //layer methods start here, in CRUD order.
@@ -467,8 +486,29 @@ export class ApiManager {
         }
     }
 
+    public addKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
+        Winston.info('add key' + keyId);
+        this.keys[keyId] = <Key>{ id: keyId, title: keyId };
+    }
+
+    public getKeys(meta: ApiMeta, callback: Function) {
+        // check subscriptions
+        callback(<CallbackResult>{ result: ApiResult.OK, keys: this.keys });
+    }
+
     public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
         Winston.info('updatekey:received' + keyId);
+        // check if keys exists
+        var key = this.findKey(keyId);
+        if (!key) {
+            this.addKey(keyId, value, meta, callback);
+        }
+
+
+        if (!value.hasOwnProperty('time')) value['time'] = new Date().getTime();
+        var s = this.findStorageForKeyId(keyId);
+        if (s) s.updateKey(keyId, value, meta, () => callback());
+
         this.getInterfaces(meta).forEach((i: IConnector) => {
             Winston.info('updatekey:send to ' + i.id);
             i.updateKey(keyId, value, meta, () => { });

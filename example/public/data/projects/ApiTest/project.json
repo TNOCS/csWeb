@@ -6,338 +6,14 @@
   "url": "https://github.com/TNOCS/csMap",
   "connected": true,
   "timeLine": {
-    "start": 1441325520689,
-    "end": 1441930320689,
+    "start": 1441403321652,
+    "end": 1442008121652,
     "range": 604800000,
     "zoomLevelName": "hours",
     "isLive": true,
-    "focus": 1441627921197,
+    "focus": 1441705722192,
     "zoomLevel": 3600000
   },
-  "mcas": [
-    {
-      "userWeight": 1,
-      "propValues": [],
-      "criteria": [
-        {
-          "userWeight": 1,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GZ Extramuraal",
-          "label": "gze",
-          "color": "#a50026",
-          "weight": 0.16666666666666666,
-          "scores": "[0,0 10,1]"
-        },
-        {
-          "userWeight": 5,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GGZ Extramuraal",
-          "label": "ggze",
-          "color": "#313695",
-          "weight": 0.8333333333333334,
-          "scores": "[0,0 10,1]"
-        }
-      ],
-      "isPlaUpdated": false,
-      "isPlaScaled": false,
-      "x": [],
-      "y": [],
-      "userWeightMax": 5,
-      "featureIds": [
-        "data/resourceTypes/Zorgkantoor.json#Zorgkantoor"
-      ],
-      "weight": 1,
-      "stringFormat": "{0:0.0}",
-      "title": "New MCA criterion",
-      "label": "mca_New_MCA criterion"
-    },
-    {
-      "userWeight": 1,
-      "propValues": [],
-      "criteria": [
-        {
-          "userWeight": 1,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GZ Extramuraal",
-          "label": "gze",
-          "color": "#a50026",
-          "weight": 0.16666666666666666,
-          "scores": "[0,0 10,1]"
-        },
-        {
-          "userWeight": 5,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GGZ Extramuraal",
-          "label": "ggze",
-          "color": "#313695",
-          "weight": 0.8333333333333334,
-          "scores": "[0,0 10,1]"
-        }
-      ],
-      "isPlaUpdated": false,
-      "isPlaScaled": false,
-      "x": [],
-      "y": [],
-      "userWeightMax": 5,
-      "featureIds": [
-        "data/resourceTypes/Zorgkantoor.json#Zorgkantoor"
-      ],
-      "weight": 1,
-      "stringFormat": "{0:0.0}",
-      "title": "New MCA criterion",
-      "label": "mca_New_MCA criterion"
-    },
-    {
-      "userWeight": 1,
-      "propValues": [],
-      "criteria": [
-        {
-          "userWeight": 1,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GZ Extramuraal",
-          "label": "gze",
-          "color": "#a50026",
-          "weight": 0.16666666666666666,
-          "scores": "[0,0 10,1]"
-        },
-        {
-          "userWeight": 5,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GGZ Extramuraal",
-          "label": "ggze",
-          "color": "#313695",
-          "weight": 0.8333333333333334,
-          "scores": "[0,0 10,1]"
-        }
-      ],
-      "isPlaUpdated": false,
-      "isPlaScaled": false,
-      "x": [],
-      "y": [],
-      "userWeightMax": 5,
-      "featureIds": [
-        "data/resourceTypes/Zorgkantoor.json#Zorgkantoor"
-      ],
-      "weight": 1,
-      "stringFormat": "{0:0.0}",
-      "title": "New MCA criterion",
-      "label": "mca_New_MCA criterion"
-    },
-    {
-      "userWeight": 1,
-      "propValues": [],
-      "criteria": [
-        {
-          "userWeight": 1,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GZ Extramuraal",
-          "label": "gze",
-          "color": "#a50026",
-          "weight": 0.16666666666666666,
-          "scores": "[0,0 10,1]"
-        },
-        {
-          "userWeight": 5,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GGZ Extramuraal",
-          "label": "ggze",
-          "color": "#313695",
-          "weight": 0.8333333333333334,
-          "scores": "[0,0 10,1]"
-        }
-      ],
-      "isPlaUpdated": false,
-      "isPlaScaled": false,
-      "x": [],
-      "y": [],
-      "userWeightMax": 5,
-      "featureIds": [
-        "data/resourceTypes/Zorgkantoor.json#Zorgkantoor"
-      ],
-      "weight": 1,
-      "stringFormat": "{0:0.0}",
-      "title": "New MCA criterion",
-      "label": "mca_New_MCA criterion"
-    },
-    {
-      "userWeight": 1,
-      "propValues": [],
-      "criteria": [
-        {
-          "userWeight": 1,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GZ Extramuraal",
-          "label": "gze",
-          "color": "#a50026",
-          "weight": 0.16666666666666666,
-          "scores": "[0,0 10,1]"
-        },
-        {
-          "userWeight": 5,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GGZ Extramuraal",
-          "label": "ggze",
-          "color": "#313695",
-          "weight": 0.8333333333333334,
-          "scores": "[0,0 10,1]"
-        }
-      ],
-      "isPlaUpdated": false,
-      "isPlaScaled": false,
-      "x": [],
-      "y": [],
-      "userWeightMax": 5,
-      "featureIds": [
-        "data/resourceTypes/Zorgkantoor.json#Zorgkantoor"
-      ],
-      "weight": 1,
-      "stringFormat": "{0:0.0}",
-      "title": "New MCA criterion",
-      "label": "mca_New_MCA criterion"
-    },
-    {
-      "userWeight": 1,
-      "propValues": [],
-      "criteria": [
-        {
-          "userWeight": 1,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GZ Extramuraal",
-          "label": "gze",
-          "color": "#a50026",
-          "weight": 0.16666666666666666,
-          "scores": "[0,0 10,1]"
-        },
-        {
-          "userWeight": 5,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GGZ Extramuraal",
-          "label": "ggze",
-          "color": "#313695",
-          "weight": 0.8333333333333334,
-          "scores": "[0,0 10,1]"
-        }
-      ],
-      "isPlaUpdated": false,
-      "isPlaScaled": false,
-      "x": [],
-      "y": [],
-      "userWeightMax": 5,
-      "featureIds": [
-        "data/resourceTypes/Zorgkantoor.json#Zorgkantoor"
-      ],
-      "weight": 1,
-      "stringFormat": "{0:0.0}",
-      "title": "New MCA criterion",
-      "label": "mca_New_MCA criterion"
-    },
-    {
-      "userWeight": 1,
-      "propValues": [],
-      "criteria": [
-        {
-          "userWeight": 1,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GZ Extramuraal",
-          "label": "gze",
-          "color": "#a50026",
-          "weight": 0.16666666666666666,
-          "scores": "[0,0 10,1]"
-        },
-        {
-          "userWeight": 5,
-          "propValues": [],
-          "criteria": [],
-          "isPlaUpdated": false,
-          "isPlaScaled": true,
-          "x": [],
-          "y": [],
-          "title": "GGZ Extramuraal",
-          "label": "ggze",
-          "color": "#313695",
-          "weight": 0.8333333333333334,
-          "scores": "[0,0 10,1]"
-        }
-      ],
-      "isPlaUpdated": false,
-      "isPlaScaled": false,
-      "x": [],
-      "y": [],
-      "userWeightMax": 5,
-      "featureIds": [
-        "data/resourceTypes/Zorgkantoor.json#Zorgkantoor"
-      ],
-      "weight": 1,
-      "stringFormat": "{0:0.0}",
-      "title": "New MCA criterion",
-      "label": "mca_New_MCA criterion"
-    }
-  ],
   "datasources": [
     {
       "id": "keys",
@@ -362,51 +38,72 @@
         {
           "id": "a2f24fe5-1f3a-45ce-1dd9-42cdca4cc708",
           "directive": "indicators",
-          "data": {
-            "title": "test",
-            "indicators": [
-              {
-                "toggleUpdate": true,
-                "indicatorWidth": 200,
-                "title": "New Indicator",
-                "visual": "singlevalue",
-                "sensor": "keys/groningen.temperature",
-                "usesSelectedFeature": true,
-                "featureTypeName": "data/resourceTypes/resources.json#plane",
-                "propertyTypes": [],
-                "id": "circ-8ec27957-14a8-4f19-be6a-10015ad13035",
-                "sensorSet": {
-                  "max": 100,
-                  "min": 0,
-                  "id": "groningen.temperature",
-                  "title": "groningen.temperature",
-                  "timestamps": [
-                    1441627869865
-                  ],
-                  "activeValue": {
-                    "value": 511.34234234,
-                    "result": 1
-                  }
-                },
-                "source": "feature",
-                "propertyTypeTitles": [],
-                "focusTime": 1441627826992,
-                "property": "i.value['Name']",
-                "value": {
-                  "value": 511.34234234,
-                  "result": 1
-                },
-                "result": "-i.value['result'] * i.value['value'] / Math.PI"
-              }
-            ]
-          },
           "elementId": "widget-a2f24fe5-1f3a-45ce-1dd9-42cdca4cc708",
           "enabled": true,
           "style": "default",
-          "left": "168px",
-          "top": "69px",
+          "left": "77px",
+          "right": "",
+          "top": "307px",
+          "width": "430px",
+          "height": "368px",
+          "data": {
+            "title": "test",
+            "orientation": "orientation",
+            "indicators": [
+              {
+                "indicatorWidth": 200,
+                "title": "Hi",
+                "visual": "bullet",
+                "sensor": "keys/groningen.temperature",
+                "id": "circ-e8f0baec-197d-4552-2e0d-6f024b877c8c",
+                "source": "sensor",
+                "inputs": {},
+                "propertyTypes": [],
+                "propertyTypeTitles": []
+              },
+              {
+                "inputs": {
+                  "value": "~['result']"
+                },
+                "indicatorWidth": 200,
+                "title": "Hallo",
+                "visual": "singlevalue",
+                "sensor": "keys/groningen.temperature",
+                "source": "sensor",
+                "featureTypeName": "",
+                "propertyTypes": [],
+                "propertyTypeTitles": [],
+                "id": "circ-e0ef22f5-4128-4f8c-4e70-9893d6be639d"
+              }
+            ]
+          }
+        },
+        {
+          "id": "73339056-a8a5-4bc9-9aff-87755cea0dd0",
+          "directive": "indicators",
+          "elementId": "widget-73339056-a8a5-4bc9-9aff-87755cea0dd0",
+          "enabled": true,
+          "style": "default",
+          "left": "794px",
+          "top": "122px",
           "width": "300px",
-          "height": "300px"
+          "height": "300px",
+          "data": {
+            "indicators": [
+              {
+                "inputs": {
+                  "value": "~['value']"
+                },
+                "indicatorWidth": 200,
+                "title": "New Indicator",
+                "visual": "singlevalue",
+                "sensor": "",
+                "source": "feature",
+                "featureTypeName": "",
+                "propertyTypes": []
+              }
+            ]
+          }
         }
       ]
     },
@@ -904,6 +601,17 @@
         }
       },
       "layers": [
+        {
+          "id": "no2-europa",
+          "title": "Europe (NO₂)",
+          "type": "tilelayer",
+          "renderType": "tilelayer",
+          "heatmapItems": null,
+          "url": "http://web-ecodistrict.tno.nl/tiler/TilerWebService.dll/timedepgrid?layer=1003&zoom={z}&x={x}&y={y}",
+          "opacity": 50,
+          "defaultLegendProperty": "no2_europe",
+          "gui": {}
+        },
         {
           "id": "795f44c4-459c-4a3f-f790-ecfa7387cf34",
           "title": "Huisartsen",

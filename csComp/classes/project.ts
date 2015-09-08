@@ -171,6 +171,7 @@ module csComp.Services {
                 switch (key) {
                     case "timestamp":
                     case "values":
+                    case "mcas":
                     case "$$hashKey":
                     case "div":
                         return undefined;
