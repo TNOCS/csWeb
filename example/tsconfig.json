@@ -64,6 +64,7 @@
         "./ServerComponents/api/RestAPI.d.ts",
         "./ServerComponents/api/SocketIOAPI.d.ts",
         "./ServerComponents/api/Storage.d.ts",
+        "./ServerComponents/api/imb.d.ts",
         "./ServerComponents/api/qlobber.d.ts",
         "./ServerComponents/bus/MessageBus.d.ts",
         "./ServerComponents/configuration/ConfigurationService.d.ts",
