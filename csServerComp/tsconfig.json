@@ -44,6 +44,7 @@
         "./ServerComponents/api/FileStorage.ts",
         "./ServerComponents/api/IApiService.ts",
         "./ServerComponents/api/IApiServiceManager.ts",
+        "./ServerComponents/api/ImbAPI.ts",
         "./ServerComponents/api/MongoDB.ts",
         "./ServerComponents/api/MqttAPI.ts",
         "./ServerComponents/api/RestAPI.ts",

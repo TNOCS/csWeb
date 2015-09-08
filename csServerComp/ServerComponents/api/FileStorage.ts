@@ -134,7 +134,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
             callback(<CallbackResult>{ result: ApiResult.OK, layer: this.layers[layerId] });
         }
         else {
-            callback(<CallbackResult>{ result: ApiResult.Error });
+            callback(<CallbackResult>{ result: ApiResult.LayerNotFound });
         }
     }
 

@@ -1,4 +1,4 @@
-import ApiManager = require('ApiManager');
+import ApiManager = require('./ApiManager');
 import express = require('express')
 import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
