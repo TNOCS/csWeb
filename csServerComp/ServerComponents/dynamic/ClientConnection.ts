@@ -58,7 +58,8 @@ module ClientConnection {
      * List of available action for sending/receiving key actions over socket.io channel
      */
     export enum KeyUpdateAction {
-        updateKey
+        updateKey,
+        deleteKey // onlyused in imb api for now..
     }
 
     export class ClientMessage {
