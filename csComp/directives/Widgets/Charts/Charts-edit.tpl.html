@@ -1,5 +1,13 @@
 <div>
-    <h1>charts edit</h1>
+    <h5 style="font-size: 20px; padding-top: 20px;">{{data.title}}</h5>
+    <div style="padding: 5px 0;" class="row-fluid">
+            <label>Title</label>
+            <input name="textinput" type="text" ng-model="data.title" placeholder="placeholder" class="input-xlarge editor-text-input">
+    </div>
+    <div style="padding: 5px 0;" class="row-fluid">
+            <label>Key</label>
+            <input name="textinput" type="text" ng-model="data.key" placeholder="placeholder" class="input-xlarge editor-text-input">
+    </div>
     <textarea ng-model="spec" style="width:300px;height:300px"></textarea>
     <button class="btn" ng-click="vm.updateChart()">update</button>
 </div>

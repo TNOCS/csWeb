@@ -1,5 +1,4 @@
-require('rootpath')();
-import ClientConnection = require("ServerComponents/dynamic/ClientConnection");
+import ClientConnection = require("../dynamic/ClientConnection");
 
 /**
  * Interface for message bus callbacks, i.e. (data: any) => any,

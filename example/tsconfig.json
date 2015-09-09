@@ -60,7 +60,6 @@
         "./ServerComponents/api/LayerManager.d.ts",
         "./ServerComponents/api/MongoDB.d.ts",
         "./ServerComponents/api/MqttAPI.d.ts",
-        "./ServerComponents/api/MqttAPI0.d.ts",
         "./ServerComponents/api/RestAPI.d.ts",
         "./ServerComponents/api/SocketIOAPI.d.ts",
         "./ServerComponents/api/Storage.d.ts",

@@ -75,23 +75,12 @@ module ChartsWidget {
             var par = <any>$scope.$parent;
             this.widget = <csComp.Services.IWidget>par.data;
             $scope.data = <ChartData>this.widget.data;
-
             this.$scope.spec = JSON.stringify(this.$scope.data.spec);
-            console.log(this.$scope.spec);
-
-
         }
 
         public updateChart() {
             this.$scope.data.spec = JSON.parse(this.$scope.spec);
-            this.$scope.data._spec = JSON.parse(this.$scope.spec);
-            vg.parse.spec(this.$scope.data._spec, (chart) => { chart({ el: "#vis" + this.$scope.data._id }).update(); });            
-            // vg.embed('#vis', this.$scope.data.spec, (view, vega_spec) => {
-            //     console.log('chart');
-            //     console.log(view);
-            //     // Callback receiving the View instance and parsed Vega spec...
-            //     // The View resides under the '#vis' element
-            // });
+            vg.parse.spec(this.$scope.data.spec, (chart) => { chart({ el: "#vis" + this.$scope.data._id }).update(); });
         }
 
 

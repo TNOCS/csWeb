@@ -11,7 +11,7 @@
     "range": 2123192,
     "zoomLevelName": "minutes",
     "isLive": false,
-    "focus": 1441722129415,
+    "focus": 1441722125407,
     "zoomLevel": 60000
   },
   "datasources": [
@@ -35,7 +35,106 @@
         "test"
       ],
       "widgets": [
-    
+        {
+          "id": "1b116807-a474-47e7-c7f2-38c6c0169d12",
+          "directive": "charts",
+          "elementId": "widget-1b116807-a474-47e7-c7f2-38c6c0169d12",
+          "enabled": true,
+          "style": "default",
+          "left": "9px",
+          "right": "",
+          "top": "18px",
+          "width": "359px",
+          "height": "300px",
+          "data": {
+            "spec": {
+              "width": 300,
+              "height": 200,
+              "padding": {
+                "top": 10,
+                "left": 30,
+                "bottom": 30,
+                "right": 10
+              },
+              "data": [
+                {
+                  "name": "table"
+                }
+              ],
+              "scales": [
+                {
+                  "name": "x",
+                  "type": "ordinal",
+                  "range": "width",
+                  "domain": {
+                    "data": "table",
+                    "field": "x"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": "linear",
+                  "range": "height",
+                  "domain": {
+                    "data": "table",
+                    "field": "y"
+                  },
+                  "nice": true
+                }
+              ],
+              "axes": [
+                {
+                  "type": "x",
+                  "scale": "x"
+                },
+                {
+                  "type": "y",
+                  "scale": "y"
+                }
+              ],
+              "marks": [
+                {
+                  "type": "rect",
+                  "from": {
+                    "data": "table"
+                  },
+                  "properties": {
+                    "enter": {
+                      "x": {
+                        "scale": "x",
+                        "field": "x"
+                      },
+                      "width": {
+                        "scale": "x",
+                        "band": true,
+                        "offset": -1
+                      },
+                      "y": {
+                        "scale": "y",
+                        "field": "y"
+                      },
+                      "y2": {
+                        "scale": "y",
+                        "value": 0
+                      }
+                    },
+                    "update": {
+                      "fill": {
+                        "value": "steelblue"
+                      }
+                    },
+                    "hover": {
+                      "fill": {
+                        "value": "red"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "key": "keys/chart"
+          }
+        }
       ]
     },
     {
@@ -283,8 +382,9 @@
           "heatmapItems": null,
           "url": "http://134.221.20.206:8080/otp/routers/default/plan?arriveBy=false&fromPlace=52.081154%2C4.3243597&toPlace=52.096403%2C4.360335&date=07-07-2015&time=11%3A00&mode=BICYCLE&bikeSpeed=8.0&maxTimeSec=3600300&precisionMeters=100&zDataType=TIME&coordinateOrigin=52.076403%2C4.369335",
           "typeUrl": "data/resourcetypes/mobiliteit.json",
-          "defaultFeatureType": "Route"
-      },
+          "defaultFeatureType": "Route",
+          "gui": {}
+        },
         {
           "id": "aan",
           "title": "Agricultural areas",
