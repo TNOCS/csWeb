@@ -11,7 +11,7 @@
     "range": 2123192,
     "zoomLevelName": "minutes",
     "isLive": false,
-    "focus": 1441721324371,
+    "focus": 1441722129415,
     "zoomLevel": 60000
   },
   "datasources": [
@@ -35,95 +35,7 @@
         "test"
       ],
       "widgets": [
-        {
-          "id": "a2f24fe5-1f3a-45ce-1dd9-42cdca4cc708",
-          "directive": "indicators",
-          "elementId": "widget-a2f24fe5-1f3a-45ce-1dd9-42cdca4cc708",
-          "enabled": true,
-          "style": "default",
-          "left": "77px",
-          "right": "",
-          "top": "307px",
-          "width": "430px",
-          "height": "368px",
-          "data": {
-            "title": "test",
-            "orientation": "orientation",
-            "indicators": [
-              {
-                "inputs": {
-                  "value": "~['no2']",
-                  "min": 0,
-                  "max": "100"
-                },
-                "indicatorWidth": 200,
-                "title": "Hallo",
-                "visual": "circular",
-                "sensor": "keys/groningen.temperature",
-                "source": "sensor",
-                "featureTypeName": "",
-                "propertyTypes": [],
-                "propertyTypeTitles": [],
-                "id": "circ-31db6d37-0559-4c04-dd44-e01ebdc31972"
-              }
-            ]
-          }
-        },
-        {
-          "id": "73339056-a8a5-4bc9-9aff-87755cea0dd0",
-          "directive": "indicators",
-          "elementId": "widget-73339056-a8a5-4bc9-9aff-87755cea0dd0",
-          "enabled": true,
-          "style": "default",
-          "left": "794px",
-          "top": "122px",
-          "width": "300px",
-          "height": "300px",
-          "data": {
-            "indicators": [
-              {
-                "inputs": {
-                  "value": "~['value']"
-                },
-                "indicatorWidth": 200,
-                "title": "New Indicator",
-                "visual": "singlevalue",
-                "sensor": "",
-                "source": "feature",
-                "featureTypeName": "",
-                "propertyTypes": [],
-                "id": "circ-4f31740e-c7cd-4080-7a42-96903382d748"
-              }
-            ]
-          }
-        },
-        {
-          "id": "c637556f-463a-4206-d028-6a1b32deac95",
-          "directive": "kanbanboard",
-          "elementId": "widget-c637556f-463a-4206-d028-6a1b32deac95",
-          "enabled": true,
-          "style": "default",
-          "left": "748px",
-          "top": "503px",
-          "width": "300px",
-          "height": "300px",
-          "data": {}
-        },
-        {
-          "id": "f4042132-329e-4fd0-6a80-089c7855f4e4",
-          "directive": "markdown",
-          "elementId": "widget-f4042132-329e-4fd0-6a80-089c7855f4e4",
-          "enabled": true,
-          "style": "default",
-          "left": "443px",
-          "top": "383px",
-          "width": "300px",
-          "height": "300px",
-          "data": {
-              "mdText" : "<h1>Heading</h1>"
-
-          }
-        }
+    
       ]
     },
     {
@@ -362,6 +274,17 @@
           },
           "gui": {}
         },
+        {
+          "id": "tripplanner",
+          "title": "Routeplanner",
+          "description": "Plan routes.",
+          "type": "accessibility",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "http://134.221.20.206:8080/otp/routers/default/plan?arriveBy=false&fromPlace=52.081154%2C4.3243597&toPlace=52.096403%2C4.360335&date=07-07-2015&time=11%3A00&mode=BICYCLE&bikeSpeed=8.0&maxTimeSec=3600300&precisionMeters=100&zDataType=TIME&coordinateOrigin=52.076403%2C4.369335",
+          "typeUrl": "data/resourcetypes/mobiliteit.json",
+          "defaultFeatureType": "Route"
+      },
         {
           "id": "aan",
           "title": "Agricultural areas",
