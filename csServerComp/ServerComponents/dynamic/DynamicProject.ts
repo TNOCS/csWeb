@@ -1,6 +1,5 @@
-require('rootpath')();
 import express = require('express')
-import ClientConnection = require('ClientConnection');
+import ClientConnection = require('./ClientConnection');
 import MessageBus = require('../bus/MessageBus');
 import fs = require('fs');
 import path = require('path');
