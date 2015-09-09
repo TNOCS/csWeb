@@ -37,63 +37,64 @@ export class ImbAPI extends BaseConnector.BaseConnector {
         this.imbConnection.connect(this.server, this.port, 1234, 'CSweb', 'USIdle');
         this.layersEvent = this.imbConnection.subscribe('CSweb.layers', true);
         this.layersEvent.onNormalEvent = (eventDefinition, aEventPayload) => {
-          var cmd = aEventPayload.readInt32LE(0);
-          var layerID = aEventPayload.toString("utf8", 4);
-          switch(cmd)
-          {
-            case ClientConnection.LayerUpdateAction.updateLayer:
-              var layer = <Layer> { storage : "file",type : "geojson", id : layerID,title : layerID};
-              this.manager.addLayer(layer, <ApiMeta>{ source:this.id, user: "US"}, ()  => {});
-              var layerEvent = this.imbConnection.subscribe(eventDefinition.name+"."+layerID);
-              layerEvent.onNormalEvent = (eventDefinition, aEventPayload) => {
-                var cmd = aEventPayload.readInt32LE(0);
-                var value = aEventPayload.toString("utf8", 4);
-                switch (cmd)
-                {
-                  case ClientConnection.LayerUpdateAction.updateFeature:
-                    this.manager.updateFeature(layerID, JSON.parse(value), <ApiMeta>{ source:this.id, user: "US"}, ()  => {});
+            var cmd = aEventPayload.readInt32LE(0);
+            var layerIDLen = aEventPayload.readInt32LE(4);
+            var layerID = aEventPayload.toString("utf8", 8, 8 + layerIDLen);
+            switch (cmd) {
+                case ClientConnection.LayerUpdateAction.updateLayer:
+                    var layer = <Layer> { storage: "file", type: "geojson", id: layerID, title: layerID };
+                    this.manager.addLayer(layer, <ApiMeta>{ source: this.id, user: "US" }, () => { });
+                    var layerEvent = this.imbConnection.subscribe(eventDefinition.name + "." + layerID);
+                    layerEvent.onNormalEvent = (eventDefinition, aEventPayload) => {
+                        var cmd = aEventPayload.readInt32LE(0);
+                        var valueLen = aEventPayload.readInt32LE(4);
+                        var value = aEventPayload.toString("utf8", 8, 8 + valueLen);
+                        switch (cmd) {
+                            case ClientConnection.LayerUpdateAction.updateFeature:
+                                this.manager.updateFeature(layerID, JSON.parse(value), <ApiMeta>{ source: this.id, user: "US" }, () => { });
+                                break;
+                            case ClientConnection.LayerUpdateAction.deleteFeature:
+                                this.manager.deleteFeature(layerID, value, <ApiMeta>{ source: this.id, user: "US" }, () => { });
+                                break;
+                            case ClientConnection.LayerUpdateAction.updateLayer:
+                                this.manager.updateLayer(layerID, JSON.parse(value), <ApiMeta>{ source: this.id, user: "US" }, () => { });
+                                break;
+                        }
+                    }
                     break;
-                  case ClientConnection.LayerUpdateAction.deleteFeature:
-                    this.manager.deleteFeature(layerID, value, <ApiMeta>{ source:this.id, user: "US"}, ()  => {});
+                case ClientConnection.LayerUpdateAction.deleteLayer:
+                    this.manager.deleteLayer(layerID, <ApiMeta>{ source: this.id, user: "US" }, () => { });
+                    eventDefinition.unsubscribe();
+                    eventDefinition.unPublish();
                     break;
-                  case ClientConnection.LayerUpdateAction.updateLayer:
-                    this.manager.updateLayer(layerID, JSON.parse(value), <ApiMeta>{ source:this.id, user: "US"}, ()  => {});
-                    break;
-                }
-              }
-              break;
-            case ClientConnection.LayerUpdateAction.deleteLayer:
-              this.manager.deleteLayer(layerID, <ApiMeta>{ source:this.id, user: "US"}, ()  => {});
-              eventDefinition.unsubscribe();
-              eventDefinition.unPublish();
-              break;
-          }
+            }
         }
         this.keysEvent = this.imbConnection.subscribe('CSweb.keys', true);
         this.keysEvent.onNormalEvent = (eventDefinition, aEventPayload) => {
-          var cmd = aEventPayload.readInt32LE(0);
-          var keyID = aEventPayload.toString("utf8", 4);
-          switch(cmd)
-          {
-            case ClientConnection.KeyUpdateAction.updateKey:
-              var keyEvent = this.imbConnection.subscribe(eventDefinition.name+"."+keyID);
-              keyEvent.onNormalEvent = (eventDefinition, aEventPayload) => {
-                var cmd = aEventPayload.readInt32LE(0);
-                var value = aEventPayload.toString("utf8", 4);
-                switch (cmd)
-                {
-                  case ClientConnection.KeyUpdateAction.updateKey:
-                    this.manager.updateKey(keyID, JSON.parse(value), <ApiMeta>{ source:this.id, user: "US"}, ()  => {});
+            var cmd = aEventPayload.readInt32LE(0);
+            var keyIDLen = aEventPayload.readInt32LE(4);
+            var keyID = aEventPayload.toString("utf8", 8, 8 + keyIDLen);
+            switch (cmd) {
+                case ClientConnection.KeyUpdateAction.updateKey:
+                    var keyEvent = this.imbConnection.subscribe(eventDefinition.name + "." + keyID);
+                    keyEvent.onNormalEvent = (eventDefinition, aEventPayload) => {
+                        var cmd = aEventPayload.readInt32LE(0);
+                        var valueLen = aEventPayload.readInt32LE(4);
+                        var value = aEventPayload.toString("utf8", 8, 8 + valueLen);
+                        switch (cmd) {
+                            case ClientConnection.KeyUpdateAction.updateKey:
+                                Winston.error("value " + value);
+                                this.manager.updateKey(keyID, JSON.parse(value.toString()), <ApiMeta>{ source: this.id, user: "US" }, () => { });
+                                break;
+                        }
+                    }
                     break;
-                }
-              }
-              break;
-            case ClientConnection.LayerUpdateAction.deleteLayer:
-              //this.manager.keydeelete(keyID, JSON.parse(value), <ApiMeta>{ source:this.id, user: "US"}, ()  => {});
-              eventDefinition.unsubscribe();
-              eventDefinition.unPublish();
-              break;
-          }
+                case ClientConnection.LayerUpdateAction.deleteLayer:
+                    //this.manager.keydeelete(keyID, JSON.parse(value), <ApiMeta>{ source:this.id, user: "US"}, ()  => {});
+                    eventDefinition.unsubscribe();
+                    eventDefinition.unPublish();
+                    break;
+            }
         }
 
         //this.messageSub.onNormalEvent = (eventDefinition, aEventPayload) => {
@@ -154,64 +155,59 @@ export class ImbAPI extends BaseConnector.BaseConnector {
 
     // feature methods, in crud order
 
-    protected buildCmdValue(cmd, value)
-    {
-      var valueByteLength = Buffer.byteLength(value); // default is utf8
-      var payload = new Buffer(4 + valueByteLength);
-      payload.writeInt32LE(cmd, 0);
-      payload.write(value, 4); // default is utf8
-      return payload;
+    protected buildCmdValue(cmd, value) {
+        var valueByteLength = Buffer.byteLength(value); // default is utf8
+        var payload = new Buffer(8 + valueByteLength);
+        payload.writeInt32LE(cmd, 0);
+        payload.writeInt32LE(valueByteLength, 4)
+        payload.write(value, 8); // default is utf8
+        return payload;
     }
 
     public addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
-      if (meta.source != this.id)
-      {
-        this.imbConnection.publish("layers."+layerId).normalEvent(ekNormalEvent, this.buildCmdValue(
-          ClientConnection.LayerUpdateAction.updateFeature,
-          JSON.stringify(feature)));
-      }
-      callback({ result: ApiResult.OK });
+        if (meta.source != this.id) {
+            this.imbConnection.publish("layers." + layerId).normalEvent(ekNormalEvent, this.buildCmdValue(
+                ClientConnection.LayerUpdateAction.updateFeature,
+                JSON.stringify(feature)));
+        }
+        callback({ result: ApiResult.OK });
     }
 
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
-      if (meta.source != this.id)
-      {
-        this.imbConnection.publish("layers."+layerId).normalEvent(ekNormalEvent, this.buildCmdValue(
-          ClientConnection.LayerUpdateAction.updateFeature,
-          JSON.stringify(feature)));
-      }
-      callback({ result: ApiResult.OK });
+        if (meta.source != this.id) {
+            this.imbConnection.publish("layers." + layerId).normalEvent(ekNormalEvent, this.buildCmdValue(
+                ClientConnection.LayerUpdateAction.updateFeature,
+                JSON.stringify(feature)));
+        }
+        callback({ result: ApiResult.OK });
     }
 
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
-      if (meta.source != this.id)
-      {
-        this.imbConnection.publish("layers."+layerId).normalEvent(ekNormalEvent, this.buildCmdValue(
-          ClientConnection.LayerUpdateAction.deleteFeature,
-          featureId));
-      }
-      callback({ result: ApiResult.OK });
+        if (meta.source != this.id) {
+            this.imbConnection.publish("layers." + layerId).normalEvent(ekNormalEvent, this.buildCmdValue(
+                ClientConnection.LayerUpdateAction.deleteFeature,
+                featureId));
+        }
+        callback({ result: ApiResult.OK });
     }
 
     /** Update the value for a given keyId */
     public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
-      if (meta.source != this.id)
-      {
-        this.imbConnection.publish("keys."+keyId).normalEvent(ekNormalEvent, this.buildCmdValue(
-          ClientConnection.KeyUpdateAction.updateKey,
-          keyId));
-      }
-      callback({ result: ApiResult.OK });
+        if (meta.source != this.id) {
+            this.imbConnection.publish("keys." + keyId).normalEvent(ekNormalEvent, this.buildCmdValue(
+                ClientConnection.KeyUpdateAction.updateKey,
+                keyId));
+        }
+        callback({ result: ApiResult.OK });
     }
 
     /** Delete key */
     public deleteKey(keyId: string, meta: ApiMeta, callback: Function) {
-      if (meta.source != this.id)
-      {
-        this.imbConnection.publish("keys").normalEvent(ekNormalEvent, this.buildCmdValue(
-          ClientConnection.KeyUpdateAction.deleteKey,
-          keyId));
-      }
-      callback({ result: ApiResult.OK });
+        if (meta.source != this.id) {
+            this.imbConnection.publish("keys").normalEvent(ekNormalEvent, this.buildCmdValue(
+                ClientConnection.KeyUpdateAction.deleteKey,
+                keyId));
+        }
+        callback({ result: ApiResult.OK });
     }
 }

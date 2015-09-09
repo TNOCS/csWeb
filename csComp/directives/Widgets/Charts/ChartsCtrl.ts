@@ -129,7 +129,7 @@ module ChartsWidget {
             if (d.key) this.$messageBus.subscribe(d.key, (action: string, data: any) => {
                 switch (action) {
                     case "update":
-                        d.spec.data = data;
+                        d.spec.data = [data];
                         vg.parse.spec(this.$scope.data.spec, (chart) => { chart({ el: "#vis" + d._id }).update(); });
                         d._view.update();
                         break;
