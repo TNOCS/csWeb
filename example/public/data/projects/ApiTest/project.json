@@ -6,13 +6,13 @@
   "url": "https://github.com/TNOCS/csMap",
   "connected": true,
   "timeLine": {
-    "start": 1441403321652,
-    "end": 1442008121652,
-    "range": 604800000,
-    "zoomLevelName": "hours",
-    "isLive": true,
-    "focus": 1441705722192,
-    "zoomLevel": 3600000
+    "start": 1441720298162,
+    "end": 1441722421354,
+    "range": 2123192,
+    "zoomLevelName": "minutes",
+    "isLive": false,
+    "focus": 1441722125407,
+    "zoomLevel": 60000
   },
   "datasources": [
     {
@@ -36,73 +36,103 @@
       ],
       "widgets": [
         {
-          "id": "a2f24fe5-1f3a-45ce-1dd9-42cdca4cc708",
-          "directive": "indicators",
-          "elementId": "widget-a2f24fe5-1f3a-45ce-1dd9-42cdca4cc708",
+          "id": "1b116807-a474-47e7-c7f2-38c6c0169d12",
+          "directive": "charts",
+          "elementId": "widget-1b116807-a474-47e7-c7f2-38c6c0169d12",
           "enabled": true,
           "style": "default",
-          "left": "77px",
+          "left": "9px",
           "right": "",
-          "top": "307px",
-          "width": "430px",
-          "height": "368px",
-          "data": {
-            "title": "test",
-            "orientation": "orientation",
-            "indicators": [
-              {
-                "indicatorWidth": 200,
-                "title": "Hi",
-                "visual": "bullet",
-                "sensor": "keys/groningen.temperature",
-                "id": "circ-e8f0baec-197d-4552-2e0d-6f024b877c8c",
-                "source": "sensor",
-                "inputs": {},
-                "propertyTypes": [],
-                "propertyTypeTitles": []
-              },
-              {
-                "inputs": {
-                  "value": "~['result']"
-                },
-                "indicatorWidth": 200,
-                "title": "Hallo",
-                "visual": "singlevalue",
-                "sensor": "keys/groningen.temperature",
-                "source": "sensor",
-                "featureTypeName": "",
-                "propertyTypes": [],
-                "propertyTypeTitles": [],
-                "id": "circ-e0ef22f5-4128-4f8c-4e70-9893d6be639d"
-              }
-            ]
-          }
-        },
-        {
-          "id": "73339056-a8a5-4bc9-9aff-87755cea0dd0",
-          "directive": "indicators",
-          "elementId": "widget-73339056-a8a5-4bc9-9aff-87755cea0dd0",
-          "enabled": true,
-          "style": "default",
-          "left": "794px",
-          "top": "122px",
-          "width": "300px",
+          "top": "18px",
+          "width": "359px",
           "height": "300px",
           "data": {
-            "indicators": [
-              {
-                "inputs": {
-                  "value": "~['value']"
+            "spec": {
+              "width": 300,
+              "height": 200,
+              "padding": {
+                "top": 10,
+                "left": 30,
+                "bottom": 30,
+                "right": 10
+              },
+              "data": [
+                {
+                  "name": "table"
+                }
+              ],
+              "scales": [
+                {
+                  "name": "x",
+                  "type": "ordinal",
+                  "range": "width",
+                  "domain": {
+                    "data": "table",
+                    "field": "x"
+                  }
                 },
-                "indicatorWidth": 200,
-                "title": "New Indicator",
-                "visual": "singlevalue",
-                "sensor": "",
-                "source": "feature",
-                "featureTypeName": "",
-                "propertyTypes": []
-              }
-            ]
+                {
+                  "name": "y",
+                  "type": "linear",
+                  "range": "height",
+                  "domain": {
+                    "data": "table",
+                    "field": "y"
+                  },
+                  "nice": true
+                }
+              ],
+              "axes": [
+                {
+                  "type": "x",
+                  "scale": "x"
+                },
+                {
+                  "type": "y",
+                  "scale": "y"
+                }
+              ],
+              "marks": [
+                {
+                  "type": "rect",
+                  "from": {
+                    "data": "table"
+                  },
+                  "properties": {
+                    "enter": {
+                      "x": {
+                        "scale": "x",
+                        "field": "x"
+                      },
+                      "width": {
+                        "scale": "x",
+                        "band": true,
+                        "offset": -1
+                      },
+                      "y": {
+                        "scale": "y",
+                        "field": "y"
+                      },
+                      "y2": {
+                        "scale": "y",
+                        "value": 0
+                      }
+                    },
+                    "update": {
+                      "fill": {
+                        "value": "steelblue"
+                      }
+                    },
+                    "hover": {
+                      "fill": {
+                        "value": "red"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "key": "keys/chart"
           }
         }
       ]
@@ -341,6 +371,18 @@
               "description": "Dutch Provinces. (Source: PDOK.nl.)"
             }
           },
+          "gui": {}
+        },
+        {
+          "id": "tripplanner",
+          "title": "Routeplanner",
+          "description": "Plan routes.",
+          "type": "accessibility",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "http://134.221.20.206:8080/otp/routers/default/plan?arriveBy=false&fromPlace=52.081154%2C4.3243597&toPlace=52.096403%2C4.360335&date=07-07-2015&time=11%3A00&mode=BICYCLE&bikeSpeed=8.0&maxTimeSec=3600300&precisionMeters=100&zDataType=TIME&coordinateOrigin=52.076403%2C4.369335",
+          "typeUrl": "data/resourcetypes/mobiliteit.json",
+          "defaultFeatureType": "Route",
           "gui": {}
         },
         {

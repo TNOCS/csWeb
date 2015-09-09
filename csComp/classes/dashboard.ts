@@ -164,7 +164,6 @@ module csComp.Services {
         }
 
         public static cloneWithout0(v: any): any {
-            console.log((typeof v) + " - " + JSON.stringify(v));
             if (typeof v !== "object") return v;
             if (v instanceof Array) {
                 var a = [];

@@ -1,4 +1,4 @@
-﻿import express = require('express');
+import express = require('express');
 import http = require('http');
 import path = require('path');
 //import offlineSearch          = require('cs-offline-search');

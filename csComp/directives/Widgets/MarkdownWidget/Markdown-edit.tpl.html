@@ -1,0 +1,27 @@
+<div>
+    <style>
+    .markdown-editor > textarea
+    {
+        width: 300px;
+        height: 200px;
+    }
+    </style>
+    <h4 class="rightpanel-header">
+        <span><i class="fa fa-cog rightpanel-header-icon"></i>
+            <div translate>EDIT_INDICATORS</div>
+        </span>
+    </h4>
+
+    <div data-ng-cloak tab-content isolate-scope style="margin:5px; overflow-y: auto; overflow-x: hidden;" resize resize-y="140">
+        <div class="controls">
+            <div>Markdown</div>
+            <wiz-markdown-editor content="data.content">
+                <wiz-toolbar-button command="bold">Bold</wiz-toolbar-button>
+                <wiz-toolbar-button command="italic">Italic</wiz-toolbar-button>
+            </wiz-markdown-editor>
+            <button class="button" ng-click="vm.updateText()">update</div>
+        </div>
+
+    </div>
+
+</div>
