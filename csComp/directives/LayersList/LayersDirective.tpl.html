@@ -1,58 +1,142 @@
 <div>
-    <h3 class="leftpanel-header" style="width: 100%">
-        <div ng-show="vm.allCollapsed" class="leftpanel-header-button-container-left">
-            <button class="button fa fa-chevron-up leftpanel-header-button" ng-click="vm.expandAll()" popover="{{'EXPAND_ALL' | translate}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter" popover-append-to-body="true" />
-        </div>
-        <div ng-hide="vm.allCollapsed" class="leftpanel-header-button-container-left">
-            <button class="button fa fa-chevron-down leftpanel-header-button" ng-click="vm.collapseAll()" popover="{{'COLLAPSE_ALL' | translate}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter" popover-append-to-body="true" />
-        </div>
-        <span translate="LAYERS" />
-        <div ng-show="vm.$mapService.isAdminExpert" class="leftpanel-header-button-container">
-            <button class="button fa fa-plus leftpanel-header-button" ng-click="vm.addLayer()" />
-        </div>
-    </h3>
-    <div style="overflow-y: auto; overflow-x: hidden; margin-top: -10px" resize resize-y="95">
-        <div data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
-            <div id="layergroupStyle" style="float: left; margin-left: -5px; margin-top: 5px" data-toggle="collapse" data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
-            <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true" class="group-title">{{group.title}}</div>
-            <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:20px;top:3px;cursor:pointer" ng-click="vm.editGroup(group)"></div>
-            <div id="layergroup_{{group.id}}" class="collapse in">
-                <div popover="{{(layer.description) ? layer.description : ''}}" popover-append-to-body="true" popover-placement="right" popover-trigger="mouseenter" data-ng-repeat="layer in group.layers">
-                    <!--bs-popover>-->
-                    <div context-menu="options(layer)" style="list-style-type: none; padding: 0;" data-ng-class="{indent: layer.isSublayer}">
-                        <!--<button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." data-original-title="" title="">Right</button>-->
-                        <div ng-if="!group.oneLayerActive" class="checkbox checkbox-primary" style="margin-left: 20px">
-                            <input type="checkbox" id="cblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
-                            <label for="cblayer{{layer.id}}">
-                                {{layer.title}}
-                            </label>
-                            <div ng-show="layer.enabled" class="left-menu dropdown-toggle pull-left" ng-click="vm.openLayerMenu($event)">
-                            </div>
-                            <div ng-show="layer.isLoading" class="spinner">
-                                <div class="bounce1"></div>
-                                <div class="bounce2"></div>
-                                <div class="bounce3"></div>
-                            </div>
-                            <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:20px;top:3px;cursor:pointer" ng-click="vm.editLayer(layer)"></div>
-                        </div>
-                        <div ng-if="group.oneLayerActive" class="radio radio-primary" style="margin-left: 20px">
-                            <input type="radio" ng-value="true" id="rblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
-                            <label for="rblayer{{layer.id}}">
-                                {{layer.title}}
-                            </label>
-                            <div ng-show="layer.enabled" class="left-menu dropdown-toggle pull-left" ng-click="vm.openLayerMenu($event)">
-                            </div>
-                            <div ng-show="layer.isLoading" class="spinner">
-                                <div class="bounce1"></div>
-                                <div class="bounce2"></div>
-                                <div class="bounce3"></div>
-                            </div>
-                            <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:4px;top:3px;cursor:pointer" ng-click="vm.editLayer(layer)"></div>
-                        </div>
-                        <!-- <div>
-                            <input type="number" data-ng-model="layer.opacity">
-                        </div> -->
+
+    <style>
+        .addlayer-container {
+            cursor: pointer;
+            position:relative;
+        }
+
+        .addlayer-title {
+                font-size: 18px;
+                margin-left: 10px;
+                margin-top: 6px;
+            }
+
+
+
+
+        .addlayer-image {
+            width: 25px;
+            height: 25px;
+        }
+
+        .layer-dir-type
+        {
+            clear:left;
+            font-size:10px;
+            color:#aaaaaa;
+        }
+    </style>
+
+
+
+    <div ng-if="vm.state === 'directory'">
+        <h3 class="leftpanel-header" style="width: 100%">
+            <div class="leftpanel-header-button-container-left">
+                <button class="button fa fa-arrow-left leftpanel-header-button" ng-click="vm.state = 'layers'" />
+            </div>
+            <span translate="DIRECTORY" />
+
+        </h3>
+        <div style="background:white">
+            <div ng-show="vm.selectedLayer == null">
+                <div ng-repeat="layer in vm.directory" class="addlayer-container" ng-click="vm.selectProjectLayer(layer)" popover="{{layer.title}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true">
+                    <!-- <img class="addlayer-image" src="http://www.tom-carden.co.uk/wp-content/uploads/2008/10/osm-yahoo-flash.png"></img> -->
+                    <div class="addlayer-title">
+                        {{layer.title}}
+                        <div class="layer-dir-type">{{layer.type}}</div>
                     </div>
+
+                </div>
+            </div>
+            <div ng-hide="vm.selectedLayer == null">
+
+                <div class="form-group">
+                    <label class="editor-title input-xlarge">Select a group for {{vm.selectedLayer.title}}</label>
+                    <select data-ng-model="vm.layerGroup" class="form-control tt-input editor-text-input">
+                        <option ng-repeat="g in vm.$layerService.project.groups" ng-value="g.id">{{g.title}}</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary" data-ng-click="vm.addProjectLayer()">Add layer</button>
+            </div>
+
+
+        </div>
+    </div>
+    <!-- ng-show="vm.layer.gui.featureTypes && vm.layer.gui.editing" -->
+    <div ng-if="vm.state === 'editlayer'">
+        <h3 class="leftpanel-header" style="width: 100%">
+            <div class="leftpanel-header-button-container-left">
+                <button class="button fa fa-arrow-left leftpanel-header-button" ng-click="vm.stopAddingFeatures(vm.layer)" />
+            </div>
+            <span translate="ADDFEATURES"></span>
+        </h3>
+<!--
+        <div class="btn fa fa-check" ng-click="vm.stopAddingFeatures(vm.layer)">
+            <span translate="DONE"></span>
+        </div> -->
+        <div id="layerfeaturetype-{{key}}" class="legendItem draggable" style="width:30px;height:30px" when-ready="vm.initDrag(key,vm.layer)" ng-repeat="(key,legendItem) in vm.layer.gui.featureTypes">
+            <span>
+                <img ng-src="{{legendItem.style.iconUri}}" style="margin-top: -12px;width: 20px;height: 20px;margin-left: 5px;" />
+
+                <div class="legendText" style="margin-left:5px"> {{legendItem.name}} </div>
+            </span>
+        </div>
+    </div>
+
+    <div ng-if="vm.state === 'layers'">
+        <h3 class="leftpanel-header" style="width: 100%">
+            <div ng-show="vm.allCollapsed" class="leftpanel-header-button-container-left">
+                <button class="button fa fa-chevron-up leftpanel-header-button" ng-click="vm.expandAll()" popover="{{'EXPAND_ALL' | translate}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter" popover-append-to-body="true" />
+            </div>
+            <div ng-hide="vm.allCollapsed" class="leftpanel-header-button-container-left">
+                <button class="button fa fa-chevron-down leftpanel-header-button" ng-click="vm.collapseAll()" popover="{{'COLLAPSE_ALL' | translate}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter" popover-append-to-body="true" />
+            </div>
+            <span translate="LAYERS" />
+            <div ng-show="vm.$mapService.isAdminExpert" class="leftpanel-header-button-container">
+                <button class="button fa fa-plus leftpanel-header-button" ng-click="vm.addLayer()" />
+            </div>
+        </h3>
+
+        <!-- overflow-y: auto; overflow-x: hidden;  -->
+        <!-- ng-hide="vm.layer.gui.featureTypes && vm.layer.gui.editing" -->
+        <div style="margin-top: -10px; margin-left:-20px;padding-left:0px;overflow-y: auto; overflow-x: hidden" resize resize-y="95">
+            <div ng-hide="vm.$layerService.editing && !group.gui.editing" data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
+                <div id="layergroupStyle" style="float: left; margin-left: 10px; margin-top: 5px" data-toggle="collapse" data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
+                <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true" class="group-title">{{group.title}}</div>
+                <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:25px;top:3px;cursor:pointer" ng-click="vm.editGroup(group)"></div>
+                <div id="layergroup_{{group.id}}" class="collapse in">
+                    <div ng-class="{false : '', true:'layer-more'}[layer.gui.more==true]" ng-hide="vm.$layerService.editing && !layer.gui.editing" popover="{{(layer.description) ? layer.description : ''}}" popover-append-to-body="true" popover-placement="right" popover-trigger="mouseenter"
+                    data-ng-repeat="layer in group.layers">
+                        <!--bs-popover>-->
+                        <div class="layer" context-menu="options(layer)" style="list-style-type: none;" data-ng-class="{indent: layer.isSublayer}">
+                            <!--<button type="button" class="btn btn-default" data-container="body" data-toggle="popover" data-placement="right" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus." data-original-title="" title="">Right</button>-->
+                            <div ng-class="{false : 'checkbox checkbox-primary', true:'radio radio-primary'}[group.oneLayerActive==true]" style="margin-top: 0px;margin-bottom: 0px;">
+                                <input ng-if="!group.oneLayerActive" type="checkbox" id="cblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
+                                <input ng-if="group.oneLayerActive" type="radio" ng-value="true" id="cblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
+                                <label for="cblayer{{layer.id}}">
+                                    {{layer.title}}
+                                </label>
+                                <div ng-show="layer.enabled" class="left-menu dropdown-toggle pull-left" ng-click="layer.gui.more=!layer.gui.more">
+                                </div>
+                                <div ng-show="layer.isLoading" class="spinner">
+                                    <div class="bounce1"></div>
+                                    <div class="bounce2"></div>
+                                    <div class="bounce3"></div>
+                                </div>
+                                <div ng-show="layer.isDynamic" popover="add items" style="position:absolute;right:40px;top:3px;cursor:pointer" popover-append-to-body="true" popover-placement="top" popover-trigger="mouseenter" class="fa fa-plus" ng-click="vm.startAddingFeatures(layer)"></div>
+                                <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:60px;top:3px;cursor:pointer" ng-click="vm.editLayer(layer)"></div>
+                                <div ng-show="layer.isDynamic" popover="{{(layer.isConnected) ? 'connected' : 'not connected'}}" popover-append-to-body="true" popover-placement="top" popover-trigger="mouseenter" class="fa fa-plug" ng-class="{false : 'disconnected-layer', true:'connected-layer'}[layer.isConnected==true]"
+                                style="position:absolute;right:20px;top:3px"></div>
+                            </div>
+                        </div>
+
+                        <div ng-show="layer.gui.more && !layer.gui.editing" style="position:relative;min-height:30px">
+                            <input class="ui-slider" ng-change="vm.setLayerOpacity(layer)" style="position:absolute;top:3px;width:100px;left:40px" type="range" min='0' max='100' ng-model="layer.opacity" />
+                        </div>
+
+                    </div>
+
                 </div>
             </div>
         </div>

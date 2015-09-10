@@ -42,9 +42,18 @@ module csComp.Services {
         useProxy?: boolean;
         /** force refresh on chaning bounding box */
         refreshBBOX?: boolean;
-        /** if this is a feed, the layer features can be shown on timeline and  */
+        /** indicates that this is a dynamic layer (dynamicgeojson) */
         isDynamic?: boolean;
+        /**
+         * if layer is connected, indicate if it is online
+         */
+        isConnected?: boolean;
+        /**
+         * when a log is used all property & geometry changes when saved are recorded in a log, this allows you to go back in time, otherwise the complete feature with all its properties and geometry is overwritten
+         */
+        useLog?: boolean;
         /** indicates if features should be shown on timeline */
+
         showOnTimeline?: boolean;
         /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
         dynamicResource?: boolean;
@@ -95,6 +104,9 @@ module csComp.Services {
 
         /** key name of default feature type */
         defaultFeatureType?: string;
+
+        /** image for this layer */
+        image?: string;
 
     }
 
@@ -204,6 +216,15 @@ module csComp.Services {
         defaultFeatureType: string;
 
         isDynamic: boolean;
+        useLog: boolean;
+        isConnected: boolean;
+
+        /**
+         * gui is used for setting temp. values for rendering
+         */
+        gui: any = {};
+        /** image for this layer */
+        image: string;
 
 
         /**
@@ -232,7 +253,10 @@ module csComp.Services {
                 dataSourceParameters: pl.dataSourceParameters,
                 defaultFeatureType: pl.defaultFeatureType,
                 defaultLegendProperty: pl.defaultLegendProperty,
-                useProxy: pl.useProxy
+                useProxy: pl.useProxy,
+                isDynamic: pl.isDynamic,
+                useLog: pl.useLog,
+                gui: {}
             };
         }
     }

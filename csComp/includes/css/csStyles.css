@@ -250,6 +250,23 @@ html, body, #container {
 
 /* Start LayersList */
 
+.layer{
+    margin-left:30px;
+    padding-top:5px;
+    padding-bottom:5px;
+}
+
+.disconnected-layer{
+    opacity: 0.5
+
+}
+
+.connected-layer
+{
+    opacity:1
+
+}
+
 .left-menu {
     background: url("../../cs/images/menu-left.png");
     background-position: right bottom;

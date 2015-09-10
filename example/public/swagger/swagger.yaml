@@ -1,0 +1,54 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Common Sense API
+# during dev, should point to your local machine
+host: localhost:3002
+# basePath prefixes all resource paths
+basePath: /
+#
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /api/layers:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: feature
+    get:
+      description: Returns a layer to the caller
+      # used as the method name of the controller
+      operationId: getLayer
+      parameters:
+
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/LayerResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+# complex objects have schema definitions
+definitions:
+  LayerResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string

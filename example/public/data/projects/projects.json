@@ -8,6 +8,20 @@
         "southWest": [50.7, 3.3],
         "northEast": [53.5, 7.3]
     },
+    "widgetStyles": {
+        "default": {
+            "borderWidth": 1,
+            "background": "white"
+        },
+        "simple": {
+            "borderWidth": 1,
+            "background": "white"
+        },
+        "red": {
+            "borderWidth": 3,
+            "background": "red"
+        }
+    },
     "baselayers": [{
         "title": "OpenStreetMap HOT",
         "subtitle": "Road",
@@ -127,16 +141,18 @@
         "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
         "preview": "http://a.basemaps.cartocdn.com/light_nolabels/11/673/1051.png"
     }],
-    "projects": [
-        {
+    "projects": [{
+            "title": "API Example",
+            "url": "data/projects/ApiTest/project.json",
+            "dynamic": true
+        }, {
             "title": "csWeb Showcases",
             "url": "data/projects/20141104_csMap/project.json"
-        },
-        {
-            "title": "Dynamic Example",
-            "url": "project/DynamicExample",
-            "dynamic": true
+        }, {
+            "title": "Dynamic",
+            "url": "project/DynamicExample"
         }
+
 
     ]
 }

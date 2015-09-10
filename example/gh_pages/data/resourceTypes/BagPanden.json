@@ -1,0 +1,48 @@
+{
+	"featureTypes" : {
+		"BagPanden" : {
+			"name" : "BagPanden",
+			"style" : {
+				"fillColor" : "#99ff99",
+				"strokeColor" : "#000000",
+				"drawingMode" : "Polygon",
+				"strokeWidth" : 1,
+				"iconWidth" : 30,
+				"iconHeight" : 30,
+				"iconUri" : "images/4018 zorgkantoor.png",
+				"nameLabel" : "postcode",
+				"maxTitleResolution" : -1
+			}, "propertyTypeKeys":"postcode;huisnummer;bouwjaar;Name"
+		}
+	},
+	"propertyTypeData" : {
+		"postcode" : {
+			"label" : "postcode",
+			"type" : "text",
+			"title" : "postcode",
+			"visibleInCallOut" : true,
+			"canEdit" : false,
+			"isSearchable" : false
+		},
+		"Name" : {
+			"label" : "Name",
+			"type" : "text",
+			"title" : "Naam",
+			"visibleInCallOut" : false,
+			"canEdit" : true,
+			"isSearchable" : false
+		},
+		"huisnummer" : {
+			"label" : "huisnummer",
+			"type" : "number",
+			"title" : "huisnummer",
+			"isSearchable" : false
+		},
+		"bouwjaar" : {
+			"label" : "bouwjaar",
+			"type" : "number",
+			"title" : "bouwjaar",
+			"isSearchable" : false
+		}
+	}
+}

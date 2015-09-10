@@ -1,8 +1,5 @@
 module KanbanBoard {
 
-    export class kanboardData {
-
-    }
     /**
       * Config
       */
@@ -22,21 +19,15 @@ module KanbanBoard {
     /**
       * Directive to display the available map layers.
       */
-    myModule.directive('kanbanBoardEdit', [
+    myModule.directive('kanbanboardEdit', [
         '$compile',
         function($compile): ng.IDirective {
             return {
                 terminal: true,    // do not compile any other internal directives
                 restrict: 'E',     // E = elements, other options are A=attributes and C=classes
                 scope: {},      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
-                templateUrl: 'directives/Widgets/KanbanBoard/KanbanBoard-edit.tpl.html',
-                compile: el => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
-                    var fn = $compile(el);
+                templateUrl: 'directives/KanbanBoard/KanbanBoard-edit.tpl.html',
 
-                    return scope => {
-                        fn(scope);
-                    };
-                },
                 replace: true,    // Remove the directive from the DOM
                 transclude: true,    // Add elements and attributes to the template
                 controller: KanbanBoardEditCtrl
@@ -51,8 +42,8 @@ module KanbanBoard {
 
     export interface IKanbanBoardEditCtrl extends ng.IScope {
         vm: KanbanBoardEditCtrl;
-
-        data: kanboardData;
+        selectedColumn: KanbanColumn.Column;
+        data: KanbanColumn.KanbanConfig;
     }
 
     export class KanbanBoardEditCtrl {
@@ -62,6 +53,9 @@ module KanbanBoard {
         public indicatorVisuals: { [key: string]: IVisualType; };
         private featureType: csComp.Services.IFeatureType;
         private propertyTypes: csComp.Services.IPropertyType[];
+
+        public allLayers: csComp.Services.ProjectLayer[];
+        public layer: string;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -83,7 +77,7 @@ module KanbanBoard {
             private $compile: any,
             private $layerService: csComp.Services.LayerService,
             private $templateCache: any,
-            private $messageBus: csComp.Services.MessageBusService,
+            public $messageBus: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService,
             private $dashboardService: csComp.Services.DashboardService
             ) {
@@ -92,9 +86,23 @@ module KanbanBoard {
             var par = <any>$scope.$parent;
             this.widget = <csComp.Services.IWidget>par.data;
             this.propertyTypes = [];
+            var p: csComp.Services.ProjectLayer;
 
-            $scope.data = <kanboardData>this.widget.data;
+            $scope.data = <KanbanColumn.KanbanConfig>this.widget.data;
 
+            this.allLayers = $layerService.allLayers();
+            if ($scope.data && $scope.data.columns && $scope.data.columns.length > 0)
+                $scope.selectedColumn = $scope.data.columns[0];
+            console.log($scope.data);
+        }
+
+        public selectColumn() {
+            console.log(this.$scope.selectedColumn);
+        }
+
+        public selectLayer() {
+            console.log(this.layer);
+            this.$messageBus.publish("typesource", "", "");
         }
         //
         // //** select a typesResource collection from the dropdown */

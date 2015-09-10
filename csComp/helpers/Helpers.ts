@@ -71,6 +71,8 @@
         }
     }
 
+
+
     declare var String;//: StringExt.IStringExt;
 
     export function supportsDataUri() {
@@ -454,7 +456,7 @@
         return url;
     }
 
-    export function createIconHtml(feature: IFeature, featureType: csComp.Services.IFeatureType): {[key:string]: any} {
+    export function createIconHtml(feature: IFeature, featureType: csComp.Services.IFeatureType): { [key: string]: any } {
         var html = '<div ';
         var props = {};
         var ft = featureType;
@@ -506,7 +508,7 @@
 
         html += '</div>';
 
-        var iconHtml: {[key:string]: any} = {};
+        var iconHtml: { [key: string]: any } = {};
         iconHtml['html'] = html;
         iconHtml['iconPlusBorderWidth'] = iconPlusBorderWidth;
         iconHtml['iconPlusBorderHeight'] = iconPlusBorderHeight;

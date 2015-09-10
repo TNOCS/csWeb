@@ -41,6 +41,8 @@ describe('DataTable.DataTable', function() {
 
     describe('Initial template', () => {
         it('should contain the string selectedLayerId', () => {
+            //console.log(JSON.stringify(element, null, 2));
+            //expect(true).toBe(true);
             expect(element).toContain('selectedLayerId');
         });
     });

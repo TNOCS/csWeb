@@ -50,6 +50,7 @@ module csComp.Services {
         selectedLayerId: string;
         timeline: any;
         _activeContextMenu: IActionOption[];
+        editing: boolean;
 
         currentLocale: string;
         /** layers that are currently active */
@@ -74,20 +75,22 @@ module csComp.Services {
             '$location',
             '$compile',
             '$translate',
-            '$http',
             'messageBusService',
             'mapService',
             '$rootScope',
+            'geoService',
+            '$http'
         ];
 
         constructor(
             private $location: ng.ILocationService,
             public $compile: any,
             private $translate: ng.translate.ITranslateService,
-            public $http: ng.IHttpService,
             public $messageBusService: Services.MessageBusService,
             public $mapService: Services.MapService,
-            public $rootScope: any
+            public $rootScope: any,
+            public geoService: GeoService,
+            public $http: ng.IHttpService
             ) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
@@ -145,6 +148,18 @@ module csComp.Services {
                     }
                 }
             });
+
+            $messageBusService.subscribe("geo", (action, loc: csComp.Services.Geoposition) => {
+                switch (action) {
+                    case "pos":
+                        //alert(loc.coords.latitude + " - " + loc.coords.longitude);
+                        break;
+                }
+            });
+
+            this.geoService.start();
+
+            this.addActionService(new LayerActions());
         }
 
         public getActions(feature: IFeature): IActionOption[] {
@@ -417,16 +432,20 @@ module csComp.Services {
                             });
                         }
                         layer.layerSource.addLayer(layer, (l) => {
-                            l.enabled = true;
-                            this.loadedLayers[layer.id] = l;
-                            this.updateSensorData();
-                            this.updateAllLogs();
-                            this.activeMapRenderer.addLayer(layer);
-                            if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
-                            this.checkLayerTimer(layer);
-                            this.$messageBusService.publish('layer', 'activated', layer);
-                            this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             if (layerloaded) layerloaded(layer);
+                            this.$messageBusService.publish('layer', 'activated', layer);
+
+                            if (l.enabled) {
+                                this.loadedLayers[layer.id] = l;
+                                this.updateSensorData();
+                                this.updateAllLogs();
+                                this.activeMapRenderer.addLayer(layer);
+                                if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
+                                this.checkLayerTimer(layer);
+                                //this.$messageBusService.publish('layer', 'activated', layer);
+                                this.$messageBusService.publish('updatelegend', 'updatedstyle');
+                                //if (layerloaded) layerloaded(layer);
+                            }
                         });
                     }
                     this.$messageBusService.publish("timeline", "updateFeatures");
@@ -512,6 +531,18 @@ module csComp.Services {
                     callback();
                 }
             }
+        }
+
+        /**
+         * returns a list of all project layers in all groups
+         */
+        public allLayers(): ProjectLayer[] {
+            var res: ProjectLayer[] = [];
+            if (this.project == null || this.project.groups == null) return [];
+            this.project.groups.forEach((p: ProjectGroup) => {
+                if (p.layers) res = res.concat(p.layers);
+            });
+            return res;
         }
 
         /** add a types resource (project, resource file or layer) */
@@ -642,8 +673,19 @@ module csComp.Services {
         }
 
         private updateGroupFeatures(group: ProjectGroup) {
+            if (!group) return;
             this.project.features.forEach((f: IFeature) => {
                 if (f.layer.group == group) {
+                    this.calculateFeatureStyle(f);
+                    this.activeMapRenderer.updateFeature(f);
+                }
+            });
+        }
+
+        public updateLayerFeatures(layer: ProjectLayer) {
+            if (!layer) return;
+            this.project.features.forEach((f: IFeature) => {
+                if (f.layer.id === layer.id) {
                     this.calculateFeatureStyle(f);
                     this.activeMapRenderer.updateFeature(f);
                 }
@@ -718,7 +760,7 @@ module csComp.Services {
         public updateAllLogs() {
             if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
             this.project.features.forEach((f: IFeature) => {
-                if (f.layer.layerSource.title.toLowerCase() === "dynamicgeojson") {
+                if (f.layer.isDynamic && f.layer.useLog) {
                     //if (f.gui.hasOwnProperty("lastUpdate") && this.project.timeLine.focusDate < f.gui["lastUpdate"])
                     this.updateLog(f);
                 }
@@ -727,13 +769,14 @@ module csComp.Services {
 
         private lookupLog(logs: Log[], timestamp: number): Log {
             if (!logs || logs.length == 0) return <Log>{};
+            var d = logs; //_.sortBy(logs, 'ts');
 
-            if (timestamp <= logs[0].ts) return logs[0];
-            if (timestamp >= logs[logs.length - 1].ts) return logs[logs.length - 1];
+            if (timestamp <= d[0].ts) return d[0];
+            if (timestamp >= d[logs.length - 1].ts) return d[d.length - 1];
             var res = <Log>{};
-            for (var i = 0; i < logs.length; i++) {
-                if (logs[i].ts > timestamp) {
-                    res = logs[i];
+            for (var i = 0; i < d.length; i++) {
+                if (d[i].ts > timestamp) {
+                    res = d[i];
                     break;
                 }
             }
@@ -749,22 +792,35 @@ module csComp.Services {
                 for (var key in f.logs) {
                     // lookup value
                     var l = this.lookupLog(f.logs[key], date);
-                    if (!f.properties.hasOwnProperty(key)) {
-                        f.properties[key] = l.value;
-                        changed = true;
-                    }
-                    else {
-                        if (f.properties[key] != l.value) {
+                    if (key === "~geometry") {
+                        if (l.value != f.geometry) {
+                            f.geometry = <IGeoJsonGeometry>l.value;
+                            changed = true;
+                        }
+                    } else {
+                        if (!f.properties.hasOwnProperty(key)) {
                             f.properties[key] = l.value;
                             changed = true;
+                        } else {
+                            if (f.properties[key] != l.value) {
+                                f.properties[key] = l.value;
+                                changed = true;
+                            }
                         }
                     }
                 }
 
                 if (changed) {
                     this.calculateFeatureStyle(f);
-                    this.activeMapRenderer.updateFeature(f);
+                    this.updateFeature(f);
                 }
+            }
+        }
+
+        public updateFeature(feature: IFeature) {
+            this.activeMapRenderer.updateFeature(feature);
+            if (feature === this.lastSelectedFeature) {
+                this.$messageBusService.publish("feature", "onFeatureUpdated");
             }
         }
 
@@ -838,7 +894,8 @@ module csComp.Services {
                             this.calculateFeatureStyle(f);
                             this.activeMapRenderer.updateFeature(f);
 
-                            if (f.isSelected) this.$messageBusService.publish("feature", "onFeatureUpdated", f);
+                            if (f.isSelected)
+                                this.$messageBusService.publish("feature", "onFeatureUpdated", f);
                         }
                     }
                 }
@@ -902,10 +959,22 @@ module csComp.Services {
         }
 
         /** remove feature */
-        public removeFeature(feature: IFeature) {
+        public removeFeature(feature: IFeature, dynamic: boolean = false) {
+
             this.project.features = this.project.features.filter((f: IFeature) => { return f != feature; });
+            feature.layer.data.features = feature.layer.data.features.filter((f: IFeature) => { return f != feature; });
+            if (feature.layer.group.filterResult)
+                feature.layer.group.filterResult = feature.layer.group.filterResult.filter((f: IFeature) => { return f != feature; });
             feature.layer.group.ndx.remove([feature]);
             this.activeMapRenderer.removeFeature(feature);
+
+            if (dynamic) {
+                var s = new LayerUpdate();
+                s.layerId = feature.layerId;
+                s.action = LayerUpdateAction.deleteFeature;
+                s.item = feature.id;
+                this.$messageBusService.serverSendMessageAction("layer", s);
+            }
         }
 
         /**
@@ -944,6 +1013,7 @@ module csComp.Services {
 
             feature.gui['style'] = {};
             s.opacity = s.opacity * (feature.layer.opacity / 100);
+            s.fillOpacity = s.fillOpacity * (feature.layer.opacity / 100);
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     //delete feature.gui[gs.property];
@@ -1080,7 +1150,14 @@ module csComp.Services {
             return _.find(this.project.features, (f: IFeature) => { return f.id === featureId })
         }
 
-
+        /**
+         * Find a feature by layerId and FeatureId.
+         * @layer {ProjectLayer}
+         * @featureId {number}
+         */
+        findFeature(layer: ProjectLayer, featureId: string): IFeature {
+            return _.find(layer.data.features, (f: IFeature) => { return f.id === featureId })
+        }
 
         /**
          * Find a group by id
@@ -1095,7 +1172,7 @@ module csComp.Services {
         /**
          * Find a group by id
          */
-        findGroupByLayerId(layer: csComp.Services.ProjectLayer): ProjectGroup {
+        findGroupByLayerId(layer: ProjectLayer): ProjectGroup {
             if (!layer.id) return null;
             var matchedGroup;
             this.project.groups.some((group) => {
@@ -1283,16 +1360,7 @@ module csComp.Services {
         setFeatureAreaFilter(f: IFeature) {
             this.project.groups.forEach(g => {
                 if (g.id === f.layer.group.id) return;
-                var hasAreaFilter = g.filters.some((fil) => {
-                    if (fil.filterType === 'area') {
-                        var id = 'filter_' + fil.id;
-                        fil.value = f;
-                        if (angular.element('#' + id)) (<any>angular.element('#' + id).scope()).vm.updateAreaFilter(f);
-                        return true;
-                    }
-                    return false;
-                });
-                if (!hasAreaFilter) {
+                if (!g.filters.some((f) => { return f.filterType === 'area' })) {
                     var gf = new GroupFilter();
                     gf.id = Helpers.getGuid();
                     gf.group = g;
@@ -1310,7 +1378,7 @@ module csComp.Services {
 
         resetFeatureAreaFilter() {
             this.project.groups.forEach(g => {
-                g.filters.some((f) => {
+                g.filters.some(f => {
                     if (f.filterType === 'area') {
                         this.removeFilter(f);
                         return true;
@@ -1599,7 +1667,7 @@ module csComp.Services {
                         this.activeMapRenderer.fitBounds(solution.viewBounds);
                     }
 
-                    if(solution.baselayers) {
+                    if (solution.baselayers) {
                         solution.baselayers.forEach(b => {
                             var baselayer: BaseLayer = new BaseLayer();
 
@@ -1631,6 +1699,14 @@ module csComp.Services {
                             this.openProject(solution.projects[0], layers);
                         }
                     }
+                	// make sure a default WidgetStyle exists
+                	if (!solution.widgetStyles) solution.widgetStyles = {};
+                	if (!solution.widgetStyles.hasOwnProperty('default')) {
+                    	var defaultStyle = new WidgetStyle();
+                    	defaultStyle.background = "red";
+                    	solution.widgetStyles["default"] = defaultStyle;
+                	}
+
                     this.solution = solution;
                 })
                 .error(() => {
@@ -1779,6 +1855,10 @@ module csComp.Services {
             if (this.project.connected) {
                 // check connection
                 this.$messageBusService.initConnection("", "", () => {
+                    // var handle = this.$messageBusService.serverSubscribe("", "key", (topic: string, msg: ClientMessage) => {
+                    //     if (msg.action !== "subscribed") console.log(msg);
+                    // });
+
                     // setTimeout(() => {
                     //     for (var ll in this.loadedLayers) {
                     //         var layer = <ProjectLayer>this.loadedLayers[ll];
@@ -1792,8 +1872,17 @@ module csComp.Services {
 
             // check if project is dynamic
             if (solutionProject.dynamic) {
+                // listen to directory updates
+                this.$messageBusService.serverSubscribe("", "directory", (sub: string, msg: any) => {
+                    var layer = <ProjectLayer>msg.data.item;
+                    if (layer) {
+                        var l = this.findLayer(layer.id);
+                        if (!l) {
+                            this.$messageBusService.notify('New layer available', layer.title);
+                        }
+                    }
+                });
                 this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
-                    console.log(msg);
                     if (msg.action === "layer-update") {
                         msg.data.layer.forEach((l: ProjectLayer) => {
                             var g: ProjectGroup;
@@ -1956,7 +2045,9 @@ module csComp.Services {
         public initLayer(group: ProjectGroup, layer: ProjectLayer, layerIds?: string[]) {
             if (layer.id == null) layer.id = Helpers.getGuid();
             layer.type = (layer.type) ? layer.type.toLowerCase() : "geojson";
+            layer.gui = {};
             layer.renderType = (layer.renderType) ? layer.renderType.toLowerCase() : layer.type;
+            if (layer.type === "dynamicgeojson") layer.isDynamic = true;
             if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();
             if (layer.title == null) layer.title = layer.id;
             if (layer.languages != null && this.currentLocale in layer.languages) {
@@ -2091,7 +2182,23 @@ module csComp.Services {
                 $('#filtergroupcount_' + group.id).text(group.filterResult.length + ' objecten geselecteerd');
         }
 
-        private trackProperty(f: IFeature, key: string, result: {}) {
+        private trackGeometry(f: IFeature, result: {}) {
+            var key = "~geometry";
+            var log = <Log>{
+                ts: new Date().getTime(), prop: key, value: f.geometry
+            };
+            f.propertiesOld[key] = JSON.parse(JSON.stringify(f.geometry));
+            if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
+            if (!result.hasOwnProperty(key)) result[key] = [];
+            f.logs[key].push(log);
+            result[key].push(log);
+            f.gui["lastUpdate"] = log.ts;
+        }
+
+        /**
+         * Check for property changes inside a feature, return a set of logs in result
+         */
+        private trackPropertyLog(f: IFeature, key: string, result: {}) {
             var log = <Log>{
                 ts: new Date().getTime(), prop: key, value: f.properties[key]
             };
@@ -2107,12 +2214,14 @@ module csComp.Services {
             var result = {};
             for (var key in feature.properties) {
                 if (!feature.propertiesOld.hasOwnProperty(key)) {
-                    this.trackProperty(feature, key, result);
+                    this.trackPropertyLog(feature, key, result);
                 }
                 else if (JSON.stringify(feature.propertiesOld[key]) != JSON.stringify(feature.properties[key])) {
-                    this.trackProperty(feature, key, result);
+                    this.trackPropertyLog(feature, key, result);
                 }
             }
+            if (JSON.stringify(feature.propertiesOld["~geometry"]) != JSON.stringify(feature.geometry))
+                this.trackGeometry(feature, result);
             return result;
         }
 
@@ -2137,28 +2246,28 @@ module csComp.Services {
             delete f.gui['lock'];
         }
 
+
+
         public saveFeature(f: IFeature, logs: boolean = false) {
-            console.log('saving feature');
             f.properties["updated"] = new Date().getTime();
             // check if feature is in dynamic layer
-            if (f.layer.type.toLowerCase() === "dynamicgeojson") {
+            if (f.layer.isDynamic) {
                 var l = this.trackFeature(f);
 
-                if (logs) {
-                    var s = new LayerMessage();
+                if (f.layer.useLog) {
+                    var s = new LayerUpdate();
                     s.layerId = f.layerId;
-                    s.action = "logUpdate";
-                    s.object = { featureId: f.id, logs: l };
-                    console.log(JSON.stringify(s));
-                    this.$messageBusService.serverPublish("layer", s);
-
+                    s.action = LayerUpdateAction.updateLog;
+                    s.item = { featureId: f.id, logs: l };
+                    //this.$messageBusService.serverPublish("layer", s);
+                    this.$messageBusService.serverSendMessageAction("layer", s);
                 }
                 else {
-                    var s = new LayerMessage();
+                    var s = new LayerUpdate();
                     s.layerId = f.layerId;
-                    s.action = "featureUpdate";
-                    s.object = Feature.serialize(f);
-                    this.$messageBusService.serverPublish("layer", s);
+                    s.action = LayerUpdateAction.updateFeature;
+                    s.item = Feature.serialize(f);
+                    this.$messageBusService.serverSendMessageAction("layer", s);
                 }
             }
         }
@@ -2186,10 +2295,23 @@ module csComp.Services {
         }
     }
 
-    export class LayerMessage {
+    /**
+     * object for sending layer messages over socket.io channel
+     */
+    export class LayerUpdate {
         public layerId: string;
-        public action: string;
-        public object: any;
+        public action: LayerUpdateAction;
+        public item: any;
+        public featureId: string;
+    }
+
+    /**
+     * List of available action for sending/receiving layer actions over socket.io channel
+     */
+    export enum LayerUpdateAction {
+        updateFeature,
+        updateLog,
+        deleteFeature
     }
 
     /**
