@@ -197,6 +197,7 @@ module csComp.Services {
                 otpServer: project.otpServer,
                 url: project.url,
                 connected: project.connected,
+                layerDirectory: project.layerDirectory,
                 startPosition: project.startposition,
                 timeLine: project.timeLine,
                 mcas: project.mcas,
