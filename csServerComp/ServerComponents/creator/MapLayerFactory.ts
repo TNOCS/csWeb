@@ -547,9 +547,9 @@ export class MapLayerFactory {
                 properties.forEach((p) => {
                     if (p.hasOwnProperty(name)) {
                         if (p[name].substring(0, 3) === "www") {
-                            p[name] = '<a href="http://' + p[name] + '" target="_blank">' + p[name] + '</a>';
+                            p[name] = '[url=http://' + p[name] + ']' + p[name] + '[/url]';
                         } else {
-                            p[name] = '<a href="' + p[name] + '" target="_blank">' + p[name] + '</a>';
+                            p[name] = '[url=' + p[name] + ']' + p[name] + '[/url]';
                         }
                     }
                 });
