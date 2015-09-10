@@ -16,6 +16,7 @@ module ChartsWidget {
     }
 
     declare var vg;
+    declare var ace;
 
     /**
       * Directive to display the available map layers.
@@ -45,6 +46,7 @@ module ChartsWidget {
     export class ChartsEditCtrl {
         private scope: IChartsEditCtrl;
         public widget: csComp.Services.IWidget;
+        editor: any;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -75,11 +77,30 @@ module ChartsWidget {
             var par = <any>$scope.$parent;
             this.widget = <csComp.Services.IWidget>par.data;
             $scope.data = <ChartData>this.widget.data;
+            this.loadChart();
+        }
+
+        public setupEditor() {
+            this.editor = ace.edit("vegaeditor");
+            //editor.setTheme("ace/theme/monokai");
+            this.editor.getSession().setMode("ace/mode/json");
+            this.editor.setValue(JSON.stringify(this.$scope.data.spec, null, '\t'));
+            this.editor.clearSelection();
+            this.editor.focus();
+
+        }
+
+        public loadChart() {
             this.$scope.spec = JSON.stringify(this.$scope.data.spec);
         }
 
         public updateChart() {
-            this.$scope.data.spec = JSON.parse(this.$scope.spec);
+            this.$scope.data.spec = JSON.parse(this.editor.getValue());
+            this.refreshChart();
+            this.editor.focus();
+        }
+
+        public refreshChart() {
             vg.parse.spec(this.$scope.data.spec, (chart) => { chart({ el: "#vis" + this.$scope.data._id }).update(); });
         }
 

@@ -11,7 +11,7 @@
     "range": 2123192,
     "zoomLevelName": "minutes",
     "isLive": false,
-    "focus": 1441722125407,
+    "focus": 1441722129415,
     "zoomLevel": 60000
   },
   "datasources": [
@@ -40,15 +40,20 @@
           "directive": "charts",
           "elementId": "widget-1b116807-a474-47e7-c7f2-38c6c0169d12",
           "enabled": true,
-          "style": "default",
+          "customStyle": {
+            "borderWidth": 1,
+            "background": "white",
+            "opacity": "0.9"
+          },
+          "style": "custom",
           "left": "9px",
           "right": "",
           "top": "18px",
-          "width": "359px",
-          "height": "300px",
+          "width": "550px",
+          "height": "238px",
           "data": {
             "spec": {
-              "width": 300,
+              "width": 500,
               "height": 200,
               "padding": {
                 "top": 10,
@@ -58,7 +63,278 @@
               },
               "data": [
                 {
-                  "name": "table"
+                  "name": "table",
+                  "values": [
+                    {
+                      "x": 1,
+                      "y": 28
+                    },
+                    {
+                      "x": 2,
+                      "y": 55
+                    },
+                    {
+                      "x": 3,
+                      "y": 43
+                    },
+                    {
+                      "x": 4,
+                      "y": 91
+                    },
+                    {
+                      "x": 5,
+                      "y": 81
+                    },
+                    {
+                      "x": 6,
+                      "y": 53
+                    },
+                    {
+                      "x": 7,
+                      "y": 19
+                    },
+                    {
+                      "x": 8,
+                      "y": 87
+                    },
+                    {
+                      "x": 9,
+                      "y": 52
+                    },
+                    {
+                      "x": 10,
+                      "y": 48
+                    },
+                    {
+                      "x": 11,
+                      "y": 24
+                    },
+                    {
+                      "x": 12,
+                      "y": 49
+                    },
+                    {
+                      "x": 13,
+                      "y": 87
+                    },
+                    {
+                      "x": 14,
+                      "y": 66
+                    },
+                    {
+                      "x": 15,
+                      "y": 17
+                    },
+                    {
+                      "x": 16,
+                      "y": 27
+                    },
+                    {
+                      "x": 17,
+                      "y": 68
+                    },
+                    {
+                      "x": 18,
+                      "y": 16
+                    },
+                    {
+                      "x": 19,
+                      "y": 49
+                    },
+                    {
+                      "x": 20,
+                      "y": 15
+                    }
+                  ]
+                }
+              ],
+              "scales": [
+                {
+                  "name": "x",
+                  "type": "linear",
+                  "range": "width",
+                  "zero": false,
+                  "domain": {
+                    "data": "table",
+                    "field": "x"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": "linear",
+                  "range": "height",
+                  "nice": true,
+                  "domain": {
+                    "data": "table",
+                    "field": "y"
+                  }
+                }
+              ],
+              "axes": [
+                {
+                  "type": "x",
+                  "scale": "x",
+                  "ticks": 10
+                },
+                {
+                  "type": "y",
+                  "scale": "y"
+                }
+              ],
+              "marks": [
+                {
+                  "type": "line",
+                  "from": {
+                    "data": "table"
+                  },
+                  "properties": {
+                    "enter": {
+                      "interpolate": {
+                        "value": "monotone"
+                      },
+                      "x": {
+                        "scale": "x",
+                        "field": "x"
+                      },
+                      "y": {
+                        "scale": "y",
+                        "field": "y"
+                      },
+                      "y2": {
+                        "scale": "y",
+                        "value": 0
+                      },
+                      "fill": {
+                        "value": "steelblue"
+                      },
+                      "stroke": {
+                        "value": "black"
+                      }
+                    },
+                    "update": {
+                      "fillOpacity": {
+                        "value": 0
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "key": "keys/chart",
+            "title": "test"
+          }
+        },
+        {
+          "id": "c234e9a0-582d-4719-914a-c90d198e0654",
+          "directive": "charts",
+          "elementId": "widget-c234e9a0-582d-4719-914a-c90d198e0654",
+          "enabled": true,
+          "customStyle": {
+            "borderWidth": 1,
+            "background": "white",
+            "opacity": "0.9"
+          },
+          "style": "custom",
+          "left": "9px",
+          "right": "",
+          "top": "261px",
+          "width": "550px",
+          "height": "238px",
+          "data": {
+            "spec": {
+              "width": 490,
+              "height": 190,
+              "padding": {
+                "top": 10,
+                "left": 30,
+                "bottom": 30,
+                "right": 10
+              },
+              "data": [
+                {
+                  "name": "table",
+                  "values": [
+                    {
+                      "x": 1,
+                      "y": 28
+                    },
+                    {
+                      "x": 2,
+                      "y": 55
+                    },
+                    {
+                      "x": 3,
+                      "y": 43
+                    },
+                    {
+                      "x": 4,
+                      "y": 91
+                    },
+                    {
+                      "x": 5,
+                      "y": 81
+                    },
+                    {
+                      "x": 6,
+                      "y": 53
+                    },
+                    {
+                      "x": 7,
+                      "y": 19
+                    },
+                    {
+                      "x": 8,
+                      "y": 87
+                    },
+                    {
+                      "x": 9,
+                      "y": 52
+                    },
+                    {
+                      "x": 10,
+                      "y": 48
+                    },
+                    {
+                      "x": 11,
+                      "y": 24
+                    },
+                    {
+                      "x": 12,
+                      "y": 49
+                    },
+                    {
+                      "x": 13,
+                      "y": 87
+                    },
+                    {
+                      "x": 14,
+                      "y": 66
+                    },
+                    {
+                      "x": 15,
+                      "y": 17
+                    },
+                    {
+                      "x": 16,
+                      "y": 27
+                    },
+                    {
+                      "x": 17,
+                      "y": 68
+                    },
+                    {
+                      "x": 18,
+                      "y": 16
+                    },
+                    {
+                      "x": 19,
+                      "y": 49
+                    },
+                    {
+                      "x": 20,
+                      "y": 15
+                    }
+                  ]
                 }
               ],
               "scales": [
@@ -131,8 +407,118 @@
                   }
                 }
               ]
-            },
-            "key": "keys/chart"
+            }
+          }
+        },
+        {
+          "id": "6b82fe32-030f-4b06-5085-27ac2a0f375c",
+          "directive": "charts",
+          "elementId": "widget-6b82fe32-030f-4b06-5085-27ac2a0f375c",
+          "enabled": true,
+          "customStyle": {
+            "borderWidth": 1,
+            "background": "white",
+            "opacity": "0.9"
+          },
+          "style": "custom",
+          "left": "565px",
+          "right": "",
+          "top": "19px",
+          "width": "459px",
+          "height": "480px",
+          "data": {
+            "spec": {
+              "width": 380,
+              "height": 400,
+              "data": [
+                {
+                  "name": "layer",
+                  "url": "http://localhost:3002/data/projects/20141104_csMap/gemeente.json",
+                  "format": {
+                    "type": "json",
+                    "property": "features"
+                  }
+                }
+              ],
+              "scales": [
+                {
+                  "name": "x",
+                  "type": "linear",
+                  "domain": {
+                    "data": "layer",
+                    "field": "properties.aant_man"
+                  },
+                  "range": "width",
+                  "zero": false
+                },
+                {
+                  "name": "y",
+                  "type": "linear",
+                  "domain": {
+                    "data": "layer",
+                    "field": "properties.p_ongehuwd"
+                  },
+                  "range": "height",
+                  "nice": true,
+                  "zero": false
+                },
+                {
+                  "name": "c",
+                  "type": "linear",
+                  "domain": {
+                    "data": "layer",
+                    "field": "properties.aant_man"
+                  },
+                  "range": "category10"
+                }
+              ],
+              "axes": [
+                {
+                  "type": "x",
+                  "scale": "x",
+                  "offset": 5,
+                  "ticks": 5,
+                  "title": "Sepal Width"
+                },
+                {
+                  "type": "y",
+                  "scale": "y",
+                  "offset": 5,
+                  "ticks": 5,
+                  "title": "Petal Length"
+                }
+              ],
+              "marks": [
+                {
+                  "type": "symbol",
+                  "from": {
+                    "data": "layer"
+                  },
+                  "properties": {
+                    "enter": {
+                      "x": {
+                        "scale": "x",
+                        "field": "properties.aant_man"
+                      },
+                      "y": {
+                        "scale": "y",
+                        "field": "properties.p_ongehuwd"
+                      },
+                      "fill": {
+                        "scale": "c",
+                        "field": "properties.aant_man"
+                      },
+                      "fillOpacity": {
+                        "value": 0.5
+                      },
+                      "size": {
+                        "value": 40
+                      }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       ]
@@ -197,7 +583,7 @@
           "heatmapItems": null,
           "url": "api/layers/testje",
           "typeUrl": "data/resourceTypes/resources.json",
-          "opacity": 100,
+          "opacity": "100",
           "isDynamic": true,
           "gui": {}
         }

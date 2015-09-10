@@ -170,7 +170,7 @@ module csComp.Services {
                 // Skip serializing certain keys
                 switch (key) {
                     case "timestamp":
-                    case "values":
+                    //case "values":
                     case "mcas":
                     case "$$hashKey":
                     case "div":

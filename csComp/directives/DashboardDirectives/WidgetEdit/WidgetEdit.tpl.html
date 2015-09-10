@@ -4,17 +4,17 @@
     <div data-ng-cloak style="margin:5px">
         <style>
             .widget-row {
-                margin-top: 5px;
+                margin-top: 5px; margin-right: 10px;
             }
         </style>
         <div class="row widget-row">
             <div class="col-md-6">
                 <label class="control-label" for="widgetWidth">Width</label>
-                <input id="widgetWidth" name="textinput" type="text" ng-model="widget.width" placeholder="width" class="input-xlarge">
+                <input id="widgetWidth" type="number" ng-model="widget.width" placeholder="width" class="input-xlarge">
             </div>
             <div class="col-md-6">
                 <label class="control-label" for="widgetHeight">Height</label>
-                <input id="widgetHeight" name="textinput" type="text" ng-model="widget.height" placeholder="height" class="input-xlarge">
+                <input id="widgetHeight" type="number" ng-model="widget.height" placeholder="height" class="input-xlarge">
             </div>
         </div>
         <div class="row widget-row">
