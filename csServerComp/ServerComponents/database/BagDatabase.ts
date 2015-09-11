@@ -1,7 +1,6 @@
-require('rootpath')();
 import express = require('express');
-import ConfigurationService = require('../configuration/ConfigurationService');
 import pg = require('pg');
+import ConfigurationService = require('../configuration/ConfigurationService');
 import Location = require('./Location');
 import IBagOptions = require('../database/IBagOptions');
 
