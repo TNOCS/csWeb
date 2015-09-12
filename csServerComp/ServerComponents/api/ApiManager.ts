@@ -147,7 +147,6 @@ export class PropertyType {
 export class ResourceFile {
     featureTypes: { [key: string]: FeatureType };
     propertyTypes: { [key: string]: PropertyType };
-
 }
 
 export class ApiManager {
@@ -182,7 +181,7 @@ export class ApiManager {
     constructor(public isClient = false) { }
 
     public init() {
-        Winston.info('init layer manager', { cat: "api" });
+        Winston.info(`Init layer manager (isClient=${this.isClient})`, { cat: "api" });
     }
 
     /**
@@ -233,7 +232,6 @@ export class ApiManager {
         s.id = key;
         this.connectors[key] = s;
         s.init(this, options);
-
     }
 
     /**
@@ -250,10 +248,9 @@ export class ApiManager {
      * Find layer for a specific layerId (can return null)
      */
     public findKey(keyId: string): Key {
-        if (this.keys.hasOwnProperty(keyId)) {
-            return this.keys[keyId];
-        }
-        return null;;
+        return this.keys.hasOwnProperty(keyId)
+            ? this.keys[keyId]
+            : null;;
     }
 
     /**
@@ -329,8 +326,6 @@ export class ApiManager {
         else {
             callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
         }
-
-
     }
 
 
@@ -342,7 +337,6 @@ export class ApiManager {
     }
 
     public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
-
         var s = this.findStorageForLayerId(layerId);
         if (s) {
             s.updateLayer(layerId, update, meta, (r, CallbackResult) => {
@@ -496,6 +490,13 @@ export class ApiManager {
         callback(<CallbackResult>{ result: ApiResult.OK, keys: this.keys });
     }
 
+    public getKey(id: string, meta: ApiMeta, callback: Function) {
+        // check subscriptions
+        var key = this.findKey(id);
+        var keys: { [keyId: string]: Key } = { id: key };
+        callback(<CallbackResult>{ result: ApiResult.OK, keys:  keys });
+    }
+
     public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
         Winston.info('updatekey:received' + keyId);
         // check if keys exists
@@ -503,7 +504,6 @@ export class ApiManager {
         if (!key) {
             this.addKey(keyId, value, meta, callback);
         }
-
 
         if (!value.hasOwnProperty('time')) value['time'] = new Date().getTime();
         var s = this.findStorageForKeyId(keyId);
@@ -517,6 +517,4 @@ export class ApiManager {
         // check subscriptions
         callback(<CallbackResult>{ result: ApiResult.OK })
     }
-
-
-}
+i}
