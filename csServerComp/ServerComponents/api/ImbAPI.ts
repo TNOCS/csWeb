@@ -16,7 +16,7 @@ export class ImbAPI extends BaseConnector.BaseConnector {
     public client: any;
     public router: any;
 
-    public imb = require('ServerComponents/api/imb.js');
+    public imb = require('./imb.js');
     public imbConnection: any;
     public layersEvent: any;
     public keysEvent: any;
