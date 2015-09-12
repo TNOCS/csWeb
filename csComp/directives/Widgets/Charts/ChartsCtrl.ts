@@ -105,19 +105,16 @@ module ChartsWidget {
             var par = <any>$scope.$parent;
             this.widget = par.widget;
 
-
-
             $scope.data = <ChartData>this.widget.data;
             $scope.data._id = this.widget.id;
-
-
 
         }
 
         public startChart() {
             var d = this.$scope.data;
-            //if (!d.spec)
-            d.spec = this.defaultSpec;
+            if (!d.spec)
+            //d.spec = this.defaultSpec;
+                d.spec = this.defaultSpec;
             var res = vg.embed('#vis' + d._id, d.spec, (view, vega_spec) => {
                 d._view = view;
 

@@ -22,7 +22,7 @@ module csComp.Helpers {
     }
 
     export function getImageUri(ft: csComp.Services.IFeatureType): string {
-        var iconUri = (ft && ft.style) ? ft.style.iconUri : "cs/images/marker.png";
+        var iconUri = (ft && ft.style && ft.style.iconUri) ? ft.style.iconUri : "cs/images/marker.png";
         if (iconUri.indexOf('{') >= 0) iconUri = iconUri.replace('{', '').replace('}', '');
 
         if (ft.style != null && ft.style.drawingMode != null && ft.style.drawingMode.toLowerCase() != "point") {

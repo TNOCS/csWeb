@@ -1761,11 +1761,13 @@ module csComp.Services {
             this.clearLayers();
             this._featureTypes = {};
             this.propertyTypeData = {};
+
             //typesResources
 
             this.$http.get(solutionProject.url)
                 .success((prj: Project) => {
                 this.parseProject(prj, solutionProject, layerIds);
+                //alert('project open ' + this.$location.absUrl());
             })
                 .error(() => {
                 this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
