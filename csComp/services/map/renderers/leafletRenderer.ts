@@ -181,8 +181,6 @@ module csComp.Services {
                         };
                         var d = new Date(0);
                         d.setUTCSeconds(ft / 1000);
-                        d.setFullYear(2011); // so the current year becomes 2011. For easier testing.
-                        // this is for the Env4U project
                         var sDate: string = d.yyyymmdd();
                         var hrs = d.getHours();
                         var mins = d.getMinutes();
