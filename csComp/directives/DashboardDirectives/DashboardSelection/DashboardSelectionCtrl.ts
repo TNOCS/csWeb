@@ -84,7 +84,7 @@ module DashboardSelection {
                     widget.height = '300px';
                     widget.style = this.style;
                     widget.enabled = true;
-                    csComp.Services.Dashboard.addNewWidget(widget, this.$layerService.project.dashboards[0], this.$layerService.solution);
+                    csComp.Services.Dashboard.addNewWidget(widget, this.$layerService.project.activeDashboard, this.$layerService.solution);
                     this.$dashboardService.editWidget(widget)
 
                 }, 100);

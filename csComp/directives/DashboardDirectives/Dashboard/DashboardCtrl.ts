@@ -89,14 +89,9 @@ module Dashboard {
         }
 
         public updateWidget(w: csComp.Services.IWidget) {
-
+            console.log('updating widget ' + w.directive);
             if (w._initialized && this.$scope.dashboard._initialized) return;
             w._initialized = true;
-            console.log('really update widget');
-
-            //this.$dashboardService.updateWidget(w);
-            //var newElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
-            console.log('updating widget');
             var widgetElement;
             var newScope = this.$scope;
             (<any>newScope).widget = w;
@@ -209,6 +204,7 @@ module Dashboard {
         }
 
         public isReady(widget: csComp.Services.IWidget) {
+            this.updateWidget(widget);
             setTimeout(() => {
                 // select the target node
                 // var target = document.querySelector('#' + widget.elementId + '-parent');
@@ -282,7 +278,6 @@ module Dashboard {
 
                     })
 
-                //this.updateWidget(widget);
             }, 10);
 
         }
