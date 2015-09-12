@@ -229,7 +229,7 @@ module Dashboard {
                         .on('down', (e) => {
                         if (widget._interaction) widget._isMoving = true;
                         if (this.$dashboardService.activeWidget != widget) {
-                            this.$dashboardService.editWidget(widget)
+                            //this.$dashboardService.editWidget(widget)
                         }
                     }
                         )

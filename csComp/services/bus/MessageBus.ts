@@ -365,8 +365,8 @@ module csComp.Services {
             // });
 
             //var stack_bar_top = { "dir1": "down", "dir2": "right", "push": "top", "width": "500px", "spacing1": 0, "spacing2": 0 };
-            var stack_bar_top = { "dir1": "down", "dir2": "right", "firstpos1": 0, "firstpos2": ($(window).width() / 2 - 500) }
-
+            //var stack_bar_top = { "dir1": "down", "dir2": "right", "push": "top", "firstpos1": 0, "firstpos2": ($(window).width() / 2 - 500) }
+            var stack_bar_bottom = { "dir1": "up", "dir2": "right", "spacing1": 0, "spacing2": 0 };
 
             var opts = {
                 title: title,
@@ -377,9 +377,39 @@ module csComp.Services {
                     nonblock: true,
                     nonblock_opacity: .2
                 },
-                width: "1000px",
-                stack: stack_bar_top,
-                type: "info"
+
+                // confirm: {
+                //     confirm: true,
+                //     buttons: [{
+                //         buttons: [{
+                //             text: 'Fries',
+                //             addClass: 'btn-primary',
+                //             click: (notice) => {
+                //                 notice.update({
+                //                     title: 'You\'ve Chosen a Side',
+                //                     text: 'You want fries.',
+                //                     icon: true,
+                //                     type: 'info',
+                //                     hide: true,
+                //                     confirm: {
+                //                         confirm: false
+                //                     },
+                //                     buttons: {
+                //                         show_on_nonblock: true,
+                //                         closer: true,
+                //                         sticker: true
+                //                     }
+                //                 });
+                //             }
+                //         }]
+                //     }]
+                // },
+                buttons: {
+                    closer: false,
+                    sticker: false
+                },
+                type: "info",
+                hide: true
             };
 
             new PNotify(opts);

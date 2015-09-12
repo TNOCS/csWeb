@@ -11,7 +11,7 @@
     "range": 2123192,
     "zoomLevelName": "minutes",
     "isLive": false,
-    "focus": 1441722129415,
+    "focus": 1441722125407,
     "zoomLevel": 60000
   },
   "datasources": [
@@ -49,12 +49,12 @@
           "left": "9px",
           "right": "",
           "top": "18px",
-          "width": "550px",
-          "height": "238px",
+          "width": "307px",
+          "height": "154px",
           "data": {
             "spec": {
-              "width": 500,
-              "height": 200,
+              "width": 250,
+              "height": 100,
               "padding": {
                 "top": 10,
                 "left": 30,
@@ -237,13 +237,13 @@
           "style": "custom",
           "left": "9px",
           "right": "",
-          "top": "261px",
-          "width": "550px",
-          "height": "238px",
+          "top": "179px",
+          "width": "307px",
+          "height": "152px",
           "data": {
             "spec": {
-              "width": 490,
-              "height": 190,
+              "width": 250,
+              "height": 100,
               "padding": {
                 "top": 10,
                 "left": 30,
@@ -421,15 +421,15 @@
             "opacity": "0.9"
           },
           "style": "custom",
-          "left": "565px",
+          "left": "324px",
           "right": "",
           "top": "19px",
-          "width": "459px",
-          "height": "480px",
+          "width": "327px",
+          "height": "312px",
           "data": {
             "spec": {
-              "width": 380,
-              "height": 400,
+              "width": 250,
+              "height": 230,
               "data": [
                 {
                   "name": "layer",

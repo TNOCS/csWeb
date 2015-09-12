@@ -60,7 +60,7 @@ module csComp.Services {
 
 
             this.$messageBusService.subscribe("dashboard", (event: string, id: string) => {
-                alert(event);
+                //alert(event);
             });
             this.$messageBusService.subscribe("rightpanel", (event: string, tab: any) => {
                 switch (event) {
@@ -78,6 +78,7 @@ module csComp.Services {
             this.widgetTypes["indicators"] = <IWidget>{ id: "indicators", icon: "cs/images/widgets/indicators.png", description: "Showing sensor data using charts" };
             this.widgetTypes["charts"] = <IWidget>{ id: "charts", icon: "cs/images/widgets/markdown.png", description: "Show custom chart" };
             this.widgetTypes["markdownwidget"] = <IWidget>{ id: "markdownwidget", icon: "cs/images/widgets/markdown.png", description: "Show custom markdown or html content" };
+            this.widgetTypes["iframewidget"] = <IWidget>{ id: "iframewidget", icon: "cs/images/widgets/markdown.png", description: "Show custom iframe" };
             this.widgetTypes["kanbanboard"] = <IWidget>{ id: "kanbanboard", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
         }
 
@@ -145,9 +146,6 @@ module csComp.Services {
         public editWidget(widget: csComp.Services.IWidget) {
             this.activeWidget = widget;
             this.editWidgetMode = true;
-            // $("#widgetEdit").addClass('active');
-
-
 
             var rpt = csComp.Helpers.createRightPanelTab('widget', 'widgetedit', widget, 'Edit widget', 'Edit widget', 'th-large');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
