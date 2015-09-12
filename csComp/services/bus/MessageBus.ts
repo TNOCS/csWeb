@@ -369,8 +369,8 @@ module csComp.Services {
 
 
             var opts = {
-                title: "Over Here",
-                text: "Check me out. I'm in a different stack.",
+                title: title,
+                text: text,
                 cornerclass: 'ui-pnotify-sharp',
                 shadow: false,
                 nonblock: {

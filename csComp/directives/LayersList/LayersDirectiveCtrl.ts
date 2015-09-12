@@ -175,7 +175,7 @@ module LayersDirective {
         }
 
         public addLayer() {
-            this.$messageBusService.notify("test", "test");
+            //this.$messageBusService.notify("test", "test");
             this.state = "directory";
             this.project = this.$layerService.project;
             if (this.project.layerDirectory) {
