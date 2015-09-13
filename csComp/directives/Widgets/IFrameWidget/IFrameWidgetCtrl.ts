@@ -2,6 +2,8 @@ module IFrameWidget {
     export class IFrameWidgetData {
         title: string;
         url: string;
+        width: number;
+        height: number;
         _safeurl: string;
     }
 

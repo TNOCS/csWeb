@@ -60,7 +60,7 @@
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
-    <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <!-- <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script> -->
     <script src="bower_components/angular-translate/angular-translate.min.js"></script>
     <script src="bower_components/leaflet/dist/leaflet.js"></script>
     <script src="bower_components/leaflet.locatecontrol/src/L.Control.Locate.js"></script>
@@ -249,33 +249,7 @@
             </div>
         </div>
 
-        <!-- Right menu items -->
-        <!-- <script>
-            $('#rightpanelTabs a').click(function(e) {
-                var tab = $(this);
-                if (tab.parent('li').hasClass('tab-toggle')) {
-                    var foo = $("#rightpanelTabPanes").children(".tab-pane");
-                    if (foo.hasClass('active')) {
-                        foo.removeClass('active');
-                    } else {
-                        foo.addClass('active');
-                    }
 
-                }
-                if (tab.parent('li').hasClass('active')) {
-                    window.setTimeout(function() {
-                        var foo = $("#rightpanelTabPanes").children(".tab-pane");
-                        foo.removeClass('active');
-                        tab.parent('li').removeClass('active');
-                        $('.leaflet-control-zoom').css('visibility', 'visible');
-                        $('.leaflet-control-locate').css('visibility', 'visible');
-                    }, 1);
-                } else {
-                    $('.leaflet-control-zoom').css('visibility', 'hidden');
-                    $('.leaflet-control-locate').css('visibility', 'hidden');
-                }
-            });
-        </script> -->
     </div>
 
     <!--Loading spinner-->

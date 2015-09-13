@@ -94,6 +94,7 @@ module csComp.Services {
             this.$messageBusService.publish('updatelegend', 'removelegend');
             this.$layerService.project.activeDashboard = dashboard;
             this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
+            this.$location.search('dashboard', dashboard.id);
         }
 
 

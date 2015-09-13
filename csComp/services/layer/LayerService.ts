@@ -68,6 +68,8 @@ module csComp.Services {
 
         currentContour: L.GeoJSON;
 
+        startDashboardId: string;
+
         public visual: VisualState = new VisualState();
         throttleTimelineUpdate: Function;
 
@@ -1763,6 +1765,10 @@ module csComp.Services {
             this.propertyTypeData = {};
 
             //typesResources
+            var s = this.$location.search();
+            if (s.hasOwnProperty('dashboard')) {
+                this.startDashboardId = s['dashboard'];
+            }
 
             this.$http.get(solutionProject.url)
                 .success((prj: Project) => {
@@ -2008,7 +2014,12 @@ module csComp.Services {
 
             this.$messageBusService.publish('project', 'loaded', this.project);
             if (this.project.dashboards && this.project.dashboards.length > 0) {
-                this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
+                var startd = this.project.dashboards[Object.keys(this.project.dashboards)[0]];
+                // find dashboard from url
+                if (this.startDashboardId && this.findDashboardById(this.startDashboardId)) {
+                    startd = this.findDashboardById(this.startDashboardId);
+                }
+                this.$messageBusService.publish('dashboard-main', 'activated', startd);
             }
         }
 
