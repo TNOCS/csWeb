@@ -2,6 +2,7 @@ import Winston = require('winston');
 import helpers = require('../helpers/Utils');
 import fs = require('fs');
 import path = require('path');
+import events = require("events");
 
 /**
  * Api Result status
@@ -61,6 +62,8 @@ export interface IConnector {
     getWithinPolygon(layerId: string, feature: Feature, meta: ApiMeta, callback: Function);
 
 
+    /** Get a specific key */
+    getKey(keyId: string, meta: ApiMeta, callback: Function);
     /** Get a list of available keys */
     getKeys(meta: ApiMeta, callback: Function);
     /** Update the value for a given keyId */
@@ -149,7 +152,7 @@ export class ResourceFile {
     propertyTypes: { [key: string]: PropertyType };
 }
 
-export class ApiManager {
+export class ApiManager extends events.EventEmitter {
 
     /**
      * Dictionary of connectors (e.g. storage, interface, etc.)
@@ -178,7 +181,9 @@ export class ApiManager {
     public name: string = "cs";
 
     /** Create a new client, optionally specifying whether it should act as client. */
-    constructor(public isClient = false) { }
+    constructor(public isClient = false) {
+        super();
+    }
 
     public init() {
         Winston.info(`Init layer manager (isClient=${this.isClient})`, { cat: "api" });
@@ -481,7 +486,7 @@ export class ApiManager {
     }
 
     public addKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
-        Winston.info('add key' + keyId);
+        Winston.info('add key ' + keyId);
         this.keys[keyId] = <Key>{ id: keyId, title: keyId };
     }
 
@@ -494,7 +499,7 @@ export class ApiManager {
         // check subscriptions
         var key = this.findKey(id);
         var keys: { [keyId: string]: Key } = { id: key };
-        callback(<CallbackResult>{ result: ApiResult.OK, keys:  keys });
+        callback(<CallbackResult>{ result: ApiResult.OK, keys: keys });
     }
 
     public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
@@ -517,4 +522,5 @@ export class ApiManager {
         // check subscriptions
         callback(<CallbackResult>{ result: ApiResult.OK })
     }
-i}
+    i
+}
