@@ -90,7 +90,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     private openFile(fileName: string) {
         var id = this.getLayerId(fileName);
         Winston.info('filestore: openfile ' + id);
-        if (!this.manager.layers.hasOwnProperty(id) && !this.layers.hasOwnProperty(id)) {
+        if (!this.layers.hasOwnProperty(id)) {
             fs.readFile(fileName, "utf-8", (err, data) => {
                 if (!err) {
                     var layer = <Layer>JSON.parse(data);
@@ -98,9 +98,11 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     layer.id = id;
                     this.layers[id] = layer;
                     layer.title = id;
+                    layer.storage = this.id;
                     layer.type = "geojson";
                     layer.url = "/api/layers/" + id;
-                    this.manager.addLayer(layer, {}, () => { });
+                    Winston.error('storage ' + layer.storage);
+                    this.manager.updateLayer(layer, {}, () => { });
                 }
             });
         }
@@ -131,6 +133,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     public getLayer(layerId: string, meta: ApiMeta, callback: Function) {
+
         if (this.layers.hasOwnProperty(layerId)) {
             callback(<CallbackResult>{ result: ApiResult.OK, layer: this.layers[layerId] });
         }

@@ -1,6 +1,7 @@
 import ApiManager = require('./ApiManager');
 import express = require('express')
 import Layer = ApiManager.Layer;
+import Feature = ApiManager.Feature;
 import Log = ApiManager.Log;
 import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
@@ -53,14 +54,30 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         });
 
         this.client.on('message', (topic: string, message: string) => {
-            //Winston.info("mqtt: " + topic + "-" + message.toString());
 
-            if (topic.indexOf(this.layerPrefix) === 0) {
-                var lid = topic.substring(this.layerPrefix.length, topic.length);
+            if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
+            // listen to layer updates
+            if (topic === this.layerPrefix) {
                 var layer = <Layer>JSON.parse(message);
-                layer.id = lid;
-                Winston.info('mqtt: update layer ' + lid);
-                this.manager.updateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
+                if (layer && layer.id) {
+                    Winston.info('mqtt: update layer ' + layer.id);
+                    this.manager.updateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
+                }
+            }
+            else if (topic.indexOf(this.layerPrefix) === 0) {
+                var lid = topic.substring(this.layerPrefix.length, topic.length);
+                Winston.error(lid);
+                try {
+                    var feature = <Feature>JSON.parse(message);
+                    if (feature) {
+                        Winston.info('mqtt: update feature for layer ' + lid);
+                        this.manager.updateFeature(lid, feature, <ApiMeta>{ source: this.id }, () => { });
+                    }
+                }
+                catch (e) {
+                    Winston.error("mqtt: error updating feature");
+                }
+
             }
 
             // layers/....

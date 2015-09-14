@@ -349,6 +349,7 @@ export class ApiManager extends events.EventEmitter {
             updated: layer.updated,
             description: layer.description,
             type: layer.type,
+            storage: layer.storage ? layer.storage : "",
             url: layer.url ? layer.url : ("/api/layers/" + layer.id)
         };
         return r;
@@ -398,9 +399,10 @@ export class ApiManager extends events.EventEmitter {
 
     public getLayer(layerId: string, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
-        s.getLayer(layerId, meta, (r: CallbackResult) => {
+        if (s) s.getLayer(layerId, meta, (r: CallbackResult) => {
             callback(r);
-        });
+        })
+        else { callback(<CallbackResult>{ result: ApiResult.LayerNotFound }); }
     }
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
@@ -509,7 +511,7 @@ export class ApiManager extends events.EventEmitter {
 
     public updateFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
-        s.updateFeature(layerId, feature, true, meta, (result) => callback(result));
+        if (s) s.updateFeature(layerId, feature, true, meta, (result) => callback(result));
         this.getInterfaces(meta).forEach((i: IConnector) => {
             i.updateFeature(layerId, feature, false, meta, () => { });
         });

@@ -57,7 +57,7 @@ export class ImbAPI extends BaseConnector.BaseConnector {
                                 this.manager.deleteFeature(layerID, value, <ApiMeta>{ source: this.id, user: "US" }, () => { });
                                 break;
                             case ClientConnection.LayerUpdateAction.updateLayer:
-                                this.manager.updateLayer(layerID, JSON.parse(value), <ApiMeta>{ source: this.id, user: "US" }, () => { });
+                                this.manager.updateLayer(JSON.parse(value), <ApiMeta>{ source: this.id, user: "US" }, () => { });
                                 break;
                         }
                     }

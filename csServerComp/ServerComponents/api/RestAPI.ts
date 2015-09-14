@@ -8,6 +8,7 @@ import BaseConnector = require('./BaseConnector');
 import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
 import ApiMeta = ApiManager.ApiMeta;
+import Winston = require('winston');
 
 export class RestAPI extends BaseConnector.BaseConnector {
 
