@@ -26,7 +26,7 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
-    public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
+    public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
     }
 
     public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {

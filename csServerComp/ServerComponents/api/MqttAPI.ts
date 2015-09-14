@@ -52,8 +52,17 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
         });
 
-        this.client.on('message', (topic, message) => {
-            Winston.info("mqtt: " + topic + "-" + message.toString());
+        this.client.on('message', (topic: string, message: string) => {
+            //Winston.info("mqtt: " + topic + "-" + message.toString());
+
+            if (topic.indexOf(this.layerPrefix) === 0) {
+                var lid = topic.substring(this.layerPrefix.length, topic.length);
+                var layer = <Layer>JSON.parse(message);
+                layer.id = lid;
+                Winston.info('mqtt: update layer ' + lid);
+                this.manager.updateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
+            }
+
             // layers/....
             // layer zonder features
             // url
@@ -90,8 +99,9 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         callback(<CallbackResult> { result: ApiResult.OK });
     }
 
-    public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
-        //todo
+    public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+        this.client.publish(this.layerPrefix + layer.id, JSON.stringify(layer));
+        callback(<CallbackResult> { result: ApiResult.OK });
     }
 
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {

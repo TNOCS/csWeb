@@ -72,7 +72,8 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //Updates EVERY feature in the layer.
         this.server.put(this.layersUrl + ':layerId', (req: any, res: any) => {
-            this.manager.updateLayer(req.params.layerId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            req.layerId = req.params.layerId;
+            this.manager.updateLayer(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });

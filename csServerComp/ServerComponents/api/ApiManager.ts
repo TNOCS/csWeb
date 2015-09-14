@@ -45,7 +45,7 @@ export interface IConnector {
     //Layer methods
     addLayer(layer: Layer, meta: ApiMeta, callback: Function);
     getLayer(layerId: string, meta: ApiMeta, callback: Function);
-    updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function);
+    updateLayer(layer: Layer, meta: ApiMeta, callback: Function);
     deleteLayer(layerId: string, meta: ApiMeta, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function);
@@ -338,6 +338,22 @@ export class ApiManager extends events.EventEmitter {
         return this.findStorage(key);
     }
 
+    /**
+     * Returns layer definition for a layer, this is the layer without the features (mostly used for directory)
+     */
+    private getLayerDefinition(layer: Layer): Layer {
+        if (!layer.hasOwnProperty('type')) layer.type = "geojson";
+        var r = <Layer>{
+            id: layer.id,
+            title: layer.title,
+            updated: layer.updated,
+            description: layer.description,
+            type: layer.type,
+            url: layer.url ? layer.url : ("/api/layers/" + layer.id)
+        };
+        return r;
+    }
+
     //layer methods start here, in CRUD order.
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         // give it an id if not available
@@ -353,16 +369,16 @@ export class ApiManager extends events.EventEmitter {
         var s = this.findStorage(layer);
         // check if layer already exists
         if (!this.layers.hasOwnProperty(layer.id)) {
-            if (!layer.hasOwnProperty('type')) layer.type = "geojson";
-            this.layers[layer.id] = <Layer>{
-                id: layer.id,
-                storage: s ? s.id : "",
-                title: layer.title,
-                updated: layer.updated,
-                description: layer.description,
-                type: layer.type,
-                url: layer.url ? layer.url : ("/api/layers/" + layer.id)
-            };
+            // add storage connector if available
+            layer.storage = s ? s.id : "";
+
+            // get layer definition (without features)
+            this.layers[layer.id] = this.getLayerDefinition(layer);
+
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.initLayer(layer);
+                i.addLayer(layer, meta, () => { });
+            });
 
             // store layer
             if (s) s.addLayer(layer, meta, (r: CallbackResult) => {
@@ -371,11 +387,6 @@ export class ApiManager extends events.EventEmitter {
             else {
                 callback(<CallbackResult>{ result: ApiResult.OK });
             };
-
-            this.getInterfaces(meta).forEach((i: IConnector) => {
-                i.initLayer(layer);
-                i.addLayer(layer, meta, () => { });
-            });
 
             this.saveLayersDelay();
         }
@@ -392,20 +403,39 @@ export class ApiManager extends events.EventEmitter {
         });
     }
 
-    public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
-        if (!this.layers.hasOwnProperty(layerId)) {
-            this.addLayer
-        }
-        var s = this.findStorageForLayerId(layerId);
-        if (s) {
-            s.updateLayer(layerId, update, meta, (r, CallbackResult) => {
-                Winston.warn('updating layer finished');
-                callback(r);
-            });
-        }
-        else {
-            callback(<CallbackResult>{ result: ApiResult.Error, error: 'layer not found' });
-        }
+    public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+        async.series([
+            // make sure layer exists
+            (cb: Function) => {
+                if (!this.layers.hasOwnProperty(layer.id)) {
+                    this.addLayer(layer, meta, () => {
+                        cb();
+                    });
+                }
+                else { cb(); }
+            },
+            // update layer
+            (cb: Function) => {
+                this.setUpdateLayer(layer, meta);
+                var l = this.getLayerDefinition(layer);
+                this.layers[l.id] = l;
+
+                this.getInterfaces(meta).forEach((i: IConnector) => {
+                    i.updateLayer(layer, meta, () => { });
+                });
+
+                var s = this.findStorageForLayerId(layer.id);
+                if (s) {
+                    s.updateLayer(layer, meta, (r, CallbackResult) => {
+                        Winston.warn('updating layer finished');
+                    });
+                }
+                callback(<CallbackResult>{ result: ApiResult.OK });
+                this.saveLayersDelay();
+            }
+        ])
+
+
     }
 
     public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {

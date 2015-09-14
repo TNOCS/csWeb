@@ -1926,6 +1926,10 @@ module csComp.Services {
                             if (!l) {
                                 this.$messageBusService.notify('New layer available', layer.title);
                             }
+                            else {
+                                this.$messageBusService.notify('New update available for', layer.title);
+                                if (l.enabled) l.layerSource.refreshLayer(l);
+                            }
                         }
                     }
                 });

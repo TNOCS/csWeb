@@ -11,7 +11,7 @@
     "range": 2123192,
     "zoomLevelName": "minutes",
     "isLive": false,
-    "focus": 1441722125407,
+    "focus": 1441722082464,
     "zoomLevel": 60000
   },
   "datasources": [
@@ -32,7 +32,6 @@
       "showRightmenu": false,
       "showBackgroundImage": false,
       "visiblelayers": [
-        "test"
       ],
       "widgets": [
         {
@@ -572,18 +571,6 @@
           "url": "api/layers/test",
           "typeUrl": "data/resourceTypes/resources.json",
           "opacity": 100,
-          "isDynamic": true,
-          "gui": {}
-        },
-        {
-          "id": "test2",
-          "title": "test2",
-          "type": "dynamicgeojson",
-          "renderType": "geojson",
-          "heatmapItems": null,
-          "url": "api/layers/testje",
-          "typeUrl": "data/resourceTypes/resources.json",
-          "opacity": "100",
           "isDynamic": true,
           "gui": {}
         }

@@ -122,9 +122,9 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {Function} callback [callback]
      * @return {result}            [success of the operation]
      */
-    public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
-        var collection = this.db.collection(layerId);
-        collection.update({}, { $set: update }, { safe: true, multi: true }, (e, response) => {
+    public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+        var collection = this.db.collection(layer.id);
+        collection.update({}, { $set: layer }, { safe: true, multi: true }, (e, response) => {
             if (!e) {
                 callback(<CallbackResult>{ result: ApiResult.OK });
             }

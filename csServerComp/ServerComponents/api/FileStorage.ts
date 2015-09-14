@@ -139,9 +139,9 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
     }
 
-    public updateLayer(layerId: string, update: Layer, meta: ApiMeta, callback: Function) {
-        if (this.layers.hasOwnProperty(layerId)) {
-            this.layers[layerId] = update;
+    public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+        if (this.layers.hasOwnProperty(layer.id)) {
+            this.layers[layer.id] = layer;
             callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
         }
         else {
