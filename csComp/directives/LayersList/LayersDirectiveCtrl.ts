@@ -174,8 +174,7 @@ module LayersDirective {
             //alert('open layers');
         }
 
-        public addLayer() {
-            this.$messageBusService.notify("test", "test");
+        public openDirectory() {
             this.state = "directory";
             this.project = this.$layerService.project;
             if (this.project.layerDirectory) {
@@ -201,6 +200,10 @@ module LayersDirective {
             }, () => {
                     //console.log('Modal dismissed at: ' + new Date());
                 });
+        }
+
+        public addLayer() {
+
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {

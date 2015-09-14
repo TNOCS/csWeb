@@ -12,9 +12,6 @@
                 margin-top: 6px;
             }
 
-
-
-
         .addlayer-image {
             width: 25px;
             height: 25px;
@@ -92,8 +89,9 @@
                 <button class="button fa fa-chevron-down leftpanel-header-button" ng-click="vm.collapseAll()" popover="{{'COLLAPSE_ALL' | translate}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter" popover-append-to-body="true" />
             </div>
             <span translate="LAYERS" />
-            <div ng-show="vm.$mapService.isAdminExpert" class="leftpanel-header-button-container">
-                <img src="cs/images/directory.png" style="cursor:pointer" class="button leftpanel-header-button" ng-click="vm.addLayer()" />
+            <div ng-show="vm.$mapService.isIntermediate" class="leftpanel-header-button-container">
+                <button style="cursor:pointer" class="fa fa-folder button leftpanel-header-button" ng-click="vm.openDirectory()" />
+                <button style="cursor:pointer" class="fa fa-plus button leftpanel-header-button" ng-click="vm.addLayer()" />
             </div>
         </h3>
 
