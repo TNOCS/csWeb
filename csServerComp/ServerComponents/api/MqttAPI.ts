@@ -77,7 +77,6 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                 catch (e) {
                     Winston.error("mqtt: error updating feature");
                 }
-
             }
 
             // layers/....
