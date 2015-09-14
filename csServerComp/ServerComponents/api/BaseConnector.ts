@@ -92,6 +92,8 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
+    /** Get a specific key */
+    public getKey(keyId: string, meta: ApiMeta, callback: Function) { }
     /** Get a list of available keys */
     public getKeys(meta: ApiMeta, callback: Function) { }
     /** Update the value for a given keyId */
