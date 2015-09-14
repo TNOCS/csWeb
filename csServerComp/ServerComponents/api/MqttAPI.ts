@@ -31,8 +31,6 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
         this.client = (<any>mqtt).connect("mqtt://" + this.server + ":" + this.port);
 
-
-
         // enable the subscription router
         //this.router = mqttrouter.MqttAPI.Router(this.client);
 
@@ -60,8 +58,6 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
             //_.startsWith(topic,this.keyPrefix)
         });
-
-
 
         // express api aanmaken
         // vb. addFeature,
