@@ -4,6 +4,7 @@ import fs = require('fs');
 import path = require('path');
 import events = require("events");
 import _ = require('underscore');
+import async = require('async');
 
 /**
  * Api Result status
@@ -177,8 +178,9 @@ export class ApiManager extends events.EventEmitter {
 
     public defaultStorage = "";
     public defaultLogging = false;
+    public rootPath = "";
     public resourceFolder = "/data/resourceTypes";
-    public layersFile = "layers.json";
+    public layersFile = "";
     /** The ApiManager name can be used to identify this instance (e.g. mqtt can create a namespace/channel for this api) */
     public name: string = "cs";
 
@@ -187,34 +189,43 @@ export class ApiManager extends events.EventEmitter {
         super();
     }
 
-    public init() {
+    public init(rootPath: string, callback: Function) {
         Winston.info(`Init layer manager (isClient=${this.isClient})`, { cat: "api" });
-        this.initLayers();
+        this.rootPath = rootPath;
+        this.initResources(path.join(rootPath, "/resourceTypes/"));
+        this.loadLayerConfig(() => {
+            callback();
+        });
     }
 
     /**
      * Open layer config file
      */
-    public initLayers() {
+    public loadLayerConfig(cb: Function) {
         Winston.info('manager: loading layer config');
+        this.layersFile = path.join(this.rootPath, "layers.json");
 
         fs.readFile(this.layersFile, "utf-8", (err, data) => {
             if (!err) {
                 Winston.info('manager: layer config loaded');
                 this.layers = <{ [key: string]: Layer }>JSON.parse(data);
             }
+            cb();
         });
 
     }
 
+    /**
+     * Have a 1 sec. delay before saving layer config
+     */
     public saveLayersDelay = _.debounce((layer: Layer) => {
-        this.saveLayers();
+        this.saveLayerConfig();
     }, 1000);
 
     /**
      * Store layer config file
      */
-    public saveLayers() {
+    public saveLayerConfig() {
         fs.writeFile(this.layersFile, JSON.stringify(this.layers), (error) => {
             if (error) {
                 Winston.info('manager: error saving layer config');
@@ -239,7 +250,6 @@ export class ApiManager extends events.EventEmitter {
                 fs.readFile(loc, "utf-8", (err, data) => {
                     if (!err) {
                         this.resources[file.replace('.json', '').toLowerCase()] = <ResourceFile>JSON.parse(data);
-                        console.log('opened ' + loc);
                     };
                 });
 
@@ -383,7 +393,9 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
-
+        if (!this.layers.hasOwnProperty(layerId)) {
+            this.addLayer
+        }
         var s = this.findStorageForLayerId(layerId);
         if (s) {
             s.updateLayer(layerId, update, meta, (r, CallbackResult) => {

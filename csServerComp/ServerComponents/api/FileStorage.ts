@@ -13,6 +13,7 @@ var chokidar = require('chokidar');
 import Winston = require('winston');
 
 
+
 export class FileStorage extends BaseConnector.BaseConnector {
     public manager: ApiManager.ApiManager
 
