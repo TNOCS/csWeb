@@ -54,6 +54,13 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
         this.client.on('message', (topic, message) => {
             Winston.info("mqtt: " + topic + "-" + message.toString());
+            // layers/....
+            // layer zonder features
+            // url
+            // title
+            //
+            // keys/..
+            //this.manager.addLayer(layer: ApiManager.Layer, meta: ApiManager.ApiMeta, callback: Function)
             //this.manager.updateKey(topic, message, <ApiMeta>{}, () => { });
 
             //_.startsWith(topic,this.keyPrefix)

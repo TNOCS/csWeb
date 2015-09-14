@@ -310,12 +310,12 @@ export class ApiManager extends events.EventEmitter {
             if (!layer.hasOwnProperty('type')) layer.type = "geojson";
             this.layers[layer.id] = <Layer>{
                 id: layer.id,
-                storage: s.id,
+                storage: s ? s.id : "",
                 title: layer.title,
                 updated: layer.updated,
                 description: layer.description,
                 type: layer.type,
-                url: "/api/layers/" + layer.id
+                url: layer.url ? layer.url : ("/api/layers/" + layer.id)
             };
 
             // store layer
@@ -502,7 +502,10 @@ export class ApiManager extends events.EventEmitter {
         callback(<CallbackResult>{ result: ApiResult.OK, keys: keys });
     }
 
-    public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
+    public updateKey(keyId: string, value: Object, meta?: ApiMeta, callback?: Function) {
+        if (!meta) meta = <ApiMeta>{};
+        if (!callback) callback = () => {};
+
         Winston.info('updatekey:received' + keyId);
         // check if keys exists
         var key = this.findKey(keyId);

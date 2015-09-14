@@ -200,7 +200,6 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         });
 
-
         //update a key
         this.server.post(this.keysUrl + ":keyId", (req: express.Request, res: express.Response) => {
             this.manager.updateKey(req.params.keyId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
