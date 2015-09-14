@@ -3,6 +3,7 @@ import helpers = require('../helpers/Utils');
 import fs = require('fs');
 import path = require('path');
 import events = require("events");
+import _ = require('underscore');
 
 /**
  * Api Result status
@@ -174,9 +175,10 @@ export class ApiManager extends events.EventEmitter {
      */
     public keys: { [keyId: string]: Key } = {};
 
-    public defaultStorage = "file";
+    public defaultStorage = "";
     public defaultLogging = false;
     public resourceFolder = "/data/resourceTypes";
+    public layersFile = "layers.json";
     /** The ApiManager name can be used to identify this instance (e.g. mqtt can create a namespace/channel for this api) */
     public name: string = "cs";
 
@@ -187,6 +189,40 @@ export class ApiManager extends events.EventEmitter {
 
     public init() {
         Winston.info(`Init layer manager (isClient=${this.isClient})`, { cat: "api" });
+        this.initLayers();
+    }
+
+    /**
+     * Open layer config file
+     */
+    public initLayers() {
+        Winston.info('manager: loading layer config');
+
+        fs.readFile(this.layersFile, "utf-8", (err, data) => {
+            if (!err) {
+                Winston.info('manager: layer config loaded');
+                this.layers = <{ [key: string]: Layer }>JSON.parse(data);
+            }
+        });
+
+    }
+
+    public saveLayersDelay = _.debounce((layer: Layer) => {
+        this.saveLayers();
+    }, 1000);
+
+    /**
+     * Store layer config file
+     */
+    public saveLayers() {
+        fs.writeFile(this.layersFile, JSON.stringify(this.layers), (error) => {
+            if (error) {
+                Winston.info('manager: error saving layer config');
+            }
+            else {
+                Winston.info('manager: layer config saved');
+            }
+        });
     }
 
     /**
@@ -319,14 +355,19 @@ export class ApiManager extends events.EventEmitter {
             };
 
             // store layer
-            s.addLayer(layer, meta, (r: CallbackResult) => {
+            if (s) s.addLayer(layer, meta, (r: CallbackResult) => {
                 callback(r);
-            });
+            })
+            else {
+                callback(<CallbackResult>{ result: ApiResult.OK });
+            };
 
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.initLayer(layer);
                 i.addLayer(layer, meta, () => { });
             });
+
+            this.saveLayersDelay();
         }
         else {
             callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
@@ -342,6 +383,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
+
         var s = this.findStorageForLayerId(layerId);
         if (s) {
             s.updateLayer(layerId, update, meta, (r, CallbackResult) => {
@@ -504,7 +546,7 @@ export class ApiManager extends events.EventEmitter {
 
     public updateKey(keyId: string, value: Object, meta?: ApiMeta, callback?: Function) {
         if (!meta) meta = <ApiMeta>{};
-        if (!callback) callback = () => {};
+        if (!callback) callback = () => { };
 
         Winston.info('updatekey:received' + keyId);
         // check if keys exists
