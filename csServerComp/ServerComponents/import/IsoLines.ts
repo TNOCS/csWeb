@@ -1,5 +1,6 @@
-import GeoJSON = require('../../ServerComponents/helpers/GeoJSON')
-import Conrec = require('../../ServerComponents/helpers/conrec')
+import ApiManager = require('../api/ApiManager');
+import GeoJSON = require('../helpers/GeoJSON')
+import Conrec = require('../helpers/conrec')
 
 export interface IGridDataSourceParameters extends GeoJSON.IProperty {
     /**
@@ -321,15 +322,14 @@ export class IsoLines {
         contourList.forEach(contour => {
             var result: GeoJSON.IProperty = {};
             result[propertyName] = contour.level;
-            var feature = <GeoJSON.IFeature>{
-                id: (counter++).toString(),
-                type: 'Feature',
-                geometry: {
+            var feature = new ApiManager.Feature();
+            feature.id = (counter++).toString();
+            feature.type = 'Feature';
+            feature.geometry = {
                     type: 'Polygon',
                     coordinates: null
-                },
-                properties: result
-            };
+                };
+            feature.properties = result
             var ring: number[][] = [];
             feature.geometry.coordinates = [ring];
             contour.forEach(p => {
