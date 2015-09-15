@@ -101,6 +101,14 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
+    public getProject(projectId, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public updateProject(project: Project, meta: ApiMeta, callback: Function) {
+
+    }
+
     public deleteProject(projectId, meta: ApiMeta, callback: Function) {
 
     }

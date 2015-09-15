@@ -1919,7 +1919,8 @@ module csComp.Services {
             if (solutionProject.dynamic) {
                 // listen to directory updates
                 this.$messageBusService.serverSubscribe("", "directory", (sub: string, msg: any) => {
-                    if (msg.action != "subscribed" && msg.data && msg.data.item) {
+                    if (msg.action === "subscribed") return;
+                    if (msg.action === 'layer' && msg.data && msg.data.item) {
                         var layer = <ProjectLayer>msg.data.item;
                         if (layer) {
                             var l = this.findLayer(layer.id);
@@ -1927,7 +1928,20 @@ module csComp.Services {
                                 this.$messageBusService.notify('New layer available', layer.title);
                             }
                             else {
-                                this.$messageBusService.notify('New update available for', layer.title);
+                                this.$messageBusService.notify('New update available for layer ', layer.title);
+                                if (l.enabled) l.layerSource.refreshLayer(l);
+                            }
+                        }
+                    }
+                    if (msg.action === 'project' && msg.data && msg.data.item) {
+                        var project = <Project>msg.data.item;
+                        if (project) {
+                            var p = (this.project.id === project.id);
+                            if (!p) {
+                                this.$messageBusService.notify('New project available', project.title);
+                            }
+                            else {
+                                this.$messageBusService.notify('New update available for project ', project.title);
                                 if (l.enabled) l.layerSource.refreshLayer(l);
                             }
                         }
