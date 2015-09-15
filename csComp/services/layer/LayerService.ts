@@ -1047,11 +1047,11 @@ module csComp.Services {
                                 feature.gui['style'][gs.property] = s.fillColor;
                                 break;
                             case 'strokeWidth':
-                                s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
+                                s.strokeWidth = ((v - gs.info.min) / (gs.info.max - gs.info.min) * 10) + 1;
 
                                 break;
                             case 'height':
-                                s.height = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 25000);
+                                s.height = ((v - gs.info.min) / (gs.info.max - gs.info.min) * 25000);
                                 break;
                         }
                     } else {
@@ -2237,24 +2237,24 @@ module csComp.Services {
                 }
             });
             if (isNaN(sum) || r.count == 0) {
-                r.sdMax = r.max;
-                r.sdMin = r.min;
+                //r.sdMax = r.max;
+                //r.sdMin = r.min;
             } else {
                 r.mean = sum / r.count;
                 r.varience = sumsq / r.count - r.mean * r.mean;
                 r.sd = Math.sqrt(r.varience);
-                r.sdMax = r.mean + 3 * r.sd;
-                r.sdMin = r.mean - 3 * r.sd;
-                if (r.min > r.sdMin) r.sdMin = r.min;
-                if (r.max < r.sdMax) r.sdMax = r.max;
-                if (r.sdMin === NaN) r.sdMin = r.min;
-                if (r.sdMax === NaN) r.sdMax = r.max;
+                //r.sdMax = r.mean + 3 * r.sd;
+                //r.sdMin = r.mean - 3 * r.sd;
+                //if (r.min > r.sdMin) r.sdMin = r.min;
+                //if (r.max < r.sdMax) r.sdMax = r.max;
+                //if (r.sdMin === NaN) r.sdMin = r.min;
+                //if (r.sdMax === NaN) r.sdMax = r.max;
             }
             if (this.propertyTypeData.hasOwnProperty(property)) {
                 var mid = this.propertyTypeData[property];
-                if (mid.maxValue != null) r.sdMax = mid.maxValue;
-                if (mid.minValue != null) r.sdMin = mid.minValue;
-                if (mid.minValue && mid.maxValue) r.mean = (r.sdMax + r.sdMin) / 2;
+                //if (mid.maxValue != null) r.sdMax = mid.maxValue;
+                //if (mid.minValue != null) r.sdMin = mid.minValue;
+                //if (mid.minValue && mid.maxValue) r.mean = (r.sdMax + r.sdMin) / 2;
             }
             return r;
         }

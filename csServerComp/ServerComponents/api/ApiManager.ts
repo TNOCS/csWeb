@@ -145,13 +145,14 @@ export class ProjectId {
  */
 export class Geometry {
     public type: string;
-    public coordinates: number[];
+    public coordinates: number[] | number[][] | number[][][];
 }
 
 /**
  * Geojson feature definition
  */
 export class Feature {
+    public type: string = 'Feature';
     public id: string;
     public geometry: Geometry;
     public properties: { [key: string]: any };
@@ -849,5 +850,4 @@ export class ApiManager extends events.EventEmitter {
         // check subscriptions
         callback(<CallbackResult>{ result: ApiResult.OK })
     }
-    i
 }
