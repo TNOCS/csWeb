@@ -86,6 +86,7 @@ export class Key implements StorageObject {
     id: string;
     title: string;
     storage: string;
+    values: Object[];
 }
 
 /**
@@ -573,7 +574,7 @@ export class ApiManager extends events.EventEmitter {
 
     public addKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
         Winston.info('add key ' + keyId);
-        this.keys[keyId] = <Key>{ id: keyId, title: keyId };
+        this.keys[keyId] = <Key>{ id: keyId, title: keyId, storage: 'file' };
     }
 
     public getKeys(meta: ApiMeta, callback: Function) {

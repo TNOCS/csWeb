@@ -66,7 +66,6 @@ export class MqttAPI extends BaseConnector.BaseConnector {
             }
             else if (topic.indexOf(this.layerPrefix) === 0) {
                 var lid = topic.substring(this.layerPrefix.length, topic.length);
-                Winston.error(lid);
                 try {
                     var feature = <Feature>JSON.parse(message);
                     if (feature) {
@@ -76,6 +75,21 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                 }
                 catch (e) {
                     Winston.error("mqtt: error updating feature");
+                }
+            }
+
+            if (topic.indexOf(this.keyPrefix) === 0) {
+                var kid = topic.substring(this.keyPrefix.length, topic.length);
+                if (kid) {
+                    try {
+                        var obj = JSON.parse(message);
+                        Winston.info('mqtt: update key for id ' + kid + " : " + message);
+                        this.manager.updateKey(kid, obj, <ApiMeta>{ source: this.id }, () => { });
+                    }
+                    catch (e) {
+                        Winston.error('mqtt: error updating key for id ' + kid + " : " + message);
+
+                    }
                 }
             }
 
@@ -104,7 +118,8 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     }
 
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
-        this.client.publish(this.layerPrefix, JSON.stringify(layer));
+        if (meta.source !== this.id)
+            this.client.publish(this.layerPrefix, JSON.stringify(layer));
         callback(<CallbackResult> { result: ApiResult.OK });
     }
 
@@ -116,12 +131,15 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     }
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
-        this.client.publish(this.layerPrefix + layer.id, JSON.stringify(layer));
+        if (meta.source !== this.id)
+            this.client.publish(this.layerPrefix + layer.id, JSON.stringify(layer));
         callback(<CallbackResult> { result: ApiResult.OK });
     }
 
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
-        this.client.publish(this.layerPrefix + layerId, JSON.stringify(feature));
+        Winston.error('mqtt update feature');
+        if (meta.source !== this.id)
+            this.client.publish(this.layerPrefix + layerId, JSON.stringify(feature));
         callback(<CallbackResult> { result: ApiResult.OK });
     }
 
@@ -144,7 +162,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     }
 
     public initLayer(layer: Layer) {
-        this.client.subscribe(this.layerPrefix + layer.id + "/addFeature");
+        //this.client.subscribe(this.layerPrefix + layer.id + "/addFeature");
         Winston.info('mqtt: init layer ' + layer.id);
     }
 
