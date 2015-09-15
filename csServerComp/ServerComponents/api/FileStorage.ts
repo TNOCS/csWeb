@@ -402,6 +402,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
 
 
+
     public getFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var l = this.layers[layerId];
         var found = false;
@@ -444,6 +445,16 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (!key.values) key.values = [];
         this.keys[key.id] = key;
         this.saveKeyDelay(key);
+    }
+
+    public getKey(keyId: string, meta: ApiMeta, callback: Function) {
+        if (this.keys.hasOwnProperty(keyId)) {
+            var k = this.keys[keyId];
+            callback(<CallbackResult>{ result: ApiResult.OK, key: k });
+        }
+        else {
+            callback(<CallbackResult>{ result: ApiResult.KeyNotFound });
+        }
     }
 
     public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
