@@ -1,4 +1,5 @@
 import ApiManager = require('./ApiManager');
+import Project = ApiManager.Project;
 import Layer = ApiManager.Layer;
 import fs = require('fs');
 import path = require('path');
@@ -20,23 +21,27 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public manager: ApiManager.ApiManager
 
     public layers: { [key: string]: Layer } = {}
+    public projects: { [key: string]: Project } = {}
     public keys: { [key: string]: Key } = {}
     public layersPath: string;
     public keysPath: string;
+    public projectsPath: string;
 
     constructor(public rootpath: string) {
         super();
         this.keysPath = path.join(rootpath, "keys/");
         this.layersPath = path.join(rootpath, "layers/");
+        this.projectsPath = path.join(rootpath, "projects/");
         // check if rootpath exists
         if (!fs.existsSync(rootpath)) { fs.mkdirSync(rootpath); }
-        // load layers
-        this.watchLayerFolder();
+
+        this.watchLayersFolder();
         this.watchKeysFolder();
+        this.watchProjectsFolder();
     }
 
 
-    public watchLayerFolder() {
+    public watchLayersFolder() {
         Winston.info('filestore: watch folder:' + this.layersPath);
         if (!fs.existsSync(this.layersPath)) { fs.mkdirSync(this.layersPath); }
         setTimeout(() => {
@@ -45,10 +50,32 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
                 if (action == "add") {
                     Winston.info('filestore: new file found : ' + path);
-                    this.openLayer(path);
+                    this.openLayerFile(path);
                 }
                 if (action == "unlink") {
-                    this.closeLayer(path);
+                    this.closeLayerFile(path);
+                    //this.removeLayer(path);
+                }
+                if (action == "change") {
+                    //this.addLayer(path);
+                }
+            }));
+        }, 1000);
+    }
+
+    public watchProjectsFolder() {
+        Winston.info('filestore: watch folder:' + this.projectsPath);
+        if (!fs.existsSync(this.projectsPath)) { fs.mkdirSync(this.projectsPath); }
+        setTimeout(() => {
+            var watcher = chokidar.watch(this.projectsPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
+            watcher.on('all', ((action, path) => {
+
+                if (action == "add") {
+                    Winston.info('filestore: new file found : ' + path);
+                    this.openProjectFile(path);
+                }
+                if (action == "unlink") {
+                    this.closeLayerFile(path);
                     //this.removeLayer(path);
                 }
                 if (action == "change") {
@@ -70,6 +97,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                 }
                 if (action == "unlink") {
                     this.closeKey(path);
+                    this.closeProjectFile(path);
                     //this.removeLayer(path);
                 }
                 if (action == "change") {
@@ -77,6 +105,26 @@ export class FileStorage extends BaseConnector.BaseConnector {
                 }
             }));
         }, 1000);
+        //Winston.info(action + " - " + path); });
+
+        //Winston.info(action + " - " + path); });
+
+    }
+
+    saveProjectDelay = _.debounce((project: Project) => {
+        this.saveProjectFile(project);
+    }, 5000);
+
+    saveKeyDelay = _.debounce((key: Key) => {
+        this.saveKeyFile(key);
+    }, 5000);
+
+    saveLayerDelay = _.debounce((layer: Layer) => {
+        this.saveLayerFile(layer);
+    }, 5000);
+
+    private getProjectFilename(projectId: string) {
+        return path.join(this.projectsPath, projectId + ".json");
     }
 
     private getLayerFilename(layerId: string) {
@@ -87,11 +135,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         return path.join(this.keysPath, keyId + ".json");
     }
 
-    saveKeyDelay = _.debounce((key: Key) => {
-        this.saveKey(key);
-    }, 5000);
-
-    private saveKey(key: Key) {
+    private saveKeyFile(key: Key) {
         var fn = this.getKeyFilename(key.id);
         fs.writeFile(fn, JSON.stringify(key), (error) => {
             if (error) {
@@ -103,11 +147,19 @@ export class FileStorage extends BaseConnector.BaseConnector {
         });
     }
 
-    saveLayerDelay = _.debounce((layer: Layer) => {
-        this.saveLayer(layer);
-    }, 5000);
+    private saveProjectFile(project: Project) {
+        var fn = this.getProjectFilename(project.id);
+        fs.writeFile(fn, JSON.stringify(project), (error) => {
+            if (error) {
+                Winston.info('error writing file : ' + fn);
+            }
+            else {
+                Winston.info('filestore: file saved : ' + fn);
+            }
+        });
+    }
 
-    private saveLayer(layer: Layer) {
+    private saveLayerFile(layer: Layer) {
         var fn = this.getLayerFilename(layer.id);
         fs.writeFile(fn, JSON.stringify(layer), (error) => {
             if (error) {
@@ -119,16 +171,25 @@ export class FileStorage extends BaseConnector.BaseConnector {
         });
     }
 
+    private getProjectId(fileName: string) {
+        return path.basename(fileName).toLowerCase().replace('.json', '');
+    }
+
     private getLayerId(fileName: string) {
         return path.basename(fileName).toLowerCase().replace('.json', '');
     }
 
-    private closeLayer(fileName: string) {
+    private closeLayerFile(fileName: string) {
         var id = this.getLayerId(fileName);
         this.manager.deleteLayer(id, {}, () => { });
     }
 
-    private openLayer(fileName: string) {
+    private closeProjectFile(fileName: string) {
+        var id = this.getProjectId(fileName);
+        this.manager.deleteProject(id, {}, () => { });
+    }
+
+    private openLayerFile(fileName: string) {
         var id = this.getLayerId(fileName);
         Winston.info('filestore: openfile ' + id);
         if (!this.layers.hasOwnProperty(id)) {
@@ -177,6 +238,29 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (path.basename(fileName) === 'project.json') return;
     }
 
+    private openProjectFile(fileName: string) {
+        var id = this.getProjectId(fileName);
+        Winston.info('filestore: openfile ' + id);
+        if (!this.projects.hasOwnProperty(id)) {
+            fs.readFile(fileName, "utf-8", (err, data) => {
+                if (!err) {
+                    var project = <Project>JSON.parse(data);
+                    project.storage = this.id;
+                    project.id = id;
+                    this.projects[id] = project;
+                    project.title = id;
+                    project.logo = "";
+                    project.url = "/api/projects/" + id;
+                    Winston.error('storage ' + project.storage);
+                    //this.manager.updateProject(project, {}, () => { });
+                }
+            });
+        }
+
+        if (path.basename(fileName) === 'project.json') return;
+    }
+
+
     /**
      * Find layer for a specific layerId (can return null)
      */
@@ -184,6 +268,37 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (this.layers.hasOwnProperty(layerId)) {
             return this.layers[layerId];
         } else { return null; };
+    }
+
+    public addProject(project: Project, meta: ApiMeta, callback: Function) {
+        try {
+            this.projects[project.id] = project;
+            this.saveProjectDelay(project);
+            callback(<CallbackResult> { result: ApiResult.OK });
+        }
+        catch (e) {
+            callback(<CallbackResult>{ result: ApiResult.OK, error: null });
+        }
+    }
+
+    public getProject(projectId: string, meta: ApiMeta, callback: Function) {
+
+        if (this.layers.hasOwnProperty(projectId)) {
+            callback(<CallbackResult>{ result: ApiResult.OK, project: this.projects[projectId] });
+        }
+        else {
+            callback(<CallbackResult>{ result: ApiResult.ProjectNotFound });
+        }
+    }
+
+    public updateProject(project: Project, meta: ApiMeta, callback: Function) {
+        if (this.projects.hasOwnProperty(project.id)) {
+            this.projects[project.id] = project;
+            callback(<CallbackResult>{ result: ApiResult.OK, project: null });
+        }
+        else {
+            callback(<CallbackResult>{ result: ApiResult.Error });
+        }
     }
 
     // layer methods first, in crud order.

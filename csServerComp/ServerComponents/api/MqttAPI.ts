@@ -18,7 +18,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     public client: any;
     public router: any;
 
-    constructor(public server: string, public port: number = 1883, private layerPrefix = "layers", private keyPrefix = "keys") {
+    constructor(public server: string, public port: number = 1883, public layerPrefix = "layers", public keyPrefix = "keys") {
         super();
         this.isInterface = true;
         this.receiveCopy = false;
@@ -54,7 +54,6 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         });
 
         this.client.on('message', (topic: string, message: string) => {
-
             if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
             // listen to layer updates
             if (topic === this.layerPrefix) {
@@ -65,6 +64,8 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                 }
             }
             else if (topic.indexOf(this.layerPrefix) === 0) {
+                Winston.error("---------------------------");
+                Winston.error(topic);
                 var lid = topic.substring(this.layerPrefix.length, topic.length);
                 try {
                     var feature = <Feature>JSON.parse(message);
