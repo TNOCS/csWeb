@@ -193,9 +193,7 @@ export class ApiManager extends events.EventEmitter {
         Winston.info(`Init layer manager (isClient=${this.isClient})`, { cat: "api" });
         this.rootPath = rootPath;
         this.initResources(path.join(rootPath, "/resourceTypes/"));
-        this.loadLayerConfig(() => {
-            callback();
-        });
+        this.loadLayerConfig(() => callback());
     }
 
     /**
