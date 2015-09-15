@@ -1,10 +1,11 @@
+import ApiManager = require('../api/ApiManager');
 import Utils = require('./Utils');
 
 export interface IGeoJson {
     id?: string;
     /** Typically, this would be FeatureCollection */
     type?: string;
-    features: IFeature[];
+    features: ApiManager.Feature[];
     [key: string]: any;
 }
 
@@ -15,7 +16,7 @@ export class GeoJSONFactory {
     /**
      * Create a GeoJSON file from an array of features.
      */
-    public static Create(features: IFeature[]): IGeoJson {
+    public static Create(features: ApiManager.Feature[]): IGeoJson {
         return {
             id: Utils.newGuid(),
             type: 'FeatureCollection',
