@@ -1,4 +1,5 @@
 import ApiManager = require('./ApiManager');
+import Project = ApiManager.Project;
 import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import CallbackResult = ApiManager.CallbackResult;
@@ -89,6 +90,14 @@ export class BaseConnector implements ApiManager.IConnector {
     }
 
     public getWithinPolygon(layerId: string, feature: Feature, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public initProject(project: Project) {
+
+    }
+
+    public addProject(project: Project, meta: ApiMeta, callback: Function) {
 
     }
 

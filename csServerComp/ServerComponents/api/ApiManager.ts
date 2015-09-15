@@ -3,7 +3,7 @@ import helpers = require('../helpers/Utils');
 import fs = require('fs');
 import path = require('path');
 import events = require("events");
-import _ = require('underscore');
+import _ = require('lodash');
 import async = require('async');
 
 /**
@@ -15,6 +15,8 @@ export enum ApiResult {
     LayerAlreadyExists = 406,
     LayerNotFound = 407,
     FeatureNotFound = 408,
+    ProjectAlreadyExists = 409,
+    ProjectNotFound = 410,
     ResourceNotFound = 428
 }
 
@@ -29,6 +31,7 @@ export interface ApiMeta {
 export class CallbackResult {
     public result: ApiResult;
     public error: any;
+    public project: Project;
     public layer: Layer;
     public feature: Feature;
     public keys: { [keyId: string]: Key };
@@ -41,6 +44,7 @@ export interface IConnector {
     receiveCopy: boolean;
     init(layerManager: ApiManager, options: any);
     initLayer(layer: Layer, meta?: ApiMeta);
+    initProject(project: Project, meta?: ApiMeta);
 
     //Layer methods
     addLayer(layer: Layer, meta: ApiMeta, callback: Function);
@@ -62,7 +66,9 @@ export interface IConnector {
     getBBox(layerId: string, southWest: number[], northEast: number[], meta: ApiMeta, callback: Function);
     getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, meta: ApiMeta, callback: Function);
     getWithinPolygon(layerId: string, feature: Feature, meta: ApiMeta, callback: Function);
-
+    //add a new project (e.g., for Excel2map)
+    addProject(project: Project, meta: ApiMeta, callback: Function);
+    deleteProject(projectId: string, meta: ApiMeta, callback: Function);
 
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
@@ -88,6 +94,16 @@ export class Key implements StorageObject {
     storage: string;
 }
 
+export class Project implements StorageObject {
+    id: string;
+    title: string;
+    url: string;
+    description: string;
+    logo: string;
+    connected: boolean;
+    storage: string;
+}
+
 /**
  * Geojson Layer definition
  */
@@ -105,9 +121,17 @@ export class Layer implements StorageObject {
     public image: string;
     public description: string;
     public url: string;
+    public typeUrl: string;
+    public defaultFeatureType: string;
     public tags: string[];
     public features: Feature[] = [];
-    public typeUrl: string;
+}
+
+/**
+ * Geojson ProjectId definition
+ */
+export class ProjectId {
+    public id: string;
 }
 
 /**
@@ -172,6 +196,11 @@ export class ApiManager extends events.EventEmitter {
     public layers: { [key: string]: Layer } = {};
 
     /**
+     * Dictionary of projects (doesn't contain actual data)
+     */
+    public projects: { [key: string]: Project } = {};
+
+    /**
      * Dictionary of sensor sets
      */
     public keys: { [keyId: string]: Key } = {};
@@ -180,6 +209,7 @@ export class ApiManager extends events.EventEmitter {
     public defaultLogging = false;
     public rootPath = "";
     public resourceFolder = "/data/resourceTypes";
+    public projectsFile = "";
     public layersFile = "";
     /** The ApiManager name can be used to identify this instance (e.g. mqtt can create a namespace/channel for this api) */
     public name: string = "cs";
@@ -192,7 +222,7 @@ export class ApiManager extends events.EventEmitter {
     public init(rootPath: string, callback: Function) {
         Winston.info(`Init layer manager (isClient=${this.isClient})`, { cat: "api" });
         this.rootPath = rootPath;
-        this.initResources(path.join(rootPath, "/resourceTypes/"));
+        this.initResources(path.join(this.rootPath, '/resourceTypes/'));
         this.loadLayerConfig(() => {
             callback();
         });
@@ -203,7 +233,7 @@ export class ApiManager extends events.EventEmitter {
      */
     public loadLayerConfig(cb: Function) {
         Winston.info('manager: loading layer config');
-        this.layersFile = path.join(this.rootPath, "layers.json");
+        this.layersFile = path.join(this.rootPath, 'layers.json');
 
         fs.readFile(this.layersFile, "utf-8", (err, data) => {
             if (!err) {
@@ -216,11 +246,32 @@ export class ApiManager extends events.EventEmitter {
     }
 
     /**
+     * Have a 1 sec. delay before saving project config
+     */
+    public saveProjectDelay = _.debounce((project: Project) => {
+        this.saveProjectConfig();
+    }, 1000);
+
+    /**
      * Have a 1 sec. delay before saving layer config
      */
     public saveLayersDelay = _.debounce((layer: Layer) => {
         this.saveLayerConfig();
     }, 1000);
+
+    /**
+     * Store layer config file
+     */
+    public saveProjectConfig() {
+        fs.writeFile(this.projectsFile, JSON.stringify(this.projects), (error) => {
+            if (error) {
+                Winston.info('manager: error saving project config');
+            }
+            else {
+                Winston.info('manager: project config saved');
+            }
+        });
+    }
 
     /**
      * Store layer config file
@@ -249,7 +300,10 @@ export class ApiManager extends events.EventEmitter {
                 var loc = path.join(resourcesPath, file);
                 fs.readFile(loc, "utf-8", (err, data) => {
                     if (!err) {
+                        console.log('Opening ' + loc);
                         this.resources[file.replace('.json', '').toLowerCase()] = <ResourceFile>JSON.parse(data);
+                    } else {
+                        console.log('Error opening ' + loc + ': ' + err);
                     };
                 });
 
@@ -276,6 +330,57 @@ export class ApiManager extends events.EventEmitter {
     }
 
     /**
+     * Update/add a resource and save it to file
+     */
+    public getNewProject(title: string): ProjectId {
+        var id = helpers.newGuid();
+        var newProject: ProjectId = { id: id };
+
+        var project = new Project();
+        project.id = id;
+        project.title = title;
+        project.logo = "";
+        project.connected = true;
+        project.storage = "file";
+
+        var meta = <ApiMeta>{ source: 'rest' };
+        this.addProject(project, meta, () => { });
+
+        return newProject;
+    }
+
+    public addProject(project: Project, meta: ApiMeta, callback: Function) {
+        Winston.info('api: add project ' + project.id);
+        var s = this.findStorage(project);
+        // check if layer already exists
+        if (!this.projects.hasOwnProperty(project.id)) {
+            this.projects[project.id] = <Project>{
+                id: project.id,
+                storage: s.id,
+                title: project.title,
+                connected: project.connected,
+                logo: project.logo,
+                url: '/api/dynamicprojects/' + project.id
+            };
+
+            // store project
+            var meta = <ApiMeta>{ source: 'rest' };
+            s.addProject(project, meta, (r: CallbackResult) => {
+                callback(r);
+            });
+
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.initProject(project);
+                i.addProject(project, meta, () => { });
+            });
+        } else {
+            callback(<CallbackResult>{ result: ApiResult.ProjectAlreadyExists, error: "Project already exists" });
+        }
+
+        this.saveProjectDelay(project);
+    }
+
+    /**
      * Add connector to available connectors
      */
     public addConnector(key: string, s: IConnector, options: any) {
@@ -292,7 +397,17 @@ export class ApiManager extends events.EventEmitter {
         if (this.layers.hasOwnProperty(layerId)) {
             return this.layers[layerId];
         }
-        return null;;
+        return null;
+    }
+
+    /**
+     * Find project for a specific projectId (can return null)
+     */
+    public findProject(projectId: string): Project {
+        if (this.projects.hasOwnProperty(projectId)) {
+            return this.projects[projectId];
+        }
+        return null;
     }
 
     /**
@@ -301,7 +416,7 @@ export class ApiManager extends events.EventEmitter {
     public findKey(keyId: string): Key {
         return this.keys.hasOwnProperty(keyId)
             ? this.keys[keyId]
-            : null;;
+            : null;
     }
 
     /**
@@ -328,6 +443,14 @@ export class ApiManager extends events.EventEmitter {
     public findStorageForLayerId(layerId: string): IConnector {
         var layer = this.findLayer(layerId);
         return this.findStorage(layer);
+    }
+
+    /**
+     * Lookup Porject and return storage engine for this project
+     */
+    public findStorageForProjectId(projectId: string): IConnector {
+        var project = this.findProject(projectId);
+        return this.findStorage(project);
     }
 
     /**
@@ -389,7 +512,7 @@ export class ApiManager extends events.EventEmitter {
                 callback(<CallbackResult>{ result: ApiResult.OK });
             };
 
-            this.saveLayersDelay();
+            this.saveLayersDelay(layer);
         }
         else {
             callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
@@ -433,7 +556,7 @@ export class ApiManager extends events.EventEmitter {
                     });
                 }
                 callback(<CallbackResult>{ result: ApiResult.OK });
-                this.saveLayersDelay();
+                this.saveLayersDelay(layer);
             }
         ])
 
@@ -446,6 +569,17 @@ export class ApiManager extends events.EventEmitter {
             delete this.layers[layerId];
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.deleteLayer(layerId, meta, () => { });
+            });
+            callback(r);
+        });
+    }
+
+    public deleteProject(projectId: string, meta: ApiMeta, callback: Function) {
+        var s = this.findStorageForProjectId(projectId);
+        s.deleteProject(projectId, meta, (r: CallbackResult) => {
+            delete this.projects[projectId];
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.deleteProject(projectId, meta, () => { });
             });
             callback(r);
         });
@@ -534,6 +668,10 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public initLayer(layer: Layer) {
+
+    }
+
+    public initProject(project: Project) {
 
     }
 
