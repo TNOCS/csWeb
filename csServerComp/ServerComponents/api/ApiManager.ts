@@ -231,11 +231,16 @@ export class ApiManager extends events.EventEmitter {
         this.rootPath = rootPath;
         this.initResources(path.join(this.rootPath, '/resourceTypes/'));
         this.loadLayerConfig(() => {
-            callback();
+            this.loadProjectConfig(() => {
+                callback();
+            });
         });
-        this.loadProjectConfig(() => {
-            callback();
-        });
+        // this.loadLayerConfig(() => {
+        //     callback();
+        // });
+        // this.loadProjectConfig(() => {
+        //     callback();
+        // });
     }
 
     /** Open layer config file*/
@@ -243,7 +248,7 @@ export class ApiManager extends events.EventEmitter {
         Winston.info('manager: loading layer config');
         this.layersFile = path.join(this.rootPath, 'layers.json');
 
-        fs.readFile(this.layersFile, "utf-8", (err, data) => {
+        fs.readFile(this.layersFile, "utf8", (err, data) => {
             if (!err) {
                 Winston.info('manager: layer config loaded');
                 this.layers = <{ [key: string]: Layer }>JSON.parse(data);
@@ -253,18 +258,18 @@ export class ApiManager extends events.EventEmitter {
     }
 
     /**
-     * Open layer config file
+     * Open project config file
      */
     public loadProjectConfig(cb: Function) {
         Winston.info('manager: loading project config');
         this.projectsFile = path.join(this.rootPath, 'projects.json');
 
-        fs.readFile(this.projectsFile, "utf-8", (err, data) => {
-            if (!err) {
+        fs.readFile(this.projectsFile, "utf8", (err, data) => {
+            if (err) {
+                Winston.error('manager: project config loading failed: ' + err.message);
+            } else {
                 Winston.info('manager: project config loaded');
                 this.layers = <{ [key: string]: Layer }>JSON.parse(data);
-            } else {
-                Winston.error('manager: project config loading failed: ' + err.message);
             }
             cb();
         });
@@ -324,7 +329,7 @@ export class ApiManager extends events.EventEmitter {
         fs.readdir(resourcesPath, (e, f) => {
             f.forEach((file) => {
                 var loc = path.join(resourcesPath, file);
-                fs.readFile(loc, "utf-8", (err, data) => {
+                fs.readFile(loc, "utf8", (err, data) => {
                     if (!err) {
                         console.log('Opening ' + loc);
                         this.resources[file.replace('.json', '').toLowerCase()] = <ResourceFile>JSON.parse(data);
@@ -559,12 +564,11 @@ export class ApiManager extends events.EventEmitter {
             });
 
             // store layer
-            if (s) s.addLayer(layer, meta, (r: CallbackResult) => {
-                callback(r);
-            })
-            else {
+            if (s) {
+                s.addLayer(layer, meta, (r: CallbackResult) => callback(r) )
+            } else {
                 callback(<CallbackResult>{ result: ApiResult.OK });
-            };
+            }
 
             this.saveLayersDelay(layer);
         }
