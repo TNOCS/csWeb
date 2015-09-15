@@ -1,4 +1,3 @@
-
 import ApiManager = require('./ApiManager');
 import Project = ApiManager.Project;
 import Layer = ApiManager.Layer;
@@ -68,7 +67,6 @@ export class FileStorage extends BaseConnector.BaseConnector {
         setTimeout(() => {
             var watcher = chokidar.watch(this.projectsPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
-
                 if (action == "add") {
                     Winston.info('filestore: new file found : ' + path);
                     this.openProjectFile(path);
