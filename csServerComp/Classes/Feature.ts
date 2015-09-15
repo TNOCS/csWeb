@@ -1,7 +1,4 @@
 module csComp.Services {
-
-
-
     export interface IGeoJsonGeometry {
         type: string;
         coordinates: any;
@@ -21,13 +18,12 @@ module csComp.Services {
         sensors?: {
             [id: string]: any[];
         };
-        timestamps: number[];
+        timestamps?: number[];
         coordinates?: IGeoJsonGeometry[];
         /**
         * An optional language dictionary, where each key, e.g. 'en' for English, represents a localised data set. Each locale can overwrite
         * the value of the title, description etc. of a feature.
         */
-
     }
 
     export interface IStringToAny {
