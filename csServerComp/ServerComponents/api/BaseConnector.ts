@@ -34,6 +34,13 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
+    public addLayerToProject(layerId: string, meta: ApiMeta, callback: Function) {
+
+    }
+    
+    public removeLayerFromProject(layerId: string, meta: ApiMeta, callback: Function) {
+
+    }
 
     // feature methods, in crud order
 
