@@ -1,3 +1,4 @@
+
 import ApiManager = require('./ApiManager');
 import Project = ApiManager.Project;
 import Layer = ApiManager.Layer;
@@ -192,9 +193,15 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var id = this.getLayerId(fileName);
         Winston.info('filestore: openfile ' + id);
         if (!this.layers.hasOwnProperty(id)) {
-            fs.readFile(fileName, "utf-8", (err, data) => {
+            fs.readFile(fileName, "utf8", (err, data) => {
                 if (!err) {
-                    var layer = <Layer>JSON.parse(data);
+                    var layer: Layer;
+                    try {
+                        layer = <Layer>JSON.parse(data);
+                    } catch (e) {
+                        Winston.warn(`Error parsing file: ${fileName}. Skipped`);
+                        return;
+                    }
                     layer.storage = this.id;
                     layer.id = id;
                     this.layers[id] = layer;
@@ -215,7 +222,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var id = this.getKeyId(fileName);
         Winston.info('filestore: openfile ' + id);
         if (!this.keys.hasOwnProperty(id)) {
-            fs.readFile(fileName, "utf-8", (err, data) => {
+            fs.readFile(fileName, "utf8", (err, data) => {
                 if (!err) {
                     var key = <Key>JSON.parse(data);
                     key.storage = this.id;
@@ -231,7 +238,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var id = this.getProjectId(fileName);
         Winston.info('filestore: openfile ' + id);
         if (!this.projects.hasOwnProperty(id)) {
-            fs.readFile(fileName, "utf-8", (err, data) => {
+            fs.readFile(fileName, "utf8", (err, data) => {
                 if (!err) {
                     var project = <Project>JSON.parse(data);
                     project.storage = this.id;
