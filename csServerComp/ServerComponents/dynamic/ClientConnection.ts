@@ -263,7 +263,6 @@ module ClientConnection {
             var skip = (meta.source === "socketio") ? meta.user : undefined;
             for (var uId in this.users) {
                 if (!skip || uId != skip) {
-                    console.log(JSON.stringify(this.users[uId].Subscriptions));
                     var sub = this.users[uId].FindSubscription(keyId, "key");
                     if (sub != null) {
                         Winston.info('send to : ' + sub.id);

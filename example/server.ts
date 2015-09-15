@@ -77,15 +77,14 @@ apiServiceMgr.addService(resourceTypeStore);
 
 server.use(express.static(path.join(__dirname, 'public')));
 
-
 var api = new ApiManager.ApiManager();
-api.init(path.join(path.resolve(__dirname), "public/data"), () => {
+api.init(path.join(path.resolve(__dirname), "public/data/api"), () => {
     api.addConnector("rest", new RestAPI.RestAPI(server), {});
     api.addConnector("socketio", new SocketIOAPI.SocketIOAPI(cm), {});
     api.addConnector("mqtt", new MqttAPI.MqttAPI("localhost", 1883), {});
     //api.addConnector("imb", new ImbAPI.ImbAPI("localhost", 4000), {});
     api.addConnector("mongo", new MongoDB.MongoDBStorage("127.0.0.1", 27017), {});
-    api.addConnector("file", new FileStorage.FileStorage(path.join(path.resolve(__dirname), "public/data/layers/")), {});
+    api.addConnector("file", new FileStorage.FileStorage(path.join(path.resolve(__dirname), "public/data/api/")), {});
 });
 
 

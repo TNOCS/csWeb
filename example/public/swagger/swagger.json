@@ -12,28 +12,35 @@
         "description": "All operations concerning layers (FeatureCollections)",
         "externalDocs": {
             "description": "Find out more",
-            "url": "https://github.com/TNOCS/csWeb/wiki/api"
+            "url": "https://github.com/TNOCS/csWeb/wiki/API-Documentation"
         }
     }, {
         "name": "feature",
         "description": "All operations concerning features",
         "externalDocs": {
             "description": "Find out more",
-            "url": "https://github.com/TNOCS/csWeb/wiki/api"
+            "url": "https://github.com/TNOCS/csWeb/wiki/API-Documentation"
+        }
+    }, {
+        "name": "project",
+        "description": "All operations concerning projects",
+        "externalDocs": {
+            "description": "Find out more",
+            "url": "https://github.com/TNOCS/csWeb/wiki/API-Documentation"
         }
     }, {
         "name": "log",
         "description": "All operations concerning log files",
         "externalDocs": {
             "description": "Find out more",
-            "url": "https://github.com/TNOCS/csWeb/wiki/api"
+            "url": "https://github.com/TNOCS/csWeb/wiki/API-Documentation"
         }
     }, {
         "name": "special",
         "description": "All special operations",
         "externalDocs": {
             "description": "Find out more",
-            "url": "https://github.com/TNOCS/csWeb/wiki/api"
+            "url": "https://github.com/TNOCS/csWeb/wiki/API-Documentation"
         }
     }],
     "schemes": [
@@ -70,6 +77,86 @@
                     },
                     "428": {
                         "description": "Resource not found"
+                    }
+                }
+            }
+        },
+        "/projects/{title}/create":{
+          "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Create new project and return its id",
+                "description": "Create new project and return its id",
+                "operationId": "createProject",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "path",
+                    "name": "title",
+                    "description": "Project title",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successfull"
+                    },
+                    "400": {
+                        "description": "Invalid title"
+                    }
+                }
+            }
+        },
+        "/projects/":{
+            "post": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Add a new project to the system",
+                "description": "Adds a new project",
+                "operationId": "addProject",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "Project object that needs to be added to the datastorage",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Project"
+                    }
+                }],
+                "responses": {
+                    "409": {
+                        "description": "ProjectId already exists"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Returns all projects",
+                "description": "Returns a list of projects",
+                "operationId": "allProjects",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Project"
+                        }
+                    },
+                    "404": {
+                        "description": "Cannot get projects"
                     }
                 }
             }
@@ -852,6 +939,29 @@
                 }
             }
         },
+        "Project": {
+            "type": "object",
+            "properties": {
+                "storage": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "connected": {
+                    "type": "boolean"
+                },
+                "logo": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "ApiResponse": {
             "type": "object",
             "properties": {
@@ -870,6 +980,6 @@
     },
     "externalDocs": {
         "description": "Find out more about the Common Sense API",
-        "url": "https://github.com/TNOCS/csWeb/wiki/api"
+        "url": "https://github.com/TNOCS/csWeb/wiki/API-Documentation"
     }
 }

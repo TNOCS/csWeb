@@ -1,6 +1,7 @@
 import ApiManager = require('./ApiManager');
 import express = require('express')
 import cors = require('cors')
+import Project = ApiManager.Project;
 import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import Logs = ApiManager.Log;
@@ -16,6 +17,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
     public resourceUrl;
     public layersUrl;
     public keysUrl;
+    public projectsUrl;
 
     constructor(public server: express.Express, public baseUrl: string = "/api") {
         super();
@@ -23,6 +25,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.resourceUrl = baseUrl + "/resources/";
         this.layersUrl = baseUrl + "/layers/";
         this.keysUrl = baseUrl + "/keys/";
+        this.projectsUrl = baseUrl + "/projects/";
     }
 
     public init(layerManager: ApiManager.ApiManager, options: any) {
@@ -46,6 +49,25 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         this.server.get(this.layersUrl, (req: express.Request, res: express.Response) => {
             res.send(JSON.stringify(this.manager.layers));
+        });
+
+        this.server.get(this.projectsUrl, (req: express.Request, res: express.Response) => {
+            res.send(JSON.stringify(this.manager.projects));
+        });
+
+        //------ Project API paths, in CRUD order
+
+        this.server.post(this.projectsUrl, (req: express.Request, res: express.Response) => {
+            var project = new Project();
+            //layer.features = req.body.features;
+            project = req.body;
+            this.manager.addProject(project, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.status(result.result).send(result);
+            });
+        })
+
+        this.server.get(this.projectsUrl + ":title/create", (req: express.Request, res: express.Response) => {
+            res.send(JSON.stringify(this.manager.getNewProject(req.params.title)));
         });
 
         //------ layer API paths, in CRUD order

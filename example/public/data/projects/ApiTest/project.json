@@ -11,7 +11,7 @@
     "range": 2123192,
     "zoomLevelName": "minutes",
     "isLive": false,
-    "focus": 1441722082464,
+    "focus": 1441722129415,
     "zoomLevel": 60000
   },
   "datasources": [
@@ -31,8 +31,7 @@
       "showLegend": false,
       "showRightmenu": false,
       "showBackgroundImage": false,
-      "visiblelayers": [
-      ],
+      "visiblelayers": [],
       "widgets": [
         {
           "id": "1b116807-a474-47e7-c7f2-38c6c0169d12",
@@ -518,6 +517,49 @@
                 }
               ]
             }
+          }
+        },
+        {
+          "id": "6bcbe39c-92af-41fd-b3bb-651abe9e37b4",
+          "directive": "indicators",
+          "elementId": "widget-6bcbe39c-92af-41fd-b3bb-651abe9e37b4",
+          "enabled": true,
+          "style": "default",
+          "left": "895px",
+          "top": "270px",
+          "width": "300px",
+          "height": "300px",
+          "data": {
+            "indicators": [
+              {
+                "inputs": {
+                  "value": "~['simTime'] | date : 'medium'"
+                },
+                "indicatorWidth": 200,
+                "title": "Date",
+                "visual": "singlevalue",
+                "sensor": "keys/simTime",
+                "source": "sensor",
+                "featureTypeName": "",
+                "propertyTypes": [],
+                "propertyTypeTitles": [],
+                "id": "circ-5bc975b1-114e-4e3e-8f28-b1e2627ef714"
+              },
+              {
+                "inputs": {
+                  "value": "~['state']"
+                },
+                "indicatorWidth": 200,
+                "title": "State",
+                "visual": "singlevalue",
+                "sensor": "keys/simTime",
+                "source": "sensor",
+                "featureTypeName": "",
+                "propertyTypes": [],
+                "propertyTypeTitles": [],
+                "id": "circ-bdb0e599-b1ed-4810-9ef3-e1e766fc666e"
+              }
+            ]
           }
         }
       ]
