@@ -17,6 +17,7 @@ export enum ApiResult {
     FeatureNotFound = 408,
     ProjectAlreadyExists = 409,
     ProjectNotFound = 410,
+    KeyNotFound = 411,
     ResourceNotFound = 428
 }
 
@@ -35,6 +36,7 @@ export class CallbackResult {
     public layer: Layer;
     public feature: Feature;
     public keys: { [keyId: string]: Key };
+    public key: Key;
 }
 
 export interface IConnector {
@@ -719,10 +721,11 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public getKey(id: string, meta: ApiMeta, callback: Function) {
-        // check subscriptions
-        var key = this.findKey(id);
-        var keys: { [keyId: string]: Key } = { id: key };
-        callback(<CallbackResult>{ result: ApiResult.OK, keys: keys });
+        var s = this.findStorageForKeyId(id);
+        if (s) s.getKey(id, meta, (r: CallbackResult) => {
+            callback(r);
+        })
+        else { callback(<CallbackResult>{ result: ApiResult.KeyNotFound }); }
     }
 
     public updateKey(keyId: string, value: Object, meta?: ApiMeta, callback?: Function) {
