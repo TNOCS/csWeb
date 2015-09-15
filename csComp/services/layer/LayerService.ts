@@ -1942,7 +1942,6 @@ module csComp.Services {
                             }
                             else {
                                 this.$messageBusService.notify('New update available for project ', project.title);
-                                if (l.enabled) l.layerSource.refreshLayer(l);
                             }
                         }
                     }

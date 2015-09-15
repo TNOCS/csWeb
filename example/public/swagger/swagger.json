@@ -81,6 +81,87 @@
                 }
             }
         },
+        "/projects/{projectId}/layer/{layerId}": {
+            "post": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Adds a layer to a project",
+                "description": "Adds a layer to a project",
+                "operationId": "addLayerToProject",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "projectId",
+                    "in": "path",
+                    "description": "ID of the project to add the layer to",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "in": "path",
+                    "name": "layerId",
+                    "description": "id of the layer that will be added",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "406": {
+                        "description": "Layer exists"
+                    },
+                    "407": {
+                        "description": "Layer not found"
+                    },
+                    "410": {
+                        "description": "Project not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Deletes a layer from a project",
+                "description": "Deletes a layer from a project",
+                "operationId": "removeLayerFromProject",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "projectId",
+                    "in": "path",
+                    "description": "ID of the project to remove the layer from",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "in": "path",
+                    "name": "layerId",
+                    "description": "id of the layer that will be removed",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "407": {
+                        "description": "Layer not found"
+                    },
+                    "410": {
+                        "description": "Project not found"
+                    }
+                }
+            }
+        },
         "/projects/{projectId}": {
             "put": {
                 "tags": [
@@ -304,7 +385,7 @@
                     "400": {
                         "description": "Invalid ID supplied"
                     },
-                    "404": {
+                    "407": {
                         "description": "Layer not found"
                     }
                 }
@@ -1034,6 +1115,12 @@
                 },
                 "url": {
                     "type": "string"
+                },
+                "layers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Layer"
+                    }
                 }
             }
         },

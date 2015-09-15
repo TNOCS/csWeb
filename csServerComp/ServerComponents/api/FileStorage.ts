@@ -238,6 +238,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     project.id = id;
                     this.projects[id] = project;
                     project.title = id;
+                    project.layers = [];
                     project.logo = "";
                     project.url = "/api/projects/" + id;
                     //this.manager.updateProject(project, {}, () => { });

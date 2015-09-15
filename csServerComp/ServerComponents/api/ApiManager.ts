@@ -107,6 +107,7 @@ export class Project implements StorageObject {
     logo: string;
     connected: boolean;
     storage: string;
+    layers: Layer[];
 }
 
 /**
@@ -353,6 +354,39 @@ export class ApiManager extends events.EventEmitter {
         //TODO implement
     }
 
+    public addLayerToProject(projectId: string, layerId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        var l: Layer = this.findLayer(layerId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); }
+        if (!l) { callback(<CallbackResult>{ result: ApiResult.LayerNotFound, error: "Layer not found" }); }
+        if (!p.layers) p.layers = [];
+        if (p.layers.some((pl) => { return (pl.id === l.id) })) {
+            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
+        } else {
+            p.layers.push(l);
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.updateProject(p, meta, () => { });
+            });
+            Winston.info('api: add layer ' + l.id + ' to project ' + p.id);
+            callback(<CallbackResult>{ result: ApiResult.OK });
+        }
+    }
+
+    public removeLayerFromProject(projectId: string, layerId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); }
+        if (!p.layers || !p.layers.some((pl) => { return (pl.id === layerId) })) {
+            callback(<CallbackResult>{ result: ApiResult.LayerNotFound, error: "Layer not found" });
+        } else {
+            p.layers = p.layers.filter((pl) => { return (pl.id !== layerId) })
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.updateProject(p, meta, () => { });
+            });
+            Winston.info('api: removed layer ' + layerId + ' from project ' + p.id);
+            callback(<CallbackResult>{ result: ApiResult.OK });
+        }
+    }
+
     public addProject(project: Project, meta: ApiMeta, callback: Function) {
         if (!project.id) {
             project.id = helpers.newGuid();
@@ -368,18 +402,18 @@ export class ApiManager extends events.EventEmitter {
             var meta = <ApiMeta>{ source: 'rest' };
 
             this.getInterfaces(meta).forEach((i: IConnector) => {
-                i.initProject(project);
-                i.addProject(project, meta, () => { });
+                i.initProject(this.projects[project.id]);
+                i.addProject(this.projects[project.id], meta, () => { });
             });
 
-            s.addProject(project, meta, (r: CallbackResult) => {
+            s.addProject(this.projects[project.id], meta, (r: CallbackResult) => {
                 callback(r);
             });
         } else {
             callback(<CallbackResult>{ result: ApiResult.ProjectAlreadyExists, error: "Project already exists" });
         }
 
-        this.saveProjectDelay(project);
+        this.saveProjectDelay(this.projects[project.id]);
     }
 
     /**
@@ -464,16 +498,17 @@ export class ApiManager extends events.EventEmitter {
     }
 
     /**
-     * Returns layer definition for a layer, this is the layer without the features (mostly used for directory)
+     * Returns project definition for a project
      */
     private getProjectDefinition(project: Project): Project {
         var p = <Project>{
-            id: project.id || helpers.newGuid(),
-            storage: project.storage || "",
-            title: project.title || project.id,
-            connected: project.connected || false,
-            logo: project.logo || "",
-            url: '/api/projects/' + project.id
+            id: project.id ? project.id : helpers.newGuid(),
+            storage: project.storage ? project.storage : "",
+            title: project.title ? project.title : project.id,
+            connected: project.connected ? project.connected : false,
+            logo: project.logo ? project.logo : "",
+            layers: project.layers ? project.layers : [],
+            url: project.url ? project.url : '/api/projects/' + project.id
         };
         return p;
     }
@@ -542,7 +577,10 @@ export class ApiManager extends events.EventEmitter {
         if (s) s.getProject(projectId, meta, (r: CallbackResult) => {
             callback(r);
         })
-        else { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound }); }
+        else {
+            Winston.warn('Project ' + projectId + ' not found.');
+            callback(<CallbackResult>{ result: ApiResult.ProjectNotFound });
+        }
     }
 
     public getLayer(layerId: string, meta: ApiMeta, callback: Function) {
@@ -550,7 +588,10 @@ export class ApiManager extends events.EventEmitter {
         if (s) s.getLayer(layerId, meta, (r: CallbackResult) => {
             callback(r);
         })
-        else { callback(<CallbackResult>{ result: ApiResult.LayerNotFound }); }
+        else {
+            Winston.warn('Layer ' + layerId + ' not found.');
+            callback(<CallbackResult>{ result: ApiResult.LayerNotFound });
+        }
     }
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {

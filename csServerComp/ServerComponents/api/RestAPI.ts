@@ -69,8 +69,11 @@ export class RestAPI extends BaseConnector.BaseConnector {
         // gets the entire project
         this.server.get(this.projectsUrl + ':projectId', (req: any, res: any) => {
             this.manager.getProject(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                if (result.result === ApiResult.OK)
+                if (result.result === ApiResult.OK) {
                     res.send(result.project);
+                } else {
+                    res.sendStatus(result.result);
+                }
             });
         })
 
@@ -92,7 +95,19 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         })
 
+        //adds a layer to a project
+        this.server.post(this.projectsUrl + ":projectId/layer/:layerId", (req: express.Request, res: express.Response) => {
+            this.manager.addLayerToProject(req.params.projectId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.send(result);
+            });
+        });
 
+        //removes a layer from a project
+        this.server.delete(this.projectsUrl + ":projectId/layer/:layerId", (req: express.Request, res: express.Response) => {
+            this.manager.removeLayerFromProject(req.params.projectId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.send(result);
+            });
+        });
 
 
         //------ layer API paths, in CRUD order
@@ -113,8 +128,11 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.get(this.layersUrl + ':layerId', (req: any, res: any) => {
             this.manager.getLayer(req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
-                if (result.result === ApiResult.OK)
+                if (result.result === ApiResult.OK) {
                     res.send(result.layer);
+                } else {
+                    res.sendStatus(result.result)
+                }
             });
         })
 
