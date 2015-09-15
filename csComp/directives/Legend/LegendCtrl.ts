@@ -119,12 +119,12 @@ module Legend {
                     leg.legendEntries.push(le);
                 });
             } else {
-                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.sdMin));
-                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, (activeStyle.info.sdMin + activeStyle.info.sdMax) / 4));
-                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 2 * (activeStyle.info.sdMin + activeStyle.info.sdMax) / 4));
-                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 3 * (activeStyle.info.sdMin + activeStyle.info.sdMax) / 4));
-                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.sdMax));
-                leg.legendEntries = leg.legendEntries.sort((a,b) => {return (a.value - b.value)} );
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.min));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, (activeStyle.info.min + activeStyle.info.max) / 4));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 2 * (activeStyle.info.min + activeStyle.info.max) / 4));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, 3 * (activeStyle.info.min + activeStyle.info.max) / 4));
+                leg.legendEntries.push(this.createLegendEntry(activeStyle, ptd, activeStyle.info.max));
+                leg.legendEntries = leg.legendEntries.sort((a, b) => { return (a.value - b.value) });
             }
             return leg;
         }
@@ -134,7 +134,7 @@ module Legend {
             le.label = csComp.Helpers.convertPropertyInfo(ptd, value);
             if (le.label === value.toString()) {
                 //if no stringformatting was applied, define one based on maximum values
-                if (activeStyle.info.sdMax > 100) {
+                if (activeStyle.info.max > 100) {
                     le.label = (<any>String).format("{0:#,#}", value);
                 } else {
                     le.label = (<any>String).format("{0:#,#.#}", value);

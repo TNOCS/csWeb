@@ -89,8 +89,8 @@ module Filters {
             var info = this.$layerService.calculatePropertyInfo(group, filter.property);
 
             var nBins = 20;
-            var min = info.sdMin;
-            var max = info.sdMax + (info.sdMax - info.sdMin) * 0.01;
+            var min = info.min;
+            var max = info.max + (info.max - info.min) * 0.01;
 
             var binWidth = (max - min) / nBins;
 
@@ -239,7 +239,7 @@ module Filters {
 
                         var a = parseFloat(d.properties[filter.property]);
                         var b = parseFloat(d.properties[filter.property2]);
-                        if (a >= info.sdMin && a <= info.sdMax) {
+                        if (a >= info.min && a <= info.max) {
                             return [a, b];
                             //return Math.floor(a / binWidth) * binWidth;
                         } else {
@@ -262,7 +262,7 @@ module Filters {
                 .height(190)
                 .dimension(prop1)
                 .group(dcGroup1)
-                .x(d3.scale.linear().domain([info.sdMin, info.sdMax]))
+                .x(d3.scale.linear().domain([info.min, info.max]))
                 .yAxisLabel(filter.property2)
                 .xAxisLabel(filter.property)
                 .on('filtered', (e) => {
