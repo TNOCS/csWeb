@@ -64,8 +64,6 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                 }
             }
             else if (topic.indexOf(this.layerPrefix) === 0) {
-                Winston.error("---------------------------");
-                Winston.error(topic);
                 var lid = topic.substring(this.layerPrefix.length, topic.length);
                 try {
                     var feature = <Feature>JSON.parse(message);

@@ -227,9 +227,7 @@ export class ApiManager extends events.EventEmitter {
         this.loadLayerConfig(() => callback());
     }
 
-    /**
-     * Open layer config file
-     */
+    /** Open layer config file*/
     public loadLayerConfig(cb: Function) {
         Winston.info('manager: loading layer config');
         this.layersFile = path.join(this.rootPath, 'layers.json');
@@ -708,9 +706,11 @@ export class ApiManager extends events.EventEmitter {
         }
     }
 
-    public addKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
-        Winston.info('add key ' + keyId);
-        this.keys[keyId] = <Key>{ id: keyId, title: keyId, storage: 'file' };
+    public addKey(key: Key, meta: ApiMeta, callback: Function) {
+        Winston.info('add key ' + key.id);
+        var k = JSON.parse(JSON.stringify(key));
+        delete k.values;
+        this.keys[key.id] = k;
     }
 
     public getKeys(meta: ApiMeta, callback: Function) {
@@ -733,7 +733,8 @@ export class ApiManager extends events.EventEmitter {
         // check if keys exists
         var key = this.findKey(keyId);
         if (!key) {
-            this.addKey(keyId, value, meta, callback);
+            var k = <Key>{ id: keyId, title: keyId, storage: 'file' };
+            this.addKey(k, meta, callback);
         }
 
         if (!value.hasOwnProperty('time')) value['time'] = new Date().getTime();
