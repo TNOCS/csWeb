@@ -81,30 +81,105 @@
                 }
             }
         },
-        "/projects/{title}/create":{
-          "get": {
+        "/projects/{projectId}": {
+            "put": {
                 "tags": [
                     "project"
                 ],
-                "summary": "Create new project and return its id",
-                "description": "Create new project and return its id",
-                "operationId": "createProject",
+                "summary": "Update an existing project",
+                "description": "",
+                "operationId": "updateProject",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON that will be used to update the project",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Project"
+                    }
+                }, {
+                    "name": "projectId",
                     "in": "path",
-                    "name": "title",
-                    "description": "Project title",
+                    "description": "ID or Name of the project to update",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "410": {
+                        "description": "Project not found"
+                    },
+                    "405": {
+                        "description": "Validation exception"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Find project by ID",
+                "description": "Returns a single project",
+                "operationId": "getProject",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "projectId",
+                    "in": "path",
+                    "description": "ID of the project to be returned",
                     "required": true,
                     "type": "string"
                 }],
                 "responses": {
                     "200": {
-                        "description": "Successfull"
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Project"
+                        }
                     },
                     "400": {
-                        "description": "Invalid title"
+                        "description": "Invalid ID supplied"
+                    },
+                    "410": {
+                        "description": "Project not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Delete a project by ID",
+                "description": "Deletes an entire project",
+                "operationId": "deleteProject",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "projectId",
+                    "in": "path",
+                    "description": "ID of project to be deleted",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    },
+                    "410": {
+                        "description": "project not found"
                     }
                 }
             }

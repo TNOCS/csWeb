@@ -15,8 +15,6 @@ var chokidar = require('chokidar');
 import Winston = require('winston');
 import helpers = require('../helpers/Utils');
 
-
-
 export class FileStorage extends BaseConnector.BaseConnector {
     public manager: ApiManager.ApiManager
 
@@ -93,22 +91,15 @@ export class FileStorage extends BaseConnector.BaseConnector {
             watcher.on('all', ((action, path) => {
                 if (action == "add") {
                     Winston.info('filestore: new file found : ' + path);
-                    this.openKey(path);
+                    this.openKeyFile(path);
                 }
                 if (action == "unlink") {
-                    this.closeKey(path);
-                    this.closeProjectFile(path);
-                    //this.removeLayer(path);
+                    this.closeKeyFile(path);
                 }
                 if (action == "change") {
-                    //this.addLayer(path);
                 }
             }));
         }, 1000);
-        //Winston.info(action + " - " + path); });
-
-        //Winston.info(action + " - " + path); });
-
     }
 
     saveProjectDelay = _.debounce((project: Project) => {
@@ -175,6 +166,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
         return path.basename(fileName).toLowerCase().replace('.json', '');
     }
 
+    private getKeyId(fileName: string) {
+        return path.basename(fileName).toLowerCase().replace('.json', '');
+    }
+
     private getLayerId(fileName: string) {
         return path.basename(fileName).toLowerCase().replace('.json', '');
     }
@@ -182,6 +177,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
     private closeLayerFile(fileName: string) {
         var id = this.getLayerId(fileName);
         this.manager.deleteLayer(id, {}, () => { });
+    }
+
+    private closeKeyFile(fileName: string) {
+
     }
 
     private closeProjectFile(fileName: string) {
@@ -211,13 +210,21 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (path.basename(fileName) === 'project.json') return;
     }
 
-    private closeKey(fileName: string) {
-        var id = this.getLayerId(fileName);
-        this.manager.deleteLayer(id, {}, () => { });
-    }
 
-    private openKey(fileName: string) {
-
+    private openKeyFile(fileName: string) {
+        var id = this.getKeyId(fileName);
+        Winston.info('filestore: openfile ' + id);
+        if (!this.keys.hasOwnProperty(id)) {
+            fs.readFile(fileName, "utf-8", (err, data) => {
+                if (!err) {
+                    var key = <Key>JSON.parse(data);
+                    key.storage = this.id;
+                    key.id = id;
+                    this.keys[id] = key;
+                    this.manager.addKey(key, <ApiMeta>{ source: this.id }, () => { });
+                }
+            });
+        }
     }
 
     private openProjectFile(fileName: string) {
@@ -233,7 +240,6 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     project.title = id;
                     project.logo = "";
                     project.url = "/api/projects/" + id;
-                    Winston.error('storage ' + project.storage);
                     //this.manager.updateProject(project, {}, () => { });
                 }
             });
@@ -256,7 +262,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         try {
             this.projects[project.id] = project;
             this.saveProjectDelay(project);
-            callback(<CallbackResult> { result: ApiResult.OK });
+            callback(<CallbackResult> { result: ApiResult.OK, project: project });
         }
         catch (e) {
             callback(<CallbackResult>{ result: ApiResult.OK, error: null });
@@ -265,7 +271,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     public getProject(projectId: string, meta: ApiMeta, callback: Function) {
 
-        if (this.layers.hasOwnProperty(projectId)) {
+        if (this.projects.hasOwnProperty(projectId)) {
             callback(<CallbackResult>{ result: ApiResult.OK, project: this.projects[projectId] });
         }
         else {
@@ -396,6 +402,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
 
 
+
     public getFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var l = this.layers[layerId];
         var found = false;
@@ -438,6 +445,16 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (!key.values) key.values = [];
         this.keys[key.id] = key;
         this.saveKeyDelay(key);
+    }
+
+    public getKey(keyId: string, meta: ApiMeta, callback: Function) {
+        if (this.keys.hasOwnProperty(keyId)) {
+            var k = this.keys[keyId];
+            callback(<CallbackResult>{ result: ApiResult.OK, key: k });
+        }
+        else {
+            callback(<CallbackResult>{ result: ApiResult.KeyNotFound });
+        }
     }
 
     public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
