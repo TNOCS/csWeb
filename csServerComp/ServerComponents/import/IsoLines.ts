@@ -236,7 +236,7 @@ export class IsoLines {
             lat = gridParams.startLat,
             lon = gridParams.startLon;
 
-        var features: GeoJSON.IFeature[] = [];
+        var features: ApiManager.Feature[] = [];
         var max = -Number.MAX_VALUE,
             min = Number.MAX_VALUE;
         var lines = data.split('\n');
@@ -320,6 +320,7 @@ export class IsoLines {
         var contourList = conrec.contourList;
         var counter = 0;
         contourList.forEach(contour => {
+            if (contour.length < 3) return; // Ignore very small 'contours' of two points!
             var result: GeoJSON.IProperty = {};
             result[propertyName] = contour.level;
             var feature = new ApiManager.Feature();
