@@ -77,7 +77,6 @@ apiServiceMgr.addService(resourceTypeStore);
 
 server.use(express.static(path.join(__dirname, 'public')));
 
-
 var api = new ApiManager.ApiManager();
 api.init(path.join(path.resolve(__dirname), "public/data/api"), () => {
     api.addConnector("rest", new RestAPI.RestAPI(server), {});

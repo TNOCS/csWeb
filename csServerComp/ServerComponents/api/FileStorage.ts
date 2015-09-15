@@ -217,25 +217,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     private openKey(fileName: string) {
-        var id = this.getLayerId(fileName);
-        Winston.info('filestore: openfile ' + id);
-        if (!this.layers.hasOwnProperty(id)) {
-            fs.readFile(fileName, "utf-8", (err, data) => {
-                if (!err) {
-                    var layer = <Layer>JSON.parse(data);
-                    layer.storage = this.id;
-                    layer.id = id;
-                    this.layers[id] = layer;
-                    layer.title = id;
-                    layer.storage = this.id;
-                    layer.type = "geojson";
-                    layer.url = "/api/layers/" + id;
-                    Winston.error('storage ' + layer.storage);
-                    this.manager.updateLayer(layer, {}, () => { });
-                }
-            });
-        }
-        if (path.basename(fileName) === 'project.json') return;
+
     }
 
     private openProjectFile(fileName: string) {
