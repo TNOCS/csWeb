@@ -262,7 +262,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         try {
             this.projects[project.id] = project;
             this.saveProjectDelay(project);
-            callback(<CallbackResult> { result: ApiResult.OK });
+            callback(<CallbackResult> { result: ApiResult.OK, project: project });
         }
         catch (e) {
             callback(<CallbackResult>{ result: ApiResult.OK, error: null });
@@ -271,7 +271,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     public getProject(projectId: string, meta: ApiMeta, callback: Function) {
 
-        if (this.layers.hasOwnProperty(projectId)) {
+        if (this.projects.hasOwnProperty(projectId)) {
             callback(<CallbackResult>{ result: ApiResult.OK, project: this.projects[projectId] });
         }
         else {

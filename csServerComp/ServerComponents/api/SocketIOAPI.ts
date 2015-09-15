@@ -1,9 +1,12 @@
 import ApiManager = require('./ApiManager');
 import express = require('express')
+import Project = ApiManager.Project;
 import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import Log = ApiManager.Log;
 import ClientConnection = require('./../dynamic/ClientConnection');
+import ProjectUpdate = ClientConnection.ProjectUpdate;
+import ProjectUpdateAction = ClientConnection.ProjectUpdateAction;
 import LayerUpdate = ClientConnection.LayerUpdate;
 import LayerUpdateAction = ClientConnection.LayerUpdateAction;
 import KeyUpdate = ClientConnection.KeyUpdate;
@@ -50,6 +53,22 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
             }
             //result.data
         });
+        this.connection.subscribe('project', (result: ClientConnection.ClientMessage, clientId: string) => {
+            var lu = <ClientConnection.ProjectUpdate>result.data;
+            if (lu) {
+                ///TODO: check if lu.layerId really exists
+                switch (lu.action) {
+                    case ClientConnection.ProjectUpdateAction.updateProject:
+                        var p: Project = lu.item;
+                        this.manager.updateProject(p, <ApiMeta>{ source: this.id, user: clientId }, (r) => { });
+                        break;
+                    case ClientConnection.ProjectUpdateAction.deleteProject:
+                        this.manager.deleteProject(lu.projectId, <ApiMeta>{ source: this.id, user: clientId }, (r) => { });
+                        break;
+                }
+            }
+            //result.data
+        });
         this.connection.subscribe('key', (result: ClientConnection.ClientMessage, clientId: string) => {
             var lu = <ClientConnection.KeyUpdate>result.data;
             if (lu) {
@@ -88,6 +107,33 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
     public initLayer(layer: Layer) {
         Winston.info('socketio: init layer ' + layer.id);
         this.connection.registerLayer(layer.id, (action: string, msg: ClientConnection.LayerUpdate, client: string) => {
+            Winston.debug('socketio: action:' + action);
+        });
+    }
+
+
+    public addProject(project: Project, meta: ApiMeta, callback: Function) {
+        //this.connection.publish();
+        var lu = <ProjectUpdate>{ projectId: project.id, action: ProjectUpdateAction.updateProject, item: project };
+        this.connection.updateProject(project.id, lu, meta);
+        callback(<CallbackResult>{ result: ApiResult.OK });
+    }
+
+    public updateProject(project: Project, meta: ApiMeta, callback: Function) {
+        var lu = <ProjectUpdate>{ projectId: project.id, action: ProjectUpdateAction.updateProject, item: project };
+        this.connection.updateProject(project.id, lu, meta);
+        callback(<CallbackResult>{ result: ApiResult.OK });
+    }
+
+    public deleteProject(projectId: string, meta: ApiMeta, callback: Function) {
+        var lu = <ProjectUpdate>{ projectId: projectId, action: ProjectUpdateAction.deleteProject };
+        this.connection.updateProject(projectId, lu, meta);
+        callback(<CallbackResult>{ result: ApiResult.OK })
+    }
+
+    public initProject(project: Project) {
+        Winston.info('socketio: init project ' + project.id);
+        this.connection.registerProject(project.id, (action: string, msg: ClientConnection.ProjectUpdate, client: string) => {
             Winston.debug('socketio: action:' + action);
         });
     }

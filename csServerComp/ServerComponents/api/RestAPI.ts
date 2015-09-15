@@ -59,16 +59,41 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         this.server.post(this.projectsUrl, (req: express.Request, res: express.Response) => {
             var project = new Project();
-            //layer.features = req.body.features;
             project = req.body;
             this.manager.addProject(project, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.status(result.result).send(result);
+                if (result.result === ApiResult.OK)
+                    res.send(result.project);
             });
         })
 
-        this.server.get(this.projectsUrl + ":title/create", (req: express.Request, res: express.Response) => {
-            res.send(JSON.stringify(this.manager.getNewProject(req.params.title)));
-        });
+        // gets the entire project
+        this.server.get(this.projectsUrl + ':projectId', (req: any, res: any) => {
+            this.manager.getProject(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                if (result.result === ApiResult.OK)
+                    res.send(result.project);
+            });
+        })
+
+        //Updates EVERY layer in the project.
+        this.server.put(this.projectsUrl + ':projectId', (req: any, res: any) => {
+            req.projectId = req.params.projectId;
+            this.manager.updateProject(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        })
+
+        // gets the entire layer, which is stored as a single collection
+        // TODO: what to do when this gets really big? Offer a promise?
+        this.server.delete(this.projectsUrl + ':projectId', (req: any, res: any) => {
+            this.manager.deleteProject(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        })
+
+
+
 
         //------ layer API paths, in CRUD order
 
