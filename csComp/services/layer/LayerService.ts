@@ -764,8 +764,8 @@ module csComp.Services {
                 rpt.container = 'featurerelations';
                 this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
-                var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
+                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
@@ -1925,7 +1925,7 @@ module csComp.Services {
                         if (layer) {
                             var l = this.findLayer(layer.id);
                             if (!l) {
-                                this.$messageBusService.notify('New layer available', layer.title);
+                                //this.$messageBusService.notify('New layer available', layer.title);
                             }
                             else {
                                 this.$messageBusService.notify('New update available for layer ', layer.title);
@@ -2238,24 +2238,14 @@ module csComp.Services {
                 }
             });
             if (isNaN(sum) || r.count == 0) {
-                //r.sdMax = r.max;
-                //r.sdMin = r.min;
+
             } else {
                 r.mean = sum / r.count;
                 r.varience = sumsq / r.count - r.mean * r.mean;
                 r.sd = Math.sqrt(r.varience);
-                //r.sdMax = r.mean + 3 * r.sd;
-                //r.sdMin = r.mean - 3 * r.sd;
-                //if (r.min > r.sdMin) r.sdMin = r.min;
-                //if (r.max < r.sdMax) r.sdMax = r.max;
-                //if (r.sdMin === NaN) r.sdMin = r.min;
-                //if (r.sdMax === NaN) r.sdMax = r.max;
             }
             if (this.propertyTypeData.hasOwnProperty(property)) {
                 var mid = this.propertyTypeData[property];
-                //if (mid.maxValue != null) r.sdMax = mid.maxValue;
-                //if (mid.minValue != null) r.sdMin = mid.minValue;
-                //if (mid.minValue && mid.maxValue) r.mean = (r.sdMax + r.sdMin) / 2;
             }
             return r;
         }

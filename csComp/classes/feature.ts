@@ -237,7 +237,5 @@ module csComp.Services {
         mean: number;
         varience: number;
         sd: number;
-        // sdMax: number;
-        // sdMin: number;
     }
 }
