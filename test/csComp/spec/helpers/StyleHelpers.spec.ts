@@ -80,7 +80,7 @@ describe('StyleHelpers', function() {
         });
 
         it('should have function getColor', function() {
-            groupStyle.info = {sdMax: 1, sdMin: 0, mean:0.5};
+            groupStyle.info = {max: 1, min: 0, mean:0.5};
             groupStyle.colors = ['#000000', '#002200'];
             var color = csComp.Helpers.getColor(0, groupStyle);
             expect(color).toEqual('#000000');

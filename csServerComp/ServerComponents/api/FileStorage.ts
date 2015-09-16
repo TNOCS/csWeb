@@ -67,7 +67,6 @@ export class FileStorage extends BaseConnector.BaseConnector {
         setTimeout(() => {
             var watcher = chokidar.watch(this.projectsPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
-
                 if (action == "add") {
                     Winston.info('filestore: new file found : ' + path);
                     this.openProjectFile(path);
@@ -192,9 +191,15 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var id = this.getLayerId(fileName);
         Winston.info('filestore: openfile ' + id);
         if (!this.layers.hasOwnProperty(id)) {
-            fs.readFile(fileName, "utf-8", (err, data) => {
+            fs.readFile(fileName, "utf8", (err, data) => {
                 if (!err) {
-                    var layer = <Layer>JSON.parse(data);
+                    var layer: Layer;
+                    try {
+                        layer = <Layer>JSON.parse(data);
+                    } catch (e) {
+                        Winston.warn(`Error parsing file: ${fileName}. Skipped`);
+                        return;
+                    }
                     layer.storage = this.id;
                     layer.id = id;
                     this.layers[id] = layer;
@@ -215,7 +220,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var id = this.getKeyId(fileName);
         Winston.info('filestore: openfile ' + id);
         if (!this.keys.hasOwnProperty(id)) {
-            fs.readFile(fileName, "utf-8", (err, data) => {
+            fs.readFile(fileName, "utf8", (err, data) => {
                 if (!err) {
                     var key = <Key>JSON.parse(data);
                     key.storage = this.id;
@@ -231,13 +236,14 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var id = this.getProjectId(fileName);
         Winston.info('filestore: openfile ' + id);
         if (!this.projects.hasOwnProperty(id)) {
-            fs.readFile(fileName, "utf-8", (err, data) => {
+            fs.readFile(fileName, "utf8", (err, data) => {
                 if (!err) {
                     var project = <Project>JSON.parse(data);
                     project.storage = this.id;
                     project.id = id;
                     this.projects[id] = project;
                     project.title = id;
+                    project.layers = [];
                     project.logo = "";
                     project.url = "/api/projects/" + id;
                     //this.manager.updateProject(project, {}, () => { });
