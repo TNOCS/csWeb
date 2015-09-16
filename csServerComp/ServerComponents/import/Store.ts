@@ -18,14 +18,17 @@ export class FileStore implements IStore {
      * Load the file from disk.
      */
     private load() {
+      this.resources = JSON.parse(fs.readFileSync(this.store, 'utf8'));
+      /*
         fs.readFile(this.store, 'utf8', (err, res) => {
             if (err) {
                 console.log('No file store found: ' + this.store);
             }
             else {
+
                 this.resources = JSON.parse(res);
             }
-        });
+        });*/
     }
 
     /**

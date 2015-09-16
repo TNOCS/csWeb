@@ -79,78 +79,9 @@ class ImporterRepositoryService implements IImporterRepositoryService {
             var importer: IImport = this.get(id);
             importer.lastRun = new Date();
 
-            var instances = [];
-            async.each(importer.transformers, (transformerDefinition, next)=>{
-              var transformerInstance = this.getTransformerInstance(transformerDefinition);
-
-              if (!transformerInstance) {
-                /*console.error("Unknown transformer type: " + transformerDefinition.type);*/
-                next(new Error("Unknown transformer type: " + transformerDefinition.type));
-                return;
-              }
-              instances.push(transformerInstance);
-
-              transformerInstance.initialize(transformerDefinition, (error)=>{
-                if (error) {
-                  next(error);
-                  return;
-                }
-
-                next();
-              });
-            },(error)=>{
-              if (error) {
-                console.log("Error initalizing transformers: " + error);
-                return;
-              }
-
-              console.log("Transformers initialized");
-              var sourceRequest = request({ url: importer.sourceUrl });
-              // var stream: NodeJS.ReadWriteStream = null;
-              var stream: NodeJS.ReadWriteStream = sourceRequest.pipe(split());
-
-              instances.forEach(transformerInstance=>{
-
-                if (stream) {
-                  // Pipe to existing stream chain
-                  stream = stream.pipe(transformerInstance.create(config));
-                }
-                else{
-                  // Initialize stream chain from source request
-                  stream = sourceRequest.pipe(transformerInstance.create(config));
-                }
-              });
-
-              var index = 0;
-              var startTs = new Date();
-              var prevTs = new Date();
-
-              stream.on("end", ()=> {
-                var currTs = new Date();
-                var diff = ( currTs.getTime() - startTs.getTime() ) / 1000;
-                console.log(new Date() + ": Finished in " + diff + " seconds");
-              });
-
-              stream.pipe(es.mapSync(function(data) {
-
-                var currTs = new Date();
-                var diff = (currTs.getTime() - prevTs.getTime());
-                if ( (index % 100) == 0) {
-
-                  console.log(new Date() + ": " + index + "(" + diff / 100 + "ms per feature)");
-
-                  prevTs = currTs;
-
-                }
-                // console.log(data);
-                index++;
-              }));
-
-              console.log(new Date() + ": Started");
+            this.runImporter(importer, (error: Error) => {
+              res.send("");
             });
-
-
-            res.send("");
         });
 
         /**
@@ -173,6 +104,82 @@ class ImporterRepositoryService implements IImporterRepositoryService {
 
     shutdown() {
 
+    }
+
+    runImporter(importer: IImport, callback: (error: Error)=>void) {
+      var instances = [];
+      async.each(importer.transformers, (transformerDefinition, next)=>{
+        var transformerInstance = this.getTransformerInstance(transformerDefinition);
+
+        if (!transformerInstance) {
+          /*console.error("Unknown transformer type: " + transformerDefinition.type);*/
+          next(new Error("Unknown transformer type: " + transformerDefinition.type));
+          return;
+        }
+        instances.push(transformerInstance);
+
+        transformerInstance.initialize(transformerDefinition, (error)=>{
+          if (error) {
+            next(error);
+            return;
+          }
+
+          next();
+        });
+      },(error)=>{
+        if (error) {
+          console.log("Error initalizing transformers: " + error);
+          return;
+        }
+
+        console.log("Transformers initialized");
+        var sourceRequest = request({ url: importer.sourceUrl });
+        // var stream: NodeJS.ReadWriteStream = null;
+        var stream: NodeJS.ReadWriteStream = sourceRequest.pipe(split());
+
+        instances.forEach(transformerInstance=>{
+
+          if (stream) {
+            // Pipe to existing stream chain
+            stream = stream.pipe(transformerInstance.create(this.config));
+          }
+          else{
+            // Initialize stream chain from source request
+            stream = sourceRequest.pipe(transformerInstance.create(this.config));
+          }
+        });
+
+        var index = 0;
+        var startTs = new Date();
+        var prevTs = new Date();
+
+        stream.on("end", ()=> {
+          var currTs = new Date();
+          var diff = ( currTs.getTime() - startTs.getTime() ) / 1000;
+          console.log(new Date() + ": Finished in " + diff + " seconds");
+
+          if (callback) {
+            callback(null);
+          }
+        });
+
+        stream.pipe(es.mapSync(function(data) {
+
+          var currTs = new Date();
+          var diff = (currTs.getTime() - prevTs.getTime());
+          if ( (index % 100) == 0) {
+
+            console.log(new Date() + ": " + index + "(" + diff / 100 + "ms per feature)");
+
+            prevTs = currTs;
+
+          }
+          // console.log(data);
+          index++;
+        }));
+
+        console.log(new Date() + ": Started");
+      });
     }
 
     addTransformer(transformer: transform.ITransform) {
