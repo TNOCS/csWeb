@@ -42,6 +42,10 @@ module csComp.Services {
             this.changeBaseLayer(this.service.$mapService.activeBaseLayer);
         }
 
+        public getLatLon(x: number, y: number): { lat: number, lon: number } {
+            return { lat: 53, lon: 5 };
+        }
+
         public getExtent(): csComp.Services.IBoundingBox {
             var r = <IBoundingBox>{};
             return r;

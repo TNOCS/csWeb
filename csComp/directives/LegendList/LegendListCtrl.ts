@@ -77,7 +77,7 @@ module LegendList {
             var existingItems: Array<String> = [];
             for (var key in this.$layerService._featureTypes) {
                 var ft = this.$layerService._featureTypes[key];
-                var uri = this.getImageUri(ft);
+                var uri = csComp.Helpers.getImageUri(ft);
                 var html = '';
                 var title = this.getName(key, ft);
                 var existingItem = title + uri;
@@ -103,7 +103,7 @@ module LegendList {
             }
             this.$layerService.project.features.forEach((f) => {
                 var ft = f.fType;
-                var uri = (ft && ft.style && ft.style.hasOwnProperty('iconUri')) ? csComp.Helpers.convertStringFormat(f, ft.style.iconUri) : this.getImageUri(ft);
+                var uri = (ft && ft.style && ft.style.hasOwnProperty('iconUri')) ? csComp.Helpers.convertStringFormat(f, ft.style.iconUri) : csComp.Helpers.getImageUri(ft);
                 if (uri.indexOf('_Media') >= 0) f.effectiveStyle.iconUri = "cs/images/polygon.png";
                 var html = csComp.Helpers.createIconHtml(f, ft)['html'];
                 var title = ft.name || f.layer.title || ((ft.id) ? ft.id.split('#').pop() : 'undefined');
@@ -122,24 +122,7 @@ module LegendList {
         }
 
 
-        private getImageUri(ft: csComp.Services.IFeatureType): string {
-            var iconUri = ft.style.iconUri;
-            if (iconUri == null) iconUri = "cs/images/marker.png";
-            if (iconUri.indexOf('{') >= 0) iconUri = iconUri.replace('{', '').replace('}', '');
 
-            if (ft.style != null && ft.style.drawingMode != null && ft.style.drawingMode.toLowerCase() != "point") {
-                if (iconUri.indexOf('_Media') < 0)
-                    return iconUri;
-                else
-                    return "cs/images/polygon.png";
-            }
-            else if (ft.style != null && iconUri != null) {
-                return iconUri;
-            }
-            else {
-                return "cs/images/marker.png";
-            }
-        }
 
         private getName(key: string, ft: csComp.Services.IFeatureType): string {
             return ft.name || key.split('#').pop()

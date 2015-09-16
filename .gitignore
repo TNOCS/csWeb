@@ -51,3 +51,4 @@ csDataGatherer/public/data/
 test/csComp/spec/directives/**/*.spec.js
 OfflineSearch
 example/public/data/projects/DynamicExample/
+example/public/data/

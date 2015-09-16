@@ -10,7 +10,7 @@ module KanbanColumn {
     }
 
     export class ColumnFilter {
-        layerIds: string[];
+        layerId: string;
         prio: number;
         roles: string[];
         tags: string[];
@@ -77,7 +77,7 @@ module KanbanColumn {
                 var result = true;
                 if (!$scope.column) return false;
                 // Check that the layerId is applicable.
-                if (result && !_.contains(this.column.filters.layerIds, feature.layerId)) return false;
+                if (result && this.column.filters.layerId !== feature.layerId) return false;
                 // Role filter: is a simple AND filter.
                 if (this.column.filters.roles && this.column.filters.roles.length > 0 && feature.properties.hasOwnProperty('roles')) {
                     this.column.filters.roles.forEach((r: string) => {
@@ -252,14 +252,14 @@ module KanbanColumn {
         initLayers() {
             var c = this.$scope.column;
 
-            if (c.filters.layerIds && c.filters.layerIds.length > 0) {
-                var lid = c.filters.layerIds[0];
-                this.layer = this.$layerService.findLayer(lid);
-                if (this.layer) {
-                    this.$layerService.addLayer(this.layer, (t) => {
-                    });
-                }
-            };
+
+            var lid = c.filters.layerId;
+            this.layer = this.$layerService.findLayer(lid);
+            if (this.layer) {
+                this.$layerService.addLayer(this.layer, (t) => {
+                });
+            }
+
         }
     }
 }

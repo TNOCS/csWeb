@@ -14,7 +14,7 @@ module csComp.Services {
     * @see http://stackoverflow.com/a/22886730/319711
     */
     export interface ISerializable<T> {
-        deserialize(input: Object): T;
+        deserialize(input: Object, solution?: Solution): T;
     }
 
     export class VisualState {
@@ -86,6 +86,7 @@ module csComp.Services {
         maxBounds: IBoundingBox;
         viewBounds: IBoundingBox;
         baselayers: IBaseLayer[];
+        widgetStyles: { [key: string]: WidgetStyle } = {};
         projects: SolutionProject[];
     }
 
@@ -129,7 +130,9 @@ module csComp.Services {
         description: string;
         logo: string;
         otpServer: string;
+        storage: string;
         url: string;
+        opacity: number;
         /** true if a dynamic project and you want to subscribe to project changes using socket.io */
         connected: boolean;
         activeDashboard: Dashboard;
@@ -137,6 +140,7 @@ module csComp.Services {
         allFeatureTypes: { [id: string]: IFeatureType };
         featureTypes: { [id: string]: IFeatureType };
         propertyTypeData: { [id: string]: IPropertyType };
+        solution: Solution;
         groups: ProjectGroup[];
         mapFilterResult: L.Marker[];
         startposition: Coordinates;
@@ -197,8 +201,10 @@ module csComp.Services {
                 otpServer: project.otpServer,
                 url: project.url,
                 connected: project.connected,
+                layerDirectory: project.layerDirectory,
                 startPosition: project.startposition,
                 timeLine: project.timeLine,
+                opacity: project.opacity,
                 mcas: project.mcas,
                 datasources: csComp.Helpers.serialize<DataSource>(project.datasources, DataSource.serializeableData),
                 dashboards: csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
@@ -215,12 +221,15 @@ module csComp.Services {
         }
 
         public deserialize(input: Project): Project {
+            var solution = input.solution;
             var res = <Project>jQuery.extend(new Project(), input);
+            res.solution = solution;
+            if (!input.opacity) input.opacity = 100;
             if (input.timeLine) { res.timeLine = DateRange.deserialize(input.timeLine); }// <DateRange>jQuery.extend(new DateRange(), input.timeLine);
             if (input.dashboards) {
                 res.dashboards = [];
                 input.dashboards.forEach((d) => {
-                    res.dashboards.push(Dashboard.deserialize(d));
+                    res.dashboards.push(Dashboard.deserialize(d, solution));
                 });
 
                 for (var index in input.mcas) {

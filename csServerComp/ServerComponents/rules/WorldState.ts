@@ -1,4 +1,7 @@
-import GeoJSON = require("../helpers/GeoJSON");
+import ApiManager = require('../api/ApiManager');
+import Layer = ApiManager.Layer;
+import Feature = ApiManager.Feature;
+import Property = ApiManager.Property;
 
 /**
  * A class representing the world state
@@ -17,18 +20,18 @@ class WorldState {
     /**
      * A bag of key-value properties
      */
-    properties: GeoJSON.IProperty[] = [];
+    properties: Property[] = [];
 
     /**
      * List of all features.
      */
-    features: GeoJSON.IFeature[] = [];
+    features: Feature[] = [];
 
     /**
      * Active feature.
      * In case it is undefined, you can only evaluate the non-feature specific rules.
      */
-    activeFeature: GeoJSON.IFeature;
+    activeFeature: Feature;
 
     /**
      * Active layer id is used for working with features.

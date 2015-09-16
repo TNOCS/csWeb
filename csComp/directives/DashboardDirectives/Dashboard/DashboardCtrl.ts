@@ -2,7 +2,7 @@ module Dashboard {
 
     import Dashboard = csComp.Services.Dashboard;
 
-    declare var c3;
+    declare var interact;
 
     export interface IDashboardScope extends ng.IScope {
         vm: DashboardCtrl;
@@ -75,6 +75,8 @@ module Dashboard {
                             break;
                     }
                 });
+
+                //this.project.activeDashboard.widgets
                 //this.updateDashboard();
                 //alert($scope.dashboard.name);
             };
@@ -87,7 +89,11 @@ module Dashboard {
         }
 
         public updateWidget(w: csComp.Services.IWidget) {
-            //alert('updatewidget');
+
+            if (w._initialized && this.$scope.dashboard._initialized) return;
+            w._initialized = true;
+            console.log('really update widget');
+
             //this.$dashboardService.updateWidget(w);
             //var newElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
             console.log('updating widget');
@@ -121,6 +127,18 @@ module Dashboard {
                 el.append(widgetElement);
             }
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+        }
+
+        public toggleInteract(widget: csComp.Services.IWidget) {
+            widget._interaction = !widget._interaction;
+            if (widget._interaction) {
+                interact('#' + widget.elementId + '-parent').draggable(true);
+            }
+            else {
+                interact('#' + widget.elementId + '-parent').draggable(false);
+            }
+
+
         }
 
         public checkMap() {
@@ -170,7 +188,7 @@ module Dashboard {
 
         public checkTimeline() {
             if (this.$scope.dashboard.showTimeline != this.$mapService.timelineVisible) {
-                if (this.$scope.dashboard.showTimeline) {
+                if (this.$scope.dashboard.showTimeline && this.$mapService.isIntermediate) {
                     this.$mapService.timelineVisible = true;
                 } else {
                     this.$mapService.timelineVisible = false;
@@ -179,54 +197,123 @@ module Dashboard {
             }
         }
 
-        public checkLegend() {
-            if (this.$scope.dashboard.showLegend) {
-                var legendWidgetPresent = false;
-                this.$scope.dashboard.widgets.forEach(w => {
-                    if (w.id === 'legend') legendWidgetPresent = true;
-                });
-                if (!legendWidgetPresent) {
-                    console.log('Create legend');
-                    var w = <csComp.Services.IWidget>{};
-                    w.directive = 'legend-directive';
-                    w.id = 'legend';
-                    w.title = 'Legenda';
-                    w.data = { mode: 'lastSelectedStyle' };
-                    w.left = '10px';
-                    w.top = '20px';
-                    w.width = '150px';
-                    w.enabled = true;
-                    this.$dashboardService.addNewWidget(w, this.$scope.dashboard);
-                }
-            }
+        private setValue(diff: number, value: string): string {
+            if (!value || value.indexOf('%') >= 0) return value;
+            var left = parseInt(value.replace('px', ''));
+            left += diff;
+            return left + "px";
         }
 
         public isReady(widget: csComp.Services.IWidget) {
             setTimeout(() => {
+                if (!widget._ijs)
+
+                    widget._ijs = interact('#' + widget.elementId + '-parent')
+                        .resizable({ inertia: true })
+                        .on('down', (e) => {
+                        if (widget._interaction) widget._isMoving = true;
+                        if (this.$dashboardService.activeWidget != widget) {
+                            this.$dashboardService.editWidget(widget)
+                        }
+                    }
+                        )
+                        .on('up', (e) => widget._isMoving = false)
+                        .on('dragmove', (event) => {
+                        if (widget.left || (!widget.left && widget.left !== "")) {
+                            widget.left = this.setValue(event.dx, widget.left);
+                            if (widget.width && widget.width !== "") {
+                                widget.right = "";
+                            } else {
+                                widget.right = this.setValue(-event.dx, widget.right);
+                            }
+                        }
+                        else {
+                            if (!widget.right || widget.right === "") {
+                                widget.right = 1000 + "px";
+                            }
+                            widget.right = this.setValue(-event.dx, widget.right);
+                        }
+                        if (widget.top && widget.top !== "") {
+                            widget.top = this.setValue(event.dy, widget.top);
+                            if (widget.bottom) {
+                                if (widget.height) {
+                                    widget.bottom = "";
+                                }
+                                else
+                                { widget.bottom = this.setValue(-event.dy, widget.bottom); }
+                            }
+                        }
+                        else {
+                            widget.bottom = this.setValue(-event.dy, widget.bottom);
+                        }
+
+                        if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                    })
+                        .on('resizemove', (event) => {
+                        widget.height = this.setValue(event.dy, widget.height);
+                        if (widget.left && widget.right) {
+                            widget.right = this.setValue(-event.dx, widget.right);
+                        }
+                        else {
+                            if (!widget.width) widget.width = "300px";
+                            widget.width = this.setValue(event.dx, widget.width);
+                        }
+                        if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+
+                    })
+
                 //this.updateWidget(widget);
             }, 10);
 
         }
 
+
+        // if (!d.widgets) d.widgets = [];
+        // if (d.showLegend) {
+        //     var legendWidgetPresent = false;
+        //     d.widgets.forEach(w => {
+        //         if(w.id === 'legend') legendWidgetPresent = true;
+        //     });
+        //     if (!legendWidgetPresent) {
+        //         console.log('Create legend');
+        //         var w = <csComp.Services.IWidget>{};
+        //         w.directive = 'legend-directive';
+        //         w.id = 'legend';
+        //         w.title = 'Legenda';
+        //         w.data = {mode: 'lastSelectedStyle'};
+        //         w.left = '10px';
+        //         w.top = '20px';
+        //         w.width = '150px';
+        //         w.enabled = true;
+        //         this.$dashboardService.addNewWidget(w, d);
+        //         //this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
+        //     }
+
         public updateDashboard() {
             var d = this.$scope.dashboard;
             if (!d) return;
-            if (!d.widgets) d.widgets = [];
 
-            this.checkLegend();
             this.checkMap();
             this.checkTimeline();
             this.checkLayers();
             this.checkViewbound();
+
             //this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
             if (!this.$mapService.isAdminExpert) {
                 this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
                 this.$layerService.visual.rightPanelVisible = d.showRightmenu;
             }
             this.$timeout(() => {
-                d.widgets.forEach((w: any) => {
+                d.widgets.forEach((w: csComp.Services.IWidget) => {
+                    w._initialized = false;
                     this.updateWidget(w);
                 });
+                d._initialized = true;
+                this.$scope.$watchCollection('dashboard.widgets', (da) => {
+                    this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
+                        this.updateWidget(w);
+                    });
+                })
             }, 100);
 
             //this.$layerService.rightMenuVisible = d.showLeftmenu;

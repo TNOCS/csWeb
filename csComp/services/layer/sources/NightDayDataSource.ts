@@ -13,7 +13,7 @@ declare module L {
     }
 }
 
-L.Terminator = L.Polygon.extend({
+L.Terminator = <any>L.Polygon.extend(<any>{
     options: {
         color: '#00',
         opacity: 0.5,
@@ -163,8 +163,8 @@ module csComp.Services {
     export class NightDayDataSource extends csComp.Services.GeoJsonSource {
         title = "Day Night regions on the Earth";
 
-        constructor(public service: csComp.Services.LayerService) {
-            super(service);
+        constructor(public service: csComp.Services.LayerService, $http: ng.IHttpService) {
+            super(service, $http);
         }
 
         public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
@@ -176,10 +176,10 @@ module csComp.Services {
             var defaultValue = 0;
             if (typeof layer.dataSourceParameters !== 'undefined') {
                 var gridParams = <INightDayDataSourceParameters> layer.dataSourceParameters;
-                if (typeof gridParams.showNight !== 'undefined') showNight    = gridParams.showNight;
-                if (typeof gridParams.value     !== 'undefined') defaultValue = gridParams.value;
+                if (typeof gridParams.showNight !== 'undefined') showNight = gridParams.showNight;
+                if (typeof gridParams.value !== 'undefined') defaultValue = gridParams.value;
             }
-            var terminator = new L.Terminator( {"showNight": showNight} );
+            var terminator = new L.Terminator({ "showNight": showNight });
             var geojson = terminator.toGeoJSON();
             if (showNight) {
                 geojson.properties["Name"] = "Night";

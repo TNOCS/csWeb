@@ -250,6 +250,23 @@ html, body, #container {
 
 /* Start LayersList */
 
+.layer{
+    margin-left:30px;
+    padding-top:5px;
+    padding-bottom:5px;
+}
+
+.disconnected-layer{
+    opacity: 0.5
+
+}
+
+.connected-layer
+{
+    opacity:1
+
+}
+
 .left-menu {
     background: url("../../cs/images/menu-left.png");
     background-position: right bottom;
@@ -593,7 +610,7 @@ html, body, #container {
     overflow: hidden;
     float: left;
     width: 16px;
-    padding-top: 16px;
+    padding-top: 18px;
     color: #428BCA;
     background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAJOgAACToB8GSSSgAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAMsSURBVFiF7ZVNaFxVGIaf795pb8WUoiCKbdEgwVlJKZlJqWKTCUi10IhCiqALsbQIWmo6k4IgRndmnFoUXbTdiHWjgn9IlDIz9SdtM0HEgmAR0S76o/gDtVEnzJzXRSYzyeR2Mremq/ZdnXvOy/c+95zv3AvXdLXLopjvy5XWVpwNCG0xuB1YC4D4Bc9OgwrCjRXTG75eUoDUvmOrqcRGMB4H/MX8Ql955r2YTyeO/G+AvtzkVnM6DKwEXTRsXCgOdltTpZ9NnBK6G6wDwMSBv2OV3ceHNv5zqfpeq/DU6MTT5vT+bLic153PJDcHwY13Ap83wq0YLL8hns8kNzvzE8AUgIwd11X9Yu/r33VEBujLTW7FbP+sx7Dx4t7EKYCxXV1lQ2/V8+XeHtvVVQY4mu7+Hmx8ztb0eFNTH/SOFGNtA6T2HVtd2/b6ulD8/ld/CBrPrJsTctfsqHekuAIUn1fQ6Peu73gqLCu0B/qyk4cMPdE8LzjqocMz4fYkjYasYvaGyX0r7DFgU0jZC8v8SudnQxv/aAkwc9X4iTa6PapktrOYThyYO7fgCCrOBhrh9kwQuFUm3QucbzfI4Jxk9wSBWyWzoXqY9FCzN6Qx9EBtcLyQSeyvjb/sz05kheXaARA2WhxOzDbiK/2jpUEZGyS6mr1hTXhHOyEtAWz+0co082zc2uxd0AOpbOkCsHJmUXuWBzpUnvbW4XgH4+Y2Gc6bNGjOP6mY2y7xcm3+10ImOa9G6N2sk2O5crm27ZH+Gtwisy/kO1Bj0rDJZmPYEZyLFBVBknuzHYAfr0w6+UIm+d6iACb7ZMnDjZJVtA0zNS8tAKiq+iFQXaLo3zCecxenNuWf7fk9nC1EqdHSQYztEYLOmJGV01kAmTct587c1Hn6m3cHB1u+TOgt8BV7vmqVbdSu42IS3sOFdPdEBOC6Qv+GR/auPyvPHgVcO0X+9adPXk74JQEAinsSHyHtbgdiRWXZI0sOAFAY7nkNeBD4q5XPTC9cEQCAQib5se9iceAgUAnzaN73LpoifWB7Xzqxxjd/QKYtQCdojbA/PbEjP5z89HIhrunq1n+7nx5P1EuhmAAAAABJRU5ErkJggg==') no-repeat left;
     background-size: 16px 16px;
@@ -723,6 +740,45 @@ html, body, #container {
     width: 0;
     text-align: right;
     font-weight: bold;
+}
+
+.style-icon {
+    border-radius: 25%;
+    border: red;
+    width: 20px;
+    height: 20px;
+    padding-top: 2px;
+    padding-left: 4px;
+}
+
+.panel-group {
+    margin: 10px;
+}
+
+.property-edit {
+    clear: both;
+}
+
+.not-valid-input {
+    color: red;
+}
+
+.icons-on-hover {
+    position: absolute;
+    left: 70px;
+    background-color: rgba(255, 255, 255, 1);
+    padding: 3px;
+    border-radius: 3px;
+    display: none;
+    margin-top:-3px;
+}
+
+.panel-heading:hover .icons-on-hover{
+    display: block;
+}
+
+#featureprops-content:hover leftpanel-header-button-container {
+    opacity: 0.5;
 }
 
 /* leftpanel */

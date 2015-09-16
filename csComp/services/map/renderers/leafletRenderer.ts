@@ -25,10 +25,6 @@ module csComp.Services {
             });
             this.map = this.service.$mapService.map;
 
-
-
-
-
             this.service.$mapService.map.on('moveend', (t, event: any) => {
                 var b = (<L.Map>(this.service.$mapService.map)).getBounds();
                 this.$messageBusService.publish("mapbbox", "update", b.toBBoxString());
@@ -36,6 +32,11 @@ module csComp.Services {
                 var boundingBox: csComp.Services.IBoundingBox = { southWest: [b.getSouthWest().lat, b.getSouthWest().lng], northEast: [b.getNorthEast().lat, b.getNorthEast().lng] };
                 this.service.$mapService.maxBounds = boundingBox;
             });
+        }
+
+        public getLatLon(x: number, y: number): { lat: number, lon: number } {
+            var position = this.map.containerPointToLatLng(new L.Point(x, y));
+            return { lat: position.lat, lon: position.lng };
         }
 
         public getExtent(): csComp.Services.IBoundingBox {
@@ -81,13 +82,13 @@ module csComp.Services {
                 this.service.map.map.addLayer(group.cluster);
             } else {
                 group.vectors = new L.LayerGroup<L.ILayer>();
+
                 this.service.map.map.addLayer(group.vectors);
             }
         }
 
         public removeLayer(layer: ProjectLayer) {
             switch (layer.renderType) {
-
                 case "geojson":
                     var g = layer.group;
                     //m = layer.group.vectors;
@@ -193,7 +194,7 @@ module csComp.Services {
                     //this.$rootScope.$apply();
                     break;
                 case "wms":
-                    var wms: any = L.tileLayer.wms(layer.url, {
+                    var wms: any = L.tileLayer.wms(layer.url, <any>{
                         layers: layer.wmsLayers,
                         opacity: layer.opacity / 100,
                         format: 'image/png',
@@ -272,7 +273,9 @@ module csComp.Services {
                                         mouseover: (a) => this.showFeatureTooltip(a, layer.group),
                                         mouseout: (s) => this.hideFeatureTooltip(s),
                                         mousemove: (d) => this.updateFeatureTooltip(d),
-                                        click: () => this.service.selectFeature(feature)
+                                        click: () => {
+                                            this.selectFeature(feature);
+                                        }
                                     });
                                 },
                                 style: (f: IFeature, m) => {
@@ -302,46 +305,65 @@ module csComp.Services {
         /***
          * Update map markers in cluster after changing filter
          */
-        public updateMapFilter(group: ProjectGroup) {
-            $.each(group.markers, (key, marker) => {
-                var includedPropFilter, includedMapFilter, included;
-                if (group.filterResult && group.filters.length > 0) {
-                    includedPropFilter = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
-                } else {
-                    includedPropFilter = true;
-                }
-                if (this.service.project.mapFilterResult && this.service.project.mapFilterResult.length > 0) {
-                    includedMapFilter = this.service.project.mapFilterResult.filter((m: any) => m.feature.id === key).length > 0;
-                } else {
-                    includedMapFilter = true;
-                }
-                included = (includedPropFilter && includedMapFilter);
-                if (group.clustering) {
-                    var incluster = group.cluster.hasLayer(marker);
-                    if (!included && incluster) group.cluster.removeLayer(marker);
-                    if (included && !incluster) group.cluster.addLayer(marker);
-                } else {
-                    var onmap = group.vectors.hasLayer(marker);
-                    if (!included && onmap) group.vectors.removeLayer(marker);
-                    if (included && !onmap) group.vectors.addLayer(marker);
-                }
-            });
-        }
+         public updateMapFilter(group: ProjectGroup) {
+             $.each(group.markers, (key, marker) => {
+                 var included;
+                 if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+                 if (group.clustering) {
+                     var incluster = group.cluster.hasLayer(marker);
+                     if (!included && incluster) group.cluster.removeLayer(marker);
+                     if (included && !incluster) group.cluster.addLayer(marker);
+                 } else {
+                     //var onmap = group.vectors.hasLayer(marker);
+                     var onmap = this.service.map.map.hasLayer(marker);
+                     if (!included && onmap) this.service.map.map.removeLayer(marker);
+                     if (included && !onmap) this.service.map.map.addLayer(marker);
+                 }
+             });
+         }
 
         public removeGroup(group: ProjectGroup) { }
 
         public removeFeature(feature: IFeature) {
-            var marker = <L.Marker>feature.layer.group.markers[feature.id];
-            if (marker != null) {
-                feature.layer.mapLayer.removeLayer(marker);
-                delete feature.layer.group.markers[feature.id];
+            var layer = feature.layer;
+            switch (layer.renderType) {
+                case "geojson":
+                    var g = layer.group;
+
+                    if (g.clustering) {
+                        var m = g.cluster;
+
+
+                        try {
+                            m.removeLayer(layer.group.markers[feature.id]);
+                            delete layer.group.markers[feature.id];
+                        } catch (error) { }
+
+
+                    } else {
+                        if (layer.group.markers.hasOwnProperty(feature.id)) {
+                            layer.mapLayer.removeLayer(layer.group.markers[feature.id]);
+                            layer.group.vectors.removeLayer(layer.group.markers[feature.id]);
+                            delete layer.group.markers[feature.id];
+                        }
+                    }
+                    break;
+
             }
+
+
+            // var marker = <L.Marker>feature.layer.group.markers[feature.id];
+            // if (marker != null) {
+            //     feature.layer.mapLayer.removeLayer(marker);
+            //     delete feature.layer.group.markers[feature.id];
+            // }
         }
 
         public updateFeature(feature: IFeature) {
             if (feature.layer.group == null) return;
             var marker = feature.layer.group.markers[feature.id];
             if (marker == null) return;
+
             if (feature.geometry.type === 'Point') {
                 marker.setIcon(this.getPointIcon(feature));
                 marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
@@ -354,6 +376,20 @@ module csComp.Services {
                     }
                 }
             }
+            if (feature.layer.isDynamic) {
+                if (this.canDrag(feature)) { marker.dragging.enable(); } else {
+                    marker.dragging.disable();
+                };
+            }
+        }
+
+        public selectFeature(feature) {
+            if (feature.gui.hasOwnProperty("dragged")) {
+                delete feature.gui["dragged"];
+            }
+            else {
+                this.service.selectFeature(feature);
+            }
         }
 
         public addFeature(feature: IFeature): any {
@@ -365,7 +401,9 @@ module csComp.Services {
                     mouseover: (a) => this.showFeatureTooltip(a, l.group),
                     mouseout: (s) => this.hideFeatureTooltip(s),
                     mousemove: (d) => this.updateFeatureTooltip(d),
-                    click: () => this.service.selectFeature(feature)
+                    click: () => {
+                        this.selectFeature(feature);
+                    }
                 });
                 m.feature = feature;
                 if (l.group.clustering) {
@@ -380,6 +418,11 @@ module csComp.Services {
             } else return null;
         }
 
+        private canDrag(feature: IFeature): boolean {
+            return feature.gui.hasOwnProperty('editMode') && feature.gui['editMode'] == true;
+        }
+
+
         /**
          * add a feature
          */
@@ -389,9 +432,11 @@ module csComp.Services {
             var marker;
             switch (feature.geometry.type) {
                 case 'Point':
+                    console.log('create feature');
                     var icon = this.getPointIcon(feature);
+
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
-                        icon: icon
+                        icon: icon, draggable: this.canDrag(feature)
                     });
 
                     marker.on('contextmenu', (e: any) => {
@@ -405,11 +450,18 @@ module csComp.Services {
                         menu.css("left", e.originalEvent.x + 5);
                         menu.css("top", e.originalEvent.y - 35);
                         if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
-                        /*var containerSize = this.getElementSize(container),
-                            anchor;*/
-                        //console.log(e);
-                        //L.DomEvent.apply(e, "click");
-                        //alert(e.latlng);
+                    });
+
+                    marker.on('dragstart', (event: L.LeafletEvent) => {
+                        feature.gui["dragged"] = true;
+                    });
+
+                    marker.on('dragend', (event: L.LeafletEvent) => {
+                        var marker = event.target;
+                        var position = marker.getLatLng();
+                        feature.geometry.coordinates = [position.lng, position.lat];
+                        //marker.setLatLng(new L.LatLng(), { draggable: 'false' });
+                        //map.panTo(new L.LatLng(position.lat, position.lng))
                     });
 
 
@@ -515,12 +567,12 @@ module csComp.Services {
             var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
             content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
 
-            this.popup = L.popup({
+            /*this.popup = L.popup({
                 offset: new L.Point(-widthInPixels / 2 - 40, -5),
                 closeOnClick: true,
                 autoPan: false,
                 className: 'featureTooltip'
-            }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
+            }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);*/
 
             //In case a BAG contour is available, show it.
             if (this.service.currentContour) this.service.map.map.removeLayer(this.service.currentContour);

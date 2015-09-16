@@ -12,6 +12,10 @@ module Filters {
         private scope: ILocationFilterScope;
         private widget: csComp.Services.IWidget;
         private locationFilter: L.LocationFilter;
+        private dcChart: any;
+        private helperDim: any;
+        private helperGroup: any;
+        private isEmpty: boolean;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -65,6 +69,7 @@ module Filters {
                 var bounds = this.$layerService.map.map.getBounds();
                 bounds = bounds.pad(-0.75);
                 this.locationFilter = new L.LocationFilter({ bounds: bounds }).addTo(this.$layerService.map.map);
+                this.$scope.filter.value = bounds;
                 this.locationFilter.on('change', (e) => {
                     this.updateLocationFilter(e.bounds);
                 });
@@ -85,7 +90,12 @@ module Filters {
         public initLocationFilter() {
             var filter = this.$scope.filter;
             var group = filter.group;
+            var divid = 'filter_' + filter.id;
             this.setLocationFilter();
+
+            this.dcChart = <any>dc.pieChart('#' + divid);
+
+            this.$scope.$apply();
 
             var dcDim = group.ndx.dimension(d => {
                 if (d.id && d.layer && d.layer.group && d.layer.group.markers && d.layer.group.markers.hasOwnProperty(d.id)) {
@@ -102,14 +112,34 @@ module Filters {
                 return null;
             });
             filter.dimension = dcDim;
-            filter.group = group;
-            this.$scope.$digest();
-            this.updateLocationFilter(this.$layerService.map.map.getBounds());
+
+            this.helperDim = crossfilter([
+                { title: "inside" },
+                { title: "outside" }
+            ]).dimension(d => { return d.title });
+            this.helperGroup = this.helperDim.group((d) => {
+                return d;
+            });
+
+            this.dcChart
+                .width(175)
+                .height(200)
+                .slicesCap(4)
+                .innerRadius(0)
+                .dimension(this.helperDim)
+                .group(this.helperGroup) // by default, pie charts will use group.key as the label
+                .legend((<any>dc).legend())
+                .renderLabel(true)
+                .label(function(d) { return d.value; })
+                .on('renderlet', (e) => {
+                this.updateLocationFilter(this.locationFilter.getBounds(), false);
+            });
+            this.updateLocationFilter(this.$scope.filter.value);
         }
 
-        public updateLocationFilter(bounds) {
+        public updateLocationFilter(bounds, triggerRender: boolean = true) {
             var f = this.$scope.filter;
-            if (!f.dimension) return;
+            if (!f.dimension || !this.locationFilter.isEnabled()) return;
             var group = f.group;
 
             f.dimension.filterFunction((d: L.LatLngBounds) => {
@@ -119,10 +149,23 @@ module Filters {
                 return false;
             });
 
+            this.helperGroup.all().forEach((hg) => {
+                if (hg.key === "inside") {
+                    hg.value = f.dimension.top(Infinity).length;
+                }
+                if (hg.key === "outside") {
+                    hg.value = f.dimension.groupAll().value() - f.dimension.top(Infinity).length;
+                }
+            });
+
+            this.isEmpty = !(this.helperGroup.all().some((hg) => {return hg.value !== 0}));
 
             group.filterResult = f.dimension.top(Infinity);
-            this.$layerService.updateMapFilter(group);
-            dc.renderAll();
+
+            if (triggerRender) {
+                this.$layerService.updateMapFilter(group);
+                dc.renderAll();
+            }
         }
 
         public remove() {

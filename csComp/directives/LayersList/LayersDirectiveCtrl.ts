@@ -1,4 +1,7 @@
 module LayersDirective {
+
+    declare var interact;
+
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
         options: Function;
@@ -7,6 +10,14 @@ module LayersDirective {
     export class LayersDirectiveCtrl {
         private scope: ILayersDirectiveScope;
         private allCollapsed: boolean;
+        public editing: boolean;
+        public state: string = "layers";
+        public layer: csComp.Services.ProjectLayer;
+        public project: csComp.Services.Project;
+        public directory: csComp.Services.ProjectLayer[];
+        public selectedLayer: csComp.Services.ProjectLayer;
+        public layerGroup: any;
+
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -40,7 +51,7 @@ module LayersDirective {
             this.allCollapsed = false;
             this.$messageBusService.subscribe('project', (title: string, project: csComp.Services.Project) => {
                 if (title !== 'loaded' || !project) return;
-                if (project.hasOwnProperty('collapseAllLayers') && project.collapseAllLayers === true){
+                if (project.hasOwnProperty('collapseAllLayers') && project.collapseAllLayers === true) {
                     this.allCollapsed = true;
                 } else {
                     this.allCollapsed = false;
@@ -58,6 +69,100 @@ module LayersDirective {
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
+        public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
+
+            var transformProp;
+            var startx, starty;
+
+            var i = interact('#layerfeaturetype-' + key)
+                .draggable({
+                max: Infinity,
+                onstart: (event) => {
+                    startx = 0;
+                    starty = 0;
+                    event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
+                    event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
+                },
+                onmove: (event) => {
+                    event.interaction.x += event.dx;
+                    event.interaction.y += event.dy;
+
+                    event.target.style.left = event.interaction.x + 'px';
+                    event.target.style.top = event.interaction.y + 'px';
+                },
+                onend: (event) => {
+                    setTimeout(() => {
+                        var x = event.clientX;
+                        var y = event.clientY;
+                        var pos = this.$layerService.activeMapRenderer.getLatLon(x, y - 50);
+                        console.log(pos);
+                        var f = new csComp.Services.Feature();
+
+                        f.layerId = layer.id;
+                        f.geometry = {
+                            type: 'Point', coordinates: [pos.lon, pos.lat]
+                        };
+                        //f.
+                        f.properties = { "featureTypeId": key, "Name": key };
+                        layer.data.features.push(f);
+                        this.$layerService.initFeature(f, layer);
+                        this.$layerService.activeMapRenderer.addFeature(f);
+                        this.$layerService.saveFeature(f);
+                    }, 100);
+
+                    //this.$dashboardService.mainDashboard.widgets.push(widget);
+                    event.target.setAttribute('data-x', 0);
+                    event.target.setAttribute('data-y', 0);
+                    event.target.style.left = '0px';
+                    event.target.style.top = '0px';
+
+                    console.log(key);
+                }
+            })
+        }
+
+        public selectProjectLayer(layer: csComp.Services.ProjectLayer) {
+            this.selectedLayer = layer;
+        }
+
+        public addProjectLayer() {
+            var group = this.$layerService.findGroupById(this.layerGroup);
+            if (group) {
+                this.$layerService.initLayer(group, this.selectedLayer);
+                group.layers.push(this.selectedLayer);
+            }
+            this.selectedLayer = null;
+            this.state = "layers";
+        }
+
+        public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
+            this.state = "editlayer";
+            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startAddingFeatures(layer);
+            this.layer = layer;
+        }
+
+        public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
+            this.state = "layers";
+            if (layer.gui["featureTypes"]) {
+                for (var key in layer.gui["featureTypes"]) {
+                    interact('#layerfeaturetype-' + key).onstart = null;
+                    interact('#layerfeaturetype-' + key).onmove = null;
+                    interact('#layerfeaturetype-' + key).onend = null;
+                };
+            }
+            (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).stopAddingFeatures(layer);
+        }
+
+        updateLayerOpacity = _.debounce((layer: csComp.Services.ProjectLayer) => {
+            console.log('update opacity');
+            this.$layerService.updateLayerFeatures(layer);
+        }, 500);
+
+        public setLayerOpacity(layer: csComp.Services.ProjectLayer) {
+            this.updateLayerOpacity(layer);
+
+        }
+
         public openLayerMenu(e) {
             //e.stopPropagation();
             (<any>$('.left-menu')).contextmenu('show', e);
@@ -65,6 +170,14 @@ module LayersDirective {
         }
 
         public addLayer() {
+            this.state = "directory";
+            this.project = this.$layerService.project;
+            if (this.project.layerDirectory) {
+                $.getJSON(this.project.layerDirectory, (result) => {
+                    this.directory = result;
+                });
+            }
+            return;
             var modalInstance = this.$modal.open({
                 templateUrl: 'directives/LayersList/AddLayerView.tpl.html',
                 controller: AddLayerCtrl,
@@ -121,5 +234,7 @@ module LayersDirective {
                 this.$scope.$apply();
             }
         }
+
+
     }
 }

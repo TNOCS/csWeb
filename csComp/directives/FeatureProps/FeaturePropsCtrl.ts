@@ -290,7 +290,8 @@ module FeatureProps {
             };
 
             //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
-            //$messageBusService.subscribe("feature", this.featureMessageReceived);
+            console.log('init featurepropsctrl');
+            $messageBusService.subscribe("feature", this.featureMessageReceived);
 
             var widthOfList = function() {
                 var itemsWidth = 0;
@@ -335,12 +336,20 @@ module FeatureProps {
 
         public saveFeature() {
             this.$layerService.unlockFeature(this.$scope.feature);
-            this.$layerService.saveFeature(this.$scope.feature);
+            this.$layerService.saveFeature(this.$scope.feature, true);
+            this.$layerService.updateFeature(this.$scope.feature);
+            this.displayFeature(this.$layerService.lastSelectedFeature);
+        }
+
+        public startEditFeature() {
+            this.$scope.feature.gui["editMode"] = true;
+            this.$layerService.updateFeature(this.$scope.feature);
         }
 
         public editFeature() {
             var rpt = csComp.Helpers.createRightPanelTab("featuretype", "featuretype", this.$layerService.lastSelectedFeature, "Edit group");
             this.$messageBusService.publish("rightpanel", "activate", rpt);
+            this.$layerService.updateFeature(this.$layerService.lastSelectedFeature);
         }
 
         public toTrusted(html: string): string {
@@ -359,18 +368,6 @@ module FeatureProps {
                 var link = property.feature.properties[property.propertyType.label];
                 alert(link);
             }
-        }
-
-        public createScatter(property: FeatureProps.CallOutProperty) {
-            var sc = new csComp.Services.GroupFilter();
-            sc.property = property.property;
-            sc.property2 = "opp_land";
-            sc.id = csComp.Helpers.getGuid();
-            sc.filterType = "scatter";
-            sc.title = sc.property;
-            var l = this.$layerService.findLayer(this.$scope.feature.layerId);
-            this.$layerService.setFilter(sc, l.group);
-            //alert('scatter ' + property.property);
         }
 
         /**
@@ -401,8 +398,6 @@ module FeatureProps {
         }
 
         private featureMessageReceived = (title: string, feature: IFeature): void => {
-            //console.log("FPC: featureMessageReceived");
-
             switch (title) {
                 case "onFeatureSelect":
                     this.displayFeature(this.$layerService.lastSelectedFeature);
@@ -434,10 +429,11 @@ module FeatureProps {
             if (typeof feature.sensors !== 'undefined' && typeof feature.timestamps === 'undefined')
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
 
-            //var pt = this.$layerService.getPropertyTypes(feature);
-            console.log('showing feature');
-
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService, this.$mapService);
+        }
+
+        public removeFeature() {
+            this.$layerService.removeFeature(this.$scope.feature, true);
         }
 
         private updateHierarchyLinks(feature: IFeature): void {

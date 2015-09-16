@@ -30,23 +30,78 @@
             margin-top: 4px;
             background: transparent;
         }
+
+        .show-grid {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .addlayer-container {
+            height: 75px;
+            background: #eeeeee;
+            border-style: solid;
+            border-width: 1px;
+            border-color: black;
+            position: relative;
+            margin: 4px;
+            cursor: pointer;
+        }
+
+        .addlayer-title {
+            height: 20px;
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            background: black;
+            color: white;
+            width: 100%;
+        }
+
+        .addlayer-container:hover {
+            background:blue;
+            border-color:blue;
+            border-width:2px;
+        }
+
+        .addlayer-container:hover .addlayer-title {
+            background:blue;
+        }
+
+        .addlayer-image{
+            width:100%;height:100%;
+        }
     </style>
-    <div class="modal-header">
-        <button type="button" class="close" data-ng-click="vm.cancel()" aria-hidden="true">&times;</button>
-        <h3 class="modal-title">Add Layer</h3>
-    </div>
+    <!-- <div class="modal-header">
+
+    </div> -->
     <div class="modal-body container-fluid">
+        <button type="button" class="close" data-ng-click="vm.cancel()" aria-hidden="true">&times;</button>
         <tabset>
-            <tab heading="Directory" ng-if="vm.project.layerDirectory">
-                <ul class="directory-list" ng-show="vm.selectedLayer == null">
-                    <li class="directory-item" ng-repeat="layer in vm.layers" ng-click="vm.selectProjectLayer(layer)">
+            <tab heading="Directory">
+                <div ng-show="vm.selectedLayer == null" class="row">
+                    <div ng-repeat="layer in vm.layers" class="col-md-2 addlayer-container" ng-click="vm.selectProjectLayer(layer)">
+                        <img class="addlayer-image" src="http://www.tom-carden.co.uk/wp-content/uploads/2008/10/osm-yahoo-flash.png" >
+                        <div class="addlayer-title">
+                            {{layer.title}}</div>
+                    </div>
+
+
+                </div>
+
+                <!-- <div class="bs-docs-grid">
+                    <div class="row show-grid">
+                        <div class="span1" ng-repeat="layer in vm.layers" ng-click="vm.selectProjectLayer(layer)"></div>
+                    </div>
+                </div> -->
+                <!-- <ul class="directory-list" ng-show="vm.selectedLayer == null">
+                    <li class="directory-item" >
                         <button class="button fa fa-plus directory-item-addbutton" />
                         <div>
                             <div class="directory-item-title">{{layer.title}}</div>
                             <div class="directory-item-description">{{layer.description}}</div>
                         </div>
                     </li>
-                </ul>
+                </ul> -->
                 <div ng-hide="vm.selectedLayer == null">
 
                     <div class="form-group">
@@ -71,6 +126,7 @@
                 </div>
                 <button type="button" class="btn btn-primary" data-ng-click="vm.addLayer()">Next</button>
             </tab>
+
             <tab heading="New Group">
                 <div class="form-group">
                     <label for="groupName">Group Title</label>

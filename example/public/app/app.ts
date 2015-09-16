@@ -1,6 +1,4 @@
 module App {
-    'use strict';
-
     import IFeature = csComp.Services.IFeature;
 
     export interface IAppLocationService extends ng.ILocationService {
@@ -30,7 +28,8 @@ module App {
             'mapService',
             'layerService',
             'messageBusService',
-            'dashboardService'
+            'dashboardService',
+            'geoService'
         ];
 
         public areaFilter: AreaFilter.AreaFilterModel;
@@ -43,7 +42,8 @@ module App {
             private $mapService: csComp.Services.MapService,
             private $layerService: csComp.Services.LayerService,
             private $messageBusService: csComp.Services.MessageBusService,
-            private $dashboardService: csComp.Services.DashboardService
+            private $dashboardService: csComp.Services.DashboardService,
+            private geoService: csComp.Services.GeoService
             ) {
             sffjs.setCulture("nl-NL");
 
@@ -59,8 +59,8 @@ module App {
 
                     // NOTE EV: You may run into problems here when calling this inside an angular apply cycle.
                     // Alternatively, check for it or use (dependency injected) $timeout.
-                    // E.g. if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
-                    $scope.$apply();
+                    if ($scope.$root.$$phase != '$apply' && $scope.$root.$$phase != '$digest') { $scope.$apply(); }
+                    //$scope.$apply();
                 }
             });
 
@@ -69,6 +69,11 @@ module App {
             $messageBusService.subscribe("layer", this.layerMessageReceived);
 
             this.$layerService.openSolution("data/projects/projects.json", $location.$$search.layers);
+
+
+
+
+
             //$messageBusService.notify('Welcome to csMap', 'Your mapping solution.');
 
             //this.$dashboardService.openRightTab('featuretype','featuretypes',null);
@@ -195,7 +200,7 @@ module App {
         'angularUtils.directives.dirPagination',
         'pascalprecht.translate',
         'ngCookies', 'angularSpectrumColorpicker',
-        'wiz.markdown'
+        'wiz.markdown', 'ngAnimate'
     ])
         .config(localStorageServiceProvider => {
         localStorageServiceProvider.prefix = 'csMap';
