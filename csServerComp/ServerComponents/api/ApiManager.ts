@@ -215,7 +215,7 @@ export class ApiManager extends events.EventEmitter {
     public defaultStorage = "file";
     public defaultLogging = false;
     public rootPath = "";
-    public resourceFolder = "/data/resourceTypes";
+    // public resourceFolder = "/data/resourceTypes";
     public projectsFile = "";
     public layersFile = "";
     /** The ApiManager name can be used to identify this instance (e.g. mqtt can create a namespace/channel for this api) */
@@ -229,18 +229,13 @@ export class ApiManager extends events.EventEmitter {
     public init(rootPath: string, callback: Function) {
         Winston.info(`Init layer manager (isClient=${this.isClient})`, { cat: "api" });
         this.rootPath = rootPath;
+        if (!fs.existsSync(rootPath)) fs.mkdirSync(rootPath);
         this.initResources(path.join(this.rootPath, '/resourceTypes/'));
         this.loadLayerConfig(() => {
             this.loadProjectConfig(() => {
                 callback();
             });
         });
-        // this.loadLayerConfig(() => {
-        //     callback();
-        // });
-        // this.loadProjectConfig(() => {
-        //     callback();
-        // });
     }
 
     /** Open layer config file*/
@@ -269,11 +264,10 @@ export class ApiManager extends events.EventEmitter {
                 Winston.error('manager: project config loading failed: ' + err.message);
             } else {
                 Winston.info('manager: project config loaded');
-                this.layers = <{ [key: string]: Layer }>JSON.parse(data);
+                this.projects = <{ [key: string]: Project }>JSON.parse(data);
             }
             cb();
         });
-
     }
 
     /**
