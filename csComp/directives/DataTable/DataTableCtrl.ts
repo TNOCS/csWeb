@@ -101,11 +101,13 @@ module DataTable {
          * Create a list of layer options and select the one used previously.
          */
         private updateLayerOptions() {
+/*
             this.layerOptions.push({
                 "group": '',
                 "id": this.mapLabel,
                 "title": this.mapFeatureTitle
             });
+*/
             if (this.$layerService.project == null || this.$layerService.project.groups == null) return;
             this.$layerService.project.groups.forEach((group) => {
                 group.layers.forEach((layer) => {
@@ -116,7 +118,17 @@ module DataTable {
                     });
                 });
             });
-            this.selectedLayerId = this.$localStorageService.get('vm.selectedLayerId');
+
+            for (var layerKey in this.$layerService.loadedLayers) {
+              if (this.selectedLayerId == null) {
+                return;
+              }
+              var layer: ProjectLayer = this.$layerService.loadedLayers[layerKey];
+              if (layer.enabled) {
+                this.selectedLayerId = layer.id;
+              }
+            };
+            //this.selectedLayerId =  //this.$localStorageService.get('vm.selectedLayerId');
         }
 
         private loadLayer(): void {
@@ -133,6 +145,8 @@ module DataTable {
                             f.featureTypeName = f.properties['FeatureTypeId'];
                         } else if (data.featureTypes.hasOwnProperty('Default')) {
                             f.featureTypeName = 'Default';
+                        } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType != "") {
+                          f.featureTypeName = selectedLayer.defaultFeatureType;
                         }
                         if (!(f.featureTypeName in data.featureTypes))
                             data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
@@ -180,6 +194,7 @@ module DataTable {
             var titles: Array<string> = [];
             var mis: Array<IPropertyType> = [];
             // Push the Name, so it always appears on top.
+            /* rely on namelabel to determine the first property
             mis.push({
                 label: "Name",
                 visibleInCallOut: true,
@@ -188,21 +203,59 @@ module DataTable {
                 filterType: "text",
                 isSearchable: true
             });
+            */
+
             var featureType: csComp.Services.IFeatureType;
             for (var key in data.featureTypes) {
                 featureType = data.featureTypes[key];
+                if (featureType.propertyTypeData != null) {
+                  featureType.propertyTypeData.forEach(ptd => {
+                    if (featureType.style.nameLabel == ptd.label) {
+                      mis.splice(0,0,ptd);
+                    } else {
+                      mis.push(ptd);
+                    }
+                  });
+                }
                 if (featureType.propertyTypeKeys != null) {
                     var keys: Array<string> = featureType.propertyTypeKeys.split(';');
                     keys.forEach((k) => {
+                        var propertyType: csComp.Services.IPropertyType = null;
                         if (k in this.$layerService.propertyTypeData)
-                            mis.push(this.$layerService.propertyTypeData[k]);
+                          propertyType = this.$layerService.propertyTypeData[k];
+                            //mis.push(this.$layerService.propertyTypeData[k]);
                         else if (featureType.propertyTypeData != null) {
                             var result = $.grep(featureType.propertyTypeData, e => e.label === k);
-                            if (result.length >= 1) mis.push(result);
+                            //if (result.length >= 1) mis.push(result[0]);
+                            if (result.length >= 1) propertyType = result[0];
+                        }
+
+                        if (propertyType != null) {
+                          if (featureType.style.nameLabel == propertyType.label) {
+                            mis.splice(0,0,propertyType);
+                          } else {
+                            mis.push(propertyType);
+                          }
                         }
                     });
                 } else if (featureType.propertyTypeData != null) {
-                    featureType.propertyTypeData.forEach((mi) => mis.push(mi));
+                    featureType.propertyTypeData.forEach((mi) => {
+                      //mis.push(mi)
+
+                      if (featureType.style.nameLabel == mi.label) {
+                        mis.splice(0,0,mi);
+                      } else {
+                        mis.push(mi);
+                      }
+                      /*
+                      var existingMis = mis.filter(existingMi=>existingMi.title == mi.title);
+                      if (existingMis.length > 0) {
+                        mis.splice(mis.indexOf(existingMis[0]),1,mi);
+                      } else {
+                        mis.push(mi);
+                      }
+                      */
+                    });
                 }
                 mis.forEach((mi) => {
                     if ((mi.visibleInCallOut || mi.label === "Name") && titles.indexOf(mi.title) < 0) {
