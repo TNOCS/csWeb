@@ -21,7 +21,7 @@ export enum ApiResult {
     ResourceNotFound = 428
 }
 
-export interface ApiManagerOptions {
+export interface IApiManagerOptions {
 
 }
 
@@ -226,7 +226,7 @@ export class ApiManager extends events.EventEmitter {
     public name: string = "cs";
 
     /** Create a new client, optionally specifying whether it should act as client. */
-    constructor(public isClient = false, public options = <ApiManagerOptions>{}) {
+    constructor(public isClient = false, public options = <IApiManagerOptions>{}) {
         super();
     }
 
