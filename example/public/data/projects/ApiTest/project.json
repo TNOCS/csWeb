@@ -11,7 +11,7 @@
     "range": 2123192,
     "zoomLevelName": "minutes",
     "isLive": false,
-    "focus": 1441722087709,
+    "focus": 1441722129415,
     "zoomLevel": 60000
   },
   "datasources": [
@@ -22,7 +22,6 @@
     }
   ],
   "dashboards": [
-
     {
       "id": "NewDashboard",
       "name": "New Dashboard",
@@ -33,718 +32,899 @@
       "showRightmenu": false,
       "showBackgroundImage": false,
       "widgets": null
-  },
-  {
-    "id": "home",
-    "name": "Home",
-    "showMap": true,
-    "showTimeline": true,
-    "showLeftmenu": true,
-    "showLegend": false,
-    "showRightmenu": false,
-    "showBackgroundImage": false,
-    "visiblelayers": [],
-    "widgets": [
-      {
-        "id": "1b116807-a474-47e7-c7f2-38c6c0169d12",
-        "directive": "charts",
-        "elementId": "widget-1b116807-a474-47e7-c7f2-38c6c0169d12",
-        "enabled": true,
-        "customStyle": {
-          "borderWidth": 1,
-          "background": "white",
-          "opacity": "0.9"
-        },
-        "style": "custom",
-        "left": "9px",
-        "right": "",
-        "top": "18px",
-        "width": "307px",
-        "height": "154px",
-        "data": {
-          "spec": {
-            "width": 250,
-            "height": 100,
-            "padding": {
-              "top": 10,
-              "left": 30,
-              "bottom": 30,
-              "right": 10
-            },
-            "data": [
-              {
-                "name": "table",
-                "values": [
-                  {
-                    "x": 1,
-                    "y": 18
-                  },
-                  {
-                    "x": 2,
-                    "y": 55
-                  },
-                  {
-                    "x": 3,
-                    "y": 43
-                  },
-                  {
-                    "x": 4,
-                    "y": 91
-                  },
-                  {
-                    "x": 5,
-                    "y": 81
-                  },
-                  {
-                    "x": 6,
-                    "y": 53
-                  },
-                  {
-                    "x": 7,
-                    "y": 19
-                  },
-                  {
-                    "x": 8,
-                    "y": 87
-                  },
-                  {
-                    "x": 9,
-                    "y": 52
-                  },
-                  {
-                    "x": 10,
-                    "y": 48
-                  },
-                  {
-                    "x": 11,
-                    "y": 24
-                  },
-                  {
-                    "x": 12,
-                    "y": 49
-                  },
-                  {
-                    "x": 13,
-                    "y": 87
-                  },
-                  {
-                    "x": 14,
-                    "y": 66
-                  },
-                  {
-                    "x": 15,
-                    "y": 17
-                  },
-                  {
-                    "x": 16,
-                    "y": 27
-                  },
-                  {
-                    "x": 17,
-                    "y": 68
-                  },
-                  {
-                    "x": 18,
-                    "y": 16
-                  },
-                  {
-                    "x": 19,
-                    "y": 49
-                  },
-                  {
-                    "x": 20,
-                    "y": 15
-                  }
-                ],
-                "time": 1442320988024
-              }
-            ],
-            "scales": [
-              {
-                "name": "x",
-                "type": "linear",
-                "range": "width",
-                "zero": false,
-                "domain": {
-                  "data": "table",
-                  "field": "x"
-                }
-              },
-              {
-                "name": "y",
-                "type": "linear",
-                "range": "height",
-                "nice": true,
-                "domain": {
-                  "data": "table",
-                  "field": "y"
-                }
-              }
-            ],
-            "axes": [
-              {
-                "type": "x",
-                "scale": "x",
-                "ticks": 10
-              },
-              {
-                "type": "y",
-                "scale": "y"
-              }
-            ],
-            "marks": [
-              {
-                "type": "line",
-                "from": {
-                  "data": "table"
-                },
-                "properties": {
-                  "enter": {
-                    "interpolate": {
-                      "value": "monotone"
-                    },
-                    "x": {
-                      "scale": "x",
-                      "field": "x"
-                    },
-                    "y": {
-                      "scale": "y",
-                      "field": "y"
-                    },
-                    "y2": {
-                      "scale": "y",
-                      "value": 0
-                    },
-                    "fill": {
-                      "value": "steelblue"
-                    },
-                    "stroke": {
-                      "value": "black"
-                    }
-                  },
-                  "update": {
-                    "fillOpacity": {
-                      "value": 0
-                    }
-                  }
-                }
-              }
-            ]
+    },
+    {
+      "id": "home",
+      "name": "Home",
+      "showMap": true,
+      "showTimeline": true,
+      "showLeftmenu": true,
+      "showLegend": false,
+      "showRightmenu": false,
+      "showBackgroundImage": false,
+      "visiblelayers": [],
+      "widgets": [
+        {
+          "id": "1b116807-a474-47e7-c7f2-38c6c0169d12",
+          "directive": "charts",
+          "elementId": "widget-1b116807-a474-47e7-c7f2-38c6c0169d12",
+          "enabled": true,
+          "customStyle": {
+            "borderWidth": 1,
+            "background": "white",
+            "opacity": "0.9"
           },
-          "key": "keys/chart",
-          "title": "test"
-        }
-      },
-      {
-        "id": "c234e9a0-582d-4719-914a-c90d198e0654",
-        "directive": "charts",
-        "elementId": "widget-c234e9a0-582d-4719-914a-c90d198e0654",
-        "enabled": true,
-        "customStyle": {
-          "borderWidth": 1,
-          "background": "white",
-          "opacity": "0.9"
-        },
-        "style": "custom",
-        "left": "9px",
-        "right": "",
-        "top": "179px",
-        "width": "307px",
-        "height": "152px",
-        "data": {
-          "spec": {
-            "width": 250,
-            "height": 100,
-            "padding": {
-              "top": 10,
-              "left": 30,
-              "bottom": 30,
-              "right": 10
+          "style": "custom",
+          "left": "9px",
+          "right": "",
+          "top": "18px",
+          "width": "307px",
+          "height": "154px",
+          "data": {
+            "spec": {
+              "width": 250,
+              "height": 100,
+              "padding": {
+                "top": 10,
+                "left": 30,
+                "bottom": 30,
+                "right": 10
+              },
+              "data": [
+                {
+                  "name": "table",
+                  "values": [
+                    {
+                      "x": 1,
+                      "y": 1118
+                    },
+                    {
+                      "x": 2,
+                      "y": 55
+                    },
+                    {
+                      "x": 3,
+                      "y": 43
+                    },
+                    {
+                      "x": 4,
+                      "y": 91
+                    },
+                    {
+                      "x": 5,
+                      "y": 81
+                    },
+                    {
+                      "x": 6,
+                      "y": 53
+                    },
+                    {
+                      "x": 7,
+                      "y": 19
+                    },
+                    {
+                      "x": 8,
+                      "y": 87
+                    },
+                    {
+                      "x": 9,
+                      "y": 52
+                    },
+                    {
+                      "x": 10,
+                      "y": 48
+                    },
+                    {
+                      "x": 11,
+                      "y": 24
+                    },
+                    {
+                      "x": 12,
+                      "y": 49
+                    },
+                    {
+                      "x": 13,
+                      "y": 87
+                    },
+                    {
+                      "x": 14,
+                      "y": 66
+                    },
+                    {
+                      "x": 15,
+                      "y": 17
+                    },
+                    {
+                      "x": 16,
+                      "y": 27
+                    },
+                    {
+                      "x": 17,
+                      "y": 68
+                    },
+                    {
+                      "x": 18,
+                      "y": 16
+                    },
+                    {
+                      "x": 19,
+                      "y": 49
+                    },
+                    {
+                      "x": 20,
+                      "y": 15
+                    }
+                  ],
+                  "time": 1442320988024
+                }
+              ],
+              "scales": [
+                {
+                  "name": "x",
+                  "type": "linear",
+                  "range": "width",
+                  "zero": false,
+                  "domain": {
+                    "data": "table",
+                    "field": "x"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": "linear",
+                  "range": "height",
+                  "nice": true,
+                  "domain": {
+                    "data": "table",
+                    "field": "y"
+                  }
+                }
+              ],
+              "axes": [
+                {
+                  "type": "x",
+                  "scale": "x",
+                  "ticks": 10
+                },
+                {
+                  "type": "y",
+                  "scale": "y"
+                }
+              ],
+              "marks": [
+                {
+                  "type": "line",
+                  "from": {
+                    "data": "table"
+                  },
+                  "properties": {
+                    "enter": {
+                      "interpolate": {
+                        "value": "monotone"
+                      },
+                      "x": {
+                        "scale": "x",
+                        "field": "x"
+                      },
+                      "y": {
+                        "scale": "y",
+                        "field": "y"
+                      },
+                      "y2": {
+                        "scale": "y",
+                        "value": 0
+                      },
+                      "fill": {
+                        "value": "steelblue"
+                      },
+                      "stroke": {
+                        "value": "black"
+                      }
+                    },
+                    "update": {
+                      "fillOpacity": {
+                        "value": 0
+                      }
+                    }
+                  }
+                }
+              ]
             },
-            "data": [
-              {
-                "name": "table",
-                "values": [
-                  {
-                    "x": 1,
-                    "y": 128
-                  },
-                  {
-                    "x": 2,
-                    "y": 55
-                  },
-                  {
-                    "x": 3,
-                    "y": 43
-                  },
-                  {
-                    "x": 4,
-                    "y": 91
-                  },
-                  {
-                    "x": 5,
-                    "y": 81
-                  },
-                  {
-                    "x": 6,
-                    "y": 53
-                  },
-                  {
-                    "x": 7,
-                    "y": 19
-                  },
-                  {
-                    "x": 8,
-                    "y": 87
-                  },
-                  {
-                    "x": 9,
-                    "y": 52
-                  },
-                  {
-                    "x": 10,
-                    "y": 48
-                  },
-                  {
-                    "x": 11,
-                    "y": 24
-                  },
-                  {
-                    "x": 12,
-                    "y": 49
-                  },
-                  {
-                    "x": 13,
-                    "y": 87
-                  },
-                  {
-                    "x": 14,
-                    "y": 66
-                  },
-                  {
-                    "x": 15,
-                    "y": 17
-                  },
-                  {
-                    "x": 16,
-                    "y": 27
-                  },
-                  {
-                    "x": 17,
-                    "y": 68
-                  },
-                  {
-                    "x": 18,
-                    "y": 16
-                  },
-                  {
-                    "x": 19,
-                    "y": 49
-                  },
-                  {
-                    "x": 20,
-                    "y": 15
-                  }
-                ]
-              }
-            ],
-            "scales": [
-              {
-                "name": "x",
-                "type": "ordinal",
-                "range": "width",
-                "domain": {
-                  "data": "table",
-                  "field": "x"
-                }
-              },
-              {
-                "name": "y",
-                "type": "linear",
-                "range": "height",
-                "domain": {
-                  "data": "table",
-                  "field": "y"
-                },
-                "nice": true
-              }
-            ],
-            "axes": [
-              {
-                "type": "x",
-                "scale": "x"
-              },
-              {
-                "type": "y",
-                "scale": "y"
-              }
-            ],
-            "marks": [
-              {
-                "type": "rect",
-                "from": {
-                  "data": "table"
-                },
-                "properties": {
-                  "enter": {
-                    "x": {
-                      "scale": "x",
-                      "field": "x"
-                    },
-                    "width": {
-                      "scale": "x",
-                      "band": true,
-                      "offset": -1
-                    },
-                    "y": {
-                      "scale": "y",
-                      "field": "y"
-                    },
-                    "y2": {
-                      "scale": "y",
-                      "value": 0
-                    }
-                  },
-                  "update": {
-                    "fill": {
-                      "value": "blue"
-                    }
-                  },
-                  "hover": {
-                    "fill": {
-                      "value": "red"
-                    }
-                  }
-                }
-              }
-            ]
+            "key": "keys/chart",
+            "title": "test"
           }
-        }
-      },
-      {
-        "id": "6b82fe32-030f-4b06-5085-27ac2a0f375c",
-        "directive": "charts",
-        "elementId": "widget-6b82fe32-030f-4b06-5085-27ac2a0f375c",
-        "enabled": true,
-        "customStyle": {
-          "borderWidth": 1,
-          "background": "white",
-          "opacity": "0.9"
         },
-        "style": "custom",
-        "left": "324px",
-        "right": "",
-        "top": "19px",
-        "width": "327px",
-        "height": "312px",
-        "data": {
-          "spec": {
-            "width": 250,
-            "height": 230,
-            "data": [
-              {
-                "name": "layer",
-                "url": "http://localhost:3002/data/projects/20141104_csMap/gemeente.json",
-                "format": {
-                  "type": "json",
-                  "property": "features"
+        {
+          "id": "c234e9a0-582d-4719-914a-c90d198e0654",
+          "directive": "charts",
+          "elementId": "widget-c234e9a0-582d-4719-914a-c90d198e0654",
+          "enabled": true,
+          "customStyle": {
+            "borderWidth": 1,
+            "background": "white",
+            "opacity": "0.9"
+          },
+          "style": "custom",
+          "left": "9px",
+          "right": "",
+          "top": "179px",
+          "width": "307px",
+          "height": "152px",
+          "data": {
+            "spec": {
+              "width": 250,
+              "height": 100,
+              "padding": {
+                "top": 10,
+                "left": 30,
+                "bottom": 30,
+                "right": 10
+              },
+              "data": [
+                {
+                  "name": "table",
+                  "values": [
+                    {
+                      "x": 1,
+                      "y": 128
+                    },
+                    {
+                      "x": 2,
+                      "y": 55
+                    },
+                    {
+                      "x": 3,
+                      "y": 43
+                    },
+                    {
+                      "x": 4,
+                      "y": 91
+                    },
+                    {
+                      "x": 5,
+                      "y": 81
+                    },
+                    {
+                      "x": 6,
+                      "y": 53
+                    },
+                    {
+                      "x": 7,
+                      "y": 19
+                    },
+                    {
+                      "x": 8,
+                      "y": 87
+                    },
+                    {
+                      "x": 9,
+                      "y": 52
+                    },
+                    {
+                      "x": 10,
+                      "y": 48
+                    },
+                    {
+                      "x": 11,
+                      "y": 24
+                    },
+                    {
+                      "x": 12,
+                      "y": 49
+                    },
+                    {
+                      "x": 13,
+                      "y": 87
+                    },
+                    {
+                      "x": 14,
+                      "y": 66
+                    },
+                    {
+                      "x": 15,
+                      "y": 17
+                    },
+                    {
+                      "x": 16,
+                      "y": 27
+                    },
+                    {
+                      "x": 17,
+                      "y": 68
+                    },
+                    {
+                      "x": 18,
+                      "y": 16
+                    },
+                    {
+                      "x": 19,
+                      "y": 49
+                    },
+                    {
+                      "x": 20,
+                      "y": 15
+                    }
+                  ]
                 }
-              }
-            ],
-            "scales": [
-              {
-                "name": "x",
-                "type": "linear",
-                "domain": {
-                  "data": "layer",
-                  "field": "properties.aant_man"
+              ],
+              "scales": [
+                {
+                  "name": "x",
+                  "type": "ordinal",
+                  "range": "width",
+                  "domain": {
+                    "data": "table",
+                    "field": "x"
+                  }
                 },
-                "range": "width",
-                "zero": false
-              },
-              {
-                "name": "y",
-                "type": "linear",
-                "domain": {
-                  "data": "layer",
-                  "field": "properties.p_ongehuwd"
+                {
+                  "name": "y",
+                  "type": "linear",
+                  "range": "height",
+                  "domain": {
+                    "data": "table",
+                    "field": "y"
+                  },
+                  "nice": true
+                }
+              ],
+              "axes": [
+                {
+                  "type": "x",
+                  "scale": "x"
                 },
-                "range": "height",
-                "nice": true,
-                "zero": false
-              },
-              {
-                "name": "c",
-                "type": "linear",
-                "domain": {
-                  "data": "layer",
-                  "field": "properties.aant_man"
-                },
-                "range": "category10"
-              }
-            ],
-            "axes": [
-              {
-                "type": "x",
-                "scale": "x",
-                "offset": 5,
-                "ticks": 5,
-                "title": "Sepal Width"
-              },
-              {
-                "type": "y",
-                "scale": "y",
-                "offset": 5,
-                "ticks": 5,
-                "title": "Petal Length"
-              }
-            ],
-            "marks": [
-              {
-                "type": "symbol",
-                "from": {
-                  "data": "layer"
-                },
-                "properties": {
-                  "enter": {
-                    "x": {
-                      "scale": "x",
-                      "field": "properties.aant_man"
+                {
+                  "type": "y",
+                  "scale": "y"
+                }
+              ],
+              "marks": [
+                {
+                  "type": "rect",
+                  "from": {
+                    "data": "table"
+                  },
+                  "properties": {
+                    "enter": {
+                      "x": {
+                        "scale": "x",
+                        "field": "x"
+                      },
+                      "width": {
+                        "scale": "x",
+                        "band": true,
+                        "offset": -1
+                      },
+                      "y": {
+                        "scale": "y",
+                        "field": "y"
+                      },
+                      "y2": {
+                        "scale": "y",
+                        "value": 0
+                      }
                     },
-                    "y": {
-                      "scale": "y",
-                      "field": "properties.p_ongehuwd"
+                    "update": {
+                      "fill": {
+                        "value": "blue"
+                      }
                     },
-                    "fill": {
-                      "scale": "c",
-                      "field": "properties.aant_man"
-                    },
-                    "fillOpacity": {
-                      "value": 0.5
-                    },
-                    "size": {
-                      "value": 40
+                    "hover": {
+                      "fill": {
+                        "value": "red"
+                      }
                     }
                   }
                 }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "id": "6bcbe39c-92af-41fd-b3bb-651abe9e37b4",
-        "directive": "indicators",
-        "elementId": "widget-6bcbe39c-92af-41fd-b3bb-651abe9e37b4",
-        "enabled": true,
-        "style": "default",
-        "left": "656px",
-        "right": "",
-        "top": "19px",
-        "width": "300px",
-        "height": "300px",
-        "data": {
-          "indicators": [
-            {
-              "inputs": {
-                "value": "~['simTime'] | date : 'medium'"
-              },
-              "indicatorWidth": 200,
-              "title": "Date",
-              "visual": "singlevalue",
-              "sensor": "keys/simTime",
-              "source": "sensor",
-              "featureTypeName": "",
-              "propertyTypes": [],
-              "propertyTypeTitles": [],
-              "id": "circ-c301143d-95dc-4921-c5f8-08c1bf65ddce"
-            },
-            {
-              "inputs": {
-                "value": "~['state']"
-              },
-              "indicatorWidth": 200,
-              "title": "State",
-              "visual": "singlevalue",
-              "sensor": "keys/simTime",
-              "source": "sensor",
-              "featureTypeName": "",
-              "propertyTypes": [],
-              "propertyTypeTitles": [],
-              "id": "circ-d72b737f-95c4-411f-5858-0ac30a18e946"
+              ]
             }
-          ],
-          "spec": {
-            "width": 300,
-            "height": 200,
-            "padding": {
-              "top": 10,
-              "left": 30,
-              "bottom": 30,
-              "right": 10
-            },
-            "data": [
-              {
-                "name": "table",
-                "values": [
-                  {
-                    "x": 1,
-                    "y": 28
-                  },
-                  {
-                    "x": 2,
-                    "y": 55
-                  },
-                  {
-                    "x": 3,
-                    "y": 43
-                  },
-                  {
-                    "x": 4,
-                    "y": 91
-                  },
-                  {
-                    "x": 5,
-                    "y": 81
-                  },
-                  {
-                    "x": 6,
-                    "y": 53
-                  },
-                  {
-                    "x": 7,
-                    "y": 19
-                  },
-                  {
-                    "x": 8,
-                    "y": 87
-                  },
-                  {
-                    "x": 9,
-                    "y": 52
-                  },
-                  {
-                    "x": 10,
-                    "y": 48
-                  },
-                  {
-                    "x": 11,
-                    "y": 24
-                  },
-                  {
-                    "x": 12,
-                    "y": 49
-                  },
-                  {
-                    "x": 13,
-                    "y": 87
-                  },
-                  {
-                    "x": 14,
-                    "y": 66
-                  },
-                  {
-                    "x": 15,
-                    "y": 17
-                  },
-                  {
-                    "x": 16,
-                    "y": 27
-                  },
-                  {
-                    "x": 17,
-                    "y": 68
-                  },
-                  {
-                    "x": 18,
-                    "y": 16
-                  },
-                  {
-                    "x": 19,
-                    "y": 49
-                  },
-                  {
-                    "x": 20,
-                    "y": 15
+          }
+        },
+        {
+          "id": "6b82fe32-030f-4b06-5085-27ac2a0f375c",
+          "directive": "charts",
+          "elementId": "widget-6b82fe32-030f-4b06-5085-27ac2a0f375c",
+          "enabled": true,
+          "customStyle": {
+            "borderWidth": 1,
+            "background": "white",
+            "opacity": "0.9"
+          },
+          "style": "custom",
+          "left": "324px",
+          "right": "",
+          "top": "19px",
+          "width": "327px",
+          "height": "312px",
+          "data": {
+            "spec": {
+              "width": 250,
+              "height": 230,
+              "data": [
+                {
+                  "name": "layer",
+                  "url": "http://localhost:3002/data/projects/20141104_csMap/gemeente.json",
+                  "format": {
+                    "type": "json",
+                    "property": "features"
                   }
-                ]
-              }
-            ],
-            "scales": [
-              {
-                "name": "x",
-                "type": "ordinal",
-                "range": "width",
-                "domain": {
-                  "data": "table",
-                  "field": "x"
                 }
-              },
-              {
-                "name": "y",
-                "type": "linear",
-                "range": "height",
-                "domain": {
-                  "data": "table",
-                  "field": "y"
-                },
-                "nice": true
-              }
-            ],
-            "axes": [
-              {
-                "type": "x",
-                "scale": "x"
-              },
-              {
-                "type": "y",
-                "scale": "y"
-              }
-            ],
-            "marks": [
-              {
-                "type": "rect",
-                "from": {
-                  "data": "table"
-                },
-                "properties": {
-                  "enter": {
-                    "x": {
-                      "scale": "x",
-                      "field": "x"
-                    },
-                    "width": {
-                      "scale": "x",
-                      "band": true,
-                      "offset": -1
-                    },
-                    "y": {
-                      "scale": "y",
-                      "field": "y"
-                    },
-                    "y2": {
-                      "scale": "y",
-                      "value": 0
-                    }
+              ],
+              "scales": [
+                {
+                  "name": "x",
+                  "type": "linear",
+                  "domain": {
+                    "data": "layer",
+                    "field": "properties.aant_man"
                   },
-                  "update": {
-                    "fill": {
-                      "value": "steelblue"
-                    }
+                  "range": "width",
+                  "zero": false
+                },
+                {
+                  "name": "y",
+                  "type": "linear",
+                  "domain": {
+                    "data": "layer",
+                    "field": "properties.p_ongehuwd"
                   },
-                  "hover": {
-                    "fill": {
-                      "value": "red"
+                  "range": "height",
+                  "nice": true,
+                  "zero": false
+                },
+                {
+                  "name": "c",
+                  "type": "linear",
+                  "domain": {
+                    "data": "layer",
+                    "field": "properties.aant_man"
+                  },
+                  "range": "category10"
+                }
+              ],
+              "axes": [
+                {
+                  "type": "x",
+                  "scale": "x",
+                  "offset": 5,
+                  "ticks": 5,
+                  "title": "Sepal Width"
+                },
+                {
+                  "type": "y",
+                  "scale": "y",
+                  "offset": 5,
+                  "ticks": 5,
+                  "title": "Petal Length"
+                }
+              ],
+              "marks": [
+                {
+                  "type": "symbol",
+                  "from": {
+                    "data": "layer"
+                  },
+                  "properties": {
+                    "enter": {
+                      "x": {
+                        "scale": "x",
+                        "field": "properties.aant_man"
+                      },
+                      "y": {
+                        "scale": "y",
+                        "field": "properties.p_ongehuwd"
+                      },
+                      "fill": {
+                        "scale": "c",
+                        "field": "properties.aant_man"
+                      },
+                      "fillOpacity": {
+                        "value": 0.5
+                      },
+                      "size": {
+                        "value": 40
+                      }
                     }
                   }
                 }
+              ]
+            }
+          }
+        },
+        {
+          "id": "6bcbe39c-92af-41fd-b3bb-651abe9e37b4",
+          "directive": "indicators",
+          "elementId": "widget-6bcbe39c-92af-41fd-b3bb-651abe9e37b4",
+          "enabled": true,
+          "style": "default",
+          "left": "656px",
+          "right": "",
+          "top": "19px",
+          "width": "300px",
+          "height": "300px",
+          "data": {
+            "indicators": [
+              {
+                "inputs": {
+                  "value": "~['simTime']"
+                },
+                "indicatorWidth": 200,
+                "title": "Date",
+                "visual": "singlevalue",
+                "sensor": "keys/simTime",
+                "source": "sensor",
+                "featureTypeName": "",
+                "propertyTypes": [],
+                "propertyTypeTitles": [],
+                "id": "circ-851a7bb5-ca64-4710-c5ae-a3da3a0ef318"
+              },
+              {
+                "inputs": {
+                  "value": "~['test']"
+                },
+                "indicatorWidth": 200,
+                "title": "State",
+                "visual": "singlevalue",
+                "sensor": "keys/simTime",
+                "source": "feature",
+                "featureTypeName": "",
+                "propertyTypes": [],
+                "propertyTypeTitles": [],
+                "id": "circ-1448a9d1-2362-42ed-20d4-1ffa22748ea4"
               }
-            ]
+            ],
+            "spec": {
+              "width": 300,
+              "height": 200,
+              "padding": {
+                "top": 10,
+                "left": 30,
+                "bottom": 30,
+                "right": 10
+              },
+              "data": [
+                {
+                  "name": "table",
+                  "values": [
+                    {
+                      "x": 1,
+                      "y": 28
+                    },
+                    {
+                      "x": 2,
+                      "y": 55
+                    },
+                    {
+                      "x": 3,
+                      "y": 43
+                    },
+                    {
+                      "x": 4,
+                      "y": 91
+                    },
+                    {
+                      "x": 5,
+                      "y": 81
+                    },
+                    {
+                      "x": 6,
+                      "y": 53
+                    },
+                    {
+                      "x": 7,
+                      "y": 19
+                    },
+                    {
+                      "x": 8,
+                      "y": 87
+                    },
+                    {
+                      "x": 9,
+                      "y": 52
+                    },
+                    {
+                      "x": 10,
+                      "y": 48
+                    },
+                    {
+                      "x": 11,
+                      "y": 24
+                    },
+                    {
+                      "x": 12,
+                      "y": 49
+                    },
+                    {
+                      "x": 13,
+                      "y": 87
+                    },
+                    {
+                      "x": 14,
+                      "y": 66
+                    },
+                    {
+                      "x": 15,
+                      "y": 17
+                    },
+                    {
+                      "x": 16,
+                      "y": 27
+                    },
+                    {
+                      "x": 17,
+                      "y": 68
+                    },
+                    {
+                      "x": 18,
+                      "y": 16
+                    },
+                    {
+                      "x": 19,
+                      "y": 49
+                    },
+                    {
+                      "x": 20,
+                      "y": 15
+                    }
+                  ]
+                }
+              ],
+              "scales": [
+                {
+                  "name": "x",
+                  "type": "ordinal",
+                  "range": "width",
+                  "domain": {
+                    "data": "table",
+                    "field": "x"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": "linear",
+                  "range": "height",
+                  "domain": {
+                    "data": "table",
+                    "field": "y"
+                  },
+                  "nice": true
+                }
+              ],
+              "axes": [
+                {
+                  "type": "x",
+                  "scale": "x"
+                },
+                {
+                  "type": "y",
+                  "scale": "y"
+                }
+              ],
+              "marks": [
+                {
+                  "type": "rect",
+                  "from": {
+                    "data": "table"
+                  },
+                  "properties": {
+                    "enter": {
+                      "x": {
+                        "scale": "x",
+                        "field": "x"
+                      },
+                      "width": {
+                        "scale": "x",
+                        "band": true,
+                        "offset": -1
+                      },
+                      "y": {
+                        "scale": "y",
+                        "field": "y"
+                      },
+                      "y2": {
+                        "scale": "y",
+                        "value": 0
+                      }
+                    },
+                    "update": {
+                      "fill": {
+                        "value": "steelblue"
+                      }
+                    },
+                    "hover": {
+                      "fill": {
+                        "value": "red"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "06826150-b22a-424d-28d2-005da131a927",
+          "directive": "charts",
+          "elementId": "widget-06826150-b22a-424d-28d2-005da131a927",
+          "enabled": true,
+          "style": "default",
+          "left": "9px",
+          "right": "",
+          "top": "333px",
+          "width": "364px",
+          "height": "300px",
+          "data": {
+            "spec": {
+              "width": 300,
+              "height": 200,
+              "padding": {
+                "top": 10,
+                "left": 30,
+                "bottom": 30,
+                "right": 10
+              },
+              "data": [
+                {
+                  "name": "table",
+                  "values": [
+                    {
+                      "x": 1,
+                      "y": 28
+                    },
+                    {
+                      "x": 2,
+                      "y": 55
+                    },
+                    {
+                      "x": 3,
+                      "y": 43
+                    },
+                    {
+                      "x": 4,
+                      "y": 91
+                    },
+                    {
+                      "x": 5,
+                      "y": 81
+                    },
+                    {
+                      "x": 6,
+                      "y": 53
+                    },
+                    {
+                      "x": 7,
+                      "y": 19
+                    },
+                    {
+                      "x": 8,
+                      "y": 87
+                    },
+                    {
+                      "x": 9,
+                      "y": 52
+                    },
+                    {
+                      "x": 10,
+                      "y": 48
+                    },
+                    {
+                      "x": 11,
+                      "y": 24
+                    },
+                    {
+                      "x": 12,
+                      "y": 49
+                    },
+                    {
+                      "x": 13,
+                      "y": 87
+                    },
+                    {
+                      "x": 14,
+                      "y": 66
+                    },
+                    {
+                      "x": 15,
+                      "y": 17
+                    },
+                    {
+                      "x": 16,
+                      "y": 27
+                    },
+                    {
+                      "x": 17,
+                      "y": 68
+                    },
+                    {
+                      "x": 18,
+                      "y": 16
+                    },
+                    {
+                      "x": 19,
+                      "y": 49
+                    },
+                    {
+                      "x": 20,
+                      "y": 15
+                    }
+                  ]
+                }
+              ],
+              "scales": [
+                {
+                  "name": "x",
+                  "type": "ordinal",
+                  "range": "width",
+                  "domain": {
+                    "data": "table",
+                    "field": "x"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": "linear",
+                  "range": "height",
+                  "domain": {
+                    "data": "table",
+                    "field": "y"
+                  },
+                  "nice": true
+                }
+              ],
+              "axes": [
+                {
+                  "type": "x",
+                  "scale": "x"
+                },
+                {
+                  "type": "y",
+                  "scale": "y"
+                }
+              ],
+              "marks": [
+                {
+                  "type": "rect",
+                  "from": {
+                    "data": "table"
+                  },
+                  "properties": {
+                    "enter": {
+                      "x": {
+                        "scale": "x",
+                        "field": "x"
+                      },
+                      "width": {
+                        "scale": "x",
+                        "band": true,
+                        "offset": -1
+                      },
+                      "y": {
+                        "scale": "y",
+                        "field": "y"
+                      },
+                      "y2": {
+                        "scale": "y",
+                        "value": 0
+                      }
+                    },
+                    "update": {
+                      "fill": {
+                        "value": "steelblue"
+                      }
+                    },
+                    "hover": {
+                      "fill": {
+                        "value": "red"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
-      }
-    ]
-  }
+      ]
+    }
   ],
   "userPrivileges": {
     "mca": {

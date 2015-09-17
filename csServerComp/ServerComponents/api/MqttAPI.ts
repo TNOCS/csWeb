@@ -66,10 +66,10 @@ export class MqttAPI extends BaseConnector.BaseConnector {
             else if (topic.indexOf(this.layerPrefix) === 0) {
                 var lid = topic.substring(this.layerPrefix.length, topic.length);
                 try {
-                    var feature = <Feature>JSON.parse(message);
-                    if (feature) {
+                    var layer = <Layer>JSON.parse(message);
+                    if (layer) {
                         Winston.info('mqtt: update feature for layer ' + lid);
-                        this.manager.updateFeature(lid, feature, <ApiMeta>{ source: this.id }, () => { });
+                        this.manager.updateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
                     }
                 }
                 catch (e) {
@@ -117,9 +117,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     }
 
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
-        if (meta.source !== this.id)
-            this.client.publish(this.layerPrefix, JSON.stringify(layer));
-        callback(<CallbackResult> { result: ApiResult.OK });
+        this.updateLayer(layer, meta, callback);
     }
 
     public addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
@@ -130,8 +128,12 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     }
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
-        if (meta.source !== this.id)
+        Winston.error('mqtt: update layer ' + layer.id);
+        if (meta.source !== this.id) {
+            var def = this.manager.getLayerDefinition(layer);
+            this.client.publish(this.layerPrefix, JSON.stringify(def));
             this.client.publish(this.layerPrefix + layer.id, JSON.stringify(layer));
+        }
         callback(<CallbackResult> { result: ApiResult.OK });
     }
 

@@ -145,7 +145,7 @@ export class ProjectId {
  */
 export class Geometry {
     public type: string;
-    public coordinates: number[] | number[][] | number[][][];
+    public coordinates: number[]| number[][]| number[][][];
 }
 
 /**
@@ -517,7 +517,7 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Returns layer definition for a layer, this is the layer without the features (mostly used for directory)
      */
-    private getLayerDefinition(layer: Layer): Layer {
+    public getLayerDefinition(layer: Layer): Layer {
         if (!layer.hasOwnProperty('type')) layer.type = "geojson";
         var r = <Layer>{
             id: layer.id,
@@ -559,7 +559,7 @@ export class ApiManager extends events.EventEmitter {
 
             // store layer
             if (s) {
-                s.addLayer(layer, meta, (r: CallbackResult) => callback(r) )
+                s.addLayer(layer, meta, (r: CallbackResult) => callback(r))
             } else {
                 callback(<CallbackResult>{ result: ApiResult.OK });
             }
