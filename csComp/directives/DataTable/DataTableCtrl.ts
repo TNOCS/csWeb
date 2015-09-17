@@ -1,3 +1,4 @@
+
 module DataTable {
     import IGeoJsonFile = csComp.Services.IGeoJsonFile;
     import IPropertyType = csComp.Services.IPropertyType;
@@ -86,7 +87,21 @@ module DataTable {
             });
 
             $messageBusService.publish('timeline', 'isEnabled', 'false');
+
+            if (this.selectedLayerId == null || this.selectedLayerId == "map") {
+              setTimeout(()=>{
+                var layerSelect:any = $("#layerSelection");
+                layerSelect.popover("show");
+              },100);
+            } else {
+              setTimeout(()=>{
+                var layerSelect:any = $("#layerSelection");
+                layerSelect.popover("hide");
+                layerSelect.popover("disable");
+              },100);
+            }
         }
+
 
         /**
          * Add a label to local storage and bind it to the scope.
@@ -135,9 +150,17 @@ module DataTable {
             if (!this.selectedLayerId || this.selectedLayerId === this.mapLabel) return this.loadMapLayers();
             var selectedLayer = this.findLayerById(this.selectedLayerId);
             if (selectedLayer == null) return this.loadMapLayers();
+
+            setTimeout(()=>{
+              var layerSelect:any = $("#layerSelection");
+              layerSelect.popover("hide");
+              layerSelect.popover("disable");
+            },100);
+
             this.$http.get(selectedLayer.url).
                 success((data: IGeoJsonFile) => {
                 this.dataset = data;
+
                 if (data.featureTypes == null) data.featureTypes = {};
                 if (data.features) {
                     data.features.forEach((f: IFeature) => {
@@ -153,6 +176,8 @@ module DataTable {
                     });
                     this.updatepropertyType(data);
                 }
+
+
             }).
                 error((data, status, headers, config) => {
                 this.$messageBusService.notify("ERROR opening " + selectedLayer.title, "Could not get the data.");
