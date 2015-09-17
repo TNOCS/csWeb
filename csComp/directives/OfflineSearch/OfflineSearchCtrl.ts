@@ -174,12 +174,12 @@ module OfflineSearch {
         private getKeywordHits(text: string) {
             var results: ILookupResult[] = [];
             var keywordIndex = this.offlineSearchResult.keywordIndex;
-            for (var key in keywordIndex) {
-                if (!keywordIndex.hasOwnProperty(key)) continue;
-                var score = key.score(text);
-                if (score < 0.5) continue;
+            var keywords = Object.getOwnPropertyNames(keywordIndex);
+            keywords.forEach((key) => {
+                var score = key.score(text, null);
+                if (score < 0.5) return;
                 results.push({ score: score, key: key, entries: keywordIndex[key] })
-            }
+            });
             results = results.sort((a, b) => { return b.score - a.score; });
             return results;
         }
@@ -219,6 +219,9 @@ module OfflineSearch {
                 // projectLayer.type  = layer.type;
                 this.$layerService.addLayer(projectLayer);
             }
+
+            var group:any = $("#layergroup_" + projectLayer.groupId);
+            group.collapse("show");
         }
 
         private selectFeature(layerId: string, featureIndex: number) {
