@@ -21,6 +21,10 @@ export enum ApiResult {
     ResourceNotFound = 428
 }
 
+export interface ApiManagerOptions {
+
+}
+
 export interface ApiMeta {
     source?: string;
     user?: string;
@@ -222,12 +226,12 @@ export class ApiManager extends events.EventEmitter {
     public name: string = "cs";
 
     /** Create a new client, optionally specifying whether it should act as client. */
-    constructor(public isClient = false) {
+    constructor(public isClient = false, public options = <ApiManagerOptions>{}) {
         super();
     }
 
     public init(rootPath: string, callback: Function) {
-        Winston.info(`Init layer manager (isClient=${this.isClient})`, { cat: "api" });
+        Winston.info("Init layer manager (isClient=${this.isClient})", { cat: "api" });
         this.rootPath = rootPath;
         if (!fs.existsSync(rootPath)) fs.mkdirSync(rootPath);
         this.initResources(path.join(this.rootPath, '/resourceTypes/'));
