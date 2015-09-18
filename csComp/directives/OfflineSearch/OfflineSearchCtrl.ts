@@ -96,6 +96,22 @@ module OfflineSearch {
         public getLocation(text: string, resultCount = 15): OfflineSearchResultViewModel[] {
             if (!this.isReady || text === null || text.length < 3) return [];
             var searchWords = text.toLowerCase().split(' ');
+
+            // test if last word in text might be a (part of) a stopword, if so remove it
+            var lastSearchTerm = searchWords[searchWords.length-1];
+            var possibleStopWords = this.offlineSearchResult.options.stopWords.filter(stopword=>stopword.indexOf(lastSearchTerm) > -1);
+
+            if (possibleStopWords.length > 0) {
+              searchWords.splice(searchWords.length - 1, 1);
+            }
+
+            // remove all exact stopwords
+            this.offlineSearchResult.options.stopWords.forEach(stopWord => {
+              while (searchWords.indexOf(stopWord) > -1) {
+                searchWords.splice(searchWords.indexOf(stopWord),1);
+              }
+            });
+
             var totResults: ILookupResult[];
 
             for (var j in searchWords) {
@@ -175,6 +191,7 @@ module OfflineSearch {
             var results: ILookupResult[] = [];
             var keywordIndex = this.offlineSearchResult.keywordIndex;
             var keywords = Object.getOwnPropertyNames(keywordIndex);
+
             keywords.forEach((key) => {
                 var score = key.score(text, null);
                 if (score < 0.5) return;
