@@ -39,6 +39,24 @@ export class CallbackResult {
     public key: Key;
 }
 
+
+/** Event emitted by the ApiManager */
+export enum Event {
+    KeyChanged, PropertyChanged, FeatureChanged, LayerChanged, ProjectChanged
+}
+
+/** Type of change in an ApiEvent */
+export enum ChangeType {
+    Create, Update, Delete
+}
+
+/** When a key|layer|project is changed, the ChangeEvent is emitted with the following data. */
+export interface IChangeEvent {
+    id: string,
+    type: ChangeType,
+    value?: Object
+}
+
 export interface IConnector {
     id: string;
     isInterface: boolean;
@@ -85,7 +103,6 @@ export interface IConnector {
     /** listen to key updates */
     subscribeKey(keyPattern: string, meta: ApiMeta, callback: Function);
 }
-
 
 export interface StorageObject {
     id: string;
@@ -163,7 +180,7 @@ export class Feature {
  * Geojson property definition
  */
 export class Property {
-
+    [key: string]: any
 }
 
 export class Log {
@@ -185,6 +202,17 @@ export class ResourceFile {
     propertyTypes: { [key: string]: PropertyType };
 }
 
+/**
+ * ApiManager, the main csWeb router that receives and sends layer/feature/keys updates around using
+ * connectors and keeps all endpoints in sync.
+ *
+ * EMITS ApiEvents, which all return an IChangedEvent.
+ * KeyChanged event when a key is changed (CRUD).
+ * PropertyChanged event when a layer is changed (CRUD).
+ * FeatureChanged event when a feature is changed (CRUD).
+ * LayerChanged event when a layer is changed (CRUD).
+ * ProjectChanged event when a project is changed (CRUD).
+ */
 export class ApiManager extends events.EventEmitter {
 
     /**
@@ -407,12 +435,13 @@ export class ApiManager extends events.EventEmitter {
             });
 
             s.addProject(this.projects[project.id], meta, (r: CallbackResult) => {
+                this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: project.id, type: ChangeType.Create, value: project });
                 callback(r);
             });
         } else {
             callback(<CallbackResult>{ result: ApiResult.ProjectAlreadyExists, error: "Project already exists" });
         }
-
+        // ARNOUD? Shouldn't this be at the end of the if clause, as the project may already exist?
         this.saveProjectDelay(this.projects[project.id]);
     }
 
@@ -564,6 +593,7 @@ export class ApiManager extends events.EventEmitter {
                 callback(<CallbackResult>{ result: ApiResult.OK });
             }
 
+            this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layer.id, type: ChangeType.Create, value: layer });
             this.saveLayersDelay(layer);
         }
         else {
@@ -621,6 +651,7 @@ export class ApiManager extends events.EventEmitter {
                     });
                 }
                 callback(<CallbackResult>{ result: ApiResult.OK });
+                this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layer.id, type: ChangeType.Update, value: layer });
                 this.saveLayersDelay(layer);
             }
         ])
@@ -653,6 +684,8 @@ export class ApiManager extends events.EventEmitter {
                     });
                 }
                 callback(<CallbackResult>{ result: ApiResult.OK });
+
+                this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: project.id, type: ChangeType.Update, value: project });
                 this.saveProjectDelay(project);
             }
         ])
@@ -665,17 +698,23 @@ export class ApiManager extends events.EventEmitter {
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.deleteLayer(layerId, meta, () => { });
             });
+            this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Delete });
             callback(r);
         });
     }
 
     public deleteProject(projectId: string, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForProjectId(projectId);
+        if (!s) {
+            callback(<CallbackResult>{ result: ApiResult.Error, error: "Project not found." })
+            return;
+        }
         s.deleteProject(projectId, meta, (r: CallbackResult) => {
             delete this.projects[projectId];
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.deleteProject(projectId, meta, () => { });
             });
+            this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: projectId, type: ChangeType.Delete });
             callback(r);
         });
     }
@@ -707,6 +746,8 @@ export class ApiManager extends events.EventEmitter {
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.addFeature(layerId, feature, meta, () => { });
             });
+            this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Create, value: feature });
+            callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
 
@@ -715,6 +756,7 @@ export class ApiManager extends events.EventEmitter {
         this.setUpdateLayer(layer, meta);
         var s = this.findStorage(layer);
         this.updateProperty(layerId, featureId, property, value, useLog, meta, (r) => callback(r));
+        this.emit(Event[Event.PropertyChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: {featureId: featureId, property: property} });
     }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function) {
@@ -744,6 +786,7 @@ export class ApiManager extends events.EventEmitter {
         this.getInterfaces(meta).forEach((i: IConnector) => {
             i.updateFeature(layerId, feature, false, meta, () => { });
         });
+        this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: feature });
     }
 
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
@@ -752,6 +795,7 @@ export class ApiManager extends events.EventEmitter {
         this.getInterfaces(meta).forEach((i: IConnector) => {
             i.deleteFeature(layerId, featureId, meta, () => { });
         });
+        this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Delete, value: featureId });
     }
 
 
@@ -833,7 +877,8 @@ export class ApiManager extends events.EventEmitter {
         var key = this.findKey(keyId);
         if (!key) {
             var k = <Key>{ id: keyId, title: keyId, storage: 'file' };
-            this.addKey(k, meta, callback);
+            this.addKey(k, meta, () => {});
+            //this.addKey(k, meta, callback);
         }
 
         if (!value.hasOwnProperty('time')) value['time'] = new Date().getTime();
@@ -844,6 +889,9 @@ export class ApiManager extends events.EventEmitter {
             Winston.info('updatekey:send to ' + i.id);
             i.updateKey(keyId, value, meta, () => { });
         });
+
+        // Emit key changed events so others can subscribe to it.
+        this.emit(Event[Event.KeyChanged], <IChangeEvent>{ id: keyId, type: ChangeType.Update, value: value });
 
         // check subscriptions
         callback(<CallbackResult>{ result: ApiResult.OK })
