@@ -133,6 +133,7 @@ module Translations {
                 TITLE: 'Project Settings',
                 DESCRIPTION: 'Settings'
             },
+            CHOOSE_CATEGORY: 'Choose category...',
             SHOW5: 'Show 5 items',
             SHOW10: 'Show 10 items',
             SHOW15: 'Show 15 items',

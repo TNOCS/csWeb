@@ -88,18 +88,7 @@ module DataTable {
 
             $messageBusService.publish('timeline', 'isEnabled', 'false');
 
-            if (this.selectedLayerId == null || this.selectedLayerId == "map") {
-              setTimeout(()=>{
-                var layerSelect:any = $("#layerSelection");
-                layerSelect.popover("show");
-              },100);
-            } else {
-              setTimeout(()=>{
-                var layerSelect:any = $("#layerSelection");
-                layerSelect.popover("hide");
-                layerSelect.popover("disable");
-              },100);
-            }
+
         }
 
 
@@ -116,13 +105,18 @@ module DataTable {
          * Create a list of layer options and select the one used previously.
          */
         private updateLayerOptions() {
-/*
-            this.layerOptions.push({
+
+            var chooseLayerOption = {
                 "group": '',
                 "id": this.mapLabel,
-                "title": this.mapFeatureTitle
+                "title": ''//this.$translate("CHOOSE_CATEGORY")//this.mapFeatureTitle
+            };
+            this.layerOptions.push(chooseLayerOption);
+
+            this.$translate("CHOOSE_CATEGORY").then(translation=>{
+              chooseLayerOption.title = translation
             });
-*/
+
             if (this.$layerService.project == null || this.$layerService.project.groups == null) return;
             this.$layerService.project.groups.forEach((group) => {
                 group.layers.forEach((layer) => {
@@ -151,11 +145,6 @@ module DataTable {
             var selectedLayer = this.findLayerById(this.selectedLayerId);
             if (selectedLayer == null) return this.loadMapLayers();
 
-            setTimeout(()=>{
-              var layerSelect:any = $("#layerSelection");
-              layerSelect.popover("hide");
-              layerSelect.popover("disable");
-            },100);
 
             this.$http.get(selectedLayer.url).
                 success((data: IGeoJsonFile) => {
