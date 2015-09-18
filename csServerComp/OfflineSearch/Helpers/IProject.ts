@@ -1,4 +1,4 @@
-import IGroup = require('IGroup');
+import IGroup = require('./IGroup');
 interface IProject {
     groups: IGroup[];
 }

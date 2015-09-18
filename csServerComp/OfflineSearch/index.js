@@ -1,6 +1,9 @@
 var path = require('path');
 var fs = require('fs');
 var offlineSearcher = require('./OfflineSearcher');
+/**
+* Offline Search reads the solution file, and creates an OfflineSearchResult for each project it contains.
+*/
 var OfflineSearchManager = (function () {
     function OfflineSearchManager(solutionsFile, options) {
         this.solutionsFile = solutionsFile;
