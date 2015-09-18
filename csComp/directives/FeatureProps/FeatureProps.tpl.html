@@ -66,7 +66,7 @@
             </li>
         </ul>
     </div> -->
-    <div ng-hide="configMode" class="tab-content" style="top:50px; width:355px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
+    <div ng-hide="configMode" class="tab-content" style="top:50px; width:415px; margin-left:-70px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
         <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="key in callOut.sectionKeys">
 
             <!--<td>
@@ -123,7 +123,7 @@
                                             <a class="fa fa-area-chart makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" href="#sensor{{item.property}}" style="cursor: pointer"></a>
                                         </div>
                                         <div ng-show="vm.$mapService.isAdminExpert" style="margin-left:8px" class="pull-right accordionIcon">
-                                            <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.enabled=!item.enabled" style="cursor: pointer"></a>
+                                            <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer"></a>
                                         </div>
                                     </div>
                                     <div ng-hide="item.isSensor" data-ng-switch="item.propertyType.type" style="float:right">
@@ -148,7 +148,7 @@
                                     <div id="sensor{{item.property}}" data-ng-if="item.isSensor" class="panel-collapse collapse" style="padding-top: 10px;">
                                         <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
                                     </div>
-                                    <div ng-if="item.enabled">
+                                    <div ng-if="item.configMode">
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="rightpanel-label">Titel</div>
@@ -220,7 +220,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <button class="btn btn-primary rightpanel-button" type="submit">Opslaan</button>
+                                        <button class="btn btn-primary rightpanel-button" ng-click="item.configMode=false" >{{'SAVE' | translate}}</button>
                                     </div>
                                 </div>
                             </div>

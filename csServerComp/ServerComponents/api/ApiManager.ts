@@ -21,6 +21,10 @@ export enum ApiResult {
     ResourceNotFound = 428
 }
 
+export interface IApiManagerOptions {
+
+}
+
 export interface ApiMeta {
     source?: string;
     user?: string;
@@ -162,7 +166,7 @@ export class ProjectId {
  */
 export class Geometry {
     public type: string;
-    public coordinates: number[] | number[][] | number[][][];
+    public coordinates: number[]| number[][]| number[][][];
 }
 
 /**
@@ -250,12 +254,12 @@ export class ApiManager extends events.EventEmitter {
     public name: string = "cs";
 
     /** Create a new client, optionally specifying whether it should act as client. */
-    constructor(public isClient = false) {
+    constructor(public isClient = false, public options = <IApiManagerOptions>{}) {
         super();
     }
 
     public init(rootPath: string, callback: Function) {
-        Winston.info(`Init layer manager (isClient=${this.isClient})`, { cat: "api" });
+        Winston.info("Init layer manager (isClient=${this.isClient})", { cat: "api" });
         this.rootPath = rootPath;
         if (!fs.existsSync(rootPath)) fs.mkdirSync(rootPath);
         this.initResources(path.join(this.rootPath, '/resourceTypes/'));
@@ -546,7 +550,7 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Returns layer definition for a layer, this is the layer without the features (mostly used for directory)
      */
-    private getLayerDefinition(layer: Layer): Layer {
+    public getLayerDefinition(layer: Layer): Layer {
         if (!layer.hasOwnProperty('type')) layer.type = "geojson";
         var r = <Layer>{
             id: layer.id,
@@ -588,7 +592,7 @@ export class ApiManager extends events.EventEmitter {
 
             // store layer
             if (s) {
-                s.addLayer(layer, meta, (r: CallbackResult) => callback(r) )
+                s.addLayer(layer, meta, (r: CallbackResult) => callback(r))
             } else {
                 callback(<CallbackResult>{ result: ApiResult.OK });
             }
