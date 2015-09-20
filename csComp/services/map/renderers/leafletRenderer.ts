@@ -427,7 +427,7 @@ module csComp.Services {
                     }
                 });
                 m.feature = feature;
-                if (l.group.clustering) {
+                if (l.group.clustering && l.group.cluster) {
                     l.group.cluster.addLayer(m);
                 }
                 else {

@@ -11,7 +11,7 @@
     "range": 2123192,
     "zoomLevelName": "minutes",
     "isLive": false,
-    "focus": 1441722129415,
+    "focus": 1441722125407,
     "zoomLevel": 60000
   },
   "datasources": [
@@ -972,7 +972,7 @@
       "id": "b0e9e0cd-d6c1-44ac-8029-5c30dfe21878",
       "title": "Features",
       "description": "Demonstrates layers based on points",
-      "clustering": false,
+      "clustering": true,
       "clusterLevel": 12,
       "languages": {
         "nl": {
