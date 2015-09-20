@@ -7,16 +7,16 @@ import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
 import ApiMeta = ApiManager.ApiMeta;
 import mqtt = require("mqtt");
+import mqttrouter = require("mqtt-router");
 import BaseConnector = require('./BaseConnector');
 import Winston = require('winston');
-
 
 
 export class MqttAPI extends BaseConnector.BaseConnector {
 
     public manager: ApiManager.ApiManager
     public client: any;
-    public router: any;
+    public router: mqttrouter.MqttRouter;
 
     constructor(public server: string, public port: number = 1883, public layerPrefix = "layers", public keyPrefix = "keys") {
         super();
@@ -31,9 +31,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         Winston.info('mqtt: init mqtt connector');
 
         this.client = (<any>mqtt).connect("mqtt://" + this.server + ":" + this.port);
-
-        // enable the subscription router
-        //this.router = mqttrouter.MqttAPI.Router(this.client);
+        this.router = mqttrouter.wrap(this.client);
 
         this.client.on('error', (e) => {
             Winston.warn('mqtt: error');
@@ -43,8 +41,13 @@ export class MqttAPI extends BaseConnector.BaseConnector {
             Winston.info("mqtt: connected");
             // server listens to all key updates
             if (!this.manager.isClient) {
-                Winston.info("mqtt: listen to everything");
-                this.client.subscribe("#");
+                var subscriptions = layerManager.options.mqttSubscriptions || '#';
+                Winston.info(`mqtt: listen to ${subscriptions === '#' ? 'everything' : subscriptions}`);
+                if (typeof subscriptions === 'string') {
+                    this.client.subscribe(subscriptions);
+                } else {
+                    subscriptions.forEach(s => this.client.subscribe(s));
+                }
             }
         });
 
@@ -53,6 +56,10 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
         });
 
+        // TODO Use the router to handle messages
+        // this.router.subscribe('hello/me/#:person', function(topic, message, params){
+        //   console.log('received', topic, message, params);
+        // });
         this.client.on('message', (topic: string, message: string) => {
             if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
             // listen to layer updates
@@ -109,10 +116,18 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         // doorzetten naar de layermanager
     }
 
-    public subscribeKey(keyPattern: string, meta: ApiMeta, callback: Function) {
-        // subscribe to messages for 'hello/me'
-        this.router.subscribe(this.keyPrefix + "#", (topic, message) => {
-            Winston.log('received', topic, message);
+    /**
+     * Subscribe to certain keys using the internal MQTT router.
+     * See also https://github.com/wolfeidau/mqtt-router.
+     * @method subscribeKey
+     * @param  {string}     keyPattern Pattern to listen for, e.g. hello/me/+:person listens for all hello/me/xxx topics.
+     * @param  {ApiMeta}    meta       [description]
+     * @param  {Function}   callback   Called when topic is called.
+     * @return {[type]}                [description]
+     */
+    public subscribeKey(keyPattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void) {
+        this.router.subscribe(keyPattern, (topic: string, message: string, params: Object) => {
+            callback(topic, message.toString(), params);
         });
     }
 

@@ -22,7 +22,9 @@ export enum ApiResult {
 }
 
 export interface IApiManagerOptions {
-
+    /** Specify what MQTT should subscribe to */
+    mqttSubscriptions?: string[];
+    [key: string]: any;
 }
 
 export interface ApiMeta {
@@ -104,8 +106,15 @@ export interface IConnector {
     updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function);
     /** Delete key */
     deleteKey(keyId: string, meta: ApiMeta, callback: Function);
-    /** listen to key updates */
-    subscribeKey(keyPattern: string, meta: ApiMeta, callback: Function);
+    /**
+     * Subscribe to certain keys.
+     * @method subscribeKey
+     * @param  {string}     keyPattern Pattern to listen for, e.g. hello/me/+:person listens for all hello/me/xxx topics.
+     * @param  {ApiMeta}    meta       [description]
+     * @param  {Function}   callback   Called when topic is called.
+     * @return {[type]}                [description]
+     */
+    subscribeKey(keyPattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void);
 }
 
 export interface StorageObject {
@@ -166,7 +175,7 @@ export class ProjectId {
  */
 export class Geometry {
     public type: string;
-    public coordinates: number[]| number[][]| number[][][];
+    public coordinates: number[] | number[][] | number[][][];
 }
 
 /**
@@ -760,7 +769,7 @@ export class ApiManager extends events.EventEmitter {
         this.setUpdateLayer(layer, meta);
         var s = this.findStorage(layer);
         this.updateProperty(layerId, featureId, property, value, useLog, meta, (r) => callback(r));
-        this.emit(Event[Event.PropertyChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: {featureId: featureId, property: property} });
+        this.emit(Event[Event.PropertyChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: { featureId: featureId, property: property } });
     }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function) {
@@ -844,12 +853,10 @@ export class ApiManager extends events.EventEmitter {
         s.getWithinPolygon(layerId, feature, meta, (result) => callback(result));
     }
 
-    private keySubscriptions: { [pattern: string]: Function[] } = {};
-
-    public subscribeKey(pattern: string, meta: ApiMeta, callback: Function) {
-        if (!this.keySubscriptions.hasOwnProperty(pattern)) {
-
-        }
+    public subscribeKey(pattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void) {
+        this.getInterfaces(meta).forEach((i: IConnector) => {
+            i.subscribeKey(pattern, meta, callback);
+        });
     }
 
     public addKey(key: Key, meta: ApiMeta, callback: Function) {
@@ -881,7 +888,7 @@ export class ApiManager extends events.EventEmitter {
         var key = this.findKey(keyId);
         if (!key) {
             var k = <Key>{ id: keyId, title: keyId, storage: 'file' };
-            this.addKey(k, meta, () => {});
+            this.addKey(k, meta, () => { });
             //this.addKey(k, meta, callback);
         }
 
@@ -900,4 +907,36 @@ export class ApiManager extends events.EventEmitter {
         // check subscriptions
         callback(<CallbackResult>{ result: ApiResult.OK })
     }
+
+    /**
+     * Register a callback which is being called before the process exits.
+     * @method cleanup
+     * @param  {Function} callback Callback function that performs the cleanup
+     * See also: http://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits
+     */
+    public cleanup(callback?: Function) {
+        // attach user callback to the process event emitter
+        // if no callback, it will still exit gracefully on Ctrl-C
+        if (!callback) callback = () => { };
+
+        process.on('cleanup', callback);
+
+        // do app specific cleaning before exiting
+        process.on('exit', function() {
+            process.emit('cleanup');
+        });
+
+        // catch ctrl+c event and exit normally
+        process.on('SIGINT', function() {
+            console.log('Ctrl-C...');
+            process.exit(2);
+        });
+
+        //catch uncaught exceptions, trace, then exit normally
+        process.on('uncaughtException', function(e) {
+            console.log('Uncaught Exception...');
+            console.log(e.stack);
+            process.exit(99);
+        });
+    };
 }
