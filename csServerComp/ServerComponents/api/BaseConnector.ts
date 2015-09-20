@@ -37,7 +37,7 @@ export class BaseConnector implements ApiManager.IConnector {
     public addLayerToProject(layerId: string, meta: ApiMeta, callback: Function) {
 
     }
-    
+
     public removeLayerFromProject(layerId: string, meta: ApiMeta, callback: Function) {
 
     }
@@ -134,6 +134,14 @@ export class BaseConnector implements ApiManager.IConnector {
     public init(layerManager: ApiManager.ApiManager, options: any) {
 
     }
-    /** listen to key updates */
-    subscribeKey(keyPattern: string, meta: ApiMeta, callback: Function) { }
+
+    /**
+     * Subscribe to certain keys.
+     * @method subscribeKey
+     * @param  {string}     keyPattern Pattern to listen for, e.g. hello/me/+:person listens for all hello/me/xxx topics.
+     * @param  {ApiMeta}    meta       [description]
+     * @param  {Function}   callback   Called when topic is called.
+     * @return {[type]}                [description]
+     */
+    subscribeKey(keyPattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void) { }
 }

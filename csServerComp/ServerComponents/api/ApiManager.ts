@@ -22,7 +22,9 @@ export enum ApiResult {
 }
 
 export interface IApiManagerOptions {
-
+    /** Specify what MQTT should subscribe to */
+    mqttSubscriptions?: string[];
+    [key: string]: any;
 }
 
 export interface ApiMeta {
@@ -41,6 +43,24 @@ export class CallbackResult {
     public feature: Feature;
     public keys: { [keyId: string]: Key };
     public key: Key;
+}
+
+
+/** Event emitted by the ApiManager */
+export enum Event {
+    KeyChanged, PropertyChanged, FeatureChanged, LayerChanged, ProjectChanged
+}
+
+/** Type of change in an ApiEvent */
+export enum ChangeType {
+    Create, Update, Delete
+}
+
+/** When a key|layer|project is changed, the ChangeEvent is emitted with the following data. */
+export interface IChangeEvent {
+    id: string,
+    type: ChangeType,
+    value?: Object
 }
 
 export interface IConnector {
@@ -86,10 +106,16 @@ export interface IConnector {
     updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function);
     /** Delete key */
     deleteKey(keyId: string, meta: ApiMeta, callback: Function);
-    /** listen to key updates */
-    subscribeKey(keyPattern: string, meta: ApiMeta, callback: Function);
+    /**
+     * Subscribe to certain keys.
+     * @method subscribeKey
+     * @param  {string}     keyPattern Pattern to listen for, e.g. hello/me/+:person listens for all hello/me/xxx topics.
+     * @param  {ApiMeta}    meta       [description]
+     * @param  {Function}   callback   Called when topic is called.
+     * @return {[type]}                [description]
+     */
+    subscribeKey(keyPattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void);
 }
-
 
 export interface StorageObject {
     id: string;
@@ -149,7 +175,7 @@ export class ProjectId {
  */
 export class Geometry {
     public type: string;
-    public coordinates: number[]| number[][]| number[][][];
+    public coordinates: number[] | number[][] | number[][][];
 }
 
 /**
@@ -167,7 +193,7 @@ export class Feature {
  * Geojson property definition
  */
 export class Property {
-
+    [key: string]: any
 }
 
 export class Log {
@@ -189,6 +215,17 @@ export class ResourceFile {
     propertyTypes: { [key: string]: PropertyType };
 }
 
+/**
+ * ApiManager, the main csWeb router that receives and sends layer/feature/keys updates around using
+ * connectors and keeps all endpoints in sync.
+ *
+ * EMITS ApiEvents, which all return an IChangedEvent.
+ * KeyChanged event when a key is changed (CRUD).
+ * PropertyChanged event when a layer is changed (CRUD).
+ * FeatureChanged event when a feature is changed (CRUD).
+ * LayerChanged event when a layer is changed (CRUD).
+ * ProjectChanged event when a project is changed (CRUD).
+ */
 export class ApiManager extends events.EventEmitter {
 
     /**
@@ -411,12 +448,13 @@ export class ApiManager extends events.EventEmitter {
             });
 
             s.addProject(this.projects[project.id], meta, (r: CallbackResult) => {
+                this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: project.id, type: ChangeType.Create, value: project });
                 callback(r);
             });
         } else {
             callback(<CallbackResult>{ result: ApiResult.ProjectAlreadyExists, error: "Project already exists" });
         }
-
+        // ARNOUD? Shouldn't this be at the end of the if clause, as the project may already exist?
         this.saveProjectDelay(this.projects[project.id]);
     }
 
@@ -568,6 +606,7 @@ export class ApiManager extends events.EventEmitter {
                 callback(<CallbackResult>{ result: ApiResult.OK });
             }
 
+            this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layer.id, type: ChangeType.Create, value: layer });
             this.saveLayersDelay(layer);
         }
         else {
@@ -625,6 +664,7 @@ export class ApiManager extends events.EventEmitter {
                     });
                 }
                 callback(<CallbackResult>{ result: ApiResult.OK });
+                this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layer.id, type: ChangeType.Update, value: layer });
                 this.saveLayersDelay(layer);
             }
         ])
@@ -657,6 +697,8 @@ export class ApiManager extends events.EventEmitter {
                     });
                 }
                 callback(<CallbackResult>{ result: ApiResult.OK });
+
+                this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: project.id, type: ChangeType.Update, value: project });
                 this.saveProjectDelay(project);
             }
         ])
@@ -669,17 +711,23 @@ export class ApiManager extends events.EventEmitter {
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.deleteLayer(layerId, meta, () => { });
             });
+            this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Delete });
             callback(r);
         });
     }
 
     public deleteProject(projectId: string, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForProjectId(projectId);
+        if (!s) {
+            callback(<CallbackResult>{ result: ApiResult.Error, error: "Project not found." })
+            return;
+        }
         s.deleteProject(projectId, meta, (r: CallbackResult) => {
             delete this.projects[projectId];
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.deleteProject(projectId, meta, () => { });
             });
+            this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: projectId, type: ChangeType.Delete });
             callback(r);
         });
     }
@@ -711,6 +759,8 @@ export class ApiManager extends events.EventEmitter {
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.addFeature(layerId, feature, meta, () => { });
             });
+            this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Create, value: feature });
+            callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
 
@@ -719,6 +769,7 @@ export class ApiManager extends events.EventEmitter {
         this.setUpdateLayer(layer, meta);
         var s = this.findStorage(layer);
         this.updateProperty(layerId, featureId, property, value, useLog, meta, (r) => callback(r));
+        this.emit(Event[Event.PropertyChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: { featureId: featureId, property: property } });
     }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function) {
@@ -748,6 +799,7 @@ export class ApiManager extends events.EventEmitter {
         this.getInterfaces(meta).forEach((i: IConnector) => {
             i.updateFeature(layerId, feature, false, meta, () => { });
         });
+        this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: feature });
     }
 
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
@@ -756,6 +808,7 @@ export class ApiManager extends events.EventEmitter {
         this.getInterfaces(meta).forEach((i: IConnector) => {
             i.deleteFeature(layerId, featureId, meta, () => { });
         });
+        this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Delete, value: featureId });
     }
 
 
@@ -800,12 +853,10 @@ export class ApiManager extends events.EventEmitter {
         s.getWithinPolygon(layerId, feature, meta, (result) => callback(result));
     }
 
-    private keySubscriptions: { [pattern: string]: Function[] } = {};
-
-    public subscribeKey(pattern: string, meta: ApiMeta, callback: Function) {
-        if (!this.keySubscriptions.hasOwnProperty(pattern)) {
-
-        }
+    public subscribeKey(pattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void) {
+        this.getInterfaces(meta).forEach((i: IConnector) => {
+            i.subscribeKey(pattern, meta, callback);
+        });
     }
 
     public addKey(key: Key, meta: ApiMeta, callback: Function) {
@@ -837,7 +888,8 @@ export class ApiManager extends events.EventEmitter {
         var key = this.findKey(keyId);
         if (!key) {
             var k = <Key>{ id: keyId, title: keyId, storage: 'file' };
-            this.addKey(k, meta, callback);
+            this.addKey(k, meta, () => { });
+            //this.addKey(k, meta, callback);
         }
 
         if (!value.hasOwnProperty('time')) value['time'] = new Date().getTime();
@@ -849,7 +901,42 @@ export class ApiManager extends events.EventEmitter {
             i.updateKey(keyId, value, meta, () => { });
         });
 
+        // Emit key changed events so others can subscribe to it.
+        this.emit(Event[Event.KeyChanged], <IChangeEvent>{ id: keyId, type: ChangeType.Update, value: value });
+
         // check subscriptions
         callback(<CallbackResult>{ result: ApiResult.OK })
     }
+
+    /**
+     * Register a callback which is being called before the process exits.
+     * @method cleanup
+     * @param  {Function} callback Callback function that performs the cleanup
+     * See also: http://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits
+     */
+    public cleanup(callback?: Function) {
+        // attach user callback to the process event emitter
+        // if no callback, it will still exit gracefully on Ctrl-C
+        if (!callback) callback = () => { };
+
+        process.on('cleanup', callback);
+
+        // do app specific cleaning before exiting
+        process.on('exit', function() {
+            process.emit('cleanup');
+        });
+
+        // catch ctrl+c event and exit normally
+        process.on('SIGINT', function() {
+            console.log('Ctrl-C...');
+            process.exit(2);
+        });
+
+        //catch uncaught exceptions, trace, then exit normally
+        process.on('uncaughtException', function(e) {
+            console.log('Uncaught Exception...');
+            console.log(e.stack);
+            process.exit(99);
+        });
+    };
 }
