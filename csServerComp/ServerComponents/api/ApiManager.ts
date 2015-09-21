@@ -18,6 +18,8 @@ export enum ApiResult {
     ProjectAlreadyExists = 409,
     ProjectNotFound = 410,
     KeyNotFound = 411,
+    GroupNotFound = 412,
+    GroupAlreadyExists = 413,
     ResourceNotFound = 428
 }
 
@@ -40,6 +42,7 @@ export class CallbackResult {
     public error: any;
     public project: Project;
     public layer: Layer;
+    public groups: string[];
     public feature: Feature;
     public keys: { [keyId: string]: Key };
     public key: Key;
@@ -97,6 +100,7 @@ export interface IConnector {
     getProject(projectId: string, meta: ApiMeta, callback: Function);
     updateProject(project: Project, meta: ApiMeta, callback: Function);
     deleteProject(projectId: string, meta: ApiMeta, callback: Function);
+    allGroups(projectId: string, meta: ApiMeta, callback: Function);
 
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
@@ -137,6 +141,14 @@ export class Project implements StorageObject {
     logo: string;
     connected: boolean;
     storage: string;
+    groups: Group[];
+}
+
+export class Group {
+    id: string;
+    title: string;
+    description: string;
+    clustering: boolean;
     layers: Layer[];
 }
 
@@ -160,6 +172,7 @@ export class Layer implements StorageObject {
     public typeUrl: string;
     public defaultFeatureType: string;
     public tags: string[];
+    public isDynamic: boolean;
     public features: Feature[] = [];
 }
 
@@ -395,35 +408,86 @@ export class ApiManager extends events.EventEmitter {
         //TODO implement
     }
 
-    public addLayerToProject(projectId: string, layerId: string, meta: ApiMeta, callback: Function) {
+    public addLayerToProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {
         var p: Project = this.findProject(projectId);
         var l: Layer = this.findLayer(layerId);
-        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); }
-        if (!l) { callback(<CallbackResult>{ result: ApiResult.LayerNotFound, error: "Layer not found" }); }
-        if (!p.layers) p.layers = [];
-        if (p.layers.some((pl) => { return (pl.id === l.id) })) {
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        if (!l) { callback(<CallbackResult>{ result: ApiResult.LayerNotFound, error: "Layer not found" }); return; }
+        if (!p.groups) p.groups = [];
+        var g;
+        p.groups.forEach(pg => {
+            if (pg.id === groupId) {
+                g = pg;
+            }
+        });
+        if (!g) { callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: "Group not found" }); return; }
+        if (g.layers.some((pl) => { return (pl.id === l.id) })) {
             callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
+            return;
         } else {
-            p.layers.push(l);
-            this.getInterfaces(meta).forEach((i: IConnector) => {
-                i.updateProject(p, meta, () => { });
-            });
-            Winston.info('api: add layer ' + l.id + ' to project ' + p.id);
+            g.layers.push(l);
+            this.updateProject(p, meta, ()=>{});
+            Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
             callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
 
-    public removeLayerFromProject(projectId: string, layerId: string, meta: ApiMeta, callback: Function) {
+    public removeLayerFromProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {
         var p: Project = this.findProject(projectId);
-        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); }
-        if (!p.layers || !p.layers.some((pl) => { return (pl.id === layerId) })) {
-            callback(<CallbackResult>{ result: ApiResult.LayerNotFound, error: "Layer not found" });
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        if (!p.groups || !p.groups.some((pg) => { return (pg.id === groupId) })) {
+            callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: "Group not found" }); return;
         } else {
-            p.layers = p.layers.filter((pl) => { return (pl.id !== layerId) })
-            this.getInterfaces(meta).forEach((i: IConnector) => {
-                i.updateProject(p, meta, () => { });
+            var group = p.groups.filter((pg) => { return (pg.id === groupId) })[0];
+            if (group.layers.some((pl) => { return (pl.id === layerId) })) {
+                group.layers = group.layers.filter((pl) => { return (pl.id !== layerId) });
+                this.updateProject(p, meta, ()=>{});
+                Winston.info('api: removed layer ' + layerId + ' from project ' + p.id);
+                callback(<CallbackResult>{ result: ApiResult.OK });
+            } else {
+                callback(<CallbackResult>{ result: ApiResult.LayerNotFound, error: "Layer not found" }); return;
+            }
+        }
+    }
+
+    public allGroups(projectId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        if (!p.groups) p.groups = [];
+        var groupList: string[] = [];
+        p.groups.forEach(pg => {
+            if (pg.id) groupList.push(pg.id);
+        });
+        callback(<CallbackResult>{ result: ApiResult.OK, groups: groupList });
+    }
+
+    public addGroup(group: Group, projectId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        if (!p.groups) p.groups = [];
+        if (!group.id) group.id = helpers.newGuid();
+        if (p.groups.some((pg) => { return (group.id === pg.id)} )) {
+            callback(<CallbackResult>{ result: ApiResult.GroupAlreadyExists, error: "Group exists" }); return;
+        } else {
+            group = this.getGroupDefinition(group);
+            p.groups.push(group);
+            this.updateProject(p, meta, ()=>{});
+            callback(<CallbackResult>{ result: ApiResult.OK });
+        }
+    }
+
+    public removeGroup(groupId: string, projectId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        if (!p.groups) p.groups = [];
+        if (!p.groups.some((pg) => { return (groupId === pg.id)} )) {
+            callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: "Group not found" }); return;
+        } else {
+            var group = p.groups.filter((pg) => { return (groupId === pg.id)})[0];
+            group.layers.forEach(pl => {
+                this.removeLayerFromProject(projectId, groupId, pl.id, meta, ()=>{});
             });
-            Winston.info('api: removed layer ' + layerId + ' from project ' + p.id);
+            p.groups = p.groups.filter((pg) => {return (pg.id !== groupId)});
             callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
@@ -549,12 +613,25 @@ export class ApiManager extends events.EventEmitter {
             title: project.title ? project.title : project.id,
             connected: project.connected ? project.connected : false,
             logo: project.logo ? project.logo : "",
-            layers: project.layers ? project.layers : [],
+            groups: project.groups ? project.groups : [],
             url: project.url ? project.url : '/api/projects/' + project.id
         };
         return p;
     }
 
+    /**
+     * Returns project definition for a project
+     */
+    private getGroupDefinition(group: Group): Group {
+        var g = <Group>{
+            id: group.id ? group.id : helpers.newGuid(),
+            description: group.description ? group.description : "",
+            title: group.title ? group.title : group.id,
+            clustering: group.clustering ? group.clustering : true,
+            layers: group.layers ? group.layers : []
+        };
+        return g;
+    }
 
     /**
      * Returns layer definition for a layer, this is the layer without the features (mostly used for directory)
@@ -568,7 +645,8 @@ export class ApiManager extends events.EventEmitter {
             description: layer.description,
             type: layer.type,
             storage: layer.storage ? layer.storage : "",
-            url: layer.url ? layer.url : ("/api/layers/" + layer.id)
+            url: layer.url ? layer.url : ("/api/layers/" + layer.id),
+            isDynamic: layer.isDynamic ? layer.isDynamic : true
         };
         return r;
     }

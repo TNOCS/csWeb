@@ -51,6 +51,7 @@ module csComp.Services {
         timeline: any;
         _activeContextMenu: IActionOption[];
         editing: boolean;
+        directoryHandle: MessageBusHandle;
 
         currentLocale: string;
         /** layers that are currently active */
@@ -1918,110 +1919,124 @@ module csComp.Services {
             // check if project is dynamic
             if (solutionProject.dynamic) {
                 // listen to directory updates
-                this.$messageBusService.serverSubscribe("", "directory", (sub: string, msg: any) => {
-                    if (msg.action === "subscribed") return;
-                    if (msg.action === 'layer' && msg.data && msg.data.item) {
-                        var layer = <ProjectLayer>msg.data.item;
-                        if (layer) {
-                            var l = this.findLayer(layer.id);
-                            if (!l) {
-                                //this.$messageBusService.notify('New layer available', layer.title);
-                            }
-                            else {
-                                this.$messageBusService.notify('New update available for layer ', layer.title);
-                                if (l.enabled) l.layerSource.refreshLayer(l);
-                            }
-                        }
-                    }
-                    if (msg.action === 'project' && msg.data && msg.data.item) {
-                        var project = <Project>msg.data.item;
-                        if (project) {
-                            var p = (this.project.id === project.id);
-                            if (!p) {
-                                this.$messageBusService.notify('New project available', project.title);
-                            }
-                            else {
-                                this.$messageBusService.notify('New update available for project ', project.title);
-                            }
-                        }
-                    }
-                });
-                this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
-                    if (msg.action === "layer-update") {
-                        msg.data.layer.forEach((l: ProjectLayer) => {
-                            var g: ProjectGroup;
-                            // find group
-                            if (l.groupId) { g = this.findGroupById(l.groupId); } else { l.groupId = "main"; }
-                            if (!g) {
-                                g = new ProjectGroup();
-                                g.id = l.groupId;
-                                g.title = msg.data.group.title;
-                                g.clustering = msg.data.group.clustering;
-                                g.clusterLevel = msg.data.group.clusterLevel;
-                                this.project.groups.push(g);
-                                this.initGroup(g);
-                            } else {
-                                g.clustering = msg.data.group.clustering;
-                                g.clusterLevel = msg.data.group.clusterLevel;
-                            }
-                            var layerExists = false;
-                            var layerIndex = 0;
-                            g.layers.forEach((gl, index) => {
-                                if (gl.id === l.id) {
-                                    layerExists = true;
-                                    layerIndex = index;
+                //
+                if (!this.directoryHandle) {
+                    this.directoryHandle = this.$messageBusService.serverSubscribe("", "directory", (sub: string, msg: any) => {
+                        if (msg.action === "subscribed") return;
+                        if (msg.action === 'layer' && msg.data && msg.data.item) {
+                            var layer = <ProjectLayer>msg.data.item;
+                            if (layer) {
+                                var l = this.findLayer(layer.id);
+                                if (!l) {
+                                    //this.$messageBusService.notify('New layer available', layer.title);
                                 }
-                            })
-                            if (!layerExists) {
-                                g.layers.push(l);
-                                this.initLayer(g, l);
-                                if (!l.layerSource) { l.layerSource = this.layerSources[l.type.toLowerCase()]; }
-                                l.layerSource.refreshLayer(g.layers[g.layers.length - 1]);
-                            } else {
-                                var currentStyle = g.styles;
-                                if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
-                                if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
-                                l.group = g;
-                                //l.layerSource.refreshLayer(g.layers[layerIndex]);
-                                this.removeLayer(g.layers[layerIndex]);
-                                this.addLayer(g.layers[layerIndex], () => {
-                                    if (currentStyle && currentStyle.length > 0)
-                                        this.setStyle({ feature: { featureTypeName: l.url + "#" + l.defaultFeatureType, layer: l }, property: currentStyle[0].property, key: currentStyle[0].title, meta: currentStyle[0].meta }, false, null, currentStyle[0]);
-                                });
+                                else {
+                                    this.$messageBusService.notify('New update available for layer ', layer.title);
+                                    if (l.enabled) l.layerSource.refreshLayer(l);
+                                }
                             }
-                            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') {
-                                this.$rootScope.$apply();
-                            }
-                        });
-
-                        // init group
-                        // add layer
-
-                    }
-                    if (msg.action === "layer-remove") {
-                        msg.data.forEach((l: ProjectLayer) => {
-                            var g: ProjectGroup;
-                            // find group
-                            if (l.groupId) { g = this.findGroupById(l.groupId); } else { l.groupId = "main"; }
-                            if (g != null) {
-                                g.layers.forEach((layer: ProjectLayer) => {
-                                    if (layer.id == l.id) {
-                                        this.removeLayer(layer, true);
-                                        //console.log('remove layer'+layer.id);
+                        }
+                        if (msg.action === 'project' && msg.data && msg.data.item) {
+                            var project = <Project>msg.data.item;
+                            if (project) {
+                                var p = (this.project.id === project.id);
+                                if (!p) {
+                                    this.$messageBusService.notify('New project available', project.title);
+                                    if (project.url.substring(project.url.length - 4) !== 'json') project.url = '/data' + project.url + '.json';
+                                    if (!this.solution.projects.some(sp => { return (sp.title === project.title) })) {
+                                        this.solution.projects.push(<SolutionProject>{ title: project.title, url: project.url, dynamic: true });
+                                    } else {
+                                        console.log('Project already exists (' + project.title + ')');
                                     }
-                                });
-
-                                if (g.layers.length == 0) {
-                                    this.removeGroup(g);
+                                }
+                                else {
+                                    this.$messageBusService.notify('New update available for project ', project.title);
+                                    var solProj = this.solution.projects.filter(sp => { return (sp.title === project.title) }).pop();
+                                    this.parseProject(project, solProj, []);
                                 }
                             }
-                        });
-                        // find group
-                        // find layer
-                        // remove layer
+                        }
+                    });
+                }
 
-                    }
-                });
+                if (!this.$messageBusService.getConnection(this.project.id)) {
+                    this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
+                        if (msg.action === "layer-update") {
+                            msg.data.layer.forEach((l: ProjectLayer) => {
+                                var g: ProjectGroup;
+                                // find group
+                                if (l.groupId) { g = this.findGroupById(l.groupId); } else { l.groupId = "main"; }
+                                if (!g) {
+                                    g = new ProjectGroup();
+                                    g.id = l.groupId;
+                                    g.title = msg.data.group.title;
+                                    g.clustering = msg.data.group.clustering;
+                                    g.clusterLevel = msg.data.group.clusterLevel;
+                                    this.project.groups.push(g);
+                                    this.initGroup(g);
+                                } else {
+                                    g.clustering = msg.data.group.clustering;
+                                    g.clusterLevel = msg.data.group.clusterLevel;
+                                }
+                                var layerExists = false;
+                                var layerIndex = 0;
+                                g.layers.forEach((gl, index) => {
+                                    if (gl.id === l.id) {
+                                        layerExists = true;
+                                        layerIndex = index;
+                                    }
+                                })
+                                if (!layerExists) {
+                                    g.layers.push(l);
+                                    this.initLayer(g, l);
+                                    if (!l.layerSource) { l.layerSource = this.layerSources[l.type.toLowerCase()]; }
+                                    l.layerSource.refreshLayer(g.layers[g.layers.length - 1]);
+                                } else {
+                                    var currentStyle = g.styles;
+                                    if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
+                                    if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
+                                    l.group = g;
+                                    //l.layerSource.refreshLayer(g.layers[layerIndex]);
+                                    this.removeLayer(g.layers[layerIndex]);
+                                    this.addLayer(g.layers[layerIndex], () => {
+                                        if (currentStyle && currentStyle.length > 0)
+                                            this.setStyle({ feature: { featureTypeName: l.url + "#" + l.defaultFeatureType, layer: l }, property: currentStyle[0].property, key: currentStyle[0].title, meta: currentStyle[0].meta }, false, null, currentStyle[0]);
+                                    });
+                                }
+                                if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') {
+                                    this.$rootScope.$apply();
+                                }
+                            });
+
+                            // init group
+                            // add layer
+
+                        }
+                        if (msg.action === "layer-remove") {
+                            msg.data.forEach((l: ProjectLayer) => {
+                                var g: ProjectGroup;
+                                // find group
+                                if (l.groupId) { g = this.findGroupById(l.groupId); } else { l.groupId = "main"; }
+                                if (g != null) {
+                                    g.layers.forEach((layer: ProjectLayer) => {
+                                        if (layer.id == l.id) {
+                                            this.removeLayer(layer, true);
+                                            //console.log('remove layer'+layer.id);
+                                        }
+                                    });
+
+                                    if (g.layers.length == 0) {
+                                        this.removeGroup(g);
+                                    }
+                                }
+                            });
+                            // find group
+                            // find layer
+                            // remove layer
+
+                        }
+                    });
+                }
             }
 
             if (prj.hasOwnProperty('collapseAllLayers') && prj.collapseAllLayers === true) {

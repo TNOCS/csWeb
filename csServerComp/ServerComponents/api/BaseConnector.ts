@@ -1,5 +1,6 @@
 import ApiManager = require('./ApiManager');
 import Project = ApiManager.Project;
+import Group = ApiManager.Group;
 import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import CallbackResult = ApiManager.CallbackResult;
@@ -39,6 +40,18 @@ export class BaseConnector implements ApiManager.IConnector {
     }
 
     public removeLayerFromProject(layerId: string, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public allGroups(projectId: string, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public addGroup(group: Group, projectId: string, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public removeGroup(groupId: string, projectId: string, meta: ApiMeta, callback: Function) {
 
     }
 

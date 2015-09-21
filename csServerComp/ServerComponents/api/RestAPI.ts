@@ -2,6 +2,7 @@ import ApiManager = require('./ApiManager');
 import express = require('express')
 import cors = require('cors')
 import Project = ApiManager.Project;
+import Group = ApiManager.Group;
 import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import Logs = ApiManager.Log;
@@ -96,19 +97,43 @@ export class RestAPI extends BaseConnector.BaseConnector {
         })
 
         //adds a layer to a project
-        this.server.post(this.projectsUrl + ":projectId/layer/:layerId", (req: express.Request, res: express.Response) => {
-            this.manager.addLayerToProject(req.params.projectId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+        this.server.post(this.projectsUrl + ":projectId/group/:groupId/layer/:layerId", (req: express.Request, res: express.Response) => {
+            this.manager.addLayerToProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 res.send(result);
             });
         });
 
         //removes a layer from a project
-        this.server.delete(this.projectsUrl + ":projectId/layer/:layerId", (req: express.Request, res: express.Response) => {
-            this.manager.removeLayerFromProject(req.params.projectId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+        this.server.delete(this.projectsUrl + ":projectId/group/:groupId/layer/:layerId", (req: express.Request, res: express.Response) => {
+            this.manager.removeLayerFromProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 res.send(result);
             });
         });
 
+        this.server.get(this.projectsUrl + ':projectId/group/', (req: any, res: any) => {
+            this.manager.allGroups(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                if (result.result === ApiResult.OK) {
+                    res.send(result.groups);
+                } else {
+                    res.sendStatus(result.result)
+                }
+            });
+        })
+
+        this.server.post(this.projectsUrl + ':projectId/group/', (req: any, res: any) => {
+            var group = new Group();
+            group = req.body;
+            this.manager.addGroup(group, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.send(result)
+            });
+        })
+
+        this.server.delete(this.projectsUrl + ':projectId/group/:groupId', (req: any, res: any) => {
+            this.manager.removeGroup(req.params.groupId, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.send(result)
+            });
+        })
 
         //------ layer API paths, in CRUD order
 
