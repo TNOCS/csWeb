@@ -113,7 +113,8 @@ class BushalteAggregateTransformer implements transform.ITransform {
             accEntry["number_of_routes_at_stop_total"] += currRoutes
             accEntry["number_of_routes_at_stop_count"] ++;
 
-            var strRoutes = <string>feature.properties["routes at stop"];
+            var strRoutes = <string>feature.properties["routes at stop"].toString(); // if a single route is a number it will be parsed as a number, we need routes as string
+
             var routes = strRoutes.split(/;/g);
 
             var accRoutes :string[]= <string[]>accEntry["routes"];
