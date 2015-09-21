@@ -41,6 +41,7 @@ module FeatureProps {
     }
 
     export class CallOutProperty implements ICallOutProperty {
+        public info: csComp.Services.PropertyInfo;
         constructor(
             public key: string,
             public value: string,
@@ -159,7 +160,7 @@ module FeatureProps {
             } else {
                 this.hasInfoSection = false;
             }
-            if (hierarchyCallOutSection.properties.length > 0) {this.sections['hierarchy'] = hierarchyCallOutSection; this.sectionKeys.push('hierarchy');}
+            if (hierarchyCallOutSection.properties.length > 0) { this.sections['hierarchy'] = hierarchyCallOutSection; this.sectionKeys.push('hierarchy'); }
             //if (searchCallOutSection.properties.length > 0) {this.sections['zzz Search'] = searchCallOutSection; this.sectionKeys.push('zzz Search');}
             this.sectionKeys = this.sectionKeys.sort();
         }
@@ -419,6 +420,12 @@ module FeatureProps {
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                 this.$scope.$apply();
             }
+        }
+
+        public getPropStats(item: CallOutProperty) {
+            var pi = this.$layerService.calculatePropertyInfo(item.feature.layer.group, item.property);
+            item.info = pi;
+            console.log(item);
         }
 
         private displayFeature(feature: IFeature): void {

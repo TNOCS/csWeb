@@ -796,12 +796,31 @@ html, body, #container {
     margin-left: 0px;
     background: transparent;
 }
+
+.feature-prop-stats
+{
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: .8;
+}
+
+.item-stat-title
+{
+
+}
+
+.item-stat-value
+{
+    font-weight:700;
+    margin-right:10px;
+}
+
 .feature-prop-title {
     overflow: hidden;
     padding-left: 4px;
     padding-right: 20px;
-    position: absolute;
-    left: 10px;
+    position: relative;
+    margin-left: 50px;
 }
 .feature-prop-property:hover {
     margin-left: 0px;

@@ -48,9 +48,12 @@
             <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false" />
         </div>
         <div ng-show="!configMode && feature.layer.isDynamic" style="float:right">
-            <button tooltip-html-unsafe="{{'EDIT' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="vm.startEditFeature()" />
-            <button tooltip-html-unsafe="{{'REMOVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-trash leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="vm.removeFeature()" />
-            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="feature.gui.editMode" ng-click="feature.gui.editMode=false;vm.saveFeature()" />
+            <button tooltip-html-unsafe="{{'EDIT' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="vm.startEditFeature()"
+            />
+            <button tooltip-html-unsafe="{{'REMOVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-trash leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="vm.removeFeature()"
+            />
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="feature.gui.editMode" ng-click="feature.gui.editMode=false;vm.saveFeature()"
+            />
         </div>
     </h4>
 
@@ -102,7 +105,7 @@
                         </div>
 
                         <!-- Currently-styled-property background gray -->
-                        <div ng-show="!feature.gui.editMode" class="panel-heading feature-prop-item"  ng-style="(item.feature.gui['style'][item.property]) && {'border':'1px solid blue', 'background': 'lightgray'}">
+                        <div ng-show="!feature.gui.editMode" class="panel-heading feature-prop-item" ng-style="(item.feature.gui['style'][item.property]) && {'border':'1px solid blue', 'background': 'lightgray'}" ng-click="item.showMore=!item.showMore;vm.getPropStats(item)">
                             <!-- Currently-styled-property background styleColor -->
                             <!-- <div ng-show="!feature.gui.editMode" class="panel-heading" style="border-radius: 3px; min-height: 36px; border: none;" ng-style="(item.feature.gui['style'][item.property]) && {'border':'1px solid blue', 'background': item.feature.gui.style[item.property]}"> -->
                             <div data-ng-switch="item.propertyType.type">
@@ -122,7 +125,7 @@
                                         <div ng-if="item.isSensor" class="property-action" style="right:30px">
                                             <a class="fa fa-area-chart makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" href="#sensor{{item.property}}" style="cursor: pointer"></a>
                                         </div>
-                                        <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="right:45px" >
+                                        <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="right:45px">
                                             <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer;margin-left:50px"></a>
                                         </div>
                                     </div>
@@ -142,14 +145,26 @@
                                         <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.value)"></div>
                                     </div>
                                     <div class="feature-prop-content">
-                                    <div class="feature-prop-title">
-                                        {{item.key}}
-                                    </div>
+                                        <div class="feature-prop-title">
+                                            {{item.key}}
+                                            <div ng-if="item.showMore" data-ng-switch="item.propertyType.type">
+                                                <div ng-switch-when="number" class="feature-prop-stats" >
+                                                    <span class="item-stat-title">min</span>
+                                                    <span class="item-stat-value">{{item.info.min}}</span>
+                                                    <span class="item-stat-title">max</span>
+                                                    <span class="item-stat-value">{{item.info.max}}</span>
+                                                    <span class="item-stat-title">average</span>
+                                                    <span class="item-stat-value">{{item.info.mean}}</span>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                    <div id="sensor{{item.property}}" data-ng-if="item.isSensor" class="panel-collapse collapse" style="padding-top: 10px;">
-                                        <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
+                                        <div id="sensor{{item.property}}" data-ng-if="item.isSensor" class="panel-collapse collapse" style="padding-top: 10px;">
+                                            <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
+                                        </div>
+
+
                                     </div>
-                                </div>
                                     <div ng-if="item.configMode" class="feature-prop-config">
                                         <div class="row">
                                             <div class="col-md-6">
@@ -222,7 +237,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <button class="btn btn-primary rightpanel-button" ng-click="item.configMode=false" >{{'SAVE' | translate}}</button>
+                                        <button class="btn btn-primary rightpanel-button" ng-click="item.configMode=false">{{'SAVE' | translate}}</button>
                                     </div>
                                 </div>
                             </div>
