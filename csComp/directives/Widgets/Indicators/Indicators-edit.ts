@@ -139,7 +139,7 @@ module Indicators {
 
         public updateVisual(i: indicator) {
             if (!i.inputs) i.inputs = {};
-            var r = {};
+            var r: { [key: string]: any }  = {};
             for (var key in this.indicatorVisuals[i.visual].input) {
                 if (i.inputs && i.inputs.hasOwnProperty(key)) {
                     r[key] = i.inputs[key];

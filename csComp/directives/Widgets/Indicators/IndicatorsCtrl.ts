@@ -36,11 +36,7 @@ module Indicators {
             this._toggleUpdate = true;
             this.indicatorWidth = 200;
         }
-
-
     }
-
-
 
     export interface IIndicatorsScope extends ng.IScope {
         vm: IndicatorsCtrl;
@@ -111,8 +107,6 @@ module Indicators {
             if (typeof $scope.data.indicators !== 'undefined') {
                 $scope.data.indicators.forEach((i: indicator) => {
                     i.id = "circ-" + csComp.Helpers.getGuid();
-
-
                 });
             }
             $timeout(() => this.checkLayers());
@@ -137,11 +131,7 @@ module Indicators {
                 if (i._sensorSet.propertyType && i._sensorSet.propertyType.legend) {
                     i.color = csComp.Helpers.getColorFromLegend(i._sensorSet.activeValue, i._sensorSet.propertyType.legend);
                 }
-
             });
-
-
-
         }
 
 
