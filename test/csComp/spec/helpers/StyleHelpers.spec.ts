@@ -19,7 +19,7 @@ describe('StyleHelpers', function() {
         it('should have function getColorFromStringValue', function() {
             var color = csComp.Helpers.getColorFromStringValue('wrongFormat', groupStyle);
             expect(color).toBeUndefined();
-            groupStyle.activeLegend = { id: 'test', 'legendEntries': [], 'legendKind': 'discretestrings' };
+            groupStyle.activeLegend = { id: 'test', 'legendEntries': [], 'legendKind': 'discreteStrings' };
             var color = csComp.Helpers.getColorFromStringValue('wrongFormat', groupStyle);
             expect(color).toEqual('#000000');
             groupStyle.activeLegend.legendEntries.push({ 'stringValue': 'blue', 'color': '#000011' });
@@ -35,7 +35,7 @@ describe('StyleHelpers', function() {
             legend.legendEntries = [];
             var color = csComp.Helpers.getColorFromStringLegend('wrongFormat', legend);
             expect(color).toEqual('#000000');
-            legend.legendKind = 'discretestrings';
+            legend.legendKind = 'discreteStrings';
             var color = csComp.Helpers.getColorFromStringLegend('wrongFormat', legend);
             expect(color).toEqual('#000000');
             legend.legendEntries.push({ 'stringValue': 'blue', 'color': '#000011', 'label': 'blue', 'interval': { 'min': 0, 'max': 1 }, 'value': 0 });
