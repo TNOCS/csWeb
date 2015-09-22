@@ -96,7 +96,8 @@ module Charts {
 
                             for (var i = 0; i < scope.timestamps.length; i++) {
                                 var m = scope.property ? scope.property : 'value';
-                                data.push({ time: scope.timestamps[i], measurement: scope.sensor[i][m] });
+                                var me = $.isArray(scope.sensor[i]) ? scope.sensor[i][m] : scope.sensor[i];
+                                data.push({ time: scope.timestamps[i], measurement: me });
                             }
 
                             //data.push({time:scope.timestamps[scope.timestamps.length-1],measurement:0});

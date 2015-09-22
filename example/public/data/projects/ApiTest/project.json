@@ -10,7 +10,7 @@
     "end": 1443253635169,
     "range": 604800000,
     "zoomLevelName": "hours",
-    "isLive": true,
+    "isLive": false,
     "focus": 1442951235692,
     "zoomLevel": 3600000
   },
