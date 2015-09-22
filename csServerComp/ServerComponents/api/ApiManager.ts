@@ -610,7 +610,7 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Returns project definition for a project
      */
-    private getProjectDefinition(project: Project): Project {
+    public getProjectDefinition(project: Project): Project {
         var p = <Project>{
             id: project.id ? project.id : helpers.newGuid(),
             storage: project.storage ? project.storage : "",

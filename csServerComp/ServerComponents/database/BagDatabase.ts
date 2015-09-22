@@ -1,6 +1,7 @@
+require('rootpath')();
 import express = require('express');
-import pg = require('pg');
 import ConfigurationService = require('../configuration/ConfigurationService');
+import pg = require('pg');
 import Location = require('./Location');
 import IBagOptions = require('../database/IBagOptions');
 
@@ -36,14 +37,31 @@ class BagDatabase {
     }
 
     /**
+     * Expect the house number format in NUMBER-LETTER-ADDITION
+     */
+    private splitAdressNumber(input: string|number){
+        var result = {nr: null, letter: null, addition: null};
+        if (!input) return result;
+        if (typeof input === 'number') {
+            result.nr = input;
+        } else {
+            var splittedAdress = input.split('-');
+            if (splittedAdress[0]) {result.nr = this.formatHouseNumber(splittedAdress[0])};
+            if (splittedAdress[1]) {result.letter = this.formatHouseLetter(splittedAdress[1])};
+            if (splittedAdress[2]) {result.addition = this.formatHouseNumberAddition(splittedAdress[2])};
+        }
+        return result;
+    }
+
+    /**
      * Format the house number such that we keep an actual number, e.g. 1a -> 1.
      */
-    private formatHouseNumber(houseNumber: string|number): number {
-        if (!houseNumber) return null;
-        if (typeof houseNumber === 'number') {
-            return houseNumber;
+    private formatHouseNumber(input: string|number): number {
+        if (!input) return null;
+        if (typeof input === 'number') {
+            return input;
         } else {
-            var formattedHouseNumber = houseNumber.replace(/^\D+|\D.*$/g, "");
+            var formattedHouseNumber = input.replace(/^\D+|\D.*$/g, "");
             if (!formattedHouseNumber) {
                 return null;
             } else {
@@ -52,11 +70,30 @@ class BagDatabase {
         }
     }
 
-    private formatHouseLetter(houseNumber: string|number): string {
-        if (typeof houseNumber === 'string') {
-            var houseLetter = houseNumber.replace(/[^a-zA-Z]+/g, "");
+    /**
+     * Format the house letter, max 1 character and in uppercase.
+     */
+    private formatHouseLetter(input: string|number): string {
+        if (typeof input === 'string' && input.length > 0) {
+            var houseLetter = input.replace(/[^a-zA-Z]+/g, "");
             if (houseLetter) {
-                return houseLetter.charAt(0);
+                return houseLetter.charAt(0).toUpperCase();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Format the housenumber addition and in uppercase.
+     */
+    private formatHouseNumberAddition(input: string|number): string {
+        if (typeof input === 'number') {
+            input = (<number>input).toString();
+        }
+        if (typeof input === 'string' && input.length > 0) {
+            var houseNumberAddition = input.replace(/ /g, '').toUpperCase();
+            if (houseNumberAddition) {
+                return houseNumberAddition;
             }
         }
         return null;
@@ -100,13 +137,15 @@ class BagDatabase {
             callback(null);
             return;
         }
-        var houseNr: number = this.formatHouseNumber(houseNumber);
+        var splittedAdressNumber = this.splitAdressNumber(houseNumber);
+        var houseNr: number = splittedAdressNumber.nr;
         if (!houseNr) {
             console.log('No house number: ' + houseNumber);
             callback(null);
             return;
         }
-        var houseLetter: string = this.formatHouseLetter(houseNumber);
+        var houseLetter: string = splittedAdressNumber.letter;
+        var houseNumberAddition: string = splittedAdressNumber.addition;
 
         pg.connect(this.connectionString, (err, client, done) => {
             if (err) {
@@ -119,16 +158,16 @@ class BagDatabase {
             var sql: string;
             switch (bagOptions) {
                 case IBagOptions.OnlyCoordinates:
-                    sql = `SELECT ST_X(ST_Transform(geopunt, 4326)) as lon, ST_Y(ST_Transform(geopunt, 4326)) as lat FROM bagactueel.adres WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNr} AND adres.huisletter IS NULL`;
+                    sql = `SELECT ST_X(ST_Transform(geopunt, 4326)) as lon, ST_Y(ST_Transform(geopunt, 4326)) as lat FROM bagactueel.adres WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNr} AND upper(adres.huisletter) IS NULL AND upper(adres.huisnummertoevoeging) IS NULL`;
                     break;
                 case IBagOptions.WithBouwjaar:
-                    sql = `SELECT ST_X(ST_Transform(adres.geopunt, 4326)) as lon, ST_Y(ST_Transform(adres.geopunt, 4326)) as lat, pand.bouwjaar as bouwjaar FROM bagactueel.adres, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobject, bagactueel.pand WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNr}  AND adres.huisletter IS NULL AND adres.adresseerbaarobject = verblijfsobject.identificatie AND adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectpand.gerelateerdpand = pand.identificatie`;
+                    sql = `SELECT ST_X(ST_Transform(adres.geopunt, 4326)) as lon, ST_Y(ST_Transform(adres.geopunt, 4326)) as lat, pand.bouwjaar as bouwjaar FROM bagactueel.adres, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobject, bagactueel.pand WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNr}  AND upper(adres.huisletter) IS NULL AND upper(adres.huisnummertoevoeging) IS NULL AND adres.adresseerbaarobject = verblijfsobject.identificatie AND adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectpand.gerelateerdpand = pand.identificatie`;
                     break;
                 case IBagOptions.AddressCountInBuilding:
-                    sql = `SELECT ST_X(ST_Transform(adres.geopunt, 4326)) as lon, ST_Y(ST_Transform(adres.geopunt, 4326)) as lat, ST_AsGeoJSON(ST_Force_2D(ST_Transform(pand.geovlak, 4326)), 6, 0) as _BAG_contour, adres.huisnummer as huisnummer, adres.huisletter as huisletter, adres.huisnummertoevoeging as huisnummertoevoeging, adres.postcode as postcode,	adres.woonplaatsnaam as woonplaatsnaam,	adres.gemeentenaam as gemeentenaam,	adres.provincienaam as provincienaam, pand.bouwjaar as bouwjaar, pand.identificatie as pandidentificatie, verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject as gebruiksdoelverblijfsobject, verblijfsobject.oppervlakteverblijfsobject as oppervlakteverblijfsobject, (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM bagactueel.adres, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobjectgebruiksdoel, bagactueel.pand WHERE pand.identificatie = ( SELECT pand.identificatie FROM bagactueel.adres, bagactueel.verblijfsobjectpand, bagactueel.pand WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNr} AND adres.huisletter IS NULL AND adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectpand.gerelateerdpand = pand.identificatie LIMIT 1 ) AND adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectpand.gerelateerdpand = pand.identificatie AND verblijfsobjectgebruiksdoel.identificatie = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject = 'woonfunctie' GROUP BY pand.identificatie, verblijfsobjectpand.identificatie ) as tempCount ) as woningen_in_pand FROM bagactueel.adres, bagactueel.verblijfsobjectgebruiksdoel, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobject, bagactueel.pand WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNr} AND adres.huisletter IS NULL AND adres.adresseerbaarobject = verblijfsobject.identificatie AND adres.adresseerbaarobject = verblijfsobjectgebruiksdoel.identificatie AND adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.identificatie = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject = 'woonfunctie' AND verblijfsobjectpand.gerelateerdpand = pand.identificatie`;
+                    sql = `SELECT ST_X(ST_Transform(adres.geopunt, 4326)) as lon, ST_Y(ST_Transform(adres.geopunt, 4326)) as lat, ST_AsGeoJSON(ST_Force_2D(ST_Transform(pand.geovlak, 4326)), 6, 0) as _BAG_contour, adres.huisnummer as huisnummer, adres.huisletter as huisletter, adres.huisnummertoevoeging as huisnummertoevoeging, adres.postcode as postcode,	adres.woonplaatsnaam as woonplaatsnaam,	adres.gemeentenaam as gemeentenaam,	adres.provincienaam as provincienaam, pand.bouwjaar as bouwjaar, pand.identificatie as pandidentificatie, verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject as gebruiksdoelverblijfsobject, verblijfsobject.oppervlakteverblijfsobject as oppervlakteverblijfsobject, (SELECT COUNT(*) FROM (SELECT COUNT(*) FROM bagactueel.adres, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobjectgebruiksdoel, bagactueel.pand WHERE pand.identificatie = ( SELECT pand.identificatie FROM bagactueel.adres, bagactueel.verblijfsobjectpand, bagactueel.pand WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNr} AND upper(adres.huisletter) IS NULL AND upper(adres.huisnummertoevoeging) IS NULL AND adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectpand.gerelateerdpand = pand.identificatie LIMIT 1 ) AND adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectpand.gerelateerdpand = pand.identificatie AND verblijfsobjectgebruiksdoel.identificatie = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject = 'woonfunctie' GROUP BY pand.identificatie, verblijfsobjectpand.identificatie ) as tempCount ) as woningen_in_pand FROM bagactueel.adres, bagactueel.verblijfsobjectgebruiksdoel, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobject, bagactueel.pand WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNr} AND upper(adres.huisletter) IS NULL AND upper(adres.huisnummertoevoeging) IS NULL AND adres.adresseerbaarobject = verblijfsobject.identificatie AND adres.adresseerbaarobject = verblijfsobjectgebruiksdoel.identificatie AND adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.identificatie = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject = 'woonfunctie' AND verblijfsobjectpand.gerelateerdpand = pand.identificatie`;
                     break;
                 case IBagOptions.All:
-                    sql = `SELECT ST_X(ST_Transform(adres.geopunt, 4326)) as lon, ST_Y(ST_Transform(adres.geopunt, 4326)) as lat, adres.huisnummer as huisnummer, adres.huisletter as huisletter, adres.huisnummertoevoeging as huisnummertoevoeging, adres.postcode as postcode,	adres.woonplaatsnaam as woonplaatsnaam,	adres.gemeentenaam as gemeentenaam,	adres.provincienaam as provincienaam, pand.bouwjaar as bouwjaar, pand.identificatie as pandidentificatie, verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject as gebruiksdoelverblijfsobject, verblijfsobject.oppervlakteverblijfsobject as oppervlakteverblijfsobject  FROM bagactueel.adres, bagactueel.verblijfsobjectgebruiksdoel, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobject, bagactueel.pand  WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNr} AND adres.huisletter IS NULL AND adres.adresseerbaarobject = verblijfsobject.identificatie AND adres.adresseerbaarobject = verblijfsobjectgebruiksdoel.identificatie AND adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectpand.gerelateerdpand = pand.identificatie`;
+                    sql = `SELECT ST_X(ST_Transform(adres.geopunt, 4326)) as lon, ST_Y(ST_Transform(adres.geopunt, 4326)) as lat, adres.huisnummer as huisnummer, adres.huisletter as huisletter, adres.huisnummertoevoeging as huisnummertoevoeging, adres.postcode as postcode,	adres.woonplaatsnaam as woonplaatsnaam,	adres.gemeentenaam as gemeentenaam,	adres.provincienaam as provincienaam, pand.bouwjaar as bouwjaar, pand.identificatie as pandidentificatie, verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject as gebruiksdoelverblijfsobject, verblijfsobject.oppervlakteverblijfsobject as oppervlakteverblijfsobject  FROM bagactueel.adres, bagactueel.verblijfsobjectgebruiksdoel, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobject, bagactueel.pand  WHERE adres.postcode='${zipCode}' AND adres.huisnummer=${houseNr} AND upper(adres.huisletter) IS NULL AND upper(adres.huisnummertoevoeging) IS NULL AND adres.adresseerbaarobject = verblijfsobject.identificatie AND adres.adresseerbaarobject = verblijfsobjectgebruiksdoel.identificatie AND adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectpand.gerelateerdpand = pand.identificatie`;
                     break;
                 default:
                     console.log("Error: Unknown IBagOptions");
@@ -137,8 +176,12 @@ class BagDatabase {
 
             // If we have a house letter, add it to the query
             if (houseLetter) {
-                sql = sql.replace(/adres\.huisletter IS NULL/g, `adres.huisletter='${houseLetter}'`);
-                //console.log(sql);
+                sql = sql.replace(/adres\.huisletter\) IS NULL/g, `adres.huisletter)='${houseLetter}'`);
+            }
+
+            // If we have a house number addition, add it to the query
+            if (houseNumberAddition) {
+                sql = sql.replace(/adres\.huisnummertoevoeging\) IS NULL/g, `adres.huisnummertoevoeging)='${houseNumberAddition}'`);
             }
 
             client.query(sql, (err, result) => {
