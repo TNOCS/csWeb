@@ -243,7 +243,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     project.id = id;
                     this.projects[id] = project;
                     project.title = id;
-                    project.layers = [];
+                    project.groups = [];
                     project.logo = "";
                     project.url = "/api/projects/" + id;
                     //this.manager.updateProject(project, {}, () => { });
@@ -288,6 +288,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public updateProject(project: Project, meta: ApiMeta, callback: Function) {
         if (this.projects.hasOwnProperty(project.id)) {
             this.projects[project.id] = project;
+            this.saveProjectDelay(project);
+            Winston.info('Added project ' + project.id + ' to FileStorage projects');
             callback(<CallbackResult>{ result: ApiResult.OK, project: null });
         }
         else {

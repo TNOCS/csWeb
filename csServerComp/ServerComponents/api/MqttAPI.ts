@@ -26,8 +26,8 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
     public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;
-        this.layerPrefix = (this.manager.name + "/" + this.layerPrefix + "/").replace("//", "/");
-        this.keyPrefix = (this.manager.name + "/" + this.keyPrefix + "/").replace("//", "/");
+        this.layerPrefix = (this.manager.namespace + "/" + this.layerPrefix + "/").replace("//", "/");
+        this.keyPrefix = (this.manager.namespace + "/" + this.keyPrefix + "/").replace("//", "/");
         Winston.info('mqtt: init mqtt connector');
 
         this.client = (<any>mqtt).connect("mqtt://" + this.server + ":" + this.port);

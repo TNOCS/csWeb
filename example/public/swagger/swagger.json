@@ -81,7 +81,7 @@
                 }
             }
         },
-        "/projects/{projectId}/layer/{layerId}": {
+        "/projects/{projectId}/group/{groupId}/layer/{layerId}": {
             "post": {
                 "tags": [
                     "project"
@@ -96,6 +96,12 @@
                     "name": "projectId",
                     "in": "path",
                     "description": "ID of the project to add the layer to",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "in": "path",
+                    "name": "groupId",
+                    "description": "id of the group to add the layer to",
                     "required": true,
                     "type": "string"
                 }, {
@@ -120,6 +126,9 @@
                     },
                     "410": {
                         "description": "Project not found"
+                    },
+                    "412": {
+                        "description": "Group not found"
                     }
                 }
             },
@@ -141,6 +150,12 @@
                     "type": "string"
                 }, {
                     "in": "path",
+                    "name": "groupId",
+                    "description": "id of the group to add the layer to",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "in": "path",
                     "name": "layerId",
                     "description": "id of the layer that will be removed",
                     "required": true,
@@ -158,6 +173,123 @@
                     },
                     "410": {
                         "description": "Project not found"
+                    },
+                    "412": {
+                        "description": "Group not found"
+                    }
+                }
+            }
+        },
+        "/projects/{projectId}/group/{groupId}": {
+            "delete": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Deletes a group from a project",
+                "description": "Deletes a group from a project",
+                "operationId": "removeGroup",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "projectId",
+                    "in": "path",
+                    "description": "ID of the project to remove the layer from",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "in": "path",
+                    "name": "groupId",
+                    "description": "id of the group that will be removed",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "412": {
+                        "description": "Group not found"
+                    },
+                    "410": {
+                        "description": "Project not found"
+                    }
+                }
+            }
+        },
+        "/projects/{projectId}/group/": {
+            "post": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Create a group in a project",
+                "description": "Create a group in a project",
+                "operationId": "addGroupToProject",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "projectId",
+                    "in": "path",
+                    "description": "ID of the project to add the group to",
+                    "required": true,
+                    "type": "string"
+                }, {
+                    "in": "body",
+                    "name": "body",
+                    "description": "JSON that will be used to create the group",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Group"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/ApiResponse"
+                        }
+                    },
+                    "413": {
+                        "description": "Group exists"
+                    },
+                    "410": {
+                        "description": "Project not found"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "project"
+                ],
+                "summary": "Returns all groups in a project",
+                "description": "Returns a list of groupIds in a project",
+                "operationId": "allGroups",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "name": "projectId",
+                    "in": "path",
+                    "description": "ID of the project to get the groups from",
+                    "required": true,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema" : {
+                            "type" : "array",
+                            "items" : {
+                                "type" : "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cannot get groups"
                     }
                 }
             }
@@ -308,7 +440,10 @@
                     "200": {
                         "description": "successful operation",
                         "schema": {
-                            "$ref": "#/definitions/Project"
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/Project"
+                            }
                         }
                     },
                     "404": {
@@ -1095,6 +1230,29 @@
                 }
             }
         },
+        "Group" : {
+            "type" : "object",
+            "properties" : {
+                "title" : {
+                    "type" : "string"
+                },
+                "id" : {
+                    "type" : "string"
+                },
+                "description" : {
+                    "type" : "string"
+                },
+                "clustering" : {
+                    "type" : "boolean"
+                },
+                "layers" : {
+                    "type" : "array",
+                    "items" : {
+                        "$ref" : "#/definitions/Layer"
+                    }
+                }
+            }
+        },
         "Project": {
             "type": "object",
             "properties": {
@@ -1116,10 +1274,10 @@
                 "url": {
                     "type": "string"
                 },
-                "layers": {
+                "groups": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/Layer"
+                        "$ref": "#/definitions/Group"
                     }
                 }
             }
