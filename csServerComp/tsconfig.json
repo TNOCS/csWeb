@@ -83,6 +83,7 @@
         "./ServerComponents/import/BaseTransformer.ts",
         "./ServerComponents/import/BushalteAggregateTransformer.ts",
         "./ServerComponents/import/CollateStreamTransformer.ts",
+        "./ServerComponents/import/CsvSaveTransformer.ts",
         "./ServerComponents/import/CsvToJsonTransformer.ts",
         "./ServerComponents/import/FieldFilterTransformer.ts",
         "./ServerComponents/import/FieldSplitTransformer.ts",
