@@ -453,7 +453,6 @@ module csComp.Services {
             var marker;
             switch (feature.geometry.type) {
                 case 'Point':
-                    console.log('create feature');
                     var icon = this.getPointIcon(feature);
 
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {

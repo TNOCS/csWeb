@@ -424,9 +424,13 @@ module FeatureProps {
 
         private featureMessageReceived = (title: string, feature: IFeature): void => {
             switch (title) {
+                case "onFeatureDeselect":
+                    this.$layerService.visual.rightPanelVisible = false;
+                    break;
                 case "onFeatureSelect":
                     this.displayFeature(this.$layerService.lastSelectedFeature);
                     this.$scope.feature = this.$layerService.lastSelectedFeature;
+                    this.$layerService.visual.rightPanelVisible = true;
                     break;
                 case "onRelationsUpdated":
                     this.setShowSimpleTimeline();
