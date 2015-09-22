@@ -358,9 +358,9 @@ module FeatureProps {
             }
         }
 
-        public selectProperty(prop: IPropertyType) {
-            console.log(prop);
+        public selectProperty(prop: IPropertyType, $event: ng.IAngularEvent) {
             this.lastSelectedProperty = prop;
+            $event.stopPropagation();
         }
 
         public saveFeature() {
@@ -379,6 +379,11 @@ module FeatureProps {
             var rpt = csComp.Helpers.createRightPanelTab("featuretype", "featuretype", this.$layerService.lastSelectedFeature, "Edit group");
             this.$messageBusService.publish("rightpanel", "activate", rpt);
             this.$layerService.updateFeature(this.$layerService.lastSelectedFeature);
+        }
+
+        public setFilter(item: CallOutProperty, $event: ng.IAngularEvent) {
+            this.$layerService.setPropertyFilter(item);
+            $event.stopPropagation();
         }
 
         public toTrusted(html: string): string {

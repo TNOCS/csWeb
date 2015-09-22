@@ -1488,9 +1488,10 @@ module csComp.Services {
                         // add filter
                         layer.group.filters.push(gf);
                     } else {
-                        var pos = layer.group.filters.indexOf(filter);
-                        if (pos !== -1)
-                            layer.group.filters.slice(pos, 1);
+                        layer.group.filters = layer.group.filters.filter((f: GroupFilter) => f.property != property.property);
+                        // var pos = layer.group.filters.indexOf(filter);
+                        // if (pos !== -1)
+                        //     layer.group.filters.slice(pos, 1);
                     }
                 }
                 (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
@@ -1660,9 +1661,9 @@ module csComp.Services {
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
-                var rpt = new RightPanelTab();
-                rpt.container = "featureprops";
-                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+
+
+                this.visual.rightPanelVisible = false;
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
 
             }
