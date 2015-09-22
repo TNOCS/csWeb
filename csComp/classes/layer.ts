@@ -161,7 +161,7 @@ module csComp.Services {
         /** If true (default false), do not move the selected feature to the front of the SVG stack */
         disableMoveSelectionToFront: boolean;
         /** if true, use the current focustime to retrieve data from the server */
-        refreshTime: boolean;
+        timeDependent: boolean;
         /** time interval for unique time requests, in milliseconds */
         timeResolution: number;
         /** format timerequest e.g. YYYYmmDDHH */
@@ -178,7 +178,7 @@ module csComp.Services {
          * Number of seconds between automatic layer refresh.
          * @type {number}
          */
-        refreshTimer: number;
+        refreshTimeInterval: number;
         /**
          * When enabling the refresh timer, store the returned timer token so we can stop the timer later.
          * @type {number}
@@ -265,7 +265,7 @@ module csComp.Services {
                 isSublayer: pl.isSublayer,
                 BBOX: pl.BBOX,
                 refreshBBOX: pl.refreshBBOX,
-                refreshTimer: pl.refreshTimer,
+                refreshTimeInterval: pl.refreshTimeInterval,
                 quickRefresh: pl.quickRefresh,
                 languages: pl.languages,
                 events: pl.events,
@@ -326,6 +326,4 @@ module csComp.Services {
         cesium_url: string;
         cesium_maptype: string;
     }
-
-
 }

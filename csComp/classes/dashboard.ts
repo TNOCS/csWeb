@@ -60,6 +60,7 @@ module csComp.Services {
         icon?: string;
 
         name?: string; id: string;
+        timeDependent?: boolean;
         properties?: {};
         dataSets?: DataSet[];
         range?: csComp.Services.DateRange;
@@ -102,6 +103,7 @@ module csComp.Services {
         public top: string;
         public bottom: string;
         public name: string; public id: string;
+        public timeDependent: boolean;
         public properties: {};
         public dataSets: DataSet[];
         public range: csComp.Services.DateRange;
@@ -140,6 +142,7 @@ module csComp.Services {
                 template: w.template,
                 title: w.title,
                 name: w.name,
+                timeDependent: w.timeDependent,
                 url: w.url,
                 elementId: w.elementId,
                 enabled: w.enabled,

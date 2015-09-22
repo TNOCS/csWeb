@@ -169,7 +169,7 @@ module csComp.Services {
             var delayFocusChange = _.throttle((date) => {
                 for (var l in this.loadedLayers) {
                     var layer = <ProjectLayer>this.loadedLayers[l];
-                    if (layer.refreshTime) {
+                    if (layer.timeDependent) {
                         layer.layerSource.refreshLayer(layer);
                     }
                 }
@@ -178,8 +178,6 @@ module csComp.Services {
             $messageBusService.subscribe("timeline", (action: string, date: Date) => {
                 if (action === "focusChange") { delayFocusChange(date); }
             });
-
-
         }
 
         public getActions(feature: IFeature): IActionOption[] {
@@ -356,7 +354,6 @@ module csComp.Services {
                                 }
                                 else {
                                     if (typeof l === 'string') {
-
                                         pl.url = l;
                                     }
                                     else {
@@ -379,12 +376,10 @@ module csComp.Services {
                                     pl.group.layers.push(pl);
                                 }
                                 this.addLayer(pl);
-
                             }
                         });
                         break;
                 }
-
             });
         }
 
@@ -638,12 +633,12 @@ module csComp.Services {
          * Check whether we need to enable the timer to refresh the layer.
          */
         private checkLayerTimer(layer: ProjectLayer) {
-            if (!layer.refreshTimer) return;
+            if (!layer.refreshTimeInterval) return;
             if (layer.enabled) {
                 if (!layer.timerToken) {
                     layer.timerToken = setInterval(() => {
                         layer.layerSource.refreshLayer(layer);
-                    }, layer.refreshTimer * 1000);
+                    }, layer.refreshTimeInterval * 1000);
                     console.log(`Timer started for ${layer.title}: ${layer.timerToken}`);
                 }
             } else if (layer.timerToken) {
@@ -760,8 +755,6 @@ module csComp.Services {
             // select new feature, set selected style and bring to front
             this.calculateFeatureStyle(feature);
             this.activeMapRenderer.updateFeature(feature);
-
-
 
             if (multi) {
                 if (feature.isSelected) {
@@ -1541,8 +1534,6 @@ module csComp.Services {
 
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
             this.triggerUpdateFilter(group.id);
-
-
         }
 
         public triggerUpdateFilter(groupId: string) {
@@ -1661,8 +1652,6 @@ module csComp.Services {
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
-
-
                 this.visual.rightPanelVisible = false;
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
 

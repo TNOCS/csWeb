@@ -19,8 +19,6 @@ module csComp.Services {
             $(document).keyup(() => {
                 this.cntrlIsPressed = false;
             });
-
-
         }
 
         public enable() {
@@ -180,7 +178,7 @@ module csComp.Services {
             switch (layer.renderType) {
                 case "tilelayer":
                     var u = layer.url;
-                    if (layer.refreshTime) {
+                    if (layer.timeDependent) {
                         // convert epoch to time string parameter
                         var ft = this.service.project.timeLine.focus;
                         if (layer.timeResolution) {
