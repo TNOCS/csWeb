@@ -19,8 +19,6 @@ module csComp.Services {
             $(document).keyup(() => {
                 this.cntrlIsPressed = false;
             });
-
-
         }
 
         public enable() {
@@ -593,12 +591,12 @@ module csComp.Services {
             var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
             content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
 
-            /*this.popup = L.popup({
+            this.popup = L.popup({
                 offset: new L.Point(-widthInPixels / 2 - 40, -5),
                 closeOnClick: true,
                 autoPan: false,
                 className: 'featureTooltip'
-            }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);*/
+            }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
 
             //In case a BAG contour is available, show it.
             if (this.service.currentContour) this.service.map.map.removeLayer(this.service.currentContour);

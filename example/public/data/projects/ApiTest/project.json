@@ -6,12 +6,12 @@
   "url": "https://github.com/TNOCS/csMap",
   "connected": true,
   "timeLine": {
-    "start": 1441720298162,
-    "end": 1441722421354,
+    "start": 1442929160916,
+    "end": 1442931284108,
     "range": 2123192,
     "zoomLevelName": "minutes",
-    "isLive": false,
-    "focus": 1441722125407,
+    "isLive": true,
+    "focus": 1442930223039,
     "zoomLevel": 60000
   },
   "datasources": [
@@ -31,7 +31,21 @@
       "showLegend": false,
       "showRightmenu": false,
       "showBackgroundImage": false,
-      "widgets": null
+      "widgets": [
+        {
+          "id": "affb512a-8c76-4b50-2014-726614a7a93b",
+          "directive": "navigator",
+          "elementId": "widget-affb512a-8c76-4b50-2014-726614a7a93b",
+          "enabled": true,
+          "style": "default",
+          "left": "7px",
+          "right": "",
+          "top": "18px",
+          "width": "625px",
+          "height": "178px",
+          "data": {}
+        }
+      ]
     },
     {
       "id": "home",

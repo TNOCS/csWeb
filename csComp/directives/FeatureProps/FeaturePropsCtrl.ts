@@ -30,6 +30,11 @@ module FeatureProps {
         autocollapse(init: boolean): void;
     }
 
+    export interface correlationResult {
+        property: string;
+        value: Object;
+    }
+
     export interface ICallOutProperty {
         key: string;
         value: string;
@@ -43,12 +48,14 @@ module FeatureProps {
         showMore: boolean;
         stats: any;
         bins: any;
+        cors: { [prop: string]: correlationResult };
     }
 
     export class CallOutProperty implements ICallOutProperty {
         public stats: any;
         public bins: any;
         showMore: boolean;
+        cors: { [prop: string]: correlationResult };
         constructor(
             public key: string,
             public value: string,
@@ -61,7 +68,7 @@ module FeatureProps {
             public description?: string,
             public propertyType?: IPropertyType,
             public timestamps?: number[],
-            public sensor?: number[]) { }
+            public sensor?: number[]) { this.cors = {} }
     }
 
     export interface ICallOutSection {
@@ -462,6 +469,19 @@ module FeatureProps {
             }
         }
 
+        public setCorrelation(item: ICallOutProperty, $event: ng.IAngularEvent) {
+            $event.stopPropagation();
+            var values = this.$layerService.getPropertyValues(item.feature.layer, item.property);
+            for (var s in this.$scope.callOut.sections) {
+                var sec = this.$scope.callOut.sections[s];
+                sec.properties.forEach((p: ICallOutProperty) => {
+                    if (p.property != item.property) {
+                        var c = vg.util.cor(values, item.property, p.property);
+                        p.cors[item.property] = { property: item.property, value: c }
+                    }
+                });
+            }
+        }
 
 
         public getPropStats(item: ICallOutProperty) {
@@ -475,7 +495,6 @@ module FeatureProps {
             } else {
                 if (this.stats.indexOf(item.property) >= 0) this.stats = this.stats.filter((s) => s != item.property);
             }
-            console.log(this.stats.length);
         }
 
         private displayFeature(feature: IFeature): void {

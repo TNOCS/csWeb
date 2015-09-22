@@ -80,6 +80,7 @@ module csComp.Services {
             this.widgetTypes["markdownwidget"] = <IWidget>{ id: "markdownwidget", icon: "cs/images/widgets/markdown.png", description: "Show custom markdown or html content" };
             this.widgetTypes["iframewidget"] = <IWidget>{ id: "iframewidget", icon: "cs/images/widgets/markdown.png", description: "Show custom iframe" };
             this.widgetTypes["kanbanboard"] = <IWidget>{ id: "kanbanboard", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
+            this.widgetTypes["navigator"] = <IWidget>{ id: "navigatorwidget", icon: "cs/images/widgets/markdown.png", description: "Show navigator" };
         }
 
 
