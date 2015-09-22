@@ -30,8 +30,8 @@ export class ImbAPI extends BaseConnector.BaseConnector {
 
     public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;
-        this.layerPrefix = (this.manager.name + "/" + this.layerPrefix + "/").replace("//", "/");
-        this.keyPrefix = (this.manager.name + "/" + this.keyPrefix + "/").replace("//", "/");
+        this.layerPrefix = (this.manager.namespace + "/" + this.layerPrefix + "/").replace("//", "/");
+        this.keyPrefix = (this.manager.namespace + "/" + this.keyPrefix + "/").replace("//", "/");
         Winston.info('imb: init imb connector');
 
         this.imbConnection.connect(this.server, this.port, 1234, 'CSweb', 'USIdle');

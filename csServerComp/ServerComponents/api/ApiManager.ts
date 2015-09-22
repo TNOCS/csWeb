@@ -272,12 +272,16 @@ export class ApiManager extends events.EventEmitter {
     // public resourceFolder = "/data/resourceTypes";
     public projectsFile = "";
     public layersFile = "";
-    /** The ApiManager name can be used to identify this instance (e.g. mqtt can create a namespace/channel for this api) */
+    /** The namespace is used for creating channels/layers/keys namespaces */
+    public namespace: string = "cs";
+    /** The name is used to identify this instance, and should be unique in the federation */
     public name: string = "cs";
 
     /** Create a new client, optionally specifying whether it should act as client. */
-    constructor(public isClient = false, public options = <IApiManagerOptions>{}) {
+    constructor(namespace: string, name: string, public isClient = false, public options = <IApiManagerOptions>{}) {
         super();
+        this.namespace = namespace;
+        this.name = name;
     }
 
     public init(rootPath: string, callback: Function) {
