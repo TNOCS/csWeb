@@ -60,6 +60,9 @@ module csComp.Services {
         /** If true (default false), do not move the selected feature to the front of the SVG stack */
         disableMoveSelectionToFront: boolean;
 
+        /** if true, use the current focustime to retrieve data from the server */
+        timeDependent?: boolean;
+
         layerSource: ILayerSource;
         /**
          * Number of seconds between automatic layer refresh.

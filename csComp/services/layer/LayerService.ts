@@ -1638,6 +1638,7 @@ module csComp.Services {
             var g = layer.group;
 
             layer.enabled = false;
+            layer.isLoading = false;
             //if (layer.refreshTimer) layer.stop();
 
             // make sure the timers are disabled
