@@ -9,7 +9,6 @@ module csComp.Services {
         requiresLayer = false;
         private prevDateTimes: { [id: string]: string } = {};
         constructor(public service: LayerService) {
-
         }
 
         public refreshLayer(layer: ProjectLayer) {
@@ -18,7 +17,7 @@ module csComp.Services {
                 var l = <L.TileLayer>layer.mapLayer.getLayers()[0];
                 //console.log("layer ID: " + layer.id);
                 var u = layer.url;
-                if (layer.refreshTime) {
+                if (layer.timeDependent) {
                     // convert epoch to time string parameter
                     var ft = this.service.project.timeLine.focus;
                     if (layer.timeResolution) {
@@ -51,9 +50,7 @@ module csComp.Services {
                 }
                 l.setUrl(u);
             }
-
         }
-
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
             return [
@@ -68,7 +65,6 @@ module csComp.Services {
         }
 
         removeLayer(layer: ProjectLayer) {
-
         }
 
     }

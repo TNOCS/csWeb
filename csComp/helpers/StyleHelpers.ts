@@ -6,7 +6,7 @@ module csComp.Helpers {
             var s: String = l.id;
             var n = l.legendEntries.length;
             if (n == 0) return (defaultcolor);
-            if (l.legendKind == 'discretestrings') {
+            if (l.legendKind == 'discreteStrings') {
                 var i: number = 0;
                 while (i < n) {
                     var e = l.legendEntries[i];

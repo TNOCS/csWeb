@@ -54,7 +54,7 @@
                         </div>
                     </div>
                     <div data-ng-if="style.activeLegend && style.enabled" style="float:left;clear:left">
-                        <div data-ng-if="style.activeLegend.legendKind === 'discrete' || style.activeLegend.legendKind === 'discretestrings'  ">
+                        <div data-ng-if="style.activeLegend.legendKind === 'discrete' || style.activeLegend.legendKind === 'discreteStrings'  ">
                             <div class="legend-description">{{style.activeLegend.description}}</div>
                             <ul class="legend-entry-list">
                                 <li data-ng-repeat="le in style.activeLegend.legendEntries | reverse" class="legend-entry-item-d">
