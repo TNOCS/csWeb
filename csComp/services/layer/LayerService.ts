@@ -175,6 +175,8 @@ module csComp.Services {
             $messageBusService.subscribe("timeline", (action: string, date: Date) => {
                 if (action === "focusChange") { delayFocusChange(date); }
             });
+
+
         }
 
         public getActions(feature: IFeature): IActionOption[] {
@@ -758,16 +760,16 @@ module csComp.Services {
             if (!feature.isSelected) {
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', feature);
 
-                var rpt = new RightPanelTab();
-                rpt.container = 'featureprops';
-                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
-                rpt.container = 'featurerelations';
-                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+                // var rpt = new RightPanelTab();
+                // rpt.container = 'featureprops';
+                // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+                // rpt.container = 'featurerelations';
+                // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
                 // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
                 // this.$messageBusService.publish('rightpanel', 'activate', rpt);
-                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
+                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
             }
         }
@@ -1359,7 +1361,7 @@ module csComp.Services {
             filter.group = group;
             group.filters.push(filter);
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(group.id);
         }
 
         setLocationFilter(group: ProjectGroup) {
@@ -1372,7 +1374,7 @@ module csComp.Services {
             gf.rangex = [0, 1];
             group.filters.push(gf);
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(group.id);
         }
 
         setFeatureAreaFilter(f: IFeature) {
@@ -1391,7 +1393,7 @@ module csComp.Services {
                 }
             });
             // if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(f.layer.group.id);
         }
 
         resetFeatureAreaFilter() {
@@ -1470,7 +1472,7 @@ module csComp.Services {
                 }
                 (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
             }
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(layer.group.id);
         }
 
         public createScatterFilter(group: ProjectGroup, prop1: string, prop2: string) {
@@ -1514,8 +1516,13 @@ module csComp.Services {
             group.filters.push(gf);
 
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+            this.triggerUpdateFilter(group.id);
 
-            this.mb.publish("filters", "updated");
+
+        }
+
+        public triggerUpdateFilter(groupId: string) {
+            this.mb.publish("filters", "updated", groupId);
         }
 
         /** remove filter from group */
@@ -1526,7 +1533,7 @@ module csComp.Services {
             filter.group.filters = filter.group.filters.filter(f=> { return f != filter; });
             this.resetMapFilter(filter.group);
             this.updateMapFilter(filter.group);
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(filter.group.id);
         }
 
         /**
@@ -2210,6 +2217,13 @@ module csComp.Services {
         //    //var a = data;
         //}
 
+        public getPropertyValues(layer: ProjectLayer, property: string): Object[] {
+            var r = [];
+            var features = (layer.group.filterResult) ? layer.group.filterResult : layer.data.features;
+            if (features) features.forEach((f: IFeature) => { if (f.layerId === layer.id) r.push(f.properties); });
+            return r;
+        }
+
         /**
          * Calculate min/max/count for a specific property in a group
          */
@@ -2352,7 +2366,7 @@ module csComp.Services {
         public updateMapFilter(group: ProjectGroup) {
             this.activeMapRenderer.updateMapFilter(group);
             // update timeline list
-            this.$messageBusService.publish("timeline", "updateFeatures");
+            this.$messageBusService.publish("timeline", "updateFeatures", group.id);
 
         }
 

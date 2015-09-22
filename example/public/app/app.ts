@@ -68,6 +68,9 @@ module App {
             $messageBusService.subscribe("feature", this.featureMessageReceived);
             $messageBusService.subscribe("layer", this.layerMessageReceived);
 
+            var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
+            this.$messageBusService.publish('rightpanel', 'activate', rpt);
+
             this.$layerService.openSolution("data/projects/projects.json", $location.$$search.layers);
         }
 
@@ -130,9 +133,9 @@ module App {
 
             // NOTE EV: You need to call apply only when an event is received outside the angular scope.
             // However, make sure you are not calling this inside an angular apply cycle, as it will generate an error.
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-                this.$scope.$apply();
-            }
+            // if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+            //     this.$scope.$apply();
+            // }
         }
 
         /**

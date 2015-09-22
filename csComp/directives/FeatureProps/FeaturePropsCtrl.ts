@@ -4,6 +4,8 @@ module FeatureProps {
     import IPropertyType = csComp.Services.IPropertyType;
     import IPropertyTypeData = csComp.Services.IPropertyTypeData;
 
+    declare var vg;
+
     class FeaturePropsOptions implements L.SidebarOptions {
         public position: string;
         public closeButton: boolean;
@@ -38,10 +40,15 @@ module FeatureProps {
         description?: string;
         propertyType?: IPropertyType;
         isFilter: boolean;
+        showMore: boolean;
+        stats: any;
+        bins: any;
     }
 
     export class CallOutProperty implements ICallOutProperty {
-        public info: csComp.Services.PropertyInfo;
+        public stats: any;
+        public bins: any;
+        showMore: boolean;
         constructor(
             public key: string,
             public value: string,
@@ -328,6 +335,23 @@ module FeatureProps {
 
             this.displayFeature(this.$layerService.lastSelectedFeature);
             this.$scope.feature = this.$layerService.lastSelectedFeature;
+
+
+            this.$messageBusService.subscribe("timeline", (action, value) => {
+                if (action === "updateFeatures" && this.$scope.callOut) {
+                    for (var s in this.$scope.callOut.sections) {
+                        var section = this.$scope.callOut.sections[s];
+                        section.properties.forEach(prop => {
+                            if (prop.showMore) {
+                                this.getPropStats(prop);
+                            }
+                        });
+                    }
+                    console.log('updating features');
+
+                }
+            });
+
         }
 
         public selectProperty(prop: IPropertyType) {
@@ -422,10 +446,16 @@ module FeatureProps {
             }
         }
 
-        public getPropStats(item: CallOutProperty) {
-            var pi = this.$layerService.calculatePropertyInfo(item.feature.layer.group, item.property);
-            item.info = pi;
-            console.log(item);
+        public getPropStats(item: ICallOutProperty) {
+            var values = this.$layerService.getPropertyValues(item.feature.layer, item.property);
+            var d = item.property;
+            var res = vg.util.summary(values, [item.property]);
+            item.stats = res[0];
+            item.bins = vg.util.histogram(values, d);
+            console.log(item.bins);
+            //var pi = this.$layerService.calculatePropertyInfo(item.feature.layer.group, item.property);
+            //item.info = pi;
+            //console.log(item);
         }
 
         private displayFeature(feature: IFeature): void {
