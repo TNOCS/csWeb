@@ -7,10 +7,20 @@ module csComp.Services {
         map: L.Map;
 
         private popup: L.Popup;
+        private cntrlIsPressed = false;
 
         public init(service: LayerService) {
             this.service = service;
             this.$messageBusService = service.$messageBusService;
+            $(document).keydown((e) => {
+                this.cntrlIsPressed = e.ctrlKey;
+            });
+
+            $(document).keyup(() => {
+                this.cntrlIsPressed = false;
+            });
+
+
         }
 
         public enable() {
@@ -138,7 +148,6 @@ module csComp.Services {
 
             this.service.map.map.setZoom(this.service.map.map.getZoom());
             this.service.map.map.fire('baselayerchange', { layer: this.baseLayer });
-            console.log('changebaselayer');
         }
 
         private createBaseLayer(layerObj: BaseLayer) {
@@ -177,7 +186,6 @@ module csComp.Services {
                         if (layer.timeResolution) {
                             var tr = layer.timeResolution;
                             ft = Math.floor(ft / tr) * tr;
-                            console.log(ft.toString())
                         };
                         var d = new Date(0);
                         d.setUTCSeconds(ft / 1000);
@@ -188,7 +196,6 @@ module csComp.Services {
                         var sTime: string = Utils.twoDigitStr(hrs) +
                             Utils.twoDigitStr(mins) + Utils.twoDigitStr(secs);
                         u += "&time=" + sDate + sTime;
-                        //console.log(u);
                     } else if (layer.disableCache) {
                         // check if we need to create a unique url to force a refresh
                         layer.cacheKey = new Date().getTime().toString();
@@ -294,7 +301,7 @@ module csComp.Services {
                                         mouseover: (a) => this.showFeatureTooltip(a, layer.group),
                                         mouseout: (s) => this.hideFeatureTooltip(s),
                                         mousemove: (d) => this.updateFeatureTooltip(d),
-                                        click: () => {
+                                        click: (e) => {
                                             this.selectFeature(feature);
                                         }
                                     });
@@ -317,7 +324,6 @@ module csComp.Services {
                         layer.mapLayer.addLayer(v);
                         layer.isLoading = false;
                         var time2 = new Date().getTime();
-                        console.log('Applied style in ' + (time2 - time).toFixed(1) + ' ms');
                     }
                     break;
             }
@@ -409,7 +415,7 @@ module csComp.Services {
                 delete feature.gui["dragged"];
             }
             else {
-                this.service.selectFeature(feature);
+                this.service.selectFeature(feature, this.cntrlIsPressed);
             }
         }
 
@@ -422,12 +428,12 @@ module csComp.Services {
                     mouseover: (a) => this.showFeatureTooltip(a, l.group),
                     mouseout: (s) => this.hideFeatureTooltip(s),
                     mousemove: (d) => this.updateFeatureTooltip(d),
-                    click: () => {
+                    click: (e) => {
                         this.selectFeature(feature);
                     }
                 });
                 m.feature = feature;
-                if (l.group.clustering) {
+                if (l.group.clustering && l.group.cluster) {
                     l.group.cluster.addLayer(m);
                 }
                 else {
@@ -453,7 +459,6 @@ module csComp.Services {
             var marker;
             switch (feature.geometry.type) {
                 case 'Point':
-                    console.log('create feature');
                     var icon = this.getPointIcon(feature);
 
                     marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {

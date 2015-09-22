@@ -133,10 +133,17 @@ module csComp.Services {
             var content = container + "-content";
             $("#" + container + "-tab").remove();
             try {
-                $("#" + content).remove();
+                var c = $("#" + content);
+                if (c) {
+                    //var s = (<any>c).scope();
+                    c.remove();
+                    // if (s) {
+                    //     this.$timeout(() => { s.$parent.$destroy(); }, 0);
+                    // }
+                }
             }
             catch (e) { }
-            this.$timeout(() => { }, 0);
+
         }
 
         public deactivateTab(tab: RightPanelTab) {

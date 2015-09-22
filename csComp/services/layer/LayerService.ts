@@ -47,6 +47,7 @@ module csComp.Services {
         solution: Solution;
         dimension: any;
         lastSelectedFeature: IFeature;
+        selectedFeatures: IFeature[];
         selectedLayerId: string;
         timeline: any;
         _activeContextMenu: IActionOption[];
@@ -105,6 +106,7 @@ module csComp.Services {
             this.typesResources = {};
             this._featureTypes = {};
             this.propertyTypeData = {};
+            this.selectedFeatures = [];
             this.currentLocale = $translate.preferredLanguage();
             // init map renderers
             this.mapRenderers = {};
@@ -176,6 +178,8 @@ module csComp.Services {
             $messageBusService.subscribe("timeline", (action: string, date: Date) => {
                 if (action === "focusChange") { delayFocusChange(date); }
             });
+
+
         }
 
         public getActions(feature: IFeature): IActionOption[] {
@@ -733,42 +737,62 @@ module csComp.Services {
             this.selectFeature(feature);
         }
 
-        public selectFeature(feature: IFeature) {
-            feature.isSelected = !feature.isSelected;
+        private deselectFeature(feature: IFeature) {
+            feature.isSelected = false;
+            this.calculateFeatureStyle(feature);
+            this.activeMapRenderer.updateFeature(feature);
+        }
 
+        public selectFeature(feature: IFeature, multi = false) {
+            feature.isSelected = !feature.isSelected;
             this.actionServices.forEach((as: IActionService) => {
-                as.selectFeature(feature);
+                if (feature.isSelected) { as.selectFeature(feature); } else { as.deselectFeature(feature); }
             })
 
             // deselect last feature and also update
-            if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature) {
-                this.lastSelectedFeature.isSelected = false;
-                this.calculateFeatureStyle(this.lastSelectedFeature);
-                this.activeMapRenderer.updateFeature(this.lastSelectedFeature);
+            if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
+                this.deselectFeature(this.lastSelectedFeature);
+
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
-                this.actionServices.forEach((as: IActionService) => {
-                    as.deselectFeature(feature);
-                })
             }
-            this.lastSelectedFeature = feature;
+            if (feature.isSelected) this.lastSelectedFeature = feature;
 
             // select new feature, set selected style and bring to front
             this.calculateFeatureStyle(feature);
             this.activeMapRenderer.updateFeature(feature);
 
+
+
+            if (multi) {
+                if (feature.isSelected) {
+                    if (this.selectedFeatures.indexOf(feature) === -1) {
+                        this.selectedFeatures.push(feature);
+                    }
+                }
+                else {
+                    if (this.selectedFeatures.indexOf(feature) >= 0) {
+                        this.selectedFeatures = this.selectedFeatures.filter((f) => { return f.id !== feature.id; });
+                    }
+                }
+            }
+            else {
+                this.selectedFeatures.forEach((f) => this.deselectFeature(f));
+                this.selectedFeatures = (feature.isSelected) ? [feature] : [];
+            }
+
             if (!feature.isSelected) {
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', feature);
 
-                var rpt = new RightPanelTab();
-                rpt.container = 'featureprops';
-                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
-                rpt.container = 'featurerelations';
-                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+                // var rpt = new RightPanelTab();
+                // rpt.container = 'featureprops';
+                // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+                // rpt.container = 'featurerelations';
+                // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
                 // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
                 // this.$messageBusService.publish('rightpanel', 'activate', rpt);
-                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
+                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
             }
         }
@@ -1360,7 +1384,7 @@ module csComp.Services {
             filter.group = group;
             group.filters.push(filter);
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(group.id);
         }
 
         setLocationFilter(group: ProjectGroup) {
@@ -1373,7 +1397,7 @@ module csComp.Services {
             gf.rangex = [0, 1];
             group.filters.push(gf);
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(group.id);
         }
 
         setFeatureAreaFilter(f: IFeature) {
@@ -1392,7 +1416,7 @@ module csComp.Services {
                 }
             });
             // if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(f.layer.group.id);
         }
 
         resetFeatureAreaFilter() {
@@ -1464,14 +1488,15 @@ module csComp.Services {
                         // add filter
                         layer.group.filters.push(gf);
                     } else {
-                        var pos = layer.group.filters.indexOf(filter);
-                        if (pos !== -1)
-                            layer.group.filters.slice(pos, 1);
+                        layer.group.filters = layer.group.filters.filter((f: GroupFilter) => f.property != property.property);
+                        // var pos = layer.group.filters.indexOf(filter);
+                        // if (pos !== -1)
+                        //     layer.group.filters.slice(pos, 1);
                     }
                 }
                 (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
             }
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(layer.group.id);
         }
 
         public createScatterFilter(group: ProjectGroup, prop1: string, prop2: string) {
@@ -1515,8 +1540,13 @@ module csComp.Services {
             group.filters.push(gf);
 
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+            this.triggerUpdateFilter(group.id);
 
-            this.mb.publish("filters", "updated");
+
+        }
+
+        public triggerUpdateFilter(groupId: string) {
+            this.mb.publish("filters", "updated", groupId);
         }
 
         /** remove filter from group */
@@ -1527,7 +1557,7 @@ module csComp.Services {
             filter.group.filters = filter.group.filters.filter(f=> { return f != filter; });
             this.resetMapFilter(filter.group);
             this.updateMapFilter(filter.group);
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(filter.group.id);
         }
 
         /**
@@ -1631,9 +1661,9 @@ module csComp.Services {
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
-                var rpt = new RightPanelTab();
-                rpt.container = "featureprops";
-                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+
+
+                this.visual.rightPanelVisible = false;
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
 
             }
@@ -2225,6 +2255,21 @@ module csComp.Services {
         //    //var a = data;
         //}
 
+        public getPropertyValues(layer: ProjectLayer, property: string): Object[] {
+            var r = [];
+            var features = [];
+            if (this.selectedFeatures.length > 1) {
+                features = this.selectedFeatures;
+            }
+            else {
+                features = (layer.group.filterResult) ? layer.group.filterResult : layer.data.features;
+            }
+            if (features) features.forEach((f: IFeature) => { if (f.layerId === layer.id) r.push(f.properties); });
+            if (r.length === 0) r = layer.data.features;
+
+            return r;
+        }
+
         /**
          * Calculate min/max/count for a specific property in a group
          */
@@ -2367,7 +2412,7 @@ module csComp.Services {
         public updateMapFilter(group: ProjectGroup) {
             this.activeMapRenderer.updateMapFilter(group);
             // update timeline list
-            this.$messageBusService.publish("timeline", "updateFeatures");
+            this.$messageBusService.publish("timeline", "updateFeatures", group.id);
 
         }
 

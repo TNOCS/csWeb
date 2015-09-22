@@ -210,7 +210,6 @@ module Filters {
                 this.dcChart.render();
                 dc.renderAll();
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
-                console.log('update filter');
             }, 10);
 
         }
