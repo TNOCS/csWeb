@@ -5,8 +5,8 @@ import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import CallbackResult = ApiManager.CallbackResult;
 import Log = ApiManager.Log;
-
 import ApiMeta = ApiManager.ApiMeta;
+
 
 export class BaseConnector implements ApiManager.IConnector {
     public manager: ApiManager.ApiManager
