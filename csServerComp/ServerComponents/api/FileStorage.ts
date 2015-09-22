@@ -1,7 +1,7 @@
 import ApiManager = require('./ApiManager');
 import Project = ApiManager.Project;
 import Layer = ApiManager.Layer;
-import fs = require('fs');
+import fs = require('fs-extra');
 import path = require('path');
 import Feature = ApiManager.Feature;
 import Key = ApiManager.Key;
@@ -30,8 +30,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.keysPath = path.join(rootpath, "keys/");
         this.layersPath = path.join(rootpath, "layers/");
         this.projectsPath = path.join(rootpath, "projects/");
-        // check if rootpath exists
-        if (!fs.existsSync(rootpath)) { fs.mkdirSync(rootpath); }
+        // check if rootpath exists, otherwise create it, including its parents
+        if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
 
         this.watchLayersFolder();
         this.watchKeysFolder();
@@ -127,9 +127,9 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     private saveKeyFile(key: Key) {
         var fn = this.getKeyFilename(key.id);
-        fs.writeFile(fn, JSON.stringify(key), (error) => {
+        fs.outputFile(fn, JSON.stringify(key), (error) => {
             if (error) {
-                Winston.info('error writing file : ' + fn);
+                Winston.error('filestore: error writing file : ' + fn);
             }
             else {
                 Winston.info('filestore: file saved : ' + fn);
@@ -207,7 +207,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     layer.storage = this.id;
                     layer.type = "geojson";
                     layer.url = "/api/layers/" + id;
-                    Winston.error('storage ' + layer.storage);
+                    Winston.info('storage ' + layer.storage);
                     this.manager.updateLayer(layer, {}, () => { });
                 }
             });

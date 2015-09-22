@@ -34,7 +34,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         this.router = mqttrouter.wrap(this.client);
 
         this.client.on('error', (e) => {
-            Winston.warn('mqtt: error');
+            Winston.error(`mqtt: error ${e}`);
         });
 
         this.client.on('connect', () => {
@@ -80,7 +80,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                     }
                 }
                 catch (e) {
-                    Winston.error("mqtt: error updating feature");
+                    Winston.error(`mqtt: error updating feature, exception ${e}`);
                 }
             }
 
@@ -94,7 +94,6 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                     }
                     catch (e) {
                         Winston.error('mqtt: error updating key for id ' + kid + " : " + message);
-
                     }
                 }
             }
@@ -143,7 +142,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     }
 
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
-        Winston.error('mqtt: update layer ' + layer.id);
+        Winston.info('mqtt: update layer ' + layer.id);
         if (meta.source !== this.id) {
             var def = this.manager.getLayerDefinition(layer);
             this.client.publish(this.layerPrefix, JSON.stringify(def));
@@ -153,7 +152,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     }
 
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
-        Winston.error('mqtt update feature');
+        Winston.info('mqtt update feature');
         if (meta.source !== this.id)
             this.client.publish(this.layerPrefix + layerId, JSON.stringify(feature));
         callback(<CallbackResult> { result: ApiResult.OK });

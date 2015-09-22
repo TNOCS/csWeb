@@ -47,6 +47,7 @@ module csComp.Services {
         solution: Solution;
         dimension: any;
         lastSelectedFeature: IFeature;
+        selectedFeatures: IFeature[];
         selectedLayerId: string;
         timeline: any;
         _activeContextMenu: IActionOption[];
@@ -105,6 +106,7 @@ module csComp.Services {
             this.typesResources = {};
             this._featureTypes = {};
             this.propertyTypeData = {};
+            this.selectedFeatures = [];
             this.currentLocale = $translate.preferredLanguage();
             // init map renderers
             this.mapRenderers = {};
@@ -735,28 +737,48 @@ module csComp.Services {
             this.selectFeature(feature);
         }
 
-        public selectFeature(feature: IFeature) {
-            feature.isSelected = !feature.isSelected;
+        private deselectFeature(feature: IFeature) {
+            feature.isSelected = false;
+            this.calculateFeatureStyle(feature);
+            this.activeMapRenderer.updateFeature(feature);
+        }
 
+        public selectFeature(feature: IFeature, multi = false) {
+            feature.isSelected = !feature.isSelected;
             this.actionServices.forEach((as: IActionService) => {
-                as.selectFeature(feature);
+                if (feature.isSelected) { as.selectFeature(feature); } else { as.deselectFeature(feature); }
             })
 
             // deselect last feature and also update
-            if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature) {
-                this.lastSelectedFeature.isSelected = false;
-                this.calculateFeatureStyle(this.lastSelectedFeature);
-                this.activeMapRenderer.updateFeature(this.lastSelectedFeature);
+            if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
+                this.deselectFeature(this.lastSelectedFeature);
+
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
-                this.actionServices.forEach((as: IActionService) => {
-                    as.deselectFeature(feature);
-                })
             }
-            this.lastSelectedFeature = feature;
+            if (feature.isSelected) this.lastSelectedFeature = feature;
 
             // select new feature, set selected style and bring to front
             this.calculateFeatureStyle(feature);
             this.activeMapRenderer.updateFeature(feature);
+
+
+
+            if (multi) {
+                if (feature.isSelected) {
+                    if (this.selectedFeatures.indexOf(feature) === -1) {
+                        this.selectedFeatures.push(feature);
+                    }
+                }
+                else {
+                    if (this.selectedFeatures.indexOf(feature) >= 0) {
+                        this.selectedFeatures = this.selectedFeatures.filter((f) => { return f.id !== feature.id; });
+                    }
+                }
+            }
+            else {
+                this.selectedFeatures.forEach((f) => this.deselectFeature(f));
+                this.selectedFeatures = (feature.isSelected) ? [feature] : [];
+            }
 
             if (!feature.isSelected) {
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', feature);
@@ -1466,9 +1488,10 @@ module csComp.Services {
                         // add filter
                         layer.group.filters.push(gf);
                     } else {
-                        var pos = layer.group.filters.indexOf(filter);
-                        if (pos !== -1)
-                            layer.group.filters.slice(pos, 1);
+                        layer.group.filters = layer.group.filters.filter((f: GroupFilter) => f.property != property.property);
+                        // var pos = layer.group.filters.indexOf(filter);
+                        // if (pos !== -1)
+                        //     layer.group.filters.slice(pos, 1);
                     }
                 }
                 (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
@@ -1638,9 +1661,9 @@ module csComp.Services {
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
-                var rpt = new RightPanelTab();
-                rpt.container = "featureprops";
-                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+
+
+                this.visual.rightPanelVisible = false;
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
 
             }
@@ -2234,8 +2257,16 @@ module csComp.Services {
 
         public getPropertyValues(layer: ProjectLayer, property: string): Object[] {
             var r = [];
-            var features = (layer.group.filterResult) ? layer.group.filterResult : layer.data.features;
+            var features = [];
+            if (this.selectedFeatures.length > 1) {
+                features = this.selectedFeatures;
+            }
+            else {
+                features = (layer.group.filterResult) ? layer.group.filterResult : layer.data.features;
+            }
             if (features) features.forEach((f: IFeature) => { if (f.layerId === layer.id) r.push(f.properties); });
+            if (r.length === 0) r = layer.data.features;
+
             return r;
         }
 

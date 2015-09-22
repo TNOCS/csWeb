@@ -15,6 +15,7 @@ var gulp          = require('gulp'),
     plumber       = require('gulp-plumber'),
     watch         = require('gulp-watch'),
     gulpif        = require('gulp-if'),
+    changed       = require('gulp-changed'),
     exec          = require('child_process').exec,
     templateCache = require('gulp-angular-templatecache'),
     deploy        = require('gulp-gh-pages');
@@ -68,6 +69,7 @@ gulp.task('compile_all', function() {
 gulp.task('copy_csServerComp', function() {
     return gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.js')
         //.pipe(concat('csServerComp.js'))
+        .pipe(changed('./ServerComponents'))
         .pipe(gulp.dest('./ServerComponents'));
 });
 
@@ -75,20 +77,24 @@ gulp.task('built_csServerComp.d.ts', function() {
     gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts')
         .pipe(plumber())
         //  .pipe(concat('csServerComp.d.ts'))
+        .pipe(changed('./ServerComponents'))
         .pipe(gulp.dest('./ServerComponents'));
     //.pipe(gulp.dest('./public/cs/js'));
     gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts')
+        .pipe(changed(path2csWeb + 'test/Scripts/typings/cs'))
         .pipe(gulp.dest(path2csWeb + 'test/Scripts/typings/cs'));
 });
 
 gulp.task('copy_csServerComp_scripts', function() {
     return gulp.src(path2csWeb + 'csServerComp/Scripts/**/*.ts')
         //.pipe(concat('csComp.js'))
+        .pipe(changed('./Scripts'))
         .pipe(gulp.dest('./Scripts'));
 });
 
 gulp.task('copy_example_scripts', function() {
     return gulp.src('./Scripts/**/*.ts')
+        .pipe(changed(path2csWeb + 'test/Scripts'))
         .pipe(gulp.dest(path2csWeb + 'test/Scripts'));
 });
 
@@ -103,6 +109,7 @@ gulp.task('built_csComp_classes', function() {
         // ]))
         // .pipe(debug({title: 'after ordering:'}))
         .pipe(concat('csCompClasses.ts'))
+        .pipe(changed(path2csWeb + 'csServerComp/classes'))
         .pipe(gulp.dest(path2csWeb + 'csServerComp/classes'));
 });
 
@@ -117,8 +124,10 @@ gulp.task('built_csComp.d.ts', function() {
         .pipe(concat('csComp.d.ts'))
         .pipe(insert.prepend('/// <reference path="../leaflet/leaflet.d.ts" />\r\n'))
         .pipe(insert.prepend('/// <reference path="../crossfilter/crossfilter.d.ts" />\r\n'))
+        .pipe(changed('Scripts/typings/cs'))
         .pipe(gulp.dest('Scripts/typings/cs'));
     gulp.src('./Scripts/typings/cs/csComp.d.ts')
+        .pipe(changed(path2csWeb + 'test/Scripts/typings/cs'))
         .pipe(gulp.dest(path2csWeb + 'test/Scripts/typings/cs'));
 });
 
@@ -222,39 +231,47 @@ gulp.task('create_dist', function() {
 gulp.task('create_dist_of_server', function() {
     gulp.src('node_modules/express/**/*.*')
         .pipe(plumber())
+        .pipe(changed('./dist/node_modules/express/'))
         .pipe(gulp.dest('./dist/node_modules/express/'));
     gulp.src('node_modules/body-parser/**/*.*')
         .pipe(plumber())
+        .pipe(changed('./dist/node_modules/body-parser/'))
         .pipe(gulp.dest('./dist/node_modules/body-parser/'));
     gulp.src('node_modules/serve-favicon/**/*.*')
         .pipe(plumber())
+        .pipe(changed('./dist/node_modules/serve-favicon/'))
         .pipe(gulp.dest('./dist/node_modules/serve-favicon/'));
-    gulp.src('node_modules/rootpath/**/*.*')
-        .pipe(plumber())
-        .pipe(gulp.dest('./dist/node_modules/rootpath/'));
     gulp.src('node_modules/proj4/**/*.*')
         .pipe(plumber())
+        .pipe(changed('./dist/node_modules/proj4/'))
         .pipe(gulp.dest('./dist/node_modules/proj4/'));
     gulp.src('node_modules/socket.io/**/*.*')
         .pipe(plumber())
+        .pipe(changed('./dist/node_modules/socket.io/'))
         .pipe(gulp.dest('./dist/node_modules/socket.io/'));
     gulp.src('node_modules/chokidar/**/*.*')
         .pipe(plumber())
+        .pipe(changed('./dist/node_modules/chokidar/'))
         .pipe(gulp.dest('./dist/node_modules/chokidar/'));
     gulp.src('node_modules/pg/**/*.*')
         .pipe(plumber())
+        .pipe(changed('./dist/node_modules/pg/'))
         .pipe(gulp.dest('./dist/node_modules/pg/'));
     gulp.src('ServerComponents/**/*.*')
         .pipe(plumber())
+        .pipe(changed('./dist/ServerComponents/'))
         .pipe(gulp.dest('./dist/ServerComponents/'));
     gulp.src('server.js')
         .pipe(plumber())
+        .pipe(changed('./dist/'))
         .pipe(gulp.dest('./dist/'));
     gulp.src('configuration.json')
         .pipe(plumber())
+        .pipe(changed('./dist/'))
         .pipe(gulp.dest('./dist/'));
     gulp.src('./public/favicon.ico')
         .pipe(plumber())
+        .pipe(changed('./dist/public/'))
         .pipe(gulp.dest('./dist/public/'));
 });
 
@@ -279,18 +296,21 @@ gulp.task('include_js', function() {
         //     title: 'include_js:'
         // }))
         .pipe(plumber())
+        .pipe(changed('./public/cs/js/'))
         .pipe(gulp.dest('./public/cs/js'));
 });
 
 gulp.task('include_css', function() {
     gulp.src(path2csWeb + 'csComp/includes/css/*.*')
         .pipe(plumber())
+        .pipe(changed('./public/cs/css/'))
         .pipe(gulp.dest('./public/cs/css'));
 });
 
 gulp.task('include_images', function() {
     gulp.src(path2csWeb + 'csComp/includes/images/**/*.*')
         .pipe(plumber())
+        .pipe(changed('./public/cs/images/'))
         .pipe(gulp.dest('./public/cs/images/'));
 });
 

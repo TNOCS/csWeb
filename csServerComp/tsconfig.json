@@ -26,6 +26,7 @@
         "./Scripts/typings/cs/cs-offline-search.d.ts",
         "./Scripts/typings/express/express.d.ts",
         "./Scripts/typings/form-data/form-data.d.ts",
+        "./Scripts/typings/fs-extra/fs-extra.d.ts",
         "./Scripts/typings/hypertimer/hypertimer.d.ts",
         "./Scripts/typings/jquery/jquery.d.ts",
         "./Scripts/typings/mongodb/mongodb.d.ts",
