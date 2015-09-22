@@ -1,7 +1,7 @@
 <div>
     <!-- todo: don't let the legend container (widget) appear (at all) when the legend is empty  -->
     <div data-ng-if="legend" style="float:left;clear:left">
-        <div data-ng-if="legend.legendKind === 'discrete' || legend.legendKind === 'discretestrings'  ">
+        <div data-ng-if="legend.legendKind === 'discrete' || legend.legendKind === 'discreteStrings'  ">
             <div class="legend-description">{{legend.description}}</div>
             <ul class="legend-entry-list">
                 <li data-ng-repeat="le in legend.legendEntries | reverse" class="legend-entry-item-d">
@@ -25,6 +25,5 @@
                 </li>
             </ul>
         </div>
-
     </div>
 </div>
