@@ -239,13 +239,14 @@ export class FileStorage extends BaseConnector.BaseConnector {
             fs.readFile(fileName, "utf8", (err, data) => {
                 if (!err) {
                     var project = <Project>JSON.parse(data);
-                    project.storage = this.id;
-                    project.id = id;
-                    this.projects[id] = project;
-                    project.title = id;
-                    project.groups = [];
-                    project.logo = "";
-                    project.url = "/api/projects/" + id;
+                    this.manager.getProjectDefinition(project);
+                    // project.storage = this.id;
+                    // project.id = id;
+                    // this.projects[id] = project;
+                    // project.title = id;
+                    // project.groups = [];
+                    // project.logo = "";
+                    // project.url = "/api/projects/" + id;
                     //this.manager.updateProject(project, {}, () => { });
                 }
             });
