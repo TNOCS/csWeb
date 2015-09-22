@@ -150,16 +150,16 @@
                                             <div ng-if="item.showMore" data-ng-switch="item.propertyType.type">
                                                 <div ng-switch-when="number" class="feature-prop-stats" >
                                                     <span class="fa fa-info-circle" style="margin-right:5px"></span>
-                                                    <span class="item-stat-title">count</span>
-                                                    <span class="item-stat-value">{{item.stats.count}}</span>
-                                                    <span class="item-stat-title">min</span>
-                                                    <span class="item-stat-value">{{item.stats.min}}</span>
-                                                    <span class="item-stat-title">max</span>
-                                                    <span class="item-stat-value">{{item.stats.max}}</span>
-                                                    <span class="item-stat-title">sum</span>
-                                                    <span class="item-stat-value" stringy ng-model="item.stats.sum"></span>
-                                                    <span class="item-stat-title">mean</span>
-                                                    <span class="item-stat-value" stringy ng-model="item.stats.mean"></span>
+                                                    <span class="item-stat"><span class="item-stat-title">count</span>
+                                                    <span class="item-stat-value">{{item.stats.count}}</span></span>
+                                                    <span class="item-stat"><span class="item-stat-title">min</span>
+                                                    <span class="item-stat-value">{{item.stats.min}}</span></span>
+                                                    <span class="item-stat"><span class="item-stat-title">max</span>
+                                                    <span class="item-stat-value">{{item.stats.max}}</span></span>
+                                                    <span class="item-stat"><span class="item-stat-title">sum</span>
+                                                    <span class="item-stat-value" stringy ng-model="item.stats.sum"></span></span>
+                                                    <span class="item-stat"><span class="item-stat-title">mean</span>
+                                                    <span class="item-stat-value" stringy ng-model="item.stats.mean"></span></span>
                                                 </div>
                                             </div>
                                         </div>
