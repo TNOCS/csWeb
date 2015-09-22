@@ -259,6 +259,7 @@ module FeatureProps {
         private scope: IFeaturePropsScope;
         public lastSelectedProperty: IPropertyType;
         private defaultDropdownTitle: string;
+        private stats = [];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -288,6 +289,7 @@ module FeatureProps {
             private $translate: ng.translate.ITranslateService
             ) {
             this.setDropdownTitle();
+
 
             this.scope = $scope;
             $scope.vm = this;
@@ -339,19 +341,21 @@ module FeatureProps {
 
             this.$messageBusService.subscribe("timeline", (action, value) => {
                 if (action === "updateFeatures" && this.$scope.callOut) {
-                    for (var s in this.$scope.callOut.sections) {
-                        var section = this.$scope.callOut.sections[s];
-                        section.properties.forEach(prop => {
-                            if (prop.showMore) {
-                                this.getPropStats(prop);
-                            }
-                        });
-                    }
-                    console.log('updating features');
-
+                    this.updateAllStats();
                 }
             });
 
+        }
+
+        private updateAllStats() {
+            for (var s in this.$scope.callOut.sections) {
+                var section = this.$scope.callOut.sections[s];
+                section.properties.forEach(prop => {
+                    if (prop.showMore) {
+                        this.getPropStats(prop);
+                    }
+                });
+            }
         }
 
         public selectProperty(prop: IPropertyType) {
@@ -425,12 +429,15 @@ module FeatureProps {
         private featureMessageReceived = (title: string, feature: IFeature): void => {
             switch (title) {
                 case "onFeatureDeselect":
-                    this.$layerService.visual.rightPanelVisible = false;
+                    if (this.$layerService.selectedFeatures.length === 0) {
+                        this.$layerService.visual.rightPanelVisible = false;
+                    } else { this.updateAllStats(); }
                     break;
                 case "onFeatureSelect":
                     this.displayFeature(this.$layerService.lastSelectedFeature);
                     this.$scope.feature = this.$layerService.lastSelectedFeature;
                     this.$layerService.visual.rightPanelVisible = true;
+                    this.updateAllStats();
                     break;
                 case "onRelationsUpdated":
                     this.setShowSimpleTimeline();
@@ -450,16 +457,20 @@ module FeatureProps {
             }
         }
 
+
+
         public getPropStats(item: ICallOutProperty) {
-            var values = this.$layerService.getPropertyValues(item.feature.layer, item.property);
-            var d = item.property;
-            var res = vg.util.summary(values, [item.property]);
-            item.stats = res[0];
-            item.bins = vg.util.histogram(values, d);
-            console.log(item.bins);
-            //var pi = this.$layerService.calculatePropertyInfo(item.feature.layer.group, item.property);
-            //item.info = pi;
-            //console.log(item);
+            if (item.showMore) {
+                if (this.stats.indexOf(item.property) === -1) this.stats.push(item.property);
+                var values = this.$layerService.getPropertyValues(item.feature.layer, item.property);
+                var d = item.property;
+                var res = vg.util.summary(values, [item.property]);
+                item.stats = res[0];
+                item.stats.sum = item.stats.count * item.stats.mean;
+            } else {
+                if (this.stats.indexOf(item.property) >= 0) this.stats = this.stats.filter((s) => s != item.property);
+            }
+            console.log(this.stats.length);
         }
 
         private displayFeature(feature: IFeature): void {
@@ -471,6 +482,15 @@ module FeatureProps {
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
 
             this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService, this.$mapService);
+            if (this.stats.length > 0) {
+                for (var s in this.$scope.callOut.sections) {
+                    var sec = this.$scope.callOut.sections[s];
+                    sec.properties.forEach((p: ICallOutProperty) => {
+                        p.showMore = this.stats.indexOf(p.property) >= 0;
+                        this.getPropStats(p);
+                    });
+                }
+            }
         }
 
         public removeFeature() {
