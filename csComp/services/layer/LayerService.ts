@@ -1503,8 +1503,16 @@ module csComp.Services {
          */
         getFeatureType(feature: IFeature): IFeatureType {
             if (feature.fType) return feature.fType;
-            if (!feature.featureTypeName)
-                feature.featureTypeName = this.getFeatureTypeId(feature);
+            if (!feature.featureTypeName) {
+              feature.featureTypeName = this.getFeatureTypeId(feature);
+            }
+
+            var ftKeys = Object.getOwnPropertyNames(this._featureTypes);
+            var featureTypes = ftKeys.map(key=>this._featureTypes[key]).filter(ft=>ft.name == feature.featureTypeName);
+            if (featureTypes.length > 0) {
+              this._featureTypes[feature.featureTypeName] = featureTypes[0];
+            }
+            
             if (!this._featureTypes.hasOwnProperty(feature.featureTypeName)) {
                 this._featureTypes[feature.featureTypeName] = csComp.Helpers.createDefaultType(feature);
                 //this._featureTypes[feature.featureTypeName] = this.typesResources[feature.layer.typeUrl].featureTypes[feature.featureTypeName];

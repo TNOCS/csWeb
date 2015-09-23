@@ -145,32 +145,46 @@ module DataTable {
             var selectedLayer = this.findLayerById(this.selectedLayerId);
             if (selectedLayer == null) return this.loadMapLayers();
 
-
-            this.$http.get(selectedLayer.url).
-                success((data: IGeoJsonFile) => {
-                this.dataset = data;
-
-                if (data.featureTypes == null) data.featureTypes = {};
-                if (data.features) {
-                    data.features.forEach((f: IFeature) => {
-                        if (f.properties.hasOwnProperty('FeatureTypeId')) {
-                            f.featureTypeName = f.properties['FeatureTypeId'];
-                        } else if (data.featureTypes.hasOwnProperty('Default')) {
-                            f.featureTypeName = 'Default';
-                        } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType != "") {
-                          f.featureTypeName = selectedLayer.defaultFeatureType;
-                        }
-                        if (!(f.featureTypeName in data.featureTypes))
-                            data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
-                    });
-                    this.updatepropertyType(data);
+            async.series([
+              (callback)=>{
+                if (selectedLayer.typeUrl != null) {
+                  this.$layerService.loadTypeResources(selectedLayer.typeUrl, true, ()=>{
+                    callback();
+                  });
+                } else {
+                  callback();
                 }
+              },
+              (callback)=> {
+                this.$http.get(selectedLayer.url).
+                    success((data: IGeoJsonFile) => {
+                    this.dataset = data;
 
+                    if (data.featureTypes == null) data.featureTypes = {};
+                    if (data.features) {
+                        data.features.forEach((f: IFeature) => {
+                            if (f.properties.hasOwnProperty('FeatureTypeId')) {
+                                f.featureTypeName = f.properties['FeatureTypeId'];
+                            } else if (data.featureTypes.hasOwnProperty('Default')) {
+                                f.featureTypeName = 'Default';
+                            } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType != "") {
+                              f.featureTypeName = selectedLayer.defaultFeatureType;
+                            }
+                            if (!(f.featureTypeName in data.featureTypes))
+                                data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
+                        });
+                        this.updatepropertyType(data);
+                    }
 
-            }).
-                error((data, status, headers, config) => {
-                this.$messageBusService.notify("ERROR opening " + selectedLayer.title, "Could not get the data.");
-            });
+                    callback();
+                }).
+                    error((data, status, headers, config) => {
+                    this.$messageBusService.notify("ERROR opening " + selectedLayer.title, "Could not get the data.");
+                    callback();
+                });
+              }
+            ]);
+
         }
 
         /**
