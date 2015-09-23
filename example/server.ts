@@ -21,7 +21,7 @@ import MongoDB = require('./ServerComponents/api/MongoDB');
 import FileStorage = require('./ServerComponents/api/FileStorage');
 import ImbAPI = require('./ServerComponents/api/ImbAPI');
 import Winston = require('winston');
-import AuthAPI = require('ServerComponents/api/AuthAPI');
+import AuthAPI = require('./ServerComponents/api/AuthAPI');
 
 Winston.remove(Winston.transports.Console);
 Winston.add(Winston.transports.Console, {
