@@ -221,7 +221,7 @@ module Indicators {
                             propValues.push(f.properties[pt]);
                         }
                         if (this.$layerService.propertyTypeData.hasOwnProperty(pt)) {
-                            propTitles.push(this.$layerService.propertyTypeData[pt].title);
+                            propTitles.push(this.$layerService.propertyTypeData[pt].title.replace(/\b(?:aantal.|wachtende.|Intramuraal|Extramuraal)\b/ig, ''));
                         } else {
                             propTitles.push(pt);
                         }

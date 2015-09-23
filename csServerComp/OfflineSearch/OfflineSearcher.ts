@@ -81,6 +81,17 @@ export class OfflineSearcher {
         var resultLayer = new osr.Layer(groupTitle, layerIndex, layer.id, layer.title, layer.url, layer.type);
         this.layers.push(resultLayer);
 
+        var featureTypeLookup: geo.IFeatureTypeResourceFile = {};
+        if (layer.typeUrl != null) {
+          //console.log("Load resource type file " + layer.typeUrl);
+          let typeFileLocation = path.resolve("public",layer.typeUrl);
+          let layerTypes: geo.IFeatureTypeResourceFile = JSON.parse(fs.readFileSync(typeFileLocation).toString());
+          let featureTypeIds = Object.getOwnPropertyNames(layerTypes.featureTypes);
+          featureTypeIds.forEach(featureTypeId => {
+              featureTypeLookup[featureTypeId] = layerTypes.featureTypes[featureTypeId];
+          });
+        }
+
         console.log(layerIndex + '. Processing ' + layer.title + ' (' + groupTitle + ')');
         fs.readFile(this.layerFilename(layer.url), 'utf8', (err, data) => {
             if (err) {
@@ -90,12 +101,47 @@ export class OfflineSearcher {
                 return;
             }
             var geojson: geo.IGeoJsonFile = JSON.parse(data);
+
+            if (geojson.featureTypes != null) {
+              let featureTypeIds = Object.getOwnPropertyNames(geojson.featureTypes);
+              featureTypeIds.forEach(featureTypeId => {
+                  featureTypeLookup[featureTypeId] = geojson.featureTypes[featureTypeId];
+              });
+            }
+
             var featureIndex = 0;
             if (!geojson.features) return;
             geojson.features.forEach((feature: geo.IFeature) => {
-                resultLayer.featureNames.push(this.getShortenedName(feature));
+                let featureTypeId = feature.properties["FeatureTypeId"] || layer.defaultFeatureType;
+                if (featureTypeId == null) {
+                  console.log("Unknown feature type '" + featureTypeId + "' for feature in layer " + layer.url + "(" + layer.defaultFeatureType + ")");
+                  return;
+                }
+
+                let featureType = featureTypeLookup[featureTypeId];
+
+                if (featureType == null) {
+                  console.log("Cannot find featureType '" + featureTypeId + "' for feature in layer " + layer.url);
+                  return;
+                }
+
+                let nameLabel = featureType.style.nameLabel;
+                let effectiveProperties = this.propertyNames.slice(0); // copy provided property names
+
+                if (nameLabel != null) {
+                  if (effectiveProperties.indexOf(nameLabel) == -1) {
+                    effectiveProperties.push(nameLabel); // add name label if it wasn't included in te provided property names
+                  }
+                } else {
+                  nameLabel = "Name";
+                  if (feature.properties[nameLabel] ==  null) {
+                    console.log("Cannot resolve nameLabel for feature in layer " + layer.url);
+                  }
+                }
+
+                resultLayer.featureNames.push(this.getShortenedName(feature, nameLabel));
                 if (feature.hasOwnProperty('properties'))
-                    this.processProperties(feature.properties, layerIndex, featureIndex++);
+                  this.processProperties(feature.properties, effectiveProperties, layerIndex, featureIndex++);
             });
             console.log(layerIndex + '. Processed ' + layer.title);
             this.filesToProcess--;
@@ -106,14 +152,18 @@ export class OfflineSearcher {
     /**
      * Get the shortened name of a feature.
      */
-    private getShortenedName(feature: geo.IFeature) {
-        var name = feature.properties.hasOwnProperty("Name")
-            ? feature.properties["Name"]
-            : feature.properties.hasOwnProperty("name")
-                ? feature.properties["name"]
-                : "Unknown";
-        if (name.length > 25) name = name.substring(0,22) + '...';
-        return name;
+    private getShortenedName(feature: geo.IFeature, nameLabel: string) {
+      if (nameLabel == null) {
+        nameLabel = "Name"
+      }
+
+      var name = feature.properties.hasOwnProperty(nameLabel)
+          ? feature.properties[nameLabel]
+          : feature.properties.hasOwnProperty("name")
+              ? feature.properties["name"]
+              : "Unknown";
+      if (name.length > 25) name = name.substring(0,22) + '...';
+      return name;
     }
 
     /**
@@ -123,9 +173,9 @@ export class OfflineSearcher {
      * @layerIndex {number}
      * @featureIndex {number}
      */
-    private processProperties(props: geo.IStringToAny, layerIndex: number, featureIndex: number) {
-        for (var i=0; i<this.propertyNames.length; i++) {
-            var key = this.propertyNames[i];
+    private processProperties(props: geo.IStringToAny, propertiesToIndex: string[], layerIndex: number, featureIndex: number) {
+        for (var i=0; i < propertiesToIndex.length; i++) {
+            var key = propertiesToIndex[i];
             if (!props.hasOwnProperty(key)) continue;
             var value : string | number = props[key];
             if (typeof value === 'string') {

@@ -1,5 +1,5 @@
 interface String {
-    score(text: string, fuzziness: any): void;
+    score(text: string, fuzziness?: any): number;
 }
 
 /*!
@@ -23,7 +23,7 @@ interface String {
  *    'Hello World'.score('he');         //=> 0.5931818181818181
  *    'Hello World'.score('Hello');    //=> 0.7318181818181818
  */
-String.prototype.score = function (word, fuzziness) {
+String.prototype.score = function (word, fuzziness?) {
   'use strict';
 
   // If the string is equal to the word, perfect match.

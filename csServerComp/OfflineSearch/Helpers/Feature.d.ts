@@ -22,15 +22,29 @@ export interface IFeature {
     featureTypeName?: string;
     fType?: IFeatureType;
     isInitialized?: boolean;
+    /**
+    * An optional dictionary of sensors, where each sensor or measurement represents the value of the sensor
+    * at a certain point in time. Is often used with the layer's timestamp property in case all sensors have the same
+    * number of measurements.
+    */
     sensors?: {
         [id: string]: any[];
     };
     timestamps: number[];
     coordinates?: IGeoJsonGeometry[];
+    /**
+    * An optional language dictionary, where each key, e.g. 'en' for English, represents a localised data set. Each locale can overwrite
+    * the value of the title, description etc. of a feature.
+    */
     languages?: {
         [key: string]: ILocalisedData;
     };
 }
+/**
+ * A feature is a single object that is show on a map (e.g. point, polyline, etc)
+ * Features are part of a layer and filtered and styled using group filters and styles
+ *
+ */
 export declare class Feature implements IFeature {
     id: string;
     layerId: string;
@@ -69,10 +83,16 @@ export declare enum DrawingModeType {
     MultiPolygon = 10,
 }
 export declare enum featureFilterType {
+    /** Turn filtering off */
     none = 0,
+    /** Default for numbers: histogram */
     bar = 1,
+    /** Default for text */
     text = 2,
 }
+/**
+ * Localisation information, contains translations for one language.
+ */
 export interface ILocalisedData {
     name?: string;
     title?: string;
@@ -80,6 +100,9 @@ export interface ILocalisedData {
     section?: string;
     options?: string[];
 }
+/**
+ * Localisation data, needed to support multiple languages.
+ */
 export interface ILanguageData {
     [key: string]: ILocalisedData;
 }
@@ -121,6 +144,10 @@ export interface IFeatureType {
     name?: string;
     style?: IFeatureTypeStyle;
     propertyTypeData?: IPropertyType[];
+    /**
+     * Optional list of propertyType keys, separated by semi-colons.
+     * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.
+     */
     propertyTypeKeys?: string;
     languages?: ILanguageData;
 }
@@ -140,4 +167,10 @@ export declare class PropertyInfo {
     sd: number;
     sdMax: number;
     sdMin: number;
+}
+export interface IFeatureTypeResourceFile {
+    featureTypes?: {
+        [featureTypeId: string]: IFeatureType;
+    };
+    propertyTypeData?: IPropertyTypeData;
 }

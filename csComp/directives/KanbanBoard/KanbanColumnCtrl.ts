@@ -201,7 +201,7 @@ module KanbanColumn {
             this.$messageBus.publish("kanbanaction", action, feature);
         }
 
-        public getPrioColor(feature: csComp.Services.IFeature) {
+        public getPrioColor(feature: csComp.Services.IFeature): any {
             var colors = ["white", "black", "red", "orange", "blue", "green"];
             if (feature.properties.hasOwnProperty(this.column.fields['prio']))
                 return {

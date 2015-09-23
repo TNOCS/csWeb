@@ -1,3 +1,4 @@
+
 module DataTable {
     import IGeoJsonFile = csComp.Services.IGeoJsonFile;
     import IPropertyType = csComp.Services.IPropertyType;
@@ -86,7 +87,10 @@ module DataTable {
             });
 
             $messageBusService.publish('timeline', 'isEnabled', 'false');
+
+
         }
+
 
         /**
          * Add a label to local storage and bind it to the scope.
@@ -101,11 +105,18 @@ module DataTable {
          * Create a list of layer options and select the one used previously.
          */
         private updateLayerOptions() {
-            this.layerOptions.push({
+
+            var chooseLayerOption = {
                 "group": '',
                 "id": this.mapLabel,
-                "title": this.mapFeatureTitle
+                "title": ''//this.$translate("CHOOSE_CATEGORY")//this.mapFeatureTitle
+            };
+            this.layerOptions.push(chooseLayerOption);
+
+            this.$translate("CHOOSE_CATEGORY").then(translation=>{
+              chooseLayerOption.title = translation
             });
+
             if (this.$layerService.project == null || this.$layerService.project.groups == null) return;
             this.$layerService.project.groups.forEach((group) => {
                 group.layers.forEach((layer) => {
@@ -116,33 +127,64 @@ module DataTable {
                     });
                 });
             });
-            this.selectedLayerId = this.$localStorageService.get('vm.selectedLayerId');
+
+            for (var layerKey in this.$layerService.loadedLayers) {
+              if (this.selectedLayerId == null) {
+                return;
+              }
+              var layer: ProjectLayer = this.$layerService.loadedLayers[layerKey];
+              if (layer.enabled) {
+                this.selectedLayerId = layer.id;
+              }
+            };
+            //this.selectedLayerId =  //this.$localStorageService.get('vm.selectedLayerId');
         }
 
         private loadLayer(): void {
             if (!this.selectedLayerId || this.selectedLayerId === this.mapLabel) return this.loadMapLayers();
             var selectedLayer = this.findLayerById(this.selectedLayerId);
             if (selectedLayer == null) return this.loadMapLayers();
-            this.$http.get(selectedLayer.url).
-                success((data: IGeoJsonFile) => {
-                this.dataset = data;
-                if (data.featureTypes == null) data.featureTypes = {};
-                if (data.features) {
-                    data.features.forEach((f: IFeature) => {
-                        if (f.properties.hasOwnProperty('FeatureTypeId')) {
-                            f.featureTypeName = f.properties['FeatureTypeId'];
-                        } else if (data.featureTypes.hasOwnProperty('Default')) {
-                            f.featureTypeName = 'Default';
-                        }
-                        if (!(f.featureTypeName in data.featureTypes))
-                            data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
-                    });
-                    this.updatepropertyType(data);
+
+            async.series([
+              (callback)=>{
+                if (selectedLayer.typeUrl != null) {
+                  this.$layerService.loadTypeResources(selectedLayer.typeUrl, true, ()=>{
+                    callback();
+                  });
+                } else {
+                  callback();
                 }
-            }).
-                error((data, status, headers, config) => {
-                this.$messageBusService.notify("ERROR opening " + selectedLayer.title, "Could not get the data.");
-            });
+              },
+              (callback)=> {
+                this.$http.get(selectedLayer.url).
+                    success((data: IGeoJsonFile) => {
+                    this.dataset = data;
+
+                    if (data.featureTypes == null) data.featureTypes = {};
+                    if (data.features) {
+                        data.features.forEach((f: IFeature) => {
+                            if (f.properties.hasOwnProperty('FeatureTypeId')) {
+                                f.featureTypeName = f.properties['FeatureTypeId'];
+                            } else if (data.featureTypes.hasOwnProperty('Default')) {
+                                f.featureTypeName = 'Default';
+                            } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType != "") {
+                              f.featureTypeName = selectedLayer.defaultFeatureType;
+                            }
+                            if (!(f.featureTypeName in data.featureTypes))
+                                data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
+                        });
+                        this.updatepropertyType(data);
+                    }
+
+                    callback();
+                }).
+                    error((data, status, headers, config) => {
+                    this.$messageBusService.notify("ERROR opening " + selectedLayer.title, "Could not get the data.");
+                    callback();
+                });
+              }
+            ]);
+
         }
 
         /**
@@ -180,6 +222,7 @@ module DataTable {
             var titles: Array<string> = [];
             var mis: Array<IPropertyType> = [];
             // Push the Name, so it always appears on top.
+            /* rely on namelabel to determine the first property
             mis.push({
                 label: "Name",
                 visibleInCallOut: true,
@@ -188,21 +231,59 @@ module DataTable {
                 filterType: "text",
                 isSearchable: true
             });
+            */
+
             var featureType: csComp.Services.IFeatureType;
             for (var key in data.featureTypes) {
                 featureType = data.featureTypes[key];
+                if (featureType.propertyTypeData != null) {
+                  featureType.propertyTypeData.forEach(ptd => {
+                    if (featureType.style.nameLabel == ptd.label) {
+                      mis.splice(0,0,ptd);
+                    } else {
+                      mis.push(ptd);
+                    }
+                  });
+                }
                 if (featureType.propertyTypeKeys != null) {
                     var keys: Array<string> = featureType.propertyTypeKeys.split(';');
                     keys.forEach((k) => {
+                        var propertyType: csComp.Services.IPropertyType = null;
                         if (k in this.$layerService.propertyTypeData)
-                            mis.push(this.$layerService.propertyTypeData[k]);
+                          propertyType = this.$layerService.propertyTypeData[k];
+                            //mis.push(this.$layerService.propertyTypeData[k]);
                         else if (featureType.propertyTypeData != null) {
                             var result = $.grep(featureType.propertyTypeData, e => e.label === k);
-                            if (result.length >= 1) mis.push(result);
+                            //if (result.length >= 1) mis.push(result[0]);
+                            if (result.length >= 1) propertyType = result[0];
+                        }
+
+                        if (propertyType != null) {
+                          if (featureType.style.nameLabel == propertyType.label) {
+                            mis.splice(0,0,propertyType);
+                          } else {
+                            mis.push(propertyType);
+                          }
                         }
                     });
                 } else if (featureType.propertyTypeData != null) {
-                    featureType.propertyTypeData.forEach((mi) => mis.push(mi));
+                    featureType.propertyTypeData.forEach((mi) => {
+                      //mis.push(mi)
+
+                      if (featureType.style.nameLabel == mi.label) {
+                        mis.splice(0,0,mi);
+                      } else {
+                        mis.push(mi);
+                      }
+                      /*
+                      var existingMis = mis.filter(existingMi=>existingMi.title == mi.title);
+                      if (existingMis.length > 0) {
+                        mis.splice(mis.indexOf(existingMis[0]),1,mi);
+                      } else {
+                        mis.push(mi);
+                      }
+                      */
+                    });
                 }
                 mis.forEach((mi) => {
                     if ((mi.visibleInCallOut || mi.label === "Name") && titles.indexOf(mi.title) < 0) {

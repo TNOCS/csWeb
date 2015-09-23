@@ -5,8 +5,7 @@
         "declaration": true,
         "noImplicitAny": false,
         "removeComments": false,
-        "noLib": false,
-        "outDir": "dist"
+        "noLib": false
     },
     "filesGlob": [
         "./**/*.ts",

@@ -168,3 +168,7 @@ export declare class PropertyInfo {
     sdMax: number;
     sdMin: number;
 }
+export interface IFeatureTypeResourceFile {
+  featureTypes?: {[featureTypeId:string]:IFeatureType};
+  propertyTypeData?: IPropertyTypeData;
+}
