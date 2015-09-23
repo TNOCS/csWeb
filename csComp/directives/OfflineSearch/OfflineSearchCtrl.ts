@@ -100,6 +100,22 @@ module OfflineSearch {
         public getLocation(text: string, resultCount = 15): OfflineSearchResultViewModel[] {
             if (!this.isReady || text === null || text.length < 3) return [];
             var searchWords = text.toLowerCase().split(' ');
+
+            // test if last word in text might be a (part of) a stopword, if so remove it
+            var lastSearchTerm = searchWords[searchWords.length-1];
+            var possibleStopWords = this.offlineSearchResult.options.stopWords.filter(stopword=>stopword.indexOf(lastSearchTerm) > -1);
+
+            if (possibleStopWords.length > 0) {
+              searchWords.splice(searchWords.length - 1, 1);
+            }
+
+            // remove all exact stopwords
+            this.offlineSearchResult.options.stopWords.forEach(stopWord => {
+              while (searchWords.indexOf(stopWord) > -1) {
+                searchWords.splice(searchWords.indexOf(stopWord),1);
+              }
+            });
+
             var totResults: ILookupResult[];
 
             for (var j in searchWords) {
@@ -178,12 +194,13 @@ module OfflineSearch {
         private getKeywordHits(text: string) {
             var results: ILookupResult[] = [];
             var keywordIndex = this.offlineSearchResult.keywordIndex;
-            for (var key in keywordIndex) {
-                if (!keywordIndex.hasOwnProperty(key)) continue;
-                var score = key.score(text);
-                if (score < 0.5) continue;
+            var keywords = Object.getOwnPropertyNames(keywordIndex);
+
+            keywords.forEach((key) => {
+                var score = key.score(text, null);
+                if (score < 0.5) return;
                 results.push({ score: score, key: key, entries: keywordIndex[key] })
-            }
+            });
             results = results.sort((a, b) => { return b.score - a.score; });
             return results;
         }
@@ -211,6 +228,9 @@ module OfflineSearch {
                 });
                 this.$layerService.addLayer(projectLayer);
             }
+
+            var group:any = $("#layergroup_" + projectLayer.groupId);
+            group.collapse("show");
         }
 
         private selectFeature(layerId: string, featureIndex: number) {

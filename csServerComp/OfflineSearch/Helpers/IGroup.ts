@@ -1,4 +1,4 @@
-import ILayer = require('ILayer');
+import ILayer = require('./ILayer');
 
 interface IGroup {
     title?:     string;

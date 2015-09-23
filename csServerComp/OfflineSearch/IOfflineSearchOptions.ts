@@ -1,4 +1,4 @@
-import osr = require('OfflineSearchResult');
+import osr = require('./OfflineSearchResult');
 
 /**
  * Specify the offline search options.

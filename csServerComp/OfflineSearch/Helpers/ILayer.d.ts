@@ -8,5 +8,7 @@ interface ILayer {
     url: string;
     enabled: boolean;
     opacity: number;
+    typeUrl?: string;
+    defaultFeatureType?: string;
 }
 export = ILayer;

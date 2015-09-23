@@ -9,11 +9,18 @@ var Layer = (function () {
         this.title = title;
         this.path = path;
         this.type = type;
+        /**
+         * Names of all the features.
+         * @type {string[]}
+         */
         this.featureNames = [];
     }
     return Layer;
 })();
 exports.Layer = Layer;
+/**
+* An index entry that contains a search result.
+*/
 var Entry = (function () {
     function Entry(layerIndexOrArray, featureIndex) {
         this.v = Array(2);
@@ -35,6 +42,11 @@ var Entry = (function () {
         enumerable: true,
         configurable: true
     });
+    /**
+     * This function is called when serializing the Entry object to JSON, which is
+     * much less verbose than the default JSON. In the constructor, I've used a
+     * Union type to deserialize it again.
+     */
     Entry.prototype.toJSON = function () {
         return this.v;
     };
