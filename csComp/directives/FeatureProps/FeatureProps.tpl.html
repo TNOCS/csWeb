@@ -122,10 +122,7 @@
                                             <a data-ng-hide="item.feature.gui['style'][item.property]" class="fa smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
                                             <a data-ng-show="item.feature.gui['style'][item.property]" class="fa smallStyleIcon smallStyleIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
                                         </div>
-                                        <div ng-if="item.isSensor" class="property-action" style="right:30px">
-                                            <a class="fa fa-area-chart makeNarrow" data-toggle="collapse" data-target="#sensor{{item.property}}" href="#sensor{{item.property}}" style="cursor: pointer"></a>
-                                        </div>
-                                        <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="right:45px">
+                                        <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="right:30px">
                                             <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer;margin-left:50px"></a>
                                         </div>
                                     </div>
@@ -146,7 +143,7 @@
                                     </div>
                                     <div class="feature-prop-content">
                                         <div class="feature-prop-title">
-                                            {{item.key}}
+                                            {{item.key}}<span ng-if="item.isSensor" class="fa fa-area-chart makeNarrow" style="margin-left:5px;opacity:0.3"></span>
                                             <div ng-if="item.showMore" data-ng-switch="item.propertyType.type">
                                                 <div ng-switch-when="number" class="feature-prop-stats" >
                                                     <span class="fa fa-calculator" style="margin-right:2px"></span>
@@ -165,12 +162,14 @@
                                                 <!-- <div ng-repeat="(key,cor) in item.cors">
                                                     <div><span>{{key}}</span>:<span>{{cor.value}}</span>
                                                 </div> -->
+                                                <div data-ng-if="item.isSensor">
+                                                    <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
+                                                </div>
                                             </div>
+
                                         </div>
 
-                                        <div id="sensor{{item.property}}" data-ng-if="item.isSensor" class="panel-collapse collapse" style="padding-top: 10px;margin-left:50px">
-                                            <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
-                                        </div>
+
 
 
                                     </div>
