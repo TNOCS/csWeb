@@ -189,7 +189,7 @@ export class ProjectId {
  */
 export class Geometry {
     public type: string;
-    public coordinates: number[] | number[][] | number[][][];
+    public coordinates: number[]| number[][]| number[][][];
 }
 
 /**
@@ -276,7 +276,7 @@ export class ApiManager extends events.EventEmitter {
     public namespace: string = "cs";
     /** The name is used to identify this instance, and should be unique in the federation */
     public name: string = "cs";
-    public authService : AuthApi.AuthAPI;
+    public authService: AuthApi.AuthAPI;
 
     /** Create a new client, optionally specifying whether it should act as client. */
     constructor(namespace: string, name: string, public isClient = false, public options = <IApiManagerOptions>{}) {
@@ -429,7 +429,7 @@ export class ApiManager extends events.EventEmitter {
             return;
         } else {
             g.layers.push(l);
-            this.updateProject(p, meta, ()=>{});
+            this.updateProject(p, meta, () => { });
             Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
             callback(<CallbackResult>{ result: ApiResult.OK });
         }
@@ -444,7 +444,7 @@ export class ApiManager extends events.EventEmitter {
             var group = p.groups.filter((pg) => { return (pg.id === groupId) })[0];
             if (group.layers.some((pl) => { return (pl.id === layerId) })) {
                 group.layers = group.layers.filter((pl) => { return (pl.id !== layerId) });
-                this.updateProject(p, meta, ()=>{});
+                this.updateProject(p, meta, () => { });
                 Winston.info('api: removed layer ' + layerId + ' from project ' + p.id);
                 callback(<CallbackResult>{ result: ApiResult.OK });
             } else {
@@ -469,12 +469,12 @@ export class ApiManager extends events.EventEmitter {
         if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
         if (!p.groups) p.groups = [];
         if (!group.id) group.id = helpers.newGuid();
-        if (p.groups.some((pg) => { return (group.id === pg.id)} )) {
+        if (p.groups.some((pg) => { return (group.id === pg.id) })) {
             callback(<CallbackResult>{ result: ApiResult.GroupAlreadyExists, error: "Group exists" }); return;
         } else {
             group = this.getGroupDefinition(group);
             p.groups.push(group);
-            this.updateProject(p, meta, ()=>{});
+            this.updateProject(p, meta, () => { });
             callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
@@ -483,14 +483,14 @@ export class ApiManager extends events.EventEmitter {
         var p: Project = this.findProject(projectId);
         if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
         if (!p.groups) p.groups = [];
-        if (!p.groups.some((pg) => { return (groupId === pg.id)} )) {
+        if (!p.groups.some((pg) => { return (groupId === pg.id) })) {
             callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: "Group not found" }); return;
         } else {
-            var group = p.groups.filter((pg) => { return (groupId === pg.id)})[0];
+            var group = p.groups.filter((pg) => { return (groupId === pg.id) })[0];
             group.layers.forEach(pl => {
-                this.removeLayerFromProject(projectId, groupId, pl.id, meta, ()=>{});
+                this.removeLayerFromProject(projectId, groupId, pl.id, meta, () => { });
             });
-            p.groups = p.groups.filter((pg) => {return (pg.id !== groupId)});
+            p.groups = p.groups.filter((pg) => { return (pg.id !== groupId) });
             callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
@@ -615,7 +615,7 @@ export class ApiManager extends events.EventEmitter {
             storage: project.storage ? project.storage : "",
             title: project.title ? project.title : project.id,
             connected: project.connected ? project.connected : false,
-            logo: project.logo ? project.logo : "",
+            logo: project.logo ? project.logo : "images/CommonSenseRound.png",
             groups: project.groups ? project.groups : [],
             url: project.url ? project.url : '/api/projects/' + project.id
         };
@@ -698,10 +698,12 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public getProject(projectId: string, meta: ApiMeta, callback: Function) {
+        Winston.debug('Looking for storage of project ' + projectId);
         var s = this.findStorageForProjectId(projectId);
-        if (s) s.getProject(projectId, meta, (r: CallbackResult) => {
-            callback(r);
-        })
+        if (s) {
+            Winston.debug('Found storage ' + s.id + ' for project ' + projectId);
+            s.getProject(projectId, meta, (r: CallbackResult) => { callback(r); });
+        }
         else {
             Winston.warn('Project ' + projectId + ' not found.');
             callback(<CallbackResult>{ result: ApiResult.ProjectNotFound });

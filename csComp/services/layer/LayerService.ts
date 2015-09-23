@@ -45,6 +45,7 @@ module csComp.Services {
         project: Project;
         projectUrl: SolutionProject; // URL of the current project
         solution: Solution;
+        emptySolutionUrl: string;
         dimension: any;
         lastSelectedFeature: IFeature;
         selectedFeatures: IFeature[];
@@ -101,6 +102,7 @@ module csComp.Services {
             this.mb = $messageBusService;
             this.map = $mapService;
 
+            this.emptySolutionUrl = 'data/api/defaultSolution.json';
             this.accentColor = '';
             this.title = '';
             this.typesResources = {};
@@ -1597,15 +1599,15 @@ module csComp.Services {
         getFeatureType(feature: IFeature): IFeatureType {
             if (feature.fType) return feature.fType;
             if (!feature.featureTypeName) {
-              feature.featureTypeName = this.getFeatureTypeId(feature);
+                feature.featureTypeName = this.getFeatureTypeId(feature);
             }
 
             var ftKeys = Object.getOwnPropertyNames(this._featureTypes);
-            var featureTypes = ftKeys.map(key=>this._featureTypes[key]).filter(ft=>ft.name == feature.featureTypeName);
+            var featureTypes = ftKeys.map(key=> this._featureTypes[key]).filter(ft=> ft.name == feature.featureTypeName);
             if (featureTypes.length > 0) {
-              this._featureTypes[feature.featureTypeName] = featureTypes[0];
+                this._featureTypes[feature.featureTypeName] = featureTypes[0];
             }
-            
+
             if (!this._featureTypes.hasOwnProperty(feature.featureTypeName)) {
                 this._featureTypes[feature.featureTypeName] = csComp.Helpers.createDefaultType(feature);
                 //this._featureTypes[feature.featureTypeName] = this.typesResources[feature.layer.typeUrl].featureTypes[feature.featureTypeName];
@@ -1702,6 +1704,13 @@ module csComp.Services {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
             this.loadedLayers.clear();
 
+            var openSingleProject = false;
+            var searchParams = this.$location.search();
+            if (searchParams.hasOwnProperty('project')) {
+                url = this.emptySolutionUrl;
+                openSingleProject = true;
+            }
+
             this.$http.get(url)
                 .success((solution: Solution) => {
                 if (solution.maxBounds) {
@@ -1738,6 +1747,19 @@ module csComp.Services {
                     });
                 }
 
+                if (openSingleProject) {
+                    var u = 'api/projects/' + searchParams['project'];
+                    this.$http.get(u)
+                    .success(<Project>(data) => {
+                        if (data) {
+                            this.parseProject(data, <SolutionProject>{title: data.title, url: data.url, dynamic: true}, []);
+                        }
+                    })
+                    .error((data) => {
+                        this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
+                    })
+                }
+
                 if (solution.projects && solution.projects.length > 0) {
                     var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title === initialProject; })[0];
                     if (p != null) {
@@ -1757,7 +1779,7 @@ module csComp.Services {
                 this.solution = solution;
             })
                 .error(() => {
-                this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
+                    this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
             });
         }
 

@@ -71,7 +71,8 @@ export interface ILayerTemplate {
     layerDefinition: ILayerDefinition[],
     propertyTypes: IPropertyType[],
     properties: IProperty[],
-    sensors?: IProperty[]
+    sensors?: IProperty[],
+    projectId?: string
 }
 
 export interface IBagContourRequest {
@@ -114,6 +115,7 @@ export class MapLayerFactory {
 
             var data = {
                 project: ld.projectTitle,
+                projectId: (template.projectId) ? template.projectId : ld.projectTitle,
                 layerTitle: ld.layerTitle,
                 description: ld.description,
                 reference: ld.reference.toLowerCase(),
@@ -151,14 +153,14 @@ export class MapLayerFactory {
         }, function(error, response, body) {
             console.log('Creating layer... ' + response.statusCode + ' ' + body.error);
             request({
-                url: "http://localhost:3002/api/projects/" + data.project + "/group",
+                url: "http://localhost:3002/api/projects/" + data.projectId + "/group",
                 method: "POST",
                 json: true,
                 body: { title: data.group, id: data.group}
             }, function(error, response, body) {
                 console.log('Creating group... ' + response.statusCode + ' ' + body.error);
                 request({
-                    url: "http://localhost:3002/api/projects/" + data.project + "/group/" + data.group + '/layer/' + data.reference,
+                    url: "http://localhost:3002/api/projects/" + data.projectId + "/group/" + data.group + '/layer/' + data.reference,
                     method: "POST",
                     json: true,
                     body: { title: data.group, id: data.group}
@@ -557,7 +559,7 @@ export class MapLayerFactory {
         if (!propertyTypes || !properties) return;
         propertyTypes.forEach((pt) => {
             if (pt.hasOwnProperty("type") && pt["type"] === "date") {
-                var name = pt["title"]; //Store name of the property with type "date"
+                var name = pt["label"]; //Store name of the property with type "date"
                 properties.forEach((p) => {
                     if (p.hasOwnProperty(name)) {
                         var timeInMs = this.convertTime(p[name], ""); //TODO: Add Time compatibility
@@ -573,7 +575,7 @@ export class MapLayerFactory {
         if (!propertyTypes || !properties) return;
         propertyTypes.forEach((pt) => {
             if (pt.hasOwnProperty("type") && pt["type"] === "url") {
-                var name = pt["title"]; //Store name of the property with type "date"
+                var name = pt["label"]; //Store name of the property with type "url"
                 properties.forEach((p) => {
                     if (p.hasOwnProperty(name)) {
                         if (p[name].substring(0, 3) === "www") {
