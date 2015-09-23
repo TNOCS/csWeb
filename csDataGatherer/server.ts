@@ -87,12 +87,12 @@ repoService.addTransformer(new BagDetailsTransformer("Lookup BAG details"));
 */
 
 // Resource types
-var resourceTypeStore = new ProjectRepositoryService(new Store.FileStore({ storageFile: "resourceTypes.json" }))
-apiServiceMgr.addService(resourceTypeStore);
+//var resourceTypeStore = new ProjectRepositoryService(new Store.FileStore({ storageFile: "resourceTypes.json" }))
+//apiServiceMgr.addService(resourceTypeStore);
 
 // Resource types
-var resourceTypeStore = new ProjectRepositoryService(new Store.FileStore({ storageFile: "resourceTypes.json" }))
-apiServiceMgr.addService(resourceTypeStore);
+//var resourceTypeStore = new ProjectRepositoryService(new Store.FileStore({ storageFile: "resourceTypes.json" }))
+//apiServiceMgr.addService(resourceTypeStore);
 
 // development only
 // if ('development' == server.get('env')) {

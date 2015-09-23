@@ -93,7 +93,7 @@ var index = 0;
       var propertyTypeData = {};
 
       if (this.generateMetadata && !featureCollection.featureTypes) {
-        console.log("map "+ featureCollection.features[0].properties);
+        console.log("map %O", featureCollection.features[0].properties);
         var propertyNames = Object.getOwnPropertyNames(featureCollection.features[0].properties);
         propertyNames.forEach(p=>{
           console.log(p);

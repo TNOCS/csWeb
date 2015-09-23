@@ -87,9 +87,9 @@ class CsvToJsonTransformer implements transform.ITransform {
               strValue = result[2];
             }
 
-              /*console.log("Number: '" + strValue + "': " + /^\-?[0-9]*(,|\.)?[0-9]+$/.test(strValue));*/
+              //console.log("Number: '" + strValue + "': " + /^\-?[0-9]*(,|\.)?[0-9]+$/.test(strValue));
             if (/^\-?[0-9]*(,|\.)?[0-9]+$/.test(strValue)) {
-              fields.push(parseInt(strValue.replace(/,/,'.')));
+              fields.push(parseFloat(strValue.replace(/,/,'.')));
             }
             else {
               fields.push(strValue);
@@ -121,12 +121,16 @@ class CsvToJsonTransformer implements transform.ITransform {
             /*console.log(obj);*/
 
             if (this.latField && this.longField && !obj.geometry) {
+              /* All numbers are parsed above
               var strLat:string = obj.properties[this.longField];
               var strLong:string = obj.properties[this.latField];
+
+              console.log("lat: " + strLat);
               strLat = strLat.replace(/,/g,'.');
               strLong = strLong.replace(/,/g,'.');
-              var lat = parseFloat(strLat);
-              var long = parseFloat(strLong);
+              */
+              var lat = obj.properties[this.longField];
+              var long = obj.properties[this.latField];
 
               /*console.log(lat + " - " + long);*/
 
