@@ -228,7 +228,7 @@ export class AuthAPI {
         // Step 1. Exchange authorization code for access token.
         request.post(accessTokenUrl, { json: true, form: params }, function(err, response, token) {
             var accessToken = token.access_token;
-            var headers = { Authorization: 'Bearer ' + accessToken };
+            var headers: {[key: string]:any} = { Authorization: 'Bearer ' + accessToken };
 
             // Step 2. Retrieve profile information about the current user.
             request.get({ url: peopleApiUrl, headers: headers, json: true }, function(err, response, profile) {
@@ -290,7 +290,7 @@ export class AuthAPI {
         // Step 1. Exchange authorization code for access token.
         request.get({ url: accessTokenUrl, qs: params }, function(err, response, accessToken) {
             accessToken = qs.parse(accessToken);
-            var headers = { 'User-Agent': 'Satellizer' };
+            var headers: {[key: string]:any}  = { 'User-Agent': 'Satellizer' };
 
             // Step 2. Retrieve profile information about the current user.
             request.get({ url: userApiUrl, qs: accessToken, headers: headers, json: true }, function(err, response, profile) {
@@ -540,12 +540,12 @@ export class AuthAPI {
             redirect_uri: req.body.redirectUri,
             grant_type: 'authorization_code'
         };
-        var headers = { Authorization: 'Basic ' + new Buffer(clientId + ':' + clientSecret).toString('base64') };
+        var headers: {[key: string]:any} = { Authorization: 'Basic ' + new Buffer(clientId + ':' + clientSecret).toString('base64') };
 
         // Step 1. Exchange authorization code for access token.
         request.post({ url: accessTokenUrl, form: formData, headers: headers, json: true }, function(err, response, body) {
             var socialApiUrl = 'https://social.yahooapis.com/v1/user/' + body.xoauth_yahoo_guid + '/profile?format=json';
-            var headers = { Authorization: 'Bearer ' + body.access_token };
+            var headers: {[key: string]:any} = { Authorization: 'Bearer ' + body.access_token };
 
             // Step 2. Retrieve profile information about the current user.
             request.get({ url: socialApiUrl, headers: headers, json: true }, function(err, response, body) {
