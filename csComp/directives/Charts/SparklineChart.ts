@@ -22,6 +22,7 @@ module Charts {
         timestamps: number[];
         update: boolean;
         sensor: number[];
+        property: string;
         width?: number;
         height?: number;
         closed?: boolean;
@@ -38,6 +39,7 @@ module Charts {
                 scope: {
                     timestamps: '=',  // = means that we use angular to evaluate the expression,
                     sensor: '=',
+                    property: '=',
                     update: '=',
                     focusTime: '=',
                     showaxis: '=',
@@ -63,6 +65,7 @@ module Charts {
                             var margin = scope.margin || { top: 15, right: 5, bottom: 0, left: 10 };
                             var width = scope.width || 100;
                             var height = scope.height || 70;
+                            console.log('heigth:' + height);
                             var showAxis = typeof scope.showaxis !== 'undefined' && scope.showaxis;
                             var closed = typeof scope.closed !== 'undefined' && scope.closed;
                             var cursorTextHeight = 12;// + (showAxis ? 5 : 0); // leave room for the cursor text (timestamp | measurement)
@@ -92,7 +95,9 @@ module Charts {
 
 
                             for (var i = 0; i < scope.timestamps.length; i++) {
-                                data.push({ time: scope.timestamps[i], measurement: scope.sensor[i] });
+                                var m = scope.property ? scope.property : 'value';
+                                var me = $.isArray(scope.sensor[i]) ? scope.sensor[i][m] : scope.sensor[i];
+                                data.push({ time: scope.timestamps[i], measurement: me });
                             }
 
                             //data.push({time:scope.timestamps[scope.timestamps.length-1],measurement:0});
@@ -159,7 +164,7 @@ module Charts {
                                     .attr("y", ymin)
                                     .attr("dy", ".35em")
                                     .style("text-anchor", "end")
-                                    //.text(d3.max(y.domain()));
+                                //.text(d3.max(y.domain()));
                                     .text();
                                 // y-axis, min
                                 chart.append('line')

@@ -1,7 +1,7 @@
 import express          = require('express');
 import http             = require('http');
-import ClientConnection = require("ClientConnection");
-import DynamicLayer     = require("DynamicLayer");
+import ClientConnection = require("./ClientConnection");
+import DynamicLayer     = require("./DynamicLayer");
 
 module DataSource {
     export class SensorSet {

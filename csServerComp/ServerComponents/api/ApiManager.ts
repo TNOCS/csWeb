@@ -1,6 +1,11 @@
 import Winston = require('winston');
 import helpers = require('../helpers/Utils');
 import AuthApi = require('./AuthAPI');
+import fs = require('fs');
+import path = require('path');
+import events = require("events");
+import _ = require('underscore');
+import async = require('async');
 
 /**
  * Api Result status
@@ -10,7 +15,19 @@ export enum ApiResult {
     Error = 400,
     LayerAlreadyExists = 406,
     LayerNotFound = 407,
-    FeatureNotFound = 408
+    FeatureNotFound = 408,
+    ProjectAlreadyExists = 409,
+    ProjectNotFound = 410,
+    KeyNotFound = 411,
+    GroupNotFound = 412,
+    GroupAlreadyExists = 413,
+    ResourceNotFound = 428
+}
+
+export interface IApiManagerOptions {
+    /** Specify what MQTT should subscribe to */
+    mqttSubscriptions?: string[];
+    [key: string]: any;
 }
 
 export interface ApiMeta {
@@ -24,8 +41,30 @@ export interface ApiMeta {
 export class CallbackResult {
     public result: ApiResult;
     public error: any;
+    public project: Project;
     public layer: Layer;
+    public groups: string[];
     public feature: Feature;
+    public keys: { [keyId: string]: Key };
+    public key: Key;
+}
+
+
+/** Event emitted by the ApiManager */
+export enum Event {
+    KeyChanged, PropertyChanged, FeatureChanged, LayerChanged, ProjectChanged
+}
+
+/** Type of change in an ApiEvent */
+export enum ChangeType {
+    Create, Update, Delete
+}
+
+/** When a key|layer|project is changed, the ChangeEvent is emitted with the following data. */
+export interface IChangeEvent {
+    id: string,
+    type: ChangeType,
+    value?: Object
 }
 
 export interface IConnector {
@@ -35,11 +74,12 @@ export interface IConnector {
     receiveCopy: boolean;
     init(layerManager: ApiManager, options: any);
     initLayer(layer: Layer, meta?: ApiMeta);
+    initProject(project: Project, meta?: ApiMeta);
 
     //Layer methods
     addLayer(layer: Layer, meta: ApiMeta, callback: Function);
     getLayer(layerId: string, meta: ApiMeta, callback: Function);
-    updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function);
+    updateLayer(layer: Layer, meta: ApiMeta, callback: Function);
     deleteLayer(layerId: string, meta: ApiMeta, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function);
@@ -56,17 +96,31 @@ export interface IConnector {
     getBBox(layerId: string, southWest: number[], northEast: number[], meta: ApiMeta, callback: Function);
     getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, meta: ApiMeta, callback: Function);
     getWithinPolygon(layerId: string, feature: Feature, meta: ApiMeta, callback: Function);
+    //add a new project (e.g., for Excel2map)
+    addProject(project: Project, meta: ApiMeta, callback: Function);
+    getProject(projectId: string, meta: ApiMeta, callback: Function);
+    updateProject(project: Project, meta: ApiMeta, callback: Function);
+    deleteProject(projectId: string, meta: ApiMeta, callback: Function);
+    allGroups(projectId: string, meta: ApiMeta, callback: Function);
 
+    /** Get a specific key */
+    getKey(keyId: string, meta: ApiMeta, callback: Function);
     /** Get a list of available keys */
     getKeys(meta: ApiMeta, callback: Function);
     /** Update the value for a given keyId */
     updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function);
     /** Delete key */
     deleteKey(keyId: string, meta: ApiMeta, callback: Function);
-    /** listen to key updates */
-    subscribeKey(keyPattern: string, meta: ApiMeta, callback: Function);
+    /**
+     * Subscribe to certain keys.
+     * @method subscribeKey
+     * @param  {string}     keyPattern Pattern to listen for, e.g. hello/me/+:person listens for all hello/me/xxx topics.
+     * @param  {ApiMeta}    meta       [description]
+     * @param  {Function}   callback   Called when topic is called.
+     * @return {[type]}                [description]
+     */
+    subscribeKey(keyPattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void);
 }
-
 
 export interface StorageObject {
     id: string;
@@ -77,6 +131,26 @@ export class Key implements StorageObject {
     id: string;
     title: string;
     storage: string;
+    values: Object[];
+}
+
+export class Project implements StorageObject {
+    id: string;
+    title: string;
+    url: string;
+    description: string;
+    logo: string;
+    connected: boolean;
+    storage: string;
+    groups: Group[];
+}
+
+export class Group {
+    id: string;
+    title: string;
+    description: string;
+    clustering: boolean;
+    layers: Layer[];
 }
 
 /**
@@ -96,8 +170,18 @@ export class Layer implements StorageObject {
     public image: string;
     public description: string;
     public url: string;
+    public typeUrl: string;
+    public defaultFeatureType: string;
     public tags: string[];
+    public isDynamic: boolean;
     public features: Feature[] = [];
+}
+
+/**
+ * Geojson ProjectId definition
+ */
+export class ProjectId {
+    public id: string;
 }
 
 /**
@@ -105,13 +189,14 @@ export class Layer implements StorageObject {
  */
 export class Geometry {
     public type: string;
-    public coordinates: number[];
+    public coordinates: number[] | number[][] | number[][][];
 }
 
 /**
  * Geojson feature definition
  */
 export class Feature {
+    public type: string = 'Feature';
     public id: string;
     public geometry: Geometry;
     public properties: { [key: string]: any };
@@ -122,7 +207,7 @@ export class Feature {
  * Geojson property definition
  */
 export class Property {
-
+    [key: string]: any
 }
 
 export class Log {
@@ -142,10 +227,20 @@ export class PropertyType {
 export class ResourceFile {
     featureTypes: { [key: string]: FeatureType };
     propertyTypes: { [key: string]: PropertyType };
-
 }
 
-export class ApiManager {
+/**
+ * ApiManager, the main csWeb router that receives and sends layer/feature/keys updates around using
+ * connectors and keeps all endpoints in sync.
+ *
+ * EMITS ApiEvents, which all return an IChangedEvent.
+ * KeyChanged event when a key is changed (CRUD).
+ * PropertyChanged event when a layer is changed (CRUD).
+ * FeatureChanged event when a feature is changed (CRUD).
+ * LayerChanged event when a layer is changed (CRUD).
+ * ProjectChanged event when a project is changed (CRUD).
+ */
+export class ApiManager extends events.EventEmitter {
     /**
      * Dictionary of connectors (e.g. storage, interface, etc.)
      */
@@ -162,29 +257,140 @@ export class ApiManager {
     public layers: { [key: string]: Layer } = {};
 
     /**
+     * Dictionary of projects (doesn't contain actual data)
+     */
+    public projects: { [key: string]: Project } = {};
+
+    /**
      * Dictionary of sensor sets
      */
     public keys: { [keyId: string]: Key } = {};
 
     public defaultStorage = "file";
     public defaultLogging = false;
-    public resourceFolder = "/data/resourceTypes";
-    /** The ApiManager name can be used to identify this instance (e.g. mqtt can create a namespace/channel for this api) */
+    public rootPath = "";
+    // public resourceFolder = "/data/resourceTypes";
+    public projectsFile = "";
+    public layersFile = "";
+    /** The namespace is used for creating channels/layers/keys namespaces */
+    public namespace: string = "cs";
+    /** The name is used to identify this instance, and should be unique in the federation */
     public name: string = "cs";
     public authService : AuthApi.AuthAPI;
 
     /** Create a new client, optionally specifying whether it should act as client. */
-    constructor(public isClient = false) { }
+    constructor(namespace: string, name: string, public isClient = false, public options = <IApiManagerOptions>{}) {
+        super();
+        this.namespace = namespace;
+        this.name = name;
+    }
 
-    public init() {
-        Winston.info('init layer manager', { cat: "api" });
+    public init(rootPath: string, callback: Function) {
+        Winston.info("Init layer manager (isClient=${this.isClient})", { cat: "api" });
+        this.rootPath = rootPath;
+        if (!fs.existsSync(rootPath)) fs.mkdirSync(rootPath);
+        this.initResources(path.join(this.rootPath, '/resourceTypes/'));
+        this.loadLayerConfig(() => {
+            this.loadProjectConfig(() => {
+                callback();
+            });
+        });
+    }
+
+    /** Open layer config file*/
+    public loadLayerConfig(cb: Function) {
+        Winston.info('manager: loading layer config');
+        this.layersFile = path.join(this.rootPath, 'layers.json');
+
+        fs.readFile(this.layersFile, "utf8", (err, data) => {
+            if (!err) {
+                Winston.info('manager: layer config loaded');
+                this.layers = <{ [key: string]: Layer }>JSON.parse(data);
+            }
+            cb();
+        });
+    }
+
+    /**
+     * Open project config file
+     */
+    public loadProjectConfig(cb: Function) {
+        Winston.info('manager: loading project config');
+        this.projectsFile = path.join(this.rootPath, 'projects.json');
+        fs.readFile(this.projectsFile, "utf8", (err, data) => {
+            if (err) {
+                Winston.error('manager: project config loading failed: ' + err.message);
+            } else {
+                Winston.info('manager: project config loaded');
+                this.projects = <{ [key: string]: Project }>JSON.parse(data);
+            }
+            cb();
+        });
+    }
+
+    /**
+     * Have a 1 sec. delay before saving project config
+     */
+    public saveProjectDelay = _.debounce((project: Project) => {
+        this.saveProjectConfig();
+    }, 1000);
+
+    /**
+     * Have a 1 sec. delay before saving layer config
+     */
+    public saveLayersDelay = _.debounce((layer: Layer) => {
+        this.saveLayerConfig();
+    }, 1000);
+
+    /**
+     * Store layer config file
+     */
+    public saveProjectConfig() {
+        fs.writeFile(this.projectsFile, JSON.stringify(this.projects), (error) => {
+            if (error) {
+                Winston.info('manager: error saving project config: ' + error.message);
+            }
+            else {
+                Winston.info('manager: project config saved');
+            }
+        });
+    }
+
+    /**
+     * Store layer config file
+     */
+    public saveLayerConfig() {
+        fs.writeFile(this.layersFile, JSON.stringify(this.layers), (error) => {
+            if (error) {
+                Winston.info('manager: error saving layer config');
+            }
+            else {
+                Winston.info('manager: layer config saved');
+            }
+        });
     }
 
     /**
      * Look for available resources (from folder)
      */
-    public initResources() {
+    public initResources(resourcesPath: string) {
         //TODO implement
+        if (!fs.existsSync(resourcesPath)) {
+            fs.mkdirSync(resourcesPath);
+        }
+        fs.readdir(resourcesPath, (e, f) => {
+            f.forEach((file) => {
+                var loc = path.join(resourcesPath, file);
+                fs.readFile(loc, "utf8", (err, data) => {
+                    if (!err) {
+                        console.log('Opening ' + loc);
+                        this.resources[file.replace('.json', '').toLowerCase()] = <ResourceFile>JSON.parse(data);
+                    } else {
+                        console.log('Error opening ' + loc + ': ' + err);
+                    };
+                });
+            });
+        });
     }
 
     /**
@@ -192,6 +398,131 @@ export class ApiManager {
      */
     public updateResource(id: string, resource: ResourceFile) {
         //TODO implement
+    }
+
+    /**
+     * Update/add a resource and save it to file
+     */
+    public getResource(id: string): ResourceFile {
+        if (this.resources.hasOwnProperty(id)) {
+            return this.resources[id];
+        }
+        return null;
+        //TODO implement
+    }
+
+    public addLayerToProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        var l: Layer = this.findLayer(layerId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        if (!l) { callback(<CallbackResult>{ result: ApiResult.LayerNotFound, error: "Layer not found" }); return; }
+        if (!p.groups) p.groups = [];
+        var g;
+        p.groups.forEach(pg => {
+            if (pg.id === groupId) {
+                g = pg;
+            }
+        });
+        if (!g) { callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: "Group not found" }); return; }
+        if (g.layers.some((pl) => { return (pl.id === l.id) })) {
+            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
+            return;
+        } else {
+            g.layers.push(l);
+            this.updateProject(p, meta, ()=>{});
+            Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
+            callback(<CallbackResult>{ result: ApiResult.OK });
+        }
+    }
+
+    public removeLayerFromProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        if (!p.groups || !p.groups.some((pg) => { return (pg.id === groupId) })) {
+            callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: "Group not found" }); return;
+        } else {
+            var group = p.groups.filter((pg) => { return (pg.id === groupId) })[0];
+            if (group.layers.some((pl) => { return (pl.id === layerId) })) {
+                group.layers = group.layers.filter((pl) => { return (pl.id !== layerId) });
+                this.updateProject(p, meta, ()=>{});
+                Winston.info('api: removed layer ' + layerId + ' from project ' + p.id);
+                callback(<CallbackResult>{ result: ApiResult.OK });
+            } else {
+                callback(<CallbackResult>{ result: ApiResult.LayerNotFound, error: "Layer not found" }); return;
+            }
+        }
+    }
+
+    public allGroups(projectId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        if (!p.groups) p.groups = [];
+        var groupList: string[] = [];
+        p.groups.forEach(pg => {
+            if (pg.id) groupList.push(pg.id);
+        });
+        callback(<CallbackResult>{ result: ApiResult.OK, groups: groupList });
+    }
+
+    public addGroup(group: Group, projectId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        if (!p.groups) p.groups = [];
+        if (!group.id) group.id = helpers.newGuid();
+        if (p.groups.some((pg) => { return (group.id === pg.id)} )) {
+            callback(<CallbackResult>{ result: ApiResult.GroupAlreadyExists, error: "Group exists" }); return;
+        } else {
+            group = this.getGroupDefinition(group);
+            p.groups.push(group);
+            this.updateProject(p, meta, ()=>{});
+            callback(<CallbackResult>{ result: ApiResult.OK });
+        }
+    }
+
+    public removeGroup(groupId: string, projectId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        if (!p.groups) p.groups = [];
+        if (!p.groups.some((pg) => { return (groupId === pg.id)} )) {
+            callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: "Group not found" }); return;
+        } else {
+            var group = p.groups.filter((pg) => { return (groupId === pg.id)})[0];
+            group.layers.forEach(pl => {
+                this.removeLayerFromProject(projectId, groupId, pl.id, meta, ()=>{});
+            });
+            p.groups = p.groups.filter((pg) => {return (pg.id !== groupId)});
+            callback(<CallbackResult>{ result: ApiResult.OK });
+        }
+    }
+
+    public addProject(project: Project, meta: ApiMeta, callback: Function) {
+        if (!project.id) {
+            project.id = helpers.newGuid();
+        }
+        Winston.info('api: add project ' + project.id);
+        var s = this.findStorage(project);
+        project.storage = project.storage || s.id;
+        // check if layer already exists
+        if (!this.projects.hasOwnProperty(project.id)) {
+            this.projects[project.id] = this.getProjectDefinition(project);
+
+            // store project
+            var meta = <ApiMeta>{ source: 'rest' };
+
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.initProject(this.projects[project.id]);
+                i.addProject(this.projects[project.id], meta, () => { });
+            });
+
+            s.addProject(this.projects[project.id], meta, (r: CallbackResult) => {
+                this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: project.id, type: ChangeType.Create, value: project });
+                callback(r);
+            });
+        } else {
+            callback(<CallbackResult>{ result: ApiResult.ProjectAlreadyExists, error: "Project already exists" });
+        }
+        // ARNOUD? Shouldn't this be at the end of the if clause, as the project may already exist?
+        this.saveProjectDelay(this.projects[project.id]);
     }
 
     /**
@@ -211,7 +542,26 @@ export class ApiManager {
         if (this.layers.hasOwnProperty(layerId)) {
             return this.layers[layerId];
         }
-        return null;;
+        return null;
+    }
+
+    /**
+     * Find project for a specific projectId (can return null)
+     */
+    public findProject(projectId: string): Project {
+        if (this.projects.hasOwnProperty(projectId)) {
+            return this.projects[projectId];
+        }
+        return null;
+    }
+
+    /**
+     * Find layer for a specific layerId (can return null)
+     */
+    public findKey(keyId: string): Key {
+        return this.keys.hasOwnProperty(keyId)
+            ? this.keys[keyId]
+            : null;
     }
 
     /**
@@ -240,6 +590,70 @@ export class ApiManager {
         return this.findStorage(layer);
     }
 
+    /**
+     * Lookup Project and return storage engine for this project
+     */
+    public findStorageForProjectId(projectId: string): IConnector {
+        var project = this.findProject(projectId);
+        return this.findStorage(project);
+    }
+
+    /**
+     * Lookup layer and return storage engine for this layer
+     */
+    public findStorageForKeyId(keyId: string): IConnector {
+        var key = this.findKey(keyId);
+        return this.findStorage(key);
+    }
+
+    /**
+     * Returns project definition for a project
+     */
+    public getProjectDefinition(project: Project): Project {
+        var p = <Project>{
+            id: project.id ? project.id : helpers.newGuid(),
+            storage: project.storage ? project.storage : "",
+            title: project.title ? project.title : project.id,
+            connected: project.connected ? project.connected : false,
+            logo: project.logo ? project.logo : "",
+            groups: project.groups ? project.groups : [],
+            url: project.url ? project.url : '/api/projects/' + project.id
+        };
+        return p;
+    }
+
+    /**
+     * Returns project definition for a project
+     */
+    private getGroupDefinition(group: Group): Group {
+        var g = <Group>{
+            id: group.id ? group.id : helpers.newGuid(),
+            description: group.description ? group.description : "",
+            title: group.title ? group.title : group.id,
+            clustering: group.clustering ? group.clustering : true,
+            layers: group.layers ? group.layers : []
+        };
+        return g;
+    }
+
+    /**
+     * Returns layer definition for a layer, this is the layer without the features (mostly used for directory)
+     */
+    public getLayerDefinition(layer: Layer): Layer {
+        if (!layer.hasOwnProperty('type')) layer.type = "geojson";
+        var r = <Layer>{
+            id: layer.id,
+            title: layer.title,
+            updated: layer.updated,
+            description: layer.description,
+            type: layer.type,
+            storage: layer.storage ? layer.storage : "",
+            url: layer.url ? layer.url : ("/api/layers/" + layer.id),
+            isDynamic: layer.isDynamic ? layer.isDynamic : true
+        };
+        return r;
+    }
+
     //layer methods start here, in CRUD order.
 
     /** Create a new layer, store it, and return it. */
@@ -256,50 +670,121 @@ export class ApiManager {
         Winston.info('api: add layer ' + layer.id);
         var s = this.findStorage(layer);
         // check if layer already exists
-        if (this.layers.hasOwnProperty(layer.id)) {
-            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists", layer: this.layers[layer.id] });
-        } else {
-            if (!layer.hasOwnProperty('type')) layer.type = "geojson";
-            this.layers[layer.id] = <Layer>{
-                id: layer.id,
-                storage: s.id,
-                title: layer.title,
-                description: layer.description,
-                type: layer.type,
-                url: "/api/layers/" + layer.id
-            };
+        if (!this.layers.hasOwnProperty(layer.id)) {
+            // add storage connector if available
+            layer.storage = s ? s.id : "";
 
-            // store layer
-            s.addLayer(layer, meta, (r: CallbackResult) => {
-                callback(r);
-            });
+            // get layer definition (without features)
+            this.layers[layer.id] = this.getLayerDefinition(layer);
 
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.initLayer(layer);
                 i.addLayer(layer, meta, () => { });
             });
+
+            // store layer
+            if (s) {
+                s.addLayer(layer, meta, (r: CallbackResult) => callback(r))
+            } else {
+                callback(<CallbackResult>{ result: ApiResult.OK });
+            }
+
+            this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layer.id, type: ChangeType.Create, value: layer });
+            this.saveLayersDelay(layer);
+        }
+        else {
+            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
+        }
+    }
+
+    public getProject(projectId: string, meta: ApiMeta, callback: Function) {
+        var s = this.findStorageForProjectId(projectId);
+        if (s) s.getProject(projectId, meta, (r: CallbackResult) => {
+            callback(r);
+        })
+        else {
+            Winston.warn('Project ' + projectId + ' not found.');
+            callback(<CallbackResult>{ result: ApiResult.ProjectNotFound });
         }
     }
 
     public getLayer(layerId: string, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
-        s.getLayer(layerId, meta, (r: CallbackResult) => {
+        if (s) s.getLayer(layerId, meta, (r: CallbackResult) => {
             callback(r);
-        });
+        })
+        else {
+            Winston.warn('Layer ' + layerId + ' not found.');
+            callback(<CallbackResult>{ result: ApiResult.LayerNotFound });
+        }
     }
 
-    public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
+    public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+        async.series([
+            // make sure layer exists
+            (cb: Function) => {
+                if (!this.layers.hasOwnProperty(layer.id)) {
+                    this.addLayer(layer, meta, () => {
+                        cb();
+                    });
+                }
+                else { cb(); }
+            },
+            // update layer
+            (cb: Function) => {
+                this.setUpdateLayer(layer, meta);
+                var l = this.getLayerDefinition(layer);
+                this.layers[l.id] = l;
 
-        var s = this.findStorageForLayerId(layerId);
-        if (s) {
-            s.updateLayer(layerId, update, meta, (r, CallbackResult) => {
-                Winston.warn('updating layer finished');
-                callback(r);
-            });
-        }
-        else {
-            callback(<CallbackResult>{ result: ApiResult.Error, error: 'layer not found' });
-        }
+                this.getInterfaces(meta).forEach((i: IConnector) => {
+                    i.updateLayer(layer, meta, () => { });
+                });
+
+                var s = this.findStorageForLayerId(layer.id);
+                if (s) {
+                    s.updateLayer(layer, meta, (r, CallbackResult) => {
+                        Winston.warn('updating layer finished');
+                    });
+                }
+                callback(<CallbackResult>{ result: ApiResult.OK });
+                this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layer.id, type: ChangeType.Update, value: layer });
+                this.saveLayersDelay(layer);
+            }
+        ])
+    }
+
+    public updateProject(project: Project, meta: ApiMeta, callback: Function) {
+        async.series([
+            // make sure project exists
+            (cb: Function) => {
+                if (!this.projects.hasOwnProperty(project.id)) {
+                    this.addProject(project, meta, () => {
+                        cb();
+                    });
+                }
+                else { cb(); }
+            },
+            // update project
+            (cb: Function) => {
+                var p = this.getProjectDefinition(project);
+                this.projects[p.id] = p;
+
+                this.getInterfaces(meta).forEach((i: IConnector) => {
+                    i.updateProject(project, meta, () => { });
+                });
+
+                var s = this.findStorageForProjectId(project.id);
+                if (s) {
+                    s.updateProject(project, meta, (r, CallbackResult) => {
+                        Winston.warn('updating project finished');
+                    });
+                }
+                callback(<CallbackResult>{ result: ApiResult.OK });
+
+                this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: project.id, type: ChangeType.Update, value: project });
+                this.saveProjectDelay(project);
+            }
+        ])
     }
 
     public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {
@@ -309,6 +794,23 @@ export class ApiManager {
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.deleteLayer(layerId, meta, () => { });
             });
+            this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Delete });
+            callback(r);
+        });
+    }
+
+    public deleteProject(projectId: string, meta: ApiMeta, callback: Function) {
+        var s = this.findStorageForProjectId(projectId);
+        if (!s) {
+            callback(<CallbackResult>{ result: ApiResult.Error, error: "Project not found." })
+            return;
+        }
+        s.deleteProject(projectId, meta, (r: CallbackResult) => {
+            delete this.projects[projectId];
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.deleteProject(projectId, meta, () => { });
+            });
+            this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: projectId, type: ChangeType.Delete });
             callback(r);
         });
     }
@@ -340,6 +842,8 @@ export class ApiManager {
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.addFeature(layerId, feature, meta, () => { });
             });
+            this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Create, value: feature });
+            callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
 
@@ -348,6 +852,7 @@ export class ApiManager {
         this.setUpdateLayer(layer, meta);
         var s = this.findStorage(layer);
         this.updateProperty(layerId, featureId, property, value, useLog, meta, (r) => callback(r));
+        this.emit(Event[Event.PropertyChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: { featureId: featureId, property: property } });
     }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function) {
@@ -373,10 +878,11 @@ export class ApiManager {
 
     public updateFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
-        s.updateFeature(layerId, feature, true, meta, (result) => callback(result));
+        if (s) s.updateFeature(layerId, feature, true, meta, (result) => callback(result));
         this.getInterfaces(meta).forEach((i: IConnector) => {
             i.updateFeature(layerId, feature, false, meta, () => { });
         });
+        this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: feature });
     }
 
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
@@ -385,6 +891,7 @@ export class ApiManager {
         this.getInterfaces(meta).forEach((i: IConnector) => {
             i.deleteFeature(layerId, featureId, meta, () => { });
         });
+        this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Delete, value: featureId });
     }
 
 
@@ -396,6 +903,10 @@ export class ApiManager {
     }
 
     public initLayer(layer: Layer) {
+
+    }
+
+    public initProject(project: Project) {
 
     }
 
@@ -425,22 +936,89 @@ export class ApiManager {
         s.getWithinPolygon(layerId, feature, meta, (result) => callback(result));
     }
 
-    private keySubscriptions: { [pattern: string]: Function[] } = {};
-
-    public subscribeKey(pattern: string, meta: ApiMeta, callback: Function) {
-        if (!this.keySubscriptions.hasOwnProperty(pattern)) {
-
-        }
+    public subscribeKey(pattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void) {
+        this.getInterfaces(meta).forEach((i: IConnector) => {
+            i.subscribeKey(pattern, meta, callback);
+        });
     }
 
-    public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
+    public addKey(key: Key, meta: ApiMeta, callback: Function) {
+        Winston.info('add key ' + key.id);
+        var k = JSON.parse(JSON.stringify(key));
+        delete k.values;
+        this.keys[key.id] = k;
+    }
+
+    public getKeys(meta: ApiMeta, callback: Function) {
+        // check subscriptions
+        callback(<CallbackResult>{ result: ApiResult.OK, keys: this.keys });
+    }
+
+    public getKey(id: string, meta: ApiMeta, callback: Function) {
+        var s = this.findStorageForKeyId(id);
+        if (s) s.getKey(id, meta, (r: CallbackResult) => {
+            callback(r);
+        })
+        else { callback(<CallbackResult>{ result: ApiResult.KeyNotFound }); }
+    }
+
+    public updateKey(keyId: string, value: Object, meta?: ApiMeta, callback?: Function) {
+        if (!meta) meta = <ApiMeta>{};
+        if (!callback) callback = () => { };
+
         Winston.info('updatekey:received' + keyId);
+        // check if keys exists
+        var key = this.findKey(keyId);
+        if (!key) {
+            var k = <Key>{ id: keyId, title: keyId, storage: 'file' };
+            this.addKey(k, meta, () => { });
+            //this.addKey(k, meta, callback);
+        }
+
+        if (!value.hasOwnProperty('time')) value['time'] = new Date().getTime();
+        var s = this.findStorageForKeyId(keyId);
+        if (s) s.updateKey(keyId, value, meta, () => callback());
+
         this.getInterfaces(meta).forEach((i: IConnector) => {
             Winston.info('updatekey:send to ' + i.id);
             i.updateKey(keyId, value, meta, () => { });
         });
 
+        // Emit key changed events so others can subscribe to it.
+        this.emit(Event[Event.KeyChanged], <IChangeEvent>{ id: keyId, type: ChangeType.Update, value: value });
+
         // check subscriptions
         callback(<CallbackResult>{ result: ApiResult.OK })
     }
+
+    /**
+     * Register a callback which is being called before the process exits.
+     * @method cleanup
+     * @param  {Function} callback Callback function that performs the cleanup
+     * See also: http://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits
+     */
+    public cleanup(callback?: Function) {
+        // attach user callback to the process event emitter
+        // if no callback, it will still exit gracefully on Ctrl-C
+        if (!callback) callback = () => { };
+        process.on('cleanup', callback);
+
+        // do app specific cleaning before exiting
+        process.on('exit', function() {
+            process.emit('cleanup');
+        });
+
+        // catch ctrl+c event and exit normally
+        process.on('SIGINT', function() {
+            console.log('Ctrl-C...');
+            process.exit(2);
+        });
+
+        //catch uncaught exceptions, trace, then exit normally
+        process.on('uncaughtException', function(e) {
+            console.log('Uncaught Exception...');
+            console.log(e.stack);
+            process.exit(99);
+        });
+    };
 }

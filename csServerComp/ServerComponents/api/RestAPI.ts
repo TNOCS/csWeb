@@ -1,6 +1,8 @@
 import ApiManager = require('./ApiManager');
 import express = require('express')
 import cors = require('cors')
+import Project = ApiManager.Project;
+import Group = ApiManager.Group;
 import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import Logs = ApiManager.Log;
@@ -8,6 +10,7 @@ import BaseConnector = require('./BaseConnector');
 import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
 import ApiMeta = ApiManager.ApiMeta;
+import Winston = require('winston');
 
 export class RestAPI extends BaseConnector.BaseConnector {
 
@@ -15,6 +18,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
     public resourceUrl;
     public layersUrl;
     public keysUrl;
+    public projectsUrl;
 
     constructor(public server: express.Express, public baseUrl: string = "/api") {
         super();
@@ -22,6 +26,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.resourceUrl = baseUrl + "/resources/";
         this.layersUrl = baseUrl + "/layers/";
         this.keysUrl = baseUrl + "/keys/";
+        this.projectsUrl = baseUrl + "/projects/";
     }
 
     public init(layerManager: ApiManager.ApiManager, options: any) {
@@ -39,9 +44,96 @@ export class RestAPI extends BaseConnector.BaseConnector {
             this.manager.updateResource(req.params.resourceId, req.body);
         });
 
+        this.server.get(this.resourceUrl + ":resourceId", (req: express.Request, res: express.Response) => {
+            res.send(JSON.stringify(this.manager.getResource(req.params.resourceId.toLowerCase())));
+        });
+
         this.server.get(this.layersUrl, (req: express.Request, res: express.Response) => {
             res.send(JSON.stringify(this.manager.layers));
         });
+
+        this.server.get(this.projectsUrl, (req: express.Request, res: express.Response) => {
+            res.send(JSON.stringify(this.manager.projects));
+        });
+
+        //------ Project API paths, in CRUD order
+
+        this.server.post(this.projectsUrl, (req: express.Request, res: express.Response) => {
+            var project = new Project();
+            project = req.body;
+            this.manager.addProject(project, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                if (result.result === ApiResult.OK)
+                    res.send(result.project);
+            });
+        })
+
+        // gets the entire project
+        this.server.get(this.projectsUrl + ':projectId', (req: any, res: any) => {
+            this.manager.getProject(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                if (result.result === ApiResult.OK) {
+                    res.send(result.project);
+                } else {
+                    res.sendStatus(result.result);
+                }
+            });
+        })
+
+        //Updates EVERY layer in the project.
+        this.server.put(this.projectsUrl + ':projectId', (req: any, res: any) => {
+            req.projectId = req.params.projectId;
+            this.manager.updateProject(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        })
+
+        // gets the entire layer, which is stored as a single collection
+        // TODO: what to do when this gets really big? Offer a promise?
+        this.server.delete(this.projectsUrl + ':projectId', (req: any, res: any) => {
+            this.manager.deleteProject(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        })
+
+        //adds a layer to a project
+        this.server.post(this.projectsUrl + ":projectId/group/:groupId/layer/:layerId", (req: express.Request, res: express.Response) => {
+            this.manager.addLayerToProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.send(result);
+            });
+        });
+
+        //removes a layer from a project
+        this.server.delete(this.projectsUrl + ":projectId/group/:groupId/layer/:layerId", (req: express.Request, res: express.Response) => {
+            this.manager.removeLayerFromProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.send(result);
+            });
+        });
+
+        this.server.get(this.projectsUrl + ':projectId/group/', (req: any, res: any) => {
+            this.manager.allGroups(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                if (result.result === ApiResult.OK) {
+                    res.send(result.groups);
+                } else {
+                    res.sendStatus(result.result)
+                }
+            });
+        })
+
+        this.server.post(this.projectsUrl + ':projectId/group/', (req: any, res: any) => {
+            var group = new Group();
+            group = req.body;
+            this.manager.addGroup(group, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.send(result)
+            });
+        })
+
+        this.server.delete(this.projectsUrl + ':projectId/group/:groupId', (req: any, res: any) => {
+            this.manager.removeGroup(req.params.groupId, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.send(result)
+            });
+        })
 
         //------ layer API paths, in CRUD order
 
@@ -61,14 +153,18 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.get(this.layersUrl + ':layerId', (req: any, res: any) => {
             this.manager.getLayer(req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
-                if (result.result === ApiResult.OK)
+                if (result.result === ApiResult.OK) {
                     res.send(result.layer);
+                } else {
+                    res.sendStatus(result.result)
+                }
             });
         })
 
         //Updates EVERY feature in the layer.
         this.server.put(this.layersUrl + ':layerId', (req: any, res: any) => {
-            this.manager.updateLayer(req.params.layerId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            req.layerId = req.params.layerId;
+            this.manager.updateLayer(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
@@ -103,7 +199,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         // updates a feature corresponding to a query on ID (should be one)
         // Takes a feature as input in the body of the PUT request
-        this.server.put(this.layersUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
+        this.server.put(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
             var feature = new Feature();
             feature = req.body;
             this.manager.updateFeature(req.params.layerId, feature, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
@@ -196,12 +292,26 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         });
 
-
-        //adds a feature
+        //update a key
         this.server.post(this.keysUrl + ":keyId", (req: express.Request, res: express.Response) => {
             this.manager.updateKey(req.params.keyId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
+            });
+        });
+
+        //get all keys
+        this.server.get(this.keysUrl, (req: express.Request, res: express.Response) => {
+            this.manager.getKeys(<ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result.keys);
+            });
+        });
+
+        //get a key
+        this.server.get(this.keysUrl + ":keyId", (req: express.Request, res: express.Response) => {
+            this.manager.getKey(req.params.keyId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.send(result.key);
             });
         });
 

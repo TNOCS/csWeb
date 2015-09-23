@@ -33,8 +33,9 @@ module MapElement {
             private $messageBusService: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
-
+          
             this.initMap();
+            
 
             $scope.initMap = () => this.initMap();
         }

@@ -30,5 +30,6 @@ module csComp.Services {
         fitBounds(bounds: IBoundingBox);
         getExtent(): IBoundingBox;
         getLatLon(x: number, y: number): { lat: number, lon: number };
+        refreshLayer();
     }
 }

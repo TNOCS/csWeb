@@ -60,7 +60,7 @@
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
-    <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <!-- <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script> -->
     <script src="bower_components/angular-translate/angular-translate.min.js"></script>
     <script src="bower_components/leaflet/dist/leaflet.js"></script>
     <script src="bower_components/leaflet.locatecontrol/src/L.Control.Locate.js"></script>
@@ -98,6 +98,9 @@
     <script src="cs/js/timeline.min.js"></script>
     <script src="cs/js/wizMarkdown.min.js"></script>
     <script src="cs/js/d3_bulletChart.js"></script>
+    <script src="cs/js/vega.js" charset="utf-8"></script>
+    <script src="cs/js/vega-embed.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.min.js" type="text/javascript" charset="utf-8"></script>
 
     <script src="cs/js/csComp.js"></script>
     <script src="app/app.js"></script>
@@ -169,11 +172,11 @@
                                 <div class="stylesIcon"></div>
                             </a>
                         </li>
-                        <li popover="{{'MCA.NAME' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                        <!-- <li popover="{{'MCA.NAME' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                             <a href="#mca" data-toggle="tab" data-ng-if="vm.$mapService.isExpert">
                                 <div class="mcaIcon"></div>
                             </a>
-                        </li>
+                        </li> -->
                         <li popover="{{'HEATMAP.NAME' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                             <a href="#heatmap" data-toggle="tab" data-ng-if="vm.$mapService.isExpert">
                                 <div class="heatmapIcon"></div>
@@ -212,7 +215,7 @@
 
                         <style-list class="tab-pane" id="styles"></style-list>
 
-                        <mca class="tab-pane" id="mca"></mca>
+                        <!--<mca class="tab-pane" id="mca"></mca>-->
 
                         <heatmap class="tab-pane" id="heatmap"></heatmap>
 
@@ -231,48 +234,20 @@
         <!-- class="dashboard-directive" -->
 
         <div class="rightpanel" style="position:absolute">
-            <div id="rightpanelTabContainer" class="tabbable tabs-left" style="display:table; height:100%; padding:0px;">
+            <div id="rightpanelTabContainer" class="tabbable tabs-left rightpanelContainer">
                 <!-- Nav tabs -->
-                <ul id="rightpanelTabs" class="nav nav-tabs" style="margin-right:0px; width:50px; height:100%; display:table-cell">
-                    <li style="margin-top:10px" ng-style="!vm.$layerService.visual.rightPanelVisible && {'opacity':0}" ng-click="vm.$layerService.visual.rightPanelVisible = false" popover="{{'HIDE_PANEL' | translate}}" popover-placement="left" popover-trigger="mouseenter"
-                    popover-append-to-body="true">
+                <ul id="rightpanelTabs" class="nav nav-tabs rightpanelTabs" ng-class="{'rightpanelTabs-collapsed' : !vm.$layerService.visual.rightPanelVisible}">
+                    <li style="margin-top:10px" ng-style="!vm.$layerService.visual.rightPanelVisible && {'opacity':0}" ng-click="vm.$layerService.visual.rightPanelVisible = false" popover="{{'HIDE_PANEL' | translate}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true">
                         <a class="rightpanel-hidetab">
                             <span class="fa fa-2x fa-chevron-right"></span>
                         </a>
                     </li>
                 </ul>
-                <div id="rightpanelTabPanes" ng-show="vm.$layerService.visual.rightPanelVisible" class="tab-content" style="display: table-cell; vertical-align:top; width:100%; height:100%; background-color: white;">
+                <div id="rightpanelTabPanes" ng-show="vm.$layerService.visual.rightPanelVisible" class="tab-content rightpanelTabPanes">
                 </div>
             </div>
         </div>
 
-        <!-- Right menu items -->
-        <!-- <script>
-            $('#rightpanelTabs a').click(function(e) {
-                var tab = $(this);
-                if (tab.parent('li').hasClass('tab-toggle')) {
-                    var foo = $("#rightpanelTabPanes").children(".tab-pane");
-                    if (foo.hasClass('active')) {
-                        foo.removeClass('active');
-                    } else {
-                        foo.addClass('active');
-                    }
-
-                }
-                if (tab.parent('li').hasClass('active')) {
-                    window.setTimeout(function() {
-                        var foo = $("#rightpanelTabPanes").children(".tab-pane");
-                        foo.removeClass('active');
-                        tab.parent('li').removeClass('active');
-                        $('.leaflet-control-zoom').css('visibility', 'visible');
-                        $('.leaflet-control-locate').css('visibility', 'visible');
-                    }, 1);
-                } else {
-                    $('.leaflet-control-zoom').css('visibility', 'hidden');
-                    $('.leaflet-control-locate').css('visibility', 'hidden');
-                }
-            });
-        </script> -->
     </div>
 
     <!--Loading spinner-->

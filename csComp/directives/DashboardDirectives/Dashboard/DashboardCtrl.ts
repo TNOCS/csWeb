@@ -89,14 +89,9 @@ module Dashboard {
         }
 
         public updateWidget(w: csComp.Services.IWidget) {
-
+            console.log('updating widget ' + w.directive);
             if (w._initialized && this.$scope.dashboard._initialized) return;
             w._initialized = true;
-            console.log('really update widget');
-
-            //this.$dashboardService.updateWidget(w);
-            //var newElement = this.$compile("<" + w.directive + " widget=" + w + "></" + w.directive + ">")(this.$scope);
-            console.log('updating widget');
             var widgetElement;
             var newScope = this.$scope;
             (<any>newScope).widget = w;
@@ -204,8 +199,29 @@ module Dashboard {
             return left + "px";
         }
 
+        public removeWidget(widget: csComp.Services.IWidget) {
+            this.$scope.dashboard.widgets = this.$scope.dashboard.widgets.filter((w) => { return w != widget; });
+        }
+
         public isReady(widget: csComp.Services.IWidget) {
+            this.updateWidget(widget);
             setTimeout(() => {
+                // select the target node
+                // var target = document.querySelector('#' + widget.elementId + '-parent');
+                //
+                // // create an observer instance
+                // var observer = new MutationObserver((mutations) => {
+                //     mutations.forEach((mutation) => {
+                //         console.log(mutation.type);
+                //     });
+                // });
+                //
+                // // configuration of the observer:
+                // var config = { attributes: true, childList: true, characterData: true };
+                //
+                // // pass in the target node, as well as the observer options
+                // observer.observe(target, config);
+
                 if (!widget._ijs)
 
                     widget._ijs = interact('#' + widget.elementId + '-parent')
@@ -213,7 +229,7 @@ module Dashboard {
                         .on('down', (e) => {
                         if (widget._interaction) widget._isMoving = true;
                         if (this.$dashboardService.activeWidget != widget) {
-                            this.$dashboardService.editWidget(widget)
+                            //this.$dashboardService.editWidget(widget)
                         }
                     }
                         )
@@ -262,7 +278,6 @@ module Dashboard {
 
                     })
 
-                //this.updateWidget(widget);
             }, 10);
 
         }

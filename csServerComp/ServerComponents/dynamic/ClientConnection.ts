@@ -14,6 +14,11 @@ module ClientConnection {
         public callback: Function;
     }
 
+    export class ProjectSubscription {
+        public projectId: string;
+        public callback: MessageBus.IMessageBusCallback
+    }
+
     export class LayerSubscription {
         public layerId: string;
         public callback: MessageBus.IMessageBusCallback
@@ -22,6 +27,15 @@ module ClientConnection {
     export class KeySubscription {
         public keyId: string;
         public callback: MessageBus.IMessageBusCallback
+    }
+
+    /**
+     * object for sending project messages over socket.io channel
+     */
+    export class ProjectUpdate {
+        public projectId: string;
+        public action: ProjectUpdateAction;
+        public item: any;
     }
 
     /**
@@ -44,6 +58,14 @@ module ClientConnection {
     }
 
     /**
+     * List of available action for sending/receiving project actions over socket.io channel
+     */
+    export enum ProjectUpdateAction {
+        updateProject,
+        deleteProject
+    }
+
+    /**
      * List of available action for sending/receiving layer actions over socket.io channel
      */
     export enum LayerUpdateAction {
@@ -58,7 +80,8 @@ module ClientConnection {
      * List of available action for sending/receiving key actions over socket.io channel
      */
     export enum KeyUpdateAction {
-        updateKey
+        updateKey,
+        deleteKey // onlyused in imb api for now..
     }
 
     export class ClientMessage {
@@ -156,6 +179,14 @@ module ClientConnection {
         //     });
         // }
 
+        public registerProject(projectId: string, callback: MessageBus.IMessageBusCallback) {
+            var sub = new ProjectSubscription();
+            sub.projectId = projectId;
+
+            sub.callback = callback;
+            //this.subscriptions.push(sub);
+        }
+
         public registerLayer(layerId: string, callback: MessageBus.IMessageBusCallback) {
             var sub = new LayerSubscription();
             sub.layerId = layerId;
@@ -215,6 +246,25 @@ module ClientConnection {
 
         /**
          * Send update to all clients.
+         * @action: project-update
+         * @meta: used to determine source/user, will skip
+         */
+        public updateProject(projectId: string, update: ProjectUpdate, meta: ApiMeta) {
+            //Winston.info('update feature ' + layer);
+            var skip = (meta.source === "socketio") ? meta.user : undefined;
+            for (var uId in this.users) {
+                if (!skip || uId != skip) {
+                    var sub = this.users[uId].FindSubscription("", "directory");
+                    if (sub != null) {
+                        Winston.info('send to : ' + sub.id);
+                        this.users[uId].Client.emit(sub.id, new ClientMessage("project", update));
+                    }
+                }
+            }
+        }
+
+        /**
+         * Send update to all clients.
          * @action: logs-update, feature-update
          * @meta: used to determine source/user, will skip
          */
@@ -262,7 +312,6 @@ module ClientConnection {
             var skip = (meta.source === "socketio") ? meta.user : undefined;
             for (var uId in this.users) {
                 if (!skip || uId != skip) {
-                    console.log(JSON.stringify(this.users[uId].Subscriptions));
                     var sub = this.users[uId].FindSubscription(keyId, "key");
                     if (sub != null) {
                         Winston.info('send to : ' + sub.id);

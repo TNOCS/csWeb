@@ -15,7 +15,7 @@ module csComp.Services {
             return Helpers.convertPropertyInfo(this.propertyType, this.activeValue);
         }
 
-        public addValue(date: number, value: number) {
+        public addValue(date: number, value: any) {
             this.timestamps.push(date);
             this.values.push(value);
             this.activeValue = value;
@@ -50,7 +50,7 @@ module csComp.Services {
         /** static, dynamic */
         type: string;
         title: string;
-        sensors: { (key: string): SensorSet };
+        sensors: { [key: string]: SensorSet } = {};
 
         static merge_sensor(s1: SensorSet, s2: SensorSet): SensorSet {
             var obj3: SensorSet = new SensorSet();
@@ -71,7 +71,7 @@ module csComp.Services {
                 sensors: {}
                 //sensors: csComp.Helpers.serialize<DataSource>(d.sensors, SensorSet.serializeableData)
             }
-            for (var ss in d.sensors) res.sensors[ss] = d.sensors[ss].serialize();
+            //for (var ss in d.sensors) res.sensors[ss] = d.sensors[ss].serialize();
             return res;
         }
 
@@ -87,21 +87,21 @@ module csComp.Services {
             if (ds.url != null) {
                 $http.get(ds.url)
                     .success((temp: DataSource) => {
-                            if (temp != null) {
-                                ds.id = temp.id;
-                                if (!ds.hasOwnProperty('sensors')) {
-                                    ds.sensors = temp.sensors;
-                                } else {
-                                    for (var s in temp.sensors) {
-                                        if (temp.sensors.hasOwnProperty(s)) {
-                                            ds.sensors[s] = this.merge_sensor(ds.sensors[s], temp.sensors[s]);
-                                        }
-                                    }
+                    if (temp != null) {
+                        ds.id = temp.id;
+                        if (!ds.hasOwnProperty('sensors')) {
+                            ds.sensors = temp.sensors;
+                        } else {
+                            for (var s in temp.sensors) {
+                                if (temp.sensors.hasOwnProperty(s)) {
+                                    ds.sensors[s] = this.merge_sensor(ds.sensors[s], temp.sensors[s]);
                                 }
-                                ds.title = temp.title;
-                                callback();
                             }
-                        })
+                        }
+                        ds.title = temp.title;
+                        callback();
+                    }
+                })
                     .error(() => { console.log("Error on Data source -- do something ?"); });
             }
         }

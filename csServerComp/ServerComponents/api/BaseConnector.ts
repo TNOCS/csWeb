@@ -1,10 +1,12 @@
 import ApiManager = require('./ApiManager');
+import Project = ApiManager.Project;
+import Group = ApiManager.Group;
 import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import CallbackResult = ApiManager.CallbackResult;
 import Log = ApiManager.Log;
-
 import ApiMeta = ApiManager.ApiMeta;
+
 
 export class BaseConnector implements ApiManager.IConnector {
     public manager: ApiManager.ApiManager
@@ -26,13 +28,32 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
-    public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
+    public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
     }
 
     public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {
 
     }
 
+    public addLayerToProject(layerId: string, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public removeLayerFromProject(layerId: string, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public allGroups(projectId: string, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public addGroup(group: Group, projectId: string, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public removeGroup(groupId: string, projectId: string, meta: ApiMeta, callback: Function) {
+
+    }
 
     // feature methods, in crud order
 
@@ -92,6 +113,28 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
+    public initProject(project: Project) {
+
+    }
+
+    public addProject(project: Project, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public getProject(projectId, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public updateProject(project: Project, meta: ApiMeta, callback: Function) {
+
+    }
+
+    public deleteProject(projectId, meta: ApiMeta, callback: Function) {
+
+    }
+
+    /** Get a specific key */
+    public getKey(keyId: string, meta: ApiMeta, callback: Function) { }
     /** Get a list of available keys */
     public getKeys(meta: ApiMeta, callback: Function) { }
     /** Update the value for a given keyId */
@@ -104,6 +147,14 @@ export class BaseConnector implements ApiManager.IConnector {
     public init(layerManager: ApiManager.ApiManager, options: any) {
 
     }
-    /** listen to key updates */
-    subscribeKey(keyPattern: string, meta: ApiMeta, callback: Function) { }
+
+    /**
+     * Subscribe to certain keys.
+     * @method subscribeKey
+     * @param  {string}     keyPattern Pattern to listen for, e.g. hello/me/+:person listens for all hello/me/xxx topics.
+     * @param  {ApiMeta}    meta       [description]
+     * @param  {Function}   callback   Called when topic is called.
+     * @return {[type]}                [description]
+     */
+    subscribeKey(keyPattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void) { }
 }

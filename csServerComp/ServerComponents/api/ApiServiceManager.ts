@@ -4,6 +4,7 @@ import IApiService = require('./IApiService');
 import Utils = require('../helpers/Utils');
 import IApiServiceManager = require('./IApiServiceManager');
 
+
 class ApiServiceManager implements IApiServiceManager {
     private baseUrl: string;
     private dataUrl: string;

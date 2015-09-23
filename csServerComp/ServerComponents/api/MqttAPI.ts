@@ -1,23 +1,24 @@
 import ApiManager = require('./ApiManager');
 import express = require('express')
 import Layer = ApiManager.Layer;
+import Feature = ApiManager.Feature;
 import Log = ApiManager.Log;
 import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
 import ApiMeta = ApiManager.ApiMeta;
 import mqtt = require("mqtt");
+import mqttrouter = require("mqtt-router");
 import BaseConnector = require('./BaseConnector');
 import Winston = require('winston');
-
 
 
 export class MqttAPI extends BaseConnector.BaseConnector {
 
     public manager: ApiManager.ApiManager
     public client: any;
-    public router: any;
+    public router: mqttrouter.MqttRouter;
 
-    constructor(public server: string, public port: number = 1883, private layerPrefix = "layers", private keyPrefix = "keys") {
+    constructor(public server: string, public port: number = 1883, public layerPrefix = "layers", public keyPrefix = "keys") {
         super();
         this.isInterface = true;
         this.receiveCopy = false;
@@ -25,27 +26,28 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
     public init(layerManager: ApiManager.ApiManager, options: any) {
         this.manager = layerManager;
-        this.layerPrefix = (this.manager.name + "/" + this.layerPrefix + "/").replace("//", "/");
-        this.keyPrefix = (this.manager.name + "/" + this.keyPrefix + "/").replace("//", "/");
+        this.layerPrefix = (this.manager.namespace + "/" + this.layerPrefix + "/").replace("//", "/");
+        this.keyPrefix = (this.manager.namespace + "/" + this.keyPrefix + "/").replace("//", "/");
         Winston.info('mqtt: init mqtt connector');
 
         this.client = (<any>mqtt).connect("mqtt://" + this.server + ":" + this.port);
-
-
-
-        // enable the subscription router
-        //this.router = mqttrouter.MqttAPI.Router(this.client);
+        this.router = mqttrouter.wrap(this.client);
 
         this.client.on('error', (e) => {
-            Winston.warn('mqtt: error');
+            Winston.error(`mqtt: error ${e}`);
         });
 
         this.client.on('connect', () => {
             Winston.info("mqtt: connected");
             // server listens to all key updates
             if (!this.manager.isClient) {
-                Winston.info("mqtt: listen to everything");
-                this.client.subscribe("#");
+                var subscriptions = layerManager.options.mqttSubscriptions || '#';
+                Winston.info(`mqtt: listen to ${subscriptions === '#' ? 'everything' : subscriptions}`);
+                if (typeof subscriptions === 'string') {
+                    this.client.subscribe(subscriptions);
+                } else {
+                    subscriptions.forEach(s => this.client.subscribe(s));
+                }
             }
         });
 
@@ -54,30 +56,82 @@ export class MqttAPI extends BaseConnector.BaseConnector {
 
         });
 
-        this.client.on('message', (topic, message) => {
-            Winston.info("mqtt: " + topic + "-" + message.toString());
+        // TODO Use the router to handle messages
+        // this.router.subscribe('hello/me/#:person', function(topic, message, params){
+        //   console.log('received', topic, message, params);
+        // });
+        this.client.on('message', (topic: string, message: string) => {
+            if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
+            // listen to layer updates
+            if (topic === this.layerPrefix) {
+                var layer = <Layer>JSON.parse(message);
+                if (layer && layer.id) {
+                    Winston.info('mqtt: update layer ' + layer.id);
+                    this.manager.updateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
+                }
+            }
+            else if (topic.indexOf(this.layerPrefix) === 0) {
+                var lid = topic.substring(this.layerPrefix.length, topic.length);
+                try {
+                    var layer = <Layer>JSON.parse(message);
+                    if (layer) {
+                        Winston.info('mqtt: update feature for layer ' + lid);
+                        this.manager.updateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
+                    }
+                }
+                catch (e) {
+                    Winston.error(`mqtt: error updating feature, exception ${e}`);
+                }
+            }
+
+            if (topic.indexOf(this.keyPrefix) === 0) {
+                var kid = topic.substring(this.keyPrefix.length, topic.length);
+                if (kid) {
+                    try {
+                        var obj = JSON.parse(message);
+                        Winston.info('mqtt: update key for id ' + kid + " : " + message);
+                        this.manager.updateKey(kid, obj, <ApiMeta>{ source: this.id }, () => { });
+                    }
+                    catch (e) {
+                        Winston.error('mqtt: error updating key for id ' + kid + " : " + message);
+                    }
+                }
+            }
+
+            // layers/....
+            // layer zonder features
+            // url
+            // title
+            //
+            // keys/..
+            //this.manager.addLayer(layer: ApiManager.Layer, meta: ApiManager.ApiMeta, callback: Function)
             //this.manager.updateKey(topic, message, <ApiMeta>{}, () => { });
 
             //_.startsWith(topic,this.keyPrefix)
         });
-
-
 
         // express api aanmaken
         // vb. addFeature,
         // doorzetten naar de layermanager
     }
 
-    public subscribeKey(keyPattern: string, meta: ApiMeta, callback: Function) {
-        // subscribe to messages for 'hello/me'
-        this.router.subscribe(this.keyPrefix + "#", (topic, message) => {
-            Winston.log('received', topic, message);
+    /**
+     * Subscribe to certain keys using the internal MQTT router.
+     * See also https://github.com/wolfeidau/mqtt-router.
+     * @method subscribeKey
+     * @param  {string}     keyPattern Pattern to listen for, e.g. hello/me/+:person listens for all hello/me/xxx topics.
+     * @param  {ApiMeta}    meta       [description]
+     * @param  {Function}   callback   Called when topic is called.
+     * @return {[type]}                [description]
+     */
+    public subscribeKey(keyPattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void) {
+        this.router.subscribe(keyPattern, (topic: string, message: string, params: Object) => {
+            callback(topic, message.toString(), params);
         });
     }
 
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
-        this.client.publish(this.layerPrefix, JSON.stringify(layer));
-        callback(<CallbackResult> { result: ApiResult.OK });
+        this.updateLayer(layer, meta, callback);
     }
 
     public addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
@@ -87,12 +141,20 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         callback(<CallbackResult> { result: ApiResult.OK });
     }
 
-    public updateLayer(layerId: string, update: any, meta: ApiMeta, callback: Function) {
-        //todo
+    public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+        Winston.info('mqtt: update layer ' + layer.id);
+        if (meta.source !== this.id) {
+            var def = this.manager.getLayerDefinition(layer);
+            this.client.publish(this.layerPrefix, JSON.stringify(def));
+            this.client.publish(this.layerPrefix + layer.id, JSON.stringify(layer));
+        }
+        callback(<CallbackResult> { result: ApiResult.OK });
     }
 
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
-        this.client.publish(this.layerPrefix + layerId, JSON.stringify(feature));
+        Winston.info('mqtt update feature');
+        if (meta.source !== this.id)
+            this.client.publish(this.layerPrefix + layerId, JSON.stringify(feature));
         callback(<CallbackResult> { result: ApiResult.OK });
     }
 
@@ -115,7 +177,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     }
 
     public initLayer(layer: Layer) {
-        this.client.subscribe(this.layerPrefix + layer.id + "/addFeature");
+        //this.client.subscribe(this.layerPrefix + layer.id + "/addFeature");
         Winston.info('mqtt: init layer ' + layer.id);
     }
 

@@ -3,15 +3,15 @@ module csComp.Services {
         /**
          * Grid type, for example 'custom' (default) or 'esri' ASCII Grid
          */
-        gridType: string,
+        gridType?: string,
         /**
          * Projection of the ESRI ASCII GRID
          */
-        projection: string,
+        projection?: string,
         /**
          * Property name of the cell value of the generated json.
          */
-        propertyName: string,
+        propertyName?: string,
         /**
          * Skip a comment line when it starts with this character
          */
@@ -35,28 +35,28 @@ module csComp.Services {
         /**
          * Number of grid columns.
          */
-        columns: number,
+        columns?: number,
         /**
          * Number of grid rows.
          */
-        rows: number,
+        rows?: number,
         /**
          * Start latitude in degrees.
          */
-        startLat: number,
+        startLat?: number,
         /**
          * Start longitude in degrees.
          */
-        startLon: number,
+        startLon?: number,
         /**
          * Add deltaLat after processing a grid cell.
          * NOTE: When the direction is negative, use a minus sign e.g. when counting from 90 to -90..
          */
-        deltaLat: number,
+        deltaLat?: number,
         /**
          * Add deltaLon degrees after processing a grid cell.
          */
-        deltaLon: number,
+        deltaLon?: number,
         /**
          * Skip a first column, e.g. containing the latitude degree.
          */
@@ -80,7 +80,7 @@ module csComp.Services {
         /** If true, use the CONREC contouring algorithm to create isoline contours */
         useContour?: boolean,
         /** When using contours, this specifies the number of contour levels to use. */
-        contourLevels?: number
+        contourLevels?: number | number[]
     }
 
     /**
@@ -158,37 +158,37 @@ module csComp.Services {
         /**
          * Convert the ESRI ASCII GRID header to grid parameters.
          *
-ESRI ASCII Raster format
-The ESRI ASCII raster format can be used to transfer information to or from other cell-based or raster systems. When an existing raster is output to an ESRI ASCII format raster, the file will begin with header information that defines the properties of the raster such as the cell size, the number of rows and columns, and the coordinates of the origin of the raster. The header information is followed by cell value information specified in space-delimited row-major order, with each row seperated by a carraige return.
-In order to convert an ASCII file to a raster, the data must be in this same format. The parameters in the header part of the file must match correctly with the structure of the data values.
-The basic structure of the ESRI ASCII raster has the header information at the beginning of the file followed by the cell value data:
-    NCOLS xxx
-    NROWS xxx
-    XLLCENTER xxx | XLLCORNER xxx
-    YLLCENTER xxx | YLLCORNER xxx
-    CELLSIZE xxx
-    NODATA_VALUE xxx
-    row 1
-    row 2
-    ...
-    row n
-*
-Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so on.
-Header format
-The syntax of the header information is a keyword paired with the value of that keyword. The definitions of the kewords are:
-*
-Parameter	Description	Requirements
-NCOLS	Number of cell columns.	Integer greater than 0.
-NROWS	Number of cell rows.	Integer greater than 0.
-XLLCENTER or XLLCORNER	X coordinate of the origin (by center or lower left corner of the cell).	Match with Y coordinate type.
-YLLCENTER or YLLCORNER	Y coordinate of the origin (by center or lower left corner of the cell).	Match with X coordinate type.
-CELLSIZE	Cell size.	Greater than 0.
-NODATA_VALUE	The input values to be NoData in the output raster.	Optional. Default is -9999.
-Data format
-The data component of the ESRI ASCII raster follows the header information.
-Cell values should be delimited by spaces.
-No carriage returns are necessary at the end of each row in the raster. The number of columns in the header determines when a new row begins.
-Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so on.
+            ESRI ASCII Raster format
+            The ESRI ASCII raster format can be used to transfer information to or from other cell-based or raster systems. When an existing raster is output to an ESRI ASCII format raster, the file will begin with header information that defines the properties of the raster such as the cell size, the number of rows and columns, and the coordinates of the origin of the raster. The header information is followed by cell value information specified in space-delimited row-major order, with each row seperated by a carraige return.
+            In order to convert an ASCII file to a raster, the data must be in this same format. The parameters in the header part of the file must match correctly with the structure of the data values.
+            The basic structure of the ESRI ASCII raster has the header information at the beginning of the file followed by the cell value data:
+                NCOLS xxx
+                NROWS xxx
+                XLLCENTER xxx | XLLCORNER xxx
+                YLLCENTER xxx | YLLCORNER xxx
+                CELLSIZE xxx
+                NODATA_VALUE xxx
+                row 1
+                row 2
+                ...
+                row n
+            *
+            Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so on.
+            Header format
+            The syntax of the header information is a keyword paired with the value of that keyword. The definitions of the kewords are:
+            *
+            Parameter	Description	Requirements
+            NCOLS	Number of cell columns.	Integer greater than 0.
+            NROWS	Number of cell rows.	Integer greater than 0.
+            XLLCENTER or XLLCORNER	X coordinate of the origin (by center or lower left corner of the cell).	Match with Y coordinate type.
+            YLLCENTER or YLLCORNER	Y coordinate of the origin (by center or lower left corner of the cell).	Match with X coordinate type.
+            CELLSIZE	Cell size.	Greater than 0.
+            NODATA_VALUE	The input values to be NoData in the output raster.	Optional. Default is -9999.
+            Data format
+            The data component of the ESRI ASCII raster follows the header information.
+            Cell values should be delimited by spaces.
+            No carriage returns are necessary at the end of each row in the raster. The number of columns in the header determines when a new row begins.
+            Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so on.
          */
         private convertEsriHeaderToGridParams(data: string) {
             const regex = /(\S*)\s*([\d-.]*)/;
@@ -251,6 +251,22 @@ Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so
             }
 
             switch (this.gridParams.projection || 'wgs84') {
+                case 'rd':
+                case 'RD':
+                    var startLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat, this.gridParams.startLat);
+                    if (isCenter) {
+                        var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat + this.gridParams.columns*this.gridParams.deltaLon/2, this.gridParams.startLat + this.gridParams.rows*this.gridParams.deltaLat/2);
+                        this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / (this.gridParams.columns/2);
+                        this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / (this.gridParams.rows/2);
+                    } else {
+                        var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat + this.gridParams.columns*this.gridParams.deltaLon, this.gridParams.startLat + this.gridParams.rows*this.gridParams.deltaLat);
+                        this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / this.gridParams.columns;
+                        this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / this.gridParams.rows;
+                    }
+                    this.gridParams.startLon = startLoc.longitude;
+                    this.gridParams.startLat = startLoc.latitude;
+                    break;
+                case 'WGS84':
                 case 'wgs84':
                     break;
                 default:
@@ -289,11 +305,25 @@ Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so
             var rowsToProcess = gridParams.rows || Number.MAX_VALUE;
 
             var conrec = new csComp.Helpers.Conrec(),
-                nrIsoLevels = gridParams.contourLevels || 10,
+                nrIsoLevels: number,
+                isoLevels: number[],
                 longitudes: number[] = [],
                 latitudes: number[] = [],
                 gridData: number[][] = [],
                 i = 0;
+
+            if (typeof gridParams.contourLevels === 'undefined') nrIsoLevels = 10;
+            else {
+                var cl = gridParams.contourLevels;
+                if (typeof cl === 'number') {
+                    nrIsoLevels = cl;
+                }
+                else {
+                    isoLevels = cl;
+                    nrIsoLevels = cl.length;
+                }
+            }
+
             lines.forEach((line) => {
                 if (gridParams.commentCharacter)
                     if (line.substr(0, 1) === gridParams.commentCharacter) {
@@ -334,15 +364,18 @@ Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so
                 } else {
                     cells.forEach(c => gridData[i].push(+c));
                 }
-                max = gridParams.maxThreshold || Math.max(max, d3.max(gridData[i]));
-                min = gridParams.minThreshold || Math.min(min, d3.min(gridData[i]));
+                if (typeof isoLevels === 'undefined') {
+                    max = gridParams.maxThreshold || Math.max(max, ...gridData[i]);
+                    min = gridParams.minThreshold || Math.min(min, ...gridData[i]);
+                }
                 latitudes.push(lat);
                 lat += deltaLat;
                 i++;
             });
-            var isoLevels: number[] = [];
-            var dl = (max - min) / nrIsoLevels;
-            for (let l = min+dl/2; l<max; l+=dl) isoLevels.push(Math.round(l*10)/10); // round to nearest decimal.
+            if (typeof isoLevels === 'undefined') {
+                var dl = (max - min) / nrIsoLevels;
+                for (let l = min + dl / 2; l < max; l += dl) isoLevels.push(Math.round(l * 10) / 10); // round to nearest decimal.
+            }
             conrec.contour(gridData, 0, i-1, 0, gridData[0].length-1, latitudes, longitudes, nrIsoLevels, isoLevels);
             var contourList = conrec.contourList;
             contourList.forEach(contour => {

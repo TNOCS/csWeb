@@ -6,7 +6,7 @@ module csComp.Helpers {
             var s: String = l.id;
             var n = l.legendEntries.length;
             if (n == 0) return (defaultcolor);
-            if (l.legendKind == 'discretestrings') {
+            if (l.legendKind.toLowerCase() == 'discretestrings') {
                 var i: number = 0;
                 while (i < n) {
                     var e = l.legendEntries[i];
@@ -22,7 +22,7 @@ module csComp.Helpers {
     }
 
     export function getImageUri(ft: csComp.Services.IFeatureType): string {
-        var iconUri = (ft && ft.style) ? ft.style.iconUri : "cs/images/marker.png";
+        var iconUri = (ft && ft.style && ft.style.iconUri) ? ft.style.iconUri : "cs/images/marker.png";
         if (iconUri.indexOf('{') >= 0) iconUri = iconUri.replace('{', '').replace('}', '');
 
         if (ft.style != null && ft.style.drawingMode != null && ft.style.drawingMode.toLowerCase() != "point") {
@@ -43,12 +43,12 @@ module csComp.Helpers {
         var defaultcolor: string = '#000000';
         var s: String = l.id;
         var n = l.legendEntries.length;
-        if (n == 0) return (defaultcolor);
-        if (l.legendKind == 'discretestrings') {
+        if (n === 0) return (defaultcolor);
+        if (l.legendKind.toLowerCase() === 'discretestrings') {
             var i: number = 0;
             while (i < n) {
                 var e = l.legendEntries[i];
-                if (v == e.stringValue) {
+                if (v === e.stringValue) {
                     return e.color;
                 }
                 i++;
@@ -64,7 +64,7 @@ module csComp.Helpers {
         if (n == 0) return (defaultcolor);
         var e1 = l.legendEntries[0];    // first
         var e2 = l.legendEntries[n - 1];  // last
-        if (l.legendKind === 'interpolated') {
+        if (l.legendKind.toLowerCase() === 'interpolated') {
             // interpolate between two colors
             if (v < e1.value) return e1.color;
             if (v > e2.value) return e2.color;
@@ -81,7 +81,7 @@ module csComp.Helpers {
             }
             return (defaultcolor);
         }
-        if (l.legendKind === 'discrete') {
+        if (l.legendKind.toLowerCase() === 'discrete') {
             if (v < e1.interval.min) return l.legendEntries[0].color;
             if (v > e2.interval.max) return l.legendEntries[n - 1].color;
             var i: number = 0;
@@ -102,13 +102,13 @@ module csComp.Helpers {
             return getColorFromLegend(v, gs.activeLegend)
         }
 
-        if (v > gs.info.sdMax) return gs.colors[gs.colors.length - 1];
-        if (v < gs.info.sdMin) return gs.colors[0];
+        if (v > gs.info.max) return gs.colors[gs.colors.length - 1];
+        if (v < gs.info.min) return gs.colors[0];
         //var bezInterpolator = chroma.interpolate.bezier(gs.colors);
         //var r = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
         //return r;
         var color = d3.scale.linear()
-            .domain([gs.info.sdMin, gs.info.sdMax])//domain and range should have the same arraylength!!!
+            .domain([gs.info.min, gs.info.max])//domain and range should have the same arraylength!!!
             .range(gs.colors);
         var hexColor = color(v).toString();
         return hexColor;

@@ -288,6 +288,8 @@ module csComp.Services {
             });
         }
 
+
+
 		/**
 		 * Publish a notification
          * @title:       the title of the notification
@@ -296,6 +298,7 @@ module csComp.Services {
          * @notifyType:  the type of notification
 		 */
         public notify(title: string, text: string, location = NotifyLocation.TopRight, notifyType = NotifyType.Normal) {
+            console.log('notify : ' + title);
             var cssLocation: string;
             var cornerglass: string = 'ui-pnotify-sharp';
             var myStack: { dir1: string, dir2: string } = { dir1: "", dir2: "" };
@@ -348,7 +351,68 @@ module csComp.Services {
                     options.type = 'success';
                     break;
             }
-            var pn = new PNotify(options);
+            //var pn = new PNotify(options);
+
+
+
+            // var s = new PNotify({
+            //     title: 'Non-Blocking Notice',
+            //     text: 'I\'m a non-blocking notice with buttons.',
+            //
+            //     buttons: {
+            //         show_on_nonblock: true
+            //     }
+            // });
+
+            //var stack_bar_top = { "dir1": "down", "dir2": "right", "push": "top", "width": "500px", "spacing1": 0, "spacing2": 0 };
+            //var stack_bar_top = { "dir1": "down", "dir2": "right", "push": "top", "firstpos1": 0, "firstpos2": ($(window).width() / 2 - 500) }
+            var stack_bar_bottom = { "dir1": "up", "dir2": "right", "spacing1": 0, "spacing2": 0 };
+
+            var opts = {
+                title: title,
+                text: text,
+                cornerclass: 'ui-pnotify-sharp',
+                shadow: false,
+                nonblock: {
+                    nonblock: true,
+                    nonblock_opacity: .2
+                },
+
+                // confirm: {
+                //     confirm: true,
+                //     buttons: [{
+                //         buttons: [{
+                //             text: 'Fries',
+                //             addClass: 'btn-primary',
+                //             click: (notice) => {
+                //                 notice.update({
+                //                     title: 'You\'ve Chosen a Side',
+                //                     text: 'You want fries.',
+                //                     icon: true,
+                //                     type: 'info',
+                //                     hide: true,
+                //                     confirm: {
+                //                         confirm: false
+                //                     },
+                //                     buttons: {
+                //                         show_on_nonblock: true,
+                //                         closer: true,
+                //                         sticker: true
+                //                     }
+                //                 });
+                //             }
+                //         }]
+                //     }]
+                // },
+                buttons: {
+                    closer: false,
+                    sticker: false
+                },
+                type: "info",
+                hide: true
+            };
+
+            new PNotify(opts);
         }
 
 		/**

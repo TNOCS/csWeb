@@ -21,7 +21,6 @@ module csComp.Services {
         timestamps?: number[];
         coordinates?: IGeoJsonGeometry[];
     }
-
     export class Feature implements IFeature {
         id: string;
         geometry: IGeoJsonGeometry;

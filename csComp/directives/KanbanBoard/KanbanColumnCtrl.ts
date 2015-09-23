@@ -206,8 +206,8 @@ module KanbanColumn {
             if (feature.properties.hasOwnProperty(this.column.fields['prio']))
                 return {
                     "background-color": colors[parseInt(feature.properties[this.column.fields['prio']])]
-                }
-            return {};
+                };
+            return { "background-color": "white" };
         }
 
         public setOrder(order: string) {

@@ -60,6 +60,7 @@ module csComp.Services {
         icon?: string;
 
         name?: string; id: string;
+        timeDependent?: boolean;
         properties?: {};
         dataSets?: DataSet[];
         range?: csComp.Services.DateRange;
@@ -102,6 +103,7 @@ module csComp.Services {
         public top: string;
         public bottom: string;
         public name: string; public id: string;
+        public timeDependent: boolean;
         public properties: {};
         public dataSets: DataSet[];
         public range: csComp.Services.DateRange;
@@ -133,14 +135,14 @@ module csComp.Services {
             this.dataSets = [];
         }
 
-        static serializeableData(w: IWidget): IWidget {
-            return {
+        public static serializeableData(w: IWidget): IWidget {
+            var r = <IWidget> {
                 id: w.id,
                 directive: w.directive,
                 template: w.template,
                 title: w.title,
                 name: w.name,
-                data: w.data,
+                timeDependent: w.timeDependent,
                 url: w.url,
                 elementId: w.elementId,
                 enabled: w.enabled,
@@ -159,7 +161,33 @@ module csComp.Services {
                 range: w.range,
                 collapse: w.collapse,
                 canCollapse: w.canCollapse,
+                data: BaseWidget.cloneWithout0(w.data)
             };
+            return r;
+        }
+
+        public static cloneWithout0(v: any): any {
+            if (typeof v !== "object") return v;
+            if (v instanceof Array) {
+                var a = [];
+                v.forEach((i) => {
+                    a.push(this.cloneWithout0(i));
+                })
+                return a;
+            }
+            else {
+                var c = {};
+                for (var k in v) {
+                    if (k[0] !== '_') c[k] = this.cloneWithout0(v[k]);
+                }
+                return c;
+            }
+            // if (v['0']) {
+            //   for (var k in v['0']) {
+            //     if (k !== '0') c[k] = this.cloneWithout0(v['0'][k]);
+            //   }
+            // }
+
         }
 
         public start() { }

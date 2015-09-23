@@ -12,9 +12,6 @@
                 margin-top: 6px;
             }
 
-
-
-
         .addlayer-image {
             width: 25px;
             height: 25px;
@@ -33,10 +30,9 @@
     <div ng-if="vm.state === 'directory'">
         <h3 class="leftpanel-header" style="width: 100%">
             <div class="leftpanel-header-button-container-left">
-                <button class="button fa fa-arrow-left leftpanel-header-button" ng-click="vm.state = 'layers'" />
+                <button class="button fa fa-arrow-left leftpanel-header-button" ng-click="vm.exitDirectory()" />
             </div>
             <span translate="DIRECTORY" />
-
         </h3>
         <div style="background:white">
             <div ng-show="vm.selectedLayer == null">
@@ -44,7 +40,7 @@
                     <!-- <img class="addlayer-image" src="http://www.tom-carden.co.uk/wp-content/uploads/2008/10/osm-yahoo-flash.png"></img> -->
                     <div class="addlayer-title">
                         {{layer.title}}
-                        <div class="layer-dir-type">{{layer.type}}</div>
+                        <div class="layer-dir-type">{{layer.updated | amCalendar}}</div>
                     </div>
 
                 </div>
@@ -93,8 +89,9 @@
                 <button class="button fa fa-chevron-down leftpanel-header-button" ng-click="vm.collapseAll()" popover="{{'COLLAPSE_ALL' | translate}}" popover-placement="right" popover-width="200" popover-trigger="mouseenter" popover-append-to-body="true" />
             </div>
             <span translate="LAYERS" />
-            <div ng-show="vm.$mapService.isAdminExpert" class="leftpanel-header-button-container">
-                <button class="button fa fa-plus leftpanel-header-button" ng-click="vm.addLayer()" />
+            <div ng-show="vm.$mapService.isIntermediate" class="leftpanel-header-button-container">
+                <button style="cursor:pointer" class="fa fa-folder button leftpanel-header-button" ng-click="vm.openDirectory()" />
+                <button style="cursor:pointer" class="fa fa-plus button leftpanel-header-button" ng-click="vm.addLayer()" />
             </div>
         </h3>
 

@@ -60,7 +60,7 @@ module csComp.Services {
 
 
             this.$messageBusService.subscribe("dashboard", (event: string, id: string) => {
-                alert(event);
+                //alert(event);
             });
             this.$messageBusService.subscribe("rightpanel", (event: string, tab: any) => {
                 switch (event) {
@@ -76,8 +76,11 @@ module csComp.Services {
                 }
             });
             this.widgetTypes["indicators"] = <IWidget>{ id: "indicators", icon: "cs/images/widgets/indicators.png", description: "Showing sensor data using charts" };
-            this.widgetTypes["markdown"] = <IWidget>{ id: "markdown", icon: "cs/images/widgets/markdown.png", description: "Show custom markdown or html content" };
+            this.widgetTypes["charts"] = <IWidget>{ id: "charts", icon: "cs/images/widgets/markdown.png", description: "Show custom chart" };
+            this.widgetTypes["markdownwidget"] = <IWidget>{ id: "markdownwidget", icon: "cs/images/widgets/markdown.png", description: "Show custom markdown or html content" };
+            this.widgetTypes["iframewidget"] = <IWidget>{ id: "iframewidget", icon: "cs/images/widgets/markdown.png", description: "Show custom iframe" };
             this.widgetTypes["kanbanboard"] = <IWidget>{ id: "kanbanboard", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
+            this.widgetTypes["navigator"] = <IWidget>{ id: "navigatorwidget", icon: "cs/images/widgets/markdown.png", description: "Show navigator" };
         }
 
 
@@ -92,6 +95,7 @@ module csComp.Services {
             this.$messageBusService.publish('updatelegend', 'removelegend');
             this.$layerService.project.activeDashboard = dashboard;
             this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
+            this.$location.search('dashboard', dashboard.id);
         }
 
 
@@ -130,10 +134,17 @@ module csComp.Services {
             var content = container + "-content";
             $("#" + container + "-tab").remove();
             try {
-                $("#" + content).remove();
+                var c = $("#" + content);
+                if (c) {
+                    //var s = (<any>c).scope();
+                    c.remove();
+                    // if (s) {
+                    //     this.$timeout(() => { s.$parent.$destroy(); }, 0);
+                    // }
+                }
             }
             catch (e) { }
-            this.$timeout(() => { }, 0);
+
         }
 
         public deactivateTab(tab: RightPanelTab) {
@@ -144,9 +155,6 @@ module csComp.Services {
         public editWidget(widget: csComp.Services.IWidget) {
             this.activeWidget = widget;
             this.editWidgetMode = true;
-            // $("#widgetEdit").addClass('active');
-
-
 
             var rpt = csComp.Helpers.createRightPanelTab('widget', 'widgetedit', widget, 'Edit widget', 'Edit widget', 'th-large');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);

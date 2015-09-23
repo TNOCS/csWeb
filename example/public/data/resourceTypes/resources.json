@@ -17,7 +17,7 @@
     "plane": {
       "name": "Vliegtuig",
       "style": {
-        "strokeColor": "hsv(0, 83%, 40%)",
+        "strokeColor": "red",
         "drawingMode": "Point",
         "strokeWidth": 2,
         "iconWidth": 32,
@@ -27,7 +27,7 @@
         "modelScale": 1,
         "modelMinimumPixelSize": 32,
         "rotateProperty": "Track",
-        "fillColor": "hsv(0, 65%, 81%)",
+        "fillColor": "red",
         "cornerRadius": 50,
         "opacity": 0.4
       },
@@ -2592,21 +2592,24 @@
       "type": "number",
       "title": "Altitude",
       "canEdit": false,
-      "visibleInCallOut": true
+      "visibleInCallOut": true,
+      "$$hashKey": "object:763"
     },
     "Speed": {
       "label": "Speed",
       "type": "number",
       "title": "Speed",
       "canEdit": false,
-      "visibleInCallOut": true
+      "visibleInCallOut": true,
+      "$$hashKey": "object:762"
     },
     "Track": {
       "label": "Track",
       "type": "number",
       "title": "Track",
       "canEdit": false,
-      "visibleInCallOut": true
+      "visibleInCallOut": true,
+      "$$hashKey": "object:764"
     },
     "PlaneType": {
       "label": "PlaneType",

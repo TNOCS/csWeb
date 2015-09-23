@@ -125,6 +125,11 @@ module LayersDirective {
             this.selectedLayer = layer;
         }
 
+        public exitDirectory() {
+            this.selectedLayer = null;
+            this.state = 'layers';
+        }
+
         public addProjectLayer() {
             var group = this.$layerService.findGroupById(this.layerGroup);
             if (group) {
@@ -169,7 +174,7 @@ module LayersDirective {
             //alert('open layers');
         }
 
-        public addLayer() {
+        public openDirectory() {
             this.state = "directory";
             this.project = this.$layerService.project;
             if (this.project.layerDirectory) {
@@ -195,6 +200,10 @@ module LayersDirective {
             }, () => {
                     //console.log('Modal dismissed at: ' + new Date());
                 });
+        }
+
+        public addLayer() {
+
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {

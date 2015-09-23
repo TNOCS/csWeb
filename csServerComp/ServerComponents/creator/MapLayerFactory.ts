@@ -1,15 +1,15 @@
-require('rootpath')();
-import express = require('express');
-import MessageBus = require('../bus/MessageBus');
-import pg = require('pg');
-import ConfigurationService = require('../configuration/ConfigurationService');
 import fs = require('fs');
 import http = require('http');
+import express = require('express');
+import request = require('request');
+import pg = require('pg');
+import proj4 = require('proj4');
+import MessageBus = require('../bus/MessageBus');
+import ConfigurationService = require('../configuration/ConfigurationService');
 import Location = require('../database/Location');
 import BagDatabase = require('../database/BagDatabase');
 import IBagOptions = require('../database/IBagOptions');
 import IGeoJsonFeature = require('./IGeoJsonFeature');
-import proj4 = require('proj4');
 
 export interface ILayerDefinition {
     projectTitle: string,
@@ -116,7 +116,7 @@ export class MapLayerFactory {
                 project: ld.projectTitle,
                 layerTitle: ld.layerTitle,
                 description: ld.description,
-                reference: ld.reference,
+                reference: ld.reference.toLowerCase(),
                 featureType: ld.featureType,
                 clusterLevel: ld.clusterLevel,
                 useClustering: ld.useClustering,
@@ -137,7 +137,37 @@ export class MapLayerFactory {
 
             console.log("New map created: publishing...");
             this.messageBus.publish('dynamic_project_layer', 'created', data);
+
+            this.sendLayerThroughApi(data);
         });
+    }
+
+    public sendLayerThroughApi(data: any) {
+        request({
+            url: "http://localhost:3002/api/layers",
+            method: "POST",
+            json: true,
+            body: { title: data.layerTitle, id: data.reference, features: data.geojson.features }
+        }, function(error, response, body) {
+            console.log('Creating layer... ' + response.statusCode + ' ' + body.error);
+            request({
+                url: "http://localhost:3002/api/projects/" + data.project + "/group",
+                method: "POST",
+                json: true,
+                body: { title: data.group, id: data.group}
+            }, function(error, response, body) {
+                console.log('Creating group... ' + response.statusCode + ' ' + body.error);
+                request({
+                    url: "http://localhost:3002/api/projects/" + data.project + "/group/" + data.group + '/layer/' + data.reference,
+                    method: "POST",
+                    json: true,
+                    body: { title: data.group, id: data.group}
+                }, function(error, response, body) {
+                    console.log('Adding layer to group... ' + response.statusCode + ' ' + body.error);
+                });
+            });
+        });
+
     }
 
     public processBagContours(req: express.Request, res: express.Response) {
@@ -153,7 +183,7 @@ export class MapLayerFactory {
         layer.type = 'database';
         this.bag.lookupBagArea(bounds, (areas: Location[]) => {
             areas.forEach((area: Location) => {
-                var props: {[key: string]: any} = {};
+                var props: { [key: string]: any } = {};
                 for (var p in area) {
                     if (area.hasOwnProperty(p)) {
                         if (p !== 'contour') props[p] = area[p];
@@ -443,7 +473,7 @@ export class MapLayerFactory {
         if (!properties) callback();
         var todo = properties.length;
         properties.forEach((prop, index) => {
-            if (prop.hasOwnProperty(zipCode) && typeof prop[zipCode] === 'string'){
+            if (prop.hasOwnProperty(zipCode) && typeof prop[zipCode] === 'string') {
                 var zip = prop[zipCode].replace(/ /g, '');
                 var nmb = prop[houseNumber];
                 this.bag.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {

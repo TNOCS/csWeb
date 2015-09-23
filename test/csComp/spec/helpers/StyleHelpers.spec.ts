@@ -19,7 +19,7 @@ describe('StyleHelpers', function() {
         it('should have function getColorFromStringValue', function() {
             var color = csComp.Helpers.getColorFromStringValue('wrongFormat', groupStyle);
             expect(color).toBeUndefined();
-            groupStyle.activeLegend = { id: 'test', 'legendEntries': [], 'legendKind': 'discretestrings' };
+            groupStyle.activeLegend = { id: 'test', 'legendEntries': [], 'legendKind': 'discreteStrings' };
             var color = csComp.Helpers.getColorFromStringValue('wrongFormat', groupStyle);
             expect(color).toEqual('#000000');
             groupStyle.activeLegend.legendEntries.push({ 'stringValue': 'blue', 'color': '#000011' });
@@ -35,17 +35,17 @@ describe('StyleHelpers', function() {
             legend.legendEntries = [];
             var color = csComp.Helpers.getColorFromStringLegend('wrongFormat', legend);
             expect(color).toEqual('#000000');
-            legend.legendKind = 'discretestrings';
-            var color = csComp.Helpers.getColorFromStringLegend('wrongFormat', legend);
+            legend.legendKind = 'discreteStrings';
+            color = csComp.Helpers.getColorFromStringLegend('wrongFormat', legend);
             expect(color).toEqual('#000000');
             legend.legendEntries.push({ 'stringValue': 'blue', 'color': '#000011', 'label': 'blue', 'interval': { 'min': 0, 'max': 1 }, 'value': 0 });
-            legend.legendEntries.push({ 'stringValue': 'green', 'color': '#001100', 'label': 'blue', 'interval': { 'min': 0, 'max': 1 }, 'value': 0 });
-            var color = csComp.Helpers.getColorFromStringLegend('green', legend);
+            legend.legendEntries.push({ 'stringValue': 'green', 'color': '#001100', 'label': 'green', 'interval': { 'min': 0, 'max': 1 }, 'value': 0 });
+            color = csComp.Helpers.getColorFromStringLegend('green', legend);
             expect(color).toEqual('#001100');
-            var color = csComp.Helpers.getColorFromStringLegend('red', legend);
+            color = csComp.Helpers.getColorFromStringLegend('red', legend);
             expect(color).toEqual('#000000');
             legend.legendKind = 'notExisting';
-            var color = csComp.Helpers.getColorFromStringLegend('green', legend);
+            color = csComp.Helpers.getColorFromStringLegend('green', legend);
             expect(color).toEqual('#000000');
         });
 
@@ -80,7 +80,7 @@ describe('StyleHelpers', function() {
         });
 
         it('should have function getColor', function() {
-            groupStyle.info = {sdMax: 1, sdMin: 0, mean:0.5};
+            groupStyle.info = {max: 1, min: 0, mean:0.5};
             groupStyle.colors = ['#000000', '#002200'];
             var color = csComp.Helpers.getColor(0, groupStyle);
             expect(color).toEqual('#000000');

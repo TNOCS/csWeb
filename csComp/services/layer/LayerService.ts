@@ -47,10 +47,12 @@ module csComp.Services {
         solution: Solution;
         dimension: any;
         lastSelectedFeature: IFeature;
+        selectedFeatures: IFeature[];
         selectedLayerId: string;
         timeline: any;
         _activeContextMenu: IActionOption[];
         editing: boolean;
+        directoryHandle: MessageBusHandle;
 
         currentLocale: string;
         /** layers that are currently active */
@@ -67,6 +69,8 @@ module csComp.Services {
         actionServices: IActionService[] = [];
 
         currentContour: L.GeoJSON;
+
+        startDashboardId: string;
 
         public visual: VisualState = new VisualState();
         throttleTimelineUpdate: Function;
@@ -102,6 +106,7 @@ module csComp.Services {
             this.typesResources = {};
             this._featureTypes = {};
             this.propertyTypeData = {};
+            this.selectedFeatures = [];
             this.currentLocale = $translate.preferredLanguage();
             // init map renderers
             this.mapRenderers = {};
@@ -157,9 +162,22 @@ module csComp.Services {
                 }
             });
 
-            this.geoService.start();
+            //this.geoService.start();
 
             this.addActionService(new LayerActions());
+
+            var delayFocusChange = _.throttle((date) => {
+                for (var l in this.loadedLayers) {
+                    var layer = <ProjectLayer>this.loadedLayers[l];
+                    if (layer.timeDependent) {
+                        layer.layerSource.refreshLayer(layer);
+                    }
+                }
+            }, 1000);
+
+            $messageBusService.subscribe("timeline", (action: string, date: Date) => {
+                if (action === "focusChange") { delayFocusChange(date); }
+            });
         }
 
         public getActions(feature: IFeature): IActionOption[] {
@@ -336,7 +354,6 @@ module csComp.Services {
                                 }
                                 else {
                                     if (typeof l === 'string') {
-
                                         pl.url = l;
                                     }
                                     else {
@@ -359,12 +376,10 @@ module csComp.Services {
                                     pl.group.layers.push(pl);
                                 }
                                 this.addLayer(pl);
-
                             }
                         });
                         break;
                 }
-
             });
         }
 
@@ -507,15 +522,15 @@ module csComp.Services {
                         var success = false;
                         this.$http.get(url)
                             .success((resource: TypeResource) => {
-                                success = true;
-                                resource.url = url;
-                                this.initTypeResources(resource);
-                                this.$messageBusService.publish("typesource", url, resource);
-                                callback();
-                            })
+                            success = true;
+                            resource.url = url;
+                            this.initTypeResources(resource);
+                            this.$messageBusService.publish("typesource", url, resource);
+                            callback();
+                        })
                             .error(() => {
-                                this.$messageBusService.notify('ERROR loading TypeResources', 'While loading: ' + url);
-                            });
+                            this.$messageBusService.notify('ERROR loading TypeResources', 'While loading: ' + url);
+                        });
                         setTimeout(() => {
                             if (!success) {
                                 callback();
@@ -618,12 +633,12 @@ module csComp.Services {
          * Check whether we need to enable the timer to refresh the layer.
          */
         private checkLayerTimer(layer: ProjectLayer) {
-            if (!layer.refreshTimer) return;
+            if (!layer.refreshTimeInterval) return;
             if (layer.enabled) {
                 if (!layer.timerToken) {
                     layer.timerToken = setInterval(() => {
                         layer.layerSource.refreshLayer(layer);
-                    }, layer.refreshTimer * 1000);
+                    }, layer.refreshTimeInterval * 1000);
                     console.log(`Timer started for ${layer.title}: ${layer.timerToken}`);
                 }
             } else if (layer.timerToken) {
@@ -717,42 +732,60 @@ module csComp.Services {
             this.selectFeature(feature);
         }
 
-        public selectFeature(feature: IFeature) {
-            feature.isSelected = !feature.isSelected;
+        private deselectFeature(feature: IFeature) {
+            feature.isSelected = false;
+            this.calculateFeatureStyle(feature);
+            this.activeMapRenderer.updateFeature(feature);
+        }
 
+        public selectFeature(feature: IFeature, multi = false) {
+            feature.isSelected = !feature.isSelected;
             this.actionServices.forEach((as: IActionService) => {
-                as.selectFeature(feature);
+                if (feature.isSelected) { as.selectFeature(feature); } else { as.deselectFeature(feature); }
             })
 
             // deselect last feature and also update
-            if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature) {
-                this.lastSelectedFeature.isSelected = false;
-                this.calculateFeatureStyle(this.lastSelectedFeature);
-                this.activeMapRenderer.updateFeature(this.lastSelectedFeature);
+            if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
+                this.deselectFeature(this.lastSelectedFeature);
+
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
-                this.actionServices.forEach((as: IActionService) => {
-                    as.deselectFeature(feature);
-                })
             }
-            this.lastSelectedFeature = feature;
+            if (feature.isSelected) this.lastSelectedFeature = feature;
 
             // select new feature, set selected style and bring to front
             this.calculateFeatureStyle(feature);
             this.activeMapRenderer.updateFeature(feature);
 
+            if (multi) {
+                if (feature.isSelected) {
+                    if (this.selectedFeatures.indexOf(feature) === -1) {
+                        this.selectedFeatures.push(feature);
+                    }
+                }
+                else {
+                    if (this.selectedFeatures.indexOf(feature) >= 0) {
+                        this.selectedFeatures = this.selectedFeatures.filter((f) => { return f.id !== feature.id; });
+                    }
+                }
+            }
+            else {
+                this.selectedFeatures.forEach((f) => this.deselectFeature(f));
+                this.selectedFeatures = (feature.isSelected) ? [feature] : [];
+            }
+
             if (!feature.isSelected) {
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', feature);
 
-                var rpt = new RightPanelTab();
-                rpt.container = 'featureprops';
-                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
-                rpt.container = 'featurerelations';
-                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+                // var rpt = new RightPanelTab();
+                // rpt.container = 'featureprops';
+                // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+                // rpt.container = 'featurerelations';
+                // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
-                var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
-                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{"RELATED_FEATURES" | translate}}', 'link');
+                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
+                // this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
             }
         }
@@ -835,11 +868,14 @@ module csComp.Services {
                 this.project.datasources.forEach((ds: DataSource) => {
                     for (var sensorTitle in ds.sensors) {
                         var sensor = <SensorSet>ds.sensors[sensorTitle];
+
                         if (sensor.timestamps) {
-                            for (var i = 1; i < sensor.timestamps.length; i++) {
+                            if (sensor.timestamps.length == 1) {
+                                sensor.activeValue = sensor.values[0];
+                            } else for (var i = 1; i < sensor.timestamps.length; i++) {
                                 if (sensor.timestamps[i] < date) {
                                     sensor.activeValue = sensor.values[i];
-                                    console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
+                                    //console.log('updateSensor: sensor.activeValue = ' + sensor.activeValue + " - " + i);
                                     break;
                                 }
                             }
@@ -1029,11 +1065,11 @@ module csComp.Services {
                                 feature.gui['style'][gs.property] = s.fillColor;
                                 break;
                             case 'strokeWidth':
-                                s.strokeWidth = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 10) + 1;
+                                s.strokeWidth = ((v - gs.info.min) / (gs.info.max - gs.info.min) * 10) + 1;
 
                                 break;
                             case 'height':
-                                s.height = ((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin) * 25000);
+                                s.height = ((v - gs.info.min) / (gs.info.max - gs.info.min) * 25000);
                                 break;
                         }
                     } else {
@@ -1341,7 +1377,7 @@ module csComp.Services {
             filter.group = group;
             group.filters.push(filter);
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(group.id);
         }
 
         setLocationFilter(group: ProjectGroup) {
@@ -1354,7 +1390,7 @@ module csComp.Services {
             gf.rangex = [0, 1];
             group.filters.push(gf);
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(group.id);
         }
 
         setFeatureAreaFilter(f: IFeature) {
@@ -1373,7 +1409,7 @@ module csComp.Services {
                 }
             });
             // if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(f.layer.group.id);
         }
 
         resetFeatureAreaFilter() {
@@ -1445,14 +1481,15 @@ module csComp.Services {
                         // add filter
                         layer.group.filters.push(gf);
                     } else {
-                        var pos = layer.group.filters.indexOf(filter);
-                        if (pos !== -1)
-                            layer.group.filters.slice(pos, 1);
+                        layer.group.filters = layer.group.filters.filter((f: GroupFilter) => f.property != property.property);
+                        // var pos = layer.group.filters.indexOf(filter);
+                        // if (pos !== -1)
+                        //     layer.group.filters.slice(pos, 1);
                     }
                 }
                 (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
             }
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(layer.group.id);
         }
 
         public createScatterFilter(group: ProjectGroup, prop1: string, prop2: string) {
@@ -1496,8 +1533,11 @@ module csComp.Services {
             group.filters.push(gf);
 
             (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+            this.triggerUpdateFilter(group.id);
+        }
 
-            this.mb.publish("filters", "updated");
+        public triggerUpdateFilter(groupId: string) {
+            this.mb.publish("filters", "updated", groupId);
         }
 
         /** remove filter from group */
@@ -1508,7 +1548,7 @@ module csComp.Services {
             filter.group.filters = filter.group.filters.filter(f=> { return f != filter; });
             this.resetMapFilter(filter.group);
             this.updateMapFilter(filter.group);
-            this.mb.publish("filters", "updated");
+            this.triggerUpdateFilter(filter.group.id);
         }
 
         /**
@@ -1606,6 +1646,7 @@ module csComp.Services {
             var g = layer.group;
 
             layer.enabled = false;
+            layer.isLoading = false;
             //if (layer.refreshTimer) layer.stop();
 
             // make sure the timers are disabled
@@ -1620,9 +1661,7 @@ module csComp.Services {
 
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
-                var rpt = new RightPanelTab();
-                rpt.container = "featureprops";
-                this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
+                this.visual.rightPanelVisible = false;
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
 
             }
@@ -1665,61 +1704,61 @@ module csComp.Services {
 
             this.$http.get(url)
                 .success((solution: Solution) => {
-                    if (solution.maxBounds) {
-                        this.maxBounds = solution.maxBounds;
-                        this.$mapService.map.setMaxBounds(new L.LatLngBounds(
-                            L.latLng(solution.maxBounds.southWest[0], solution.maxBounds.southWest[1]),
-                            L.latLng(solution.maxBounds.northEast[0], solution.maxBounds.northEast[1])));
-                    }
-                    if (solution.viewBounds) {
-                        this.activeMapRenderer.fitBounds(solution.viewBounds);
-                    }
+                if (solution.maxBounds) {
+                    this.maxBounds = solution.maxBounds;
+                    this.$mapService.map.setMaxBounds(new L.LatLngBounds(
+                        L.latLng(solution.maxBounds.southWest[0], solution.maxBounds.southWest[1]),
+                        L.latLng(solution.maxBounds.northEast[0], solution.maxBounds.northEast[1])));
+                }
+                if (solution.viewBounds) {
+                    this.activeMapRenderer.fitBounds(solution.viewBounds);
+                }
 
-                    if (solution.baselayers) {
-                        solution.baselayers.forEach(b => {
-                            var baselayer: BaseLayer = new BaseLayer();
+                if (solution.baselayers) {
+                    solution.baselayers.forEach(b => {
+                        var baselayer: BaseLayer = new BaseLayer();
 
-                            if (b.subdomains != null) baselayer.subdomains = b.subdomains;
-                            if (b.maxZoom != null) baselayer.maxZoom = b.maxZoom;
-                            if (b.minZoom != null) baselayer.minZoom = b.minZoom;
-                            if (b.attribution != null) baselayer.attribution = b.attribution;
-                            if (b.id != null) baselayer.id = b.id;
-                            if (b.title != null) baselayer.title = b.title;
-                            if (b.subtitle != null) baselayer.subtitle = b.subtitle;
-                            if (b.preview != null) baselayer.preview = b.preview;
-                            if (b.url != null) baselayer.url = b.url;
-                            if (b.cesium_url != null) baselayer.cesium_url = b.cesium_url;
-                            if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
+                        if (b.subdomains != null) baselayer.subdomains = b.subdomains;
+                        if (b.maxZoom != null) baselayer.maxZoom = b.maxZoom;
+                        if (b.minZoom != null) baselayer.minZoom = b.minZoom;
+                        if (b.attribution != null) baselayer.attribution = b.attribution;
+                        if (b.id != null) baselayer.id = b.id;
+                        if (b.title != null) baselayer.title = b.title;
+                        if (b.subtitle != null) baselayer.subtitle = b.subtitle;
+                        if (b.preview != null) baselayer.preview = b.preview;
+                        if (b.url != null) baselayer.url = b.url;
+                        if (b.cesium_url != null) baselayer.cesium_url = b.cesium_url;
+                        if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
 
-                            this.$mapService.baseLayers[b.title] = baselayer;
-                            if (b.isDefault) {
-                                this.activeMapRenderer.changeBaseLayer(baselayer);
-                                this.$mapService.changeBaseLayer(b.title);
-                            }
-                        });
-                    }
-
-                    if (solution.projects && solution.projects.length > 0) {
-                        var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title === initialProject; })[0];
-                        if (p != null) {
-                            this.openProject(p, layers);
-                        } else {
-                            this.openProject(solution.projects[0], layers);
+                        this.$mapService.baseLayers[b.title] = baselayer;
+                        if (b.isDefault) {
+                            this.activeMapRenderer.changeBaseLayer(baselayer);
+                            this.$mapService.changeBaseLayer(b.title);
                         }
-                    }
-                	// make sure a default WidgetStyle exists
-                	if (!solution.widgetStyles) solution.widgetStyles = {};
-                	if (!solution.widgetStyles.hasOwnProperty('default')) {
-                    	var defaultStyle = new WidgetStyle();
-                    	defaultStyle.background = "red";
-                    	solution.widgetStyles["default"] = defaultStyle;
-                	}
+                    });
+                }
 
-                    this.solution = solution;
-                })
+                if (solution.projects && solution.projects.length > 0) {
+                    var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title === initialProject; })[0];
+                    if (p != null) {
+                        this.openProject(p, layers);
+                    } else {
+                        this.openProject(solution.projects[0], layers);
+                    }
+                }
+                // make sure a default WidgetStyle exists
+                if (!solution.widgetStyles) solution.widgetStyles = {};
+                if (!solution.widgetStyles.hasOwnProperty('default')) {
+                    var defaultStyle = new WidgetStyle();
+                    defaultStyle.background = "red";
+                    solution.widgetStyles["default"] = defaultStyle;
+                }
+
+                this.solution = solution;
+            })
                 .error(() => {
-                    this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
-                });
+                this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
+            });
         }
 
         /**
@@ -1753,19 +1792,27 @@ module csComp.Services {
             this.clearLayers();
             this._featureTypes = {};
             this.propertyTypeData = {};
+
             //typesResources
+            var s = this.$location.search();
+            if (s.hasOwnProperty('dashboard')) {
+                this.startDashboardId = s['dashboard'];
+            }
 
             this.$http.get(solutionProject.url)
                 .success((prj: Project) => {
-                    this.parseProject(prj, solutionProject, layerIds);
-                })
+                this.parseProject(prj, solutionProject, layerIds);
+                //alert('project open ' + this.$location.absUrl());
+            })
                 .error(() => {
-                    this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
-                });
+                this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
+            });
         }
 
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
+            prj.solution = this.solution;
             this.project = new Project().deserialize(prj);
+
 
             if (!this.project.timeLine) {
                 this.project.timeLine = new DateRange();
@@ -1815,33 +1862,33 @@ module csComp.Services {
                     }
                 },
                 (callback) => {
-                    if (this.project.datasources) {
-                        this.project.datasources.forEach((ds: DataSource) => {
-                            if (ds.url) {
-                                DataSource.LoadData(this.$http, ds, () => {
-                                    if (ds.type === "dynamic") { this.checkDataSourceSubscriptions(ds); }
+                    if (!this.project.datasources) this.project.datasources = [];
 
-                                    for (var s in ds.sensors) {
-                                        var ss: SensorSet = ds.sensors[s];
-                                        /// check if there is an propertytype available for this sensor
-                                        if (ss.propertyTypeKey != null && this.propertyTypeData.hasOwnProperty(ss.propertyTypeKey)) {
-                                            ss.propertyType = this.propertyTypeData[ss.propertyTypeKey];
-                                        } else { // else create a new one and store in project
-                                            var id = "sensor-" + Helpers.getGuid();
-                                            var pt: IPropertyType = {};
-                                            pt.title = s;
-                                            ss.propertyTypeKey = id;
-                                            this.project.propertyTypeData[id] = pt;
-                                            ss.propertyType = pt;
-                                        }
-                                        if (ss.values && ss.values.length > 0) {
-                                            ss.activeValue = ss.values[ss.values.length - 1];
-                                        }
+                    this.project.datasources.forEach((ds: DataSource) => {
+                        if (ds.url) {
+                            DataSource.LoadData(this.$http, ds, () => {
+                                if (ds.type === "dynamic") { this.checkDataSourceSubscriptions(ds); }
+
+                                for (var s in ds.sensors) {
+                                    var ss: SensorSet = ds.sensors[s];
+                                    /// check if there is an propertytype available for this sensor
+                                    if (ss.propertyTypeKey != null && this.propertyTypeData.hasOwnProperty(ss.propertyTypeKey)) {
+                                        ss.propertyType = this.propertyTypeData[ss.propertyTypeKey];
+                                    } else { // else create a new one and store in project
+                                        var id = "sensor-" + Helpers.getGuid();
+                                        var pt: IPropertyType = {};
+                                        pt.title = s;
+                                        ss.propertyTypeKey = id;
+                                        this.project.propertyTypeData[id] = pt;
+                                        ss.propertyType = pt;
                                     }
-                                });
-                            }
-                        });
-                    }
+                                    if (ss.values && ss.values.length > 0) {
+                                        ss.activeValue = ss.values[ss.values.length - 1];
+                                    }
+                                }
+                            });
+                        }
+                    });
                 }
             ]);
 
@@ -1863,9 +1910,28 @@ module csComp.Services {
             if (this.project.connected) {
                 // check connection
                 this.$messageBusService.initConnection("", "", () => {
-                    // var handle = this.$messageBusService.serverSubscribe("", "key", (topic: string, msg: ClientMessage) => {
-                    //     if (msg.action !== "subscribed") console.log(msg);
-                    // });
+                    var handle = this.$messageBusService.serverSubscribe("", "key", (topic: string, msg: ClientMessage) => {
+                        if (msg.action !== "subscribed") {
+                            if (msg.data) {
+                                var id = "keys/" + msg.data.keyId;
+                                this.findSensorSet(id, (ss: SensorSet) => {
+                                    var time = new Date().getTime();
+                                    if (msg.data.item.hasOwnProperty('time')) {
+                                        time = msg.data.item['time'];
+                                    }
+                                    else {
+                                        ss.timestamps = [];
+                                        ss.values = [];
+                                    }
+                                    ss.addValue(new Date().getTime(), msg.data.item);
+                                    ss.activeValue = msg.data.item;
+                                });
+                                this.$messageBusService.publish(id, "update", msg.data.item);
+                            }
+                            //this.project.dataSets
+                        }
+
+                    });
 
                     // setTimeout(() => {
                     //     for (var ll in this.loadedLayers) {
@@ -1881,91 +1947,124 @@ module csComp.Services {
             // check if project is dynamic
             if (solutionProject.dynamic) {
                 // listen to directory updates
-                this.$messageBusService.serverSubscribe("", "directory", (sub: string, msg: any) => {
-                    var layer = <ProjectLayer>msg.data.item;
-                    if (layer) {
-                        var l = this.findLayer(layer.id);
-                        if (!l) {
-                            this.$messageBusService.notify('New layer available', layer.title);
+                //
+                if (!this.directoryHandle) {
+                    this.directoryHandle = this.$messageBusService.serverSubscribe("", "directory", (sub: string, msg: any) => {
+                        if (msg.action === "subscribed") return;
+                        if (msg.action === 'layer' && msg.data && msg.data.item) {
+                            var layer = <ProjectLayer>msg.data.item;
+                            if (layer) {
+                                var l = this.findLayer(layer.id);
+                                if (!l) {
+                                    //this.$messageBusService.notify('New layer available', layer.title);
+                                }
+                                else {
+                                    this.$messageBusService.notify('New update available for layer ', layer.title);
+                                    if (l.enabled) l.layerSource.refreshLayer(l);
+                                }
+                            }
                         }
-                    }
-                });
-                this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
-                    if (msg.action === "layer-update") {
-                        msg.data.layer.forEach((l: ProjectLayer) => {
-                            var g: ProjectGroup;
-                            // find group
-                            if (l.groupId) { g = this.findGroupById(l.groupId); } else { l.groupId = "main"; }
-                            if (!g) {
-                                g = new ProjectGroup();
-                                g.id = l.groupId;
-                                g.title = msg.data.group.title;
-                                g.clustering = msg.data.group.clustering;
-                                g.clusterLevel = msg.data.group.clusterLevel;
-                                this.project.groups.push(g);
-                                this.initGroup(g);
-                            } else {
-                                g.clustering = msg.data.group.clustering;
-                                g.clusterLevel = msg.data.group.clusterLevel;
-                            }
-                            var layerExists = false;
-                            var layerIndex = 0;
-                            g.layers.forEach((gl, index) => {
-                                if (gl.id === l.id) {
-                                    layerExists = true;
-                                    layerIndex = index;
-                                }
-                            })
-                            if (!layerExists) {
-                                g.layers.push(l);
-                                this.initLayer(g, l);
-                                if (!l.layerSource) { l.layerSource = this.layerSources[l.type.toLowerCase()]; }
-                                l.layerSource.refreshLayer(g.layers[g.layers.length - 1]);
-                            } else {
-                                var currentStyle = g.styles;
-                                if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
-                                if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
-                                l.group = g;
-                                //l.layerSource.refreshLayer(g.layers[layerIndex]);
-                                this.removeLayer(g.layers[layerIndex]);
-                                this.addLayer(g.layers[layerIndex], () => {
-                                    if (currentStyle && currentStyle.length > 0)
-                                        this.setStyle({ feature: { featureTypeName: l.url + "#" + l.defaultFeatureType, layer: l }, property: currentStyle[0].property, key: currentStyle[0].title, meta: currentStyle[0].meta }, false, null, currentStyle[0]);
-                                });
-                            }
-                            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') {
-                                this.$rootScope.$apply();
-                            }
-                        });
-
-                        // init group
-                        // add layer
-
-                    }
-                    if (msg.action === "layer-remove") {
-                        msg.data.forEach((l: ProjectLayer) => {
-                            var g: ProjectGroup;
-                            // find group
-                            if (l.groupId) { g = this.findGroupById(l.groupId); } else { l.groupId = "main"; }
-                            if (g != null) {
-                                g.layers.forEach((layer: ProjectLayer) => {
-                                    if (layer.id == l.id) {
-                                        this.removeLayer(layer, true);
-                                        //console.log('remove layer'+layer.id);
+                        if (msg.action === 'project' && msg.data && msg.data.item) {
+                            var project = <Project>msg.data.item;
+                            if (project) {
+                                var p = (this.project.id === project.id);
+                                if (!p) {
+                                    this.$messageBusService.notify('New project available', project.title);
+                                    if (project.url.substring(project.url.length - 4) !== 'json') project.url = '/data' + project.url + '.json';
+                                    if (!this.solution.projects.some(sp => { return (sp.title === project.title) })) {
+                                        this.solution.projects.push(<SolutionProject>{ title: project.title, url: project.url, dynamic: true });
+                                    } else {
+                                        console.log('Project already exists (' + project.title + ')');
                                     }
-                                });
-
-                                if (g.layers.length == 0) {
-                                    this.removeGroup(g);
+                                }
+                                else {
+                                    this.$messageBusService.notify('New update available for project ', project.title);
+                                    var solProj = this.solution.projects.filter(sp => { return (sp.title === project.title) }).pop();
+                                    this.parseProject(project, solProj, []);
                                 }
                             }
-                        });
-                        // find group
-                        // find layer
-                        // remove layer
+                        }
+                    });
+                }
 
-                    }
-                });
+                if (!this.$messageBusService.getConnection(this.project.id)) {
+                    this.$messageBusService.serverSubscribe(this.project.id, "project", (sub: string, msg: any) => {
+                        if (msg.action === "layer-update") {
+                            msg.data.layer.forEach((l: ProjectLayer) => {
+                                var g: ProjectGroup;
+                                // find group
+                                if (l.groupId) { g = this.findGroupById(l.groupId); } else { l.groupId = "main"; }
+                                if (!g) {
+                                    g = new ProjectGroup();
+                                    g.id = l.groupId;
+                                    g.title = msg.data.group.title;
+                                    g.clustering = msg.data.group.clustering;
+                                    g.clusterLevel = msg.data.group.clusterLevel;
+                                    this.project.groups.push(g);
+                                    this.initGroup(g);
+                                } else {
+                                    g.clustering = msg.data.group.clustering;
+                                    g.clusterLevel = msg.data.group.clusterLevel;
+                                }
+                                var layerExists = false;
+                                var layerIndex = 0;
+                                g.layers.forEach((gl, index) => {
+                                    if (gl.id === l.id) {
+                                        layerExists = true;
+                                        layerIndex = index;
+                                    }
+                                })
+                                if (!layerExists) {
+                                    g.layers.push(l);
+                                    this.initLayer(g, l);
+                                    if (!l.layerSource) { l.layerSource = this.layerSources[l.type.toLowerCase()]; }
+                                    l.layerSource.refreshLayer(g.layers[g.layers.length - 1]);
+                                } else {
+                                    var currentStyle = g.styles;
+                                    if (this.lastSelectedFeature && this.lastSelectedFeature.isSelected) this.selectFeature(this.lastSelectedFeature);
+                                    if (!l.layerSource) l.layerSource = this.layerSources[l.type.toLowerCase()];
+                                    l.group = g;
+                                    //l.layerSource.refreshLayer(g.layers[layerIndex]);
+                                    this.removeLayer(g.layers[layerIndex]);
+                                    this.addLayer(g.layers[layerIndex], () => {
+                                        if (currentStyle && currentStyle.length > 0)
+                                            this.setStyle({ feature: { featureTypeName: l.url + "#" + l.defaultFeatureType, layer: l }, property: currentStyle[0].property, key: currentStyle[0].title, meta: currentStyle[0].meta }, false, null, currentStyle[0]);
+                                    });
+                                }
+                                if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') {
+                                    this.$rootScope.$apply();
+                                }
+                            });
+
+                            // init group
+                            // add layer
+
+                        }
+                        if (msg.action === "layer-remove") {
+                            msg.data.forEach((l: ProjectLayer) => {
+                                var g: ProjectGroup;
+                                // find group
+                                if (l.groupId) { g = this.findGroupById(l.groupId); } else { l.groupId = "main"; }
+                                if (g != null) {
+                                    g.layers.forEach((layer: ProjectLayer) => {
+                                        if (layer.id == l.id) {
+                                            this.removeLayer(layer, true);
+                                            //console.log('remove layer'+layer.id);
+                                        }
+                                    });
+
+                                    if (g.layers.length == 0) {
+                                        this.removeGroup(g);
+                                    }
+                                }
+                            });
+                            // find group
+                            // find layer
+                            // remove layer
+
+                        }
+                    });
+                }
             }
 
             if (prj.hasOwnProperty('collapseAllLayers') && prj.collapseAllLayers === true) {
@@ -1975,7 +2074,12 @@ module csComp.Services {
 
             this.$messageBusService.publish('project', 'loaded', this.project);
             if (this.project.dashboards && this.project.dashboards.length > 0) {
-                this.$messageBusService.publish('dashboard-main', 'activated', this.project.dashboards[Object.keys(this.project.dashboards)[0]]);
+                var startd = this.project.dashboards[Object.keys(this.project.dashboards)[0]];
+                // find dashboard from url
+                if (this.startDashboardId && this.findDashboardById(this.startDashboardId)) {
+                    startd = this.findDashboardById(this.startDashboardId);
+                }
+                this.$messageBusService.publish('dashboard-main', 'activated', startd);
             }
         }
 
@@ -2111,21 +2215,36 @@ module csComp.Services {
             });
         }
 
+        /** Find a sensor set for a specific source/sensor combination. Key should be something like datasource/sensorid */
         public findSensorSet(key: string, callback: Function) {
             var kk = key.split('/');
             if (kk.length == 2) {
-                var source = kk[0];
-                var sensorset = kk[1];
-                if (!this.project.datasources || this.project.datasources.length === 0) {
-                    return null;
+                var dataSourceId = kk[0];
+                var sensorId = kk[1];
+
+                var dss = this.project.datasources.filter((ds: DataSource) => { return ds.id === dataSourceId });
+                if (dss.length === 0) {
+                    var ds = new DataSource();
+                    ds.id = dataSourceId;
+                    ds.type = "dynamic";
+                    ds.sensors = {};
+                    dss.push(ds);
+                    this.project.datasources.push(ds);
                 }
-                this.project.datasources.forEach((ds: DataSource) => {
-                    if (ds.id === source) {
-                        if (ds.sensors.hasOwnProperty(sensorset)) {
-                            callback(ds.sensors[sensorset]);
-                        }
-                    }
-                });
+                ds = dss[0];
+                if (ds.sensors.hasOwnProperty(sensorId)) {
+                    callback(ds.sensors[sensorId]);
+                }
+                else {
+                    var ss = new SensorSet();
+                    ss.id = sensorId;
+                    ss.title = sensorId;
+                    ss.timestamps = [];
+                    ss.values = [];
+                    ds.sensors[sensorId] = ss;
+
+                    callback(ss);
+                }
             }
             return null;
         }
@@ -2133,6 +2252,21 @@ module csComp.Services {
         //private zoom(data: any) {
         //    //var a = data;
         //}
+
+        public getPropertyValues(layer: ProjectLayer, property: string): Object[] {
+            var r = [];
+            var features = [];
+            if (this.selectedFeatures.length > 1) {
+                features = this.selectedFeatures;
+            }
+            else {
+                features = (layer.group.filterResult) ? layer.group.filterResult : layer.data.features;
+            }
+            if (features) features.forEach((f: IFeature) => { if (f.layerId === layer.id) r.push(f.properties); });
+            if (r.length === 0) r = layer.data.features;
+
+            return r;
+        }
 
         /**
          * Calculate min/max/count for a specific property in a group
@@ -2161,24 +2295,14 @@ module csComp.Services {
                 }
             });
             if (isNaN(sum) || r.count == 0) {
-                r.sdMax = r.max;
-                r.sdMin = r.min;
+
             } else {
                 r.mean = sum / r.count;
                 r.varience = sumsq / r.count - r.mean * r.mean;
                 r.sd = Math.sqrt(r.varience);
-                r.sdMax = r.mean + 3 * r.sd;
-                r.sdMin = r.mean - 3 * r.sd;
-                if (r.min > r.sdMin) r.sdMin = r.min;
-                if (r.max < r.sdMax) r.sdMax = r.max;
-                if (r.sdMin === NaN) r.sdMin = r.min;
-                if (r.sdMax === NaN) r.sdMax = r.max;
             }
             if (this.propertyTypeData.hasOwnProperty(property)) {
                 var mid = this.propertyTypeData[property];
-                if (mid.maxValue != null) r.sdMax = mid.maxValue;
-                if (mid.minValue != null) r.sdMin = mid.minValue;
-                if (mid.minValue && mid.maxValue) r.mean = (r.sdMax + r.sdMin) / 2;
             }
             return r;
         }
@@ -2286,7 +2410,7 @@ module csComp.Services {
         public updateMapFilter(group: ProjectGroup) {
             this.activeMapRenderer.updateMapFilter(group);
             // update timeline list
-            this.$messageBusService.publish("timeline", "updateFeatures");
+            this.$messageBusService.publish("timeline", "updateFeatures", group.id);
 
         }
 

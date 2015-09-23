@@ -1,4 +1,3 @@
-require('rootpath')();
 import express = require('express')
 import events = require("events");
 import ClientConnection = require('./ClientConnection');
