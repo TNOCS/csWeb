@@ -99,14 +99,14 @@ export class RestAPI extends BaseConnector.BaseConnector {
         //adds a layer to a project
         this.server.post(this.projectsUrl + ":projectId/group/:groupId/layer/:layerId", (req: express.Request, res: express.Response) => {
             this.manager.addLayerToProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.status(result.result).send(result);
+                res.send(result);
             });
         });
 
         //removes a layer from a project
         this.server.delete(this.projectsUrl + ":projectId/group/:groupId/layer/:layerId", (req: express.Request, res: express.Response) => {
             this.manager.removeLayerFromProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.status(result.result).send(result);
+                res.send(result);
             });
         });
 
@@ -125,13 +125,13 @@ export class RestAPI extends BaseConnector.BaseConnector {
             var group = new Group();
             group = req.body;
             this.manager.addGroup(group, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.status(result.result).send(result);
+                res.send(result)
             });
         })
 
         this.server.delete(this.projectsUrl + ':projectId/group/:groupId', (req: any, res: any) => {
             this.manager.removeGroup(req.params.groupId, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.status(result.result).send(result);
+                res.send(result)
             });
         })
 
@@ -300,7 +300,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         });
 
-        //get a key
+        //get all keys
         this.server.get(this.keysUrl, (req: express.Request, res: express.Response) => {
             this.manager.getKeys(<ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error

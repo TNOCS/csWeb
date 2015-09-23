@@ -6,7 +6,7 @@ module csComp.Helpers {
             var s: String = l.id;
             var n = l.legendEntries.length;
             if (n == 0) return (defaultcolor);
-            if (l.legendKind == 'discreteStrings') {
+            if (l.legendKind.toLowerCase() == 'discretestrings') {
                 var i: number = 0;
                 while (i < n) {
                     var e = l.legendEntries[i];
@@ -43,12 +43,12 @@ module csComp.Helpers {
         var defaultcolor: string = '#000000';
         var s: String = l.id;
         var n = l.legendEntries.length;
-        if (n == 0) return (defaultcolor);
-        if (l.legendKind == 'discretestrings') {
+        if (n === 0) return (defaultcolor);
+        if (l.legendKind.toLowerCase() === 'discretestrings') {
             var i: number = 0;
             while (i < n) {
                 var e = l.legendEntries[i];
-                if (v == e.stringValue) {
+                if (v === e.stringValue) {
                     return e.color;
                 }
                 i++;
@@ -64,7 +64,7 @@ module csComp.Helpers {
         if (n == 0) return (defaultcolor);
         var e1 = l.legendEntries[0];    // first
         var e2 = l.legendEntries[n - 1];  // last
-        if (l.legendKind === 'interpolated') {
+        if (l.legendKind.toLowerCase() === 'interpolated') {
             // interpolate between two colors
             if (v < e1.value) return e1.color;
             if (v > e2.value) return e2.color;
@@ -81,7 +81,7 @@ module csComp.Helpers {
             }
             return (defaultcolor);
         }
-        if (l.legendKind === 'discrete') {
+        if (l.legendKind.toLowerCase() === 'discrete') {
             if (v < e1.interval.min) return l.legendEntries[0].color;
             if (v > e2.interval.max) return l.legendEntries[n - 1].color;
             var i: number = 0;
