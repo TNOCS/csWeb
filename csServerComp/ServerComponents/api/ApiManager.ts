@@ -1,5 +1,6 @@
 import Winston = require('winston');
 import helpers = require('../helpers/Utils');
+import AuthApi = require('./AuthAPI');
 import fs = require('fs');
 import path = require('path');
 import events = require("events");
@@ -240,7 +241,6 @@ export class ResourceFile {
  * ProjectChanged event when a project is changed (CRUD).
  */
 export class ApiManager extends events.EventEmitter {
-
     /**
      * Dictionary of connectors (e.g. storage, interface, etc.)
      */
@@ -276,6 +276,7 @@ export class ApiManager extends events.EventEmitter {
     public namespace: string = "cs";
     /** The name is used to identify this instance, and should be unique in the federation */
     public name: string = "cs";
+    public authService : AuthApi.AuthAPI;
 
     /** Create a new client, optionally specifying whether it should act as client. */
     constructor(namespace: string, name: string, public isClient = false, public options = <IApiManagerOptions>{}) {
@@ -316,7 +317,6 @@ export class ApiManager extends events.EventEmitter {
     public loadProjectConfig(cb: Function) {
         Winston.info('manager: loading project config');
         this.projectsFile = path.join(this.rootPath, 'projects.json');
-
         fs.readFile(this.projectsFile, "utf8", (err, data) => {
             if (err) {
                 Winston.error('manager: project config loading failed: ' + err.message);
@@ -389,7 +389,6 @@ export class ApiManager extends events.EventEmitter {
                         console.log('Error opening ' + loc + ': ' + err);
                     };
                 });
-
             });
         });
     }
@@ -592,7 +591,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     /**
-     * Lookup Porject and return storage engine for this project
+     * Lookup Project and return storage engine for this project
      */
     public findStorageForProjectId(projectId: string): IConnector {
         var project = this.findProject(projectId);
@@ -656,7 +655,9 @@ export class ApiManager extends events.EventEmitter {
     }
 
     //layer methods start here, in CRUD order.
-    public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+
+    /** Create a new layer, store it, and return it. */
+    public addLayer(layer: Layer, meta: ApiMeta, callback: (result: CallbackResult) => void) {
         // give it an id if not available
         if (!layer.hasOwnProperty('id')) layer.id = helpers.newGuid();
         // make sure layerid is lowercase
@@ -1000,7 +1001,6 @@ export class ApiManager extends events.EventEmitter {
         // attach user callback to the process event emitter
         // if no callback, it will still exit gracefully on Ctrl-C
         if (!callback) callback = () => { };
-
         process.on('cleanup', callback);
 
         // do app specific cleaning before exiting

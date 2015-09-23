@@ -53,3 +53,5 @@ OfflineSearch
 example/public/data/projects/DynamicExample/
 csServerComp/Classes/Feature.d.ts
 csServerComp/Classes/Feature.js
+example/public/data/
+example/.settings/

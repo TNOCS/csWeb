@@ -32,7 +32,6 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.projectsPath = path.join(rootpath, "projects/");
         // check if rootpath exists, otherwise create it, including its parents
         if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
-
         this.watchLayersFolder();
         this.watchKeysFolder();
         this.watchProjectsFolder();

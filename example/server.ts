@@ -21,6 +21,7 @@ import MongoDB = require('./ServerComponents/api/MongoDB');
 import FileStorage = require('./ServerComponents/api/FileStorage');
 import ImbAPI = require('./ServerComponents/api/ImbAPI');
 import Winston = require('winston');
+import AuthAPI = require('ServerComponents/api/AuthAPI');
 
 Winston.remove(Winston.transports.Console);
 Winston.add(Winston.transports.Console, {
@@ -79,6 +80,7 @@ server.use(express.static(path.join(__dirname, 'public')));
 
 var api = new ApiManager.ApiManager('cs', 'cs');
 api.init(path.join(path.resolve(__dirname), "public/data/api"), () => {
+api.authService = new AuthAPI.AuthAPI(api, server, '/api');
     api.addConnector("rest", new RestAPI.RestAPI(server), {});
     api.addConnector("socketio", new SocketIOAPI.SocketIOAPI(cm), {});
     api.addConnector("mqtt", new MqttAPI.MqttAPI("localhost", 1883), {});

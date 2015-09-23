@@ -20,10 +20,11 @@ module csComp.Services {
         };
         timestamps?: number[];
         coordinates?: IGeoJsonGeometry[];
-        /**
-        * An optional language dictionary, where each key, e.g. 'en' for English, represents a localised data set. Each locale can overwrite
-        * the value of the title, description etc. of a feature.
-        */
+    }
+    export class Feature implements IFeature {
+        id: string;
+        geometry: IGeoJsonGeometry;
+        properties: IStringToAny = {};
     }
 
     export interface IStringToAny {
