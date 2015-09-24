@@ -132,7 +132,7 @@
             </ul>
 
             <!-- Search form -->
-            <!-- <offline-search class="navbar-form navbar-right" style="margin-right:0"></offline-search> -->
+            <offline-search class="navbar-form navbar-right" style="margin-right:0"></offline-search>
             <!-- Expert mode switch -->
             <expert-mode class="navbar-form navbar-right" style="outline:none; margin: 5px -10px 0 0; color: white"></expert-mode>
             <!-- Language switch -->
@@ -151,6 +151,11 @@
                     <!-- required for floating -->
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs tabs-left" id="leftPanelTab">
+                        <li popover="{{'BASESTYLES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a href="#basestyles" data-toggle="tab" data-ng-if="vm.$mapService.isIntermediate">
+                                <img src="/cs/images/search.png" style="width:30px;height:30px"></img>                                
+                            </a>
+                        </li>
                         <!-- 'tabs-right' for right tabs -->
                         <li popover="{{'BASESTYLES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                             <a href="#basestyles" data-toggle="tab" data-ng-if="vm.$mapService.isIntermediate">
