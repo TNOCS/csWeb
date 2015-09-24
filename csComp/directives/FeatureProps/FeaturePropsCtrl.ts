@@ -348,18 +348,22 @@ module FeatureProps {
 
             this.$messageBusService.subscribe("timeline", (action, value) => {
                 if (action === "updateFeatures" && this.$scope.callOut) {
-                    this.updateAllStats();
+                    this.updateAllStatsDelay();
                 }
             });
 
         }
+
+        updateAllStatsDelay = _.debounce(this.updateAllStats, 500);
+        updateStatsDelay = (prop) => { _.debounce(this.getPropStats, 500, true); }
+
 
         private updateAllStats() {
             for (var s in this.$scope.callOut.sections) {
                 var section = this.$scope.callOut.sections[s];
                 section.properties.forEach(prop => {
                     if (prop.showMore) {
-                        this.getPropStats(prop);
+                        this.updateStatsDelay(prop);
                     }
                 });
             }
@@ -483,9 +487,9 @@ module FeatureProps {
             }
         }
 
-
         public getPropStats(item: ICallOutProperty) {
             if (item.showMore) {
+                console.log('stats: calc stats for ' + item.property);
                 if (this.stats.indexOf(item.property) === -1) this.stats.push(item.property);
                 var values = this.$layerService.getPropertyValues(item.feature.layer, item.property);
                 var d = item.property;
