@@ -45,6 +45,7 @@ module csComp.Services {
         project: Project;
         projectUrl: SolutionProject; // URL of the current project
         solution: Solution;
+        openSingleProject: boolean; // True if the solution should only contain one project
         emptySolutionUrl: string;
         dimension: any;
         lastSelectedFeature: IFeature;
@@ -102,6 +103,7 @@ module csComp.Services {
             this.mb = $messageBusService;
             this.map = $mapService;
 
+            this.openSingleProject = false;
             this.emptySolutionUrl = 'data/api/defaultSolution.json';
             this.accentColor = '';
             this.title = '';
@@ -1705,11 +1707,10 @@ module csComp.Services {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
             this.loadedLayers.clear();
 
-            var openSingleProject = false;
             var searchParams = this.$location.search();
             if (searchParams.hasOwnProperty('project')) {
                 url = this.emptySolutionUrl;
-                openSingleProject = true;
+                this.openSingleProject = true;
             }
 
             this.$http.get(url)
@@ -1748,15 +1749,15 @@ module csComp.Services {
                     });
                 }
 
-                if (openSingleProject) {
+                if (this.openSingleProject) {
                     var u = 'api/projects/' + searchParams['project'];
                     this.$http.get(u)
-                    .success(<Project>(data) => {
+                        .success(<Project>(data) => {
                         if (data) {
-                            this.parseProject(data, <SolutionProject>{title: data.title, url: data.url, dynamic: true}, []);
+                            this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
                         }
                     })
-                    .error((data) => {
+                        .error((data) => {
                         this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
                     })
                 }
@@ -1780,7 +1781,7 @@ module csComp.Services {
                 this.solution = solution;
             })
                 .error(() => {
-                    this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
+                this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
             });
         }
 
@@ -1872,12 +1873,12 @@ module csComp.Services {
                 d2.showRightmenu = false;
                 d2.showTimeline = false;
                 d2.widgets = [{
-                  id: "datatable_id",
-                  directive: "datatable",
-                  elementId: "widget-datatable_id",
-                  enabled: true,
-                  width: "100%",
-                  height: "100%"
+                    id: "datatable_id",
+                    directive: "datatable",
+                    elementId: "widget-datatable_id",
+                    enabled: true,
+                    width: "100%",
+                    height: "100%"
                 }];
                 this.project.dashboards.push(d2);
             } else {
@@ -1996,26 +1997,28 @@ module csComp.Services {
                     this.directoryHandle = this.$messageBusService.serverSubscribe("", "directory", (sub: string, msg: any) => {
                         if (msg.action === "subscribed") return;
                         if (msg.action === 'layer' && msg.data && msg.data.item) {
-                            // Disabled for now, as layers from excel2map get updated twice: on layer update and on project update
-                            // var layer = <ProjectLayer>msg.data.item;
-                            // if (layer) {
-                            //     var l = this.findLayer(layer.id);
-                            //     if (!l) {
-                            //         //this.$messageBusService.notify('New layer available', layer.title);
-                            //     }
-                            //     else {
-                            //         this.$messageBusService.notify('New update available for layer ', layer.title);
-                            //         if (l.enabled) {
-                            //             l.layerSource.refreshLayer(l);
-                            //         }
-                            //     }
-                            // }
+                            // Disabled for single-project-solutions, as layers from excel2map get updated twice: on layer update and on project update
+                            if (this.openSingleProject === false) {
+                                var layer = <ProjectLayer>msg.data.item;
+                                if (layer) {
+                                    var l = this.findLayer(layer.id);
+                                    if (!l) {
+                                        //this.$messageBusService.notify('New layer available', layer.title);
+                                    }
+                                    else {
+                                        this.$messageBusService.notify('New update available for layer ', layer.title);
+                                        if (l.enabled) {
+                                            l.layerSource.refreshLayer(l);
+                                        }
+                                    }
+                                }
+                            }
                         }
                         if (msg.action === 'project' && msg.data && msg.data.item) {
                             var project = <Project>msg.data.item;
                             if (project) {
                                 var p = (this.project.id === project.id);
-                                if (!p) {
+                                if (!p && !this.openSingleProject) {
                                     this.$messageBusService.notify('New project available', project.title);
                                     if (project.url.substring(project.url.length - 4) !== 'json') project.url = '/data' + project.url + '.json';
                                     if (!this.solution.projects.some(sp => { return (sp.title === project.title) })) {
