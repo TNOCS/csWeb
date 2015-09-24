@@ -1803,8 +1803,9 @@ module csComp.Services {
          * Open project
          * @params url: URL of the project
          * @params layers: Optionally provide a semi-colon separated list of layer IDs that should be opened.
+         * @params project: Optionally provide the project that should be parsed. If not provided, it will be requested using the solution url.
          */
-        public openProject(solutionProject: csComp.Services.SolutionProject, layers?: string): void {
+        public openProject(solutionProject: csComp.Services.SolutionProject, layers?: string, project?: Project): void {
             this.projectUrl = solutionProject;
 
             var layerIds: Array<string> = [];
@@ -1822,14 +1823,18 @@ module csComp.Services {
                 this.startDashboardId = s['dashboard'];
             }
 
-            this.$http.get(solutionProject.url)
-                .success((prj: Project) => {
-                this.parseProject(prj, solutionProject, layerIds);
-                //alert('project open ' + this.$location.absUrl());
-            })
-                .error(() => {
-                this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
-            });
+            if (!project) {
+                this.$http.get(solutionProject.url)
+                    .success((prj: Project) => {
+                    this.parseProject(prj, solutionProject, layerIds);
+                    //alert('project open ' + this.$location.absUrl());
+                })
+                    .error(() => {
+                    this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
+                });
+            } else {
+                this.parseProject(project, solutionProject, layerIds);
+            }
         }
 
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
@@ -1859,6 +1864,22 @@ module csComp.Services {
                 d.showLeftmenu = true;
                 d.widgets = [];
                 this.project.dashboards.push(d);
+                var d2 = new Services.Dashboard();
+                d2.id = "datatable";
+                d2.name = "Table";
+                d2.showMap = false;
+                d2.showLeftmenu = false;
+                d2.showRightmenu = false;
+                d2.showTimeline = false;
+                d2.widgets = [{
+                  id: "datatable_id",
+                  directive: "datatable",
+                  elementId: "widget-datatable_id",
+                  enabled: true,
+                  width: "100%",
+                  height: "100%"
+                }];
+                this.project.dashboards.push(d2);
             } else {
                 this.project.dashboards.forEach((d) => {
                     if (!d.id) { d.id = Helpers.getGuid(); }
@@ -1975,17 +1996,20 @@ module csComp.Services {
                     this.directoryHandle = this.$messageBusService.serverSubscribe("", "directory", (sub: string, msg: any) => {
                         if (msg.action === "subscribed") return;
                         if (msg.action === 'layer' && msg.data && msg.data.item) {
-                            var layer = <ProjectLayer>msg.data.item;
-                            if (layer) {
-                                var l = this.findLayer(layer.id);
-                                if (!l) {
-                                    //this.$messageBusService.notify('New layer available', layer.title);
-                                }
-                                else {
-                                    this.$messageBusService.notify('New update available for layer ', layer.title);
-                                    if (l.enabled) l.layerSource.refreshLayer(l);
-                                }
-                            }
+                            // Disabled for now, as layers from excel2map get updated twice: on layer update and on project update
+                            // var layer = <ProjectLayer>msg.data.item;
+                            // if (layer) {
+                            //     var l = this.findLayer(layer.id);
+                            //     if (!l) {
+                            //         //this.$messageBusService.notify('New layer available', layer.title);
+                            //     }
+                            //     else {
+                            //         this.$messageBusService.notify('New update available for layer ', layer.title);
+                            //         if (l.enabled) {
+                            //             l.layerSource.refreshLayer(l);
+                            //         }
+                            //     }
+                            // }
                         }
                         if (msg.action === 'project' && msg.data && msg.data.item) {
                             var project = <Project>msg.data.item;
@@ -2002,8 +2026,8 @@ module csComp.Services {
                                 }
                                 else {
                                     this.$messageBusService.notify('New update available for project ', project.title);
-                                    var solProj = this.solution.projects.filter(sp => { return (sp.title === project.title) }).pop();
-                                    this.parseProject(project, solProj, []);
+                                    //var solProj = this.solution.projects.filter(sp => { return (sp.title === project.title) }).pop();
+                                    this.openProject(solutionProject, null, project);
                                 }
                             }
                         }

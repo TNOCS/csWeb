@@ -194,7 +194,7 @@ export class MapLayerFactory {
     }
 
     public sendLayerThroughApiManager(data: any) {
-        var layer: ApiManager.Layer = this.apiManager.getLayerDefinition(<ApiManager.Layer>{ title: data.layerTitle, id: data.reference, features: data.geojson.features, defaultFeatureType: data.defaultFeatureType, typeUrl: 'data/api/resourceTypes/'+data.reference+'.json', dynamicResource: true});
+        var layer: ApiManager.Layer = this.apiManager.getLayerDefinition(<ApiManager.Layer>{ title: data.layerTitle, id: data.reference, features: data.geojson.features, enabled: data.enabled, defaultFeatureType: data.defaultFeatureType, typeUrl: 'data/api/resourceTypes/'+data.reference+'.json', dynamicResource: true});
         var group: ApiManager.Group = this.apiManager.getGroupDefinition(<ApiManager.Group>{ title: data.group, id: data.group, clustering: data.clustering });
 
         async.series([
@@ -216,6 +216,12 @@ export class MapLayerFactory {
                     console.log(result);
                     cb();
                 });
+            },
+            (cb: Function) => {
+                this.apiManager.updateProjectTitle(data.project, data.projectId, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                    console.log(result);
+                    cb();
+                })
             },
             (cb: Function) => {
                 this.apiManager.addLayerToProject(data.projectId, group.id, layer.id, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {

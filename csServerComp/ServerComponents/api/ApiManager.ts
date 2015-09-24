@@ -166,6 +166,7 @@ export class Layer implements StorageObject {
     public storage: string;
     public useLog: boolean;
     public updated: number;
+    public enabled: boolean;
     public id: string;
     public type: string;
     public dynamic: boolean;
@@ -658,6 +659,7 @@ export class ApiManager extends events.EventEmitter {
             id: layer.id,
             title: layer.title,
             updated: layer.updated,
+            enabled: layer.enabled,
             description: layer.description,
             dynamicResource: layer.dynamicResource,
             defaultFeatureType: layer.defaultFeatureType,
@@ -666,7 +668,7 @@ export class ApiManager extends events.EventEmitter {
             features: layer.features ? layer.features : [],
             storage: layer.storage ? layer.storage : "",
             url: layer.url ? layer.url : ("/api/layers/" + layer.id),
-            isDynamic: layer.isDynamic ? layer.isDynamic : true
+            isDynamic: layer.isDynamic ? layer.isDynamic : false
         };
         return r;
     }
@@ -770,6 +772,15 @@ export class ApiManager extends events.EventEmitter {
                 this.saveLayersDelay(layer);
             }
         ])
+    }
+
+    public updateProjectTitle(projectTitle: string, projectId: string, meta: ApiMeta, callback: Function) {
+        // Does not send update to connections and storages, should be done separately!
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        p.title = projectTitle;
+        this.projects[projectId] = p;
+        callback(<CallbackResult>{ result: ApiResult.OK, error: "Changed title" });
     }
 
     public updateProject(project: Project, meta: ApiMeta, callback: Function) {
