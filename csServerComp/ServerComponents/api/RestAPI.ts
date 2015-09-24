@@ -6,6 +6,7 @@ import Group = ApiManager.Group;
 import Layer = ApiManager.Layer;
 import Feature = ApiManager.Feature;
 import Logs = ApiManager.Log;
+import ResourceFile = ApiManager.ResourceFile;
 import BaseConnector = require('./BaseConnector');
 import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
@@ -41,8 +42,12 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
 
         this.server.post(this.resourceUrl + ":resourceId", (req: express.Request, res: express.Response) => {
-            this.manager.updateResource(req.params.resourceId, req.body);
-        });
+            var resource = new ResourceFile();
+            resource = req.body;
+            this.manager.addResource(resource, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                res.sendStatus(result.result).send(result);
+            });
+        })
 
         this.server.get(this.resourceUrl + ":resourceId", (req: express.Request, res: express.Response) => {
             res.send(JSON.stringify(this.manager.getResource(req.params.resourceId.toLowerCase())));

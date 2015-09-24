@@ -64,9 +64,6 @@ ds.start();
 server.get("/datasource", ds.getDataSource);
 
 var bagDatabase = new BagDatabase(config);
-var mapLayerFactory = new creator.MapLayerFactory(bagDatabase, messageBus);
-server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res));
-server.post('/bagcontours', (req, res) => mapLayerFactory.processBagContours(req, res));
 
 server.use(express.static(path.join(__dirname, 'swagger')));
 
@@ -89,6 +86,9 @@ api.authService = new AuthAPI.AuthAPI(api, server, '/api');
     api.addConnector("file", new FileStorage.FileStorage(path.join(path.resolve(__dirname), "public/data/api/")), {});
 });
 
+var mapLayerFactory = new creator.MapLayerFactory(bagDatabase, messageBus, api);
+server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res));
+server.post('/bagcontours', (req, res) => mapLayerFactory.processBagContours(req, res));
 
 httpServer.listen(server.get('port'), () => {
     Winston.info('Express server listening on port ' + server.get('port'));

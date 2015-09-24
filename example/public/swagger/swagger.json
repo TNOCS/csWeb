@@ -36,6 +36,13 @@
             "url": "https://github.com/TNOCS/csWeb/wiki/API-Documentation"
         }
     }, {
+        "name": "resource",
+        "description": "All resource operations",
+        "externalDocs": {
+            "description": "Find out more",
+            "url": "https://github.com/TNOCS/csWeb/wiki/API-Documentation"
+        }
+    }, {
         "name": "special",
         "description": "All special operations",
         "externalDocs": {
@@ -47,6 +54,39 @@
         "http"
     ],
     "paths": {
+      "/resources":{
+        "post": {
+                "tags": [
+                    "resource"
+                ],
+                "summary": "Add resource",
+                "description": "Adds a single resource",
+                "operationId": "addResource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "Resource object that needs to be added to the datastorage",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/Resource"
+                    }
+                }],
+                "responses": {
+                    "429": {
+                        "description": "ResourceId already exists"
+                    },
+                    "200": {
+                        "description": "ResourceId added"
+                    }
+                }
+            }
+        },
         "/resources/{resourceId}":{
           "get": {
                 "tags": [

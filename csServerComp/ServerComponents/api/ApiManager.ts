@@ -21,7 +21,8 @@ export enum ApiResult {
     KeyNotFound = 411,
     GroupNotFound = 412,
     GroupAlreadyExists = 413,
-    ResourceNotFound = 428
+    ResourceNotFound = 428,
+    ResourceAlreadyExists = 429
 }
 
 export interface IApiManagerOptions {
@@ -103,6 +104,8 @@ export interface IConnector {
     deleteProject(projectId: string, meta: ApiMeta, callback: Function);
     allGroups(projectId: string, meta: ApiMeta, callback: Function);
 
+    addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
+
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
     /** Get a list of available keys */
@@ -163,6 +166,7 @@ export class Layer implements StorageObject {
     public storage: string;
     public useLog: boolean;
     public updated: number;
+    public enabled: boolean;
     public id: string;
     public type: string;
     public dynamic: boolean;
@@ -172,6 +176,7 @@ export class Layer implements StorageObject {
     public url: string;
     public typeUrl: string;
     public defaultFeatureType: string;
+    public dynamicResource: boolean;
     public tags: string[];
     public isDynamic: boolean;
     public features: Feature[] = [];
@@ -224,9 +229,11 @@ export class PropertyType {
 
 }
 
-export class ResourceFile {
+export class ResourceFile implements StorageObject {
     featureTypes: { [key: string]: FeatureType };
     propertyTypes: { [key: string]: PropertyType };
+    id: string;
+    storage: string;
 }
 
 /**
@@ -396,13 +403,21 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Update/add a resource and save it to file
      */
-    public updateResource(id: string, resource: ResourceFile) {
-        //TODO implement
+    public addResource(resource: ResourceFile, meta: ApiMeta, callback: Function) {
+        this.resources[resource.id] = resource;
+        var s = this.findStorage(resource);
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.addResource(resource, meta, () => { });
+            });
+            // store resource
+            if (s) {
+                s.addResource(resource, meta, (r: CallbackResult) => callback(r))
+            } else {
+                callback(<CallbackResult>{ result: ApiResult.OK });
+            }
+        callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
     }
 
-    /**
-     * Update/add a resource and save it to file
-     */
     public getResource(id: string): ResourceFile {
         if (this.resources.hasOwnProperty(id)) {
             return this.resources[id];
@@ -425,14 +440,13 @@ export class ApiManager extends events.EventEmitter {
         });
         if (!g) { callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: "Group not found" }); return; }
         if (g.layers.some((pl) => { return (pl.id === l.id) })) {
-            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
-            return;
-        } else {
-            g.layers.push(l);
-            this.updateProject(p, meta, () => { });
-            Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
-            callback(<CallbackResult>{ result: ApiResult.OK });
+            Winston.info("Layer already exists. Removing existing layer before adding new one...");
+            g.layers = g.layers.filter((gl) => { return (gl.id !== l.id) });
         }
+        g.layers.push(l);
+        this.updateProject(p, meta, () => { });
+        Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
+        callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
     public removeLayerFromProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {
@@ -614,7 +628,7 @@ export class ApiManager extends events.EventEmitter {
             id: project.id ? project.id : helpers.newGuid(),
             storage: project.storage ? project.storage : "",
             title: project.title ? project.title : project.id,
-            connected: project.connected ? project.connected : false,
+            connected: project.connected ? project.connected : true,
             logo: project.logo ? project.logo : "images/CommonSenseRound.png",
             groups: project.groups ? project.groups : [],
             url: project.url ? project.url : '/api/projects/' + project.id
@@ -625,7 +639,7 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Returns project definition for a project
      */
-    private getGroupDefinition(group: Group): Group {
+    public getGroupDefinition(group: Group): Group {
         var g = <Group>{
             id: group.id ? group.id : helpers.newGuid(),
             description: group.description ? group.description : "",
@@ -645,11 +659,16 @@ export class ApiManager extends events.EventEmitter {
             id: layer.id,
             title: layer.title,
             updated: layer.updated,
+            enabled: layer.enabled,
             description: layer.description,
+            dynamicResource: layer.dynamicResource,
+            defaultFeatureType: layer.defaultFeatureType,
+            typeUrl: layer.typeUrl,
             type: layer.type,
+            features: layer.features ? layer.features : [],
             storage: layer.storage ? layer.storage : "",
             url: layer.url ? layer.url : ("/api/layers/" + layer.id),
-            isDynamic: layer.isDynamic ? layer.isDynamic : true
+            isDynamic: layer.isDynamic ? layer.isDynamic : false
         };
         return r;
     }
@@ -753,6 +772,15 @@ export class ApiManager extends events.EventEmitter {
                 this.saveLayersDelay(layer);
             }
         ])
+    }
+
+    public updateProjectTitle(projectTitle: string, projectId: string, meta: ApiMeta, callback: Function) {
+        // Does not send update to connections and storages, should be done separately!
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
+        p.title = projectTitle;
+        this.projects[projectId] = p;
+        callback(<CallbackResult>{ result: ApiResult.OK, error: "Changed title" });
     }
 
     public updateProject(project: Project, meta: ApiMeta, callback: Function) {

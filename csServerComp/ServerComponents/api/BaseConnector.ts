@@ -133,6 +133,10 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
+    public addResource(reource: ApiManager.ResourceFile, meta: ApiMeta, callback: Function) {
+
+    }
+
     /** Get a specific key */
     public getKey(keyId: string, meta: ApiMeta, callback: Function) { }
     /** Get a list of available keys */

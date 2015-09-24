@@ -10,6 +10,8 @@ import Location = require('../database/Location');
 import BagDatabase = require('../database/BagDatabase');
 import IBagOptions = require('../database/IBagOptions');
 import IGeoJsonFeature = require('./IGeoJsonFeature');
+import ApiManager = require('../api/ApiManager');
+import async = require('async');
 
 export interface ILayerDefinition {
     projectTitle: string,
@@ -85,7 +87,7 @@ export class MapLayerFactory {
     templateFiles: IProperty[];
     featuresNotFound: any;
 
-    constructor(private bag: BagDatabase, private messageBus: MessageBus.MessageBusService) {
+    constructor(private bag: BagDatabase, private messageBus: MessageBus.MessageBusService, private apiManager: ApiManager.ApiManager) {
         var fileList: IProperty[] = [];
         fs.readdir("public/data/templates", function(err, files) {
             if (err) {
@@ -98,6 +100,7 @@ export class MapLayerFactory {
         });
         this.templateFiles = fileList;
         this.featuresNotFound = {};
+        this.apiManager = apiManager;
     }
 
     public process(req: express.Request, res: express.Response) {
@@ -139,36 +142,120 @@ export class MapLayerFactory {
 
             console.log("New map created: publishing...");
             this.messageBus.publish('dynamic_project_layer', 'created', data);
-
-            this.sendLayerThroughApi(data);
+            var combinedjson = this.splitJson(data);
+            this.sendResourceThroughApiManager(combinedjson.resourcejson, data.reference); //For now set layerID = resourceID
+            this.sendLayerThroughApiManager(data);
         });
     }
 
-    public sendLayerThroughApi(data: any) {
-        request({
-            url: "http://localhost:3002/api/layers",
-            method: "POST",
-            json: true,
-            body: { title: data.layerTitle, id: data.reference, features: data.geojson.features }
-        }, function(error, response, body) {
-            console.log('Creating layer... ' + response.statusCode + ' ' + body.error);
-            request({
-                url: "http://localhost:3002/api/projects/" + data.projectId + "/group",
-                method: "POST",
-                json: true,
-                body: { title: data.group, id: data.group}
-            }, function(error, response, body) {
-                console.log('Creating group... ' + response.statusCode + ' ' + body.error);
-                request({
-                    url: "http://localhost:3002/api/projects/" + data.projectId + "/group/" + data.group + '/layer/' + data.reference,
-                    method: "POST",
-                    json: true,
-                    body: { title: data.group, id: data.group}
-                }, function(error, response, body) {
-                    console.log('Adding layer to group... ' + response.statusCode + ' ' + body.error);
-                });
-            });
+    private splitJson(data) {
+        var geojson = {}, resourcejson: any = {};
+        var combinedjson = data.geojson;
+        if (combinedjson.hasOwnProperty('type') && combinedjson.hasOwnProperty('features')) {
+            geojson = {
+                type: combinedjson.type,
+                features: combinedjson.features
+            };
+        }
+        if (combinedjson.hasOwnProperty('timestamps')) {
+            geojson['timestamps'] = combinedjson['timestamps'];
+        }
+        if (combinedjson.hasOwnProperty('featureTypes')) {
+            for (var ftName in combinedjson.featureTypes) {
+                if (combinedjson.featureTypes.hasOwnProperty(ftName)) {
+                    var defaultFeatureType = combinedjson.featureTypes[ftName];
+                    if (defaultFeatureType.hasOwnProperty('propertyTypeData')) {
+                        var propertyTypeObjects = {};
+                        var propKeys: string = '';
+                        defaultFeatureType.propertyTypeData.forEach((pt) => {
+                            propertyTypeObjects[pt.label] = pt;
+                            propKeys = propKeys + pt.label + ';'
+                        });
+                        delete defaultFeatureType.propertyTypeData;
+                        defaultFeatureType.propertyTypeKeys = propKeys;
+                        defaultFeatureType.name = data.featureType;
+                        resourcejson['featureTypes'] = {};
+                        resourcejson.featureTypes[data.featureType] = defaultFeatureType;
+                        resourcejson['propertyTypeData'] = {};
+                        resourcejson.propertyTypeData = propertyTypeObjects;
+                        data.defaultFeatureType = defaultFeatureType.name;
+                    }
+                }
+            }
+        }
+        return { geojson: geojson, resourcejson: resourcejson };
+    }
+
+    public sendResourceThroughApiManager(data: any, resourceId: string) {
+        data.id = resourceId;
+        this.apiManager.addResource(data, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+            console.log(result);
         });
+    }
+
+    public sendLayerThroughApiManager(data: any) {
+        var layer: ApiManager.Layer = this.apiManager.getLayerDefinition(<ApiManager.Layer>{ title: data.layerTitle, id: data.reference, features: data.geojson.features, enabled: data.enabled, defaultFeatureType: data.defaultFeatureType, typeUrl: 'data/api/resourceTypes/'+data.reference+'.json', dynamicResource: true});
+        var group: ApiManager.Group = this.apiManager.getGroupDefinition(<ApiManager.Group>{ title: data.group, id: data.group, clustering: data.clustering });
+
+        async.series([
+            (cb: Function) => {
+                this.apiManager.addLayer(layer, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                    console.log(result);
+                    if (result.result === ApiManager.ApiResult.LayerAlreadyExists) {
+                        this.apiManager.updateLayer(layer, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                            console.log(result);
+                            cb();
+                        });
+                    } else {
+                        cb();
+                    }
+                });
+            },
+            (cb: Function) => {
+                this.apiManager.addGroup(group, data.projectId, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                    console.log(result);
+                    cb();
+                });
+            },
+            (cb: Function) => {
+                this.apiManager.updateProjectTitle(data.project, data.projectId, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                    console.log(result);
+                    cb();
+                })
+            },
+            (cb: Function) => {
+                this.apiManager.addLayerToProject(data.projectId, group.id, layer.id, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                    console.log(result);
+                    cb();
+                });
+            }
+        ]);
+
+
+        // request({
+        //     url: "http://localhost:3002/api/layers",
+        //     method: "POST",
+        //     json: true,
+        //     body: { title: data.layerTitle, id: data.reference, features: data.geojson.features }
+        // }, function(error, response, body) {
+        //     console.log('Creating layer... ' + response.statusCode + ' ' + body.error);
+        //     request({
+        //         url: "http://localhost:3002/api/projects/" + data.projectId + "/group",
+        //         method: "POST",
+        //         json: true,
+        //         body: { title: data.group, id: data.group}
+        //     }, function(error, response, body) {
+        //         console.log('Creating group... ' + response.statusCode + ' ' + body.error);
+        //         request({
+        //             url: "http://localhost:3002/api/projects/" + data.projectId + "/group/" + data.group + '/layer/' + data.reference,
+        //             method: "POST",
+        //             json: true,
+        //             body: { title: data.group, id: data.group}
+        //         }, function(error, response, body) {
+        //             console.log('Adding layer to group... ' + response.statusCode + ' ' + body.error);
+        //         });
+        //     });
+        // });
 
     }
 
