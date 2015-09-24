@@ -142,13 +142,59 @@ export class MapLayerFactory {
 
             console.log("New map created: publishing...");
             this.messageBus.publish('dynamic_project_layer', 'created', data);
-
+            var combinedjson = this.splitJson(data);
+            this.sendResourceThroughApiManager(combinedjson.resourcejson, data.reference); //For now set layerID = resourceID
             this.sendLayerThroughApiManager(data);
         });
     }
 
+    private splitJson(data) {
+        var geojson = {}, resourcejson: any = {};
+        var combinedjson = data.geojson;
+        if (combinedjson.hasOwnProperty('type') && combinedjson.hasOwnProperty('features')) {
+            geojson = {
+                type: combinedjson.type,
+                features: combinedjson.features
+            };
+        }
+        if (combinedjson.hasOwnProperty('timestamps')) {
+            geojson['timestamps'] = combinedjson['timestamps'];
+        }
+        if (combinedjson.hasOwnProperty('featureTypes')) {
+            for (var ftName in combinedjson.featureTypes) {
+                if (combinedjson.featureTypes.hasOwnProperty(ftName)) {
+                    var defaultFeatureType = combinedjson.featureTypes[ftName];
+                    if (defaultFeatureType.hasOwnProperty('propertyTypeData')) {
+                        var propertyTypeObjects = {};
+                        var propKeys: string = '';
+                        defaultFeatureType.propertyTypeData.forEach((pt) => {
+                            propertyTypeObjects[pt.label] = pt;
+                            propKeys = propKeys + pt.label + ';'
+                        });
+                        delete defaultFeatureType.propertyTypeData;
+                        defaultFeatureType.propertyTypeKeys = propKeys;
+                        defaultFeatureType.name = data.featureType;
+                        resourcejson['featureTypes'] = {};
+                        resourcejson.featureTypes[data.featureType] = defaultFeatureType;
+                        resourcejson['propertyTypeData'] = {};
+                        resourcejson.propertyTypeData = propertyTypeObjects;
+                        data.defaultFeatureType = defaultFeatureType.name;
+                    }
+                }
+            }
+        }
+        return { geojson: geojson, resourcejson: resourcejson };
+    }
+
+    public sendResourceThroughApiManager(data: any, resourceId: string) {
+        data.id = resourceId;
+        this.apiManager.addResource(data, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+            console.log(result);
+        });
+    }
+
     public sendLayerThroughApiManager(data: any) {
-        var layer: ApiManager.Layer = this.apiManager.getLayerDefinition(<ApiManager.Layer>{ title: data.layerTitle, id: data.reference, features: data.geojson.features });
+        var layer: ApiManager.Layer = this.apiManager.getLayerDefinition(<ApiManager.Layer>{ title: data.layerTitle, id: data.reference, features: data.geojson.features, defaultFeatureType: data.defaultFeatureType, typeUrl: 'data/api/resourceTypes/'+data.reference+'.json', dynamicResource: true});
         var group: ApiManager.Group = this.apiManager.getGroupDefinition(<ApiManager.Group>{ title: data.group, id: data.group, clustering: data.clustering });
 
         async.series([

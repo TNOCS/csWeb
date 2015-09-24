@@ -21,7 +21,8 @@ export enum ApiResult {
     KeyNotFound = 411,
     GroupNotFound = 412,
     GroupAlreadyExists = 413,
-    ResourceNotFound = 428
+    ResourceNotFound = 428,
+    ResourceAlreadyExists = 429
 }
 
 export interface IApiManagerOptions {
@@ -103,6 +104,8 @@ export interface IConnector {
     deleteProject(projectId: string, meta: ApiMeta, callback: Function);
     allGroups(projectId: string, meta: ApiMeta, callback: Function);
 
+    addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
+
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
     /** Get a list of available keys */
@@ -172,6 +175,7 @@ export class Layer implements StorageObject {
     public url: string;
     public typeUrl: string;
     public defaultFeatureType: string;
+    public dynamicResource: boolean;
     public tags: string[];
     public isDynamic: boolean;
     public features: Feature[] = [];
@@ -224,9 +228,11 @@ export class PropertyType {
 
 }
 
-export class ResourceFile {
+export class ResourceFile implements StorageObject {
     featureTypes: { [key: string]: FeatureType };
     propertyTypes: { [key: string]: PropertyType };
+    id: string;
+    storage: string;
 }
 
 /**
@@ -396,13 +402,21 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Update/add a resource and save it to file
      */
-    public updateResource(id: string, resource: ResourceFile) {
-        //TODO implement
+    public addResource(resource: ResourceFile, meta: ApiMeta, callback: Function) {
+        this.resources[resource.id] = resource;
+        var s = this.findStorage(resource);
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.addResource(resource, meta, () => { });
+            });
+            // store resource
+            if (s) {
+                s.addResource(resource, meta, (r: CallbackResult) => callback(r))
+            } else {
+                callback(<CallbackResult>{ result: ApiResult.OK });
+            }
+        callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
     }
 
-    /**
-     * Update/add a resource and save it to file
-     */
     public getResource(id: string): ResourceFile {
         if (this.resources.hasOwnProperty(id)) {
             return this.resources[id];
@@ -645,6 +659,9 @@ export class ApiManager extends events.EventEmitter {
             title: layer.title,
             updated: layer.updated,
             description: layer.description,
+            dynamicResource: layer.dynamicResource,
+            defaultFeatureType: layer.defaultFeatureType,
+            typeUrl: layer.typeUrl,
             type: layer.type,
             features: layer.features ? layer.features : [],
             storage: layer.storage ? layer.storage : "",

@@ -530,8 +530,9 @@ module csComp.Services {
                             this.$messageBusService.publish("typesource", url, resource);
                             callback();
                         })
-                            .error(() => {
+                            .error((err) => {
                             this.$messageBusService.notify('ERROR loading TypeResources', 'While loading: ' + url);
+                            console.log(err)
                         });
                         setTimeout(() => {
                             if (!success) {

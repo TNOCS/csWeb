@@ -1,6 +1,7 @@
 import ApiManager = require('./ApiManager');
 import Project = ApiManager.Project;
 import Layer = ApiManager.Layer;
+import ResourceFile = ApiManager.ResourceFile;
 import fs = require('fs-extra');
 import path = require('path');
 import Feature = ApiManager.Feature;
@@ -21,20 +22,24 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public layers: { [key: string]: Layer } = {}
     public projects: { [key: string]: Project } = {}
     public keys: { [key: string]: Key } = {}
+    public resources: { [key: string]: ResourceFile } = {}
     public layersPath: string;
     public keysPath: string;
     public projectsPath: string;
+    public resourcesPath: string;
 
     constructor(public rootpath: string) {
         super();
         this.keysPath = path.join(rootpath, "keys/");
         this.layersPath = path.join(rootpath, "layers/");
         this.projectsPath = path.join(rootpath, "projects/");
+        this.resourcesPath = path.join(rootpath, "resourceTypes/");
         // check if rootpath exists, otherwise create it, including its parents
         if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
         this.watchLayersFolder();
         this.watchKeysFolder();
         this.watchProjectsFolder();
+        this.watchResourcesFolder();
     }
 
 
@@ -100,9 +105,32 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }, 1000);
     }
 
+    public watchResourcesFolder() {
+        Winston.info('filestore: watch folder:' + this.resourcesPath);
+        if (!fs.existsSync(this.resourcesPath)) { fs.mkdirSync(this.resourcesPath); }
+        setTimeout(() => {
+            var watcher = chokidar.watch(this.resourcesPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
+            watcher.on('all', ((action, path) => {
+                if (action == "add") {
+                    Winston.info('filestore: new file found : ' + path);
+                    this.openResourceFile(path);
+                }
+                if (action == "unlink") {
+                    this.closeResourceFile(path);
+                }
+                if (action == "change") {
+                }
+            }));
+        }, 1000);
+    }
+
     saveProjectDelay = _.debounce((project: Project) => {
         this.saveProjectFile(project);
     }, 5000);
+
+    saveResourcesDelay = _.debounce((res: ResourceFile) => {
+        this.saveResourceFile(res);
+    }, 500);
 
     saveKeyDelay = _.debounce((key: Key) => {
         this.saveKeyFile(key);
@@ -110,7 +138,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     saveLayerDelay = _.debounce((layer: Layer) => {
         this.saveLayerFile(layer);
-    }, 5000);
+    }, 2000);
 
     private getProjectFilename(projectId: string) {
         return path.join(this.projectsPath, projectId + ".json");
@@ -124,9 +152,25 @@ export class FileStorage extends BaseConnector.BaseConnector {
         return path.join(this.keysPath, keyId + ".json");
     }
 
+    private getResourceFilename(resId: string) {
+        return path.join(this.resourcesPath, resId + ".json");
+    }
+
     private saveKeyFile(key: Key) {
         var fn = this.getKeyFilename(key.id);
         fs.outputFile(fn, JSON.stringify(key), (error) => {
+            if (error) {
+                Winston.error('filestore: error writing file : ' + fn);
+            }
+            else {
+                Winston.info('filestore: file saved : ' + fn);
+            }
+        });
+    }
+
+    private saveResourceFile(res: ResourceFile) {
+        var fn = this.getResourceFilename(res.id);
+        fs.outputFile(fn, JSON.stringify(res), (error) => {
             if (error) {
                 Winston.error('filestore: error writing file : ' + fn);
             }
@@ -168,6 +212,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
         return path.basename(fileName).toLowerCase().replace('.json', '');
     }
 
+    private getResourceId(fileName: string) {
+        return path.basename(fileName).toLowerCase().replace('.json', '');
+    }
+
     private getLayerId(fileName: string) {
         return path.basename(fileName).toLowerCase().replace('.json', '');
     }
@@ -178,6 +226,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     private closeKeyFile(fileName: string) {
+
+    }
+
+    private closeResourceFile(fileName: string) {
 
     }
 
@@ -226,6 +278,21 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     key.id = id;
                     this.keys[id] = key;
                     this.manager.addKey(key, <ApiMeta>{ source: this.id }, () => { });
+                }
+            });
+        }
+    }
+
+    private openResourceFile(fileName: string) {
+        var id = this.getResourceId(fileName);
+        Winston.info('filestore: openfile ' + id);
+        if (!this.resources.hasOwnProperty(id)) {
+            fs.readFile(fileName, "utf8", (err, data) => {
+                if (!err) {
+                    var res = <ResourceFile>JSON.parse(data);
+                    res.id = id;
+                    this.resources[id] = res;
+                    this.manager.addResource(res, <ApiMeta>{ source: this.id }, () => { });
                 }
             });
         }
@@ -450,6 +517,14 @@ export class FileStorage extends BaseConnector.BaseConnector {
         layer.features = layer.features.filter((k) => { return k.id && k.id !== featureId });
         callback(<CallbackResult>{ result: ApiResult.OK });
         this.saveLayerDelay(layer);
+    }
+
+    public addResource(res: ResourceFile, meta: ApiMeta, callback: Function) {
+        if (!res.id) res.id = helpers.newGuid();
+        if (!res.propertyTypes) res.propertyTypes = {};
+        if (!res.featureTypes) res.featureTypes = {};
+        this.resources[res.id] = res;
+        this.saveResourcesDelay(res);
     }
 
     public addKey(key: Key, meta: ApiMeta, callback: Function) {
