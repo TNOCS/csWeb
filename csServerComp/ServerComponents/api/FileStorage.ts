@@ -325,6 +325,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         if (this.layers.hasOwnProperty(layer.id)) {
             this.layers[layer.id] = layer;
+            this.saveLayerDelay(layer);
+            Winston.info("FileStorage: updated layer" + layer.id);
             callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
         }
         else {

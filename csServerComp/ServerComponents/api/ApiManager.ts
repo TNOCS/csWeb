@@ -425,14 +425,13 @@ export class ApiManager extends events.EventEmitter {
         });
         if (!g) { callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: "Group not found" }); return; }
         if (g.layers.some((pl) => { return (pl.id === l.id) })) {
-            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
-            return;
-        } else {
-            g.layers.push(l);
-            this.updateProject(p, meta, () => { });
-            Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
-            callback(<CallbackResult>{ result: ApiResult.OK });
+            Winston.info("Layer already exists. Removing existing layer before adding new one...");
+            g.layers = g.layers.filter((gl) => { return (gl.id !== l.id) });
         }
+        g.layers.push(l);
+        this.updateProject(p, meta, () => { });
+        Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
+        callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
     public removeLayerFromProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {
@@ -614,7 +613,7 @@ export class ApiManager extends events.EventEmitter {
             id: project.id ? project.id : helpers.newGuid(),
             storage: project.storage ? project.storage : "",
             title: project.title ? project.title : project.id,
-            connected: project.connected ? project.connected : false,
+            connected: project.connected ? project.connected : true,
             logo: project.logo ? project.logo : "images/CommonSenseRound.png",
             groups: project.groups ? project.groups : [],
             url: project.url ? project.url : '/api/projects/' + project.id
@@ -625,7 +624,7 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Returns project definition for a project
      */
-    private getGroupDefinition(group: Group): Group {
+    public getGroupDefinition(group: Group): Group {
         var g = <Group>{
             id: group.id ? group.id : helpers.newGuid(),
             description: group.description ? group.description : "",
@@ -647,6 +646,7 @@ export class ApiManager extends events.EventEmitter {
             updated: layer.updated,
             description: layer.description,
             type: layer.type,
+            features: layer.features ? layer.features : [],
             storage: layer.storage ? layer.storage : "",
             url: layer.url ? layer.url : ("/api/layers/" + layer.id),
             isDynamic: layer.isDynamic ? layer.isDynamic : true
