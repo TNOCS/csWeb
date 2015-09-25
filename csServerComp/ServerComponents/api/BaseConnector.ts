@@ -133,6 +133,10 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
+    public addIcon(b64: string, path: string, meta: ApiMeta, callback: Function) {
+
+    }
+
     public addResource(reource: ApiManager.ResourceFile, meta: ApiMeta, callback: Function) {
 
     }

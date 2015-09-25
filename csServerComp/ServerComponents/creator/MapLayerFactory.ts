@@ -74,7 +74,8 @@ export interface ILayerTemplate {
     propertyTypes: IPropertyType[],
     properties: IProperty[],
     sensors?: IProperty[],
-    projectId?: string
+    projectId?: string,
+    iconBase64?: string
 }
 
 export interface IBagContourRequest {
@@ -127,7 +128,8 @@ export class MapLayerFactory {
                 useClustering: ld.useClustering,
                 group: ld.group,
                 geojson: geojson,
-                enabled: ld.isEnabled
+                enabled: ld.isEnabled,
+                iconBase64: template.iconBase64
             };
             if (Object.keys(this.featuresNotFound).length !== 0) {
                 console.log('Adresses that could not be found are:');
@@ -143,6 +145,7 @@ export class MapLayerFactory {
             console.log("New map created: publishing...");
             this.messageBus.publish('dynamic_project_layer', 'created', data);
             var combinedjson = this.splitJson(data);
+            this.sendIconThroughApiManager(data.iconBase64, ld.iconUri);
             this.sendResourceThroughApiManager(combinedjson.resourcejson, data.reference); //For now set layerID = resourceID
             this.sendLayerThroughApiManager(data);
         });
@@ -184,6 +187,12 @@ export class MapLayerFactory {
             }
         }
         return { geojson: geojson, resourcejson: resourcejson };
+    }
+
+    public sendIconThroughApiManager(b64: string, path: string) {
+        this.apiManager.addIcon(b64, path, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+            console.log(result);
+        });
     }
 
     public sendResourceThroughApiManager(data: any, resourceId: string) {
