@@ -1580,7 +1580,7 @@ input[type="radio"], input[type="checkbox"] {
     width: 50px;
 }
 .leftpanel {
-    margin-top: 50px;
+    /*margin-top: 50px;*/
     background: white;
     height: 100%;
     left: 0;
@@ -1594,14 +1594,14 @@ input[type="radio"], input[type="checkbox"] {
 .leftpanel-container {
     width:350px;
     height:100vh;
-    margin-top: 50px;
+    /*margin-top: 50px;*/
     pointer-events: all
 }
 .rightpanel {
     position: absolute;
     height: 100%;
     max-width: 400px;
-    margin-top: 50px;
+    /*margin-top: 50px;*/
     display: table-cell;
     pointer-events: all;
     right: 0;
