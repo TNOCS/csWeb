@@ -23,6 +23,17 @@ module csComp.Services {
         public dashboardVisible: boolean = true;
         public mapVisible: boolean = true;
         public timelineVisible: boolean = true;
+
+        // For debugging purposes, I've added below functionality so I can set breakpoints on the setter.
+        // get rightPanelVisible(): boolean {
+        //     console.log(`Right panel visible (get): ${this._rightPanelVisible}`);
+        //     return this._rightPanelVisible;
+        // }
+        // set rightPanelVisible(isVisible: boolean) {
+        //     this._rightPanelVisible = isVisible;
+        //     console.log(`Right panel visible (set): ${this._rightPanelVisible}`);
+        // }
+
     }
 
     //** class for describing time ranges for timeline, including focus time */
