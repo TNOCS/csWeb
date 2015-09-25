@@ -70,6 +70,7 @@ module App {
 
             var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
+            this.$layerService.visual.rightPanelVisible = false;
 
             this.$layerService.openSolution("data/projects/projects.json", $location.$$search.layers);
         }
