@@ -88,7 +88,7 @@ export class MapLayerFactory {
     templateFiles: IProperty[];
     featuresNotFound: any;
 
-    constructor(private bag: BagDatabase, private messageBus: MessageBus.MessageBusService, private apiManager: ApiManager.ApiManager) {
+    constructor(private bag: BagDatabase | LocalBag, private messageBus: MessageBus.MessageBusService) {
         var fileList: IProperty[] = [];
         fs.readdir("public/data/templates", function(err, files) {
             if (err) {

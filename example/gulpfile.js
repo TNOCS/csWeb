@@ -257,6 +257,14 @@ gulp.task('create_dist_of_server', function() {
         .pipe(plumber())
         .pipe(changed('./dist/node_modules/pg/'))
         .pipe(gulp.dest('./dist/node_modules/pg/'));
+    gulp.src('node_modules/winston/**/*.*')
+        .pipe(plumber())
+        .pipe(changed('./dist/node_modules/winston/'))
+        .pipe(gulp.dest('./dist/node_modules/winston/'));
+    gulp.src('node_modules/sqlite3/**/*.*')
+        .pipe(plumber())
+        .pipe(changed('./dist/node_modules/sqlite3/'))
+        .pipe(gulp.dest('./dist/node_modules/sqlite3/'));
     gulp.src('ServerComponents/**/*.*')
         .pipe(plumber())
         .pipe(changed('./dist/ServerComponents/'))
