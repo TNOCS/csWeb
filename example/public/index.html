@@ -144,8 +144,8 @@
 
     <div style="position: absolute;width: 100%;height:100%;pointer-events: none;display:table">
 
-        <div ng-show="vm.$layerService.visual.leftPanelVisible" class="leftpanel leftpanel-entrance" ng-cloak style="pointer-events: all">
-            <div style="width:350px;height:100vh;background:white">
+        <div ng-show="vm.$layerService.visual.leftPanelVisible" class="leftpanel leftpanel-entrance" ng-cloak>
+            <div class="leftpanel-container">
                 <!-- http://stackoverflow.com/questions/1575141/make-div-100-height-of-browser-window -->
                 <div class="col-xs-3 leftpanel-tab">
                     <!-- required for floating -->
@@ -153,7 +153,7 @@
                     <ul class="nav nav-tabs tabs-left" id="leftPanelTab">
                         <li popover="{{'BASESTYLES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
                             <a href="#basestyles" data-toggle="tab" data-ng-if="vm.$mapService.isIntermediate">
-                                <img src="/cs/images/search.png" style="width:30px;height:30px"></img>                                
+                                <img src="/cs/images/search.png" style="width:30px;height:30px"></img>
                             </a>
                         </li>
                         <!-- 'tabs-right' for right tabs -->
@@ -236,13 +236,12 @@
             </div>
         </div>
         <dashboardirective container="main" style="display:table-cell;width:100%;vertical-align: top;" dashboard="vm.$dashboardService.mainDashboard"></dashboardirective>
-        <!-- class="dashboard-directive" -->
 
-        <div class="rightpanel" style="position:absolute">
+        <div id="rightpanel" class="rightpanel">
             <div id="rightpanelTabContainer" class="tabbable tabs-left rightpanelContainer">
                 <!-- Nav tabs -->
                 <ul id="rightpanelTabs" class="nav nav-tabs rightpanelTabs" ng-class="{'rightpanelTabs-collapsed' : !vm.$layerService.visual.rightPanelVisible}">
-                    <li style="margin-top:10px" ng-style="!vm.$layerService.visual.rightPanelVisible && {'opacity':0}" ng-click="vm.$layerService.visual.rightPanelVisible = false" popover="{{'HIDE_PANEL' | translate}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true">
+                    <li style="margin-top:5px" ng-style="!vm.$layerService.visual.rightPanelVisible && {'opacity':0}" ng-click="vm.$layerService.visual.rightPanelVisible = false" popover="{{'HIDE_PANEL' | translate}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true">
                         <a class="rightpanel-hidetab">
                             <span class="fa fa-2x fa-chevron-right"></span>
                         </a>

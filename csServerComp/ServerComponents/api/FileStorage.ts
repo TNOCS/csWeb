@@ -16,6 +16,11 @@ var chokidar = require('chokidar');
 import Winston = require('winston');
 import helpers = require('../helpers/Utils');
 
+export interface Icon {
+    data: string;
+    fileUri: string;
+}
+
 export class FileStorage extends BaseConnector.BaseConnector {
     public manager: ApiManager.ApiManager
 
@@ -25,6 +30,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public resources: { [key: string]: ResourceFile } = {}
     public layersPath: string;
     public keysPath: string;
+    public iconPath: string;
     public projectsPath: string;
     public resourcesPath: string;
 
@@ -34,6 +40,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.layersPath = path.join(rootpath, "layers/");
         this.projectsPath = path.join(rootpath, "projects/");
         this.resourcesPath = path.join(rootpath, "resourceTypes/");
+        this.iconPath =  path.join(rootpath, "/../../images/");
         // check if rootpath exists, otherwise create it, including its parents
         if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
         this.watchLayersFolder();
@@ -140,6 +147,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.saveLayerFile(layer);
     }, 2000);
 
+
     private getProjectFilename(projectId: string) {
         return path.join(this.projectsPath, projectId + ".json");
     }
@@ -160,7 +168,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var fn = this.getKeyFilename(key.id);
         fs.outputFile(fn, JSON.stringify(key), (error) => {
             if (error) {
-                Winston.error('filestore: error writing file : ' + fn);
+                Winston.error('filestore: error writing file : ' + fn + error.message);
             }
             else {
                 Winston.info('filestore: file saved : ' + fn);
@@ -188,6 +196,18 @@ export class FileStorage extends BaseConnector.BaseConnector {
             }
             else {
                 Winston.info('filestore: file saved : ' + fn);
+            }
+        });
+    }
+
+    private saveIcon(icon: Icon) {
+        var binaryData = new Buffer(icon.data, 'base64');
+        fs.writeFile(icon.fileUri, binaryData, (error) => {
+            if (error) {
+                Winston.info('error writing file : ' + icon.fileUri);
+            }
+            else {
+                Winston.info('filestore: file saved : ' + icon.fileUri);
             }
         });
     }
@@ -517,6 +537,12 @@ export class FileStorage extends BaseConnector.BaseConnector {
         layer.features = layer.features.filter((k) => { return k.id && k.id !== featureId });
         callback(<CallbackResult>{ result: ApiResult.OK });
         this.saveLayerDelay(layer);
+    }
+
+    public addIcon(b64: string, uri: string, meta: ApiMeta, callback: Function) {
+        var fileUri = path.join(this.iconPath, uri.split('/').pop());
+        var i: Icon = {data: b64, fileUri: fileUri};
+        this.saveIcon(i);
     }
 
     public addResource(res: ResourceFile, meta: ApiMeta, callback: Function) {

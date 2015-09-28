@@ -38,6 +38,19 @@ html, body, #container {
     height: 100%;
 }
 
+/*
+  Allow angular.js to be loaded in body, hiding cloaked elements until
+  templates compile.  The !important is important given that there may be
+  other selectors that are more specific or come later and might alter display.
+ */
+
+[ng\:cloak], [ng-cloak], .ng-cloak {
+    display: none !important;
+}
+.hidden {
+    display: none;
+}
+
 /* leaflet context menu */
 
 .leaflet-contextmenu {
@@ -561,17 +574,15 @@ html, body, #container {
     background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAEJwAABCcB2U8dgAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAIlSURBVEiJzZa/axRBFMc/X+MdCQZFwYCVVyooWImCoL2FIir5B/wFFmmUlKKVnZ0BuwNBxU4s7QSxULQwjTYigqk0iMFwXr4We0Pm9mb3do/F+ODLzLx9M9+ZN++9HdlmK2R7SilJwK5I1bf9s0nibQX6e8D3CD8kXWiSWLaRdBU4CXiAM8COnO0n4GVkkwIVvr+x3Q2uPgbMj9nkBtAj81IKqqATMAN0k3dcIK9sX65hnxRJi1AQXAXSkXSe7OQB/dy4im4mJl4DVslcIWB20MZyguxKVIIq8hgA2yMgHUR3UrYF88PdTg0O1wLaA7RsZ1GdF0l7gdORah14Yrtf8VRjJUn8L6ROcCHpCnAwUr213Z2YWNJOYDfDRSC0oX8UWEps5gvwYczcuP1luxeCYZHyitMk5m3Xc3WBXANekHkvoJUbB3TCpCaIV2x/rGIo6QBwpCni+5LuAn8i9HLjgGngQUz8HPhGeVU6BFxPED8EPjNcvcrWeQ818ljSLPCUXDqRBct6pUXi9f7bAiJpjs2Xim2vNMI8ptgvMJqHt6r+LMoQnj4LwMUcwQZZQO3J7XUVeJ2wzW+wSHfb9nJwdQc4XtFJ02SRGX57UzX6+4A5YHmSPP5t++YE85B0KvQnIW5LusTmk6Zfo38YeBcTfyVzXz7Z95M9g4Y2DtxI2OafQEXfzgFjo3qJ0QB51FhUF4mkNnCWKI+BZ7bXyu6iimxZ5foLmBS7KXfgm40AAAAASUVORK5CYII=') no-repeat left center;
     /*images/sliders.png*/
 }
-
 .searchIcon {
     overflow: hidden;
     padding-left: 0;
     padding-top: 30px;
-    width:30px;
-    height:30px;
+    width: 30px;
+    height: 30px;
     background: url('/cs/images/search.png') no-repeat left center;
     /*images/map-black.png*/
 }
-
 .mapIcon {
     overflow: hidden;
     padding-left: 0;
@@ -807,25 +818,16 @@ html, body, #container {
     margin-left: 0px;
     background: transparent;
 }
-
-.feature-prop-stats
-{
+.feature-prop-stats {
     margin-top: 10px;
     font-size: 12px;
     opacity: .8;
 }
-
-.item-stat-title
-{
-
+.item-stat-title {}
+.item-stat-value {
+    font-weight: 700;
+    margin-right: 10px;
 }
-
-.item-stat-value
-{
-    font-weight:700;
-    margin-right:10px;
-}
-
 .feature-prop-title {
     overflow: hidden;
     padding-left: 4px;
@@ -1578,19 +1580,28 @@ input[type="radio"], input[type="checkbox"] {
     width: 50px;
 }
 .leftpanel {
+    /*margin-top: 50px;*/
     background: white;
     height: 100%;
     left: 0;
     display: table-cell;
-    width: 280px;
+    /*width: 280px;*/
     position: relative;
     pointer-events: all;
     top: 0;
     z-index: 100;
 }
+.leftpanel-container {
+    width:350px;
+    height:100vh;
+    /*margin-top: 50px;*/
+    pointer-events: all
+}
 .rightpanel {
+    position: absolute;
     height: 100%;
     max-width: 400px;
+    /*margin-top: 50px;*/
     display: table-cell;
     pointer-events: all;
     right: 0;
@@ -2242,3 +2253,26 @@ input[type="radio"], input[type="checkbox"] {
 #focustimeContainer {
     bottom: 45px;
 }
+
+/* Start LayersDirective.tpl.html styles */
+
+.addlayer-container {
+    cursor: pointer;
+    position: relative;
+}
+.addlayer-title {
+    font-size: 18px;
+    margin-left: 10px;
+    margin-top: 6px;
+}
+.addlayer-image {
+    width: 25px;
+    height: 25px;
+}
+.layer-dir-type {
+    clear: left;
+    font-size: 10px;
+    color: #aaaaaa;
+}
+
+/* End LayersDirective.tpl.html styles */

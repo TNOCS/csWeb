@@ -105,6 +105,7 @@ export interface IConnector {
     allGroups(projectId: string, meta: ApiMeta, callback: Function);
 
     addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
+    addIcon(b64: string, path: string, meta: ApiMeta, callback: Function);
 
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
@@ -400,21 +401,34 @@ export class ApiManager extends events.EventEmitter {
         });
     }
 
+    addIcon(b64: string, path: string, meta: ApiMeta, callback: Function){
+        var s;
+        if (this.connectors.hasOwnProperty('file')) {
+            s = this.connectors['file'];
+        }
+        if (s){
+            s.addIcon(b64, path, meta,  () => { });
+            callback(<CallbackResult>{ result: ApiResult.OK, error: "Icon added" });
+        } else {
+            callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
+        }
+    }
+
     /**
      * Update/add a resource and save it to file
      */
     public addResource(resource: ResourceFile, meta: ApiMeta, callback: Function) {
         this.resources[resource.id] = resource;
         var s = this.findStorage(resource);
-            this.getInterfaces(meta).forEach((i: IConnector) => {
-                i.addResource(resource, meta, () => { });
-            });
-            // store resource
-            if (s) {
-                s.addResource(resource, meta, (r: CallbackResult) => callback(r))
-            } else {
-                callback(<CallbackResult>{ result: ApiResult.OK });
-            }
+        this.getInterfaces(meta).forEach((i: IConnector) => {
+            i.addResource(resource, meta, () => { });
+        });
+        // store resource
+        if (s) {
+            s.addResource(resource, meta, (r: CallbackResult) => callback(r))
+        } else {
+            callback(<CallbackResult>{ result: ApiResult.OK });
+        }
         callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
     }
 
