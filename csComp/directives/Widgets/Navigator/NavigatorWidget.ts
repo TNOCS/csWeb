@@ -23,7 +23,7 @@ module NavigatorWidget {
             restrict: 'E',     // E = elements, other options are A=attributes and C=classes
             scope: {
             },      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
-            templateUrl: 'directives/Widgets/NavigatorWidget/NavigatorWidget.tpl.html',
+            templateUrl: 'directives/Widgets/Navigator/NavigatorWidget.tpl.html',
             replace: true,    // Remove the directive from the DOM
             transclude: false,   // Add elements and attributes to the template
             controller: NavigatorWidgetCtrl
