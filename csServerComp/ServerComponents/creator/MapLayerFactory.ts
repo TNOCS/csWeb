@@ -8,6 +8,7 @@ import MessageBus = require('../bus/MessageBus');
 import ConfigurationService = require('../configuration/ConfigurationService');
 import Location = require('../database/Location');
 import BagDatabase = require('../database/BagDatabase');
+import LocalBag = require('../database/LocalBag');
 import IBagOptions = require('../database/IBagOptions');
 import IGeoJsonFeature = require('./IGeoJsonFeature');
 import ApiManager = require('../api/ApiManager');
@@ -88,7 +89,8 @@ export class MapLayerFactory {
     templateFiles: IProperty[];
     featuresNotFound: any;
 
-    constructor(private bag: BagDatabase | LocalBag, private messageBus: MessageBus.MessageBusService) {
+    // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
+    constructor(private bag: BagDatabase, private messageBus: MessageBus.MessageBusService) {
         var fileList: IProperty[] = [];
         fs.readdir("public/data/templates", function(err, files) {
             if (err) {
