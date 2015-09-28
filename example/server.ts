@@ -8,6 +8,7 @@ import ProjectRepositoryService = require('./ServerComponents/creator/ProjectRep
 import DataSource = require("./ServerComponents/dynamic/DataSource");
 import MessageBus = require('./ServerComponents/bus/MessageBus');
 import BagDatabase = require('./ServerComponents/database/BagDatabase');
+import LocalBag = require('./ServerComponents/database/LocalBag');
 import ConfigurationService = require('./ServerComponents/configuration/ConfigurationService');
 import DynamicProject = require("./ServerComponents/dynamic/DynamicProject");
 import LayerDirectory = require("./ServerComponents/dynamic/LayerDirectory");
@@ -63,7 +64,9 @@ var ds = new DataSource.DataSourceService(cm, "DataSource");
 ds.start();
 server.get("/datasource", ds.getDataSource);
 
+// Select BAG-database source: either a (remote) Postgresql server (1st line) or a (local) sqlite3-db.
 var bagDatabase = new BagDatabase(config);
+//var bagDatabase = new LocalBag(path.resolve(__dirname, 'public/data/bagadres.db'));
 
 server.use(express.static(path.join(__dirname, 'swagger')));
 
