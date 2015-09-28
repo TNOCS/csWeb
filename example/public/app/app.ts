@@ -205,6 +205,12 @@ module App {
             'layout': 'box'
         });
     })
+        .config(($locationProvider) => {
+        $locationProvider.html5Mode({
+            enabled: true,
+            requireBase: false
+        })
+    })
         .config($translateProvider => {
         // TODO ADD YOUR LOCAL TRANSLATIONS HERE, OR ALTERNATIVELY, CHECK OUT
         // http://angular-translate.github.io/docs/#/guide/12_asynchronous-loading

@@ -401,13 +401,13 @@ export class ApiManager extends events.EventEmitter {
         });
     }
 
-    addIcon(b64: string, path: string, meta: ApiMeta, callback: Function){
+    addIcon(b64: string, path: string, meta: ApiMeta, callback: Function) {
         var s;
         if (this.connectors.hasOwnProperty('file')) {
             s = this.connectors['file'];
         }
-        if (s){
-            s.addIcon(b64, path, meta,  () => { });
+        if (s) {
+            s.addIcon(b64, path, meta, () => { });
             callback(<CallbackResult>{ result: ApiResult.OK, error: "Icon added" });
         } else {
             callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
