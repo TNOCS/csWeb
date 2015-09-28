@@ -379,10 +379,10 @@ export class MapLayerFactory {
                     console.log("Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!")
                 }
                 if (!ld.parameter3 || !ld.parameter4) {
-                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.WithBouwjaar, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 } else {
                     this.mergeHouseNumber(ld.parameter1, ld.parameter2, ld.parameter3, ld.parameter4, template.properties);
-                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.WithBouwjaar, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 }
                 break;
             case "Postcode6_en_huisnummer_met_bag":
@@ -399,10 +399,10 @@ export class MapLayerFactory {
                     console.log("Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!")
                 }
                 if (!ld.parameter3 || !ld.parameter4) {
-                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.All, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 } else {
                     this.mergeHouseNumber(ld.parameter1, ld.parameter2, ld.parameter3, ld.parameter4, template.properties);
-                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.All, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 }
                 break;
             case "Postcode6_en_huisnummer_met_bag_en_woningtype":
@@ -419,10 +419,10 @@ export class MapLayerFactory {
                     console.log("Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!")
                 }
                 if (!ld.parameter3 || !ld.parameter4) {
-                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.AddressCountInBuilding, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 } else {
                     this.mergeHouseNumber(ld.parameter1, ld.parameter2, ld.parameter3, ld.parameter4, template.properties);
-                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.AddressCountInBuilding, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
                 }
                 break;
             case "Latitude_and_longitude":
@@ -651,6 +651,9 @@ export class MapLayerFactory {
                     }
                     if (todo <= 0) callback();
                 });
+            } else {
+                console.log('No valid zipcode found: ' + prop[zipCode]);
+                todo--;
             }
         });
     }
