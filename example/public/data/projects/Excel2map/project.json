@@ -28,7 +28,7 @@
                     "directive" : "markdownwidget",
                     "title" : "Welcome to Excel2map",
                     "data" : {
-                        "content" : "# Welcome to Excel2map #\n If you want to start creating your own map, select the 'Getting started' dashboard above. If you're looking for support on using Excel2map, select the 'Help'-dashboard above."
+                        "content" : "# Welcome to Excel2map #\n If you want to start creating your own map, select the **Get started** dashboard above. If you're looking for support on using Excel2map, select the **Help**-dashboard above."
                     },
                     "elementId" : "widget-3654881f-0644-46ea-5133-f45c3dde8c9e",
                     "enabled" : true,
@@ -51,7 +51,7 @@
                     "directive" : "markdownwidget",
                     "title" : "Welcome to Excel2map",
                     "data" : {
-                        "content" : "# Getting started with Excel2map #\n First download [the Excel template.](../data/excel_address_example.xlsm) Then click the upload button to upload the example data to a map. To open the map you just created, click the 'Show map'-button in the excel sheet."
+                        "content" : "# Getting started with Excel2map #\n First download an Excel-file that contains the macros you need to create a map layer. Either start with an example project or with an empty project, which can be found in the **Excel-kaartlagen** folder on the USB-stick. \n\n Prepare the Excel-file by configuring all names, descriptions and styles. When you are ready, click the 'Upload to map'-button to upload the data from your Excel file to a map. To view the map you just created, click the 'Show map'-button in the excel sheet."
                     },
                     "elementId" : "widget-9954881f-0644-46ea-5133-f45c3dde8c99",
                     "enabled" : true,
@@ -75,7 +75,7 @@
                     "directive" : "markdownwidget",
                     "title" : "Welcome to Excel2map",
                     "data" : {
-                        "content" : "# Help on Excel2map #\n For the manual please visit [the csWeb github repository](https://github.com/TNOCS/csWeb/wiki/Excel2Map)"
+                        "content" : "# Help on Excel2map #\n For the manual please visit [the csWeb github repository](https://github.com/TNOCS/csWeb/wiki/Excel2Map). There you can also find the contact details of the development team, in case you have any additional questions."
                     },
                     "elementId" : "widget-8854881f-0644-46ea-5133-f45c3dde8c88",
                     "enabled" : true,
