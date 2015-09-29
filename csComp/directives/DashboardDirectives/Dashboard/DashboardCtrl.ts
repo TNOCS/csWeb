@@ -158,7 +158,7 @@ module Dashboard {
 
         public checkLayers() {
             var db = this.$layerService.project.activeDashboard;
-            if (db.visiblelayers) {
+            if (db.visiblelayers && db.visiblelayers.length > 0 && this.$layerService.project.groups) {
                 this.$layerService.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
                     g.layers.forEach((l: csComp.Services.ProjectLayer) => {
                         if (l.enabled && db.visiblelayers.indexOf(l.reference) == -1) {
