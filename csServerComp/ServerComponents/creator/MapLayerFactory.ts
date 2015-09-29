@@ -208,8 +208,8 @@ export class MapLayerFactory {
     }
 
     public sendLayerThroughApiManager(data: any) {
-        var layer: ApiManager.Layer = this.apiManager.getLayerDefinition(<ApiManager.Layer>{ title: data.layerTitle, id: data.reference, features: data.geojson.features, enabled: data.enabled, defaultFeatureType: data.defaultFeatureType, typeUrl: 'data/api/resourceTypes/'+data.reference+'.json', opacity: data.opacity, dynamicResource: true});
-        var group: ApiManager.Group = this.apiManager.getGroupDefinition(<ApiManager.Group>{ title: data.group, id: data.group, clustering: data.clustering });
+        var layer: ApiManager.Layer = this.apiManager.getLayerDefinition(<ApiManager.Layer>{ title: data.layerTitle, description: data.description, id: data.reference, features: data.geojson.features, enabled: data.enabled, defaultFeatureType: data.defaultFeatureType, typeUrl: 'data/api/resourceTypes/'+data.reference+'.json', opacity: data.opacity, dynamicResource: true});
+        var group: ApiManager.Group = this.apiManager.getGroupDefinition(<ApiManager.Group>{ title: data.group, id: data.group, clusterLevel: data.clusterLevel });
 
         async.series([
             (cb: Function) => {

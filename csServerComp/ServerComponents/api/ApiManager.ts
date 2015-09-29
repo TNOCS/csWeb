@@ -154,6 +154,7 @@ export class Group {
     title: string;
     description: string;
     clustering: boolean;
+    clusterLevel: number;
     layers: Layer[];
 }
 
@@ -507,6 +508,11 @@ export class ApiManager extends events.EventEmitter {
         if (!p.groups) p.groups = [];
         if (!group.id) group.id = helpers.newGuid();
         if (p.groups.some((pg) => { return (group.id === pg.id) })) {
+            p.groups.some((pg) => {
+                if (group.id === pg.id && group.clusterLevel) {
+                    pg['clusterLevel'] = group.clusterLevel;
+                }
+                return (group.id === pg.id) });
             callback(<CallbackResult>{ result: ApiResult.GroupAlreadyExists, error: "Group exists" }); return;
         } else {
             group = this.getGroupDefinition(group);
@@ -667,7 +673,8 @@ export class ApiManager extends events.EventEmitter {
             id: group.id ? group.id : helpers.newGuid(),
             description: group.description ? group.description : "",
             title: group.title ? group.title : group.id,
-            clustering: group.clustering ? group.clustering : true,
+            clusterLevel: group.clusterLevel ? group.clusterLevel : 19,
+            clustering: true, //For now, set clustering always to true, as it can not be activated anymore when group is created (TODO: implement updateGroup)
             layers: group.layers ? group.layers : []
         };
         return g;
