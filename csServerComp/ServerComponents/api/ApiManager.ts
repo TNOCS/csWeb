@@ -174,6 +174,7 @@ export class Layer implements StorageObject {
     public useLog: boolean;
     public updated: number;
     public enabled: boolean;
+    public opacity: number;
     public id: string;
     public type: string;
     public dynamic: boolean;
@@ -686,6 +687,7 @@ export class ApiManager extends events.EventEmitter {
             dynamicResource: layer.dynamicResource,
             defaultFeatureType: layer.defaultFeatureType,
             typeUrl: layer.typeUrl,
+            opacity: layer.opacity ? layer.opacity : 75,
             type: layer.type,
             features: layer.features ? layer.features : [],
             storage: layer.storage ? layer.storage : "",
