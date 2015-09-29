@@ -48,21 +48,21 @@ module csComp.Services {
 
                     this.$http.get(u)
                         .success((data) => {
-                            layer.count = 0;
-                            layer.isLoading = false;
-                        	layer.enabled = true;
-                        	this.initLayer(data, layer);
-                            cb(null, null);
-                        })
+                        layer.count = 0;
+                        layer.isLoading = false;
+                        layer.enabled = true;
+                        this.initLayer(data, layer);
+                        cb(null, null);
+                    })
                         .error(() => {
-                            layer.count = 0;
-                            layer.isLoading = false;
-                            layer.enabled = false;
-                            layer.isConnected = false;
-                            this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
-                            // this.service.$messageBusService.publish('layer', 'error', layer);
-                            cb(null, null);
-                        });
+                        layer.count = 0;
+                        layer.isLoading = false;
+                        layer.enabled = false;
+                        layer.isConnected = false;
+                        this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
+                        // this.service.$messageBusService.publish('layer', 'error', layer);
+                        cb(null, null);
+                    });
                 },
                 // Callback
                 () => {
@@ -448,25 +448,25 @@ module csComp.Services {
                 url: '/api/proxy',
                 method: "GET",
                 params: { url: layer.url }
-            }).success((data:string) => {
-                    var s = new esriJsonConverter.esriJsonConverter();
-                    var geojson = s.toGeoJson(JSON.parse(data));
-                    console.log(geojson);
+            }).success((data: string) => {
+                var s = new esriJsonConverter.esriJsonConverter();
+                var geojson = s.toGeoJson(JSON.parse(data));
+                console.log(geojson);
 
-                    layer.data = geojson;//csComp.Helpers.GeoExtensions.createFeatureCollection(features);
+                layer.data = geojson;//csComp.Helpers.GeoExtensions.createFeatureCollection(features);
 
-                    if (layer.data.geometries && !layer.data.features) {
-                        layer.data.features = layer.data.geometries;
-                    }
-                    layer.data.features.forEach((f) => {
-                        this.service.initFeature(f, layer, false, false);
-                    });
-                    this.service.$messageBusService.publish("timeline", "updateFeatures");
+                if (layer.data.geometries && !layer.data.features) {
+                    layer.data.features = layer.data.geometries;
+                }
+                layer.data.features.forEach((f) => {
+                    this.service.initFeature(f, layer, false, false);
+                });
+                this.service.$messageBusService.publish("timeline", "updateFeatures");
 
-                    layer.isLoading = false;
-                    callback(layer);
+                layer.isLoading = false;
+                callback(layer);
             })
-            .error(() => {
+                .error(() => {
                 console.log('EsriJsonSource called $HTTP with errors...');
             });
         }
