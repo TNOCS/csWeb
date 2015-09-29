@@ -49,7 +49,7 @@ module NavigatorWidget {
             var par = <any>$scope.$parent;
             this.widget = par.widget;
 
-            $scope.data = <NavigatorWidgetData>this.widget.data;
+            if (this.widget.data) $scope.data = <NavigatorWidgetData>this.widget.data;
 
             if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
                 // Hide widget
