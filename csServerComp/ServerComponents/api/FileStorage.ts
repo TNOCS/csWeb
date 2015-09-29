@@ -137,7 +137,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     saveResourcesDelay = _.debounce((res: ResourceFile) => {
         this.saveResourceFile(res);
-    }, 500);
+    }, 25);
 
     saveKeyDelay = _.debounce((key: Key) => {
         this.saveKeyFile(key);

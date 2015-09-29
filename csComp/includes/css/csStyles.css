@@ -635,7 +635,7 @@ html, body, #container {
     background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAARSAAAEUgHQ6AxBAAAA3UlEQVR42p2QMQqDUBBEVytBEkhnY6UWit4mTSAkvZfJadIHvIOdIPKL5Agi+rOz+X4MGBIiDCuzb9xBoj+eI0v/qIckHMc5f4OZufPc2TNsnD7Brutikud5RFVVUZIkEuLFYQVW2MVxTE3TsKM1tW0rhgntF3DHc4td13XCUt/38qKUoiAIUM1naaMrPOzADMPwujCOo8yiKHDER2fT+wpvydA0TdZI09QGcAGBPM9lBw4SeFaWZRIAbC5cwjB8Y9YCHsM3nhsOUlmW8mVbaSWAP0VRFFFd17buXP0Jgam4hZTLQIMAAAAASUVORK5CYII=') no-repeat left center;
     /*cssImages/filter-black-small.png*/
 }
-.smallFilterIconSelected {
+.smallFaIconSelected {
     color: #0D5088;
 }
 .smallStyleIcon {
@@ -792,12 +792,13 @@ html, body, #container {
 }
 .icons-on-hover {
     float: left;
-    position: absolute;
+    position: relative;
     display: none;
     left: -5px;
 }
 .property-action {
-    position: absolute;
+    position: relative;
+    display: inline-block;
 }
 .icons-on-hover:hover {
     display: block;

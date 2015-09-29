@@ -25,6 +25,7 @@ export interface ILayerDefinition {
     parameter1: string,
     parameter2: string,
     parameter3: string,
+    parameter4: string,
     iconUri: string,
     iconSize: number,
     drawingMode: string,
@@ -88,9 +89,10 @@ export interface IBagContourRequest {
 export class MapLayerFactory {
     templateFiles: IProperty[];
     featuresNotFound: any;
+    apiManager: ApiManager.ApiManager;
 
     // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
-    constructor(private bag: BagDatabase, private messageBus: MessageBus.MessageBusService) {
+    constructor(private bag: BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: ApiManager.ApiManager) {
         var fileList: IProperty[] = [];
         fs.readdir("public/data/templates", function(err, files) {
             if (err) {
@@ -351,8 +353,17 @@ export class MapLayerFactory {
                 if (!ld.parameter2) {
                     console.log("Error: Parameter2 should be the name of the column containing the house number!")
                     return;
+                }if (!ld.parameter3) {
+                    console.log("Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!")
+                }if (!ld.parameter4) {
+                    console.log("Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!")
                 }
-                this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                if (!ld.parameter3 || !ld.parameter4) {
+                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                } else {
+                    this.mergeHouseNumber(ld.parameter1, ld.parameter2, ld.parameter3, ld.parameter4, template.properties);
+                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                }
                 break;
             case "Postcode6_en_huisnummer_met_bouwjaar":
                 if (!ld.parameter1) {
@@ -362,8 +373,17 @@ export class MapLayerFactory {
                 if (!ld.parameter2) {
                     console.log("Error: Parameter2 should be the name of the column containing the house number!")
                     return;
+                }if (!ld.parameter3) {
+                    console.log("Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!")
+                }if (!ld.parameter4) {
+                    console.log("Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!")
                 }
-                this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.WithBouwjaar, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                if (!ld.parameter3 || !ld.parameter4) {
+                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.WithBouwjaar, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                } else {
+                    this.mergeHouseNumber(ld.parameter1, ld.parameter2, ld.parameter3, ld.parameter4, template.properties);
+                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.WithBouwjaar, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                }
                 break;
             case "Postcode6_en_huisnummer_met_bag":
                 if (!ld.parameter1) {
@@ -373,8 +393,17 @@ export class MapLayerFactory {
                 if (!ld.parameter2) {
                     console.log("Error: Parameter2 should be the name of the column containing the house number!")
                     return;
+                }if (!ld.parameter3) {
+                    console.log("Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!")
+                }if (!ld.parameter4) {
+                    console.log("Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!")
                 }
-                this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.All, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                if (!ld.parameter3 || !ld.parameter4) {
+                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.All, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                } else {
+                    this.mergeHouseNumber(ld.parameter1, ld.parameter2, ld.parameter3, ld.parameter4, template.properties);
+                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.All, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                }
                 break;
             case "Postcode6_en_huisnummer_met_bag_en_woningtype":
                 if (!ld.parameter1) {
@@ -384,8 +413,17 @@ export class MapLayerFactory {
                 if (!ld.parameter2) {
                     console.log("Error: Parameter2 should be the name of the column containing the house number!")
                     return;
+                }if (!ld.parameter3) {
+                    console.log("Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!")
+                }if (!ld.parameter4) {
+                    console.log("Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!")
                 }
-                this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.AddressCountInBuilding, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                if (!ld.parameter3 || !ld.parameter4) {
+                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.AddressCountInBuilding, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                } else {
+                    this.mergeHouseNumber(ld.parameter1, ld.parameter2, ld.parameter3, ld.parameter4, template.properties);
+                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.AddressCountInBuilding, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                }
                 break;
             case "Latitude_and_longitude":
                 if (!ld.parameter1) {
@@ -569,6 +607,23 @@ export class MapLayerFactory {
         callback();
     }
 
+    private mergeHouseNumber(zipCode: string, houseNumber: string, letter: string, addition: string, properties: IProperty[]) {
+        var merged;
+        properties.forEach((prop, index) => {
+            merged = '';
+            if (prop.hasOwnProperty(houseNumber)) {
+                merged = prop[houseNumber] + '-';
+            }
+            if (prop.hasOwnProperty(letter)) {
+                merged = merged + prop[letter];
+            }
+            if (prop.hasOwnProperty(addition)) {
+                merged = merged + '-' + prop[addition];
+            }
+            prop['_mergedHouseNumber'] = merged.replace(/ /g, ''); // set merged houseNumber as houseNumber
+        });
+    }
+
     private createPointFeature(zipCode: string, houseNumber: string, bagOptions: IBagOptions, features: IGeoJsonFeature[], properties: IProperty[], propertyTypes: IPropertyType[], sensors: IProperty[], callback: Function) {
         if (!properties) callback();
         var todo = properties.length;
@@ -591,10 +646,14 @@ export class MapLayerFactory {
                                 }
                             }
                         }
+                        if (prop.hasOwnProperty('_mergedHouseNumber')) delete prop['_mergedHouseNumber'];
                         features.push(this.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
                     }
                     if (todo <= 0) callback();
                 });
+            } else {
+                console.log('No valid zipcode found: ' + prop[zipCode]);
+                todo--;
             }
         });
     }
