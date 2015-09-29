@@ -41,12 +41,12 @@ export class MqttAPI extends BaseConnector.BaseConnector {
             Winston.info("mqtt: connected");
             // server listens to all key updates
             if (!this.manager.isClient) {
-                var subscriptions = layerManager.options.mqttSubscriptions || '#';
+                var subscriptions = '#'; //layerManager.options.mqttSubscriptions || '#';
                 Winston.info(`mqtt: listen to ${subscriptions === '#' ? 'everything' : subscriptions}`);
                 if (typeof subscriptions === 'string') {
                     this.client.subscribe(subscriptions);
                 } else {
-                    subscriptions.forEach(s => this.client.subscribe(s));
+                    //subscriptions.forEach(s => this.client.subscribe(s));
                 }
             }
         });
@@ -61,6 +61,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         //   console.log('received', topic, message, params);
         // });
         this.client.on('message', (topic: string, message: string) => {
+Winston.error(topic);
             if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
             // listen to layer updates
             if (topic === this.layerPrefix) {
@@ -85,11 +86,12 @@ export class MqttAPI extends BaseConnector.BaseConnector {
             }
 
             if (topic.indexOf(this.keyPrefix) === 0) {
-                var kid = topic.substring(this.keyPrefix.length, topic.length);
+                var kid = topic.substring(this.keyPrefix.length, topic.length).replace('/','.');
                 if (kid) {
                     try {
                         var obj = JSON.parse(message);
                         Winston.info('mqtt: update key for id ' + kid + " : " + message);
+
                         this.manager.updateKey(kid, obj, <ApiMeta>{ source: this.id }, () => { });
                     }
                     catch (e) {
@@ -125,6 +127,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
      * @return {[type]}                [description]
      */
     public subscribeKey(keyPattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void) {
+        Winston.error( 'subscribing key : ' + keyPattern);
         this.router.subscribe(keyPattern, (topic: string, message: string, params: Object) => {
             callback(topic, message.toString(), params);
         });
