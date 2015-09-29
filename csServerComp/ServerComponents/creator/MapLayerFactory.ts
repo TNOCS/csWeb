@@ -126,8 +126,9 @@ export class MapLayerFactory {
                 projectId: (template.projectId) ? template.projectId : ld.projectTitle,
                 layerTitle: ld.layerTitle,
                 description: ld.description,
-                reference: ld.reference.toLowerCase(),
+                reference: (ld.reference) ? ld.reference.toLowerCase() : ld.reference,
                 featureType: ld.featureType,
+                opacity: ld.opacity,
                 clusterLevel: ld.clusterLevel,
                 useClustering: ld.useClustering,
                 group: ld.group,
@@ -207,7 +208,7 @@ export class MapLayerFactory {
     }
 
     public sendLayerThroughApiManager(data: any) {
-        var layer: ApiManager.Layer = this.apiManager.getLayerDefinition(<ApiManager.Layer>{ title: data.layerTitle, id: data.reference, features: data.geojson.features, enabled: data.enabled, defaultFeatureType: data.defaultFeatureType, typeUrl: 'data/api/resourceTypes/'+data.reference+'.json', dynamicResource: true});
+        var layer: ApiManager.Layer = this.apiManager.getLayerDefinition(<ApiManager.Layer>{ title: data.layerTitle, id: data.reference, features: data.geojson.features, enabled: data.enabled, defaultFeatureType: data.defaultFeatureType, typeUrl: 'data/api/resourceTypes/'+data.reference+'.json', opacity: data.opacity, dynamicResource: true});
         var group: ApiManager.Group = this.apiManager.getGroupDefinition(<ApiManager.Group>{ title: data.group, id: data.group, clustering: data.clustering });
 
         async.series([
@@ -324,8 +325,8 @@ export class MapLayerFactory {
                 strokeColor: ld.strokeColor || "#000",
                 selectedStrokeColor: ld.selectedStrokeColor || "#00f",
                 fillColor: ld.fillColor || "#ff0",
-                opacity: ld.opacity || 0.5,
-                fillOpacity: ld.opacity || 0.5,
+                opacity: 1,//ld.opacity || 0.5,
+                fillOpacity: 1,//ld.opacity || 0.5,
                 nameLabel: ld.nameLabel
             },
             propertyTypeData: template.propertyTypes
