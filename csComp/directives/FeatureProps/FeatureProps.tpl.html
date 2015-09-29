@@ -114,16 +114,16 @@
                                 </div>
                                 <div ng-switch-default>
                                     <div class="icons-on-hover">
-                                        <div class="property-action" style="right:0">
+                                        <div class="property-action" style="right:0px">
                                             <a data-ng-if="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
-                                            <a data-ng-if="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFilterIconSelected makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
+                                            <a data-ng-if="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFaIconSelected makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
                                         </div>
-                                        <div data-ng-if="item.canStyle" class="property-action" style="right:15px">
-                                            <a data-ng-hide="item.feature.gui['style'][item.property]" class="fa smallStyleIcon makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
-                                            <a data-ng-show="item.feature.gui['style'][item.property]" class="fa smallStyleIcon smallStyleIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
+                                        <div data-ng-if="item.canStyle" class="property-action" style="left:15px">
+                                            <a data-ng-hide="item.feature.gui['style'][item.property]" class="fa fa-paint-brush makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
+                                            <a data-ng-show="item.feature.gui['style'][item.property]" class="fa fa-paint-brush smallFaIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
                                         </div>
-                                        <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="right:30px">
-                                            <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer;margin-left:50px"></a>
+                                        <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="left:30px">
+                                            <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer"></a>
                                         </div>
                                     </div>
                                     <div ng-hide="item.isSensor" data-ng-switch="item.propertyType.type" class="feature-prop-value" style="float:right">

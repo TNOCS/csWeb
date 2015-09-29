@@ -81,7 +81,7 @@ module csComp.Services {
         // Events
         public events: IMessageEvent = new TypedEvent();
 
-        constructor(public id: string, public url: string) {
+        constructor(public id: string, public url: string, public bus: MessageBusService) {
 
         }
 
@@ -129,6 +129,9 @@ module csComp.Services {
                 sub.callbacks.push(callback);
                 this.subscriptions[sub.id] = sub;
                 sub.serverCallback = (r) => {
+                    if (type === "key") {
+                        this.bus.publish("keyupdate", target, r);
+                    }
                     //console.log(r.action);
                     sub.callbacks.forEach(cb => cb(sub.id, r));
                 };
@@ -230,7 +233,7 @@ module csComp.Services {
             if (id == null) id = "";
             var c = this.getConnection(id);
             if (c == null) {
-                c = new Connection(id, url);
+                c = new Connection(id, url, this);
                 this.connections[c.id] = c;
             }
             this.connections[id].connect(() => {

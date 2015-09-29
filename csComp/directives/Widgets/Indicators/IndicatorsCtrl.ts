@@ -210,9 +210,9 @@ module Indicators {
                     break;
                 case "sensor":
                     if (i.sensor != null) {
-                        this.$messageBus.subscribe(i.sensor, (action: string, data: any) => {
-                            switch (action) {
-                                case "update":
+                        this.$layerService.$messageBusService.serverSubscribe(i.sensor, "key", (topic: string, msg: csComp.Services.ClientMessage) => {
+                            switch (msg.action) {
+                                case "key":
                                     this.forceUpdateIndicator(i, i._sensorSet.activeValue);
                                     break;
                             }

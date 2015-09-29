@@ -1955,28 +1955,46 @@ module csComp.Services {
             if (this.project.connected) {
                 // check connection
                 this.$messageBusService.initConnection("", "", () => {
-                    var handle = this.$messageBusService.serverSubscribe("", "key", (topic: string, msg: ClientMessage) => {
-                        if (msg.action !== "subscribed") {
-                            if (msg.data) {
-                                var id = "keys/" + msg.data.keyId;
-                                this.findSensorSet(id, (ss: SensorSet) => {
-                                    var time = new Date().getTime();
-                                    if (msg.data.item.hasOwnProperty('time')) {
-                                        time = msg.data.item['time'];
-                                    }
-                                    else {
-                                        ss.timestamps = [];
-                                        ss.values = [];
-                                    }
-                                    ss.addValue(new Date().getTime(), msg.data.item);
-                                    ss.activeValue = msg.data.item;
-                                });
-                                this.$messageBusService.publish(id, "update", msg.data.item);
-                            }
-                            //this.project.dataSets
+                    var handle = this.$messageBusService.subscribe("keyupdate", (key: any, msg: ClientMessage) => {
+                        if (msg.action === "key") {
+                            var id = "keys/" + msg.data.keyId;
+                            this.findSensorSet(id, (ss: SensorSet) => {
+                                var time = new Date().getTime();
+                                if (msg.data.item.hasOwnProperty('time')) {
+                                    time = msg.data.item['time'];
+                                }
+                                else {
+                                    ss.timestamps = [];
+                                    ss.values = [];
+                                }
+                                ss.addValue(new Date().getTime(), msg.data.item);
+                                ss.activeValue = msg.data.item;
+                            });
                         }
-
+                        // console.log('got it');
+                        // console.log(msg);
                     });
+                    //     if (msg.action !== "subscribed") {
+                    //         if (msg.data) {
+                    //             var id = "keys/" + msg.data.keyId;
+                    //             this.findSensorSet(id, (ss: SensorSet) => {
+                    //                 var time = new Date().getTime();
+                    //                 if (msg.data.item.hasOwnProperty('time')) {
+                    //                     time = msg.data.item['time'];
+                    //                 }
+                    //                 else {
+                    //                     ss.timestamps = [];
+                    //                     ss.values = [];
+                    //                 }
+                    //                 ss.addValue(new Date().getTime(), msg.data.item);
+                    //                 ss.activeValue = msg.data.item;
+                    //             });
+                    //             this.$messageBusService.publish(id, "update", msg.data.item);
+                    //         }
+                    //         //this.project.dataSets
+                    //     }
+                    //
+                    // });
 
                     // setTimeout(() => {
                     //     for (var ll in this.loadedLayers) {

@@ -157,6 +157,12 @@ export class Group {
     layers: Layer[];
 }
 
+export class KeySubscription {
+    id: string;
+    pattern: string;
+    callback: Function;
+}
+
 /**
  * Geojson Layer definition
  */
@@ -273,6 +279,8 @@ export class ApiManager extends events.EventEmitter {
      * Dictionary of sensor sets
      */
     public keys: { [keyId: string]: Key } = {};
+
+    public keySubscriptions: { [id: string]: KeySubscription } = {};
 
     public defaultStorage = "file";
     public defaultLogging = false;
@@ -980,10 +988,20 @@ export class ApiManager extends events.EventEmitter {
         s.getWithinPolygon(layerId, feature, meta, (result) => callback(result));
     }
 
-    public subscribeKey(pattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void) {
-        this.getInterfaces(meta).forEach((i: IConnector) => {
-            i.subscribeKey(pattern, meta, callback);
-        });
+
+
+    public subscribeKey(pattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void): KeySubscription {
+        Winston.info('api: added key subscription with pattern ' + pattern);
+        var sub = new KeySubscription();
+        sub.id = helpers.newGuid();
+        sub.pattern = pattern;
+        sub.callback = callback;
+        this.keySubscriptions[sub.id] = sub;
+        return sub;
+
+        // this.getInterfaces(meta).forEach((i: IConnector) => {
+        //     i.subscribeKey(pattern, meta, callback);
+        // });
     }
 
     public addKey(key: Key, meta: ApiMeta, callback: Function) {
@@ -1022,6 +1040,11 @@ export class ApiManager extends events.EventEmitter {
         if (!value.hasOwnProperty('time')) value['time'] = new Date().getTime();
         var s = this.findStorageForKeyId(keyId);
         if (s) s.updateKey(keyId, value, meta, () => callback());
+
+        for (var subId in this.keySubscriptions) {
+            var sub = this.keySubscriptions[subId];
+            Winston.error('checking sub ' + sub.pattern);
+        }
 
         this.getInterfaces(meta).forEach((i: IConnector) => {
             Winston.info('updatekey:send to ' + i.id);

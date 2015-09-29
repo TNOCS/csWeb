@@ -11,7 +11,7 @@
     "range": 604800000,
     "zoomLevelName": "hours",
     "isLive": false,
-    "focus": 1442951235692,
+    "focus": 1443169333585,
     "zoomLevel": 3600000
   },
   "datasources": [
@@ -76,7 +76,7 @@
                   "values": [
                     {
                       "x": 1,
-                      "y": 1118
+                      "y": 118
                     },
                     {
                       "x": 2,
@@ -230,7 +230,7 @@
                 }
               ]
             },
-            "key": "keys/chart",
+            "key": "chart",
             "title": "test"
           }
         },
@@ -546,17 +546,17 @@
             "indicators": [
               {
                 "inputs": {
-                  "value": "~['simTime']"
+                  "value": "~['simTime'] | date"
                 },
                 "indicatorWidth": 200,
                 "title": "Date",
                 "visual": "singlevalue",
-                "sensor": "keys/simTime",
+                "sensor": "simTime",
                 "source": "sensor",
                 "featureTypeName": "",
                 "propertyTypes": [],
                 "propertyTypeTitles": [],
-                "id": "circ-851a7bb5-ca64-4710-c5ae-a3da3a0ef318"
+                "id": "circ-5243eb5a-d34d-419d-91a8-8d4b604c4f87"
               },
               {
                 "inputs": {
@@ -570,7 +570,7 @@
                 "featureTypeName": "",
                 "propertyTypes": [],
                 "propertyTypeTitles": [],
-                "id": "circ-1448a9d1-2362-42ed-20d4-1ffa22748ea4"
+                "id": "circ-3080ece1-5c05-4295-001f-92b027a8228b"
               }
             ],
             "spec": {

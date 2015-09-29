@@ -97,7 +97,8 @@ module ClientConnection {
 
         public FindSubscription(target: string, type: string): msgSubscription {
             for (var k in this.Subscriptions) {
-                if ((this.Subscriptions[k].type === "key" && type === "key") || (this.Subscriptions[k].target == target && this.Subscriptions[k].type == type)) return this.Subscriptions[k];
+
+                if ((this.Subscriptions[k].type === "key" && type === "key" && this.Subscriptions[k].id === target) || (this.Subscriptions[k].target == target && this.Subscriptions[k].type == type)) return this.Subscriptions[k];
             }
             return null;
         }
@@ -130,7 +131,7 @@ module ClientConnection {
 
             this.server.on('connection', (socket: SocketIO.Socket) => {
                 // store user
-                Winston.info('clientconnection: user ' + socket.id + ' has connected');
+                Winston.warn('clientconnection: user ' + socket.id + ' has connected');
                 var wc = new WebClient(socket);
                 this.users[socket.id] = wc;
 
@@ -141,7 +142,7 @@ module ClientConnection {
 
                 socket.on('subscribe', (msg: msgSubscription) => {
                     //Winston.error(JSON.stringify(msg));
-                    Winston.info('clientconnection: subscribe ' + JSON.stringify(msg.target));
+                    Winston.info('clientconnection: subscribe ' + JSON.stringify(msg.target) + " - " + socket.id);
                     wc.Subscribe(msg);
                     // wc.Client.emit('laag', 'test');
                     //socket.emit('laag', 'test');
