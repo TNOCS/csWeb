@@ -1052,7 +1052,15 @@ export class ApiManager extends events.EventEmitter {
 
         for (var subId in this.keySubscriptions) {
             var sub = this.keySubscriptions[subId];
-            Winston.error('checking sub ' + sub.pattern);
+            var p =  sub.pattern.replace(/\//g, "\\/").replace(/\./g, "\\.")            ;
+            if (keyId.match(p)){
+                Winston.info('found pattern  ' + p + " (" + keyId + ")");
+                sub.callback(keyId,value,meta);
+            }
+            else
+            {
+                Winston.info(' not found pattern  ' + p + " (" + keyId + ")");
+            }
         }
 
         this.getInterfaces(meta).forEach((i: IConnector) => {
