@@ -81,9 +81,8 @@ module csComp.Services {
             this.widgetTypes["iframewidget"] = <IWidget>{ id: "iframewidget", icon: "cs/images/widgets/markdown.png", description: "Show custom iframe" };
             this.widgetTypes["kanbanboard"] = <IWidget>{ id: "kanbanboard", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
             this.widgetTypes["navigator"] = <IWidget>{ id: "navigatorwidget", icon: "cs/images/widgets/markdown.png", description: "Show navigator" };
+            this.widgetTypes["simtimecontroller"] = <IWidget>{ id: "simtimecontroller", icon: "cs/images/widgets/Media-Play.png", description: "Show simulation time controller" };
         }
-
-
 
         public leftMenuVisible(id: string): boolean {
             var d = this.$layerService.project.activeDashboard;

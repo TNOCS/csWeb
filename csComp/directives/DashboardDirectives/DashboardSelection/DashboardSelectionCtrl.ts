@@ -38,7 +38,7 @@ module DashboardSelection {
             public $dashboardService: csComp.Services.DashboardService,
             private $mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService
-            ) {
+        ) {
 
             $scope.vm = this;
             this.$messageBusService.subscribe('project', (s, a) => {
@@ -55,52 +55,52 @@ module DashboardSelection {
             interact('#widgettype-' + key)
                 .draggable({ max: Infinity })
                 .on('dragstart', (event) => {
-                startx = 0;
-                starty = 0;
-                event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
-                event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
-                event.target.style.width = "300px";
-                event.target.style.height = "300px";
-            })
+                    startx = 0;
+                    starty = 0;
+                    event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
+                    event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
+                    event.target.style.width = "300px";
+                    event.target.style.height = "300px";
+                })
                 .on('dragmove', (event) => {
-                event.interaction.x += event.dx;
-                event.interaction.y += event.dy;
+                    event.interaction.x += event.dx;
+                    event.interaction.y += event.dy;
 
 
-                event.target.style.left = event.interaction.x + 'px';
-                event.target.style.top = event.interaction.y + 'px';
+                    event.target.style.left = event.interaction.x + 'px';
+                    event.target.style.top = event.interaction.y + 'px';
 
-            })
+                })
                 .on('dragend', (event) => {
-                setTimeout(() => {
-                    var widget = <csComp.Services.IWidget>{};
+                    setTimeout(() => {
+                        var widget = <csComp.Services.IWidget>{};
 
-                    widget.directive = key;
-                    widget.id = csComp.Helpers.getGuid();
-                    widget.left = (event.clientX - 350) + "px"; //(parseInt(event.target.style.left.replace('px', '')) - 150) + "px";
-                    widget.top = (event.clientY - 50) + "px"; //(parseInt(event.target.style.top.replace('px', '')) - 150) + "px";
-                    widget.data = {};
-                    widget.width = '300px';
-                    widget.height = '300px';
-                    widget.style = this.style;
-                    widget.enabled = true;
-                    csComp.Services.Dashboard.addNewWidget(widget, this.$layerService.project.activeDashboard, this.$layerService.solution);
-                    this.$dashboardService.editWidget(widget)
+                        widget.directive = key;
+                        widget.id = csComp.Helpers.getGuid();
+                        widget.left = (event.clientX - 350) + "px"; //(parseInt(event.target.style.left.replace('px', '')) - 150) + "px";
+                        widget.top = (event.clientY - 50) + "px"; //(parseInt(event.target.style.top.replace('px', '')) - 150) + "px";
+                        widget.data = {};
+                        widget.width = '300px';
+                        widget.height = '300px';
+                        widget.style = this.style;
+                        widget.enabled = true;
+                        csComp.Services.Dashboard.addNewWidget(widget, this.$layerService.project.activeDashboard, this.$layerService.solution);
+                        this.$dashboardService.editWidget(widget)
 
-                }, 100);
+                    }, 100);
 
-                //this.$dashboardService.mainDashboard.widgets.push(widget);
-                event.target.setAttribute('data-x', 0);
-                event.target.setAttribute('data-y', 0);
-                event.target.style.left = '0px';
-                event.target.style.top = '0px';
-                event.target.style.width = "75px";
-                event.target.style.height = "75px";
+                    //this.$dashboardService.mainDashboard.widgets.push(widget);
+                    event.target.setAttribute('data-x', 0);
+                    event.target.setAttribute('data-y', 0);
+                    event.target.style.left = '0px';
+                    event.target.style.top = '0px';
+                    event.target.style.width = "75px";
+                    event.target.style.height = "75px";
 
 
 
-                console.log(key);
-            });
+                    console.log(key);
+                });
         }
 
         public startWidgetEdit(widget: csComp.Services.BaseWidget) {
@@ -124,7 +124,7 @@ module DashboardSelection {
                     d.disabled = true;
                 }
             }
-                );
+            );
             this.$dashboardService.stopEditWidget();
         }
 
@@ -137,7 +137,7 @@ module DashboardSelection {
                 d.disabled = false;
                 d.editMode = false;
             }
-                );
+            );
             this.$dashboardService.stopEditWidget();
         }
 
