@@ -634,8 +634,7 @@ export class MapLayerFactory {
                 var nmb = prop[houseNumber];
                 this.bag.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
                     //console.log(todo);
-                    todo--;
-                    if (!locations || locations.length === 0) {
+                    if (!locations || locations.length === 0 || typeof locations[0] == 'undefined') {
                         console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
                         this.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
                     } else {
@@ -648,10 +647,12 @@ export class MapLayerFactory {
                             }
                         }
                         if (prop.hasOwnProperty('_mergedHouseNumber')) delete prop['_mergedHouseNumber'];
+                        //console.log('locations[0] ' + locations[0]);
                         features.push(this.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
                     }
-                    if (todo <= 0) callback();
                 });
+                todo--;
+                if (todo <= 0) callback();
             } else {
                 console.log('No valid zipcode found: ' + prop[zipCode]);
                 todo--;
