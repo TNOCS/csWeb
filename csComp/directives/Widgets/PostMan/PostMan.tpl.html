@@ -1,0 +1,43 @@
+<div style="margin-top: 20px;">
+    <div class="row" style="margin: 5px;">
+        <!-- <div class="verticalstack">
+            <a href="#" ng-click="vm.editScript()">
+                <img src="cs/images/widgets/Edit.png" alt="Increase speed" style="width:24px;height:24px">
+            </a>
+            <a href="#" ng-click="vm.addScript()">
+                <img src="cs/images/widgets/Add.png" alt="Decrease speed" style="width:24px;height:24px;">
+            </a>
+        </div> -->
+        <div class="col-md-9">
+            <select ng-model="selectedMessage" ng-options="msg.name for msg in data.messages"
+            class="input-xlarge" style="font-size: 1.35em; width: 200px" ng-change="vm.result = ''"></select>
+        </div>
+        <div class="col-md-3">
+            <a href="#" ng-click="vm.execute()" class="pull-right">
+                <img src="cs/images/widgets/Execute.png" alt="Execute">
+            </a>
+        </div>
+        <div class="col-md-12">
+            <label class="control-label" for="description">Description</label>
+        </div>
+        <div class="col-md-12">
+            <textarea disabled name="description" cols="35" rows="2" ng-model="selectedMessage.description" class="input-xlarge"></textarea>
+        </div>
+
+        <div class="col-md-12">
+            <label class="control-label" for="name">URL</label>
+        </div>
+        <div class="col-md-3">
+            <span class="input-xlarge" style="font-size: 1.35em; margin-right: 20px;">{{selectedMessage.httpMethod.name}}&nbsp;&nbsp;{{selectedMessage.url}}</span>
+        </div>
+        <div class="col-md-12">
+            <label class="control-label" for="message">Message</label>
+        </div>
+        <div class="col-md-12">
+            <textarea disabled name="message" cols="35" rows="3" ng-model="selectedMessage.message" class="input-xlarge"></textarea>
+        </div>
+        <div class="col-md-12">
+            <textarea disabled name="result" cols="35" rows="5" ng-model="vm.result" class="input-xlarge"></textarea>
+        </div>
+    </div>
+</div>

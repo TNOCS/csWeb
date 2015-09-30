@@ -1,32 +1,7 @@
 <div style="margin-top: 20px;">
-    <style>
-        .horizontalstack {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: no-wrap;
-            justify-content: center;
-            align-items: center;
-        }
-        .verticalstack {
-            display: flex;
-            flex-direction: column;
-            flex-wrap: no-wrap;
-            justify-content: center;
-            align-items: center;
-        }
-        .stackitem {
-            margin: 5px;
-        }
-        .disabledImg {
-            opacity: 0.4;
-            filter: alpha(opacity=40); /* msie */
-            background-color: #000;
-        }
-    </style>
-
     <div class="horizontalstack">
         <a href="#" ng-click="vm.stop()" class="stackitem">
-            <img src="cs/images/widgets/Media-Stop.png" alt="Stop" ng-class="{disabledImg: !vm.isPlaying}">
+            <img src="cs/images/widgets/Media-Stop.png" alt="Stop" ng-class="{disabledImg: vm.isStopped}">
         </a>
         <a href="#" ng-show="vm.isPlaying" ng-click="vm.pause()" class="stackitem">
             <img src="cs/images/widgets/Media-Pause.png" alt="Pause">
@@ -35,7 +10,7 @@
             <img src="cs/images/widgets/Media-Play.png" alt="Play">
         </a>
 
-        <a href="#" ng-click="vm.setTime()" class="stackitem">
+        <a href="#" ng-click="vm.openCalendar($event, prop)" class="stackitem" ng-model="vm.time" datetime-picker="dd-MM-yyyy HH:mm" timepicker-options="vm.timeOptions" is-open="vm.isOpen">
             <img src="cs/images/widgets/Clock.png" alt="Set time" ng-class="{disabledImg: !vm.isStopped}">
         </a>
 
@@ -54,25 +29,6 @@
     </div>
 
     <div class="horizontalstack" style="font-size: 2em;">
-        <clock time="{{vm.time}}" format="dd-MM-yyyy HH:mm:ss" class="stackitem"></clock>
+        <clock time="{{vm.time.valueOf()}}" format="dd-MM-yyyy HH:mm:ss" class="stackitem"></clock>
     </div>
-
-    <!-- Show the time -->
-
-
-    <!-- REST toolbox widget -->
-    <!-- <div class="horizontalstack" style="justify-content: right; margin: 5px 0 5px 5px;">
-        <div class="verticalstack">
-            <a href="#" ng-click="vm.editScript()">
-                <img src="cs/images/widgets/Edit.png" alt="Increase speed" style="width:24px;height:24px">
-            </a>
-            <a href="#" ng-click="vm.addScript()">
-                <img src="cs/images/widgets/Add.png" alt="Decrease speed" style="width:24px;height:24px;">
-            </a>
-        </div>
-        <a href="#" ng-click="vm.execute()" style="margin: 5px 5px 5px 0;">
-            <img src="cs/images/widgets/Execute.png" alt="Stop">
-        </a>
-    </div> -->
-
 </div>

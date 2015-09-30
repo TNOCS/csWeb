@@ -36,7 +36,6 @@ module ChartsWidget {
         }
     ]);
 
-
     export interface IChartsEditCtrl extends ng.IScope {
         vm: ChartsEditCtrl;
         data: any;
@@ -65,9 +64,9 @@ module ChartsWidget {
         constructor(
             private $scope: IChartsEditCtrl,
             private $timeout: ng.ITimeoutService,
-            private $compile: any,
+            private $compile: ng.ICompileService,
             private $layerService: csComp.Services.LayerService,
-            private $templateCache: any,
+            private $templateCache: ng.ITemplateCacheService,
             private $messageBus: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService,
             private $dashboardService: csComp.Services.DashboardService
@@ -87,7 +86,6 @@ module ChartsWidget {
             this.editor.setValue(JSON.stringify(this.$scope.data.spec, null, '\t'));
             this.editor.clearSelection();
             this.editor.focus();
-
         }
 
         public loadChart() {
@@ -103,7 +101,5 @@ module ChartsWidget {
         public refreshChart() {
             vg.parse.spec(this.$scope.data.spec, (chart) => { chart({ el: "#vis" + this.$scope.data._id }).update(); });
         }
-
-
     }
 }
