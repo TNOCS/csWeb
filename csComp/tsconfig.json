@@ -176,7 +176,6 @@
         "./helpers/typestate.ts",
         "./services/auth/AuthenticationService.ts",
         "./services/bus/MessageBus.ts",
-        "./services/connection/ConnectionService.ts",
         "./services/dashboard/DashboardService.ts",
         "./services/geolocation/geolocation.ts",
         "./services/layer/LayerActions.ts",
