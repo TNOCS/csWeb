@@ -91,7 +91,7 @@
             <span translate="LAYERS" />
             <div ng-show="vm.$mapService.isIntermediate" class="leftpanel-header-button-container">
                 <button style="cursor:pointer" class="fa fa-folder button leftpanel-header-button" ng-click="vm.openDirectory()" />
-                <button style="cursor:pointer" class="fa fa-plus button leftpanel-header-button" ng-click="vm.addLayer()" />
+                <button style="cursor:pointer" ng-if="vm.$layerService.project.connected" class="fa fa-plus button leftpanel-header-button" ng-click="vm.addLayer()" />
             </div>
         </h3>
 

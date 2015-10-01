@@ -358,6 +358,7 @@ module csComp.Services {
                                 }
                                 else {
                                     if (typeof l === 'string') {
+                                        pl = new ProjectLayer();
                                         pl.url = l;
                                     }
                                     else {
