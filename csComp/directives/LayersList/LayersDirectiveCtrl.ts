@@ -15,9 +15,13 @@ module LayersDirective {
         public layer: csComp.Services.ProjectLayer;
         public project: csComp.Services.Project;
         public directory: csComp.Services.ProjectLayer[];
+        public mylayers: string[];
         public selectedLayer: csComp.Services.ProjectLayer;
+        public newLayer: csComp.Services.ProjectLayer;
         public layerGroup: any;
-
+        public layerTitle: string;
+        public newGroup : string;
+        public groups : csComp.Services.ProjectGroup[];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -29,7 +33,7 @@ module LayersDirective {
             'messageBusService',
             'mapService',
             'dashboardService',
-            '$modal'
+            '$modal', '$http'
         ];
 
         // dependencies are injected via AngularJS $injector
@@ -40,7 +44,7 @@ module LayersDirective {
             private $messageBusService: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService,
             private $dashboardService: csComp.Services.DashboardService,
-            private $modal: any) {
+            private $modal: any, private $http: ng.IHttpService) {
             $scope.vm = this;
             $scope.options = ((layer: csComp.Services.ProjectLayer) => {
                 if (!layer.enabled) return null;
@@ -67,6 +71,16 @@ module LayersDirective {
         public editLayer(layer: csComp.Services.ProjectLayer) {
             var rpt = csComp.Helpers.createRightPanelTab('edit', 'layeredit', layer, 'Edit layer', 'Edit layer');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
+        }
+
+        public initGroups()
+        {
+            this.groups = [];
+            this.$layerService.project.groups.forEach((g)=>this.groups.push(g));
+            var g = new csComp.Services.ProjectGroup;
+            g.id = "<new>";
+            g.title = "<new group>";
+            this.groups.push(g);
         }
 
         public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
@@ -127,6 +141,7 @@ module LayersDirective {
 
         public exitDirectory() {
             this.selectedLayer = null;
+            this.layerTitle = "";
             this.state = 'layers';
         }
 
@@ -174,14 +189,25 @@ module LayersDirective {
             //alert('open layers');
         }
 
-        public openDirectory() {
-            this.state = "directory";
+        public loadAvailableLayers() {
             this.project = this.$layerService.project;
+            this.mylayers = [];
+
+            this.project.groups.forEach((g) => {
+                g.layers.forEach((l) => this.mylayers.push(l.url));
+            })
+
             if (this.project.layerDirectory) {
                 $.getJSON(this.project.layerDirectory, (result) => {
                     this.directory = result;
                 });
             }
+        }
+
+        public openDirectory() {
+            this.initGroups();
+            this.state = "directory";
+            this.loadAvailableLayers();
             return;
             var modalInstance = this.$modal.open({
                 templateUrl: 'directives/LayersList/AddLayerView.tpl.html',
@@ -202,8 +228,55 @@ module LayersDirective {
                 });
         }
 
-        public addLayer() {
+        public createLayer() {
+            this.initGroups();
+            this.loadAvailableLayers();
+            if (this.$layerService.project.groups.length > 0) this.layerGroup = this.$layerService.project.groups[0].id;
+            this.state = "createlayer";
+            this.newLayer = new csComp.Services.ProjectLayer();
+            this.newLayer.type = "dynamicgeojson";
+        }
 
+
+        public addLayer() {
+            //this.loadAvailableLayers();
+            var group : csComp.Services.ProjectGroup;
+            if (this.layerGroup=="<new>")
+            {
+                group = new csComp.Services.ProjectGroup;
+                group.title = this.newGroup;
+                this.$layerService.project.groups.push(group);
+                this.$layerService.initGroup(group);
+            }
+            else
+            {
+                group = this.$layerService.findGroupById(this.layerGroup);
+            }
+
+            if (group) {
+                this.$layerService.initLayer(group, this.newLayer);
+                group.layers.push(this.newLayer);
+
+                var nl = this.newLayer;
+
+                /// create layer on server
+                if (this.newLayer.type === "dynamicgeojson") {
+                    this.newLayer.url = "api/layers/" + nl.id;
+                    var l = { id: nl.id, title: nl.title, isDynamic: true, type: nl.type, description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url };
+                    this.$http.post("/api/layers", l)
+                        .success((data) => {
+                        console.log(data);
+                    })
+                        .error(() => {
+                        console.log('error adding layer');
+
+                    });
+                }
+
+                var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", this.newLayer, "Edit layer");
+                this.$messageBusService.publish("rightpanel", "activate", rpt);
+            }
+            this.exitDirectory();
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {

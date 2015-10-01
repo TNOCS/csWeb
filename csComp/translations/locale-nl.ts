@@ -22,6 +22,7 @@ module Translations {
             TABLE_LABEL: 'Tabel',
             LAYERS: 'Kaartlagen',
             DIRECTORY: 'Beschikbare lagen',
+            ADDLAYER: 'Nieuwe laag toevoegen',
             ADDFEATURES: 'Objecten toevoegen',
             FILTERS: 'Filters',
             FILTER_INFO: 'Momenteel zijn er geen filters geselecteerd. Klik op een icoon of gebied op de kaart, en klik op het filter icoontje (<span class="fa fa-filter"></span>) in het rechter menu om een filter toe te voegen. Dan wordt er een filter aangemaakt voor de geselecteerde eigenschap.',

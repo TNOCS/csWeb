@@ -359,6 +359,7 @@ module FeatureProps {
 
 
         private updateAllStats() {
+            if (!this.$scope.callOut) return;
             for (var s in this.$scope.callOut.sections) {
                 var section = this.$scope.callOut.sections[s];
                 section.properties.forEach(prop => {

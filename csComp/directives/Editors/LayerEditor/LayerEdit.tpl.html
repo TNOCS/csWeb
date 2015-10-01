@@ -26,7 +26,6 @@
                     <option value="dynamicgeojson">Dynamic Geojson</option>
                     <option value="esrijson">Esri Json</option>
                     <option value="wms">Wms</option>
-                    <option value="rss">Rss</option>
                 </select>
             </div>
             <div class="controls">
@@ -42,18 +41,18 @@
                     <input disabled="true" type="checkbox" id="useProxy-{{vm.layer.id}}" ng-model="group.useProxy">
                     <label for="useProxy-{{vm.layer.id}}">use proxy (used for external urls)</label>
                 </div>
-                <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+                <!-- <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
                     <input type="checkbox" id="dynamic-{{vm.layer.id}}" ng-model="group.dynamic">
                     <label for="dynamic-{{vm.layer.id}}">dynamic</label>
-                </div>
+                </div> -->
                 <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
                     <input type="checkbox" id="bbox-{{vm.layer.id}}" ng-model="group.refreshBBOX">
                     <label for="bbox-{{vm.layer.id}}">refresh bounding box</label>
                 </div>
-                <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+                <!-- <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
                     <input type="checkbox" id="isFeed-{{vm.layer.isFeed}}" ng-model="group.isFeed">
                     <label for="isFeed-{{vm.layer.id}}">is a feed</label>
-                </div>
+                </div> -->
                 <div class="controls" style="position:relative" ng-if="vm.layer.typeUrl">
                     <label class="editor-title input-xlarge" for="defaultFeatureType">Default Feature Type</label>
                     <input id="layerTitle" name="textinput" type="text" ng-model="vm.layer.defaultFeatureType" placeholder="placeholder" class="input-xlarge editor-text-input">

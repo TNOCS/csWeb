@@ -40,7 +40,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.layersPath = path.join(rootpath, "layers/");
         this.projectsPath = path.join(rootpath, "projects/");
         this.resourcesPath = path.join(rootpath, "resourceTypes/");
-        this.iconPath =  path.join(rootpath, "/../../images/");
+        this.iconPath = path.join(rootpath, "/../../images/");
         // check if rootpath exists, otherwise create it, including its parents
         if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
         this.watchLayersFolder();
@@ -274,9 +274,9 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     layer.storage = this.id;
                     layer.id = id;
                     this.layers[id] = layer;
-                    layer.title = id;
+                    //layer.title = id;
                     layer.storage = this.id;
-                    layer.type = "geojson";
+                    //layer.type = "geojson";
                     layer.url = "/api/layers/" + id;
                     Winston.info('storage ' + layer.storage);
                     this.manager.updateLayer(layer, {}, () => { });
@@ -541,7 +541,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     public addIcon(b64: string, uri: string, meta: ApiMeta, callback: Function) {
         var fileUri = path.join(this.iconPath, uri.split('/').pop());
-        var i: Icon = {data: b64, fileUri: fileUri};
+        var i: Icon = { data: b64, fileUri: fileUri };
         this.saveIcon(i);
     }
 

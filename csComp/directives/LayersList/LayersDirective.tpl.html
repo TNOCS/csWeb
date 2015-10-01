@@ -25,7 +25,30 @@
         }
     </style>
 
+    <div ng-if="vm.state === 'createlayer'">
+        <h3 class="leftpanel-header" style="width: 100%">
+            <div class="leftpanel-header-button-container-left">
+                <button class="button fa fa-arrow-left leftpanel-header-button" ng-click="vm.exitDirectory()" />
+            </div>
+            <span translate="ADDLAYER" />
+        </h3>
+        <div style="background:white;margin-right:10px">
+            <div class="form-group">
+                <label for="groupDescription">Title</label>
+                <input type="text" class="form-control" id="layerTitle" ng-model="vm.newLayer.title" placeholder="Enter title layer">
+            </div>
+            <div class="form-group">
+                <label class="editor-title input-xlarge">Group</label>
+                <select data-ng-model="vm.layerGroup" ng-options="g.id as g.title for g in vm.groups" class="form-control tt-input editor-text-input" required />
+            </div>            
+            <div class="form-group" ng-show="vm.layerGroup=='<new>'">
+                <label class="editor-title input-xlarge">New Group</label>
+                <input type="text" class="form-control" id="layerTitle" ng-model="vm.newGroup" placeholder="Enter group title">
+            </div>
+            <button type="button" class="btn btn-primary" data-ng-click="vm.addLayer()">Next</button>
 
+        </div>
+    </div>
 
     <div ng-if="vm.state === 'directory'">
         <h3 class="leftpanel-header" style="width: 100%">
@@ -36,7 +59,7 @@
         </h3>
         <div style="background:white">
             <div ng-show="vm.selectedLayer == null">
-                <div ng-repeat="layer in vm.directory" class="addlayer-container" ng-click="vm.selectProjectLayer(layer)" popover="{{layer.title}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true">
+                <div ng-repeat="layer in vm.directory" ng-if="vm.mylayers.indexOf(layer.url)==-1" class="addlayer-container" ng-click="vm.selectProjectLayer(layer)" popover="{{layer.title}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true">
                     <!-- <img class="addlayer-image" src="http://www.tom-carden.co.uk/wp-content/uploads/2008/10/osm-yahoo-flash.png"></img> -->
                     <div class="addlayer-title">
                         {{layer.title}}
@@ -90,8 +113,8 @@
             </div>
             <span translate="LAYERS" />
             <div ng-show="vm.$mapService.isIntermediate" class="leftpanel-header-button-container">
-                <button style="cursor:pointer" class="fa fa-folder button leftpanel-header-button" ng-click="vm.openDirectory()" />
-                <button style="cursor:pointer" class="fa fa-plus button leftpanel-header-button" ng-click="vm.addLayer()" />
+                <button style="cursor:pointer" class="fa fa-folder button leftpanel-header-button" ng-click="vm.openDirectory()" popover="{{'DIRECTORY' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true"  />
+                <button style="cursor:pointer" ng-if="vm.$layerService.project.connected" class="fa fa-plus button leftpanel-header-button" ng-click="vm.createLayer()" popover="{{'ADDLAYER' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true" />
             </div>
         </h3>
 

@@ -21,6 +21,7 @@ module Translations {
             TABLE_LABEL: 'Table',
             LAYERS: 'Layers',
             DIRECTORY: 'Available layers',
+            ADDLAYER: 'Add new layer',
             ADDFEATURES: 'Add items',
             DONE: 'done',
             FILTERS: 'Filters',
