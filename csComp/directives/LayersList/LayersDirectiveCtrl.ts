@@ -20,6 +20,8 @@ module LayersDirective {
         public newLayer: csComp.Services.ProjectLayer;
         public layerGroup: any;
         public layerTitle: string;
+        public newGroup : string;
+        public groups : csComp.Services.ProjectGroup[];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -69,6 +71,16 @@ module LayersDirective {
         public editLayer(layer: csComp.Services.ProjectLayer) {
             var rpt = csComp.Helpers.createRightPanelTab('edit', 'layeredit', layer, 'Edit layer', 'Edit layer');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
+        }
+
+        public initGroups()
+        {
+            this.groups = [];
+            this.$layerService.project.groups.forEach((g)=>this.groups.push(g));
+            var g = new csComp.Services.ProjectGroup;
+            g.id = "<new>";
+            g.title = "<new group>";
+            this.groups.push(g);
         }
 
         public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
@@ -193,6 +205,7 @@ module LayersDirective {
         }
 
         public openDirectory() {
+            this.initGroups();
             this.state = "directory";
             this.loadAvailableLayers();
             return;
@@ -216,6 +229,8 @@ module LayersDirective {
         }
 
         public createLayer() {
+            this.initGroups();
+            this.loadAvailableLayers();
             if (this.$layerService.project.groups.length > 0) this.layerGroup = this.$layerService.project.groups[0].id;
             this.state = "createlayer";
             this.newLayer = new csComp.Services.ProjectLayer();
@@ -224,8 +239,20 @@ module LayersDirective {
 
 
         public addLayer() {
-            this.loadAvailableLayers();
-            var group = this.$layerService.findGroupById(this.layerGroup);
+            //this.loadAvailableLayers();
+            var group : csComp.Services.ProjectGroup;
+            if (this.layerGroup=="<new>")
+            {
+                group = new csComp.Services.ProjectGroup;
+                group.title = this.newGroup;
+                this.$layerService.project.groups.push(group);
+                this.$layerService.initGroup(group);
+            }
+            else
+            {
+                group = this.$layerService.findGroupById(this.layerGroup);
+            }
+
             if (group) {
                 this.$layerService.initLayer(group, this.newLayer);
                 group.layers.push(this.newLayer);
