@@ -131,6 +131,7 @@ module SimTimeController {
                     || data.data.keyId.indexOf('SimTime') < 0) return;
                 this.$timeout(() => {
                     this.time = new Date(data.data.item);
+                    messageBusService.publish('timeline', 'setFocus', this.time);
                     //console.log(`TIME: ${this.time} (input: ${JSON.stringify(data.data.item, null, 2)})`);
                 }, 0);
             })
