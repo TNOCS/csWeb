@@ -6,7 +6,6 @@ module PostMan {
     }
 
     export class PostManCtrl {
-        private scope: IPostManScope;
         private result: string;
 
         public static $inject = [

@@ -161,6 +161,8 @@
         "./directives/Widgets/PostMan/PostMan.ts",
         "./directives/Widgets/PostMan/PostManCtrl.ts",
         "./directives/Widgets/PostMan/PostManEditCtrl.ts",
+        "./directives/Widgets/SimState/SimState-edit.ts",
+        "./directives/Widgets/SimState/SimState.ts",
         "./directives/Widgets/SimTimeController/SimTimeController-edit.ts",
         "./directives/Widgets/SimTimeController/SimTimeController.ts",
         "./directives/Widgets/SimTimeController/SimTimeControllerCtrl.ts",
