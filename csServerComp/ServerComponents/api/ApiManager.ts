@@ -160,7 +160,10 @@ export class Group {
 
 export class KeySubscription {
     id: string;
+    /** Pattern you subscribe too */
     pattern: string;
+    /** Regex safe variant of the pattern, i.e. the . is replaced with a \. */
+    regexPattern: RegExp;
     callback: Function;
 }
 
@@ -997,17 +1000,15 @@ export class ApiManager extends events.EventEmitter {
         s.getWithinPolygon(layerId, feature, meta, (result) => callback(result));
     }
 
-
-
     public subscribeKey(pattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void): KeySubscription {
         Winston.info('api: added key subscription with pattern ' + pattern);
         var sub = new KeySubscription();
         sub.id = helpers.newGuid();
         sub.pattern = pattern;
+        sub.regexPattern = new RegExp(pattern.replace(/\//g, "\\/").replace(/\./g, "\\."));
         sub.callback = callback;
         this.keySubscriptions[sub.id] = sub;
         return sub;
-
         // this.getInterfaces(meta).forEach((i: IConnector) => {
         //     i.subscribeKey(pattern, meta, callback);
         // });
@@ -1037,13 +1038,13 @@ export class ApiManager extends events.EventEmitter {
         if (!meta) meta = <ApiMeta>{};
         if (!callback) callback = () => { };
 
-        Winston.info('updatekey:received' + keyId);
+        Winston.info('updatekey: received ' + keyId);
         // check if keys exists
         var key = this.findKey(keyId);
         if (!key) {
             var k = <Key>{ id: keyId, title: keyId, storage: 'file' };
             this.addKey(k, meta, () => { });
-            //this.addKey(k, meta, callback);
+            //this.addKey(k, meta-, callback);
         }
 
         if (!value.hasOwnProperty('time')) value['time'] = new Date().getTime();
@@ -1052,14 +1053,14 @@ export class ApiManager extends events.EventEmitter {
 
         for (var subId in this.keySubscriptions) {
             var sub = this.keySubscriptions[subId];
-            var p =  sub.pattern.replace(/\//g, "\\/").replace(/\./g, "\\.")            ;
-            if (keyId.match(p)){
-                Winston.info('found pattern  ' + p + " (" + keyId + ")");
+            if (sub.regexPattern.test(keyId)){
+            // if (keyId.match(sub.regexPattern)){
+                Winston.info(`   pattern ${sub.pattern} found.`);
                 sub.callback(keyId,value,meta);
             }
             else
             {
-                Winston.info(' not found pattern  ' + p + " (" + keyId + ")");
+                Winston.info(`   pattern ${sub.pattern} not found!`);
             }
         }
 

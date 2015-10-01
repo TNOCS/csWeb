@@ -121,20 +121,25 @@ module SimTimeController {
                 return true;
             });
 
-            messageBusService.serverSubscribe('Sim.SimTime', 'key', (title: string, data: any) => {
+            messageBusService.serverSubscribe('Sim.SimTime.', 'key', (title: string, data: any) => {
                 console.log(`Server subscription received: ${title}, ${JSON.stringify(data, null, 2) }.`);
-                if (!data || !data.hasOwnProperty('data') || !data.data.hasOwnProperty('keyId') || !data.data.hasOwnProperty('item') || !data.data.item || data.data.keyId.indexOf('SimTime/') < 0) return;
+                if (!data
+                    || !data.hasOwnProperty('data')
+                    || !data.data.hasOwnProperty('keyId')
+                    || !data.data.hasOwnProperty('item')
+                    || !data.data.item
+                    || data.data.keyId.indexOf('SimTime') < 0) return;
                 this.$timeout(() => {
                     this.time = new Date(data.data.item);
-                    console.log(`TIME: ${this.time}`);
+                    //console.log(`TIME: ${this.time} (input: ${JSON.stringify(data.data.item, null, 2)})`);
                 }, 0);
             })
 
-            messageBusService.publish('timeline', 'setFocus', this.time);
+            // messageBusService.publish('timeline', 'setFocus', this.time);
 
-            messageBusService.subscribe('/Sim', (action: string, data: any) => {
-                console.log(`action: ${action}, data: ${JSON.stringify(data, null, 2) }`);
-            });
+            // messageBusService.subscribe('Sim', (action: string, data: any) => {
+            //     console.log(`action: ${action}, data: ${JSON.stringify(data, null, 2) }`);
+            // });
         }
 
         play() {

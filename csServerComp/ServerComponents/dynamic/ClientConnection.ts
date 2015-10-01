@@ -7,10 +7,11 @@ import ApiMeta = ApiManager.ApiMeta;
 
 module ClientConnection {
     GetDataSource: Function;
-    export class msgSubscription {
+    export class MsgSubscription {
         public id: string;
         public type: string;
         public target: string;
+        public regexPattern: RegExp;
         public callback: Function;
     }
 
@@ -90,20 +91,21 @@ module ClientConnection {
 
     export class WebClient {
         public Name: string;
-        public Subscriptions: { [key: string]: msgSubscription } = {};
+        public Subscriptions: { [key: string]: MsgSubscription } = {};
 
         constructor(public Client: any) {
         }
 
-        public FindSubscription(target: string, type: string): msgSubscription {
+        public FindSubscription(target: string, type: string): MsgSubscription {
             for (var k in this.Subscriptions) {
-
-                if ((this.Subscriptions[k].type === "key" && type === "key" && this.Subscriptions[k].id === target) || (this.Subscriptions[k].target == target && this.Subscriptions[k].type == type)) return this.Subscriptions[k];
+                if ((this.Subscriptions[k].type === "key" && type === "key" && this.Subscriptions[k].id === target)
+                || (this.Subscriptions[k].regexPattern.test(target) && this.Subscriptions[k].type === type)) return this.Subscriptions[k];
             }
             return null;
         }
 
-        public Subscribe(sub: msgSubscription) {
+        public Subscribe(sub: MsgSubscription) {
+            sub.regexPattern = new RegExp(sub.target.replace(/\//g, "\\/").replace(/\./g, "\\."))
             this.Subscriptions[sub.id] = sub;
             this.Client.on(sub.id, (data) => {
                 switch (data.action) {
@@ -123,7 +125,7 @@ module ClientConnection {
         public server: SocketIO.Server;
 
         //public subscriptions: LayerSubscription[] = [];
-        public msgSubscriptions: msgSubscription[] = [];
+        public msgSubscriptions: MsgSubscription[] = [];
 
 
         constructor(httpServer: any) {
@@ -140,7 +142,7 @@ module ClientConnection {
                     Winston.info('clientconnection: user ' + socket.id + ' disconnected');
                 });
 
-                socket.on('subscribe', (msg: msgSubscription) => {
+                socket.on('subscribe', (msg: MsgSubscription) => {
                     //Winston.error(JSON.stringify(msg));
                     Winston.info('clientconnection: subscribe ' + JSON.stringify(msg.target) + " - " + socket.id);
                     wc.Subscribe(msg);
@@ -165,7 +167,7 @@ module ClientConnection {
 
 
         public checkClientMessage(msg: ClientMessage, client: string) {
-            this.msgSubscriptions.forEach((sub: msgSubscription) => {
+            this.msgSubscriptions.forEach((sub: MsgSubscription) => {
                 if (sub.target === msg.action) {
                     sub.callback(msg, client);
                 }
@@ -197,8 +199,16 @@ module ClientConnection {
         }
 
         public subscribe(on: string, callback: Function) {
-            var cs = new msgSubscription();
+            var cs = new MsgSubscription();
             cs.target = on;
+            cs.regexPattern = new RegExp(on.replace(/\//g, "\\/").replace(/\./g, "\\."));
+            // var t = on.replace(/\//g, "\\/").replace(/\./g, "\\.");
+            // var r = new RegExp(t);
+            // var b1 = r.test('layer');
+            // var r2 = new RegExp('kerel');
+            // var b2 = r2.test('kerel');
+            // var b3 = r2.test('kerel2');
+            // var b4 = r2.test('kerel.sfsf');
             cs.callback = callback;
             this.msgSubscriptions.push(cs);
         }
