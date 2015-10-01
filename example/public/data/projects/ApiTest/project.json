@@ -803,18 +803,7 @@
                 "description": "Demonstrates layers based on points"
             }
         },
-        "layers": [{
-            "id": "test",
-            "title": "test",
-            "type": "dynamicgeojson",
-            "renderType": "geojson",
-            "heatmapItems": null,
-            "url": "api/layers/test",
-            "typeUrl": "data/resourceTypes/resources.json",
-            "opacity": 100,
-            "isDynamic": true,
-            "gui": {}
-        }]
+        "layers": []
     }, {
         "id": "b0e9e0cd-d6c1-44ac-8029-5c30dfe21878",
         "title": "Features",

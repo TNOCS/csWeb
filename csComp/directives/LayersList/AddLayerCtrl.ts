@@ -26,20 +26,20 @@ module LayersDirective {
         public project: csComp.Services.Project;
 
         constructor(
-                private $scope: IAddLayerScope,
-                private $http: ng.IHttpService,
-                private $modalInstance: any,
-                public layerService: csComp.Services.LayerService,
-                private translate: ng.translate.ITranslateService,
-                private messageBusService: csComp.Services.MessageBusService
+            private $scope: IAddLayerScope,
+            private $http: ng.IHttpService,
+            private $modalInstance: any,
+            public layerService: csComp.Services.LayerService,
+            private translate: ng.translate.ITranslateService,
+            private messageBusService: csComp.Services.MessageBusService
             ) {
             $scope.vm = this;
             this.project = this.layerService.project;
             if (this.project.layerDirectory) {
                 $http.get(this.project.layerDirectory)
                     .success((result: any) => {
-                        this.layers = result.layers;
-                    })
+                    this.layers = result.layers;
+                })
                     .error(() => { console.log('AddLayerCtrl: error calling $http'); });
             }
         }
