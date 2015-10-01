@@ -81,8 +81,9 @@ module csComp.Services {
             this.widgetTypes["iframewidget"] = <IWidget>{ id: "iframewidget", icon: "cs/images/widgets/markdown.png", description: "Show custom iframe" };
             this.widgetTypes["kanbanboard"] = <IWidget>{ id: "kanbanboard", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
             this.widgetTypes["navigator"] = <IWidget>{ id: "navigatorwidget", icon: "cs/images/widgets/markdown.png", description: "Show navigator" };
-            this.widgetTypes["simtimecontroller"] = <IWidget>{ id: "simtimecontroller", icon: "cs/images/widgets/Media-Play.png", description: "Show simulation time controller" };
             this.widgetTypes["postman"] = <IWidget>{ id: "postman", icon: "cs/images/widgets/Script.png", description: "POST messages" };
+            this.widgetTypes["simtimecontroller"] = <IWidget>{ id: "simtimecontroller", icon: "cs/images/widgets/Media-Play.png", description: "Show simulation time controller" };
+            this.widgetTypes["simstate"] = <IWidget>{ id: "simstate", icon: "cs/images/widgets/ServerStatus.png", description: "Show status of simulation services." };
         }
 
         public leftMenuVisible(id: string): boolean {
