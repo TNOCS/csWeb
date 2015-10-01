@@ -11,6 +11,7 @@ module SimTimeController {
         methods: [{name: string}];
     }
 
+    /** Controller class for the SimTimeController editor */
     export class SimTimeControllerEditCtrl {
         private scope: ISimTimeControllerEditCtrl;
         public widget: csComp.Services.IWidget;
@@ -43,7 +44,10 @@ module SimTimeController {
             var par = <any>$scope.$parent;
             this.widget = <csComp.Services.IWidget>par.data;
             $scope.data = <SimTimeControllerEditorData>this.widget.data;
-            $scope.data.httpMethod = $scope.methods[2];
+            if (!$scope.data.httpMethod)
+                $scope.data.httpMethod = $scope.methods[2];
+            if (!$scope.data.url)
+                $scope.data.url = 'api/keys/simTime';
         }
 
     }
