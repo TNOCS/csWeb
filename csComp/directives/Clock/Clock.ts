@@ -23,11 +23,17 @@ module Directives.Clock {
         return {
             restrict: 'E',
             scope: {
-                time: '=',
+                time: '@',
                 format: '@'
             },
             link: function(scope, element, attrs) {
-                element.html(dateFilter(scope.time, scope.format));
+                function updateTime() {
+                    element.html(dateFilter(scope.time, scope.format));
+                }
+
+                scope.$watch('time', function(value) {
+                    updateTime();
+                });
             }
         };
     }]);

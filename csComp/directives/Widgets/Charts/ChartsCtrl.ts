@@ -17,7 +17,6 @@ module ChartsWidget {
         vm: ChartCtrl;
         data: ChartData;
         spec: string;
-
     }
 
     export class ChartCtrl {
@@ -107,7 +106,6 @@ module ChartsWidget {
 
             $scope.data = <ChartData>this.widget.data;
             $scope.data._id = this.widget.id;
-
         }
 
         private keyHandle;
@@ -122,7 +120,6 @@ module ChartsWidget {
                 // The View resides under the '#vis' element
             });
 
-
             if (d.key) {
                 this.keyHandle = this.$layerService.$messageBusService.serverSubscribe(d.key, "key", (topic: string, msg: csComp.Services.ClientMessage) => {
                     switch (msg.action) {
@@ -132,12 +129,8 @@ module ChartsWidget {
                             d._view.update();
                             break;
                     }
-
                 });
             }
-
         }
-
     }
-
 }

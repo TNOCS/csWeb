@@ -14,6 +14,13 @@ module SimTimeController {
         Exit
     }
 
+    export interface ISimTimeMessage {
+        simTime: string;
+        simSpeed: string;
+        simCmd: string;
+        type: string;
+    }
+
     export interface ISimTimeControllerScope extends ng.IScope {
         vm: SimTimeControllerCtrl;
     }
@@ -23,9 +30,17 @@ module SimTimeController {
         private fsm: FSM.FiniteStateMachine<PlayState>;
         private speed = 1;
         /** Start time, e.g. when restarting */
-        private startTime = Date.now();
+        private startTime = new Date();
         /** Current time */
         private time = this.startTime;
+        private editorData: SimTimeControllerEditorData;
+
+        // DateTimePicker
+        private isOpen = false;
+        private timeOptions = {
+            readonlyInput: false,
+            showMeridian: false
+         };
 
         // For the view's status
         public isPlaying = false;
@@ -52,6 +67,9 @@ module SimTimeController {
             private $timeout: ng.ITimeoutService
             ) {
             $scope.vm = this;
+
+            var par = <any>$scope.$parent;
+            this.editorData = <SimTimeControllerEditorData>par.widget.data;
 
             this.fsm = new FSM.FiniteStateMachine<PlayState>(PlayState.Stopped);
             this.fsm.from(PlayState.Stopped).to(PlayState.Playing).on(SimCommand.Start);
@@ -94,7 +112,16 @@ module SimTimeController {
                 return true;
             });
 
-            messageBusService.publish('timeline', 'setFocus', new Date(this.time));
+            messageBusService.serverSubscribe('Sim.SimTime', 'key', (title: string, data: any) => {
+                console.log(`Server subscription received: ${title}, ${JSON.stringify(data,null,2)}.`);
+                if (!data || !data.hasOwnProperty('data') || !data.data.hasOwnProperty('keyId') || !data.data.hasOwnProperty('item') || !data.data.item || data.data.keyId.indexOf('SimTime/') < 0) return;
+                this.$timeout(() => {
+                    this.time = new Date(data.data.item);
+                    console.log(`TIME: ${this.time}`);
+                }, 0);
+            })
+
+            messageBusService.publish('timeline', 'setFocus', this.time);
 
             messageBusService.subscribe('/Sim', (action: string, data: any) => {
                 console.log(`action: ${action}, data: ${JSON.stringify(data, null, 2)}`);
@@ -130,16 +157,23 @@ module SimTimeController {
 
         setTime(newTime: number) {
             if (this.fsm.currentState !== PlayState.Stopped) return;
-            this.startTime = this.time = newTime;
+            this.startTime = this.time = new Date(newTime);
         }
+
+        openCalendar(e: Event) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            this.isOpen = true;
+        };
 
         private speedChanged() {
             if (this.fsm.currentState === PlayState.Playing) this.sendSimTimeMessage(SimCommand.Start);
         }
 
         private sendSimTimeMessage(cmd: SimCommand) {
-            var msg = {
-                simTime: this.time.toString(),
+            var msg: ISimTimeMessage = {
+                simTime: this.time.valueOf().toString(),
                 simSpeed: this.speed.toString(),
                 simCmd: SimCommand[cmd],
                 type: 'simTime'

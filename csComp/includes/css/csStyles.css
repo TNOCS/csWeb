@@ -2277,3 +2277,30 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 /* End LayersDirective.tpl.html styles */
+
+/*Flexbox layout, comparable to a WPF stack*/
+.horizontalstack {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: no-wrap;
+    justify-content: center;
+    align-items: center;
+}
+.verticalstack {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: no-wrap;
+    justify-content: center;
+    align-items: center;
+}
+.stackitem {
+    margin: 5px;
+}
+.disabledImg {
+    opacity: 0.4;
+    filter: alpha(opacity=40); /* msie */
+    background-color: #000;
+}
+.datetime-picker-dropdown > li.date-picker-menu div > table .btn-default {
+    border: 0;
+}

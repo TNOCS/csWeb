@@ -265,6 +265,38 @@ gulp.task('create_dist_of_server', function() {
         .pipe(plumber())
         .pipe(changed('./dist/node_modules/sqlite3/'))
         .pipe(gulp.dest('./dist/node_modules/sqlite3/'));
+    gulp.src('node_modules/async/**/*.*')
+        .pipe(plumber())
+        .pipe(changed('./dist/node_modules/async/'))
+        .pipe(gulp.dest('./dist/node_modules/async/'));
+    gulp.src('node_modules/ws/**/*.*')
+        .pipe(plumber())
+        .pipe(changed('./dist/node_modules/ws/'))
+        .pipe(gulp.dest('./dist/node_modules/ws/'));
+    gulp.src('node_modules/bcryptjs/**/*.*')
+        .pipe(plumber())
+        .pipe(changed('./dist/node_modules/bcryptjs/'))
+        .pipe(gulp.dest('./dist/node_modules/bcryptjs/'));
+    gulp.src('node_modules/cors/**/*.*')
+        .pipe(plumber())
+        .pipe(changed('./dist/node_modules/cors/'))
+        .pipe(gulp.dest('./dist/node_modules/cors/'));
+    gulp.src('node_modules/fs-extra/**/*.*')
+        .pipe(plumber())
+        .pipe(changed('./dist/node_modules/fs-extra/'))
+        .pipe(gulp.dest('./dist/node_modules/fs-extra/'));
+    gulp.src('node_modules/jwt-simple/**/*.*')
+        .pipe(plumber())
+        .pipe(changed('./dist/node_modules/jwt-simple/'))
+        .pipe(gulp.dest('./dist/node_modules/jwt-simple/'));
+    gulp.src('node_modules/request/**/*.*')
+        .pipe(plumber())
+        .pipe(changed('./dist/node_modules/request/'))
+        .pipe(gulp.dest('./dist/node_modules/request/'));
+    gulp.src('node_modules/underscore/**/*.*')
+        .pipe(plumber())
+        .pipe(changed('./dist/node_modules/underscore/'))
+        .pipe(gulp.dest('./dist/node_modules/underscore/'));
     gulp.src('ServerComponents/**/*.*')
         .pipe(plumber())
         .pipe(changed('./dist/ServerComponents/'))
