@@ -93,7 +93,12 @@ module MarkdownWidget {
                 var i = 0;
                 this.$scope.data.dynamicProperties.forEach(p => {
                     var searchPattern = '{{' + i++ + '}}';
-                    md = this.replaceAll(md, searchPattern, feature.properties[p]);
+                    var displayText = '';
+                    if (feature.properties.hasOwnProperty(p)) {
+                        var pt = this.$layerService.getPropertyType(feature, p);
+                        displayText = csComp.Helpers.convertPropertyInfo(pt, feature.properties[p]);
+                    }
+                    md = this.replaceAll(md, searchPattern, displayText);
                 });
                 this.parentWidget.show();
                 this.$scope.data.mdText = md;
