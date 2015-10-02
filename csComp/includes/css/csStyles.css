@@ -2304,3 +2304,32 @@ input[type="radio"], input[type="checkbox"] {
 .datetime-picker-dropdown > li.date-picker-menu div > table .btn-default {
     border: 0;
 }
+/* Traffic light indicators, source http://jsfiddle.net/XrHcA/ */
+.led {
+    margin: 5px 10px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.25);
+    box-shadow: #000 0 -1px 6px 1px;
+}
+.led-red {
+    background-color: #F00;
+    box-shadow: #000 0 -1px 6px 1px, inset #600 0 -1px 8px, #F00 0 3px 11px;
+}
+.led-orange {
+    background-color: #FF7000;
+    box-shadow: #000 0 -1px 6px 1px, inset #630 0 -1px 8px, #FF7000 0 3px 11px;
+}
+.led-yellow {
+    background-color: #FF0;
+    box-shadow: #000 0 -1px 6px 1px, inset #660 0 -1px 8px, #FF0 0 3px 11px;
+}
+.led-green {
+    background-color: #80FF00;
+    box-shadow: #000 0 -1px 6px 1px, inset #460 0 -1px 8px, #80FF00 0 3px 11px;
+}
+.led-blue {
+    background-color: #06F;
+    box-shadow: #000 0 -1px 6px 1px, inset #006 0 -1px 8px, #06F 0 3px 11px;
+}

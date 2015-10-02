@@ -121,20 +121,45 @@ module SimTimeController {
                 return true;
             });
 
-            messageBusService.serverSubscribe('Sim.SimTime.', 'key', (title: string, data: any) => {
-                console.log(`Server subscription received: ${title}, ${JSON.stringify(data, null, 2) }.`);
-                if (!data
-                    || !data.hasOwnProperty('data')
-                    || !data.data.hasOwnProperty('keyId')
-                    || !data.data.hasOwnProperty('item')
-                    || !data.data.item
-                    || data.data.keyId.indexOf('SimTime') < 0) return;
+            messageBusService.serverSubscribe('Sim.SimTime.', 'key', (title: string, msg: any) => {
+                console.log(`Server subscription received: ${title}, ${JSON.stringify(msg, null, 2) }.`);
+                if (!msg
+                    || !msg.hasOwnProperty('data')
+                    || !msg.data.hasOwnProperty('item')
+                    || !msg.data.item) return;
                 this.$timeout(() => {
-                    this.time = new Date(data.data.item);
+                    this.time = new Date(msg.data.item);
                     messageBusService.publish('timeline', 'setFocus', this.time);
                     //console.log(`TIME: ${this.time} (input: ${JSON.stringify(data.data.item, null, 2)})`);
                 }, 0);
             })
+
+            $http.get(this.url)
+                .then((msg) => {
+                    // TODO Why does this always return an empty msg.data element
+                    // console.log('Received message: ');
+                    // console.log(msg);
+                    // console.log(JSON.stringify(msg, null, 2));
+                })
+            // var handle = messageBusService.serverSubscribe('Sim.SimState.SimulationManager', 'key', (title: string, msg: any) => {
+            //     if (!msg
+            //         || !msg.hasOwnProperty('data')
+            //         || !msg.data.hasOwnProperty('item')) return;
+            //     var state = <SimState.ISimState> msg.data.item;
+            //     switch (state.state) {
+            //         case 'Ready':
+            //             this.fsm.currentState = PlayState.Playing;
+            //             break;
+            //         case 'Stopped':
+            //             this.fsm.currentState = PlayState.Stopped;
+            //             break;
+            //         case 'Paused':
+            //             this.fsm.currentState = PlayState.Paused;
+            //             break;
+            //     }
+            //     this.messageBusService.serverUnsubscribe(handle);
+            //     //if (this.fsm.currentState !== PlayState.Playing) this.fsm.trigger(SimCommand.Start);
+            // })
 
             // messageBusService.publish('timeline', 'setFocus', this.time);
 
