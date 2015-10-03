@@ -94,6 +94,18 @@
           "bottom": "0px",
           "width": "420px",
           "height": ""
+        }, 
+        {
+            "directive": "markdownwidget",
+            "left": "20px",
+            "top": "30px",
+            "width": "250px",
+            "height": "250px",
+            "data": {
+                "featureTypeName": "data/resourceTypes/Zorgkantoor.json#Zorgkantoor",
+                "dynamicProperties": ["Name","aant_inw","aant_man","aant_vrouw"],
+                "url": "data/projects/20141104_csMap/tabel.md"
+            }
         }
       ],
       "visibleLeftMenuItems": [

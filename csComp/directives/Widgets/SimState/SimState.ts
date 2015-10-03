@@ -25,18 +25,20 @@ module SimState {
     }
     ]);
 
-
     export interface ISimStateScope extends ng.IScope {
         vm: SimStateCtrl;
     }
 
     export interface ISimState {
+        id: string;
         name: string;
-        status: string;
+        state: string,
+        time: Date,
+        msg?: string
     }
 
     export class SimStateCtrl {
-        private states: ISimState[] = [];
+        private states: { [id: string]: ISimState } = {};
 
         public static $inject = [
             '$scope',
@@ -53,20 +55,14 @@ module SimState {
         ) {
             $scope.vm = this;
 
-            //var par = <any>$scope.$parent;
-            //$scope.data = <PostManEditorData>par.widget.data;
-
-            messageBusService.serverSubscribe('Sim.SimState', 'key', (title: string, data: any) => {
-                console.log(`Server subscription received: ${title}, ${JSON.stringify(data, null, 2) }.`);
-                
-                //if (!data || !data.hasOwnProperty('data') || !data.data.hasOwnProperty('keyId') || !data.data.hasOwnProperty('item') || !data.data.item || data.data.keyId.indexOf('SimTime/') < 0) return;
-                // this.$timeout(() => {
-                //     this.time = new Date(data.data.item);
-                //     console.log(`TIME: ${this.time}`);
-                // }, 0);
+            messageBusService.serverSubscribe('Sim.SimState.', 'key', (title: string, msg: any) => {
+                if (!msg || !msg.hasOwnProperty('data') || !msg.data.hasOwnProperty('item')) return;
+                //console.log(`Server subscription received: ${title}, ${JSON.stringify(msg, null, 2) }.`);
+                this.$timeout(() => {
+                    var state = <ISimState> msg.data.item;
+                    this.states[state.id] = state;                    
+                }, 0);
             })
-
         }
-
     }
 }

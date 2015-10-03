@@ -1,3 +1,9 @@
-<div>
-    View
+<div style="margin-top: 20px;">
+    <ul class="list-unstyled">
+        <li ng-repeat="(key, state) in vm.states" class="horizontalstack pull-left">
+            <div class="led" ng-class="{'led-green': state.state === 'Ready', 'led-orange': state.state === 'Pause', 'led-red': state.state === 'Busy'}"></div>
+            <span>{{state.name}} ({{state.state}})</span>
+            <div ng-show="state.msg">{{state.msg}}</div>
+        </li>
+    </ul>
 </div>

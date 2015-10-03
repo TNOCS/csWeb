@@ -242,12 +242,13 @@ module csComp.Services {
                 input.dashboards.forEach((d) => {
                     res.dashboards.push(Dashboard.deserialize(d, input.solution));
                 });
-
-                for (var index in input.mcas) {
-                    var mca = input.mcas[index];
-                    res.mcas.push(new Mca.Models.Mca().deserialize(mca));
-                }
             }
+            res.mcas = [];
+            for (var index in input.mcas) {
+                var mca = new Mca.Models.Mca();
+                res.mcas.push(mca.deserialize(input.mcas[index]));
+            }
+
             if (!res.propertyTypeData) { res.propertyTypeData = {}; }
             if (!res.mcas) { res.mcas = []; }
             if (input.groups) {
