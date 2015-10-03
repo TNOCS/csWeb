@@ -1116,7 +1116,8 @@
           "id" : { "type" : "string"},
           "name" : { "type" : "string"},
           "showAllProperties" : { "type" : "boolean"},
-          "style" : { "$ref": "#/definitions/FeatureTypeStyle"}
+          "style" : { "$ref": "#/definitions/FeatureTypeStyle"},
+          "propertyTypeKeys": { "type" : "string"}
         }
       },
       "PropertyType":{
@@ -1146,7 +1147,7 @@
                       "additionalProperties": {
                           "$ref": "#/definitions/FeatureType" }
                 },
-                "propertyTypes" :
+                "propertyTypeData" :
                 { "type": "object",
                       "additionalProperties": {
                           "$ref": "#/definitions/PropertyType" }
@@ -1265,6 +1266,7 @@
                     "type": "string",
                     "example": "This is a test"
                 },
+                "defaultFeatureType" : { "type" : "string"},
                 "typeUrl" : {
                     "type" : "string"
                 }

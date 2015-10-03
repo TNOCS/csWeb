@@ -206,7 +206,7 @@ export class ProjectId {
  */
 export class Geometry {
     public type: string;
-    public coordinates: number[]| number[][]| number[][][];
+    public coordinates: any; //number[]| number[][]| number[][][];
 }
 
 /**
@@ -699,7 +699,7 @@ export class ApiManager extends events.EventEmitter {
             typeUrl: layer.typeUrl,
             opacity: layer.opacity ? layer.opacity : 75,
             type: layer.type,
-            features: layer.features ? layer.features : [],
+            features: [],
             storage: layer.storage ? layer.storage : "",
             url: layer.url ? layer.url : ("/api/layers/" + layer.id),
             isDynamic: layer.isDynamic ? layer.isDynamic : false
