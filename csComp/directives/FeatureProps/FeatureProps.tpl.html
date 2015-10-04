@@ -45,21 +45,20 @@
     <h4 style="position:absolute;right:3px;top:45px">
         <div ng-show="vm.$mapService.isAdminExpert && !feature.gui.editMode" style="float:right">
             <button tooltip-html-unsafe="{{'CONFIG' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-cog leftpanel-header-button" ng-show="!configMode" ng-click="configMode=true" />
-            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false" />
+            <button tooltip-html-unsafe="{{'DONE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false" />
         </div>
         <div ng-show="!configMode && feature.layer.isDynamic" style="float:right">
             <button tooltip-html-unsafe="{{'EDIT' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="vm.startEditFeature()"
             />
             <button tooltip-html-unsafe="{{'REMOVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-trash leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="vm.removeFeature()"
             />
-            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="feature.gui.editMode" ng-click="feature.gui.editMode=false;vm.saveFeature()"
-            />
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="feature.gui.editMode" ng-click="feature.gui.editMode=false;vm.saveFeature()" />
         </div>
     </h4>
 
     <div ng-if="vm.$mapService.isAdminExpert">
         <div ng-if="configMode" style="margin:5px">
-            <feature-type-editor featureType="featureType"></feature-type-editor>
+            <feature-type-editor featureTypeId="featureType.id"></feature-type-editor>
         </div>
     </div>
     <!-- <div ng-if="callOut.feature.gui.actions" class="featureProps-actions">

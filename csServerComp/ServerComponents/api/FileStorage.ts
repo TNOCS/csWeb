@@ -30,6 +30,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public resources: { [key: string]: ResourceFile } = {}
     public layersPath: string;
     public keysPath: string;
+    public blobPath : string;
     public iconPath: string;
     public projectsPath: string;
     public resourcesPath: string;
@@ -40,6 +41,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.layersPath = path.join(rootpath, "layers/");
         this.projectsPath = path.join(rootpath, "projects/");
         this.resourcesPath = path.join(rootpath, "resourceTypes/");
+        this.blobPath = path.join(rootpath,"blobs/");
         this.iconPath = path.join(rootpath, "/../../images/");
         // check if rootpath exists, otherwise create it, including its parents
         if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
@@ -539,8 +541,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.saveLayerDelay(layer);
     }
 
-    public addIcon(b64: string, uri: string, meta: ApiMeta, callback: Function) {
-        var fileUri = path.join(this.iconPath, uri.split('/').pop());
+    public addFile(b64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
+        var fileUri = path.join(this.iconPath, file.split('/').pop());
         var i: Icon = { data: b64, fileUri: fileUri };
         this.saveIcon(i);
     }

@@ -195,7 +195,7 @@ export class MapLayerFactory {
     }
 
     public sendIconThroughApiManager(b64: string, path: string) {
-        this.apiManager.addIcon(b64, path, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+        this.apiManager.addFile(b64, "",path, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
             console.log(result);
         });
     }
