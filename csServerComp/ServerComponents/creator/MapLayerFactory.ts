@@ -628,36 +628,75 @@ export class MapLayerFactory {
     private createPointFeature(zipCode: string, houseNumber: string, bagOptions: IBagOptions, features: IGeoJsonFeature[], properties: IProperty[], propertyTypes: IPropertyType[], sensors: IProperty[], callback: Function) {
         if (!properties) callback();
         var todo = properties.length;
-        properties.forEach((prop, index) => {
-            if (prop.hasOwnProperty(zipCode) && typeof prop[zipCode] === 'string') {
-                var zip = prop[zipCode].replace(/ /g, '');
-                var nmb = prop[houseNumber];
-                this.bag.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
-                    //console.log(todo);
-                    if (!locations || locations.length === 0 || typeof locations[0] == 'undefined') {
-                        console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
-                        this.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
-                    } else {
-                        for (var key in locations[0]) {
-                            if (key !== "lon" && key !== "lat") {
-                                if (locations[0][key]) {
-                                    prop[(key.charAt(0).toUpperCase() + key.slice(1))] = locations[0][key];
-                                    this.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), "BAG");
+        var bg = this.bag;
+        var asyncthis = this;
+
+        async.eachSeries(properties, function(prop,innercallback) {
+                    var index = properties.indexOf(prop);
+
+                    if (prop.hasOwnProperty(zipCode) && typeof prop[zipCode] === 'string') {
+                        var zip = prop[zipCode].replace(/ /g, '');
+                        var nmb = prop[houseNumber];
+                        bg.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
+                            //console.log(todo);
+                            if (!locations || locations.length === 0 || typeof locations[0] == 'undefined') {
+                                console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
+                                asyncthis.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
+                            } else {
+                                for (var key in locations[0]) {
+                                    if (key !== "lon" && key !== "lat") {
+                                        if (locations[0][key]) {
+                                            prop[(key.charAt(0).toUpperCase() + key.slice(1))] = locations[0][key];
+                                            asyncthis.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), "BAG");
+                                        }
+                                    }
                                 }
+                                if (prop.hasOwnProperty('_mergedHouseNumber')) delete prop['_mergedHouseNumber'];
+                                //console.log('locations[0] ' + locations[0]);
+                                features.push(asyncthis.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
                             }
-                        }
-                        if (prop.hasOwnProperty('_mergedHouseNumber')) delete prop['_mergedHouseNumber'];
-                        //console.log('locations[0] ' + locations[0]);
-                        features.push(this.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
+                            innercallback();
+                        });
+                    } else {
+                        //console.log('No valid zipcode found: ' + prop[zipCode]);
+                        innercallback();
                     }
-                });
-                todo--;
-                if (todo <= 0) callback();
-            } else {
-                console.log('No valid zipcode found: ' + prop[zipCode]);
-                todo--;
-            }
-        });
+                  },function(err){
+                    callback();
+                  });
+
+
+        // properties.forEach((prop, index) => {
+        //     if (prop.hasOwnProperty(zipCode) && typeof prop[zipCode] === 'string') {
+        //         var zip = prop[zipCode].replace(/ /g, '');
+        //         var nmb = prop[houseNumber];
+        //         this.bag.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
+        //             //console.log(todo);
+        //             if (!locations || locations.length === 0 || typeof locations[0] == 'undefined') {
+        //                 console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
+        //                 this.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
+        //             } else {
+        //                 for (var key in locations[0]) {
+        //                     if (key !== "lon" && key !== "lat") {
+        //                         if (locations[0][key]) {
+        //                             prop[(key.charAt(0).toUpperCase() + key.slice(1))] = locations[0][key];
+        //                             this.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), "BAG");
+        //                         }
+        //                     }
+        //                 }
+        //                 if (prop.hasOwnProperty('_mergedHouseNumber')) delete prop['_mergedHouseNumber'];
+        //                 //console.log('locations[0] ' + locations[0]);
+        //                 features.push(this.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
+        //             }
+        //         });
+        //         todo--;
+        //         if (todo <= 0)
+        //           callback();
+        //     } else {
+        //         console.log('No valid zipcode found: ' + prop[zipCode]);
+        //         todo--;
+        //     }
+        // });
     }
 
     private createFeature(lon: number, lat: number, properties: IProperty, sensors?: IProperty): IGeoJsonFeature {
