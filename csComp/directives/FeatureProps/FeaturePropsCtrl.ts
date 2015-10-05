@@ -23,7 +23,6 @@ module FeatureProps {
         showMenu: boolean;
         feature: IFeature;
         callOut: CallOut;
-        featureType: IFeatureType;
         tabs: JQuery;
         tabScrollDelta: number;
         featureTabActivated(sectionTitle: string, section: CallOutSection);
@@ -502,15 +501,17 @@ module FeatureProps {
             }
         }
 
+        public featureType : IFeatureType;
+
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
-            var featureType = feature.fType;
-            this.$scope.featureType = featureType;
+            this.featureType = feature.fType;
+            this.featureType.id
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
             if (typeof feature.sensors !== 'undefined' && typeof feature.timestamps === 'undefined')
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
 
-            this.$scope.callOut = new CallOut(featureType, feature, this.$layerService.propertyTypeData, this.$layerService, this.$mapService);
+            this.$scope.callOut = new CallOut(this.featureType, feature, this.$layerService.propertyTypeData, this.$layerService, this.$mapService);
             if (this.stats.length > 0) {
                 for (var s in this.$scope.callOut.sections) {
                     var sec = this.$scope.callOut.sections[s];

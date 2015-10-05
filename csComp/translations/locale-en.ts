@@ -61,6 +61,7 @@ module Translations {
             SAVE: 'save',
             CONFIG: 'config',
             EDIT: 'edit',
+            APPLY : 'apply',
             REMOVE: 'remove',
             EXPERTMODE: {
                 BEGINNER: 'Novice',

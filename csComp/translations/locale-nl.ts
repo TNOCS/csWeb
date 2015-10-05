@@ -59,6 +59,7 @@ module Translations {
             WHITE_ORANGE: 'wit - oranje',
             ORANGE_WHITE: 'oranje - wit',
             SAVE: 'opslaan',
+            APPLY: 'toepassen',
             DONE: 'klaar',
             CONFIG: 'config',
             EDIT: 'aanpassen',

@@ -19,6 +19,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
     public resourceUrl;
     public layersUrl;
     public keysUrl;
+    public filesUrl;
     public projectsUrl;
 
     constructor(public server: express.Express, public baseUrl: string = "/api") {
@@ -26,6 +27,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.isInterface = true;
         this.resourceUrl = baseUrl + "/resources/";
         this.layersUrl = baseUrl + "/layers/";
+        this.filesUrl = baseUrl + "/files/";
         this.keysUrl = baseUrl + "/keys/";
         this.projectsUrl = baseUrl + "/projects/";
     }
@@ -319,6 +321,16 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 res.send(result.key);
             });
         });
+
+        //add file
+        this.server.put(this.filesUrl + ":folderId/:fileName", (req: express.Request, res: express.Response) => {
+            this.manager.addFile(req.body,req.params.folderId,req.params.fileName,<ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        });
+
+        //get file
 
 
     }

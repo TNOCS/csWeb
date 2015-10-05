@@ -68,6 +68,7 @@
         "./ServerComponents/api/MqttAPI.d.ts",
         "./ServerComponents/api/RestAPI.d.ts",
         "./ServerComponents/api/SocketIOAPI.d.ts",
+        "./ServerComponents/api/Storage.d.ts",
         "./ServerComponents/api/config.d.ts",
         "./ServerComponents/api/imb.d.ts",
         "./ServerComponents/api/qlobber.d.ts",

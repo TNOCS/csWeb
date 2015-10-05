@@ -105,7 +105,7 @@ export interface IConnector {
     allGroups(projectId: string, meta: ApiMeta, callback: Function);
 
     addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
-    addIcon(b64: string, path: string, meta: ApiMeta, callback: Function);
+    addFile(b64: string, folder : string, file : string, meta: ApiMeta, callback: Function);
 
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
@@ -414,13 +414,13 @@ export class ApiManager extends events.EventEmitter {
         });
     }
 
-    addIcon(b64: string, path: string, meta: ApiMeta, callback: Function) {
+    addFile(b64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
         var s;
         if (this.connectors.hasOwnProperty('file')) {
             s = this.connectors['file'];
         }
         if (s) {
-            s.addIcon(b64, path, meta, () => { });
+            s.addFile(b64, folder, file, meta, () => { });
             callback(<CallbackResult>{ result: ApiResult.OK, error: "Icon added" });
         } else {
             callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
