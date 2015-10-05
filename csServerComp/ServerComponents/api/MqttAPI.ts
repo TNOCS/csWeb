@@ -61,7 +61,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         //   console.log('received', topic, message, params);
         // });
         this.client.on('message', (topic: string, message: string) => {
-Winston.error(topic);
+Winston.error(`mqtt on message: ${topic}.`);
             if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
             // listen to layer updates
             if (topic === this.layerPrefix) {
@@ -86,7 +86,7 @@ Winston.error(topic);
             }
 
             if (topic.indexOf(this.keyPrefix) === 0) {
-                var kid = topic.substring(this.keyPrefix.length, topic.length).replace('/','.');
+                var kid = topic.substring(this.keyPrefix.length, topic.length).replace(/\//g,'.');
                 if (kid) {
                     try {
                         var obj = JSON.parse(message);
