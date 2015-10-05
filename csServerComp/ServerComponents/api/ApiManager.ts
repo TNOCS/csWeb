@@ -700,7 +700,7 @@ export class ApiManager extends events.EventEmitter {
             typeUrl: layer.typeUrl,
             opacity: layer.opacity ? layer.opacity : 75,
             type: layer.type,
-            features: [],
+            features:layer.features,
             storage: layer.storage ? layer.storage : "",
             url: layer.url ? layer.url : ("/api/layers/" + layer.id),
             isDynamic: layer.isDynamic ? layer.isDynamic : false
