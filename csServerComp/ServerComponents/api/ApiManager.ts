@@ -6,6 +6,7 @@ import path = require('path');
 import events = require("events");
 import _ = require('underscore');
 import async = require('async');
+var StringExt = require('../helpers/StringExt'); // to remove the BOM.
 
 /**
  * Api Result status
@@ -405,7 +406,7 @@ export class ApiManager extends events.EventEmitter {
                 fs.readFile(loc, "utf8", (err, data) => {
                     if (!err) {
                         console.log('Opening ' + loc);
-                        this.resources[file.replace('.json', '').toLowerCase()] = <ResourceFile>JSON.parse(data);
+                        this.resources[file.replace('.json', '').toLowerCase()] = <ResourceFile>JSON.parse(data.removeBOM());
                     } else {
                         console.log('Error opening ' + loc + ': ' + err);
                     };
@@ -804,6 +805,7 @@ export class ApiManager extends events.EventEmitter {
                 callback(<CallbackResult>{ result: ApiResult.OK });
                 this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layer.id, type: ChangeType.Update, value: layer });
                 this.saveLayersDelay(layer);
+                cb();
             }
         ])
     }
@@ -1054,14 +1056,13 @@ export class ApiManager extends events.EventEmitter {
         for (var subId in this.keySubscriptions) {
             var sub = this.keySubscriptions[subId];
             if (sub.regexPattern.test(keyId)){
-            // if (keyId.match(sub.regexPattern)){
                 Winston.info(`   pattern ${sub.pattern} found.`);
                 sub.callback(keyId,value,meta);
             }
-            else
-            {
-                Winston.info(`   pattern ${sub.pattern} not found!`);
-            }
+            // else
+            // {
+            //     Winston.info(`   pattern ${sub.pattern} not found!`);
+            // }
         }
 
         this.getInterfaces(meta).forEach((i: IConnector) => {
