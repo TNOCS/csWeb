@@ -330,7 +330,7 @@ export class Conrec {
      * @param {number} nc   - number of contour levels
      * @param {number[]} z  - contour levels in increasing order.
      */
-    contour(d: number[][], ilb: number, iub: number, jlb: number, jub: number, x: number[], y: number[], nc: number, z: number[]) {
+    contour(d: number[][], ilb: number, iub: number, jlb: number, jub: number, x: number[], y: number[], nc: number, z: number[], noDataValue: number = -999) {
         var h = this.h, sh = this.sh, xh = this.xh, yh = this.yh;
         var drawContour = this.drawContour;
         this.contours = {};
@@ -377,6 +377,8 @@ export class Conrec {
 
         for (var j = (jub - 1); j >= jlb; j--) {
             for (var i = ilb; i < iub; i++) {
+                // Skip cells that contain a no data value.
+                if (d[i][j] === noDataValue || d[i+1][j] === noDataValue || d[i][j+1] === noDataValue || d[i+1][j+1] === noDataValue) continue;
                 var temp1, temp2;
                 temp1 = Math.min(d[i][j], d[i][j + 1]);
                 temp2 = Math.min(d[i + 1][j], d[i + 1][j + 1]);

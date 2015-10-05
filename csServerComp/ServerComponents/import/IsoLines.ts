@@ -316,7 +316,7 @@ export class IsoLines {
             var dl = (max - min) / nrIsoLevels;
             for (let l = min + dl / 2; l < max; l += dl) isoLevels.push(Math.round(l * 10) / 10); // round to nearest decimal.
         }
-        conrec.contour(gridData, 0, i - 1, 0, gridData[0].length - 1, latitudes, longitudes, nrIsoLevels, isoLevels);
+        conrec.contour(gridData, 0, i - 1, 0, gridData[0].length - 1, latitudes, longitudes, nrIsoLevels, isoLevels, noDataValue);
         var contourList = conrec.contourList;
         var counter = 0;
         contourList.forEach(contour => {
