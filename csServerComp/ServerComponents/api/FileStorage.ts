@@ -13,6 +13,7 @@ import ApiMeta = ApiManager.ApiMeta;
 import BaseConnector = require('./BaseConnector');
 import _ = require('underscore');
 var chokidar = require('chokidar');
+var StringExt = require('../helpers/StringExt'); // to remove the BOM.
 import Winston = require('winston');
 import helpers = require('../helpers/Utils');
 
@@ -311,7 +312,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (!this.resources.hasOwnProperty(id)) {
             fs.readFile(fileName, "utf8", (err, data) => {
                 if (!err) {
-                    var res = <ResourceFile>JSON.parse(data);
+                    var res = <ResourceFile>JSON.parse(data.removeBOM());
                     res.id = id;
                     this.resources[id] = res;
                     this.manager.addResource(res, <ApiMeta>{ source: this.id }, () => { });
