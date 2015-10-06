@@ -22,7 +22,10 @@ module csComp.Services {
                 return [setFilterActionOption];
             }
             else { return []; }
+        }
 
+        getFeatureHoverActions(feature: IFeature): IActionOption[] {
+            return [];
         }
 
         deselectFeature(feature: IFeature) { }

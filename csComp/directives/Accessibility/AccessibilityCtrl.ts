@@ -31,6 +31,7 @@ module Accessibility {
             accessibilityOption4.callback = this.planRouteTo;
             return [accessibilityOption1, accessibilityOption2, accessibilityOption3, accessibilityOption4];
         }
+        getFeatureHoverActions(feature: IFeature): IActionOption[] { return []; }
         deselectFeature(feature: IFeature) { }
         updateFeature(feature: IFeature) { }
 
