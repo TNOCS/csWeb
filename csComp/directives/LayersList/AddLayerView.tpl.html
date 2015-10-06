@@ -58,17 +58,18 @@
         }
 
         .addlayer-container:hover {
-            background:blue;
-            border-color:blue;
-            border-width:2px;
+            background: blue;
+            border-color: blue;
+            border-width: 2px;
         }
 
         .addlayer-container:hover .addlayer-title {
-            background:blue;
+            background: blue;
         }
 
-        .addlayer-image{
-            width:100%;height:100%;
+        .addlayer-image {
+            width: 100%;
+            height: 100%;
         }
     </style>
     <!-- <div class="modal-header">
@@ -80,12 +81,9 @@
             <tab heading="Directory">
                 <div ng-show="vm.selectedLayer == null" class="row">
                     <div ng-repeat="layer in vm.layers" class="col-md-2 addlayer-container" ng-click="vm.selectProjectLayer(layer)">
-                        <img class="addlayer-image" src="http://www.tom-carden.co.uk/wp-content/uploads/2008/10/osm-yahoo-flash.png" >
-                        <div class="addlayer-title">
-                            {{layer.title}}</div>
+                        <img class="addlayer-image" src="http://www.tom-carden.co.uk/wp-content/uploads/2008/10/osm-yahoo-flash.png">
+                        <div class="addlayer-title">{{layer.title}}</div>
                     </div>
-
-
                 </div>
 
                 <!-- <div class="bs-docs-grid">

@@ -168,8 +168,6 @@ module csComp.Services {
         languages: ILanguageData;
         /** link to layer directory, if empty do not use it */
         layerDirectory: string;
-
-
         expertMode = Expertise.Expert;
         markers = {};
 
