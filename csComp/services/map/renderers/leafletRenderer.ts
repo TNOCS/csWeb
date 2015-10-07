@@ -464,7 +464,7 @@ module csComp.Services {
                     });
 
                     marker.on('contextmenu', (e: any) => {
-                        this.service._activeContextMenu = this.service.getActions(feature);
+                        this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
 
                         //e.stopPropagation();
                         var button: any = $("#map-contextmenu-button");
@@ -495,7 +495,7 @@ module csComp.Services {
                     marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
 
                     marker.on('contextmenu', (e: any) => {
-                        this.service._activeContextMenu = this.service.getActions(feature);
+                        this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
 
                         //e.stopPropagation();
                         var button: any = $("#map-contextmenu-button");
@@ -598,13 +598,13 @@ module csComp.Services {
                 className: 'featureTooltip'
             }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
 
-            //In case a BAG contour is available, show it.
-            if (this.service.currentContour) this.service.map.map.removeLayer(this.service.currentContour);
-            if (feature.properties.hasOwnProperty('_bag_contour')) {
-                var geoContour: L.GeoJSON = JSON.parse(feature.properties['_bag_contour']);
-                this.service.currentContour = L.geoJson(geoContour);
-                this.service.currentContour.addTo(this.service.map.map);
-            }
+            //In case a contour is available, show it.
+            var hoverActions = this.service.getActions(feature, ActionType.Hover);
+            hoverActions.forEach(ha => {
+                if (ha.title.toLowerCase() === 'show') {
+                    ha.callback(feature, this.service);
+                }
+            });
         }
 
         hideFeatureTooltip(e) {
@@ -613,7 +613,17 @@ module csComp.Services {
                 //this.map.map.closePopup(this.popup);
                 this.popup = null;
             }
-            if (this.service.currentContour) this.service.map.map.removeLayer(this.service.currentContour);
+            //In case a contour is being shown, hide it.
+            var layer = e.target;
+            var feature = <Feature>layer.feature;
+            if (feature) {
+                var hoverActions = this.service.getActions(feature, ActionType.Hover);
+                hoverActions.forEach(ha => {
+                    if (ha.title.toLowerCase() === 'hide') {
+                        ha.callback(feature, this.service);
+                    }
+                });
+            }
         }
 
         updateFeatureTooltip(e) {

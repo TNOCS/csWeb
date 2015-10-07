@@ -33,6 +33,7 @@ module App {
         ];
 
         public areaFilter: AreaFilter.AreaFilterModel;
+        public contourAction: ContourAction.ContourActionModel;
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -56,6 +57,8 @@ module App {
                 if (action === "loaded") {
                     this.areaFilter = new AreaFilter.AreaFilterModel();
                     this.$layerService.addActionService(this.areaFilter);
+                    this.contourAction = new ContourAction.ContourActionModel();
+                    this.$layerService.addActionService(this.contourAction);
 
                     // NOTE EV: You may run into problems here when calling this inside an angular apply cycle.
                     // Alternatively, check for it or use (dependency injected) $timeout.

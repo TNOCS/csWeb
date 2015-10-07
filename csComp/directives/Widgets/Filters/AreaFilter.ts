@@ -32,6 +32,10 @@ module AreaFilter {
             }
         }
 
+        getFeatureHoverActions(feature: IFeature): IActionOption[] {
+            return [];
+        }
+
         deselectFeature(feature: IFeature) { }
 
         updateFeature(feuture: IFeature) { }
@@ -55,7 +59,7 @@ module AreaFilter {
                     break;
             }
         }
-        
+
         public init(layerService: csComp.Services.LayerService) {
             console.log('init AreaFilterActionService');
             this.layerService = layerService;

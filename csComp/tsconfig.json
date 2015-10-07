@@ -184,6 +184,7 @@
         "./services/bus/MessageBus.ts",
         "./services/dashboard/DashboardService.ts",
         "./services/geolocation/geolocation.ts",
+        "./services/layer/ContourAction.ts",
         "./services/layer/LayerActions.ts",
         "./services/layer/LayerService.ts",
         "./services/layer/sources/DatabaseSource.ts",
