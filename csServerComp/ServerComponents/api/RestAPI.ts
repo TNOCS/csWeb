@@ -14,7 +14,6 @@ import ApiMeta = ApiManager.ApiMeta;
 import Winston = require('winston');
 
 export class RestAPI extends BaseConnector.BaseConnector {
-
     public manager: ApiManager.ApiManager;
     public resourceUrl;
     public layersUrl;
@@ -47,7 +46,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
             var resource = new ResourceFile();
             resource = req.body;
             this.manager.addResource(resource, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.sendStatus(result.result).send(result);
+                res.sendStatus(result.result);
             });
         })
 
@@ -90,7 +89,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
             req.projectId = req.params.projectId;
             this.manager.updateProject(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
-                res.status(result.result).send(result);
+                res.sendStatus(result.result);
             });
         })
 
@@ -99,21 +98,21 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.delete(this.projectsUrl + ':projectId', (req: any, res: any) => {
             this.manager.deleteProject(req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
-                res.status(result.result).send(result);
+                res.sendStatus(result.result);
             });
         })
 
         //adds a layer to a project
         this.server.post(this.projectsUrl + ":projectId/group/:groupId/layer/:layerId", (req: express.Request, res: express.Response) => {
             this.manager.addLayerToProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.status(result.result).send(result);
+                res.sendStatus(result.result);
             });
         });
 
         //removes a layer from a project
         this.server.delete(this.projectsUrl + ":projectId/group/:groupId/layer/:layerId", (req: express.Request, res: express.Response) => {
             this.manager.removeLayerFromProject(req.params.projectId, req.params.groupId, req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.status(result.result).send(result);
+                res.sendStatus(result.result);
             });
         });
 
@@ -132,13 +131,13 @@ export class RestAPI extends BaseConnector.BaseConnector {
             var group = new Group();
             group = req.body;
             this.manager.addGroup(group, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.status(result.result).send(result);
+                res.sendStatus(result.result);
             });
         })
 
         this.server.delete(this.projectsUrl + ':projectId/group/:groupId', (req: any, res: any) => {
             this.manager.removeGroup(req.params.groupId, req.params.projectId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.status(result.result).send(result);
+                res.sendStatus(result.result);
             });
         })
 
@@ -151,7 +150,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
             //layer.features = req.body.features;
             layer = req.body;
             this.manager.addLayer(layer, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                res.status(result.result).send(result);
+                res.sendStatus(result.result);
             });
         })
 
@@ -163,7 +162,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 if (result.result === ApiResult.OK) {
                     res.send(result.layer);
                 } else {
-                    res.sendStatus(result.result)
+                    res.sendStatus(result.result);
                 }
             });
         })
@@ -173,7 +172,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
             req.layerId = req.params.layerId;
             this.manager.updateLayer(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
-                res.status(result.result).send(result);
+                res.sendStatus(result.result);
             });
         })
 
@@ -182,7 +181,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.delete(this.layersUrl + ':layerId', (req: any, res: any) => {
             this.manager.deleteLayer(req.params.layerId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
-                res.status(result.result).send(result);
+                res.sendStatus(result.result);
             });
         })
 
@@ -192,7 +191,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.post(this.layersUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
             this.manager.addFeature(req.params.layerId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
-                res.status(result.result).send(result);
+                res.sendStatus(result.result);
             });
         });
 
@@ -200,7 +199,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.get(this.layersUrl + ":layerId/feature/:featureId", (req: express.Request, res: express.Response) => {
             this.manager.getFeature(req.params.layerId, req.params.featureId, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
-                res.status(result.result).send(result);
+                res.sendStatus(result.result);
             });
         });
 
@@ -329,10 +328,5 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 res.send(result);
             });
         });
-
-        //get file
-
-
     }
-
 }
