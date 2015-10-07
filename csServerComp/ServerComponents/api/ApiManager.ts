@@ -27,6 +27,10 @@ export enum ApiResult {
 }
 
 export interface IApiManagerOptions {
+    /** Host name */
+    host?: string;
+    /** Port name */
+    port?: number;
     /** Specify what MQTT should subscribe to */
     mqttSubscriptions?: string[];
     [key: string]: any;
@@ -172,6 +176,10 @@ export class KeySubscription {
  * Geojson Layer definition
  */
 export class Layer implements StorageObject {
+    /** Host name */
+    public host: string;
+    /** Port name */
+    public port: number;
     /**
      * id of storage connector
      */
@@ -189,6 +197,7 @@ export class Layer implements StorageObject {
     public url: string;
     public typeUrl: string;
     public defaultFeatureType: string;
+    public defaultLegendProperty: string;
     public dynamicResource: boolean;
     public tags: string[];
     public isDynamic: boolean;
@@ -689,9 +698,15 @@ export class ApiManager extends events.EventEmitter {
      */
     public getLayerDefinition(layer: Layer): Layer {
         if (!layer.hasOwnProperty('type')) layer.type = "geojson";
-        var r = <Layer>{
+        var server = '';
+        if (this.options.host && this.options.port) {
+            server = `${this.options.host}:${this.options.port}`;
+        }
+        var r = <Layer> {
             id: layer.id,
             title: layer.title,
+            host: this.options.host,
+            port: this.options.port,
             updated: layer.updated,
             enabled: layer.enabled,
             description: layer.description,
@@ -700,9 +715,10 @@ export class ApiManager extends events.EventEmitter {
             typeUrl: layer.typeUrl,
             opacity: layer.opacity ? layer.opacity : 75,
             type: layer.type,
+            // We are returning a definition, so remove the data
             features: [],
             storage: layer.storage ? layer.storage : "",
-            url: layer.url ? layer.url : ("/api/layers/" + layer.id),
+            url: layer.url ? layer.url : (server + "/api/layers/" + layer.id),
             isDynamic: layer.isDynamic ? layer.isDynamic : false
         };
         return r;
@@ -747,6 +763,7 @@ export class ApiManager extends events.EventEmitter {
             this.saveLayersDelay(layer);
         }
         else {
+            Winston.error(`Error: layer ${layer.title} (id: ${layer.id}) already exists!`);
             callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
         }
     }
