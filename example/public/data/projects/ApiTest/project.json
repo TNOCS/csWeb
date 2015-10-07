@@ -967,6 +967,30 @@
           "defaultFeatureType": "ontzet",
           "isDynamic": false,
           "gui": {}
+        },
+        {
+          "id": "ambulance",
+          "title": "Ambulancediensten",
+          "description": "Ambulancediensten incl MKA",
+          "type": "geojson",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "/api/layers/ambulance",
+          "typeUrl": "/api/resources/ambulance",
+          "opacity": 75,
+          "defaultFeatureType": "ambulance",
+          "isDynamic": false,
+          "gui": {}
+        },
+        {
+          "id": "af3086db-044c-4c5c-068a-c1b4752462c2",
+          "title": "help",
+          "type": "dynamicgeojson",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "api/layers/af3086db-044c-4c5c-068a-c1b4752462c2",
+          "isDynamic": true,
+          "gui": {}
         }
       ]
     },

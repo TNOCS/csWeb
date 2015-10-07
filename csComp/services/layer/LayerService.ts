@@ -569,6 +569,7 @@ module csComp.Services {
         /** add a types resource (project, resource file or layer) */
         public initTypeResources(source: any) { //reset
             this.typesResources[source.url] = source;
+            if (!source.title) source.title = source.url;
             var featureTypes = source.featureTypes;
             if (featureTypes) {
                 for (var typeName in featureTypes) {
@@ -1486,7 +1487,7 @@ module csComp.Services {
                         // }
                         // add filter
                         layer.group.filters.push(gf);
-                    } else {                        
+                    } else {
                         this.removeFilter(filter);
                         //layer.group.filters = layer.group.filters.filter((f: GroupFilter) => f.property != property.property);
                         // var pos = layer.group.filters.indexOf(filter);

@@ -528,8 +528,9 @@ export class FileStorage extends BaseConnector.BaseConnector {
             layer.features.push(feature);
         }
         this.saveLayerDelay(layer);
-        callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
         Winston.info("filestore: update feature")
+        callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
+
 
     }
 
@@ -539,12 +540,14 @@ export class FileStorage extends BaseConnector.BaseConnector {
         layer.features = layer.features.filter((k) => { return k.id && k.id !== featureId });
         callback(<CallbackResult>{ result: ApiResult.OK });
         this.saveLayerDelay(layer);
+        callback(<CallbackResult>{ result: ApiResult.OK});
     }
 
     public addFile(b64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
         var fileUri = path.join(this.iconPath, file.split('/').pop());
         var i: Icon = { data: b64, fileUri: fileUri };
         this.saveIcon(i);
+        callback(<CallbackResult>{ result: ApiResult.OK});
     }
 
     public addResource(res: ResourceFile, meta: ApiMeta, callback: Function) {
@@ -553,6 +556,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (!res.featureTypes) res.featureTypes = {};
         this.resources[res.id] = res;
         this.saveResourcesDelay(res);
+        callback(<CallbackResult>{ result: ApiResult.OK});
     }
 
     public addKey(key: Key, meta: ApiMeta, callback: Function) {
@@ -560,6 +564,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (!key.values) key.values = [];
         this.keys[key.id] = key;
         this.saveKeyDelay(key);
+        callback(<CallbackResult>{ result: ApiResult.OK});
     }
 
     public getKey(keyId: string, meta: ApiMeta, callback: Function) {

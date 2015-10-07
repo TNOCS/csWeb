@@ -30,12 +30,16 @@
             <div class="leftpanel-header-button-container-left">
                 <button class="button fa fa-arrow-left leftpanel-header-button" ng-click="vm.exitDirectory()" />
             </div>
-            <span translate="ADDLAYER" />
+            <span translate="CREATELAYER" />
         </h3>
         <div style="background:white;margin-right:10px">
             <div class="form-group">
                 <label for="groupDescription">Title</label>
                 <input type="text" class="form-control" id="layerTitle" ng-model="vm.newLayer.title" placeholder="Enter title layer">
+            </div>
+            <div class="form-group">
+                <label class="editor-title input-xlarge">Types</label>
+                <select data-ng-model="vm.layerResourceType" ng-options="k as v.title for (k,v) in vm.resources" class="form-control tt-input editor-text-input" required />
             </div>
             <div class="form-group">
                 <label class="editor-title input-xlarge">Group</label>
@@ -72,8 +76,8 @@
 
                 <div class="form-group">
                     <label class="editor-title input-xlarge">Select a group for {{vm.selectedLayer.title}}</label>
-                    <select data-ng-model="vm.layerGroup" class="form-control tt-input editor-text-input">
-                        <option ng-repeat="g in vm.$layerService.project.groups" ng-value="g.id">{{g.title}}</option>
+                    <select data-ng-model="vm.layerGroup" ng-options="g.id as g.title for g in vm.groups" class="form-control tt-input editor-text-input">
+                        <!-- <option ng-repeat="g in vm.$layerService.project.groups" ng-value="g.id">{{g.title}}</option> -->
                     </select>
                 </div>
                 <button type="button" class="btn btn-primary" data-ng-click="vm.addProjectLayer()">Add layer</button>
@@ -89,7 +93,12 @@
                 <button class="button fa fa-arrow-left leftpanel-header-button" ng-click="vm.stopAddingFeatures(vm.layer)" />
             </div>
             <span translate="ADDFEATURES"></span>
+            <div ng-show="vm.$mapService.isIntermediate" class="leftpanel-header-button-container">
+                <button ng-if="vm.layer.typeUrl" style="cursor:pointer" class="fa fa-plus button leftpanel-header-button" ng-click="vm.createType()" popover="{{'ADDTYPE' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true" />
+            </div>
         </h3>
+
+
 <!--
         <div class="btn fa fa-check" ng-click="vm.stopAddingFeatures(vm.layer)">
             <span translate="DONE"></span>
@@ -114,7 +123,7 @@
             <span translate="LAYERS" />
             <div ng-show="vm.$mapService.isIntermediate" class="leftpanel-header-button-container">
                 <button style="cursor:pointer" class="fa fa-folder button leftpanel-header-button" ng-click="vm.openDirectory()" popover="{{'DIRECTORY' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true"  />
-                <button style="cursor:pointer" ng-if="vm.$layerService.project.connected" class="fa fa-plus button leftpanel-header-button" ng-click="vm.createLayer()" popover="{{'ADDLAYER' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true" />
+                <button style="cursor:pointer" ng-if="vm.$layerService.project.connected" class="fa fa-plus button leftpanel-header-button" ng-click="vm.createLayer()" popover="{{'CREATELAYER' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true" />
             </div>
         </h3>
 

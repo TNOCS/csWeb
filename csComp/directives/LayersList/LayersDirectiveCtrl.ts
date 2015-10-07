@@ -18,6 +18,8 @@ module LayersDirective {
         public mylayers: string[];
         public selectedLayer: csComp.Services.ProjectLayer;
         public newLayer: csComp.Services.ProjectLayer;
+        public layerResourceType : string;
+        public resources : { [ key : string] : csComp.Services.TypeResource };
         public layerGroup: any;
         public layerTitle: string;
         public newGroup : string;
@@ -71,6 +73,17 @@ module LayersDirective {
         public editLayer(layer: csComp.Services.ProjectLayer) {
             var rpt = csComp.Helpers.createRightPanelTab('edit', 'layeredit', layer, 'Edit layer', 'Edit layer');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
+        }
+
+
+        public createType()
+        {
+            if (!this.layer.typeUrl)
+            {
+                if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl));
+                var tr = this.$layerService.typesResources[this.layer.typeUrl];
+                console.log(tr);
+            }
         }
 
         public initGroups()
@@ -159,6 +172,10 @@ module LayersDirective {
             this.state = "editlayer";
             (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startAddingFeatures(layer);
             this.layer = layer;
+            if (!this.layer.typeUrl)
+            {
+
+            }
         }
 
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
@@ -228,9 +245,25 @@ module LayersDirective {
                 });
         }
 
+        private initResources()
+        {
+            this.resources = {};
+            if (!this.project.groups) return;
+            this.project.groups.forEach((g)=>{
+                if (g.layers) g.layers.forEach((l)=>{
+                    if (l.typeUrl && !this.resources.hasOwnProperty(l.typeUrl))
+                    this.resources[l.typeUrl] = <csComp.Services.TypeResource> { title : l.typeUrl};
+                })
+            })
+            this.resources["<new>"] = <csComp.Services.TypeResource> { title : "<new type file>"};
+            this.layerResourceType = "<new>";
+        }
+
         public createLayer() {
             this.initGroups();
             this.loadAvailableLayers();
+            this.initResources();
+
             if (this.$layerService.project.groups.length > 0) this.layerGroup = this.$layerService.project.groups[0].id;
             this.state = "createlayer";
             this.newLayer = new csComp.Services.ProjectLayer();
@@ -262,6 +295,23 @@ module LayersDirective {
                 /// create layer on server
                 if (this.newLayer.type === "dynamicgeojson") {
                     this.newLayer.url = "api/layers/" + nl.id;
+                    if (this.layerResourceType==="<new>")
+                    {
+                        this.newLayer.typeUrl = "/api/resources/" + this.newLayer.title;
+                        var r = <csComp.Services.TypeResource>{ id:this.newLayer.title, title: this.newLayer.title, featureTypes : {}, propertyTypeData : {}};
+                        this.$http.post("/api/resources/" + this.newLayer.title, r)
+                            .success((data) => {
+
+                        })
+                            .error((e) => {
+                            console.log('error adding resource');
+                        });
+                    }
+                    else
+                    {
+                        this.newLayer.typeUrl = this.layerResourceType;
+                    }
+
                     var l = { id: nl.id, title: nl.title, isDynamic: true, type: nl.type, description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url };
                     this.$http.post("/api/layers", l)
                         .success((data) => {
@@ -271,6 +321,11 @@ module LayersDirective {
                         console.log('error adding layer');
 
                     });
+                }
+
+                if (this.layerResourceType === "<new>")
+                {
+
                 }
 
                 var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", this.newLayer, "Edit layer");
