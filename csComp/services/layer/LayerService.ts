@@ -1,6 +1,11 @@
 module csComp.Services {
     'use strict';
 
+    export enum ActionType {
+        Context = 0,
+        Hover = 1
+    }
+
     export interface IActionOption {
         title: string;
         icon: string;
@@ -16,6 +21,7 @@ module csComp.Services {
         removeFeature(feature: IFeature);
         selectFeature(feature: IFeature);
         getFeatureActions(feature: IFeature): IActionOption[];
+        getFeatureHoverActions(feature: IFeature): IActionOption[];
         deselectFeature(feature: IFeature);
         updateFeature(feuture: IFeature);
     }
@@ -184,16 +190,26 @@ module csComp.Services {
             });
         }
 
-        public getActions(feature: IFeature): IActionOption[] {
-            if (!feature) return;
+        public getActions(feature: IFeature, type: ActionType): IActionOption[] {
+            if (!feature || !type) return;
             var options = [];
-            this.actionServices.forEach((as: csComp.Services.IActionService) => {
-                var asOptions = as.getFeatureActions(feature);
-                if (asOptions) options = options.concat(asOptions);
-            });
-            options.forEach((a: IActionOption) => {
-                a.feature = feature;
-            })
+            if (type === ActionType.Context) {
+                this.actionServices.forEach((as: csComp.Services.IActionService) => {
+                    var asOptions = as.getFeatureActions(feature);
+                    if (asOptions) options = options.concat(asOptions);
+                });
+                options.forEach((a: IActionOption) => {
+                    a.feature = feature;
+                })
+            } else if (type === ActionType.Hover) {
+                this.actionServices.forEach((as: csComp.Services.IActionService) => {
+                    var asOptions = as.getFeatureHoverActions(feature);
+                    if (asOptions) options = options.concat(asOptions);
+                });
+                options.forEach((a: IActionOption) => {
+                    a.feature = feature;
+                })
+            }
             return options;
         }
 
@@ -2187,21 +2203,32 @@ module csComp.Services {
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
                 group.cluster.on('clustermouseover', (a) => {
-                    if (this.currentContour) this.map.map.removeLayer(this.currentContour);
                     if (a.layer._childClusters.length === 0) {
                         var childs = a.layer.getAllChildMarkers();
                         if (childs[0] && childs[0].hasOwnProperty('feature')) {
                             var f = childs[0].feature;
-                            if (f.properties.hasOwnProperty('_bag_contour')) {
-                                var geoContour: L.GeoJSON = JSON.parse(f.properties['_bag_contour']);
-                                this.currentContour = L.geoJson(geoContour);
-                                this.currentContour.addTo(this.map.map);
-                            }
+                            var actions = this.getActions(f, ActionType.Hover);
+                            actions.forEach((fa) => {
+                                if (fa.title.toLowerCase() === 'show') {
+                                    fa.callback(f, this);
+                                }
+                            });
                         }
                     }
                 });
                 group.cluster.on('clustermouseout', (a) => {
-                    if (this.currentContour) this.map.map.removeLayer(this.currentContour);
+                    if (a.layer._childClusters.length === 0) {
+                        var childs = a.layer.getAllChildMarkers();
+                        if (childs[0] && childs[0].hasOwnProperty('feature')) {
+                            var f = childs[0].feature;
+                            var actions = this.getActions(f, ActionType.Hover);
+                            actions.forEach((fa) => {
+                                if (fa.title.toLowerCase() === 'hide') {
+                                    fa.callback(f, this);
+                                }
+                            });
+                        }
+                    }
                 });
                 this.map.map.addLayer(group.cluster);
             } else {

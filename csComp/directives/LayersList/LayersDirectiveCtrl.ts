@@ -89,7 +89,8 @@ module LayersDirective {
         public initGroups()
         {
             this.groups = [];
-            this.$layerService.project.groups.forEach((g)=>this.groups.push(g));
+            if (this.$layerService.project.groups)
+                this.$layerService.project.groups.forEach((g)=>this.groups.push(g));
             var g = new csComp.Services.ProjectGroup;
             g.id = "<new>";
             g.title = "<new group>";
@@ -97,7 +98,6 @@ module LayersDirective {
         }
 
         public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
-
             var transformProp;
             var startx, starty;
 
@@ -210,9 +210,11 @@ module LayersDirective {
             this.project = this.$layerService.project;
             this.mylayers = [];
 
-            this.project.groups.forEach((g) => {
-                g.layers.forEach((l) => this.mylayers.push(l.url));
-            })
+            if (this.project.groups) {
+                this.project.groups.forEach((g) => {
+                    g.layers.forEach((l) => this.mylayers.push(l.url));
+                });
+            }
 
             if (this.project.layerDirectory) {
                 $.getJSON(this.project.layerDirectory, (result) => {
@@ -264,12 +266,18 @@ module LayersDirective {
             this.loadAvailableLayers();
             this.initResources();
 
-            if (this.$layerService.project.groups.length > 0) this.layerGroup = this.$layerService.project.groups[0].id;
+            if (this.$layerService.project.groups && this.$layerService.project.groups.length > 0) {
+                this.layerGroup = this.$layerService.project.groups[0].id;
+            } else {
+                this.layerGroup = new csComp.Services.ProjectGroup;
+                this.layerGroup.id = "<new>";
+                this.layerGroup.title = "<new group>";
+                this.$layerService.project.groups = [];
+            }
             this.state = "createlayer";
             this.newLayer = new csComp.Services.ProjectLayer();
             this.newLayer.type = "dynamicgeojson";
         }
-
 
         public addLayer() {
             //this.loadAvailableLayers();

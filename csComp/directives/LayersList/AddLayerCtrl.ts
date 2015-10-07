@@ -6,7 +6,6 @@ module LayersDirective {
     }
 
     export class AddLayerCtrl {
-
         public groupTitle: string;
         public groupDescription: string;
         public layerGroup: any;
@@ -32,14 +31,14 @@ module LayersDirective {
             public layerService: csComp.Services.LayerService,
             private translate: ng.translate.ITranslateService,
             private messageBusService: csComp.Services.MessageBusService
-            ) {
+        ) {
             $scope.vm = this;
             this.project = this.layerService.project;
             if (this.project.layerDirectory) {
                 $http.get(this.project.layerDirectory)
                     .success((result: any) => {
-                    this.layers = result.layers;
-                })
+                        this.layers = result;
+                    })
                     .error(() => { console.log('AddLayerCtrl: error calling $http'); });
             }
         }
