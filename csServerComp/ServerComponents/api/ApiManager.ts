@@ -109,8 +109,10 @@ export interface IConnector {
     deleteProject(projectId: string, meta: ApiMeta, callback: Function);
     allGroups(projectId: string, meta: ApiMeta, callback: Function);
 
+    /** Add a resource type file to the store. */
     addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
-    addFile(b64: string, folder : string, file : string, meta: ApiMeta, callback: Function);
+    /** Add a file to the store, e.g. an icon or other media. */
+    addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function);
 
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
@@ -424,16 +426,14 @@ export class ApiManager extends events.EventEmitter {
         });
     }
 
-    addFile(b64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
-        var s;
-        if (this.connectors.hasOwnProperty('file')) {
-            s = this.connectors['file'];
-        }
+    /** Add a file to the store, e.g. an icon or other media. */
+    public addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
+        var s: IConnector = this.connectors.hasOwnProperty('file') ? this.connectors['file'] : null;
         if (s) {
-            s.addFile(b64, folder, file, meta, () => { });
-            callback(<CallbackResult>{ result: ApiResult.OK, error: "Icon added" });
-        } else {
+            s.addFile(base64, folder, file, meta, () => { });
             callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
+        } else {
+            callback(<CallbackResult>{ result: ApiResult.Error, error: "Failed to add resource." });
         }
     }
 
