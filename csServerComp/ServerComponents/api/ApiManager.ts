@@ -700,7 +700,7 @@ export class ApiManager extends events.EventEmitter {
         if (!layer.hasOwnProperty('type')) layer.type = "geojson";
         var server = '';
         if (this.options.host && this.options.port) {
-            server = `${this.options.host}:${this.options.port}`;
+            server = `${this.options.host}:${this.options.port}/`;
         }
         var r = <Layer> {
             id: layer.id,
@@ -718,7 +718,7 @@ export class ApiManager extends events.EventEmitter {
             // We are returning a definition, so remove the data
             features: [],
             storage: layer.storage ? layer.storage : "",
-            url: layer.url ? layer.url : (server + "/api/layers/" + layer.id),
+            url: layer.url ? layer.url : (server + "api/layers/" + layer.id),
             isDynamic: layer.isDynamic ? layer.isDynamic : false
         };
         return r;
