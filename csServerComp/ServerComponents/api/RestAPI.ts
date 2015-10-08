@@ -38,10 +38,12 @@ export class RestAPI extends BaseConnector.BaseConnector {
         //enables cors, used for external swagger requests
         this.server.use(cors());
 
+        // get all resource types
         this.server.get(this.resourceUrl, (req: express.Request, res: express.Response) => {
             res.send(JSON.stringify(this.manager.resources));
         });
 
+        // add a new resource type file
         this.server.post(this.resourceUrl + ":resourceId", (req: express.Request, res: express.Response) => {
             var resource = new ResourceFile();
             resource = req.body;
@@ -50,20 +52,24 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         })
 
+        // get an existing resource type file
         this.server.get(this.resourceUrl + ":resourceId", (req: express.Request, res: express.Response) => {
             res.send(JSON.stringify(this.manager.getResource(req.params.resourceId.toLowerCase())));
         });
 
+        // get all available public layers
         this.server.get(this.layersUrl, (req: express.Request, res: express.Response) => {
             res.send(JSON.stringify(this.manager.layers));
         });
 
+        //------ Project API paths, in CRUD order
+
+        // get all available projects
         this.server.get(this.projectsUrl, (req: express.Request, res: express.Response) => {
             res.send(JSON.stringify(this.manager.projects));
         });
 
-        //------ Project API paths, in CRUD order
-
+        // create a new project
         this.server.post(this.projectsUrl, (req: express.Request, res: express.Response) => {
             var project = new Project();
             project = req.body;
@@ -323,7 +329,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
 
         //add file
         this.server.put(this.filesUrl + ":folderId/:fileName", (req: express.Request, res: express.Response) => {
-            this.manager.addFile(req.body,req.params.folderId,req.params.fileName,<ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            this.manager.addFile(req.body, req.params.folderId, req.params.fileName, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });

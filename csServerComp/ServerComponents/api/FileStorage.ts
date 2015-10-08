@@ -17,8 +17,8 @@ var StringExt = require('../helpers/StringExt'); // to remove the BOM.
 import Winston = require('winston');
 import helpers = require('../helpers/Utils');
 
-export interface Icon {
-    data: string;
+export interface Media {
+    base64: string;
     fileUri: string;
 }
 
@@ -52,14 +52,12 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.watchResourcesFolder();
     }
 
-
     public watchLayersFolder() {
         Winston.info('filestore: watch folder:' + this.layersPath);
         if (!fs.existsSync(this.layersPath)) { fs.mkdirSync(this.layersPath); }
         setTimeout(() => {
             var watcher = chokidar.watch(this.layersPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
-
                 if (action == "add") {
                     Winston.info('filestore: new file found : ' + path);
                     this.openLayerFile(path);
@@ -203,14 +201,14 @@ export class FileStorage extends BaseConnector.BaseConnector {
         });
     }
 
-    private saveIcon(icon: Icon) {
-        var binaryData = new Buffer(icon.data, 'base64');
-        fs.writeFile(icon.fileUri, binaryData, (error) => {
+    private saveBase64(media: Media) {
+        var binaryData = new Buffer(media.base64, 'base64');
+        fs.writeFile(media.fileUri, binaryData, (error) => {
             if (error) {
-                Winston.info('error writing file : ' + icon.fileUri);
+                Winston.error('filestore: error writing file : ' + media.fileUri);
             }
             else {
-                Winston.info('filestore: file saved : ' + icon.fileUri);
+                Winston.info('filestore: file saved : ' + media.fileUri);
             }
         });
     }
@@ -542,10 +540,25 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.saveLayerDelay(layer);
     }
 
-    public addFile(b64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
-        var fileUri = path.join(this.iconPath, file.split('/').pop());
-        var i: Icon = { data: b64, fileUri: fileUri };
-        this.saveIcon(i);
+    /** Add a file: images go to the iconPath folder, others to the blob folder */
+    public addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
+        var ext = path.extname(file).toLowerCase();
+        var fileUri: string = file.split('/').pop(); // retreive the file name
+        switch (ext) {
+            case '.png':
+            case '.jpg':
+            case '.gif':
+            case '.jpeg':
+            case '.tif':
+            case '.tiff':
+                fileUri = path.join(this.iconPath, fileUri);
+                break;
+            default:
+                fileUri = path.join(this.blobPath, fileUri);
+                break;
+        }
+        var media: Media = { base64: base64, fileUri: fileUri };
+        this.saveBase64(media);
     }
 
     public addResource(res: ResourceFile, meta: ApiMeta, callback: Function) {
