@@ -712,6 +712,7 @@ export class ApiManager extends events.EventEmitter {
             description: layer.description,
             dynamicResource: layer.dynamicResource,
             defaultFeatureType: layer.defaultFeatureType,
+            defaultLegendProperty: layer.defaultLegendProperty,
             typeUrl: layer.typeUrl,
             opacity: layer.opacity ? layer.opacity : 75,
             type: layer.type,
