@@ -110,7 +110,7 @@ export interface IConnector {
     allGroups(projectId: string, meta: ApiMeta, callback: Function);
 
     addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
-    addFile(b64: string, folder : string, file : string, meta: ApiMeta, callback: Function);
+    addFile(b64: string, folder: string, file: string, meta: ApiMeta, callback: Function);
 
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
@@ -391,7 +391,9 @@ export class ApiManager extends events.EventEmitter {
      * Store layer config file
      */
     public saveLayerConfig() {
-        fs.writeFile(this.layersFile, JSON.stringify(this.layers), (error) => {
+        var temp = {};
+        for (var s in this.layers) if (!this.layers[s].storage) temp[s] = this.layers[s];
+        fs.writeFile(this.layersFile, JSON.stringify(temp), (error) => {
             if (error) {
                 Winston.info('manager: error saving layer config');
             }
@@ -424,7 +426,7 @@ export class ApiManager extends events.EventEmitter {
         });
     }
 
-    addFile(b64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
+    addFile(b64: string, folder: string, file: string, meta: ApiMeta, callback: Function) {
         var s;
         if (this.connectors.hasOwnProperty('file')) {
             s = this.connectors['file'];
@@ -525,7 +527,8 @@ export class ApiManager extends events.EventEmitter {
                 if (group.id === pg.id && group.clusterLevel) {
                     pg['clusterLevel'] = group.clusterLevel;
                 }
-                return (group.id === pg.id) });
+                return (group.id === pg.id)
+            });
             callback(<CallbackResult>{ result: ApiResult.GroupAlreadyExists, error: "Group exists" }); return;
         } else {
             group = this.getGroupDefinition(group);
@@ -726,47 +729,7 @@ export class ApiManager extends events.EventEmitter {
 
     //layer methods start here, in CRUD order.
 
-    /** Create a new layer, store it, and return it. */
-    public addLayer(layer: Layer, meta: ApiMeta, callback: (result: CallbackResult) => void) {
-        // give it an id if not available
-        if (!layer.hasOwnProperty('id')) layer.id = helpers.newGuid();
-        // make sure layerid is lowercase
-        layer.id = layer.id.toLowerCase();
-        // take the id for the title if not available
-        if (!layer.hasOwnProperty('title')) layer.title = layer.id;
-        if (!layer.hasOwnProperty('features')) layer.features = [];
-        if (!layer.hasOwnProperty('tags')) layer.tags = [];
-        this.setUpdateLayer(layer, meta);
-        Winston.info('api: add layer ' + layer.id);
-        var s = this.findStorage(layer);
-        // check if layer already exists
-        if (!this.layers.hasOwnProperty(layer.id)) {
-            // add storage connector if available
-            layer.storage = s ? s.id : "";
 
-            // get layer definition (without features)
-            this.layers[layer.id] = this.getLayerDefinition(layer);
-
-            this.getInterfaces(meta).forEach((i: IConnector) => {
-                i.initLayer(layer);
-                i.addLayer(layer, meta, () => { });
-            });
-
-            // store layer
-            if (s) {
-                s.addLayer(layer, meta, (r: CallbackResult) => callback(r))
-            } else {
-                callback(<CallbackResult>{ result: ApiResult.OK });
-            }
-
-            this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layer.id, type: ChangeType.Create, value: layer });
-            this.saveLayersDelay(layer);
-        }
-        else {
-            Winston.error(`Error: layer ${layer.title} (id: ${layer.id}) already exists!`);
-            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
-        }
-    }
 
     public getProject(projectId: string, meta: ApiMeta, callback: Function) {
         Winston.debug('Looking for storage of project ' + projectId);
@@ -792,12 +755,52 @@ export class ApiManager extends events.EventEmitter {
         }
     }
 
-    public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+    /** Create a new layer, store it, and return it. */
+    public createLayer(layer: Layer, meta: ApiMeta, callback: (result: CallbackResult) => void) {
+        // give it an id if not available
+        if (!layer.hasOwnProperty('id')) layer.id = helpers.newGuid();
+        // make sure layerid is lowercase
+        layer.id = layer.id.toLowerCase();
+        // take the id for the title if not available
+        if (!layer.hasOwnProperty('title')) layer.title = layer.id;
+        if (!layer.hasOwnProperty('features')) layer.features = [];
+        if (!layer.hasOwnProperty('tags')) layer.tags = [];
+        this.setUpdateLayer(layer, meta);
+        Winston.info('api: add layer ' + layer.id);
+        var s = this.findStorage(layer);
+        // check if layer already exists
+        if (!this.layers.hasOwnProperty(layer.id)) {
+            // add storage connector if available
+            layer.storage = s ? s.id : "";
+
+            // get layer definition (without features)
+            this.layers[layer.id] = this.getLayerDefinition(layer);
+
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.initLayer(layer);
+            //    i.addLayer(layer, meta, () => { });
+            });
+
+            // store layer
+            if (s && s.id != meta.source) {
+                s.addLayer(layer, meta, (r: CallbackResult) => callback(r))
+            } else {
+                callback(<CallbackResult>{ result: ApiResult.OK });
+            }
+
+        }
+        else {
+            Winston.error(`Error: layer ${layer.title} (id: ${layer.id}) already exists!`);
+            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
+        }
+    }
+
+    public addUpdateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
         async.series([
             // make sure layer exists
             (cb: Function) => {
                 if (!this.layers.hasOwnProperty(layer.id)) {
-                    this.addLayer(layer, meta, () => {
+                    this.createLayer(layer, meta, () => {
                         cb();
                     });
                 }
@@ -814,7 +817,7 @@ export class ApiManager extends events.EventEmitter {
                 });
 
                 var s = this.findStorageForLayerId(layer.id);
-                if (s) {
+                if (s && s.id != meta.source) {
                     s.updateLayer(layer, meta, (r, CallbackResult) => {
                         Winston.warn('updating layer finished');
                     });
@@ -1072,9 +1075,9 @@ export class ApiManager extends events.EventEmitter {
 
         for (var subId in this.keySubscriptions) {
             var sub = this.keySubscriptions[subId];
-            if (sub.regexPattern.test(keyId)){
+            if (sub.regexPattern.test(keyId)) {
                 Winston.info(`   pattern ${sub.pattern} found.`);
-                sub.callback(keyId,value,meta);
+                sub.callback(keyId, value, meta);
             }
             // else
             // {

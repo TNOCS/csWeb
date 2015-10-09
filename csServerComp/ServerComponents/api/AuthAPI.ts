@@ -891,7 +891,7 @@ export class User extends Feature implements IUser {
     private static getTeam(teamId: string, callback: (err: string, team: Layer) => void) {
         User.manager.getLayer(teamId, <ApiMeta>{}, (cb: CallbackResult) => {
             if (cb.result !== ApiResult.OK) {
-                User.manager.addLayer(<Layer>{ id: teamId, storage: 'file', type: 'dynamicgeojson' }, <ApiMeta>{ source: 'auth' }, (cb2) => {
+                User.manager.addUpdateLayer(<Layer>{ id: teamId, storage: 'file', type: 'dynamicgeojson' }, <ApiMeta>{ source: 'auth' }, (cb2) => {
                     callback(null, cb2.layer);
                 });
             }

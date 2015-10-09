@@ -43,7 +43,7 @@ export class ImbAPI extends BaseConnector.BaseConnector {
             switch (cmd) {
                 case ClientConnection.LayerUpdateAction.updateLayer:
                     var layer = <Layer> { storage: "file", type: "geojson", id: layerID, title: layerID };
-                    this.manager.addLayer(layer, <ApiMeta>{ source: this.id, user: "US" }, () => { });
+                    this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id, user: "US" }, () => { });
                     var layerEvent = this.imbConnection.subscribe(eventDefinition.name + "." + layerID);
                     layerEvent.onNormalEvent = (eventDefinition, aEventPayload) => {
                         var cmd = aEventPayload.readInt32LE(0);
@@ -57,7 +57,7 @@ export class ImbAPI extends BaseConnector.BaseConnector {
                                 this.manager.deleteFeature(layerID, value, <ApiMeta>{ source: this.id, user: "US" }, () => { });
                                 break;
                             case ClientConnection.LayerUpdateAction.updateLayer:
-                                this.manager.updateLayer(JSON.parse(value), <ApiMeta>{ source: this.id, user: "US" }, () => { });
+                                this.manager.addUpdateLayer(JSON.parse(value), <ApiMeta>{ source: this.id, user: "US" }, () => { });
                                 break;
                         }
                     }

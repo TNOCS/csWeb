@@ -68,7 +68,7 @@ Winston.error(`mqtt on message: ${topic}.`);
                 var layer = <Layer>JSON.parse(message);
                 if (layer && layer.id) {
                     Winston.info('mqtt: update layer ' + layer.id);
-                    this.manager.updateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
+                    this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
                 }
             }
             else if (topic.indexOf(this.layerPrefix) === 0) {
@@ -77,7 +77,7 @@ Winston.error(`mqtt on message: ${topic}.`);
                     var layer = <Layer>JSON.parse(message);
                     if (layer) {
                         Winston.info('mqtt: update feature for layer ' + lid);
-                        this.manager.updateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
+                        this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
                     }
                 }
                 catch (e) {

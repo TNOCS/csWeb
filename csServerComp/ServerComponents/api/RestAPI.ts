@@ -150,7 +150,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
             var layer = new Layer();
             //layer.features = req.body.features;
             layer = req.body;
-            this.manager.addLayer(layer, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            this.manager.addUpdateLayer(layer, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 res.status(result.result).send(result);
             });
         })
@@ -171,7 +171,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         //Updates EVERY feature in the layer.
         this.server.put(this.layersUrl + ':layerId', (req: any, res: any) => {
             req.layerId = req.params.layerId;
-            this.manager.updateLayer(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+            this.manager.addUpdateLayer(req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.status(result.result).send(result);
             });

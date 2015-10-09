@@ -213,10 +213,10 @@ export class MapLayerFactory {
 
         async.series([
             (cb: Function) => {
-                this.apiManager.addLayer(layer, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                this.apiManager.addUpdateLayer(layer, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
                     console.log(result);
                     if (result.result === ApiManager.ApiResult.LayerAlreadyExists) {
-                        this.apiManager.updateLayer(layer, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                        this.apiManager.addUpdateLayer(layer, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
                             console.log(result);
                             cb();
                         });

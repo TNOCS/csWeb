@@ -320,7 +320,7 @@ module LayersDirective {
                         this.newLayer.typeUrl = this.layerResourceType;
                     }
 
-                    var l = { id: nl.id, title: nl.title, isDynamic: true, type: nl.type, description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url };
+                    var l = { id: nl.title, title: nl.title, isDynamic: true, type: nl.type, description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url };
                     this.$http.post("/api/layers", l)
                         .success((data) => {
                         console.log(data);

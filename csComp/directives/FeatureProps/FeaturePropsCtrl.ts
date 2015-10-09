@@ -492,7 +492,7 @@ module FeatureProps {
                 console.log('stats: calc stats for ' + item.property);
                 if (this.stats.indexOf(item.property) === -1) this.stats.push(item.property);
                 var values = this.$layerService.getPropertyValues(item.feature.layer, item.property);
-                var d = item.property;
+                var d = item.property;                
                 var res = vg.util.summary(values, [item.property]);
                 item.stats = res[0];
                 item.stats.sum = item.stats.count * item.stats.mean;
