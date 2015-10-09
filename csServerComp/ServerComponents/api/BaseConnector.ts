@@ -133,11 +133,11 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
-    public addFile(b64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
+    public addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
 
     }
 
-    public addResource(reource: ApiManager.ResourceFile, meta: ApiMeta, callback: Function) {
+    public addResource(resource: ApiManager.ResourceFile, meta: ApiMeta, callback: Function) {
 
     }
 

@@ -54,8 +54,8 @@
         "http"
     ],
     "paths": {
-      "/resources":{
-        "post": {
+        "/resources/{resourceId}": {
+            "post": {
                 "tags": [
                     "resource"
                 ],
@@ -87,8 +87,8 @@
                 }
             }
         },
-        "/resources/{resourceId}":{
-          "get": {
+        "/resources/{resourceId}": {
+            "get": {
                 "tags": [
                     "resource"
                 ],
@@ -321,10 +321,10 @@
                 "responses": {
                     "200": {
                         "description": "successful operation",
-                        "schema" : {
-                            "type" : "array",
-                            "items" : {
-                                "type" : "string"
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
                             }
                         }
                     },
@@ -437,7 +437,7 @@
                 }
             }
         },
-        "/projects/":{
+        "/projects/": {
             "post": {
                 "tags": [
                     "project"
@@ -639,8 +639,9 @@
                         "description": "successful operation",
                         "schema": {
                             "type": "object",
-                              "additionalProperties": {
-                                  "$ref": "#/definitions/Layer" }
+                            "additionalProperties": {
+                                "$ref": "#/definitions/Layer"
+                            }
 
                         }
 
@@ -1084,75 +1085,157 @@
         }
     },
     "definitions": {
-      "FeatureTypeStyle" : {
-        "type" : "object",
-        "properties": {
-          "nameLabel" : { "type" : "string"},
-          "fillColor" : { "type" : "string"},
-          "strokeColor" : { "type" : "string"},
-          "selectedFillColor" : { "type" : "string"},
-          "selectedStrokeColor" : { "type" : "string"},
-          "selectedStrokeWidth" : { "type" : "number"},
-          "height" : { "type" : "number"},
-          "opacity" : { "type" : "number"},
-          "fillOpacity" : { "type" : "number"},
-          "stroke" : { "type" : "number"},
-          "drawingMode" : { "type" : "string"},
-          "strokeWidth" : { "type" : "number"},
-          "iconWidth" : { "type" : "number"},
-          "iconHeight" : { "type" : "number"},
-          "iconUri" : { "type" : "string"},
-          "cornerRadius" : { "type" : "number"},
-          "maxTitleResolution" : { "type" : "number"},
-          "rotate" : { "type" : "number"},
-          "innerTextProperty" : { "type" : "number"},
-          "innerTextSize" : { "type" : "number"},
-          "rotateProperty" : { "type" : "string"}
-        }
-      },
-      "FeatureType":{
-        "type" : "object",
-        "properties":{
-          "id" : { "type" : "string"},
-          "name" : { "type" : "string"},
-          "showAllProperties" : { "type" : "boolean"},
-          "style" : { "$ref": "#/definitions/FeatureTypeStyle"},
-          "propertyTypeKeys": { "type" : "string"}
-        }
-      },
-      "PropertyType":{
-         "type" : "object",
-        "properties": {
-          "label" : { "type" : "string"},
-          "title" : { "type" : "string"},
-          "description" : { "type" : "string"},
-          "type" : { "type" : "string"},
-          "section" : { "type" : "string"},
-          "stringFormat" : { "type" : "number"},
-          "visibleInCallout" : { "type" : "number"},
-          "canEdit" : { "type" : "boolean"},
-          "filterType" : { "type" : "string"},
-          "isSearchable" : { "type" : "boolean"},
-          "minValue" : { "type" : "number"},
-          "maxValue" : { "type" : "number"},
-          "defaultValue" : { "type" : "number"}
-        }
-      },
-        "Resource":{
-          "type" : "object",
-          "properties": {
-              "url":{ "type" : "string" },
-              "featureTypes" :
-                { "type": "object",
-                      "additionalProperties": {
-                          "$ref": "#/definitions/FeatureType" }
+        "FeatureTypeStyle": {
+            "type": "object",
+            "properties": {
+                "nameLabel": {
+                    "type": "string"
                 },
-                "propertyTypeData" :
-                { "type": "object",
-                      "additionalProperties": {
-                          "$ref": "#/definitions/PropertyType" }
+                "fillColor": {
+                    "type": "string"
+                },
+                "strokeColor": {
+                    "type": "string"
+                },
+                "selectedFillColor": {
+                    "type": "string"
+                },
+                "selectedStrokeColor": {
+                    "type": "string"
+                },
+                "selectedStrokeWidth": {
+                    "type": "number"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "opacity": {
+                    "type": "number"
+                },
+                "fillOpacity": {
+                    "type": "number"
+                },
+                "stroke": {
+                    "type": "number"
+                },
+                "drawingMode": {
+                    "type": "string"
+                },
+                "strokeWidth": {
+                    "type": "number"
+                },
+                "iconWidth": {
+                    "type": "number"
+                },
+                "iconHeight": {
+                    "type": "number"
+                },
+                "iconUri": {
+                    "type": "string"
+                },
+                "cornerRadius": {
+                    "type": "number"
+                },
+                "maxTitleResolution": {
+                    "type": "number"
+                },
+                "rotate": {
+                    "type": "number"
+                },
+                "innerTextProperty": {
+                    "type": "number"
+                },
+                "innerTextSize": {
+                    "type": "number"
+                },
+                "rotateProperty": {
+                    "type": "string"
                 }
-        }
+            }
+        },
+        "FeatureType": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "showAllProperties": {
+                    "type": "boolean"
+                },
+                "style": {
+                    "$ref": "#/definitions/FeatureTypeStyle"
+                },
+                "propertyTypeKeys": {
+                    "type": "string"
+                }
+            }
+        },
+        "PropertyType": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "section": {
+                    "type": "string"
+                },
+                "stringFormat": {
+                    "type": "number"
+                },
+                "visibleInCallout": {
+                    "type": "number"
+                },
+                "canEdit": {
+                    "type": "boolean"
+                },
+                "filterType": {
+                    "type": "string"
+                },
+                "isSearchable": {
+                    "type": "boolean"
+                },
+                "minValue": {
+                    "type": "number"
+                },
+                "maxValue": {
+                    "type": "number"
+                },
+                "defaultValue": {
+                    "type": "number"
+                }
+            }
+        },
+        "Resource": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                },
+                "featureTypes": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/FeatureType"
+                    }
+                },
+                "propertyTypeData": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/PropertyType"
+                    }
+                }
+            }
         },
         "Geometry": {
             "type": "object",
@@ -1198,16 +1281,17 @@
                 },
                 "properties": {
                     "type": "object",
-                      "additionalProperties": {
-                          "type": "object" }
+                    "additionalProperties": {
+                        "type": "object"
+                    }
                 },
                 "logs": {
                     "type": "object",
-                    "additionalProperties" :
-                    {
-                        "type" : "array",
-                        "items" : {
-                        "$ref": "#/definitions/Log"}
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/Log"
+                        }
                     }
                 }
             }
@@ -1237,13 +1321,13 @@
                     "type": "string",
                     "example": "nameOfYourCollection"
                 },
-                "updated" : {
-                    "type" : "number"
+                "updated": {
+                    "type": "number"
                 },
-                "tags" : {
-                    "type" : "array",
-                    "items" : {
-                        "type" : "string"
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     }
                 },
                 "dynamic": {
@@ -1266,31 +1350,33 @@
                     "type": "string",
                     "example": "This is a test"
                 },
-                "defaultFeatureType" : { "type" : "string"},
-                "typeUrl" : {
-                    "type" : "string"
+                "defaultFeatureType": {
+                    "type": "string"
+                },
+                "typeUrl": {
+                    "type": "string"
                 }
             }
         },
-        "Group" : {
-            "type" : "object",
-            "properties" : {
-                "title" : {
-                    "type" : "string"
+        "Group": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
                 },
-                "id" : {
-                    "type" : "string"
+                "id": {
+                    "type": "string"
                 },
-                "description" : {
-                    "type" : "string"
+                "description": {
+                    "type": "string"
                 },
-                "clustering" : {
-                    "type" : "boolean"
+                "clustering": {
+                    "type": "boolean"
                 },
-                "layers" : {
-                    "type" : "array",
-                    "items" : {
-                        "$ref" : "#/definitions/Layer"
+                "layers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Layer"
                     }
                 }
             }
