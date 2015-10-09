@@ -109,8 +109,10 @@ export interface IConnector {
     deleteProject(projectId: string, meta: ApiMeta, callback: Function);
     allGroups(projectId: string, meta: ApiMeta, callback: Function);
 
+    /** Add a resource type file to the store. */
     addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
-    addFile(b64: string, folder: string, file: string, meta: ApiMeta, callback: Function);
+    /** Add a file to the store, e.g. an icon or other media. */
+    addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function);
 
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
@@ -426,16 +428,14 @@ export class ApiManager extends events.EventEmitter {
         });
     }
 
-    addFile(b64: string, folder: string, file: string, meta: ApiMeta, callback: Function) {
-        var s;
-        if (this.connectors.hasOwnProperty('file')) {
-            s = this.connectors['file'];
-        }
+    /** Add a file to the store, e.g. an icon or other media. */
+    public addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
+        var s: IConnector = this.connectors.hasOwnProperty('file') ? this.connectors['file'] : null;
         if (s) {
-            s.addFile(b64, folder, file, meta, () => { });
-            callback(<CallbackResult>{ result: ApiResult.OK, error: "Icon added" });
-        } else {
+            s.addFile(base64, folder, file, meta, () => { });
             callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
+        } else {
+            callback(<CallbackResult>{ result: ApiResult.Error, error: "Failed to add resource." });
         }
     }
 
@@ -703,7 +703,7 @@ export class ApiManager extends events.EventEmitter {
         if (!layer.hasOwnProperty('type')) layer.type = "geojson";
         var server = '';
         if (this.options.host && this.options.port) {
-            server = `${this.options.host}:${this.options.port}`;
+            server = `${this.options.host}:${this.options.port}/`;
         }
         var r = <Layer> {
             id: layer.id,
@@ -715,13 +715,14 @@ export class ApiManager extends events.EventEmitter {
             description: layer.description,
             dynamicResource: layer.dynamicResource,
             defaultFeatureType: layer.defaultFeatureType,
+            defaultLegendProperty: layer.defaultLegendProperty,
             typeUrl: layer.typeUrl,
             opacity: layer.opacity ? layer.opacity : 75,
             type: layer.type,
             // We are returning a definition, so remove the data
             features: [],
             storage: layer.storage ? layer.storage : "",
-            url: layer.url ? layer.url : (server + "/api/layers/" + layer.id),
+            url: layer.url ? layer.url : (server + "api/layers/" + layer.id),
             isDynamic: layer.isDynamic ? layer.isDynamic : false
         };
         return r;

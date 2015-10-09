@@ -61,7 +61,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         //   console.log('received', topic, message, params);
         // });
         this.client.on('message', (topic: string, message: string) => {
-Winston.error(`mqtt on message: ${topic}.`);
+            Winston.info(`mqtt on message: ${topic}.`);
             if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
             // listen to layer updates
             if (topic === this.layerPrefix) {
@@ -72,20 +72,36 @@ Winston.error(`mqtt on message: ${topic}.`);
                 }
             }
             else if (topic.indexOf(this.layerPrefix) === 0) {
-                var lid = topic.substring(this.layerPrefix.length, topic.length);
-                try {
-                    var layer = <Layer>JSON.parse(message);
-                    if (layer) {
-                        Winston.info('mqtt: update feature for layer ' + lid);
+                // We are either dealing with a layer update, or a feature update.
+                // In the first case, the channel will be this.layerPrefix/layerId,
+                // otherwise, it will be this.layerPrefix/layerId/feature/featureId.
+                // So try to extract both. If there is only one, we are dealing a layer update.
+                var ids = topic.substring(this.layerPrefix.length, topic.length).split('/feature/');
+                var layerId = ids[0];
+                if (ids.length === 1) {
+                    try {
+                        var layer = <Layer>JSON.parse(message);
+                        if (layer) {
+                            Winston.info(`mqtt: update layer ${layerId}`);
                         this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
+                        }
+                    } catch (e) {
+                        Winston.error(`mqtt: error updating layer, exception ${e}`);
+                    }
+                } else {
+                    try {
+                        var featureId = ids[1];
+                        var feature = <Feature>JSON.parse(message);
+                        if (feature) {
+                            Winston.info(`mqtt: update feature ${featureId} for layer {layerId}.`);
+                            this.manager.updateFeature(layerId, feature, <ApiMeta>{ source: this.id }, () => { });
+                        }
+                    } catch (e) {
+                        Winston.error(`mqtt: error updating feature, exception ${e}`);
                     }
                 }
-                catch (e) {
-                    Winston.error(`mqtt: error updating feature, exception ${e}`);
-                }
             }
-
-            if (topic.indexOf(this.keyPrefix) === 0) {
+            else if (topic.indexOf(this.keyPrefix) === 0) {
                 var kid = topic.substring(this.keyPrefix.length, topic.length).replace(/\//g,'.');
                 if (kid) {
                     try {
@@ -139,7 +155,7 @@ Winston.error(`mqtt on message: ${topic}.`);
 
     public addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
         if (meta.source !== this.id) {
-            this.client.publish(this.layerPrefix + layerId, JSON.stringify(feature));
+            this.client.publish(`${this.layerPrefix}${layerId}/feature/${feature.id}`, JSON.stringify(feature));
         }
         callback(<CallbackResult> { result: ApiResult.OK });
     }
@@ -148,7 +164,9 @@ Winston.error(`mqtt on message: ${topic}.`);
         Winston.info('mqtt: update layer ' + layer.id);
         if (meta.source !== this.id) {
             var def = this.manager.getLayerDefinition(layer);
+            // Send the layer definition to everyone
             this.client.publish(this.layerPrefix, JSON.stringify(def));
+            // And place all the data only on the specific layer channel
             this.client.publish(this.layerPrefix + layer.id, JSON.stringify(layer));
         }
         callback(<CallbackResult> { result: ApiResult.OK });
