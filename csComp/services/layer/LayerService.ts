@@ -1613,6 +1613,18 @@ module csComp.Services {
         }
 
         /**
+         * Find a feature type by its ID (of the format "featuretypeurl + # + featuretypename").
+         * If it does not exist, return null.
+         */
+        getFeatureTypeById(featureTypeId: string): IFeatureType {
+            if (this._featureTypes.hasOwnProperty(featureTypeId)){
+                return this._featureTypes[featureTypeId];
+            } else {
+                return;
+            }
+        }
+
+        /**
          * Return the feature style for a specific feature.
          * First, look for a layer specific feature type, otherwise, look for a project-specific feature type.
          * In case both fail, create a default feature type at the layer level.

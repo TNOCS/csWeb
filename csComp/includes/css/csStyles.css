@@ -416,8 +416,11 @@ html, body, #container {
 .popover-content {
     margin-left: 10px;
 }
+.legend {
+    display: table;
+}
 .legendItem {
-    clear: both;
+    display: table-row;
     padding-top: 10px;
 }
 .legendImage {
@@ -447,8 +450,8 @@ html, body, #container {
     margin-top: 3px;
     margin-left: 5px;
     float: inherit;
-    position: absolute;
-    width: 200px;
+    position: relative;
+    width: 180px;
 }
 .widget-parent {
     display: block;
