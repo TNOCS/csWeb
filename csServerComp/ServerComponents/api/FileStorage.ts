@@ -38,7 +38,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     constructor(public rootpath: string) {
         super();
-        this.receiveCopy = false;  
+        this.receiveCopy = false;
         this.keysPath = path.join(rootpath, "keys/");
         this.layersPath = path.join(rootpath, "layers/");
         this.projectsPath = path.join(rootpath, "projects/");
@@ -367,7 +367,6 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     public getProject(projectId: string, meta: ApiMeta, callback: Function) {
-
         if (this.projects.hasOwnProperty(projectId)) {
             callback(<CallbackResult>{ result: ApiResult.OK, project: this.projects[projectId] });
         }
