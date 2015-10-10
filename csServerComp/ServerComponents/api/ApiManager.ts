@@ -27,10 +27,8 @@ export enum ApiResult {
 }
 
 export interface IApiManagerOptions {
-    /** Host name */
-    host?: string;
-    /** Port name */
-    port?: number;
+    /** Host:port name */
+    server?: string;
     /** Specify what MQTT should subscribe to */
     mqttSubscriptions?: string[];
     [key: string]: any;
@@ -178,10 +176,8 @@ export class KeySubscription {
  * Geojson Layer definition
  */
 export class Layer implements StorageObject {
-    /** Host name */
-    public host: string;
-    /** Port name */
-    public port: number;
+    /** Server of the layer, needed for remote synchronization */
+    public server: string;
     /**
      * id of storage connector
      */
@@ -316,6 +312,12 @@ export class ApiManager extends events.EventEmitter {
         super();
         this.namespace = namespace;
         this.name = name;
+        if (this.options.server) {
+            // If we do not specify the protocal, add it
+            if (this.options.server.indexOf('http') < 0) this.options.server = 'http://' + this.options.server;
+            // If we specify the trailing slash, remove it
+            if (this.options.server.slice(-1) === '/') this.options.server = this.options.server.slice(0,-1);
+        }
     }
 
     public init(rootPath: string, callback: Function) {
@@ -394,7 +396,10 @@ export class ApiManager extends events.EventEmitter {
      */
     public saveLayerConfig() {
         var temp = {};
-        for (var s in this.layers) if (!this.layers[s].storage) temp[s] = this.layers[s];
+        for (var s in this.layers) {
+            if (!this.layers[s].storage) temp[s] = this.layers[s];
+        }
+        if (!temp) return;
         fs.writeFile(this.layersFile, JSON.stringify(temp), (error) => {
             if (error) {
                 Winston.info('manager: error saving layer config');
@@ -701,15 +706,11 @@ export class ApiManager extends events.EventEmitter {
      */
     public getLayerDefinition(layer: Layer): Layer {
         if (!layer.hasOwnProperty('type')) layer.type = "geojson";
-        var server = '';
-        if (this.options.host && this.options.port) {
-            server = `${this.options.host}:${this.options.port}/`;
-        }
+        var server = this.options.server || '';
         var r = <Layer> {
+            server: server,
             id: layer.id,
             title: layer.title,
-            host: this.options.host,
-            port: this.options.port,
             updated: layer.updated,
             enabled: layer.enabled,
             description: layer.description,
@@ -721,16 +722,14 @@ export class ApiManager extends events.EventEmitter {
             type: layer.type,
             // We are returning a definition, so remove the data
             features: [],
-            storage: layer.storage ? layer.storage : "",
-            url: layer.url ? layer.url : (server + "api/layers/" + layer.id),
+            storage: layer.storage ? layer.storage : '',
+            url: layer.url ? layer.url : (server + "/api/layers/" + layer.id),
             isDynamic: layer.isDynamic ? layer.isDynamic : false
         };
         return r;
     }
 
     //layer methods start here, in CRUD order.
-
-
 
     public getProject(projectId: string, meta: ApiMeta, callback: Function) {
         Winston.debug('Looking for storage of project ' + projectId);
@@ -768,9 +767,9 @@ export class ApiManager extends events.EventEmitter {
         if (!layer.hasOwnProperty('tags')) layer.tags = [];
         this.setUpdateLayer(layer, meta);
         Winston.info('api: add layer ' + layer.id);
-        var s = this.findStorage(layer);
         // check if layer already exists
         if (!this.layers.hasOwnProperty(layer.id)) {
+            let s = this.findStorage(layer);
             // add storage connector if available
             layer.storage = s ? s.id : "";
 
@@ -788,7 +787,6 @@ export class ApiManager extends events.EventEmitter {
             } else {
                 callback(<CallbackResult>{ result: ApiResult.OK });
             }
-
         }
         else {
             Winston.error(`Error: layer ${layer.title} (id: ${layer.id}) already exists!`);
@@ -817,7 +815,7 @@ export class ApiManager extends events.EventEmitter {
                     i.updateLayer(layer, meta, () => { });
                 });
 
-                var s = this.findStorageForLayerId(layer.id);
+                var s = this.findStorage(layer);
                 if (s && s.id != meta.source) {
                     s.updateLayer(layer, meta, (r, CallbackResult) => {
                         Winston.warn('updating layer finished');
@@ -1087,7 +1085,7 @@ export class ApiManager extends events.EventEmitter {
         }
 
         this.getInterfaces(meta).forEach((i: IConnector) => {
-            Winston.info('updatekey:send to ' + i.id);
+            //Winston.info('updatekey:send to ' + i.id);
             i.updateKey(keyId, value, meta, () => { });
         });
 
