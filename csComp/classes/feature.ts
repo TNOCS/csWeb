@@ -212,6 +212,7 @@ module csComp.Services {
         id?: string;
         name?: string;
         style?: IFeatureTypeStyle;
+        legendItems?: LegendList.ILegendItem[];
         properties?: {};
         propertyTypeData?: IPropertyType[];
         showAllProperties?: boolean;
