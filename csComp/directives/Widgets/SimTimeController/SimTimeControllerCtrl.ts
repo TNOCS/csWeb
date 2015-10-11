@@ -121,15 +121,22 @@ module SimTimeController {
                 return true;
             });
 
-            messageBusService.serverSubscribe('Sim.SimTime.', 'key', (title: string, msg: any) => {
+            messageBusService.serverSubscribe('Sim.SimTime', 'key', (title: string, msg: any) => {
                 console.log(`Server subscription received: ${title}, ${JSON.stringify(msg, null, 2) }.`);
                 if (!msg
                     || !msg.hasOwnProperty('data')
                     || !msg.data.hasOwnProperty('item')
                     || !msg.data.item) return;
                 this.$timeout(() => {
-                    this.time = new Date(msg.data.item);
-                    messageBusService.publish('timeline', 'setFocus', this.time);
+                    if (msg.data.item.hasOwnProperty('simTime'))
+                        this.time = new Date(+msg.data.item.simTime);
+                    else
+                        this.time = new Date(msg.data.item);
+                    if (!isNaN(this.time.getTime())) {
+                        messageBusService.publish('timeline', 'setFocus', this.time);
+                    } else {
+                        console.log(`ERROR processing Sim.SimTime message! Received: (input: ${JSON.stringify(msg.data.item, null, 2)}`)
+                    }
                     //console.log(`TIME: ${this.time} (input: ${JSON.stringify(data.data.item, null, 2)})`);
                 }, 0);
             })
