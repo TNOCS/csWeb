@@ -61,15 +61,57 @@ module LegendList {
             $scope.numberOfItems = 10;  // This is being reset in the directive upon receiving a resize.
         }
 
-        // Two approaches for creating a legend can be used:
-        // 1. Using the featureTypes loaded in LayerService, which is quick, but also includes items that are not on the list.
-        //    Also, when deactivating the layer, items persist in the legendlist. Finally, items with an icon based on a property
-        //    are only shown once (e.g., houses with energylabels).
-        // 2. Second approach is to loop over all features on the map and select unique legend items. This is slower for large
-        //    amounts of features, but the items in the legendlist are always complete and correct.
-        // For 1. use "updateLegendItemsUsingFeatureTypes()", for 2. use "updateLegendItemsUsingFeatures()"
+        /**
+         * Three approaches for creating a legend can be used:
+         * 1. Using the featureTypes loaded in LayerService, which is quick, but also includes items that are not on the list.
+         *    Also, when deactivating the layer, items persist in the legendlist. Finally, items with an icon based on a property
+         *    are only shown once (e.g., houses with energylabels).
+         * 2. Second approach is to loop over all features on the map and select unique legend items. This is slower for large
+         *    amounts of features, but the items in the legendlist are always complete and correct.
+         * 3. Third approach is to use a legend that is defined in a featuretype. This is useful if you want to show a custom legend.
+         * For 1. use "updateLegendItemsUsingFeatureTypes()", for 2. use "updateLegendItemsUsingFeatures(), for 3. use "updateLegendStatically()"
+         */
         private updateLegendItems() {
-            this.updateLegendItemsUsingFeatures()
+            //this.updateLegendItemsUsingFeatureTypes(); // 1.
+            this.updateLegendItemsUsingFeatures(); // 2.
+            //this.updateLegendStatically(); // 3.
+        }
+
+        /**
+         * Loops over every layer in the project. If a layer is enabled, has a typeUrl and a defaultFeatureType,
+         * that corresponding featureType is acquired. When the featureType has a property 'legend' in which legenditems are defined,
+         * these items are added to the legend.
+         * Example definition in the FeatureType:
+         * "MyFeatureType" : {
+         *   "legendItems" : [{
+         *     "title" : "My feature",
+         *     "uri" : "images/myicon.png"
+         *   }]
+         * }
+         */
+        private updateLegendStatically() {
+            var project = this.$layerService.project;
+            if (!project) return;
+            if (!project.hasOwnProperty('groups')) { console.log('Creating legend failed: no groups found'); return; }
+            var legendItems: Array<ILegendItem> = [];
+            var processedFeatureTypes = {};
+            project.groups.forEach((g) => {
+                if (g.hasOwnProperty('layers')) {
+                    g.layers.forEach((l) => {
+                        if (l.enabled && l.hasOwnProperty('typeUrl') && l.hasOwnProperty('defaultFeatureType')) {
+                            var typeName = l.typeUrl + "#" + l.defaultFeatureType;
+                            var fType = this.$layerService.getFeatureTypeById(typeName);
+                            if (!processedFeatureTypes.hasOwnProperty(typeName) && fType && fType.hasOwnProperty('legendItems')) {
+                                fType['legendItems'].forEach((i) => {
+                                    legendItems.push({title: i.title, uri: i.uri || '', html: i.html || ''});
+                                });
+                            }
+                            processedFeatureTypes[typeName] = true;
+                        }
+                    })
+                }
+            })
+            this.$scope.legendItems = legendItems;
         }
 
         private updateLegendItemsUsingFeatureTypes() {
