@@ -253,19 +253,33 @@ module csComp.Services {
             switch (this.gridParams.projection || 'wgs84') {
                 case 'rd':
                 case 'RD':
-                    var startLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat, this.gridParams.startLat);
+                    var startLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLon, this.gridParams.startLat - this.gridParams.rows*this.gridParams.deltaLat);
                     if (isCenter) {
-                        var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat + this.gridParams.columns*this.gridParams.deltaLon/2, this.gridParams.startLat + this.gridParams.rows*this.gridParams.deltaLat/2);
-                        this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / (this.gridParams.columns/2);
-                        this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / (this.gridParams.rows/2);
+                        throw new Error('TODO: Never tested isCenter');
+                        // var endLoc = Helpers.GeoJSON.GeoExtensions.convertRDToWGS84(this.gridParams.startLon + this.gridParams.columns*gridParams.deltaLon/2, gridParams.startLat);
+                        // this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / (this.gridParams.columns/2);
+                        // this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / (this.gridParams.rows/2);
                     } else {
-                        var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat + this.gridParams.columns*this.gridParams.deltaLon, this.gridParams.startLat + this.gridParams.rows*this.gridParams.deltaLat);
+                        var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLon + this.gridParams.columns*this.gridParams.deltaLon, this.gridParams.startLat);
                         this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / this.gridParams.columns;
                         this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / this.gridParams.rows;
                     }
-                    this.gridParams.startLon = startLoc.longitude;
-                    this.gridParams.startLat = startLoc.latitude;
-                    break;
+                    this.gridParams.startLon = startLoc.longitude + this.gridParams.deltaLon;
+                    this.gridParams.startLat = startLoc.latitude + this.gridParams.deltaLat;
+                    // var startLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat, this.gridParams.startLat);
+                    // if (isCenter) {
+                    //     throw new Error('TODO converting gridParams for isCenter')
+                    //     var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat + this.gridParams.columns*this.gridParams.deltaLon/2, this.gridParams.startLat + this.gridParams.rows*this.gridParams.deltaLat/2);
+                    //     this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / (this.gridParams.columns/2);
+                    //     this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / (this.gridParams.rows/2);
+                    // } else {
+                    //     var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat + this.gridParams.columns*this.gridParams.deltaLon, this.gridParams.startLat + this.gridParams.rows*this.gridParams.deltaLat);
+                    //     this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / this.gridParams.columns;
+                    //     this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / this.gridParams.rows;
+                    // }
+                    // this.gridParams.startLon = startLoc.longitude;
+                    // this.gridParams.startLat = startLoc.latitude;
+                    // break;
                 case 'WGS84':
                 case 'wgs84':
                     break;
