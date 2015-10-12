@@ -151,6 +151,8 @@
         "./directives/Widgets/Indicators/Indicators-edit.ts",
         "./directives/Widgets/Indicators/Indicators.ts",
         "./directives/Widgets/Indicators/IndicatorsCtrl.ts",
+        "./directives/Widgets/MCAWidget/MCAWidget.ts",
+        "./directives/Widgets/MCAWidget/MCAWidgetCtrl.ts",
         "./directives/Widgets/MarkdownWidget/Markdown-edit.ts",
         "./directives/Widgets/MarkdownWidget/MarkdownWidget.ts",
         "./directives/Widgets/MarkdownWidget/MarkdownWidgetCtrl.ts",

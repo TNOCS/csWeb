@@ -13,7 +13,9 @@ module Translations {
             CHOOSE_DROPDOWN: 'Choose...',
             ENABLE_LOCATION_FILTER: 'Enable location filter',
             DISABLE_LOCATION_FILTER: 'Disable location filter',
+            SELECT_A_FEATURE: 'Select a feature',
             SELECT_FEATURE_FOR_WIDGET: 'Please select a feature to show the widget.',
+            SELECT_FEATURE_FOR_STYLE: 'Please select a feature to before setting the style.',
             NO_RELATIONS_FOUND: 'No relations can be shown for the selected feature. Either the zoom level is too low, there are too many features in the view or there are no relations defined.',
             BASESTYLES: 'Baselayers',
             MAP: 'Maps',
@@ -132,7 +134,8 @@ module Translations {
                 GAUSSIAN: 'Normal distribution increasing function between min and max.',
                 ADD_MCA: 'Add a new MCA.',
                 DELETE_MCA: 'Delete the MCA.',
-                EDIT_MCA: 'Edit the MCA.'
+                EDIT_MCA: 'Edit the MCA.',
+                SET_STYLE: 'Set style'
             },
             PROJECTSETTINGS: {
                 TITLE: 'Project Settings',
