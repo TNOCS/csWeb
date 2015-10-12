@@ -77,13 +77,13 @@ export interface IConnector {
     /** If true (default), the manager will send a copy to the source (receiving) connector */
     receiveCopy: boolean;
     init(layerManager: ApiManager, options: any);
-    initLayer(layer: Layer, meta?: ApiMeta);
+    initLayer(layer: ILayer, meta?: ApiMeta);
     initProject(project: Project, meta?: ApiMeta);
 
     //Layer methods
-    addLayer(layer: Layer, meta: ApiMeta, callback: Function);
+    addLayer(layer: ILayer, meta: ApiMeta, callback: Function);
     getLayer(layerId: string, meta: ApiMeta, callback: Function);
-    updateLayer(layer: Layer, meta: ApiMeta, callback: Function);
+    updateLayer(layer: ILayer, meta: ApiMeta, callback: Function);
     deleteLayer(layerId: string, meta: ApiMeta, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function);
@@ -110,7 +110,7 @@ export interface IConnector {
     /** Add a resource type file to the store. */
     addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
     /** Add a file to the store, e.g. an icon or other media. */
-    addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function);
+    addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function);
 
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
@@ -170,6 +170,36 @@ export class KeySubscription {
     /** Regex safe variant of the pattern, i.e. the . is replaced with a \. */
     regexPattern: RegExp;
     callback: Function;
+}
+
+/**
+ * Geojson ILayer definition
+ */
+export interface ILayer extends StorageObject {
+    /** Server of the layer, needed for remote synchronization */
+    server?: string;
+    /**
+     * id of storage connector
+     */
+    useLog?: boolean;
+    updated?: number;
+    enabled?: boolean;
+    opacity?: number;
+    id: string;
+    type?: string;
+    dynamic?: boolean;
+    title?: string;
+    image?: string;
+    description?: string;
+    url?: string;
+    typeUrl?: string;
+    defaultFeatureType?: string;
+    defaultLegendProperty?: string;
+    dynamicResource?: boolean;
+    tags?: string[];
+    isDynamic?: boolean;
+    features?: Feature[];
+    [key: string]: any;
 }
 
 /**
@@ -281,7 +311,7 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Dictionary of layers (doesn't contain actual data)
      */
-    public layers: { [key: string]: Layer } = {};
+    public layers: { [key: string]: ILayer } = {};
 
     /**
      * Dictionary of projects (doesn't contain actual data)
@@ -316,7 +346,7 @@ export class ApiManager extends events.EventEmitter {
             // If we do not specify the protocal, add it
             if (this.options.server.indexOf('http') < 0) this.options.server = 'http://' + this.options.server;
             // If we specify the trailing slash, remove it
-            if (this.options.server.slice(-1) === '/') this.options.server = this.options.server.slice(0,-1);
+            if (this.options.server.slice(-1) === '/') this.options.server = this.options.server.slice(0, -1);
         }
     }
 
@@ -373,7 +403,7 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Have a 1 sec. delay before saving layer config
      */
-    public saveLayersDelay = _.debounce((layer: Layer) => {
+    public saveLayersDelay = _.debounce((layer: ILayer) => {
         this.saveLayerConfig();
     }, 1000);
 
@@ -434,7 +464,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     /** Add a file to the store, e.g. an icon or other media. */
-    public addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
+    public addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function) {
         var s: IConnector = this.connectors.hasOwnProperty('file') ? this.connectors['file'] : null;
         if (s) {
             s.addFile(base64, folder, file, meta, () => { });
@@ -472,7 +502,7 @@ export class ApiManager extends events.EventEmitter {
 
     public addLayerToProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {
         var p: Project = this.findProject(projectId);
-        var l: Layer = this.findLayer(layerId);
+        var l: ILayer = this.findLayer(layerId);
         if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
         if (!l) { callback(<CallbackResult>{ result: ApiResult.LayerNotFound, error: "Layer not found" }); return; }
         if (!p.groups) p.groups = [];
@@ -602,7 +632,7 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Find layer for a specific layerId (can return null)
      */
-    public findLayer(layerId: string): Layer {
+    public findLayer(layerId: string): ILayer {
         if (this.layers.hasOwnProperty(layerId)) {
             return this.layers[layerId];
         }
@@ -704,10 +734,10 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Returns layer definition for a layer, this is the layer without the features (mostly used for directory)
      */
-    public getLayerDefinition(layer: Layer): Layer {
+    public getLayerDefinition(layer: ILayer): ILayer {
         if (!layer.hasOwnProperty('type')) layer.type = "geojson";
         var server = this.options.server || '';
-        var r = <Layer> {
+        var r = <ILayer>{
             server: server,
             id: layer.id,
             title: layer.title,
@@ -726,6 +756,10 @@ export class ApiManager extends events.EventEmitter {
             url: layer.url ? layer.url : (server + "/api/layers/" + layer.id),
             isDynamic: layer.isDynamic ? layer.isDynamic : false
         };
+        // Copy additional properties too.
+        for (var key in layer) {
+            if (layer.hasOwnProperty(key) && !r.hasOwnProperty(key)) r[key] = layer[key];
+        }
         return r;
     }
 
@@ -756,7 +790,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     /** Create a new layer, store it, and return it. */
-    public createLayer(layer: Layer, meta: ApiMeta, callback: (result: CallbackResult) => void) {
+    public createLayer(layer: ILayer, meta: ApiMeta, callback: (result: CallbackResult) => void) {
         // give it an id if not available
         if (!layer.hasOwnProperty('id')) layer.id = helpers.newGuid();
         // make sure layerid is lowercase
@@ -778,7 +812,7 @@ export class ApiManager extends events.EventEmitter {
 
             this.getInterfaces(meta).forEach((i: IConnector) => {
                 i.initLayer(layer);
-            //    i.addLayer(layer, meta, () => { });
+                //    i.addLayer(layer, meta, () => { });
             });
 
             // store layer
@@ -794,7 +828,7 @@ export class ApiManager extends events.EventEmitter {
         }
     }
 
-    public addUpdateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+    public addUpdateLayer(layer: ILayer, meta: ApiMeta, callback: Function) {
         async.series([
             // make sure layer exists
             (cb: Function) => {
@@ -908,7 +942,7 @@ export class ApiManager extends events.EventEmitter {
         return res;
     }
 
-    private setUpdateLayer(layer: Layer, meta: ApiMeta) {
+    private setUpdateLayer(layer: ILayer, meta: ApiMeta) {
         layer.updated = new Date().getTime();
     }
 
