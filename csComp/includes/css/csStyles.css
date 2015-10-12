@@ -846,6 +846,12 @@ html, body, #container {
 .panel-heading:hover .icons-on-hover {
     display: block;
 }
+#featureprops-content:before {
+    display: block;
+    content: "";
+    height: 50px;
+    margin: -50px 0 0;
+}
 #featureprops-content:hover leftpanel-header-button-container {
     opacity: 0.5;
 }
