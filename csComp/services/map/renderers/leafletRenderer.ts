@@ -471,8 +471,16 @@ module csComp.Services {
                         var menu: any = $("#map-contextmenu");
                         button.dropdown('toggle');
                         var mapSize = this.map.getSize();
-                        menu.css("left", e.originalEvent.x + 5);
-                        menu.css("top", e.originalEvent.y - 35);
+                        if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
+                            menu.css("left", e.originalEvent.x + 5);
+                        } else {
+                            menu.css("left", e.originalEvent.x - 5 - menu.width());
+                        }
+                        if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
+                            menu.css("top", e.originalEvent.y - 35);
+                        } else {
+                            menu.css("top", e.originalEvent.y - 70 - menu.height());
+                        }
                         if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
                     });
 
@@ -502,8 +510,16 @@ module csComp.Services {
                         var menu: any = $("#map-contextmenu");
                         button.dropdown('toggle');
                         var mapSize = this.map.getSize();
-                        menu.css("left", e.originalEvent.x + 5);
-                        menu.css("top", e.originalEvent.y - 35);
+                        if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
+                            menu.css("left", e.originalEvent.x + 5);
+                        } else {
+                            menu.css("left", e.originalEvent.x - 5 - menu.width());
+                        }
+                        if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
+                            menu.css("top", e.originalEvent.y - 35);
+                        } else {
+                            menu.css("top", e.originalEvent.y - 70 - menu.height());
+                        }
                         if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
                     });
 
