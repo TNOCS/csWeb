@@ -8,15 +8,17 @@ module csComp.Services {
                 legend.push({ val: level, color: ColorExt.Utils.toColor(level, levels[0], levels[levels.length - 1], 180, 240) });
             }
 
+            var gridParams = <IGridDataSourceParameters>layer.dataSourceParameters;
+
             var overlay = L.canvasOverlay(GridLayerRenderer.drawFunction, {
-                // data: data,
-                noDataValue: -9999,
-                topLeftLat: 51.99990035800966,
-                topLeftLon: 4.624149821641468,
-                deltaLat: -0.0008877220420775024,
-                deltaLon: 0.0014584581460220312,
+                data: layer.data,
+                noDataValue: gridParams.noDataValue,
+                topLeftLat: gridParams.startLat,
+                topLeftLon: gridParams.startLon,
+                deltaLat: gridParams.deltaLat,
+                deltaLon: gridParams.deltaLon,
                 legend: legend,
-                opacity: 0.6
+                opacity: layer.opacity/100
             });
 
             layer.mapLayer = new L.LayerGroup<L.ILayer>();

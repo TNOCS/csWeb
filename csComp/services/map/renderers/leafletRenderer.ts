@@ -103,30 +103,6 @@ module csComp.Services {
             switch (layer.renderType) {
                 case "geojson":
                     GeojsonRenderer.remove(this.service, layer);
-                    // var g = layer.group;
-                    // //m = layer.group.vectors;
-                    // if (g.clustering) {
-                    //     var m = g.cluster;
-                    //     this.service.project.features.forEach((feature: IFeature) => {
-                    //         if (feature.layerId === layer.id) {
-                    //             try {
-                    //                 m.removeLayer(layer.group.markers[feature.id]);
-                    //                 delete layer.group.markers[feature.id];
-                    //             } catch (error) { }
-                    //         }
-                    //     });
-                    // } else {
-                    //     this.service.project.features.forEach((feature: IFeature) => {
-                    //         if (feature.layerId === layer.id && layer.group.markers.hasOwnProperty(feature.id)) {
-                    //             delete layer.group.markers[feature.id];
-                    //         }
-                    //     });
-                    //     if (this.service.map.map && layer.mapLayer) {
-                    //         try {
-                    //             this.service.map.map.removeLayer(layer.mapLayer);
-                    //         } catch (error) { }
-                    //     }
-                    // }
                     break;
                 default:
                     if (this.service.map.map && layer.mapLayer) this.service.map.map.removeLayer(layer.mapLayer);
@@ -160,6 +136,7 @@ module csComp.Services {
 
             return layer;
         }
+
         private getLeafletStyle(style: IFeatureTypeStyle) {
             var s = {
                 fillColor: style.fillColor,
@@ -185,7 +162,7 @@ module csComp.Services {
                     WmsRenderer.render(this.service, layer);
                     break;
                 case "gridlayer":
-                    
+                    GridLayerRenderer.render(this.service, layer);
                     break;
                 case "heatmap":
                     HeatmapRenderer.render(this.service, layer, this);
