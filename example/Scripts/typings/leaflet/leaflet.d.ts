@@ -4,6 +4,107 @@
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
 declare module L {
+    export class MapMarker extends Marker {
+    }
+}
+
+// EV Added this block to obtain intellisense for the MarkerCluster library.
+declare module L {
+    export interface IMarkerClusterOptions {
+        /**
+         * When you mouse over a cluster it shows the bounds of its markers.
+         */
+        showCoverageOnHover?: boolean;
+        /**
+         * When you click a cluster we zoom to its bounds.
+         */
+        zoomToBoundsOnClick?: boolean;
+        /**
+         * When you click a cluster at the bottom zoom level we spiderfy it so you can see all of its markers.
+         */
+        spiderfyOnMaxZoom?: boolean;
+        /**
+         * Clusters and markers too far from the viewport are removed from the map for performance.
+         */
+        removeOutsideVisibleBounds?: boolean;
+        /**
+         * If set to true then adding individual markers to the MarkerClusterGroup after it has been added to the map will add the marker and animate it in to the cluster. Defaults to false as this gives better performance when bulk adding markers. addLayers does not support this, only addLayer with individual Markers.
+         */
+        animateAddingMarkers?: boolean;
+        /**
+         * If set, at this zoom level and below markers will not be clustered. This defaults to disabled.
+         */
+        disableClusteringAtZoom?: number;
+    /**
+       * If set to true, overrides the icon for all added markers to make them appear as a 1 size cluster
+       */
+        singleMarkerMode?: boolean;
+        /**
+         * The maximum radius that a cluster will cover from the central marker (in pixels). Default 80. Decreasing will make more smaller clusters. You can also use a function that accepts the current map zoom and returns the maximum cluster radius in pixels.
+         */
+        maxClusterRadius?: ((number) => number) | number;
+        /**
+         *  Increase from 1 to increase the distance away from the center that spiderfied markers are placed. Use if you are using big marker icons (Default:1)
+      * L.Class powers the OOP facilities of Leaflet and is used to create
+      * almost all of the Leaflet classes documented.
+      */
+        spiderfyDistanceMultiplier?: number;
+        /**
+         * Function used to create the cluster icon See default as example.
+          * You use L.Class.extend to define new classes, but you can use the
+          * same method on any class to inherit from it.
+          */
+        iconCreateFunction ?: any;
+    }
+
+    /**
+     * Marker cluster group to cluster items
+     */
+    export class MarkerClusterGroup extends L.Control {
+        constructor(options?: IMarkerClusterOptions);
+        /**
+         * Adds the markers.
+         */
+        addLayer(layer: ILayer): void;
+        /**
+         * Adds the markers in the given array from the MarkerClusterGroup in an efficent bulk method.
+         */
+        addLayers(layers: Array<ILayer>): void;
+        /**
+         * Returns true if the given layer(marker) is in the MarkerClusterGroup
+         */
+        hasLayer(layer: ILayer): boolean;
+        /**
+         * Zooms to show the given marker (spidifying if required), calls the callback when the marker is visible on the map
+         */
+        zoomToShowLayer(layer: ILayer, callback: any): void;
+        /**
+         * Removes the markers in the given array from the MarkerClusterGroup in an efficent bulk method.
+         */
+        removeLayers(layers: Array<ILayer>): void;
+        /**
+         * Clear all layers.
+         */
+        clearLayers(): void;
+        /**
+         * Remove a layer.
+         */
+        removeLayer(layer: ILayer): void;
+
+        on;
+    }
+}
+
+declare module L {
+    export class LocationFilter {
+        constructor(options: any);
+        on(type: string, fn: (e) => void, context?: any);
+        addTo(map: Map): LocationFilter;
+        enable(): void;
+        disable(): void;
+        isEnabled(): boolean;
+        getBounds(): LatLngBounds;
+    }
     type LatLngExpression = LatLng | number[] | ({ lat: number; lng: number })
     type LatLngBoundsExpression = LatLngBounds | LatLngExpression[];
 }
