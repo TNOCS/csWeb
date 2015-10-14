@@ -361,13 +361,7 @@ module csComp.Services {
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
             var res: [[string, Function]] = [
                 ["Fit map", (($itemScope) => this.fitMap(layer))]
-            ];
-            if (layer.gui["editing"]) {
-                res.push(["Stop editing items", (($itemScope) => this.stopAddingFeatures(layer))]);
-            }
-            else {
-                res.push(["Add items", (($itemScope) => this.startAddingFeatures(layer))]);
-            }
+            ];            
             return res;
         }
 

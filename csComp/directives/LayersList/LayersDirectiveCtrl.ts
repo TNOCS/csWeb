@@ -78,11 +78,25 @@ module LayersDirective {
 
         public createType()
         {
-            if (!this.layer.typeUrl)
+            if (this.layer.typeUrl)
             {
-                if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl));
-                var tr = this.$layerService.typesResources[this.layer.typeUrl];
-                console.log(tr);
+                if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl))
+                {
+                    var tr = this.$layerService.typesResources[this.layer.typeUrl];
+                    var st = <csComp.Services.IFeatureTypeStyle>{
+                        drawingMode : 'point',
+                        fillColor : 'red'
+                    };
+                    var nt = <csComp.Services.IFeatureType>{
+                        id : 'test', name : 'test', style :  st
+                    }
+                    var id = nt.id;
+                    tr.featureTypes[id] = nt;
+
+                    console.log(tr);
+                }
+
+
             }
         }
 
@@ -302,7 +316,7 @@ module LayersDirective {
 
                 /// create layer on server
                 if (this.newLayer.type === "dynamicgeojson") {
-                    this.newLayer.url = "api/layers/" + nl.id;
+                    this.newLayer.url = "api/layers/" + nl.title;
                     if (this.layerResourceType==="<new>")
                     {
                         this.newLayer.typeUrl = "/api/resources/" + this.newLayer.title;
