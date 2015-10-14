@@ -175,14 +175,17 @@ module csComp.Services {
 
         public addLayer(layer: ProjectLayer) {
             switch (layer.renderType) {
+                case "geojson":
+                    GeojsonRenderer.render(this.service, layer, this);
+                    break;
                 case "tilelayer":
                     TileLayerRenderer.render(this.service, layer);
                     break;
                 case "wms":
                     WmsRenderer.render(this.service, layer);
                     break;
-                case "geojson":
-                    GeojsonRenderer.render(this.service, layer, this);
+                case "gridlayer":
+                    
                     break;
                 case "heatmap":
                     HeatmapRenderer.render(this.service, layer, this);
