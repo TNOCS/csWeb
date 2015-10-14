@@ -78,6 +78,7 @@ module csComp.Services {
             this.widgetTypes["indicators"] = <IWidget>{ id: "indicators", icon: "cs/images/widgets/indicators.png", description: "Showing sensor data using charts" };
             this.widgetTypes["charts"] = <IWidget>{ id: "charts", icon: "cs/images/widgets/markdown.png", description: "Show custom chart" };
             this.widgetTypes["markdownwidget"] = <IWidget>{ id: "markdownwidget", icon: "cs/images/widgets/markdown.png", description: "Show custom markdown or html content" };
+            this.widgetTypes["mcawidget"] = <IWidget>{ id: "mcawidget", icon: "cs/images/widgets/mca.png", description: "Show available MCA's" };
             this.widgetTypes["iframewidget"] = <IWidget>{ id: "iframewidget", icon: "cs/images/widgets/markdown.png", description: "Show custom iframe" };
             this.widgetTypes["kanbanboard"] = <IWidget>{ id: "kanbanboard", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
             this.widgetTypes["navigator"] = <IWidget>{ id: "navigatorwidget", icon: "cs/images/widgets/markdown.png", description: "Show navigator" };

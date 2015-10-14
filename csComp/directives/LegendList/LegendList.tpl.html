@@ -4,11 +4,11 @@
         <div class="legend">
             <div ng-repeat="legendItem in legendItems" class="legendItem">
                 <span style="display:inline-block;padding-bottom:5px">
-                    <div ng-hide="!legendItem.hasOwnProperty(html) || legendItem.html === ''" ng-bind-html="vm.toTrusted(legendItem.html)" style="display:inline-block" />
-                    <div ng-show="!legendItem.hasOwnProperty(html) || legendItem.html === ''" class="legendIcon">
+                    <div ng-hide="legendItem.html === ''" ng-bind-html="vm.toTrusted(legendItem.html)" style="display:inline-block" />
+                    <div ng-show="legendItem.html === ''" class="legendIcon">
                         <img ng-src="{{legendItem.uri}}" class="legendImage" />
                     </div>
-                    <div class="legendText" ng-bind-html="vm.toTrusted(legendItem.title)"></div>
+                    <div ng-hide="!legendItem.title"class="legendText" ng-bind-html="vm.toTrusted(legendItem.title)"></div>
                 </span>
             </div>
         </div>
