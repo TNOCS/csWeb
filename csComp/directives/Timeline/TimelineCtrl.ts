@@ -58,7 +58,7 @@ module Timeline {
             private $mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService,
             private TimelineService: Timeline.ITimelineService
-            ) {
+        ) {
             this.loadLocales();
 
 
@@ -83,13 +83,11 @@ module Timeline {
                     this.myTimer();
                     if (this.$layerService.project.timeLine.isLive) this.goLive();
                 }, 0);
-
             });
 
             this.initTimeline();
 
             this.$messageBusService.subscribe("timeline", (s: string, data: any) => { this.update(s, data) });
-
 
             this.$messageBusService.subscribe('feature', (s: string, feature: csComp.Services.IFeature) => {
                 if (s === 'onFeatureSelect' && feature) {
@@ -98,7 +96,6 @@ module Timeline {
                     }
                 }
             });
-
 
             //$scope.focusDate = $layerService.project.timeLine.focusDate();
 
@@ -145,9 +142,11 @@ module Timeline {
             //this.items = [];
             //this.$scope.timeline.redraw();
             var temp: string[] = [];
+            var hasChanged = false;
 
             // check for new items
             this.$layerService.project.features.forEach((f: csComp.Services.IFeature) => {
+                hasChanged = true;
                 if (f.layer.showOnTimeline && f.properties.hasOwnProperty('date')) {
                     temp.push(f.id);
                     if (this.ids.indexOf(f.id) === -1) {
@@ -160,6 +159,7 @@ module Timeline {
 
             // check for old items
             this.ids.forEach((s) => {
+                hasChanged = true;
                 if (temp.indexOf(s) === -1) {
                     // remove item
                     var i = this.items.remove(s);
@@ -167,12 +167,8 @@ module Timeline {
                 }
             })
 
-
-
             //this.$scope.timeline.setItems(i);
-            this.$scope.timeline.redraw();
-
-
+            if (hasChanged) this.$scope.timeline.redraw();
         }
 
         private initTimeline() {

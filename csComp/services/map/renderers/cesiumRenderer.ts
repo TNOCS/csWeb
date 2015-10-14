@@ -377,6 +377,11 @@ module csComp.Services {
             var entity = this.createFeature(feature);
         }
 
+        public selectFeature(feature: IFeature) {
+            // TODO
+            console.log("CesiumRenderer warning: selectFeature is not implemented!")
+        }
+
         public createFeature(feature: IFeature) {
             var entity = this.viewer.entities.getOrCreateEntity(feature.id);
 

@@ -60,7 +60,10 @@ module SimState {
                 //console.log(`Server subscription received: ${title}, ${JSON.stringify(msg, null, 2) }.`);
                 this.$timeout(() => {
                     var state = <ISimState> msg.data.item;
-                    this.states[state.id] = state;                    
+                    if (state.state === 'Exit')
+                        delete this.states[state.id];
+                    else
+                        this.states[state.id] = state;
                 }, 0);
             })
         }

@@ -38,6 +38,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     constructor(public rootpath: string) {
         super();
+        this.receiveCopy = false;
         this.keysPath = path.join(rootpath, "keys/");
         this.layersPath = path.join(rootpath, "layers/");
         this.projectsPath = path.join(rootpath, "projects/");
@@ -280,7 +281,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     //layer.type = "geojson";
                     layer.url = "/api/layers/" + id;
                     Winston.info('storage ' + layer.storage);
-                    this.manager.updateLayer(layer, {}, () => { });
+                    this.manager.addUpdateLayer(layer, {}, () => { });
                 }
             });
         }
@@ -366,7 +367,6 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     public getProject(projectId: string, meta: ApiMeta, callback: Function) {
-
         if (this.projects.hasOwnProperty(projectId)) {
             callback(<CallbackResult>{ result: ApiResult.OK, project: this.projects[projectId] });
         }
@@ -527,8 +527,9 @@ export class FileStorage extends BaseConnector.BaseConnector {
             layer.features.push(feature);
         }
         this.saveLayerDelay(layer);
-        callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
         Winston.info("filestore: update feature")
+        callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
+
 
     }
 
@@ -538,6 +539,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         layer.features = layer.features.filter((k) => { return k.id && k.id !== featureId });
         callback(<CallbackResult>{ result: ApiResult.OK });
         this.saveLayerDelay(layer);
+        callback(<CallbackResult>{ result: ApiResult.OK});
     }
 
     /** Add a file: images go to the iconPath folder, others to the blob folder */
@@ -559,6 +561,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
         var media: Media = { base64: base64, fileUri: fileUri };
         this.saveBase64(media);
+        callback(<CallbackResult>{ result: ApiResult.OK});
     }
 
     public addResource(res: ResourceFile, meta: ApiMeta, callback: Function) {
@@ -567,6 +570,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (!res.featureTypes) res.featureTypes = {};
         this.resources[res.id] = res;
         this.saveResourcesDelay(res);
+        callback(<CallbackResult>{ result: ApiResult.OK});
     }
 
     public addKey(key: Key, meta: ApiMeta, callback: Function) {
@@ -574,6 +578,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (!key.values) key.values = [];
         this.keys[key.id] = key;
         this.saveKeyDelay(key);
+        callback(<CallbackResult>{ result: ApiResult.OK});
     }
 
     public getKey(keyId: string, meta: ApiMeta, callback: Function) {

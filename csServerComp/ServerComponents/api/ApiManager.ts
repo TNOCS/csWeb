@@ -27,10 +27,8 @@ export enum ApiResult {
 }
 
 export interface IApiManagerOptions {
-    /** Host name */
-    host?: string;
-    /** Port name */
-    port?: number;
+    /** Host:port name */
+    server?: string;
     /** Specify what MQTT should subscribe to */
     mqttSubscriptions?: string[];
     [key: string]: any;
@@ -79,13 +77,13 @@ export interface IConnector {
     /** If true (default), the manager will send a copy to the source (receiving) connector */
     receiveCopy: boolean;
     init(layerManager: ApiManager, options: any);
-    initLayer(layer: Layer, meta?: ApiMeta);
+    initLayer(layer: ILayer, meta?: ApiMeta);
     initProject(project: Project, meta?: ApiMeta);
 
     //Layer methods
-    addLayer(layer: Layer, meta: ApiMeta, callback: Function);
+    addLayer(layer: ILayer, meta: ApiMeta, callback: Function);
     getLayer(layerId: string, meta: ApiMeta, callback: Function);
-    updateLayer(layer: Layer, meta: ApiMeta, callback: Function);
+    updateLayer(layer: ILayer, meta: ApiMeta, callback: Function);
     deleteLayer(layerId: string, meta: ApiMeta, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function);
@@ -112,7 +110,7 @@ export interface IConnector {
     /** Add a resource type file to the store. */
     addResource(reource: ResourceFile, meta: ApiMeta, callback: Function);
     /** Add a file to the store, e.g. an icon or other media. */
-    addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function);
+    addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function);
 
     /** Get a specific key */
     getKey(keyId: string, meta: ApiMeta, callback: Function);
@@ -175,13 +173,41 @@ export class KeySubscription {
 }
 
 /**
+ * Geojson ILayer definition
+ */
+export interface ILayer extends StorageObject {
+    /** Server of the layer, needed for remote synchronization */
+    server?: string;
+    /**
+     * id of storage connector
+     */
+    useLog?: boolean;
+    updated?: number;
+    enabled?: boolean;
+    opacity?: number;
+    id: string;
+    type?: string;
+    dynamic?: boolean;
+    title?: string;
+    image?: string;
+    description?: string;
+    url?: string;
+    typeUrl?: string;
+    defaultFeatureType?: string;
+    defaultLegendProperty?: string;
+    dynamicResource?: boolean;
+    tags?: string[];
+    isDynamic?: boolean;
+    features?: Feature[];
+    [key: string]: any;
+}
+
+/**
  * Geojson Layer definition
  */
 export class Layer implements StorageObject {
-    /** Host name */
-    public host: string;
-    /** Port name */
-    public port: number;
+    /** Server of the layer, needed for remote synchronization */
+    public server: string;
     /**
      * id of storage connector
      */
@@ -285,7 +311,7 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Dictionary of layers (doesn't contain actual data)
      */
-    public layers: { [key: string]: Layer } = {};
+    public layers: { [key: string]: ILayer } = {};
 
     /**
      * Dictionary of projects (doesn't contain actual data)
@@ -316,6 +342,12 @@ export class ApiManager extends events.EventEmitter {
         super();
         this.namespace = namespace;
         this.name = name;
+        if (this.options.server) {
+            // If we do not specify the protocal, add it
+            if (this.options.server.indexOf('http') < 0) this.options.server = 'http://' + this.options.server;
+            // If we specify the trailing slash, remove it
+            if (this.options.server.slice(-1) === '/') this.options.server = this.options.server.slice(0, -1);
+        }
     }
 
     public init(rootPath: string, callback: Function) {
@@ -371,7 +403,7 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Have a 1 sec. delay before saving layer config
      */
-    public saveLayersDelay = _.debounce((layer: Layer) => {
+    public saveLayersDelay = _.debounce((layer: ILayer) => {
         this.saveLayerConfig();
     }, 1000);
 
@@ -393,7 +425,12 @@ export class ApiManager extends events.EventEmitter {
      * Store layer config file
      */
     public saveLayerConfig() {
-        fs.writeFile(this.layersFile, JSON.stringify(this.layers), (error) => {
+        var temp = {};
+        for (var s in this.layers) {
+            if (!this.layers[s].storage) temp[s] = this.layers[s];
+        }
+        if (!temp) return;
+        fs.writeFile(this.layersFile, JSON.stringify(temp), (error) => {
             if (error) {
                 Winston.info('manager: error saving layer config');
             }
@@ -427,7 +464,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     /** Add a file to the store, e.g. an icon or other media. */
-    public addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
+    public addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function) {
         var s: IConnector = this.connectors.hasOwnProperty('file') ? this.connectors['file'] : null;
         if (s) {
             s.addFile(base64, folder, file, meta, () => { });
@@ -465,7 +502,7 @@ export class ApiManager extends events.EventEmitter {
 
     public addLayerToProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {
         var p: Project = this.findProject(projectId);
-        var l: Layer = this.findLayer(layerId);
+        var l: ILayer = this.findLayer(layerId);
         if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: "Project not found" }); return; }
         if (!l) { callback(<CallbackResult>{ result: ApiResult.LayerNotFound, error: "Layer not found" }); return; }
         if (!p.groups) p.groups = [];
@@ -525,7 +562,8 @@ export class ApiManager extends events.EventEmitter {
                 if (group.id === pg.id && group.clusterLevel) {
                     pg['clusterLevel'] = group.clusterLevel;
                 }
-                return (group.id === pg.id) });
+                return (group.id === pg.id)
+            });
             callback(<CallbackResult>{ result: ApiResult.GroupAlreadyExists, error: "Group exists" }); return;
         } else {
             group = this.getGroupDefinition(group);
@@ -594,7 +632,7 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Find layer for a specific layerId (can return null)
      */
-    public findLayer(layerId: string): Layer {
+    public findLayer(layerId: string): ILayer {
         if (this.layers.hasOwnProperty(layerId)) {
             return this.layers[layerId];
         }
@@ -696,17 +734,13 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Returns layer definition for a layer, this is the layer without the features (mostly used for directory)
      */
-    public getLayerDefinition(layer: Layer): Layer {
+    public getLayerDefinition(layer: ILayer): ILayer {
         if (!layer.hasOwnProperty('type')) layer.type = "geojson";
-        var server = '';
-        if (this.options.host && this.options.port) {
-            server = `${this.options.host}:${this.options.port}/`;
-        }
-        var r = <Layer> {
+        var server = this.options.server || '';
+        var r = <ILayer>{
+            server: server,
             id: layer.id,
             title: layer.title,
-            host: this.options.host,
-            port: this.options.port,
             updated: layer.updated,
             enabled: layer.enabled,
             description: layer.description,
@@ -718,56 +752,18 @@ export class ApiManager extends events.EventEmitter {
             type: layer.type,
             // We are returning a definition, so remove the data
             features: [],
-            storage: layer.storage ? layer.storage : "",
-            url: layer.url ? layer.url : (server + "api/layers/" + layer.id),
+            storage: layer.storage ? layer.storage : '',
+            url: layer.url ? layer.url : (server + "/api/layers/" + layer.id),
             isDynamic: layer.isDynamic ? layer.isDynamic : false
         };
+        // Copy additional properties too.
+        for (var key in layer) {
+            if (layer.hasOwnProperty(key) && !r.hasOwnProperty(key)) r[key] = layer[key];
+        }
         return r;
     }
 
     //layer methods start here, in CRUD order.
-
-    /** Create a new layer, store it, and return it. */
-    public addLayer(layer: Layer, meta: ApiMeta, callback: (result: CallbackResult) => void) {
-        // give it an id if not available
-        if (!layer.hasOwnProperty('id')) layer.id = helpers.newGuid();
-        // make sure layerid is lowercase
-        layer.id = layer.id.toLowerCase();
-        // take the id for the title if not available
-        if (!layer.hasOwnProperty('title')) layer.title = layer.id;
-        if (!layer.hasOwnProperty('features')) layer.features = [];
-        if (!layer.hasOwnProperty('tags')) layer.tags = [];
-        this.setUpdateLayer(layer, meta);
-        Winston.info('api: add layer ' + layer.id);
-        var s = this.findStorage(layer);
-        // check if layer already exists
-        if (!this.layers.hasOwnProperty(layer.id)) {
-            // add storage connector if available
-            layer.storage = s ? s.id : "";
-
-            // get layer definition (without features)
-            this.layers[layer.id] = this.getLayerDefinition(layer);
-
-            this.getInterfaces(meta).forEach((i: IConnector) => {
-                i.initLayer(layer);
-                i.addLayer(layer, meta, () => { });
-            });
-
-            // store layer
-            if (s) {
-                s.addLayer(layer, meta, (r: CallbackResult) => callback(r))
-            } else {
-                callback(<CallbackResult>{ result: ApiResult.OK });
-            }
-
-            this.emit(Event[Event.LayerChanged], <IChangeEvent>{ id: layer.id, type: ChangeType.Create, value: layer });
-            this.saveLayersDelay(layer);
-        }
-        else {
-            Winston.error(`Error: layer ${layer.title} (id: ${layer.id}) already exists!`);
-            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
-        }
-    }
 
     public getProject(projectId: string, meta: ApiMeta, callback: Function) {
         Winston.debug('Looking for storage of project ' + projectId);
@@ -793,12 +789,51 @@ export class ApiManager extends events.EventEmitter {
         }
     }
 
-    public updateLayer(layer: Layer, meta: ApiMeta, callback: Function) {
+    /** Create a new layer, store it, and return it. */
+    public createLayer(layer: ILayer, meta: ApiMeta, callback: (result: CallbackResult) => void) {
+        // give it an id if not available
+        if (!layer.hasOwnProperty('id')) layer.id = helpers.newGuid();
+        // make sure layerid is lowercase
+        layer.id = layer.id.toLowerCase();
+        // take the id for the title if not available
+        if (!layer.hasOwnProperty('title')) layer.title = layer.id;
+        if (!layer.hasOwnProperty('features')) layer.features = [];
+        if (!layer.hasOwnProperty('tags')) layer.tags = [];
+        this.setUpdateLayer(layer, meta);
+        Winston.info('api: add layer ' + layer.id);
+        // check if layer already exists
+        if (!this.layers.hasOwnProperty(layer.id)) {
+            let s = this.findStorage(layer);
+            // add storage connector if available
+            layer.storage = s ? s.id : "";
+
+            // get layer definition (without features)
+            this.layers[layer.id] = this.getLayerDefinition(layer);
+
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.initLayer(layer);
+                //    i.addLayer(layer, meta, () => { });
+            });
+
+            // store layer
+            if (s && s.id != meta.source) {
+                s.addLayer(layer, meta, (r: CallbackResult) => callback(r))
+            } else {
+                callback(<CallbackResult>{ result: ApiResult.OK });
+            }
+        }
+        else {
+            Winston.error(`Error: layer ${layer.title} (id: ${layer.id}) already exists!`);
+            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
+        }
+    }
+
+    public addUpdateLayer(layer: ILayer, meta: ApiMeta, callback: Function) {
         async.series([
             // make sure layer exists
             (cb: Function) => {
                 if (!this.layers.hasOwnProperty(layer.id)) {
-                    this.addLayer(layer, meta, () => {
+                    this.createLayer(layer, meta, () => {
                         cb();
                     });
                 }
@@ -814,8 +849,8 @@ export class ApiManager extends events.EventEmitter {
                     i.updateLayer(layer, meta, () => { });
                 });
 
-                var s = this.findStorageForLayerId(layer.id);
-                if (s) {
+                var s = this.findStorage(layer);
+                if (s && s.id != meta.source) {
                     s.updateLayer(layer, meta, (r, CallbackResult) => {
                         Winston.warn('updating layer finished');
                     });
@@ -907,7 +942,7 @@ export class ApiManager extends events.EventEmitter {
         return res;
     }
 
-    private setUpdateLayer(layer: Layer, meta: ApiMeta) {
+    private setUpdateLayer(layer: ILayer, meta: ApiMeta) {
         layer.updated = new Date().getTime();
     }
 
@@ -1073,9 +1108,9 @@ export class ApiManager extends events.EventEmitter {
 
         for (var subId in this.keySubscriptions) {
             var sub = this.keySubscriptions[subId];
-            if (sub.regexPattern.test(keyId)){
+            if (sub.regexPattern.test(keyId)) {
                 Winston.info(`   pattern ${sub.pattern} found.`);
-                sub.callback(keyId,value,meta);
+                sub.callback(keyId, value, meta);
             }
             // else
             // {
@@ -1084,7 +1119,7 @@ export class ApiManager extends events.EventEmitter {
         }
 
         this.getInterfaces(meta).forEach((i: IConnector) => {
-            Winston.info('updatekey:send to ' + i.id);
+            //Winston.info('updatekey:send to ' + i.id);
             i.updateKey(keyId, value, meta, () => { });
         });
 

@@ -20,7 +20,12 @@
                     <input type="text" data-ng-model="featureType.style['iconUri']" class="form-control">
                 </div>
             </div>
-
+            <div class="row">
+                <div class="col-md-6 checkbox dashboard-edit-checkbox">
+                    <div class="rightpanel-label">Type</div>
+                    <select data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line']" class="form-control"></select>
+                </div>
+            </div>
             <div ng-show="featureType.style['drawingMode'] == 'Point'">
                 <div class="row">
                     <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.iconHeight.$invalid }">

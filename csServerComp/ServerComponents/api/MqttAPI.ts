@@ -41,12 +41,12 @@ export class MqttAPI extends BaseConnector.BaseConnector {
             Winston.info("mqtt: connected");
             // server listens to all key updates
             if (!this.manager.isClient) {
-                var subscriptions = '#'; //layerManager.options.mqttSubscriptions || '#';
+                var subscriptions = layerManager.options.mqttSubscriptions || '#';
                 Winston.info(`mqtt: listen to ${subscriptions === '#' ? 'everything' : subscriptions}`);
                 if (typeof subscriptions === 'string') {
                     this.client.subscribe(subscriptions);
                 } else {
-                    //subscriptions.forEach(s => this.client.subscribe(s));
+                    subscriptions.forEach(s => this.client.subscribe(s));
                 }
             }
         });
@@ -62,13 +62,14 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         // });
         this.client.on('message', (topic: string, message: string) => {
             Winston.info(`mqtt on message: ${topic}.`);
-            if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
+            //if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
             // listen to layer updates
             if (topic === this.layerPrefix) {
-                var layer = <Layer>JSON.parse(message);
+                var layer = this.extractLayer(message);
                 if (layer && layer.id) {
-                    Winston.info('mqtt: update layer ' + layer.id);
-                    this.manager.updateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
+                    Winston.info('mqtt: received definition for layer ' + layer.id);
+                    Winston.error(`Definition: ${JSON.stringify(layer, null, 2)}`)
+                    this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
                 }
             }
             else if (topic.indexOf(this.layerPrefix) === 0) {
@@ -80,10 +81,10 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                 var layerId = ids[0];
                 if (ids.length === 1) {
                     try {
-                        var layer = <Layer>JSON.parse(message);
+                        var layer = this.extractLayer(message);
                         if (layer) {
                             Winston.info(`mqtt: update layer ${layerId}`);
-                            this.manager.updateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
+                            this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
                         }
                     } catch (e) {
                         Winston.error(`mqtt: error updating layer, exception ${e}`);
@@ -133,6 +134,14 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         // doorzetten naar de layermanager
     }
 
+    private extractLayer(message: string) {
+        var layer = <Layer>JSON.parse(message);
+        // if you have a server, you don't need local storage
+        if (layer.server) delete layer.storage;
+        //if (!layer.server && layer.server === this.manager.options.server) return;
+        return layer;
+    }
+
     /**
      * Subscribe to certain keys using the internal MQTT router.
      * See also https://github.com/wolfeidau/mqtt-router.
@@ -143,7 +152,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
      * @return {[type]}                [description]
      */
     public subscribeKey(keyPattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void) {
-        Winston.error( 'subscribing key : ' + keyPattern);
+        Winston.info( 'subscribing key : ' + keyPattern);
         this.router.subscribe(keyPattern, (topic: string, message: string, params: Object) => {
             callback(topic, message.toString(), params);
         });
@@ -164,6 +173,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         Winston.info('mqtt: update layer ' + layer.id);
         if (meta.source !== this.id) {
             var def = this.manager.getLayerDefinition(layer);
+            delete def.storage;
             // Send the layer definition to everyone
             this.client.publish(this.layerPrefix, JSON.stringify(def));
             // And place all the data only on the specific layer channel

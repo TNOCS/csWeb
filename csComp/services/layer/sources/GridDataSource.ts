@@ -122,6 +122,12 @@ module csComp.Services {
                         if (typeof this.gridParams.gridType !== 'undefined' && this.gridParams.gridType === 'esri') {
                             this.convertEsriHeaderToGridParams(result);
                         }
+                        if (layer.renderType === 'gridlayer') {
+                            layer.data = this.convertDataToGrid(result, this.gridParams);;
+                            cb(null, null);
+                            layer.isLoading = false;
+                            return;
+                        }
                         var data = this.convertDataToFeatureCollection(result, this.gridParams);
                         if (data.fc.features.length > 10000) {
                             console.warn('Grid is very big! Number of features: ' + data.fc.features.length);
@@ -130,6 +136,7 @@ module csComp.Services {
                             this.service.$messageBusService.notify('Warning', 'Data loaded successfully, but all points are outside the specified range.', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Error);
                             layer.isLoading = false;
                             cb(null, null);
+                            layer.isLoading = false;
                             return;
                         }
                         // store raw result in layer
@@ -247,25 +254,25 @@ module csComp.Services {
                 this.gridParams.startLat = y - this.gridParams.deltaLat / 2;
             } else {
                 this.gridParams.startLon = x;
-                this.gridParams.startLat = y - this.gridParams.deltaLat;
+                this.gridParams.startLat = y;
             }
 
             switch (this.gridParams.projection || 'wgs84') {
                 case 'rd':
                 case 'RD':
-                    var startLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat, this.gridParams.startLat);
+                    var startLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLon, this.gridParams.startLat - this.gridParams.rows*this.gridParams.deltaLat);
                     if (isCenter) {
-                        var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat + this.gridParams.columns*this.gridParams.deltaLon/2, this.gridParams.startLat + this.gridParams.rows*this.gridParams.deltaLat/2);
-                        this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / (this.gridParams.columns/2);
-                        this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / (this.gridParams.rows/2);
+                        throw new Error('TODO: Never tested isCenter');
+                        // var endLoc = Helpers.GeoJSON.GeoExtensions.convertRDToWGS84(this.gridParams.startLon + this.gridParams.columns*gridParams.deltaLon/2, gridParams.startLat);
+                        // this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / (this.gridParams.columns/2);
+                        // this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / (this.gridParams.rows/2);
                     } else {
-                        var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat + this.gridParams.columns*this.gridParams.deltaLon, this.gridParams.startLat + this.gridParams.rows*this.gridParams.deltaLat);
+                        var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLon + this.gridParams.columns*this.gridParams.deltaLon, this.gridParams.startLat);
                         this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / this.gridParams.columns;
                         this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / this.gridParams.rows;
                     }
                     this.gridParams.startLon = startLoc.longitude;
                     this.gridParams.startLat = startLoc.latitude;
-                    break;
                 case 'WGS84':
                 case 'wgs84':
                     break;
@@ -275,11 +282,7 @@ module csComp.Services {
             }
         }
 
-
-        /**
-         * Convert data to a set of isolines.
-         */
-        private convertDataToIsoLines(data: string, gridParams: IGridDataSourceParameters): { fc: csComp.Helpers.IGeoFeatureCollection, desc: string } {
+        private convertDataToGrid(data: string, gridParams: IGridDataSourceParameters) {
             var propertyName = gridParams.propertyName || "v";
             var noDataValue = gridParams.noDataValue || -9999;
 
@@ -296,33 +299,15 @@ module csComp.Services {
                 lat = gridParams.startLat,
                 lon = gridParams.startLon;
 
-            var features: csComp.Helpers.IGeoFeature[] = [];
-            var max = -Number.MAX_VALUE,
-                min =  Number.MAX_VALUE;
-            var lines = data.split('\n');
+            var max = gridParams.maxThreshold || -Number.MAX_VALUE,
+                min = gridParams.minThreshold ||  Number.MAX_VALUE;
+            var lines = data.split('\n'),
+                i = 0,
+                gridData: number[][] = [];
+
             if (gridParams.skipLines) lines.splice(0, gridParams.skipLines);
 
             var rowsToProcess = gridParams.rows || Number.MAX_VALUE;
-
-            var conrec = new csComp.Helpers.Conrec(),
-                nrIsoLevels: number,
-                isoLevels: number[],
-                longitudes: number[] = [],
-                latitudes: number[] = [],
-                gridData: number[][] = [],
-                i = 0;
-
-            if (typeof gridParams.contourLevels === 'undefined') nrIsoLevels = 10;
-            else {
-                var cl = gridParams.contourLevels;
-                if (typeof cl === 'number') {
-                    nrIsoLevels = cl;
-                }
-                else {
-                    isoLevels = cl;
-                    nrIsoLevels = cl.length;
-                }
-            }
 
             lines.forEach((line) => {
                 if (gridParams.commentCharacter)
@@ -341,7 +326,7 @@ module csComp.Services {
                     return;
                 }
                 rowsToProcess--;
-                if (rowsToProcess < 0) return;
+                if (rowsToProcess < 0) return gridData;
 
                 var cells: RegExpMatchArray;
                 if (skipSpacesFromLine)
@@ -354,29 +339,68 @@ module csComp.Services {
                 if (!cells || (!gridParams.skipFirstColumn && cells.length < gridParams.columns)) return;
 
                 gridData[i] = [];
-                if (i === 0) {
-                    cells.forEach(c => {
-                        gridData[i].push(+c);
-                        longitudes.push(lon);
-                        lon += deltaLon;
-                        if (lon > 180) lon -= 360;
-                    });
-                } else {
-                    cells.forEach(c => gridData[i].push(+c));
-                }
-                if (typeof isoLevels === 'undefined') {
-                    max = gridParams.maxThreshold || Math.max(max, ...gridData[i]);
-                    min = gridParams.minThreshold || Math.min(min, ...gridData[i]);
-                }
-                latitudes.push(lat);
-                lat += deltaLat;
+                cells.forEach(c => gridData[i].push(+c));
+
+                max = Math.max(max, ...gridData[i]);
+                min = Math.min(min, ...gridData[i]);
+
                 i++;
             });
+            gridParams.maxThreshold = max;
+            gridParams.minThreshold = min;
+
+            return gridData;
+        }
+
+        /**
+         * Convert data to a set of isolines.
+         */
+        private convertDataToIsoLines(data: string, gridParams: IGridDataSourceParameters): { fc: csComp.Helpers.IGeoFeatureCollection, desc: string } {
+            var gridData = this.convertDataToGrid(data, gridParams);
+
+            var propertyName = gridParams.propertyName || "v";
+            var longitudes: number[] = [],
+                latitudes: number[] = [];
+            var lat = gridParams.startLat,
+                lon = gridParams.startLon,
+                deltaLat = gridParams.deltaLat,
+                deltaLon = gridParams.deltaLon;
+            var max = gridParams.maxThreshold,
+                min = gridParams.minThreshold;
+
+            gridData.forEach(row => {
+                latitudes.push(lat);
+                lat += deltaLat;
+            });
+            gridData[0].forEach(col => {
+                longitudes.push(lon);
+                lon += deltaLon;
+                if (lon > 180) lon -= 360;
+            })
+
+            var features: csComp.Helpers.IGeoFeature[] = [];
+            var conrec = new csComp.Helpers.Conrec(),
+                nrIsoLevels: number,
+                isoLevels: number[];
+
+            if (typeof gridParams.contourLevels === 'undefined') nrIsoLevels = 10;
+            else {
+                var cl = gridParams.contourLevels;
+                if (typeof cl === 'number') {
+                    nrIsoLevels = cl;
+                }
+                else {
+                    isoLevels = cl;
+                    nrIsoLevels = cl.length;
+                }
+            }
+
             if (typeof isoLevels === 'undefined') {
+                isoLevels = [];
                 var dl = (max - min) / nrIsoLevels;
                 for (let l = min + dl / 2; l < max; l += dl) isoLevels.push(Math.round(l * 10) / 10); // round to nearest decimal.
             }
-            conrec.contour(gridData, 0, i-1, 0, gridData[0].length-1, latitudes, longitudes, nrIsoLevels, isoLevels);
+            conrec.contour(gridData, 0, gridData.length-1, 0, gridData[0].length-1, latitudes, longitudes, nrIsoLevels, isoLevels, gridParams.noDataValue || -9999);
             var contourList = conrec.contourList;
             contourList.forEach(contour => {
                 var result: IProperty = {};
@@ -401,67 +425,28 @@ module csComp.Services {
                 fc: csComp.Helpers.GeoExtensions.createFeatureCollection(features),
                 desc: desc
             };
-        } // convertDataToIsoLines
+        }
 
         /**
          * Convert data to a grid of square GeoJSON polygons, so each drawable point is converted to a square polygon.
          */
         private convertDataToPolygonGrid(data: string, gridParams: IGridDataSourceParameters): { fc: csComp.Helpers.IGeoFeatureCollection, desc: string } {
             var propertyName = gridParams.propertyName || "v";
-            var noDataValue = gridParams.noDataValue || -9999;
+            var gridData = this.convertDataToGrid(data, gridParams);
 
-            var skipLinesAfterComment = gridParams.skipLinesAfterComment,
-                skipSpacesFromLine = gridParams.skipSpacesFromLine,
-                skipFirstRow = gridParams.skipFirstRow || false,
-                skipFirstColumn = gridParams.skipFirstColumn || false;
-
-            var separatorCharacter = gridParams.separatorCharacter || ' ',
-                splitCellsRegex = new RegExp("[^" + separatorCharacter + "]+", "g");
-
-            var deltaLon = gridParams.deltaLon,
+            var lat = gridParams.startLat,
                 deltaLat = gridParams.deltaLat,
-                lat = gridParams.startLat,
-                lon = gridParams.startLon;
+                deltaLon = gridParams.deltaLon,
+                noDataValue = gridParams.noDataValue;
+
+            var minThreshold = gridParams.minThreshold || -Number.MAX_VALUE,
+                maxThreshold = gridParams.maxThreshold || Number.MAX_VALUE;
 
             var features: csComp.Helpers.IGeoFeature[] = [];
 
-            var lines = data.split('\n');
-            if (gridParams.skipLines) lines.splice(0, gridParams.skipLines);
-
-            var rowsToProcess = gridParams.rows || Number.MAX_VALUE;
-            lines.forEach((line) => {
-                if (gridParams.commentCharacter)
-                    if (line.substr(0, 1) === gridParams.commentCharacter) {
-                        console.log(line);
-                        return;
-                    }
-
-                if (skipLinesAfterComment && skipLinesAfterComment > 0) {
-                    skipLinesAfterComment--;
-                    return;
-                }
-
-                if (skipFirstRow) {
-                    skipFirstRow = false;
-                    return;
-                }
-                rowsToProcess--;
-                if (rowsToProcess < 0) return;
-
-                var cells: RegExpMatchArray;
-                if (skipSpacesFromLine)
-                    cells = line.substr(skipSpacesFromLine).match(splitCellsRegex);
-                else
-                    cells = line.match(splitCellsRegex);
-
-                if (skipFirstColumn && cells.length > 1) cells = cells.splice(1);
-
-                if (!cells || (!gridParams.skipFirstColumn && cells.length < gridParams.columns)) return;
-
-                lon = gridParams.startLon;
-                var minThreshold = gridParams.minThreshold || -Number.MAX_VALUE,
-                    maxThreshold = gridParams.maxThreshold || Number.MAX_VALUE;
-                cells.forEach((n) => {
+            gridData.forEach(row => {
+                let lon = gridParams.startLon;
+                row.forEach(n => {
                     var value = +n;
                     if (value !== noDataValue && minThreshold <= value && value <= maxThreshold) {
                         var result: IProperty = {};
@@ -479,6 +464,81 @@ module csComp.Services {
                 });
                 lat += deltaLat;
             });
+
+
+            //
+            // var propertyName = gridParams.propertyName || "v";
+            // var noDataValue = gridParams.noDataValue || -9999;
+            //
+            // var skipLinesAfterComment = gridParams.skipLinesAfterComment,
+            //     skipSpacesFromLine = gridParams.skipSpacesFromLine,
+            //     skipFirstRow = gridParams.skipFirstRow || false,
+            //     skipFirstColumn = gridParams.skipFirstColumn || false;
+            //
+            // var separatorCharacter = gridParams.separatorCharacter || ' ',
+            //     splitCellsRegex = new RegExp("[^" + separatorCharacter + "]+", "g");
+            //
+            // var deltaLon = gridParams.deltaLon,
+            //     deltaLat = gridParams.deltaLat,
+            //     lat = gridParams.startLat,
+            //     lon = gridParams.startLon;
+            //
+            // var features: csComp.Helpers.IGeoFeature[] = [];
+            //
+            // var lines = data.split('\n');
+            // if (gridParams.skipLines) lines.splice(0, gridParams.skipLines);
+            //
+            // var rowsToProcess = gridParams.rows || Number.MAX_VALUE;
+            // lines.forEach((line) => {
+            //     if (gridParams.commentCharacter)
+            //         if (line.substr(0, 1) === gridParams.commentCharacter) {
+            //             console.log(line);
+            //             return;
+            //         }
+            //
+            //     if (skipLinesAfterComment && skipLinesAfterComment > 0) {
+            //         skipLinesAfterComment--;
+            //         return;
+            //     }
+            //
+            //     if (skipFirstRow) {
+            //         skipFirstRow = false;
+            //         return;
+            //     }
+            //     rowsToProcess--;
+            //     if (rowsToProcess < 0) return;
+            //
+            //     var cells: RegExpMatchArray;
+            //     if (skipSpacesFromLine)
+            //         cells = line.substr(skipSpacesFromLine).match(splitCellsRegex);
+            //     else
+            //         cells = line.match(splitCellsRegex);
+            //
+            //     if (skipFirstColumn && cells.length > 1) cells = cells.splice(1);
+            //
+            //     if (!cells || (!gridParams.skipFirstColumn && cells.length < gridParams.columns)) return;
+            //
+            //     lon = gridParams.startLon;
+            //     var minThreshold = gridParams.minThreshold || -Number.MAX_VALUE,
+            //         maxThreshold = gridParams.maxThreshold || Number.MAX_VALUE;
+            //     cells.forEach((n) => {
+            //         var value = +n;
+            //         if (value !== noDataValue && minThreshold <= value && value <= maxThreshold) {
+            //             var result: IProperty = {};
+            //             result[propertyName] = value;
+            //             var tl = [lon, lat + deltaLat],
+            //                 tr = [lon + deltaLon, lat + deltaLat],
+            //                 bl = [lon, lat],
+            //                 br = [lon + deltaLon, lat];
+            //
+            //             var pg = csComp.Helpers.GeoExtensions.createPolygonFeature([[tl, tr, br, bl, tl]], result);
+            //             features.push(pg);
+            //         }
+            //         lon += deltaLon;
+            //         if (lon > 180) lon -= 360;
+            //     });
+            //     lat += deltaLat;
+            // });
 
             var desc = "# Number of features above the threshold: " + features.length + ".\r\n";
             return {
