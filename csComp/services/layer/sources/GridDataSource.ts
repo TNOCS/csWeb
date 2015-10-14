@@ -264,8 +264,8 @@ module csComp.Services {
                         this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / this.gridParams.columns;
                         this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / this.gridParams.rows;
                     }
-                    this.gridParams.startLon = startLoc.longitude + this.gridParams.deltaLon;
-                    this.gridParams.startLat = startLoc.latitude + this.gridParams.deltaLat;
+                    this.gridParams.startLon = startLoc.longitude;
+                    this.gridParams.startLat = startLoc.latitude;
                     // var startLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLat, this.gridParams.startLat);
                     // if (isCenter) {
                     //     throw new Error('TODO converting gridParams for isCenter')
