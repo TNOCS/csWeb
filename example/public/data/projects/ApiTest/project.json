@@ -996,8 +996,6 @@
     },
     {
       "id": "b0e9e0cd-d6c1-44ac-8029-5c30dfe21878",
-      "title": "Features",
-      "description": "Demonstrates layers based on points",
       "clustering": true,
       "clusterLevel": 12,
       "languages": {
@@ -1006,7 +1004,7 @@
           "description": "Demonstreert kaartlagen gebaseerd op specifieke locaties"
         },
         "en": {
-          "title": "Features",
+          "title": "Clustered Features",
           "description": "Demonstrates layers based on points"
         }
       },

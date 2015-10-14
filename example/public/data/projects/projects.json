@@ -17,7 +17,7 @@
             "borderWidth": 1,
             "background": "white"
         },
-        "transparent" : {
+        "transparent": {
             "borderWidth": 0,
             "background": "transparent"
         },
@@ -145,24 +145,19 @@
         "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
         "preview": "http://a.basemaps.cartocdn.com/light_nolabels/11/673/1051.png"
     }],
-    "projects": [
-        {
-            "title": "Cycling",
-            "url": "data/projects/smartcycling/project.json",
-            "dynamic": true
-        },
-        {
+    "projects": [{
         "title": "API Example",
         "url": "data/projects/ApiTest/project.json",
         "dynamic": true
-    } ,
-        {
-            "title": "csWeb Showcases",
-            "url": "data/projects/20141104_csMap/project.json"
-        }, {
-            "title": "Dynamic",
-            "url": "project/DynamicExample"
-        }
-
-    ]
+    }, {
+        "title": "Cycling",
+        "url": "data/projects/smartcycling/project.json",
+        "dynamic": true
+    }, {
+        "title": "csWeb Showcases",
+        "url": "data/projects/20141104_csMap/project.json"
+    }, {
+        "title": "Dynamic",
+        "url": "project/DynamicExample"
+    }]
 }
