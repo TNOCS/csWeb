@@ -135,6 +135,8 @@
         "directives/Widgets/MarkdownWidget/Markdown-edit.ts",
         "directives/Widgets/MarkdownWidget/MarkdownWidget.ts",
         "directives/Widgets/MarkdownWidget/MarkdownWidgetCtrl.ts",
+        "directives/Widgets/MCAWidget/MCAWidget.ts",
+        "directives/Widgets/MCAWidget/MCAWidgetCtrl.ts",
         "directives/Widgets/Navigator/Navigator-edit.ts",
         "directives/Widgets/Navigator/NavigatorWidget.ts",
         "directives/Widgets/Navigator/NavigatorWidgetCtrl.ts",

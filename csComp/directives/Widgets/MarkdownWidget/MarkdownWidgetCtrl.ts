@@ -58,6 +58,7 @@ module MarkdownWidget {
                 this.parentWidget.hide();
                 this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
                     switch (action) {
+                        case 'onFeatureDeselect':
                         case 'onFeatureSelect':
                             this.selectFeature(feature);
                             break;
@@ -84,7 +85,7 @@ module MarkdownWidget {
         }
 
         private selectFeature(feature: csComp.Services.IFeature) {
-            if (feature.featureTypeName !== this.$scope.data.featureTypeName) {
+            if (!feature || !feature.isSelected || feature.featureTypeName !== this.$scope.data.featureTypeName) {
                 this.parentWidget.hide();
                 return;
             }

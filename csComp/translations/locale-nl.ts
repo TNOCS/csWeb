@@ -12,8 +12,10 @@ module Translations {
             SELECT_ALL: 'Selecteer alles',
             DESELECT_ALL: 'Deselecteer alles',
             ENABLE_LOCATION_FILTER: 'Activeer locatiefilter',
+            SELECT_A_FEATURE: 'Selecteer een feature',
             DISABLE_LOCATION_FILTER: 'Deactiveer locatiefilter',
             SELECT_FEATURE_FOR_WIDGET: 'Selecteer een gebied om de widget te tonen.',
+            SELECT_FEATURE_FOR_STYLE: 'Selecteer een gebied om de stijl te activeren.',
             NO_RELATIONS_FOUND: 'Geen relaties voor het geselecteerde item gevonden. Ofwel het zoomniveau is te laag, er zijn teveel items zichtbaar of er zijn geen relaties gedefiniëerd.',
             CHOOSE_DROPDOWN: 'Kies...',
             BASESTYLES: 'Basiskaarten',
@@ -132,7 +134,8 @@ module Translations {
                 GAUSSIAN: 'Normale verdeling tussen onder- en bovengrens.',
                 ADD_MCA: 'Maak een nieuwe MCA.',
                 DELETE_MCA: 'Verwijder de MCA.',
-                EDIT_MCA: 'Bewerk de MCA.'
+                EDIT_MCA: 'Bewerk de MCA.',
+                SET_STYLE: 'Activeer stijl'
             },
             PROJECTSETTINGS: {
                 TITLE: 'Project instellingen',
