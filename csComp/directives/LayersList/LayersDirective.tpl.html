@@ -3,25 +3,37 @@
     <style>
         .addlayer-container {
             cursor: pointer;
-            position:relative;
+            position: relative;
+            clear: both;
+            padding-top: 5px;
         }
 
         .addlayer-title {
-                font-size: 18px;
-                margin-left: 10px;
-                margin-top: 6px;
-            }
+            font-size: 18px;
+            margin-left: 10px;
+            margin-top: 0;
+            float: left;
+        }
 
         .addlayer-image {
             width: 25px;
             height: 25px;
+            float: left;
         }
 
-        .layer-dir-type
-        {
-            clear:left;
-            font-size:10px;
-            color:#aaaaaa;
+        .addlayer-filter {
+            margin-right: 10px;
+            border: 1px;
+            border-color: black;
+            border-style: solid;
+            padding: 3px;
+            width: 250px;
+        }
+
+        .layer-dir-type {
+            clear: left;
+            font-size: 10px;
+            color: #aaaaaa;
         }
     </style>
 
@@ -63,8 +75,11 @@
         </h3>
         <div style="background:white">
             <div ng-show="vm.selectedLayer == null">
-                <div ng-repeat="layer in vm.directory" ng-if="vm.mylayers.indexOf(layer.url)==-1" class="addlayer-container" ng-click="vm.selectProjectLayer(layer)" popover="{{layer.title}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true">
-                    <!-- <img class="addlayer-image" src="http://www.tom-carden.co.uk/wp-content/uploads/2008/10/osm-yahoo-flash.png"></img> -->
+                <div>
+                    <input class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="layerFilter" placeholder="Search Layer"></input>
+                </div>
+                <div ng-repeat="layer in vm.directory | filter: layerFilter" ng-if="vm.mylayers.indexOf(layer.url)==-1" class="addlayer-container" ng-click="vm.selectProjectLayer(layer)" popover="{{layer.title}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true">
+                    <img class="addlayer-image layersIcon"></img>
                     <div class="addlayer-title">
                         {{layer.title}}
                         <div class="layer-dir-type">{{layer.updated | amCalendar}}</div>
@@ -94,12 +109,13 @@
             </div>
             <span translate="ADDFEATURES"></span>
             <div ng-show="vm.$mapService.isIntermediate" class="leftpanel-header-button-container">
-                <button ng-if="vm.layer.typeUrl" style="cursor:pointer" class="fa fa-plus button leftpanel-header-button" ng-click="vm.createType()" popover="{{'ADDTYPE' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true" />
+                <button ng-if="vm.layer.typeUrl" style="cursor:pointer" class="fa fa-plus button leftpanel-header-button" ng-click="vm.createType()" popover="{{'ADDTYPE' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true"
+                />
             </div>
         </h3>
 
 
-<!--
+        <!--
         <div class="btn fa fa-check" ng-click="vm.stopAddingFeatures(vm.layer)">
             <span translate="DONE"></span>
         </div> -->
@@ -122,8 +138,10 @@
             </div>
             <span translate="LAYERS" />
             <div ng-show="vm.$mapService.isIntermediate" class="leftpanel-header-button-container">
-                <button style="cursor:pointer" class="fa fa-folder button leftpanel-header-button" ng-click="vm.openDirectory()" popover="{{'DIRECTORY' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true"  />
-                <button style="cursor:pointer" ng-if="vm.$layerService.project.connected" class="fa fa-plus button leftpanel-header-button" ng-click="vm.createLayer()" popover="{{'CREATELAYER' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true" />
+                <button style="cursor:pointer" class="fa fa-folder button leftpanel-header-button" ng-click="vm.openDirectory()" popover="{{'DIRECTORY' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true"
+                />
+                <button style="cursor:pointer" ng-if="vm.$layerService.project.connected" class="fa fa-plus button leftpanel-header-button" ng-click="vm.createLayer()" popover="{{'CREATELAYER' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter"
+                popover-append-to-body="true" />
             </div>
         </h3>
 
