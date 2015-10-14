@@ -191,7 +191,7 @@ module csComp.Services {
         }
 
         public getActions(feature: IFeature, type: ActionType): IActionOption[] {
-            if (!feature || !type) return;
+            if (!feature || typeof type !== 'number') return;
             var options = [];
             if (type === ActionType.Context) {
                 this.actionServices.forEach((as: csComp.Services.IActionService) => {
