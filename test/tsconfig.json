@@ -14,6 +14,7 @@
         "./**/*.ts",
         "!./node_modules/**/*.ts"
     ],
+    "exclude": [],
     "files": [
         "csComp/mock/datasourceMock.ts",
         "csComp/mock/owsMock.ts",
@@ -62,7 +63,6 @@
         "Scripts/typings/cs/api/MqttAPI.d.ts",
         "Scripts/typings/cs/api/qlobber.d.ts",
         "Scripts/typings/cs/api/RestAPI.d.ts",
-        "Scripts/typings/cs/api/RestAuthAPI.d.ts",
         "Scripts/typings/cs/api/SocketIOAPI.d.ts",
         "Scripts/typings/cs/bus/MessageBus.d.ts",
         "Scripts/typings/cs/configuration/ConfigurationService.d.ts",
@@ -76,7 +76,6 @@
         "Scripts/typings/cs/creator/RssService.d.ts",
         "Scripts/typings/cs/cs-offline-search.d.ts",
         "Scripts/typings/cs/csComp.d.ts",
-        "Scripts/typings/cs/csServerComp.d.ts",
         "Scripts/typings/cs/database/BagDatabase.d.ts",
         "Scripts/typings/cs/database/IBagAddress.d.ts",
         "Scripts/typings/cs/database/IBagOptions.d.ts",
@@ -137,7 +136,6 @@
         "Scripts/typings/jwt-simple/jwt-simple.d.ts",
         "Scripts/typings/leaflet/control-sidebar.d.ts",
         "Scripts/typings/leaflet/leaflet.d.ts",
-        "Scripts/typings/lodash/lodash.d.ts",
         "Scripts/typings/mongodb/mongodb.d.ts",
         "Scripts/typings/mqtt/mqtt-router.d.ts",
         "Scripts/typings/mqtt/mqtt.d.ts",
@@ -152,6 +150,5 @@
         "Scripts/typings/winston/winston.d.ts",
         "Scripts/typings/xbbcode/xbbcode.d.ts",
         "Scripts/typings/xml2js/xml2js.d.ts"
-    ],
-    "exclude": []
+    ]
 }
