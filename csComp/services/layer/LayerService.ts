@@ -191,7 +191,7 @@ module csComp.Services {
         }
 
         public getActions(feature: IFeature, type: ActionType): IActionOption[] {
-            if (!feature || !type) return;
+            if (!feature || typeof type !== 'number') return;
             var options = [];
             if (type === ActionType.Context) {
                 this.actionServices.forEach((as: csComp.Services.IActionService) => {
@@ -453,37 +453,42 @@ module csComp.Services {
 
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
-                    if (this.layerSources.hasOwnProperty(layerSource)) {
-                        layer.layerSource = this.layerSources[layerSource];
-                        // load layer from source
-                        if (layer.type === 'database') {
-                            this.$messageBusService.serverSubscribe(layer.id, "layer", (sub: string, msg: any) => {
-                                console.log(msg);
-                                if (msg.action === "layer-update") {
-                                    if (!msg.data.group) {
-                                        msg.data.group = this.findGroupByLayerId(msg.data);
-                                    }
-                                    this.addLayer(msg.data, () => { });
+                    if (!this.layerSources.hasOwnProperty(layerSource)) {
+                        // We don't know how to deal with an unknown layer source, so stop here.
+                        layer.isLoading = false;
+                        callback(null, null);
+                        // TODO Stop spinner
+                        return;
+                    }
+                    layer.layerSource = this.layerSources[layerSource];
+                    // load layer from source
+                    if (layer.type === 'database') {
+                        this.$messageBusService.serverSubscribe(layer.id, "layer", (sub: string, msg: any) => {
+                            console.log(msg);
+                            if (msg.action === "layer-update") {
+                                if (!msg.data.group) {
+                                    msg.data.group = this.findGroupByLayerId(msg.data);
                                 }
-                            });
-                        }
-                        layer.layerSource.addLayer(layer, (l) => {
-                            if (layerloaded) layerloaded(layer);
-                            this.$messageBusService.publish('layer', 'activated', layer);
-
-                            if (l.enabled) {
-                                this.loadedLayers[layer.id] = l;
-                                this.updateSensorData();
-                                this.updateAllLogs();
-                                this.activeMapRenderer.addLayer(layer);
-                                if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
-                                this.checkLayerTimer(layer);
-                                //this.$messageBusService.publish('layer', 'activated', layer);
-                                this.$messageBusService.publish('updatelegend', 'updatedstyle');
-                                //if (layerloaded) layerloaded(layer);
+                                this.addLayer(msg.data, () => { });
                             }
                         });
                     }
+                    layer.layerSource.addLayer(layer, (l) => {
+                        if (layerloaded) layerloaded(layer);
+                        this.$messageBusService.publish('layer', 'activated', layer);
+
+                        if (l.enabled) {
+                            this.loadedLayers[layer.id] = l;
+                            this.updateSensorData();
+                            this.updateAllLogs();
+                            this.activeMapRenderer.addLayer(layer);
+                            if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
+                            this.checkLayerTimer(layer);
+                            //this.$messageBusService.publish('layer', 'activated', layer);
+                            this.$messageBusService.publish('updatelegend', 'updatedstyle');
+                            //if (layerloaded) layerloaded(layer);
+                        }
+                    });
                     this.$messageBusService.publish("timeline", "updateFeatures");
                     callback(null, null);
                 },

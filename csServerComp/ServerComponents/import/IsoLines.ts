@@ -188,18 +188,19 @@ export class IsoLines {
         switch (gridParams.projection || 'wgs84') {
             case 'rd':
             case 'RD':
-                var startLoc = GeoJSON.GeoExtensions.convertRDToWGS84(gridParams.startLat, gridParams.startLat);
+                var startLoc = GeoJSON.GeoExtensions.convertRDToWGS84(gridParams.startLon, gridParams.startLat - gridParams.rows*gridParams.deltaLat);
                 if (isCenter) {
-                    var endLoc = GeoJSON.GeoExtensions.convertRDToWGS84(gridParams.startLat + gridParams.columns*gridParams.deltaLon/2, gridParams.startLat + gridParams.rows*gridParams.deltaLat/2);
+                    throw new Error('TODO: Never teste isCenter');
+                    var endLoc = GeoJSON.GeoExtensions.convertRDToWGS84(gridParams.startLon + gridParams.columns*gridParams.deltaLon/2, gridParams.startLat);
                     gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / (gridParams.columns/2);
                     gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / (gridParams.rows/2);
                 } else {
-                    var endLoc = GeoJSON.GeoExtensions.convertRDToWGS84(gridParams.startLat + gridParams.columns*gridParams.deltaLon, gridParams.startLat + gridParams.rows*gridParams.deltaLat);
+                    var endLoc = GeoJSON.GeoExtensions.convertRDToWGS84(gridParams.startLon + gridParams.columns*gridParams.deltaLon, gridParams.startLat);
                     gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / gridParams.columns;
                     gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / gridParams.rows;
                 }
-                gridParams.startLon = startLoc.longitude;
-                gridParams.startLat = startLoc.latitude;
+                gridParams.startLon = startLoc.longitude + gridParams.deltaLon;
+                gridParams.startLat = startLoc.latitude + gridParams.deltaLat;
                 break;
             case 'WGS84':
             case 'wgs84':
@@ -264,6 +265,7 @@ export class IsoLines {
             }
         }
 
+        var re = new RegExp(noDataValue.toString(), "g");
         lines.forEach((line) => {
             if (gridParams.commentCharacter)
                 if (line.substr(0, 1) === gridParams.commentCharacter) {
@@ -282,6 +284,8 @@ export class IsoLines {
             }
             rowsToProcess--;
             if (rowsToProcess < 0) return;
+
+            var line = line.replace(re, '0');
 
             var cells: RegExpMatchArray;
             if (skipSpacesFromLine)

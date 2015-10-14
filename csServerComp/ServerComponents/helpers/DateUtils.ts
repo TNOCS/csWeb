@@ -25,11 +25,11 @@ Date.prototype.diffDays = function(date: Date) {
 }
 Date.prototype.diffHours = function(date: Date) {
     var diffMs = (this.getTime() - date.getTime()); // milliseconds
-    return Math.round((diffMs % 86400000) / 3600000); // hours
+    return Math.round(diffMs / 3600000); // hours
 }
 Date.prototype.diffMinutes = function(date: Date) {
     var diffMs = (this.getTime() - date.getTime()); // milliseconds
-    return Math.round(((diffMs % 86400000) % 3600000) / 60000); // minutes
+    return Math.round(diffMs / 60000); // minutes
 }
 Date.prototype.diffSeconds = function(date: Date) {
     var diffMs = (this.getTime() - date.getTime()); // milliseconds

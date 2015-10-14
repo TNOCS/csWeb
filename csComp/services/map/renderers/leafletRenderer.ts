@@ -102,37 +102,12 @@ module csComp.Services {
         public removeLayer(layer: ProjectLayer) {
             switch (layer.renderType) {
                 case "geojson":
-                    var g = layer.group;
-                    //m = layer.group.vectors;
-                    if (g.clustering) {
-                        var m = g.cluster;
-                        this.service.project.features.forEach((feature: IFeature) => {
-                            if (feature.layerId === layer.id) {
-                                try {
-                                    m.removeLayer(layer.group.markers[feature.id]);
-                                    delete layer.group.markers[feature.id];
-                                } catch (error) { }
-                            }
-                        });
-                    } else {
-                        this.service.project.features.forEach((feature: IFeature) => {
-                            if (feature.layerId === layer.id && layer.group.markers.hasOwnProperty(feature.id)) {
-                                delete layer.group.markers[feature.id];
-                            }
-                        });
-                        if (this.service.map.map && layer.mapLayer) {
-                            try {
-                                this.service.map.map.removeLayer(layer.mapLayer);
-                            } catch (error) { }
-                        }
-                    }
+                    GeojsonRenderer.remove(this.service, layer);
                     break;
                 default:
-
                     if (this.service.map.map && layer.mapLayer) this.service.map.map.removeLayer(layer.mapLayer);
                     break;
             }
-
         }
 
         baseLayer: L.ILayer;
@@ -161,6 +136,7 @@ module csComp.Services {
 
             return layer;
         }
+
         private getLeafletStyle(style: IFeatureTypeStyle) {
             var s = {
                 fillColor: style.fillColor,
@@ -176,153 +152,20 @@ module csComp.Services {
 
         public addLayer(layer: ProjectLayer) {
             switch (layer.renderType) {
-                case "tilelayer":
-                    var u = layer.url;
-                    if (layer.timeDependent) {
-                        // convert epoch to time string parameter
-                        var ft = this.service.project.timeLine.focus;
-                        if (layer.timeResolution) {
-                            var tr = layer.timeResolution;
-                            ft = Math.floor(ft / tr) * tr;
-                        };
-                        var d = new Date(0);
-                        d.setUTCSeconds(ft / 1000);
-                        var sDate: string = d.yyyymmdd();
-                        var hrs = d.getHours();
-                        var mins = d.getMinutes();
-                        var secs = d.getSeconds();
-                        var sTime: string = Utils.twoDigitStr(hrs) +
-                            Utils.twoDigitStr(mins) + Utils.twoDigitStr(secs);
-                        u += "&time=" + sDate + sTime;
-                    } else if (layer.disableCache) {
-                        // check if we need to create a unique url to force a refresh
-                        layer.cacheKey = new Date().getTime().toString();
-                        u += "&cache=" + layer.cacheKey;
-                    }
-
-                    var tileLayer: any = L.tileLayer(u, { attribution: layer.description });
-                    layer.mapLayer = new L.LayerGroup<L.ILayer>();
-                    tileLayer.setOpacity(layer.opacity / 100);
-                    this.service.map.map.addLayer(layer.mapLayer);
-                    layer.mapLayer.addLayer(tileLayer);
-                    tileLayer.on('loading', (event) => {
-                        layer.isLoading = true;
-                        this.service.$rootScope.$apply();
-                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
-                    });
-                    tileLayer.on('load', (event) => {
-                        layer.isLoading = false;
-                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
-                    });
-                    layer.isLoading = true;
-
-                    //this.$rootScope.$apply();
-                    break;
-
-                case "wms":
-                    var wms: any = L.tileLayer.wms(layer.url, <any>{
-                        layers: layer.wmsLayers,
-                        opacity: layer.opacity / 100,
-                        format: 'image/png',
-                        transparent: true,
-                        attribution: layer.description,
-                        tiled: true
-                    });
-                    layer.mapLayer = new L.LayerGroup<L.ILayer>();
-                    this.service.map.map.addLayer(layer.mapLayer);
-                    layer.mapLayer.addLayer(wms);
-                    wms.on('loading', (event) => {
-                        layer.isLoading = true;
-                        this.service.$rootScope.$apply();
-                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
-                    });
-                    wms.on('load', (event) => {
-                        layer.isLoading = false;
-                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
-                    });
-                    layer.isLoading = true;
-                    break;
                 case "geojson":
-                    // create leaflet layers
-                    layer.mapLayer = new L.LayerGroup<L.ILayer>();
-                    this.service.map.map.addLayer(layer.mapLayer);
-                    if (!layer.data || !layer.data.features) break;
-
-                    (<any>layer.data).features.forEach((f: IFeature) => {
-                        var marker = this.addFeature(f);
-                        if (marker) layer.group.markers[f.id] = marker;
-                    });
-                    //var v = L.geoJson(layer.data, {
-                    //    style: (f: IFeature, m) => {
-                    //        layer.group.markers[f.id] = m;
-                    //        return this.getLeafletStyle(f.effectiveStyle);
-                    //    },
-                    //    pointToLayer : (feature, latlng) =>
-                    //});
-                    //this.service.project.features.forEach((f : IFeature) => {
-                    //    if (f.layerId !== layer.id) return;
-                    //    var ft = this.service.getFeatureType(f);
-                    //    f.properties['Name'] = f.properties[ft.style.nameLabel];
-                    //});
-                    //layer.mapLayer.addLayer(v);
+                    GeojsonRenderer.render(this.service, layer, this);
+                    break;
+                case "tilelayer":
+                    TileLayerRenderer.render(this.service, layer);
+                    break;
+                case "wms":
+                    WmsRenderer.render(this.service, layer);
+                    break;
+                case "gridlayer":
+                    GridLayerRenderer.render(this.service, layer);
                     break;
                 case "heatmap":
-                    if (layer.quickRefresh && layer.quickRefresh == true) break; //When only updating style of current heatmap, do not add a new layer.
-                    var time = new Date().getTime();
-                    // create leaflet layers
-                    layer.isLoading = true;
-                    if (layer.group.clustering) {
-                        var markers = L.geoJson(layer.data, {
-                            pointToLayer: (feature, latlng) => this.createFeature(feature),
-                            onEachFeature: (feature: IFeature, lay) => {
-                                //We do not need to init the feature here: already done in style.
-                                //this.initFeature(feature, layer);
-                                layer.group.markers[feature.id] = lay;
-                                lay.on({
-                                    mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                    mouseout: (s) => this.hideFeatureTooltip(s)
-                                });
-                            }
-                        });
-                        layer.group.cluster.addLayer(markers);
-                    } else {
-                        layer.mapLayer = new L.LayerGroup<L.ILayer>();
-                        this.service.map.map.addLayer(layer.mapLayer);
-
-                        if (layer.data && layer.data.features) {
-                            var v = L.geoJson(layer.data, {
-                                onEachFeature: (feature: IFeature, lay) => {
-                                    //We do not need to init the feature here: already done in style.
-                                    //this.initFeature(feature, layer);
-                                    layer.group.markers[feature.id] = lay;
-                                    lay.on({
-                                        mouseover: (a) => this.showFeatureTooltip(a, layer.group),
-                                        mouseout: (s) => this.hideFeatureTooltip(s),
-                                        mousemove: (d) => this.updateFeatureTooltip(d),
-                                        click: (e) => {
-                                            this.selectFeature(feature);
-                                        }
-                                    });
-                                },
-                                style: (f: IFeature, m) => {
-                                    layer.group.markers[f.id] = m;
-                                    return f.effectiveStyle;
-                                },
-                                pointToLayer: (feature, latlng) => this.createFeature(feature)
-                            });
-                        } else {
-                            var v = L.geoJson([]);
-                        }
-                        this.service.project.features.forEach((f: IFeature) => {
-                            if (f.layerId !== layer.id) return;
-                            var ft = this.service.getFeatureType(f);
-                            f.properties['Name'] = f.properties[ft.style.nameLabel];
-                        });
-
-                        layer.mapLayer.addLayer(v);
-                        layer.isLoading = false;
-                        var time2 = new Date().getTime();
-                    }
+                    HeatmapRenderer.render(this.service, layer, this);
                     break;
             }
         }
@@ -357,14 +200,10 @@ module csComp.Services {
 
                     if (g.clustering) {
                         var m = g.cluster;
-
-
                         try {
                             m.removeLayer(layer.group.markers[feature.id]);
                             delete layer.group.markers[feature.id];
                         } catch (error) { }
-
-
                     } else {
                         if (layer.group.markers.hasOwnProperty(feature.id)) {
                             layer.mapLayer.removeLayer(layer.group.markers[feature.id]);
@@ -373,10 +212,7 @@ module csComp.Services {
                         }
                     }
                     break;
-
             }
-
-
             // var marker = <L.Marker>feature.layer.group.markers[feature.id];
             // if (marker != null) {
             //     feature.layer.mapLayer.removeLayer(marker);
@@ -471,8 +307,16 @@ module csComp.Services {
                         var menu: any = $("#map-contextmenu");
                         button.dropdown('toggle');
                         var mapSize = this.map.getSize();
-                        menu.css("left", e.originalEvent.x + 5);
-                        menu.css("top", e.originalEvent.y - 35);
+                        if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
+                            menu.css("left", e.originalEvent.x + 5);
+                        } else {
+                            menu.css("left", e.originalEvent.x - 5 - menu.width());
+                        }
+                        if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
+                            menu.css("top", e.originalEvent.y - 35);
+                        } else {
+                            menu.css("top", e.originalEvent.y - 70 - menu.height());
+                        }
                         if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
                     });
 
@@ -502,8 +346,16 @@ module csComp.Services {
                         var menu: any = $("#map-contextmenu");
                         button.dropdown('toggle');
                         var mapSize = this.map.getSize();
-                        menu.css("left", e.originalEvent.x + 5);
-                        menu.css("top", e.originalEvent.y - 35);
+                        if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
+                            menu.css("left", e.originalEvent.x + 5);
+                        } else {
+                            menu.css("left", e.originalEvent.x - 5 - menu.width());
+                        }
+                        if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
+                            menu.css("top", e.originalEvent.y - 35);
+                        } else {
+                            menu.css("top", e.originalEvent.y - 70 - menu.height());
+                        }
                         if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
                     });
 
@@ -548,7 +400,7 @@ module csComp.Services {
         /***
          * Show tooltip with name, styles & filters.
          */
-        showFeatureTooltip(e, group: ProjectGroup) {
+        showFeatureTooltip(e: L.LeafletMouseEvent, group: ProjectGroup) {
             var layer = e.target;
             var feature = <Feature>layer.feature;
             // add title
@@ -607,14 +459,14 @@ module csComp.Services {
             });
         }
 
-        hideFeatureTooltip(e) {
+        hideFeatureTooltip(e: L.LeafletMouseEvent) {
             if (this.popup && this.service.map.map) {
                 (<any>this.service.map.map).closePopup(this.popup);
                 //this.map.map.closePopup(this.popup);
                 this.popup = null;
             }
             //In case a contour is being shown, hide it.
-            var layer = e.target;
+            var layer: any = e.target;
             var feature = <Feature>layer.feature;
             if (feature) {
                 var hoverActions = this.service.getActions(feature, ActionType.Hover);
@@ -626,7 +478,7 @@ module csComp.Services {
             }
         }
 
-        updateFeatureTooltip(e) {
+        updateFeatureTooltip(e: L.LeafletMouseEvent) {
             if (this.popup != null && e.latlng != null) this.popup.setLatLng(e.latlng);
         }
     }

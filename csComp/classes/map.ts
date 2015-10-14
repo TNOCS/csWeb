@@ -22,6 +22,7 @@ module csComp.Services {
         createFeature(feature: IFeature);
         removeFeature(feature: IFeature);
         updateFeature(feature: IFeature);
+        selectFeature(feature: IFeature);
         addFeature(feature: IFeature);
         removeLayer(layer: ProjectLayer);
         updateMapFilter(group: ProjectGroup);
