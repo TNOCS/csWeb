@@ -66,7 +66,7 @@ module MCAWidget {
             this.mcaScope = this.getMcaScope();
             if (!this.mcaScope) return;
 
-            if (layer.id !== this.$scope.data.layerId || (layer.id === this.$scope.data.layerId && !layer.enabled) {
+            if (layer.id !== this.$scope.data.layerId || (layer.id === this.$scope.data.layerId && !layer.enabled)) {
                 this.parentWidget.hide();
                 return;
             }
