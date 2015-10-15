@@ -55,6 +55,8 @@ module csComp.Services {
             var opt = settings.options,
                 data = opt.data;
 
+            if (!data) return;
+
             var row = data.length,
                 col = data[0].length,
                 size = settings.size,
