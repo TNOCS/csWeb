@@ -50,5 +50,15 @@ module ColorExt {
             return Utils.hsv2rgb(h, 1, 1);
         }
 
+        /**
+         * Convert an R, G and B combination to hexadecimal string (with preceding #)
+         * @param  number[] rgb array
+         * @return string  hex string
+         */
+        public static rgbToHex(rgb): string {
+            return '#' + rgb.map(function(x) {
+                return ("0" + x.toString(16)).slice(-2);
+            }).join('');
+        }
     }
 }
