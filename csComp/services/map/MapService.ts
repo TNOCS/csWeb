@@ -129,7 +129,7 @@ module csComp.Services {
         }
 
         public invalidate() {
-            this.map.invalidateSize();
+            this.map.invalidateSize(true);
         }
 
         /**
