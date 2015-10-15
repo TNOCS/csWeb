@@ -136,7 +136,6 @@ module csComp.Services {
                             this.service.$messageBusService.notify('Warning', 'Data loaded successfully, but all points are outside the specified range.', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Error);
                             layer.isLoading = false;
                             cb(null, null);
-                            layer.isLoading = false;
                             return;
                         }
                         // store raw result in layer
@@ -197,8 +196,11 @@ module csComp.Services {
             No carriage returns are necessary at the end of each row in the raster. The number of columns in the header determines when a new row begins.
             Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so on.
          */
-        private convertEsriHeaderToGridParams(data: string) {
+        private convertEsriHeaderToGridParams(input: string | Object) {
             const regex = /(\S*)\s*([\d-.]*)/;
+
+            var data: string = this.getData(input);
+            if (!data) return;
 
             var lines = data.split('\n', 6);
             var x: number,
@@ -282,7 +284,27 @@ module csComp.Services {
             }
         }
 
-        private convertDataToGrid(data: string, gridParams: IGridDataSourceParameters) {
+        /** Extract the grid data from the input */
+        private getData(input: string | Object) {
+            if (typeof input === 'string') {
+                return input;
+            } else if (input.hasOwnProperty('data') && typeof input['data'] === 'string') {
+                return input['data'];
+            } else {
+                console.log('GridDataSource error: could not read grid data!');
+                return '';
+            }
+        }
+
+        /**
+         * Convert the incoming data to a matrix grid.
+         * The incoming data can be in two formats: either it is a string, representing the ASCII grid data,
+         * or it is an (ILayer) object, in which case the data should be in the input.data property.
+         */
+        private convertDataToGrid(input: string | Object, gridParams: IGridDataSourceParameters) {
+            var data: string = this.getData(input);
+            if (!data) return;
+
             var propertyName = gridParams.propertyName || "v";
             var noDataValue = gridParams.noDataValue || -9999;
 

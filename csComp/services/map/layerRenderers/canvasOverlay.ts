@@ -143,6 +143,10 @@ module L {
             topLeftLon: number,
             deltaLat: number,
             deltaLon: number,
+            /** The minimum data value: below (<) this value, the cell is not drawn */
+            min?: number,
+            /** The maximum data value: above (>) this value, the cell is not drawn */
+            max?: number,
             /** A value between 0 (transparent) and 1 (opaque) */
             opacity?: number,
             legend?: { val: number, color: string}[],

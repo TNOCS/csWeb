@@ -17,6 +17,8 @@ module csComp.Services {
                 topLeftLon: gridParams.startLon,
                 deltaLat: gridParams.deltaLat,
                 deltaLon: gridParams.deltaLon,
+                min: gridParams.minThreshold,
+                max: gridParams.maxThreshold,
                 legend: legend,
                 opacity: layer.opacity/100
             });
@@ -58,13 +60,29 @@ module csComp.Services {
                 size = settings.size,
                 legend = opt.legend;
 
+            var min = opt.min || Number.MIN_VALUE,
+                max = opt.max || Number.MAX_VALUE;
+
             var topLeft = map.latLngToContainerPoint(new L.LatLng(opt.topLeftLat, opt.topLeftLon)),
                 botRight = map.latLngToContainerPoint(new L.LatLng(opt.topLeftLat + row * opt.deltaLat, opt.topLeftLon + col * opt.deltaLon));
 
             var startX = topLeft.x,
                 startY = topLeft.y,
                 deltaX = (botRight.x - topLeft.x) / col,
-                deltaY = (botRight.y - topLeft.y) / row;
+                botOfFirstRow = map.latLngToContainerPoint(new L.LatLng(opt.topLeftLat + opt.deltaLat, opt.topLeftLon)),
+                deltaY = botOfFirstRow.y - topLeft.y;
+
+            // var skippedRows = 0;
+            // var lat = opt.topLeftLat + opt.deltaLat;
+            // while (deltaY === 0) {
+            //     // This happens when we are near the poles
+            //     skippedRows++;
+            //     topLeft = botOfFirstRow;
+            //     startX = topLeft.x;
+            //     lat += opt.deltaLat;
+            //     botOfFirstRow = map.latLngToContainerPoint(new L.LatLng(lat, opt.topLeftLon)),
+            //     deltaY = botOfFirstRow.y - topLeft.y;
+            // }
 
             var ctx = settings.canvas.getContext("2d");
             ctx.clearRect(0, 0, size.x, size.y);
@@ -83,14 +101,14 @@ module csComp.Services {
                 sJ = -Math.ceil(startX / deltaX);
                 startX += sJ * deltaX;
             }
-            if (startY < -deltaY) {
+            if (startY < -deltaY && deltaY > 0) {
                 sI = -Math.ceil(startY / deltaY);
                 //startY += sI * deltaY;
             }
             if (botRight.x > size.x) {
                 eJ -= Math.floor((botRight.x - size.x) / deltaX);
             }
-            if (botRight.y > size.y) {
+            if (botRight.y > size.y && deltaY > 0) {
                 eI -= Math.floor((botRight.y - size.y) / deltaY);
             }
 
@@ -100,19 +118,32 @@ module csComp.Services {
             ctx.globalAlpha = opt.opacity || 0.3;
 
             console.time('process');
+            var y = startY;
+            var lat = opt.topLeftLat + sI * opt.deltaLat;
             for (var i = sI; i < eI; i++) {
-                let x = startX - deltaX;
-                let y = startY + i * deltaY;
+                let x = startX;
+                lat += opt.deltaLat;
+                let botY = map.latLngToContainerPoint(new L.LatLng(lat, opt.topLeftLon)).y;
+                deltaY = botY - y;
+                //console.log(`y: ${y}, dy: ${deltaY}`);
+                if (deltaY === 0) {
+                    y = botY;
+                    continue;
+                }
                 for (var j = sJ; j < eJ; j++) {
-                    x += deltaX;
                     var cell = data[i][j];
-                    if (cell === noDataValue) continue;
+                    if (cell === noDataValue || cell < min || cell > max) {
+                        x += deltaX;
+                        continue;
+                    }
                     var closest = legend.reduce(function(prev, curr) {
                         return (Math.abs(curr.val - cell) < Math.abs(prev.val - cell) ? curr : prev);
                     });
                     ctx.fillStyle = closest.color;
                     ctx.fillRect(x, y, deltaX, deltaY);
+                    x += deltaX;
                 }
+                y = botY;
             }
             console.timeEnd('process');
         }

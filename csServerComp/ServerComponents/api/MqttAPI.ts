@@ -68,7 +68,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                 var layer = this.extractLayer(message);
                 if (layer && layer.id) {
                     Winston.info('mqtt: received definition for layer ' + layer.id);
-                    Winston.error(`Definition: ${JSON.stringify(layer, null, 2)}`)
+                    Winston.info(`Definition: ${JSON.stringify(layer, null, 2)}`)
                     this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
                 }
             }
