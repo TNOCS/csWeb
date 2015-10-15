@@ -199,6 +199,7 @@ export interface ILayer extends StorageObject {
     tags?: string[];
     isDynamic?: boolean;
     features?: Feature[];
+    data?: any;
     [key: string]: any;
 }
 
@@ -368,9 +369,11 @@ export class ApiManager extends events.EventEmitter {
         this.layersFile = path.join(this.rootPath, 'layers.json');
 
         fs.readFile(this.layersFile, "utf8", (err, data) => {
-            if (!err) {
+            if (!err && data) {
                 Winston.info('manager: layer config loaded');
                 this.layers = <{ [key: string]: Layer }>JSON.parse(data);
+            } else {
+                this.layers = {};
             }
             cb();
         });
