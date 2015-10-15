@@ -90,7 +90,6 @@ module LayersDirective {
                     }
                     var id = nt.id;
                     tr.featureTypes[id] = nt;
-
                     console.log(tr);
                 }
 
