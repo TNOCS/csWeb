@@ -448,9 +448,6 @@ module csComp.Services {
                 (callback) => {
                     // load required feature layers, if applicable
                     this.loadRequiredLayers(layer);
-
-                    // load type resources
-
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
                     if (!this.layerSources.hasOwnProperty(layerSource)) {
