@@ -1604,7 +1604,7 @@ input[type="radio"], input[type="checkbox"] {
 .leftpanel-container {
     width: 350px;
     height: 100vh;
-    /*margin-top: 50px;*/
+    margin-top: 50px;
     pointer-events: all
 }
 .rightpanel {

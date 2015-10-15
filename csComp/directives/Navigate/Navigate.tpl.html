@@ -1,0 +1,22 @@
+<div>
+    <h4 class="leftpanel-header" translate="NAVIGATE"></h4>
+
+    </div>
+    <!-- <a ng-click="vm.$layerService.setLocationFilter()" style="margin-bottom:10px; display:block;">
+        <span class="fa fa-filter"></span>
+        <div style="display:inline; cursor:pointer" ng-hide="vm.locationFilterActive">{{'ENABLE_LOCATION_FILTER' | translate}}</div>
+        <div style="display:inline; cursor:pointer" ng-show="vm.locationFilterActive">{{'DISABLE_LOCATION_FILTER' | translate}}</div>
+    </a> -->
+    <div>
+        <input class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="layerFilter" placeholder="Search Layer"></input>
+    </div>
+
+
+        <div style="float: left; margin-left: 10px; margin-top: 5px" data-toggle="collapse" data-target="#recent-layers">
+            <i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
+            <div style="margin-top:0" popover="Show Recent Layers" popover-placement="right" popover-width="400" popover-trigger="mouseenter" popover-append-to-body="true" class="togglebutton group-title">Recent Layers</div>
+        </div>
+        <div id="recent-layers"><h4>recent layers</h4></div>
+
+
+</div>
