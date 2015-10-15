@@ -354,12 +354,7 @@ module LayersDirective {
             //layer.enabled = !layer.enabled;
             //if (this.$layerService.loadedLayers.containsKey(layer.id)) {
             // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
-            if (layer.group.oneLayerActive && this.$layerService.findLoadedLayer(layer.id)) layer.enabled = false;
-            if (layer.enabled) {
-                this.$layerService.addLayer(layer);
-            } else {
-                this.$layerService.removeLayer(layer);
-            }
+            this.$layerService.toggleLayer(layer);            
 
             // NOTE EV: You need to call apply only when an event is received outside the angular scope.
             // However, make sure you are not calling this inside an angular apply cycle, as it will generate an error.
