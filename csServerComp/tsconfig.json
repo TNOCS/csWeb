@@ -17,6 +17,7 @@
         "!./node_modules/**/*.ts",
         "!./Classes/*.d.ts"
     ],
+    "exclude": [],
     "files": [
         "Classes/Feature.ts",
         "Scripts/typings/async/async.d.ts",
@@ -116,6 +117,5 @@
         "ServerComponents/rules/Rule.ts",
         "ServerComponents/rules/RuleEngine.ts",
         "ServerComponents/rules/WorldState.ts"
-    ],
-    "exclude": []
+    ]
 }
