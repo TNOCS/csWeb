@@ -786,7 +786,6 @@ module csComp.Services {
             // deselect last feature and also update
             if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
                 this.deselectFeature(this.lastSelectedFeature);
-
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
             }
             if (feature.isSelected) this.lastSelectedFeature = feature;
@@ -1634,7 +1633,7 @@ module csComp.Services {
          * If it does not exist, return null.
          */
         getFeatureTypeById(featureTypeId: string): IFeatureType {
-            if (this._featureTypes.hasOwnProperty(featureTypeId)){
+            if (this._featureTypes.hasOwnProperty(featureTypeId)) {
                 return this._featureTypes[featureTypeId];
             } else {
                 return;
@@ -2193,6 +2192,15 @@ module csComp.Services {
                     startd = this.findDashboardById(this.startDashboardId);
                 }
                 this.$messageBusService.publish('dashboard-main', 'activated', startd);
+            }
+        }
+
+        public toggleLayer(layer: ProjectLayer) {
+            if (layer.group.oneLayerActive && this.findLoadedLayer(layer.id)) layer.enabled = false;
+            if (layer.enabled) {
+                this.addLayer(layer);
+            } else {
+                this.removeLayer(layer);
             }
         }
 
