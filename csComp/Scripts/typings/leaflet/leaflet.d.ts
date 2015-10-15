@@ -1106,7 +1106,8 @@ declare namespace L {
           * Function that will be used to get style options for vector layers created
           * for GeoJSON features.
           */
-        style?: (featureData: any) => any;
+         //EV Added the second parameter, m, to make the heatmap compile again.
+        style?: (featureData: any, m?: any) => any;
 
         /**
           * Function that will be called on each created feature layer. Useful for attaching
@@ -3604,6 +3605,7 @@ declare namespace L {
           * optionally an options object.
           */
         new(latlngs: LatLngBoundsExpression, options?: PolylineOptions): Polyline;
+
     }
     export var Polyline: PolylineStatic;
 
