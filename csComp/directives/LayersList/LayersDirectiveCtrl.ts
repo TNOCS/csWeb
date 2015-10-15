@@ -201,12 +201,16 @@ module LayersDirective {
 
         updateLayerOpacity = _.debounce((layer: csComp.Services.ProjectLayer) => {
             console.log('update opacity');
-            this.$layerService.updateLayerFeatures(layer);
+            if (!layer) return;
+            if (layer.renderType && layer.renderType.toLowerCase() === 'gridlayer') {
+                this.$layerService.updateCanvasOverlay(layer);
+            } else {
+                this.$layerService.updateLayerFeatures(layer);
+            }
         }, 500);
 
         public setLayerOpacity(layer: csComp.Services.ProjectLayer) {
             this.updateLayerOpacity(layer);
-
         }
 
         public openLayerMenu(e) {

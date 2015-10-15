@@ -20,7 +20,7 @@ module csComp.Services {
                 min: gridParams.minThreshold,
                 max: gridParams.maxThreshold,
                 legend: legend,
-                opacity: layer.opacity/100
+                opacity: (layer.opacity) ? (+layer.opacity)/100 : 0.3
             });
 
             layer.mapLayer = new L.LayerGroup<L.ILayer>();
