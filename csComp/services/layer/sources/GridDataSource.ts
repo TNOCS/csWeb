@@ -124,8 +124,8 @@ module csComp.Services {
                         }
                         if (layer.renderType === 'gridlayer') {
                             layer.data = this.convertDataToGrid(result, this.gridParams);;
-                            cb(null, null);
                             layer.isLoading = false;
+                            cb(null, null);
                             return;
                         }
                         var data = this.convertDataToFeatureCollection(result, this.gridParams);
@@ -158,6 +158,9 @@ module csComp.Services {
                         callback(layer);
                     }
                 ]);
+            }).fail((err) => {
+                layer.isLoading = false;
+                console.log(`Failed loading layer ${layer.title} due to ${err}.`)
             });
         }
 
