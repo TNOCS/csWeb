@@ -18,12 +18,12 @@ module LayersDirective {
         public mylayers: string[];
         public selectedLayer: csComp.Services.ProjectLayer;
         public newLayer: csComp.Services.ProjectLayer;
-        public layerResourceType : string;
-        public resources : { [ key : string] : csComp.Services.TypeResource };
+        public layerResourceType: string;
+        public resources: { [key: string]: csComp.Services.TypeResource };
         public layerGroup: any;
         public layerTitle: string;
-        public newGroup : string;
-        public groups : csComp.Services.ProjectGroup[];
+        public newGroup: string;
+        public groups: csComp.Services.ProjectGroup[];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -76,21 +76,18 @@ module LayersDirective {
         }
 
 
-        public createType()
-        {
-            if (!this.layer.typeUrl)
-            {
+        public createType() {
+            if (!this.layer.typeUrl) {
                 if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl));
                 var tr = this.$layerService.typesResources[this.layer.typeUrl];
                 console.log(tr);
             }
         }
 
-        public initGroups()
-        {
+        public initGroups() {
             this.groups = [];
             if (this.$layerService.project.groups)
-                this.$layerService.project.groups.forEach((g)=>this.groups.push(g));
+                this.$layerService.project.groups.forEach((g) => this.groups.push(g));
             var g = new csComp.Services.ProjectGroup;
             g.id = "<new>";
             g.title = "<new group>";
@@ -172,8 +169,7 @@ module LayersDirective {
             this.state = "editlayer";
             (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startAddingFeatures(layer);
             this.layer = layer;
-            if (!this.layer.typeUrl)
-            {
+            if (!this.layer.typeUrl) {
 
             }
         }
@@ -192,12 +188,16 @@ module LayersDirective {
 
         updateLayerOpacity = _.debounce((layer: csComp.Services.ProjectLayer) => {
             console.log('update opacity');
-            this.$layerService.updateLayerFeatures(layer);
+            if (!layer) return;
+            if (layer.renderType && layer.renderType.toLowerCase() === 'gridlayer') {
+                this.$layerService.updateCanvasOverlay(layer);
+            } else {
+                this.$layerService.updateLayerFeatures(layer);
+            }
         }, 500);
 
         public setLayerOpacity(layer: csComp.Services.ProjectLayer) {
             this.updateLayerOpacity(layer);
-
         }
 
         public openLayerMenu(e) {
@@ -247,17 +247,16 @@ module LayersDirective {
                 });
         }
 
-        private initResources()
-        {
+        private initResources() {
             this.resources = {};
             if (!this.project.groups) return;
-            this.project.groups.forEach((g)=>{
-                if (g.layers) g.layers.forEach((l)=>{
+            this.project.groups.forEach((g) => {
+                if (g.layers) g.layers.forEach((l) => {
                     if (l.typeUrl && !this.resources.hasOwnProperty(l.typeUrl))
-                    this.resources[l.typeUrl] = <csComp.Services.TypeResource> { title : l.typeUrl};
+                        this.resources[l.typeUrl] = <csComp.Services.TypeResource> { title: l.typeUrl };
                 })
             })
-            this.resources["<new>"] = <csComp.Services.TypeResource> { title : "<new type file>"};
+            this.resources["<new>"] = <csComp.Services.TypeResource> { title: "<new type file>" };
             this.layerResourceType = "<new>";
         }
 
@@ -281,16 +280,14 @@ module LayersDirective {
 
         public addLayer() {
             //this.loadAvailableLayers();
-            var group : csComp.Services.ProjectGroup;
-            if (this.layerGroup=="<new>")
-            {
+            var group: csComp.Services.ProjectGroup;
+            if (this.layerGroup == "<new>") {
                 group = new csComp.Services.ProjectGroup;
                 group.title = this.newGroup;
                 this.$layerService.project.groups.push(group);
                 this.$layerService.initGroup(group);
             }
-            else
-            {
+            else {
                 group = this.$layerService.findGroupById(this.layerGroup);
             }
 
@@ -303,10 +300,9 @@ module LayersDirective {
                 /// create layer on server
                 if (this.newLayer.type === "dynamicgeojson") {
                     this.newLayer.url = "api/layers/" + nl.id;
-                    if (this.layerResourceType==="<new>")
-                    {
+                    if (this.layerResourceType === "<new>") {
                         this.newLayer.typeUrl = "/api/resources/" + this.newLayer.title;
-                        var r = <csComp.Services.TypeResource>{ id:this.newLayer.title, title: this.newLayer.title, featureTypes : {}, propertyTypeData : {}};
+                        var r = <csComp.Services.TypeResource>{ id: this.newLayer.title, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
                         this.$http.post("/api/resources/" + this.newLayer.title, r)
                             .success((data) => {
 
@@ -315,8 +311,7 @@ module LayersDirective {
                             console.log('error adding resource');
                         });
                     }
-                    else
-                    {
+                    else {
                         this.newLayer.typeUrl = this.layerResourceType;
                     }
 
@@ -331,8 +326,7 @@ module LayersDirective {
                     });
                 }
 
-                if (this.layerResourceType === "<new>")
-                {
+                if (this.layerResourceType === "<new>") {
 
                 }
 

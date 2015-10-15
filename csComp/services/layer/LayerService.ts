@@ -732,6 +732,19 @@ module csComp.Services {
             });
         }
 
+        public updateCanvasOverlay(layer: ProjectLayer) {
+            if (!layer || !layer.mapLayer) return;
+            var mapLayers = layer.mapLayer.getLayers();
+            mapLayers.forEach((ml) => {
+                if ((<any>ml).redraw && typeof (<any>ml).redraw === 'function') {
+                    var layerOpacity: number = (+layer.opacity)/100;
+                    layerOpacity = Math.min(1, Math.max(0, layerOpacity)); //set bounds to 0 - 1
+                    (<any>ml).params({opacity: (+layer.opacity)/100});
+                    (<any>ml).redraw();
+                }
+            })
+        }
+
         public updateFeatureTypes(featureType: IFeatureType) {
             this.project.features.forEach((f: IFeature) => {
                 if (f.featureTypeName === featureType.id) {

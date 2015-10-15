@@ -44,6 +44,34 @@ module L {
             var size = this._map.getSize();
             this._canvas.width = size.x;
             this._canvas.height = size.y;
+            this._context = this._canvas.getContext("2d");
+
+            this._popup = null;
+
+            this.onMouseMoveDelay = _.debounce((evt) => {
+                var pos = this._getCanvasPos();
+                var rgb = this._context.getImageData(evt.x - pos.left, evt.y - pos.top, 1, 1).data;
+                if ((rgb[0] + rgb[1] + rgb[2]) > 0) {
+                    var hexColor = ColorExt.Utils.rgbToHex([rgb[0],rgb[1],rgb[2]]);
+                    var content = '<table>' + '<td>Color: '+ hexColor + '</td></tr>' + '</table>';
+                    if (this._popup != null) {
+                        this._popup.setLatLng(this._map.containerPointToLatLng(new L.Point(evt.x, evt.y))).setContent(content);
+                    } else {
+                        this._popup = L.popup({
+                            offset: new L.Point(-25, -15),
+                            closeOnClick: true,
+                            autoPan: false,
+                            className: 'featureTooltip'
+                        }).setLatLng(this._map.containerPointToLatLng(new L.Point(evt.x, evt.y))).setContent(content).openOn(this._map);
+                    }
+                } else {
+                    this._map.closePopup(this._popup);
+                    this._popup = null;
+                }
+                console.log('mousemoved ' + evt.x + ', ' + evt.y + ',  color: R' + rgb[0] + ' G' + rgb[1] + ' B' + rgb[2]);
+            }, 250);
+
+            this._canvas.addEventListener('mousemove', this.onMouseMoveDelay);
 
             var animated = this._map.options.zoomAnimation && (<any>L.Browser).any3d;
             L.DomUtil.addClass(this._canvas, 'leaflet-zoom-' + (animated ? 'animated' : 'hide'));
@@ -66,6 +94,10 @@ module L {
             map.off('moveend', this._reset, this);
             map.off('resize', this._resize, this);
 
+            this._canvas.removeEventListener('mousemove', this.onMouseMoveDelay);
+            map.closePopup(this._popup);
+            this._popup = null;
+
             if (map.options.zoomAnimation) {
                 map.off('zoomanim', this._animateZoom, this);
             }
@@ -75,6 +107,21 @@ module L {
         addTo: function(map) {
             map.addLayer(this);
             return this;
+        },
+
+        _getCanvasPos: function() {
+            var obj = this._canvas;
+            var top = 0;
+            var left = 0;
+            while (obj.tagName != "BODY") {
+                top += obj.offsetTop;
+                left += obj.offsetLeft;
+                obj = obj.offsetParent;
+            }
+            return {
+                top: top,
+                left: left
+            };
         },
 
         _resize: function(resizeEvent) {
@@ -149,7 +196,7 @@ module L {
             max?: number,
             /** A value between 0 (transparent) and 1 (opaque) */
             opacity?: number,
-            legend?: { val: number, color: string}[],
+            legend?: { val: number, color: string }[],
             [key: string]: any
         }
     }
