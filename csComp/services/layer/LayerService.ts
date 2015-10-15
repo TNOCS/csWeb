@@ -722,6 +722,7 @@ module csComp.Services {
             });
         }
 
+        /** Recompute the style of the layer features, e.g. after changing the opacity. */
         public updateLayerFeatures(layer: ProjectLayer) {
             if (!layer) return;
             this.project.features.forEach((f: IFeature) => {
@@ -1714,7 +1715,6 @@ module csComp.Services {
                 this.lastSelectedFeature = null;
                 this.visual.rightPanelVisible = false;
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
-
             }
 
             this.activeMapRenderer.removeLayer(layer);
@@ -1735,7 +1735,6 @@ module csComp.Services {
             }
 
             this.rebuildFilters(g);
-            layer.enabled = false;
             if (removeFromGroup) layer.group.layers = layer.group.layers.filter((pl: ProjectLayer) => pl != layer);
             if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             this.$messageBusService.publish('layer', 'deactivate', layer);
