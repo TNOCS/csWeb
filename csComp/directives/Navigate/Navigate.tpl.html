@@ -1,0 +1,43 @@
+<div>
+    <h4 class="leftpanel-header" translate="NAVIGATE"></h4>
+
+</div>
+<!-- <a ng-click="vm.$layerService.setLocationFilter()" style="margin-bottom:10px; display:block;">
+        <span class="fa fa-filter"></span>
+        <div style="display:inline; cursor:pointer" ng-hide="vm.locationFilterActive">{{'ENABLE_LOCATION_FILTER' | translate}}</div>
+        <div style="display:inline; cursor:pointer" ng-show="vm.locationFilterActive">{{'DISABLE_LOCATION_FILTER' | translate}}</div>
+    </a> -->
+<div>
+    <input class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="layerFilter" placeholder="Search"></input>
+</div>
+
+<div style="margin-top:10px">
+    <div class="group-title" style="margin-left: 0">Recent Layers</div>
+</div>
+<div id="recent-layers">
+    <div ng-repeat="layer in vm.RecentLayers">
+        <div class="layer" style="list-style-type: none;" >
+            <div ng-class="{false : 'checkbox checkbox-primary', true:'radio radio-primary'}[group.oneLayerActive==true]" style="margin-top: 0px;margin-bottom: 0px;">
+        <input type="checkbox" id="rcblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
+        <label for="rcblayer{{layer.id}}">
+            {{layer.title}}
+        </label>
+    </div>
+    </div>
+    </div>
+    <a data-target="#layers" data-toggle="tab">show all</a>
+</div>
+</div>
+
+<div style="margin-top:10px">
+    <div class="group-title" style="margin-left: 0">Recent Objects</div>
+</div>
+<div id="recent-objects">
+    <div ng-repeat="f in vm.RecentFeatures">
+        <div>{{f.id}}</div>
+    </div>
+</div>
+</div>
+
+
+</div>

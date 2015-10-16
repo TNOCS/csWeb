@@ -1,8 +1,4 @@
 module csComp.Services {
-    'use strict';
-
-
-
     export class GeoJsonSource implements ILayerSource {
         title = "geojson";
         layer: ProjectLayer;
@@ -14,8 +10,10 @@ module csComp.Services {
         }
 
         public refreshLayer(layer: ProjectLayer) {
+            var isEnabled = layer.enabled;
             this.service.removeLayer(layer);
             this.service.addLayer(layer);
+            layer.enabled = isEnabled;
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
@@ -362,12 +360,6 @@ module csComp.Services {
             var res: [[string, Function]] = [
                 ["Fit map", (($itemScope) => this.fitMap(layer))]
             ];
-            if (layer.gui["editing"]) {
-                res.push(["Stop editing items", (($itemScope) => this.stopAddingFeatures(layer))]);
-            }
-            else {
-                res.push(["Add items", (($itemScope) => this.startAddingFeatures(layer))]);
-            }
             return res;
         }
 
@@ -396,7 +388,7 @@ module csComp.Services {
                 if (layer.typeUrl && this.service.typesResources.hasOwnProperty(layer.typeUrl)) {
                     for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
                         var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                        if (t.style.drawingMode === "Point") {
+                        if (t.style.drawingMode.toLowerCase() === "point") {
                             featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
                             featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
                         }

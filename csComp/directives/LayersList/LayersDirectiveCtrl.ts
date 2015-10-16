@@ -5,6 +5,7 @@ module LayersDirective {
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
         options: Function;
+        layerFilter: string;
     }
 
     export class LayersDirectiveCtrl {
@@ -77,10 +78,22 @@ module LayersDirective {
 
 
         public createType() {
-            if (!this.layer.typeUrl) {
-                if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl));
-                var tr = this.$layerService.typesResources[this.layer.typeUrl];
-                console.log(tr);
+            if (this.layer.typeUrl) {
+                if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
+                    var tr = this.$layerService.typesResources[this.layer.typeUrl];
+                    var st = <csComp.Services.IFeatureTypeStyle>{
+                        drawingMode: 'point',
+                        fillColor: 'red'
+                    };
+                    var nt = <csComp.Services.IFeatureType>{
+                        id: 'test', name: 'test', style: st
+                    }
+                    var id = nt.id;
+                    tr.featureTypes[id] = nt;
+                    console.log(tr);
+                }
+
+
             }
         }
 
@@ -218,7 +231,8 @@ module LayersDirective {
 
             if (this.project.layerDirectory) {
                 $.getJSON(this.project.layerDirectory, (result) => {
-                    this.directory = result;
+                    this.directory = [];
+                    for (var l in result) this.directory.push(result[l]);
                 });
             }
         }
@@ -299,7 +313,7 @@ module LayersDirective {
 
                 /// create layer on server
                 if (this.newLayer.type === "dynamicgeojson") {
-                    this.newLayer.url = "api/layers/" + nl.id;
+                    this.newLayer.url = "api/layers/" + nl.title;
                     if (this.layerResourceType === "<new>") {
                         this.newLayer.typeUrl = "/api/resources/" + this.newLayer.title;
                         var r = <csComp.Services.TypeResource>{ id: this.newLayer.title, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
@@ -344,12 +358,7 @@ module LayersDirective {
             //layer.enabled = !layer.enabled;
             //if (this.$layerService.loadedLayers.containsKey(layer.id)) {
             // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
-            if (layer.group.oneLayerActive && this.$layerService.findLoadedLayer(layer.id)) layer.enabled = false;
-            if (layer.enabled) {
-                this.$layerService.addLayer(layer);
-            } else {
-                this.$layerService.removeLayer(layer);
-            }
+            this.$layerService.toggleLayer(layer);            
 
             // NOTE EV: You need to call apply only when an event is received outside the angular scope.
             // However, make sure you are not calling this inside an angular apply cycle, as it will generate an error.

@@ -448,9 +448,6 @@ module csComp.Services {
                 (callback) => {
                     // load required feature layers, if applicable
                     this.loadRequiredLayers(layer);
-
-                    // load type resources
-
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
                     if (!this.layerSources.hasOwnProperty(layerSource)) {
@@ -740,6 +737,7 @@ module csComp.Services {
             });
         }
 
+        /** Recompute the style of the layer features, e.g. after changing the opacity. */
         public updateLayerFeatures(layer: ProjectLayer) {
             if (!layer) return;
             this.project.features.forEach((f: IFeature) => {
@@ -803,7 +801,6 @@ module csComp.Services {
             // deselect last feature and also update
             if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
                 this.deselectFeature(this.lastSelectedFeature);
-
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
             }
             if (feature.isSelected) this.lastSelectedFeature = feature;
@@ -1732,7 +1729,6 @@ module csComp.Services {
                 this.lastSelectedFeature = null;
                 this.visual.rightPanelVisible = false;
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
-
             }
 
             this.activeMapRenderer.removeLayer(layer);
@@ -1753,7 +1749,6 @@ module csComp.Services {
             }
 
             this.rebuildFilters(g);
-            layer.enabled = false;
             if (removeFromGroup) layer.group.layers = layer.group.layers.filter((pl: ProjectLayer) => pl != layer);
             if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
             this.$messageBusService.publish('layer', 'deactivate', layer);
@@ -2212,6 +2207,15 @@ module csComp.Services {
                     startd = this.findDashboardById(this.startDashboardId);
                 }
                 this.$messageBusService.publish('dashboard-main', 'activated', startd);
+            }
+        }
+
+        public toggleLayer(layer: ProjectLayer) {
+            if (layer.group.oneLayerActive && this.findLoadedLayer(layer.id)) layer.enabled = false;
+            if (layer.enabled) {
+                this.addLayer(layer);
+            } else {
+                this.removeLayer(layer);
             }
         }
 

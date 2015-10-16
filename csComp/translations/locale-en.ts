@@ -5,6 +5,7 @@ module Translations {
             OK_BTN: 'OK',
             FROM: 'from',
             TO: 'to',
+            NAVIGATE:'Start',
             CREATE_SCATTER: 'Create scatter with',
             EXPAND_ALL: 'Expand all',
             COLLAPSE_ALL: 'Collapse all',

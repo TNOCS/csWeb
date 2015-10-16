@@ -151,29 +151,29 @@
                     <!-- required for floating -->
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs tabs-left" id="leftPanelTab">
-                        <!-- <li popover="{{'BASESTYLES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#basestyles" data-toggle="tab" data-ng-if="vm.$mapService.isIntermediate">
+                        <li class="active"  popover="{{'NAVIGATE' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#navigate" data-toggle="tab" data-ng-if="vm.$mapService.isIntermediate">
                                 <img src="/cs/images/search.png" style="width:30px;height:30px"></img>
                             </a>
-                        </li> -->
+                        </li>
                         <!-- 'tabs-right' for right tabs -->
                         <li popover="{{'BASESTYLES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#basestyles" data-toggle="tab" data-ng-if="vm.$mapService.isIntermediate">
+                            <a data-target="#basestyles" data-toggle="tab" data-ng-if="vm.$mapService.isIntermediate">
                                 <div class="mapIcon"></div>
                             </a>
                         </li>
-                        <li class="active" popover="{{'LAYERS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#layers" data-toggle="tab">
+                        <li popover="{{'LAYERS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#layers" data-toggle="tab">
                                 <div class="layersIcon"></div>
                             </a>
                         </li>
                         <li popover="{{'FILTERS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#filters" data-toggle="tab">
+                            <a data-target="#filters" data-toggle="tab">
                                 <div class="filtersIcon"></div>
                             </a>
                         </li>
                         <li popover="{{'STYLES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#styles" data-toggle="tab">
+                            <a data-target="#styles" data-toggle="tab">
                                 <div class="stylesIcon"></div>
                             </a>
                         </li>
@@ -183,26 +183,26 @@
                             </a>
                         </li> -->
                         <li popover="{{'HEATMAP.NAME' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#heatmap" data-toggle="tab" data-ng-if="vm.$mapService.isExpert">
+                            <a data-target="#heatmap" data-toggle="tab" data-ng-if="vm.$mapService.isExpert">
                                 <div class="heatmapIcon"></div>
                             </a>
                         </li>
                         <li popover="{{'FEATURES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#features" data-toggle="tab">
+                            <a data-target="#features" data-toggle="tab">
                                 <div class="featuresIcon"></div>
                             </a>
                         </li>
                         <li popover="{{'LEGEND' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#legend" data-toggle="tab">
+                            <a data-target="#legend" data-toggle="tab">
                                 <div class="mainLegendIcon"></div>
                             </a>
                         </li>
                         <li popover="{{'DASHBOARD_SELECTION' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#dashboardselection" data-ng-if="vm.$mapService.isExpert" data-toggle="tab"><i class="fa fa-tachometer fa-2x" style="color: black"></i>
+                            <a data-target="#dashboardselection" data-ng-if="vm.$mapService.isExpert" data-toggle="tab"><i class="fa fa-tachometer fa-2x" style="color: black"></i>
                       </a>
                         </li>
                         <li popover="{{'SETTINGS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#settings" data-toggle="tab" data-ng-if="vm.$mapService.isAdminExpert">
+                            <a data-target="#settings" data-toggle="tab" data-ng-if="vm.$mapService.isAdminExpert">
                                 <i class="fa fa-gear fa-2x" style="color: black"></i>
                             </a>
                         </li>
@@ -212,9 +212,12 @@
                 <div class="col-xs-9 leftpanel-content">
                     <!-- Tab panes -->
                     <div class="tab-content ">
+
+                        <navigate class="tab-pane active" id="navigate"></navigate>
+
                         <base-map-list class="tab-pane" id="basestyles"></base-map-list>
 
-                        <layers-directive class="tab-pane active" id="layers"></layers-directive>
+                        <layers-directive class="tab-pane" id="layers"></layers-directive>
 
                         <filter-list class="tab-pane" id="filters"></filter-list>
 
