@@ -755,6 +755,7 @@ export class ApiManager extends events.EventEmitter {
             type: layer.type,
             // We are returning a definition, so remove the data
             features: [],
+            data: '',
             storage: layer.storage ? layer.storage : '',
             url: layer.url ? layer.url : (server + "/api/layers/" + layer.id),
             isDynamic: layer.isDynamic ? layer.isDynamic : false
