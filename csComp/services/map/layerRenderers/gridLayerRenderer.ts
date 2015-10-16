@@ -26,28 +26,6 @@ module csComp.Services {
             layer.mapLayer = new L.LayerGroup<L.ILayer>();
             service.map.map.addLayer(layer.mapLayer);
             layer.mapLayer.addLayer(overlay);
-
-            // var wms: any = L.tileLayer.wms(layer.url, <any>{
-            //     layers: layer.wmsLayers,
-            //     opacity: layer.opacity / 100,
-            //     format: 'image/png',
-            //     transparent: true,
-            //     attribution: layer.description,
-            //     tiled: true
-            // });
-            // layer.mapLayer = new L.LayerGroup<L.ILayer>();
-            // service.map.map.addLayer(layer.mapLayer);
-            // layer.mapLayer.addLayer(wms);
-            // wms.on('loading', (event) => {
-            //     layer.isLoading = true;
-            //     service.$rootScope.$apply();
-            //     if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') { service.$rootScope.$apply(); }
-            // });
-            // wms.on('load', (event) => {
-            //     layer.isLoading = false;
-            //     if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') { service.$rootScope.$apply(); }
-            // });
-            // layer.isLoading = true;
         }
 
         static drawFunction(overlay: any, settings: L.IUserDrawSettings) {
@@ -74,18 +52,6 @@ module csComp.Services {
                 botOfFirstRow = map.latLngToContainerPoint(new L.LatLng(opt.topLeftLat + opt.deltaLat, opt.topLeftLon)),
                 deltaY = botOfFirstRow.y - topLeft.y;
 
-            // var skippedRows = 0;
-            // var lat = opt.topLeftLat + opt.deltaLat;
-            // while (deltaY === 0) {
-            //     // This happens when we are near the poles
-            //     skippedRows++;
-            //     topLeft = botOfFirstRow;
-            //     startX = topLeft.x;
-            //     lat += opt.deltaLat;
-            //     botOfFirstRow = map.latLngToContainerPoint(new L.LatLng(lat, opt.topLeftLon)),
-            //     deltaY = botOfFirstRow.y - topLeft.y;
-            // }
-
             var ctx = settings.canvas.getContext("2d");
             ctx.clearRect(0, 0, size.x, size.y);
 
@@ -94,18 +60,13 @@ module csComp.Services {
                 //console.log('Outside boundary');
                 return;
             }
-            var sI = 0,
-                sJ = 0,
+            var sJ = 0,
                 eI = row,
                 eJ = col;
 
             if (startX < -deltaX) {
                 sJ = -Math.ceil(startX / deltaX);
                 startX += sJ * deltaX;
-            }
-            if (startY < -deltaY && deltaY > 0) {
-                sI = -Math.ceil(startY / deltaY);
-                //startY += sI * deltaY;
             }
             if (botRight.x > size.x) {
                 eJ -= Math.floor((botRight.x - size.x) / deltaX);
@@ -114,24 +75,22 @@ module csComp.Services {
                 eI -= Math.floor((botRight.y - size.y) / deltaY);
             }
 
-            //console.log(`Bounds: ${JSON.stringify(settings, null, 2)}`);
             var noDataValue = opt.noDataValue;
 
             ctx.globalAlpha = opt.opacity || 0.3;
 
             console.time('process');
             var y = startY;
-            var lat = opt.topLeftLat + sI * opt.deltaLat;
-            for (var i = sI; i < eI; i++) {
-                let x = startX;
+            var lat = opt.topLeftLat;// + sI * opt.deltaLat;
+            for (var i = 0; i < eI; i++) {
                 lat += opt.deltaLat;
                 let botY = map.latLngToContainerPoint(new L.LatLng(lat, opt.topLeftLon)).y;
                 deltaY = botY - y;
-                //console.log(`y: ${y}, dy: ${deltaY}`);
-                if (deltaY === 0) {
+                if (y <= -deltaY || deltaY === 0) {
                     y = botY;
                     continue;
                 }
+                let x = startX;
                 for (var j = sJ; j < eJ; j++) {
                     var cell = data[i][j];
                     if (cell === noDataValue || cell < min || cell > max) {
