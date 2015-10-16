@@ -881,9 +881,14 @@
                 "propertyName": "h",
                 "gridType": "esri",
                 "minThreshold": 0.01,
-                "contourLevels": [0.1, 0.5, 1, 2, 3, 4, 5]
+                "minColor": "#00FFFF",
+                "maxColor": "#9000FF",
+                "contourLevels": [0.1, 0.5, 1, 2, 3, 4, 5],
+                "legendDescription": "Water height [m] during a flood",
+                "legendStringFormat": "{0:0.0}m"
             },
-            "url": "data/projects/ApiTest/raster.asc"
+            "url": "data/projects/ApiTest/raster.asc",
+            "opacity": 50
         }, {
             "id": "Aurora",
 			"title": "Prob. visible aurora (contour)",

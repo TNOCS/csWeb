@@ -97,7 +97,7 @@ module csComp.Services {
         constructor(
             private $location: ng.ILocationService,
             public $compile: any,
-            private $translate: ng.translate.ITranslateService,
+            public $translate: ng.translate.ITranslateService,
             public $messageBusService: Services.MessageBusService,
             public $mapService: Services.MapService,
             public $rootScope: any,
@@ -704,14 +704,29 @@ module csComp.Services {
         updateStyle(style: GroupStyle) {
             //console.log('update style ' + style.title);
             if (style == null) return;
-            if (style.group != null && style.group.styles[0] != null) {
-                if (style.group.styles[0].fixedColorRange) {
-                    style.info = style.group.styles[0].info;
-                } else {
-                    style.info = this.calculatePropertyInfo(style.group, style.property);
+            if (style.property && style.property === 'gridlayer') {
+                if (!style.group || !style.group.layers) return;
+                style.group.layers.forEach((l: ProjectLayer) => {
+                    if (l.mapLayer && l.enabled) {
+                        var mapLayers = l.mapLayer.getLayers();
+                        mapLayers.forEach((ml) => {
+                            if ((<any>ml).redraw && typeof (<any>ml).redraw === 'function') {
+                                (<any>ml).params({minColor: style.colors[0], maxColor: style.colors[1], areColorsUpdated: true});
+                                (<any>ml).redraw();
+                            }
+                        });
+                    }
+                });
+            } else {
+                if (style.group != null && style.group.styles[0] != null) {
+                    if (style.group.styles[0].fixedColorRange) {
+                        style.info = style.group.styles[0].info;
+                    } else {
+                        style.info = this.calculatePropertyInfo(style.group, style.property);
+                    }
+                    style.canSelectColor = style.visualAspect.toLowerCase().indexOf('color') > -1;
+                    this.updateGroupFeatures(style.group);
                 }
-                style.canSelectColor = style.visualAspect.toLowerCase().indexOf('color') > -1;
-                this.updateGroupFeatures(style.group);
             }
         }
 
@@ -740,9 +755,9 @@ module csComp.Services {
             var mapLayers = layer.mapLayer.getLayers();
             mapLayers.forEach((ml) => {
                 if ((<any>ml).redraw && typeof (<any>ml).redraw === 'function') {
-                    var layerOpacity: number = (+layer.opacity)/100;
+                    var layerOpacity: number = (+layer.opacity) / 100;
                     layerOpacity = Math.min(1, Math.max(0, layerOpacity)); //set bounds to 0 - 1
-                    (<any>ml).params({opacity: (+layer.opacity)/100});
+                    (<any>ml).params({ opacity: layerOpacity });
                     (<any>ml).redraw();
                 }
             })
@@ -1383,7 +1398,7 @@ module csComp.Services {
          * checks if there are other styles that affect the same visual aspect, removes them (it)
          * and then adds the style to the group's styles
          */
-        private saveStyle(group: ProjectGroup, style: GroupStyle) {
+        public saveStyle(group: ProjectGroup, style: GroupStyle) {
             var oldStyles = group.styles.filter((s: GroupStyle) => s.visualAspect === style.visualAspect);
             if (oldStyles.length > 0) {
                 var pos = group.styles.indexOf(oldStyles[0]);
@@ -1636,7 +1651,7 @@ module csComp.Services {
          * If it does not exist, return null.
          */
         getFeatureTypeById(featureTypeId: string): IFeatureType {
-            if (this._featureTypes.hasOwnProperty(featureTypeId)){
+            if (this._featureTypes.hasOwnProperty(featureTypeId)) {
                 return this._featureTypes[featureTypeId];
             } else {
                 return;

@@ -11,7 +11,8 @@
 
 module L {
     var CanvasOverlay = L.Class.extend({
-        initialize: function(userDrawFunc, options) {
+        initialize: function(userDrawFunc, layer, options) {
+            this._layer = layer,
             this._userDrawFunc = userDrawFunc;
             Util.setOptions(this, options);
         },
@@ -51,9 +52,18 @@ module L {
             this.onMouseMoveDelay = _.debounce((evt) => {
                 var pos = this._getCanvasPos();
                 var rgb = this._context.getImageData(evt.x - pos.left, evt.y - pos.top, 1, 1).data;
+                // only show tooltip when a colored cell is located at the mouse cursor position
                 if ((rgb[0] + rgb[1] + rgb[2]) > 0) {
-                    var hexColor = ColorExt.Utils.rgbToHex([rgb[0],rgb[1],rgb[2]]);
-                    var content = '<table>' + '<td>Color: '+ hexColor + '</td></tr>' + '</table>';
+                    var latLng: L.LatLng = this._map.containerPointToLatLng(new L.Point(evt.x - pos.left, evt.y - pos.top));
+                    var I = Math.floor((latLng.lat - this.options.topLeftLat) / this.options.deltaLat);
+                    var J = Math.floor((latLng.lng - this.options.topLeftLon) / this.options.deltaLon);
+                    var value = '';
+                    if (I > 0 && I < this.options.data.length &&
+                        J > 0 && J < this.options.data[0].length) {
+                        value = this.options.data[I][J];
+                    }
+                    (this._layer.dataSourceParameters.legendStringFormat) ? value = (<any>String).format(this._layer.dataSourceParameters.legendStringFormat, value) : null;
+                    var content = '<table><td>' + value + '</td></tr>' + '</table>';
                     if (this._popup != null) {
                         this._popup.setLatLng(this._map.containerPointToLatLng(new L.Point(evt.x, evt.y))).setContent(content);
                     } else {
@@ -144,7 +154,7 @@ module L {
             // console.time('process');
 
             if (this._userDrawFunc) {
-                this._userDrawFunc(this,
+                this._userDrawFunc(this, this._layer,
                     {
                         canvas: this._canvas,
                         bounds: bounds,
@@ -196,12 +206,20 @@ module L {
             max?: number,
             /** A value between 0 (transparent) and 1 (opaque) */
             opacity?: number,
+            /** Define the color used to draw grid cells having the minimum value. */
+            minColor: string,
+            /** Define the color used to draw grid cells having the minimum value. */
+            maxColor: string,
+            /** Defines the contour levels of the grid layer */
+            levels: number[],
+            /** When true, forces a recalculatiion */
+            areColorsUpdated: boolean,
             legend?: { val: number, color: string }[],
             [key: string]: any
         }
     }
 
-    export function canvasOverlay(userDrawFunc: (overlay: any, settings: IUserDrawSettings) => void, options: Object) {
-        return new CanvasOverlay(userDrawFunc, options);
+    export function canvasOverlay(userDrawFunc: (overlay: any, layer: csComp.Services.IProjectLayer, settings: IUserDrawSettings) => void, layer: csComp.Services.IProjectLayer, options: Object) {
+        return new CanvasOverlay(userDrawFunc, layer, options);
     };
 }

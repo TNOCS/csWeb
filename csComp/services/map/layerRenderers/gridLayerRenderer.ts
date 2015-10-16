@@ -1,16 +1,42 @@
 module csComp.Services {
     export class GridLayerRenderer {
         static render(service: LayerService, layer: ProjectLayer) {
-            var legend: { val: number, color: string }[] = [];
-            var levels = [0.1, 0.5, 1, 2, 3, 4, 5];
-            for (let i = 0; i < levels.length; i++) {
-                let level = levels[i];
-                legend.push({ val: level, color: ColorExt.Utils.toColor(level, levels[0], levels[levels.length - 1], 180, 240) });
-            }
 
             var gridParams = <IGridDataSourceParameters>layer.dataSourceParameters;
 
-            var overlay = L.canvasOverlay(GridLayerRenderer.drawFunction, {
+            var legend: { val: number, color: string }[] = [];
+            var levels;
+            if (typeof gridParams.contourLevels === 'number') {
+                levels = [];
+                var nrLevels = <number>(gridParams.contourLevels);
+                var dl = (gridParams.maxThreshold - gridParams.minThreshold) / nrLevels;
+                for (let l = gridParams.minThreshold + dl / 2; l < gridParams.maxThreshold; l += dl) levels.push(Math.round(l * 10) / 10); // round to nearest decimal.
+            } else {
+                levels = gridParams.contourLevels;
+            }
+
+            // Create a new groupstyle, which can be used to change the colors used to draw the grid
+            var gs = new GroupStyle(service.$translate);
+            gs.id = Helpers.getGuid();
+            gs.title = (gridParams.legendDescription) ? gridParams.legendDescription : layer.title;
+            gs.meta = null;
+            gs.visualAspect = 'fillColor';
+            gs.canSelectColor = true;
+            gs.property = 'gridlayer';
+            gs.info = { min: 0, max: 0, count: 0, mean: 0, varience: 0, sd: 0 };
+            gs.fixedColorRange = true;
+            gs.enabled = true;
+            gs.group = layer.group;
+            gs.colors = [(gridParams.minColor) ? gridParams.minColor : '#0055FF', (gridParams.maxColor) ? gridParams.maxColor : '#FF5500'];
+            gs.activeLegend = <Legend>{
+                legendKind: 'interpolated',
+                description: gs.title,
+                visualAspect: 'fillColor',
+                legendEntries: []
+            }
+            service.saveStyle(layer.group, gs);
+
+            var overlay = L.canvasOverlay(GridLayerRenderer.drawFunction, layer, {
                 data: layer.data,
                 noDataValue: gridParams.noDataValue,
                 topLeftLat: gridParams.startLat,
@@ -19,8 +45,12 @@ module csComp.Services {
                 deltaLon: gridParams.deltaLon,
                 min: gridParams.minThreshold,
                 max: gridParams.maxThreshold,
+                minColor: gs.colors[0],
+                maxColor: gs.colors[1],
+                areColorsUpdated: true,
+                levels: levels,
                 legend: legend,
-                opacity: (layer.opacity) ? (+layer.opacity)/100 : 0.3
+                opacity: (layer.opacity) ? (+layer.opacity) / 100 : 0.3
             });
 
             layer.mapLayer = new L.LayerGroup<L.ILayer>();
@@ -50,7 +80,7 @@ module csComp.Services {
             // layer.isLoading = true;
         }
 
-        static drawFunction(overlay: any, settings: L.IUserDrawSettings) {
+        static drawFunction(overlay: any, layer: ProjectLayer, settings: L.IUserDrawSettings) {
             var map: L.Map = (<any>this)._map;
             var opt = settings.options,
                 data = opt.data;
@@ -59,6 +89,34 @@ module csComp.Services {
                 col = data[0].length,
                 size = settings.size,
                 legend = opt.legend;
+
+                // update the legend when new from- and to-colors are chosen.
+                // the complete color range of the legend will be calculated using the hue value of the from and to colors.
+            if (legend.length === 0 || opt.areColorsUpdated) {
+                legend = [];
+                if (opt.minColor[0] !== '#') opt.minColor = ColorExt.Utils.colorNameToHex(opt.minColor);
+                if (opt.maxColor[0] !== '#') opt.maxColor = ColorExt.Utils.colorNameToHex(opt.maxColor);
+                let fromHue = ColorExt.Utils.rgbToHue(opt.minColor);
+                let toHue = ColorExt.Utils.rgbToHue(opt.maxColor);
+                for (let i = 0; i < opt.levels.length; i++) {
+                    let level = opt.levels[i];
+                    legend.push({ val: level, color: ColorExt.Utils.toColor(level, opt.levels[0], opt.levels[opt.levels.length - 1], fromHue, toHue) });
+                }
+                if (layer.group.styles && layer.group.styles.length > 0) {
+                    layer.group.styles[0].activeLegend = <Legend>{
+                        legendKind: 'interpolated',
+                        description: layer.group.styles[0].title,
+                        visualAspect: 'fillColor',
+                        legendEntries: []
+                    };
+                    legend.forEach((i) => {
+                        let legEntry = <LegendEntry>{ label: (<any>String).format(layer.dataSourceParameters['legendStringFormat'], i.val.toString()), value: i.val, color: i.color };
+                        layer.group.styles[0].activeLegend.legendEntries.push(legEntry);
+                    });
+                }
+                overlay.options.legend = opt.legend = legend;
+                opt.areColorsUpdated = false;
+            }
 
             var min = opt.min || Number.MIN_VALUE,
                 max = opt.max || Number.MAX_VALUE;

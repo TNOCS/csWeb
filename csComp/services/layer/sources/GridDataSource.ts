@@ -80,7 +80,19 @@ module csComp.Services {
         /** If true, use the CONREC contouring algorithm to create isoline contours */
         useContour?: boolean,
         /** When using contours, this specifies the number of contour levels to use. */
-        contourLevels?: number | number[]
+        contourLevels?: number | number[],
+        /** Define the color used to draw grid cells having the minimum value. */
+        minColor?: string,
+        /** Define the color used to draw grid cells having the maximum value. */
+        maxColor?: string,
+        /** When using the GridLayerRenderer, the cell colors can be chosen through a groupstyle. This will be the description the legend
+         * accompanying that style.
+         */
+        legendDescription?: string,
+        /** When using the GridLayerRenderer, the cell colors can be chosen through a groupstyle. This will be the stringformat the legend
+         * entries accompanying that style.
+         */
+        legendStringFormat?: string
     }
 
     /**
