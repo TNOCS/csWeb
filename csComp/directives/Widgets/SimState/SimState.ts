@@ -63,7 +63,7 @@ module SimState {
                     if (state.state === 'Exit')
                         delete this.states[state.id];
                     else
-                        this.states[state.id] = state;
+                        this.states[state.name] = state; // Although id would be better, we could end up with the remains of restarted services.
                 }, 0);
             })
         }
