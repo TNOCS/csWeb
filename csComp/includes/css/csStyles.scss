@@ -9,6 +9,18 @@ $background-light: #B5A3C1;
 }
 
 
+::-webkit-scrollbar {
+     width: 5px;
+}
+::-webkit-scrollbar-track {
+     background-color: rgba(0,0,0,.1)
+}
+
+::-webkit-scrollbar-thumb {
+      background-color: rgba(0,0,0,.5)
+}
+
+
 @import url('http://fonts.googleapis.com/css?family=Noto Sans|Montserrat');
 
 /*----------------------
@@ -1654,11 +1666,14 @@ input[type="radio"], input[type="checkbox"] {
     top: 0;
     z-index: 100;
 }
+
+
 .leftpanel-container {
     width: 350px;
     height: 100vh;
     pointer-events: all;
     @include box-shadow(2px,0,10px,rgba(0,0,0,.2));
+
 }
 .rightpanel {
     position: absolute;
