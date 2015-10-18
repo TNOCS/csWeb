@@ -51,6 +51,13 @@ html, body, #container {
     display: none;
 }
 
+/* navigate */
+
+.feature-item
+{
+    cursor: pointer;
+}
+
 /* layers */
 .addlayer-container {
     cursor: pointer;

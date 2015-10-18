@@ -34,8 +34,7 @@
     </div>
     <div id="selected-objects">
         <div ng-repeat="f in vm.$layerService.selectedFeatures">
-            <a ng-if="f.feature" ng-click="vm.selectFeature(f)">{{f.name}}</a>
-            <div ng-if="!f.feature">{{f.name}} ({{f.layerId}})</div>
+            <a class="feature-item" ng-click="vm.selectFeature(f)">{{f.gui.title}}</a>
         </div>
     </div>
 </div>
@@ -45,7 +44,7 @@
 </div>
 <div id="recent-objects">
     <div ng-repeat="f in vm.RecentFeatures">
-        <a ng-if="f.feature" ng-click="vm.selectFeature(f)">{{f.name}}</a>
+        <a class="feature-item" ng-if="f.feature" ng-click="vm.selectFeature(f.feature)">{{f.name}}</a>
         <div ng-if="!f.feature">{{f.name}} ({{f.layerId}})</div>
     </div>
 </div>

@@ -792,8 +792,9 @@ module csComp.Services {
             this.activeMapRenderer.updateFeature(feature);
         }
 
-        public selectFeature(feature: IFeature, multi = false) {
-            feature.isSelected = !feature.isSelected;
+        public selectFeature(feature: IFeature, multi = false, force = false) {
+            if (force) { feature.isSelected = true } else feature.isSelected = !feature.isSelected;
+            feature.gui['title'] = Helpers.getFeatureTitle(feature);
             this.actionServices.forEach((as: IActionService) => {
                 if (feature.isSelected) { as.selectFeature(feature); } else { as.deselectFeature(feature); }
             })
@@ -822,7 +823,7 @@ module csComp.Services {
                 }
             }
             else {
-                this.selectedFeatures.forEach((f) => this.deselectFeature(f));
+                this.selectedFeatures.forEach((f) => { if (f != feature) this.deselectFeature(f) });
                 this.selectedFeatures = (feature.isSelected) ? [feature] : [];
             }
 

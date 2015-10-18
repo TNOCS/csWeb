@@ -60,6 +60,10 @@ module Navigate {
 
         }
 
+        private selectFeature(feature: IFeature) {
+            this.$layerService.selectFeature(feature, false, true);
+        }
+
         private initRecentFeatures() {
             this.updateRecentFeaturesList();
             this.$messageBus.subscribe('feature', (a, feature: csComp.Services.IFeature) => {
