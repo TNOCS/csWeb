@@ -708,7 +708,7 @@ module csComp.Services {
                         var mapLayers = l.mapLayer.getLayers();
                         mapLayers.forEach((ml) => {
                             if ((<any>ml).redraw && typeof (<any>ml).redraw === 'function') {
-                                (<any>ml).params({minColor: style.colors[0], maxColor: style.colors[1], areColorsUpdated: true});
+                                (<any>ml).params({ minColor: style.colors[0], maxColor: style.colors[1], areColorsUpdated: true });
                                 (<any>ml).redraw();
                             }
                         });
@@ -1714,6 +1714,7 @@ module csComp.Services {
 
             layer.enabled = false;
             layer.isLoading = false;
+            layer.gui.more = false;
             //if (layer.refreshTimer) layer.stop();
 
             // make sure the timers are disabled
