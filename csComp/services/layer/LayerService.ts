@@ -475,7 +475,6 @@ module csComp.Services {
                     }
                     layer.layerSource.addLayer(layer, (l) => {
                         if (layerloaded) layerloaded(layer);
-                        this.$messageBusService.publish('layer', 'activated', layer);
 
                         if (l.enabled) {
                             this.loadedLayers[layer.id] = l;
@@ -488,6 +487,7 @@ module csComp.Services {
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             //if (layerloaded) layerloaded(layer);
                         }
+                        this.$messageBusService.publish('layer', 'activated', layer);
                     });
                     this.$messageBusService.publish("timeline", "updateFeatures");
                     callback(null, null);
@@ -740,9 +740,9 @@ module csComp.Services {
             var mapLayers = layer.mapLayer.getLayers();
             mapLayers.forEach((ml) => {
                 if ((<any>ml).redraw && typeof (<any>ml).redraw === 'function') {
-                    var layerOpacity: number = (+layer.opacity)/100;
+                    var layerOpacity: number = (+layer.opacity) / 100;
                     layerOpacity = Math.min(1, Math.max(0, layerOpacity)); //set bounds to 0 - 1
-                    (<any>ml).params({opacity: (+layer.opacity)/100});
+                    (<any>ml).params({ opacity: (+layer.opacity) / 100 });
                     (<any>ml).redraw();
                 }
             })
@@ -1232,6 +1232,7 @@ module csComp.Services {
          * @featureId {number}
          */
         findFeature(layer: ProjectLayer, featureId: string): IFeature {
+            if (!layer.data || !layer.data.features) return null;
             return _.find(layer.data.features, (f: IFeature) => { return f.id === featureId })
         }
 
@@ -1716,7 +1717,10 @@ module csComp.Services {
                 this.lastSelectedFeature = null;
                 this.visual.rightPanelVisible = false;
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
+            }
 
+            if (this.selectedFeatures.length > 0) {
+                this.selectedFeatures = this.selectedFeatures.filter((f) => { return f.layerId !== layer.id });
             }
 
             this.activeMapRenderer.removeLayer(layer);

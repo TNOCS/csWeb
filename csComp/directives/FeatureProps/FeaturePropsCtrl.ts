@@ -234,7 +234,7 @@ module FeatureProps {
          * Set the title of the callout to the title of the feature.
          */
         private setTitle() {
-            this.title = CallOut.title(this.type, this.feature);
+            this.title = csComp.Helpers.featureTitle(this.type, this.feature);
         }
 
         private setIcon(feature: csComp.Services.IFeature) {
@@ -245,20 +245,7 @@ module FeatureProps {
                     : this.type.style.iconUri;
         }
 
-        public static title(type: IFeatureType, feature: IFeature): string {
-            var title = '';
-            if (feature.hasOwnProperty('properties')) {
-                if (feature.properties.hasOwnProperty('Name')) title = feature.properties['Name'];
-                else if (feature.properties.hasOwnProperty('name')) title = feature.properties['name'];
-                else if (feature.properties.hasOwnProperty('naam')) title = feature.properties['naam'];
-            }
-            else if (type != null && type.style != null && type.style.nameLabel) {
-                title = feature.properties[type.style.nameLabel];
-            }
-            if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
-                title = title.replace(/&amp;/g, '&');
-            return title;
-        }
+
     }
 
     export class FeaturePropsCtrl {
@@ -492,7 +479,7 @@ module FeatureProps {
                 console.log('stats: calc stats for ' + item.property);
                 if (this.stats.indexOf(item.property) === -1) this.stats.push(item.property);
                 var values = this.$layerService.getPropertyValues(item.feature.layer, item.property);
-                var d = item.property;                
+                var d = item.property;
                 var res = vg.util.summary(values, [item.property]);
                 item.stats = res[0];
                 item.stats.sum = item.stats.count * item.stats.mean;
@@ -501,7 +488,7 @@ module FeatureProps {
             }
         }
 
-        public featureType : IFeatureType;
+        public featureType: IFeatureType;
 
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
