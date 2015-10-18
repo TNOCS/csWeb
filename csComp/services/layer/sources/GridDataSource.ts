@@ -80,7 +80,19 @@ module csComp.Services {
         /** If true, use the CONREC contouring algorithm to create isoline contours */
         useContour?: boolean,
         /** When using contours, this specifies the number of contour levels to use. */
-        contourLevels?: number | number[]
+        contourLevels?: number | number[],
+        /** Define the color used to draw grid cells having the minimum value. */
+        minColor?: string,
+        /** Define the color used to draw grid cells having the maximum value. */
+        maxColor?: string,
+        /** When using the GridLayerRenderer, the cell colors can be chosen through a groupstyle. This will be the description the legend
+         * accompanying that style.
+         */
+        legendDescription?: string,
+        /** When using the GridLayerRenderer, the cell colors can be chosen through a groupstyle. This will be the stringformat the legend
+         * entries accompanying that style.
+         */
+        legendStringFormat?: string
     }
 
     /**
@@ -124,8 +136,8 @@ module csComp.Services {
                         }
                         if (layer.renderType === 'gridlayer') {
                             layer.data = this.convertDataToGrid(result, this.gridParams);;
-                            cb(null, null);
                             layer.isLoading = false;
+                            cb(null, null);
                             return;
                         }
                         var data = this.convertDataToFeatureCollection(result, this.gridParams);
@@ -158,6 +170,9 @@ module csComp.Services {
                         callback(layer);
                     }
                 ]);
+            }).fail((err) => {
+                layer.isLoading = false;
+                console.log(`Failed loading layer ${layer.title} due to ${err}.`)
             });
         }
 
@@ -252,31 +267,40 @@ module csComp.Services {
                 }
             });
             if (isCenter) {
-                this.gridParams.startLon = x - this.gridParams.deltaLon / 2;
-                this.gridParams.startLat = y - this.gridParams.deltaLat / 2;
-            } else {
                 this.gridParams.startLon = x;
                 this.gridParams.startLat = y;
+            } else {
+                this.gridParams.startLon = x + this.gridParams.deltaLon / 2;
+                this.gridParams.startLat = y - this.gridParams.deltaLat / 2;
             }
 
+            /* WARNING: The below RD projection is NOT correct!!! To convert an RD grid to a WGS84 grid requires a complex
+             * translation using shearing and approximating pixels. It's better to use gdal (standalone, or with QGIS).
+             *
+             * For example, execute the following in a batch file:
+             * First, convert the input data to vrt, reprojecting from RD to wgs84, and replacing the nodata value at the same time.
+             * As gdalwarp does not support AAIGrid as output, we first convert it to VRT, and use gdal_translate to translate it to an ESRI ASCII GRID file.
+             *
+             * for %%f in (*.asc) do (
+             * 		echo Processing %%f
+             * 		"c:/Program Files/QGIS Pisa/bin/gdalwarp.exe" --config GDAL_DATA "c:/OSGeo4W64/share/gdal" -srcnodata -999.0 -dstnodata -1 -t_srs EPSG:4296 -s_srs EPSG:28992 -of VRT -r average %%f %%f_intermediate.vrt
+             * 		"c:/Program Files/QGIS Pisa/bin/gdal_translate.exe" -of AAIGrid %%f_intermediate.vrt %%f.out
+             * 		del %%f_intermediate.vrt
+             * 	)
+             */
             switch (this.gridParams.projection || 'wgs84') {
                 case 'rd':
                 case 'RD':
-                    var startLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLon, this.gridParams.startLat - this.gridParams.rows*this.gridParams.deltaLat);
-                    if (isCenter) {
-                        throw new Error('TODO: Never tested isCenter');
-                        // var endLoc = Helpers.GeoJSON.GeoExtensions.convertRDToWGS84(this.gridParams.startLon + this.gridParams.columns*gridParams.deltaLon/2, gridParams.startLat);
-                        // this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / (this.gridParams.columns/2);
-                        // this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / (this.gridParams.rows/2);
-                    } else {
-                        var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLon + this.gridParams.columns*this.gridParams.deltaLon, this.gridParams.startLat);
-                        this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / this.gridParams.columns;
-                        this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / this.gridParams.rows;
-                    }
+                    var startLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLon, this.gridParams.startLat - (this.gridParams.rows-1)*this.gridParams.deltaLat);
+                    var endLoc = Helpers.GeoExtensions.convertRDToWGS84(this.gridParams.startLon + (this.gridParams.columns-1)*this.gridParams.deltaLon, this.gridParams.startLat);
+                    this.gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / (this.gridParams.columns-1);
+                    this.gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / (this.gridParams.rows-1);
                     this.gridParams.startLon = startLoc.longitude;
                     this.gridParams.startLat = startLoc.latitude;
+                    break;
                 case 'WGS84':
                 case 'wgs84':
+                    this.gridParams.startLat -= (this.gridParams.rows-1)*this.gridParams.deltaLat;
                     break;
                 default:
                     throw new Error('Current projection is not supported!')

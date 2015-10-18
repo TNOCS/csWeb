@@ -1,8 +1,4 @@
 module csComp.Services {
-    'use strict';
-
-
-
     export class GeoJsonSource implements ILayerSource {
         title = "geojson";
         layer: ProjectLayer;
@@ -14,8 +10,10 @@ module csComp.Services {
         }
 
         public refreshLayer(layer: ProjectLayer) {
+            var isEnabled = layer.enabled;
             this.service.removeLayer(layer);
             this.service.addLayer(layer);
+            layer.enabled = isEnabled;
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
