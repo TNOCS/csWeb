@@ -1,4 +1,13 @@
+@import 'css3mixins';
 /*custom fonts - Bitter, Montserrat*/
+
+$background-dark: #42145F;
+$background-light: #B5A3C1;
+
+.scrolling{
+
+}
+
 
 @import url('http://fonts.googleapis.com/css?family=Noto Sans|Montserrat');
 
@@ -182,7 +191,7 @@ html, body, #container {
     right: 0;
 }
 .rightpanel-hidetab {
-    background: #42145F
+    background: $background-dark
 }
 .rightpanel-header-icon {
     width: 30px;
@@ -299,7 +308,7 @@ html, body, #container {
     font-weight: 800;
 }
 .isActive {
-    background-color: #B5A3C1;
+    background-color: $background-light;
 }
 .indicatorwidget-title {
     text-align: center;
@@ -1648,7 +1657,8 @@ input[type="radio"], input[type="checkbox"] {
 .leftpanel-container {
     width: 350px;
     height: 100vh;
-    pointer-events: all
+    pointer-events: all;
+    @include box-shadow(2px,0,10px,rgba(0,0,0,.2));
 }
 .rightpanel {
     position: absolute;
@@ -1659,9 +1669,12 @@ input[type="radio"], input[type="checkbox"] {
     pointer-events: all;
     right: 0;
     top: 0px;
+
 }
 #rightpanelTabs {}
-#rightpanelTabPanes {}
+#rightpanelTabPanes {
+        @include box-shadow(-2px,0,10px,rgba(0,0,0,.2));
+}
 .rightpanel-content {
     display: inline-block;
     width: 100%
@@ -1672,16 +1685,16 @@ input[type="radio"], input[type="checkbox"] {
 }
 .navbar {
     /*#B5A3C1*/
-    background: #42145F;
+    background: $background-dark;
     left: 0;
 }
 .leftpanel-tab {
-    background-color: #B5A3C1;
+    background-color: $background-light;
     height: 100%;
     width: 70px;
 }
 #rightPanelToggle {
-    background: #B5A3C1;
+    background: $background-light;
     border-radius: 4px 0 0 4px;
     display: none;
     height: 43px;
@@ -1697,7 +1710,7 @@ input[type="radio"], input[type="checkbox"] {
     border-top-style: none;
 }
 .rightpanel-header {
-    background: #B5A3C1;
+    background: $background-light;
     color: black;
     font-size: 22px;
     font-weight: bold;
@@ -1723,7 +1736,7 @@ input[type="radio"], input[type="checkbox"] {
     left: 0;
 }
 .leftpanel-content {
-    border-top: solid 40px #B5A3C1;
+    border-top: solid 40px $background-light;
     width: 280px;
 }
 
@@ -2143,7 +2156,7 @@ input[type="radio"], input[type="checkbox"] {
     font-weight: bold;
 }
 .rightpanel-tabs {
-    background: #B5A3C1;
+    background: $background-light;
     margin-top: -10px;
 }
 
@@ -2248,7 +2261,7 @@ input[type="radio"], input[type="checkbox"] {
     display: block !important;
 }
 .leaflet-popup-content-wrapper {
-    background: #B5A3C1;
+    background: $background-light;
 }
 #scrollable-dropdown-menu ul {
     max-height: 500px;
@@ -2258,21 +2271,21 @@ input[type="radio"], input[type="checkbox"] {
     padding-left: 20px;
 }
 .featureTooltip td {
-    background-color: #B5A3C1;
+    background-color: $background-light;
 }
 
 /* Header */
 
 .featureTooltip tr:first-child td {
-    background: -o-linear-gradient(bottom, #B5A3C1 5%, #A593B1 100%);
+    background: -o-linear-gradient(bottom, $background-light 5%, #A593B1 100%);
     background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #A593B1), color-stop(1, #A593B1));
-    background: -moz-linear-gradient( center top, #B5A3C1 5%, #A593B1 100%);
-    // -webkit-filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#B5A3C1", endColorstr="#A593B1");
-    // -moz-filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#B5A3C1", endColorstr="#A593B1");
-    // -o-filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#B5A3C1", endColorstr="#A593B1");
-    // filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#B5A3C1", endColorstr="#A593B1");
-    background: -o-linear-gradient(top, #B5A3C1, A593B1);
-    background-color: #B5A3C1;
+    background: -moz-linear-gradient( center top, $background-light 5%, #A593B1 100%);
+    // -webkit-filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="$background-light", endColorstr="#A593B1");
+    // -moz-filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="$background-light", endColorstr="#A593B1");
+    // -o-filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="$background-light", endColorstr="#A593B1");
+    // filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="$background-light", endColorstr="#A593B1");
+    background: -o-linear-gradient(top, $background-light, A593B1);
+    background-color: $background-light;
     border: 0 solid #000000;
     text-align: center;
     border-width: 0;
