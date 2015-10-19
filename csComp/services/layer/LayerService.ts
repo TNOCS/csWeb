@@ -1157,6 +1157,7 @@ module csComp.Services {
         private initFeatureType(ft: IFeatureType) {
             if (ft.isInitialized) return;
             ft.isInitialized = true;
+            this.initIconUri(ft);
             if (ft.languages != null && this.currentLocale in ft.languages) {
                 var locale = ft.languages[this.currentLocale];
                 if (locale.name) ft.name = locale.name;
@@ -1172,6 +1173,16 @@ module csComp.Services {
                         this.initPropertyType(ft.propertyTypeData[ptlabel]);
                     }
                 }
+            }
+        }
+
+        /** Set the iconUri for remote servers (newIconUri = server/oldIconUri) */
+        private initIconUri(ft: IFeatureType) {
+            if (!ft.style.iconUri) return;
+            const testForRemoteServerRegex = /^(http[s]?:\/\/[:a-zA-Z0-9_\.]+)\/.*$/g;
+            var matches = testForRemoteServerRegex.exec(ft.id);
+            if (matches && matches.length > 1) {
+                ft.style.iconUri = `${matches[1]}/${ft.style.iconUri}`;
             }
         }
 
