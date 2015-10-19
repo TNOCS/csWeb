@@ -328,8 +328,12 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
 
         //add file
-        this.server.put(this.filesUrl + ":folderId/:fileName", (req: express.Request, res: express.Response) => {
-            this.manager.addFile(req.body, req.params.folderId, req.params.fileName, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+        this.server.post(this.filesUrl + ":folderId/:fileName", (req: express.Request, res: express.Response) => {
+            if (!req.body.hasOwnProperty('base64')) {
+                Winston.error('Error receiving base64 encoded image: post the data as JSON, with the base64 property set to the base64 encoded string!');
+                return;
+            }
+            this.manager.addFile(req.body["base64"], req.params.folderId, req.params.fileName, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
                 res.send(result);
             });
