@@ -44,7 +44,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.projectsPath = path.join(rootpath, "projects/");
         this.resourcesPath = path.join(rootpath, "resourceTypes/");
         this.blobPath = path.join(rootpath,"blobs/");
-        this.iconPath = path.join(rootpath, "/../../images/");
+        this.iconPath = path.join(rootpath, "../images/");
         // check if rootpath exists, otherwise create it, including its parents
         if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
         this.watchLayersFolder();
@@ -414,7 +414,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (this.layers.hasOwnProperty(layer.id)) {
             this.layers[layer.id] = layer;
             this.saveLayerDelay(layer);
-            Winston.info("FileStorage: updated layer" + layer.id);
+            Winston.info("FileStorage: updated layer " + layer.id);
             callback(<CallbackResult>{ result: ApiResult.OK, layer: null });
         }
         else {
