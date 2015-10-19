@@ -18,7 +18,8 @@ var gulp          = require('gulp'),
     changed       = require('gulp-changed'),
     exec          = require('child_process').exec,
     templateCache = require('gulp-angular-templatecache'),
-    deploy        = require('gulp-gh-pages');
+    deploy        = require('gulp-gh-pages'),
+    sass          = require('gulp-sass')
 
 gulp.task('clean', function(cb) {
     // NOTE Careful! Removes all generated javascript files and certain folders.
@@ -32,6 +33,13 @@ gulp.task('clean', function(cb) {
         path2csWeb + 'test/csComp/**/*.js'
     ], { force: true }, cb);
 });
+
+
+    gulp.task('sass', function () {
+        gulp.src(path2csWeb + 'csComp/includes/css/*.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(gulp.dest(path2csWeb + 'csComp/includes/css/'));
+    });
 
 gulp.task('deploy-githubpages', function() {
     return gulp.src("./dist/**/*")
@@ -360,7 +368,7 @@ gulp.task('watch', function() {
     //gulp.watch(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts', ['built_csServerComp.d.ts']);
     gulp.watch(path2csWeb + 'csServerComp/ServerComponents/dynamic/ClientConnection.d.ts', ['built_csServerComp.d.ts']);
 
-
+    gulp.watch(path2csWeb + 'csComp/includes/**/*.scss', ['sass']);
     gulp.watch(path2csWeb + 'csComp/js/**/*.js', ['built_csComp']);
     gulp.watch(path2csWeb + 'csComp/js/**/*.d.ts', ['built_csComp.d.ts']);
     gulp.watch(path2csWeb + 'csComp/**/*.tpl.html', ['create_templateCache']);
@@ -369,7 +377,7 @@ gulp.task('watch', function() {
     gulp.watch(path2csWeb + 'csComp/includes/images/*.*', ['include_images']);
 });
 
-gulp.task('all', ['create_templateCache', 'copy_csServerComp', 'built_csServerComp.d.ts', 'copy_csServerComp_scripts', 'built_csComp', 'built_csComp.d.ts', 'include_css', 'include_js', 'include_images', 'copy_example_scripts']);
+gulp.task('all', ['create_templateCache', 'copy_csServerComp', 'built_csServerComp.d.ts', 'copy_csServerComp_scripts', 'built_csComp', 'built_csComp.d.ts', 'include_css', 'include_js', 'include_images', 'copy_example_scripts','sass']);
 
 gulp.task('deploy', ['create_dist','deploy-githubpages']);
 

@@ -3,11 +3,18 @@ module Navigate {
         vm: NavigateCtrl;
     }
 
+    export class RecentFeature {
+        public id: string;
+        public name: string;
+        public layerId: string;
+        public feature: csComp.Services.IFeature;
+    }
+
     export class NavigateCtrl {
         private scope: INavigateScope;
 
         public RecentLayers: csComp.Services.ProjectLayer[] = [];
-        public RecentFeatures: csComp.Services.IFeature[] = [];
+        public RecentFeatures: RecentFeature[] = [];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -37,19 +44,37 @@ module Navigate {
             });
         }
 
-        private initRecentFeatures() {
-            var ids = this.localStorageService.get("recentfeatures");
-            if (ids) ids.forEach(id=> {
+        private updateRecentFeaturesList() {
+            setTimeout(() => {
+                var ids = this.localStorageService.get("recentfeatures");
+                if (ids) {
+                    this.RecentFeatures = ids;
+                    this.RecentFeatures.forEach((rf: RecentFeature) => {
+                        var l = this.$layerService.findLayer(rf.layerId);
+                        if (l && l.enabled) {
+                            rf.feature = this.$layerService.findFeature(l, rf.id);
+                        }
+                    });
+                }
+            }, 0);
 
-                //if (l) this.RecentFeatures.push(l);
-            })
+        }
+
+        private selectFeature(feature: IFeature) {
+            this.$layerService.selectFeature(feature, false, true);
+        }
+
+        private initRecentFeatures() {
+            this.updateRecentFeaturesList();
             this.$messageBus.subscribe('feature', (a, feature: csComp.Services.IFeature) => {
                 if (a === 'onFeatureSelect') {
                     this.RecentFeatures = this.RecentFeatures.filter(f=> f.id != feature.id);
-                    this.RecentFeatures.splice(0, 0, feature);
+                    var rf = <RecentFeature>{ id: feature.id, name: csComp.Helpers.getFeatureTitle(feature), layerId: feature.layerId, feature: feature };
+                    this.RecentFeatures.splice(0, 0, rf);
                     if (this.RecentFeatures.length > 5) this.RecentFeatures.pop();
-                    ids = []; this.RecentFeatures.forEach(f=> ids.push({ id: f.id, layer: f.layerId }));
-                    this.localStorageService.set("recentfeatures", ids)
+                    var save = [];
+                    this.RecentFeatures.forEach((f) => save.push(<RecentFeature>{ id: f.id, name: f.name, layerId: f.layerId }))
+                    this.localStorageService.set("recentfeatures", save);
                     if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                         this.$scope.$apply();
                     }
@@ -74,11 +99,12 @@ module Navigate {
                     this.RecentLayers.splice(0, 0, layer);
                     if (this.RecentLayers.length > 5) this.RecentLayers.pop();
                     ids = []; this.RecentLayers.forEach(l=> ids.push(l.id));
-                    this.localStorageService.set("recentlayers", ids)
+                    this.localStorageService.set("recentlayers", ids);
                     if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                         this.$scope.$apply();
                     }
                 }
+                this.updateRecentFeaturesList();
             });
         }
 

@@ -472,7 +472,6 @@ module csComp.Services {
                     }
                     layer.layerSource.addLayer(layer, (l) => {
                         if (layerloaded) layerloaded(layer);
-                        this.$messageBusService.publish('layer', 'activated', layer);
 
                         if (l.enabled) {
                             this.loadedLayers[layer.id] = l;
@@ -485,6 +484,7 @@ module csComp.Services {
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             //if (layerloaded) layerloaded(layer);
                         }
+                        this.$messageBusService.publish('layer', 'activated', layer);
                     });
                     this.$messageBusService.publish("timeline", "updateFeatures");
                     callback(null, null);
@@ -708,7 +708,7 @@ module csComp.Services {
                         var mapLayers = l.mapLayer.getLayers();
                         mapLayers.forEach((ml) => {
                             if ((<any>ml).redraw && typeof (<any>ml).redraw === 'function') {
-                                (<any>ml).params({minColor: style.colors[0], maxColor: style.colors[1], areColorsUpdated: true});
+                                (<any>ml).params({ minColor: style.colors[0], maxColor: style.colors[1], areColorsUpdated: true });
                                 (<any>ml).redraw();
                             }
                         });
@@ -792,8 +792,9 @@ module csComp.Services {
             this.activeMapRenderer.updateFeature(feature);
         }
 
-        public selectFeature(feature: IFeature, multi = false) {
-            feature.isSelected = !feature.isSelected;
+        public selectFeature(feature: IFeature, multi = false, force = false) {
+            if (force) { feature.isSelected = true } else feature.isSelected = !feature.isSelected;
+            feature.gui['title'] = Helpers.getFeatureTitle(feature);
             this.actionServices.forEach((as: IActionService) => {
                 if (feature.isSelected) { as.selectFeature(feature); } else { as.deselectFeature(feature); }
             })
@@ -822,7 +823,7 @@ module csComp.Services {
                 }
             }
             else {
-                this.selectedFeatures.forEach((f) => this.deselectFeature(f));
+                this.selectedFeatures.forEach((f) => { if (f != feature) this.deselectFeature(f) });
                 this.selectedFeatures = (feature.isSelected) ? [feature] : [];
             }
 
@@ -1245,6 +1246,7 @@ module csComp.Services {
          * @featureId {number}
          */
         findFeature(layer: ProjectLayer, featureId: string): IFeature {
+            if (!layer.data || !layer.data.features) return null;
             return _.find(layer.data.features, (f: IFeature) => { return f.id === featureId })
         }
 
@@ -1713,6 +1715,7 @@ module csComp.Services {
 
             layer.enabled = false;
             layer.isLoading = false;
+            layer.gui.more = false;
             //if (layer.refreshTimer) layer.stop();
 
             // make sure the timers are disabled
@@ -1729,6 +1732,9 @@ module csComp.Services {
                 this.lastSelectedFeature = null;
                 this.visual.rightPanelVisible = false;
                 this.$messageBusService.publish('feature', 'onFeatureDeselect');
+            }
+            if (this.selectedFeatures.length > 0) {
+                this.selectedFeatures = this.selectedFeatures.filter((f) => { return f.layerId !== layer.id });
             }
 
             this.activeMapRenderer.removeLayer(layer);

@@ -1,27 +1,27 @@
-﻿module FeatureRelations {
-    import IFeature          = csComp.Services.IFeature;
-    import IFeatureType      = csComp.Services.IFeatureType;
-    import IPropertyType     = csComp.Services.IPropertyType;
+module FeatureRelations {
+    import IFeature = csComp.Services.IFeature;
+    import IFeatureType = csComp.Services.IFeatureType;
+    import IPropertyType = csComp.Services.IPropertyType;
     import IPropertyTypeData = csComp.Services.IPropertyTypeData;
 
     class FeaturePropsOptions implements L.SidebarOptions {
-        public position   : string;
+        public position: string;
         public closeButton: boolean;
-        public autoPan    : boolean;
+        public autoPan: boolean;
 
         constructor(position: string) {
-            this.position    = position;
+            this.position = position;
             this.closeButton = true;
-            this.autoPan     = true;
+            this.autoPan = true;
         }
     }
 
     export interface IFeatureRelationsScope extends ng.IScope {
-        vm                              : FeatureRelationsCtrl;
-        showMenu                        : boolean;
-        poi                             : IFeature;
-        title                           : string;
-        icon                            : string;
+        vm: FeatureRelationsCtrl;
+        showMenu: boolean;
+        poi: IFeature;
+        title: string;
+        icon: string;
     }
 
     export interface IHierarchySettings {
@@ -70,7 +70,7 @@
         }
 
         // Create a relation to the nearest 10 features that are within the extent
-        private createNearbyRelation(f) : RelationGroup {
+        private createNearbyRelation(f): RelationGroup {
             var rgr = new RelationGroup();
             var mapZoom = this.$layerService.activeMapRenderer.getZoom();
             if (mapZoom < 11) return rgr; //Disable when zoom level is too low
@@ -90,7 +90,7 @@
                         rl.subject = f;
                         rl.target = feature;
 
-                        rl.title = FeatureProps.CallOut.title(feature.fType, feature);
+                        rl.title = csComp.Helpers.featureTitle(feature.fType, feature);
                         rl.icon = (feature.fType == null || feature.fType.style == null || !feature.fType.style.hasOwnProperty('iconUri') || feature.fType.style.iconUri.toLowerCase().indexOf('_media') >= 0) ? '' : csComp.Helpers.convertStringFormat(feature, feature.fType.style.iconUri);
                         rgr.relations.push(rl);
                     }
@@ -104,8 +104,8 @@
             });
 
             if (tooManyFeatures) {
-              rgr.relations.length = 0;
-              return rgr;
+                rgr.relations.length = 0;
+                return rgr;
             }
 
             var fLoc: L.LatLng;
@@ -139,7 +139,7 @@
             this.relations = [];
             var f = this.$layerService.lastSelectedFeature;
             if (f.fType == null) return;
-            this.$scope.title = FeatureProps.CallOut.title(f.fType, f);
+            this.$scope.title = csComp.Helpers.featureTitle(f.fType, f);
             if (f.fType == null || f.fType.style == null || !f.fType.style.hasOwnProperty('iconUri') || f.fType.style.iconUri.toLowerCase().indexOf('_media') >= 0) {
                 this.$scope.icon = '';
             } else {
@@ -157,12 +157,12 @@
                     if (pt.target) {
                         this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
                             if (f.properties.hasOwnProperty(pt.subject) && feature.properties.hasOwnProperty(pt.target)
-                                    && feature.properties[pt.target] == f.properties[pt.subject] && f.id !== feature.id) {
+                                && feature.properties[pt.target] == f.properties[pt.subject] && f.id !== feature.id) {
                                 var rel = new Relation();
                                 rel.subject = f;
                                 rel.target = feature;
 
-                                rel.title = FeatureProps.CallOut.title(feature.fType, feature);
+                                rel.title = csComp.Helpers.featureTitle(feature.fType, feature);
                                 rel.icon = (feature.fType == null || feature.fType.style == null || !feature.fType.style.hasOwnProperty('iconUri') || feature.fType.style.iconUri.toLowerCase().indexOf('_media') >= 0) ? '' : feature.fType.style.iconUri;
                                 rg.relations.push(rel);
                             }
@@ -185,7 +185,7 @@
 
             this.showRelations = this.relations.length > 0;
 
-            if (this.showRelations) { $("#linkedData").show(); } else { $("#linkedData").hide();}
+            if (this.showRelations) { $("#linkedData").show(); } else { $("#linkedData").hide(); }
 
         }
 
@@ -197,13 +197,13 @@
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope             : IFeatureRelationsScope,
-            private $location          : ng.ILocationService,
-            private $sce               : ng.ISCEService,
-            private $mapService        : csComp.Services.MapService,
-            private $layerService      : csComp.Services.LayerService,
-            private $messageBusService : csComp.Services.MessageBusService,
-            private $translate         : ng.translate.ITranslateService
+            private $scope: IFeatureRelationsScope,
+            private $location: ng.ILocationService,
+            private $sce: ng.ISCEService,
+            private $mapService: csComp.Services.MapService,
+            private $layerService: csComp.Services.LayerService,
+            private $messageBusService: csComp.Services.MessageBusService,
+            private $translate: ng.translate.ITranslateService
             ) {
             this.scope = $scope;
             $scope.vm = this;
@@ -248,7 +248,7 @@
                     this.initRelations();
                     this.$messageBusService.publish('feature', 'onRelationsUpdated', feature);
                     break;
-               default:
+                default:
             }
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                 this.$scope.$apply();

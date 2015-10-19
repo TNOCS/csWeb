@@ -15,8 +15,8 @@
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
                 <li data-toggle="tab" data-ng-class="{active : $first}" data-ng-repeat="key in callOut.sectionKeys" ng-if="callOut.sections[key].hasProperties()">
-                    <a ng-href="#rp-{{$index}}" data-toggle="tab" data-ng-if="callOut.sections[key].showSectionIcon()" ng-click="featureTabActivated(key, callOut.sections[key])"><i class="fa {{callOut.sections[key].sectionIcon}}"></i></a>
-                    <a ng-href="#rp-{{$index}}" data-toggle="tab" data-ng-if="!callOut.sections[key].showSectionIcon()" ng-click="featureTabActivated(key, callOut.sections[key])">{{key}}</a>
+                    <a data-target="#rp-{{$index}}" data-toggle="tab" data-ng-if="callOut.sections[key].showSectionIcon()" ng-click="featureTabActivated(key, callOut.sections[key])"><i class="fa {{callOut.sections[key].sectionIcon}}"></i></a>
+                    <a data-target="#rp-{{$index}}" data-toggle="tab" data-ng-if="!callOut.sections[key].showSectionIcon()" ng-click="featureTabActivated(key, callOut.sections[key])">{{key}}</a>
                 </li>
             </ul>
         </div>
@@ -24,7 +24,7 @@
         <div class="row" ng-if="callOut.sectionCount() >= 3" ng-hide="configMode">
             <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
                 <li data-toggle="tab" class="active" ng-init="firstCallOutsection=callOut.firstSection()">
-                    <a ng-href="#rp-0" data-toggle="tab" data-ng-if="firstCallOutsection.showSectionIcon()">
+                    <a data-target="#rp-0" data-toggle="tab" data-ng-if="firstCallOutsection.showSectionIcon()">
                         <i class="fa {{firstCallOutsection.sectionIcon}}"></i>
                     </a>
                 </li>
@@ -33,7 +33,7 @@
                     <ul class="dropdown-menu">
                         <!-- alphabetic sorting disappeared in 1.4 https://docs.angularjs.org/api/ng/directive/ngRepeat -->
                         <li data-ng-repeat="key in callOut.sectionKeys" ng-if="!($first && callOut.hasInfoSection)">
-                            <a ng-href="#rp-{{$index}}" ng-click="selectedSection.title = key" data-toggle="tab">{{key}}</a>
+                            <a data-target="#rp-{{$index}}" ng-click="selectedSection.title = key" data-toggle="tab">{{key}}</a>
                         </li>
                     </ul>
                 </li>
