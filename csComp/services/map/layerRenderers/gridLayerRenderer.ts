@@ -15,24 +15,36 @@ module csComp.Services {
                 levels = gridParams.contourLevels;
             }
 
-            // Create a new groupstyle, which can be used to change the colors used to draw the grid
+            // Create a new groupstyle. If no legend is provided, this style can be used to change the colors used to draw the grid.
+            // If a legend is provided, that will be used as activelegend.
             var gs = new GroupStyle(service.$translate);
             gs.id = Helpers.getGuid();
             gs.title = (gridParams.legendDescription) ? gridParams.legendDescription : layer.title;
             gs.meta = null;
             gs.visualAspect = 'fillColor';
-            gs.canSelectColor = true;
-            gs.property = 'gridlayer';
+            gs.availableAspects = ['fillColor'];
             gs.info = { min: 0, max: 0, count: 0, mean: 0, varience: 0, sd: 0 };
             gs.fixedColorRange = true;
             gs.enabled = true;
             gs.group = layer.group;
-            gs.colors = [(gridParams.minColor) ? gridParams.minColor : '#0055FF', (gridParams.maxColor) ? gridParams.maxColor : '#FF5500'];
-            gs.activeLegend = <Legend>{
-                legendKind: 'interpolated',
-                description: gs.title,
-                visualAspect: 'fillColor',
-                legendEntries: []
+            if (!gridParams.legend) {
+                gs.property = 'gridlayer';
+                gs.canSelectColor = true;
+                gs.colors = [(gridParams.minColor) ? gridParams.minColor : '#0055FF', (gridParams.maxColor) ? gridParams.maxColor : '#FF5500'];
+                gs.activeLegend = <Legend>{
+                    legendKind: 'interpolated',
+                    description: gs.title,
+                    visualAspect: 'fillColor',
+                    legendEntries: []
+                }
+            } else {
+                gs.property = '';
+                gs.canSelectColor = false;
+                gs.colors = ['#ffffff', '#000000'];
+                gs.activeLegend = <Legend>gridParams.legend;
+                gs.activeLegend.legendEntries.forEach((le) => {
+                    legend.push({val: le.value, color: le.color});
+                })
             }
             service.saveStyle(layer.group, gs);
 
@@ -47,7 +59,7 @@ module csComp.Services {
                 max: gridParams.maxThreshold,
                 minColor: gs.colors[0],
                 maxColor: gs.colors[1],
-                areColorsUpdated: true,
+                areColorsUpdated: false,
                 levels: levels,
                 legend: legend,
                 opacity: (layer.opacity) ? (+layer.opacity) / 100 : 0.3

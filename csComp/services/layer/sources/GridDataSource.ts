@@ -92,7 +92,11 @@ module csComp.Services {
         /** When using the GridLayerRenderer, the cell colors can be chosen through a groupstyle. This will be the stringformat the legend
          * entries accompanying that style.
          */
-        legendStringFormat?: string
+        legendStringFormat?: string,
+        /** Optionally, a legend can be provided. This legend overrides the parameters that define a legend too (minColor, maxColor, legendDescription,
+         * legendStringFormat). If it's not defined, a legend will be created from those 4 parameters and the contourLevels.
+         */
+        legend?: Legend
     }
 
     /**
