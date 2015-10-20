@@ -39,6 +39,9 @@ module csComp.Services {
                 switch (title) {
                     case 'isEnabled':
                         this.timelineVisible = data;
+                        if (this.timelineVisible) {
+                            this.$timeout(() => { this.$messageBusService.publish('timeline', 'loadProjectTimeRange') }, 100);
+                        }
                         break;
                 }
             });
@@ -84,17 +87,6 @@ module csComp.Services {
                 if (title !== 'newExpertise') return;
                 this.expertMode = expertMode;
                 this.$localStorageService.set(csComp.Services.MapService.expertModeKey, expertMode); // You first need to set the key
-                switch (expertMode) {
-                    case Expertise.Intermediate:
-                    case Expertise.Expert:
-                    case Expertise.Admin:
-                        this.timelineVisible = true;
-                        this.$timeout(() => { this.$messageBusService.publish('timeline', 'loadProjectTimeRange') }, 100);
-                        break;
-                    default:
-                        this.timelineVisible = false;
-                        break;
-                }
             });
         }
 
