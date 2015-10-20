@@ -40,7 +40,7 @@ module L {
 
         onAdd: function(map) {
             this._map = map;
-            this._canvas = L.DomUtil.create('canvas', 'leaflet-heatmap-layer');
+            this._canvas = L.DomUtil.create('canvas', 'leaflet-overlay-layer');
 
             var size = this._map.getSize();
             this._canvas.width = size.x;
@@ -55,12 +55,12 @@ module L {
                 // only show tooltip when a colored cell is located at the mouse cursor position
                 if ((rgb[0] + rgb[1] + rgb[2]) > 0) {
                     var latLng: L.LatLng = this._map.containerPointToLatLng(new L.Point(evt.x - pos.left, evt.y - pos.top));
-                    var I = Math.floor((latLng.lat - this.options.topLeftLat) / this.options.deltaLat);
-                    var J = Math.floor((latLng.lng - this.options.topLeftLon) / this.options.deltaLon);
+                    var i = Math.floor((latLng.lat - this.options.topLeftLat) / this.options.deltaLat);
+                    var j = Math.floor((latLng.lng - this.options.topLeftLon) / this.options.deltaLon);
                     var value = '';
-                    if (I > 0 && I < this.options.data.length &&
-                        J > 0 && J < this.options.data[0].length) {
-                        value = this.options.data[I][J];
+                    if (0 <= i && i < this.options.data.length &&
+                        0 <= j && j < this.options.data[0].length) {
+                        value = (<any>String).format("{0:0.00}", this.options.data[i][j]);
                     }
                     (this._layer.dataSourceParameters.legendStringFormat) ? value = (<any>String).format(this._layer.dataSourceParameters.legendStringFormat, value) : null;
                     var content = '<table><td>' + value + '</td></tr>' + '</table>';
@@ -78,7 +78,7 @@ module L {
                     this._map.closePopup(this._popup);
                     this._popup = null;
                 }
-                console.log('mousemoved ' + evt.x + ', ' + evt.y + ',  color: R' + rgb[0] + ' G' + rgb[1] + ' B' + rgb[2]);
+                //console.log('mousemoved ' + evt.x + ', ' + evt.y + ',  color: R' + rgb[0] + ' G' + rgb[1] + ' B' + rgb[2]);
             }, 250);
 
             this._canvas.addEventListener('mousemove', this.onMouseMoveDelay);

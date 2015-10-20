@@ -30,7 +30,7 @@ module csComp.Services {
             if (!gridParams.legend) {
                 gs.property = 'gridlayer';
                 gs.canSelectColor = true;
-                gs.colors = [(gridParams.minColor) ? gridParams.minColor : '#0055FF', (gridParams.maxColor) ? gridParams.maxColor : '#FF5500'];
+                gs.colors = [(gridParams.minColor) ? gridParams.minColor : '#00fbff', (gridParams.maxColor) ? gridParams.maxColor : '#0400ff'];
                 gs.activeLegend = <Legend>{
                     legendKind: 'interpolated',
                     description: gs.title,
@@ -102,7 +102,7 @@ module csComp.Services {
                         legendEntries: []
                     };
                     legend.forEach((i) => {
-                        let legEntry = <LegendEntry>{ label: (<any>String).format(layer.dataSourceParameters['legendStringFormat'] || '{0:000}', i.val), value: i.val, color: i.color };
+                        let legEntry = <LegendEntry>{ label: (<any>String).format(layer.dataSourceParameters['legendStringFormat'] || '{0:00}', i.val), value: i.val, color: i.color };
                         layer.group.styles[0].activeLegend.legendEntries.push(legEntry);
                     });
                 }
