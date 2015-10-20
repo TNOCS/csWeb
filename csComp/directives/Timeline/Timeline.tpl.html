@@ -31,7 +31,7 @@
         </div>
     </div>
 
-    <div class="timeline-expand-button" style="position:absolute;bottom:{{vm.expandButtonBottom}}px" ng-click="vm.expandToggle()"  style="pointer-events:auto">
+    <div class="timeline-expand-button" style="position:absolute;" ng-style="{'bottom':vm.expandButtonBottom + 'px'}" ng-click="vm.expandToggle()"  style="pointer-events:auto">
         <span ng-show="vm.expanded" class="fa fa-chevron-down" />
         <span ng-hide="vm.expanded" class="fa fa-chevron-up" />
         events
