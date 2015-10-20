@@ -9,12 +9,12 @@
 
                 <div id="stylegroup_{{group.id}}" class="collapse in">
                     <div data-ng-repeat="style in group.styles">
-                        <div class="checkbox checkbox-primary" style="margin-left:20px;float:left">
+                        <div class="checkbox checkbox-primary" style="margin-left:18px;float:left">
                             <input type="checkbox" id="cbstyle{{style.id}}" ng-model="style.enabled" data-ng-change="vm.$layerService.updateStyle(style);">
-                            <label class="style-title" for="cbstyle{{style.id}}" style="width:175px">{{style.title}}</label>
+                            <label class="style-title" for="cbstyle{{style.id}}" style="width:165px">{{style.title}}</label>
                         </div>
 
-                        <div style="float:right;margin-top:10px; width: 50px">
+                        <div style="float:right;margin-top:10px; width: 48px">
                             <div data-ng-show="style.canSelectColor" style="float:left">
                                 <div class="dropdown">
                                     <div class="style-settings" data-toggle="dropdown">
@@ -25,7 +25,7 @@
                                         </div>
                                         <b class="caret"></b>
                                     </div>
-                                    <ul class="dropdown-menu" role="menu" style="right:0;left:initial;white-space:nowrap;min-width:130px">
+                                    <ul class="dropdown-menu" role="menu" style="right:0;left:auto;left:initial;white-space:nowrap;min-width:130px">
                                         <li ng-repeat="(key,val) in style.colorScales" style="margin:3px;cursor: pointer">
                                             <span ng-click="vm.$layerService.updatePropertyStyle(key,val,$parent);
                                                   $parent.style.colors = val;
@@ -40,7 +40,7 @@
                                     <div class="style-settings" data-toggle="dropdown">
                                         <div class="style-aspect style-{{style.visualAspect}}"></div><b class="caret"></b>
                                     </div>
-                                    <ul class="dropdown-menu" role="menu" style="right:0;left:initial;white-space:nowrap;min-width:130px">
+                                    <ul class="dropdown-menu" role="menu" style="right:0;left:auto;left:initial;white-space:nowrap;min-width:130px">
                                         <li ng-repeat="title in style.availableAspects" style="margin:3px;cursor: pointer">
                                             <i class="style-aspect style-{{title}}" style="float:left" />
                                             <span ng-click="$parent.style.visualAspect = title;vm.$layerService.updateStyle($parent.style)">

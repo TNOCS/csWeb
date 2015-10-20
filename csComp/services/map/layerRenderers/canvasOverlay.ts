@@ -123,7 +123,7 @@ module L {
             var obj = this._canvas;
             var top = 0;
             var left = 0;
-            while (obj.tagName != "BODY") {
+            while (obj && obj.tagName != "BODY") {
                 top += obj.offsetTop;
                 left += obj.offsetLeft;
                 obj = obj.offsetParent;
