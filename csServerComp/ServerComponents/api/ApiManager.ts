@@ -23,7 +23,8 @@ export enum ApiResult {
     GroupNotFound = 412,
     GroupAlreadyExists = 413,
     ResourceNotFound = 428,
-    ResourceAlreadyExists = 429
+    ResourceAlreadyExists = 429,
+    SearchNotImplemented = 440
 }
 
 export interface IApiManagerOptions {
@@ -49,6 +50,7 @@ export class CallbackResult {
     public layer: Layer;
     public groups: string[];
     public feature: Feature;
+    public features: Feature[];
     public keys: { [keyId: string]: Key };
     public key: Key;
 }
@@ -85,6 +87,7 @@ export interface IConnector {
     getLayer(layerId: string, meta: ApiMeta, callback: Function);
     updateLayer(layer: ILayer, meta: ApiMeta, callback: Function);
     deleteLayer(layerId: string, meta: ApiMeta, callback: Function);
+    searchLayer(layerId: string, keyWord: string, meta: ApiMeta, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function);
     getFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function);
@@ -96,6 +99,7 @@ export interface IConnector {
     deleteLog(layerId: string, featureId: string, ts: number, prop: string, meta: ApiMeta, callback: Function);
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, meta: ApiMeta, callback: Function);
     updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function);
+
     //geospatial stuff
     getBBox(layerId: string, southWest: number[], northEast: number[], meta: ApiMeta, callback: Function);
     getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, meta: ApiMeta, callback: Function);
@@ -780,6 +784,31 @@ export class ApiManager extends events.EventEmitter {
             Winston.warn('Project ' + projectId + ' not found.');
             callback(<CallbackResult>{ result: ApiResult.ProjectNotFound });
         }
+    }
+
+    public searchLayers(keyword: string, layerIds: string[], meta: ApiMeta, callback: Function) {
+        if (!layerIds || layerIds.length == 0) layerIds = _.keys(this.layers);
+        var result: Feature[] = [];
+
+        async.each(layerIds, (lId, callback) => {
+            var storage = this.findStorageForLayerId(lId);
+            if (storage != null) {
+                storage.searchLayer(lId, keyword, meta, (r) => {
+                    if (r.result === ApiResult.OK) {
+                        r.features.forEach(f=> result.push(f));
+                    }
+                    callback();
+                });
+            }
+        }, (error) => {
+                if (!error) {
+                    callback(<CallbackResult>{ result: ApiResult.OK, features: result });
+                }
+                else {
+                    callback(<CallbackResult>{ result: ApiResult.Error });
+                }
+            });
+
     }
 
     public getLayer(layerId: string, meta: ApiMeta, callback: Function) {

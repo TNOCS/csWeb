@@ -595,6 +595,34 @@
                 }
             }
         },
+        "/search/":{
+            "get": {
+                "tags": [
+                    "layer", "search"
+                ],
+                "summary": "Searches for a keyword inside a list or all layers",
+                "description": "Searches for a keyword inside a list or all layers",
+                "operationId": "search",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/Layer"
+                            }
+                        }
+
+                    },
+                    "404": {
+                        "description": "Cannot GET /search/"
+                    }
+                }
+            }
+        },
         "/layers/": {
             "post": {
                 "tags": [
