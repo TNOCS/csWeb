@@ -30,7 +30,7 @@ module csComp.Services {
             if (!gridParams.legend) {
                 gs.property = 'gridlayer';
                 gs.canSelectColor = true;
-                gs.colors = [(gridParams.minColor) ? gridParams.minColor : '#0055FF', (gridParams.maxColor) ? gridParams.maxColor : '#FF5500'];
+                gs.colors = [(gridParams.minColor) ? gridParams.minColor : '#00fbff', (gridParams.maxColor) ? gridParams.maxColor : '#0400ff'];
                 gs.activeLegend = <Legend>{
                     legendKind: 'interpolated',
                     description: gs.title,
@@ -82,8 +82,8 @@ module csComp.Services {
                 size = settings.size,
                 legend = opt.legend;
 
-                // update the legend when new from- and to-colors are chosen.
-                // the complete color range of the legend will be calculated using the hue value of the from and to colors.
+            // update the legend when new from- and to-colors are chosen.
+            // the complete color range of the legend will be calculated using the hue value of the from and to colors.
             if (legend.length === 0 || opt.areColorsUpdated) {
                 legend = [];
                 if (opt.minColor[0] !== '#') opt.minColor = ColorExt.Utils.colorNameToHex(opt.minColor);
@@ -102,7 +102,7 @@ module csComp.Services {
                         legendEntries: []
                     };
                     legend.forEach((i) => {
-                        let legEntry = <LegendEntry>{ label: (<any>String).format(layer.dataSourceParameters['legendStringFormat'], i.val.toString()), value: i.val, color: i.color };
+                        let legEntry = <LegendEntry>{ label: (<any>String).format(layer.dataSourceParameters['legendStringFormat'] || '{0:00}', i.val), value: i.val, color: i.color };
                         layer.group.styles[0].activeLegend.legendEntries.push(legEntry);
                     });
                 }

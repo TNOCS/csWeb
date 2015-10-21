@@ -76,6 +76,22 @@ module Dashboard {
                     }
                 });
 
+                this.$messageBusService.subscribe('expertMode', (title: string, expertMode: csComp.Services.Expertise) => {
+                    if (title !== 'newExpertise') return;
+                    //Check whether timeline should be visible. Only when at least Intermediate expertise AND dashboard.showTimeline !== false
+                    setTimeout(() => {
+                        if (this.project && this.project.activeDashboard) {
+                            var ad = this.project.activeDashboard;
+                            if (this.$mapService.isIntermediate && (!ad.hasOwnProperty('showTimeline') || ad.showTimeline === true)) {
+                                this.$messageBusService.publish('timeline', 'isEnabled', true);
+                            }
+                            else {
+                                this.$messageBusService.publish('timeline', 'isEnabled', false);
+                            }
+                        }
+                    }, 50);
+                });
+
                 //this.project.activeDashboard.widgets
                 //this.updateDashboard();
                 //alert($scope.dashboard.name);

@@ -1157,6 +1157,7 @@ module csComp.Services {
         private initFeatureType(ft: IFeatureType) {
             if (ft.isInitialized) return;
             ft.isInitialized = true;
+            this.initIconUri(ft);
             if (ft.languages != null && this.currentLocale in ft.languages) {
                 var locale = ft.languages[this.currentLocale];
                 if (locale.name) ft.name = locale.name;
@@ -1172,6 +1173,16 @@ module csComp.Services {
                         this.initPropertyType(ft.propertyTypeData[ptlabel]);
                     }
                 }
+            }
+        }
+
+        /** Set the iconUri for remote servers (newIconUri = server/oldIconUri) */
+        private initIconUri(ft: IFeatureType) {
+            if (!ft.style.iconUri) return;
+            const testForRemoteServerRegex = /^(http[s]?:\/\/[:a-zA-Z0-9_\.]+)\/.*$/g;
+            var matches = testForRemoteServerRegex.exec(ft.id);
+            if (matches && matches.length > 1) {
+                ft.style.iconUri = `${matches[1]}/${ft.style.iconUri}`;
             }
         }
 
@@ -1661,21 +1672,40 @@ module csComp.Services {
          * Return the feature style for a specific feature.
          * First, look for a layer specific feature type, otherwise, look for a project-specific feature type.
          * In case both fail, create a default feature type at the layer level.
+         *
+         * If the feature type contains a _{xxx} part, replace the {xxx} with the value of feature.property['xxx']
+         * if it exists, otherwise remove it.
          */
         getFeatureType(feature: IFeature): IFeatureType {
             if (feature.fType) return feature.fType;
             if (!feature.featureTypeName) {
                 feature.featureTypeName = this.getFeatureTypeId(feature);
             }
-
-            var ftKeys = Object.getOwnPropertyNames(this._featureTypes);
-            var featureTypes = ftKeys.map(key=> this._featureTypes[key]).filter(ft=> ft.name == feature.featureTypeName);
-            if (featureTypes.length > 0) {
-                this._featureTypes[feature.featureTypeName] = featureTypes[0];
+            var isPropertyBasedFeatureType = feature.featureTypeName.indexOf('_{') >= 0;
+            if (isPropertyBasedFeatureType) {
+                // Feature type depends on a property, so substite the property placeholder with its value,
+                // e.g. featureTypeId="default_{state}", and property state="failed", look for featureTypeId=default_failed
+                // If state is not defined, featureTypeId=default.
+                const re = /_{([a-zA-Z_0-9]+)}/g;
+                var matches = re.exec(feature.featureTypeName);
+                if (matches) {
+                    for (let i = 1; i < matches.length; i++) {
+                        var match = matches[i];
+                        feature.featureTypeName = feature.properties.hasOwnProperty(match)
+                            ? feature.featureTypeName.replace( `{${match}}`, feature.properties[match])
+                            : feature.featureTypeName.replace(`_{${match}}`, '');
+                    }
+                }
             }
 
             if (!this._featureTypes.hasOwnProperty(feature.featureTypeName)) {
-                this._featureTypes[feature.featureTypeName] = csComp.Helpers.createDefaultType(feature);
+                var ftKeys = Object.getOwnPropertyNames(this._featureTypes);
+                var featureTypes = ftKeys.map(key => this._featureTypes[key]).filter(ft => ft.name == feature.featureTypeName);
+                if (featureTypes.length > 0) {
+                    this._featureTypes[feature.featureTypeName] = featureTypes[0];
+                } else {
+                    this._featureTypes[feature.featureTypeName] = csComp.Helpers.createDefaultType(feature);
+                }
                 //this._featureTypes[feature.featureTypeName] = this.typesResources[feature.layer.typeUrl].featureTypes[feature.featureTypeName];
             }
             feature.fType = this._featureTypes[feature.featureTypeName];
