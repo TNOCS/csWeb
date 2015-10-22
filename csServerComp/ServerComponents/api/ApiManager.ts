@@ -260,9 +260,16 @@ export class Feature {
 }
 
 /**
+ * Geojson IProperty definition
+ */
+export interface IProperty {
+    [key: string]: any
+}
+
+/**
  * Geojson property definition
  */
-export class Property {
+export class Property implements IProperty {
     [key: string]: any
 }
 

@@ -38,7 +38,7 @@ module csComp.Services {
             /// <param name="listener">The callback function to register.</param>
             this._listeners.push(listener);
         }
-        
+
         public remove(listener?: () => void): void {
             /// <summary>Unregisters a listener from the event.</summary>
             /// <param name="listener">The callback function that was registered. If missing then all listeners will be removed.</param>
@@ -272,7 +272,8 @@ module csComp.Services {
             return new MessageBusHandle(sub.id, callback);
         }
 
-        public serverUnsubscribe(handle: MessageBusHandle, serverId = "") {
+        public serverUnsubscribe(handle: MessageBusHandle, serverId: string = "") {
+            if (!handle) return;
             var c = this.getConnection(serverId);
             if (c == null) return null;
             c.unsubscribe(handle.topic, handle.callback);

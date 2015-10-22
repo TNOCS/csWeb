@@ -1757,7 +1757,6 @@ module csComp.Services {
             if (!layer.layerSource) layer.layerSource = this.layerSources[layer.type.toLowerCase()];
             layer.layerSource.removeLayer(layer);
 
-
             if (this.lastSelectedFeature != null && this.lastSelectedFeature.layerId === layer.id) {
                 this.lastSelectedFeature = null;
                 this.visual.rightPanelVisible = false;
@@ -1772,9 +1771,10 @@ module csComp.Services {
             this.project.features = this.project.features.filter((k: IFeature) => k.layerId !== layer.id);
             var layerName = layer.id + '_';
             var featureTypes = this._featureTypes;
-            for (var poiTypeName in featureTypes) {
-                if (!featureTypes.hasOwnProperty(poiTypeName)) continue;
-            }
+            // EV What should this have done?
+            // for (var poiTypeName in featureTypes) {
+            //     if (!featureTypes.hasOwnProperty(poiTypeName)) continue;
+            // }
 
             // check if there are no more active layers in group and remove filters/styles
             if (g.layers.filter((l: ProjectLayer) => { return (l.enabled); }).length === 0 || g.oneLayerActive === true) {

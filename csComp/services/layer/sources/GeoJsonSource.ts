@@ -349,7 +349,6 @@ module csComp.Services {
             });
         }
 
-
         removeLayer(layer: ProjectLayer) {
             layer.isConnected = false;
             if (layer.gui['editing']) this.stopAddingFeatures(layer);
