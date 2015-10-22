@@ -1677,39 +1677,43 @@ module csComp.Services {
          * if it exists, otherwise remove it.
          */
         getFeatureType(feature: IFeature): IFeatureType {
-            if (feature.fType) return feature.fType;
             if (!feature.featureTypeName) {
                 feature.featureTypeName = this.getFeatureTypeId(feature);
             }
             var isPropertyBasedFeatureType = feature.featureTypeName.indexOf('_{') >= 0;
+            if (!isPropertyBasedFeatureType && feature.fType) return feature.fType;
+            var featureTypeName = feature.featureTypeName;
             if (isPropertyBasedFeatureType) {
                 // Feature type depends on a property, so substite the property placeholder with its value,
                 // e.g. featureTypeId="default_{state}", and property state="failed", look for featureTypeId=default_failed
                 // If state is not defined, featureTypeId=default.
                 const re = /_{([a-zA-Z_0-9]+)}/g;
-                var matches = re.exec(feature.featureTypeName);
+                var matches = re.exec(featureTypeName);
                 if (matches) {
                     for (let i = 1; i < matches.length; i++) {
                         var match = matches[i];
-                        feature.featureTypeName = feature.properties.hasOwnProperty(match)
-                            ? feature.featureTypeName.replace( `{${match}}`, feature.properties[match])
-                            : feature.featureTypeName.replace(`_{${match}}`, '');
+                        featureTypeName = feature.properties.hasOwnProperty(match)
+                            ? featureTypeName.replace( `{${match}}`, feature.properties[match])
+                            : featureTypeName.replace(`_{${match}}`, '');
                     }
                 }
             }
 
-            if (!this._featureTypes.hasOwnProperty(feature.featureTypeName)) {
-                var ftKeys = Object.getOwnPropertyNames(this._featureTypes);
-                var featureTypes = ftKeys.map(key => this._featureTypes[key]).filter(ft => ft.name == feature.featureTypeName);
-                if (featureTypes.length > 0) {
-                    this._featureTypes[feature.featureTypeName] = featureTypes[0];
-                } else {
-                    this._featureTypes[feature.featureTypeName] = csComp.Helpers.createDefaultType(feature);
-                }
-                //this._featureTypes[feature.featureTypeName] = this.typesResources[feature.layer.typeUrl].featureTypes[feature.featureTypeName];
+            if (!this._featureTypes.hasOwnProperty(featureTypeName)) {
+                this.createMissingFeatureType(feature);
             }
-            feature.fType = this._featureTypes[feature.featureTypeName];
+            feature.fType = this._featureTypes[featureTypeName];
             return feature.fType;
+        }
+
+        private createMissingFeatureType(feature: IFeature) {
+            var ftKeys = Object.getOwnPropertyNames(this._featureTypes);
+            var featureTypes = ftKeys.map(key => this._featureTypes[key]).filter(ft => ft.name == feature.featureTypeName);
+            if (featureTypes.length > 0) {
+                this._featureTypes[feature.featureTypeName] = featureTypes[0];
+            } else {
+                this._featureTypes[feature.featureTypeName] = csComp.Helpers.createDefaultType(feature);
+            }
         }
 
         resetFilters() {
