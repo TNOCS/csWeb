@@ -196,11 +196,12 @@ export class IsoLines {
                 gridParams.startLon = startLoc.longitude;
                 gridParams.startLat = startLoc.latitude;
                 break;
+            default:
+                console.log('ESRI grid conversion warning: assuming default projection WGS84.');
             case 'WGS84':
             case 'wgs84':
                 gridParams.startLat -= (gridParams.rows - 1) * gridParams.deltaLat;
-            default:
-                throw new Error('Current projection is not supported!')
+                //throw new Error('Current projection is not supported!')
                 break;
         }
     }
