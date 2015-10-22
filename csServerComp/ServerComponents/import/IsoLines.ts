@@ -1,4 +1,4 @@
-import ApiManager = require('../api/ApiManager');
+import Api = require('../api/ApiManager');
 import GeoJSON = require('../helpers/GeoJSON')
 import Conrec = require('../helpers/conrec')
 
@@ -125,7 +125,8 @@ export class IsoLines {
         No carriage returns are necessary at the end of each row in the raster. The number of columns in the header determines when a new row begins.
         Row 1 of the data is at the top of the raster, row 2 is just under row 1, and so on.
      */
-    static convertEsriHeaderToGridParams(data: string, gridParams: IGridDataSourceParameters) {
+    public static convertEsriHeaderToGridParams(input: string | Object, gridParams: IGridDataSourceParameters) {
+        var data: string = IsoLines.getData(input);
         const regex = /(\S*)\s*([\d-.]*)/;
 
         var lines = data.split('\n', 6);
@@ -178,48 +179,52 @@ export class IsoLines {
             }
         });
         if (isCenter) {
-            gridParams.startLon = x - gridParams.deltaLon / 2;
-            gridParams.startLat = y - gridParams.deltaLat / 2;
-        } else {
             gridParams.startLon = x;
-            gridParams.startLat = y - gridParams.deltaLat;
+            gridParams.startLat = y;
+        } else {
+            gridParams.startLon = x + gridParams.deltaLon / 2;
+            gridParams.startLat = y - gridParams.deltaLat / 2;
         }
 
         switch (gridParams.projection || 'wgs84') {
             case 'rd':
             case 'RD':
-                var startLoc = GeoJSON.GeoExtensions.convertRDToWGS84(gridParams.startLon, gridParams.startLat - gridParams.rows*gridParams.deltaLat);
-                if (isCenter) {
-                    throw new Error('TODO: Never teste isCenter');
-                    var endLoc = GeoJSON.GeoExtensions.convertRDToWGS84(gridParams.startLon + gridParams.columns*gridParams.deltaLon/2, gridParams.startLat);
-                    gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / (gridParams.columns/2);
-                    gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / (gridParams.rows/2);
-                } else {
-                    var endLoc = GeoJSON.GeoExtensions.convertRDToWGS84(gridParams.startLon + gridParams.columns*gridParams.deltaLon, gridParams.startLat);
-                    gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / gridParams.columns;
-                    gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / gridParams.rows;
-                }
-                gridParams.startLon = startLoc.longitude + gridParams.deltaLon;
-                gridParams.startLat = startLoc.latitude + gridParams.deltaLat;
+                var startLoc = GeoJSON.GeoExtensions.convertRDToWGS84(gridParams.startLon, gridParams.startLat - (gridParams.rows - 1) * gridParams.deltaLat);
+                var endLoc = GeoJSON.GeoExtensions.convertRDToWGS84(gridParams.startLon + (gridParams.columns - 1) * gridParams.deltaLon, gridParams.startLat);
+                gridParams.deltaLon = (endLoc.longitude - startLoc.longitude) / (gridParams.columns - 1);
+                gridParams.deltaLat = (endLoc.latitude - startLoc.latitude) / (gridParams.rows - 1);
+                gridParams.startLon = startLoc.longitude;
+                gridParams.startLat = startLoc.latitude;
                 break;
             case 'WGS84':
             case 'wgs84':
-                break;
+                gridParams.startLat -= (gridParams.rows - 1) * gridParams.deltaLat;
             default:
                 throw new Error('Current projection is not supported!')
                 break;
         }
     }
 
-
+    /** Extract the grid data from the input */
+    private static getData(input: string | Object) {
+        if (typeof input === 'string') {
+            return input;
+        } else if (input.hasOwnProperty('data') && typeof input['data'] === 'string') {
+            return input['data'];
+        } else {
+            console.log('GridDataSource error: could not read grid data!');
+            return '';
+        }
+    }
 
     /**
-     * Convert data to a set of isolines.
+     * Convert the incoming data to a matrix grid.
+     * The incoming data can be in two formats: either it is a string, representing the ASCII grid data,
+     * or it is an (ILayer) object, in which case the data should be in the input.data property.
      */
-    public static convertDataToIsoLines(data: string, gridParams: IGridDataSourceParameters) {
-        if (typeof gridParams.gridType !== 'undefined' && gridParams.gridType === 'esri') {
-            IsoLines.convertEsriHeaderToGridParams(data, gridParams);
-        }
+    public static convertDataToGrid(input: string | Object, gridParams: IGridDataSourceParameters) {
+        var data: string = IsoLines.getData(input);
+        if (!data) return;
 
         var propertyName = gridParams.propertyName || "v";
         var noDataValue = gridParams.noDataValue || -9999;
@@ -237,35 +242,16 @@ export class IsoLines {
             lat = gridParams.startLat,
             lon = gridParams.startLon;
 
-        var features: ApiManager.Feature[] = [];
-        var max = -Number.MAX_VALUE,
-            min = Number.MAX_VALUE;
-        var lines = data.split('\n');
+        var max = gridParams.maxThreshold || -Number.MAX_VALUE,
+            min = gridParams.minThreshold || Number.MAX_VALUE;
+        var lines = data.split('\n'),
+            i = 0,
+            gridData: number[][] = [];
+
         if (gridParams.skipLines) lines.splice(0, gridParams.skipLines);
 
         var rowsToProcess = gridParams.rows || Number.MAX_VALUE;
 
-        var conrec = new Conrec.Conrec(),
-            nrIsoLevels: number,
-            isoLevels: number[],
-            longitudes: number[] = [],
-            latitudes: number[] = [],
-            gridData: number[][] = [],
-            i = 0;
-
-        if (typeof gridParams.contourLevels === 'undefined') nrIsoLevels = 10;
-        else {
-            var cl = gridParams.contourLevels;
-            if (typeof cl === 'number') {
-                nrIsoLevels = cl;
-            }
-            else {
-                isoLevels = cl;
-                nrIsoLevels = cl.length;
-            }
-        }
-
-        var re = new RegExp(noDataValue.toString(), "g");
         lines.forEach((line) => {
             if (gridParams.commentCharacter)
                 if (line.substr(0, 1) === gridParams.commentCharacter) {
@@ -283,9 +269,7 @@ export class IsoLines {
                 return;
             }
             rowsToProcess--;
-            if (rowsToProcess < 0) return;
-
-            var line = line.replace(re, '0');
+            if (rowsToProcess < 0) return gridData;
 
             var cells: RegExpMatchArray;
             if (skipSpacesFromLine)
@@ -298,43 +282,78 @@ export class IsoLines {
             if (!cells || (!gridParams.skipFirstColumn && cells.length < gridParams.columns)) return;
 
             gridData[i] = [];
-            if (i === 0) {
-                cells.forEach(c => {
-                    gridData[i].push(+c);
-                    longitudes.push(lon);
-                    lon += deltaLon;
-                    if (lon > 180) lon -= 360;
-                });
-            } else {
-                cells.forEach(c => gridData[i].push(+c));
-            }
-            if (typeof isoLevels === 'undefined') {
-                max = gridParams.maxThreshold || Math.max(max, Math.max(...gridData[i]));
-                min = gridParams.minThreshold || Math.min(min, Math.min(...gridData[i]));
-            }
-            latitudes.push(lat);
-            lat += deltaLat;
+            cells.forEach(c => gridData[i].push(+c));
+
+            max = Math.max(max, ...gridData[i]);
+            min = Math.min(min, ...gridData[i]);
+
             i++;
         });
+        gridParams.maxThreshold = max;
+        gridParams.minThreshold = min;
+
+        return gridData;
+    }
+
+    /**
+     * Convert data to a set of isolines.
+     */
+    public static convertDataToIsoLines(data: string, gridParams: IGridDataSourceParameters) {
+        var gridData = IsoLines.convertDataToGrid(data, gridParams);
+        var propertyName = gridParams.propertyName || "v";
+        var longitudes: number[] = [],
+            latitudes: number[] = [];
+        var lat = gridParams.startLat,
+            lon = gridParams.startLon,
+            deltaLat = gridParams.deltaLat,
+            deltaLon = gridParams.deltaLon;
+        var max = gridParams.maxThreshold,
+            min = gridParams.minThreshold;
+
+        gridData.forEach(row => {
+            latitudes.push(lat);
+            lat += deltaLat;
+        });
+        gridData[0].forEach(col => {
+            longitudes.push(lon);
+            lon += deltaLon;
+            if (lon > 180) lon -= 360;
+        })
+
+        var features: Api.Feature[] = [];
+        var conrec = new Conrec.Conrec(),
+            nrIsoLevels: number,
+            isoLevels: number[];
+
+        if (typeof gridParams.contourLevels === 'undefined') nrIsoLevels = 10;
+        else {
+            var cl = gridParams.contourLevels;
+            if (typeof cl === 'number') {
+                nrIsoLevels = cl;
+            }
+            else {
+                isoLevels = cl;
+                nrIsoLevels = cl.length;
+            }
+        }
+
         if (typeof isoLevels === 'undefined') {
+            isoLevels = [];
             var dl = (max - min) / nrIsoLevels;
             for (let l = min + dl / 2; l < max; l += dl) isoLevels.push(Math.round(l * 10) / 10); // round to nearest decimal.
         }
-        conrec.contour(gridData, 0, i - 1, 0, gridData[0].length - 1, latitudes, longitudes, nrIsoLevels, isoLevels, noDataValue);
+        conrec.contour(gridData, 0, gridData.length - 1, 0, gridData[0].length - 1, latitudes, longitudes, nrIsoLevels, isoLevels, gridParams.noDataValue || -9999);
         var contourList = conrec.contourList;
-        var counter = 0;
         contourList.forEach(contour => {
-            if (contour.length < 3) return; // Ignore very small 'contours' of two points!
-            var result: GeoJSON.IProperty = {};
+            var result: Api.IProperty = {};
             result[propertyName] = contour.level;
-            var feature = new ApiManager.Feature();
-            feature.id = (counter++).toString();
-            feature.type = 'Feature';
-            feature.geometry = {
-                    type: 'Polygon',
-                    coordinates: null
-                };
-            feature.properties = result
+            var feature = <Api.Feature>{
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon'
+                },
+                properties: result
+            };
             var ring: number[][] = [];
             feature.geometry.coordinates = [ring];
             contour.forEach(p => {
