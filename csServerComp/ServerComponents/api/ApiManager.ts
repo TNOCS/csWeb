@@ -812,30 +812,24 @@ export class ApiManager extends events.EventEmitter {
         if (!layer.hasOwnProperty('tags')) layer.tags = [];
         this.setUpdateLayer(layer, meta);
         Winston.info('api: add layer ' + layer.id);
-        // check if layer already exists
-        if (!this.layers.hasOwnProperty(layer.id)) {
-            let s = this.findStorage(layer);
-            // add storage connector if available
-            layer.storage = s ? s.id : "";
+        // If the layer already exists, overwrite it (we may have received a new description, for example, or a new location)
+        let s = this.findStorage(layer);
+        // add storage connector if available
+        layer.storage = s ? s.id : "";
 
-            // get layer definition (without features)
-            this.layers[layer.id] = this.getLayerDefinition(layer);
+        // get layer definition (without features)
+        this.layers[layer.id] = this.getLayerDefinition(layer);
 
-            this.getInterfaces(meta).forEach((i: IConnector) => {
-                i.initLayer(layer);
-                //    i.addLayer(layer, meta, () => { });
-            });
+        this.getInterfaces(meta).forEach((i: IConnector) => {
+            i.initLayer(layer);
+            //    i.addLayer(layer, meta, () => { });
+        });
 
-            // store layer
-            if (s && s.id != meta.source) {
-                s.addLayer(layer, meta, (r: CallbackResult) => callback(r))
-            } else {
-                callback(<CallbackResult>{ result: ApiResult.OK });
-            }
-        }
-        else {
-            Winston.error(`Error: layer ${layer.title} (id: ${layer.id}) already exists!`);
-            callback(<CallbackResult>{ result: ApiResult.LayerAlreadyExists, error: "Layer already exists" });
+        // store layer
+        if (s && s.id != meta.source) {
+            s.addLayer(layer, meta, (r: CallbackResult) => callback(r))
+        } else {
+            callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
 
@@ -843,12 +837,9 @@ export class ApiManager extends events.EventEmitter {
         async.series([
             // make sure layer exists
             (cb: Function) => {
-                if (!this.layers.hasOwnProperty(layer.id)) {
-                    this.createLayer(layer, meta, () => {
-                        cb();
-                    });
-                }
-                else { cb(); }
+                this.createLayer(layer, meta, () => {
+                    cb();
+                });
             },
             // update layer
             (cb: Function) => {
