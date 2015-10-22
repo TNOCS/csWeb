@@ -112,7 +112,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                         this.manager.updateKey(kid, obj, <ApiMeta>{ source: this.id }, () => { });
                     }
                     catch (e) {
-                        Winston.error('mqtt: error updating key for id ' + kid + " : " + message);
+                        Winston.error(`mqtt: error updating key for id ${kid}: ${message}. Error ${e}`);
                     }
                 }
             }
@@ -185,7 +185,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
         Winston.info('mqtt update feature');
         if (meta.source !== this.id)
-            this.client.publish(this.layerPrefix + layerId, JSON.stringify(feature));
+            this.client.publish(`${this.layerPrefix}${layerId}/feature/${feature.id}`, JSON.stringify(feature));
         callback(<CallbackResult> { result: ApiResult.OK });
     }
 
