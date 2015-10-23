@@ -2,7 +2,59 @@
   "version": "v4",
   "repo": "borisyankov/DefinitelyTyped",
   "ref": "master",
-  "path": "typings",
+  "path": "Scripts/typings",
   "bundle": "typings/tsd.d.ts",
-  "installed": {}
+  "installed": {
+    "angular-ui-bootstrap/angular-ui-bootstrap.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "angularjs/angular.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "jquery/jquery.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "angular-translate/angular-translate.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "async/async.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "angularLocalStorage/angularLocalStorage.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "chroma-js/chroma-js.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "crossfilter/crossfilter.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "d3/d3.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "dcjs/dc.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "leaflet/leaflet.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "moment/moment.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "moment/moment-node.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "jquery.pnotify/jquery.pnotify.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "q/Q.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "underscore/underscore.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    },
+    "vega/vega.d.ts": {
+      "commit": "3191f6e0088eee07c4d8fd24e4d27a40a60d9eb9"
+    }
+  }
 }
