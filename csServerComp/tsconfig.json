@@ -85,6 +85,7 @@
         "ServerComponents/helpers/Rss.ts",
         "ServerComponents/helpers/RssGeoJSON.ts",
         "ServerComponents/helpers/StringExt.ts",
+        "ServerComponents/helpers/typestate.ts",
         "ServerComponents/helpers/Utils.ts",
         "ServerComponents/import/AggregateOpportunitiesToGeoJsonTransformer.ts",
         "ServerComponents/import/AggregateOpportunitiesToOrganisationTransformer.ts",

@@ -192,19 +192,19 @@ module FSM {
         }
 
         /**
-      * Check whether a transition to a new state is valide
-      * @method canGo
-      * @param state {T}
-      */
+          * Check whether a transition to a new state is valide
+          * @method canGo
+          * @param state {T}
+          */
         public canGo(state: T): boolean {
             return this.currentState === state || this._validTransition(this.currentState, state);
         }
 
         /**
-      * Transition to another valid state
-      * @method go
-      * @param state {T}
-      */
+          * Transition to another valid state
+          * @method go
+          * @param state {T}
+          */
         public go(state: T): void {
             if (!this.canGo(state)) {
                 throw new Error('Error no transition function exists from state ' + this.currentState.toString() + ' to ' + state.toString());

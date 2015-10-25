@@ -37,7 +37,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public projectsPath: string;
     public resourcesPath: string;
 
-    constructor(public rootpath: string) {
+    constructor(public rootpath: string, watch: boolean = true) {
         super();
         this.receiveCopy = false;
         this.keysPath = path.join(rootpath, "keys/");
@@ -48,10 +48,12 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.iconPath = path.join(rootpath, "../images/");
         // check if rootpath exists, otherwise create it, including its parents
         if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
-        this.watchLayersFolder();
-        this.watchKeysFolder();
-        this.watchProjectsFolder();
-        this.watchResourcesFolder();
+        if (watch) {
+            this.watchLayersFolder();
+            this.watchKeysFolder();
+            this.watchProjectsFolder();
+            this.watchResourcesFolder();
+        }
     }
 
     public watchLayersFolder() {
@@ -526,6 +528,14 @@ export class FileStorage extends BaseConnector.BaseConnector {
     //TODO: implement
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
         var layer = this.findLayer(layerId);
+        if (!layer) {
+            callback(<CallbackResult>{ result: ApiResult.LayerNotFound, layer: null });
+            return;
+        }
+        if (!layer.features) {
+            callback(<CallbackResult>{ result: ApiResult.FeatureNotFound, layer: null });
+            return;
+        }
         var f = layer.features.filter((k) => { return k.id && k.id === feature.id });
         if (f && f.length > 0) {
             var index = layer.features.indexOf(f[0]);

@@ -28,7 +28,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         this.manager = layerManager;
         this.layerPrefix = (this.manager.namespace + "/" + this.layerPrefix + "/").replace("//", "/");
         this.keyPrefix = (this.manager.namespace + "/" + this.keyPrefix + "/").replace("//", "/");
-        Winston.info('mqtt: init mqtt connector');
+        Winston.info('mqtt: init mqtt connector on address ' + 'mqtt://' + this.server + ':' + this.port);
 
         this.client = (<any>mqtt).connect("mqtt://" + this.server + ":" + this.port);
         this.router = mqttrouter.wrap(this.client);
@@ -94,7 +94,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                         var featureId = ids[1];
                         var feature = <Feature>JSON.parse(message);
                         if (feature) {
-                            Winston.info(`mqtt: update feature ${featureId} for layer {layerId}.`);
+                            Winston.info(`mqtt: update feature ${featureId} for layer ${layerId}.`);
                             this.manager.updateFeature(layerId, feature, <ApiMeta>{ source: this.id }, () => { });
                         }
                     } catch (e) {
@@ -112,7 +112,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                         this.manager.updateKey(kid, obj, <ApiMeta>{ source: this.id }, () => { });
                     }
                     catch (e) {
-                        Winston.error('mqtt: error updating key for id ' + kid + " : " + message);
+                        Winston.error(`mqtt: error updating key for id ${kid}: ${message}. Error ${e}`);
                     }
                 }
             }
@@ -185,7 +185,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
         Winston.info('mqtt update feature');
         if (meta.source !== this.id)
-            this.client.publish(this.layerPrefix + layerId, JSON.stringify(feature));
+            this.client.publish(`${this.layerPrefix}${layerId}/feature/${feature.id}`, JSON.stringify(feature));
         callback(<CallbackResult> { result: ApiResult.OK });
     }
 
