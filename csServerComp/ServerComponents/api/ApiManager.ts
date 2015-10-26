@@ -1095,13 +1095,12 @@ export class ApiManager extends events.EventEmitter {
         if (!meta) meta = <ApiMeta>{};
         if (!callback) callback = () => { };
 
-        Winston.info('updatekey: received ' + keyId);
+        // Winston.info('updatekey: received ' + keyId);
         // check if keys exists
         var key = this.findKey(keyId);
         if (!key) {
             var k = <Key>{ id: keyId, title: keyId, storage: 'file' };
             this.addKey(k, meta, () => { });
-            //this.addKey(k, meta-, callback);
         }
 
         if (!value.hasOwnProperty('time')) value['time'] = new Date().getTime();
@@ -1111,17 +1110,12 @@ export class ApiManager extends events.EventEmitter {
         for (var subId in this.keySubscriptions) {
             var sub = this.keySubscriptions[subId];
             if (sub.regexPattern.test(keyId)) {
-                Winston.info(`   pattern ${sub.pattern} found.`);
+                //Winston.info(`   pattern ${sub.pattern} found.`);
                 sub.callback(keyId, value, meta);
             }
-            // else
-            // {
-            //     Winston.info(`   pattern ${sub.pattern} not found!`);
-            // }
         }
 
         this.getInterfaces(meta).forEach((i: IConnector) => {
-            //Winston.info('updatekey:send to ' + i.id);
             i.updateKey(keyId, value, meta, () => { });
         });
 

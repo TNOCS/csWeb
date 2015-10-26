@@ -592,12 +592,12 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
-        if (!this.keys.hasOwnProperty(keyId)) this.addKey(<Key>{ id: keyId, storage: "file" }, meta, () => { });
+        if (!this.keys.hasOwnProperty(keyId)) this.addKey(<Key>{ id: keyId, storage: '' }, meta, () => { });
         var k = this.keys[keyId];
         if (k != null) {
             k.values.push(value);
         }
-        this.saveKeyDelay(k);
+        if (k.storage === 'file') this.saveKeyDelay(k);
     }
 
 

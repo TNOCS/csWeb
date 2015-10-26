@@ -61,7 +61,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         //   console.log('received', topic, message, params);
         // });
         this.client.on('message', (topic: string, message: string) => {
-            Winston.info(`mqtt on message: ${topic}.`);
+            //Winston.info(`mqtt on message: ${topic}.`);
             //if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
             // listen to layer updates
             if (topic === this.layerPrefix) {
@@ -107,7 +107,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                 if (kid) {
                     try {
                         var obj = JSON.parse(message);
-                        Winston.info('mqtt: update key for id ' + kid + " : " + message);
+                        //Winston.info('mqtt: update key for id ' + kid + " : " + message);
 
                         this.manager.updateKey(kid, obj, <ApiMeta>{ source: this.id }, () => { });
                     }
@@ -116,22 +116,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                     }
                 }
             }
-
-            // layers/....
-            // layer zonder features
-            // url
-            // title
-            //
-            // keys/..
-            //this.manager.addLayer(layer: ApiManager.Layer, meta: ApiManager.ApiMeta, callback: Function)
-            //this.manager.updateKey(topic, message, <ApiMeta>{}, () => { });
-
-            //_.startsWith(topic,this.keyPrefix)
         });
-
-        // express api aanmaken
-        // vb. addFeature,
-        // doorzetten naar de layermanager
     }
 
     private extractLayer(message: string) {

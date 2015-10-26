@@ -267,7 +267,7 @@ module ClientConnection {
                 if (!skip || uId != skip) {
                     var sub = this.users[uId].FindSubscription("", "directory");
                     if (sub != null) {
-                        Winston.info('send to : ' + sub.id);
+                        //Winston.info('send to : ' + sub.id);
                         this.users[uId].Client.emit(sub.id, new ClientMessage("project", update));
                     }
                 }
@@ -286,7 +286,7 @@ module ClientConnection {
                 if (!skip || uId != skip) {
                     var sub = this.users[uId].FindSubscription(layerId, "layer");
                     if (sub != null) {
-                        Winston.info('send to : ' + sub.id);
+                        //Winston.info('send to : ' + sub.id);
                         this.users[uId].Client.emit(sub.id, new ClientMessage("layer", update));
                     }
                 }
@@ -305,7 +305,7 @@ module ClientConnection {
                 if (!skip || uId != skip) {
                     var sub = this.users[uId].FindSubscription("", "directory");
                     if (sub != null) {
-                        Winston.info('send to : ' + sub.id);
+                        //Winston.info('send to : ' + sub.id);
                         this.users[uId].Client.emit(sub.id, new ClientMessage("layer", update));
                     }
                 }
@@ -318,21 +318,18 @@ module ClientConnection {
          * @meta: used to determine source/user, will skip
          */
         public updateKey(keyId: string, update: KeyUpdate, meta: ApiMeta) {
-
             //Winston.info('update feature ' + layer);
             var skip = (meta.source === "socketio") ? meta.user : undefined;
             for (var uId in this.users) {
                 if (!skip || uId != skip) {
                     var sub = this.users[uId].FindSubscription(keyId, "key");
                     if (sub != null) {
-                        Winston.info('send to : ' + sub.id);
+                        //Winston.info('send to : ' + sub.id);
                         this.users[uId].Client.emit(sub.id, new ClientMessage("key", update));
                     }
                 }
             }
         }
-
-
     }
 }
 export = ClientConnection;
