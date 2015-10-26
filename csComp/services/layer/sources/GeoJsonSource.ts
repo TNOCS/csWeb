@@ -200,7 +200,7 @@ module csComp.Services {
             // subscribe
         }
 
-        private updateFeatureByProperty(key, id, value: IFeature) {
+        private updateFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer = null) {
             try {
                 var features = (<any>this.layer.data).features;
                 if (features == null)
@@ -222,10 +222,17 @@ module csComp.Services {
                 });
                 if (!done) {
                     // console.log('adding feature');
-                    features.push(value);
-                    this.service.initFeature(value, this.layer);
-                    var m = this.service.activeMapRenderer.addFeature(value);
-                    this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + " added");
+                    if (layer && layer.data && layer.data.features) {
+                        layer.data.features.push(value);
+                        this.service.initFeature(value, layer, false);
+                        var m = this.service.activeMapRenderer.addFeature(value);
+                        this.service.$messageBusService.notify(layer.title, value.properties['Name'] + " added");
+                    } else {
+                        features.push(value);
+                        this.service.initFeature(value, this.layer);
+                        var m = this.service.activeMapRenderer.addFeature(value);
+                        this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + " added");
+                    }
                 }
             } catch (e) {
                 console.log('error');
@@ -306,10 +313,11 @@ module csComp.Services {
                                         break;
                                     case LayerUpdateAction.updateFeature:
                                         var f = <Feature>lu.item;
-
-                                        this.service.$rootScope.$apply(() => {
-                                            this.updateFeatureByProperty("id", f.id, f);
-                                        });
+                                        if (layer.id === lu.layerId) {
+                                            this.service.$rootScope.$apply(() => {
+                                                this.updateFeatureByProperty("id", f.id, f, layer);
+                                            });
+                                        }
                                         break;
                                     case LayerUpdateAction.deleteFeature:
                                         var feature = this.service.findFeature(layer, lu.featureId);
