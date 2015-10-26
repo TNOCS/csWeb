@@ -124,10 +124,14 @@ module ChartsWidget {
                 this.keyHandle = this.$layerService.$messageBusService.serverSubscribe(d.key, "key", (topic: string, msg: csComp.Services.ClientMessage) => {
                     switch (msg.action) {
                         case "key":
+                        if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]' ) {
+                            d.spec.data = msg.data.item;
+                        } else {
                             d.spec.data = [msg.data.item];
-                            vg.parse.spec(this.$scope.data.spec, (chart) => { chart({ el: "#vis" + d._id }).update(); });
-                            d._view.update();
-                            break;
+                        }
+                        vg.parse.spec(this.$scope.data.spec, (chart) => { chart({ el: "#vis" + d._id }).update(); });
+                        d._view.update();
+                        break;
                     }
                 });
             }
