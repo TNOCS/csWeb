@@ -23,6 +23,7 @@ module KanbanColumn {
         fields: any;
         orderBy: string;
         actions: string[];
+        canShare: boolean;
     }
 
     declare var _;
@@ -60,6 +61,7 @@ module KanbanColumn {
             this.column = $scope.column;
             $scope.fields = this.column.fields;
 
+
             if ($scope.fields.hasOwnProperty('prio')) this.sortOptions = this.sortOptions.concat(['High priority', 'Low Priority']);
             if ($scope.fields.hasOwnProperty('date')) this.sortOptions = this.sortOptions.concat(['New', 'Old']);
             if ($scope.fields.hasOwnProperty('updated')) this.sortOptions = this.sortOptions.concat(['Updated']);
@@ -67,6 +69,8 @@ module KanbanColumn {
 
             // check if layers should be enabled
             this.initLayers();
+
+            if (!this.column.hasOwnProperty('canShare')) this.column.canShare = true;
 
             if (this.column.orderBy)
                 this.setOrder(this.column.orderBy)

@@ -220,6 +220,7 @@ module csComp.Services {
         ];
 
         private connections: { [id: string]: Connection } = {};
+        private notifications: any[] = [];
 
         constructor(private $translate: ng.translate.ITranslateService) {
             PNotify.prototype.options.styling = "fontawesome";
@@ -304,6 +305,43 @@ module csComp.Services {
 		 */
         public notify(title: string, text: string, location = NotifyLocation.TopRight, notifyType = NotifyType.Normal) {
             console.log('notify : ' + title);
+
+            //Check if a notication with the same title exists. If so, update existing, if not, add new notification.
+            if (this.notifications) {
+                this.notifications = this.notifications.filter((n)=>{ return (n.state && n.state !== 'closed')});
+                var updatedText: string;
+                this.notifications.some((n) => {
+                    if (n.state === 'closed') return false;
+                    if (n.options.title === title) {
+                        var foundText = false;
+                        var splittedText = n.options.text.split('\n');
+                        splittedText.some((textLine, index, _splittedText) => {
+                            if (textLine.replace(/(\ \<\d+\>$)/, "") === text) {
+                                let txt = textLine.replace(/(\ \<\d+\>$)/, "");
+                                let nrWithBrackets = textLine.match(/(\ \<\d+\>$)/);
+                                var nr;
+                                nr = (!nrWithBrackets) ? 2 : +(nrWithBrackets[0].match(/\d+/)) + 1;
+                                _splittedText[index] = txt + ' <' + nr + '>';
+                                foundText = true;
+                                return true;
+                            }
+                            return false;
+                        });
+                        if (!foundText) {
+                            splittedText.push(text);
+                        }
+                        updatedText = splittedText.join('\n');
+                        n.update({text: updatedText});
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                if (updatedText) {
+                    return;
+                }
+            }
+
             var cssLocation: string;
             var cornerglass: string = 'ui-pnotify-sharp';
             var myStack: { dir1: string, dir2: string } = { dir1: "", dir2: "" };
@@ -417,7 +455,8 @@ module csComp.Services {
                 hide: true
             };
 
-            new PNotify(opts);
+            var PNot = new PNotify(opts);
+            this.notifications.push(PNot);
         }
 
 		/**

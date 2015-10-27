@@ -94,7 +94,7 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="card-button card-share dropdown" tooltip="Share" tooltip-append-to-body="true">
+                    <div ng-show="column.canShare" class="card-button card-share dropdown" tooltip="Share" tooltip-append-to-body="true">
                         <span href="" class="dropdown-toggle fa fa-share" data-toggle="dropdown"></span>
                         <ul class="dropdown-menu" style="right:0;left:auto" role="menu">
                             <li ng-repeat="role in column.roles" style="padding:3px;color:black">

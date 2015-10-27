@@ -639,6 +639,8 @@ export class ApiManager extends events.EventEmitter {
     public addConnector(key: string, s: IConnector, options: any, callback : Function = ()=>{}) {
         // TODO If client, check that only one interface is added (isInterface = true)
 
+        s.id = key;
+        this.connectors[key] = s;
         s.init(this, options,()=>{
             callback();
         });
