@@ -157,7 +157,7 @@ export class BaseConnector implements ApiManager.IConnector {
 
 
     //TODO: Move connection set-up params from static to parameterized.
-    public init(layerManager: ApiManager.ApiManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any, callback : Function) {
 
     }
 

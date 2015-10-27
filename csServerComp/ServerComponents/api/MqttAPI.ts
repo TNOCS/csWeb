@@ -24,7 +24,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         this.receiveCopy = false;
     }
 
-    public init(layerManager: ApiManager.ApiManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any,callback : Function) {
         this.manager = layerManager;
         this.layerPrefix = (this.manager.namespace + "/" + this.layerPrefix + "/").replace("//", "/");
         this.keyPrefix = (this.manager.namespace + "/" + this.keyPrefix + "/").replace("//", "/");
@@ -117,6 +117,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                 }
             }
         });
+        callback();
     }
 
     private extractLayer(message: string) {

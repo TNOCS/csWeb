@@ -470,7 +470,7 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
      * @param  {any}                       options      [Any options]
      * @return {result}
      */
-    public init(layerManager: ApiManager.ApiManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any,callback : Function) {
         this.manager = layerManager;
         // set up connection
         var server = new mongodb.Server(this.server, this.port, { auto_reconnect: true });
@@ -480,5 +480,6 @@ export class MongoDBStorage extends BaseConnector.BaseConnector {
             Winston.info('connection succes');
         });
         Winston.info('init MongoDB Storage');
+        callback();
     }
 }

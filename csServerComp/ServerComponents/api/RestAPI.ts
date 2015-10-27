@@ -33,7 +33,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.projectsUrl = baseUrl + "/projects/";
     }
 
-    public init(layerManager: ApiManager.ApiManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any, callback : Function) {
         this.manager = layerManager;
         console.log('Init Rest API on port ' + this.server.get('port') + '. Base path is ' + this.baseUrl);
 
@@ -348,5 +348,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 res.send(result);
             });
         });
+
+        callback();
     }
 }

@@ -78,7 +78,7 @@ export interface IConnector {
     isInterface: boolean;
     /** If true (default), the manager will send a copy to the source (receiving) connector */
     receiveCopy: boolean;
-    init(layerManager: ApiManager, options: any);
+    init(layerManager: ApiManager, options: any, callback : Function);
     initLayer(layer: ILayer, meta?: ApiMeta);
     initProject(project: Project, meta?: ApiMeta);
 
@@ -636,11 +636,28 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Add connector to available connectors
      */
-    public addConnector(key: string, s: IConnector, options: any) {
+    public addConnector(key: string, s: IConnector, options: any, callback : Function = ()=>{}) {
         // TODO If client, check that only one interface is added (isInterface = true)
-        s.id = key;
-        this.connectors[key] = s;
-        s.init(this, options);
+
+        s.init(this, options,()=>{
+            callback();
+        });
+    }
+
+    public addConnectors(connectors : {key : string, s : IConnector, options: any}[], callback : Function)
+    {
+        connectors.forEach((c)=>{
+            c.s.id = c.key;
+            this.connectors[c.key] = c.s;
+        })
+        async.eachSeries(connectors,(c, callb)=>{
+            c.s.init(this,c.options,()=>{
+
+            });
+            callb();
+        },()=>{
+            callback();
+        })
     }
 
     /**
