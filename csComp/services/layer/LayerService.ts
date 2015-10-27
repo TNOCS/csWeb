@@ -2137,7 +2137,7 @@ module csComp.Services {
                                 var p = (this.project.id === project.id);
                                 if (!p && !this.openSingleProject) {
                                     this.$messageBusService.notify('New project available', project.title);
-                                    if (project.url.substring(project.url.length - 4) !== 'json') project.url = '/data' + project.url + '.json';
+                                    if (project.url && project.url.substring(project.url.length - 4) !== 'json') project.url = '/data' + project.url + '.json';
                                     if (!this.solution.projects.some(sp => { return (sp.title === project.title) })) {
                                         this.solution.projects.push(<SolutionProject>{ title: project.title, url: project.url, dynamic: true });
                                     } else {
