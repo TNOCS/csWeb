@@ -5,7 +5,6 @@ module DashboardSelection {
 
         widgetStyle: csComp.Services.WidgetStyle;
         title: string;
-
     }
 
     declare var interact;
@@ -45,7 +44,6 @@ module DashboardSelection {
                 this.style = "default";
                 this.selectStyle();
             })
-
         }
 
         public initDrag(key: string) {
