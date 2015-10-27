@@ -2348,7 +2348,8 @@ input[type="checkbox"] {
 .card-item {
     min-height: 65px;
     margin-bottom: 20px;
-    width: 100%;
+    width: 95%;
+
     -webkit-box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
     -moz-box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
     box-shadow: 1px 1px 9px rgba(0, 0, 0, 0.2);
@@ -2462,6 +2463,7 @@ input[type="checkbox"] {
     width: 100%;
     overflow: hidden;
     position: relative;
+    margin-left:-10px;
 }
 .card-list-container {
     position: absolute;
