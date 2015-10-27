@@ -24,11 +24,11 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         this.receiveCopy = false;
     }
 
-    public init(layerManager: ApiManager.ApiManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any,callback : Function) {
         this.manager = layerManager;
         this.layerPrefix = (this.manager.namespace + "/" + this.layerPrefix + "/").replace("//", "/");
         this.keyPrefix = (this.manager.namespace + "/" + this.keyPrefix + "/").replace("//", "/");
-        Winston.info('mqtt: init mqtt connector');
+        Winston.info('mqtt: init mqtt connector on address ' + 'mqtt://' + this.server + ':' + this.port);
 
         this.client = (<any>mqtt).connect("mqtt://" + this.server + ":" + this.port);
         this.router = mqttrouter.wrap(this.client);
@@ -61,7 +61,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         //   console.log('received', topic, message, params);
         // });
         this.client.on('message', (topic: string, message: string) => {
-            Winston.info(`mqtt on message: ${topic}.`);
+            //Winston.info(`mqtt on message: ${topic}.`);
             //if (topic[topic.length - 1] === "/") topic = topic.substring(0, topic.length - 2);
             // listen to layer updates
             if (topic === this.layerPrefix) {
@@ -94,7 +94,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                         var featureId = ids[1];
                         var feature = <Feature>JSON.parse(message);
                         if (feature) {
-                            Winston.info(`mqtt: update feature ${featureId} for layer {layerId}.`);
+                            Winston.info(`mqtt: update feature ${featureId} for layer ${layerId}.`);
                             this.manager.updateFeature(layerId, feature, <ApiMeta>{ source: this.id }, () => { });
                         }
                     } catch (e) {
@@ -107,7 +107,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                 if (kid) {
                     try {
                         var obj = JSON.parse(message);
-                        Winston.info('mqtt: update key for id ' + kid + " : " + message);
+                        //Winston.info('mqtt: update key for id ' + kid + " : " + message);
 
                         this.manager.updateKey(kid, obj, <ApiMeta>{ source: this.id }, () => { });
                     }
@@ -116,22 +116,8 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                     }
                 }
             }
-
-            // layers/....
-            // layer zonder features
-            // url
-            // title
-            //
-            // keys/..
-            //this.manager.addLayer(layer: ApiManager.Layer, meta: ApiManager.ApiMeta, callback: Function)
-            //this.manager.updateKey(topic, message, <ApiMeta>{}, () => { });
-
-            //_.startsWith(topic,this.keyPrefix)
         });
-
-        // express api aanmaken
-        // vb. addFeature,
-        // doorzetten naar de layermanager
+        callback();
     }
 
     private extractLayer(message: string) {

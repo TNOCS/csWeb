@@ -145,6 +145,7 @@ module LegendList {
             }
             this.$layerService.project.features.forEach((f) => {
                 var ft = f.fType;
+                if (!ft) ft = this.$layerService.getFeatureType(f);
                 var uri = (ft && ft.style && ft.style.hasOwnProperty('iconUri')) ? csComp.Helpers.convertStringFormat(f, ft.style.iconUri) : csComp.Helpers.getImageUri(ft);
                 if (uri.indexOf('_Media') >= 0) f.effectiveStyle.iconUri = "cs/images/polygon.png";
                 var html = csComp.Helpers.createIconHtml(f, ft)['html'];

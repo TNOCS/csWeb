@@ -6,6 +6,7 @@ import Feature = ApiManager.Feature;
 import CallbackResult = ApiManager.CallbackResult;
 import Log = ApiManager.Log;
 import ApiMeta = ApiManager.ApiMeta;
+import ApiResult = ApiManager.ApiResult;
 
 
 export class BaseConnector implements ApiManager.IConnector {
@@ -33,6 +34,10 @@ export class BaseConnector implements ApiManager.IConnector {
 
     public deleteLayer(layerId: string, meta: ApiMeta, callback: Function) {
 
+    }
+
+    public searchLayer(layerId: string, keyWord: string, meta: ApiMeta, callback: Function) {
+        callback(<CallbackResult>{ result: ApiResult.SearchNotImplemented });
     }
 
     public addLayerToProject(layerId: string, meta: ApiMeta, callback: Function) {
@@ -133,7 +138,7 @@ export class BaseConnector implements ApiManager.IConnector {
 
     }
 
-    public addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
+    public addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function) {
 
     }
 
@@ -152,7 +157,7 @@ export class BaseConnector implements ApiManager.IConnector {
 
 
     //TODO: Move connection set-up params from static to parameterized.
-    public init(layerManager: ApiManager.ApiManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any, callback : Function) {
 
     }
 

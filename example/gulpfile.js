@@ -19,7 +19,14 @@ var gulp          = require('gulp'),
     exec          = require('child_process').exec,
     templateCache = require('gulp-angular-templatecache'),
     deploy        = require('gulp-gh-pages'),
-    sass          = require('gulp-sass')
+    sass          = require('gulp-sass'),
+    purify = require('gulp-purifycss');
+
+gulp.task('csspurify', function() {
+  return gulp.src('public/cs/css/csstyles.css')
+    .pipe(purify(['public/cs/js/**/*.js', 'public/**/*.html']))
+    .pipe(gulp.dest('public/cs/css/csclean.css'));
+});
 
 gulp.task('clean', function(cb) {
     // NOTE Careful! Removes all generated javascript files and certain folders.

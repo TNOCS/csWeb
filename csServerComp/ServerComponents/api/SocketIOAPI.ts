@@ -28,7 +28,7 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
         this.isInterface = true;
     }
 
-    public init(layerManager: ApiManager.ApiManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any, callback : Function) {
         this.manager = layerManager;
         Winston.info('socketio: init SocketIO API');
         this.connection.subscribe('layer', (result: ClientConnection.ClientMessage, clientId: string) => {
@@ -83,6 +83,7 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
             }
             //result.data
         })
+        callback();
     }
 
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {

@@ -23,7 +23,8 @@ export enum ApiResult {
     GroupNotFound = 412,
     GroupAlreadyExists = 413,
     ResourceNotFound = 428,
-    ResourceAlreadyExists = 429
+    ResourceAlreadyExists = 429,
+    SearchNotImplemented = 440
 }
 
 export interface IApiManagerOptions {
@@ -49,6 +50,7 @@ export class CallbackResult {
     public layer: Layer;
     public groups: string[];
     public feature: Feature;
+    public features: Feature[];
     public keys: { [keyId: string]: Key };
     public key: Key;
 }
@@ -76,7 +78,7 @@ export interface IConnector {
     isInterface: boolean;
     /** If true (default), the manager will send a copy to the source (receiving) connector */
     receiveCopy: boolean;
-    init(layerManager: ApiManager, options: any);
+    init(layerManager: ApiManager, options: any, callback : Function);
     initLayer(layer: ILayer, meta?: ApiMeta);
     initProject(project: Project, meta?: ApiMeta);
 
@@ -85,6 +87,7 @@ export interface IConnector {
     getLayer(layerId: string, meta: ApiMeta, callback: Function);
     updateLayer(layer: ILayer, meta: ApiMeta, callback: Function);
     deleteLayer(layerId: string, meta: ApiMeta, callback: Function);
+    searchLayer(layerId: string, keyWord: string, meta: ApiMeta, callback: Function);
     //feature methods
     addFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function);
     getFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function);
@@ -96,6 +99,7 @@ export interface IConnector {
     deleteLog(layerId: string, featureId: string, ts: number, prop: string, meta: ApiMeta, callback: Function);
     updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, meta: ApiMeta, callback: Function);
     updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function);
+
     //geospatial stuff
     getBBox(layerId: string, southWest: number[], northEast: number[], meta: ApiMeta, callback: Function);
     getSphere(layerId: string, maxDistance: number, longtitude: number, latitude: number, meta: ApiMeta, callback: Function);
@@ -632,11 +636,28 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Add connector to available connectors
      */
-    public addConnector(key: string, s: IConnector, options: any) {
+    public addConnector(key: string, s: IConnector, options: any, callback : Function = ()=>{}) {
         // TODO If client, check that only one interface is added (isInterface = true)
-        s.id = key;
-        this.connectors[key] = s;
-        s.init(this, options);
+
+        s.init(this, options,()=>{
+            callback();
+        });
+    }
+
+    public addConnectors(connectors : {key : string, s : IConnector, options: any}[], callback : Function)
+    {
+        connectors.forEach((c)=>{
+            c.s.id = c.key;
+            this.connectors[c.key] = c.s;
+        })
+        async.eachSeries(connectors,(c, callb)=>{
+            c.s.init(this,c.options,()=>{
+
+            });
+            callb();
+        },()=>{
+            callback();
+        })
     }
 
     /**
@@ -787,6 +808,31 @@ export class ApiManager extends events.EventEmitter {
             Winston.warn('Project ' + projectId + ' not found.');
             callback(<CallbackResult>{ result: ApiResult.ProjectNotFound });
         }
+    }
+
+    public searchLayers(keyword: string, layerIds: string[], meta: ApiMeta, callback: Function) {
+        if (!layerIds || layerIds.length == 0) layerIds = _.keys(this.layers);
+        var result: Feature[] = [];
+
+        async.each(layerIds, (lId, callback) => {
+            var storage = this.findStorageForLayerId(lId);
+            if (storage != null) {
+                storage.searchLayer(lId, keyword, meta, (r) => {
+                    if (r.result === ApiResult.OK) {
+                        r.features.forEach(f=> result.push(f));
+                    }
+                    callback();
+                });
+            }
+        }, (error) => {
+                if (!error) {
+                    callback(<CallbackResult>{ result: ApiResult.OK, features: result });
+                }
+                else {
+                    callback(<CallbackResult>{ result: ApiResult.Error });
+                }
+            });
+
     }
 
     public getLayer(layerId: string, meta: ApiMeta, callback: Function) {
@@ -1095,13 +1141,12 @@ export class ApiManager extends events.EventEmitter {
         if (!meta) meta = <ApiMeta>{};
         if (!callback) callback = () => { };
 
-        Winston.info('updatekey: received ' + keyId);
+        // Winston.info('updatekey: received ' + keyId);
         // check if keys exists
         var key = this.findKey(keyId);
         if (!key) {
             var k = <Key>{ id: keyId, title: keyId, storage: 'file' };
             this.addKey(k, meta, () => { });
-            //this.addKey(k, meta-, callback);
         }
 
         if (!value.hasOwnProperty('time')) value['time'] = new Date().getTime();
@@ -1111,17 +1156,12 @@ export class ApiManager extends events.EventEmitter {
         for (var subId in this.keySubscriptions) {
             var sub = this.keySubscriptions[subId];
             if (sub.regexPattern.test(keyId)) {
-                Winston.info(`   pattern ${sub.pattern} found.`);
+                //Winston.info(`   pattern ${sub.pattern} found.`);
                 sub.callback(keyId, value, meta);
             }
-            // else
-            // {
-            //     Winston.info(`   pattern ${sub.pattern} not found!`);
-            // }
         }
 
         this.getInterfaces(meta).forEach((i: IConnector) => {
-            //Winston.info('updatekey:send to ' + i.id);
             i.updateKey(keyId, value, meta, () => { });
         });
 

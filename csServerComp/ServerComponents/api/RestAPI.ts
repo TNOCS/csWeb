@@ -19,6 +19,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
     public layersUrl;
     public keysUrl;
     public filesUrl;
+    public searchUrl;
     public projectsUrl;
 
     constructor(public server: express.Express, public baseUrl: string = "/api") {
@@ -26,12 +27,13 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.isInterface = true;
         this.resourceUrl = baseUrl + "/resources/";
         this.layersUrl = baseUrl + "/layers/";
+        this.searchUrl = baseUrl + "/search/";
         this.filesUrl = baseUrl + "/files/";
         this.keysUrl = baseUrl + "/keys/";
         this.projectsUrl = baseUrl + "/projects/";
     }
 
-    public init(layerManager: ApiManager.ApiManager, options: any) {
+    public init(layerManager: ApiManager.ApiManager, options: any, callback : Function) {
         this.manager = layerManager;
         console.log('Init Rest API on port ' + this.server.get('port') + '. Base path is ' + this.baseUrl);
 
@@ -230,6 +232,14 @@ export class RestAPI extends BaseConnector.BaseConnector {
             });
         });
 
+        this.server.get(this.searchUrl + ":keyword", (req: express.Request, res: express.Response) => {
+            this.manager.searchLayers(req.params.keyword, [], <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
+                //todo: check error
+                res.send(result);
+            });
+        }
+            )
+
         // LOGS
 
         // addLog
@@ -338,5 +348,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 res.send(result);
             });
         });
+
+        callback();
     }
 }

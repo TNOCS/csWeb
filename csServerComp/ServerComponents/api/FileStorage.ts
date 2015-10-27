@@ -16,6 +16,7 @@ var chokidar = require('chokidar');
 var StringExt = require('../helpers/StringExt'); // to remove the BOM.
 import Winston = require('winston');
 import helpers = require('../helpers/Utils');
+var sift = require('sift');
 
 export interface Media {
     base64: string;
@@ -31,26 +32,28 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public resources: { [key: string]: ResourceFile } = {}
     public layersPath: string;
     public keysPath: string;
-    public blobPath : string;
+    public blobPath: string;
     public iconPath: string;
     public projectsPath: string;
     public resourcesPath: string;
 
-    constructor(public rootpath: string) {
+    constructor(public rootpath: string, watch: boolean = true) {
         super();
         this.receiveCopy = false;
         this.keysPath = path.join(rootpath, "keys/");
         this.layersPath = path.join(rootpath, "layers/");
         this.projectsPath = path.join(rootpath, "projects/");
         this.resourcesPath = path.join(rootpath, "resourceTypes/");
-        this.blobPath = path.join(rootpath,"blobs/");
+        this.blobPath = path.join(rootpath, "blobs/");
         this.iconPath = path.join(rootpath, "../images/");
         // check if rootpath exists, otherwise create it, including its parents
         if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
-        this.watchLayersFolder();
-        this.watchKeysFolder();
-        this.watchProjectsFolder();
-        this.watchResourcesFolder();
+        if (watch) {
+            this.watchLayersFolder();
+            this.watchKeysFolder();
+            this.watchProjectsFolder();
+            this.watchResourcesFolder();
+        }
     }
 
     public watchLayersFolder() {
@@ -442,6 +445,13 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     }
 
+    public searchLayer(layerId: string, keyWord: string, meta: ApiMeta, callback: Function) {
+        Winston.error('search request:' + layerId + " (" + keyWord + ")");
+        var result: Feature[] = [];
+        callback(<CallbackResult>{ result: ApiResult.OK, features: result })
+
+    }
+
     // feature methods, in crud order
     public addFeature(layerId: string, feature: Feature, meta: ApiMeta, callback: Function) {
         var layer = this.findLayer(layerId);
@@ -518,6 +528,14 @@ export class FileStorage extends BaseConnector.BaseConnector {
     //TODO: implement
     public updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function) {
         var layer = this.findLayer(layerId);
+        if (!layer) {
+            callback(<CallbackResult>{ result: ApiResult.LayerNotFound, layer: null });
+            return;
+        }
+        if (!layer.features) {
+            callback(<CallbackResult>{ result: ApiResult.FeatureNotFound, layer: null });
+            return;
+        }
         var f = layer.features.filter((k) => { return k.id && k.id === feature.id });
         if (f && f.length > 0) {
             var index = layer.features.indexOf(f[0]);
@@ -539,11 +557,11 @@ export class FileStorage extends BaseConnector.BaseConnector {
         layer.features = layer.features.filter((k) => { return k.id && k.id !== featureId });
         callback(<CallbackResult>{ result: ApiResult.OK });
         this.saveLayerDelay(layer);
-        callback(<CallbackResult>{ result: ApiResult.OK});
+        callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
     /** Add a file: images go to the iconPath folder, others to the blob folder */
-    public addFile(base64: string, folder : string, file : string, meta: ApiMeta, callback: Function) {
+    public addFile(base64: string, folder: string, file: string, meta: ApiMeta, callback: Function) {
         var ext = path.extname(file).toLowerCase();
         var fileUri: string = file.split('/').pop(); // retreive the file name
         switch (ext) {
@@ -561,7 +579,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
         var media: Media = { base64: base64, fileUri: fileUri };
         this.saveBase64(media);
-        callback(<CallbackResult>{ result: ApiResult.OK});
+        callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
     public addResource(res: ResourceFile, meta: ApiMeta, callback: Function) {
@@ -570,7 +588,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (!res.featureTypes) res.featureTypes = {};
         this.resources[res.id] = res;
         this.saveResourcesDelay(res);
-        callback(<CallbackResult>{ result: ApiResult.OK});
+        callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
     public addKey(key: Key, meta: ApiMeta, callback: Function) {
@@ -578,7 +596,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         if (!key.values) key.values = [];
         this.keys[key.id] = key;
         this.saveKeyDelay(key);
-        callback(<CallbackResult>{ result: ApiResult.OK});
+        callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
     public getKey(keyId: string, meta: ApiMeta, callback: Function) {
@@ -592,12 +610,12 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     public updateKey(keyId: string, value: Object, meta: ApiMeta, callback: Function) {
-        if (!this.keys.hasOwnProperty(keyId)) this.addKey(<Key>{ id: keyId, storage: "file" }, meta, () => { });
+        if (!this.keys.hasOwnProperty(keyId)) this.addKey(<Key>{ id: keyId, storage: '' }, meta, () => { });
         var k = this.keys[keyId];
         if (k != null) {
             k.values.push(value);
         }
-        this.saveKeyDelay(k);
+        if (k.storage === 'file') this.saveKeyDelay(k);
     }
 
 
