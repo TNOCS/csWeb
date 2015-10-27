@@ -205,15 +205,12 @@ export interface ILayer extends StorageObject {
     features?: Feature[];
     data?: any;
     [key: string]: any;
-    // To act as a NodeJS.EventEmitter, optionally include below methods
-    emit?: (event: string, ...args: any[]) => boolean;
-    on?: (event: string, listener: Function) => NodeJS.EventEmitter;// Function; //(event: string, listener: Function): NodeJS.EventEmitter;
 }
 
 /**
  * Geojson Layer definition
  */
-export class Layer extends events.EventEmitter implements StorageObject {
+export class Layer implements StorageObject {
     /** Server of the layer, needed for remote synchronization */
     public server: string;
     /**
@@ -227,7 +224,6 @@ export class Layer extends events.EventEmitter implements StorageObject {
     public id: string;
     public type: string;
     public dynamic: boolean;
-    public data: any;
     public title: string;
     public image: string;
     public description: string;
@@ -239,30 +235,6 @@ export class Layer extends events.EventEmitter implements StorageObject {
     public tags: string[];
     public isDynamic: boolean;
     public features: Feature[] = [];
-
-    constructor(layer?: ILayer) {
-        super();
-
-        if (!layer) return;
-        this.server = layer.server;
-        this.id = layer.id;
-        this.title = layer.title;
-        this.updated = layer.updated;
-        this.enabled = layer.enabled;
-        this.description = layer.description;
-        this.dynamicResource = layer.dynamicResource;
-        this.defaultFeatureType = layer.defaultFeatureType;
-        this.defaultLegendProperty = layer.defaultLegendProperty;
-        this.typeUrl = layer.typeUrl;
-        this.opacity = layer.opacity ? layer.opacity : 75;
-        this.type = layer.type;
-        // We are returning a definition, so remove the data
-        this.features = layer.features;
-        this.data = layer.data ? layer.data : undefined;
-        this.storage = layer.storage ? layer.storage : '';
-        this.url = layer.url ? layer.url : (this.server + "/api/layers/" + layer.id);
-        this.isDynamic = layer.isDynamic ? layer.isDynamic : false;
-    }
 }
 
 /**
@@ -798,26 +770,26 @@ export class ApiManager extends events.EventEmitter {
     public getLayerDefinition(layer: ILayer): ILayer {
         if (!layer.hasOwnProperty('type')) layer.type = "geojson";
         var server = this.options.server || '';
-        var r = new Layer();
-        r.server = server;
-        r.id = layer.id;
-        r.title = layer.title;
-        r.updated = layer.updated;
-        r.enabled = layer.enabled;
-        r.description = layer.description;
-        r.dynamicResource = layer.dynamicResource;
-        r.defaultFeatureType = layer.defaultFeatureType;
-        r.defaultLegendProperty = layer.defaultLegendProperty;
-        r.typeUrl = layer.typeUrl;
-        r.opacity = layer.opacity ? layer.opacity : 75;
-        r.type = layer.type;
-        // We are returning a definition, so remove the data
-        r.features = [];
-        r.data = '';
-        r.storage = layer.storage ? layer.storage : '';
-        r.url = layer.url ? layer.url : (server + "/api/layers/" + layer.id);
-        r.isDynamic = layer.isDynamic ? layer.isDynamic : false;
-
+        var r = <ILayer>{
+            server: server,
+            id: layer.id,
+            title: layer.title,
+            updated: layer.updated,
+            enabled: layer.enabled,
+            description: layer.description,
+            dynamicResource: layer.dynamicResource,
+            defaultFeatureType: layer.defaultFeatureType,
+            defaultLegendProperty: layer.defaultLegendProperty,
+            typeUrl: layer.typeUrl,
+            opacity: layer.opacity ? layer.opacity : 75,
+            type: layer.type,
+            // We are returning a definition, so remove the data
+            features: [],
+            data: '',
+            storage: layer.storage ? layer.storage : '',
+            url: layer.url ? layer.url : (server + "/api/layers/" + layer.id),
+            isDynamic: layer.isDynamic ? layer.isDynamic : false
+        };
         // Copy additional properties too.
         for (var key in layer) {
             if (layer.hasOwnProperty(key) && !r.hasOwnProperty(key)) r[key] = layer[key];
@@ -909,8 +881,7 @@ export class ApiManager extends events.EventEmitter {
         }
     }
 
-    public addUpdateLayer(origlayer: ILayer, meta: ApiMeta, callback: Function) {
-        var layer = new Layer(origlayer);
+    public addUpdateLayer(layer: ILayer, meta: ApiMeta, callback: Function) {
         async.series([
             // make sure layer exists
             (cb: Function) => {
@@ -1041,7 +1012,6 @@ export class ApiManager extends events.EventEmitter {
                 i.addFeature(layerId, feature, meta, () => { });
             });
             this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Create, value: feature });
-            layer.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Create, value: feature });
             callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
@@ -1052,7 +1022,6 @@ export class ApiManager extends events.EventEmitter {
         var s = this.findStorage(layer);
         this.updateProperty(layerId, featureId, property, value, useLog, meta, (r) => callback(r));
         this.emit(Event[Event.PropertyChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: { featureId: featureId, property: property } });
-        layer.emit(Event[Event.PropertyChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: { featureId: featureId, property: property } });
     }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function) {
@@ -1083,8 +1052,6 @@ export class ApiManager extends events.EventEmitter {
             i.updateFeature(layerId, feature, false, meta, () => { });
         });
         this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: feature });
-        var layer = this.findLayer(layerId);
-        layer.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: feature });
     }
 
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {

@@ -66,9 +66,10 @@ export class RuleEngine {
                 console.log('Error:', err);
             });
 
-            this.layer.on(Api.Event[Api.Event.FeatureChanged], (layerId: string, featureId: string) => {
-                console.log(`Feature update with id ${featureId} and layer id ${layerId} received in the rule engine.`)
-
+            manager.on(Api.Event[Api.Event.FeatureChanged], ( fc: { layerId: string, type: Api.ChangeType, value: Feature }) => {
+                if (fc.layerId !== layerId) return;
+                console.log(`Feature update with id ${fc.value.id} and layer id ${layerId} received in the rule engine.`)
+                var featureId = fc.value.id;
                 this.worldState.activeFeature = undefined;
                 this.layer.features.some(f => {
                     if (f.id !== featureId) return false;
