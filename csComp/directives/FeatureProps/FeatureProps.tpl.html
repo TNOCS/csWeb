@@ -130,15 +130,15 @@
                                             {{vm.getFormattedDate(item.feature.properties[item.property], item.propertyType)}}</div>
                                         <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
                                         <div ng-switch-when="category" class="text-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
-                                        <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
+                                        <div ng-switch-when="textarea" style="clear:both;margin-left:40px" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                         <div ng-switch-when="bbcode" style="text-right" ng-bind-html="vm.toTrusted(item.value)"></div>
                                         <div ng-switch-when="media">
-                                            <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img>
+                                            <!-- <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img> -->
                                             <div ng-repeat="media in item.feature.properties[item.property]">
-                                                <img ng-src="{{media}}" style="width:300px; float:left;margin:5px"></img>
+                                                <img ng-src="{{media}}" style="width:300px;float:left;margin:5px"></img>
                                             </div>
                                         </div>
-                                        <div ng-switch-default class="text-right" data-ng-bind-html="vm.toTrusted(item.value)"></div>
+                                        <div ng-switch-default class="text-right" style="margin-left:40px" data-ng-bind-html="vm.toTrusted(item.value)"></div>
                                     </div>
                                     <div class="feature-prop-content">
                                         <div class="feature-prop-title">
