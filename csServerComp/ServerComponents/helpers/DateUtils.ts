@@ -3,6 +3,8 @@ interface Date {
     minValue: Date;
     /** Add a number of days */
     addDays(days: number): Date;
+    /** Add a number of minutes */
+    addMinutes(mins: number): Date;
     /** Get the number of days between two dates */
     diffDays(date: Date): number;
     /** Get the number of hours between two dates */
@@ -17,6 +19,11 @@ Date.prototype.minValue = new Date(0);
 Date.prototype.addDays = function(days: number) {
     var dat = new Date(this.valueOf());
     dat.setDate(dat.getDate() + days);
+    return dat;
+};
+Date.prototype.addMinutes = function(mins: number) {
+    var dat = new Date(0);
+    dat.setMilliseconds(this.getTime() + (mins*60000));
     return dat;
 };
 Date.prototype.diffDays = function(date: Date) {
