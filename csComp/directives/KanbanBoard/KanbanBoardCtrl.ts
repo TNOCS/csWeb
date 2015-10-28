@@ -83,7 +83,6 @@ module KanbanColumn {
                             this.featureTypes = this.$layerService.typesResources[this.layer.typeUrl].featureTypes;
                         }
                         console.log('feature types');
-                        console.log(this.featureTypes);
                     }
                 }
             }
