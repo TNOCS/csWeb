@@ -6,6 +6,7 @@ module KanbanColumn {
     export class KanbanConfig {
         featureTypesToAdd: string[];
         columns: Column[];
+        canAdd: boolean;
     }
 
     export class KanbanBoardCtrl {
@@ -38,6 +39,7 @@ module KanbanColumn {
             f.properties["date"] = new Date();
             f.properties["updated"] = new Date();
             f.properties["featureTypeId"] = key;
+
             if (!f.properties.hasOwnProperty('Name')) f.properties['Name'] = ft.name;
             this.layer.data.features.push(f);
             this.$layerService.initFeature(f, this.layer);
@@ -54,6 +56,8 @@ module KanbanColumn {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.kanban = par.widget.data;
+
+            if (!this.kanban.hasOwnProperty('canAdd')) this.kanban.canAdd = true;
 
             this.$messageBus.subscribe("typesource", (s: string) => {
                 this.initLayer();
@@ -79,7 +83,6 @@ module KanbanColumn {
                             this.featureTypes = this.$layerService.typesResources[this.layer.typeUrl].featureTypes;
                         }
                         console.log('feature types');
-                        console.log(this.featureTypes);
                     }
                 }
             }

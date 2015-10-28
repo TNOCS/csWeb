@@ -4,9 +4,9 @@ import HyperTimer = require('hypertimer');
 import WorldState = require('./WorldState');
 import Rule = require('./Rule');
 import DynamicLayer = require("../dynamic/DynamicLayer");
-import ApiManager = require('../api/ApiManager');
-import Layer = ApiManager.Layer;
-import Feature = ApiManager.Feature;
+import Api = require('../api/ApiManager');
+import Layer = Api.Layer;
+import Feature = Api.Feature;
 
 export interface IRuleEngineService {
     /**
@@ -15,10 +15,13 @@ export interface IRuleEngineService {
      * @skip: this one will be skipped ( e.g original source)
      */
     updateFeature?: (feature: Feature) => void;
+    addFeature?: (feature: Feature) => void;
     /** Update log message */
-    updateLog?: (featureId: string, msgBody: DynamicLayer.IMessageBody) => void;
+    updateLog?: (featureId: string, msgBody: {
+        [key: string]: Api.Log[];
+    }) => void;
 
-    layer?: DynamicLayer.IDynamicLayer;
+    layer?: Layer;
     activateRule?: (ruleId: string) => void;
     deactivateRule?: (ruleId: string) => void;
     timer?: HyperTimer;
@@ -46,55 +49,63 @@ export class RuleEngine {
      * @skip: this one will be skipped ( e.g original source)
      */
     service: IRuleEngineService = {};
+    layer : Api.Layer;
 
-    constructor(layer: DynamicLayer.IDynamicLayer) {
+    constructor(manager: Api.ApiManager, layerId: string) {
         this.timer = new HyperTimer();
-
-        this.service.updateFeature = (feature: Feature) => layer.updateFeature(feature);
-        this.service.updateLog = (featureId: string, msgBody: DynamicLayer.IMessageBody) => layer.updateLog(featureId, msgBody);
-        this.service.layer = layer;
-        this.service.activateRule = (ruleId: string) => this.activateRule(ruleId);
-        this.service.deactivateRule = (ruleId: string) => this.deactivateRule(ruleId);
-        this.service.timer = this.timer;
-        this.timer.on('error', (err) => {
-            console.log('Error:', err);
-        });
-
-        layer.on("featureUpdated", (layerId: string, featureId: string) => {
-            console.log(`Feature update with id ${featureId} and layer id ${layerId} received in the rule engine.`)
-
-            this.worldState.activeFeature = undefined;
-            layer.geojson.features.some(f => {
-                if (f.id !== featureId) return false;
-                this.worldState.activeFeature = f;
-                this.evaluateRules(f);
-                return true;
+        manager.getLayer(layerId,{},(result : Api.CallbackResult)=>{
+            this.layer = result.layer;
+            this.service.updateFeature = (feature: Feature) => manager.updateFeature(layerId, feature, {}, () => {});
+            this.service.addFeature = (feature: Feature) => manager.addFeature(layerId, feature, {}, () => {});
+            this.service.updateLog = (featureId: string, msgBody: {
+                [key: string]: Api.Log[];
+            }) => manager.updateLogs(layerId, featureId, msgBody, {}, () => {});
+            this.service.layer = this.layer;
+            this.service.activateRule = (ruleId: string) => this.activateRule(ruleId);
+            this.service.deactivateRule = (ruleId: string) => this.deactivateRule(ruleId);
+            this.service.timer = this.timer;
+            this.timer.on('error', (err) => {
+                console.log('Error:', err);
             });
+
+            manager.on(Api.Event[Api.Event.FeatureChanged], ( fc: { id: string, type: Api.ChangeType, value: Feature }) => {
+                if (fc.id !== layerId) return;
+                console.log(`Feature update with id ${fc.value.id} and layer id ${layerId} received in the rule engine.`)
+                var featureId = fc.value.id;
+                this.worldState.activeFeature = undefined;
+                this.layer.features.some(f => {
+                    if (f.id !== featureId) return false;
+                    this.worldState.activeFeature = f;
+                    this.evaluateRules(f);
+                    return true;
+                });
+            });
+
+            // layer.connection.subscribe("rti", (msg: { action: string; data: any }, id: string) => {
+            //     switch (msg.data) {
+            //         case "restart":
+            //             console.log("Rule engine: restarting script");
+            //             this.timer.destroy();
+            //             this.timer = new HyperTimer();
+            //             this.timer.on('error', (err) => {
+            //                 console.log('Error:', err);
+            //             });
+            //             this.worldState = new WorldState();
+            //             this.activeRules = [];
+            //             this.inactiveRules = [];
+            //             this.activateRules = [];
+            //             this.deactivateRules = [];
+            //             this.featureQueue = [];
+            //             this.isBusy = false;
+            //             var scriptCount = this.loadedScripts.length;
+            //             this.loadedScripts.forEach(s => {
+            //                 this.loadRuleFile(s, this.timer.getTime());
+            //             });
+            //             break;
+            //     }
+            // });
         });
 
-        layer.connection.subscribe("rti", (msg: { action: string; data: any }, id: string) => {
-            switch (msg.data) {
-                case "restart":
-                    console.log("Rule engine: restarting script");
-                    this.timer.destroy();
-                    this.timer = new HyperTimer();
-                    this.timer.on('error', (err) => {
-                        console.log('Error:', err);
-                    });
-                    this.worldState = new WorldState();
-                    this.activeRules = [];
-                    this.inactiveRules = [];
-                    this.activateRules = [];
-                    this.deactivateRules = [];
-                    this.featureQueue = [];
-                    this.isBusy = false;
-                    var scriptCount = this.loadedScripts.length;
-                    this.loadedScripts.forEach(s => {
-                        this.loadRuleFile(s, this.timer.getTime());
-                    });
-                    break;
-            }
-        });
     }
 
     /**

@@ -248,6 +248,10 @@ module csComp.Services {
         /** last updated time */
         updated: number;
 
+        /** show notification on new feature*/
+        showFeatureNotifications: boolean = true;
+
+
 
         /**
          * Returns an object which contains all the data that must be serialized.

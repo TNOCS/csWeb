@@ -264,7 +264,7 @@ export class Rule implements IRule {
                                 console.log('Add feature ' + feature.id);
                                 if (!feature.properties.hasOwnProperty('date')) feature.properties['date'] = new Date();
                                 if (!feature.properties.hasOwnProperty('roles')) feature.properties['roles'] = ["rti"];
-                                service.layer.addFeature(feature)
+                                service.addFeature(feature)
                             }
                         } (this.feature, length > 1 ? <string>a[1] : "", service), this.getDelay(a, length - 1));
                         console.log(`Timer ${id}: Add feature ${this.isGenericRule ? a[1] : this.feature.id}`)

@@ -226,12 +226,12 @@ module csComp.Services {
                         layer.data.features.push(value);
                         this.service.initFeature(value, layer, false);
                         var m = this.service.activeMapRenderer.addFeature(value);
-                        this.service.$messageBusService.notify(layer.title, value.properties['Name'] + " added");
+                        if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, value.properties['Name'] + " added");
                     } else {
                         features.push(value);
                         this.service.initFeature(value, this.layer);
                         var m = this.service.activeMapRenderer.addFeature(value);
-                        this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + " added");
+                        if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + " added");
                     }
                 }
             } catch (e) {
