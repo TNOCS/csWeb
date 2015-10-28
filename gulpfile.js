@@ -17,8 +17,7 @@ gulp.task('servercomp_tsconfig_files', function() {
 });
 
 gulp.task('servercomp_tsc', function() {
-  run('tsc -p csServerComp').exec()
-  .pipe(gulp.dest('output'));
+  run('tsc -p csServerComp').exec();
 });
 
 gulp.task('default', ['servercomp_tsconfig_files', 'servercomp_tsc']);
