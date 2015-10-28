@@ -271,7 +271,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                 if (!err) {
                     var layer: Layer;
                     try {
-                        layer = <Layer>JSON.parse(data);
+                        layer = new Layer(<Layer>JSON.parse(data));
                     } catch (e) {
                         Winston.warn(`Error parsing file: ${fileName}. Skipped`);
                         return;
