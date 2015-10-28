@@ -10,7 +10,7 @@ gulp.task('servercomp_tsconfig_files', function() {
             '!./csServerComp/Classes/*.d.ts',
         ],
       {base: 'csServerComp'})
-    .pipe(gulp.dest('./'))
+    .pipe(gulp.dest('./csServerComp'))
     .pipe(tsconfig({
       path:     'csServerComp/tsconfig.json',
     }));
@@ -20,4 +20,6 @@ gulp.task('servercomp_tsc', function() {
   run('tsc -p csServerComp').exec();
 });
 
-gulp.task('default', ['servercomp_tsconfig_files', 'servercomp_tsc']);
+gulp.task('default', ['servercomp_tsconfig_files',
+                      'servercomp_tsc',
+                     ]);
