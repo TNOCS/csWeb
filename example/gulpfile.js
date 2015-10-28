@@ -45,7 +45,8 @@ gulp.task('clean', function(cb) {
     gulp.task('sass', function () {
         gulp.src(path2csWeb + 'csComp/includes/css/*.scss')
         .pipe(sass().on('error', sass.logError))
-        .pipe(gulp.dest(path2csWeb + 'csComp/includes/css/'));
+        .pipe(gulp.dest(path2csWeb + 'csComp/includes/css/'))
+        .pipe(gulp.dest(path2csWeb + 'dist/csComp'));
     });
 
 gulp.task('deploy-githubpages', function() {
@@ -67,7 +68,8 @@ gulp.task('built_csComp', function() {
         // ]))
         // .pipe(debug({title: 'after ordering:'}))
         .pipe(concat('csComp.js'))
-        .pipe(gulp.dest('./public/cs/js'));
+        .pipe(gulp.dest('./public/cs/js'))
+        .pipe(gulp.dest(path2csWeb + 'dist/csComp'));
 });
 
 gulp.task('compile_all', function() {
@@ -156,6 +158,7 @@ gulp.task('create_templateCache', function() {
     gulp.src(path2csWeb + 'csComp/**/*.tpl.html')
         .pipe(templateCache(options))
         .pipe(gulp.dest('public/cs/js'))
+        .pipe(gulp.dest(path2csWeb + 'dist/csComp'));
 })
 
 gulp.task('gh_pages', function() {
@@ -348,22 +351,25 @@ gulp.task('include_js', function() {
         //     title: 'include_js:'
         // }))
         .pipe(plumber())
-        .pipe(changed('./public/cs/js/'))
-        .pipe(gulp.dest('./public/cs/js'));
+        //.pipe(changed('./public/cs/js/'))
+        .pipe(gulp.dest('./public/cs/js'))
+        .pipe(gulp.dest(path2csWeb + 'dist/csComp/js'));
 });
 
 gulp.task('include_css', function() {
     gulp.src(path2csWeb + 'csComp/includes/css/*.*')
         .pipe(plumber())
-        .pipe(changed('./public/cs/css/'))
-        .pipe(gulp.dest('./public/cs/css'));
+        //.pipe(changed('./public/cs/css/'))
+        .pipe(gulp.dest('./public/cs/css'))
+        .pipe(gulp.dest(path2csWeb + 'dist/csComp/css'));
 });
 
 gulp.task('include_images', function() {
     gulp.src(path2csWeb + 'csComp/includes/images/**/*.*')
         .pipe(plumber())
-        .pipe(changed('./public/cs/images/'))
-        .pipe(gulp.dest('./public/cs/images/'));
+        //.pipe(changed('./public/cs/images/'))
+        .pipe(gulp.dest('./public/cs/images/'))
+        .pipe(gulp.dest(path2csWeb + 'dist/csComp/images'));
 });
 
 gulp.task('watch', function() {

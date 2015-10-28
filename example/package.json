@@ -37,7 +37,7 @@
     "xml2js": "^0.4.9"
   },
   "devDependencies": {
-    "coveralls": "^2.11.2",
+    "coveralls": "^2.11.4",
     "del": "^1.2.0",
     "gulp": "^3.9.0",
     "gulp-angular-templatecache": "^1.6.0",
