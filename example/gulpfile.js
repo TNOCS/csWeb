@@ -154,9 +154,6 @@ gulp.task('create_templateCache', function() {
     }
 
     gulp.src(path2csWeb + 'csComp/**/*.tpl.html')
-        // .pipe(debug({
-        //     title: 'create_templateCache:'
-        // }))
         .pipe(templateCache(options))
         .pipe(gulp.dest('public/cs/js'))
 })
