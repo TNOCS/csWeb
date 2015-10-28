@@ -1,11 +1,11 @@
 {
     "name": "csWeb",
-    "version": "0.0.1",
+    "version": "0.1.1",
     "main": "dist/csComp/csComp.js",
     "ignore": [
         "dist/csServerComp",
         "csComp",
-        "csServerComp"
+        "csServerComp",
         "example",
         "docs",
         "test",
@@ -58,6 +58,5 @@
       "underscore": "~1.7.0"
     },
     "devDependencies": {
-
     }
 }
