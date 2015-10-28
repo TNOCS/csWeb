@@ -43,7 +43,6 @@
     "d3": "~3.5.5",
     "d3-tip": "~0.6.6",
     "Font-Awesome": "*",
-    "interact": "~1.2.4",
     "jquery": "~2.1.3",
     "jquery-ui": "~1.11.2",
     "leaflet": "~0.7.3",
@@ -55,7 +54,8 @@
     "spectrum": "~1.5.2",
     "togeojson": "~0.12.1",
     "topojson": "~1.6.19",
-    "underscore": "~1.7.0"
+    "underscore": "~1.7.0",
+    "interact": "~1.2.6"
   },
   "resolutions": {
     "angular": "~1.4.4",
