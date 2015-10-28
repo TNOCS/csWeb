@@ -99,6 +99,7 @@
         "directives/MCA/McaEditorCtrl.ts",
         "directives/Navigate/Navigate.ts",
         "directives/Navigate/NavigateCtrl.ts",
+        "directives/Navigate/SearchClasses.ts",
         "directives/OfflineSearch/OfflineSearch.ts",
         "directives/OfflineSearch/OfflineSearchClasses.ts",
         "directives/OfflineSearch/OfflineSearchCtrl.ts",
