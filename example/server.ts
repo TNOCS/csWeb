@@ -25,7 +25,7 @@ import Winston = require('winston');
 import AuthAPI = require('./ServerComponents/api/AuthAPI');
 
 Winston.remove(Winston.transports.Console);
-Winston.add(Winston.transports.Console, {
+Winston.add(Winston.transports.Console, <Winston.ConsoleTransportOptions>{
     colorize: true,
     prettyPrint: true
 });
