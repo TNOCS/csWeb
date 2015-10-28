@@ -40,7 +40,7 @@ module.exports = function(config) {
             'example/public/bower_components/moment/min/moment.min.js',
             'example/public/bower_components/spectrum/spectrum.js',
             'example/public/bower_components/togeojson/togeojson.js',
-            'example/public/bower_components/interact/interact.min.js',
+            'example/public/bower_components/interact/dist/interact.min.js',
             'example/public/bower_components/angular-animate/angular-animate.min.js',
             'example/public/cs/js/datetime-picker.js',
             'example/public/cs/js/dc.js',

@@ -214,6 +214,5 @@
         "./services/search/SearchFormCtrl.ts",
         "./translations/locale-en.ts",
         "./translations/locale-nl.ts"
-    ],
-    "exclude": []
+    ]
 }
