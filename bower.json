@@ -3,7 +3,6 @@
     "version": "0.1.1",
     "main": "dist/csComp/csComp.js",
     "ignore": [
-        "dist/csServerComp",
         "csComp",
         "csServerComp",
         "example",
@@ -11,6 +10,7 @@
         "test",
         "bower.json",
         "gulp.js",
+        "Dockerfile",
         "package.json",
         "README.md",
         ".bithoundrc",
@@ -58,5 +58,9 @@
       "underscore": "~1.7.0"
     },
     "devDependencies": {
+    },
+    "resolutions": {
+      "angular": "~1.4.4",
+      "d3": "~3.5.5"
     }
 }
