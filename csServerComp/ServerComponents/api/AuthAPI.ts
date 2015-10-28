@@ -11,6 +11,7 @@ import request = require('request');
 import Winston = require('winston');
 import ApiManager = require('./ApiManager');
 import Layer = ApiManager.Layer;
+import ILayer = ApiManager.ILayer;
 import Feature = ApiManager.Feature;
 import Logs = ApiManager.Log;
 import BaseConnector = require('./BaseConnector');
@@ -891,7 +892,7 @@ export class User extends Feature implements IUser {
     private static getTeam(teamId: string, callback: (err: string, team: Layer) => void) {
         User.manager.getLayer(teamId, <ApiMeta>{}, (cb: CallbackResult) => {
             if (cb.result !== ApiResult.OK) {
-                User.manager.addUpdateLayer(<Layer>{ id: teamId, storage: 'file', type: 'dynamicgeojson' }, <ApiMeta>{ source: 'auth' }, (cb2) => {
+                User.manager.addUpdateLayer(<ILayer>{ id: teamId, storage: 'file', type: 'dynamicgeojson' }, <ApiMeta>{ source: 'auth' }, (cb2) => {
                     callback(null, cb2.layer);
                 });
             }

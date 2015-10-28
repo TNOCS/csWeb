@@ -210,7 +210,7 @@ export interface ILayer extends StorageObject {
 /**
  * Geojson Layer definition
  */
-export class Layer implements StorageObject {
+export class Layer implements StorageObject, ILayer {
     /** Server of the layer, needed for remote synchronization */
     public server: string;
     /**
