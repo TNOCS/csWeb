@@ -17,7 +17,6 @@
         "!./node_modules/**/*.ts",
         "!./Classes/*.d.ts"
     ],
-    "exclude": [],
     "files": [
         "Classes/Feature.ts",
         "Scripts/typings/async/async.d.ts",
