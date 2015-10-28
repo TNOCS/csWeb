@@ -15,6 +15,7 @@ export interface IRuleEngineService {
      * @skip: this one will be skipped ( e.g original source)
      */
     updateFeature?: (feature: Feature) => void;
+    addFeature?: (feature: Feature) => void;
     /** Update log message */
     updateLog?: (featureId: string, msgBody: {
         [key: string]: Api.Log[];
@@ -54,7 +55,8 @@ export class RuleEngine {
         this.timer = new HyperTimer();
         manager.getLayer(layerId,{},(result : Api.CallbackResult)=>{
             this.layer = result.layer;
-            this.service.updateFeature = (feature: Feature) => manager.updateFeature(layerId,feature, {}, () => {});
+            this.service.updateFeature = (feature: Feature) => manager.updateFeature(layerId, feature, {}, () => {});
+            this.service.addFeature = (feature: Feature) => manager.addFeature(layerId, feature, {}, () => {});
             this.service.updateLog = (featureId: string, msgBody: {
                 [key: string]: Api.Log[];
             }) => manager.updateLogs(layerId, featureId, msgBody, {}, () => {});
@@ -66,8 +68,8 @@ export class RuleEngine {
                 console.log('Error:', err);
             });
 
-            manager.on(Api.Event[Api.Event.FeatureChanged], ( fc: { layerId: string, type: Api.ChangeType, value: Feature }) => {
-                if (fc.layerId !== layerId) return;
+            manager.on(Api.Event[Api.Event.FeatureChanged], ( fc: { id: string, type: Api.ChangeType, value: Feature }) => {
+                if (fc.id !== layerId) return;
                 console.log(`Feature update with id ${fc.value.id} and layer id ${layerId} received in the rule engine.`)
                 var featureId = fc.value.id;
                 this.worldState.activeFeature = undefined;
