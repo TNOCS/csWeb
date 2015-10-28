@@ -153,7 +153,7 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
     }
 
     public updateLogs(layerId: string, featureId: string, logs: { [key: string]: Log[] }, meta: ApiMeta, callback: Function) {
-        Winston.error('lu:' + JSON.stringify(logs));
+        Winston.info('socketio: update logs ' + JSON.stringify(logs));
         var lu = <LayerUpdate>{ layerId: layerId, action: LayerUpdateAction.updateLog, item: logs, featureId: featureId };
         this.connection.updateFeature(layerId, lu, meta);
         callback(<CallbackResult>{ result: ApiResult.OK });

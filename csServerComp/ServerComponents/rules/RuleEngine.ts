@@ -57,9 +57,9 @@ export class RuleEngine {
             this.layer = result.layer;
             this.service.updateFeature = (feature: Feature) => manager.updateFeature(layerId, feature, {}, () => {});
             this.service.addFeature = (feature: Feature) => manager.addFeature(layerId, feature, {}, () => {});
-            this.service.updateLog = (featureId: string, msgBody: {
+            this.service.updateLog = (featureId: string, logs: {
                 [key: string]: Api.Log[];
-            }) => manager.updateLogs(layerId, featureId, msgBody, {}, () => {});
+            }) => manager.updateLogs(layerId, featureId, logs, {}, () => {});
             this.service.layer = this.layer;
             this.service.activateRule = (ruleId: string) => this.activateRule(ruleId);
             this.service.deactivateRule = (ruleId: string) => this.deactivateRule(ruleId);
