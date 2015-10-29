@@ -1,4 +1,4 @@
-﻿module StyleList {
+module StyleList {
     /**
       * Config
       */

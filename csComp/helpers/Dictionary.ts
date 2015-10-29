@@ -1,4 +1,4 @@
-﻿module csComp.Helpers {
+module csComp.Helpers {
     export interface IDictionary<T> {
         add(key        : string, value: T): void;
         remove(key     : string): void;
