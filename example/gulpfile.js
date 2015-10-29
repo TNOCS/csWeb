@@ -45,8 +45,8 @@ gulp.task('clean', function(cb) {
     gulp.task('sass', function () {
         gulp.src(path2csWeb + 'csComp/includes/css/*.scss')
         .pipe(sass().on('error', sass.logError))
-        .pipe(gulp.dest(path2csWeb + 'csComp/includes/css/'))
-        .pipe(gulp.dest(path2csWeb + 'dist/csComp'));
+        .pipe(gulp.dest(path2csWeb + 'csComp/includes/css/'))        
+        .pipe(gulp.dest(path2csWeb + 'dist-bower/'));
     });
 
 gulp.task('deploy-githubpages', function() {
