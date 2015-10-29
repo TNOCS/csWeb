@@ -12,7 +12,7 @@
         "gulp.js",
         "Dockerfile",
         "package.json",
-        "dist"
+        "dist",
         "README.md",
         ".bithoundrc",
         ".editorconfig",
