@@ -35,6 +35,30 @@ This repository consists of several project folders. The  most important ones ar
 
 Just copy the example folder to a public folder and open the public\index.html file in that folder.
 
+### Using Docker contaiiners
+There are two types of docker containers built for CommonSense:
+* [`tnocs/csWeb-demo`](https://hub.docker.com/r/tnocs/csweb-demo/)
+* [`tnocs/csWeb-dev`](https://hub.docker.com/r/tnocs/csweb-dev/)
+
+#### `tnocs/csWeb-demo`
+This container runs whole csWeb application. To run it and access csWeb in the web browser at `<port>` run:
+```sh
+# replace <port> with the port number you want to access csWeb at
+docker run -d -p 3002:<port> tnocs/csWeb-demo
+```
+If your're using docker running in your system (Linux), application should be avaiilable at `localhost`,
+otherwise when using `docker-machine`, you can ask about ip address with `docker-machine ip default` (in case your vm with docker is named default).
+
+#### `tnocs/csWeb-dev`
+This container is meant to run csWeb build in the docker container istread of local machine. csWeb local repository will be mounted inside the container and the build process will happen inside the container. This is usefull in at least two cases.
+* to check if you understand all dependencies of your build process since only dependencies specified in the [Dockerfile](https://github.com/TNOCS/csWeb/blob/development-docker/docker-dev/Dockerfile) will be installed
+* to avoid installing dependencies on local machin
+
+Run container from within csWeb directory:
+```sh
+docker run -it --rm -p 3002:<port> -v $PWD:/app/ tno/csWeb-dev /bin/bash
+```
+
 ### Contribution guidelines ###
 
 * Writing tests
