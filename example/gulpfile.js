@@ -45,8 +45,7 @@ gulp.task('clean', function(cb) {
     gulp.task('sass', function () {
         gulp.src(path2csWeb + 'csComp/includes/css/*.scss')
         .pipe(sass().on('error', sass.logError))
-        .pipe(gulp.dest(path2csWeb + 'csComp/includes/css/'))        
-        .pipe(gulp.dest(path2csWeb + 'dist-bower/'));
+        .pipe(gulp.dest(path2csWeb + 'csComp/includes/css/'))
     });
 
 gulp.task('deploy-githubpages', function() {
@@ -69,7 +68,7 @@ gulp.task('built_csComp', function() {
         // .pipe(debug({title: 'after ordering:'}))
         .pipe(concat('csComp.js'))
         .pipe(gulp.dest('./public/cs/js'))
-        .pipe(gulp.dest(path2csWeb + 'dist/csComp'));
+        .pipe(gulp.dest(path2csWeb + 'dist-bower'));
 });
 
 gulp.task('compile_all', function() {
@@ -161,7 +160,7 @@ gulp.task('create_templateCache', function() {
         // }))
         .pipe(templateCache(options))
         .pipe(gulp.dest('public/cs/js'))
-        .pipe(gulp.dest(path2csWeb + 'dist/csComp'));
+        .pipe(gulp.dest(path2csWeb + 'dist-bower'));
 })
 
 gulp.task('gh_pages', function() {
@@ -336,7 +335,7 @@ gulp.task('create_dist_of_server', function() {
 gulp.task('create_dist_of_client_and_server', ['create_dist', 'create_dist_of_server']);
 
 gulp.task('minify_csComp', function() {
-    // gulp.src(path2csWeb + 'csComp/dist/csComp.js')
+    // gulp.src(path2csWeb + 'csComp/dist-bower.js')
     //    .pipe(plumber())
     //    .pipe(gulp.dest('public/js/cs'));
     gulp.src('public/js/cs/csComp.js')
@@ -356,7 +355,7 @@ gulp.task('include_js', function() {
         .pipe(plumber())
         //.pipe(changed('./public/cs/js/'))
         .pipe(gulp.dest('./public/cs/js'))
-        .pipe(gulp.dest(path2csWeb + 'dist/csComp/js'));
+        .pipe(gulp.dest(path2csWeb + 'dist-bower/js'));
 });
 
 gulp.task('include_css', function() {
@@ -364,7 +363,7 @@ gulp.task('include_css', function() {
         .pipe(plumber())
         //.pipe(changed('./public/cs/css/'))
         .pipe(gulp.dest('./public/cs/css'))
-        .pipe(gulp.dest(path2csWeb + 'dist/csComp/css'));
+        .pipe(gulp.dest(path2csWeb + 'dist-bower/css'));
 });
 
 gulp.task('include_images', function() {
@@ -372,7 +371,7 @@ gulp.task('include_images', function() {
         .pipe(plumber())
         //.pipe(changed('./public/cs/images/'))
         .pipe(gulp.dest('./public/cs/images/'))
-        .pipe(gulp.dest(path2csWeb + 'dist/csComp/images'));
+        .pipe(gulp.dest(path2csWeb + 'dist-bower/images'));
 });
 
 gulp.task('watch', function() {
