@@ -67,7 +67,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
             if (topic === this.layerPrefix) {
                 var layer = this.extractLayer(message);
                 if (layer && layer.id) {
-                    Winston.info('mqtt: received definition for layer ' + layer.id);
+                    Winston.info(`mqtt: received definition for layer ${layer.id} on topic ${topic}`);
                     Winston.info(`Definition: ${JSON.stringify(layer, null, 2)}`)
                     this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
                 }
@@ -83,7 +83,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                     try {
                         var layer = this.extractLayer(message);
                         if (layer) {
-                            Winston.info(`mqtt: update layer ${layerId}`);
+                            Winston.info(`mqtt: update layer ${layerId} on topic ${topic}`);
                             this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
                         }
                     } catch (e) {
@@ -94,7 +94,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                         var featureId = ids[1];
                         var feature = <Feature>JSON.parse(message);
                         if (feature) {
-                            Winston.info(`mqtt: update feature ${featureId} for layer ${layerId}.`);
+                            Winston.info(`mqtt: update feature ${featureId} for layer ${layerId} on topic ${topic}.`);
                             this.manager.updateFeature(layerId, feature, <ApiMeta>{ source: this.id }, () => { });
                         }
                     } catch (e) {

@@ -237,8 +237,10 @@ module csComp.Services {
                     }
                 }
             }
-            if (feature.layer.isDynamic) {
-                if (this.canDrag(feature)) { marker.dragging.enable(); } else {
+            if (feature.layer.isDynamic && marker.dragging) {
+                if (this.canDrag(feature)) {
+                    marker.dragging.enable();
+                } else {
                     marker.dragging.disable();
                 };
             }
