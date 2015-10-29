@@ -211,6 +211,7 @@
         "./services/map/layerRenderers/wmsRenderer.ts",
         "./services/map/MapService.ts",
         "./services/map/renderers/cesiumRenderer.ts",
+        "./services/map/renderers/leafletRenderer.ts",
         "./services/search/SearchFormCtrl.ts",
         "./translations/locale-en.ts",
         "./translations/locale-nl.ts"
