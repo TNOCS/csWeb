@@ -99,6 +99,7 @@
         "./directives/MCA/McaEditorCtrl.ts",
         "./directives/Navigate/Navigate.ts",
         "./directives/Navigate/NavigateCtrl.ts",
+        "./directives/Navigate/SearchClasses.ts",
         "./directives/OfflineSearch/OfflineSearch.ts",
         "./directives/OfflineSearch/OfflineSearchClasses.ts",
         "./directives/OfflineSearch/OfflineSearchCtrl.ts",
@@ -210,9 +211,9 @@
         "./services/map/layerRenderers/wmsRenderer.ts",
         "./services/map/MapService.ts",
         "./services/map/renderers/cesiumRenderer.ts",
-        "./services/map/renderers/leafletRenderer.ts",
         "./services/search/SearchFormCtrl.ts",
         "./translations/locale-en.ts",
         "./translations/locale-nl.ts"
-    ]
+    ],
+    "exclude": []
 }
