@@ -329,7 +329,7 @@ module LayersDirective {
                         this.newLayer.typeUrl = this.layerResourceType;
                     }
 
-                    var l = { id: nl.title, title: nl.title, isDynamic: true, type: nl.type, description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url };
+                    var l = { id: nl.title, title: nl.title, isDynamic: true, type: nl.type, storage : 'file', description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url };
                     this.$http.post("/api/layers", l)
                         .success((data) => {
                         console.log(data);
@@ -358,7 +358,7 @@ module LayersDirective {
             //layer.enabled = !layer.enabled;
             //if (this.$layerService.loadedLayers.containsKey(layer.id)) {
             // Unselect when dealing with a radio group, so you can turn a loaded layer off again.
-            this.$layerService.toggleLayer(layer);            
+            this.$layerService.toggleLayer(layer);
 
             // NOTE EV: You need to call apply only when an event is received outside the angular scope.
             // However, make sure you are not calling this inside an angular apply cycle, as it will generate an error.

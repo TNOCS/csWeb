@@ -4555,44 +4555,6 @@ var BaseMapList;
     BaseMapList.BaseMapListCtrl = BaseMapListCtrl;
 })(BaseMapList || (BaseMapList = {}));
 
-var Directives;
-(function (Directives) {
-    var Clock;
-    (function (Clock) {
-        /**
-         * Config
-         */
-        var moduleName = 'csComp';
-        try {
-            Clock.myModule = angular.module(moduleName);
-        }
-        catch (err) {
-            // named module does not exist, so create one
-            Clock.myModule = angular.module(moduleName, []);
-        }
-        /**
-          * Directive to show the time.
-          */
-        Clock.myModule.directive('clock', ['dateFilter', function (dateFilter) {
-                return {
-                    restrict: 'E',
-                    scope: {
-                        time: '@',
-                        format: '@'
-                    },
-                    link: function (scope, element, attrs) {
-                        function updateTime() {
-                            element.html(dateFilter(scope.time, scope.format));
-                        }
-                        scope.$watch('time', function (value) {
-                            updateTime();
-                        });
-                    }
-                };
-            }]);
-    })(Clock = Directives.Clock || (Directives.Clock = {}));
-})(Directives || (Directives = {}));
-
 var Charts;
 (function (Charts) {
     'use strict';
@@ -5320,6 +5282,44 @@ var Charts;
             };
         }]);
 })(Charts || (Charts = {}));
+
+var Directives;
+(function (Directives) {
+    var Clock;
+    (function (Clock) {
+        /**
+         * Config
+         */
+        var moduleName = 'csComp';
+        try {
+            Clock.myModule = angular.module(moduleName);
+        }
+        catch (err) {
+            // named module does not exist, so create one
+            Clock.myModule = angular.module(moduleName, []);
+        }
+        /**
+          * Directive to show the time.
+          */
+        Clock.myModule.directive('clock', ['dateFilter', function (dateFilter) {
+                return {
+                    restrict: 'E',
+                    scope: {
+                        time: '@',
+                        format: '@'
+                    },
+                    link: function (scope, element, attrs) {
+                        function updateTime() {
+                            element.html(dateFilter(scope.time, scope.format));
+                        }
+                        scope.$watch('time', function (value) {
+                            updateTime();
+                        });
+                    }
+                };
+            }]);
+    })(Clock = Directives.Clock || (Directives.Clock = {}));
+})(Directives || (Directives = {}));
 
 var Helpers;
 (function (Helpers) {
@@ -9041,7 +9041,7 @@ var LayersDirective;
                     else {
                         this.newLayer.typeUrl = this.layerResourceType;
                     }
-                    var l = { id: nl.title, title: nl.title, isDynamic: true, type: nl.type, description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url };
+                    var l = { id: nl.title, title: nl.title, isDynamic: true, type: nl.type, storage: 'file', description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url };
                     this.$http.post("/api/layers", l)
                         .success(function (data) {
                         console.log(data);
@@ -16561,243 +16561,6 @@ var Dashboard;
     Dashboard_1.DashboardCtrl = DashboardCtrl;
 })(Dashboard || (Dashboard = {}));
 
-var DashboardEdit;
-(function (DashboardEdit) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        DashboardEdit.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        DashboardEdit.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display a feature's properties in a panel.
-      *
-      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
-      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
-      */
-    DashboardEdit.myModule.directive('dashboardedit', ['$compile',
-        function ($compile) {
-            return {
-                terminal: true,
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/DashboardDirectives/WidgetEdit/DashboardEdit.tpl.html',
-                replace: true,
-                transclude: true,
-                controller: DashboardEdit.DashboardEditCtrl
-            };
-        }
-    ]);
-})(DashboardEdit || (DashboardEdit = {}));
-
-var DashboardEdit;
-(function (DashboardEdit) {
-    var DashboardEditCtrl = (function () {
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function DashboardEditCtrl($scope, $mapService, $layerService, $messageBusService, $dashboardService) {
-            this.$scope = $scope;
-            this.$mapService = $mapService;
-            this.$layerService = $layerService;
-            this.$messageBusService = $messageBusService;
-            this.$dashboardService = $dashboardService;
-            this.scope = $scope;
-            $scope.vm = this;
-            this.dashboard = $scope.$parent["data"];
-            if (this.dashboard.parents && this.dashboard.parents.length > 0)
-                this.parent = this.dashboard.parents[0];
-            this.updateHasParent();
-            console.log(this.$dashboardService.widgetTypes);
-            // setup draggable elements.
-        }
-        DashboardEditCtrl.prototype.updateHasParent = function () {
-            return;
-            if (this.parent !== "")
-                this.dashboard.parents = [this.parent];
-            this.hasParent = this.dashboard.parents && this.dashboard.parents.length > 0;
-        };
-        DashboardEditCtrl.prototype.toggleTimeline = function () {
-            //this.$dashboardService.mainDashboard.showTimeline = !this.$dashboardService.mainDashboard.showTimeline;
-            this.checkTimeline();
-            this.$layerService.project.dashboards;
-        };
-        DashboardEditCtrl.prototype.toggleLegend = function () {
-            this.checkLegend();
-            this.$layerService.project.dashboards;
-        };
-        DashboardEditCtrl.prototype.setExtent = function () {
-            this.dashboard.viewBounds = this.$layerService.activeMapRenderer.getExtent();
-            console.log('set extent');
-        };
-        DashboardEditCtrl.prototype.setVisibleLayers = function () {
-            this.dashboard.visiblelayers = [];
-            for (var id in this.$layerService.loadedLayers)
-                this.dashboard.visiblelayers.push(id);
-        };
-        DashboardEditCtrl.prototype.toggleMap = function () {
-            var _this = this;
-            setTimeout(function () {
-                _this.checkMap();
-            }, 100);
-        };
-        DashboardEditCtrl.prototype.checkMap = function () {
-            var db = this.$layerService.project.activeDashboard;
-            if (db.showMap != this.$layerService.visual.mapVisible) {
-                if (db.showMap) {
-                    this.$layerService.visual.mapVisible = true;
-                }
-                else {
-                    this.$layerService.visual.mapVisible = false;
-                }
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-                    this.$scope.$apply();
-                }
-            }
-            if (db.showMap && this.dashboard.baselayer) {
-                this.$messageBusService.publish("map", "setbaselayer", this.dashboard.baselayer);
-            }
-        };
-        DashboardEditCtrl.prototype.checkTimeline = function () {
-            var db = this.$layerService.project.activeDashboard;
-            if (db.timeline) {
-                var s = new Date(db.timeline.start);
-                var e = new Date();
-                if (db.timeline.end)
-                    e = new Date(db.timeline.end);
-                //this.$messageBusService.publish("timeline", "updateTimerange", { "start": s, "end": e});
-                this.$messageBusService.publish("timeline", "updateTimerange", { start: s, end: e });
-            }
-            if (db.showTimeline != this.$mapService.timelineVisible) {
-                if (db.showTimeline) {
-                    this.$mapService.timelineVisible = true;
-                }
-                else {
-                    this.$mapService.timelineVisible = false;
-                }
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-                    this.$scope.$apply();
-                }
-            }
-        };
-        DashboardEditCtrl.prototype.checkLegend = function () {
-            var db = this.$layerService.project.activeDashboard;
-            if (!db.showLegend) {
-                var idxDelete = -1;
-                db.widgets.forEach(function (w, idx) {
-                    if (w.id === 'legend') {
-                        idxDelete = idx;
-                    }
-                });
-                if (idxDelete > -1)
-                    db.widgets.splice(idxDelete, 1);
-            }
-            this.$dashboardService.selectDashboard(db, 'main');
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-                this.$scope.$apply();
-            }
-        };
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        DashboardEditCtrl.$inject = [
-            '$scope',
-            'mapService',
-            'layerService',
-            'messageBusService',
-            'dashboardService'
-        ];
-        return DashboardEditCtrl;
-    })();
-    DashboardEdit.DashboardEditCtrl = DashboardEditCtrl;
-})(DashboardEdit || (DashboardEdit = {}));
-
-var WidgetEdit;
-(function (WidgetEdit) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        WidgetEdit.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        WidgetEdit.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display a feature's properties in a panel.
-      *
-      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
-      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
-      */
-    WidgetEdit.myModule.directive('widgetedit', ['$compile',
-        function ($compile) {
-            return {
-                terminal: true,
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/DashboardDirectives/WidgetEdit/WidgetEdit.tpl.html',
-                replace: true,
-                transclude: true,
-                controller: WidgetEdit.WidgetEditCtrl
-            };
-        }
-    ]);
-})(WidgetEdit || (WidgetEdit = {}));
-
-var WidgetEdit;
-(function (WidgetEdit) {
-    var WidgetEditCtrl = (function () {
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function WidgetEditCtrl($scope, mapService, layerService, messageBusService, dashboardService) {
-            this.$scope = $scope;
-            this.mapService = mapService;
-            this.layerService = layerService;
-            this.messageBusService = messageBusService;
-            this.dashboardService = dashboardService;
-            this.scope = $scope;
-            $scope.vm = this;
-            $scope.widget = dashboardService.activeWidget;
-        }
-        WidgetEditCtrl.prototype.selectStyle = function () {
-            var style = this.$scope.widget.style;
-            if (style === "custom") {
-                this.$scope.widget.customStyle = JSON.parse(JSON.stringify(this.$scope.widget.effectiveStyle));
-                this.$scope.widget.effectiveStyle = this.$scope.widget.customStyle;
-            }
-            else {
-                this.$scope.widget.effectiveStyle = this.layerService.solution.widgetStyles[style];
-                this.$scope.widget.customStyle = null;
-            }
-        };
-        WidgetEditCtrl.prototype.removeWidget = function (widget) {
-            widget.parentDashboard.widgets = widget.parentDashboard.widgets.filter(function (w) { return widget.id != w.id; });
-            this.dashboardService.deactivateTabContainer("widget-content");
-            this.dashboardService.deactivateTabContainer("widget");
-        };
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        WidgetEditCtrl.$inject = [
-            '$scope',
-            'mapService',
-            'layerService',
-            'messageBusService',
-            'dashboardService'
-        ];
-        return WidgetEditCtrl;
-    })();
-    WidgetEdit.WidgetEditCtrl = WidgetEditCtrl;
-})(WidgetEdit || (WidgetEdit = {}));
-
 var DashboarHeaderdSelection;
 (function (DashboarHeaderdSelection) {
     /**
@@ -17086,18 +16849,18 @@ var DashboardSelection;
     DashboardSelection.DashboardSelectionCtrl = DashboardSelectionCtrl;
 })(DashboardSelection || (DashboardSelection = {}));
 
-var GroupEdit;
-(function (GroupEdit) {
+var DashboardEdit;
+(function (DashboardEdit) {
     /**
       * Config
       */
     var moduleName = 'csComp';
     try {
-        GroupEdit.myModule = angular.module(moduleName);
+        DashboardEdit.myModule = angular.module(moduleName);
     }
     catch (err) {
         // named module does not exist, so create one
-        GroupEdit.myModule = angular.module(moduleName, []);
+        DashboardEdit.myModule = angular.module(moduleName, []);
     }
     /**
       * Directive to display a feature's properties in a panel.
@@ -17105,72 +16868,223 @@ var GroupEdit;
       * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
       * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
       */
-    GroupEdit.myModule.directive('groupedit', ['$compile',
+    DashboardEdit.myModule.directive('dashboardedit', ['$compile',
         function ($compile) {
             return {
                 terminal: true,
                 restrict: 'E',
                 scope: {},
-                templateUrl: 'directives/Editors/GroupEditor/GroupEdit.tpl.html',
+                templateUrl: 'directives/DashboardDirectives/WidgetEdit/DashboardEdit.tpl.html',
                 replace: true,
                 transclude: true,
-                controller: GroupEdit.GroupEditCtrl
+                controller: DashboardEdit.DashboardEditCtrl
             };
         }
     ]);
-})(GroupEdit || (GroupEdit = {}));
+})(DashboardEdit || (DashboardEdit = {}));
 
-var GroupEdit;
-(function (GroupEdit) {
-    var GroupEditCtrl = (function () {
+var DashboardEdit;
+(function (DashboardEdit) {
+    var DashboardEditCtrl = (function () {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function GroupEditCtrl($scope, $mapService, $layerService, $messageBusService, $dashboardService) {
-            var _this = this;
+        function DashboardEditCtrl($scope, $mapService, $layerService, $messageBusService, $dashboardService) {
             this.$scope = $scope;
             this.$mapService = $mapService;
             this.$layerService = $layerService;
             this.$messageBusService = $messageBusService;
             this.$dashboardService = $dashboardService;
-            this.noLayerSelected = true;
             this.scope = $scope;
             $scope.vm = this;
-            $scope.group = $scope.$parent["data"];
-            console.log($scope.group);
-            this.updateLayers();
-            this.$messageBusService.subscribe('layer', function () {
-                _this.updateLayers();
-            });
+            this.dashboard = $scope.$parent["data"];
+            if (this.dashboard.parents && this.dashboard.parents.length > 0)
+                this.parent = this.dashboard.parents[0];
+            this.updateHasParent();
+            console.log(this.$dashboardService.widgetTypes);
+            // setup draggable elements.
         }
-        GroupEditCtrl.prototype.updateLayers = function () {
-            this.noLayerSelected = this.$scope.group.layers.some(function (l) { return l.enabled; });
-            //console.log("selected " + this.noLayerSelected)
-            //this.$scope.group.oneLayerActive
+        DashboardEditCtrl.prototype.updateHasParent = function () {
+            return;
+            if (this.parent !== "")
+                this.dashboard.parents = [this.parent];
+            this.hasParent = this.dashboard.parents && this.dashboard.parents.length > 0;
         };
-        GroupEditCtrl.prototype.removeGroup = function () {
-            this.$layerService.removeGroup(this.$scope.group);
+        DashboardEditCtrl.prototype.toggleTimeline = function () {
+            //this.$dashboardService.mainDashboard.showTimeline = !this.$dashboardService.mainDashboard.showTimeline;
+            this.checkTimeline();
+            this.$layerService.project.dashboards;
         };
-        GroupEditCtrl.prototype.toggleClustering = function () {
-            console.log('toggle clustering');
+        DashboardEditCtrl.prototype.toggleLegend = function () {
+            this.checkLegend();
+            this.$layerService.project.dashboards;
         };
-        GroupEditCtrl.prototype.updateOws = function () {
-            this.$scope.group.loadLayersFromOWS();
+        DashboardEditCtrl.prototype.setExtent = function () {
+            this.dashboard.viewBounds = this.$layerService.activeMapRenderer.getExtent();
+            console.log('set extent');
+        };
+        DashboardEditCtrl.prototype.setVisibleLayers = function () {
+            this.dashboard.visiblelayers = [];
+            for (var id in this.$layerService.loadedLayers)
+                this.dashboard.visiblelayers.push(id);
+        };
+        DashboardEditCtrl.prototype.toggleMap = function () {
+            var _this = this;
+            setTimeout(function () {
+                _this.checkMap();
+            }, 100);
+        };
+        DashboardEditCtrl.prototype.checkMap = function () {
+            var db = this.$layerService.project.activeDashboard;
+            if (db.showMap != this.$layerService.visual.mapVisible) {
+                if (db.showMap) {
+                    this.$layerService.visual.mapVisible = true;
+                }
+                else {
+                    this.$layerService.visual.mapVisible = false;
+                }
+                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                    this.$scope.$apply();
+                }
+            }
+            if (db.showMap && this.dashboard.baselayer) {
+                this.$messageBusService.publish("map", "setbaselayer", this.dashboard.baselayer);
+            }
+        };
+        DashboardEditCtrl.prototype.checkTimeline = function () {
+            var db = this.$layerService.project.activeDashboard;
+            if (db.timeline) {
+                var s = new Date(db.timeline.start);
+                var e = new Date();
+                if (db.timeline.end)
+                    e = new Date(db.timeline.end);
+                //this.$messageBusService.publish("timeline", "updateTimerange", { "start": s, "end": e});
+                this.$messageBusService.publish("timeline", "updateTimerange", { start: s, end: e });
+            }
+            if (db.showTimeline != this.$mapService.timelineVisible) {
+                if (db.showTimeline) {
+                    this.$mapService.timelineVisible = true;
+                }
+                else {
+                    this.$mapService.timelineVisible = false;
+                }
+                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                    this.$scope.$apply();
+                }
+            }
+        };
+        DashboardEditCtrl.prototype.checkLegend = function () {
+            var db = this.$layerService.project.activeDashboard;
+            if (!db.showLegend) {
+                var idxDelete = -1;
+                db.widgets.forEach(function (w, idx) {
+                    if (w.id === 'legend') {
+                        idxDelete = idx;
+                    }
+                });
+                if (idxDelete > -1)
+                    db.widgets.splice(idxDelete, 1);
+            }
+            this.$dashboardService.selectDashboard(db, 'main');
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                this.$scope.$apply();
+            }
         };
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
         // it is better to have it close to the constructor, because the parameters must match in count and type.
         // See http://docs.angularjs.org/guide/di
-        GroupEditCtrl.$inject = [
+        DashboardEditCtrl.$inject = [
             '$scope',
             'mapService',
             'layerService',
             'messageBusService',
             'dashboardService'
         ];
-        return GroupEditCtrl;
+        return DashboardEditCtrl;
     })();
-    GroupEdit.GroupEditCtrl = GroupEditCtrl;
-})(GroupEdit || (GroupEdit = {}));
+    DashboardEdit.DashboardEditCtrl = DashboardEditCtrl;
+})(DashboardEdit || (DashboardEdit = {}));
+
+var WidgetEdit;
+(function (WidgetEdit) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        WidgetEdit.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        WidgetEdit.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display a feature's properties in a panel.
+      *
+      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
+      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
+      */
+    WidgetEdit.myModule.directive('widgetedit', ['$compile',
+        function ($compile) {
+            return {
+                terminal: true,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/DashboardDirectives/WidgetEdit/WidgetEdit.tpl.html',
+                replace: true,
+                transclude: true,
+                controller: WidgetEdit.WidgetEditCtrl
+            };
+        }
+    ]);
+})(WidgetEdit || (WidgetEdit = {}));
+
+var WidgetEdit;
+(function (WidgetEdit) {
+    var WidgetEditCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function WidgetEditCtrl($scope, mapService, layerService, messageBusService, dashboardService) {
+            this.$scope = $scope;
+            this.mapService = mapService;
+            this.layerService = layerService;
+            this.messageBusService = messageBusService;
+            this.dashboardService = dashboardService;
+            this.scope = $scope;
+            $scope.vm = this;
+            $scope.widget = dashboardService.activeWidget;
+        }
+        WidgetEditCtrl.prototype.selectStyle = function () {
+            var style = this.$scope.widget.style;
+            if (style === "custom") {
+                this.$scope.widget.customStyle = JSON.parse(JSON.stringify(this.$scope.widget.effectiveStyle));
+                this.$scope.widget.effectiveStyle = this.$scope.widget.customStyle;
+            }
+            else {
+                this.$scope.widget.effectiveStyle = this.layerService.solution.widgetStyles[style];
+                this.$scope.widget.customStyle = null;
+            }
+        };
+        WidgetEditCtrl.prototype.removeWidget = function (widget) {
+            widget.parentDashboard.widgets = widget.parentDashboard.widgets.filter(function (w) { return widget.id != w.id; });
+            this.dashboardService.deactivateTabContainer("widget-content");
+            this.dashboardService.deactivateTabContainer("widget");
+        };
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        WidgetEditCtrl.$inject = [
+            '$scope',
+            'mapService',
+            'layerService',
+            'messageBusService',
+            'dashboardService'
+        ];
+        return WidgetEditCtrl;
+    })();
+    WidgetEdit.WidgetEditCtrl = WidgetEditCtrl;
+})(WidgetEdit || (WidgetEdit = {}));
 
 var FeatureTypeEditor;
 (function (FeatureTypeEditor) {
@@ -17343,6 +17257,205 @@ var FeatureTypes;
     })();
     FeatureTypes.FeatureTypesCtrl = FeatureTypesCtrl;
 })(FeatureTypes || (FeatureTypes = {}));
+
+var GroupEdit;
+(function (GroupEdit) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        GroupEdit.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        GroupEdit.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display a feature's properties in a panel.
+      *
+      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
+      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
+      */
+    GroupEdit.myModule.directive('groupedit', ['$compile',
+        function ($compile) {
+            return {
+                terminal: true,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Editors/GroupEditor/GroupEdit.tpl.html',
+                replace: true,
+                transclude: true,
+                controller: GroupEdit.GroupEditCtrl
+            };
+        }
+    ]);
+})(GroupEdit || (GroupEdit = {}));
+
+var GroupEdit;
+(function (GroupEdit) {
+    var GroupEditCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function GroupEditCtrl($scope, $mapService, $layerService, $messageBusService, $dashboardService) {
+            var _this = this;
+            this.$scope = $scope;
+            this.$mapService = $mapService;
+            this.$layerService = $layerService;
+            this.$messageBusService = $messageBusService;
+            this.$dashboardService = $dashboardService;
+            this.noLayerSelected = true;
+            this.scope = $scope;
+            $scope.vm = this;
+            $scope.group = $scope.$parent["data"];
+            console.log($scope.group);
+            this.updateLayers();
+            this.$messageBusService.subscribe('layer', function () {
+                _this.updateLayers();
+            });
+        }
+        GroupEditCtrl.prototype.updateLayers = function () {
+            this.noLayerSelected = this.$scope.group.layers.some(function (l) { return l.enabled; });
+            //console.log("selected " + this.noLayerSelected)
+            //this.$scope.group.oneLayerActive
+        };
+        GroupEditCtrl.prototype.removeGroup = function () {
+            this.$layerService.removeGroup(this.$scope.group);
+        };
+        GroupEditCtrl.prototype.toggleClustering = function () {
+            console.log('toggle clustering');
+        };
+        GroupEditCtrl.prototype.updateOws = function () {
+            this.$scope.group.loadLayersFromOWS();
+        };
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        GroupEditCtrl.$inject = [
+            '$scope',
+            'mapService',
+            'layerService',
+            'messageBusService',
+            'dashboardService'
+        ];
+        return GroupEditCtrl;
+    })();
+    GroupEdit.GroupEditCtrl = GroupEditCtrl;
+})(GroupEdit || (GroupEdit = {}));
+
+var LayerEdit;
+(function (LayerEdit) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        LayerEdit.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        LayerEdit.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display a feature's properties in a panel.
+      *
+      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
+      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
+      */
+    LayerEdit.myModule.directive('layeredit', ['$compile',
+        function ($compile) {
+            return {
+                terminal: true,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Editors/LayerEditor/LayerEdit.tpl.html',
+                replace: false,
+                transclude: true,
+                controller: LayerEdit.LayerEditCtrl
+            };
+        }
+    ]);
+})(LayerEdit || (LayerEdit = {}));
+
+var LayerEdit;
+(function (LayerEdit) {
+    var LayerEditCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function LayerEditCtrl($scope, $http, $mapService, $layerService, $messageBusService, $dashboardService) {
+            this.$scope = $scope;
+            this.$http = $http;
+            this.$mapService = $mapService;
+            this.$layerService = $layerService;
+            this.$messageBusService = $messageBusService;
+            this.$dashboardService = $dashboardService;
+            this.scope = $scope;
+            $scope.vm = this;
+            this.layer = $scope.$parent["data"];
+            this.getTypes();
+            var ft = {};
+        }
+        LayerEditCtrl.prototype.addLayer = function () {
+        };
+        LayerEditCtrl.prototype.removeLayer = function () {
+            this.$layerService.removeLayer(this.layer, true);
+        };
+        LayerEditCtrl.prototype.addFeatureType = function () {
+            var _this = this;
+            if (this.layer.typeUrl) {
+                this.$layerService.loadTypeResources(this.layer.typeUrl, this.layer.dynamicResource || false, function () {
+                    if (_this.$layerService.typesResources.hasOwnProperty(_this.layer.typeUrl)) {
+                        var r = _this.$layerService.typesResources[_this.layer.typeUrl];
+                        var ft = {};
+                        var id = _this.layer.typeUrl + "#" + _this.layer.defaultFeatureType;
+                        ft.id = _this.layer.defaultFeatureType;
+                        ft.name = ft.id;
+                        ft.style = csComp.Helpers.getDefaultFeatureStyle();
+                        if (!r.featureTypes.hasOwnProperty(id)) {
+                            var ft = {};
+                            ft.id = _this.layer.defaultFeatureType;
+                            ft.name = ft.id;
+                            // EV already called before.
+                            //ft.style = csComp.Helpers.getDefaultFeatureStyle();
+                            //if (ft.name.toLowerCase().startsWith("http://")) id = ft.name;
+                            //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
+                            _this.$layerService._featureTypes[id] = ft;
+                            r.featureTypes[ft.id] = ft;
+                        }
+                    }
+                });
+            }
+        };
+        LayerEditCtrl.prototype.getTypes = function () {
+            var _this = this;
+            console.log('its me babe');
+            this.$http.get(this.layer.typeUrl)
+                .success(function (response) {
+                setTimeout(function () {
+                    _this.availabeTypes = response.featureTypes;
+                    console.log(_this.availabeTypes);
+                }, 0);
+            })
+                .error(function () { console.log('LayerEditCtl: error with $http'); });
+        };
+        ;
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        LayerEditCtrl.$inject = [
+            '$scope',
+            '$http',
+            'mapService',
+            'layerService',
+            'messageBusService',
+            'dashboardService'
+        ];
+        return LayerEditCtrl;
+    })();
+    LayerEdit.LayerEditCtrl = LayerEditCtrl;
+})(LayerEdit || (LayerEdit = {}));
 
 var PropertyTypes;
 (function (PropertyTypes) {
@@ -17549,119 +17662,6 @@ var PropertyTypes;
     })();
     PropertyTypes.PropertyTypesCtrl = PropertyTypesCtrl;
 })(PropertyTypes || (PropertyTypes = {}));
-
-var LayerEdit;
-(function (LayerEdit) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        LayerEdit.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        LayerEdit.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display a feature's properties in a panel.
-      *
-      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
-      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
-      */
-    LayerEdit.myModule.directive('layeredit', ['$compile',
-        function ($compile) {
-            return {
-                terminal: true,
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/Editors/LayerEditor/LayerEdit.tpl.html',
-                replace: false,
-                transclude: true,
-                controller: LayerEdit.LayerEditCtrl
-            };
-        }
-    ]);
-})(LayerEdit || (LayerEdit = {}));
-
-var LayerEdit;
-(function (LayerEdit) {
-    var LayerEditCtrl = (function () {
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function LayerEditCtrl($scope, $http, $mapService, $layerService, $messageBusService, $dashboardService) {
-            this.$scope = $scope;
-            this.$http = $http;
-            this.$mapService = $mapService;
-            this.$layerService = $layerService;
-            this.$messageBusService = $messageBusService;
-            this.$dashboardService = $dashboardService;
-            this.scope = $scope;
-            $scope.vm = this;
-            this.layer = $scope.$parent["data"];
-            this.getTypes();
-            var ft = {};
-        }
-        LayerEditCtrl.prototype.addLayer = function () {
-        };
-        LayerEditCtrl.prototype.removeLayer = function () {
-            this.$layerService.removeLayer(this.layer, true);
-        };
-        LayerEditCtrl.prototype.addFeatureType = function () {
-            var _this = this;
-            if (this.layer.typeUrl) {
-                this.$layerService.loadTypeResources(this.layer.typeUrl, this.layer.dynamicResource || false, function () {
-                    if (_this.$layerService.typesResources.hasOwnProperty(_this.layer.typeUrl)) {
-                        var r = _this.$layerService.typesResources[_this.layer.typeUrl];
-                        var ft = {};
-                        var id = _this.layer.typeUrl + "#" + _this.layer.defaultFeatureType;
-                        ft.id = _this.layer.defaultFeatureType;
-                        ft.name = ft.id;
-                        ft.style = csComp.Helpers.getDefaultFeatureStyle();
-                        if (!r.featureTypes.hasOwnProperty(id)) {
-                            var ft = {};
-                            ft.id = _this.layer.defaultFeatureType;
-                            ft.name = ft.id;
-                            // EV already called before.
-                            //ft.style = csComp.Helpers.getDefaultFeatureStyle();
-                            //if (ft.name.toLowerCase().startsWith("http://")) id = ft.name;
-                            //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
-                            _this.$layerService._featureTypes[id] = ft;
-                            r.featureTypes[ft.id] = ft;
-                        }
-                    }
-                });
-            }
-        };
-        LayerEditCtrl.prototype.getTypes = function () {
-            var _this = this;
-            console.log('its me babe');
-            this.$http.get(this.layer.typeUrl)
-                .success(function (response) {
-                setTimeout(function () {
-                    _this.availabeTypes = response.featureTypes;
-                    console.log(_this.availabeTypes);
-                }, 0);
-            })
-                .error(function () { console.log('LayerEditCtl: error with $http'); });
-        };
-        ;
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        LayerEditCtrl.$inject = [
-            '$scope',
-            '$http',
-            'mapService',
-            'layerService',
-            'messageBusService',
-            'dashboardService'
-        ];
-        return LayerEditCtrl;
-    })();
-    LayerEdit.LayerEditCtrl = LayerEditCtrl;
-})(LayerEdit || (LayerEdit = {}));
 
 var ChartsWidget;
 (function (ChartsWidget) {
@@ -19310,120 +19310,6 @@ var Filters;
     Filters.TextFilterCtrl = TextFilterCtrl;
 })(Filters || (Filters = {}));
 
-var IFrameWidget;
-(function (IFrameWidget) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        IFrameWidget.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        IFrameWidget.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display the available map layers.
-      */
-    IFrameWidget.myModule.directive('iframewidgetEdit', [
-        '$compile',
-        function ($compile) {
-            return {
-                terminal: true,
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/Widgets/IFrameWidget/IFrame-edit.tpl.html',
-                replace: true,
-                transclude: true,
-                controller: IFrameEditCtrl
-            };
-        }
-    ]);
-    var IFrameEditCtrl = (function () {
-        function IFrameEditCtrl($scope, $sce) {
-            this.$scope = $scope;
-            this.$sce = $sce;
-            $scope.vm = this;
-            var par = $scope.$parent;
-            this.widget = par.data;
-            $scope.data = this.widget.data;
-            this.update();
-        }
-        IFrameEditCtrl.prototype.update = function () {
-            this.$scope.data._safeurl = this.$sce.trustAsResourceUrl(this.$scope.data.url);
-        };
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        IFrameEditCtrl.$inject = [
-            '$scope',
-            '$sce'
-        ];
-        return IFrameEditCtrl;
-    })();
-    IFrameWidget.IFrameEditCtrl = IFrameEditCtrl;
-})(IFrameWidget || (IFrameWidget = {}));
-
-var IFrameWidget;
-(function (IFrameWidget) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        IFrameWidget.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        IFrameWidget.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display the available map layers.
-      */
-    IFrameWidget.myModule.directive('iframewidget', [function () {
-            return {
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/Widgets/IFrameWidget/IFrameWidget.tpl.html',
-                replace: true,
-                transclude: false,
-                controller: IFrameWidget.IFrameWidgetCtrl
-            };
-        }
-    ]);
-})(IFrameWidget || (IFrameWidget = {}));
-
-var IFrameWidget;
-(function (IFrameWidget) {
-    var IFrameWidgetData = (function () {
-        function IFrameWidgetData() {
-        }
-        return IFrameWidgetData;
-    })();
-    IFrameWidget.IFrameWidgetData = IFrameWidgetData;
-    var IFrameWidgetCtrl = (function () {
-        function IFrameWidgetCtrl($scope, $sce) {
-            this.$scope = $scope;
-            this.$sce = $sce;
-            $scope.vm = this;
-            var par = $scope.$parent;
-            this.widget = par.widget;
-            $scope.data = this.widget.data;
-        }
-        IFrameWidgetCtrl.prototype.update = function () {
-            this.$scope.data._safeurl = this.$sce.trustAsResourceUrl(this.$scope.data.url);
-        };
-        IFrameWidgetCtrl.$inject = [
-            '$scope',
-            '$sce'
-        ];
-        return IFrameWidgetCtrl;
-    })();
-    IFrameWidget.IFrameWidgetCtrl = IFrameWidgetCtrl;
-})(IFrameWidget || (IFrameWidget = {}));
-
 var Indicators;
 (function (Indicators) {
     /**
@@ -20097,6 +19983,120 @@ var MarkdownWidget;
     MarkdownWidget.MarkdownWidgetCtrl = MarkdownWidgetCtrl;
 })(MarkdownWidget || (MarkdownWidget = {}));
 
+var IFrameWidget;
+(function (IFrameWidget) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        IFrameWidget.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        IFrameWidget.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display the available map layers.
+      */
+    IFrameWidget.myModule.directive('iframewidgetEdit', [
+        '$compile',
+        function ($compile) {
+            return {
+                terminal: true,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Widgets/IFrameWidget/IFrame-edit.tpl.html',
+                replace: true,
+                transclude: true,
+                controller: IFrameEditCtrl
+            };
+        }
+    ]);
+    var IFrameEditCtrl = (function () {
+        function IFrameEditCtrl($scope, $sce) {
+            this.$scope = $scope;
+            this.$sce = $sce;
+            $scope.vm = this;
+            var par = $scope.$parent;
+            this.widget = par.data;
+            $scope.data = this.widget.data;
+            this.update();
+        }
+        IFrameEditCtrl.prototype.update = function () {
+            this.$scope.data._safeurl = this.$sce.trustAsResourceUrl(this.$scope.data.url);
+        };
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        IFrameEditCtrl.$inject = [
+            '$scope',
+            '$sce'
+        ];
+        return IFrameEditCtrl;
+    })();
+    IFrameWidget.IFrameEditCtrl = IFrameEditCtrl;
+})(IFrameWidget || (IFrameWidget = {}));
+
+var IFrameWidget;
+(function (IFrameWidget) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        IFrameWidget.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        IFrameWidget.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display the available map layers.
+      */
+    IFrameWidget.myModule.directive('iframewidget', [function () {
+            return {
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Widgets/IFrameWidget/IFrameWidget.tpl.html',
+                replace: true,
+                transclude: false,
+                controller: IFrameWidget.IFrameWidgetCtrl
+            };
+        }
+    ]);
+})(IFrameWidget || (IFrameWidget = {}));
+
+var IFrameWidget;
+(function (IFrameWidget) {
+    var IFrameWidgetData = (function () {
+        function IFrameWidgetData() {
+        }
+        return IFrameWidgetData;
+    })();
+    IFrameWidget.IFrameWidgetData = IFrameWidgetData;
+    var IFrameWidgetCtrl = (function () {
+        function IFrameWidgetCtrl($scope, $sce) {
+            this.$scope = $scope;
+            this.$sce = $sce;
+            $scope.vm = this;
+            var par = $scope.$parent;
+            this.widget = par.widget;
+            $scope.data = this.widget.data;
+        }
+        IFrameWidgetCtrl.prototype.update = function () {
+            this.$scope.data._safeurl = this.$sce.trustAsResourceUrl(this.$scope.data.url);
+        };
+        IFrameWidgetCtrl.$inject = [
+            '$scope',
+            '$sce'
+        ];
+        return IFrameWidgetCtrl;
+    })();
+    IFrameWidget.IFrameWidgetCtrl = IFrameWidgetCtrl;
+})(IFrameWidget || (IFrameWidget = {}));
+
 var MCAWidget;
 (function (MCAWidget) {
     /**
@@ -20226,139 +20226,6 @@ var MCAWidget;
     })();
     MCAWidget.MCAWidgetCtrl = MCAWidgetCtrl;
 })(MCAWidget || (MCAWidget = {}));
-
-var NavigatorWidget;
-(function (NavigatorWidget) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        NavigatorWidget.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        NavigatorWidget.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display the available map layers.
-      */
-    NavigatorWidget.myModule.directive('markdownwidgetEdit', [
-        '$compile',
-        function ($compile) {
-            return {
-                terminal: true,
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/Widgets/MarkdownWidget/Markdown-edit.tpl.html',
-                replace: true,
-                transclude: true,
-                controller: MarkdownEditCtrl
-            };
-        }
-    ]);
-    var MarkdownEditCtrl = (function () {
-        function MarkdownEditCtrl($scope, $timeout, $compile, $layerService, $templateCache, $messageBus, $mapService, $dashboardService) {
-            this.$scope = $scope;
-            this.$timeout = $timeout;
-            this.$compile = $compile;
-            this.$layerService = $layerService;
-            this.$templateCache = $templateCache;
-            this.$messageBus = $messageBus;
-            this.$mapService = $mapService;
-            this.$dashboardService = $dashboardService;
-            $scope.vm = this;
-            var par = $scope.$parent;
-            this.widget = par.data;
-            $scope.data = this.widget.data;
-        }
-        MarkdownEditCtrl.prototype.updateText = function () {
-            this.$scope.data.mdText = this.$scope.data.content;
-        };
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        MarkdownEditCtrl.$inject = [
-            '$scope',
-            '$timeout',
-            '$compile',
-            'layerService',
-            '$templateCache',
-            'messageBusService',
-            'mapService', 'dashboardService'
-        ];
-        return MarkdownEditCtrl;
-    })();
-    NavigatorWidget.MarkdownEditCtrl = MarkdownEditCtrl;
-})(NavigatorWidget || (NavigatorWidget = {}));
-
-var NavigatorWidget;
-(function (NavigatorWidget) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        NavigatorWidget.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        NavigatorWidget.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display the available map layers.
-      */
-    NavigatorWidget.myModule.directive('navigatorwidget', [function () {
-            return {
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/Widgets/Navigator/NavigatorWidget.tpl.html',
-                replace: true,
-                transclude: false,
-                controller: NavigatorWidget.NavigatorWidgetCtrl
-            };
-        }
-    ]);
-})(NavigatorWidget || (NavigatorWidget = {}));
-
-var NavigatorWidget;
-(function (NavigatorWidget) {
-    var NavigatorWidgetData = (function () {
-        function NavigatorWidgetData() {
-        }
-        return NavigatorWidgetData;
-    })();
-    NavigatorWidget.NavigatorWidgetData = NavigatorWidgetData;
-    var NavigatorWidgetCtrl = (function () {
-        function NavigatorWidgetCtrl($scope, $timeout, $layerService, $messageBus, $mapService) {
-            this.$scope = $scope;
-            this.$timeout = $timeout;
-            this.$layerService = $layerService;
-            this.$messageBus = $messageBus;
-            this.$mapService = $mapService;
-            $scope.vm = this;
-            var par = $scope.$parent;
-            this.widget = par.widget;
-            if (this.widget.data)
-                $scope.data = this.widget.data;
-            if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
-                // Hide widget
-                this.parentWidget = $("#" + this.widget.elementId).parent();
-                this.parentWidget.hide();
-            }
-        }
-        NavigatorWidgetCtrl.$inject = [
-            '$scope',
-            '$timeout',
-            'layerService',
-            'messageBusService',
-            'mapService'
-        ];
-        return NavigatorWidgetCtrl;
-    })();
-    NavigatorWidget.NavigatorWidgetCtrl = NavigatorWidgetCtrl;
-})(NavigatorWidget || (NavigatorWidget = {}));
 
 var PostMan;
 (function (PostMan) {
@@ -20524,6 +20391,239 @@ var PostMan;
     })();
     PostMan.PostManEditCtrl = PostManEditCtrl;
 })(PostMan || (PostMan = {}));
+
+var SimState;
+(function (SimState) {
+    /** Config */
+    var moduleName = 'csComp';
+    try {
+        SimState.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        SimState.myModule = angular.module(moduleName, []);
+    }
+    /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
+    SimState.myModule.directive('simstateEdit', [function () {
+            return {
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Widgets/SimState/SimState.tpl.html',
+                replace: true,
+                transclude: false,
+                controller: SimStateEditCtrl
+            };
+        }
+    ]);
+    var SimStateEditCtrl = (function () {
+        function SimStateEditCtrl($scope, $http, messageBusService, $timeout) {
+            this.$scope = $scope;
+            this.$http = $http;
+            this.messageBusService = messageBusService;
+            this.$timeout = $timeout;
+            $scope.vm = this;
+            //var par = <any>$scope.$parent;
+            //$scope.data = <PostManEditorData>par.widget.data;
+        }
+        SimStateEditCtrl.$inject = [
+            '$scope',
+            '$http',
+            'messageBusService',
+            '$timeout'
+        ];
+        return SimStateEditCtrl;
+    })();
+    SimState.SimStateEditCtrl = SimStateEditCtrl;
+})(SimState || (SimState = {}));
+
+var SimState;
+(function (SimState) {
+    /** Config */
+    var moduleName = 'csComp';
+    try {
+        SimState.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        SimState.myModule = angular.module(moduleName, []);
+    }
+    /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
+    SimState.myModule.directive('simstate', [function () {
+            return {
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Widgets/SimState/SimState.tpl.html',
+                replace: true,
+                transclude: false,
+                controller: SimStateCtrl
+            };
+        }
+    ]);
+    var SimStateCtrl = (function () {
+        function SimStateCtrl($scope, $http, messageBusService, $timeout) {
+            var _this = this;
+            this.$scope = $scope;
+            this.$http = $http;
+            this.messageBusService = messageBusService;
+            this.$timeout = $timeout;
+            this.states = {};
+            $scope.vm = this;
+            messageBusService.serverSubscribe('Sim.SimState.', 'key', function (title, msg) {
+                if (!msg || !msg.hasOwnProperty('data') || !msg.data.hasOwnProperty('item'))
+                    return;
+                //console.log(`Server subscription received: ${title}, ${JSON.stringify(msg, null, 2) }.`);
+                _this.$timeout(function () {
+                    var state = msg.data.item;
+                    if (state.state === 'Exit')
+                        delete _this.states[state.id];
+                    else
+                        _this.states[state.name] = state; // Although id would be better, we could end up with the remains of restarted services.
+                }, 0);
+            });
+        }
+        SimStateCtrl.$inject = [
+            '$scope',
+            '$http',
+            'messageBusService',
+            '$timeout'
+        ];
+        return SimStateCtrl;
+    })();
+    SimState.SimStateCtrl = SimStateCtrl;
+})(SimState || (SimState = {}));
+
+var NavigatorWidget;
+(function (NavigatorWidget) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        NavigatorWidget.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        NavigatorWidget.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display the available map layers.
+      */
+    NavigatorWidget.myModule.directive('markdownwidgetEdit', [
+        '$compile',
+        function ($compile) {
+            return {
+                terminal: true,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Widgets/MarkdownWidget/Markdown-edit.tpl.html',
+                replace: true,
+                transclude: true,
+                controller: MarkdownEditCtrl
+            };
+        }
+    ]);
+    var MarkdownEditCtrl = (function () {
+        function MarkdownEditCtrl($scope, $timeout, $compile, $layerService, $templateCache, $messageBus, $mapService, $dashboardService) {
+            this.$scope = $scope;
+            this.$timeout = $timeout;
+            this.$compile = $compile;
+            this.$layerService = $layerService;
+            this.$templateCache = $templateCache;
+            this.$messageBus = $messageBus;
+            this.$mapService = $mapService;
+            this.$dashboardService = $dashboardService;
+            $scope.vm = this;
+            var par = $scope.$parent;
+            this.widget = par.data;
+            $scope.data = this.widget.data;
+        }
+        MarkdownEditCtrl.prototype.updateText = function () {
+            this.$scope.data.mdText = this.$scope.data.content;
+        };
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        MarkdownEditCtrl.$inject = [
+            '$scope',
+            '$timeout',
+            '$compile',
+            'layerService',
+            '$templateCache',
+            'messageBusService',
+            'mapService', 'dashboardService'
+        ];
+        return MarkdownEditCtrl;
+    })();
+    NavigatorWidget.MarkdownEditCtrl = MarkdownEditCtrl;
+})(NavigatorWidget || (NavigatorWidget = {}));
+
+var NavigatorWidget;
+(function (NavigatorWidget) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        NavigatorWidget.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        NavigatorWidget.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display the available map layers.
+      */
+    NavigatorWidget.myModule.directive('navigatorwidget', [function () {
+            return {
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Widgets/Navigator/NavigatorWidget.tpl.html',
+                replace: true,
+                transclude: false,
+                controller: NavigatorWidget.NavigatorWidgetCtrl
+            };
+        }
+    ]);
+})(NavigatorWidget || (NavigatorWidget = {}));
+
+var NavigatorWidget;
+(function (NavigatorWidget) {
+    var NavigatorWidgetData = (function () {
+        function NavigatorWidgetData() {
+        }
+        return NavigatorWidgetData;
+    })();
+    NavigatorWidget.NavigatorWidgetData = NavigatorWidgetData;
+    var NavigatorWidgetCtrl = (function () {
+        function NavigatorWidgetCtrl($scope, $timeout, $layerService, $messageBus, $mapService) {
+            this.$scope = $scope;
+            this.$timeout = $timeout;
+            this.$layerService = $layerService;
+            this.$messageBus = $messageBus;
+            this.$mapService = $mapService;
+            $scope.vm = this;
+            var par = $scope.$parent;
+            this.widget = par.widget;
+            if (this.widget.data)
+                $scope.data = this.widget.data;
+            if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
+                // Hide widget
+                this.parentWidget = $("#" + this.widget.elementId).parent();
+                this.parentWidget.hide();
+            }
+        }
+        NavigatorWidgetCtrl.$inject = [
+            '$scope',
+            '$timeout',
+            'layerService',
+            'messageBusService',
+            'mapService'
+        ];
+        return NavigatorWidgetCtrl;
+    })();
+    NavigatorWidget.NavigatorWidgetCtrl = NavigatorWidgetCtrl;
+})(NavigatorWidget || (NavigatorWidget = {}));
 
 var SimTimeController;
 (function (SimTimeController) {
@@ -20829,106 +20929,6 @@ var SimTimeController;
     })();
     SimTimeController.SimTimeControllerEditCtrl = SimTimeControllerEditCtrl;
 })(SimTimeController || (SimTimeController = {}));
-
-var SimState;
-(function (SimState) {
-    /** Config */
-    var moduleName = 'csComp';
-    try {
-        SimState.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        SimState.myModule = angular.module(moduleName, []);
-    }
-    /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
-    SimState.myModule.directive('simstateEdit', [function () {
-            return {
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/Widgets/SimState/SimState.tpl.html',
-                replace: true,
-                transclude: false,
-                controller: SimStateEditCtrl
-            };
-        }
-    ]);
-    var SimStateEditCtrl = (function () {
-        function SimStateEditCtrl($scope, $http, messageBusService, $timeout) {
-            this.$scope = $scope;
-            this.$http = $http;
-            this.messageBusService = messageBusService;
-            this.$timeout = $timeout;
-            $scope.vm = this;
-            //var par = <any>$scope.$parent;
-            //$scope.data = <PostManEditorData>par.widget.data;
-        }
-        SimStateEditCtrl.$inject = [
-            '$scope',
-            '$http',
-            'messageBusService',
-            '$timeout'
-        ];
-        return SimStateEditCtrl;
-    })();
-    SimState.SimStateEditCtrl = SimStateEditCtrl;
-})(SimState || (SimState = {}));
-
-var SimState;
-(function (SimState) {
-    /** Config */
-    var moduleName = 'csComp';
-    try {
-        SimState.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        SimState.myModule = angular.module(moduleName, []);
-    }
-    /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
-    SimState.myModule.directive('simstate', [function () {
-            return {
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/Widgets/SimState/SimState.tpl.html',
-                replace: true,
-                transclude: false,
-                controller: SimStateCtrl
-            };
-        }
-    ]);
-    var SimStateCtrl = (function () {
-        function SimStateCtrl($scope, $http, messageBusService, $timeout) {
-            var _this = this;
-            this.$scope = $scope;
-            this.$http = $http;
-            this.messageBusService = messageBusService;
-            this.$timeout = $timeout;
-            this.states = {};
-            $scope.vm = this;
-            messageBusService.serverSubscribe('Sim.SimState.', 'key', function (title, msg) {
-                if (!msg || !msg.hasOwnProperty('data') || !msg.data.hasOwnProperty('item'))
-                    return;
-                //console.log(`Server subscription received: ${title}, ${JSON.stringify(msg, null, 2) }.`);
-                _this.$timeout(function () {
-                    var state = msg.data.item;
-                    if (state.state === 'Exit')
-                        delete _this.states[state.id];
-                    else
-                        _this.states[state.name] = state; // Although id would be better, we could end up with the remains of restarted services.
-                }, 0);
-            });
-        }
-        SimStateCtrl.$inject = [
-            '$scope',
-            '$http',
-            'messageBusService',
-            '$timeout'
-        ];
-        return SimStateCtrl;
-    })();
-    SimState.SimStateCtrl = SimStateCtrl;
-})(SimState || (SimState = {}));
 
 var csComp;
 (function (csComp) {
