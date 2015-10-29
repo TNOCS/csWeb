@@ -35,7 +35,7 @@ This repository consists of several project folders. The  most important ones ar
 
 Just copy the example folder to a public folder and open the public\index.html file in that folder.
 
-### Using Docker contaiiners
+### Using Docker containers
 There are two types of docker containers built for CommonSense:
 * [`tnocs/csWeb-demo`](https://hub.docker.com/r/tnocs/csweb-demo/)
 * [`tnocs/csWeb-dev`](https://hub.docker.com/r/tnocs/csweb-dev/)
