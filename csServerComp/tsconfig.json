@@ -10,13 +10,7 @@
     "preserveConstEnums": true,
     "suppressImplicitAnyIndexErrors": true
   },
-  "filesGlob": [
-    "./**/*.ts",
-    "!./OfflineSearch/**/*.ts",
-    "!./ServerComponents/**/*.d.ts",
-    "!./node_modules/**/*.ts",
-    "!./Classes/*.d.ts"
-  ],
+  "filesGlob": [],
   "exclude": [],
   "files": [
     "csServerComp/Classes/Feature.ts",
@@ -97,9 +91,9 @@
     "csServerComp/ServerComponents/import/Store.ts",
     "csServerComp/Scripts/typings/JSONStream/JSONStream.d.ts",
     "csServerComp/Scripts/typings/async/async.d.ts",
+    "csServerComp/Scripts/typings/body-parser/body-parser.d.ts",
     "csServerComp/Scripts/typings/bcrypt/bcrypt.d.ts",
     "csServerComp/Scripts/typings/bcrypt/bcryptjs.d.ts",
-    "csServerComp/Scripts/typings/body-parser/body-parser.d.ts",
     "csServerComp/Scripts/typings/cors/cors.d.ts",
     "csServerComp/Scripts/typings/cs/cs-offline-search.d.ts",
     "csServerComp/Scripts/typings/express/express.d.ts",
