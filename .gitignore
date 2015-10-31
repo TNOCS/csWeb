@@ -56,3 +56,4 @@ example/public/data/
 example/.settings/
 csComp/includes/css/csStyles.css
 example/.vscode/
+dist-bower/
