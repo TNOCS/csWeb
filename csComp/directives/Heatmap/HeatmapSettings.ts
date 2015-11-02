@@ -1,4 +1,4 @@
-﻿module Heatmap {
+module Heatmap {
     /**
     * A simple interface to describe heatmapsettings.
     */

@@ -1,4 +1,4 @@
-﻿module Mca.Models {
+module Mca.Models {
     import IFeature = csComp.Services.IFeature;
     import Feature  = csComp.Services.Feature;
 

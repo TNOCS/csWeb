@@ -1,4 +1,4 @@
-﻿module DashboardSelection {
+module DashboardSelection {
     /**
       * Config
       */

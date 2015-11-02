@@ -172,7 +172,6 @@ declare module "winston" {
     silent?: boolean;
     raw?: boolean;
     name?: string;
-    /** If function is specified, its return value will be used instead of default output. (default undefined) */
     formatter?: Function;
     handleExceptions?: boolean;
     exceptionsLevel?: string;
@@ -180,28 +179,15 @@ declare module "winston" {
   }
 
   export interface ConsoleTransportOptions extends TransportOptions {
+    json?: boolean;
+    colorize?: boolean;
+    prettyPrint?: boolean;
+    timestamp?: (Function|boolean);
+    showLevel?: boolean;
     label?: string;
     logstash?: boolean;
     debugStdout?: boolean;
     depth?: number;
-    /** Level of messages that this transport should log (default 'info'). */
-    level?: string;
-    /** Boolean flag indicating whether to suppress output (default false). */
-    silent?: boolean;
-    /** Boolean flag indicating whether to suppress output (default false). */
-    colorize?: boolean;
-    /** Boolean flag indicating if we should prepend output with timestamps (default false). If function is specified, its return value will be used instead of timestamps. */
-    timestamp?: boolean;
-    /** Boolean flag indicating whether or not the output should be JSON. If true, will log out multi-line JSON objects. (default false) */
-    json?: boolean;
-    /** Boolean flag indicating if we should util.inspect the meta (default false). If function is specified, its return value will be the string representing the meta. */
-    prettyPrint?: boolean;
-    /** Boolean flag indiciating if the output should be passed through JSON.stringify, resulting in single-line output. Most useful when used in conjunction with the json flag. (default false) */
-    stringify?: boolean;
-    /** Boolean flag indicating if we should prepend output with level (default true). */
-    showLevel?: boolean;
-    raw?: boolean;
-    name?: string;
   }
 
   export interface DailyRotateFileTransportOptions extends TransportOptions {

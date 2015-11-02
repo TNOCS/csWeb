@@ -1,4 +1,4 @@
-﻿module Helpers.Resize {
+module Helpers.Resize {
     /**
      * Config
      */

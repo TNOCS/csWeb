@@ -1,4 +1,4 @@
-﻿// Type definitions for L.Control.Sidebar.js 0.6.4
+// Type definitions for L.Control.Sidebar.js 0.6.4
 // Project: https://github.com/Turbo87/leaflet-sidebar/
 // Definitions by: Erik Vullings <https://github.com/erikvullings>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped

@@ -1,4 +1,4 @@
-﻿module ExpertMode {
+module ExpertMode {
     /**
   * Config
   */
