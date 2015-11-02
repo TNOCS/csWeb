@@ -13,7 +13,11 @@
     "url": "https://github.com/TNOCS/csWeb"
   },
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "gulp-tsconfig-files": "~0.1.0",
+    "gulp-tsd": "0.0.4",
+    "gulp-install": "~0.6.0"
+  },
   "devDependencies": {
     "chokidar": "^1.2.0",
     "coveralls": "^2.11.4",
