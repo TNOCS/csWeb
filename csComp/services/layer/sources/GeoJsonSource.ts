@@ -461,12 +461,12 @@ module csComp.Services {
                     this.service.initFeature(f, layer, false, false);
                 });
                 this.service.$messageBusService.publish("timeline", "updateFeatures");
-
+            })
+                .error((e) => {
+                    console.log('EsriJsonSource called $HTTP with errors: ' + e);
+            }).finally(() => {
                 layer.isLoading = false;
                 callback(layer);
-            })
-                .error(() => {
-                console.log('EsriJsonSource called $HTTP with errors...');
             });
         }
     }

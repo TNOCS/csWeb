@@ -51,6 +51,8 @@ module SimTimeController {
         public isPaused = false;
         public isStopped = true;
 
+        private messageBusHandle: csComp.Services.MessageBusHandle;
+
         // $inject annotation.
         // It provides $injector with information about dependencies to be in  jected into constructor
         // it is better to have it close to the constructor, because the parameters must match in count and type.
@@ -69,7 +71,7 @@ module SimTimeController {
             private $http: ng.IHttpService,
             private messageBusService: csComp.Services.MessageBusService,
             private $timeout: ng.ITimeoutService
-        ) {
+            ) {
             $scope.vm = this;
 
             var par = <any>$scope.$parent;
@@ -121,33 +123,13 @@ module SimTimeController {
                 return true;
             });
 
-            messageBusService.serverSubscribe('Sim.SimTime', 'key', (title: string, msg: any) => {
-                console.log(`Server subscription received: ${title}, ${JSON.stringify(msg, null, 2) }.`);
-                if (!msg
-                    || !msg.hasOwnProperty('data')
-                    || !msg.data.hasOwnProperty('item')
-                    || !msg.data.item) return;
-                this.$timeout(() => {
-                    if (msg.data.item.hasOwnProperty('simTime'))
-                        this.time = new Date(+msg.data.item.simTime);
-                    else
-                        this.time = new Date(msg.data.item);
-                    if (!isNaN(this.time.getTime())) {
-                        messageBusService.publish('timeline', 'setFocus', this.time);
-                    } else {
-                        console.log(`ERROR processing Sim.SimTime message! Received: (input: ${JSON.stringify(msg.data.item, null, 2)}`)
-                    }
-                    //console.log(`TIME: ${this.time} (input: ${JSON.stringify(data.data.item, null, 2)})`);
-                }, 0);
-            })
-
             $http.get(this.url)
                 .then((msg) => {
-                    // TODO Why does this always return an empty msg.data element
-                    // console.log('Received message: ');
-                    // console.log(msg);
-                    // console.log(JSON.stringify(msg, null, 2));
-                })
+                // TODO Why does this always return an empty msg.data element
+                // console.log('Received message: ');
+                // console.log(msg);
+                // console.log(JSON.stringify(msg, null, 2));
+            })
             // var handle = messageBusService.serverSubscribe('Sim.SimState.SimulationManager', 'key', (title: string, msg: any) => {
             //     if (!msg
             //         || !msg.hasOwnProperty('data')
@@ -173,9 +155,37 @@ module SimTimeController {
             // messageBusService.subscribe('Sim', (action: string, data: any) => {
             //     console.log(`action: ${action}, data: ${JSON.stringify(data, null, 2) }`);
             // });
+            //
+            console.log(`Simtimecontroller constructed`);
+        }
+
+        private subscribeToSimTime() {
+            this.messageBusHandle = this.messageBusService.serverSubscribe('Sim.SimTime', 'key', (title: string, msg: any) => {
+                //console.log(`Server subscription received: ${title}, ${JSON.stringify(msg, null, 2) }.`);
+                if (!msg
+                    || !msg.hasOwnProperty('data')
+                    || !msg.data.hasOwnProperty('item')
+                    || !msg.data.item) return;
+                this.$timeout(() => {
+                    if (msg.data.item.hasOwnProperty('simTime'))
+                        this.time = new Date(+msg.data.item.simTime);
+                    else
+                        this.time = new Date(msg.data.item);
+                    if (!isNaN(this.time.getTime())) {
+                        this.messageBusService.publish('timeline', 'setFocus', this.time);
+                        //console.log(`Simtimecontroller published focusTime: ${this.time}`);
+                    } else {
+                        console.log(`ERROR processing Sim.SimTime message! Received: (input: ${JSON.stringify(msg.data.item, null, 2) }`)
+                    }
+                    //console.log(`TIME: ${this.time} (input: ${JSON.stringify(data.data.item, null, 2)})`);
+                }, 0);
+            })
         }
 
         play() {
+            if (!this.messageBusHandle) {
+                this.subscribeToSimTime();
+            }
             this.fsm.trigger(SimCommand.Start);
         }
 
@@ -184,6 +194,8 @@ module SimTimeController {
         }
 
         stop() {
+            if (this.messageBusHandle) {
+            }
             this.fsm.trigger(SimCommand.Stop);
         }
 

@@ -26,8 +26,6 @@ csDataGatherer/node_modules/
 csDataGatherer/public/includes/
 csDataGatherer/Scripts/
 csDataGatherer/importers.json
-dist/
-
 node_modules/
 
 example/node_modules/
@@ -64,3 +62,5 @@ csServerComp/Classes/Feature.js
 example/public/data/
 example/.settings/
 csComp/includes/css/csStyles.css
+example/.vscode/
+dist-bower/
