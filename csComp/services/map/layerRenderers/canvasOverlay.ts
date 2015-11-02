@@ -86,7 +86,11 @@ module L {
             var animated = this._map.options.zoomAnimation && (<any>L.Browser).any3d;
             L.DomUtil.addClass(this._canvas, 'leaflet-zoom-' + (animated ? 'animated' : 'hide'));
 
-            map._panes.overlayPane.appendChild(this._canvas);
+            if (!map._panes.overlayPane.firstChild) {
+                map._panes.overlayPane.appendChild(this._canvas);
+            } else {
+                map._panes.overlayPane.insertBefore(this._canvas, map._panes.overlayPane.firstChild);
+            }
 
             map.on('moveend', this._reset, this);
             map.on('resize', this._resize, this);
