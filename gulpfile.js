@@ -1,10 +1,14 @@
 var gulp          = require('gulp');
 var tsconfig      = require('gulp-tsconfig-files');
 var exec          = require('child_process').exec;
+var install       = require('gulp-install');
 
 function run(command, cb) {
-  console.log('Calling command: "' + command + '"');
   exec(command, function(err, stdout, stderr) {
+    if (err) {
+      console.log('### ERROR ON COMMAND ' + command + ':');
+    }
+
     console.log(stdout);
     cb(err);
   });
@@ -51,11 +55,25 @@ gulp.task('servercomp_tsc', function(cb) {
   run('tsc -p csServerComp', cb);
 });
 
-gulp.task('default', [
+// Run required npm and bower installs
+gulp.task('install', function() {
+  gulp.src([
+      'csComp/tsd.json',            // tsd install
+      'csServerComp/tsd.json',      // tsd install
+      'example/package.json',       // npm install
+      'example/public/bower.json',  // bower install
+    ])
+    .pipe(install());
+});
 
+gulp.task('default', [
+                      'install',
                       'comp_tsconfig_files',
                       'comp_tsc',
-
-                      // 'servercomp_tsconfig_files',
-                      // 'servercomp_tsc',
+                      'servercomp_tsconfig_files',
+                      'servercomp_tsc',
                      ]);
+
+gulp.task('init');
+gulp.task('dev');
+gulp.task('start');
