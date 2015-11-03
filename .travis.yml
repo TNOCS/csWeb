@@ -6,7 +6,7 @@ install:
   - "npm install -g typescript@1.6.2"
   - "npm install -g bower"
 script:
-    - ./updateAll.sh
+    - gulp init
     - cd example && karma start ../test/karma.conf.js
     - cd .. && cat coverage/*/lcov.info | example/node_modules/coveralls/bin/coveralls.js
 notifications:

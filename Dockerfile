@@ -8,6 +8,6 @@ EXPOSE 3002
 RUN mkdir /app
 WORKDIR /app
 COPY ./ /app/
-RUN ./updateAll.sh
+RUN gulp init
 WORKDIR /app/example
 CMD node server.js
