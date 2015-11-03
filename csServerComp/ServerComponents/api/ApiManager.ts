@@ -534,9 +534,10 @@ export class ApiManager extends events.EventEmitter {
             g.layers = g.layers.filter((gl) => { return (gl.id !== l.id) });
         }
         g.layers.push(l);
-        this.updateProject(p, meta, () => { });
-        Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
-        callback(<CallbackResult>{ result: ApiResult.OK });
+        this.updateProject(p, meta, () => {
+          Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
+          callback(<CallbackResult>{ result: ApiResult.OK });
+        });
     }
 
     public removeLayerFromProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {
