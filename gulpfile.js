@@ -1,17 +1,20 @@
 var gulp          = require('gulp');
 var tsconfig      = require('gulp-tsconfig-files');
 var tsd           = require('gulp-tsd');
-var exec          = require('child_process').exec;
+var exec          = require('child_process').execSync;
 var install       = require('gulp-install');
 
 function run(command, cb) {
+  console.log('Run command: ' + command);
   exec(command, function(err, stdout, stderr) {
     if (err) {
       console.log('### ERROR ON COMMAND ' + command + ':');
+      console.log(stdout);
+      cb(err);
+      throw err;
     }
 
-    console.log(stdout);
-    cb(err);
+    return cb(err);
   });
 }
 
@@ -41,7 +44,7 @@ gulp.task('comp_tsconfig_files', function() {
 
 // This task compiles typescript on csComp
 gulp.task('comp_tsc', function(cb) {
-  run('tsc -p csComp', cb);
+  return run('tsc -p csComp', cb);
 });
 
 // This task runs tsd command on csServerComp folder
@@ -69,7 +72,7 @@ gulp.task('servercomp_tsconfig_files', function() {
 
 // This task compiles typescript on csServerComp
 gulp.task('servercomp_tsc', function(cb) {
-  run('tsc -p csServerComp', cb);
+  return run('tsc -p csServerComp', cb);
 });
 
 // Run required npm and bower installs for example folder
@@ -84,8 +87,7 @@ gulp.task('example_deps', function() {
 gulp.task('init', [
     'comp_tsconfig_files',
     'comp_tsd',
-    'comp_tsconfig_files',
-    'comp_tsc',
+    // 'comp_tsc',
     'servercomp_tsd',
     'servercomp_tsconfig_files',
     'servercomp_tsc',
@@ -115,7 +117,8 @@ var gulp          = require('gulp'),
     watch         = require('gulp-watch'),
     gulpif        = require('gulp-if'),
     changed       = require('gulp-changed'),
-    exec          = require('child_process').exec,
+
+    // exec          = require('child_process').exec,
     templateCache = require('gulp-angular-templatecache'),
     deploy        = require('gulp-gh-pages'),
     sass          = require('gulp-sass'),
