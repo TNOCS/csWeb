@@ -5,6 +5,7 @@ node_js:
 install:
   - "npm install -g typescript@1.6.2"
   - "npm install -g bower"
+  - "npm install"
 script:
     - gulp init
     - cd example && karma start ../test/karma.conf.js
