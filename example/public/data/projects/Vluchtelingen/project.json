@@ -18,11 +18,11 @@
             "description": "Bron: CBS persbericht van vrijdag 30 oktober.",
             "dynamicResource": true,
             "defaultFeatureType": "asielzoeker",
-            "typeUrl": "data/api/resourceTypes/vluchtelingen.json",
+            "typeUrl": "data/resourceTypes/vluchtelingen.json",
             "opacity": 75,
             "type": "geojson",
             "storage": "file",
-            "url": "/api/layers/vluchtelingen",
+            "url": "/data/projects/Vluchtelingen/vluchtelingen.json",
             "isDynamic": false
         }]
     }, {
@@ -30,7 +30,7 @@
         "description": "",
         "title": "COA",
         "clusterLevel": 20,
-        "clustering": true,
+        "clustering": false,
         "layers": [{
             "id": "azc",
             "title": "Asielzoekerscentra",
@@ -39,12 +39,12 @@
             "description": "BRON: COA.nl",
             "dynamicResource": true,
             "defaultFeatureType": "azc",
-            "typeUrl": "data/api/resourceTypes/azc.json",
+            "typeUrl": "data/resourceTypes/azc.json",
             "opacity": 75,
             "type": "geojson",
-            "url": "/api/layers/azc",
+            "url": "/data/projects/Vluchtelingen/azc.json",
             "isDynamic": false
         }]
     }],
-    "url": "/api/projects/a337abc7-89d6-443f-21dd-152d9c5666f5"
+    "url": "/data/projects/Vluchtelingen/project.json"
 }
