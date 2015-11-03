@@ -1,0 +1,50 @@
+{
+    "id": "a337abc7-89d6-443f-21dd-152d9c5666f5",
+    "storage": "file",
+    "title": "Vluchtelingen in kaart",
+    "connected": true,
+    "logo": "images/CommonSenseRound.png",
+    "groups": [{
+        "id": "Asielzoekers",
+        "description": "",
+        "title": "Asielzoekers",
+        "clusterLevel": 12,
+        "clustering": true,
+        "layers": [{
+            "id": "vluchtelingen",
+            "title": "Syrische immigranten",
+            "updated": 1446566859561,
+            "enabled": true,
+            "description": "Bron: CBS persbericht van vrijdag 30 oktober.",
+            "dynamicResource": true,
+            "defaultFeatureType": "asielzoeker",
+            "typeUrl": "data/resourceTypes/vluchtelingen.json",
+            "opacity": 75,
+            "type": "geojson",
+            "storage": "file",
+            "url": "/data/projects/Vluchtelingen/vluchtelingen.json",
+            "isDynamic": false
+        }]
+    }, {
+        "id": "COA",
+        "description": "",
+        "title": "COA",
+        "clusterLevel": 20,
+        "clustering": false,
+        "layers": [{
+            "id": "azc",
+            "title": "Asielzoekerscentra",
+            "updated": 1446573970281,
+            "enabled": true,
+            "description": "BRON: COA.nl",
+            "dynamicResource": true,
+            "defaultFeatureType": "azc",
+            "typeUrl": "data/resourceTypes/azc.json",
+            "opacity": 75,
+            "type": "geojson",
+            "url": "/data/projects/Vluchtelingen/azc.json",
+            "isDynamic": false
+        }]
+    }],
+    "url": "/data/projects/Vluchtelingen/project.json"
+}
