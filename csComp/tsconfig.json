@@ -97,6 +97,8 @@
         "./directives/MCA/Mca.ts",
         "./directives/MCA/McaCtrl.ts",
         "./directives/MCA/McaEditorCtrl.ts",
+        "./directives/Mobile/Mobile.ts",
+        "./directives/Mobile/MobileCtrl.ts",
         "./directives/Navigate/Navigate.ts",
         "./directives/Navigate/NavigateCtrl.ts",
         "./directives/Navigate/SearchClasses.ts",

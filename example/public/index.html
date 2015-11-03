@@ -9,11 +9,6 @@
         </script>
     <![endif]-->
 
-    <script type="text/javascript">
-        if (screen.width <= 719) {
-            document.location = "m.html";
-        }
-    </script>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -107,7 +102,7 @@
     <script src="app/app.js"></script>
     <script src="cs/js/csTemplates.js"></script>
     <!-- endbuild -->
-    <script src="cs/js/cesium.js"></script>
+    <!-- <script src="cs/js/cesium.js"></script> -->
 
     <div role="navigation" class="navbar navbar-inverse navbar-fixed-top">
 
@@ -148,12 +143,17 @@
         <div ng-show="vm.$layerService.visual.leftPanelVisible" class="leftpanel leftpanel-entrance" ng-cloak>
             <div class="leftpanel-container">
                 <!-- http://stackoverflow.com/questions/1575141/make-div-100-height-of-browser-window -->
-                <div class="col-xs-3 leftpanel-tab">
+                <div class="leftpanel-tab">
                     <!-- required for floating -->
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs tabs-left" id="leftPanelTab">
                         <li class="active"  popover="{{'NAVIGATE' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a data-target="#navigate" data-toggle="tab" data-ng-if="vm.$mapService.isIntermediate">
+                            <a data-target="#mobile" data-toggle="tab" data-ng-if="vm.$layerService.isMobile">
+                                <img src="/cs/images/search.png" style="width:30px;height:30px"></img>
+                            </a>
+                        </li>
+                        <li class="active" data-ng-if="!vm.$layerService.isMobile" popover="{{'NAVIGATE' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#navigate" data-toggle="tab" data-ng-if="vm.$layerService.isMobile">
                                 <img src="/cs/images/search.png" style="width:30px;height:30px"></img>
                             </a>
                         </li>
@@ -210,11 +210,12 @@
                     </ul>
                 </div>
 
-                <div class="col-xs-9 leftpanel-content">
+                <div class="leftpanel-content">
                     <!-- Tab panes -->
                     <div class="tab-content ">
+                        <mobile class="tab-pane active" id="mobile" data-ng-if="vm.$layerService.isMobile"></mobile>
 
-                        <navigate class="tab-pane active" id="navigate"></navigate>
+                        <navigate class="tab-pane active" id="navigate" data-ng-if="!vm.$layerService.isMobile"></navigate>
 
                         <base-map-list class="tab-pane" id="basestyles"></base-map-list>
 
@@ -267,7 +268,7 @@
         </div>
     </div>
 
-    <timeline data-ng-show="vm.$mapService.timelineVisible" style="height: 100vh;"></timeline>
+    <timeline data-ng-show="vm.$mapService.timelineVisible && !vm.$layerService.isMobile" style="height: 100vh;"></timeline>
 </body>
 
 </html>

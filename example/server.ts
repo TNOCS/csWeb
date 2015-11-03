@@ -30,6 +30,7 @@ Winston.add(Winston.transports.Console, <Winston.ConsoleTransportOptions>{
     prettyPrint: true
 });
 
+
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser')
 var server = express();
@@ -87,11 +88,12 @@ api.init(path.join(path.resolve(__dirname), "public/data/api"), () => {
             { key: "file", s: new FileStorage.FileStorage(path.join(path.resolve(__dirname), "public/data/api/")), options: {} },
             { key: "socketio", s: new SocketIOAPI.SocketIOAPI(cm), options: {} },
             { key: "mongo", s: new MongoDB.MongoDBStorage("127.0.0.1", 27017), options: {} }
-            // { key: "imb", s: new ImbAPI.ImbAPI("app-usdebug01.tsn.tno.nl", 4000),options: {} }
+            //{ key: "imb", s: new ImbAPI.ImbAPI("app-usdebug01.tsn.tno.nl", 4000),options: {} }
 
         ],
         () => {
-
+            // create mobile layer
+            api.addLayer();
         });
 });
 

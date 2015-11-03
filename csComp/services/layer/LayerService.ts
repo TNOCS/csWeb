@@ -62,6 +62,9 @@ module csComp.Services {
         editing: boolean;
         directoryHandle: MessageBusHandle;
 
+        /** indicator true for mobile devices */
+        isMobile: boolean;
+
         currentLocale: string;
         /** layers that are currently active */
         loadedLayers = new csComp.Helpers.Dictionary<ProjectLayer>();
@@ -188,6 +191,15 @@ module csComp.Services {
             $messageBusService.subscribe("timeline", (action: string, date: Date) => {
                 if (action === "focusChange") { delayFocusChange(date); }
             });
+
+            this.checkMobile();
+        }
+
+        public checkMobile() {
+            if (screen.width <= 719) {
+                this.isMobile = true;
+                //alert('is mobile');
+            }
         }
 
         public getActions(feature: IFeature, type: ActionType): IActionOption[] {
@@ -1693,7 +1705,7 @@ module csComp.Services {
                     for (let i = 1; i < matches.length; i++) {
                         var match = matches[i];
                         featureTypeName = feature.properties.hasOwnProperty(match)
-                            ? featureTypeName.replace( `{${match}}`, feature.properties[match])
+                            ? featureTypeName.replace(`{${match}}`, feature.properties[match])
                             : featureTypeName.replace(`_{${match}}`, '');
                     }
                 }
