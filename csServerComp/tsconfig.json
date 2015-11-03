@@ -82,6 +82,7 @@
         "./ServerComponents/dynamic/DynamicLayer.ts",
         "./ServerComponents/dynamic/DynamicProject.ts",
         "./ServerComponents/dynamic/LayerDirectory.ts",
+        "./ServerComponents/dynamic/MobileLayer.ts",
         "./ServerComponents/helpers/conrec.ts",
         "./ServerComponents/helpers/DateUtils.ts",
         "./ServerComponents/helpers/GeoJSON.ts",

@@ -23,6 +23,7 @@ import FileStorage = require('./ServerComponents/api/FileStorage');
 import ImbAPI = require('./ServerComponents/api/ImbAPI');
 import Winston = require('winston');
 import AuthAPI = require('./ServerComponents/api/AuthAPI');
+import MobileLayer = require('./ServerComponents/dynamic/MobileLayer');
 
 Winston.remove(Winston.transports.Console);
 Winston.add(Winston.transports.Console, <Winston.ConsoleTransportOptions>{
@@ -86,14 +87,14 @@ api.init(path.join(path.resolve(__dirname), "public/data/api"), () => {
             { key: "rest", s: new RestAPI.RestAPI(server), options: {} },
             { key: "mqtt", s: new MqttAPI.MqttAPI("localhost", 1883), options: {} },
             { key: "file", s: new FileStorage.FileStorage(path.join(path.resolve(__dirname), "public/data/api/")), options: {} },
-            { key: "socketio", s: new SocketIOAPI.SocketIOAPI(cm), options: {} },
-            { key: "mongo", s: new MongoDB.MongoDBStorage("127.0.0.1", 27017), options: {} }
+            { key: "socketio", s: new SocketIOAPI.SocketIOAPI(cm), options: {} }
+            // { key: "mongo", s: new MongoDB.MongoDBStorage("127.0.0.1", 27017), options: {} }
             //{ key: "imb", s: new ImbAPI.ImbAPI("app-usdebug01.tsn.tno.nl", 4000),options: {} }
 
         ],
         () => {
-            // create mobile layer
-            api.addLayer();
+            console.log('create mobile layer');
+            var ml = new MobileLayer.MobileLayer(api, "mobile", "",server, messageBus, cm);
         });
 });
 
