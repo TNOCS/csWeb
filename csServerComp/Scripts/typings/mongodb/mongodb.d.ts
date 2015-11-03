@@ -127,6 +127,14 @@ declare module "mongodb" {
     // Creates an ObjectID from a hex string representation of an ObjectID.
     // hexString – create a ObjectID from a passed in 24 byte hexstring.
     public static createFromHexString(hexString: string): ObjectID;
+    
+    // Checks if a value is a valid bson ObjectId
+    // id - Value to be checked
+    public static isValid(id: string): Boolean;
+    
+    // Generate a 12 byte id string used in ObjectID's
+    // time - optional parameter allowing to pass in a second based timestamp
+    public generate(time?: number): string;
   }
 
   // Class documentation : http://mongodb.github.io/node-mongodb-native/api-bson-generated/binary.html
@@ -296,28 +304,53 @@ declare module "mongodb" {
   // Documentation : http://mongodb.github.io/node-mongodb-native/api-generated/collection.html
   export interface Collection {
     new (db: Db, collectionName: string, pkFactory?: Object, options?: CollectionCreateOptions): Collection; // is this right?
-
+    /**
+     * @deprecated use insertOne or insertMany
+     * Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#insert
+     */
     insert(query: any, callback: (err: Error, result: any) => void): void;
     insert(query: any, options: { safe?: any; continueOnError?: boolean; keepGoing?: boolean; serializeFunctions?: boolean; }, callback: (err: Error, result: any) => void): void;
-    insertOne(doc: any, callback: (err: Error, result: any) => void): void;
-    insertOne(doc: any, options: { w?: any; wtimeout?: number; j?: boolean; serializeFunctions?: boolean; forceServerObjectId?: boolean }, callback: (err: Error, result: any) => void): void;
-    insertMany(docs: any[], callback: (err: Error, result: any) => void): void;
-    insertMany(docs: any[], options: { w?: any; wtimeout?: number; j?: boolean; serializeFunctions?: boolean; forceServerObjectId?: boolean }, callback: (err: Error, result: any) => void): void;
 
+    // Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#insertOne
+    insertOne(doc:any, callback: (err: Error, result: any) => void) :void;
+    insertOne(doc: any, options: { w?: any; wtimeout?: number; j?: boolean; serializeFunctions?: boolean; forceServerObjectId?: boolean }, callback: (err: Error, result: any) => void): void;
+
+    // Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#insertMany
+    insertMany(docs: any, callback: (err: Error, result: any) => void): void;
+    insertMany(docs: any, options: { w?: any; wtimeout?: number; j?: boolean; serializeFunctions?: boolean; forceServerObjectId?: boolean }, callback: (err: Error, result: any) => void): void;
+    /**
+     * @deprecated use deleteOne or deleteMany
+     * Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#remove
+     */
     remove(selector: Object, callback?: (err: Error, result: any) => void): void;
     remove(selector: Object, options: { safe?: any; single?: boolean; }, callback?: (err: Error, result: any) => void): void;
+
+    // Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#deleteOne
+    deleteOne(filter: any, callback: (err: Error, result: any) => void): void;
+    deleteOne(filter: any, options: { w?: any; wtimeout?: number; j?: boolean;}, callback: (err: Error, result: any) => void): void;
+
+    // Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#deleteMany
+    deleteMany(filter: any, callback: (err: Error, result: any) => void): void;
+    deleteMany(filter: any, options: { w?: any; wtimeout?: number; j?: boolean;}, callback: (err: Error, result: any) => void): void;
 
     rename(newName: String, callback?: (err: Error, result: any) => void): void;
 
     save(doc: any, callback : (err: Error, result: any) => void): void;
-    save(doc: any, options: { safe: any; }, callback : (err: Error, result: any) => void): void;
-
+    save(doc: any, options: { w?: any; wtimeout?: number; j?: boolean;}, callback : (err: Error, result: any) => void): void;
+    /**
+     * @deprecated use updateOne or updateMany
+     * Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#update
+     */
     update(selector: Object, document: any, callback?: (err: Error, result: any) => void): void;
     update(selector: Object, document: any, options: { safe?: boolean; upsert?: any; multi?: boolean; serializeFunctions?: boolean; }, callback: (err: Error, result: any) => void): void;
-    updateOne(selector: Object, document: any, callback?: (err: Error, result: any) => void): void;
-    updateOne(selector: Object, document: any, options: { w?: any; wtimeout?: number; j?: boolean; }, callback: (err: Error, result: any) => void): void;
-    updateMany(selector: Object, document: any, callback?: (err: Error, result: any) => void): void;
-    updateMany(selector: Object, document: any, options: { w?: any; wtimeout?: number; j?: boolean; }, callback: (err: Error, result: any) => void): void;
+
+    // Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#updateOne
+    updateOne(filter: Object, update: any, callback: (err: Error, result: any) => void): void;
+    updateOne(filter: Object, update: any, options: { upsert?: boolean; w?: any; wtimeout?: number; j?: boolean;}, callback: (err: Error, result: any) => void): void;
+
+    // Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#updateMany
+    updateMany(filter: Object, update: any, callback: (err: Error, result: any) => void): void;
+    updateMany(filter: Object, update: any, options: { upsert?: boolean; w?: any; wtimeout?: number; j?: boolean;}, callback: (err: Error, result: any) => void): void;
 
     distinct(key: string, query: Object, callback: (err: Error, result: any) => void): void;
     distinct(key: string, query: Object, options: { readPreference: string; }, callback: (err: Error, result: any) => void): void;
@@ -327,12 +360,30 @@ declare module "mongodb" {
     count(query: Object, options: { readPreference: string; }, callback: (err: Error, result: any) => void): void;
 
     drop(callback?: (err: Error, result: any) => void): void;
-
+    /**
+     * @deprecated use findOneAndUpdate, findOneAndReplace or findOneAndDelete
+     * Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#findAndModify
+     */
     findAndModify(query: Object, sort: any[], doc: Object, callback: (err: Error, result: any) => void): void;
     findAndModify(query: Object, sort: any[], doc: Object, options: { safe?: any; remove?: boolean; upsert?: boolean; new?: boolean; }, callback: (err: Error, result: any) => void): void;
-
+    /**
+     * @deprecated use findOneAndDelete
+     * Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#findAndRemove
+     */
     findAndRemove(query : Object, sort? : any[], callback?: (err: Error, result: any) => void): void;
     findAndRemove(query : Object, sort? : any[], options?: { safe: any; }, callback?: (err: Error, result: any) => void): void;
+
+    // Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#findOneAndDelete
+    findOneAndDelete(filter: any, callback: (err: Error, result: any) => void): void;
+    findOneAndDelete(filter: any, options: { projection?: any; sort?: any; maxTimeMS?: number; }, callback: (err: Error, result: any) => void): void;
+
+    // Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#findOneAndReplace
+    findOneAndReplace(filter: any, replacement: any, callback: (err: Error, result: any) => void): void;
+    findOneAndReplace(filter: any, replacement: any, options: { projection?: any; sort?: any; maxTimeMS?: number; upsert?: boolean; returnOriginal?: boolean }, callback: (err: Error, result: any) => void): void;
+
+    // Documentation : http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#findOneAndUpdate
+    findOneAndUpdate(filter: any, update: any, callback: (err: Error, result: any) => void): void;
+    findOneAndUpdate(filter: any, update: any, options: { projection?: any; sort?: any; maxTimeMS?: number; upsert?: boolean; returnOriginal?: boolean }, callback: (err: Error, result: any) => void): void;
 
     find(callback?: (err: Error, result: Cursor) => void): Cursor;
     find(selector: Object, callback?: (err: Error, result: Cursor) => void): Cursor;
@@ -418,8 +469,7 @@ declare module "mongodb" {
 
     rewind() : Cursor;
     toArray(callback: (err: Error, results: any[]) => any) : void;
-    each(callback: (err: Error, item: any) => void): void;
-    forEach(iterator: (document: any) => void, callback: (err: Error) => void): void;
+    each(callback: (err: Error, item: any) => void) : void;
     count(applySkipLimit: boolean, callback: (err: Error, count: number) => void) : void;
 
     sort(keyOrList: any, callback? : (err: Error, result: any) => void): Cursor;
@@ -431,8 +481,7 @@ declare module "mongodb" {
     skip(skip: number, callback?: (err: Error, result: any) => void): Cursor;
     batchSize(batchSize: number, callback?: (err: Error, result: any) => void): Cursor;
 
-    nextObject(callback: (err: Error, doc: any) => void): void;
-    next(callback: (err: Error, doc: any) => void): void;
+    nextObject(callback: (err: Error, doc: any) => void) : void;
     explain(callback: (err: Error, result: any) => void) : void;
 
     stream(): CursorStream;
@@ -486,6 +535,7 @@ declare module "mongodb" {
   export interface MongoCollectionOptions {
     safe?: any;
     serializeFunctions?: any;
+    strict?: boolean;
     raw?: boolean;
     pkFactory?: any;
     readPreference?: string;

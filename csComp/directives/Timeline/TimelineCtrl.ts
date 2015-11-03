@@ -58,7 +58,7 @@ module Timeline {
             private $mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService,
             private TimelineService: Timeline.ITimelineService
-        ) {
+            ) {
             this.loadLocales();
 
 
@@ -126,7 +126,7 @@ module Timeline {
                         this.updateFocusTime();
                         break;
                     case "setFocus":
-                        this.$scope.timeline.moveTo(data);
+                        this.setFocusContainerDebounce(data);
                         break;
                     case "updateFeatures":
                         this.debounceUpdate();
@@ -135,7 +135,10 @@ module Timeline {
             }
         }
 
-
+        private setFocusContainerDebounce = _.debounce((data) => {
+            this.updateFocusTimeContainer(data);
+            console.log(`Moved timeline and focuscontainer to ${data}`)
+        }, 300, true);
 
         private updateFeatures() {
             console.log("timeline:updating features");
@@ -310,6 +313,14 @@ module Timeline {
 
         }
 
+        public updateFocusTimeContainer(time: Date) {
+            this.$scope.timeline.moveTo(time);
+            this.$scope.timeline.redraw();
+            if (this.$scope.$$phase != '$apply' && this.$scope.$$phase != '$digest') { this.$scope.$apply(); }
+            let screenPos = this.$scope.timeline._toScreen(time);
+            $("#focustimeContainer").css('left', screenPos - $("#focustimeContainer").width() / 2);
+        }
+
         public updateFocusTime() {
             if (!this.$layerService.project) return;
             //if (!this.$mapService.timelineVisible) return;
@@ -317,9 +328,9 @@ module Timeline {
                 var tl = this.$scope.timeline;
                 tl.showCustomTime = true;
 
-                tl.setCustomTime = typeof this.$layerService.project === 'undefined'
-                    ? new Date()
-                    : this.$layerService.project.timeLine.focusDate();
+                // typeof this.$layerService.project === 'undefined'
+                //     ? tl.setCustomTime(new Date())
+                //     : tl.setCustomTime(this.$layerService.project.timeLine.focusDate());
 
                 //var end = $("#timeline").width;
 
@@ -331,7 +342,7 @@ module Timeline {
                     this.focusDate = new Date();
                 }
                 else {
-                    this.focusDate = new Date(this.$scope.timeline._toTime(pos + 1));
+                    this.focusDate = new Date(this.$scope.timeline._toTime(pos));
                 }
 
                 this.startDate = range.start; //new Date(range.start); //this.$scope.timeline.screenToTime(0));

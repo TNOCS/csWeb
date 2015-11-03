@@ -1,4 +1,4 @@
-﻿module FeatureList {
+module FeatureList {
     export interface IFeatureListScope extends ng.IScope {
         vm: FeatureListCtrl;
         numberOfItems: number;

@@ -1,4 +1,4 @@
-﻿module FilterList {
+module FilterList {
     /**
       * Config
       */

@@ -1,4 +1,4 @@
-﻿module Legend {
+module Legend {
     /**
       * Config
       */

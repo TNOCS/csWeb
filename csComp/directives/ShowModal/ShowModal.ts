@@ -1,4 +1,4 @@
-﻿module ShowModal {
+module ShowModal {
     /**
     * Config
     */

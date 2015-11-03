@@ -34,8 +34,6 @@ var favicon = require('serve-favicon');
 var bodyParser = require('body-parser')
 var server = express();
 
-
-
 var httpServer = require('http').Server(server);
 var cm = new cc.ConnectionManager(httpServer);
 var messageBus = new MessageBus.MessageBusService();
@@ -79,14 +77,21 @@ apiServiceMgr.addService(resourceTypeStore);
 server.use(express.static(path.join(__dirname, 'public')));
 
 var api = new ApiManager.ApiManager('cs', 'cs');
+
 api.init(path.join(path.resolve(__dirname), "public/data/api"), () => {
-    api.authService = new AuthAPI.AuthAPI(api, server, '/api');
-    api.addConnector("rest", new RestAPI.RestAPI(server), {});
-    api.addConnector("socketio", new SocketIOAPI.SocketIOAPI(cm), {});
-    api.addConnector("mqtt", new MqttAPI.MqttAPI("localhost", 1883), {});
-    //api.addConnector("imb", new ImbAPI.ImbAPI("localhost", 4000), {});
-    api.addConnector("mongo", new MongoDB.MongoDBStorage("127.0.0.1", 27017), {});
-    api.addConnector("file", new FileStorage.FileStorage(path.join(path.resolve(__dirname), "public/data/api/")), {});
+    //api.authService = new AuthAPI.AuthAPI(api, server, '/api');
+    api.addConnectors(
+        [
+            { key: "rest", s: new RestAPI.RestAPI(server), options: {} },
+            { key: "mqtt", s: new MqttAPI.MqttAPI("localhost", 1883), options: {} },
+            { key: "file", s: new FileStorage.FileStorage(path.join(path.resolve(__dirname), "public/data/api/")), options: {} },
+            { key: "socketio", s: new SocketIOAPI.SocketIOAPI(cm), options: {} },
+            { key: "mongo", s: new MongoDB.MongoDBStorage("127.0.0.1", 27017),options: {} }
+
+        ],
+        () => {
+
+        });
 });
 
 var mapLayerFactory = new creator.MapLayerFactory(bagDatabase, messageBus, api);

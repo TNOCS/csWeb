@@ -1,4 +1,4 @@
-﻿module Voting {
+module Voting {
     /**
       * Config
       */

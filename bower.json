@@ -12,6 +12,7 @@
         "gulp.js",
         "Dockerfile",
         "package.json",
+        "dist",
         "README.md",
         ".bithoundrc",
         ".editorconfig",
@@ -19,8 +20,7 @@
         ".travis.yml",
         "LICENSE",
         "install_karma.bat",
-        "updateAll.bat",
-        "updateAll.sh"
+        "updateAll.bat"
     ],
     "dependencies": {
       "angular": "~1.4.4",
