@@ -9,6 +9,8 @@ module PostMan {
 
     export interface PostManEditorData {
         messages: IPostManMessage[];
+        /** Set to true to show a smaller widget, with only the messages and an execute button */
+        smallSize: boolean;
     }
 
     export interface IPostManEditScope extends ng.IScope {
