@@ -6,15 +6,18 @@ module ChartsWidget {
          */
         content: string;
         key: string;
+        lite : boolean;
         spec: any;
         _id: string;
         _view: any;
     }
 
     declare var vg;
+    declare var vl;
 
     export interface IChartScope extends ng.IScope {
         vm: ChartCtrl;
+
         data: ChartData;
         spec: string;
     }
@@ -110,10 +113,15 @@ module ChartsWidget {
 
         private keyHandle;
 
+
+
         public startChart() {
             var d = this.$scope.data;
             if (!d.spec) d.spec = this.defaultSpec;
-            var res = vg.embed('#vis' + d._id, d.spec, (view, vega_spec) => {
+            var vgspec = d.spec;
+            if (d.lite) vgspec = vl.compile(d.spec);
+            //parse(vgspec);
+            var res = vg.embed('#vis' + d._id, vgspec, (view, vega_spec) => {
                 d._view = view;
 
                 // Callback receiving the View instance and parsed Vega spec...
@@ -124,12 +132,21 @@ module ChartsWidget {
                 this.keyHandle = this.$layerService.$messageBusService.serverSubscribe(d.key, "key", (topic: string, msg: csComp.Services.ClientMessage) => {
                     switch (msg.action) {
                         case "key":
-                        if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]' ) {
+                        if (msg.data.item.hasOwnProperty("values"))
+                        {
                             d.spec.data = msg.data.item;
-                        } else {
-                            d.spec.data = [msg.data.item];
                         }
-                        vg.parse.spec(this.$scope.data.spec, (chart) => { chart({ el: "#vis" + d._id }).update(); });
+                        else{
+                            d.spec = msg.data.item;
+                        }
+                        // if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]' ) {
+                        //     d.spec.data = msg.data.item;
+                        // } else {
+                        //
+                        // }
+                        vgspec = d.spec;
+                        if (d.lite) vgspec = vl.compile(d.spec);
+                        vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + d._id }).update(); });
                         d._view.update();
                         break;
                     }

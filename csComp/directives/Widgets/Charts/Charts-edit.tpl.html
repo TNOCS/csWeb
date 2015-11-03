@@ -20,6 +20,10 @@
             <label class="control-label" for="widgetHeight">Height</label>
             <input id="widgetHeight" name="textinput" type="number" ng-model="data.spec.height" placeholder="height" class="input-xlarge">
         </div>
+        <div class="col-md-6" >
+            <input type="checkbox" id="widgetchartlite" ng-model="data.lite">
+            <label for="widgetchartlite">use vega-lite specification</label>
+        </div>
         <div class="col-md-12">
             <label class="editor-title input-xlarge" for="chartKey">Key</label>
             <input name="chartKey" type="text" ng-model="data.key" placeholder="placeholder" class="input-xlarge editor-text-input">
