@@ -46,7 +46,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         });
 
         // add a new resource type file
-        this.server.post(this.resourceUrl + ":resourceId", (req: express.Request, res: express.Response) => {
+        this.server.post(this.resourceUrl, (req: express.Request, res: express.Response) => {
             var resource = new ResourceFile();
             resource = req.body;
             this.manager.addResource(resource, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
@@ -199,7 +199,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.post(this.layersUrl + ":layerId/feature", (req: express.Request, res: express.Response) => {
             this.manager.addFeature(req.params.layerId, req.body, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
                 //todo: check error
-                res.sendStatus(result.result);
+                res.send(result);
             });
         });
 

@@ -7,6 +7,12 @@
     </h4>
 
     <div style="margin-left:5px;margin-right:20px">
+        <div class="col-md-8">
+            <label class="control-label" for="smallsize" style="width:150px;margin-bottom:20px;">Small widget layout</label>
+        </div>
+        <div class="col-md-offset-1 col-md-3">
+            <input id="smallsize" name="checkbox" type="checkbox" ng-model="data.smallSize" class="input-xlarge">
+        </div>
         <div class="col-md-12">
             <select ng-model="selectedMessage" ng-options="msg.name for msg in data.messages" class="input-xlarge" style="font-size: 1.35em; width: 300px"></select>
         </div>

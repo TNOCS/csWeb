@@ -1,7 +1,7 @@
 {
     "name": "csWeb",
     "version": "0.1.1",
-    "main": "dist/csComp/csComp.js",
+    "main": "dist-bower/csComp.js",
     "ignore": [
         "csComp",
         "csServerComp",
@@ -12,6 +12,7 @@
         "gulp.js",
         "Dockerfile",
         "package.json",
+        "dist",
         "README.md",
         ".bithoundrc",
         ".editorconfig",

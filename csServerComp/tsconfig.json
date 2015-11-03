@@ -117,5 +117,6 @@
         "./ServerComponents/rules/Rule.ts",
         "./ServerComponents/rules/RuleEngine.ts",
         "./ServerComponents/rules/WorldState.ts"
-    ]
+    ],
+    "exclude": []
 }
