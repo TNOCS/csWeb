@@ -55,11 +55,11 @@
             "opacity": "0.9"
           },
           "style": "custom",
-          "left": "9px",
+          "left": "378px",
           "right": "",
-          "top": "18px",
-          "width": "307px",
-          "height": "154px",
+          "top": "335px",
+          "width": "318px",
+          "height": "286px",
           "data": {
             "spec": {
               "data": {
@@ -71,34 +71,6 @@
                   {
                     "x": "B",
                     "y": 55
-                  },
-                  {
-                    "x": "C",
-                    "y": 43
-                  },
-                  {
-                    "x": "G",
-                    "y": 19
-                  },
-                  {
-                    "x": "H",
-                    "y": 87
-                  },
-                  {
-                    "x": "I",
-                    "y": 52
-                  },
-                  {
-                    "x": "D",
-                    "y": 91
-                  },
-                  {
-                    "x": "E",
-                    "y": 81
-                  },
-                  {
-                    "x": "F",
-                    "y": 53
                   }
                 ]
               },
@@ -112,7 +84,8 @@
                   "type": "O",
                   "name": "x"
                 }
-              }
+              },
+              "time": 1446545745322
             },
             "key": "chart",
             "title": "test",
@@ -441,7 +414,7 @@
                 "featureTypeName": "",
                 "propertyTypes": [],
                 "propertyTypeTitles": [],
-                "id": "circ-763aecab-9400-4d91-1abf-f3cdd771bba0"
+                "id": "circ-30397c68-f1f4-4d11-bdde-82e8e3ec9b6b"
               },
               {
                 "inputs": {
@@ -455,7 +428,7 @@
                 "featureTypeName": "",
                 "propertyTypes": [],
                 "propertyTypeTitles": [],
-                "id": "circ-9a05bfc4-2897-4efa-dba2-ed89c34a6725"
+                "id": "circ-48aef986-ef92-4216-1f97-e61189fefe6f"
               }
             ],
             "spec": {
