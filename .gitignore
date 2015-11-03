@@ -20,7 +20,7 @@ csDataGatherer/public/includes/
 csDataGatherer/Scripts/
 csDataGatherer/importers.json
 node_modules/
-
+dist/
 example/node_modules/
 example/public/bower_components/
 example/public/cs/
