@@ -196,6 +196,7 @@ module SimTimeController {
         stop() {
             if (this.messageBusHandle) {
                 this.messageBusService.serverUnsubscribe(this.messageBusHandle);
+                this.messageBusHandle = null;
             }
             this.fsm.trigger(SimCommand.Stop);
         }
