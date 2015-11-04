@@ -546,9 +546,13 @@ module csComp.Services {
                         this.$http.get(url)
                             .success((resource: TypeResource) => {
                             success = true;
-                            resource.url = url;
-                            this.initTypeResources(resource);
-                            this.$messageBusService.publish("typesource", url, resource);
+                            if (resource) {
+                                resource.url = url;
+                                this.initTypeResources(resource);
+                                this.$messageBusService.publish("typesource", url, resource);
+                            } else {
+                                this.$messageBusService.notify('Error loading resource type', url);
+                            }
                             callback();
                         })
                             .error((err) => {
