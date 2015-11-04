@@ -27,12 +27,14 @@ module MobileLayer {
                 manager.deleteLayer(layerId, {}, (cb) => {
                     this.layer = <ApiManager.Layer>{
                         id: layerId,
+                        type: "dynamicgeojson",
+                        isDynamic: true,
                         typeUrl: typeUrl,
                         features: []
                         , storage: 'file'
                     }
                     manager.addUpdateLayer(this.layer, {}, (cb) => {
-
+                        console.log('init layer');
 
 
                     });

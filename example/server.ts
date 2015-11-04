@@ -94,7 +94,7 @@ api.init(path.join(path.resolve(__dirname), "public/data/api"), () => {
         ],
         () => {
             console.log('create mobile layer');
-            var ml = new MobileLayer.MobileLayer(api, "mobile", "",server, messageBus, cm);
+            var ml = new MobileLayer.MobileLayer(api, "mobilelayer", "/api/resources/SGBO", server, messageBus, cm);
         });
 });
 
