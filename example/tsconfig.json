@@ -2,13 +2,16 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "declaration": false,
+        "declaration": true,
         "noImplicitAny": false,
-        "removeComments": false,
-        "noLib": false
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true
     },
     "filesGlob": [
         "./**/*.ts",
+        "!./Scripts/**/*.ts",
         "!./node_modules/**/*.ts",
         "!./dist/**/*.*",
         "!./public/bower_components/**/*.d.ts"

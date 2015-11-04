@@ -21,17 +21,18 @@ module MobileLayer {
         public layer: ApiManager.Layer;
         public startDate: number;
 
-        constructor(public manager: ApiManager.ApiManager, layerId: string, typeUrl : string, server: express.Express, messageBus: MessageBus.MessageBusService, public connection: ClientConnection.ConnectionManager) {
-            console.log('init mobile layer');
+        constructor(public manager: ApiManager.ApiManager, layerId: string, typeUrl: string, server: express.Express, messageBus: MessageBus.MessageBusService, public connection: ClientConnection.ConnectionManager) {
+
             if (manager) {
                 manager.deleteLayer(layerId, {}, (cb) => {
                     this.layer = <ApiManager.Layer>{
                         id: layerId,
-                        typeUrl : typeUrl,
+                        typeUrl: typeUrl,
                         features: []
                         , storage: 'file'
                     }
                     manager.addUpdateLayer(this.layer, {}, (cb) => {
+
 
 
                     });
