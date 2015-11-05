@@ -8,5 +8,8 @@
         <div style="display:inline; cursor:pointer" ng-show="vm.locationFilterActive">{{'DISABLE_LOCATION_FILTER' | translate}}</div>
     </a> -->
 <div>
-    <input class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="layerFilter" placeholder="Search"></input>
+    <!-- <input class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="layerFilter" placeholder="Search"></input> -->
+    <div ng-repeat="l in vm.availableLayers">
+        <div>{{l.title}}</div>
+    </div>
 </div>

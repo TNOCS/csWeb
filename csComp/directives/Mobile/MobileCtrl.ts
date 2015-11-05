@@ -7,6 +7,8 @@ module Mobile {
     export class MobileCtrl {
         private scope: IMobileScope;
 
+        private availableLayers: csComp.Services.ProjectLayer[];
+
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
         // it is better to have it close to the constructor, because the parameters must match in count and type.
@@ -28,22 +30,34 @@ module Mobile {
             ) {
             $scope.vm = this;
 
-            this.$messageBus.subscribe('project', (a, p) => {
+            this.$messageBus.subscribe('project', (a, p: csComp.Services.Project) => {
                 if (a === 'loaded') {
+                    this.availableLayers = [];
+                    p.groups.forEach((g=> {
+                        g.layers.forEach((l) => {
 
+                            if (l.tags && l.tags.indexOf('mobile') >= 0) this.availableLayers.push(l);
+                        });
+                    }))
+                    // find mobile layer
+                    console.log('available layers');
+                    console.log(this.availableLayers);
                 }
             });
             $messageBus.subscribe("geo", (action, loc: csComp.Services.Geoposition) => {
                 switch (action) {
                     case "pos":
-                        if (this.$layerService.project.features.length > 0) {
-                            var f = this.$layerService.project.features[0];
-                            f.geometry.coordinates = [loc.coords.longitude, loc.coords.latitude];
-                            this.$layerService.updateFeature(f);
-                            this.$layerService.saveFeature(f);
-
+                        var f = new csComp.Services.Feature();
+                        //f.layerId = layer.id;
+                        f.geometry = {
+                            type: 'Point', coordinates: []
                         };
-                        //alert(loc.coords.latitude + " - " + loc.coords.longitude);
+                        f.geometry.coordinates = [loc.coords.longitude, loc.coords.latitude];
+                        f.properties = { "Name": "test" };
+                        //layer.data.features.push(f);
+                        //this.$layerService.initFeature(f, layer);
+                        this.$layerService.activeMapRenderer.addFeature(f);
+                        this.$layerService.saveFeature(f);
                         break;
                 }
             });

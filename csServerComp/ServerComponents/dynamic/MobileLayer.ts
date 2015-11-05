@@ -30,6 +30,7 @@ module MobileLayer {
                         type: "dynamicgeojson",
                         isDynamic: true,
                         typeUrl: typeUrl,
+                        tags: ['mobile'],
                         features: []
                         , storage: 'file'
                     }

@@ -554,9 +554,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
     //TODO: test further. Result is the # of deleted docs.
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var layer = this.findLayer(layerId);
-        layer.features = layer.features.filter((k) => { return k.id && k.id !== featureId });
-        callback(<CallbackResult>{ result: ApiResult.OK });
-        this.saveLayerDelay(layer);
+        if (layer && layer.features) {
+            layer.features = layer.features.filter((k) => { return k.id && k.id !== featureId });
+            this.saveLayerDelay(layer);
+        }
         callback(<CallbackResult>{ result: ApiResult.OK });
     }
 

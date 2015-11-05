@@ -78,7 +78,7 @@ export interface IConnector {
     isInterface: boolean;
     /** If true (default), the manager will send a copy to the source (receiving) connector */
     receiveCopy: boolean;
-    init(layerManager: ApiManager, options: any, callback : Function);
+    init(layerManager: ApiManager, options: any, callback: Function);
     initLayer(layer: ILayer, meta?: ApiMeta);
     initProject(project: Project, meta?: ApiMeta);
 
@@ -500,7 +500,7 @@ export class ApiManager extends events.EventEmitter {
         // store resource
         if (s) {
             s.addResource(resource, meta, (r: CallbackResult) => {
-              callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
+                callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
             });
         } else {
             callback(<CallbackResult>{ result: ApiResult.OK });
@@ -535,8 +535,8 @@ export class ApiManager extends events.EventEmitter {
         }
         g.layers.push(l);
         this.updateProject(p, meta, () => {
-          Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
-          callback(<CallbackResult>{ result: ApiResult.OK });
+            Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
+            callback(<CallbackResult>{ result: ApiResult.OK });
         });
     }
 
@@ -639,30 +639,29 @@ export class ApiManager extends events.EventEmitter {
     /**
      * Add connector to available connectors
      */
-    public addConnector(key: string, s: IConnector, options: any, callback : Function = ()=>{}) {
+    public addConnector(key: string, s: IConnector, options: any, callback: Function = () => { }) {
         // TODO If client, check that only one interface is added (isInterface = true)
 
         s.id = key;
         this.connectors[key] = s;
-        s.init(this, options,()=>{
+        s.init(this, options, () => {
             callback();
         });
     }
 
-    public addConnectors(connectors : {key : string, s : IConnector, options: any}[], callback : Function)
-    {
-        connectors.forEach((c)=>{
+    public addConnectors(connectors: { key: string, s: IConnector, options: any }[], callback: Function) {
+        connectors.forEach((c) => {
             c.s.id = c.key;
             this.connectors[c.key] = c.s;
         })
-        async.eachSeries(connectors,(c, callb)=>{
-            c.s.init(this,c.options,()=>{
+        async.eachSeries(connectors, (c, callb) => {
+            c.s.init(this, c.options, () => {
 
             });
             callb();
-        },()=>{
-            callback();
-        })
+        }, () => {
+                callback();
+            })
     }
 
     /**
@@ -1011,11 +1010,11 @@ export class ApiManager extends events.EventEmitter {
             this.setUpdateLayer(layer, meta);
             var s = this.findStorage(layer);
             s.addFeature(layerId, feature, meta, (result) => {
-              this.getInterfaces(meta).forEach((i: IConnector) => {
-                  i.addFeature(layerId, feature, meta, () => { });
-              });
-              this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Create, value: feature });
-              callback(<CallbackResult>{ result: ApiResult.OK });
+                this.getInterfaces(meta).forEach((i: IConnector) => {
+                    i.addFeature(layerId, feature, meta, () => { });
+                });
+                this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Create, value: feature });
+                callback(<CallbackResult>{ result: ApiResult.OK });
             });
         }
     }
@@ -1060,12 +1059,12 @@ export class ApiManager extends events.EventEmitter {
 
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
-        s.deleteFeature(layerId, featureId, meta, (result) => {
-          this.getInterfaces(meta).forEach((i: IConnector) => {
-              i.deleteFeature(layerId, featureId, meta, () => { });
-          });
-          this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Delete, value: featureId });
-          callback(result);
+        if (s) s.deleteFeature(layerId, featureId, meta, (result) => {
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.deleteFeature(layerId, featureId, meta, () => { });
+            });
+            this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Delete, value: featureId });
+            callback(result);
         });
     }
 

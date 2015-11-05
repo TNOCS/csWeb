@@ -149,6 +149,10 @@
         "title": "Vluchtelingen in kaart",
         "url": "data/projects/Vluchtelingen/project.json",
         "dynamic": true
+    },{
+        "title": "Mobile",
+        "url": "data/projects/mobile/project.json",
+        "dynamic": true
     }, {
         "title": "API Example",
         "url": "data/projects/ApiTest/project.json",

@@ -14,7 +14,12 @@ module Navigate {
         private scope: INavigateScope;
 
         public RecentLayers: csComp.Services.ProjectLayer[] = [];
+        public mobileLayers: csComp.Services.ProjectLayer[] = [];
+        public mobileLayer: csComp.Services.ProjectLayer;
         public RecentFeatures: RecentFeature[] = [];
+        public UserName: string;
+        public MyFeature: csComp.Services.Feature;
+        private lastPost = { longitude: 0, latitude: 0 }
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -23,7 +28,7 @@ module Navigate {
         public static $inject = [
             '$scope',
             'layerService',
-            'messageBusService', 'localStorageService'
+            'messageBusService', 'localStorageService', 'geoService'
         ];
 
         // dependencies are injected via AngularJS $injector
@@ -32,16 +37,85 @@ module Navigate {
             private $scope: INavigateScope,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
-            private localStorageService: ng.localStorage.ILocalStorageService
+            private localStorageService: ng.localStorage.ILocalStorageService,
+            private geoService: csComp.Services.GeoService
             ) {
             $scope.vm = this;
+
 
             this.$messageBus.subscribe('project', (a, p) => {
                 if (a === 'loaded') {
                     this.initRecentLayers();
                     this.initRecentFeatures();
+                    if (this.$layerService.isMobile) this.initMobileLayers(p);
                 }
             });
+        }
+
+        private leave(l: csComp.Services.ProjectLayer) {
+            if (this.mobileLayer && this.MyFeature) {
+                this.$layerService.removeFeature(this.MyFeature, true);
+                this.$layerService.activeMapRenderer.removeFeature(this.MyFeature);
+                //this.$layerService.saveFeature(this.MyFeature);
+                this.MyFeature = null;
+            }
+            this.mobileLayer = null;
+        }
+
+        private join(l: csComp.Services.ProjectLayer) {
+            async.series([(cb) => {
+                if (!l.enabled) {
+                    this.$layerService.addLayer(l, () => {
+                        cb();
+                    })
+                } else { cb(); }
+            }, (cb) => {
+                    this.mobileLayer = l;
+                    var f = new csComp.Services.Feature();
+                    f.layerId = this.mobileLayer.id;
+                    f.geometry = {
+                        type: 'Point', coordinates: []
+                    };
+                    // todo disable
+                    f.geometry.coordinates = [this.lastPost.longitude, this.lastPost.latitude]; //[0, 0]; //loc.coords.longitude, loc.coords.latitude];
+                    f.id = this.UserName;
+                    f.properties = { "Name": this.UserName };
+                    //layer.data.features.push(f);
+                    this.$layerService.initFeature(f, this.mobileLayer);
+                    this.$layerService.activeMapRenderer.addFeature(f);
+                    this.$layerService.saveFeature(f);
+                    this.MyFeature = f;
+                }]);
+
+        }
+
+        private initMobileLayers(p: csComp.Services.Project) {
+            this.UserName = "Arnoud";
+            this.mobileLayers = [];
+
+            p.groups.forEach((g=> {
+                g.layers.forEach((l) => {
+                    if (l.tags && l.tags.indexOf('mobile') >= 0) this.mobileLayers.push(l);
+                });
+            }))
+
+            if (this.$layerService.isMobile) {
+                this.$messageBus.subscribe("geo", (action, loc: csComp.Services.Geoposition) => {
+                    switch (action) {
+                        case "pos":
+                            if (this.mobileLayer && this.MyFeature) {
+                                this.lastPost = loc.coords;
+                                this.MyFeature.geometry.coordinates = [loc.coords.longitude, loc.coords.latitude];
+                                this.$layerService.activeMapRenderer.updateFeature(this.MyFeature);
+                                this.$layerService.saveFeature(this.MyFeature);
+                            }
+                            break;
+                    }
+                });
+
+
+                this.geoService.start({});
+            }
         }
 
         private updateRecentFeaturesList() {
