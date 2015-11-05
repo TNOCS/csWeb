@@ -4,18 +4,16 @@ var tsd           = require('gulp-tsd');
 var exec          = require('child_process').execSync;
 var install       = require('gulp-install');
 
-function run(command, cb) {
+function run(command) {
   console.log('Run command: ' + command);
-  exec(command, function(err, stdout, stderr) {
-    if (err) {
-      console.log('### ERROR ON COMMAND ' + command + ':');
-      console.log(stdout);
-      cb(err);
-      throw err;
-    }
-
-    return cb(err);
-  });
+  try {
+    exec(command);
+  } catch(err) {
+    console.log('### Exception encountered on command: ' + command);
+    console.log(err.stdout.toString());
+    console.log('####################################');
+    throw err;
+  }
 }
 
 // This task runs tsd command on csComp folder
@@ -87,7 +85,7 @@ gulp.task('example_deps', function() {
 gulp.task('init', [
     'comp_tsconfig_files',
     'comp_tsd',
-    // 'comp_tsc',
+    'comp_tsc',
     'servercomp_tsd',
     'servercomp_tsconfig_files',
     'servercomp_tsc',
