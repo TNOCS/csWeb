@@ -63,6 +63,7 @@ module Navigate {
         }
 
         private join(l: csComp.Services.ProjectLayer) {
+            this.localStorageService.set("username", this.UserName);
             async.series([(cb) => {
                 if (!l.enabled) {
                     this.$layerService.addLayer(l, () => {
@@ -90,7 +91,8 @@ module Navigate {
         }
 
         private initMobileLayers(p: csComp.Services.Project) {
-            this.UserName = "Arnoud";
+            this.UserName = this.localStorageService.get("username");
+            if (!this.UserName) this.UserName = "mobile user";
             this.mobileLayers = [];
 
             p.groups.forEach((g=> {
