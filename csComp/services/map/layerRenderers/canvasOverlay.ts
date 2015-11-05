@@ -49,7 +49,7 @@ module L {
 
             this._popup = null;
 
-            this.onMouseMoveDelay = _.debounce((evt) => {
+            this.onMouseMoveDelay = _.throttle((evt) => {
                 var pos = this._getCanvasPos();
                 var rgb = this._context.getImageData(evt.x - pos.left, evt.y - pos.top, 1, 1).data;
                 // only show tooltip when a colored cell is located at the mouse cursor position
@@ -64,7 +64,7 @@ module L {
                     }
                     (this._layer.dataSourceParameters.legendStringFormat) ? value = (<any>String).format(this._layer.dataSourceParameters.legendStringFormat, value) : null;
                     var content = '<table><td>' + value + '</td></tr>' + '</table>';
-                    if (this._popup != null) {
+                    if (this._popup && this._map._popup && this._map._popup._isOpen) {
                         this._popup.setLatLng(this._map.containerPointToLatLng(new L.Point(evt.x, evt.y))).setContent(content);
                     } else {
                         this._popup = L.popup({
@@ -79,9 +79,9 @@ module L {
                     this._popup = null;
                 }
                 //console.log('mousemoved ' + evt.x + ', ' + evt.y + ',  color: R' + rgb[0] + ' G' + rgb[1] + ' B' + rgb[2]);
-            }, 250);
+            }, 500);
 
-            this._canvas.addEventListener('mousemove', this.onMouseMoveDelay);
+            map.getPanes().overlayPane.addEventListener('mousemove', this.onMouseMoveDelay);
 
             var animated = this._map.options.zoomAnimation && (<any>L.Browser).any3d;
             L.DomUtil.addClass(this._canvas, 'leaflet-zoom-' + (animated ? 'animated' : 'hide'));
@@ -108,7 +108,7 @@ module L {
             map.off('moveend', this._reset, this);
             map.off('resize', this._resize, this);
 
-            this._canvas.removeEventListener('mousemove', this.onMouseMoveDelay);
+            map.getPanes().overlayPane.removeEventListener('mousemove', this.onMouseMoveDelay);
             map.closePopup(this._popup);
             this._popup = null;
 

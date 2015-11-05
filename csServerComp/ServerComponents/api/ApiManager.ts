@@ -1009,7 +1009,7 @@ export class ApiManager extends events.EventEmitter {
         else {
             this.setUpdateLayer(layer, meta);
             var s = this.findStorage(layer);
-            s.addFeature(layerId, feature, meta, (result) => {
+            if (s) s.addFeature(layerId, feature, meta, (result) => {
                 this.getInterfaces(meta).forEach((i: IConnector) => {
                     i.addFeature(layerId, feature, meta, () => { });
                 });
