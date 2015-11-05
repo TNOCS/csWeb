@@ -1693,7 +1693,7 @@ module csComp.Services {
                     for (let i = 1; i < matches.length; i++) {
                         var match = matches[i];
                         featureTypeName = feature.properties.hasOwnProperty(match)
-                            ? featureTypeName.replace( `{${match}}`, feature.properties[match])
+                            ? featureTypeName.replace(`{${match}}`, feature.properties[match])
                             : featureTypeName.replace(`_{${match}}`, '');
                     }
                 }
@@ -1994,7 +1994,7 @@ module csComp.Services {
                 (callback) => {
                     if (this.project.typeUrls && this.project.typeUrls.length > 0) {
                         async.eachSeries(this.project.typeUrls, (item, cb) => {
-                            this.loadTypeResources(item, false, () => cb(null, null));
+                            this.loadTypeResources(item, false, () => cb(null));
 
                         }, () => {
                                 callback(null, null);

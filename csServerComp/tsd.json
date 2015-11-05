@@ -27,7 +27,7 @@
       "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
     },
     "node/node.d.ts": {
-      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
+      "commit": "35989a3ab4834b8e8b2b56788f1d4fc46a25dc8d"
     },
     "jquery/jquery.d.ts": {
       "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
@@ -45,7 +45,7 @@
       "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
     },
     "socket.io/socket.io.d.ts": {
-      "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"
+      "commit": "35989a3ab4834b8e8b2b56788f1d4fc46a25dc8d"
     },
     "sqlite3/sqlite3.d.ts": {
       "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"

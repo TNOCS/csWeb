@@ -1,9 +1,6 @@
 var path = require('path');
 var fs = require('fs');
 var osr = require('./OfflineSearchResult');
-/**
-* Offline Search reads the solution file, and creates an OfflineSearchResult for each project it contains.
-*/
 var OfflineSearcher = (function () {
     function OfflineSearcher(project, options) {
         var _this = this;
@@ -33,15 +30,9 @@ var OfflineSearcher = (function () {
         enumerable: true,
         configurable: true
     });
-    /**
-     * Return the (local) layer file name.
-     */
     OfflineSearcher.prototype.layerFilename = function (baseUrl) {
         return 'public/' + baseUrl;
     };
-    /**
-     * Process the project by extracting the groups and processing each layer.
-     */
     OfflineSearcher.prototype.processProject = function () {
         var _this = this;
         fs.readFile(this.projectFilename, 'utf8', function (err, data) {
@@ -65,10 +56,6 @@ var OfflineSearcher = (function () {
             _this.saveResult();
         });
     };
-    /**
-     * Process a single layer by calling processProperties on each feature.
-     * @layer {ILayer}
-     */
     OfflineSearcher.prototype.processLayer = function (layer, groupTitle) {
         var _this = this;
         this.filesToProcess++;
@@ -79,7 +66,6 @@ var OfflineSearcher = (function () {
         this.layers.push(resultLayer);
         var featureTypeLookup = {};
         if (layer.typeUrl != null) {
-            //console.log("Load resource type file " + layer.typeUrl);
             var typeFileLocation = path.resolve("public", layer.typeUrl);
             var layerTypes = JSON.parse(fs.readFileSync(typeFileLocation).toString());
             var featureTypeIds = Object.getOwnPropertyNames(layerTypes.featureTypes);
@@ -117,10 +103,10 @@ var OfflineSearcher = (function () {
                     return;
                 }
                 var nameLabel = featureType.style.nameLabel;
-                var effectiveProperties = _this.propertyNames.slice(0); // copy provided property names
+                var effectiveProperties = _this.propertyNames.slice(0);
                 if (nameLabel != null) {
                     if (effectiveProperties.indexOf(nameLabel) == -1) {
-                        effectiveProperties.push(nameLabel); // add name label if it wasn't included in te provided property names
+                        effectiveProperties.push(nameLabel);
                     }
                 }
                 else {
@@ -138,9 +124,6 @@ var OfflineSearcher = (function () {
             _this.saveResult();
         });
     };
-    /**
-     * Get the shortened name of a feature.
-     */
     OfflineSearcher.prototype.getShortenedName = function (feature, nameLabel) {
         if (nameLabel == null) {
             nameLabel = "Name";
@@ -154,13 +137,6 @@ var OfflineSearcher = (function () {
             name = name.substring(0, 22) + '...';
         return name;
     };
-    /**
-     * Process each property that is included, and save the resulting Entry for each word
-     * that is not a stop word.
-     * @props {geo.IStringToAny}
-     * @layerIndex {number}
-     * @featureIndex {number}
-     */
     OfflineSearcher.prototype.processProperties = function (props, propertiesToIndex, layerIndex, featureIndex) {
         var _this = this;
         for (var i = 0; i < propertiesToIndex.length; i++) {
@@ -173,34 +149,14 @@ var OfflineSearcher = (function () {
                 if (words.length <= 0)
                     continue;
                 words.forEach(function (word) {
-                    // if (layerIndex === 10 && word.toLowerCase() === 'parnassia')
-                    //     debugger;
                     _this.addEntry(word, layerIndex, featureIndex);
                 });
             }
             else {
-                // Value is a number
                 this.addEntry('' + value, layerIndex, featureIndex);
             }
         }
-        //   for (var key in props) {
-        //       var propertyIndex = this.propertyNames.indexOf(key);
-        //       if (propertyIndex >= 0) {
-        //           var words = props[key].split(' ');
-        //           if (words.length <= 0) continue;
-        //           words.forEach((word) => {
-        //               this.addEntry(word, layerIndex, featureIndex, propertyIndex)
-        //           });
-        //       }
-        //   }
     };
-    /**
-     * Add a new or enhance an existing entry.
-     * @key {string}
-     * @layerIndex {number}
-     * @featureIndex {number}
-     * @propertyIndex {number}
-     */
     OfflineSearcher.prototype.addEntry = function (key, layerIndex, featureIndex) {
         key = key.toLowerCase();
         if (this.stopWords.indexOf(key) >= 0)
@@ -209,7 +165,6 @@ var OfflineSearcher = (function () {
             this.keywordIndex[key] = [];
         }
         else {
-            // Check for duplicate keys
             var entries = this.keywordIndex[key];
             for (var i = 0; i < entries.length; i++) {
                 var entry = entries[i];
@@ -219,11 +174,6 @@ var OfflineSearcher = (function () {
         }
         this.keywordIndex[key].push(new osr.Entry(layerIndex, featureIndex));
     };
-    /**
-     * Add a new or enhance an existing entry.
-     * @key {string}
-     * @entry {number[]}
-     */
     OfflineSearcher.prototype.addFullEntry = function (key, entry) {
         if (!this.keywordIndex.hasOwnProperty(key)) {
             this.keywordIndex[key] = [];
