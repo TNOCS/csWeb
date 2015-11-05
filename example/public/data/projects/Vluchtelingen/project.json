@@ -9,7 +9,7 @@
         "description": "",
         "title": "Asielzoekers",
         "clusterLevel": 12,
-        "clustering": true,
+        "clustering": false,
         "layers": [{
             "id": "vluchtelingen",
             "title": "Syrische immigranten",
