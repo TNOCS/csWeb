@@ -19,11 +19,11 @@ csServerComp/Classes/**/*.js
 csServerComp/ServerComponents/**/*.d.ts
 csServerComp/ServerComponents/**/*.js
 
-csServerComp/Scripts/typings/bcrypt/
-csServerComp/Scripts/typings/mime/
-csServerComp/Scripts/typings/serve-static/
-csServerComp/Scripts/typings/socket.io/
-csServerComp/Scripts/typings/tsd.d.ts
+# csServerComp/Scripts/typings/bcrypt/
+# csServerComp/Scripts/typings/mime/
+# csServerComp/Scripts/typings/serve-static/
+# csServerComp/Scripts/typings/socket.io/
+# csServerComp/Scripts/typings/tsd.d.ts
 
 csDataGatherer/node_modules/
 csDataGatherer/public/includes/

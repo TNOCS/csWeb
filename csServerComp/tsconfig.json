@@ -19,7 +19,6 @@
   ],
   "exclude": [],
   "files": [
-    "./Classes/Feature.ts",
     "./ServerComponents/api/ApiManager.ts",
     "./ServerComponents/api/ApiServiceManager.ts",
     "./ServerComponents/api/AuthAPI.ts",
