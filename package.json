@@ -1,12 +1,12 @@
 {
-  "name": "csWebExample",
-  "version": "0.1.0",
+  "name": "csWeb",
+  "version": "0.1.9",
   "description": "CommonSense web application",
-  "main": "app.js",
+  "main": "server.js",
   "start": "node server.js",
   "author": {
-    "name": "Erik Vullings",
-    "email": "erik.vullings@tno.nl"
+    "name": "Arnoud de Jong",
+    "email": "damylen@gmail.com"
   },
   "repository": {
     "type": "git",
