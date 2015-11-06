@@ -4,13 +4,29 @@ var tsd           = require('gulp-tsd');
 var exec          = require('child_process').execSync;
 var install       = require('gulp-install');
 var runSequence   = require('run-sequence');
+var del           = require('del');
+var insert        = require('gulp-insert');
+var uglify        = require('gulp-uglify');
+var useref        = require('gulp-useref');
+var rename        = require('gulp-rename');
+var debug         = require('gulp-debug');
+var cache         = require('gulp-cached');
+var concat        = require('gulp-concat');
+var plumber       = require('gulp-plumber');
+var watch         = require('gulp-watch');
+var changed       = require('gulp-changed');
+var templateCache = require('gulp-angular-templatecache');
+var deploy        = require('gulp-gh-pages');
+var sass          = require('gulp-sass');
+var purify        = require('gulp-purifycss');
+var karma         = require('karma');
 
 function run(command, cb) {
   console.log('Run command: ' + command);
   try {
     exec(command);
     cb();
-  } catch(err) {
+  } catch (err) {
     console.log('### Exception encountered on command: ' + command);
     console.log(err.stdout.toString());
     console.log('####################################');
@@ -76,6 +92,10 @@ gulp.task('servercomp_tsc', function(cb) {
   return run('tsc -p csServerComp', cb);
 });
 
+gulp.task('test_tsc', function(cb) {
+  return run('tsc -p test', cb);
+});
+
 // Run required npm and bower installs for example folder
 gulp.task('example_deps', function() {
   gulp.src([
@@ -97,6 +117,14 @@ gulp.task('init', function() {
   );
 });
 
+gulp.task('test', ['test_tsc'], function(done) {
+  console.log('Now we can start karma run...');
+  new karma.Server({
+    configFile: __dirname + '/test/karma.conf.js',
+    singleRun: true,
+  }, done).start();
+});
+
 gulp.task('dev', ['?']);
 
 gulp.task('start', ['?']);
@@ -106,26 +134,6 @@ gulp.task('start', ['?']);
 // Output application name
 var appName    = 'csWebApp';
 var path2csWeb = './';
-
-var gulp          = require('gulp'),
-    del           = require('del'),
-    insert        = require('gulp-insert'),
-    uglify        = require('gulp-uglify'),
-    useref        = require('gulp-useref'),
-    rename        = require('gulp-rename'),
-    debug         = require('gulp-debug'),
-    cache         = require('gulp-cached'),
-    concat        = require('gulp-concat'),
-    plumber       = require('gulp-plumber'),
-    watch         = require('gulp-watch'),
-    gulpif        = require('gulp-if'),
-    changed       = require('gulp-changed'),
-
-    // exec          = require('child_process').exec,
-    templateCache = require('gulp-angular-templatecache'),
-    deploy        = require('gulp-gh-pages'),
-    sass          = require('gulp-sass'),
-    purify        = require('gulp-purifycss');
 
 gulp.task('csspurify', function() {
     return gulp.src(path2csWeb + 'example/public/cs/css/csstyles.css')
@@ -179,12 +187,11 @@ gulp.task('built_csComp', function() {
 });
 
 gulp.task('compile_all', function() {
-    exec('cd ' + path2csWeb + 'csServerComp && tsc');
-    exec('cd ' + path2csWeb + 'csComp && tsc');
-    exec('tsc');
-    exec('cd ' + path2csWeb + 'test && tsc');
-    //exec('gulp all');
-    //return exec('cd ' + path2csWeb + 'test/csComp && karma');
+  /* runsequence('servercomp_tsc','comp_tsc','test_tsc'); insead ? */
+  exec('cd ' + path2csWeb + 'csServerComp && tsc');
+  exec('cd ' + path2csWeb + 'csComp && tsc');
+  exec('tsc');
+  exec('cd ' + path2csWeb + 'test && tsc');
 });
 
 //gulp.task('built', ['compile_all', 'default']);
