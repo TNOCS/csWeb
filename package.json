@@ -14,9 +14,10 @@
   },
   "license": "MIT",
   "dependencies": {
+    "gulp-install": "~0.6.0",
     "gulp-tsconfig-files": "~0.1.0",
     "gulp-tsd": "0.0.4",
-    "gulp-install": "~0.6.0"
+    "run-sequence": "^1.1.4"
   },
   "devDependencies": {
     "chokidar": "^1.2.0",

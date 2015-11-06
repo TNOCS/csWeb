@@ -3,15 +3,18 @@ var tsconfig      = require('gulp-tsconfig-files');
 var tsd           = require('gulp-tsd');
 var exec          = require('child_process').execSync;
 var install       = require('gulp-install');
+var runSequence   = require('run-sequence');
 
-function run(command) {
+function run(command, cb) {
   console.log('Run command: ' + command);
   try {
     exec(command);
+    cb();
   } catch(err) {
     console.log('### Exception encountered on command: ' + command);
     console.log(err.stdout.toString());
     console.log('####################################');
+    cb();
     throw err;
   }
 }
@@ -82,15 +85,17 @@ gulp.task('example_deps', function() {
     .pipe(install());
 });
 
-gulp.task('init', [
-    'comp_tsconfig_files',
+gulp.task('init', function() {
+  runSequence(
     'comp_tsd',
+    'comp_tsconfig_files',
     'comp_tsc',
     'servercomp_tsd',
     'servercomp_tsconfig_files',
     'servercomp_tsc',
-    'example_deps',
-]);
+    'example_deps'
+  );
+});
 
 gulp.task('dev', ['?']);
 
