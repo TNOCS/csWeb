@@ -103,7 +103,7 @@ module LegendList {
                             var fType = this.$layerService.getFeatureTypeById(typeName);
                             if (!processedFeatureTypes.hasOwnProperty(typeName) && fType && fType.hasOwnProperty('legendItems')) {
                                 fType['legendItems'].forEach((i) => {
-                                    legendItems.push({title: i.title, uri: i.uri || '', html: i.html || ''});
+                                    legendItems.push({ title: i.title, uri: i.uri || '', html: i.html || '' });
                                 });
                             }
                             processedFeatureTypes[typeName] = true;
@@ -137,15 +137,29 @@ module LegendList {
         }
 
         private updateLegendItemsUsingFeatures() {
+            var sort = true;
+            var processedFeatureTypes = {};
             var legendItems: Array<ILegendItem> = [];
             var existingItems: Array<String> = [];
             if (!this.$layerService.project || this.$layerService.project.features.length === 0) {
                 this.$scope.legendItems = legendItems;
                 return;
             }
+            // Loop over all features on the map
             this.$layerService.project.features.forEach((f) => {
-                var ft = f.fType;
+                var ft: csComp.Services.IFeatureType = f.fType;
                 if (!ft) ft = this.$layerService.getFeatureType(f);
+                // If a (static) legend is defined in the featureType, use it
+                if (processedFeatureTypes.hasOwnProperty(ft.name)) return;
+                if (ft && ft.hasOwnProperty('legendItems')) {
+                    ft['legendItems'].forEach((i) => {
+                        legendItems.push({ title: i.title, uri: i.uri || '', html: i.html || '' });
+                    });
+                    sort = false;
+                    processedFeatureTypes[ft.name] = true;
+                    return;
+                }
+                // Else get the legend entry from the feature style
                 var uri = (ft && ft.style && ft.style.hasOwnProperty('iconUri')) ? csComp.Helpers.convertStringFormat(f, ft.style.iconUri) : csComp.Helpers.getImageUri(ft);
                 if (uri.indexOf('_Media') >= 0) f.effectiveStyle.iconUri = "cs/images/polygon.png";
                 var html = csComp.Helpers.createIconHtml(f, ft)['html'];
@@ -156,11 +170,13 @@ module LegendList {
                     legendItems.push({ "title": title, "uri": uri, "html": html });
                 }
             });
-            legendItems.sort((a: ILegendItem, b: ILegendItem) => {
-                if (a.title > b.title) return 1;
-                if (a.title < b.title) return -1;
-                return 0;
-            });
+            if (sort) {
+                legendItems.sort((a: ILegendItem, b: ILegendItem) => {
+                    if (a.title > b.title) return 1;
+                    if (a.title < b.title) return -1;
+                    return 0;
+                });
+            }
             this.$scope.legendItems = legendItems;
         }
 
