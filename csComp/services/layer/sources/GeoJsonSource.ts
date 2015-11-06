@@ -22,7 +22,7 @@ module csComp.Services {
 
         /** zoom to boundaries of layer */
         public fitMap(layer: ProjectLayer) {
-            var b = Helpers.GeoExtensions.getBoundingBox(this.layer.data);
+            var b = Helpers.GeoExtensions.getBoundingBox(layer.data);
             this.service.$messageBusService.publish("map", "setextent", b);
         }
 
@@ -50,6 +50,7 @@ module csComp.Services {
                         layer.isLoading = false;
                         layer.enabled = true;
                         this.initLayer(data, layer);
+                        if (this.layer.fitToMap) this.fitMap(this.layer);
                         cb(null, null);
                     })
                         .error(() => {

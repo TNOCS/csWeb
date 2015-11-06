@@ -822,6 +822,7 @@
           "url": "data/projects/20141104_csMap/Ziekenhuizen.json",
           "typeUrl": "data/resourceTypes/resources.json",
           "opacity": 100,
+          "fitToMap": true,
           "languages": {
             "nl": {
               "title": "Ziekenhuizen",

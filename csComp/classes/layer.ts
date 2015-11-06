@@ -251,6 +251,10 @@ module csComp.Services {
         /** show notification on new feature*/
         showFeatureNotifications: boolean = true;
 
+        /** Change the map extent to fit the contents of the layer
+         *  when it is activated
+         */
+        fitToMap: boolean;
 
 
         /**
@@ -284,7 +288,7 @@ module csComp.Services {
                 useLog: pl.useLog,
                 gui: {},
                 tags: pl.tags,
-
+                fitToMap: pl.fitToMap
             };
         }
     }

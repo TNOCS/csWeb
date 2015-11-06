@@ -50,7 +50,8 @@ module csComp.Services {
                 switch (action) {
                     case 'setextent':
                         // console.log(data);
-                        this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast));
+                        // take the navbar and leftpanel into account using padding (50px height, 370px left)
+                        this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast), {paddingTopLeft: new L.Point(370, 50)});
 
                         break;
                 }
