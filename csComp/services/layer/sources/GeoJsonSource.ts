@@ -104,11 +104,39 @@ module csComp.Services {
             layer.data.features.forEach((f) => {
                 this.service.initFeature(f, layer, false, false);
             });
+
+            layer.isTransparent = false;
+            // Subscribe to zoom events
+            if (layer.minZoom || layer.maxZoom) {
+                if (!layer.minZoom) layer.minZoom = 0;
+                if (!layer.maxZoom) layer.maxZoom = 25;
+                layer.zoomHandle = this.service.$messageBusService.subscribe('map', (topic, level) => {
+                    if (!topic || !level || topic !== 'zoom' || level < 0) return;
+                    if ((level < layer.minZoom || level > layer.maxZoom)) {
+                        if (!layer.isTransparent) {
+                            layer.isTransparent = true;
+                            this.service.updateLayerFeatures(layer);
+                        }
+                    } else {
+                        if (layer.isTransparent) {
+                            layer.isTransparent = false;
+                            this.service.updateLayerFeatures(layer);
+                        }
+                    }
+                })
+            }
+
             this.service.$messageBusService.publish("timeline", "updateFeatures");
         }
 
         removeLayer(layer: ProjectLayer) {
-            //alert('remove layer');
+            layer.isTransparent = false;
+            if (layer.zoomHandle) this.service.$messageBusService.unsubscribe(layer.zoomHandle);
+            //Reset the default zoom when deactivating a layer with the parameter 'fitToMap' set to true.
+            if (layer.fitToMap) {
+                if (!this.service.solution.viewBounds) return;
+                this.service.$messageBusService.publish("map", "setextent", this.service.solution.viewBounds);
+            }
         }
 
         private processAccessibilityReply(data, layer, clbk) {
@@ -464,7 +492,7 @@ module csComp.Services {
                 this.service.$messageBusService.publish("timeline", "updateFeatures");
             })
                 .error((e) => {
-                    console.log('EsriJsonSource called $HTTP with errors: ' + e);
+                console.log('EsriJsonSource called $HTTP with errors: ' + e);
             }).finally(() => {
                 layer.isLoading = false;
                 callback(layer);

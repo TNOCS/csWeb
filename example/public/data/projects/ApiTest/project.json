@@ -1218,6 +1218,8 @@
           "title": "Health regions",
           "description": "Data at the health office regions. (Source: CBS, BAG, TNO, DigiMV.)",
           "type": "geojson",
+          "minZoom": 3,
+          "maxZoom": 11,
           "renderType": "geojson",
           "heatmapItems": null,
           "url": "data/projects/20141104_csMap/Regio ZK ZZP CBS.json",

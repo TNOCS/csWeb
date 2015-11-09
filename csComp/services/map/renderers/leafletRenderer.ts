@@ -40,6 +40,11 @@ module csComp.Services {
                 var boundingBox: csComp.Services.IBoundingBox = { southWest: [b.getSouthWest().lat, b.getSouthWest().lng], northEast: [b.getNorthEast().lat, b.getNorthEast().lng] };
                 this.service.$mapService.maxBounds = boundingBox;
             });
+
+            this.service.$mapService.map.on('zoomend', (t, event: any) => {
+                var z: number = (<L.Map>(this.service.$mapService.map)).getZoom();
+                this.$messageBusService.publish('map', 'zoom', z);
+            });
         }
 
         public getLatLon(x: number, y: number): { lat: number, lon: number } {
