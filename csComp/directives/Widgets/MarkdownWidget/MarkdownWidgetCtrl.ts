@@ -87,6 +87,10 @@ module MarkdownWidget {
             }
         }
 
+        private close() {
+            this.parentWidget.hide();
+        }
+
         private escapeRegExp(str: string) {
             return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
         }
