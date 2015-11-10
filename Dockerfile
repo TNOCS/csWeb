@@ -13,6 +13,7 @@ ENV HOME /home/node
 
 EXPOSE 3002
 WORKDIR /home/node/app
+RUN npm install
 RUN gulp init
 WORKDIR /home/node/app/example
 CMD node server.js
