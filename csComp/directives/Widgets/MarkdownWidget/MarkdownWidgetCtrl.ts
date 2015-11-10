@@ -1,15 +1,15 @@
 module MarkdownWidget {
     export class MarkdownWidgetData {
-        title:   string;
+        title: string;
         /**
          * Content to display: you can either provide it directly, or specify a URL, in which case it will replace the content.
          */
         content: string;
-        url:     string;
+        url: string;
         /**
          * The actual content is being converted, if necessary, and set to the markdown text.
          */
-        mdText:  string;
+        mdText: string;
         /**
          * If provided, indicates the feature type that needs to be selected in order to show the widget.
          */
@@ -21,8 +21,9 @@ module MarkdownWidget {
     }
 
     export interface IMarkdownWidgetScope extends ng.IScope {
-        vm  : MarkdownWidgetCtrl;
+        vm: MarkdownWidgetCtrl;
         data: MarkdownWidgetData;
+        minimized: boolean;
     }
 
     export class MarkdownWidgetCtrl {
@@ -39,11 +40,11 @@ module MarkdownWidget {
         ];
 
         constructor(
-            private $scope       : IMarkdownWidgetScope,
-            private $timeout     : ng.ITimeoutService,
+            private $scope: IMarkdownWidgetScope,
+            private $timeout: ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService,
-            private $messageBus  : csComp.Services.MessageBusService,
-            private $mapService  : csComp.Services.MapService
+            private $messageBus: csComp.Services.MessageBusService,
+            private $mapService: csComp.Services.MapService
             ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
@@ -51,6 +52,7 @@ module MarkdownWidget {
 
             $scope.data = <MarkdownWidgetData>this.widget.data;
             $scope.data.mdText = $scope.data.content;
+            $scope.minimized = false;
 
             if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
                 // Hide widget
@@ -74,6 +76,19 @@ module MarkdownWidget {
                     $scope.data.content = $scope.data.mdText = md;
                 }, 0);
             });
+        }
+
+        private minimize() {
+            this.$scope.minimized = !this.$scope.minimized;
+            if (this.$scope.minimized) {
+                this.parentWidget.css("height", "30px");
+            } else {
+                this.parentWidget.css("height", this.widget.height);
+            }
+        }
+
+        private close() {
+            this.parentWidget.hide();
         }
 
         private escapeRegExp(str: string) {

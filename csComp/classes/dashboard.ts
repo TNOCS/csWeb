@@ -74,6 +74,7 @@ module csComp.Services {
         messageBusService?: csComp.Services.MessageBusService;
         layerService?: csComp.Services.LayerService;
 
+
         _ctrl?: IWidgetCtrl;
         _ijs?: any;
         _initialized?: boolean;
@@ -220,6 +221,7 @@ module csComp.Services {
         widgets: IWidget[];
         editMode: boolean;
         showMap: boolean;
+        mobile: boolean = true;
         showTimeline: boolean = true;
         showLeftmenu: boolean;
         showLegend: boolean = false;
@@ -264,7 +266,8 @@ module csComp.Services {
                 baselayer: d.baselayer,
                 viewBounds: d.viewBounds,
                 widgets: csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData),
-                visibleLeftMenuItems: d.visibleLeftMenuItems
+                visibleLeftMenuItems: d.visibleLeftMenuItems,
+                mobile: d.mobile
             }
         }
 

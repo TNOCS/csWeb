@@ -499,11 +499,13 @@ export class ApiManager extends events.EventEmitter {
         });
         // store resource
         if (s) {
-            s.addResource(resource, meta, (r: CallbackResult) => callback(r))
+            s.addResource(resource, meta, (r: CallbackResult) => {
+                callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
+            });
         } else {
             callback(<CallbackResult>{ result: ApiResult.OK });
         }
-        callback(<CallbackResult>{ result: ApiResult.OK, error: "Resource added" });
+
     }
 
     public getResource(id: string): ResourceFile {
@@ -532,9 +534,10 @@ export class ApiManager extends events.EventEmitter {
             g.layers = g.layers.filter((gl) => { return (gl.id !== l.id) });
         }
         g.layers.push(l);
-        this.updateProject(p, meta, () => { });
-        Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
-        callback(<CallbackResult>{ result: ApiResult.OK });
+        this.updateProject(p, meta, () => {
+            Winston.info('api: add layer ' + l.id + ' to group ' + g.id + ' of project ' + p.id);
+            callback(<CallbackResult>{ result: ApiResult.OK });
+        });
     }
 
     public removeLayerFromProject(projectId: string, groupId: string, layerId: string, meta: ApiMeta, callback: Function) {
@@ -1006,12 +1009,13 @@ export class ApiManager extends events.EventEmitter {
         else {
             this.setUpdateLayer(layer, meta);
             var s = this.findStorage(layer);
-            s.addFeature(layerId, feature, meta, (result) => callback(result));
-            this.getInterfaces(meta).forEach((i: IConnector) => {
-                i.addFeature(layerId, feature, meta, () => { });
+            if (s) s.addFeature(layerId, feature, meta, (result) => {
+                this.getInterfaces(meta).forEach((i: IConnector) => {
+                    i.addFeature(layerId, feature, meta, () => { });
+                });
+                this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Create, value: feature });
+                callback(<CallbackResult>{ result: ApiResult.OK });
             });
-            this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Create, value: feature });
-            callback(<CallbackResult>{ result: ApiResult.OK });
         }
     }
 
@@ -1055,11 +1059,13 @@ export class ApiManager extends events.EventEmitter {
 
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
-        s.deleteFeature(layerId, featureId, meta, (result) => callback(result));
-        this.getInterfaces(meta).forEach((i: IConnector) => {
-            i.deleteFeature(layerId, featureId, meta, () => { });
+        if (s) s.deleteFeature(layerId, featureId, meta, (result) => {
+            this.getInterfaces(meta).forEach((i: IConnector) => {
+                i.deleteFeature(layerId, featureId, meta, () => { });
+            });
+            this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Delete, value: featureId });
+            callback(result);
         });
-        this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Delete, value: featureId });
     }
 
 

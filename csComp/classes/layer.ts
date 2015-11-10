@@ -251,7 +251,22 @@ module csComp.Services {
         /** show notification on new feature*/
         showFeatureNotifications: boolean = true;
 
+        /** Change the map extent to fit the contents of the layer
+         *  when it is activated
+         */
+        fitToMap: boolean;
 
+        /** Select a min and max zoom for the layer to be shown.
+         *  When the zoomlevel is out of range, hide all features using the opacity.
+         */
+        minZoom: number;
+        maxZoom: number;
+
+        /** handle for receiving zoom events */
+        zoomHandle: MessageBusHandle;
+
+        /** True when the layer features are transparent, e.g. when outside zoom range */
+        isTransparent: boolean;
 
         /**
          * Returns an object which contains all the data that must be serialized.
@@ -284,7 +299,9 @@ module csComp.Services {
                 useLog: pl.useLog,
                 gui: {},
                 tags: pl.tags,
-
+                fitToMap: pl.fitToMap,
+                minZoom: pl.minZoom,
+                maxZoom: pl.maxZoom
             };
         }
     }

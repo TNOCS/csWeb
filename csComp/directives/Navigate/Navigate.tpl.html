@@ -7,8 +7,17 @@
         <div style="display:inline; cursor:pointer" ng-hide="vm.locationFilterActive">{{'ENABLE_LOCATION_FILTER' | translate}}</div>
         <div style="display:inline; cursor:pointer" ng-show="vm.locationFilterActive">{{'DISABLE_LOCATION_FILTER' | translate}}</div>
     </a> -->
-<div>
+<!-- <div>
     <input class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="layerFilter" placeholder="Search"></input>
+</div> -->
+
+<div ng-if="vm.mobileLayers && vm.$layerService.isMobile" style="margin-top:10px">
+    <div class="group-title" style="margin-left: 0">Share my location</div>
+    <input ng-if="!vm.mobileLayer" class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="vm.UserName" placeholder="User Name"></input>
+    <div class="btn btn-danger" ng-if="vm.mobileLayer" ng-click="vm.leave(vm.mobileLayer)">Leave {{vm.mobileLayer.title}}</div>
+    <div ng-if="!vm.mobileLayer" ng-repeat="l in vm.mobileLayers">
+        <div class="btn btn-success" ng-click="vm.join(l)">Join {{l.title}}</div>
+    </div>
 </div>
 
 <div style="margin-top:10px">

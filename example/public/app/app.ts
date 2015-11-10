@@ -30,7 +30,7 @@ module App {
             'messageBusService',
             'dashboardService',
             'geoService'
-        ];
+        ]; 
 
         public areaFilter: AreaFilter.AreaFilterModel;
         public contourAction: ContourAction.ContourActionModel;

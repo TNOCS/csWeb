@@ -62,6 +62,9 @@ module csComp.Services {
         editing: boolean;
         directoryHandle: MessageBusHandle;
 
+        /** indicator true for mobile devices */
+        isMobile: boolean;
+
         currentLocale: string;
         /** layers that are currently active */
         loadedLayers = new csComp.Helpers.Dictionary<ProjectLayer>();
@@ -188,6 +191,15 @@ module csComp.Services {
             $messageBusService.subscribe("timeline", (action: string, date: Date) => {
                 if (action === "focusChange") { delayFocusChange(date); }
             });
+
+            this.checkMobile();
+        }
+
+        public checkMobile() {
+            if (screen.width <= 719) {
+                this.isMobile = true;
+                //alert('is mobile');
+            }
         }
 
         public getActions(feature: IFeature, type: ActionType): IActionOption[] {
@@ -546,9 +558,13 @@ module csComp.Services {
                         this.$http.get(url)
                             .success((resource: TypeResource) => {
                             success = true;
-                            resource.url = url;
-                            this.initTypeResources(resource);
-                            this.$messageBusService.publish("typesource", url, resource);
+                            if (resource) {
+                                resource.url = url;
+                                this.initTypeResources(resource);
+                                this.$messageBusService.publish("typesource", url, resource);
+                            } else {
+                                this.$messageBusService.notify('Error loading resource type', url);
+                            }
                             callback();
                         })
                             .error((err) => {
@@ -737,7 +753,9 @@ module csComp.Services {
             });
         }
 
-        /** Recompute the style of the layer features, e.g. after changing the opacity. */
+        /** Recompute the style of the layer features, e.g. after changing the opacity or after
+         *	zooming to a level outside the layers' range.
+         */
         public updateLayerFeatures(layer: ProjectLayer) {
             if (!layer) return;
             this.project.features.forEach((f: IFeature) => {
@@ -1102,8 +1120,8 @@ module csComp.Services {
             }
 
             feature.gui['style'] = {};
-            s.opacity = s.opacity * (feature.layer.opacity / 100);
-            s.fillOpacity = s.fillOpacity * (feature.layer.opacity / 100);
+            s.opacity = (feature.layer.isTransparent) ? 0 : s.opacity * (feature.layer.opacity / 100);
+            s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     //delete feature.gui[gs.property];
