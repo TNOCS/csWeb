@@ -8,7 +8,7 @@ import IBagOptions = require('../database/IBagOptions');
 /**
  * Export a connection to the BAG database.
  */
-class LocalBag {
+export class LocalBag {
     private connectionString: string;
     private db: sqlite3.Database;
 
@@ -167,4 +167,3 @@ class LocalBag {
         return result;
     }
 }
-export = LocalBag;

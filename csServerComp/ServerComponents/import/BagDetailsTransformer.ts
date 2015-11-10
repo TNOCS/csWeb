@@ -1,116 +1,116 @@
-import Utils     = require("../helpers/Utils");
+import Utils = require("../helpers/Utils");
 import transform = require("./ITransform");
-import stream  = require('stream');
+import stream = require('stream');
 import BagDatabase = require("../database/BagDatabase");
 import ConfigurationService = require('../configuration/ConfigurationService');
-import IBagOptions          = require('../database/IBagOptions');
-import Location             = require('../database/Location');
+import IBagOptions = require('../database/IBagOptions');
+import Location = require('../database/Location');
 
 class BagDetailsTransformer implements transform.ITransform {
-  id:          string;
-  description: string;
-  type = "BagDetailsTransformer";
+    id: string;
+    description: string;
+    type = "BagDetailsTransformer";
 
-  /**
-   * Accepted input types.
-   */
-  inputDataTypes:  transform.InputDataType[];
-  /**
-   * Generated output types.
-   */
-  outputDataTypes: transform.OutputDataType[];
+    /**
+     * Accepted input types.
+     */
+    inputDataTypes: transform.InputDataType[];
+    /**
+     * Generated output types.
+     */
+    outputDataTypes: transform.OutputDataType[];
 
-  constructor(public title: string) {
-      this.id = Utils.newGuid();
-      //this.description = description;
-  }
-
-  initialize(opt, callback){
-    callback(null);
-  }
-
-  create(config: ConfigurationService, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
-    if (!config) {
-      console.error("Configuration service instance is required");
-      return null;
+    constructor(public title: string) {
+        this.id = Utils.newGuid();
+        //this.description = description;
     }
 
-    var t = new stream.Transform();
-    /*stream.Transform.call(t);*/
+    initialize(opt, callback) {
+        callback(null);
+    }
 
-    var bagDb = new BagDatabase(config);
+    create(config: ConfigurationService.ConfigurationService, opt?: transform.ITransformFactoryOptions[]): NodeJS.ReadWriteStream {
+        if (!config) {
+            console.error("Configuration service instance is required");
+            return null;
+        }
 
-    var index = 1;
-    var prevTs = new Date();
+        var t = new stream.Transform();
+        /*stream.Transform.call(t);*/
 
-    t.setEncoding("utf8");
-    t._transform =  (chunk, encoding, done) => {
-      /*console.log(".");*/
+        var bagDb = new BagDatabase.BagDatabase(config);
 
-      if (index % 100 == 0) {
-        var currTs = new Date();
-        console.log(new Date() + ": " + index + " entries processed; " + ( (currTs.getTime() - prevTs.getTime()) / 1000 / 100) + "s per feature");
-        prevTs = currTs;
-      }
-      // console.log("##### BDT #####");
+        var index = 1;
+        var prevTs = new Date();
 
-      // var startTs = new Date();
-      // console.log((new Date().getTime() - startTs.getTime()) + ": start");
+        t.setEncoding("utf8");
+        t._transform = (chunk, encoding, done) => {
+            /*console.log(".");*/
 
-      var feature = JSON.parse(chunk);
+            if (index % 100 == 0) {
+                var currTs = new Date();
+                console.log(new Date() + ": " + index + " entries processed; " + ((currTs.getTime() - prevTs.getTime()) / 1000 / 100) + "s per feature");
+                prevTs = currTs;
+            }
+            // console.log("##### BDT #####");
 
-      // console.log("=== Before: ===");
-      // console.log(feature);
+            // var startTs = new Date();
+            // console.log((new Date().getTime() - startTs.getTime()) + ": start");
 
-      var huisnummer = feature.properties.huisnummer;
-      var postcode = feature.properties.postcode;
+            var feature = JSON.parse(chunk);
 
-      if (!huisnummer || !postcode) {
-        done();
-        return;
-      }
+            // console.log("=== Before: ===");
+            // console.log(feature);
 
-      try {
-        // console.log("=== Query bag");
-        bagDb.lookupBagAddress(postcode, huisnummer, IBagOptions.All, (addresses: Location[]) => {
-          // console.log("=== Query bag result:");
-          // console.log(addresses);
-          if (!addresses || !(addresses[0]) ) {
-             console.log("Address not found: " + postcode + " " + huisnummer);
-            done();
-            return;
-          }
+            var huisnummer = feature.properties.huisnummer;
+            var postcode = feature.properties.postcode;
 
-          var firstAddress = addresses[0];
+            if (!huisnummer || !postcode) {
+                done();
+                return;
+            }
 
-          // Add details to feature
-          feature.geometry = {
-            "type": "Point",
-            "coordinates": [firstAddress.lon, firstAddress.lat]
-          };
+            try {
+                // console.log("=== Query bag");
+                bagDb.lookupBagAddress(postcode, huisnummer, IBagOptions.All, (addresses: Location[]) => {
+                    // console.log("=== Query bag result:");
+                    // console.log(addresses);
+                    if (!addresses || !(addresses[0])) {
+                        console.log("Address not found: " + postcode + " " + huisnummer);
+                        done();
+                        return;
+                    }
 
-          feature.properties.woonplaats = firstAddress.woonplaatsnaam;
-          feature.properties.gemeentenaam = firstAddress.gemeentenaam;
-          feature.properties.provincienaam = firstAddress.provincienaam;
+                    var firstAddress = addresses[0];
 
-          // console.log("=== After: ===");
-          // console.log(feature);
+                    // Add details to feature
+                    feature.geometry = {
+                        "type": "Point",
+                        "coordinates": [firstAddress.lon, firstAddress.lat]
+                    };
 
-          t.push(JSON.stringify(feature));
-          // console.log((new Date().getTime() - startTs.getTime()) + ": finish");
+                    feature.properties.woonplaats = firstAddress.woonplaatsnaam;
+                    feature.properties.gemeentenaam = firstAddress.gemeentenaam;
+                    feature.properties.provincienaam = firstAddress.provincienaam;
 
-          done();
-        });
-      } catch(error) {
-        console.log("Error querying bag: " + error);
-        index++;
-        prevTs = currTs;
-      }
-      index++;
-    };
+                    // console.log("=== After: ===");
+                    // console.log(feature);
 
-    return t;
-  }
+                    t.push(JSON.stringify(feature));
+                    // console.log((new Date().getTime() - startTs.getTime()) + ": finish");
+
+                    done();
+                });
+            } catch (error) {
+                console.log("Error querying bag: " + error);
+                index++;
+                prevTs = currTs;
+            }
+            index++;
+        };
+
+        return t;
+    }
 }
 
 export = BagDetailsTransformer;

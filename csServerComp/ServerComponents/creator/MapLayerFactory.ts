@@ -92,7 +92,7 @@ export class MapLayerFactory {
     apiManager: ApiManager.ApiManager;
 
     // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
-    constructor(private bag: BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: ApiManager.ApiManager) {
+    constructor(private bag: BagDatabase.BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: ApiManager.ApiManager) {
         var fileList: IProperty[] = [];
         fs.readdir("public/data/templates", function(err, files) {
             if (err) {

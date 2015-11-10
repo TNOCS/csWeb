@@ -18,14 +18,14 @@ var es = require('event-stream');
 /* Multiple storage engine supported, e.g. file system, mongo  */
 class ImporterRepositoryService implements IImporterRepositoryService {
     private server: express.Express;
-    private config: ConfigurationService;
+    private config: ConfigurationService.ConfigurationService;
     private baseUrl: string;
     private transformers: transform.ITransform[] = [];
     id: string;
 
     constructor(private store: IStore) { }
 
-    init(apiServiceManager: IApiServiceManager, server: express.Express, config: ConfigurationService) {
+    init(apiServiceManager: IApiServiceManager, server: express.Express, config: ConfigurationService.ConfigurationService) {
         this.server = server;
         this.config = config;
         this.baseUrl = apiServiceManager.BaseUrl + config['importAddress'] || '/importers';

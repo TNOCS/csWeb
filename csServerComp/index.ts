@@ -3,16 +3,18 @@
 /**
  * Api exports
  */
-
-
-module.exports.ApiManager = require('./ServerComponents/api/ApiManager');
-module.exports.RestAPI = require('./ServerComponents/api/RestAPI');
-module.exports.MqttAPI = require('./ServerComponents/api/MqttAPI');
-module.exports.SocketIOAPI = require('./ServerComponents/api/SocketIOAPI');
-module.exports.MongoDB = require('./ServerComponents/api/MongoDB');
-module.exports.FileStorage = require('./ServerComponents/api/FileStorage');
-module.exports.ImbAPI = require('./ServerComponents/api/ImbAPI');
-module.exports.AuthAPI = require('./ServerComponents/api/AuthAPI');
-
-
-module.exports.MessageBus = require('./ServerComponents/bus/MessageBus');
+export * from "./ServerComponents/api/ApiManager";
+export * from "./ServerComponents/api/RestAPI";
+export * from "./ServerComponents/api/MqttAPI";
+export * from "./ServerComponents/api/SocketIOAPI";
+export * from "./ServerComponents/api/MongoDB";
+export * from "./ServerComponents/api/FileStorage";
+export * from "./ServerComponents/api/ImbAPI";
+export * from "./ServerComponents/api/AuthAPI";
+export * from "./ServerComponents/bus/MessageBus";
+export * from "./ServerComponents/database/BagDatabase";
+export * from "./ServerComponents/database/LocalBag";
+export * from "./ServerComponents/dynamic/ClientConnection";
+export * from "./ServerComponents/creator/MapLayerFactory";
+export * from "./ServerComponents/configuration/ConfigurationService";
+export * from "./csServer";

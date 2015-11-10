@@ -1,10 +1,10 @@
 import IConfiguration = require('./IConfiguration');
-import fs             = require('fs');
+import fs = require('fs');
 /**
  * Service that contains default configuration options.
  * Is based on csComp.Helpers.Dictionary.
  */
-class ConfigurationService implements IConfiguration {
+export class ConfigurationService implements IConfiguration {
     private static theKeys: string[] = [];
     private static theValues: string[] = [];
 
@@ -80,4 +80,3 @@ class ConfigurationService implements IConfiguration {
         return this;
     }
 }
-export = ConfigurationService;
