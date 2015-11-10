@@ -86,8 +86,9 @@ gulp.task('compile_all', function() {
 gulp.task('copy_csServerComp', function() {
     return gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.js')
         //.pipe(concat('csServerComp.js'))
-        .pipe(changed('./ServerComponents'))
-        .pipe(gulp.dest('./ServerComponents'));
+        // .pipe(changed('./ServerComponents'))
+        // .pipe(gulp.dest('./ServerComponents'))
+        .pipe(gulp.dest(path2csWeb + 'dist-csServerComp'));
 });
 
 gulp.task('built_csServerComp.d.ts', function() {

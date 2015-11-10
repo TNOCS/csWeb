@@ -35,6 +35,7 @@ function run(command, cb) {
   }
 }
 
+
 // This task runs tsd command on csComp folder
 gulp.task('comp_tsd', function(cb) {
   tsd({
@@ -197,18 +198,18 @@ gulp.task('compile_all', function() {
 //gulp.task('built', ['compile_all', 'default']);
 
 gulp.task('copy_csServerComp', function() {
-    return gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.js')
+    return gulp.src('csServerComp/ServerComponents/**/*.js')
         //.pipe(concat('csServerComp.js'))
-        .pipe(changed(path2csWeb + 'example/ServerComponents'))
-        .pipe(gulp.dest(path2csWeb + 'example/ServerComponents'));
+        //.pipe(changed(path2csWeb + 'dist-csServerComp/'))
+        .pipe(gulp.dest(path2csWeb + 'dist-csServerComp'));
 });
 
 gulp.task('built_csServerComp.d.ts', function() {
-    gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts')
+    gulp.src(path2csWeb + 'dist-csServerComp/ServerComponents/**/*.d.ts')
         .pipe(plumber())
-        //  .pipe(concat('csServerComp.d.ts'))
-        .pipe(changed(path2csWeb + 'example/ServerComponents'))
-        .pipe(gulp.dest(path2csWeb + 'example/ServerComponents'));
+        .pipe(concat('csWeb.d.ts'))
+        //.pipe(changed(path2csWeb + 'example/ServerComponents'))
+        .pipe(gulp.dest(path2csWeb + 'dist-csServerComp'));
     //.pipe(gulp.dest('./public/cs/js'));
     gulp.src(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts')
         .pipe(changed(path2csWeb + 'test/Scripts/typings/cs'))

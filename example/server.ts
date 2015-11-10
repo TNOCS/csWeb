@@ -86,7 +86,7 @@ api.init(path.join(path.resolve(__dirname), "public/data/api"), () => {
             { key: "mqtt", s: new MqttAPI.MqttAPI("localhost", 1883), options: {} },
             { key: "file", s: new FileStorage.FileStorage(path.join(path.resolve(__dirname), "public/data/api/")), options: {} },
             { key: "socketio", s: new SocketIOAPI.SocketIOAPI(cm), options: {} },
-            { key: "mongo", s: new MongoDB.MongoDBStorage("127.0.0.1", 27017),options: {} }
+            { key: "mongo", s: new MongoDB.MongoDBStorage("127.0.0.1", 27017), options: {} }
 
         ],
         () => {

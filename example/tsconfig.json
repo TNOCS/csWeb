@@ -31,6 +31,7 @@
         "./Scripts/typings/cors/cors.d.ts",
         "./Scripts/typings/crossfilter/crossfilter.d.ts",
         "./Scripts/typings/cs/cs-offline-search.d.ts",
+        "./Scripts/typings/cs/csComp.d.ts",
         "./Scripts/typings/d3/d3.d.ts",
         "./Scripts/typings/dc/dc.d.ts",
         "./Scripts/typings/express/express.d.ts",
@@ -43,6 +44,7 @@
         "./Scripts/typings/jwt-simple/jwt-simple.d.ts",
         "./Scripts/typings/leaflet/control-sidebar.d.ts",
         "./Scripts/typings/leaflet/leaflet.d.ts",
+        "./Scripts/typings/mime/mime.d.ts",
         "./Scripts/typings/mongodb/mongodb.d.ts",
         "./Scripts/typings/mqtt/mqtt-router.d.ts",
         "./Scripts/typings/mqtt/mqtt.d.ts",
@@ -51,13 +53,15 @@
         "./Scripts/typings/proj4/proj4.d.ts",
         "./Scripts/typings/q/Q.d.ts",
         "./Scripts/typings/request/request.d.ts",
-        "./Scripts/typings/socketio/socket.io.d.ts",
+        "./Scripts/typings/serve-static/serve-static.d.ts",
+        "./Scripts/typings/socket.io/socket.io.d.ts",
         "./Scripts/typings/sqlite3/sqlite3.d.ts",
+        "./Scripts/typings/tsd.d.ts",
         "./Scripts/typings/underscore/underscore.d.ts",
         "./Scripts/typings/winston/winston.d.ts",
         "./Scripts/typings/xbbcode/xbbcode.d.ts",
         "./Scripts/typings/xml2js/xml2js.d.ts",
-        "./server.ts"
+        "./test.ts"
     ],
     "exclude": []
 }
