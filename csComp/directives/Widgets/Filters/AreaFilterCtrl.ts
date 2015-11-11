@@ -89,7 +89,7 @@ module Filters {
                 if (d.id && d.layer && d.layer.group && d.layer.group.markers && d.layer.group.markers.hasOwnProperty(d.id)) {
                     var marker = d.layer.group.markers[d.id];
                     return (marker.feature.geometry.coordinates);
-                    group.filterResult.push(feature);
+                    //group.filterResult.push(feature);
                 }
                 return null;
             });
