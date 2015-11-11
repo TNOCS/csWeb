@@ -36,7 +36,6 @@ function run(command, cb) {
   }
 }
 
-
 // This task runs tsd command on csComp folder
 gulp.task('comp_tsd', function(cb) {
   tsd({
@@ -111,8 +110,44 @@ gulp.task('servercomp_tsc', function(cb) {
   return run('tsc -p csServerComp', cb);
 });
 
+// This task runs tsd command on test folder
+gulp.task('test_tsd', function(cb) {
+  tsd({
+    command: 'reinstall',
+    config: 'test/tsd.json',
+  }, cb);
+});
+
+gulp.task('test_tsconfig_files', function() {
+  gulp.src(['./test/**/*.ts',
+            '!./test/node_modules/**/*.ts',
+          ],
+      {base: 'test'})
+    .pipe(tsconfig({
+      path:         'test/tsconfig.json',
+      relative_dir: 'test/',
+    }));
+});
+
 gulp.task('test_tsc', function(cb) {
   return run('tsc -p test', cb);
+});
+
+gulp.task('example_tsconfig_files', function() {
+  gulp.src(['./example/**/*.ts',
+            '!./example/node_modules/**/*.ts',
+            '!./example/dist/**/*.*',
+            '!./example/public/bower_components/**/*.d.ts',
+        ],
+      {base: 'example'})
+    .pipe(tsconfig({
+      path:         'example/tsconfig.json',
+      relative_dir: 'example/',
+    }));
+});
+
+gulp.task('example_tsc', function(cb) {
+  return run('tsc -p example', cb);
 });
 
 // Run required npm and bower installs for example folder
@@ -132,16 +167,30 @@ gulp.task('init', function() {
     'servercomp_tsd',
     'servercomp_tsconfig_files',
     'servercomp_tsc',
-    'example_deps'
+    'example_deps',
+    // Do we need an example TSD task ?
+    'built_csComp.d.ts',
+    'example_tsconfig_files',
+    'example_tsc'
   );
 });
 
-gulp.task('test', ['test_tsc'], function(done) {
-  console.log('Now we can start karma run...');
+gulp.task('karma', function(cb) {
   new karma.Server({
     configFile: __dirname + '/test/karma.conf.js',
     singleRun: true,
-  }, done).start();
+  }, cb).start();
+});
+
+gulp.task('test', function() {
+  runSequence(
+      'built_csServerComp.d.ts',
+      'built_csComp.d.ts',
+      'test_tsd',
+      'test_tsconfig_files',
+      'test_tsc',
+      'karma'
+    );
 });
 
 gulp.task('dev', ['?']);
@@ -169,7 +218,9 @@ gulp.task('clean', function(cb) {
         path2csWeb + 'example/dist',
         path2csWeb + 'example/ServerComponents/**',
         path2csWeb + 'example/services/**',
-        path2csWeb + 'test/csComp/**/*.js'
+        path2csWeb + 'example/*.js',
+        path2csWeb + 'test/csComp/**/*.js',
+        path2csWeb + 'test/Scripts/typings/cs/**/',
     ], {
         force: true
     }, cb);
