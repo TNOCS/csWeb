@@ -151,24 +151,28 @@ gulp.task('init', function() {
     'servercomp_tsc',
     'example_deps',
     // Do we need an example TSD task ?
+    'built_csComp.d.ts',
     'example_tsconfig_files',
     'example_tsc'
   );
 });
 
-gulp.task('test', function(done) {
+gulp.task('karma', function(cb) {
+  new karma.Server({
+    configFile: __dirname + '/test/karma.conf.js',
+    singleRun: true,
+  }, cb).start();
+});
+
+gulp.task('test', function() {
   runSequence(
       'built_csServerComp.d.ts',
       'built_csComp.d.ts',
       'test_tsd',
       'test_tsconfig_files',
-      'test_tsc'
+      'test_tsc',
+      'karma'
     );
-
-  new karma.Server({
-    configFile: __dirname + '/test/karma.conf.js',
-    singleRun: true,
-  }, done).start();
 });
 
 gulp.task('dev', ['?']);
