@@ -116,7 +116,7 @@ gulp.task('test_tsc', function(cb) {
 });
 
 gulp.task('example_tsconfig_files', function() {
-  gulp.src(['./example/**/*.ts',
+  return gulp.src(['./example/**/*.ts',
             '!./example/node_modules/**/*.ts',
             '!./example/dist/**/*.*',
             '!./example/public/bower_components/**/*.d.ts',
@@ -133,15 +133,15 @@ gulp.task('example_tsc', function(cb) {
 });
 
 // Run required npm and bower installs for example folder
-gulp.task('example_deps', function() {
-  gulp.src([
+gulp.task('example_deps', function(cb) {
+  return gulp.src([
       'example/package.json',       // npm install
       'example/public/bower.json',  // bower install
     ])
-    .pipe(install());
+    .pipe(install(cb));
 });
 
-gulp.task('init', function() {
+gulp.task('init', function(cb) {
   runSequence(
     'comp_tsd',
     'comp_tsconfig_files',
@@ -153,7 +153,8 @@ gulp.task('init', function() {
     // Do we need an example TSD task ?
     'built_csComp.d.ts',
     'example_tsconfig_files',
-    'example_tsc'
+    'example_tsc',
+    cb
   );
 });
 
@@ -200,6 +201,7 @@ gulp.task('clean', function(cb) {
         path2csWeb + 'example/dist',
         path2csWeb + 'example/ServerComponents/**',
         path2csWeb + 'example/services/**',
+        path2csWeb + 'example/Scripts/typings/cs/**/',
         path2csWeb + 'example/*.js',
         path2csWeb + 'test/csComp/**/*.js',
         path2csWeb + 'test/Scripts/typings/cs/**/',
@@ -296,19 +298,13 @@ gulp.task('built_csComp_classes', function() {
 });
 
 gulp.task('built_csComp.d.ts', function() {
-    gulp.src(path2csWeb + 'csComp/js/**/*.d.ts')
-        // .pipe(debug({title: 'before ordering:'}))
-        // .pipe(order([
-        //     "translations/locale-nl.js"
-        // ]))
-        // .pipe(debug({title: 'after ordering:'}))
+  return gulp.src(path2csWeb + 'csComp/js/**/*.d.ts')
         .pipe(plumber())
         .pipe(concat('csComp.d.ts'))
         .pipe(insert.prepend('/// <reference path="../leaflet/leaflet.d.ts" />\r\n'))
         .pipe(insert.prepend('/// <reference path="../crossfilter/crossfilter.d.ts" />\r\n'))
         .pipe(changed(path2csWeb + 'example/Scripts/typings/cs'))
-        .pipe(gulp.dest(path2csWeb + 'example/Scripts/typings/cs'));
-    gulp.src(path2csWeb + 'example/Scripts/typings/cs/csComp.d.ts')
+        .pipe(gulp.dest(path2csWeb + 'example/Scripts/typings/cs'))
         .pipe(changed(path2csWeb + 'test/Scripts/typings/cs'))
         .pipe(gulp.dest(path2csWeb + 'test/Scripts/typings/cs'));
 });
