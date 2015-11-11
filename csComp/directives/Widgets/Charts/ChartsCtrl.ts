@@ -132,11 +132,9 @@ module ChartsWidget {
                 this.keyHandle = this.$layerService.$messageBusService.serverSubscribe(d.key, "key", (topic: string, msg: csComp.Services.ClientMessage) => {
                     switch (msg.action) {
                         case "key":
-                        if (msg.data.item.hasOwnProperty("values"))
-                        {
-                            d.spec.data = msg.data.item;
-                        }
-                        else{
+                        if (msg.data.item.hasOwnProperty("values")) {
+                            d.spec.data = msg.data.item.values;
+                        } else {
                             d.spec = msg.data.item;
                         }
                         // if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]' ) {
@@ -144,6 +142,7 @@ module ChartsWidget {
                         // } else {
                         //
                         // }
+                        //vg.parse.spec(this.$scope.data.spec, (chart) => { chart({ el: "#vis" + d._id }).update(); });
                         vgspec = d.spec;
                         if (d.lite) vgspec = vl.compile(d.spec);
                         vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + d._id }).update(); });
