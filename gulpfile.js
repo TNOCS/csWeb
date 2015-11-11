@@ -161,7 +161,7 @@ gulp.task('example_deps', function(cb) {
 
 gulp.task('init', function(cb) {
   runSequence(
-    'comp_tsd',
+    //'comp_tsd',
     'comp_tsconfig_files',
     'comp_tsc',
     'servercomp_tsd',
