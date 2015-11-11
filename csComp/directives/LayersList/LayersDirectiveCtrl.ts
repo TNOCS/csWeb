@@ -241,24 +241,24 @@ module LayersDirective {
             this.initGroups();
             this.state = "directory";
             this.loadAvailableLayers();
-            return;
-            var modalInstance = this.$modal.open({
-                templateUrl: 'directives/LayersList/AddLayerView.tpl.html',
-                controller: AddLayerCtrl,
-                resolve: {
-                    //mca: () => newMca
-                }
-            });
-            modalInstance.result.then((s: any) => {
-                console.log('done adding');
-                console.log(s);
-                // this.showSparkline = false;
-                // this.addMca(mca);
-                // this.updateMca();
-                //console.log(JSON.stringify(mca, null, 2));
-            }, () => {
-                    //console.log('Modal dismissed at: ' + new Date());
-                });
+            
+            // var modalInstance = this.$modal.open({
+            //     templateUrl: 'directives/LayersList/AddLayerView.tpl.html',
+            //     controller: AddLayerCtrl,
+            //     resolve: {
+            //         //mca: () => newMca
+            //     }
+            // });
+            // modalInstance.result.then((s: any) => {
+            //     console.log('done adding');
+            //     console.log(s);
+            //     // this.showSparkline = false;
+            //     // this.addMca(mca);
+            //     // this.updateMca();
+            //     //console.log(JSON.stringify(mca, null, 2));
+            // }, () => {
+            //         //console.log('Modal dismissed at: ' + new Date());
+            //     });
         }
 
         private initResources() {

@@ -74,9 +74,9 @@ module Filters {
                 var dt = Date.parse(d);
                 switch (this.switch)
                 {
-                  case "before": return dt>=this.$layerService.project.timeLine.focus; break;
-                  case "after": return dt<=this.$layerService.project.timeLine.focus; break;
-                  case "range": return dt>=this.$layerService.project.timeLine.start && dt<=this.$layerService.project.timeLine.end; break;
+                  case "before": return dt>=this.$layerService.project.timeLine.focus; 
+                  case "after": return dt<=this.$layerService.project.timeLine.focus; 
+                  case "range": return dt>=this.$layerService.project.timeLine.start && dt<=this.$layerService.project.timeLine.end;
                 }
 
               }

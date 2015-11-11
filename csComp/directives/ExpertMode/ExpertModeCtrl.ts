@@ -42,16 +42,16 @@ module ExpertMode {
             switch (this.$mapService.expertMode) {
                 case Expertise.Beginner:
                     return 'beginnerUserIcon';
-                    break;
+
                 case Expertise.Intermediate:
                     return 'intermediateUserIcon';
-                    break;
+
                 case Expertise.Expert:
                     return 'expertUserIcon';
-                    break;
+
                 case Expertise.Admin:
                     return 'adminExpertUserIcon';
-                    break;
+
             }
         }
 

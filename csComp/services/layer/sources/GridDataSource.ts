@@ -117,7 +117,7 @@ module csComp.Services {
             this.layer = layer;
             if (typeof layer.dataSourceParameters === 'undefined') {
                 throw new Error("Undefined IGridData data property in GridDataSource.");
-                return;
+                //return;
             }
             this.gridParams = <IGridDataSourceParameters> layer.dataSourceParameters;
             // Select the appropriate converter for converting points to features:
@@ -308,7 +308,7 @@ module csComp.Services {
                     break;
                 default:
                     throw new Error('Current projection is not supported!')
-                    break;
+                   // break;
             }
         }
 
