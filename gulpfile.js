@@ -92,6 +92,14 @@ gulp.task('servercomp_tsc', function(cb) {
   return run('tsc -p csServerComp', cb);
 });
 
+// This task runs tsd command on test folder
+gulp.task('test_tsd', function(cb) {
+  tsd({
+    command: 'reinstall',
+    config: 'test/tsd.json',
+  }, cb);
+});
+
 gulp.task('test_tsconfig_files', function() {
   gulp.src(['./test/**/*.ts',
             '!./test/node_modules/**/*.ts',
@@ -142,6 +150,7 @@ gulp.task('init', function() {
     'servercomp_tsconfig_files',
     'servercomp_tsc',
     'example_deps',
+    // Do we need an example TSD task ?
     'example_tsconfig_files',
     'example_tsc'
   );
@@ -151,6 +160,7 @@ gulp.task('test', function(done) {
   runSequence(
       'built_csServerComp.d.ts',
       'built_csComp.d.ts',
+      'test_tsd',
       'test_tsconfig_files',
       'test_tsc'
     );
