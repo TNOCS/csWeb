@@ -111,6 +111,7 @@ var csComp;
         Services.BaseWidget = BaseWidget;
         var Dashboard = (function () {
             function Dashboard() {
+                this.mobile = true;
                 this.showTimeline = true;
                 this.showLegend = false;
                 this.showRightmenu = false;
@@ -139,7 +140,8 @@ var csComp;
                     baselayer: d.baselayer,
                     viewBounds: d.viewBounds,
                     widgets: csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData),
-                    visibleLeftMenuItems: d.visibleLeftMenuItems
+                    visibleLeftMenuItems: d.visibleLeftMenuItems,
+                    mobile: d.mobile
                 };
             };
             Dashboard.deserialize = function (input, solution) {
@@ -651,6 +653,9 @@ var csComp;
                     useLog: pl.useLog,
                     gui: {},
                     tags: pl.tags,
+                    fitToMap: pl.fitToMap,
+                    minZoom: pl.minZoom,
+                    maxZoom: pl.maxZoom
                 };
             };
             return ProjectLayer;
@@ -3427,6 +3432,8 @@ var csComp;
         }
         Helpers.getColorFromStringValue = getColorFromStringValue;
         function getImageUri(ft) {
+            if (!ft)
+                return;
             var iconUri = (ft && ft.style && ft.style.iconUri) ? ft.style.iconUri : "cs/images/marker.png";
             if (iconUri.indexOf('{') >= 0)
                 iconUri = iconUri.replace('{', '').replace('}', '');
@@ -4467,6 +4474,94 @@ var Accessibility;
     Accessibility.AccessibilityCtrl = AccessibilityCtrl;
 })(Accessibility || (Accessibility = {}));
 
+var BaseMapList;
+(function (BaseMapList) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        BaseMapList.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        BaseMapList.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display the available map layers.
+      */
+    BaseMapList.myModule.directive('baseMapList', [
+        '$window', '$compile',
+        function ($window, $compile) {
+            return {
+                terminal: false,
+                restrict: 'E',
+                scope: {},
+                //template  : html,   // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
+                templateUrl: 'directives/BaseMapList/BaseMapList.tpl.html',
+                //compile : el          => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                //    var fn                        = $compile(el);
+                //    return scope                  => {
+                //        fn(scope);
+                //    };
+                //},
+                link: function (scope, element, attrs) {
+                    // Deal with resizing the element list
+                    scope.onResizeFunction = function () {
+                        var filterHeight = 50;
+                        var paginationCtrlHeight = 100;
+                        var itemHeight = 60;
+                        //scope.windowHeight          = $window.innerHeight;
+                        //scope.windowWidth           = $window.innerWidth;
+                        scope.numberOfItems = Math.floor(($window.innerHeight - filterHeight - paginationCtrlHeight) / itemHeight);
+                    };
+                    // Call to the function when the page is first loaded
+                    scope.onResizeFunction();
+                    angular.element($window).bind('resize', function () {
+                        scope.onResizeFunction();
+                        scope.$apply();
+                    });
+                },
+                replace: true,
+                transclude: true,
+                controller: BaseMapList.BaseMapListCtrl
+            };
+        }
+    ]);
+})(BaseMapList || (BaseMapList = {}));
+
+var BaseMapList;
+(function (BaseMapList) {
+    var BaseMapListCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function BaseMapListCtrl($scope, $layerService, $mapService, $messageBusService) {
+            this.$scope = $scope;
+            this.$layerService = $layerService;
+            this.$mapService = $mapService;
+            this.$messageBusService = $messageBusService;
+            $scope.vm = this;
+        }
+        BaseMapListCtrl.prototype.selectBaseLayer = function (key) {
+            var layer = this.$layerService.$mapService.getBaselayer(key);
+            this.$layerService.activeMapRenderer.changeBaseLayer(layer);
+            this.$layerService.$mapService.changeBaseLayer(key);
+        };
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        BaseMapListCtrl.$inject = [
+            '$scope',
+            'layerService',
+            'mapService',
+            'messageBusService',
+        ];
+        return BaseMapListCtrl;
+    })();
+    BaseMapList.BaseMapListCtrl = BaseMapListCtrl;
+})(BaseMapList || (BaseMapList = {}));
+
 var Charts;
 (function (Charts) {
     'use strict';
@@ -5195,94 +5290,6 @@ var Charts;
         }]);
 })(Charts || (Charts = {}));
 
-var BaseMapList;
-(function (BaseMapList) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        BaseMapList.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        BaseMapList.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display the available map layers.
-      */
-    BaseMapList.myModule.directive('baseMapList', [
-        '$window', '$compile',
-        function ($window, $compile) {
-            return {
-                terminal: false,
-                restrict: 'E',
-                scope: {},
-                //template  : html,   // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
-                templateUrl: 'directives/BaseMapList/BaseMapList.tpl.html',
-                //compile : el          => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
-                //    var fn                        = $compile(el);
-                //    return scope                  => {
-                //        fn(scope);
-                //    };
-                //},
-                link: function (scope, element, attrs) {
-                    // Deal with resizing the element list
-                    scope.onResizeFunction = function () {
-                        var filterHeight = 50;
-                        var paginationCtrlHeight = 100;
-                        var itemHeight = 60;
-                        //scope.windowHeight          = $window.innerHeight;
-                        //scope.windowWidth           = $window.innerWidth;
-                        scope.numberOfItems = Math.floor(($window.innerHeight - filterHeight - paginationCtrlHeight) / itemHeight);
-                    };
-                    // Call to the function when the page is first loaded
-                    scope.onResizeFunction();
-                    angular.element($window).bind('resize', function () {
-                        scope.onResizeFunction();
-                        scope.$apply();
-                    });
-                },
-                replace: true,
-                transclude: true,
-                controller: BaseMapList.BaseMapListCtrl
-            };
-        }
-    ]);
-})(BaseMapList || (BaseMapList = {}));
-
-var BaseMapList;
-(function (BaseMapList) {
-    var BaseMapListCtrl = (function () {
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function BaseMapListCtrl($scope, $layerService, $mapService, $messageBusService) {
-            this.$scope = $scope;
-            this.$layerService = $layerService;
-            this.$mapService = $mapService;
-            this.$messageBusService = $messageBusService;
-            $scope.vm = this;
-        }
-        BaseMapListCtrl.prototype.selectBaseLayer = function (key) {
-            var layer = this.$layerService.$mapService.getBaselayer(key);
-            this.$layerService.activeMapRenderer.changeBaseLayer(layer);
-            this.$layerService.$mapService.changeBaseLayer(key);
-        };
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        BaseMapListCtrl.$inject = [
-            '$scope',
-            'layerService',
-            'mapService',
-            'messageBusService',
-        ];
-        return BaseMapListCtrl;
-    })();
-    BaseMapList.BaseMapListCtrl = BaseMapListCtrl;
-})(BaseMapList || (BaseMapList = {}));
-
 var Directives;
 (function (Directives) {
     var Clock;
@@ -5966,6 +5973,95 @@ var DataTable;
     DataTable.DataTableCtrl = DataTableCtrl;
 })(DataTable || (DataTable = {}));
 
+var FeatureList;
+(function (FeatureList) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        FeatureList.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        FeatureList.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display the available map layers.
+      */
+    FeatureList.myModule.directive('featureList', [
+        '$window', '$compile',
+        function ($window, $compile) {
+            return {
+                terminal: false,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/FeatureList/FeatureList.tpl.html',
+                //compile             : el          => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                //    var fn                        = $compile(el);
+                //    return scope                  => {
+                //        fn(scope);
+                //    };
+                //},
+                // Directives that want to modify the DOM typically use the link option.link takes a function with the following signature, function link(scope, element, attrs) { ... } where:
+                // scope is an Angular scope object.
+                // element is the jqLite - wrapped element that this directive matches.
+                // attrs is a hash object with key - value pairs of normalized attribute names and their corresponding attribute values.
+                link: function (scope, element, attrs) {
+                    // Deal with resizing the element list
+                    scope.onResizeFunction = function () {
+                        var filterHeight = 50;
+                        var paginationCtrlHeight = 100;
+                        var itemHeight = 60;
+                        //scope.windowHeight          = $window.innerHeight;
+                        //scope.windowWidth           = $window.innerWidth;
+                        scope.numberOfItems = Math.floor(($window.innerHeight - filterHeight - paginationCtrlHeight) / itemHeight);
+                    };
+                    // Call to the function when the page is first loaded
+                    scope.onResizeFunction();
+                    angular.element($window).bind('resize', function () {
+                        scope.onResizeFunction();
+                        scope.$apply();
+                    });
+                },
+                replace: true,
+                transclude: true,
+                controller: FeatureList.FeatureListCtrl
+            };
+        }
+    ]).directive('bsPopover', function () {
+        return function (scope, element, attrs) {
+            element.find("a[rel=popover]").popover({ placement: 'right', html: 'true' });
+        };
+    });
+})(FeatureList || (FeatureList = {}));
+
+var FeatureList;
+(function (FeatureList) {
+    var FeatureListCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function FeatureListCtrl($scope, $layerService, $mapService) {
+            this.$scope = $scope;
+            this.$layerService = $layerService;
+            this.$mapService = $mapService;
+            $scope.vm = this;
+            $scope.numberOfItems = 10; // This is being reset in the directive upon receiving a resize.
+        }
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        FeatureListCtrl.$inject = [
+            '$scope',
+            'layerService',
+            'mapService'
+        ];
+        return FeatureListCtrl;
+    })();
+    FeatureList.FeatureListCtrl = FeatureListCtrl;
+})(FeatureList || (FeatureList = {}));
+
 var ExpertMode;
 (function (ExpertMode) {
     /**
@@ -6088,95 +6184,6 @@ var ExpertMode;
     })();
     ExpertMode.ExpertModeCtrl = ExpertModeCtrl;
 })(ExpertMode || (ExpertMode = {}));
-
-var FeatureList;
-(function (FeatureList) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        FeatureList.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        FeatureList.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display the available map layers.
-      */
-    FeatureList.myModule.directive('featureList', [
-        '$window', '$compile',
-        function ($window, $compile) {
-            return {
-                terminal: false,
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/FeatureList/FeatureList.tpl.html',
-                //compile             : el          => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
-                //    var fn                        = $compile(el);
-                //    return scope                  => {
-                //        fn(scope);
-                //    };
-                //},
-                // Directives that want to modify the DOM typically use the link option.link takes a function with the following signature, function link(scope, element, attrs) { ... } where:
-                // scope is an Angular scope object.
-                // element is the jqLite - wrapped element that this directive matches.
-                // attrs is a hash object with key - value pairs of normalized attribute names and their corresponding attribute values.
-                link: function (scope, element, attrs) {
-                    // Deal with resizing the element list
-                    scope.onResizeFunction = function () {
-                        var filterHeight = 50;
-                        var paginationCtrlHeight = 100;
-                        var itemHeight = 60;
-                        //scope.windowHeight          = $window.innerHeight;
-                        //scope.windowWidth           = $window.innerWidth;
-                        scope.numberOfItems = Math.floor(($window.innerHeight - filterHeight - paginationCtrlHeight) / itemHeight);
-                    };
-                    // Call to the function when the page is first loaded
-                    scope.onResizeFunction();
-                    angular.element($window).bind('resize', function () {
-                        scope.onResizeFunction();
-                        scope.$apply();
-                    });
-                },
-                replace: true,
-                transclude: true,
-                controller: FeatureList.FeatureListCtrl
-            };
-        }
-    ]).directive('bsPopover', function () {
-        return function (scope, element, attrs) {
-            element.find("a[rel=popover]").popover({ placement: 'right', html: 'true' });
-        };
-    });
-})(FeatureList || (FeatureList = {}));
-
-var FeatureList;
-(function (FeatureList) {
-    var FeatureListCtrl = (function () {
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function FeatureListCtrl($scope, $layerService, $mapService) {
-            this.$scope = $scope;
-            this.$layerService = $layerService;
-            this.$mapService = $mapService;
-            $scope.vm = this;
-            $scope.numberOfItems = 10; // This is being reset in the directive upon receiving a resize.
-        }
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        FeatureListCtrl.$inject = [
-            '$scope',
-            'layerService',
-            'mapService'
-        ];
-        return FeatureListCtrl;
-    })();
-    FeatureList.FeatureListCtrl = FeatureListCtrl;
-})(FeatureList || (FeatureList = {}));
 
 var FeatureProps;
 (function (FeatureProps) {
@@ -7030,105 +7037,6 @@ var FeatureRelations;
     })();
     FeatureRelations.FeatureRelationsCtrl = FeatureRelationsCtrl;
 })(FeatureRelations || (FeatureRelations = {}));
-
-var FilterList;
-(function (FilterList) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        FilterList.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        FilterList.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display the available map layers.
-      */
-    FilterList.myModule.directive('filterList', [
-        '$window', '$compile',
-        function ($window, $compile) {
-            return {
-                terminal: true,
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/FilterList/FilterList.tpl.html',
-                link: function (scope, element, attrs) {
-                    // Deal with resizing the element list
-                    scope.onResizeFunction = function () {
-                        var filterHeight = 50;
-                        var paginationCtrlHeight = 100;
-                        var itemHeight = 60;
-                        //scope.windowHeight          = $window.innerHeight;
-                        //scope.windowWidth           = $window.innerWidth;
-                        scope.numberOfItems = Math.floor(($window.innerHeight - filterHeight - paginationCtrlHeight) / itemHeight);
-                    };
-                    // Call to the function when the page is first loaded
-                    scope.onResizeFunction();
-                    angular.element($window).bind('resize', function () {
-                        scope.onResizeFunction();
-                        scope.$apply();
-                    });
-                },
-                replace: false,
-                transclude: false,
-                controller: FilterList.FilterListCtrl
-            };
-        }
-    ]).directive('bsPopover', function () {
-        return function (scope, element, attrs) {
-            element.find("a[rel=popover]").popover({ placement: 'right', html: 'true' });
-        };
-    });
-})(FilterList || (FilterList = {}));
-
-var FilterList;
-(function (FilterList) {
-    var FilterListCtrl = (function () {
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function FilterListCtrl($scope, $layerService, $messageBus) {
-            var _this = this;
-            this.$scope = $scope;
-            this.$layerService = $layerService;
-            this.$messageBus = $messageBus;
-            $scope.vm = this;
-            this.noFilters = true;
-            this.locationFilterActive = false;
-            this.$messageBus.subscribe("filters", function (action) {
-                console.log('update filters');
-                _this.noFilters = true;
-                _this.locationFilterActive = false;
-                _this.$layerService.project.groups.forEach(function (g) {
-                    if (g.filters.length > 0 && _this.noFilters)
-                        _this.noFilters = false;
-                    g.filters.forEach(function (f) {
-                        if (f.filterType === 'location' && _this.locationFilterActive === false)
-                            _this.locationFilterActive = true;
-                    });
-                });
-            });
-        }
-        FilterListCtrl.prototype.setLocationFilter = function (group) {
-            if (!this.locationFilterActive) {
-                this.$layerService.setLocationFilter(group);
-            }
-        };
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        FilterListCtrl.$inject = [
-            '$scope',
-            'layerService',
-            'messageBusService'
-        ];
-        return FilterListCtrl;
-    })();
-    FilterList.FilterListCtrl = FilterListCtrl;
-})(FilterList || (FilterList = {}));
 
 var Heatmap;
 (function (Heatmap) {
@@ -8098,6 +8006,105 @@ var Heatmap;
     })();
     Heatmap.IdealityMeasure = IdealityMeasure;
 })(Heatmap || (Heatmap = {}));
+
+var FilterList;
+(function (FilterList) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        FilterList.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        FilterList.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display the available map layers.
+      */
+    FilterList.myModule.directive('filterList', [
+        '$window', '$compile',
+        function ($window, $compile) {
+            return {
+                terminal: true,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/FilterList/FilterList.tpl.html',
+                link: function (scope, element, attrs) {
+                    // Deal with resizing the element list
+                    scope.onResizeFunction = function () {
+                        var filterHeight = 50;
+                        var paginationCtrlHeight = 100;
+                        var itemHeight = 60;
+                        //scope.windowHeight          = $window.innerHeight;
+                        //scope.windowWidth           = $window.innerWidth;
+                        scope.numberOfItems = Math.floor(($window.innerHeight - filterHeight - paginationCtrlHeight) / itemHeight);
+                    };
+                    // Call to the function when the page is first loaded
+                    scope.onResizeFunction();
+                    angular.element($window).bind('resize', function () {
+                        scope.onResizeFunction();
+                        scope.$apply();
+                    });
+                },
+                replace: false,
+                transclude: false,
+                controller: FilterList.FilterListCtrl
+            };
+        }
+    ]).directive('bsPopover', function () {
+        return function (scope, element, attrs) {
+            element.find("a[rel=popover]").popover({ placement: 'right', html: 'true' });
+        };
+    });
+})(FilterList || (FilterList = {}));
+
+var FilterList;
+(function (FilterList) {
+    var FilterListCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function FilterListCtrl($scope, $layerService, $messageBus) {
+            var _this = this;
+            this.$scope = $scope;
+            this.$layerService = $layerService;
+            this.$messageBus = $messageBus;
+            $scope.vm = this;
+            this.noFilters = true;
+            this.locationFilterActive = false;
+            this.$messageBus.subscribe("filters", function (action) {
+                console.log('update filters');
+                _this.noFilters = true;
+                _this.locationFilterActive = false;
+                _this.$layerService.project.groups.forEach(function (g) {
+                    if (g.filters.length > 0 && _this.noFilters)
+                        _this.noFilters = false;
+                    g.filters.forEach(function (f) {
+                        if (f.filterType === 'location' && _this.locationFilterActive === false)
+                            _this.locationFilterActive = true;
+                    });
+                });
+            });
+        }
+        FilterListCtrl.prototype.setLocationFilter = function (group) {
+            if (!this.locationFilterActive) {
+                this.$layerService.setLocationFilter(group);
+            }
+        };
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        FilterListCtrl.$inject = [
+            '$scope',
+            'layerService',
+            'messageBusService'
+        ];
+        return FilterListCtrl;
+    })();
+    FilterList.FilterListCtrl = FilterListCtrl;
+})(FilterList || (FilterList = {}));
 
 var KanbanBoard;
 (function (KanbanBoard) {
@@ -9303,6 +9310,82 @@ var Legend;
     Legend.LegendCtrl = LegendCtrl;
 })(Legend || (Legend = {}));
 
+var MapElement;
+(function (MapElement) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        MapElement.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        MapElement.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display the available map layers.
+      */
+    MapElement.myModule.directive('map', [
+        '$window', '$compile',
+        function ($window, $compile) {
+            return {
+                terminal: false,
+                restrict: 'E',
+                scope: {
+                    mapid: '='
+                },
+                //templateUrl: 'directives/MapElement/MapElement.tpl.html',
+                templateUrl: 'directives/MapElement/MapElement.tpl.html',
+                link: function (scope, element, attrs) {
+                    //scope.mapid = attrs.mapid;
+                    //var s = jQuery.parseJSON(attrs.param);
+                    //scope.initDashboard();
+                },
+                replace: false,
+                transclude: true,
+                controller: MapElement.MapElementCtrl
+            };
+        }
+    ]);
+})(MapElement || (MapElement = {}));
+
+var MapElement;
+(function (MapElement) {
+    var MapElementCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function MapElementCtrl($scope, $layerService, mapService, $messageBusService) {
+            var _this = this;
+            this.$scope = $scope;
+            this.$layerService = $layerService;
+            this.mapService = mapService;
+            this.$messageBusService = $messageBusService;
+            this.locale = "en-us";
+            this.options = ["test", "boe"];
+            $scope.vm = this;
+            this.initMap();
+            $scope.initMap = function () { return _this.initMap(); };
+        }
+        MapElementCtrl.prototype.initMap = function () {
+            this.$layerService.selectRenderer("leaflet");
+            //alert(this.$scope.mapId);
+        };
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        MapElementCtrl.$inject = [
+            '$scope',
+            'layerService',
+            'mapService',
+            'messageBusService'
+        ];
+        return MapElementCtrl;
+    })();
+    MapElement.MapElementCtrl = MapElementCtrl;
+})(MapElement || (MapElement = {}));
+
 var LegendList;
 (function (LegendList) {
     /**
@@ -9471,16 +9554,31 @@ var LegendList;
         };
         LegendListCtrl.prototype.updateLegendItemsUsingFeatures = function () {
             var _this = this;
+            var sort = true;
+            var processedFeatureTypes = {};
             var legendItems = [];
             var existingItems = [];
             if (!this.$layerService.project || this.$layerService.project.features.length === 0) {
                 this.$scope.legendItems = legendItems;
                 return;
             }
+            // Loop over all features on the map
             this.$layerService.project.features.forEach(function (f) {
                 var ft = f.fType;
                 if (!ft)
                     ft = _this.$layerService.getFeatureType(f);
+                // If a (static) legend is defined in the featureType, use it
+                if (processedFeatureTypes.hasOwnProperty(ft.name))
+                    return;
+                if (ft && ft.hasOwnProperty('legendItems')) {
+                    ft['legendItems'].forEach(function (i) {
+                        legendItems.push({ title: i.title, uri: i.uri || '', html: i.html || '' });
+                    });
+                    sort = false;
+                    processedFeatureTypes[ft.name] = true;
+                    return;
+                }
+                // Else get the legend entry from the feature style
                 var uri = (ft && ft.style && ft.style.hasOwnProperty('iconUri')) ? csComp.Helpers.convertStringFormat(f, ft.style.iconUri) : csComp.Helpers.getImageUri(ft);
                 if (uri.indexOf('_Media') >= 0)
                     f.effectiveStyle.iconUri = "cs/images/polygon.png";
@@ -9492,13 +9590,15 @@ var LegendList;
                     legendItems.push({ "title": title, "uri": uri, "html": html });
                 }
             });
-            legendItems.sort(function (a, b) {
-                if (a.title > b.title)
-                    return 1;
-                if (a.title < b.title)
-                    return -1;
-                return 0;
-            });
+            if (sort) {
+                legendItems.sort(function (a, b) {
+                    if (a.title > b.title)
+                        return 1;
+                    if (a.title < b.title)
+                        return -1;
+                    return 0;
+                });
+            }
             this.$scope.legendItems = legendItems;
         };
         LegendListCtrl.prototype.getName = function (key, ft) {
@@ -9530,82 +9630,6 @@ var LegendList;
     })();
     LegendList.LegendListCtrl = LegendListCtrl;
 })(LegendList || (LegendList = {}));
-
-var MapElement;
-(function (MapElement) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        MapElement.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        MapElement.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display the available map layers.
-      */
-    MapElement.myModule.directive('map', [
-        '$window', '$compile',
-        function ($window, $compile) {
-            return {
-                terminal: false,
-                restrict: 'E',
-                scope: {
-                    mapid: '='
-                },
-                //templateUrl: 'directives/MapElement/MapElement.tpl.html',
-                templateUrl: 'directives/MapElement/MapElement.tpl.html',
-                link: function (scope, element, attrs) {
-                    //scope.mapid = attrs.mapid;
-                    //var s = jQuery.parseJSON(attrs.param);
-                    //scope.initDashboard();
-                },
-                replace: false,
-                transclude: true,
-                controller: MapElement.MapElementCtrl
-            };
-        }
-    ]);
-})(MapElement || (MapElement = {}));
-
-var MapElement;
-(function (MapElement) {
-    var MapElementCtrl = (function () {
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function MapElementCtrl($scope, $layerService, mapService, $messageBusService) {
-            var _this = this;
-            this.$scope = $scope;
-            this.$layerService = $layerService;
-            this.mapService = mapService;
-            this.$messageBusService = $messageBusService;
-            this.locale = "en-us";
-            this.options = ["test", "boe"];
-            $scope.vm = this;
-            this.initMap();
-            $scope.initMap = function () { return _this.initMap(); };
-        }
-        MapElementCtrl.prototype.initMap = function () {
-            this.$layerService.selectRenderer("leaflet");
-            //alert(this.$scope.mapId);
-        };
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        MapElementCtrl.$inject = [
-            '$scope',
-            'layerService',
-            'mapService',
-            'messageBusService'
-        ];
-        return MapElementCtrl;
-    })();
-    MapElement.MapElementCtrl = MapElementCtrl;
-})(MapElement || (MapElement = {}));
 
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -10855,6 +10879,115 @@ var Mca;
     Mca.McaEditorCtrl = McaEditorCtrl;
 })(Mca || (Mca = {}));
 
+var Mobile;
+(function (Mobile) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        Mobile.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        Mobile.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display the available map layers.
+      */
+    Mobile.myModule.directive('mobile', [
+        '$window', '$compile',
+        function ($window, $compile) {
+            return {
+                terminal: true,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Mobile/Mobile.tpl.html',
+                link: function (scope, element, attrs) {
+                    // Deal with resizing the element list
+                    scope.onResizeFunction = function () {
+                        var filterHeight = 50;
+                        var paginationCtrlHeight = 100;
+                        var itemHeight = 60;
+                        //scope.windowHeight          = $window.innerHeight;
+                        //scope.windowWidth           = $window.innerWidth;
+                        scope.numberOfItems = Math.floor(($window.innerHeight - filterHeight - paginationCtrlHeight) / itemHeight);
+                    };
+                    // Call to the function when the page is first loaded
+                    scope.onResizeFunction();
+                    angular.element($window).bind('resize', function () {
+                        scope.onResizeFunction();
+                        scope.$apply();
+                    });
+                },
+                replace: false,
+                transclude: false,
+                controller: Mobile.MobileCtrl
+            };
+        }
+    ]);
+})(Mobile || (Mobile = {}));
+
+var Mobile;
+(function (Mobile) {
+    var MobileCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function MobileCtrl($scope, $layerService, $messageBus, localStorageService, geoService) {
+            var _this = this;
+            this.$scope = $scope;
+            this.$layerService = $layerService;
+            this.$messageBus = $messageBus;
+            this.localStorageService = localStorageService;
+            this.geoService = geoService;
+            $scope.vm = this;
+            this.$messageBus.subscribe('project', function (a, p) {
+                if (a === 'loaded') {
+                    _this.availableLayers = [];
+                    p.groups.forEach((function (g) {
+                        g.layers.forEach(function (l) {
+                            if (l.tags && l.tags.indexOf('mobile') >= 0)
+                                _this.availableLayers.push(l);
+                        });
+                    }));
+                    // find mobile layer
+                    console.log('available layers');
+                    console.log(_this.availableLayers);
+                }
+            });
+            $messageBus.subscribe("geo", function (action, loc) {
+                switch (action) {
+                    case "pos":
+                        var f = new csComp.Services.Feature();
+                        //f.layerId = layer.id;
+                        f.geometry = {
+                            type: 'Point', coordinates: []
+                        };
+                        f.geometry.coordinates = [loc.coords.longitude, loc.coords.latitude];
+                        f.properties = { "Name": "test" };
+                        //layer.data.features.push(f);
+                        //this.$layerService.initFeature(f, layer);
+                        _this.$layerService.activeMapRenderer.addFeature(f);
+                        _this.$layerService.saveFeature(f);
+                        break;
+                }
+            });
+            this.geoService.start({});
+        }
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        MobileCtrl.$inject = [
+            '$scope',
+            'layerService',
+            'messageBusService', 'localStorageService', 'geoService'
+        ];
+        return MobileCtrl;
+    })();
+    Mobile.MobileCtrl = MobileCtrl;
+})(Mobile || (Mobile = {}));
+
 var Navigate;
 (function (Navigate) {
     /**
@@ -10919,22 +11052,94 @@ var Navigate;
     var NavigateCtrl = (function () {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function NavigateCtrl($scope, $layerService, $messageBus, localStorageService) {
+        function NavigateCtrl($scope, $layerService, $messageBus, localStorageService, geoService) {
             var _this = this;
             this.$scope = $scope;
             this.$layerService = $layerService;
             this.$messageBus = $messageBus;
             this.localStorageService = localStorageService;
+            this.geoService = geoService;
             this.RecentLayers = [];
+            this.mobileLayers = [];
             this.RecentFeatures = [];
+            this.lastPost = { longitude: 0, latitude: 0 };
             $scope.vm = this;
             this.$messageBus.subscribe('project', function (a, p) {
                 if (a === 'loaded') {
                     _this.initRecentLayers();
                     _this.initRecentFeatures();
+                    if (_this.$layerService.isMobile)
+                        _this.initMobileLayers(p);
                 }
             });
         }
+        NavigateCtrl.prototype.leave = function (l) {
+            if (this.mobileLayer && this.MyFeature) {
+                this.$layerService.removeFeature(this.MyFeature, true);
+                this.$layerService.activeMapRenderer.removeFeature(this.MyFeature);
+                //this.$layerService.saveFeature(this.MyFeature);
+                this.MyFeature = null;
+            }
+            this.mobileLayer = null;
+        };
+        NavigateCtrl.prototype.join = function (l) {
+            var _this = this;
+            this.localStorageService.set("username", this.UserName);
+            async.series([function (cb) {
+                    if (!l.enabled) {
+                        _this.$layerService.addLayer(l, function () {
+                            cb();
+                        });
+                    }
+                    else {
+                        cb();
+                    }
+                }, function (cb) {
+                    _this.mobileLayer = l;
+                    var f = new csComp.Services.Feature();
+                    f.layerId = _this.mobileLayer.id;
+                    f.geometry = {
+                        type: 'Point', coordinates: []
+                    };
+                    // todo disable
+                    f.geometry.coordinates = [_this.lastPost.longitude, _this.lastPost.latitude]; //[0, 0]; //loc.coords.longitude, loc.coords.latitude];
+                    f.id = _this.UserName;
+                    f.properties = { "Name": _this.UserName };
+                    //layer.data.features.push(f);
+                    _this.$layerService.initFeature(f, _this.mobileLayer);
+                    _this.$layerService.activeMapRenderer.addFeature(f);
+                    _this.$layerService.saveFeature(f);
+                    _this.MyFeature = f;
+                }]);
+        };
+        NavigateCtrl.prototype.initMobileLayers = function (p) {
+            var _this = this;
+            this.UserName = this.localStorageService.get("username");
+            if (!this.UserName)
+                this.UserName = "mobile user";
+            this.mobileLayers = [];
+            p.groups.forEach((function (g) {
+                g.layers.forEach(function (l) {
+                    if (l.tags && l.tags.indexOf('mobile') >= 0)
+                        _this.mobileLayers.push(l);
+                });
+            }));
+            if (this.$layerService.isMobile) {
+                this.$messageBus.subscribe("geo", function (action, loc) {
+                    switch (action) {
+                        case "pos":
+                            if (_this.mobileLayer && _this.MyFeature) {
+                                _this.lastPost = loc.coords;
+                                _this.MyFeature.geometry.coordinates = [loc.coords.longitude, loc.coords.latitude];
+                                _this.$layerService.activeMapRenderer.updateFeature(_this.MyFeature);
+                                _this.$layerService.saveFeature(_this.MyFeature);
+                            }
+                            break;
+                    }
+                });
+                this.geoService.start({});
+            }
+        };
         NavigateCtrl.prototype.updateRecentFeaturesList = function () {
             var _this = this;
             setTimeout(function () {
@@ -11007,7 +11212,7 @@ var Navigate;
         NavigateCtrl.$inject = [
             '$scope',
             'layerService',
-            'messageBusService', 'localStorageService'
+            'messageBusService', 'localStorageService', 'geoService'
         ];
         return NavigateCtrl;
     })();
@@ -11651,6 +11856,96 @@ var ShowModal;
     ]);
 })(ShowModal || (ShowModal = {}));
 
+var StyleList;
+(function (StyleList) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        StyleList.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        StyleList.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display the available map layers.
+      */
+    StyleList.myModule
+        .filter('reverse', function () {
+        return function (items) {
+            return items.slice().reverse();
+        };
+    })
+        .directive('styleList', ['$window', '$compile', function ($window, $compile) {
+            return {
+                terminal: false,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/StyleList/StyleList.tpl.html',
+                //compile             : el          => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
+                //    var fn                        = $compile(el);
+                //    return scope                  => {
+                //        fn(scope);
+                //    };
+                //},
+                link: function (scope, element, attrs) {
+                    // Deal with resizing the element list
+                    scope.onResizeFunction = function () {
+                        var filterHeight = 50;
+                        var paginationCtrlHeight = 100;
+                        var itemHeight = 60;
+                        //scope.windowHeight          = $window.innerHeight;
+                        //scope.windowWidth           = $window.innerWidth;
+                        scope.numberOfItems = Math.floor(($window.innerHeight - filterHeight - paginationCtrlHeight) / itemHeight);
+                    };
+                    // Call to the function when the page is first loaded
+                    scope.onResizeFunction();
+                    angular.element($window).bind('resize', function () {
+                        scope.onResizeFunction();
+                        scope.$apply();
+                    });
+                },
+                replace: true,
+                transclude: true,
+                controller: StyleList.StyleListCtrl
+            };
+        }
+    ]);
+})(StyleList || (StyleList = {}));
+
+var StyleList;
+(function (StyleList) {
+    var StyleListCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function StyleListCtrl($scope, $layerService) {
+            this.$scope = $scope;
+            this.$layerService = $layerService;
+            $scope.vm = this;
+        }
+        StyleListCtrl.prototype.getStyle = function (legend, le, key) {
+            return {
+                'float': 'left',
+                'position': 'relative',
+                'top': '10px',
+                'background': "linear-gradient(to bottom, " + le.color + ", " + legend.legendEntries[legend.legendEntries.length - key - 2].color + ")"
+            };
+        };
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be in  jected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        StyleListCtrl.$inject = [
+            '$scope',
+            'layerService'
+        ];
+        return StyleListCtrl;
+    })();
+    StyleList.StyleListCtrl = StyleListCtrl;
+})(StyleList || (StyleList = {}));
+
 var Timeline;
 (function (Timeline) {
     // The following class represents the provider
@@ -12113,96 +12408,6 @@ var Timeline;
     Timeline.TimelineCtrl = TimelineCtrl;
 })(Timeline || (Timeline = {}));
 
-var StyleList;
-(function (StyleList) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        StyleList.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        StyleList.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display the available map layers.
-      */
-    StyleList.myModule
-        .filter('reverse', function () {
-        return function (items) {
-            return items.slice().reverse();
-        };
-    })
-        .directive('styleList', ['$window', '$compile', function ($window, $compile) {
-            return {
-                terminal: false,
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/StyleList/StyleList.tpl.html',
-                //compile             : el          => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
-                //    var fn                        = $compile(el);
-                //    return scope                  => {
-                //        fn(scope);
-                //    };
-                //},
-                link: function (scope, element, attrs) {
-                    // Deal with resizing the element list
-                    scope.onResizeFunction = function () {
-                        var filterHeight = 50;
-                        var paginationCtrlHeight = 100;
-                        var itemHeight = 60;
-                        //scope.windowHeight          = $window.innerHeight;
-                        //scope.windowWidth           = $window.innerWidth;
-                        scope.numberOfItems = Math.floor(($window.innerHeight - filterHeight - paginationCtrlHeight) / itemHeight);
-                    };
-                    // Call to the function when the page is first loaded
-                    scope.onResizeFunction();
-                    angular.element($window).bind('resize', function () {
-                        scope.onResizeFunction();
-                        scope.$apply();
-                    });
-                },
-                replace: true,
-                transclude: true,
-                controller: StyleList.StyleListCtrl
-            };
-        }
-    ]);
-})(StyleList || (StyleList = {}));
-
-var StyleList;
-(function (StyleList) {
-    var StyleListCtrl = (function () {
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function StyleListCtrl($scope, $layerService) {
-            this.$scope = $scope;
-            this.$layerService = $layerService;
-            $scope.vm = this;
-        }
-        StyleListCtrl.prototype.getStyle = function (legend, le, key) {
-            return {
-                'float': 'left',
-                'position': 'relative',
-                'top': '10px',
-                'background': "linear-gradient(to bottom, " + le.color + ", " + legend.legendEntries[legend.legendEntries.length - key - 2].color + ")"
-            };
-        };
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be in  jected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        StyleListCtrl.$inject = [
-            '$scope',
-            'layerService'
-        ];
-        return StyleListCtrl;
-    })();
-    StyleList.StyleListCtrl = StyleListCtrl;
-})(StyleList || (StyleList = {}));
-
 var TripPlanner;
 (function (TripPlanner) {
     /**
@@ -12383,6 +12588,186 @@ var Voting;
         }
     ]);
 })(Voting || (Voting = {}));
+
+
+var csComp;
+(function (csComp) {
+    var Services;
+    (function (Services) {
+        /** Contains properties needed to describe right panel */
+        var RightPanelTab = (function () {
+            function RightPanelTab() {
+                this.icon = 'tachometer';
+                this.popover = '';
+            }
+            return RightPanelTab;
+        })();
+        Services.RightPanelTab = RightPanelTab;
+        /** service for managing dashboards */
+        var DashboardService = (function () {
+            function DashboardService($rootScope, $compile, $injector, $location, $timeout, $translate, $messageBusService, $layerService, $mapService) {
+                //$translate('FILTER_INFO').then((translation) => console.log(translation));
+                // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
+                var _this = this;
+                this.$rootScope = $rootScope;
+                this.$compile = $compile;
+                this.$injector = $injector;
+                this.$location = $location;
+                this.$timeout = $timeout;
+                this.$translate = $translate;
+                this.$messageBusService = $messageBusService;
+                this.$layerService = $layerService;
+                this.$mapService = $mapService;
+                this.widgetTypes = {};
+                //alert('init dashbard');
+                this.mainDashboard = new csComp.Services.Dashboard();
+                this.dashboards = [];
+                this.dashboards["main"] = this.mainDashboard;
+                this.$messageBusService.subscribe("dashboard", function (event, id) {
+                    //alert(event);
+                });
+                this.$messageBusService.subscribe("rightpanel", function (event, tab) {
+                    switch (event) {
+                        case "activate":
+                            _this.activateTab(tab);
+                            break;
+                        case "deactivate":
+                            _this.deactivateTab(tab);
+                            break;
+                        case "deactiveContainer":
+                            _this.deactivateTabContainer(tab);
+                            break;
+                    }
+                });
+                this.widgetTypes["indicators"] = { id: "indicators", icon: "cs/images/widgets/indicators.png", description: "Showing sensor data using charts" };
+                this.widgetTypes["charts"] = { id: "charts", icon: "cs/images/widgets/markdown.png", description: "Show custom chart" };
+                this.widgetTypes["markdownwidget"] = { id: "markdownwidget", icon: "cs/images/widgets/markdown.png", description: "Show custom markdown or html content" };
+                this.widgetTypes["mcawidget"] = { id: "mcawidget", icon: "cs/images/widgets/mca.png", description: "Show available MCA's" };
+                this.widgetTypes["iframewidget"] = { id: "iframewidget", icon: "cs/images/widgets/markdown.png", description: "Show custom iframe" };
+                this.widgetTypes["kanbanboard"] = { id: "kanbanboard", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
+                this.widgetTypes["navigator"] = { id: "navigatorwidget", icon: "cs/images/widgets/markdown.png", description: "Show navigator" };
+                this.widgetTypes["postman"] = { id: "postman", icon: "cs/images/widgets/Script.png", description: "POST messages" };
+                this.widgetTypes["simtimecontroller"] = { id: "simtimecontroller", icon: "cs/images/widgets/Media-Play.png", description: "Show simulation time controller" };
+                this.widgetTypes["simstate"] = { id: "simstate", icon: "cs/images/widgets/ServerStatus.png", description: "Show status of simulation services." };
+            }
+            DashboardService.prototype.leftMenuVisible = function (id) {
+                var d = this.$layerService.project.activeDashboard;
+                if (!d.visibleLeftMenuItems)
+                    return true;
+                return (d.visibleLeftMenuItems.indexOf(id) >= 0);
+            };
+            DashboardService.prototype.selectDashboard = function (dashboard, container) {
+                this.$messageBusService.publish('updatelegend', 'removelegend');
+                this.$layerService.project.activeDashboard = dashboard;
+                this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
+                this.$location.search('dashboard', dashboard.id);
+            };
+            DashboardService.prototype.activateTab = function (tab) {
+                var _this = this;
+                if (!tab.hasOwnProperty("container"))
+                    return;
+                this.$layerService.visual.rightPanelVisible = true;
+                var content = tab.container + "-content";
+                $("#" + tab.container + "-tab").remove();
+                var c = $("#" + content);
+                try {
+                    if (c)
+                        c.remove();
+                }
+                catch (e) {
+                }
+                var popoverString = '';
+                if (tab.popover !== '' && (this.$mapService.expertMode === Services.Expertise.Beginner || this.$mapService.expertMode === Services.Expertise.Intermediate)) {
+                    popoverString = "popover='" + tab.popover + "' popover-placement='left' popover-trigger='mouseenter' popover-append-to-body='true'";
+                }
+                $("#rightpanelTabs").append(this.$compile("<li id='" + tab.container + "-tab' class='rightPanelTab rightPanelTabAnimated' " + popoverString + "><a id='" + tab.container + "-tab-a' href='#" + content + "' data-toggle='tab'><span class='fa fa-" + tab.icon + " fa-lg'></span></a></li>")(this.$rootScope));
+                $("#rightpanelTabPanes").append("<div class='tab-pane' style='width:355px' id='" + content + "'></div>");
+                $("#" + tab.container + "-tab-a").click(function () {
+                    _this.$layerService.visual.rightPanelVisible = true;
+                    console.log('rp visible');
+                    _this.$rootScope.$apply();
+                });
+                var newScope = this.$rootScope;
+                newScope.data = tab.data;
+                var widgetElement = this.$compile("<" + tab.directive + "></" + tab.directive + ">")(newScope);
+                $("#" + content).append(widgetElement);
+                $("#rightpanelTabs a[href='#" + content + "']").tab('show');
+            };
+            DashboardService.prototype.deactivateTabContainer = function (container) {
+                this.$layerService.visual.rightPanelVisible = false;
+                var content = container + "-content";
+                $("#" + container + "-tab").remove();
+                try {
+                    var c = $("#" + content);
+                    if (c) {
+                        //var s = (<any>c).scope();
+                        c.remove();
+                    }
+                }
+                catch (e) { }
+            };
+            DashboardService.prototype.deactivateTab = function (tab) {
+                if (!tab.hasOwnProperty("container"))
+                    return;
+                this.deactivateTabContainer(tab.container);
+            };
+            DashboardService.prototype.editWidget = function (widget) {
+                this.activeWidget = widget;
+                this.editWidgetMode = true;
+                var rpt = csComp.Helpers.createRightPanelTab('widget', 'widgetedit', widget, 'Edit widget', 'Edit widget', 'th-large');
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                // call widgetctrl edit function
+                if (widget._ctrl)
+                    widget._ctrl.startEdit();
+                // check if editor exists
+                if (this.$injector.has(widget.directive + 'EditDirective')) {
+                    var rptc = csComp.Helpers.createRightPanelTab('widget-content', widget.directive + "-edit", widget, 'Edit widget', 'Edit widget', 'cog');
+                    this.$messageBusService.publish('rightpanel', 'activate', rptc);
+                }
+                //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
+            };
+            DashboardService.prototype.stopEditWidget = function () {
+                this.activeWidget = null;
+                this.editWidgetMode = false;
+                //this.$layerService.visual.rightPanelVisible = false;
+                $("#widgetEdit").removeClass('active');
+            };
+            DashboardService.prototype.removeWidget = function () {
+                var _this = this;
+                if (this.activeWidget && this.mainDashboard) {
+                    this.mainDashboard.widgets = this.mainDashboard.widgets.filter(function (w) { return w.id != _this.activeWidget.id; });
+                    this.activeWidget = null;
+                    $('#leftPanelTab a[href="#basewidgets"]').tab('show'); // Select tab by name
+                }
+            };
+            DashboardService.$inject = [
+                '$rootScope',
+                '$compile',
+                '$injector',
+                '$location',
+                '$timeout',
+                '$translate',
+                'messageBusService',
+                'layerService',
+                'mapService',
+            ];
+            return DashboardService;
+        })();
+        Services.DashboardService = DashboardService;
+        /**
+          * Register service
+          */
+        var moduleName = 'csComp';
+        try {
+            Services.myModule = angular.module(moduleName);
+        }
+        catch (err) {
+            // named module does not exist, so create one
+            Services.myModule = angular.module(moduleName, []);
+        }
+        Services.myModule.service('dashboardService', csComp.Services.DashboardService);
+    })(Services = csComp.Services || (csComp.Services = {}));
+})(csComp || (csComp = {}));
 
 var csComp;
 (function (csComp) {
@@ -12970,186 +13355,6 @@ var csComp;
     })(Services = csComp.Services || (csComp.Services = {}));
 })(csComp || (csComp = {}));
 
-
-var csComp;
-(function (csComp) {
-    var Services;
-    (function (Services) {
-        /** Contains properties needed to describe right panel */
-        var RightPanelTab = (function () {
-            function RightPanelTab() {
-                this.icon = 'tachometer';
-                this.popover = '';
-            }
-            return RightPanelTab;
-        })();
-        Services.RightPanelTab = RightPanelTab;
-        /** service for managing dashboards */
-        var DashboardService = (function () {
-            function DashboardService($rootScope, $compile, $injector, $location, $timeout, $translate, $messageBusService, $layerService, $mapService) {
-                //$translate('FILTER_INFO').then((translation) => console.log(translation));
-                // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
-                var _this = this;
-                this.$rootScope = $rootScope;
-                this.$compile = $compile;
-                this.$injector = $injector;
-                this.$location = $location;
-                this.$timeout = $timeout;
-                this.$translate = $translate;
-                this.$messageBusService = $messageBusService;
-                this.$layerService = $layerService;
-                this.$mapService = $mapService;
-                this.widgetTypes = {};
-                //alert('init dashbard');
-                this.mainDashboard = new csComp.Services.Dashboard();
-                this.dashboards = [];
-                this.dashboards["main"] = this.mainDashboard;
-                this.$messageBusService.subscribe("dashboard", function (event, id) {
-                    //alert(event);
-                });
-                this.$messageBusService.subscribe("rightpanel", function (event, tab) {
-                    switch (event) {
-                        case "activate":
-                            _this.activateTab(tab);
-                            break;
-                        case "deactivate":
-                            _this.deactivateTab(tab);
-                            break;
-                        case "deactiveContainer":
-                            _this.deactivateTabContainer(tab);
-                            break;
-                    }
-                });
-                this.widgetTypes["indicators"] = { id: "indicators", icon: "cs/images/widgets/indicators.png", description: "Showing sensor data using charts" };
-                this.widgetTypes["charts"] = { id: "charts", icon: "cs/images/widgets/markdown.png", description: "Show custom chart" };
-                this.widgetTypes["markdownwidget"] = { id: "markdownwidget", icon: "cs/images/widgets/markdown.png", description: "Show custom markdown or html content" };
-                this.widgetTypes["mcawidget"] = { id: "mcawidget", icon: "cs/images/widgets/mca.png", description: "Show available MCA's" };
-                this.widgetTypes["iframewidget"] = { id: "iframewidget", icon: "cs/images/widgets/markdown.png", description: "Show custom iframe" };
-                this.widgetTypes["kanbanboard"] = { id: "kanbanboard", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
-                this.widgetTypes["navigator"] = { id: "navigatorwidget", icon: "cs/images/widgets/markdown.png", description: "Show navigator" };
-                this.widgetTypes["postman"] = { id: "postman", icon: "cs/images/widgets/Script.png", description: "POST messages" };
-                this.widgetTypes["simtimecontroller"] = { id: "simtimecontroller", icon: "cs/images/widgets/Media-Play.png", description: "Show simulation time controller" };
-                this.widgetTypes["simstate"] = { id: "simstate", icon: "cs/images/widgets/ServerStatus.png", description: "Show status of simulation services." };
-            }
-            DashboardService.prototype.leftMenuVisible = function (id) {
-                var d = this.$layerService.project.activeDashboard;
-                if (!d.visibleLeftMenuItems)
-                    return true;
-                return (d.visibleLeftMenuItems.indexOf(id) >= 0);
-            };
-            DashboardService.prototype.selectDashboard = function (dashboard, container) {
-                this.$messageBusService.publish('updatelegend', 'removelegend');
-                this.$layerService.project.activeDashboard = dashboard;
-                this.$messageBusService.publish("dashboard-" + container, "activated", dashboard);
-                this.$location.search('dashboard', dashboard.id);
-            };
-            DashboardService.prototype.activateTab = function (tab) {
-                var _this = this;
-                if (!tab.hasOwnProperty("container"))
-                    return;
-                this.$layerService.visual.rightPanelVisible = true;
-                var content = tab.container + "-content";
-                $("#" + tab.container + "-tab").remove();
-                var c = $("#" + content);
-                try {
-                    if (c)
-                        c.remove();
-                }
-                catch (e) {
-                }
-                var popoverString = '';
-                if (tab.popover !== '' && (this.$mapService.expertMode === Services.Expertise.Beginner || this.$mapService.expertMode === Services.Expertise.Intermediate)) {
-                    popoverString = "popover='" + tab.popover + "' popover-placement='left' popover-trigger='mouseenter' popover-append-to-body='true'";
-                }
-                $("#rightpanelTabs").append(this.$compile("<li id='" + tab.container + "-tab' class='rightPanelTab rightPanelTabAnimated' " + popoverString + "><a id='" + tab.container + "-tab-a' href='#" + content + "' data-toggle='tab'><span class='fa fa-" + tab.icon + " fa-lg'></span></a></li>")(this.$rootScope));
-                $("#rightpanelTabPanes").append("<div class='tab-pane' style='width:355px' id='" + content + "'></div>");
-                $("#" + tab.container + "-tab-a").click(function () {
-                    _this.$layerService.visual.rightPanelVisible = true;
-                    console.log('rp visible');
-                    _this.$rootScope.$apply();
-                });
-                var newScope = this.$rootScope;
-                newScope.data = tab.data;
-                var widgetElement = this.$compile("<" + tab.directive + "></" + tab.directive + ">")(newScope);
-                $("#" + content).append(widgetElement);
-                $("#rightpanelTabs a[href='#" + content + "']").tab('show');
-            };
-            DashboardService.prototype.deactivateTabContainer = function (container) {
-                this.$layerService.visual.rightPanelVisible = false;
-                var content = container + "-content";
-                $("#" + container + "-tab").remove();
-                try {
-                    var c = $("#" + content);
-                    if (c) {
-                        //var s = (<any>c).scope();
-                        c.remove();
-                    }
-                }
-                catch (e) { }
-            };
-            DashboardService.prototype.deactivateTab = function (tab) {
-                if (!tab.hasOwnProperty("container"))
-                    return;
-                this.deactivateTabContainer(tab.container);
-            };
-            DashboardService.prototype.editWidget = function (widget) {
-                this.activeWidget = widget;
-                this.editWidgetMode = true;
-                var rpt = csComp.Helpers.createRightPanelTab('widget', 'widgetedit', widget, 'Edit widget', 'Edit widget', 'th-large');
-                this.$messageBusService.publish('rightpanel', 'activate', rpt);
-                // call widgetctrl edit function
-                if (widget._ctrl)
-                    widget._ctrl.startEdit();
-                // check if editor exists
-                if (this.$injector.has(widget.directive + 'EditDirective')) {
-                    var rptc = csComp.Helpers.createRightPanelTab('widget-content', widget.directive + "-edit", widget, 'Edit widget', 'Edit widget', 'cog');
-                    this.$messageBusService.publish('rightpanel', 'activate', rptc);
-                }
-                //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
-            };
-            DashboardService.prototype.stopEditWidget = function () {
-                this.activeWidget = null;
-                this.editWidgetMode = false;
-                //this.$layerService.visual.rightPanelVisible = false;
-                $("#widgetEdit").removeClass('active');
-            };
-            DashboardService.prototype.removeWidget = function () {
-                var _this = this;
-                if (this.activeWidget && this.mainDashboard) {
-                    this.mainDashboard.widgets = this.mainDashboard.widgets.filter(function (w) { return w.id != _this.activeWidget.id; });
-                    this.activeWidget = null;
-                    $('#leftPanelTab a[href="#basewidgets"]').tab('show'); // Select tab by name
-                }
-            };
-            DashboardService.$inject = [
-                '$rootScope',
-                '$compile',
-                '$injector',
-                '$location',
-                '$timeout',
-                '$translate',
-                'messageBusService',
-                'layerService',
-                'mapService',
-            ];
-            return DashboardService;
-        })();
-        Services.DashboardService = DashboardService;
-        /**
-          * Register service
-          */
-        var moduleName = 'csComp';
-        try {
-            Services.myModule = angular.module(moduleName);
-        }
-        catch (err) {
-            // named module does not exist, so create one
-            Services.myModule = angular.module(moduleName, []);
-        }
-        Services.myModule.service('dashboardService', csComp.Services.DashboardService);
-    })(Services = csComp.Services || (csComp.Services = {}));
-})(csComp || (csComp = {}));
-
 var csComp;
 (function (csComp) {
     var Services;
@@ -13244,6 +13449,190 @@ var csComp;
             Services.myModule = angular.module(moduleName, []);
         }
         Services.myModule.service('geoService', csComp.Services.GeoService);
+    })(Services = csComp.Services || (csComp.Services = {}));
+})(csComp || (csComp = {}));
+
+var csComp;
+(function (csComp) {
+    var Services;
+    (function (Services) {
+        'use strict';
+        /*
+         * Singleton service that holds a reference to the map.
+         * In case other controllers need access to the map, they can inject this service.
+         */
+        var MapService = (function () {
+            function MapService($localStorageService, $timeout, $messageBusService) {
+                var _this = this;
+                this.$localStorageService = $localStorageService;
+                this.$timeout = $timeout;
+                this.$messageBusService = $messageBusService;
+                this.mapVisible = true;
+                this.timelineVisible = false;
+                this.rightMenuVisible = true;
+                this.initExpertMode();
+                this.baseLayers = {};
+                this.initMap();
+                $messageBusService.subscribe('timeline', function (title, data) {
+                    switch (title) {
+                        case 'isEnabled':
+                            _this.timelineVisible = data;
+                            if (_this.timelineVisible) {
+                                _this.$timeout(function () { _this.$messageBusService.publish('timeline', 'loadProjectTimeRange'); }, 100);
+                            }
+                            break;
+                    }
+                });
+                $messageBusService.subscribe('map', function (action, data) {
+                    switch (action) {
+                        case 'setextent':
+                            // console.log(data);
+                            // take the navbar and leftpanel into account using padding (50px height, 370px left)
+                            _this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast), { paddingTopLeft: new L.Point(370, 50) });
+                            break;
+                    }
+                });
+            }
+            /**
+          * The expert mode can either be set manually, e.g. using this directive, or by setting the expertMode property in the
+          * project.json file. In neither are set, we assume that we are dealing with an expert, so all features should be enabled.
+          *
+          * Precedence:
+          * - when a declaration is absent, assume Expert.
+          * - when the mode is set in local storage, take that value.
+          * - when the mode is set in the project.json file, take that value.
+          */
+            MapService.prototype.initExpertMode = function () {
+                var _this = this;
+                this.expertMode = this.$localStorageService.get(MapService.expertModeKey);
+                if (!this.expertMode) {
+                    this.expertMode = Services.Expertise.Expert; // Default behaviour
+                    // When a project defines the expert mode, overrules default behaviour
+                    this.$messageBusService.subscribe('project', function (title, project) {
+                        switch (title) {
+                            case 'loaded':
+                                if (project != null && typeof project.expertMode !== 'undefined')
+                                    _this.$messageBusService.publish('expertMode', 'newExpertise', project.expertMode);
+                                break;
+                        }
+                    });
+                }
+                this.$messageBusService.subscribe('expertMode', function (title, expertMode) {
+                    if (title !== 'newExpertise')
+                        return;
+                    _this.expertMode = expertMode;
+                    _this.$localStorageService.set(csComp.Services.MapService.expertModeKey, expertMode); // You first need to set the key
+                });
+            };
+            Object.defineProperty(MapService.prototype, "isExpert", {
+                get: function () {
+                    return this.expertMode === Services.Expertise.Expert || this.expertMode === Services.Expertise.Admin;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(MapService.prototype, "isIntermediate", {
+                get: function () {
+                    return this.expertMode === Services.Expertise.Expert
+                        || this.expertMode === Services.Expertise.Intermediate || this.expertMode === Services.Expertise.Admin;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(MapService.prototype, "isAdminExpert", {
+                get: function () {
+                    return this.expertMode === Services.Expertise.Admin;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            MapService.prototype.initMap = function () {
+                // alert('map service');
+                // this.map = L.map("map", {
+                //     zoomControl: false,
+                //     attributionControl: true
+                // });
+            };
+            MapService.prototype.getBaselayer = function (layer) {
+                var layerObj = this.baseLayers[layer];
+                return layerObj;
+            };
+            MapService.prototype.changeBaseLayer = function (layer) {
+                var layerObj = this.getBaselayer(layer);
+                this.activeBaseLayer = layerObj;
+            };
+            MapService.prototype.invalidate = function () {
+                this.map.invalidateSize(true);
+            };
+            /**
+             * Zoom to a location on the map.
+             */
+            MapService.prototype.zoomToLocation = function (center, zoomFactor) {
+                this.map.setView(center, zoomFactor || 14);
+            };
+            /**
+             * Zoom to a feature on the map.
+             */
+            MapService.prototype.zoomTo = function (feature, zoomLevel) {
+                var _this = this;
+                if (zoomLevel === void 0) { zoomLevel = 14; }
+                var center;
+                if (feature.geometry.type.toUpperCase() == 'POINT') {
+                    center = new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+                    this.map.setView(center, zoomLevel);
+                }
+                else {
+                    var bb;
+                    if (feature.geometry.type.toUpperCase().indexOf("MULTI") < 0)
+                        bb = this.getBoundingBox(feature.geometry.coordinates[0]);
+                    else {
+                        bb = [1000, -1000, 1000, -1000];
+                        feature.geometry.coordinates.forEach(function (c) {
+                            var b = _this.getBoundingBox(c[0]);
+                            bb = [Math.min(bb[0], b[0]), Math.max(bb[1], b[1]), Math.min(bb[2], b[2]), Math.max(bb[3], b[3])];
+                        });
+                    }
+                    var spacingLon = 0.05; // extra spacing left and right, where the menus are.
+                    var southWest = L.latLng(Math.min(bb[2], bb[3]), Math.min(bb[0], bb[1]) - spacingLon);
+                    var northEast = L.latLng(Math.max(bb[2], bb[3]), Math.max(bb[0], bb[1]) + spacingLon);
+                    this.map.fitBounds(new L.LatLngBounds(southWest, northEast));
+                }
+                this.$messageBusService.publish("sidebar", "show");
+                this.$messageBusService.publish("feature", "onFeatureSelect", feature);
+            };
+            //private getCentroid(arr) {
+            //    return arr.reduce((x, y) => [x[0] + y[0] / arr.length, x[1] + y[1] / arr.length], [0, 0]);
+            //}
+            /**
+             * Compute the bounding box.
+             * Returns [min_x, max_x, min_y, max_y]
+             */
+            MapService.prototype.getBoundingBox = function (arr) {
+                // p is the previous value of the callback, c the current element of the array.
+                return arr.reduce(function (p, c) { return [Math.min(p[0], c[0]), Math.max(p[1], c[0]), Math.min(p[2], c[1]), Math.max(p[3], c[1])]; }, [1000, -1000, 1000, -1000]);
+            };
+            MapService.prototype.getMap = function () { return this.map; };
+            MapService.expertModeKey = 'expertMode';
+            MapService.$inject = [
+                'localStorageService',
+                '$timeout',
+                'messageBusService'
+            ];
+            return MapService;
+        })();
+        Services.MapService = MapService;
+        /**
+          * Register service
+          */
+        var moduleName = 'csComp';
+        try {
+            Services.myModule = angular.module(moduleName);
+        }
+        catch (err) {
+            // named module does not exist, so create one
+            Services.myModule = angular.module(moduleName, []);
+        }
+        Services.myModule.service('mapService', csComp.Services.MapService);
     })(Services = csComp.Services || (csComp.Services = {}));
 })(csComp || (csComp = {}));
 
@@ -13440,7 +13829,13 @@ var csComp;
                         delayFocusChange(date);
                     }
                 });
+                this.checkMobile();
             }
+            LayerService.prototype.checkMobile = function () {
+                if (screen.width <= 719) {
+                    this.isMobile = true;
+                }
+            };
             LayerService.prototype.getActions = function (feature, type) {
                 if (!feature || typeof type !== 'number')
                     return;
@@ -13796,9 +14191,14 @@ var csComp;
                             this.$http.get(url)
                                 .success(function (resource) {
                                 success = true;
-                                resource.url = url;
-                                _this.initTypeResources(resource);
-                                _this.$messageBusService.publish("typesource", url, resource);
+                                if (resource) {
+                                    resource.url = url;
+                                    _this.initTypeResources(resource);
+                                    _this.$messageBusService.publish("typesource", url, resource);
+                                }
+                                else {
+                                    _this.$messageBusService.notify('Error loading resource type', url);
+                                }
                                 callback();
                             })
                                 .error(function (err) {
@@ -13994,7 +14394,9 @@ var csComp;
                     }
                 });
             };
-            /** Recompute the style of the layer features, e.g. after changing the opacity. */
+            /** Recompute the style of the layer features, e.g. after changing the opacity or after
+             *	zooming to a level outside the layers' range.
+             */
             LayerService.prototype.updateLayerFeatures = function (layer) {
                 var _this = this;
                 if (!layer)
@@ -14373,8 +14775,8 @@ var csComp;
                     }
                 }
                 feature.gui['style'] = {};
-                s.opacity = s.opacity * (feature.layer.opacity / 100);
-                s.fillOpacity = s.fillOpacity * (feature.layer.opacity / 100);
+                s.opacity = (feature.layer.isTransparent) ? 0 : s.opacity * (feature.layer.opacity / 100);
+                s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);
                 feature.layer.group.styles.forEach(function (gs) {
                     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                         //delete feature.gui[gs.property];
@@ -15938,189 +16340,6 @@ var csComp;
 
 var csComp;
 (function (csComp) {
-    var Services;
-    (function (Services) {
-        'use strict';
-        /*
-         * Singleton service that holds a reference to the map.
-         * In case other controllers need access to the map, they can inject this service.
-         */
-        var MapService = (function () {
-            function MapService($localStorageService, $timeout, $messageBusService) {
-                var _this = this;
-                this.$localStorageService = $localStorageService;
-                this.$timeout = $timeout;
-                this.$messageBusService = $messageBusService;
-                this.mapVisible = true;
-                this.timelineVisible = false;
-                this.rightMenuVisible = true;
-                this.initExpertMode();
-                this.baseLayers = {};
-                this.initMap();
-                $messageBusService.subscribe('timeline', function (title, data) {
-                    switch (title) {
-                        case 'isEnabled':
-                            _this.timelineVisible = data;
-                            if (_this.timelineVisible) {
-                                _this.$timeout(function () { _this.$messageBusService.publish('timeline', 'loadProjectTimeRange'); }, 100);
-                            }
-                            break;
-                    }
-                });
-                $messageBusService.subscribe('map', function (action, data) {
-                    switch (action) {
-                        case 'setextent':
-                            // console.log(data);
-                            _this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast));
-                            break;
-                    }
-                });
-            }
-            /**
-          * The expert mode can either be set manually, e.g. using this directive, or by setting the expertMode property in the
-          * project.json file. In neither are set, we assume that we are dealing with an expert, so all features should be enabled.
-          *
-          * Precedence:
-          * - when a declaration is absent, assume Expert.
-          * - when the mode is set in local storage, take that value.
-          * - when the mode is set in the project.json file, take that value.
-          */
-            MapService.prototype.initExpertMode = function () {
-                var _this = this;
-                this.expertMode = this.$localStorageService.get(MapService.expertModeKey);
-                if (!this.expertMode) {
-                    this.expertMode = Services.Expertise.Expert; // Default behaviour
-                    // When a project defines the expert mode, overrules default behaviour
-                    this.$messageBusService.subscribe('project', function (title, project) {
-                        switch (title) {
-                            case 'loaded':
-                                if (project != null && typeof project.expertMode !== 'undefined')
-                                    _this.$messageBusService.publish('expertMode', 'newExpertise', project.expertMode);
-                                break;
-                        }
-                    });
-                }
-                this.$messageBusService.subscribe('expertMode', function (title, expertMode) {
-                    if (title !== 'newExpertise')
-                        return;
-                    _this.expertMode = expertMode;
-                    _this.$localStorageService.set(csComp.Services.MapService.expertModeKey, expertMode); // You first need to set the key
-                });
-            };
-            Object.defineProperty(MapService.prototype, "isExpert", {
-                get: function () {
-                    return this.expertMode === Services.Expertise.Expert || this.expertMode === Services.Expertise.Admin;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(MapService.prototype, "isIntermediate", {
-                get: function () {
-                    return this.expertMode === Services.Expertise.Expert
-                        || this.expertMode === Services.Expertise.Intermediate || this.expertMode === Services.Expertise.Admin;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(MapService.prototype, "isAdminExpert", {
-                get: function () {
-                    return this.expertMode === Services.Expertise.Admin;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            MapService.prototype.initMap = function () {
-                // alert('map service');
-                // this.map = L.map("map", {
-                //     zoomControl: false,
-                //     attributionControl: true
-                // });
-            };
-            MapService.prototype.getBaselayer = function (layer) {
-                var layerObj = this.baseLayers[layer];
-                return layerObj;
-            };
-            MapService.prototype.changeBaseLayer = function (layer) {
-                var layerObj = this.getBaselayer(layer);
-                this.activeBaseLayer = layerObj;
-            };
-            MapService.prototype.invalidate = function () {
-                this.map.invalidateSize(true);
-            };
-            /**
-             * Zoom to a location on the map.
-             */
-            MapService.prototype.zoomToLocation = function (center, zoomFactor) {
-                this.map.setView(center, zoomFactor || 14);
-            };
-            /**
-             * Zoom to a feature on the map.
-             */
-            MapService.prototype.zoomTo = function (feature, zoomLevel) {
-                var _this = this;
-                if (zoomLevel === void 0) { zoomLevel = 14; }
-                var center;
-                if (feature.geometry.type.toUpperCase() == 'POINT') {
-                    center = new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
-                    this.map.setView(center, zoomLevel);
-                }
-                else {
-                    var bb;
-                    if (feature.geometry.type.toUpperCase().indexOf("MULTI") < 0)
-                        bb = this.getBoundingBox(feature.geometry.coordinates[0]);
-                    else {
-                        bb = [1000, -1000, 1000, -1000];
-                        feature.geometry.coordinates.forEach(function (c) {
-                            var b = _this.getBoundingBox(c[0]);
-                            bb = [Math.min(bb[0], b[0]), Math.max(bb[1], b[1]), Math.min(bb[2], b[2]), Math.max(bb[3], b[3])];
-                        });
-                    }
-                    var spacingLon = 0.05; // extra spacing left and right, where the menus are.
-                    var southWest = L.latLng(Math.min(bb[2], bb[3]), Math.min(bb[0], bb[1]) - spacingLon);
-                    var northEast = L.latLng(Math.max(bb[2], bb[3]), Math.max(bb[0], bb[1]) + spacingLon);
-                    this.map.fitBounds(new L.LatLngBounds(southWest, northEast));
-                }
-                this.$messageBusService.publish("sidebar", "show");
-                this.$messageBusService.publish("feature", "onFeatureSelect", feature);
-            };
-            //private getCentroid(arr) {
-            //    return arr.reduce((x, y) => [x[0] + y[0] / arr.length, x[1] + y[1] / arr.length], [0, 0]);
-            //}
-            /**
-             * Compute the bounding box.
-             * Returns [min_x, max_x, min_y, max_y]
-             */
-            MapService.prototype.getBoundingBox = function (arr) {
-                // p is the previous value of the callback, c the current element of the array.
-                return arr.reduce(function (p, c) { return [Math.min(p[0], c[0]), Math.max(p[1], c[0]), Math.min(p[2], c[1]), Math.max(p[3], c[1])]; }, [1000, -1000, 1000, -1000]);
-            };
-            MapService.prototype.getMap = function () { return this.map; };
-            MapService.expertModeKey = 'expertMode';
-            MapService.$inject = [
-                'localStorageService',
-                '$timeout',
-                'messageBusService'
-            ];
-            return MapService;
-        })();
-        Services.MapService = MapService;
-        /**
-          * Register service
-          */
-        var moduleName = 'csComp';
-        try {
-            Services.myModule = angular.module(moduleName);
-        }
-        catch (err) {
-            // named module does not exist, so create one
-            Services.myModule = angular.module(moduleName, []);
-        }
-        Services.myModule.service('mapService', csComp.Services.MapService);
-    })(Services = csComp.Services || (csComp.Services = {}));
-})(csComp || (csComp = {}));
-
-var csComp;
-(function (csComp) {
     var Search;
     (function (Search) {
         var SearchFormCtrl = (function () {
@@ -16574,243 +16793,6 @@ var Dashboard;
     Dashboard_1.DashboardCtrl = DashboardCtrl;
 })(Dashboard || (Dashboard = {}));
 
-var DashboardEdit;
-(function (DashboardEdit) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        DashboardEdit.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        DashboardEdit.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display a feature's properties in a panel.
-      *
-      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
-      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
-      */
-    DashboardEdit.myModule.directive('dashboardedit', ['$compile',
-        function ($compile) {
-            return {
-                terminal: true,
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/DashboardDirectives/WidgetEdit/DashboardEdit.tpl.html',
-                replace: true,
-                transclude: true,
-                controller: DashboardEdit.DashboardEditCtrl
-            };
-        }
-    ]);
-})(DashboardEdit || (DashboardEdit = {}));
-
-var DashboardEdit;
-(function (DashboardEdit) {
-    var DashboardEditCtrl = (function () {
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function DashboardEditCtrl($scope, $mapService, $layerService, $messageBusService, $dashboardService) {
-            this.$scope = $scope;
-            this.$mapService = $mapService;
-            this.$layerService = $layerService;
-            this.$messageBusService = $messageBusService;
-            this.$dashboardService = $dashboardService;
-            this.scope = $scope;
-            $scope.vm = this;
-            this.dashboard = $scope.$parent["data"];
-            if (this.dashboard.parents && this.dashboard.parents.length > 0)
-                this.parent = this.dashboard.parents[0];
-            this.updateHasParent();
-            console.log(this.$dashboardService.widgetTypes);
-            // setup draggable elements.
-        }
-        DashboardEditCtrl.prototype.updateHasParent = function () {
-            return;
-            if (this.parent !== "")
-                this.dashboard.parents = [this.parent];
-            this.hasParent = this.dashboard.parents && this.dashboard.parents.length > 0;
-        };
-        DashboardEditCtrl.prototype.toggleTimeline = function () {
-            //this.$dashboardService.mainDashboard.showTimeline = !this.$dashboardService.mainDashboard.showTimeline;
-            this.checkTimeline();
-            this.$layerService.project.dashboards;
-        };
-        DashboardEditCtrl.prototype.toggleLegend = function () {
-            this.checkLegend();
-            this.$layerService.project.dashboards;
-        };
-        DashboardEditCtrl.prototype.setExtent = function () {
-            this.dashboard.viewBounds = this.$layerService.activeMapRenderer.getExtent();
-            console.log('set extent');
-        };
-        DashboardEditCtrl.prototype.setVisibleLayers = function () {
-            this.dashboard.visiblelayers = [];
-            for (var id in this.$layerService.loadedLayers)
-                this.dashboard.visiblelayers.push(id);
-        };
-        DashboardEditCtrl.prototype.toggleMap = function () {
-            var _this = this;
-            setTimeout(function () {
-                _this.checkMap();
-            }, 100);
-        };
-        DashboardEditCtrl.prototype.checkMap = function () {
-            var db = this.$layerService.project.activeDashboard;
-            if (db.showMap != this.$layerService.visual.mapVisible) {
-                if (db.showMap) {
-                    this.$layerService.visual.mapVisible = true;
-                }
-                else {
-                    this.$layerService.visual.mapVisible = false;
-                }
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-                    this.$scope.$apply();
-                }
-            }
-            if (db.showMap && this.dashboard.baselayer) {
-                this.$messageBusService.publish("map", "setbaselayer", this.dashboard.baselayer);
-            }
-        };
-        DashboardEditCtrl.prototype.checkTimeline = function () {
-            var db = this.$layerService.project.activeDashboard;
-            if (db.timeline) {
-                var s = new Date(db.timeline.start);
-                var e = new Date();
-                if (db.timeline.end)
-                    e = new Date(db.timeline.end);
-                //this.$messageBusService.publish("timeline", "updateTimerange", { "start": s, "end": e});
-                this.$messageBusService.publish("timeline", "updateTimerange", { start: s, end: e });
-            }
-            if (db.showTimeline != this.$mapService.timelineVisible) {
-                if (db.showTimeline) {
-                    this.$mapService.timelineVisible = true;
-                }
-                else {
-                    this.$mapService.timelineVisible = false;
-                }
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-                    this.$scope.$apply();
-                }
-            }
-        };
-        DashboardEditCtrl.prototype.checkLegend = function () {
-            var db = this.$layerService.project.activeDashboard;
-            if (!db.showLegend) {
-                var idxDelete = -1;
-                db.widgets.forEach(function (w, idx) {
-                    if (w.id === 'legend') {
-                        idxDelete = idx;
-                    }
-                });
-                if (idxDelete > -1)
-                    db.widgets.splice(idxDelete, 1);
-            }
-            this.$dashboardService.selectDashboard(db, 'main');
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
-                this.$scope.$apply();
-            }
-        };
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        DashboardEditCtrl.$inject = [
-            '$scope',
-            'mapService',
-            'layerService',
-            'messageBusService',
-            'dashboardService'
-        ];
-        return DashboardEditCtrl;
-    })();
-    DashboardEdit.DashboardEditCtrl = DashboardEditCtrl;
-})(DashboardEdit || (DashboardEdit = {}));
-
-var WidgetEdit;
-(function (WidgetEdit) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        WidgetEdit.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        WidgetEdit.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display a feature's properties in a panel.
-      *
-      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
-      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
-      */
-    WidgetEdit.myModule.directive('widgetedit', ['$compile',
-        function ($compile) {
-            return {
-                terminal: true,
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/DashboardDirectives/WidgetEdit/WidgetEdit.tpl.html',
-                replace: true,
-                transclude: true,
-                controller: WidgetEdit.WidgetEditCtrl
-            };
-        }
-    ]);
-})(WidgetEdit || (WidgetEdit = {}));
-
-var WidgetEdit;
-(function (WidgetEdit) {
-    var WidgetEditCtrl = (function () {
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function WidgetEditCtrl($scope, mapService, layerService, messageBusService, dashboardService) {
-            this.$scope = $scope;
-            this.mapService = mapService;
-            this.layerService = layerService;
-            this.messageBusService = messageBusService;
-            this.dashboardService = dashboardService;
-            this.scope = $scope;
-            $scope.vm = this;
-            $scope.widget = dashboardService.activeWidget;
-        }
-        WidgetEditCtrl.prototype.selectStyle = function () {
-            var style = this.$scope.widget.style;
-            if (style === "custom") {
-                this.$scope.widget.customStyle = JSON.parse(JSON.stringify(this.$scope.widget.effectiveStyle));
-                this.$scope.widget.effectiveStyle = this.$scope.widget.customStyle;
-            }
-            else {
-                this.$scope.widget.effectiveStyle = this.layerService.solution.widgetStyles[style];
-                this.$scope.widget.customStyle = null;
-            }
-        };
-        WidgetEditCtrl.prototype.removeWidget = function (widget) {
-            widget.parentDashboard.widgets = widget.parentDashboard.widgets.filter(function (w) { return widget.id != w.id; });
-            this.dashboardService.deactivateTabContainer("widget-content");
-            this.dashboardService.deactivateTabContainer("widget");
-        };
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        WidgetEditCtrl.$inject = [
-            '$scope',
-            'mapService',
-            'layerService',
-            'messageBusService',
-            'dashboardService'
-        ];
-        return WidgetEditCtrl;
-    })();
-    WidgetEdit.WidgetEditCtrl = WidgetEditCtrl;
-})(WidgetEdit || (WidgetEdit = {}));
-
 var DashboarHeaderdSelection;
 (function (DashboarHeaderdSelection) {
     /**
@@ -17099,6 +17081,243 @@ var DashboardSelection;
     DashboardSelection.DashboardSelectionCtrl = DashboardSelectionCtrl;
 })(DashboardSelection || (DashboardSelection = {}));
 
+var DashboardEdit;
+(function (DashboardEdit) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        DashboardEdit.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        DashboardEdit.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display a feature's properties in a panel.
+      *
+      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
+      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
+      */
+    DashboardEdit.myModule.directive('dashboardedit', ['$compile',
+        function ($compile) {
+            return {
+                terminal: true,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/DashboardDirectives/WidgetEdit/DashboardEdit.tpl.html',
+                replace: true,
+                transclude: true,
+                controller: DashboardEdit.DashboardEditCtrl
+            };
+        }
+    ]);
+})(DashboardEdit || (DashboardEdit = {}));
+
+var DashboardEdit;
+(function (DashboardEdit) {
+    var DashboardEditCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function DashboardEditCtrl($scope, $mapService, $layerService, $messageBusService, $dashboardService) {
+            this.$scope = $scope;
+            this.$mapService = $mapService;
+            this.$layerService = $layerService;
+            this.$messageBusService = $messageBusService;
+            this.$dashboardService = $dashboardService;
+            this.scope = $scope;
+            $scope.vm = this;
+            this.dashboard = $scope.$parent["data"];
+            if (this.dashboard.parents && this.dashboard.parents.length > 0)
+                this.parent = this.dashboard.parents[0];
+            this.updateHasParent();
+            console.log(this.$dashboardService.widgetTypes);
+            // setup draggable elements.
+        }
+        DashboardEditCtrl.prototype.updateHasParent = function () {
+            return;
+            if (this.parent !== "")
+                this.dashboard.parents = [this.parent];
+            this.hasParent = this.dashboard.parents && this.dashboard.parents.length > 0;
+        };
+        DashboardEditCtrl.prototype.toggleTimeline = function () {
+            //this.$dashboardService.mainDashboard.showTimeline = !this.$dashboardService.mainDashboard.showTimeline;
+            this.checkTimeline();
+            this.$layerService.project.dashboards;
+        };
+        DashboardEditCtrl.prototype.toggleLegend = function () {
+            this.checkLegend();
+            this.$layerService.project.dashboards;
+        };
+        DashboardEditCtrl.prototype.setExtent = function () {
+            this.dashboard.viewBounds = this.$layerService.activeMapRenderer.getExtent();
+            console.log('set extent');
+        };
+        DashboardEditCtrl.prototype.setVisibleLayers = function () {
+            this.dashboard.visiblelayers = [];
+            for (var id in this.$layerService.loadedLayers)
+                this.dashboard.visiblelayers.push(id);
+        };
+        DashboardEditCtrl.prototype.toggleMap = function () {
+            var _this = this;
+            setTimeout(function () {
+                _this.checkMap();
+            }, 100);
+        };
+        DashboardEditCtrl.prototype.checkMap = function () {
+            var db = this.$layerService.project.activeDashboard;
+            if (db.showMap != this.$layerService.visual.mapVisible) {
+                if (db.showMap) {
+                    this.$layerService.visual.mapVisible = true;
+                }
+                else {
+                    this.$layerService.visual.mapVisible = false;
+                }
+                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                    this.$scope.$apply();
+                }
+            }
+            if (db.showMap && this.dashboard.baselayer) {
+                this.$messageBusService.publish("map", "setbaselayer", this.dashboard.baselayer);
+            }
+        };
+        DashboardEditCtrl.prototype.checkTimeline = function () {
+            var db = this.$layerService.project.activeDashboard;
+            if (db.timeline) {
+                var s = new Date(db.timeline.start);
+                var e = new Date();
+                if (db.timeline.end)
+                    e = new Date(db.timeline.end);
+                //this.$messageBusService.publish("timeline", "updateTimerange", { "start": s, "end": e});
+                this.$messageBusService.publish("timeline", "updateTimerange", { start: s, end: e });
+            }
+            if (db.showTimeline != this.$mapService.timelineVisible) {
+                if (db.showTimeline) {
+                    this.$mapService.timelineVisible = true;
+                }
+                else {
+                    this.$mapService.timelineVisible = false;
+                }
+                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                    this.$scope.$apply();
+                }
+            }
+        };
+        DashboardEditCtrl.prototype.checkLegend = function () {
+            var db = this.$layerService.project.activeDashboard;
+            if (!db.showLegend) {
+                var idxDelete = -1;
+                db.widgets.forEach(function (w, idx) {
+                    if (w.id === 'legend') {
+                        idxDelete = idx;
+                    }
+                });
+                if (idxDelete > -1)
+                    db.widgets.splice(idxDelete, 1);
+            }
+            this.$dashboardService.selectDashboard(db, 'main');
+            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                this.$scope.$apply();
+            }
+        };
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        DashboardEditCtrl.$inject = [
+            '$scope',
+            'mapService',
+            'layerService',
+            'messageBusService',
+            'dashboardService'
+        ];
+        return DashboardEditCtrl;
+    })();
+    DashboardEdit.DashboardEditCtrl = DashboardEditCtrl;
+})(DashboardEdit || (DashboardEdit = {}));
+
+var WidgetEdit;
+(function (WidgetEdit) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        WidgetEdit.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        WidgetEdit.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display a feature's properties in a panel.
+      *
+      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
+      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
+      */
+    WidgetEdit.myModule.directive('widgetedit', ['$compile',
+        function ($compile) {
+            return {
+                terminal: true,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/DashboardDirectives/WidgetEdit/WidgetEdit.tpl.html',
+                replace: true,
+                transclude: true,
+                controller: WidgetEdit.WidgetEditCtrl
+            };
+        }
+    ]);
+})(WidgetEdit || (WidgetEdit = {}));
+
+var WidgetEdit;
+(function (WidgetEdit) {
+    var WidgetEditCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function WidgetEditCtrl($scope, mapService, layerService, messageBusService, dashboardService) {
+            this.$scope = $scope;
+            this.mapService = mapService;
+            this.layerService = layerService;
+            this.messageBusService = messageBusService;
+            this.dashboardService = dashboardService;
+            this.scope = $scope;
+            $scope.vm = this;
+            $scope.widget = dashboardService.activeWidget;
+        }
+        WidgetEditCtrl.prototype.selectStyle = function () {
+            var style = this.$scope.widget.style;
+            if (style === "custom") {
+                this.$scope.widget.customStyle = JSON.parse(JSON.stringify(this.$scope.widget.effectiveStyle));
+                this.$scope.widget.effectiveStyle = this.$scope.widget.customStyle;
+            }
+            else {
+                this.$scope.widget.effectiveStyle = this.layerService.solution.widgetStyles[style];
+                this.$scope.widget.customStyle = null;
+            }
+        };
+        WidgetEditCtrl.prototype.removeWidget = function (widget) {
+            widget.parentDashboard.widgets = widget.parentDashboard.widgets.filter(function (w) { return widget.id != w.id; });
+            this.dashboardService.deactivateTabContainer("widget-content");
+            this.dashboardService.deactivateTabContainer("widget");
+        };
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        WidgetEditCtrl.$inject = [
+            '$scope',
+            'mapService',
+            'layerService',
+            'messageBusService',
+            'dashboardService'
+        ];
+        return WidgetEditCtrl;
+    })();
+    WidgetEdit.WidgetEditCtrl = WidgetEditCtrl;
+})(WidgetEdit || (WidgetEdit = {}));
+
 var GroupEdit;
 (function (GroupEdit) {
     /**
@@ -17357,119 +17576,6 @@ var FeatureTypes;
     FeatureTypes.FeatureTypesCtrl = FeatureTypesCtrl;
 })(FeatureTypes || (FeatureTypes = {}));
 
-var LayerEdit;
-(function (LayerEdit) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        LayerEdit.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        LayerEdit.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display a feature's properties in a panel.
-      *
-      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
-      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
-      */
-    LayerEdit.myModule.directive('layeredit', ['$compile',
-        function ($compile) {
-            return {
-                terminal: true,
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/Editors/LayerEditor/LayerEdit.tpl.html',
-                replace: false,
-                transclude: true,
-                controller: LayerEdit.LayerEditCtrl
-            };
-        }
-    ]);
-})(LayerEdit || (LayerEdit = {}));
-
-var LayerEdit;
-(function (LayerEdit) {
-    var LayerEditCtrl = (function () {
-        // dependencies are injected via AngularJS $injector
-        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
-        function LayerEditCtrl($scope, $http, $mapService, $layerService, $messageBusService, $dashboardService) {
-            this.$scope = $scope;
-            this.$http = $http;
-            this.$mapService = $mapService;
-            this.$layerService = $layerService;
-            this.$messageBusService = $messageBusService;
-            this.$dashboardService = $dashboardService;
-            this.scope = $scope;
-            $scope.vm = this;
-            this.layer = $scope.$parent["data"];
-            this.getTypes();
-            var ft = {};
-        }
-        LayerEditCtrl.prototype.addLayer = function () {
-        };
-        LayerEditCtrl.prototype.removeLayer = function () {
-            this.$layerService.removeLayer(this.layer, true);
-        };
-        LayerEditCtrl.prototype.addFeatureType = function () {
-            var _this = this;
-            if (this.layer.typeUrl) {
-                this.$layerService.loadTypeResources(this.layer.typeUrl, this.layer.dynamicResource || false, function () {
-                    if (_this.$layerService.typesResources.hasOwnProperty(_this.layer.typeUrl)) {
-                        var r = _this.$layerService.typesResources[_this.layer.typeUrl];
-                        var ft = {};
-                        var id = _this.layer.typeUrl + "#" + _this.layer.defaultFeatureType;
-                        ft.id = _this.layer.defaultFeatureType;
-                        ft.name = ft.id;
-                        ft.style = csComp.Helpers.getDefaultFeatureStyle();
-                        if (!r.featureTypes.hasOwnProperty(id)) {
-                            var ft = {};
-                            ft.id = _this.layer.defaultFeatureType;
-                            ft.name = ft.id;
-                            // EV already called before.
-                            //ft.style = csComp.Helpers.getDefaultFeatureStyle();
-                            //if (ft.name.toLowerCase().startsWith("http://")) id = ft.name;
-                            //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
-                            _this.$layerService._featureTypes[id] = ft;
-                            r.featureTypes[ft.id] = ft;
-                        }
-                    }
-                });
-            }
-        };
-        LayerEditCtrl.prototype.getTypes = function () {
-            var _this = this;
-            console.log('its me babe');
-            this.$http.get(this.layer.typeUrl)
-                .success(function (response) {
-                setTimeout(function () {
-                    _this.availabeTypes = response.featureTypes;
-                    console.log(_this.availabeTypes);
-                }, 0);
-            })
-                .error(function () { console.log('LayerEditCtl: error with $http'); });
-        };
-        ;
-        // $inject annotation.
-        // It provides $injector with information about dependencies to be injected into constructor
-        // it is better to have it close to the constructor, because the parameters must match in count and type.
-        // See http://docs.angularjs.org/guide/di
-        LayerEditCtrl.$inject = [
-            '$scope',
-            '$http',
-            'mapService',
-            'layerService',
-            'messageBusService',
-            'dashboardService'
-        ];
-        return LayerEditCtrl;
-    })();
-    LayerEdit.LayerEditCtrl = LayerEditCtrl;
-})(LayerEdit || (LayerEdit = {}));
-
 var PropertyTypes;
 (function (PropertyTypes) {
     /**
@@ -17676,6 +17782,119 @@ var PropertyTypes;
     PropertyTypes.PropertyTypesCtrl = PropertyTypesCtrl;
 })(PropertyTypes || (PropertyTypes = {}));
 
+var LayerEdit;
+(function (LayerEdit) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        LayerEdit.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        LayerEdit.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display a feature's properties in a panel.
+      *
+      * @seealso          : http://www.youtube.com/watch?v=gjJ5vLRK8R8&list=UUGD_0i6L48hucTiiyhb5QzQ
+      * @seealso          : http://plnkr.co/edit/HyBP9d?p=preview
+      */
+    LayerEdit.myModule.directive('layeredit', ['$compile',
+        function ($compile) {
+            return {
+                terminal: true,
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Editors/LayerEditor/LayerEdit.tpl.html',
+                replace: false,
+                transclude: true,
+                controller: LayerEdit.LayerEditCtrl
+            };
+        }
+    ]);
+})(LayerEdit || (LayerEdit = {}));
+
+var LayerEdit;
+(function (LayerEdit) {
+    var LayerEditCtrl = (function () {
+        // dependencies are injected via AngularJS $injector
+        // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
+        function LayerEditCtrl($scope, $http, $mapService, $layerService, $messageBusService, $dashboardService) {
+            this.$scope = $scope;
+            this.$http = $http;
+            this.$mapService = $mapService;
+            this.$layerService = $layerService;
+            this.$messageBusService = $messageBusService;
+            this.$dashboardService = $dashboardService;
+            this.scope = $scope;
+            $scope.vm = this;
+            this.layer = $scope.$parent["data"];
+            this.getTypes();
+            var ft = {};
+        }
+        LayerEditCtrl.prototype.addLayer = function () {
+        };
+        LayerEditCtrl.prototype.removeLayer = function () {
+            this.$layerService.removeLayer(this.layer, true);
+        };
+        LayerEditCtrl.prototype.addFeatureType = function () {
+            var _this = this;
+            if (this.layer.typeUrl) {
+                this.$layerService.loadTypeResources(this.layer.typeUrl, this.layer.dynamicResource || false, function () {
+                    if (_this.$layerService.typesResources.hasOwnProperty(_this.layer.typeUrl)) {
+                        var r = _this.$layerService.typesResources[_this.layer.typeUrl];
+                        var ft = {};
+                        var id = _this.layer.typeUrl + "#" + _this.layer.defaultFeatureType;
+                        ft.id = _this.layer.defaultFeatureType;
+                        ft.name = ft.id;
+                        ft.style = csComp.Helpers.getDefaultFeatureStyle();
+                        if (!r.featureTypes.hasOwnProperty(id)) {
+                            var ft = {};
+                            ft.id = _this.layer.defaultFeatureType;
+                            ft.name = ft.id;
+                            // EV already called before.
+                            //ft.style = csComp.Helpers.getDefaultFeatureStyle();
+                            //if (ft.name.toLowerCase().startsWith("http://")) id = ft.name;
+                            //if (csComp.Helpers.startsWith(name.toLowerCase(), "http://")) return name;
+                            _this.$layerService._featureTypes[id] = ft;
+                            r.featureTypes[ft.id] = ft;
+                        }
+                    }
+                });
+            }
+        };
+        LayerEditCtrl.prototype.getTypes = function () {
+            var _this = this;
+            console.log('its me babe');
+            this.$http.get(this.layer.typeUrl)
+                .success(function (response) {
+                setTimeout(function () {
+                    _this.availabeTypes = response.featureTypes;
+                    console.log(_this.availabeTypes);
+                }, 0);
+            })
+                .error(function () { console.log('LayerEditCtl: error with $http'); });
+        };
+        ;
+        // $inject annotation.
+        // It provides $injector with information about dependencies to be injected into constructor
+        // it is better to have it close to the constructor, because the parameters must match in count and type.
+        // See http://docs.angularjs.org/guide/di
+        LayerEditCtrl.$inject = [
+            '$scope',
+            '$http',
+            'mapService',
+            'layerService',
+            'messageBusService',
+            'dashboardService'
+        ];
+        return LayerEditCtrl;
+    })();
+    LayerEdit.LayerEditCtrl = LayerEditCtrl;
+})(LayerEdit || (LayerEdit = {}));
+
 var ChartsWidget;
 (function (ChartsWidget) {
     /**
@@ -17872,11 +18091,14 @@ var ChartsWidget;
             $scope.data._id = this.widget.id;
         }
         ChartCtrl.prototype.startChart = function () {
-            var _this = this;
             var d = this.$scope.data;
             if (!d.spec)
                 d.spec = this.defaultSpec;
-            var res = vg.embed('#vis' + d._id, d.spec, function (view, vega_spec) {
+            var vgspec = d.spec;
+            if (d.lite)
+                vgspec = vl.compile(d.spec);
+            //parse(vgspec);
+            var res = vg.embed('#vis' + d._id, vgspec, function (view, vega_spec) {
                 d._view = view;
                 // Callback receiving the View instance and parsed Vega spec...
                 // The View resides under the '#vis' element
@@ -17885,13 +18107,21 @@ var ChartsWidget;
                 this.keyHandle = this.$layerService.$messageBusService.serverSubscribe(d.key, "key", function (topic, msg) {
                     switch (msg.action) {
                         case "key":
-                            if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]') {
+                            if (msg.data.item.hasOwnProperty("values")) {
                                 d.spec.data = msg.data.item;
                             }
                             else {
-                                d.spec.data = [msg.data.item];
+                                d.spec = msg.data.item;
                             }
-                            vg.parse.spec(_this.$scope.data.spec, function (chart) { chart({ el: "#vis" + d._id }).update(); });
+                            // if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]' ) {
+                            //     d.spec.data = msg.data.item;
+                            // } else {
+                            //
+                            // }
+                            vgspec = d.spec;
+                            if (d.lite)
+                                vgspec = vl.compile(d.spec);
+                            vg.parse.spec(vgspec, function (chart) { chart({ el: "#vis" + d._id }).update(); });
                             d._view.update();
                             break;
                     }
@@ -19553,6 +19783,7 @@ var MarkdownWidget;
             this.widget = par.widget;
             $scope.data = this.widget.data;
             $scope.data.mdText = $scope.data.content;
+            $scope.minimized = false;
             if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
                 // Hide widget
                 this.parentWidget = $("#" + this.widget.elementId).parent();
@@ -19576,6 +19807,18 @@ var MarkdownWidget;
                 }, 0);
             });
         }
+        MarkdownWidgetCtrl.prototype.minimize = function () {
+            this.$scope.minimized = !this.$scope.minimized;
+            if (this.$scope.minimized) {
+                this.parentWidget.css("height", "30px");
+            }
+            else {
+                this.parentWidget.css("height", this.widget.height);
+            }
+        };
+        MarkdownWidgetCtrl.prototype.close = function () {
+            this.parentWidget.hide();
+        };
         MarkdownWidgetCtrl.prototype.escapeRegExp = function (str) {
             return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
         };
@@ -20110,6 +20353,136 @@ var Indicators;
     Indicators.IndicatorsCtrl = IndicatorsCtrl;
 })(Indicators || (Indicators = {}));
 
+var MCAWidget;
+(function (MCAWidget) {
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+    try {
+        MCAWidget.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        MCAWidget.myModule = angular.module(moduleName, []);
+    }
+    /**
+      * Directive to display the available map layers.
+      */
+    MCAWidget.myModule.directive('mcawidget', [function () {
+            return {
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Widgets/MCAWidget/MCAWidget.tpl.html',
+                replace: true,
+                transclude: false,
+                controller: MCAWidget.MCAWidgetCtrl
+            };
+        }
+    ]);
+})(MCAWidget || (MCAWidget = {}));
+
+var MCAWidget;
+(function (MCAWidget) {
+    var MCAWidgetData = (function () {
+        function MCAWidgetData() {
+        }
+        return MCAWidgetData;
+    })();
+    MCAWidget.MCAWidgetData = MCAWidgetData;
+    var MCAWidgetCtrl = (function () {
+        function MCAWidgetCtrl($scope, $timeout, $controller, $layerService, $messageBus, $mapService) {
+            var _this = this;
+            this.$scope = $scope;
+            this.$timeout = $timeout;
+            this.$controller = $controller;
+            this.$layerService = $layerService;
+            this.$messageBus = $messageBus;
+            this.$mapService = $mapService;
+            $scope.vm = this;
+            var par = $scope.$parent;
+            this.widget = par.widget;
+            $scope.data = this.widget.data;
+            if (typeof $scope.data.layerId !== 'undefined') {
+                // Hide widget
+                this.parentWidget = $("#" + this.widget.elementId).parent();
+                this.parentWidget.hide();
+                this.$messageBus.subscribe('layer', function (action, layer) {
+                    switch (action) {
+                        case 'activated':
+                        case 'deactivate':
+                            _this.activateLayer(layer);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            }
+        }
+        MCAWidgetCtrl.prototype.activateLayer = function (layer) {
+            var _this = this;
+            this.mcaScope = this.getMcaScope();
+            if (!this.mcaScope)
+                return;
+            if (layer.id !== this.$scope.data.layerId || (layer.id === this.$scope.data.layerId && !layer.enabled)) {
+                this.parentWidget.hide();
+                return;
+            }
+            this.$timeout(function () {
+                _this.parentWidget.show();
+            }, 0);
+        };
+        MCAWidgetCtrl.prototype.getMcaScope = function () {
+            var mcaElm = angular.element('div[id="mca"]');
+            if (!mcaElm) {
+                console.log('Mca element not found.');
+                return;
+            }
+            var mcaScope = mcaElm.scope();
+            if (!mcaScope) {
+                console.log('Mca controller scope not found.');
+                return;
+            }
+            else {
+                this.$scope.data.availableMcas = mcaScope.vm.availableMcas;
+                return mcaScope;
+            }
+        };
+        MCAWidgetCtrl.prototype.setMcaAsStyle = function (mcaNr) {
+            if (!this.mcaScope || !this.mcaScope.vm.mca) {
+                console.log('Mca controller scope not found.');
+                return;
+            }
+            else {
+                var vm = this.mcaScope.vm;
+                if (!vm.showFeature) {
+                    this.$messageBus.notifyWithTranslation('SELECT_A_FEATURE', 'SELECT_FEATURE_FOR_STYLE');
+                    return;
+                }
+                if (vm.properties.length > 0) {
+                    var availableMcas = vm.availableMcas.length;
+                    if (mcaNr <= availableMcas) {
+                        vm.mca = vm.availableMcas[mcaNr];
+                        vm.updateMca();
+                    }
+                    console.log('Set mca style.');
+                    vm.setStyle(vm.properties[0]);
+                }
+            }
+        };
+        MCAWidgetCtrl.$inject = [
+            '$scope',
+            '$timeout',
+            '$controller',
+            'layerService',
+            'messageBusService',
+            'mapService'
+        ];
+        return MCAWidgetCtrl;
+    })();
+    MCAWidget.MCAWidgetCtrl = MCAWidgetCtrl;
+})(MCAWidget || (MCAWidget = {}));
+
 var NavigatorWidget;
 (function (NavigatorWidget) {
     /**
@@ -20242,236 +20615,6 @@ var NavigatorWidget;
     })();
     NavigatorWidget.NavigatorWidgetCtrl = NavigatorWidgetCtrl;
 })(NavigatorWidget || (NavigatorWidget = {}));
-
-var MCAWidget;
-(function (MCAWidget) {
-    /**
-      * Config
-      */
-    var moduleName = 'csComp';
-    try {
-        MCAWidget.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        MCAWidget.myModule = angular.module(moduleName, []);
-    }
-    /**
-      * Directive to display the available map layers.
-      */
-    MCAWidget.myModule.directive('mcawidget', [function () {
-            return {
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/Widgets/MCAWidget/MCAWidget.tpl.html',
-                replace: true,
-                transclude: false,
-                controller: MCAWidget.MCAWidgetCtrl
-            };
-        }
-    ]);
-})(MCAWidget || (MCAWidget = {}));
-
-var MCAWidget;
-(function (MCAWidget) {
-    var MCAWidgetData = (function () {
-        function MCAWidgetData() {
-        }
-        return MCAWidgetData;
-    })();
-    MCAWidget.MCAWidgetData = MCAWidgetData;
-    var MCAWidgetCtrl = (function () {
-        function MCAWidgetCtrl($scope, $timeout, $controller, $layerService, $messageBus, $mapService) {
-            var _this = this;
-            this.$scope = $scope;
-            this.$timeout = $timeout;
-            this.$controller = $controller;
-            this.$layerService = $layerService;
-            this.$messageBus = $messageBus;
-            this.$mapService = $mapService;
-            $scope.vm = this;
-            var par = $scope.$parent;
-            this.widget = par.widget;
-            $scope.data = this.widget.data;
-            if (typeof $scope.data.layerId !== 'undefined') {
-                // Hide widget
-                this.parentWidget = $("#" + this.widget.elementId).parent();
-                this.parentWidget.hide();
-                this.$messageBus.subscribe('layer', function (action, layer) {
-                    switch (action) {
-                        case 'activated':
-                        case 'deactivate':
-                            _this.activateLayer(layer);
-                            break;
-                        default:
-                            break;
-                    }
-                });
-            }
-        }
-        MCAWidgetCtrl.prototype.activateLayer = function (layer) {
-            var _this = this;
-            this.mcaScope = this.getMcaScope();
-            if (!this.mcaScope)
-                return;
-            if (layer.id !== this.$scope.data.layerId || (layer.id === this.$scope.data.layerId && !layer.enabled)) {
-                this.parentWidget.hide();
-                return;
-            }
-            this.$timeout(function () {
-                _this.parentWidget.show();
-            }, 0);
-        };
-        MCAWidgetCtrl.prototype.getMcaScope = function () {
-            var mcaElm = angular.element('div[id="mca"]');
-            if (!mcaElm) {
-                console.log('Mca element not found.');
-                return;
-            }
-            var mcaScope = mcaElm.scope();
-            if (!mcaScope) {
-                console.log('Mca controller scope not found.');
-                return;
-            }
-            else {
-                this.$scope.data.availableMcas = mcaScope.vm.availableMcas;
-                return mcaScope;
-            }
-        };
-        MCAWidgetCtrl.prototype.setMcaAsStyle = function (mcaNr) {
-            if (!this.mcaScope || !this.mcaScope.vm.mca) {
-                console.log('Mca controller scope not found.');
-                return;
-            }
-            else {
-                var vm = this.mcaScope.vm;
-                if (!vm.showFeature) {
-                    this.$messageBus.notifyWithTranslation('SELECT_A_FEATURE', 'SELECT_FEATURE_FOR_STYLE');
-                    return;
-                }
-                if (vm.properties.length > 0) {
-                    var availableMcas = vm.availableMcas.length;
-                    if (mcaNr <= availableMcas) {
-                        vm.mca = vm.availableMcas[mcaNr];
-                        vm.updateMca();
-                    }
-                    console.log('Set mca style.');
-                    vm.setStyle(vm.properties[0]);
-                }
-            }
-        };
-        MCAWidgetCtrl.$inject = [
-            '$scope',
-            '$timeout',
-            '$controller',
-            'layerService',
-            'messageBusService',
-            'mapService'
-        ];
-        return MCAWidgetCtrl;
-    })();
-    MCAWidget.MCAWidgetCtrl = MCAWidgetCtrl;
-})(MCAWidget || (MCAWidget = {}));
-
-var SimState;
-(function (SimState) {
-    /** Config */
-    var moduleName = 'csComp';
-    try {
-        SimState.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        SimState.myModule = angular.module(moduleName, []);
-    }
-    /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
-    SimState.myModule.directive('simstateEdit', [function () {
-            return {
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/Widgets/SimState/SimState.tpl.html',
-                replace: true,
-                transclude: false,
-                controller: SimStateEditCtrl
-            };
-        }
-    ]);
-    var SimStateEditCtrl = (function () {
-        function SimStateEditCtrl($scope, $http, messageBusService, $timeout) {
-            this.$scope = $scope;
-            this.$http = $http;
-            this.messageBusService = messageBusService;
-            this.$timeout = $timeout;
-            $scope.vm = this;
-            //var par = <any>$scope.$parent;
-            //$scope.data = <PostManEditorData>par.widget.data;
-        }
-        SimStateEditCtrl.$inject = [
-            '$scope',
-            '$http',
-            'messageBusService',
-            '$timeout'
-        ];
-        return SimStateEditCtrl;
-    })();
-    SimState.SimStateEditCtrl = SimStateEditCtrl;
-})(SimState || (SimState = {}));
-
-var SimState;
-(function (SimState) {
-    /** Config */
-    var moduleName = 'csComp';
-    try {
-        SimState.myModule = angular.module(moduleName);
-    }
-    catch (err) {
-        // named module does not exist, so create one
-        SimState.myModule = angular.module(moduleName, []);
-    }
-    /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
-    SimState.myModule.directive('simstate', [function () {
-            return {
-                restrict: 'E',
-                scope: {},
-                templateUrl: 'directives/Widgets/SimState/SimState.tpl.html',
-                replace: true,
-                transclude: false,
-                controller: SimStateCtrl
-            };
-        }
-    ]);
-    var SimStateCtrl = (function () {
-        function SimStateCtrl($scope, $http, messageBusService, $timeout) {
-            var _this = this;
-            this.$scope = $scope;
-            this.$http = $http;
-            this.messageBusService = messageBusService;
-            this.$timeout = $timeout;
-            this.states = {};
-            $scope.vm = this;
-            messageBusService.serverSubscribe('Sim.SimState.', 'key', function (title, msg) {
-                if (!msg || !msg.hasOwnProperty('data') || !msg.data.hasOwnProperty('item'))
-                    return;
-                //console.log(`Server subscription received: ${title}, ${JSON.stringify(msg, null, 2) }.`);
-                _this.$timeout(function () {
-                    var state = msg.data.item;
-                    if (state.state === 'Exit')
-                        delete _this.states[state.id];
-                    else
-                        _this.states[state.name] = state; // Although id would be better, we could end up with the remains of restarted services.
-                }, 0);
-            });
-        }
-        SimStateCtrl.$inject = [
-            '$scope',
-            '$http',
-            'messageBusService',
-            '$timeout'
-        ];
-        return SimStateCtrl;
-    })();
-    SimState.SimStateCtrl = SimStateCtrl;
-})(SimState || (SimState = {}));
 
 var PostMan;
 (function (PostMan) {
@@ -20637,6 +20780,106 @@ var PostMan;
     })();
     PostMan.PostManEditCtrl = PostManEditCtrl;
 })(PostMan || (PostMan = {}));
+
+var SimState;
+(function (SimState) {
+    /** Config */
+    var moduleName = 'csComp';
+    try {
+        SimState.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        SimState.myModule = angular.module(moduleName, []);
+    }
+    /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
+    SimState.myModule.directive('simstateEdit', [function () {
+            return {
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Widgets/SimState/SimState.tpl.html',
+                replace: true,
+                transclude: false,
+                controller: SimStateEditCtrl
+            };
+        }
+    ]);
+    var SimStateEditCtrl = (function () {
+        function SimStateEditCtrl($scope, $http, messageBusService, $timeout) {
+            this.$scope = $scope;
+            this.$http = $http;
+            this.messageBusService = messageBusService;
+            this.$timeout = $timeout;
+            $scope.vm = this;
+            //var par = <any>$scope.$parent;
+            //$scope.data = <PostManEditorData>par.widget.data;
+        }
+        SimStateEditCtrl.$inject = [
+            '$scope',
+            '$http',
+            'messageBusService',
+            '$timeout'
+        ];
+        return SimStateEditCtrl;
+    })();
+    SimState.SimStateEditCtrl = SimStateEditCtrl;
+})(SimState || (SimState = {}));
+
+var SimState;
+(function (SimState) {
+    /** Config */
+    var moduleName = 'csComp';
+    try {
+        SimState.myModule = angular.module(moduleName);
+    }
+    catch (err) {
+        // named module does not exist, so create one
+        SimState.myModule = angular.module(moduleName, []);
+    }
+    /** Directive to send a message to a REST endpoint. Similar in goal to the Chrome plugin POSTMAN. */
+    SimState.myModule.directive('simstate', [function () {
+            return {
+                restrict: 'E',
+                scope: {},
+                templateUrl: 'directives/Widgets/SimState/SimState.tpl.html',
+                replace: true,
+                transclude: false,
+                controller: SimStateCtrl
+            };
+        }
+    ]);
+    var SimStateCtrl = (function () {
+        function SimStateCtrl($scope, $http, messageBusService, $timeout) {
+            var _this = this;
+            this.$scope = $scope;
+            this.$http = $http;
+            this.messageBusService = messageBusService;
+            this.$timeout = $timeout;
+            this.states = {};
+            $scope.vm = this;
+            messageBusService.serverSubscribe('Sim.SimState.', 'key', function (title, msg) {
+                if (!msg || !msg.hasOwnProperty('data') || !msg.data.hasOwnProperty('item'))
+                    return;
+                //console.log(`Server subscription received: ${title}, ${JSON.stringify(msg, null, 2) }.`);
+                _this.$timeout(function () {
+                    var state = msg.data.item;
+                    if (state.state === 'Exit')
+                        delete _this.states[state.id];
+                    else
+                        _this.states[state.name] = state; // Although id would be better, we could end up with the remains of restarted services.
+                }, 0);
+            });
+        }
+        SimStateCtrl.$inject = [
+            '$scope',
+            '$http',
+            'messageBusService',
+            '$timeout'
+        ];
+        return SimStateCtrl;
+    })();
+    SimState.SimStateCtrl = SimStateCtrl;
+})(SimState || (SimState = {}));
 
 var SimTimeController;
 (function (SimTimeController) {
@@ -20848,6 +21091,8 @@ var SimTimeController;
         };
         SimTimeControllerCtrl.prototype.stop = function () {
             if (this.messageBusHandle) {
+                this.messageBusService.serverUnsubscribe(this.messageBusHandle);
+                this.messageBusHandle = null;
             }
             this.fsm.trigger(SimCommand.Stop);
         };
@@ -20952,6 +21197,1533 @@ var SimTimeController;
     })();
     SimTimeController.SimTimeControllerEditCtrl = SimTimeControllerEditCtrl;
 })(SimTimeController || (SimTimeController = {}));
+
+/*
+ Generic  Canvas Overlay for leaflet,
+ Stanislav Sumbera, April , 2014
+
+ - added userDrawFunc that is called when Canvas need to be redrawn
+ - added few useful params for userDrawFunc callback
+  - fixed resize map bug
+  inspired & portions taken from  :   https://github.com/Leaflet/Leaflet.heat
+
+*/
+var L;
+(function (L) {
+    var CanvasOverlay = L.Class.extend({
+        initialize: function (userDrawFunc, layer, options) {
+            this._layer = layer,
+                this._userDrawFunc = userDrawFunc;
+            L.Util.setOptions(this, options);
+        },
+        drawing: function (userDrawFunc) {
+            this._userDrawFunc = userDrawFunc;
+            return this;
+        },
+        params: function (options) {
+            L.Util.setOptions(this, options);
+            return this;
+        },
+        canvas: function () {
+            return this._canvas;
+        },
+        redraw: function () {
+            if (!this._frame) {
+                this._frame = L.Util.requestAnimFrame(this._redraw, this);
+            }
+            return this;
+        },
+        onAdd: function (map) {
+            var _this = this;
+            this._map = map;
+            this._canvas = L.DomUtil.create('canvas', 'leaflet-overlay-layer');
+            var size = this._map.getSize();
+            this._canvas.width = size.x;
+            this._canvas.height = size.y;
+            this._context = this._canvas.getContext("2d");
+            this._popup = null;
+            this.onMouseMoveDelay = _.throttle(function (evt) {
+                var pos = _this._getCanvasPos();
+                var rgb = _this._context.getImageData(evt.x - pos.left, evt.y - pos.top, 1, 1).data;
+                // only show tooltip when a colored cell is located at the mouse cursor position
+                if ((rgb[0] + rgb[1] + rgb[2]) > 0) {
+                    var latLng = _this._map.containerPointToLatLng(new L.Point(evt.x - pos.left, evt.y - pos.top));
+                    var i = Math.floor((latLng.lat - _this.options.topLeftLat) / _this.options.deltaLat);
+                    var j = Math.floor((latLng.lng - _this.options.topLeftLon) / _this.options.deltaLon);
+                    var value = '';
+                    if (0 <= i && i < _this.options.data.length &&
+                        0 <= j && j < _this.options.data[0].length) {
+                        value = String.format("{0:0.00}", _this.options.data[i][j]);
+                    }
+                    (_this._layer.dataSourceParameters.legendStringFormat) ? value = String.format(_this._layer.dataSourceParameters.legendStringFormat, value) : null;
+                    var content = '<table><td>' + value + '</td></tr>' + '</table>';
+                    if (_this._popup && _this._map._popup && _this._map._popup._isOpen) {
+                        _this._popup.setLatLng(_this._map.containerPointToLatLng(new L.Point(evt.x, evt.y))).setContent(content);
+                    }
+                    else {
+                        _this._popup = L.popup({
+                            offset: new L.Point(-25, -15),
+                            closeOnClick: true,
+                            autoPan: false,
+                            className: 'featureTooltip'
+                        }).setLatLng(_this._map.containerPointToLatLng(new L.Point(evt.x, evt.y))).setContent(content).openOn(_this._map);
+                    }
+                }
+                else {
+                    _this._map.closePopup(_this._popup);
+                    _this._popup = null;
+                }
+                //console.log('mousemoved ' + evt.x + ', ' + evt.y + ',  color: R' + rgb[0] + ' G' + rgb[1] + ' B' + rgb[2]);
+            }, 500);
+            map.getPanes().overlayPane.addEventListener('mousemove', this.onMouseMoveDelay);
+            var animated = this._map.options.zoomAnimation && L.Browser.any3d;
+            L.DomUtil.addClass(this._canvas, 'leaflet-zoom-' + (animated ? 'animated' : 'hide'));
+            if (!map._panes.overlayPane.firstChild) {
+                map._panes.overlayPane.appendChild(this._canvas);
+            }
+            else {
+                map._panes.overlayPane.insertBefore(this._canvas, map._panes.overlayPane.firstChild);
+            }
+            map.on('moveend', this._reset, this);
+            map.on('resize', this._resize, this);
+            if (map.options.zoomAnimation && L.Browser.any3d) {
+                map.on('zoomanim', this._animateZoom, this);
+            }
+            this._reset();
+        },
+        onRemove: function (map) {
+            map.getPanes().overlayPane.removeChild(this._canvas);
+            map.off('moveend', this._reset, this);
+            map.off('resize', this._resize, this);
+            map.getPanes().overlayPane.removeEventListener('mousemove', this.onMouseMoveDelay);
+            map.closePopup(this._popup);
+            this._popup = null;
+            if (map.options.zoomAnimation) {
+                map.off('zoomanim', this._animateZoom, this);
+            }
+            this._canvas = null;
+        },
+        addTo: function (map) {
+            map.addLayer(this);
+            return this;
+        },
+        _getCanvasPos: function () {
+            var obj = this._canvas;
+            var top = 0;
+            var left = 0;
+            while (obj && obj.tagName != "BODY") {
+                top += obj.offsetTop;
+                left += obj.offsetLeft;
+                obj = obj.offsetParent;
+            }
+            return {
+                top: top,
+                left: left
+            };
+        },
+        _resize: function (resizeEvent) {
+            this._canvas.width = resizeEvent.newSize.x;
+            this._canvas.height = resizeEvent.newSize.y;
+        },
+        _reset: function () {
+            var topLeft = this._map.containerPointToLayerPoint([0, 0]);
+            L.DomUtil.setPosition(this._canvas, topLeft);
+            this._redraw();
+        },
+        _redraw: function () {
+            var size = this._map.getSize();
+            var bounds = this._map.getBounds();
+            var zoomScale = (size.x * 180) / (20037508.34 * (bounds.getEast() - bounds.getWest())); // resolution = 1/zoomScale
+            var zoom = this._map.getZoom();
+            // console.time('process');
+            if (this._userDrawFunc) {
+                this._userDrawFunc(this, this._layer, {
+                    canvas: this._canvas,
+                    bounds: bounds,
+                    size: size,
+                    zoomScale: zoomScale,
+                    zoom: zoom,
+                    options: this.options
+                });
+            }
+            // console.timeEnd('process');
+            this._frame = null;
+        },
+        _animateZoom: function (e) {
+            var scale = this._map.getZoomScale(e.zoom), offset = this._map._getCenterOffset(e.center)._multiplyBy(-scale).subtract(this._map._getMapPanePos());
+            this._canvas.style[L.DomUtil.TRANSFORM] = L.DomUtil.getTranslateString(offset) + ' scale(' + scale + ')';
+        }
+    });
+    function canvasOverlay(userDrawFunc, layer, options) {
+        return new CanvasOverlay(userDrawFunc, layer, options);
+    }
+    L.canvasOverlay = canvasOverlay;
+    ;
+})(L || (L = {}));
+
+var csComp;
+(function (csComp) {
+    var Services;
+    (function (Services) {
+        var GeojsonRenderer = (function () {
+            function GeojsonRenderer() {
+            }
+            GeojsonRenderer.render = function (service, layer, mapRenderer) {
+                layer.mapLayer = new L.LayerGroup();
+                service.map.map.addLayer(layer.mapLayer);
+                if (!layer.data || !layer.data.features)
+                    return;
+                layer.data.features.forEach(function (f) {
+                    var marker = mapRenderer.addFeature(f);
+                    if (marker)
+                        layer.group.markers[f.id] = marker;
+                });
+            };
+            GeojsonRenderer.remove = function (service, layer) {
+                var g = layer.group;
+                //m = layer.group.vectors;
+                if (g.clustering) {
+                    var m = g.cluster;
+                    service.project.features.forEach(function (feature) {
+                        if (feature.layerId === layer.id) {
+                            try {
+                                m.removeLayer(layer.group.markers[feature.id]);
+                                delete layer.group.markers[feature.id];
+                            }
+                            catch (error) { }
+                        }
+                    });
+                }
+                else {
+                    service.project.features.forEach(function (feature) {
+                        if (feature.layerId === layer.id && layer.group.markers.hasOwnProperty(feature.id)) {
+                            delete layer.group.markers[feature.id];
+                        }
+                    });
+                    if (service.map.map && layer.mapLayer) {
+                        try {
+                            service.map.map.removeLayer(layer.mapLayer);
+                        }
+                        catch (error) { }
+                    }
+                }
+            };
+            return GeojsonRenderer;
+        })();
+        Services.GeojsonRenderer = GeojsonRenderer;
+    })(Services = csComp.Services || (csComp.Services = {}));
+})(csComp || (csComp = {}));
+
+var csComp;
+(function (csComp) {
+    var Services;
+    (function (Services) {
+        var GridLayerRenderer = (function () {
+            function GridLayerRenderer() {
+            }
+            GridLayerRenderer.render = function (service, layer) {
+                var gridParams = layer.dataSourceParameters;
+                var legend = [];
+                var levels;
+                if (typeof gridParams.contourLevels === 'number') {
+                    levels = [];
+                    var nrLevels = (gridParams.contourLevels);
+                    var dl = (gridParams.maxThreshold - gridParams.minThreshold) / nrLevels;
+                    for (var l = gridParams.minThreshold + dl / 2; l < gridParams.maxThreshold; l += dl)
+                        levels.push(Math.round(l * 10) / 10); // round to nearest decimal.
+                }
+                else {
+                    levels = gridParams.contourLevels;
+                }
+                // Create a new groupstyle. If no legend is provided, this style can be used to change the colors used to draw the grid.
+                // If a legend is provided, that will be used as activelegend.
+                var gs = new Services.GroupStyle(service.$translate);
+                gs.id = csComp.Helpers.getGuid();
+                gs.title = (gridParams.legendDescription) ? gridParams.legendDescription : layer.title;
+                gs.meta = null;
+                gs.visualAspect = 'fillColor';
+                gs.availableAspects = ['fillColor'];
+                gs.info = { min: 0, max: 0, count: 0, mean: 0, varience: 0, sd: 0 };
+                gs.fixedColorRange = true;
+                gs.enabled = true;
+                gs.group = layer.group;
+                if (!gridParams.legend) {
+                    gs.property = 'gridlayer';
+                    gs.canSelectColor = true;
+                    gs.colors = [(gridParams.minColor) ? gridParams.minColor : '#00fbff', (gridParams.maxColor) ? gridParams.maxColor : '#0400ff'];
+                    gs.activeLegend = {
+                        legendKind: 'interpolated',
+                        description: gs.title,
+                        visualAspect: 'fillColor',
+                        legendEntries: []
+                    };
+                }
+                else {
+                    gs.property = '';
+                    gs.canSelectColor = false;
+                    gs.colors = ['#ffffff', '#000000'];
+                    gs.activeLegend = gridParams.legend;
+                    gs.activeLegend.legendEntries.forEach(function (le) {
+                        legend.push({ val: le.value, color: le.color });
+                    });
+                }
+                service.saveStyle(layer.group, gs);
+                var overlay = L.canvasOverlay(GridLayerRenderer.drawFunction, layer, {
+                    data: layer.data,
+                    noDataValue: gridParams.noDataValue,
+                    topLeftLat: gridParams.startLat,
+                    topLeftLon: gridParams.startLon,
+                    deltaLat: gridParams.deltaLat,
+                    deltaLon: gridParams.deltaLon,
+                    min: gridParams.minThreshold,
+                    max: gridParams.maxThreshold,
+                    minColor: gs.colors[0],
+                    maxColor: gs.colors[1],
+                    areColorsUpdated: false,
+                    levels: levels,
+                    legend: legend,
+                    opacity: (layer.opacity) ? (+layer.opacity) / 100 : 0.3
+                });
+                layer.mapLayer = new L.LayerGroup();
+                service.map.map.addLayer(layer.mapLayer);
+                layer.mapLayer.addLayer(overlay);
+            };
+            GridLayerRenderer.drawFunction = function (overlay, layer, settings) {
+                var map = this._map;
+                var opt = settings.options, data = opt.data;
+                if (!data)
+                    return;
+                var row = data.length, col = data[0].length, size = settings.size, legend = opt.legend;
+                // update the legend when new from- and to-colors are chosen.
+                // the complete color range of the legend will be calculated using the hue value of the from and to colors.
+                if (legend.length === 0 || opt.areColorsUpdated) {
+                    legend = [];
+                    if (opt.minColor[0] !== '#')
+                        opt.minColor = ColorExt.Utils.colorNameToHex(opt.minColor);
+                    if (opt.maxColor[0] !== '#')
+                        opt.maxColor = ColorExt.Utils.colorNameToHex(opt.maxColor);
+                    var fromHue = ColorExt.Utils.rgbToHue(opt.minColor);
+                    var toHue = ColorExt.Utils.rgbToHue(opt.maxColor);
+                    for (var i_1 = 0; i_1 < opt.levels.length; i_1++) {
+                        var level = opt.levels[i_1];
+                        legend.push({ val: level, color: ColorExt.Utils.toColor(level, opt.levels[0], opt.levels[opt.levels.length - 1], fromHue, toHue) });
+                    }
+                    if (layer.group.styles && layer.group.styles.length > 0) {
+                        layer.group.styles[0].activeLegend = {
+                            legendKind: 'interpolated',
+                            description: layer.group.styles[0].title,
+                            visualAspect: 'fillColor',
+                            legendEntries: []
+                        };
+                        legend.forEach(function (i) {
+                            var legEntry = { label: String.format(layer.dataSourceParameters['legendStringFormat'] || '{0:00}', i.val), value: i.val, color: i.color };
+                            layer.group.styles[0].activeLegend.legendEntries.push(legEntry);
+                        });
+                    }
+                    overlay.options.legend = opt.legend = legend;
+                    opt.areColorsUpdated = false;
+                }
+                var min = opt.min || Number.MIN_VALUE, max = opt.max || Number.MAX_VALUE;
+                var topLeft = map.latLngToContainerPoint(new L.LatLng(opt.topLeftLat, opt.topLeftLon)), botRight = map.latLngToContainerPoint(new L.LatLng(opt.topLeftLat + row * opt.deltaLat, opt.topLeftLon + col * opt.deltaLon));
+                var startX = topLeft.x, startY = topLeft.y, deltaX = (botRight.x - topLeft.x) / col, botOfFirstRow = map.latLngToContainerPoint(new L.LatLng(opt.topLeftLat + opt.deltaLat, opt.topLeftLon)), deltaY = botOfFirstRow.y - topLeft.y;
+                var ctx = settings.canvas.getContext("2d");
+                ctx.clearRect(0, 0, size.x, size.y);
+                // Check the boundaries
+                if (startX > size.x || startY > size.y || botRight.x < 0 || botRight.y < 0) {
+                    //console.log('Outside boundary');
+                    return;
+                }
+                var sJ = 0, eI = row, eJ = col;
+                if (startX < -deltaX) {
+                    sJ = -Math.ceil(startX / deltaX);
+                    startX += sJ * deltaX;
+                }
+                if (botRight.x > size.x) {
+                    eJ -= Math.floor((botRight.x - size.x) / deltaX);
+                }
+                if (botRight.y > size.y && deltaY > 0) {
+                    eI -= Math.floor((botRight.y - size.y) / deltaY);
+                }
+                var noDataValue = opt.noDataValue;
+                ctx.globalAlpha = opt.opacity || 0.3;
+                console.time('process');
+                var y = startY;
+                var lat = opt.topLeftLat; // + sI * opt.deltaLat;
+                for (var i = 0; i < eI; i++) {
+                    lat += opt.deltaLat;
+                    var botY = map.latLngToContainerPoint(new L.LatLng(lat, opt.topLeftLon)).y;
+                    deltaY = botY - y;
+                    if (y <= -deltaY || deltaY === 0) {
+                        y = botY;
+                        continue;
+                    }
+                    var x = startX;
+                    for (var j = sJ; j < eJ; j++) {
+                        var cell = data[i][j];
+                        if (cell === noDataValue || cell < min || cell > max) {
+                            x += deltaX;
+                            continue;
+                        }
+                        var closest = legend.reduce(function (prev, curr) {
+                            return (Math.abs(curr.val - cell) < Math.abs(prev.val - cell) ? curr : prev);
+                        });
+                        ctx.fillStyle = closest.color;
+                        ctx.fillRect(x, y, deltaX, deltaY);
+                        x += deltaX;
+                    }
+                    y = botY;
+                }
+                console.timeEnd('process');
+            };
+            return GridLayerRenderer;
+        })();
+        Services.GridLayerRenderer = GridLayerRenderer;
+    })(Services = csComp.Services || (csComp.Services = {}));
+})(csComp || (csComp = {}));
+
+var csComp;
+(function (csComp) {
+    var Services;
+    (function (Services) {
+        var HeatmapRenderer = (function () {
+            function HeatmapRenderer() {
+            }
+            HeatmapRenderer.render = function (service, layer, mapRenderer) {
+                if (layer.quickRefresh && layer.quickRefresh == true)
+                    return; //When only updating style of current heatmap, do not add a new layer.
+                var time = new Date().getTime();
+                // create leaflet layers
+                layer.isLoading = true;
+                if (layer.group.clustering) {
+                    var markers = L.geoJson(layer.data, {
+                        pointToLayer: function (feature, latlng) { return mapRenderer.createFeature(feature); },
+                        onEachFeature: function (feature, lay) {
+                            //We do not need to init the feature here: already done in style.
+                            //this.initFeature(feature, layer);
+                            layer.group.markers[feature.id] = lay;
+                            lay.on({
+                                mouseover: function (a) { return mapRenderer.showFeatureTooltip(a, layer.group); },
+                                mouseout: function (s) { return mapRenderer.hideFeatureTooltip(s); }
+                            });
+                        }
+                    });
+                    layer.group.cluster.addLayer(markers);
+                }
+                else {
+                    layer.mapLayer = new L.LayerGroup();
+                    service.map.map.addLayer(layer.mapLayer);
+                    if (layer.data && layer.data.features) {
+                        var v = L.geoJson(layer.data, {
+                            onEachFeature: function (feature, lay) {
+                                //We do not need to init the feature here: already done in style.
+                                //this.initFeature(feature, layer);
+                                layer.group.markers[feature.id] = lay;
+                                lay.on({
+                                    mouseover: function (a) { return mapRenderer.showFeatureTooltip(a, layer.group); },
+                                    mouseout: function (s) { return mapRenderer.hideFeatureTooltip(s); },
+                                    mousemove: function (d) { return mapRenderer.updateFeatureTooltip(d); },
+                                    click: function (e) {
+                                        mapRenderer.selectFeature(feature);
+                                    }
+                                });
+                            },
+                            style: function (f, m) {
+                                layer.group.markers[f.id] = m;
+                                return f.effectiveStyle;
+                            },
+                            pointToLayer: function (feature, latlng) { return mapRenderer.createFeature(feature); }
+                        });
+                    }
+                    else {
+                        var v = L.geoJson([]);
+                    }
+                    service.project.features.forEach(function (f) {
+                        if (f.layerId !== layer.id)
+                            return;
+                        var ft = service.getFeatureType(f);
+                        f.properties['Name'] = f.properties[ft.style.nameLabel];
+                    });
+                    layer.mapLayer.addLayer(v);
+                    layer.isLoading = false;
+                    var time2 = new Date().getTime();
+                }
+            };
+            return HeatmapRenderer;
+        })();
+        Services.HeatmapRenderer = HeatmapRenderer;
+    })(Services = csComp.Services || (csComp.Services = {}));
+})(csComp || (csComp = {}));
+
+var csComp;
+(function (csComp) {
+    var Services;
+    (function (Services) {
+        var TileLayerRenderer = (function () {
+            function TileLayerRenderer() {
+            }
+            TileLayerRenderer.render = function (service, layer) {
+                var u = layer.url;
+                if (layer.timeDependent) {
+                    // convert epoch to time string parameter
+                    var ft = service.project.timeLine.focus;
+                    if (layer.timeResolution) {
+                        var tr = layer.timeResolution;
+                        ft = Math.floor(ft / tr) * tr;
+                    }
+                    ;
+                    var d = new Date(0);
+                    d.setUTCSeconds(ft / 1000);
+                    var sDate = d.yyyymmdd();
+                    var hrs = d.getHours();
+                    var mins = d.getMinutes();
+                    var secs = d.getSeconds();
+                    var sTime = csComp.Utils.twoDigitStr(hrs) +
+                        csComp.Utils.twoDigitStr(mins) + csComp.Utils.twoDigitStr(secs);
+                    u += "&time=" + sDate + sTime;
+                }
+                else if (layer.disableCache) {
+                    // check if we need to create a unique url to force a refresh
+                    layer.cacheKey = new Date().getTime().toString();
+                    u += "&cache=" + layer.cacheKey;
+                }
+                var tileLayer = L.tileLayer(u, { attribution: layer.description });
+                layer.mapLayer = new L.LayerGroup();
+                tileLayer.setOpacity(layer.opacity / 100);
+                service.map.map.addLayer(layer.mapLayer);
+                layer.mapLayer.addLayer(tileLayer);
+                tileLayer.on('loading', function (event) {
+                    layer.isLoading = true;
+                    service.$rootScope.$apply();
+                    if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') {
+                        service.$rootScope.$apply();
+                    }
+                });
+                tileLayer.on('load', function (event) {
+                    layer.isLoading = false;
+                    if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') {
+                        service.$rootScope.$apply();
+                    }
+                });
+                layer.isLoading = true;
+            };
+            return TileLayerRenderer;
+        })();
+        Services.TileLayerRenderer = TileLayerRenderer;
+    })(Services = csComp.Services || (csComp.Services = {}));
+})(csComp || (csComp = {}));
+
+var csComp;
+(function (csComp) {
+    var Services;
+    (function (Services) {
+        var WmsRenderer = (function () {
+            function WmsRenderer() {
+            }
+            WmsRenderer.render = function (service, layer) {
+                var wms = L.tileLayer.wms(layer.url, {
+                    layers: layer.wmsLayers,
+                    opacity: layer.opacity / 100,
+                    format: 'image/png',
+                    transparent: true,
+                    attribution: layer.description,
+                    tiled: true
+                });
+                layer.mapLayer = new L.LayerGroup();
+                service.map.map.addLayer(layer.mapLayer);
+                layer.mapLayer.addLayer(wms);
+                wms.on('loading', function (event) {
+                    layer.isLoading = true;
+                    service.$rootScope.$apply();
+                    if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') {
+                        service.$rootScope.$apply();
+                    }
+                });
+                wms.on('load', function (event) {
+                    layer.isLoading = false;
+                    if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') {
+                        service.$rootScope.$apply();
+                    }
+                });
+                layer.isLoading = true;
+            };
+            return WmsRenderer;
+        })();
+        Services.WmsRenderer = WmsRenderer;
+    })(Services = csComp.Services || (csComp.Services = {}));
+})(csComp || (csComp = {}));
+
+var csComp;
+(function (csComp) {
+    var Services;
+    (function (Services) {
+        var CesiumRenderer = (function () {
+            function CesiumRenderer() {
+                this.title = "cesium";
+                this.features = {};
+            }
+            CesiumRenderer.prototype.init = function (service) {
+                this.service = service;
+            };
+            CesiumRenderer.prototype.enable = function () {
+                var _this = this;
+                this.viewer = new Cesium.Viewer('map', {
+                    selectionIndicator: false,
+                    infoBox: false,
+                    scene3DOnly: true,
+                    sceneModePicker: false,
+                    fullscreenButton: false,
+                    homeButton: false,
+                    baseLayerPicker: false,
+                    animation: false,
+                    timeline: false,
+                    navigationHelpButton: false
+                });
+                this.camera = this.viewer.camera;
+                this.scene = this.viewer.scene;
+                setTimeout(function () {
+                    for (var i = 0; i < _this.service.project.features.length; ++i)
+                        _this.addFeature(_this.service.project.features[i]);
+                }, 0);
+                // onclick events
+                this.setUpMouseHandlers();
+                this.fitBounds(this.service.$mapService.maxBounds);
+                this.changeBaseLayer(this.service.$mapService.activeBaseLayer);
+            };
+            CesiumRenderer.prototype.getLatLon = function (x, y) {
+                return { lat: 53, lon: 5 };
+            };
+            CesiumRenderer.prototype.refreshLayer = function () {
+            };
+            CesiumRenderer.prototype.getExtent = function () {
+                var r = {};
+                return r;
+            };
+            CesiumRenderer.prototype.getZoom = function () {
+                // we dont get nearby relations for now
+                return 0;
+            };
+            CesiumRenderer.prototype.fitBounds = function (bounds) {
+                var ellipsoid = Cesium.Ellipsoid.WGS84;
+                if (bounds) {
+                    var west = Cesium.Math.toRadians(bounds.southWest[1]);
+                    var south = Cesium.Math.toRadians(bounds.southWest[0]);
+                    var east = Cesium.Math.toRadians(bounds.northEast[1]);
+                    var north = Cesium.Math.toRadians(bounds.northEast[0]);
+                    var extent = new Cesium.Rectangle(west, south, east, north);
+                    this.camera.viewRectangle(extent, ellipsoid);
+                }
+            };
+            CesiumRenderer.prototype.setUpMouseHandlers = function () {
+                var _this = this;
+                var handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
+                handler.setInputAction(function (click) {
+                    var pickedObject = _this.scene.pick(click.position);
+                    if (Cesium.defined(pickedObject) && pickedObject.id !== undefined && pickedObject.id.feature !== undefined) {
+                        _this.service.selectFeature(pickedObject.id.feature);
+                    }
+                }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+                handler.setInputAction(function (movement) {
+                    var pickedObject = _this.scene.pick(movement.endPosition);
+                    if (Cesium.defined(pickedObject) && pickedObject.id !== undefined && pickedObject.id.feature !== undefined)
+                        _this.showFeatureTooltip(pickedObject.id.feature, movement.endPosition);
+                    else
+                        $(".cesiumPopup").fadeOut('fast').remove();
+                }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+            };
+            CesiumRenderer.prototype.disable = function () {
+                this.viewer.destroy();
+            };
+            CesiumRenderer.prototype.changeBaseLayer = function (layer) {
+                if (layer.cesium_url === undefined)
+                    alert('This layer is not cesium compatible');
+                else {
+                    switch (layer.cesium_maptype.toUpperCase()) {
+                        case "ARCGIS":
+                            var mapProvider = new Cesium.ArcGisMapServerImageryProvider({
+                                url: layer.cesium_url,
+                                minimumLevel: layer.minZoom,
+                                maximumLevel: layer.maxZoom
+                            });
+                            break;
+                        case "OPENSTREETMAP":
+                            var mapProvider = new Cesium.OpenStreetMapImageryProvider({
+                                url: layer.cesium_url,
+                                minimumLevel: layer.minZoom,
+                                maximumLevel: layer.maxZoom
+                            });
+                            break;
+                        case "WEBMAPTILE":
+                            var mapProvider = new Cesium.WebMapTileServiceImageryProvider({
+                                url: layer.cesium_url,
+                                minimumLevel: layer.minZoom,
+                                maximumLevel: layer.maxZoom
+                            });
+                            break;
+                        case "TILEMAP":
+                            var mapProvider = new Cesium.TileMapServiceImageryProvider({
+                                url: layer.cesium_url,
+                                minimumLevel: layer.minZoom,
+                                maximumLevel: layer.maxZoom
+                            });
+                            break;
+                        default:
+                            alert('unknown maptype: ' + layer.cesium_maptype);
+                            break;
+                    }
+                    this.viewer.imageryLayers.addImageryProvider(mapProvider);
+                }
+            };
+            CesiumRenderer.prototype.showFeatureTooltip = function (feature, endPosition) {
+                if (this.popupShownFor !== undefined && feature.id == this.popupShownFor.id)
+                    return;
+                $(".cesiumPopup").fadeOut('fast').remove();
+                this.popupShownFor = feature;
+                var layer = feature.layer;
+                var group = layer.group;
+                // var feature = <Feature>layer.feature;
+                // add title
+                var title = feature.properties["Name"];
+                var rowLength = (title) ? title.length : 1;
+                var content = '<td colspan=\'3\'>' + title + '</td></tr>';
+                // add filter values
+                if (group.filters != null && group.filters.length > 0) {
+                    group.filters.forEach(function (f) {
+                        if (!feature.properties.hasOwnProperty(f.property))
+                            return;
+                        var value = feature.properties[f.property];
+                        if (value) {
+                            var valueLength = value.toString().length;
+                            if (f.meta != null) {
+                                value = csComp.Helpers.convertPropertyInfo(f.meta, value);
+                                if (f.meta.type !== 'bbcode')
+                                    valueLength = value.toString().length;
+                            }
+                            rowLength = Math.max(rowLength, valueLength + f.title.length);
+                            content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
+                        }
+                    });
+                }
+                // add style values, only in case they haven't been added already as filter
+                if (group.styles != null && group.styles.length > 0) {
+                    group.styles.forEach(function (s) {
+                        if (group.filters != null && group.filters.filter(function (f) { return f.property === s.property; }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
+                            var value = feature.properties[s.property];
+                            var valueLength = value.toString().length;
+                            if (s.meta != null) {
+                                value = csComp.Helpers.convertPropertyInfo(s.meta, value);
+                                if (s.meta.type !== 'bbcode')
+                                    valueLength = value.toString().length;
+                            }
+                            var tl = s.title ? s.title.length : 10;
+                            rowLength = Math.max(rowLength, valueLength + tl);
+                            content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
+                        }
+                    });
+                }
+                var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
+                content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
+                // cesium does not have a popup class like leaflet does, so we create our own div with absolute position
+                this.popup = $("<div class='cesiumPopup featureTooltip'></div>").html(content).css({ position: 'absolute', top: endPosition.y - 30, left: endPosition.x - widthInPixels / 2 - 30, width: widthInPixels }).hide().fadeIn('fast');
+                $("body").append(this.popup);
+            };
+            CesiumRenderer.prototype.addLayer = function (layer) {
+                var _this = this;
+                // console.log(layer);
+                var dfd = jQuery.Deferred();
+                switch (layer.renderType) {
+                    case "geojson":
+                        setTimeout(function () {
+                            layer.data.features.forEach(function (f) {
+                                _this.addFeature(f);
+                            });
+                            dfd.resolve();
+                        }, 0);
+                        break;
+                    case "wms":
+                        var wms_layer = this.viewer.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                            url: layer.url,
+                            layers: layer.wmsLayers,
+                            parameters: {
+                                format: 'image/png',
+                                transparent: true,
+                            }
+                        }));
+                        wms_layer.id = layer.id;
+                        wms_layer.alpha = layer.opacity / 100;
+                        dfd.resolve();
+                        break;
+                    default:
+                        alert('unknown layertype: ' + layer.type);
+                        dfd.resolve();
+                        break;
+                }
+                return dfd.promise();
+            };
+            CesiumRenderer.prototype.removeLayer = function (layer) {
+                var _this = this;
+                var dfd = jQuery.Deferred();
+                switch (layer.type.toUpperCase()) {
+                    case "GEOJSON":
+                    case "DYNAMICGEOJSON":
+                    case "TOPOJSON":
+                        setTimeout(function () {
+                            layer.data.features.forEach(function (f) {
+                                _this.removeFeature(f);
+                            });
+                            dfd.resolve();
+                        }, 0);
+                        break;
+                    case "WMS":
+                        this.viewer.imageryLayers._layers.forEach(function (ilayer) {
+                            if (ilayer.id == layer.id)
+                                _this.viewer.imageryLayers.remove(ilayer);
+                        });
+                        dfd.resolve();
+                        break;
+                    default:
+                        alert('unknown layertype: ' + layer.type);
+                        dfd.resolve();
+                        break;
+                }
+                return dfd.promise();
+            };
+            CesiumRenderer.prototype.updateMapFilter = function (group) {
+                var _this = this;
+                var dfd = jQuery.Deferred();
+                setTimeout(function () {
+                    _this.viewer.entities.values.forEach(function (entity) {
+                        var included;
+                        if (group.filterResult)
+                            included = group.filterResult.filter(function (f) { return f.id === entity.feature.id; }).length > 0;
+                        if (included)
+                            entity.show = true;
+                        else
+                            entity.show = false;
+                    });
+                    dfd.resolve();
+                }, 0);
+                return dfd.promise();
+            };
+            CesiumRenderer.prototype.addGroup = function (group) {
+                console.log('addGroup called');
+            };
+            CesiumRenderer.prototype.removeGroup = function (group) {
+                console.log('removeGroup called');
+            };
+            CesiumRenderer.prototype.removeFeature = function (feature) {
+                var _this = this;
+                //console.log('removeFeature called');
+                var toRemove = [];
+                this.viewer.entities.values.forEach(function (entity) {
+                    if (entity.feature.id === feature.id) {
+                        toRemove.push(entity);
+                    }
+                });
+                toRemove.forEach(function (entity) {
+                    _this.viewer.entities.remove(entity);
+                });
+            };
+            CesiumRenderer.prototype.removeFeatures = function (features) {
+                var _this = this;
+                var dfd = jQuery.Deferred();
+                setTimeout(function () {
+                    var toRemove = [];
+                    _this.viewer.entities.values.forEach(function (entity) {
+                        features.forEach(function (feature) {
+                            if (entity.feature.id === feature.id) {
+                                entity.show(false);
+                            }
+                        });
+                    });
+                    toRemove.forEach(function (entity) {
+                        _this.viewer.entities.remove(entity);
+                    });
+                    dfd.resolve();
+                }, 0);
+                return dfd.promise();
+            };
+            CesiumRenderer.prototype.updateFeature = function (feature) {
+                var _this = this;
+                this.viewer.entities.values.forEach(function (entity) {
+                    if (entity.feature.id === feature.id)
+                        _this.updateEntity(entity, feature);
+                });
+            };
+            CesiumRenderer.prototype.updateEntity = function (entity, feature) {
+                var height = feature.properties['mediaan_hoogte'] === undefined ? feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
+                if (feature.fType.style.iconUri !== undefined && entity.billboard !== undefined) {
+                    entity.billboard.width = feature.effectiveStyle.iconWidth;
+                    entity.billboard.height = feature.effectiveStyle.iconHeight;
+                }
+                switch (feature.geometry.type.toUpperCase()) {
+                    case "POINT":
+                    case "MULTIPOINT":
+                        entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+                        entity.point.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+                        entity.point.color = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+                        entity.point.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
+                        entity.point.outlineWidth = feature.effectiveStyle.strokeWidth;
+                        break;
+                    case "POLYGON":
+                    case "MULTIPOLYGON":
+                        entity.polygon.material = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+                        entity.polygon.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
+                        entity.polygon.outlineWidth = feature.effectiveStyle.strokeWidth; // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
+                        entity.polygon.extrudedHeight = height;
+                        break;
+                    case "LINESTRING":
+                    case "MULTILINESTRING":
+                        entity.polyline.material = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+                        entity.polyline.width = feature.effectiveStyle.strokeWidth;
+                        break;
+                    default:
+                        alert('unknown geometry type: ' + feature.geometry.type);
+                        break;
+                }
+            };
+            CesiumRenderer.prototype.addFeature = function (feature) {
+                var entity = this.createFeature(feature);
+            };
+            CesiumRenderer.prototype.selectFeature = function (feature) {
+                // TODO
+                console.log("CesiumRenderer warning: selectFeature is not implemented!");
+            };
+            CesiumRenderer.prototype.createFeature = function (feature) {
+                var entity = this.viewer.entities.getOrCreateEntity(feature.id);
+                // link the feature to the entity for CommonSense.selectFeature
+                entity.feature = feature;
+                if (feature.properties['Name'] !== undefined)
+                    entity.name = feature.properties['Name'];
+                // override for buildings from Top10NL
+                var height = feature.properties['mediaan_hoogte'] === undefined ? feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
+                var pixelSize = 5;
+                if (feature.fType.style.iconUri !== undefined) {
+                    // a billboard is an icon for a feature
+                    entity.billboard = {
+                        image: feature.fType.style.iconUri,
+                        width: feature.effectiveStyle.iconWidth,
+                        height: feature.effectiveStyle.iconHeight
+                    };
+                    // we draw this point very large because it serves as a background for the billboards
+                    pixelSize = 35;
+                }
+                switch (feature.geometry.type.toUpperCase()) {
+                    case "POINT":
+                        // if there is no icon, a PointGraphics object is used as a fallback mechanism
+                        entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+                        entity.point = {
+                            pixelSize: pixelSize,
+                            position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]),
+                            color: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                            outlineWidth: feature.effectiveStyle.strokeWidth
+                        };
+                        break;
+                    case "MULTIPOINT":
+                        for (var i = 0; i < feature.geometry.coordinates.length; i++) {
+                            var entity_multi = new Cesium.Entity();
+                            entity_multi.feature = feature;
+                            entity_multi.point = {
+                                pixelSize: pixelSize,
+                                position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[i][0], feature.geometry.coordinates[i][1], feature.geometry.coordinates[i][2]),
+                                color: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                                outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                                outlineWidth: feature.effectiveStyle.strokeWidth
+                            };
+                            this.viewer.entities.add(entity_multi);
+                        }
+                        this.viewer.entities.remove(entity);
+                        break;
+                    case "POLYGON":
+                        entity.polygon = new Cesium.PolygonGraphics({
+                            hierarchy: this.createPolygon(feature.geometry.coordinates).hierarchy,
+                            material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            outline: true,
+                            outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                            outlineWidth: feature.effectiveStyle.strokeWidth,
+                            extrudedHeight: height,
+                            perPositionHeight: true
+                        });
+                        break;
+                    case "MULTIPOLYGON":
+                        var polygons = this.createMultiPolygon(feature.geometry.coordinates);
+                        for (var i = 0; i < polygons.length; ++i) {
+                            var entity_multi = new Cesium.Entity();
+                            entity_multi.feature = feature;
+                            var polygon = new Cesium.PolygonGraphics({
+                                hierarchy: polygons[i].hierarchy,
+                                material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                                outline: true,
+                                outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                                outlineWidth: feature.effectiveStyle.strokeWidth,
+                                extrudedHeight: height,
+                                perPositionHeight: true
+                            });
+                            entity_multi.polygon = polygon;
+                            this.viewer.entities.add(entity_multi);
+                        }
+                        this.viewer.entities.remove(entity);
+                        break;
+                    case "LINESTRING":
+                        entity.polyline = new Cesium.PolylineGraphics({
+                            positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates),
+                            material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            width: feature.effectiveStyle.strokeWidth,
+                        });
+                        break;
+                    case "MULTILINESTRING":
+                        for (var i = 0; i < feature.geometry.coordinates.length; i++) {
+                            var entity_multi = new Cesium.Entity();
+                            entity_multi.feature = feature;
+                            entity.polyline = new Cesium.PolylineGraphics({
+                                positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates[i]),
+                                material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                                width: feature.effectiveStyle.strokeWidth,
+                            });
+                            this.viewer.entities.add(entity_multi);
+                        }
+                        this.viewer.entities.remove(entity);
+                        break;
+                    default:
+                        alert('unknown geometry type: ' + feature.geometry.type);
+                        break;
+                }
+                // add a 3D model if we have one
+                if (feature.properties["FeatureTypeId"] === "3Dmodel") {
+                    var modelUri = feature.effectiveStyle.modelUri || feature.properties["modelUri"] || "";
+                    var modelScale = feature.effectiveStyle.modelScale || feature.properties["modelScale"] || 1;
+                    var modelMinimumPixelSize = feature.effectiveStyle.modelMinimumPixelSize || feature.properties["modelMinimumPixelSize"] || 32;
+                    entity.model = new Cesium.ModelGraphics({
+                        uri: modelUri,
+                        scale: modelScale,
+                        minimumPixelSize: modelMinimumPixelSize,
+                    });
+                    // Hide icon and point when we have a 3D model
+                    if (entity.billboard !== undefined)
+                        entity.billboard.show = false;
+                    if (entity.point !== undefined)
+                        entity.point.show = false;
+                }
+                //account for rotation
+                if (feature.properties["Track"] !== undefined) {
+                    var headingQuaternion = Cesium.Transforms.headingPitchRollQuaternion(Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]), Cesium.Math.toRadians(feature.properties["Track"]), 0, 0);
+                    entity.orientation = headingQuaternion;
+                }
+                return entity;
+            };
+            CesiumRenderer.prototype.createPolygon = function (coordinates) {
+                if (coordinates.length === 0 || coordinates[0].length === 0)
+                    return;
+                var polygon = new Cesium.PolygonGraphics();
+                var holes = [];
+                for (var i = 1, len = coordinates.length; i < len; i++)
+                    holes.push(new Cesium.PolygonHierarchy(this.coordinatesArrayToCartesianArray(coordinates[i])));
+                var positions = this.coordinatesArrayToCartesianArray(coordinates[0]);
+                polygon.hierarchy = new Cesium.PolygonHierarchy(positions, holes);
+                return polygon;
+            };
+            CesiumRenderer.prototype.createMultiPolygon = function (coordinates) {
+                var polygons = [];
+                for (var i = 0; i < coordinates.length; i++) {
+                    polygons.push(this.createPolygon(coordinates[i]));
+                }
+                return polygons;
+            };
+            CesiumRenderer.prototype.coordinatesArrayToCartesianArray = function (coordinates) {
+                var positions = new Array(coordinates.length);
+                for (var i = 0; i < coordinates.length; i++)
+                    positions[i] = this.defaultCrsFunction(coordinates[i]);
+                return positions;
+            };
+            CesiumRenderer.prototype.defaultCrsFunction = function (coordinates) {
+                return Cesium.Cartesian3.fromDegrees(coordinates[0], coordinates[1], coordinates[2]);
+            };
+            return CesiumRenderer;
+        })();
+        Services.CesiumRenderer = CesiumRenderer;
+    })(Services = csComp.Services || (csComp.Services = {}));
+})(csComp || (csComp = {}));
+
+var csComp;
+(function (csComp) {
+    var Services;
+    (function (Services) {
+        var LeafletRenderer = (function () {
+            function LeafletRenderer() {
+                this.title = "leaflet";
+                this.cntrlIsPressed = false;
+            }
+            LeafletRenderer.prototype.init = function (service) {
+                var _this = this;
+                this.service = service;
+                this.$messageBusService = service.$messageBusService;
+                $(document).keydown(function (e) {
+                    _this.cntrlIsPressed = e.ctrlKey;
+                });
+                $(document).keyup(function () {
+                    _this.cntrlIsPressed = false;
+                });
+            };
+            LeafletRenderer.prototype.enable = function () {
+                var _this = this;
+                if ($("map").length !== 1)
+                    return;
+                this.service.$mapService.map = L.map("map", {
+                    //var tl  = L.map("mapleft", {
+                    zoomControl: false,
+                    maxZoom: 19,
+                    attributionControl: true
+                });
+                this.map = this.service.$mapService.map;
+                this.service.$mapService.map.on('moveend', function (t, event) {
+                    var b = (_this.service.$mapService.map).getBounds();
+                    _this.$messageBusService.publish("mapbbox", "update", b.toBBoxString());
+                    var boundingBox = { southWest: [b.getSouthWest().lat, b.getSouthWest().lng], northEast: [b.getNorthEast().lat, b.getNorthEast().lng] };
+                    _this.service.$mapService.maxBounds = boundingBox;
+                });
+                this.service.$mapService.map.on('zoomend', function (t, event) {
+                    var z = (_this.service.$mapService.map).getZoom();
+                    _this.$messageBusService.publish('map', 'zoom', z);
+                });
+            };
+            LeafletRenderer.prototype.getLatLon = function (x, y) {
+                var position = this.map.containerPointToLatLng(new L.Point(x, y));
+                return { lat: position.lat, lon: position.lng };
+            };
+            LeafletRenderer.prototype.getExtent = function () {
+                var r = {};
+                if (this.map) {
+                    var b = this.map.getBounds();
+                    var sw = b.getSouthWest();
+                    var ne = b.getNorthEast();
+                    r.southWest = [sw.lat, sw.lng];
+                    r.northEast = [ne.lat, ne.lng];
+                }
+                return r;
+            };
+            LeafletRenderer.prototype.fitBounds = function (bounds) {
+                var southWest = L.latLng(bounds.southWest[0], bounds.southWest[1]);
+                var northEast = L.latLng(bounds.northEast[0], bounds.northEast[1]);
+                var lb = L.latLngBounds(southWest, northEast);
+                try {
+                    this.service.$mapService.map.fitBounds(lb);
+                }
+                catch (e) { }
+            };
+            LeafletRenderer.prototype.getZoom = function () {
+                return this.service.$mapService.map.getZoom();
+            };
+            LeafletRenderer.prototype.disable = function () {
+                this.service.$mapService.map.remove();
+                this.service.$mapService.map = null;
+                $("#map").empty();
+            };
+            LeafletRenderer.prototype.refreshLayer = function () {
+            };
+            LeafletRenderer.prototype.addGroup = function (group) {
+                // for clustering use a cluster layer
+                if (group.clustering) {
+                    group.cluster = new L.MarkerClusterGroup({
+                        maxClusterRadius: function (zoom) { if (zoom > 18) {
+                            return 2;
+                        }
+                        else {
+                            return group.maxClusterRadius || 80;
+                        } },
+                        disableClusteringAtZoom: group.clusterLevel || 0
+                    });
+                    this.service.map.map.addLayer(group.cluster);
+                }
+                else {
+                    group.vectors = new L.LayerGroup();
+                    this.service.map.map.addLayer(group.vectors);
+                }
+            };
+            LeafletRenderer.prototype.removeLayer = function (layer) {
+                switch (layer.renderType) {
+                    case "geojson":
+                        Services.GeojsonRenderer.remove(this.service, layer);
+                        break;
+                    default:
+                        if (this.service.map.map && layer.mapLayer)
+                            this.service.map.map.removeLayer(layer.mapLayer);
+                        break;
+                }
+            };
+            LeafletRenderer.prototype.changeBaseLayer = function (layerObj) {
+                if (layerObj == this.service.$mapService.activeBaseLayer)
+                    return;
+                if (this.baseLayer)
+                    this.service.map.map.removeLayer(this.baseLayer);
+                this.baseLayer = this.createBaseLayer(layerObj);
+                this.service.map.map.addLayer(this.baseLayer);
+                this.service.map.map.setZoom(this.service.map.map.getZoom());
+                this.service.map.map.fire('baselayerchange', { layer: this.baseLayer });
+            };
+            LeafletRenderer.prototype.createBaseLayer = function (layerObj) {
+                var options = { noWrap: true };
+                options['subtitle'] = layerObj.subtitle;
+                options['preview'] = layerObj.preview;
+                if (layerObj.subdomains != null)
+                    options['subdomains'] = layerObj.subdomains;
+                if (layerObj.maxZoom != null)
+                    options.maxZoom = layerObj.maxZoom;
+                if (layerObj.minZoom != null)
+                    options.minZoom = layerObj.minZoom;
+                if (layerObj.attribution != null)
+                    options.attribution = layerObj.attribution;
+                if (layerObj.id != null)
+                    options['id'] = layerObj.id;
+                var layer = L.tileLayer(layerObj.url, options);
+                return layer;
+            };
+            LeafletRenderer.prototype.getLeafletStyle = function (style) {
+                var s = {
+                    fillColor: style.fillColor,
+                    weight: style.strokeWidth,
+                    opacity: style.opacity,
+                    fillOpacity: style.fillOpacity
+                };
+                s["color"] = (typeof style.stroke !== 'undefined' && style.stroke === false)
+                    ? style.fillColor
+                    : style.strokeColor;
+                return s;
+            };
+            LeafletRenderer.prototype.addLayer = function (layer) {
+                switch (layer.renderType) {
+                    case "geojson":
+                        Services.GeojsonRenderer.render(this.service, layer, this);
+                        break;
+                    case "tilelayer":
+                        Services.TileLayerRenderer.render(this.service, layer);
+                        break;
+                    case "wms":
+                        Services.WmsRenderer.render(this.service, layer);
+                        break;
+                    case "gridlayer":
+                        Services.GridLayerRenderer.render(this.service, layer);
+                        break;
+                    case "heatmap":
+                        Services.HeatmapRenderer.render(this.service, layer, this);
+                        break;
+                }
+            };
+            /***
+             * Update map markers in cluster after changing filter
+             */
+            LeafletRenderer.prototype.updateMapFilter = function (group) {
+                var _this = this;
+                $.each(group.markers, function (key, marker) {
+                    var included;
+                    if (group.filterResult)
+                        included = group.filterResult.filter(function (f) { return f.id === key; }).length > 0;
+                    if (group.clustering) {
+                        var incluster = group.cluster.hasLayer(marker);
+                        if (!included && incluster)
+                            group.cluster.removeLayer(marker);
+                        if (included && !incluster)
+                            group.cluster.addLayer(marker);
+                    }
+                    else {
+                        //var onmap = group.vectors.hasLayer(marker);
+                        var onmap = _this.service.map.map.hasLayer(marker);
+                        if (!included && onmap)
+                            _this.service.map.map.removeLayer(marker);
+                        if (included && !onmap)
+                            _this.service.map.map.addLayer(marker);
+                    }
+                });
+            };
+            LeafletRenderer.prototype.removeGroup = function (group) { };
+            LeafletRenderer.prototype.removeFeature = function (feature) {
+                var layer = feature.layer;
+                switch (layer.renderType) {
+                    case "geojson":
+                        var g = layer.group;
+                        if (g.clustering) {
+                            var m = g.cluster;
+                            try {
+                                m.removeLayer(layer.group.markers[feature.id]);
+                                delete layer.group.markers[feature.id];
+                            }
+                            catch (error) { }
+                        }
+                        else {
+                            if (layer.group.markers.hasOwnProperty(feature.id)) {
+                                layer.mapLayer.removeLayer(layer.group.markers[feature.id]);
+                                layer.group.vectors.removeLayer(layer.group.markers[feature.id]);
+                                delete layer.group.markers[feature.id];
+                            }
+                        }
+                        break;
+                }
+                // var marker = <L.Marker>feature.layer.group.markers[feature.id];
+                // if (marker != null) {
+                //     feature.layer.mapLayer.removeLayer(marker);
+                //     delete feature.layer.group.markers[feature.id];
+                // }
+            };
+            LeafletRenderer.prototype.updateFeature = function (feature) {
+                if (feature.layer.group == null)
+                    return;
+                var marker = feature.layer.group.markers[feature.id];
+                if (marker == null)
+                    return;
+                if (feature.geometry.type === 'Point') {
+                    marker.setIcon(this.getPointIcon(feature));
+                    marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
+                }
+                else {
+                    marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
+                    if (feature.isSelected && feature.layer && !feature.layer.disableMoveSelectionToFront && feature.layer.group) {
+                        if ((feature.layer.group.clustering && feature.layer.group.cluster && feature.layer.group.cluster.hasLayer(marker))
+                            || feature.layer.group.markers.hasOwnProperty(marker.feature.id)) {
+                            marker.bringToFront();
+                        }
+                    }
+                }
+                if (feature.layer.isDynamic && marker.dragging) {
+                    if (this.canDrag(feature)) {
+                        marker.dragging.enable();
+                    }
+                    else {
+                        marker.dragging.disable();
+                    }
+                    ;
+                }
+            };
+            LeafletRenderer.prototype.selectFeature = function (feature) {
+                if (feature.gui.hasOwnProperty("dragged")) {
+                    delete feature.gui["dragged"];
+                }
+                else {
+                    this.service.selectFeature(feature, this.cntrlIsPressed);
+                }
+            };
+            LeafletRenderer.prototype.addFeature = function (feature) {
+                var _this = this;
+                if (feature.geometry != null) {
+                    var m = this.createFeature(feature);
+                    var l = feature.layer;
+                    l.group.markers[feature.id] = m;
+                    m.on({
+                        mouseover: function (a) { return _this.showFeatureTooltip(a, l.group); },
+                        mouseout: function (s) { return _this.hideFeatureTooltip(s); },
+                        mousemove: function (d) { return _this.updateFeatureTooltip(d); },
+                        click: function (e) {
+                            _this.selectFeature(feature);
+                        }
+                    });
+                    m.feature = feature;
+                    if (l.group.clustering && l.group.cluster) {
+                        l.group.cluster.addLayer(m);
+                    }
+                    else {
+                        if (l.mapLayer) {
+                            l.mapLayer.addLayer(m);
+                        }
+                    }
+                    return m;
+                }
+                else
+                    return null;
+            };
+            LeafletRenderer.prototype.canDrag = function (feature) {
+                return feature.gui.hasOwnProperty('editMode') && feature.gui['editMode'] == true;
+            };
+            /**
+             * add a feature
+             */
+            LeafletRenderer.prototype.createFeature = function (feature) {
+                var _this = this;
+                //this.service.initFeature(feature,layer);
+                //var style = type.style;
+                var marker;
+                switch (feature.geometry.type) {
+                    case 'Point':
+                        var icon = this.getPointIcon(feature);
+                        marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
+                            icon: icon, draggable: this.canDrag(feature)
+                        });
+                        marker.on('contextmenu', function (e) {
+                            _this.service._activeContextMenu = _this.service.getActions(feature, Services.ActionType.Context);
+                            //e.stopPropagation();
+                            var button = $("#map-contextmenu-button");
+                            var menu = $("#map-contextmenu");
+                            button.dropdown('toggle');
+                            var mapSize = _this.map.getSize();
+                            if (e.originalEvent.x < (mapSize.x / 2)) {
+                                menu.css("left", e.originalEvent.x + 5);
+                            }
+                            else {
+                                menu.css("left", e.originalEvent.x - 5 - menu.width());
+                            }
+                            if (e.originalEvent.y < (mapSize.y / 2)) {
+                                menu.css("top", e.originalEvent.y - 35);
+                            }
+                            else {
+                                menu.css("top", e.originalEvent.y - 70 - menu.height());
+                            }
+                            if (_this.service.$rootScope.$$phase != '$apply' && _this.service.$rootScope.$$phase != '$digest') {
+                                _this.service.$rootScope.$apply();
+                            }
+                        });
+                        marker.on('dragstart', function (event) {
+                            feature.gui["dragged"] = true;
+                        });
+                        marker.on('dragend', function (event) {
+                            var marker = event.target;
+                            var position = marker.getLatLng();
+                            feature.geometry.coordinates = [position.lng, position.lat];
+                            //marker.setLatLng(new L.LatLng(), { draggable: 'false' });
+                            //map.panTo(new L.LatLng(position.lat, position.lng))
+                        });
+                        break;
+                    default:
+                        marker = L.GeoJSON.geometryToLayer(feature);
+                        marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
+                        marker.on('contextmenu', function (e) {
+                            _this.service._activeContextMenu = _this.service.getActions(feature, Services.ActionType.Context);
+                            //e.stopPropagation();
+                            var button = $("#map-contextmenu-button");
+                            var menu = $("#map-contextmenu");
+                            button.dropdown('toggle');
+                            var mapSize = _this.map.getSize();
+                            if (e.originalEvent.x < (mapSize.x / 2)) {
+                                menu.css("left", e.originalEvent.x + 5);
+                            }
+                            else {
+                                menu.css("left", e.originalEvent.x - 5 - menu.width());
+                            }
+                            if (e.originalEvent.y < (mapSize.y / 2)) {
+                                menu.css("top", e.originalEvent.y - 35);
+                            }
+                            else {
+                                menu.css("top", e.originalEvent.y - 70 - menu.height());
+                            }
+                            if (_this.service.$rootScope.$$phase != '$apply' && _this.service.$rootScope.$$phase != '$digest') {
+                                _this.service.$rootScope.$apply();
+                            }
+                        });
+                        //marker = L.multiPolygon(latlng, polyoptions);
+                        break;
+                }
+                marker.feature = feature;
+                feature.layer.group.markers[feature.id] = marker;
+                return marker;
+            };
+            /**
+             * create icon based of feature style
+             */
+            LeafletRenderer.prototype.getPointIcon = function (feature) {
+                var icon;
+                if (feature.htmlStyle != null) {
+                    icon = new L.DivIcon({
+                        className: '',
+                        iconSize: new L.Point(feature.effectiveStyle.iconWidth, feature.effectiveStyle.iconHeight),
+                        html: feature.htmlStyle
+                    });
+                }
+                else {
+                    var iconHtml = csComp.Helpers.createIconHtml(feature, this.service.getFeatureType(feature));
+                    icon = new L.DivIcon({
+                        className: '',
+                        iconSize: new L.Point(iconHtml['iconPlusBorderWidth'], iconHtml['iconPlusBorderHeight']),
+                        html: iconHtml['html']
+                    });
+                }
+                return icon;
+            };
+            /***
+             * Show tooltip with name, styles & filters.
+             */
+            LeafletRenderer.prototype.showFeatureTooltip = function (e, group) {
+                var _this = this;
+                var layer = e.target;
+                var feature = layer.feature;
+                // add title
+                var title = layer.feature.properties.Name;
+                var rowLength = (title) ? title.length : 1;
+                var content = '<td colspan=\'3\'>' + title + '</td></tr>';
+                // add filter values
+                if (group.filters != null && group.filters.length > 0) {
+                    group.filters.forEach(function (f) {
+                        if (!feature.properties.hasOwnProperty(f.property))
+                            return;
+                        var value = feature.properties[f.property];
+                        if (value) {
+                            var valueLength = value.toString().length;
+                            if (f.meta != null) {
+                                value = csComp.Helpers.convertPropertyInfo(f.meta, value);
+                                if (f.meta.type !== 'bbcode')
+                                    valueLength = value.toString().length;
+                            }
+                            rowLength = Math.max(rowLength, valueLength + f.title.length);
+                            content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
+                        }
+                    });
+                }
+                // add style values, only in case they haven't been added already as filter
+                if (group.styles != null && group.styles.length > 0) {
+                    group.styles.forEach(function (s) {
+                        if (group.filters != null && group.filters.filter(function (f) { return f.property === s.property; }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
+                            var value = feature.properties[s.property];
+                            var valueLength = value.toString().length;
+                            if (s.meta != null) {
+                                value = csComp.Helpers.convertPropertyInfo(s.meta, value);
+                                if (s.meta.type !== 'bbcode')
+                                    valueLength = value.toString().length;
+                            }
+                            var tl = s.title ? s.title.length : 10;
+                            rowLength = Math.max(rowLength, valueLength + tl);
+                            content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
+                        }
+                    });
+                }
+                var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
+                content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
+                this.popup = L.popup({
+                    offset: new L.Point(-widthInPixels / 2 - 40, -5),
+                    closeOnClick: true,
+                    autoPan: false,
+                    className: 'featureTooltip'
+                }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
+                //In case a contour is available, show it.
+                var hoverActions = this.service.getActions(feature, Services.ActionType.Hover);
+                hoverActions.forEach(function (ha) {
+                    if (ha.title.toLowerCase() === 'show') {
+                        ha.callback(feature, _this.service);
+                    }
+                });
+            };
+            LeafletRenderer.prototype.hideFeatureTooltip = function (e) {
+                var _this = this;
+                if (this.popup && this.service.map.map) {
+                    this.service.map.map.closePopup(this.popup);
+                    //this.map.map.closePopup(this.popup);
+                    this.popup = null;
+                }
+                //In case a contour is being shown, hide it.
+                var layer = e.target;
+                var feature = layer.feature;
+                if (feature) {
+                    var hoverActions = this.service.getActions(feature, Services.ActionType.Hover);
+                    hoverActions.forEach(function (ha) {
+                        if (ha.title.toLowerCase() === 'hide') {
+                            ha.callback(feature, _this.service);
+                        }
+                    });
+                }
+            };
+            LeafletRenderer.prototype.updateFeatureTooltip = function (e) {
+                if (this.popup != null && e.latlng != null)
+                    this.popup.setLatLng(e.latlng);
+            };
+            return LeafletRenderer;
+        })();
+        Services.LeafletRenderer = LeafletRenderer;
+    })(Services = csComp.Services || (csComp.Services = {}));
+})(csComp || (csComp = {}));
 
 var csComp;
 (function (csComp) {
@@ -21086,7 +22858,7 @@ var csComp;
             };
             /** zoom to boundaries of layer */
             GeoJsonSource.prototype.fitMap = function (layer) {
-                var b = csComp.Helpers.GeoExtensions.getBoundingBox(this.layer.data);
+                var b = csComp.Helpers.GeoExtensions.getBoundingBox(layer.data);
                 this.service.$messageBusService.publish("map", "setextent", b);
             };
             GeoJsonSource.prototype.layerMenuOptions = function (layer) {
@@ -21113,6 +22885,8 @@ var csComp;
                             layer.isLoading = false;
                             layer.enabled = true;
                             _this.initLayer(data, layer);
+                            if (_this.layer.fitToMap)
+                                _this.fitMap(_this.layer);
                             cb(null, null);
                         })
                             .error(function () {
@@ -21165,10 +22939,42 @@ var csComp;
                 layer.data.features.forEach(function (f) {
                     _this.service.initFeature(f, layer, false, false);
                 });
+                layer.isTransparent = false;
+                // Subscribe to zoom events
+                if (layer.minZoom || layer.maxZoom) {
+                    if (!layer.minZoom)
+                        layer.minZoom = 0;
+                    if (!layer.maxZoom)
+                        layer.maxZoom = 25;
+                    layer.zoomHandle = this.service.$messageBusService.subscribe('map', function (topic, level) {
+                        if (!topic || !level || topic !== 'zoom' || level < 0)
+                            return;
+                        if ((level < layer.minZoom || level > layer.maxZoom)) {
+                            if (!layer.isTransparent) {
+                                layer.isTransparent = true;
+                                _this.service.updateLayerFeatures(layer);
+                            }
+                        }
+                        else {
+                            if (layer.isTransparent) {
+                                layer.isTransparent = false;
+                                _this.service.updateLayerFeatures(layer);
+                            }
+                        }
+                    });
+                }
                 this.service.$messageBusService.publish("timeline", "updateFeatures");
             };
             GeoJsonSource.prototype.removeLayer = function (layer) {
-                //alert('remove layer');
+                layer.isTransparent = false;
+                if (layer.zoomHandle)
+                    this.service.$messageBusService.unsubscribe(layer.zoomHandle);
+                //Reset the default zoom when deactivating a layer with the parameter 'fitToMap' set to true.
+                if (layer.fitToMap) {
+                    if (!this.service.solution.viewBounds)
+                        return;
+                    this.service.$messageBusService.publish("map", "setextent", this.service.solution.viewBounds);
+                }
             };
             GeoJsonSource.prototype.processAccessibilityReply = function (data, layer, clbk) {
                 if (data.hasOwnProperty('error')) {
@@ -22762,1523 +24568,5 @@ var csComp;
             return WmsSource;
         })();
         Services.WmsSource = WmsSource;
-    })(Services = csComp.Services || (csComp.Services = {}));
-})(csComp || (csComp = {}));
-
-/*
- Generic  Canvas Overlay for leaflet,
- Stanislav Sumbera, April , 2014
-
- - added userDrawFunc that is called when Canvas need to be redrawn
- - added few useful params for userDrawFunc callback
-  - fixed resize map bug
-  inspired & portions taken from  :   https://github.com/Leaflet/Leaflet.heat
-
-*/
-var L;
-(function (L) {
-    var CanvasOverlay = L.Class.extend({
-        initialize: function (userDrawFunc, layer, options) {
-            this._layer = layer,
-                this._userDrawFunc = userDrawFunc;
-            L.Util.setOptions(this, options);
-        },
-        drawing: function (userDrawFunc) {
-            this._userDrawFunc = userDrawFunc;
-            return this;
-        },
-        params: function (options) {
-            L.Util.setOptions(this, options);
-            return this;
-        },
-        canvas: function () {
-            return this._canvas;
-        },
-        redraw: function () {
-            if (!this._frame) {
-                this._frame = L.Util.requestAnimFrame(this._redraw, this);
-            }
-            return this;
-        },
-        onAdd: function (map) {
-            var _this = this;
-            this._map = map;
-            this._canvas = L.DomUtil.create('canvas', 'leaflet-overlay-layer');
-            var size = this._map.getSize();
-            this._canvas.width = size.x;
-            this._canvas.height = size.y;
-            this._context = this._canvas.getContext("2d");
-            this._popup = null;
-            this.onMouseMoveDelay = _.debounce(function (evt) {
-                var pos = _this._getCanvasPos();
-                var rgb = _this._context.getImageData(evt.x - pos.left, evt.y - pos.top, 1, 1).data;
-                // only show tooltip when a colored cell is located at the mouse cursor position
-                if ((rgb[0] + rgb[1] + rgb[2]) > 0) {
-                    var latLng = _this._map.containerPointToLatLng(new L.Point(evt.x - pos.left, evt.y - pos.top));
-                    var i = Math.floor((latLng.lat - _this.options.topLeftLat) / _this.options.deltaLat);
-                    var j = Math.floor((latLng.lng - _this.options.topLeftLon) / _this.options.deltaLon);
-                    var value = '';
-                    if (0 <= i && i < _this.options.data.length &&
-                        0 <= j && j < _this.options.data[0].length) {
-                        value = String.format("{0:0.00}", _this.options.data[i][j]);
-                    }
-                    (_this._layer.dataSourceParameters.legendStringFormat) ? value = String.format(_this._layer.dataSourceParameters.legendStringFormat, value) : null;
-                    var content = '<table><td>' + value + '</td></tr>' + '</table>';
-                    if (_this._popup != null) {
-                        _this._popup.setLatLng(_this._map.containerPointToLatLng(new L.Point(evt.x, evt.y))).setContent(content);
-                    }
-                    else {
-                        _this._popup = L.popup({
-                            offset: new L.Point(-25, -15),
-                            closeOnClick: true,
-                            autoPan: false,
-                            className: 'featureTooltip'
-                        }).setLatLng(_this._map.containerPointToLatLng(new L.Point(evt.x, evt.y))).setContent(content).openOn(_this._map);
-                    }
-                }
-                else {
-                    _this._map.closePopup(_this._popup);
-                    _this._popup = null;
-                }
-                //console.log('mousemoved ' + evt.x + ', ' + evt.y + ',  color: R' + rgb[0] + ' G' + rgb[1] + ' B' + rgb[2]);
-            }, 250);
-            this._canvas.addEventListener('mousemove', this.onMouseMoveDelay);
-            var animated = this._map.options.zoomAnimation && L.Browser.any3d;
-            L.DomUtil.addClass(this._canvas, 'leaflet-zoom-' + (animated ? 'animated' : 'hide'));
-            map._panes.overlayPane.appendChild(this._canvas);
-            map.on('moveend', this._reset, this);
-            map.on('resize', this._resize, this);
-            if (map.options.zoomAnimation && L.Browser.any3d) {
-                map.on('zoomanim', this._animateZoom, this);
-            }
-            this._reset();
-        },
-        onRemove: function (map) {
-            map.getPanes().overlayPane.removeChild(this._canvas);
-            map.off('moveend', this._reset, this);
-            map.off('resize', this._resize, this);
-            this._canvas.removeEventListener('mousemove', this.onMouseMoveDelay);
-            map.closePopup(this._popup);
-            this._popup = null;
-            if (map.options.zoomAnimation) {
-                map.off('zoomanim', this._animateZoom, this);
-            }
-            this._canvas = null;
-        },
-        addTo: function (map) {
-            map.addLayer(this);
-            return this;
-        },
-        _getCanvasPos: function () {
-            var obj = this._canvas;
-            var top = 0;
-            var left = 0;
-            while (obj && obj.tagName != "BODY") {
-                top += obj.offsetTop;
-                left += obj.offsetLeft;
-                obj = obj.offsetParent;
-            }
-            return {
-                top: top,
-                left: left
-            };
-        },
-        _resize: function (resizeEvent) {
-            this._canvas.width = resizeEvent.newSize.x;
-            this._canvas.height = resizeEvent.newSize.y;
-        },
-        _reset: function () {
-            var topLeft = this._map.containerPointToLayerPoint([0, 0]);
-            L.DomUtil.setPosition(this._canvas, topLeft);
-            this._redraw();
-        },
-        _redraw: function () {
-            var size = this._map.getSize();
-            var bounds = this._map.getBounds();
-            var zoomScale = (size.x * 180) / (20037508.34 * (bounds.getEast() - bounds.getWest())); // resolution = 1/zoomScale
-            var zoom = this._map.getZoom();
-            // console.time('process');
-            if (this._userDrawFunc) {
-                this._userDrawFunc(this, this._layer, {
-                    canvas: this._canvas,
-                    bounds: bounds,
-                    size: size,
-                    zoomScale: zoomScale,
-                    zoom: zoom,
-                    options: this.options
-                });
-            }
-            // console.timeEnd('process');
-            this._frame = null;
-        },
-        _animateZoom: function (e) {
-            var scale = this._map.getZoomScale(e.zoom), offset = this._map._getCenterOffset(e.center)._multiplyBy(-scale).subtract(this._map._getMapPanePos());
-            this._canvas.style[L.DomUtil.TRANSFORM] = L.DomUtil.getTranslateString(offset) + ' scale(' + scale + ')';
-        }
-    });
-    function canvasOverlay(userDrawFunc, layer, options) {
-        return new CanvasOverlay(userDrawFunc, layer, options);
-    }
-    L.canvasOverlay = canvasOverlay;
-    ;
-})(L || (L = {}));
-
-var csComp;
-(function (csComp) {
-    var Services;
-    (function (Services) {
-        var GeojsonRenderer = (function () {
-            function GeojsonRenderer() {
-            }
-            GeojsonRenderer.render = function (service, layer, mapRenderer) {
-                layer.mapLayer = new L.LayerGroup();
-                service.map.map.addLayer(layer.mapLayer);
-                if (!layer.data || !layer.data.features)
-                    return;
-                layer.data.features.forEach(function (f) {
-                    var marker = mapRenderer.addFeature(f);
-                    if (marker)
-                        layer.group.markers[f.id] = marker;
-                });
-            };
-            GeojsonRenderer.remove = function (service, layer) {
-                var g = layer.group;
-                //m = layer.group.vectors;
-                if (g.clustering) {
-                    var m = g.cluster;
-                    service.project.features.forEach(function (feature) {
-                        if (feature.layerId === layer.id) {
-                            try {
-                                m.removeLayer(layer.group.markers[feature.id]);
-                                delete layer.group.markers[feature.id];
-                            }
-                            catch (error) { }
-                        }
-                    });
-                }
-                else {
-                    service.project.features.forEach(function (feature) {
-                        if (feature.layerId === layer.id && layer.group.markers.hasOwnProperty(feature.id)) {
-                            delete layer.group.markers[feature.id];
-                        }
-                    });
-                    if (service.map.map && layer.mapLayer) {
-                        try {
-                            service.map.map.removeLayer(layer.mapLayer);
-                        }
-                        catch (error) { }
-                    }
-                }
-            };
-            return GeojsonRenderer;
-        })();
-        Services.GeojsonRenderer = GeojsonRenderer;
-    })(Services = csComp.Services || (csComp.Services = {}));
-})(csComp || (csComp = {}));
-
-var csComp;
-(function (csComp) {
-    var Services;
-    (function (Services) {
-        var GridLayerRenderer = (function () {
-            function GridLayerRenderer() {
-            }
-            GridLayerRenderer.render = function (service, layer) {
-                var gridParams = layer.dataSourceParameters;
-                var legend = [];
-                var levels;
-                if (typeof gridParams.contourLevels === 'number') {
-                    levels = [];
-                    var nrLevels = (gridParams.contourLevels);
-                    var dl = (gridParams.maxThreshold - gridParams.minThreshold) / nrLevels;
-                    for (var l = gridParams.minThreshold + dl / 2; l < gridParams.maxThreshold; l += dl)
-                        levels.push(Math.round(l * 10) / 10); // round to nearest decimal.
-                }
-                else {
-                    levels = gridParams.contourLevels;
-                }
-                // Create a new groupstyle. If no legend is provided, this style can be used to change the colors used to draw the grid.
-                // If a legend is provided, that will be used as activelegend.
-                var gs = new Services.GroupStyle(service.$translate);
-                gs.id = csComp.Helpers.getGuid();
-                gs.title = (gridParams.legendDescription) ? gridParams.legendDescription : layer.title;
-                gs.meta = null;
-                gs.visualAspect = 'fillColor';
-                gs.availableAspects = ['fillColor'];
-                gs.info = { min: 0, max: 0, count: 0, mean: 0, varience: 0, sd: 0 };
-                gs.fixedColorRange = true;
-                gs.enabled = true;
-                gs.group = layer.group;
-                if (!gridParams.legend) {
-                    gs.property = 'gridlayer';
-                    gs.canSelectColor = true;
-                    gs.colors = [(gridParams.minColor) ? gridParams.minColor : '#00fbff', (gridParams.maxColor) ? gridParams.maxColor : '#0400ff'];
-                    gs.activeLegend = {
-                        legendKind: 'interpolated',
-                        description: gs.title,
-                        visualAspect: 'fillColor',
-                        legendEntries: []
-                    };
-                }
-                else {
-                    gs.property = '';
-                    gs.canSelectColor = false;
-                    gs.colors = ['#ffffff', '#000000'];
-                    gs.activeLegend = gridParams.legend;
-                    gs.activeLegend.legendEntries.forEach(function (le) {
-                        legend.push({ val: le.value, color: le.color });
-                    });
-                }
-                service.saveStyle(layer.group, gs);
-                var overlay = L.canvasOverlay(GridLayerRenderer.drawFunction, layer, {
-                    data: layer.data,
-                    noDataValue: gridParams.noDataValue,
-                    topLeftLat: gridParams.startLat,
-                    topLeftLon: gridParams.startLon,
-                    deltaLat: gridParams.deltaLat,
-                    deltaLon: gridParams.deltaLon,
-                    min: gridParams.minThreshold,
-                    max: gridParams.maxThreshold,
-                    minColor: gs.colors[0],
-                    maxColor: gs.colors[1],
-                    areColorsUpdated: false,
-                    levels: levels,
-                    legend: legend,
-                    opacity: (layer.opacity) ? (+layer.opacity) / 100 : 0.3
-                });
-                layer.mapLayer = new L.LayerGroup();
-                service.map.map.addLayer(layer.mapLayer);
-                layer.mapLayer.addLayer(overlay);
-            };
-            GridLayerRenderer.drawFunction = function (overlay, layer, settings) {
-                var map = this._map;
-                var opt = settings.options, data = opt.data;
-                if (!data)
-                    return;
-                var row = data.length, col = data[0].length, size = settings.size, legend = opt.legend;
-                // update the legend when new from- and to-colors are chosen.
-                // the complete color range of the legend will be calculated using the hue value of the from and to colors.
-                if (legend.length === 0 || opt.areColorsUpdated) {
-                    legend = [];
-                    if (opt.minColor[0] !== '#')
-                        opt.minColor = ColorExt.Utils.colorNameToHex(opt.minColor);
-                    if (opt.maxColor[0] !== '#')
-                        opt.maxColor = ColorExt.Utils.colorNameToHex(opt.maxColor);
-                    var fromHue = ColorExt.Utils.rgbToHue(opt.minColor);
-                    var toHue = ColorExt.Utils.rgbToHue(opt.maxColor);
-                    for (var i_1 = 0; i_1 < opt.levels.length; i_1++) {
-                        var level = opt.levels[i_1];
-                        legend.push({ val: level, color: ColorExt.Utils.toColor(level, opt.levels[0], opt.levels[opt.levels.length - 1], fromHue, toHue) });
-                    }
-                    if (layer.group.styles && layer.group.styles.length > 0) {
-                        layer.group.styles[0].activeLegend = {
-                            legendKind: 'interpolated',
-                            description: layer.group.styles[0].title,
-                            visualAspect: 'fillColor',
-                            legendEntries: []
-                        };
-                        legend.forEach(function (i) {
-                            var legEntry = { label: String.format(layer.dataSourceParameters['legendStringFormat'] || '{0:00}', i.val), value: i.val, color: i.color };
-                            layer.group.styles[0].activeLegend.legendEntries.push(legEntry);
-                        });
-                    }
-                    overlay.options.legend = opt.legend = legend;
-                    opt.areColorsUpdated = false;
-                }
-                var min = opt.min || Number.MIN_VALUE, max = opt.max || Number.MAX_VALUE;
-                var topLeft = map.latLngToContainerPoint(new L.LatLng(opt.topLeftLat, opt.topLeftLon)), botRight = map.latLngToContainerPoint(new L.LatLng(opt.topLeftLat + row * opt.deltaLat, opt.topLeftLon + col * opt.deltaLon));
-                var startX = topLeft.x, startY = topLeft.y, deltaX = (botRight.x - topLeft.x) / col, botOfFirstRow = map.latLngToContainerPoint(new L.LatLng(opt.topLeftLat + opt.deltaLat, opt.topLeftLon)), deltaY = botOfFirstRow.y - topLeft.y;
-                var ctx = settings.canvas.getContext("2d");
-                ctx.clearRect(0, 0, size.x, size.y);
-                // Check the boundaries
-                if (startX > size.x || startY > size.y || botRight.x < 0 || botRight.y < 0) {
-                    //console.log('Outside boundary');
-                    return;
-                }
-                var sJ = 0, eI = row, eJ = col;
-                if (startX < -deltaX) {
-                    sJ = -Math.ceil(startX / deltaX);
-                    startX += sJ * deltaX;
-                }
-                if (botRight.x > size.x) {
-                    eJ -= Math.floor((botRight.x - size.x) / deltaX);
-                }
-                if (botRight.y > size.y && deltaY > 0) {
-                    eI -= Math.floor((botRight.y - size.y) / deltaY);
-                }
-                var noDataValue = opt.noDataValue;
-                ctx.globalAlpha = opt.opacity || 0.3;
-                console.time('process');
-                var y = startY;
-                var lat = opt.topLeftLat; // + sI * opt.deltaLat;
-                for (var i = 0; i < eI; i++) {
-                    lat += opt.deltaLat;
-                    var botY = map.latLngToContainerPoint(new L.LatLng(lat, opt.topLeftLon)).y;
-                    deltaY = botY - y;
-                    if (y <= -deltaY || deltaY === 0) {
-                        y = botY;
-                        continue;
-                    }
-                    var x = startX;
-                    for (var j = sJ; j < eJ; j++) {
-                        var cell = data[i][j];
-                        if (cell === noDataValue || cell < min || cell > max) {
-                            x += deltaX;
-                            continue;
-                        }
-                        var closest = legend.reduce(function (prev, curr) {
-                            return (Math.abs(curr.val - cell) < Math.abs(prev.val - cell) ? curr : prev);
-                        });
-                        ctx.fillStyle = closest.color;
-                        ctx.fillRect(x, y, deltaX, deltaY);
-                        x += deltaX;
-                    }
-                    y = botY;
-                }
-                console.timeEnd('process');
-            };
-            return GridLayerRenderer;
-        })();
-        Services.GridLayerRenderer = GridLayerRenderer;
-    })(Services = csComp.Services || (csComp.Services = {}));
-})(csComp || (csComp = {}));
-
-var csComp;
-(function (csComp) {
-    var Services;
-    (function (Services) {
-        var HeatmapRenderer = (function () {
-            function HeatmapRenderer() {
-            }
-            HeatmapRenderer.render = function (service, layer, mapRenderer) {
-                if (layer.quickRefresh && layer.quickRefresh == true)
-                    return; //When only updating style of current heatmap, do not add a new layer.
-                var time = new Date().getTime();
-                // create leaflet layers
-                layer.isLoading = true;
-                if (layer.group.clustering) {
-                    var markers = L.geoJson(layer.data, {
-                        pointToLayer: function (feature, latlng) { return mapRenderer.createFeature(feature); },
-                        onEachFeature: function (feature, lay) {
-                            //We do not need to init the feature here: already done in style.
-                            //this.initFeature(feature, layer);
-                            layer.group.markers[feature.id] = lay;
-                            lay.on({
-                                mouseover: function (a) { return mapRenderer.showFeatureTooltip(a, layer.group); },
-                                mouseout: function (s) { return mapRenderer.hideFeatureTooltip(s); }
-                            });
-                        }
-                    });
-                    layer.group.cluster.addLayer(markers);
-                }
-                else {
-                    layer.mapLayer = new L.LayerGroup();
-                    service.map.map.addLayer(layer.mapLayer);
-                    if (layer.data && layer.data.features) {
-                        var v = L.geoJson(layer.data, {
-                            onEachFeature: function (feature, lay) {
-                                //We do not need to init the feature here: already done in style.
-                                //this.initFeature(feature, layer);
-                                layer.group.markers[feature.id] = lay;
-                                lay.on({
-                                    mouseover: function (a) { return mapRenderer.showFeatureTooltip(a, layer.group); },
-                                    mouseout: function (s) { return mapRenderer.hideFeatureTooltip(s); },
-                                    mousemove: function (d) { return mapRenderer.updateFeatureTooltip(d); },
-                                    click: function (e) {
-                                        mapRenderer.selectFeature(feature);
-                                    }
-                                });
-                            },
-                            style: function (f, m) {
-                                layer.group.markers[f.id] = m;
-                                return f.effectiveStyle;
-                            },
-                            pointToLayer: function (feature, latlng) { return mapRenderer.createFeature(feature); }
-                        });
-                    }
-                    else {
-                        var v = L.geoJson([]);
-                    }
-                    service.project.features.forEach(function (f) {
-                        if (f.layerId !== layer.id)
-                            return;
-                        var ft = service.getFeatureType(f);
-                        f.properties['Name'] = f.properties[ft.style.nameLabel];
-                    });
-                    layer.mapLayer.addLayer(v);
-                    layer.isLoading = false;
-                    var time2 = new Date().getTime();
-                }
-            };
-            return HeatmapRenderer;
-        })();
-        Services.HeatmapRenderer = HeatmapRenderer;
-    })(Services = csComp.Services || (csComp.Services = {}));
-})(csComp || (csComp = {}));
-
-var csComp;
-(function (csComp) {
-    var Services;
-    (function (Services) {
-        var TileLayerRenderer = (function () {
-            function TileLayerRenderer() {
-            }
-            TileLayerRenderer.render = function (service, layer) {
-                var u = layer.url;
-                if (layer.timeDependent) {
-                    // convert epoch to time string parameter
-                    var ft = service.project.timeLine.focus;
-                    if (layer.timeResolution) {
-                        var tr = layer.timeResolution;
-                        ft = Math.floor(ft / tr) * tr;
-                    }
-                    ;
-                    var d = new Date(0);
-                    d.setUTCSeconds(ft / 1000);
-                    var sDate = d.yyyymmdd();
-                    var hrs = d.getHours();
-                    var mins = d.getMinutes();
-                    var secs = d.getSeconds();
-                    var sTime = csComp.Utils.twoDigitStr(hrs) +
-                        csComp.Utils.twoDigitStr(mins) + csComp.Utils.twoDigitStr(secs);
-                    u += "&time=" + sDate + sTime;
-                }
-                else if (layer.disableCache) {
-                    // check if we need to create a unique url to force a refresh
-                    layer.cacheKey = new Date().getTime().toString();
-                    u += "&cache=" + layer.cacheKey;
-                }
-                var tileLayer = L.tileLayer(u, { attribution: layer.description });
-                layer.mapLayer = new L.LayerGroup();
-                tileLayer.setOpacity(layer.opacity / 100);
-                service.map.map.addLayer(layer.mapLayer);
-                layer.mapLayer.addLayer(tileLayer);
-                tileLayer.on('loading', function (event) {
-                    layer.isLoading = true;
-                    service.$rootScope.$apply();
-                    if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') {
-                        service.$rootScope.$apply();
-                    }
-                });
-                tileLayer.on('load', function (event) {
-                    layer.isLoading = false;
-                    if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') {
-                        service.$rootScope.$apply();
-                    }
-                });
-                layer.isLoading = true;
-            };
-            return TileLayerRenderer;
-        })();
-        Services.TileLayerRenderer = TileLayerRenderer;
-    })(Services = csComp.Services || (csComp.Services = {}));
-})(csComp || (csComp = {}));
-
-var csComp;
-(function (csComp) {
-    var Services;
-    (function (Services) {
-        var WmsRenderer = (function () {
-            function WmsRenderer() {
-            }
-            WmsRenderer.render = function (service, layer) {
-                var wms = L.tileLayer.wms(layer.url, {
-                    layers: layer.wmsLayers,
-                    opacity: layer.opacity / 100,
-                    format: 'image/png',
-                    transparent: true,
-                    attribution: layer.description,
-                    tiled: true
-                });
-                layer.mapLayer = new L.LayerGroup();
-                service.map.map.addLayer(layer.mapLayer);
-                layer.mapLayer.addLayer(wms);
-                wms.on('loading', function (event) {
-                    layer.isLoading = true;
-                    service.$rootScope.$apply();
-                    if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') {
-                        service.$rootScope.$apply();
-                    }
-                });
-                wms.on('load', function (event) {
-                    layer.isLoading = false;
-                    if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') {
-                        service.$rootScope.$apply();
-                    }
-                });
-                layer.isLoading = true;
-            };
-            return WmsRenderer;
-        })();
-        Services.WmsRenderer = WmsRenderer;
-    })(Services = csComp.Services || (csComp.Services = {}));
-})(csComp || (csComp = {}));
-
-var csComp;
-(function (csComp) {
-    var Services;
-    (function (Services) {
-        var CesiumRenderer = (function () {
-            function CesiumRenderer() {
-                this.title = "cesium";
-                this.features = {};
-            }
-            CesiumRenderer.prototype.init = function (service) {
-                this.service = service;
-            };
-            CesiumRenderer.prototype.enable = function () {
-                var _this = this;
-                this.viewer = new Cesium.Viewer('map', {
-                    selectionIndicator: false,
-                    infoBox: false,
-                    scene3DOnly: true,
-                    sceneModePicker: false,
-                    fullscreenButton: false,
-                    homeButton: false,
-                    baseLayerPicker: false,
-                    animation: false,
-                    timeline: false,
-                    navigationHelpButton: false
-                });
-                this.camera = this.viewer.camera;
-                this.scene = this.viewer.scene;
-                setTimeout(function () {
-                    for (var i = 0; i < _this.service.project.features.length; ++i)
-                        _this.addFeature(_this.service.project.features[i]);
-                }, 0);
-                // onclick events
-                this.setUpMouseHandlers();
-                this.fitBounds(this.service.$mapService.maxBounds);
-                this.changeBaseLayer(this.service.$mapService.activeBaseLayer);
-            };
-            CesiumRenderer.prototype.getLatLon = function (x, y) {
-                return { lat: 53, lon: 5 };
-            };
-            CesiumRenderer.prototype.refreshLayer = function () {
-            };
-            CesiumRenderer.prototype.getExtent = function () {
-                var r = {};
-                return r;
-            };
-            CesiumRenderer.prototype.getZoom = function () {
-                // we dont get nearby relations for now
-                return 0;
-            };
-            CesiumRenderer.prototype.fitBounds = function (bounds) {
-                var ellipsoid = Cesium.Ellipsoid.WGS84;
-                if (bounds) {
-                    var west = Cesium.Math.toRadians(bounds.southWest[1]);
-                    var south = Cesium.Math.toRadians(bounds.southWest[0]);
-                    var east = Cesium.Math.toRadians(bounds.northEast[1]);
-                    var north = Cesium.Math.toRadians(bounds.northEast[0]);
-                    var extent = new Cesium.Rectangle(west, south, east, north);
-                    this.camera.viewRectangle(extent, ellipsoid);
-                }
-            };
-            CesiumRenderer.prototype.setUpMouseHandlers = function () {
-                var _this = this;
-                var handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
-                handler.setInputAction(function (click) {
-                    var pickedObject = _this.scene.pick(click.position);
-                    if (Cesium.defined(pickedObject) && pickedObject.id !== undefined && pickedObject.id.feature !== undefined) {
-                        _this.service.selectFeature(pickedObject.id.feature);
-                    }
-                }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-                handler.setInputAction(function (movement) {
-                    var pickedObject = _this.scene.pick(movement.endPosition);
-                    if (Cesium.defined(pickedObject) && pickedObject.id !== undefined && pickedObject.id.feature !== undefined)
-                        _this.showFeatureTooltip(pickedObject.id.feature, movement.endPosition);
-                    else
-                        $(".cesiumPopup").fadeOut('fast').remove();
-                }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-            };
-            CesiumRenderer.prototype.disable = function () {
-                this.viewer.destroy();
-            };
-            CesiumRenderer.prototype.changeBaseLayer = function (layer) {
-                if (layer.cesium_url === undefined)
-                    alert('This layer is not cesium compatible');
-                else {
-                    switch (layer.cesium_maptype.toUpperCase()) {
-                        case "ARCGIS":
-                            var mapProvider = new Cesium.ArcGisMapServerImageryProvider({
-                                url: layer.cesium_url,
-                                minimumLevel: layer.minZoom,
-                                maximumLevel: layer.maxZoom
-                            });
-                            break;
-                        case "OPENSTREETMAP":
-                            var mapProvider = new Cesium.OpenStreetMapImageryProvider({
-                                url: layer.cesium_url,
-                                minimumLevel: layer.minZoom,
-                                maximumLevel: layer.maxZoom
-                            });
-                            break;
-                        case "WEBMAPTILE":
-                            var mapProvider = new Cesium.WebMapTileServiceImageryProvider({
-                                url: layer.cesium_url,
-                                minimumLevel: layer.minZoom,
-                                maximumLevel: layer.maxZoom
-                            });
-                            break;
-                        case "TILEMAP":
-                            var mapProvider = new Cesium.TileMapServiceImageryProvider({
-                                url: layer.cesium_url,
-                                minimumLevel: layer.minZoom,
-                                maximumLevel: layer.maxZoom
-                            });
-                            break;
-                        default:
-                            alert('unknown maptype: ' + layer.cesium_maptype);
-                            break;
-                    }
-                    this.viewer.imageryLayers.addImageryProvider(mapProvider);
-                }
-            };
-            CesiumRenderer.prototype.showFeatureTooltip = function (feature, endPosition) {
-                if (this.popupShownFor !== undefined && feature.id == this.popupShownFor.id)
-                    return;
-                $(".cesiumPopup").fadeOut('fast').remove();
-                this.popupShownFor = feature;
-                var layer = feature.layer;
-                var group = layer.group;
-                // var feature = <Feature>layer.feature;
-                // add title
-                var title = feature.properties["Name"];
-                var rowLength = (title) ? title.length : 1;
-                var content = '<td colspan=\'3\'>' + title + '</td></tr>';
-                // add filter values
-                if (group.filters != null && group.filters.length > 0) {
-                    group.filters.forEach(function (f) {
-                        if (!feature.properties.hasOwnProperty(f.property))
-                            return;
-                        var value = feature.properties[f.property];
-                        if (value) {
-                            var valueLength = value.toString().length;
-                            if (f.meta != null) {
-                                value = csComp.Helpers.convertPropertyInfo(f.meta, value);
-                                if (f.meta.type !== 'bbcode')
-                                    valueLength = value.toString().length;
-                            }
-                            rowLength = Math.max(rowLength, valueLength + f.title.length);
-                            content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
-                        }
-                    });
-                }
-                // add style values, only in case they haven't been added already as filter
-                if (group.styles != null && group.styles.length > 0) {
-                    group.styles.forEach(function (s) {
-                        if (group.filters != null && group.filters.filter(function (f) { return f.property === s.property; }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
-                            var value = feature.properties[s.property];
-                            var valueLength = value.toString().length;
-                            if (s.meta != null) {
-                                value = csComp.Helpers.convertPropertyInfo(s.meta, value);
-                                if (s.meta.type !== 'bbcode')
-                                    valueLength = value.toString().length;
-                            }
-                            var tl = s.title ? s.title.length : 10;
-                            rowLength = Math.max(rowLength, valueLength + tl);
-                            content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
-                        }
-                    });
-                }
-                var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
-                content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
-                // cesium does not have a popup class like leaflet does, so we create our own div with absolute position
-                this.popup = $("<div class='cesiumPopup featureTooltip'></div>").html(content).css({ position: 'absolute', top: endPosition.y - 30, left: endPosition.x - widthInPixels / 2 - 30, width: widthInPixels }).hide().fadeIn('fast');
-                $("body").append(this.popup);
-            };
-            CesiumRenderer.prototype.addLayer = function (layer) {
-                var _this = this;
-                // console.log(layer);
-                var dfd = jQuery.Deferred();
-                switch (layer.renderType) {
-                    case "geojson":
-                        setTimeout(function () {
-                            layer.data.features.forEach(function (f) {
-                                _this.addFeature(f);
-                            });
-                            dfd.resolve();
-                        }, 0);
-                        break;
-                    case "wms":
-                        var wms_layer = this.viewer.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
-                            url: layer.url,
-                            layers: layer.wmsLayers,
-                            parameters: {
-                                format: 'image/png',
-                                transparent: true,
-                            }
-                        }));
-                        wms_layer.id = layer.id;
-                        wms_layer.alpha = layer.opacity / 100;
-                        dfd.resolve();
-                        break;
-                    default:
-                        alert('unknown layertype: ' + layer.type);
-                        dfd.resolve();
-                        break;
-                }
-                return dfd.promise();
-            };
-            CesiumRenderer.prototype.removeLayer = function (layer) {
-                var _this = this;
-                var dfd = jQuery.Deferred();
-                switch (layer.type.toUpperCase()) {
-                    case "GEOJSON":
-                    case "DYNAMICGEOJSON":
-                    case "TOPOJSON":
-                        setTimeout(function () {
-                            layer.data.features.forEach(function (f) {
-                                _this.removeFeature(f);
-                            });
-                            dfd.resolve();
-                        }, 0);
-                        break;
-                    case "WMS":
-                        this.viewer.imageryLayers._layers.forEach(function (ilayer) {
-                            if (ilayer.id == layer.id)
-                                _this.viewer.imageryLayers.remove(ilayer);
-                        });
-                        dfd.resolve();
-                        break;
-                    default:
-                        alert('unknown layertype: ' + layer.type);
-                        dfd.resolve();
-                        break;
-                }
-                return dfd.promise();
-            };
-            CesiumRenderer.prototype.updateMapFilter = function (group) {
-                var _this = this;
-                var dfd = jQuery.Deferred();
-                setTimeout(function () {
-                    _this.viewer.entities.values.forEach(function (entity) {
-                        var included;
-                        if (group.filterResult)
-                            included = group.filterResult.filter(function (f) { return f.id === entity.feature.id; }).length > 0;
-                        if (included)
-                            entity.show = true;
-                        else
-                            entity.show = false;
-                    });
-                    dfd.resolve();
-                }, 0);
-                return dfd.promise();
-            };
-            CesiumRenderer.prototype.addGroup = function (group) {
-                console.log('addGroup called');
-            };
-            CesiumRenderer.prototype.removeGroup = function (group) {
-                console.log('removeGroup called');
-            };
-            CesiumRenderer.prototype.removeFeature = function (feature) {
-                var _this = this;
-                //console.log('removeFeature called');
-                var toRemove = [];
-                this.viewer.entities.values.forEach(function (entity) {
-                    if (entity.feature.id === feature.id) {
-                        toRemove.push(entity);
-                    }
-                });
-                toRemove.forEach(function (entity) {
-                    _this.viewer.entities.remove(entity);
-                });
-            };
-            CesiumRenderer.prototype.removeFeatures = function (features) {
-                var _this = this;
-                var dfd = jQuery.Deferred();
-                setTimeout(function () {
-                    var toRemove = [];
-                    _this.viewer.entities.values.forEach(function (entity) {
-                        features.forEach(function (feature) {
-                            if (entity.feature.id === feature.id) {
-                                entity.show(false);
-                            }
-                        });
-                    });
-                    toRemove.forEach(function (entity) {
-                        _this.viewer.entities.remove(entity);
-                    });
-                    dfd.resolve();
-                }, 0);
-                return dfd.promise();
-            };
-            CesiumRenderer.prototype.updateFeature = function (feature) {
-                var _this = this;
-                this.viewer.entities.values.forEach(function (entity) {
-                    if (entity.feature.id === feature.id)
-                        _this.updateEntity(entity, feature);
-                });
-            };
-            CesiumRenderer.prototype.updateEntity = function (entity, feature) {
-                var height = feature.properties['mediaan_hoogte'] === undefined ? feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
-                if (feature.fType.style.iconUri !== undefined && entity.billboard !== undefined) {
-                    entity.billboard.width = feature.effectiveStyle.iconWidth;
-                    entity.billboard.height = feature.effectiveStyle.iconHeight;
-                }
-                switch (feature.geometry.type.toUpperCase()) {
-                    case "POINT":
-                    case "MULTIPOINT":
-                        entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
-                        entity.point.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
-                        entity.point.color = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
-                        entity.point.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
-                        entity.point.outlineWidth = feature.effectiveStyle.strokeWidth;
-                        break;
-                    case "POLYGON":
-                    case "MULTIPOLYGON":
-                        entity.polygon.material = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
-                        entity.polygon.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
-                        entity.polygon.outlineWidth = feature.effectiveStyle.strokeWidth; // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
-                        entity.polygon.extrudedHeight = height;
-                        break;
-                    case "LINESTRING":
-                    case "MULTILINESTRING":
-                        entity.polyline.material = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
-                        entity.polyline.width = feature.effectiveStyle.strokeWidth;
-                        break;
-                    default:
-                        alert('unknown geometry type: ' + feature.geometry.type);
-                        break;
-                }
-            };
-            CesiumRenderer.prototype.addFeature = function (feature) {
-                var entity = this.createFeature(feature);
-            };
-            CesiumRenderer.prototype.selectFeature = function (feature) {
-                // TODO
-                console.log("CesiumRenderer warning: selectFeature is not implemented!");
-            };
-            CesiumRenderer.prototype.createFeature = function (feature) {
-                var entity = this.viewer.entities.getOrCreateEntity(feature.id);
-                // link the feature to the entity for CommonSense.selectFeature
-                entity.feature = feature;
-                if (feature.properties['Name'] !== undefined)
-                    entity.name = feature.properties['Name'];
-                // override for buildings from Top10NL
-                var height = feature.properties['mediaan_hoogte'] === undefined ? feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
-                var pixelSize = 5;
-                if (feature.fType.style.iconUri !== undefined) {
-                    // a billboard is an icon for a feature
-                    entity.billboard = {
-                        image: feature.fType.style.iconUri,
-                        width: feature.effectiveStyle.iconWidth,
-                        height: feature.effectiveStyle.iconHeight
-                    };
-                    // we draw this point very large because it serves as a background for the billboards
-                    pixelSize = 35;
-                }
-                switch (feature.geometry.type.toUpperCase()) {
-                    case "POINT":
-                        // if there is no icon, a PointGraphics object is used as a fallback mechanism
-                        entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
-                        entity.point = {
-                            pixelSize: pixelSize,
-                            position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]),
-                            color: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                            outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                            outlineWidth: feature.effectiveStyle.strokeWidth
-                        };
-                        break;
-                    case "MULTIPOINT":
-                        for (var i = 0; i < feature.geometry.coordinates.length; i++) {
-                            var entity_multi = new Cesium.Entity();
-                            entity_multi.feature = feature;
-                            entity_multi.point = {
-                                pixelSize: pixelSize,
-                                position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[i][0], feature.geometry.coordinates[i][1], feature.geometry.coordinates[i][2]),
-                                color: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                                outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                                outlineWidth: feature.effectiveStyle.strokeWidth
-                            };
-                            this.viewer.entities.add(entity_multi);
-                        }
-                        this.viewer.entities.remove(entity);
-                        break;
-                    case "POLYGON":
-                        entity.polygon = new Cesium.PolygonGraphics({
-                            hierarchy: this.createPolygon(feature.geometry.coordinates).hierarchy,
-                            material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                            outline: true,
-                            outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                            outlineWidth: feature.effectiveStyle.strokeWidth,
-                            extrudedHeight: height,
-                            perPositionHeight: true
-                        });
-                        break;
-                    case "MULTIPOLYGON":
-                        var polygons = this.createMultiPolygon(feature.geometry.coordinates);
-                        for (var i = 0; i < polygons.length; ++i) {
-                            var entity_multi = new Cesium.Entity();
-                            entity_multi.feature = feature;
-                            var polygon = new Cesium.PolygonGraphics({
-                                hierarchy: polygons[i].hierarchy,
-                                material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                                outline: true,
-                                outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                                outlineWidth: feature.effectiveStyle.strokeWidth,
-                                extrudedHeight: height,
-                                perPositionHeight: true
-                            });
-                            entity_multi.polygon = polygon;
-                            this.viewer.entities.add(entity_multi);
-                        }
-                        this.viewer.entities.remove(entity);
-                        break;
-                    case "LINESTRING":
-                        entity.polyline = new Cesium.PolylineGraphics({
-                            positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates),
-                            material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                            width: feature.effectiveStyle.strokeWidth,
-                        });
-                        break;
-                    case "MULTILINESTRING":
-                        for (var i = 0; i < feature.geometry.coordinates.length; i++) {
-                            var entity_multi = new Cesium.Entity();
-                            entity_multi.feature = feature;
-                            entity.polyline = new Cesium.PolylineGraphics({
-                                positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates[i]),
-                                material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
-                                width: feature.effectiveStyle.strokeWidth,
-                            });
-                            this.viewer.entities.add(entity_multi);
-                        }
-                        this.viewer.entities.remove(entity);
-                        break;
-                    default:
-                        alert('unknown geometry type: ' + feature.geometry.type);
-                        break;
-                }
-                // add a 3D model if we have one
-                if (feature.properties["FeatureTypeId"] === "3Dmodel") {
-                    var modelUri = feature.effectiveStyle.modelUri || feature.properties["modelUri"] || "";
-                    var modelScale = feature.effectiveStyle.modelScale || feature.properties["modelScale"] || 1;
-                    var modelMinimumPixelSize = feature.effectiveStyle.modelMinimumPixelSize || feature.properties["modelMinimumPixelSize"] || 32;
-                    entity.model = new Cesium.ModelGraphics({
-                        uri: modelUri,
-                        scale: modelScale,
-                        minimumPixelSize: modelMinimumPixelSize,
-                    });
-                    // Hide icon and point when we have a 3D model
-                    if (entity.billboard !== undefined)
-                        entity.billboard.show = false;
-                    if (entity.point !== undefined)
-                        entity.point.show = false;
-                }
-                //account for rotation
-                if (feature.properties["Track"] !== undefined) {
-                    var headingQuaternion = Cesium.Transforms.headingPitchRollQuaternion(Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]), Cesium.Math.toRadians(feature.properties["Track"]), 0, 0);
-                    entity.orientation = headingQuaternion;
-                }
-                return entity;
-            };
-            CesiumRenderer.prototype.createPolygon = function (coordinates) {
-                if (coordinates.length === 0 || coordinates[0].length === 0)
-                    return;
-                var polygon = new Cesium.PolygonGraphics();
-                var holes = [];
-                for (var i = 1, len = coordinates.length; i < len; i++)
-                    holes.push(new Cesium.PolygonHierarchy(this.coordinatesArrayToCartesianArray(coordinates[i])));
-                var positions = this.coordinatesArrayToCartesianArray(coordinates[0]);
-                polygon.hierarchy = new Cesium.PolygonHierarchy(positions, holes);
-                return polygon;
-            };
-            CesiumRenderer.prototype.createMultiPolygon = function (coordinates) {
-                var polygons = [];
-                for (var i = 0; i < coordinates.length; i++) {
-                    polygons.push(this.createPolygon(coordinates[i]));
-                }
-                return polygons;
-            };
-            CesiumRenderer.prototype.coordinatesArrayToCartesianArray = function (coordinates) {
-                var positions = new Array(coordinates.length);
-                for (var i = 0; i < coordinates.length; i++)
-                    positions[i] = this.defaultCrsFunction(coordinates[i]);
-                return positions;
-            };
-            CesiumRenderer.prototype.defaultCrsFunction = function (coordinates) {
-                return Cesium.Cartesian3.fromDegrees(coordinates[0], coordinates[1], coordinates[2]);
-            };
-            return CesiumRenderer;
-        })();
-        Services.CesiumRenderer = CesiumRenderer;
-    })(Services = csComp.Services || (csComp.Services = {}));
-})(csComp || (csComp = {}));
-
-var csComp;
-(function (csComp) {
-    var Services;
-    (function (Services) {
-        var LeafletRenderer = (function () {
-            function LeafletRenderer() {
-                this.title = "leaflet";
-                this.cntrlIsPressed = false;
-            }
-            LeafletRenderer.prototype.init = function (service) {
-                var _this = this;
-                this.service = service;
-                this.$messageBusService = service.$messageBusService;
-                $(document).keydown(function (e) {
-                    _this.cntrlIsPressed = e.ctrlKey;
-                });
-                $(document).keyup(function () {
-                    _this.cntrlIsPressed = false;
-                });
-            };
-            LeafletRenderer.prototype.enable = function () {
-                var _this = this;
-                if ($("map").length !== 1)
-                    return;
-                this.service.$mapService.map = L.map("map", {
-                    //var tl  = L.map("mapleft", {
-                    zoomControl: false,
-                    maxZoom: 19,
-                    attributionControl: true
-                });
-                this.map = this.service.$mapService.map;
-                this.service.$mapService.map.on('moveend', function (t, event) {
-                    var b = (_this.service.$mapService.map).getBounds();
-                    _this.$messageBusService.publish("mapbbox", "update", b.toBBoxString());
-                    var boundingBox = { southWest: [b.getSouthWest().lat, b.getSouthWest().lng], northEast: [b.getNorthEast().lat, b.getNorthEast().lng] };
-                    _this.service.$mapService.maxBounds = boundingBox;
-                });
-            };
-            LeafletRenderer.prototype.getLatLon = function (x, y) {
-                var position = this.map.containerPointToLatLng(new L.Point(x, y));
-                return { lat: position.lat, lon: position.lng };
-            };
-            LeafletRenderer.prototype.getExtent = function () {
-                var r = {};
-                if (this.map) {
-                    var b = this.map.getBounds();
-                    var sw = b.getSouthWest();
-                    var ne = b.getNorthEast();
-                    r.southWest = [sw.lat, sw.lng];
-                    r.northEast = [ne.lat, ne.lng];
-                }
-                return r;
-            };
-            LeafletRenderer.prototype.fitBounds = function (bounds) {
-                var southWest = L.latLng(bounds.southWest[0], bounds.southWest[1]);
-                var northEast = L.latLng(bounds.northEast[0], bounds.northEast[1]);
-                var lb = L.latLngBounds(southWest, northEast);
-                try {
-                    this.service.$mapService.map.fitBounds(lb);
-                }
-                catch (e) { }
-            };
-            LeafletRenderer.prototype.getZoom = function () {
-                return this.service.$mapService.map.getZoom();
-            };
-            LeafletRenderer.prototype.disable = function () {
-                this.service.$mapService.map.remove();
-                this.service.$mapService.map = null;
-                $("#map").empty();
-            };
-            LeafletRenderer.prototype.refreshLayer = function () {
-            };
-            LeafletRenderer.prototype.addGroup = function (group) {
-                // for clustering use a cluster layer
-                if (group.clustering) {
-                    group.cluster = new L.MarkerClusterGroup({
-                        maxClusterRadius: function (zoom) { if (zoom > 18) {
-                            return 2;
-                        }
-                        else {
-                            return group.maxClusterRadius || 80;
-                        } },
-                        disableClusteringAtZoom: group.clusterLevel || 0
-                    });
-                    this.service.map.map.addLayer(group.cluster);
-                }
-                else {
-                    group.vectors = new L.LayerGroup();
-                    this.service.map.map.addLayer(group.vectors);
-                }
-            };
-            LeafletRenderer.prototype.removeLayer = function (layer) {
-                switch (layer.renderType) {
-                    case "geojson":
-                        Services.GeojsonRenderer.remove(this.service, layer);
-                        break;
-                    default:
-                        if (this.service.map.map && layer.mapLayer)
-                            this.service.map.map.removeLayer(layer.mapLayer);
-                        break;
-                }
-            };
-            LeafletRenderer.prototype.changeBaseLayer = function (layerObj) {
-                if (layerObj == this.service.$mapService.activeBaseLayer)
-                    return;
-                if (this.baseLayer)
-                    this.service.map.map.removeLayer(this.baseLayer);
-                this.baseLayer = this.createBaseLayer(layerObj);
-                this.service.map.map.addLayer(this.baseLayer);
-                this.service.map.map.setZoom(this.service.map.map.getZoom());
-                this.service.map.map.fire('baselayerchange', { layer: this.baseLayer });
-            };
-            LeafletRenderer.prototype.createBaseLayer = function (layerObj) {
-                var options = { noWrap: true };
-                options['subtitle'] = layerObj.subtitle;
-                options['preview'] = layerObj.preview;
-                if (layerObj.subdomains != null)
-                    options['subdomains'] = layerObj.subdomains;
-                if (layerObj.maxZoom != null)
-                    options.maxZoom = layerObj.maxZoom;
-                if (layerObj.minZoom != null)
-                    options.minZoom = layerObj.minZoom;
-                if (layerObj.attribution != null)
-                    options.attribution = layerObj.attribution;
-                if (layerObj.id != null)
-                    options['id'] = layerObj.id;
-                var layer = L.tileLayer(layerObj.url, options);
-                return layer;
-            };
-            LeafletRenderer.prototype.getLeafletStyle = function (style) {
-                var s = {
-                    fillColor: style.fillColor,
-                    weight: style.strokeWidth,
-                    opacity: style.opacity,
-                    fillOpacity: style.fillOpacity
-                };
-                s["color"] = (typeof style.stroke !== 'undefined' && style.stroke === false)
-                    ? style.fillColor
-                    : style.strokeColor;
-                return s;
-            };
-            LeafletRenderer.prototype.addLayer = function (layer) {
-                switch (layer.renderType) {
-                    case "geojson":
-                        Services.GeojsonRenderer.render(this.service, layer, this);
-                        break;
-                    case "tilelayer":
-                        Services.TileLayerRenderer.render(this.service, layer);
-                        break;
-                    case "wms":
-                        Services.WmsRenderer.render(this.service, layer);
-                        break;
-                    case "gridlayer":
-                        Services.GridLayerRenderer.render(this.service, layer);
-                        break;
-                    case "heatmap":
-                        Services.HeatmapRenderer.render(this.service, layer, this);
-                        break;
-                }
-            };
-            /***
-             * Update map markers in cluster after changing filter
-             */
-            LeafletRenderer.prototype.updateMapFilter = function (group) {
-                var _this = this;
-                $.each(group.markers, function (key, marker) {
-                    var included;
-                    if (group.filterResult)
-                        included = group.filterResult.filter(function (f) { return f.id === key; }).length > 0;
-                    if (group.clustering) {
-                        var incluster = group.cluster.hasLayer(marker);
-                        if (!included && incluster)
-                            group.cluster.removeLayer(marker);
-                        if (included && !incluster)
-                            group.cluster.addLayer(marker);
-                    }
-                    else {
-                        //var onmap = group.vectors.hasLayer(marker);
-                        var onmap = _this.service.map.map.hasLayer(marker);
-                        if (!included && onmap)
-                            _this.service.map.map.removeLayer(marker);
-                        if (included && !onmap)
-                            _this.service.map.map.addLayer(marker);
-                    }
-                });
-            };
-            LeafletRenderer.prototype.removeGroup = function (group) { };
-            LeafletRenderer.prototype.removeFeature = function (feature) {
-                var layer = feature.layer;
-                switch (layer.renderType) {
-                    case "geojson":
-                        var g = layer.group;
-                        if (g.clustering) {
-                            var m = g.cluster;
-                            try {
-                                m.removeLayer(layer.group.markers[feature.id]);
-                                delete layer.group.markers[feature.id];
-                            }
-                            catch (error) { }
-                        }
-                        else {
-                            if (layer.group.markers.hasOwnProperty(feature.id)) {
-                                layer.mapLayer.removeLayer(layer.group.markers[feature.id]);
-                                layer.group.vectors.removeLayer(layer.group.markers[feature.id]);
-                                delete layer.group.markers[feature.id];
-                            }
-                        }
-                        break;
-                }
-                // var marker = <L.Marker>feature.layer.group.markers[feature.id];
-                // if (marker != null) {
-                //     feature.layer.mapLayer.removeLayer(marker);
-                //     delete feature.layer.group.markers[feature.id];
-                // }
-            };
-            LeafletRenderer.prototype.updateFeature = function (feature) {
-                if (feature.layer.group == null)
-                    return;
-                var marker = feature.layer.group.markers[feature.id];
-                if (marker == null)
-                    return;
-                if (feature.geometry.type === 'Point') {
-                    marker.setIcon(this.getPointIcon(feature));
-                    marker.setLatLng(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
-                }
-                else {
-                    marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
-                    if (feature.isSelected && feature.layer && !feature.layer.disableMoveSelectionToFront && feature.layer.group) {
-                        if ((feature.layer.group.clustering && feature.layer.group.cluster && feature.layer.group.cluster.hasLayer(marker))
-                            || feature.layer.group.markers.hasOwnProperty(marker.feature.id)) {
-                            marker.bringToFront();
-                        }
-                    }
-                }
-                if (feature.layer.isDynamic && marker.dragging) {
-                    if (this.canDrag(feature)) {
-                        marker.dragging.enable();
-                    }
-                    else {
-                        marker.dragging.disable();
-                    }
-                    ;
-                }
-            };
-            LeafletRenderer.prototype.selectFeature = function (feature) {
-                if (feature.gui.hasOwnProperty("dragged")) {
-                    delete feature.gui["dragged"];
-                }
-                else {
-                    this.service.selectFeature(feature, this.cntrlIsPressed);
-                }
-            };
-            LeafletRenderer.prototype.addFeature = function (feature) {
-                var _this = this;
-                if (feature.geometry != null) {
-                    var m = this.createFeature(feature);
-                    var l = feature.layer;
-                    l.group.markers[feature.id] = m;
-                    m.on({
-                        mouseover: function (a) { return _this.showFeatureTooltip(a, l.group); },
-                        mouseout: function (s) { return _this.hideFeatureTooltip(s); },
-                        mousemove: function (d) { return _this.updateFeatureTooltip(d); },
-                        click: function (e) {
-                            _this.selectFeature(feature);
-                        }
-                    });
-                    m.feature = feature;
-                    if (l.group.clustering && l.group.cluster) {
-                        l.group.cluster.addLayer(m);
-                    }
-                    else {
-                        if (l.mapLayer) {
-                            l.mapLayer.addLayer(m);
-                        }
-                    }
-                    return m;
-                }
-                else
-                    return null;
-            };
-            LeafletRenderer.prototype.canDrag = function (feature) {
-                return feature.gui.hasOwnProperty('editMode') && feature.gui['editMode'] == true;
-            };
-            /**
-             * add a feature
-             */
-            LeafletRenderer.prototype.createFeature = function (feature) {
-                var _this = this;
-                //this.service.initFeature(feature,layer);
-                //var style = type.style;
-                var marker;
-                switch (feature.geometry.type) {
-                    case 'Point':
-                        var icon = this.getPointIcon(feature);
-                        marker = new L.Marker(new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]), {
-                            icon: icon, draggable: this.canDrag(feature)
-                        });
-                        marker.on('contextmenu', function (e) {
-                            _this.service._activeContextMenu = _this.service.getActions(feature, Services.ActionType.Context);
-                            //e.stopPropagation();
-                            var button = $("#map-contextmenu-button");
-                            var menu = $("#map-contextmenu");
-                            button.dropdown('toggle');
-                            var mapSize = _this.map.getSize();
-                            if (e.originalEvent.x < (mapSize.x / 2)) {
-                                menu.css("left", e.originalEvent.x + 5);
-                            }
-                            else {
-                                menu.css("left", e.originalEvent.x - 5 - menu.width());
-                            }
-                            if (e.originalEvent.y < (mapSize.y / 2)) {
-                                menu.css("top", e.originalEvent.y - 35);
-                            }
-                            else {
-                                menu.css("top", e.originalEvent.y - 70 - menu.height());
-                            }
-                            if (_this.service.$rootScope.$$phase != '$apply' && _this.service.$rootScope.$$phase != '$digest') {
-                                _this.service.$rootScope.$apply();
-                            }
-                        });
-                        marker.on('dragstart', function (event) {
-                            feature.gui["dragged"] = true;
-                        });
-                        marker.on('dragend', function (event) {
-                            var marker = event.target;
-                            var position = marker.getLatLng();
-                            feature.geometry.coordinates = [position.lng, position.lat];
-                            //marker.setLatLng(new L.LatLng(), { draggable: 'false' });
-                            //map.panTo(new L.LatLng(position.lat, position.lng))
-                        });
-                        break;
-                    default:
-                        marker = L.GeoJSON.geometryToLayer(feature);
-                        marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
-                        marker.on('contextmenu', function (e) {
-                            _this.service._activeContextMenu = _this.service.getActions(feature, Services.ActionType.Context);
-                            //e.stopPropagation();
-                            var button = $("#map-contextmenu-button");
-                            var menu = $("#map-contextmenu");
-                            button.dropdown('toggle');
-                            var mapSize = _this.map.getSize();
-                            if (e.originalEvent.x < (mapSize.x / 2)) {
-                                menu.css("left", e.originalEvent.x + 5);
-                            }
-                            else {
-                                menu.css("left", e.originalEvent.x - 5 - menu.width());
-                            }
-                            if (e.originalEvent.y < (mapSize.y / 2)) {
-                                menu.css("top", e.originalEvent.y - 35);
-                            }
-                            else {
-                                menu.css("top", e.originalEvent.y - 70 - menu.height());
-                            }
-                            if (_this.service.$rootScope.$$phase != '$apply' && _this.service.$rootScope.$$phase != '$digest') {
-                                _this.service.$rootScope.$apply();
-                            }
-                        });
-                        //marker = L.multiPolygon(latlng, polyoptions);
-                        break;
-                }
-                marker.feature = feature;
-                feature.layer.group.markers[feature.id] = marker;
-                return marker;
-            };
-            /**
-             * create icon based of feature style
-             */
-            LeafletRenderer.prototype.getPointIcon = function (feature) {
-                var icon;
-                if (feature.htmlStyle != null) {
-                    icon = new L.DivIcon({
-                        className: '',
-                        iconSize: new L.Point(feature.effectiveStyle.iconWidth, feature.effectiveStyle.iconHeight),
-                        html: feature.htmlStyle
-                    });
-                }
-                else {
-                    var iconHtml = csComp.Helpers.createIconHtml(feature, this.service.getFeatureType(feature));
-                    icon = new L.DivIcon({
-                        className: '',
-                        iconSize: new L.Point(iconHtml['iconPlusBorderWidth'], iconHtml['iconPlusBorderHeight']),
-                        html: iconHtml['html']
-                    });
-                }
-                return icon;
-            };
-            /***
-             * Show tooltip with name, styles & filters.
-             */
-            LeafletRenderer.prototype.showFeatureTooltip = function (e, group) {
-                var _this = this;
-                var layer = e.target;
-                var feature = layer.feature;
-                // add title
-                var title = layer.feature.properties.Name;
-                var rowLength = (title) ? title.length : 1;
-                var content = '<td colspan=\'3\'>' + title + '</td></tr>';
-                // add filter values
-                if (group.filters != null && group.filters.length > 0) {
-                    group.filters.forEach(function (f) {
-                        if (!feature.properties.hasOwnProperty(f.property))
-                            return;
-                        var value = feature.properties[f.property];
-                        if (value) {
-                            var valueLength = value.toString().length;
-                            if (f.meta != null) {
-                                value = csComp.Helpers.convertPropertyInfo(f.meta, value);
-                                if (f.meta.type !== 'bbcode')
-                                    valueLength = value.toString().length;
-                            }
-                            rowLength = Math.max(rowLength, valueLength + f.title.length);
-                            content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
-                        }
-                    });
-                }
-                // add style values, only in case they haven't been added already as filter
-                if (group.styles != null && group.styles.length > 0) {
-                    group.styles.forEach(function (s) {
-                        if (group.filters != null && group.filters.filter(function (f) { return f.property === s.property; }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
-                            var value = feature.properties[s.property];
-                            var valueLength = value.toString().length;
-                            if (s.meta != null) {
-                                value = csComp.Helpers.convertPropertyInfo(s.meta, value);
-                                if (s.meta.type !== 'bbcode')
-                                    valueLength = value.toString().length;
-                            }
-                            var tl = s.title ? s.title.length : 10;
-                            rowLength = Math.max(rowLength, valueLength + tl);
-                            content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
-                        }
-                    });
-                }
-                var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
-                content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
-                this.popup = L.popup({
-                    offset: new L.Point(-widthInPixels / 2 - 40, -5),
-                    closeOnClick: true,
-                    autoPan: false,
-                    className: 'featureTooltip'
-                }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
-                //In case a contour is available, show it.
-                var hoverActions = this.service.getActions(feature, Services.ActionType.Hover);
-                hoverActions.forEach(function (ha) {
-                    if (ha.title.toLowerCase() === 'show') {
-                        ha.callback(feature, _this.service);
-                    }
-                });
-            };
-            LeafletRenderer.prototype.hideFeatureTooltip = function (e) {
-                var _this = this;
-                if (this.popup && this.service.map.map) {
-                    this.service.map.map.closePopup(this.popup);
-                    //this.map.map.closePopup(this.popup);
-                    this.popup = null;
-                }
-                //In case a contour is being shown, hide it.
-                var layer = e.target;
-                var feature = layer.feature;
-                if (feature) {
-                    var hoverActions = this.service.getActions(feature, Services.ActionType.Hover);
-                    hoverActions.forEach(function (ha) {
-                        if (ha.title.toLowerCase() === 'hide') {
-                            ha.callback(feature, _this.service);
-                        }
-                    });
-                }
-            };
-            LeafletRenderer.prototype.updateFeatureTooltip = function (e) {
-                if (this.popup != null && e.latlng != null)
-                    this.popup.setLatLng(e.latlng);
-            };
-            return LeafletRenderer;
-        })();
-        Services.LeafletRenderer = LeafletRenderer;
     })(Services = csComp.Services || (csComp.Services = {}));
 })(csComp || (csComp = {}));

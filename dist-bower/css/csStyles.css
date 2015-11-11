@@ -26,15 +26,15 @@
 webfont
 ------------------------*/
 @font-face {
-  font-family: "ROSans";
+  font-family: "Sans-serif";
   font-style: normal;
   font-weight: normal;
-  src: url("ROsanswebtextregular.ttf") format("opentype"); }
+  /*src: url("ROsanswebtextregular.ttf") format("opentype");*/ }
 
 html,
 body,
 #map {
-  font-family: ROSans;
+  /*font-family: ROSans;*/
   height: 100%;
   overflow: hidden;
   width: 100%; }
@@ -1611,7 +1611,13 @@ input[type="checkbox"] {
 .leftpanel-tab {
   background-color: #b5a3c1;
   height: 100%;
-  width: 70px; }
+  width: 70px;
+  margin-right: -70px;
+  position: relative;
+  float: left;
+  padding-right: 15px;
+  padding-left: 15px;
+  z-index: 1; }
 
 .table-condensed > tbody > tr > td {
   border-bottom: 1px;
@@ -1631,7 +1637,6 @@ input[type="checkbox"] {
   padding-top: 5px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 100%;
   width: 100%; }
 
 .leftpanel-header {
@@ -1646,7 +1651,12 @@ input[type="checkbox"] {
 
 .leftpanel-content {
   border-top: solid 40px #b5a3c1;
-  width: 280px; }
+  width: 100%;
+  padding-left: 85px;
+  float: left;
+  position: relative;
+  padding-right: 15px;
+  z-index: 0; }
 
 /* Header bar should be overwritten by children, so if you increase the border-top height above, you should match it here */
 .leftpanel-content > .tab-content {

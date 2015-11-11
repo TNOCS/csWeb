@@ -20,6 +20,7 @@ var deploy        = require('gulp-gh-pages');
 var sass          = require('gulp-sass');
 var purify        = require('gulp-purifycss');
 var karma         = require('karma');
+var concatCss = require('gulp-concat-css');
 
 function run(command, cb) {
   console.log('Run command: ' + command);
@@ -58,6 +59,23 @@ gulp.task('comp_tsconfig_files', function() {
       path:         'csComp/tsconfig.json',
       relative_dir: 'csComp/',
     }));
+});
+
+gulp.task('thirdparty-js', function() {
+    return gulp.src('./csComp/includes/js/*.js')
+        .pipe(concat('csThirdparty.js'))
+        .pipe(plumber())
+        // .pipe(uglify())
+        // .pipe(rename({
+        //     suffix: '.min'
+        // }))
+        .pipe(gulp.dest('./dist-bower'));
+});
+
+gulp.task('thirdparty-css', function() {
+    return gulp.src('./csComp/includes/css/*.css')
+        .pipe(concatCss('csThirdparty.css'))
+        .pipe(gulp.dest('./dist-bower'));
 });
 
 // This task compiles typescript on csComp
