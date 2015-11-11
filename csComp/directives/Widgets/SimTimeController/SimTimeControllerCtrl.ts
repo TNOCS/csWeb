@@ -26,6 +26,8 @@ module SimTimeController {
     }
 
     export class SimTimeControllerCtrl {
+        private timeSinceSimulationStart: number;
+        public timeSinceStartString: string = '00:00';
         private scope: ISimTimeControllerScope;
         private fsm: FSM.FiniteStateMachine<PlayState>;
         /** REST endpoint method */
@@ -83,6 +85,7 @@ module SimTimeController {
             this.url = this.editorData.url || 'api/keys/simTime';
 
             this.fsm = new FSM.FiniteStateMachine<PlayState>(PlayState.Stopped);
+            this.fsm.fromAny(PlayState).to(PlayState.Stopped).on(SimCommand.Stop);
             this.fsm.from(PlayState.Stopped).to(PlayState.Playing).on(SimCommand.Start);
             this.fsm.from(PlayState.Playing).to(PlayState.Stopped).on(SimCommand.Stop);
             this.fsm.from(PlayState.Playing).to(PlayState.Paused).on(SimCommand.Pause);
@@ -95,6 +98,9 @@ module SimTimeController {
 
             this.fsm.onEnter(PlayState.Stopped, (from: PlayState) => {
                 this.$timeout(() => {
+                    this.time = this.startTime;
+                    this.timeSinceSimulationStart = 0;
+                    this.updateTimeSinceSimStart();
                     this.isStopped = true;
                     this.isPlaying = false;
                     this.isPaused = false;
@@ -123,40 +129,29 @@ module SimTimeController {
                 return true;
             });
 
-            $http.get(this.url)
-                .then((msg) => {
-                // TODO Why does this always return an empty msg.data element
-                // console.log('Received message: ');
-                // console.log(msg);
-                // console.log(JSON.stringify(msg, null, 2));
-            })
-            // var handle = messageBusService.serverSubscribe('Sim.SimState.SimulationManager', 'key', (title: string, msg: any) => {
-            //     if (!msg
-            //         || !msg.hasOwnProperty('data')
-            //         || !msg.data.hasOwnProperty('item')) return;
-            //     var state = <SimState.ISimState> msg.data.item;
-            //     switch (state.state) {
-            //         case 'Ready':
-            //             this.fsm.currentState = PlayState.Playing;
-            //             break;
-            //         case 'Stopped':
-            //             this.fsm.currentState = PlayState.Stopped;
-            //             break;
-            //         case 'Paused':
-            //             this.fsm.currentState = PlayState.Paused;
-            //             break;
-            //     }
-            //     this.messageBusService.serverUnsubscribe(handle);
-            //     //if (this.fsm.currentState !== PlayState.Playing) this.fsm.trigger(SimCommand.Start);
+            // $http.get(this.url)
+            //     .then((msg) => {
+            //     // TODO Why does this always return an empty msg.data element
+            //     // console.log('Received message: ');
+            //     // console.log(msg);
+            //     // console.log(JSON.stringify(msg, null, 2));
             // })
-
-            // messageBusService.publish('timeline', 'setFocus', this.time);
-
-            // messageBusService.subscribe('Sim', (action: string, data: any) => {
-            //     console.log(`action: ${action}, data: ${JSON.stringify(data, null, 2) }`);
-            // });
-            //
             console.log(`Simtimecontroller constructed`);
+        }
+
+        private updateTimeSinceSimStart() {
+            var msec = this.time.valueOf() - this.startTime.valueOf();
+            var days = Math.floor(msec / 86400000);
+            msec -= days * 86400000;
+            var hours = Math.floor(msec / 3600000);
+            msec -= hours * 3600000;
+            var minutes = Math.floor(msec / 60000);
+            msec -= minutes * 60000;
+            var seconds = Math.floor(msec / 1000);
+            var result = '';
+            if (days > 0) result = `${days}d `;
+            result += `${hours < 10 ? '0'+hours : hours}:${minutes < 10 ? '0'+minutes : minutes}`;
+            this.timeSinceStartString = result;
         }
 
         private subscribeToSimTime() {
@@ -172,6 +167,7 @@ module SimTimeController {
                     else
                         this.time = new Date(msg.data.item);
                     if (!isNaN(this.time.getTime())) {
+                        this.updateTimeSinceSimStart();
                         this.messageBusService.publish('timeline', 'setFocus', this.time);
                         //console.log(`Simtimecontroller published focusTime: ${this.time}`);
                     } else {

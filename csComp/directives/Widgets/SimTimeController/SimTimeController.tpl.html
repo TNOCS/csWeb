@@ -25,7 +25,10 @@
         <a href="#">
             <img src="cs/images/widgets/Speed.png" alt="Speed" style="margin: 5px 5px 5px 0;">
         </a>
-        <span style="font-size: 2em">{{vm.speed}}x</span>
+        <div align="right" class="verticalstack">
+            <span data-toggle="tooltip" title="Current simulation speed.">{{vm.speed}}x</span>
+            <span data-toggle="tooltip" title="Simulation run time.">{{vm.timeSinceStartString}}</span>
+        </div>
     </div>
 
     <div class="horizontalstack" style="font-size: 2em;">
