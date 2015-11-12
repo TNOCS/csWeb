@@ -54,7 +54,7 @@ module Heatmap {
         ) {
           $scope.vm = this;
 
-          messageBusService.subscribe('layer',(title, layer) => {//, layer: csComp.Services.ProjectLayer) => {
+          messageBusService.subscribe('layer', (title, layer) => {//, layer: csComp.Services.ProjectLayer) => {
               switch (title) {
                   case 'deactivate':
                       /* For an explanation to the removing of layers, see the bottom of this file */
