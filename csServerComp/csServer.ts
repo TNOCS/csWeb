@@ -5,6 +5,10 @@ import Winston = require('winston');
 
 import csweb = require('./index');
 
+export class csServerOptions {
+    port = 3002;
+}
+
 export class csServer {
 
     public server = express();
@@ -13,7 +17,7 @@ export class csServer {
     public httpServer;
     public config: csweb.ConfigurationService
 
-    constructor(public dir: string) {
+    constructor(public dir: string, public options = new csServerOptions()) {
 
     }
 
@@ -30,14 +34,15 @@ export class csServer {
         //require('http').setMaxHeaderLength(26214400);
 
         // all environments
-        var port = "3002";
-        this.server.set('port', port);
+        this.options.port = this.options.port;
+
+        this.server.set('port', this.options.port);
         this.server.use(favicon(this.dir + '/public/favicon.ico'));
         //increased limit size, see: http://stackoverflow.com/questions/19917401/node-js-express-request-entity-too-large
         this.server.use(bodyParser.json({ limit: '25mb' })); // support json encoded bodies
         this.server.use(bodyParser.urlencoded({ limit: '25mb', extended: true })); // support encoded bodies
 
-        this.config.add("server", "http://localhost:" + port);
+        this.config.add("server", "http://localhost:" + this.options.port);
 
         // Select BAG-database source: either a (remote) Postgresql server (1st line) or a (local) sqlite3-db.
         var bagDatabase = new csweb.BagDatabase(this.config);
