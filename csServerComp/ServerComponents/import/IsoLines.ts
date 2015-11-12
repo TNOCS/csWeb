@@ -203,7 +203,7 @@ export class IsoLines {
                 break;
             default:
                 throw new Error('Current projection is not supported!')
-                break;
+               // break;
         }
     }
 

@@ -6,7 +6,7 @@ import ApiMeta = ApiManager.ApiMeta;
 
 
 
-    GetDataSource: Function;
+    //GetDataSource: Function;
     export class MsgSubscription {
         public id: string;
         public type: string;

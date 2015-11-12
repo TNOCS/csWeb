@@ -9,7 +9,8 @@ csCompTests/csComp/
 *.orig
 *.config
 
-dist-csServerComp/
+dist-csServerComp/**/*.js
+dist-csServerComp/**/*.d.ts
 
 csComp/js/
 csComp/node_modules/
