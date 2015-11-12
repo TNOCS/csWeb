@@ -167,11 +167,12 @@ gulp.task('init', function(cb) {
     'servercomp_tsd',
     'servercomp_tsconfig_files',
     'servercomp_tsc',
-    'example_deps',
+    //'example_deps',
+    'built_csComp',
     // Do we need an example TSD task ?
     'built_csComp.d.ts',
-    'example_tsconfig_files',
-    'example_tsc',
+    //'example_tsconfig_files',
+    //'example_tsc',
     cb
   );
 });
