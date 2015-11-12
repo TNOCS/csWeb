@@ -171,6 +171,11 @@ gulp.task('init', function(cb) {
     'built_csComp',
     // Do we need an example TSD task ?
     'built_csComp.d.ts',
+    'thirdparty-js',
+    'thirdparty-css',
+    'include_js',
+    'include_css',
+    'include_images',
     //'example_tsconfig_files',
     //'example_tsc',
     cb
