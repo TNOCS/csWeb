@@ -11,6 +11,7 @@ csCompTests/csComp/
 
 dist-csServerComp/**/*.js
 dist-csServerComp/**/*.d.ts
+dist-bower/**/*.*
 
 csComp/js/
 csComp/node_modules/
