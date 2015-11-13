@@ -1,10 +1,11 @@
 {
-    "name": "csWeb",
-    "version": "0.1.11",
+    "name": "csweb",
+    "version": "0.2.1",
     "main": "dist-bower/csComp.js",
     "ignore": [
         "csComp",
         "csServerComp",
+        "dist-npm",
         "example",
         "docs",
         "test",

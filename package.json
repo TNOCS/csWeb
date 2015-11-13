@@ -1,9 +1,9 @@
 {
   "name": "csweb",
-  "version": "0.1.16",
+  "version": "0.2.01",
   "description": "CommonSense web application",
-  "main": "dist-csServerComp/index.js",
-  "typings": "dist-csServerComp/index",
+  "main": "dist-npm/index.js",
+  "typings": "dist-npm/index",
   "author": {
     "name": "Arnoud de Jong",
     "email": "damylen@gmail.com"
