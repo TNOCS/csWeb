@@ -40,17 +40,17 @@ var gulp          = require('gulp'),
     concatCss     = require('gulp-concat-css');
 
 function run(command, cb) {
-    console.log('Run command: ' + command);
-    try {
-        exec(command);
-        cb();
-    } catch (err) {
-        console.log('### Exception encountered on command: ' + command);
-        console.log(err.stdout.toString());
-        console.log('####################################');
-        cb();
-        throw err;
-    }
+  console.log('Run command: ' + command);
+  try {
+    exec(command);
+    cb();
+  } catch (err) {
+    console.log('### Exception encountered on command: ' + command);
+    console.log(err.stdout.toString());
+    console.log('####################################');
+    cb(err);
+    /* throw err; */
+  }
 }
 // This task runs tsd command on csComp folder
 gulp.task('comp_tsd', function(cb) {
@@ -62,7 +62,7 @@ gulp.task('comp_tsd', function(cb) {
 
 // This task updates the typescript dependencies on tsconfig file for csComp
 gulp.task('comp_tsconfig_files', function() {
-    gulp.src(['./csComp/**/*.ts',
+    return gulp.src(['./csComp/**/*.ts',
             //'./csComp/**/*.ts',
             //'!./csComp/dist/csComp.d.ts',
             '!./csComp/js/**/*.d.ts',
@@ -109,7 +109,7 @@ gulp.task('servercomp_tsd', function(cb) {
 
 // This task updates the typescript dependencies on tsconfig file for csServerComp
 gulp.task('servercomp_tsconfig_files', function() {
-    gulp.src(['csServerComp/**/*.ts',
+    return gulp.src(['csServerComp/**/*.ts',
             '!csServerComp/OfflineSearch/**/*.ts',
             '!csServerComp/ServerComponents/**/*.d.ts',
             //'!csServerComp/node_modules/**/*.ts',
@@ -137,7 +137,7 @@ gulp.task('test_tsd', function(cb) {
 });
 
 gulp.task('test_tsconfig_files', function() {
-    gulp.src(['./test/**/*.ts',
+    return gulp.src(['./test/**/*.ts',
             '!./test/node_modules/**/*.ts',
         ], {
             base: 'test'
@@ -209,14 +209,15 @@ gulp.task('karma', function(cb) {
     }, cb).start();
 });
 
-gulp.task('test', function() {
+gulp.task('test', function(cb) {
     runSequence(
         //'built_csServerComp.d.ts',
         'built_csComp.d.ts',
         'test_tsd',
         'test_tsconfig_files',
         'test_tsc',
-        'karma'
+        'karma',
+	cb
     );
 });
 
