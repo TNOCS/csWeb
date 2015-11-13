@@ -74,7 +74,6 @@ module Heatmap {
                               }
                           }
                       }
-                      //this.updateHeatmap();
                       break;
               }
           });
@@ -93,9 +92,7 @@ module Heatmap {
                       this.initializeHeatmap();
                       break;
               }
-          });
-
-          /*messageBusService.subscribe('feature', this.featureMessageReceived);*/
+          })
 
           $translate('HEATMAP.DELETE_MSG').then(translation => {
               HeatmapCtrl.confirmationMsg1 = translation;

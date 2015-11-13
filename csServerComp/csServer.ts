@@ -10,7 +10,6 @@ export class csServerOptions {
 }
 
 export class csServer {
-
     public server = express();
     public cm: csweb.ConnectionManager;
     public messageBus: csweb.MessageBusService;
@@ -21,8 +20,7 @@ export class csServer {
 
     }
 
-    public start(started: Function) {
-
+    public start(started: Function) { 
         var favicon = require('serve-favicon');
         var bodyParser = require('body-parser')
         this.httpServer = require('http').Server(this.server);

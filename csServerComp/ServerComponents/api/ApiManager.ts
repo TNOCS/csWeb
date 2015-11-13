@@ -55,7 +55,6 @@ export class CallbackResult {
     public key: Key;
 }
 
-
 /** Event emitted by the ApiManager */
 export enum Event {
     KeyChanged, PropertyChanged, FeatureChanged, LayerChanged, ProjectChanged
