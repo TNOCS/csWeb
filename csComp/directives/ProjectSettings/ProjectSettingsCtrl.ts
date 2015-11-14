@@ -36,14 +36,15 @@ module ProjectSettings {
         }
 
         updateProject() {
-            console.log('Update project called');
+            console.log('Updating project');
             this.$timeout(() => {
                 var data = this.$layerService.project.serialize();
-                var url = this.$layerService.projectUrl.url.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
+                var url = this.$layerService.projectUrl.url; 
+                //.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
                 console.log('URL: ' + url);
                 $.ajax({
                     url: url,
-                    type: "POST",
+                    type: "PUT",
                     data: data,
                     contentType: "application/json",
                     complete: this.updateProjectReady
