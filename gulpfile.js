@@ -583,13 +583,13 @@ gulp.task('watch', function() {
     gulp.watch(path2csWeb + 'csComp/js/**/*.js', ['built_csComp', 'built_csComp.d.ts']);
     gulp.watch(path2csWeb + 'csComp/**/*.tpl.html', ['create_templateCache']);
     gulp.watch(path2csWeb + 'csComp/includes/**/*.scss', ['sass']);
-    gulp.watch(path2csWeb + 'csComp/includes/**/*.css', ['include_css']);
+    gulp.watch(path2csWeb + 'csComp/includes/**/*.css', ['include_css','thirdparty-css']);
     gulp.watch(path2csWeb + 'csComp/includes/images/*.*', ['include_images']);
     //gulp.watch(path2csWeb + 'csServerComp/Scripts/**/*.ts', ['built_csServerComp_scripts']);
     //gulp.watch(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts', ['built_csServerComp.d.ts']);
     //gulp.watch(path2csWeb + 'csServerComp/ServerComponents/dynamic/ClientConnection.d.ts', ['built_csServerComp.d.ts']);
     //gulp.watch(path2csWeb + 'csComp/js/**/*.d.ts', ['built_csComp.d.ts']);
-    //gulp.watch(path2csWeb + 'csComp/includes/**/*.js', ['include_js']);
+    gulp.watch(path2csWeb + 'csComp/includes/**/*.js', ['include_js','thirdparty-js']);
 });
 
 // Initiallize the project and update the npm and bower package folders
