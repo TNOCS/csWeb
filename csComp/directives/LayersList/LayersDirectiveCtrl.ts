@@ -172,14 +172,13 @@ module LayersDirective {
             
             if (this.layerResourceType === "<new>") {
                         this.selectedLayer.typeUrl = "/api/resources/" + this.selectedLayer.title;
-                        var r = <csComp.Services.TypeResource>{ id: this.selectedLayer.title, title: this.selectedLayer.title, featureTypes: {}, propertyTypeData: {} };
-                        this.$http.post("/api/resources", r)
-                            .success((data) => {
-
-                        })
-                            .error((e) => {
-                            console.log('error adding resource');
-                        });
+                        
+                        var r = <csComp.Services.TypeResource>{ id: this.selectedLayer.title, title: this.selectedLayer.title, featureTypes: { }, propertyTypeData: {} };
+                        r.featureTypes["default"] = <csComp.Services.IFeatureType>{ name : "default", style : <csComp.Services.IFeatureTypeStyle>{
+                            drawingMode : "Point"
+                        }}; 
+                        this.$layerService.saveResource(r);
+                        
                     }
                     else {
                         this.selectedLayer.typeUrl = this.layerResourceType;

@@ -45,7 +45,7 @@
     <h4 style="position:absolute;right:3px;top:45px">
         <div ng-show="vm.$mapService.isAdminExpert && !feature.gui.editMode" style="float:right">
             <button tooltip-html-unsafe="{{'CONFIG' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-cog leftpanel-header-button" ng-show="!configMode" ng-click="configMode=true" />
-            <button tooltip-html-unsafe="{{'DONE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false" />
+            <button tooltip-html-unsafe="{{'DONE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="vm.saveFeatureType();configMode=false" />
         </div>
         <div ng-show="!configMode && feature.layer.isDynamic" style="float:right">
             <button tooltip-html-unsafe="{{'EDIT' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!feature.gui.editMode" ng-click="vm.startEditFeature()"

@@ -106,7 +106,7 @@ module csComp.Services {
             public $rootScope: any,
             public geoService: GeoService,
             public $http: ng.IHttpService
-            ) {
+        ) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
             this.mb = $messageBusService;
@@ -466,7 +466,7 @@ module csComp.Services {
                     
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
-                    
+
                     if (!this.layerSources.hasOwnProperty(layerSource)) {
                         // We don't know how to deal with an unknown layer source, so stop here.
                         layer.isLoading = false;
@@ -517,6 +517,17 @@ module csComp.Services {
             ]);
         }
 
+        public saveResource(resource: TypeResource) {
+            console.log('saving feature type');
+            this.$http.post("/api/resources", resource)
+                .success((data) => {
+                    console.log('resource saved');
+                })
+                .error((e) => {
+                    console.log('error saving resource');
+                });
+        }
+
         public expandGroup(layer: ProjectLayer) {
             // expand the group in the layerlist if it is collapsed
             if (!layer || !layer.group) return;
@@ -562,20 +573,20 @@ module csComp.Services {
                         var success = false;
                         this.$http.get(url)
                             .success((resource: TypeResource) => {
-                            success = true;
-                            if (resource) {
-                                resource.url = url;
-                                this.initTypeResources(resource);
-                                this.$messageBusService.publish("typesource", url, resource);
-                            } else {
-                                this.$messageBusService.notify('Error loading resource type', url);
-                            }
-                            callback();
-                        })
+                                success = true;
+                                if (resource) {
+                                    resource.url = url;
+                                    this.initTypeResources(resource);
+                                    this.$messageBusService.publish("typesource", url, resource);
+                                } else {
+                                    this.$messageBusService.notify('Error loading resource type', url);
+                                }
+                                callback();
+                            })
                             .error((err) => {
-                            this.$messageBusService.notify('ERROR loading TypeResources', 'While loading: ' + url);
-                            console.log(err)
-                        });
+                                this.$messageBusService.notify('ERROR loading TypeResources', 'While loading: ' + url);
+                                console.log(err)
+                            });
                         setTimeout(() => {
                             if (!success) {
                                 callback();
@@ -1241,6 +1252,19 @@ module csComp.Services {
                 if (locale.options != null) pt.options = locale.options;
             };
         }
+        
+        public findResourceByFeature(feature : IFeature)
+        {
+            if (feature.layer && feature.layer.typeUrl)
+            {
+             var typeUrl = feature.layer.typeUrl;
+                if (this.typesResources.hasOwnProperty(typeUrl))
+                {
+                    return this.typesResources[typeUrl];
+                }
+                else return null;
+            } else return null;
+        }
 
         /**
          * find a filter for a specific group/property combination
@@ -1837,74 +1861,74 @@ module csComp.Services {
 
             this.$http.get(url)
                 .success((solution: Solution) => {
-                if (solution.maxBounds) {
-                    this.maxBounds = solution.maxBounds;
-                    this.$mapService.map.setMaxBounds(new L.LatLngBounds(
-                        L.latLng(solution.maxBounds.southWest[0], solution.maxBounds.southWest[1]),
-                        L.latLng(solution.maxBounds.northEast[0], solution.maxBounds.northEast[1])));
-                }
-                if (solution.viewBounds) {
-                    this.activeMapRenderer.fitBounds(solution.viewBounds);
-                }
-
-                if (solution.baselayers) {
-                    solution.baselayers.forEach(b => {
-                        var baselayer: BaseLayer = new BaseLayer();
-
-                        if (b.subdomains != null) baselayer.subdomains = b.subdomains;
-                        if (b.maxZoom != null) baselayer.maxZoom = b.maxZoom;
-                        if (b.minZoom != null) baselayer.minZoom = b.minZoom;
-                        if (b.attribution != null) baselayer.attribution = b.attribution;
-                        if (b.id != null) baselayer.id = b.id;
-                        if (b.title != null) baselayer.title = b.title;
-                        if (b.subtitle != null) baselayer.subtitle = b.subtitle;
-                        if (b.preview != null) baselayer.preview = b.preview;
-                        if (b.url != null) baselayer.url = b.url;
-                        if (b.cesium_url != null) baselayer.cesium_url = b.cesium_url;
-                        if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
-
-                        this.$mapService.baseLayers[b.title] = baselayer;
-                        if (b.isDefault) {
-                            this.activeMapRenderer.changeBaseLayer(baselayer);
-                            this.$mapService.changeBaseLayer(b.title);
-                        }
-                    });
-                }
-
-                if (this.openSingleProject) {
-                    var u = 'api/projects/' + searchParams['project'];
-                    this.$http.get(u)
-                        .success(<Project>(data) => {
-                        if (data) {
-                            this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
-                        }
-                    })
-                        .error((data) => {
-                        this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
-                    })
-                }
-
-                if (solution.projects && solution.projects.length > 0) {
-                    var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title === initialProject; })[0];
-                    if (p != null) {
-                        this.openProject(p, layers);
-                    } else {
-                        this.openProject(solution.projects[0], layers);
+                    if (solution.maxBounds) {
+                        this.maxBounds = solution.maxBounds;
+                        this.$mapService.map.setMaxBounds(new L.LatLngBounds(
+                            L.latLng(solution.maxBounds.southWest[0], solution.maxBounds.southWest[1]),
+                            L.latLng(solution.maxBounds.northEast[0], solution.maxBounds.northEast[1])));
                     }
-                }
-                // make sure a default WidgetStyle exists
-                if (!solution.widgetStyles) solution.widgetStyles = {};
-                if (!solution.widgetStyles.hasOwnProperty('default')) {
-                    var defaultStyle = new WidgetStyle();
-                    defaultStyle.background = "red";
-                    solution.widgetStyles["default"] = defaultStyle;
-                }
+                    if (solution.viewBounds) {
+                        this.activeMapRenderer.fitBounds(solution.viewBounds);
+                    }
 
-                this.solution = solution;
-            })
+                    if (solution.baselayers) {
+                        solution.baselayers.forEach(b => {
+                            var baselayer: BaseLayer = new BaseLayer();
+
+                            if (b.subdomains != null) baselayer.subdomains = b.subdomains;
+                            if (b.maxZoom != null) baselayer.maxZoom = b.maxZoom;
+                            if (b.minZoom != null) baselayer.minZoom = b.minZoom;
+                            if (b.attribution != null) baselayer.attribution = b.attribution;
+                            if (b.id != null) baselayer.id = b.id;
+                            if (b.title != null) baselayer.title = b.title;
+                            if (b.subtitle != null) baselayer.subtitle = b.subtitle;
+                            if (b.preview != null) baselayer.preview = b.preview;
+                            if (b.url != null) baselayer.url = b.url;
+                            if (b.cesium_url != null) baselayer.cesium_url = b.cesium_url;
+                            if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
+
+                            this.$mapService.baseLayers[b.title] = baselayer;
+                            if (b.isDefault) {
+                                this.activeMapRenderer.changeBaseLayer(baselayer);
+                                this.$mapService.changeBaseLayer(b.title);
+                            }
+                        });
+                    }
+
+                    if (this.openSingleProject) {
+                        var u = 'api/projects/' + searchParams['project'];
+                        this.$http.get(u)
+                            .success(<Project>(data) => {
+                                if (data) {
+                                    this.parseProject(data, <SolutionProject>{ title: data.title, url: data.url, dynamic: true }, []);
+                                }
+                            })
+                            .error((data) => {
+                                this.$messageBusService.notify('ERROR loading project', 'while loading: ' + u);
+                            })
+                    }
+
+                    if (solution.projects && solution.projects.length > 0) {
+                        var p = solution.projects.filter((aProject: SolutionProject) => { return aProject.title === initialProject; })[0];
+                        if (p != null) {
+                            this.openProject(p, layers);
+                        } else {
+                            this.openProject(solution.projects[0], layers);
+                        }
+                    }
+                    // make sure a default WidgetStyle exists
+                    if (!solution.widgetStyles) solution.widgetStyles = {};
+                    if (!solution.widgetStyles.hasOwnProperty('default')) {
+                        var defaultStyle = new WidgetStyle();
+                        defaultStyle.background = "red";
+                        solution.widgetStyles["default"] = defaultStyle;
+                    }
+
+                    this.solution = solution;
+                })
                 .error(() => {
-                this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
-            });
+                    this.$messageBusService.notify('ERROR loading solution', 'while loading: ' + url);
+                });
         }
 
         /**
@@ -1949,12 +1973,12 @@ module csComp.Services {
             if (!project) {
                 this.$http.get(solutionProject.url)
                     .success((prj: Project) => {
-                    this.parseProject(prj, solutionProject, layerIds);
-                    //alert('project open ' + this.$location.absUrl());
-                })
+                        this.parseProject(prj, solutionProject, layerIds);
+                        //alert('project open ' + this.$location.absUrl());
+                    })
                     .error(() => {
-                    this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
-                });
+                        this.$messageBusService.notify('ERROR loading project', 'while loading: ' + solutionProject.url);
+                    });
             } else {
                 this.parseProject(project, solutionProject, layerIds);
             }
@@ -2020,8 +2044,8 @@ module csComp.Services {
                             this.loadTypeResources(item, false, () => cb(null));
 
                         }, () => {
-                                callback(null, null);
-                            })
+                            callback(null, null);
+                        })
 
 
                     } else {

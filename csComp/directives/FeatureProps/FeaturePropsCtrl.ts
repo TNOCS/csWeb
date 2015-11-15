@@ -280,7 +280,7 @@ module FeatureProps {
             private $layerService: csComp.Services.LayerService,
             private $messageBusService: csComp.Services.MessageBusService,
             private $translate: ng.translate.ITranslateService
-            ) {
+        ) {
             this.setDropdownTitle();
 
 
@@ -355,6 +355,15 @@ module FeatureProps {
                 });
             }
         }
+
+        public saveFeatureType() {
+            var resource = this.$layerService.findResourceByFeature(this.$scope.feature);
+            if (resource) this.$layerService.saveResource(resource);
+            
+            
+            
+        }
+
 
         public selectProperty(prop: IPropertyType, $event: ng.IAngularEvent) {
             this.lastSelectedProperty = prop;

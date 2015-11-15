@@ -23,7 +23,7 @@
             <div class="row">
                 <div class="col-md-6 checkbox dashboard-edit-checkbox">
                     <div class="rightpanel-label">Type</div>
-                    <select data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line']" class="form-control"></select>
+                    <select data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line','Polygon']" class="form-control"></select>
                 </div>
             </div>
             <div ng-show="featureType.style['drawingMode'] == 'Point'">
