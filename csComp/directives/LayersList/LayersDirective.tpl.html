@@ -66,11 +66,15 @@
                         <!-- <option ng-repeat="g in vm.$layerService.project.groups" ng-value="g.id">{{g.title}}</option> -->
                     </select>
                 </div>
-
                 <div class="form-group" ng-show="vm.layerGroup=='<new>'">
                     <label class="editor-title input-xlarge">New Group</label>
                     <input type="text" class="form-control" id="layerTitle" ng-model="vm.newGroup" placeholder="Enter group title">
                 </div>
+                <div class="form-group" ng-hide="vm.selectedLayer.typeUrl" >
+                <label class="editor-title input-xlarge">Types</label>
+                <select data-ng-model="vm.layerResourceType" ng-options="k as v.title for (k,v) in vm.resources" class="form-control tt-input editor-text-input"
+                required />
+            </div>
                 <button type="button" class="btn btn-primary" data-ng-click="vm.addProjectLayer()">Add layer</button>
             </div>
 

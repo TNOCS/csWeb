@@ -169,6 +169,22 @@ module LayersDirective {
         }
 
         public addProjectLayer() {
+            
+            if (this.layerResourceType === "<new>") {
+                        this.selectedLayer.typeUrl = "/api/resources/" + this.selectedLayer.title;
+                        var r = <csComp.Services.TypeResource>{ id: this.selectedLayer.title, title: this.selectedLayer.title, featureTypes: {}, propertyTypeData: {} };
+                        this.$http.post("/api/resources", r)
+                            .success((data) => {
+
+                        })
+                            .error((e) => {
+                            console.log('error adding resource');
+                        });
+                    }
+                    else {
+                        this.selectedLayer.typeUrl = this.layerResourceType;
+                    }
+            
             var group;
             if (this.layerGroup == "<new>") {
                 group = new csComp.Services.ProjectGroup;
@@ -249,6 +265,9 @@ module LayersDirective {
 
         public openDirectory() {
             this.initGroups();
+            this.loadAvailableLayers();
+            this.initResources();
+            
             this.state = "directory";
             this.loadAvailableLayers();
             
