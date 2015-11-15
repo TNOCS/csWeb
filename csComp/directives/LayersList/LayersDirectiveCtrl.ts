@@ -169,7 +169,17 @@ module LayersDirective {
         }
 
         public addProjectLayer() {
-            var group = this.$layerService.findGroupById(this.layerGroup);
+            var group;
+            if (this.layerGroup == "<new>") {
+                group = new csComp.Services.ProjectGroup;
+                group.title = this.newGroup;
+                this.$layerService.project.groups.push(group);
+                this.$layerService.initGroup(group);
+            }
+            else {
+                group = this.$layerService.findGroupById(this.layerGroup);
+            }
+            
             if (group) {
                 this.$layerService.initLayer(group, this.selectedLayer);
                 group.layers.push(this.selectedLayer);
