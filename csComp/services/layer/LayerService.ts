@@ -1434,7 +1434,7 @@ module csComp.Services {
                     }
                 });
 
-                if (openStyleTab) (<any>$('#leftPanelTab a[href="#styles"]')).tab('show'); // Select tab by name
+                if (openStyleTab) (<any>$('#leftPanelTab a[data-target="#styles"]')).tab('show'); // Select tab by name
                 return gs;
             }
             return null;
@@ -1480,7 +1480,7 @@ module csComp.Services {
                 if (pos !== -1) group.filters.slice(pos, 1);
 
             }
-            (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+            (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
         }
 
         /**
@@ -1489,7 +1489,7 @@ module csComp.Services {
         setFilter(filter: GroupFilter, group: csComp.Services.ProjectGroup) {
             filter.group = group;
             group.filters.push(filter);
-            (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+            (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
             this.triggerUpdateFilter(group.id);
         }
 
@@ -1502,7 +1502,7 @@ module csComp.Services {
             gf.title = 'Location';
             gf.rangex = [0, 1];
             group.filters.push(gf);
-            (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+            (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
             this.triggerUpdateFilter(group.id);
         }
 
@@ -1601,7 +1601,7 @@ module csComp.Services {
                         //     layer.group.filters.slice(pos, 1);
                     }
                 }
-                (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+                (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
             }
             this.triggerUpdateFilter(layer.group.id);
         }
@@ -1646,7 +1646,7 @@ module csComp.Services {
             // add filter
             group.filters.push(gf);
 
-            (<any>$('#leftPanelTab a[href="#filters"]')).tab('show'); // Select tab by name
+            (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
             this.triggerUpdateFilter(group.id);
         }
 

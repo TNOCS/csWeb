@@ -128,7 +128,7 @@ module csComp.Services {
             (<any>newScope).data = tab.data;
             var widgetElement = this.$compile("<" + tab.directive + "></" + tab.directive + ">")(newScope);
             $("#" + content).append(widgetElement);
-            (<any>$("#rightpanelTabs a[href='#" + content + "']")).tab('show');
+            (<any>$("#rightpanelTabs a[data-target='#" + content + "']")).tab('show');
         }
 
         public deactivateTabContainer(container: string) {
@@ -170,7 +170,7 @@ module csComp.Services {
                 this.$messageBusService.publish('rightpanel', 'activate', rptc);
             }
 
-            //(<any>$('#leftPanelTab a[href="#widgetedit"]')).tab('show'); // Select tab by name
+            //(<any>$('#leftPanelTab a[data-target="#widgetedit"]')).tab('show'); // Select tab by name
         }
 
         public stopEditWidget() {
