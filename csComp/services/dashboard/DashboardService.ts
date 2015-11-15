@@ -117,7 +117,7 @@ module csComp.Services {
             if (tab.popover !== '' && (this.$mapService.expertMode === Expertise.Beginner || this.$mapService.expertMode === Expertise.Intermediate)) {
                 popoverString = "popover='" + tab.popover + "' popover-placement='left' popover-trigger='mouseenter' popover-append-to-body='true'";
             }
-            $("#rightpanelTabs").append(this.$compile("<li id='" + tab.container + "-tab' class='rightPanelTab rightPanelTabAnimated' " + popoverString + "><a id='" + tab.container + "-tab-a' href='#" + content + "' data-toggle='tab'><span class='fa fa-" + tab.icon + " fa-lg'></span></a></li>")(this.$rootScope));
+            $("#rightpanelTabs").append(this.$compile("<li id='" + tab.container + "-tab' class='rightPanelTab rightPanelTabAnimated' " + popoverString + "><a id='" + tab.container + "-tab-a' data-target='#" + content + "' data-toggle='tab'><span class='fa fa-" + tab.icon + " fa-lg'></span></a></li>")(this.$rootScope));
             $("#rightpanelTabPanes").append("<div class='tab-pane' style='width:355px' id='" + content + "'></div>");
             $("#" + tab.container + "-tab-a").click(() => {
                 this.$layerService.visual.rightPanelVisible = true;
@@ -184,7 +184,7 @@ module csComp.Services {
             if (this.activeWidget && this.mainDashboard) {
                 this.mainDashboard.widgets = this.mainDashboard.widgets.filter((w: csComp.Services.IWidget) => w.id != this.activeWidget.id);
                 this.activeWidget = null;
-                (<any>$('#leftPanelTab a[href="#basewidgets"]')).tab('show'); // Select tab by name
+                (<any>$('#leftPanelTab a[data-target="#basewidgets"]')).tab('show'); // Select tab by name
             }
         }
     }
