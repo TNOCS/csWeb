@@ -80,6 +80,11 @@ module DashboardEdit {
 
             for (var id in this.$layerService.loadedLayers) this.dashboard.visiblelayers.push(id);
         }
+        
+        public setBaseLayer()
+        {                        
+            this.dashboard.baselayer = this.$mapService.activeBaseLayerId;
+        }
 
 
         public toggleMap() {
@@ -101,7 +106,11 @@ module DashboardEdit {
             }
 
             if (db.showMap && this.dashboard.baselayer) {
-                this.$messageBusService.publish("map", "setbaselayer", this.dashboard.baselayer);
+                //this.$messageBusService.publish("map", "setbaselayer", this.dashboard.baselayer);
+                var layer : csComp.Services.BaseLayer = this.$layerService.$mapService.getBaselayer(this.dashboard.baselayer);
+                this.$layerService.activeMapRenderer.changeBaseLayer(layer);
+                this.$layerService.$mapService.changeBaseLayer(this.dashboard.baselayer);
+                this.$layerService.$mapService.changeBaseLayer(this.dashboard.baselayer);
             }
         }
 

@@ -168,7 +168,10 @@ module Dashboard {
             }
 
             if (this.$scope.dashboard.showMap && this.$scope.dashboard.baselayer) {
-                this.$messageBusService.publish("map", "setbaselayer", this.$scope.dashboard.baselayer);
+                //this.$messageBusService.publish("map", "setbaselayer", this.$scope.dashboard.baselayer);
+                 var layer : csComp.Services.BaseLayer = this.$layerService.$mapService.getBaselayer(this.$scope.dashboard.baselayer);
+                this.$layerService.activeMapRenderer.changeBaseLayer(layer);
+                this.$layerService.$mapService.changeBaseLayer(this.$scope.dashboard.baselayer);                
             }
         }
 
