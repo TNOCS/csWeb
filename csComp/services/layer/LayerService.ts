@@ -460,8 +460,13 @@ module csComp.Services {
                 (callback) => {
                     // load required feature layers, if applicable
                     this.loadRequiredLayers(layer);
+                    
+                    // suport for loading default geojson
+                    if (layer.type.toLowerCase() === "featurecollection") layer.type = "geojson";
+                    
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
+                    
                     if (!this.layerSources.hasOwnProperty(layerSource)) {
                         // We don't know how to deal with an unknown layer source, so stop here.
                         layer.isLoading = false;
