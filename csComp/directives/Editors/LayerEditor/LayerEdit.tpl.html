@@ -38,7 +38,7 @@
             </div>
             <div ng-show="vm.layer.type=='geojson' || vm.layer.type=='rss' || vm.layer.type=='dynamicgeojson' || vm.layer.type=='esrijson'">
                 <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
-                    <input disabled="true" type="checkbox" id="useProxy-{{vm.layer.id}}" ng-model="group.useProxy">
+                    <input type="checkbox" id="useProxy-{{vm.layer.id}}" ng-model="vm.layer.useProxy">
                     <label for="useProxy-{{vm.layer.id}}">use proxy (used for external urls)</label>
                 </div>
                 <!-- <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
@@ -46,7 +46,7 @@
                     <label for="dynamic-{{vm.layer.id}}">dynamic</label>
                 </div> -->
                 <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
-                    <input type="checkbox" id="bbox-{{vm.layer.id}}" ng-model="group.refreshBBOX">
+                    <input type="checkbox" id="bbox-{{vm.layer.id}}" ng-model="vm.layer.useProxy.refreshBBOX">
                     <label for="bbox-{{vm.layer.id}}">refresh bounding box</label>
                 </div>
                 <!-- <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">

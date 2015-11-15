@@ -41,8 +41,12 @@ module csComp.Services {
                     layer.renderType = "geojson";
                     // Open a layer URL
                     layer.isLoading = true;
+                                                           
                     // get data
                     var u = layer.url.replace('[BBOX]', layer.BBOX);
+                    
+                    // check proxy
+                    if (layer.useProxy) u = "/api/proxy?url=" + u;
 
                     this.$http.get(u)
                         .success((data) => {
