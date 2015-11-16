@@ -105,6 +105,13 @@ body,
     color: #aaa;
 }
 
+/* vega charts */
+.vega-title
+{
+    font-size: 22px;
+    
+}
+
 /* leaflet context menu */
 .leaflet-contextmenu {
     display: none;
@@ -829,7 +836,8 @@ body,
     float: left;
     position: relative;
     display: none;
-    left: -5px;
+    top: 8px;    
+    
 }
 .property-action {
     position: relative;
@@ -841,8 +849,15 @@ body,
 .feature-prop-item {
     border-radius: 3px;
     min-height: 36px;
+    margin-left:-10px;
     border: none;
 }
+
+.feature-prop-content
+{
+    position:relative;
+}
+
 .feature-prop-config {
     margin-left: 50px;
     margin-top: 30px;
@@ -867,11 +882,14 @@ body,
     margin-right: 10px;
 }
 .feature-prop-title {
-    overflow: hidden;
+    overflow: hidden;    
     padding-left: 4px;
     padding-right: 20px;
-    position: relative;
-    margin-left: 50px;
+    position: absolute;
+    left:0;
+    top:-8px;
+    font-size: 12px;
+    
 }
 .feature-prop-property:hover {
     margin-left: 0;
@@ -879,6 +897,7 @@ body,
 }
 .panel-heading:hover .icons-on-hover {
     display: block;
+    
 }
 #featureprops-content:before {
     display: block;
@@ -889,6 +908,7 @@ body,
 #featureprops-content:hover leftpanel-header-button-container {
     opacity: 0.5;
 }
+
 
 /* leftpanel */
 .leftpanel-entrance {
