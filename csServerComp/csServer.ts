@@ -6,7 +6,7 @@ import Winston = require('winston');
 import csweb = require('./index');
 
 export class csServerOptions {
-    port = 3002;
+    port = 3002    
 }
 
 export class csServer {
@@ -14,7 +14,8 @@ export class csServer {
     public cm: csweb.ConnectionManager;
     public messageBus: csweb.MessageBusService;
     public httpServer;
-    public config: csweb.ConfigurationService
+    public config: csweb.ConfigurationService;
+    public api : csweb.ApiManager;
 
     constructor(public dir: string, public options = new csServerOptions()) {
 
@@ -31,7 +32,7 @@ export class csServer {
         //This line is required when using JX to run the server, or else the input-messages coming from the Excel file will cause an error: https://github.com/jxcore/jxcore/issues/119
         //require('http').setMaxHeaderLength(26214400);
 
-        // all environments
+        // all environments 
         this.options.port = this.options.port;
 
         this.server.set('port', this.options.port);
@@ -50,22 +51,16 @@ export class csServer {
         this.server.use(express.static(path.join(this.dir, 'public')));
 
         this.httpServer.listen(this.server.get('port'), () => {
-            Winston.info('Express server listening on port ' + this.server.get('port'));
-
-            /**
-             * Excel 2 map functionality
-             */
-            var mapLayerFactory = new csweb.MapLayerFactory(bagDatabase, this.messageBus, api);
-            this.server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res));
-            this.server.post('/bagcontours', (req, res) => mapLayerFactory.processBagContours(req, res));
+            Winston.info('Express server listening on port ' + this.server.get('port'));            
+            
 
             /**
              * API platform
              */
-            var api = new csweb.ApiManager('cs', 'cs');
-            api.init(path.join(path.resolve(this.dir), "public/data/api"), () => {
+            this.api = new csweb.ApiManager('cs', 'cs');
+            this.api.init(path.join(path.resolve(this.dir), "public/data/api"), () => {
                 //api.authService = new csweb.AuthAPI(api, server, '/api');
-                api.addConnectors(
+                this.api.addConnectors(
                     [
                         { key: "rest", s: new csweb.RestAPI(this.server), options: {} },
                         { key: "mqtt", s: new csweb.MqttAPI("localhost", 1883), options: {} },
@@ -78,8 +73,15 @@ export class csServer {
 
                     });
             });
+            
+            /**
+             * Excel 2 map functionality
+             */
+            var mapLayerFactory = new csweb.MapLayerFactory(bagDatabase, this.messageBus, this.api);
+            this.server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res));
+            this.server.post('/bagcontours', (req, res) => mapLayerFactory.processBagContours(req, res));
         });
 
 
-    }
+    }µ
 }
