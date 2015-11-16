@@ -1,37 +1,19 @@
 csServerComp/obj/
 csComp/obj/
 csComp/dist/
-csCompTests/obj/
-csCompTests/dist/
-csCompTests/node_modules/
-csCompTests/bower_components/
-csCompTests/csComp/
 *.orig
 *.config
 
-dist-csServerComp/**/*.js
-dist-csServerComp/**/*.d.ts
+dist-npm/**/*.js
+dist-npm/**/*.d.ts
 dist-bower/**/*.*
 
 csComp/js/
-csComp/node_modules/
-csServerComp/node_modules/
-csServerComp/Classes/**/*.d.ts
-csServerComp/Classes/**/*.js
 csServerComp/ServerComponents/**/*.d.ts
 csServerComp/ServerComponents/**/*.js
 
-# csServerComp/Scripts/typings/bcrypt/
-# csServerComp/Scripts/typings/mime/
-# csServerComp/Scripts/typings/serve-static/
-# csServerComp/Scripts/typings/socket.io/
-# csServerComp/Scripts/typings/tsd.d.ts
-
-csDataGatherer/node_modules/
-csDataGatherer/public/includes/
-csDataGatherer/Scripts/
-csDataGatherer/importers.json
 node_modules/
+bower/bower_components/
 
 example/node_modules/
 example/public/bower_components/
@@ -68,4 +50,7 @@ example/public/data/
 example/.settings/
 csComp/includes/css/csStyles.css
 example/.vscode/
+csComp/includes/bower_dep/bower_components/
+dist-npm/ServerComponents/
 dist-npm/
+.vscode/

@@ -24,7 +24,7 @@ var gulp          = require('gulp'),
     del           = require('del'),
     insert        = require('gulp-insert'),
     uglify        = require('gulp-uglify'),
-    // useref        = require('gulp-useref'),
+    useref        = require('gulp-useref'),
     rename        = require('gulp-rename'),
     debug         = require('gulp-debug'),
     cache         = require('gulp-cached'),
@@ -52,6 +52,18 @@ function run(command, cb) {
     /* throw err; */
   }
 }
+
+gulp.task('create_bower_libs', function(cb) {
+    var assets = useref.assets();
+
+    return gulp.src('./csComp/includes/bower_dep/index.html')
+        .pipe(assets)
+        .pipe(assets.restore())
+        .pipe(useref())
+        .pipe(gulp.dest('./dist-bower'));
+});
+
+
 // This task runs tsd command on csComp folder
 gulp.task('comp_tsd', function(cb) {
     tsd({

@@ -75,16 +75,16 @@ module csComp.Services {
                         break;
                 }
             });
-            this.widgetTypes["indicators"] = <IWidget>{ id: "indicators", icon: "cs/images/widgets/indicators.png", description: "Showing sensor data using charts" };
-            this.widgetTypes["charts"] = <IWidget>{ id: "charts", icon: "cs/images/widgets/markdown.png", description: "Show custom chart" };
-            this.widgetTypes["markdownwidget"] = <IWidget>{ id: "markdownwidget", icon: "cs/images/widgets/markdown.png", description: "Show custom markdown or html content" };
-            this.widgetTypes["mcawidget"] = <IWidget>{ id: "mcawidget", icon: "cs/images/widgets/mca.png", description: "Show available MCA's" };
-            this.widgetTypes["iframewidget"] = <IWidget>{ id: "iframewidget", icon: "cs/images/widgets/markdown.png", description: "Show custom iframe" };
-            this.widgetTypes["kanbanboard"] = <IWidget>{ id: "kanbanboard", icon: "cs/images/widgets/markdown.png", description: "Show kanbanboard" };
-            this.widgetTypes["navigator"] = <IWidget>{ id: "navigatorwidget", icon: "cs/images/widgets/markdown.png", description: "Show navigator" };
-            this.widgetTypes["postman"] = <IWidget>{ id: "postman", icon: "cs/images/widgets/Script.png", description: "POST messages" };
-            this.widgetTypes["simtimecontroller"] = <IWidget>{ id: "simtimecontroller", icon: "cs/images/widgets/Media-Play.png", description: "Show simulation time controller" };
-            this.widgetTypes["simstate"] = <IWidget>{ id: "simstate", icon: "cs/images/widgets/ServerStatus.png", description: "Show status of simulation services." };
+            this.widgetTypes["indicators"] = <IWidget>{ id: "indicators", icon: "bower_components/csweb/dist-bower/images/widgets/indicators.png", description: "Showing sensor data using charts" };
+            this.widgetTypes["charts"] = <IWidget>{ id: "charts", icon: "bower_components/csweb/dist-bower/images/widgets/markdown.png", description: "Show custom chart" };
+            this.widgetTypes["markdownwidget"] = <IWidget>{ id: "markdownwidget", icon: "bower_components/csweb/dist-bower/images/widgets/markdown.png", description: "Show custom markdown or html content" };
+            this.widgetTypes["mcawidget"] = <IWidget>{ id: "mcawidget", icon: "bower_components/csweb/dist-bower/images/widgets/mca.png", description: "Show available MCA's" };
+            this.widgetTypes["iframewidget"] = <IWidget>{ id: "iframewidget", icon: "bower_components/csweb/dist-bower/images/widgets/markdown.png", description: "Show custom iframe" };
+            this.widgetTypes["kanbanboard"] = <IWidget>{ id: "kanbanboard", icon: "bower_components/csweb/dist-bower/images/widgets/markdown.png", description: "Show kanbanboard" };
+            this.widgetTypes["navigator"] = <IWidget>{ id: "navigatorwidget", icon: "bower_components/csweb/dist-bower/images/widgets/markdown.png", description: "Show navigator" };
+            this.widgetTypes["postman"] = <IWidget>{ id: "postman", icon: "bower_components/csweb/dist-bower/images/widgets/Script.png", description: "POST messages" };
+            this.widgetTypes["simtimecontroller"] = <IWidget>{ id: "simtimecontroller", icon: "bower_components/csweb/dist-bower/images/widgets/Media-Play.png", description: "Show simulation time controller" };
+            this.widgetTypes["simstate"] = <IWidget>{ id: "simstate", icon: "bower_components/csweb/dist-bower/images/widgets/ServerStatus.png", description: "Show status of simulation services." };
         }
 
         public leftMenuVisible(id: string): boolean {
