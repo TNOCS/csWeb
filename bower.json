@@ -1,6 +1,6 @@
 {
     "name": "csweb",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "main": "dist-bower/csComp.js",
     "ignore": [
         "csComp",
@@ -29,9 +29,5 @@
     "dependencies": {
     },
     "devDependencies": {
-    },
-    "resolutions": {
-      "angular": "~1.4.7",
-      "d3": "~3.5.8"
     }
 }
