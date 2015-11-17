@@ -175,7 +175,7 @@
                                     <div ng-if="item.configMode" class="feature-prop-config">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <div class="rightpanel-label">Titel</div>
+                                                <div class="rightpanel-label">Title</div>
                                                 <input type="text" data-ng-model="item.propertyType.title" class=" form-control">
                                             </div>
 
@@ -187,7 +187,7 @@
 
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <div class="rightpanel-label">Beschrijving</div>
+                                                <div class="rightpanel-label">Description</div>
                                                 <input type="text" data-ng-model="item.propertyType.description" class="form-control">
                                             </div>
 
@@ -216,7 +216,7 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <form class="form-inline">
-                                                    <div class="rightpanel-label">Sectie</div>
+                                                    <div class="rightpanel-label">Section</div>
 
                                                     <input type="text" ng-enter="addSection(item.propertyType.section)" data-ng-model="item.propertyType.section" style="width: 200px;" class="form-control" />
                                                     <div class="btn-group">
@@ -233,7 +233,7 @@
                                             </div>
 
                                             <div class="col-md-12" ng-show="item.propertyType.type == 'number'">
-                                                <div class="rightpanel-label">Min/max waarde</div>
+                                                <div class="rightpanel-label">Min/max value</div>
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <input type="number" data-ng-model="item.propertyType.min" class="form-control" placeholder="Min">
@@ -241,6 +241,15 @@
                                                     <div class="col-md-6">
                                                         <input type="number" data-ng-model="item.propertyType.max" class="form-control" placeholder="Max">
                                                     </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12" ng-show="item.propertyType.type == 'number'">
+                                                <div class="rightpanel-label">String format</div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <input type="text" data-ng-model="item.propertyType.stringFormat" class="form-control" placeholder="Stringformat">
+                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                         </div>

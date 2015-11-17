@@ -51,21 +51,21 @@ module ProjectSettings {
                 });
             }, 0);
 
-            for (var id in this.$layerService.typesResources) {
-                if (id.indexOf('data/resourceTypes/') >= 0) {
+            // for (var id in this.$layerService.typesResources) {
+            //     if (id.indexOf('data/resourceTypes/') >= 0) {
 
-                    var file = this.$layerService.typesResources[id];
-                    var data = csComp.Services.TypeResource.serialize(file);
-                    var url = "api/resourceTypes/" + id.replace('data/resourceTypes/', ''); //this.$layerService.projectUrl.url.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
-                    $.ajax({
-                        url: url,
-                        type: "POST",
-                        data: data,
-                        contentType: "application/json",
-                        complete: this.updateProjectReady
-                    });
-                }
-            }
+            //         var file = this.$layerService.typesResources[id];
+            //         var data = csComp.Services.TypeResource.serialize(file);
+            //         var url = "api/resourceTypes/" + id.replace('data/resourceTypes/', ''); //this.$layerService.projectUrl.url.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
+            //         $.ajax({
+            //             url: url,
+            //             type: "POST",
+            //             data: data,
+            //             contentType: "application/json",
+            //             complete: this.updateProjectReady
+            //         });
+            //     }
+            // }
         }
 
         private updateProjectReady(data) {

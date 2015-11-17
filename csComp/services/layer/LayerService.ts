@@ -1061,12 +1061,14 @@ module csComp.Services {
                 // add to crossfilter
                 layer.group.ndx.add([feature]);
 
-                // resolve feature type
+                // resolve feature type                
                 feature.fType = this.getFeatureType(feature);
+                var resource = this.findResourceByFeature(feature);
                 this.initFeatureType(feature.fType);
 
                 // add missing properties
-                if (feature.fType.showAllProperties) csComp.Helpers.addPropertyTypes(feature, feature.fType);
+                //if (feature.fType.showAllProperties) 
+                csComp.Helpers.addPropertyTypes(feature, feature.fType, resource);
 
                 // Do we have a name?
                 if (!feature.properties.hasOwnProperty('Name'))
@@ -1680,6 +1682,15 @@ module csComp.Services {
                 feature.fType.propertyTypeKeys.split(';').forEach((key: string) => {
                     if (rt.propertyTypeData.hasOwnProperty(key) && rt.propertyTypeData[key].label === property) res = rt.propertyTypeData[key];
                 });
+            }
+            
+            if (!res && feature.layer.typeUrl)
+            {                
+                if (this.typesResources.hasOwnProperty(feature.layer.typeUrl))
+                {
+                    var rs = this.typesResources[feature.layer.typeUrl];
+                    res = _.find(rs.propertyTypeData, (pt:IPropertyType)=> { return pt.label === property });
+                }
             }
 
             return res;

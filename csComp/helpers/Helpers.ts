@@ -197,12 +197,20 @@
         return res;
     }
 
-    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType): csComp.Services.IFeatureType {
+    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource : csComp.Services.TypeResource): csComp.Services.IFeatureType {
         var type = featureType;
         if (!type.propertyTypeData) type.propertyTypeData = [];
 
         for (var key in feature.properties) {
-            if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
+            //if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
+            var pt : string;
+            if (resource && resource.propertyTypeData) for (var k in resource.propertyTypeData)
+            {                if (resource.propertyTypeData[k].label === key)
+                {
+                    pt = k; 
+                }
+            }
+            if (!pt) {
                 if (!feature.properties.hasOwnProperty(key)) continue;
                 var propertyType: csComp.Services.IPropertyType = [];
                 propertyType.label = key;
@@ -220,8 +228,14 @@
                     propertyType.type = 'bbcode';
                 else
                     propertyType.type = 'text';
-
-                type.propertyTypeData.push(propertyType);
+                if (resource)
+                {
+                resource.propertyTypeData[key] = propertyType;
+                }
+                else{
+                    featureType.propertyTypeData[key] = propertyType;
+                }
+                
             }
         }
 

@@ -132,17 +132,20 @@ module FeatureProps {
 
                 //
                 if (type.showAllProperties || this.mapservice.isAdminExpert) {
-                    var missing = csComp.Helpers.getMissingPropertyTypes(feature);
-                    missing.forEach((pt: csComp.Services.IPropertyType) => {
-                        if (!propertyTypes.some(((p: csComp.Services.IPropertyType) => p.label === pt.label))) {
-                            propertyTypes.push(pt);
-                        }
-                    });
+                    // var missing = csComp.Helpers.getMissingPropertyTypes(feature);
+                    // missing.forEach((pt: csComp.Services.IPropertyType) => {
+                    //     if (!propertyTypes.some(((p: csComp.Services.IPropertyType) => p.label === pt.label))) {
+                    //         propertyTypes.push(pt);
+                    //     }
+                    // });
                 }
-
-                propertyTypes.forEach((mi: IPropertyType) => {
-                    if (feature.properties.hasOwnProperty(mi.label) && mi.visibleInCallOut) {
-                        var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
+                
+                for (var key in feature.properties)
+                {
+                    var mi = layerservice.getPropertyType(feature,key);
+                    if (mi)
+                    {
+                     var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
                         if (callOutSection.propertyTypes.hasOwnProperty(mi.label)) return; // Prevent duplicate properties in the same  section
                         callOutSection.propertyTypes[mi.label] = mi;
                         var text = feature.properties[mi.label]; if (mi.type === "hierarchy") {
@@ -164,7 +167,33 @@ module FeatureProps {
                         }
                         searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
                     }
-                });
+                }
+
+                // propertyTypes.forEach((mi: IPropertyType) => {
+                //     if (feature.properties.hasOwnProperty(mi.label) && mi.visibleInCallOut) {
+                //         var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
+                //         if (callOutSection.propertyTypes.hasOwnProperty(mi.label)) return; // Prevent duplicate properties in the same  section
+                //         callOutSection.propertyTypes[mi.label] = mi;
+                //         var text = feature.properties[mi.label]; if (mi.type === "hierarchy") {
+                //             var count = this.calculateHierarchyValue(mi, feature, propertyTypeData, layerservice);
+                //             text = count + ";" + feature.properties[mi.calculation];
+                //         }
+                //         displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
+                //         // Skip empty, non-editable values
+                //         if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
+
+                //         var canFilter = (mi.type === "number" || mi.type === "text" || mi.type === "options" || mi.type === "date" || mi.type === 'boolean');
+                //         var canStyle = (mi.type === "number" || mi.type === "options" || mi.type === "color");
+                //         if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
+                //         if (mi.visibleInCallOut) {
+                //             callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                //         }
+                //         if (mi.type === "hierarchy") {
+                //             hierarchyCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                //         }
+                //         searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
+                //     }
+                // });
             }
             if (infoCallOutSection.properties.length > 0) {
                 this.hasInfoSection = true;
@@ -219,7 +248,7 @@ module FeatureProps {
             return last;
         }
 
-        private getOrCreateCallOutSection(sectionTitle: string): ICallOutSection {
+       private getOrCreateCallOutSection(sectionTitle: string): ICallOutSection {
             if (!sectionTitle) {
                 return null;
             }
