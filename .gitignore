@@ -54,3 +54,4 @@ csComp/includes/bower_dep/bower_components/
 dist-npm/ServerComponents/
 dist-npm/
 .vscode/
+dist-bower/
