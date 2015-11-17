@@ -345,7 +345,7 @@ module LayersDirective {
                     if (this.layerResourceType === "<new>") {
                         this.newLayer.typeUrl = "/api/resources/" + this.newLayer.title;
                         var r = <csComp.Services.TypeResource>{ id: this.newLayer.title, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
-                        this.$http.post("/api/resources/" + this.newLayer.title, r)
+                        this.$http.post("/api/resources", r)
                             .success((data) => {
 
                         })
