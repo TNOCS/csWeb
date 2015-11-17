@@ -112,7 +112,7 @@
                                     <a ng-click="vm.openLayer(item)">{{item.propertyType.title}}</a>
                                 </div>
                                 <div ng-switch-default>
-                                    <div class="icons-on-hover">
+                                    <div class="icons-on-hover" ng-if="!item.configMode">
                                         <div class="property-action" style="right:0px">
                                             <a data-ng-if="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
                                             <a data-ng-if="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFaIconSelected makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
@@ -125,7 +125,7 @@
                                             <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer"></a>
                                         </div>
                                     </div>
-                                    <div ng-hide="item.isSensor" data-ng-switch="item.propertyType.type" class="feature-prop-value" style="float:right">
+                                    <div ng-hide="item.isSensor" ng-if="!item.configMode" data-ng-switch="item.propertyType.type" class="feature-prop-value" style="float:right">
                                         <div ng-switch-when="date" class="text-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
                                             {{vm.getFormattedDate(item.feature.properties[item.property], item.propertyType)}}</div>
                                         <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
@@ -140,7 +140,7 @@
                                         </div>
                                         <div ng-switch-default class="text-right" style="margin-left:40px" data-ng-bind-html="vm.toTrusted(item.value)"></div>
                                     </div>
-                                    <div class="feature-prop-content">
+                                    <div class="feature-prop-content" ng-if="!item.configMode">
                                         <div class="feature-prop-title">
                                             {{item.key}}<span ng-if="item.isSensor" class="fa fa-area-chart makeNarrow" style="margin-left:5px;opacity:0.3"></span>
                                             <div ng-if="item.showMore" data-ng-switch="item.propertyType.type">
@@ -197,7 +197,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="row">
+                                        <!--<div class="row">
                                             <div class="col-md-6" style="margin-left: 20px;">
                                                 <div class="checkbox checkbox-primary">
                                                     <input type="checkbox" data-ng-model="propertyType.visibleInCallOut" id="visibleInCallOut-{{propertyType.title}}" />
@@ -211,7 +211,7 @@
                                                     <label for="isSearchable-{{item.propertyType.title}}">Vindbaar</label>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div>-->
 
                                         <div class="row">
                                             <div class="col-md-12">
@@ -244,7 +244,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <button class="btn btn-primary rightpanel-button" ng-click="item.configMode=false">{{'SAVE' | translate}}</button>
+                                        <button class="btn btn-primary rightpanel-button" ng-click="item.configMode=false;vm.savePropertyType(item.propertyType)">{{'SAVE' | translate}}</button>
                                     </div>
                                 </div>
                             </div>
