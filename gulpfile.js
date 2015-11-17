@@ -205,11 +205,10 @@ gulp.task('init', function(cb) {
         'built_csComp.d.ts',
         'sass',
         'create_templateCache',
-        'include_css',
+        'create_bower_libs',
         'include_images',
         // dependencies
-        'thirdparty-js',
-        'thirdparty-css',
+        
         cb
     );
 });
@@ -600,8 +599,7 @@ gulp.task('watch', function() {
     //gulp.watch(path2csWeb + 'csServerComp/Scripts/**/*.ts', ['built_csServerComp_scripts']);
     //gulp.watch(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts', ['built_csServerComp.d.ts']);
     //gulp.watch(path2csWeb + 'csServerComp/ServerComponents/dynamic/ClientConnection.d.ts', ['built_csServerComp.d.ts']);
-    //gulp.watch(path2csWeb + 'csComp/js/**/*.d.ts', ['built_csComp.d.ts']);
-    gulp.watch(path2csWeb + 'csComp/includes/**/*.js', ['include_js','thirdparty-js']);
+    //gulp.watch(path2csWeb + 'csComp/js/**/*.d.ts', ['built_csComp.d.ts']);    
 });
 
 // Initiallize the project and update the npm and bower package folders
