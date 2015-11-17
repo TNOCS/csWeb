@@ -1,0 +1,32 @@
+{
+  "name": "csWebExample",
+  "version": "0.0.0",
+  "authors": [
+    "Erik Vullings",
+    "Arnoud de Jong"
+  ],
+  "main": "../server.js",
+  "moduleType": [
+    "node"
+  ],
+  "keywords": [
+    "map"
+  ],
+  "license": "MIT",
+  "homepage": "www.tno.nl",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+      "csWeb" : "~0.1.8"
+  },
+  "resolutions": {
+    "angular": "~1.4.4",
+    "d3": "~3.5.5"
+  }
+}

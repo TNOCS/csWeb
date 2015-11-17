@@ -1,0 +1,150 @@
+{
+    "title": "csMap",
+    "maxBounds": {
+        "southWest": [49.2, 1.0],
+        "northEast": [54.0, 10.0]
+    },
+    "viewBounds": {
+        "southWest": [50.7, 3.3],
+        "northEast": [53.5, 7.3]
+    },
+    "widgetStyles": {
+        "default": {
+            "borderWidth": 1,
+            "background": "white"
+        },
+        "simple": {
+            "borderWidth": 1,
+            "background": "white"
+        },
+        "transparent" : {
+            "borderWidth": 0,
+            "background": "transparent"
+        },
+        "red": {
+            "borderWidth": 3,
+            "background": "red"
+        }
+    },
+    "baselayers": [{
+        "title": "OpenStreetMap HOT",
+        "subtitle": "Road",
+        "url": "http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+        "isDefault": false,
+        "minZoom": 0,
+        "maxZoom": 19,
+        "cesium_url": "http://c.tile.openstreetmap.fr/hot/",
+        "cesium_maptype": "openstreetmap",
+        "subdomains": ["a", "b", "c"],
+        "attribution": "Tiles courtesy of <a href='http://hot.openstreetmap.org/' target='_blank'>Humanitarian OpenStreetMap Team</a>",
+        "preview": "http://b.tile.openstreetmap.fr/hot/11/1048/675.png"
+    }, {
+        "title": "OpenStreetMap",
+        "subtitle": "Road",
+        "url": "http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png",
+        "isDefault": false,
+        "cesium_url": "http://otile3.mqcdn.com/tiles/1.0.0/osm/",
+        "cesium_maptype": "openstreetmap",
+        "minZoom": 0,
+        "maxZoom": 19,
+        "subdomains": ["otile1", "otile2", "otile3", "otile4"],
+        "attribution": "Tiles courtesy of <a href='http://www.mapquest.com/' target='_blank'>MapQuest</a> <img src='http://developer.mapquest.com/content/osm/mq_logo.png'>. Map data (c) <a href='http://www.openstreetmap.org/' target='_blank'>OpenStreetMap</a> contributors, CC-BY-SA.",
+        "preview": "http://c.tile.openstreetmap.org/11/1051/673.png"
+    }, {
+        "title": "OSM Mapnik",
+        "subtitle": "Mapnik",
+        "url": "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "cesium_url": "http://tile.openstreetmap.org/",
+        "cesium_maptype": "openstreetmap",
+        "minZoom": 0,
+        "maxZoom": 18,
+        "id": "osm.mapnik",
+        "attribution": "&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>",
+        "preview": "https://a.tiles.mapbox.com/v3/foursquare.meku766r/11/1051/673.png"
+    }, {
+        "title": "Black-White",
+        "subtitle": "Stamen",
+        "url": "http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png",
+        "cesium_url": "http://c.tile.stamen.com/toner/",
+        "cesium_maptype": "openstreetmap",
+        "subdomains": ["a", "b", "c", "d"],
+        "minZoom": 0,
+        "maxZoom": 18,
+        "attribution": "",
+        "preview": "http://a.tile.stamen.com/toner/11/1051/673.png"
+    }, {
+        "title": "Watercolor",
+        "subtitle": "Stamen",
+        "url": "http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.png",
+        "cesium_url": "http://d.tile.stamen.com/watercolor/",
+        "cesium_maptype": "openstreetmap",
+        "subdomains": ["a", "b", "c", "d"],
+        "minZoom": 0,
+        "maxZoom": 18,
+        "attribution": "",
+        "preview": "http://a.tile.stamen.com/watercolor/11/1051/673.png"
+    }, {
+        "title": "World Imagery",
+        "subtitle": "from ESRI",
+        "isDefault": false,
+        "minZoom": 0,
+        "maxZoom": 18,
+        "url": "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        "cesium_url": "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
+        "cesium_maptype": "arcgis",
+        "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+        "preview": "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/11/673/1051.png"
+    }, {
+        "title": "World Terrain Base",
+        "subtitle": "from ESRI",
+        "minZoom": 0,
+        "maxZoom": 18,
+        "cesium_url": "http://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer",
+        "cesium_maptype": "arcgis",
+        "url": "http://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}",
+        "attribution": "Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC",
+        "preview": "http://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/11/673/1051.png"
+    }, {
+        "title": "National Geographic",
+        "subtitle": "from ESRI",
+        "minZoom": 0,
+        "maxZoom": 18,
+        "url": "http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}",
+        "cesium_url": "http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer",
+        "cesium_maptype": "arcgis",
+        "attribution": "Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC",
+        "preview": "http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/11/673/1051.png"
+    }, {
+        "title": "Terrain Day",
+        "subtitle": "HERE",
+        "subdomains": [1, 2, 3, 4],
+        "minZoom": 0,
+        "maxZoom": 20,
+        "url": "http://{s}.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/terrain.day/{z}/{x}/{y}/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg",
+        "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+        "preview": "http://1.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/terrain.day/11/673/1051/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg"
+    }, {
+        "title": "Satellite Day",
+        "subtitle": "HERE",
+        "subdomains": [1, 2, 3, 4],
+        "minZoom": 0,
+        "maxZoom": 20,
+        "url": "http://{s}.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/satellite.day/{z}/{x}/{y}/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg",
+        "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+        "preview": "http://1.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/satellite.day/11/673/1051/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg"
+    }, {
+        "title": "Positron",
+        "isDefault": true,
+        "subtitle": "From CartoDB",
+        "subdomains": ["a", "b", "c", "d"],
+        "minZoom": 0,
+        "maxZoom": 20,
+        "cesium_maptype": "openstreetmap",
+        "url": "http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png",
+        "cesium_url": "http://d.basemaps.cartocdn.com/light_nolabels/",
+        "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+        "preview": "http://a.basemaps.cartocdn.com/light_nolabels/11/673/1051.png"
+    }],
+    "projects": [
+    ]
+}

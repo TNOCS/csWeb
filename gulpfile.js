@@ -53,7 +53,7 @@ function run(command, cb) {
   }
 }
 
-gulp.task('create_third_party_libs', function(cb) {
+gulp.task('create_bower_libs', function(cb) {
     var assets = useref.assets();
 
     return gulp.src('./csComp/includes/bower_dep/index.html')
@@ -87,6 +87,23 @@ gulp.task('comp_tsconfig_files', function() {
             path: 'csComp/tsconfig.json',
             relative_dir: 'csComp/',
         }));
+});
+
+gulp.task('thirdparty-js', function() {
+    return gulp.src('./csComp/includes/js/*.js')
+        .pipe(concat('csThirdparty.js'))
+        .pipe(plumber())
+        // .pipe(uglify())
+        // .pipe(rename({
+        //     suffix: '.min'
+        // }))
+        .pipe(gulp.dest('./dist-bower'));
+});
+
+gulp.task('thirdparty-css', function() {
+    return gulp.src('./csComp/includes/css/*.css')
+        .pipe(concatCss('csThirdparty.css'))
+        .pipe(gulp.dest('./dist-bower'));
 });
 
 // This task compiles typescript on csComp
@@ -177,7 +194,7 @@ gulp.task('example_deps', function(cb) {
 gulp.task('init', function(cb) {
     runSequence(
         // csServerComp section
-        //'servercomp_tsd',
+        'servercomp_tsd',
         'servercomp_tsconfig_files',
         'servercomp_tsc',
         // csComp section
@@ -188,10 +205,11 @@ gulp.task('init', function(cb) {
         'built_csComp.d.ts',
         'sass',
         'create_templateCache',
-        // 'include_css',
+        'include_css',
         'include_images',
         // dependencies
-        'create_third_party_libs',
+        'thirdparty-js',
+        'thirdparty-css',
         cb
     );
 });
@@ -554,14 +572,14 @@ gulp.task('minify_csComp', function() {
 //         .pipe(gulp.dest(path2csWeb + 'dist-bower/js'));
 // });
 
-// gulp.task('include_css', function() {
-//     gulp.src(path2csWeb + 'csComp/includes/css/*.*')
-//         .pipe(plumber())
-//         //.pipe(changed('./public/cs/css/'))
-//         //.pipe(gulp.dest(path2csWeb + 'example/public/cs/css'))
-//         .pipe(changed(path2csWeb + 'dist-bower/css'))
-//         .pipe(gulp.dest(path2csWeb + 'dist-bower/css'));
-// });
+gulp.task('include_css', function() {
+    gulp.src(path2csWeb + 'csComp/includes/css/*.*')
+        .pipe(plumber())
+        //.pipe(changed('./public/cs/css/'))
+        //.pipe(gulp.dest(path2csWeb + 'example/public/cs/css'))
+        .pipe(changed(path2csWeb + 'dist-bower/css'))
+        .pipe(gulp.dest(path2csWeb + 'dist-bower/css'));
+});
 
 gulp.task('include_images', function() {
     gulp.src(path2csWeb + 'csComp/includes/images/**/*.*')
@@ -573,10 +591,17 @@ gulp.task('include_images', function() {
 });
 
 gulp.task('watch', function() {
+    //gulp.watch(path2csWeb + 'dist-npm/**/*.d.ts', ['built_csServerComp.d.ts']);
     gulp.watch(path2csWeb + 'csComp/js/**/*.js', ['built_csComp', 'built_csComp.d.ts']);
     gulp.watch(path2csWeb + 'csComp/**/*.tpl.html', ['create_templateCache']);
     gulp.watch(path2csWeb + 'csComp/includes/**/*.scss', ['sass']);
+    gulp.watch(path2csWeb + 'csComp/includes/**/*.css', ['include_css','thirdparty-css']);
     gulp.watch(path2csWeb + 'csComp/includes/images/*.*', ['include_images']);
+    //gulp.watch(path2csWeb + 'csServerComp/Scripts/**/*.ts', ['built_csServerComp_scripts']);
+    //gulp.watch(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts', ['built_csServerComp.d.ts']);
+    //gulp.watch(path2csWeb + 'csServerComp/ServerComponents/dynamic/ClientConnection.d.ts', ['built_csServerComp.d.ts']);
+    //gulp.watch(path2csWeb + 'csComp/js/**/*.d.ts', ['built_csComp.d.ts']);
+    gulp.watch(path2csWeb + 'csComp/includes/**/*.js', ['include_js','thirdparty-js']);
 });
 
 // Initiallize the project and update the npm and bower package folders

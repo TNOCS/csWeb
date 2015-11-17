@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html ng-app="csWebApp">
+
+<head>
+    <!--[if lt IE 9]>
+        <script>
+            alert("This application does not work on IE8 or below! Please obtain a newer browser, or try a portable version of Firefox.");
+            window.location = "https://github.com/TNOCS/csWeb";
+        </script>
+    <![endif]-->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="csWeb, your mapping solution.">
+    <meta name="author" content="Arnoud de Jong, Erik Vullings">
+    <meta name="color:Accent" content="#a98e2e" />
+
+    <!--TODO Add your title here-->
+    <title>csWeb</title>
+
+    <!-- build:css css/csMobileWeb.css -->
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" href="bower_components/Font-Awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="bower_components/dcjs/dc.css" />
+    <link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="bower_components/leaflet.locatecontrol/src/L.Control.Locate.css" />
+    <link rel="stylesheet" href="bower_components/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" />
+    <link rel="stylesheet" href="bower_components/spectrum/spectrum.css" rel="stylesheet" />
+    <link rel="stylesheet" href="bower_components/angular-ui-select/dist/select.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="cs/css/animate.min.css" />
+    <link rel="stylesheet" href="cs/css/timeline.css" />
+    <link rel="stylesheet" href="cs/css/widgets.css" />
+    <link rel="stylesheet" href="cs/css/d3_bulletchart.css" />
+    <link rel="stylesheet" href="cs/css/pnotify.custom.min.css" />
+    <link rel="stylesheet" href="cs/css/xbbcode.css">
+    <link rel="stylesheet" href="cs/css/csStyles.css" />
+
+    <link rel="stylesheet" href="css/mobile-style.css">
+    <!-- endbuild -->
+    <link rel="shortcut icon" href="favicon.ico">
+</head>
+
+<body data-ng-controller="appCtrl" data-ng-cloak data-ng-init="showMap=true">
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- build:js csMobileWeb.js -->
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="bower_components/angular-translate/angular-translate.min.js"></script>
+    <script src="bower_components/leaflet/dist/leaflet.js"></script>
+    <script src="bower_components/leaflet.locatecontrol/src/L.Control.Locate.js"></script>
+    <script src="bower_components/leaflet-ajax/dist/leaflet.ajax.min.js"></script>
+    <script src="bower_components/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="bower_components/angular-local-storage/dist/angular-local-storage.min.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="bower_components/angular-ui-select/dist/select.js"></script>
+    <script src="bower_components/chroma-js/chroma.min.js"></script>
+    <script src="bower_components/d3/d3.min.js"></script>
+    <script src="bower_components/d3-tip/index.js"></script>
+    <script src="bower_components/crossfilter/crossfilter.min.js"></script>
+    <script src="bower_components/async/lib/async.js"></script>
+    <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <script src="bower_components/underscore/underscore-min.js"></script>
+    <script src="bower_components/moment/min/moment.min.js"></script>
+    <script src="bower_components/spectrum/spectrum.js"></script>
+    <script src="bower_components/togeojson/togeojson.js"></script>
+    <script src="cs/js/togeojson.js"></script>
+    <script src="cs/js/angular-moment.min.js"></script>
+    <script src="cs/js/datetime-picker.js"></script>
+    <script src="cs/js/dc.js"></script>
+    <script src="cs/js/angular-spectrum-colorpicker.min.js"></script>
+    <script src="cs/js/stringformat-1.09.min.min.js"></script>
+    <script src="cs/js/stringformat.nl-NL.min.js"></script>
+    <script src="cs/js/xbbcode.min.js"></script>
+    <script src="cs/js/jquery.cookies.min.js"></script>
+    <script src="cs/js/pnotify.custom.min.js"></script>
+    <script src="cs/js/jqueryinjectCSS.min.js"></script>
+    <script src="cs/js/timeline.min.js"></script>
+    <script src="cs/js/wizMarkdown.min.js"></script>
+    <script src="cs/js/d3_bulletChart.js"></script>
+
+    <script src="cs/js/csComp.js"></script>
+    <script src="app/m.js"></script>
+    <script src="cs/js/csTemplates.js"></script>
+    <!-- endbuild -->
+
+    <div role="navigation" class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-header" data-ng-cloak>
+            <a class="menutoggle" ng-click="vm.$layerService.visual.leftPanelVisible = !vm.$layerService.visual.leftPanelVisible"><i class="fa fa-bars"></i></a>
+        </div>
+
+        <!-- Link to views -->
+        <div class="navbar-fixed-top" style="margin-left: 70px">
+            <project-header-selection></project-header-selection>
+            <!-- Search form -->
+            <!-- <offline-search class="navbar-form navbar-right" style="margin-right:0"></offline-search> -->
+        </div>
+    </div>
+
+    <map mapid="main" class="map-main" ng-show="vm.$layerService.visual.mapVisible"></map>
+
+    <div style="position: absolute;width: 100%;height:100%;pointer-events: none;display:table">
+
+        <div ng-show="vm.$layerService.visual.leftPanelVisible" class="leftpanel leftpanel-entrance" ng-cloak style="pointer-events: all">
+            <div class="leftpanel-container">
+                <!-- http://stackoverflow.com/questions/1575141/make-div-100-height-of-browser-window -->
+                <div class="leftpanel-tab">
+                    <!-- required for floating -->
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs tabs-left" id="leftPanelTab">
+                        <!-- 'tabs-right' for right tabs -->
+                        <li popover="{{'BASESTYLES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a href="#basestyles" data-toggle="tab">
+                                <div class="mapIcon"></div>
+                            </a>
+                        </li>
+                        <li class="active" popover="{{'LAYERS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a href="#layers" data-toggle="tab">
+                                <div class="layersIcon"></div>
+                            </a>
+                        </li>
+                        <li popover="{{'FEATURES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a href="#features" data-toggle="tab">
+                                <div class="featuresIcon"></div>
+                            </a>
+                        </li>
+                        <li popover="{{'LEGEND' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a href="#legend" data-toggle="tab">
+                                <div class="mainLegendIcon"></div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="leftpanel-content">
+                    <!-- Tab panes -->
+                    <div class="tab-content ">
+                        <base-map-list class="tab-pane" id="basestyles"></base-map-list>
+
+                        <layers-directive class="tab-pane active" id="layers"></layers-directive>
+
+                        <feature-list class="tab-pane" id="features"></feature-list>
+
+                        <legend-list class="tab-pane" id="legend"></legend-list>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rightpanel" style="position:absolute">
+            <div id="rightpanelTabContainer" class="tabbable tabs-left" style="display:table; height:100%; padding:0px;">
+                <!-- Nav tabs -->
+                <ul id="rightpanelTabs" class="nav nav-tabs" style="margin-right:0px; width:50px; height:100%; display:table-cell">
+                    <li style="margin-top:10px" ng-style="!vm.$layerService.visual.rightPanelVisible && {'opacity':0}" ng-click="vm.$layerService.visual.rightPanelVisible = false" popover="{{'HIDE_PANEL' | translate}}" popover-placement="left" popover-trigger="mouseenter"
+                    popover-append-to-body="true">
+                        <a class="rightpanel-hidetab">
+                            <span class="fa fa-2x fa-chevron-right"></span>
+                        </a>
+                    </li>
+                </ul>
+                <div id="rightpanelTabPanes" ng-show="vm.$layerService.visual.rightPanelVisible" class="tab-content" style="display: table-cell; vertical-align:top; width:100%; height:100%; background-color: white;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Loading spinner-->
+    <div data-ng-show="layersLoading>0" id="loadingspinner" style="margin:0px auto; width:200px; height:100px;">
+        <div class="spinner" style="position: initial; margin-top:60px;">
+            <div class="bounce1" style="width:16px; height:16px;"></div>
+            <div class="bounce2" style="width:16px; height:16px;"></div>
+            <div class="bounce3" style="width:16px; height:16px;"></div>
+        </div>
+    </div>
+</body>
+
+</html>

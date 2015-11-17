@@ -1,0 +1,24 @@
+{
+  "name": "csWebExample",
+  "version": "0.1.0",
+  "description": "CommonSense web application",
+  "main": "app.js",
+  "start": "node server.js",
+  "author": {
+    "name": "Erik Vullings",
+    "email": "erik.vullings@tno.nl"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TNOCS/csWeb"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "csweb": "^0.1.16"
+  },
+  "devDependencies": {},
+  "bugs": {
+    "url": "https://github.com/TNOCS/csWeb/issues"
+  },
+  "homepage": "https://github.com/TNOCS/csWeb"
+}

@@ -1,0 +1,846 @@
+{
+  "id": "csWeb Showcases",
+  "title": "csWeb Showcases",
+  "description": "csMap is developed by the Dutch Research Organisation TNO, in first instance for the Dutch Ministry of Health (VWS).",
+  "logo": "images/CommonSenseRound.png",
+  "url": "https://github.com/TNOCS/csMap",
+  "connected": true,
+  "timeLine": {
+    "start": 1375315200000,
+    "end": 1425168000000,
+    "range": 49852800000,
+    "zoomLevelName": "weeks",
+    "isLive": false,
+    "focus": 66,
+    "zoomLevel": 604800000
+  },
+  "datasources": [
+    {
+      "id": "datasource",
+      "url": "/data/projects/20141104_csMap/datasource.json",
+      "type": "static",
+      "sensors": {
+        "test": "{\n  \"id\": \"test\",\n  \"propertyTypeKey\": \"sensor-5ed24cbd-c14c-4ebc-1b65-a443ee5346da\"\n}",
+        "test2": "{\n  \"id\": \"test2\",\n  \"propertyTypeKey\": \"sensor-4f3dcdb4-b124-42e0-152e-ba70c1f3fbb4\"\n}"
+      }
+    }
+  ],
+  "dashboards": [
+      {
+        "id": "home",
+        "name": "Home",
+        "editMode": false,
+        "showMap": true,
+        "showTimeline": true,
+        "showLeftmenu": true,
+        "showLegend": true,
+        "showBackgroundImage": false,
+        "visiblelayers": [
+          "zorgkantoor"
+        ],
+        "widgets": null,
+        "visibleLeftMenuItems": [
+          "!lm-layers"
+        ]
+      },
+    {
+      "id": "health",
+      "name": "Health",
+      "editMode": true,
+      "showMap": true,
+      "showTimeline": false,
+      "showLeftmenu": true,
+      "showRightmenu": false,
+      "showBackgroundImage": false,
+      "visiblelayers": [
+        "zorgkantoor",
+        "Hospitals"
+      ],
+      "baselayer": "Satellite Day",
+      "viewBounds": {
+        "southWest": [
+          50.7,
+          3.3
+        ],
+        "northEast": [
+          53.5,
+          7.3
+        ]
+      },
+      "widgets": [
+        {
+          "id": "569c1117-b9b6-494e-5859-7535f3140ad6",
+          "directive": "indicators",
+          "data": {},
+          "elementId": "widget-569c1117-b9b6-494e-5859-7535f3140ad6",
+          "enabled": true,
+          "style": "default",
+          "left": "450px",
+          "right": "",
+          "top": "18px",
+          "width": "541px",
+          "height": "300px"
+        },
+        {
+          "id": "c91d8c0c-ac7c-42bc-9c66-23e11bb56fa5",
+          "directive": "kanbanboard",
+          "data": {},
+          "elementId": "widget-c91d8c0c-ac7c-42bc-9c66-23e11bb56fa5",
+          "enabled": true,
+          "style": "default",
+          "left": "",
+          "right": "",
+          "top": "0px",
+          "bottom": "0px",
+          "width": "420px",
+          "height": ""
+        }, 
+        {
+            "directive": "markdownwidget",
+            "left": "20px",
+            "top": "30px",
+            "width": "250px",
+            "height": "250px",
+            "data": {
+                "featureTypeName": "data/resourceTypes/Zorgkantoor.json#Zorgkantoor",
+                "dynamicProperties": ["Name","aant_inw","aant_man","aant_vrouw"],
+                "url": "data/projects/20141104_csMap/tabel.md"
+            }
+        }
+      ],
+      "visibleLeftMenuItems": [
+        "layers"
+      ]
+    },
+
+    {
+      "id": "datatable",
+      "name": "Table",
+      "editMode": false,
+      "showMap": false,
+      "showTimeline": false,
+      "showLeftmenu": false,
+      "showRightmenu": false,
+      "showBackgroundImage": false,
+      "widgets": [
+        {
+          "id": "a098ba13-5258-4a50-4315-be6b266ecba7",
+          "directive": "datatable",
+          "elementId": "widget-a098ba13-5258-4a50-4315-be6b266ecba7",
+          "enabled": true,
+          "width": "100%",
+          "height": "100%"
+        }
+      ],
+      "visibleLeftMenuItems": []
+    },
+    {
+      "id": "nomap",
+      "name": "No Map",
+      "editMode": false,
+      "showMap": false,
+      "showTimeline": false,
+      "showLeftmenu": true,
+      "showRightmenu": false,
+      "showBackgroundImage": true,
+      "backgroundimage": "images/amsterdam.jpg",
+      "widgets": [
+        {
+          "id": "3654881f-0644-46ea-5133-f45c3dde8c9e",
+          "directive": "markdownwidget",
+          "title": "Test",
+          "data": {
+            "url": "data/projects/20141104_csMap/test.md",
+            "content": "# Hello World #\n | a | b | c | d | \n |---|---|---|---| \n | 1 | 2 | 3 | 4 |"
+          },
+          "elementId": "widget-3654881f-0644-46ea-5133-f45c3dde8c9e",
+          "enabled": true,
+          "left": "10px",
+          "top": "10px",
+          "width": "650px",
+          "height": "350px"
+        }
+      ]
+    }
+  ],
+  "userPrivileges": {
+    "mca": {
+      "expertMode": true
+    },
+    "heatmap": {
+      "expertMode": true
+    }
+  },
+  "expertMode": 3,
+  "baselayers": {},
+  "propertyTypeData": {
+    "sensor-32f4a78a-c750-4b27-6ff7-d73bbc27bdf8": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-32f4a78a-c750-4b27-6ff7-d73bbc27bdf8"
+    },
+    "sensor-a45381ed-cf0b-41c7-4486-1d696bf83ca7": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-a45381ed-cf0b-41c7-4486-1d696bf83ca7"
+    },
+    "sensor-41741a63-7a8c-4f76-6d42-426d76e5c6ac": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-41741a63-7a8c-4f76-6d42-426d76e5c6ac"
+    },
+    "sensor-869dfc1e-adec-488c-8c11-faee0ccc8cb1": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-869dfc1e-adec-488c-8c11-faee0ccc8cb1"
+    },
+    "sensor-c315bc92-2867-4ba2-9827-3df753fe9c30": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-c315bc92-2867-4ba2-9827-3df753fe9c30"
+    },
+    "sensor-53bb4752-2845-43f4-18ba-8d54b8e53747": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-53bb4752-2845-43f4-18ba-8d54b8e53747"
+    },
+    "sensor-058a5b14-9c1e-461f-6cef-43a4067076bc": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-058a5b14-9c1e-461f-6cef-43a4067076bc"
+    },
+    "sensor-6e8d2f40-ebea-4678-c0a1-e7aa3c0ac808": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-6e8d2f40-ebea-4678-c0a1-e7aa3c0ac808"
+    },
+    "sensor-d0ffc879-737d-404d-a4bc-321eea3674fd": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-d0ffc879-737d-404d-a4bc-321eea3674fd"
+    },
+    "sensor-b3253815-084f-43b6-c589-6733804244c0": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-b3253815-084f-43b6-c589-6733804244c0"
+    },
+    "sensor-d12926e4-4783-496f-2262-bba60ec983fe": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-d12926e4-4783-496f-2262-bba60ec983fe"
+    },
+    "sensor-2f35eb16-1470-4a8c-9bb5-94369e0acd12": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-2f35eb16-1470-4a8c-9bb5-94369e0acd12"
+    },
+    "sensor-b4074fd1-a355-4827-dfc9-4243085b8b55": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-b4074fd1-a355-4827-dfc9-4243085b8b55"
+    },
+    "sensor-1ed2d091-4cc8-4e75-9fed-c5791bfd6b0a": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-1ed2d091-4cc8-4e75-9fed-c5791bfd6b0a"
+    },
+    "sensor-e5f76c90-4524-4ab5-35f9-7621d7076f81": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-e5f76c90-4524-4ab5-35f9-7621d7076f81"
+    },
+    "sensor-6a96ef21-e380-402c-66f5-3c0aa49f46d6": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-6a96ef21-e380-402c-66f5-3c0aa49f46d6"
+    },
+    "sensor-4362c2ab-7a03-474d-6661-a3d332d4fc2a": {
+      "title": "test",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-4362c2ab-7a03-474d-6661-a3d332d4fc2a"
+    },
+    "sensor-e4072a61-fa6a-4a13-c13c-9c215157e856": {
+      "title": "test2",
+      "type": "text",
+      "canEdit": false,
+      "visibleInCallOut": true,
+      "isSearchable": true,
+      "label": "sensor-e4072a61-fa6a-4a13-c13c-9c215157e856"
+    },
+    "sensor-5ed24cbd-c14c-4ebc-1b65-a443ee5346da": {
+      "title": "test"
+    },
+    "sensor-4f3dcdb4-b124-42e0-152e-ba70c1f3fbb4": {
+      "title": "test2"
+    }
+  },
+  "groups": [
+    {
+      "id": "b0e9e0cd-d6c1-44ac-8029-5c30dfe21878",
+      "title": "Features",
+      "description": "Demonstrates layers based on points",
+      "clustering": true,
+      "clusterLevel": 12,
+      "languages": {
+        "nl": {
+          "title": "Locaties",
+          "description": "Demonstreert kaartlagen gebaseerd op specifieke locaties"
+        },
+        "en": {
+          "title": "Features",
+          "description": "Demonstrates layers based on points"
+        }
+      },
+      "layers": [
+        {
+          "id": "Hospitals",
+          "title": "Hospitals",
+          "description": "These are the locations of the Dutch hospitals.",
+          "type": "geojson",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/Ziekenhuizen.json",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 100,
+          "languages": {
+            "nl": {
+              "title": "Ziekenhuizen",
+              "description": "De locaties van de Nederlandse ziekenhuizen."
+            },
+            "en": {
+              "title": "Hospitals",
+              "description": "These are the locations of the Dutch hospitals."
+            }
+          }
+        },
+        {
+          "id": "firestation",
+          "title": "Fire stations",
+          "description": "These are the locations of the fire station. (Source: IFV, BAG, 1 november 2014.)",
+          "type": "geojson",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/brandweerposten.json",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 100,
+          "languages": {
+            "nl": {
+              "title": "Brandweerkazernes",
+              "description": "De locaties van de Nederlandse brandweerkazernes en opleidingscentra (Bron: IFV, BAG, 1 november 2014)."
+            },
+            "en": {
+              "title": "Fire stations",
+              "description": "These are the locations of the fire station. (Source: IFV, BAG, 1 november 2014.)"
+            }
+          }
+        },
+        {
+          "id": "traveltimes",
+          "title": "Travel times",
+          "description": "This is the travel time from the nearest fire station to a care institute. (Bron: IFV, BAG: 1 november 2014.)",
+          "type": "geojson",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/aanrijtijden.json",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 100,
+          "languages": {
+            "nl": {
+              "title": "Reistijd",
+              "description": "De reistijd van een brandweerkazerne naar de zorginstelling (Bron: IFV, BAG: 1 november 2014)."
+            },
+            "en": {
+              "title": "Travel times",
+              "description": "This is the travel time from the nearest fire station to a care institute. (Bron: IFV, BAG: 1 november 2014.)"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "912855eb-54e9-449c-8e4a-74160c995fae",
+      "title": "Networks",
+      "description": "Demonstrates layers based on lines",
+      "clustering": true,
+      "clusterLevel": 12,
+      "languages": {
+        "nl": {
+          "title": "Netwerken",
+          "description": "Demonstreert kaartlagen gebaseerd op lijnen"
+        },
+        "en": {
+          "title": "Networks",
+          "description": "Demonstrates layers based on lines"
+        }
+      },
+      "layers": [
+        {
+          "id": "net",
+          "title": "Electricity net",
+          "description": "These are the locations of the electricity networks in the Benelux.",
+          "type": "kml",
+          "renderType": "kml",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/Standaardnetkaart-van-de-Benelux.kml",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 100,
+          "languages": {
+            "nl": {
+              "title": "Elektriciteitsnet",
+              "description": "De locaties van de elektriciteitsnetwerken in de Benelux."
+            },
+            "en": {
+              "title": "Electricity net",
+              "description": "These are the locations of the electricity networks in the Benelux."
+            }
+          }
+        },
+        {
+          "id": "gpx",
+          "title": "GPX track example",
+          "description": "Example GPX track from http://software.frankingermann.de/gpxtrackmap/gtm-examples#h2-full-featured-example-nbsp.",
+          "type": "gpx",
+          "renderType": "gpx",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/kuhkopfsteig-fv.gpx",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 100,
+          "languages": {
+            "nl": {
+              "title": "GPX track voorbeeld",
+              "description": "Voorbeeld GPX track van http://software.frankingermann.de/gpxtrackmap/gtm-examples#h2-full-featured-example-nbsp."
+            },
+            "en": {
+              "title": "GPX track example",
+              "description": "Example GPX track from http://software.frankingermann.de/gpxtrackmap/gtm-examples#h2-full-featured-example-nbsp."
+            }
+          }
+        },
+        {
+          "id": "testLinestring",
+          "title": "testLinestring",
+          "description": "These are the locations of the electricity networks in the Benelux.",
+          "type": "geojson",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/testLinestring.json",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 100,
+          "languages": {
+            "nl": {
+              "title": "testLinestring",
+              "description": "De locaties van de elektriciteitsnetwerken in de Benelux."
+            },
+            "en": {
+              "title": "testLinestring",
+              "description": "These are the locations of the electricity networks in the Benelux."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "b43badac-d97d-4d17-6d8b-4d5c83ab6ac2",
+      "title": "WMS",
+      "description": "Demonstrates WMS layers.",
+      "clustering": false,
+      "oneLayerActive": true,
+      "layers": [
+        {
+          "id": "bagcontouren",
+          "title": "BAG Contours",
+          "description": "Dutch Cadastre's Basis Administratie Gebouwen. (Source: Kadaster.)",
+          "type": "database",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "bagcontours",
+          "typeUrl": "data/resourceTypes/BagPanden.json",
+          "refreshBBOX": true,
+          "languages": {
+            "nl": {
+              "title": "BAG Contouren",
+              "description": "Basis Administratie Gebouwen (Bron: Kadaster)."
+            },
+            "en": {
+              "title": "BAG Contours",
+              "description": "Dutch Cadastre's Basis Administratie Gebouwen. (Source: Kadaster.)"
+            }
+          },
+          "defaultFeatureType": "BagPanden"
+        },
+        {
+          "id": "bag",
+          "title": "BAG (Cadastre)",
+          "description": "Dutch Cadastre's Basis Administratie Gebouwen. (Source: PDOK.nl.)",
+          "type": "wms",
+          "renderType": "wms",
+          "heatmapItems": null,
+          "url": "http://geodata.nationaalgeoregister.nl/bagviewer/wms?",
+          "wmsLayers": "pand,ligplaats,standplaats,verblijfsobject",
+          "opacity": 25,
+          "languages": {
+            "nl": {
+              "title": "BAG",
+              "description": "Basis Administratie Gebouwen (Bron: Kadaster, via PDOK.nl)."
+            },
+            "en": {
+              "title": "BAG (Cadastre)",
+              "description": "Dutch Cadastre's Basis Administratie Gebouwen. (Source: PDOK.nl.)"
+            }
+          }
+        },
+        {
+          "id": "us",
+          "title": "US",
+          "type": "wms",
+          "renderType": "wms",
+          "heatmapItems": null,
+          "url": "http://practice.tno.nl:8080/geoserver/rasters/wms?",
+          "wmsLayers": "NoiseTrafficLden55dB",
+          "opacity": 50
+        },
+        {
+          "id": "cbs",
+          "title": "CBS Provinces",
+          "description": "Dutch Provinces. (Source: PDOK.nl.)",
+          "type": "wms",
+          "renderType": "wms",
+          "heatmapItems": null,
+          "url": "http://geodata.nationaalgeoregister.nl/cbsprovincies/wms?",
+          "wmsLayers": "cbsprovincies2012",
+          "opacity": 50,
+          "languages": {
+            "nl": {
+              "title": "CBS provincie data",
+              "description": "(Bron: CBS, via PDOK.nl)."
+            },
+            "en": {
+              "title": "CBS Provinces",
+              "description": "Dutch Provinces. (Source: PDOK.nl.)"
+            }
+          }
+        },
+        {
+          "id": "aan",
+          "title": "Agricultural areas",
+          "description": "Agrarisch Areaal Nederland (AAN). Geografische afbakening van landbouwgrond in Nederland (grond die wordt gebruikt als bouwland, blijvend grasland of de teelt van blijvende gewassen). (Source: PDOK.nl.)",
+          "type": "wms",
+          "renderType": "wms",
+          "heatmapItems": null,
+          "url": "http://geodata.nationaalgeoregister.nl/aan/wms?",
+          "wmsLayers": "aan",
+          "opacity": 50,
+          "languages": {
+            "nl": {
+              "title": "Agrarisch gebied",
+              "description": "Agrarisch Areaal Nederland (AAN). Geografische afbakening van landbouwgrond in Nederland (grond die wordt gebruikt als bouwland, blijvend grasland of de teelt van blijvende gewassen). (Source: PDOK.nl.)"
+            },
+            "en": {
+              "title": "Agricultural areas",
+              "description": "Agrarisch Areaal Nederland (AAN). Geografische afbakening van landbouwgrond in Nederland (grond die wordt gebruikt als bouwland, blijvend grasland of de teelt van blijvende gewassen). (Source: PDOK.nl.)"
+            }
+          }
+        },
+        {
+          "id": "ahn",
+          "title": "AHN2",
+          "description": "Dutch height map, 0.5m, ruw. (Source: PDOK.nl.)",
+          "type": "wms",
+          "renderType": "wms",
+          "heatmapItems": null,
+          "url": "http://geodata.nationaalgeoregister.nl/ahn2/wms?",
+          "wmsLayers": "ahn2_05m_ruw",
+          "opacity": 50,
+          "languages": {
+            "nl": {
+              "title": "AHN",
+              "description": "Actuele Hoogtekaart Nederland (Source: PDOK.nl.)"
+            },
+            "en": {
+              "title": "AHN2",
+              "description": "Dutch height map, 0.5m, ruw. (Source: PDOK.nl.)"
+            }
+          }
+        },
+        {
+          "id": "buurten",
+          "title": "Boroughs",
+          "description": "From the Dutch Census, CBS (Source: PDOK.nl.)",
+          "type": "wms",
+          "renderType": "wms",
+          "heatmapItems": null,
+          "url": "http://geodata.nationaalgeoregister.nl/wijkenbuurten2013/wms?",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "wmsLayers": "cbs_buurten_2013",
+          "opacity": 50,
+          "languages": {
+            "nl": {
+              "title": "Buurten",
+              "description": "Het Bestand Wijk- en Buurtkaart 2013 bevat de geometrie van alle buurten in Nederland (Source: PDOK.nl.)"
+            },
+            "en": {
+              "title": "Boroughs",
+              "description": "From the Dutch Census, CBS (Source: PDOK.nl.)"
+            }
+          }
+        },
+        {
+          "id": "top10terreinen",
+          "title": "TOP10NL Terrains",
+          "description": "Terreinen (Source: PDOK.nl.)",
+          "type": "wms",
+          "renderType": "wms",
+          "heatmapItems": null,
+          "url": "http://geodata.nationaalgeoregister.nl/top10nl/wms?",
+          "wmsLayers": "terreinen",
+          "opacity": 50,
+          "languages": {
+            "nl": {
+              "title": "TOP10NL Terreinen",
+              "description": "Terreinen (Source: PDOK.nl.)"
+            },
+            "en": {
+              "title": "TOP10NL Terrains",
+              "description": "Terreinen (Source: PDOK.nl.)"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "0f958d65-63af-4d61-a9bc-91ae5b76b8c8",
+      "title": "Areas",
+      "description": "Demonstrates layers based on regions.",
+      "clustering": false,
+      "oneLayerActive": true,
+      "languages": {
+        "nl": {
+          "title": "Gebieden",
+          "description": "Demonstreert lagen gebaseerd op gebieden."
+        },
+        "en": {
+          "title": "Areas",
+          "description": "Demonstrates layers based on regions."
+        }
+      },
+      "layers": [
+        {
+          "id": "zorgkantoor",
+          "title": "Health regions",
+          "description": "Data at the health office regions. (Source: CBS, BAG, TNO, DigiMV.)",
+          "type": "geojson",
+          "renderType": "geojson",
+                "defaultLegendProperty": "aant_inw",
+          "url": "data/projects/20141104_csMap/Regio ZK ZZP CBS.json",
+          "typeUrl": "data/resourceTypes/Zorgkantoor.json",
+          "opacity": 100,
+          "defaultFeatureType": "Zorgkantoor"
+        },
+        {
+          "id": "veiligheidsregio",
+          "title": "Safety region",
+          "description": "Statistical data per safety region. (Source: CBS, Regioatlas: 1 november 2014.)",
+          "type": "geojson",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/veiligheidsregios.json",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 100,
+          "languages": {
+            "nl": {
+              "title": "Veiligheidsregios",
+              "description": "Statistische data per veiligheidsregio. (Bron: CBS, Regioatlas. Geactualiseerd: 1 november 2014.)"
+            },
+            "en": {
+              "title": "Safety region",
+              "description": "Statistical data per safety region. (Source: CBS, Regioatlas: 1 november 2014.)"
+            }
+          },
+          "defaultFeatureType": "VestigingVeiligheidsregio"
+        },
+        {
+          "id": "gemeentes",
+          "title": "Towns",
+          "description": "Statistical data per city in Dutch. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)",
+          "type": "geojson",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/gemeente.json",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 100,
+          "languages": {
+            "nl": {
+              "title": "Gemeentes",
+              "description": "Statistische data per gemeente. (Bron: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)"
+            },
+            "en": {
+              "title": "Towns",
+              "description": "Statistical data per city in Dutch. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)"
+            }
+          },
+          "defaultFeatureType": "gemeente"
+        },
+        {
+          "id": "cities2",
+          "title": "Towns (localised)",
+          "description": "Statistical data per city. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)",
+          "type": "geojson",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/localized_city_data.json",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 50,
+          "languages": {
+            "nl": {
+              "title": "Gemeentes (vertaald)",
+              "description": "Statistische data per gemeente. (Bron: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)"
+            },
+            "en": {
+              "title": "Towns (localised)",
+              "description": "Statistical data per city. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)"
+            }
+          },
+          "defaultFeatureType": "gemeente"
+        },
+        {
+          "id": "p4_topo",
+          "title": "Zip codes - TopoJSON",
+          "description": "Statistical data per city in Dutch. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)",
+          "type": "topojson",
+          "renderType": "topojson",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/postcode4.topo.json",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 100,
+          "languages": {
+            "nl": {
+              "title": "Postcode4 - TopoJSON",
+              "description": "Statistische data per gemeente. (Bron: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)"
+            },
+            "en": {
+              "title": "Zip codes - TopoJSON",
+              "description": "Statistical data per city in Dutch. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)"
+            }
+          },
+          "defaultFeatureType": "gemeente"
+        },
+        {
+          "id": "ESRIGrid",
+          "title": "ESRI Grid",
+          "description": "Test reading an ESRI Grid file.",
+          "type": "grid",
+          "renderType": "geojson",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/esri_ascii_grid.txt",
+          "opacity": 50,
+          "languages": {
+            "nl": {
+              "title": "ESRI Grid",
+              "description": "Test voor het inlezen van een ESRI Grid bestand."
+            },
+            "en": {
+              "title": "ESRI Grid",
+              "description": "Test reading an ESRI Grid file."
+            }
+          },
+          "dataSourceParameters": {
+            "gridType": "esri"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2f194594-6a8d-469b-673c-e0de6fca82a9",
+      "title": "Hierarchical data",
+      "description": "Hierarchical data.",
+      "clustering": true,
+      "clusterLevel": 15,
+      "oneLayerActive": true,
+      "languages": {
+        "nl": {
+          "title": "Hierarchische data",
+          "description": "Hierarchische data."
+        },
+        "en": {
+          "title": "Hierarchical data",
+          "description": "Hierarchical data."
+        }
+      },
+      "layers": [
+        {
+          "id": "795f44c4-459c-4a3f-f790-ecfa7387cf34",
+          "title": "Huisartsen",
+          "description": "Huisartsen in Nederland",
+          "type": "hierarchy",
+          "renderType": "hierarchy",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/huisartsen.json",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 50
+        },
+        {
+          "id": "602046c1-4760-4feb-9044-db4be3ea26e0",
+          "title": "Verzorgingshuizen",
+          "description": "Verzorgingshuizen in Nederland",
+          "type": "hierarchy",
+          "renderType": "hierarchy",
+          "heatmapItems": null,
+          "url": "data/projects/20141104_csMap/verzorgingshuizen.json",
+          "typeUrl": "data/resourceTypes/resources.json",
+          "opacity": 50
+        }
+      ]
+    }
+  ]
+}
