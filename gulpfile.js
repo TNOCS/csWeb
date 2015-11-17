@@ -1,18 +1,18 @@
 // Documentation
-// 
+//
 // For compiling csServerComp, we need to:
 // * INIT [servercomp_tsconfig_files] update the tsconfig file
-// * INIT [servercomp_tsc] transpile the ts files in csServerComp, outDir = ./dist-npm. 
+// * INIT [servercomp_tsc] transpile the ts files in csServerComp, outDir = ./dist-npm.
 //   Run tsc -w -p . in vscode or any other editor (tsc watches for file changes, and runs tsc on save).
-// * [built_csServerComp.d.ts] watch the generated d.ts files in dist-npm, and concatenate them to dist-npm/csWeb.d.ts. 
+// * [built_csServerComp.d.ts] watch the generated d.ts files in dist-npm, and concatenate them to dist-npm/csWeb.d.ts.
 // * Copy this to test folder.
-// 
-// For compiling csComp, we need to: 
+//
+// For compiling csComp, we need to:
 // * INIT [comp_tsconfig_files] update the tsconfig file
 // * INIT [servercomp_tsc] transpile the ts files in csComp, outDir = js
 //   Run tsc -w -p . in vscode or any other editor (tsc watches for file changes, and runs tsc on save).
-// * [built_csComp, built_csComp.d.ts] watch the generated *.js and *.d.ts files and concatenate them to dist-bower/csComp.js, dist-bower/csComp.d.ts. 
-// * [sass, include-js, include-css] watch sass and other included files 
+// * [built_csComp, built_csComp.d.ts] watch the generated *.js and *.d.ts files and concatenate them to dist-bower/csComp.js, dist-bower/csComp.d.ts.
+// * [sass, include-js, include-css] watch sass and other included files
 // * Copy this to test folder.
 
 var gulp          = require('gulp'),
@@ -82,6 +82,7 @@ gulp.task('comp_tsconfig_files', function() {
     return gulp.src(['./csComp/**/*.ts',
             //'./csComp/**/*.ts',
             //'!./csComp/dist/csComp.d.ts',
+            '!./csComp/includes/**/*.d.ts',
             '!./csComp/js/**/*.d.ts',
             '!./csComp/js/**/*.js' //,
             //'!./csComp/node_modules/**/*.ts',
@@ -613,8 +614,8 @@ gulp.task('watch', function() {
 // Initiallize the project and update the npm and bower package folders
 gulp.task('update_packages', [
     'init',
-    //'built_csServerComp', 
-    //'built_csServerComp.d.ts', 
+    //'built_csServerComp',
+    //'built_csServerComp.d.ts',
     'built_csComp',
     'built_csComp.d.ts',
 ]);
