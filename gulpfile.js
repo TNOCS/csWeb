@@ -140,9 +140,10 @@ gulp.task('servercomp_tsconfig_files', function() {
         }));
 });
 
-// This task compiles typescript on csServerComp
+// This task compiles typescript on csServerComp, sending the output to dist-npm
 gulp.task('servercomp_tsc', function(cb) {
-    return run('tsc -p csServerComp', cb);
+    exec('tsc -p csServerComp');
+    return run('copy package.json dist-npm /Y', cb);
 });
 
 // This task runs tsd command on test folder
