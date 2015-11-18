@@ -40,6 +40,8 @@
 
             </ul>
         </div>
+        
+        
     </div>
 
     <h4 style="position:absolute;right:3px;top:45px">
@@ -254,6 +256,15 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                               <input type="checkbox" id="visibleInCallOut-{{featureType.id}}" ng-model="item.propertyType.visibleInCallout">
+                    <label for="visibleInCallOut-{{featureType.id}}">Show all properties</label>
+                                            </div>                                          
+                                        </div>
+                                        
+                             
                                         <button class="btn btn-primary rightpanel-button" ng-click="item.configMode=false;vm.savePropertyType(item.propertyType)">{{'SAVE' | translate}}</button>
                                     </div>
                                 </div>

@@ -2110,6 +2110,7 @@ module csComp.Services {
                 });
             }
             if (this.project.connected) {
+                if (!this.project.layerDirectory) this.project.layerDirectory = "/api/layers";
                 // check connection
                 this.$messageBusService.initConnection("", "", () => {
                     var handle = this.$messageBusService.subscribe("keyupdate", (key: any, msg: ClientMessage) => {

@@ -267,8 +267,7 @@ module LayersDirective {
             this.loadAvailableLayers();
             this.initResources();
             
-            this.state = "directory";
-            this.loadAvailableLayers();
+            this.state = "directory";            
             
             // var modalInstance = this.$modal.open({
             //     templateUrl: 'directives/LayersList/AddLayerView.tpl.html',
