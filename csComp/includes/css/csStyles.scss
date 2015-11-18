@@ -833,10 +833,10 @@ body,
     color: red;
 }
 .icons-on-hover {
-    float: left;
+   float: left;
     position: relative;
     display: none;
-    top: 8px;    
+    top: -10px;    
     
 }
 .property-action {
@@ -885,7 +885,7 @@ body,
     overflow: hidden;    
     padding-left: 4px;
     padding-right: 20px;
-    position: absolute;
+    position: relative;
     left:0;
     top:-8px;
     font-size: 12px;

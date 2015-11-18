@@ -112,19 +112,7 @@
                                     <a ng-click="vm.openLayer(item)">{{item.propertyType.title}}</a>
                                 </div>
                                 <div ng-switch-default>
-                                    <div class="icons-on-hover" ng-if="!item.configMode">
-                                        <div class="property-action" style="right:0px">
-                                            <a data-ng-if="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
-                                            <a data-ng-if="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFaIconSelected makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
-                                        </div>
-                                        <div data-ng-if="item.canStyle" class="property-action" style="left:15px">
-                                            <a data-ng-hide="item.feature.gui['style'][item.property]" class="fa fa-paint-brush makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
-                                            <a data-ng-show="item.feature.gui['style'][item.property]" class="fa fa-paint-brush smallFaIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
-                                        </div>
-                                        <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="left:30px">
-                                            <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer"></a>
-                                        </div>
-                                    </div>
+                                    
                                     <div ng-hide="item.isSensor" ng-if="!item.configMode" data-ng-switch="item.propertyType.type" class="feature-prop-value" style="float:right">
                                         <div ng-switch-when="date" class="text-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
                                             {{vm.getFormattedDate(item.feature.properties[item.property], item.propertyType)}}</div>
@@ -167,6 +155,19 @@
                                             </div>
 
                                         </div>
+                                        <div class="icons-on-hover" ng-if="!item.configMode">
+                                        <div class="property-action" style="right:0px">
+                                            <a data-ng-if="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
+                                            <a data-ng-if="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFaIconSelected makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
+                                        </div>
+                                        <div data-ng-if="item.canStyle" class="property-action" style="left:15px">
+                                            <a data-ng-hide="item.feature.gui['style'][item.property]" class="fa fa-paint-brush makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
+                                            <a data-ng-show="item.feature.gui['style'][item.property]" class="fa fa-paint-brush smallFaIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
+                                        </div>
+                                        <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="left:30px">
+                                            <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer"></a>
+                                        </div>
+                                    </div>
 
 
 

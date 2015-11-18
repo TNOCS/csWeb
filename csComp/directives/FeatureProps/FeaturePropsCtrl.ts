@@ -359,7 +359,7 @@ module FeatureProps {
 
             this.displayFeature(this.$layerService.lastSelectedFeature);
             this.$scope.feature = this.$layerService.lastSelectedFeature;
-
+            
 
             this.$messageBusService.subscribe("timeline", (action, value) => {
                 if (action === "updateFeatures" && this.$scope.callOut) {
