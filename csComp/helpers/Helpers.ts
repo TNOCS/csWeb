@@ -196,6 +196,19 @@
 
         return res;
     }
+    
+    /// find a unique key name in object
+    export function findUniqueKey(o : Object, key : string) : string 
+    {
+        var i = 2;
+        var pk = key;        
+        while (o.hasOwnProperty(pk))
+        {
+            key=key + pk;
+            pk+=1;
+        }
+        return pk;        
+    }
 
     export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource : csComp.Services.TypeResource): csComp.Services.IFeatureType {
         var type = featureType;
@@ -212,25 +225,25 @@
             }
             if (!pt) {
                 if (!feature.properties.hasOwnProperty(key)) continue;
-                var propertyType: csComp.Services.IPropertyType = [];
+                var propertyType: csComp.Services.IPropertyType = {};
                 propertyType.label = key;
-                propertyType.title = key.replace('_', ' ');
-                propertyType.isSearchable = true;
-                propertyType.visibleInCallOut = true;
-                propertyType.canEdit = false;
+                propertyType.title = key.replace('_', ' ');                
                 var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
-
+                
+                // text is default, so we can ignore that
                 if (StringExt.isNumber(value))
                     propertyType.type = 'number';
                 else if (StringExt.isBoolean(value))
                     propertyType.type = 'boolean';
                 else if (StringExt.isBbcode(value))
                     propertyType.type = 'bbcode';
-                else
-                    propertyType.type = 'text';
+                // else
+                //     propertyType.type = 'text';
                 if (resource)
                 {
-                resource.propertyTypeData[key] = propertyType;
+                    var k = this.findUniqueKey(resource.propertyTypeData,key);
+                    if (k===key) delete propertyType.label;                    
+                    resource.propertyTypeData[k] = propertyType;                    
                 }
                 else{
                     featureType.propertyTypeData[key] = propertyType;

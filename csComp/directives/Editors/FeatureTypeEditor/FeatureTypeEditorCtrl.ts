@@ -51,8 +51,6 @@ module FeatureTypeEditor {
         public updateFeatureTypes(ft: csComp.Services.IFeatureType) {
             console.log('updating ..');
             this.$layerService.updateFeatureTypes(ft);
-
-
         };
 
 
