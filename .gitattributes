@@ -3,3 +3,4 @@
 # images are binary
 *.png binary
 *.jpg binary
+*.pptx binary
