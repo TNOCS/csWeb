@@ -143,8 +143,9 @@ gulp.task('servercomp_tsconfig_files', function() {
 
 // This task compiles typescript on csServerComp, sending the output to dist-npm
 gulp.task('servercomp_tsc', function(cb) {
-    exec('tsc -p csServerComp');
-    return run('copy package.json dist-npm /Y', cb);
+  gulp.src('package.json')
+    .pipe(gulp.dest('dist-npm'));
+  return run('tsc -p csServerComp', cb);
 });
 
 // This task runs tsd command on test folder
@@ -215,7 +216,7 @@ gulp.task('init', function(cb) {
         'create_bower_libs',
         'include_images',
         // dependencies
-        
+
         cb
     );
 });
@@ -606,7 +607,7 @@ gulp.task('watch', function() {
     //gulp.watch(path2csWeb + 'csServerComp/Scripts/**/*.ts', ['built_csServerComp_scripts']);
     //gulp.watch(path2csWeb + 'csServerComp/ServerComponents/**/*.d.ts', ['built_csServerComp.d.ts']);
     //gulp.watch(path2csWeb + 'csServerComp/ServerComponents/dynamic/ClientConnection.d.ts', ['built_csServerComp.d.ts']);
-    //gulp.watch(path2csWeb + 'csComp/js/**/*.d.ts', ['built_csComp.d.ts']);    
+    //gulp.watch(path2csWeb + 'csComp/js/**/*.d.ts', ['built_csComp.d.ts']);
 });
 
 // Initiallize the project and update the npm and bower package folders
