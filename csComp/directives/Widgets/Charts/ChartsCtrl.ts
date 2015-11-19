@@ -135,7 +135,7 @@ module ChartsWidget {
                         if (msg.data.item.hasOwnProperty("values")) {
                             d.spec.data = msg.data.item.values;
                         } else {
-                            d.spec = msg.data.item;
+                            d.spec.data = msg.data.item;
                         }
                         // if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]' ) {
                         //     d.spec.data = msg.data.item;
