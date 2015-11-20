@@ -16,7 +16,7 @@
 // * Copy this to test folder.
 
 var gulp          = require('gulp'),
-    tsconfig      = require('gulp-tsconfig-files'),
+    tsconfig      = require('gulp-tsconfig'),
     tsd           = require('gulp-tsd'),
     exec          = require('child_process').execSync,
     install       = require('gulp-install'),
@@ -37,7 +37,8 @@ var gulp          = require('gulp'),
     sass          = require('gulp-sass'),
     purify        = require('gulp-purifycss'),
     karma         = require('karma'),
-    concatCss     = require('gulp-concat-css');
+    concatCss     = require('gulp-concat-css'),
+    glob          = require('glob');
 
 function run(command, cb) {
   console.log('Run command: ' + command);
@@ -49,7 +50,6 @@ function run(command, cb) {
     console.log(err.stdout.toString());
     console.log('####################################');
     cb(err);
-    /* throw err; */
   }
 }
 
@@ -77,24 +77,6 @@ gulp.task('comp_tsd', function(cb) {
     }, cb);
 });
 
-// This task updates the typescript dependencies on tsconfig file for csComp
-gulp.task('comp_tsconfig_files', function() {
-    return gulp.src(['./csComp/**/*.ts',
-            //'./csComp/**/*.ts',
-            //'!./csComp/dist/csComp.d.ts',
-            '!./csComp/includes/**/*.d.ts',
-            '!./csComp/js/**/*.d.ts',
-            '!./csComp/js/**/*.js' //,
-            //'!./csComp/node_modules/**/*.ts',
-        ], {
-            base: 'csComp'
-        })
-        .pipe(tsconfig({
-            path: 'csComp/tsconfig.json',
-            relative_dir: 'csComp/',
-        }));
-});
-
 gulp.task('thirdparty-js', function() {
     return gulp.src('./csComp/includes/js/*.js')
         .pipe(concat('csThirdparty.js'))
@@ -112,9 +94,142 @@ gulp.task('thirdparty-css', function() {
         .pipe(gulp.dest('./dist-bower'));
 });
 
+function buildTsconfig(config, globPattern, basedir) {
+  config.tsConfig.comment = '! This tsconfig.json file has been generated automatically, please DO NOT edit manually.';
+  return gulp.src(globPattern, {base: '.'})
+      .pipe(rename(function(path) {
+          path.dirname = path.dirname.replace(basedir, '.');
+        }))
+      .pipe(tsconfig(config)())
+      .pipe(gulp.dest(basedir));
+}
+
+// This task updates the typescript dependencies on tsconfig file for csComp
+gulp.task('comp_tsconfig_files', function() {
+  var config = {
+    tsOrder: ['**/*.ts'],
+    tsConfig: {
+      compilerOptions: {
+        target: 'es5',
+        module: 'commonjs',
+        declaration: true,
+        noImplicitAny: false,
+        removeComments: false,
+        noLib: false,
+        outDir: 'js',
+        sourceMap: true,
+      },
+      filesGlob: [
+            './**/*.ts',
+            '!./dist/csComp.d.ts',
+            '!./js/**/*.d.ts',
+            '!./js/**/*.js',
+            '!./node_modules/**/*.ts',
+      ],
+      exclude: [],
+    },
+  };
+  var globPattern = ['./csComp/**/*.ts',
+    '!./csComp/includes/**/*.d.ts',
+    '!./csComp/js/**/*.d.ts',
+    '!./csComp/js/**/*.js',
+  ];
+  return buildTsconfig(config, globPattern, 'csComp');
+});
+
+// This task updates the typescript dependencies on tsconfig file for csServerComp
+gulp.task('servercomp_tsconfig_files', function() {
+  var config = {
+    tsOrder: ['**/*.ts'],
+    tsConfig: {
+      version: '1.6.2',
+      compilerOptions: {
+        target: 'es5',
+        module: 'commonjs',
+        declaration: true,
+        noImplicitAny: false,
+        outDir: './../dist-npm',
+        removeComments: true,
+        noLib: false,
+        preserveConstEnums: true,
+        suppressImplicitAnyIndexErrors: true,
+        sourceMap: true,
+      },
+      filesGlob: [
+        './**/*.ts',
+        '!./**/*.d.ts',
+        './Scripts/**/*.d.ts',
+        '!./OfflineSearch/**/*.*',
+      ],
+      exclude: [],
+    },
+  };
+  var globPattern = ['csServerComp/**/*.ts',
+    '!csServerComp/OfflineSearch/**/*.ts',
+    '!csServerComp/ServerComponents/**/*.d.ts',
+    '!csServerComp/Classes/*.d.ts',
+  ];
+  return buildTsconfig(config, globPattern, 'csServerComp');
+});
+
+gulp.task('test_tsconfig_files', function() {
+  var config = {
+    tsOrder: ['**/*.ts'],
+    tsConfig: {
+      version: '1.5.0-alpha',
+      compilerOptions: {
+        target: 'es5',
+        module: 'commonjs',
+        declaration: false,
+        noImplicitAny: false,
+        removeComments: true,
+        noLib: false,
+        preserveConstEnums: true,
+        suppressImplicitAnyIndexErrors: true,
+      },
+      filesGlob: [
+        './**/*.ts',
+        '!./node_modules/**/*.ts',
+      ],
+      exclude: [],
+    },
+  };
+  return buildTsconfig(config, './test/**/*.ts', 'test');
+});
+
+gulp.task('example_tsconfig_files', function() {
+  var config = {
+    tsOrder: ['**/*.ts'],
+    tsConfig: {
+      compilerOptions: {
+        target: 'es5',
+        module: 'commonjs',
+        declaration: false,
+        noImplicitAny: false,
+        removeComments: false,
+        noLib: false,
+      },
+      filesGlob: [
+        './**/*.ts',
+        '!./node_modules/**/*.ts',
+        '!./node_modules/**/*.d.ts',
+        '!./dist/**/*.*',
+        '!./public/bower_components/**/*.d.ts',
+      ],
+      exclude: [],
+    },
+  };
+  var globPattern = ['./example/**/*.ts',
+    '!./example/node_modules/**/*.ts',
+    '!./example/dist/**/*.*',
+    '!./example/public/bower_components/**/*.d.ts',
+  ];
+  return buildTsconfig(config, './test/**/*.ts', 'example');
+});
+
 // This task compiles typescript on csComp
 gulp.task('comp_tsc', function(cb) {
-    return run('tsc -p csComp', cb);
+  return run('tsc -p csComp', cb);
 });
 
 // This task runs tsd command on csServerComp folder
@@ -123,22 +238,6 @@ gulp.task('servercomp_tsd', function(cb) {
         command: 'reinstall',
         config: 'csServerComp/tsd.json',
     }, cb);
-});
-
-// This task updates the typescript dependencies on tsconfig file for csServerComp
-gulp.task('servercomp_tsconfig_files', function() {
-    return gulp.src(['csServerComp/**/*.ts',
-            '!csServerComp/OfflineSearch/**/*.ts',
-            '!csServerComp/ServerComponents/**/*.d.ts',
-            //'!csServerComp/node_modules/**/*.ts',
-            '!csServerComp/Classes/*.d.ts',
-        ], {
-            base: 'csServerComp'
-        })
-        .pipe(tsconfig({
-            path: 'csServerComp/tsconfig.json',
-            relative_dir: 'csServerComp/',
-        }));
 });
 
 // This task compiles typescript on csServerComp, sending the output to dist-npm
@@ -156,34 +255,8 @@ gulp.task('test_tsd', function(cb) {
     }, cb);
 });
 
-gulp.task('test_tsconfig_files', function() {
-    return gulp.src(['./test/**/*.ts',
-            '!./test/node_modules/**/*.ts',
-        ], {
-            base: 'test'
-        })
-        .pipe(tsconfig({
-            path: 'test/tsconfig.json',
-            relative_dir: 'test/',
-        }));
-});
-
 gulp.task('test_tsc', function(cb) {
     return run('tsc -p test', cb);
-});
-
-gulp.task('example_tsconfig_files', function() {
-    return gulp.src(['./example/**/*.ts',
-            '!./example/node_modules/**/*.ts',
-            '!./example/dist/**/*.*',
-            '!./example/public/bower_components/**/*.d.ts',
-        ], {
-            base: 'example'
-        })
-        .pipe(tsconfig({
-            path: 'example/tsconfig.json',
-            relative_dir: 'example/',
-        }));
 });
 
 gulp.task('example_tsc', function(cb) {

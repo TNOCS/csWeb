@@ -1,5 +1,7 @@
 bower/bower_components/
 
+*tsconfig.json
+
 *.config
 coverage/
 
