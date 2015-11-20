@@ -294,6 +294,14 @@ gulp.task('init', function(cb) {
     );
 });
 
+gulp.task('travis', function(cb) {
+  runSequence(
+    'init',
+    'test',
+	cb
+  );
+});
+
 gulp.task('karma', function(cb) {
     new karma.Server({
         configFile: __dirname + '/test/karma.conf.js',
@@ -303,13 +311,12 @@ gulp.task('karma', function(cb) {
 
 gulp.task('test', function(cb) {
     runSequence(
-        //'built_csServerComp.d.ts',
         'built_csComp.d.ts',
         'test_tsd',
         'test_tsconfig_files',
         'test_tsc',
         'karma',
-	cb
+      cb
     );
 });
 
