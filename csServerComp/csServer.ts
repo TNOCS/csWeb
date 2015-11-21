@@ -53,8 +53,6 @@ export class csServer {
         this.httpServer.listen(this.server.get('port'), () => {
             Winston.info('Express server listening on port ' + this.server.get('port'));            
             
-
-            /**
              * API platform
              */
             this.api = new csweb.ApiManager('cs', 'cs');
@@ -70,9 +68,7 @@ export class csServer {
                     ],
                     () => {
                         started();
-
                     });
-            });
             
             /**
              * Excel 2 map functionality
@@ -80,8 +76,13 @@ export class csServer {
             var mapLayerFactory = new csweb.MapLayerFactory(bagDatabase, this.messageBus, this.api);
             this.server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res));
             this.server.post('/bagcontours', (req, res) => mapLayerFactory.processBagContours(req, res));
+            });
+
+            /**
+             * Excel 2 map functionality
+             */
+            var mapLayerFactory = new csweb.MapLayerFactory(bagDatabase, this.messageBus, api);
+            this.server.post('/projecttemplate', (req, res) => mapLayerFactory.process(req, res));
+            this.server.post('/bagcontours', (req, res) => mapLayerFactory.processBagContours(req, res));
         });
-
-
-    }µ
 }

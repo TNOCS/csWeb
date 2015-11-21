@@ -36,7 +36,7 @@ export class MessageBusService {
      */
     public publish(topic: string, title: string, data?: any): void {
         //window.console.log("publish: " + topic + ", " + title);
-        if (!MessageBusService.cache[topic]) return;
+        if (!MessageBusService.cache[topic]) { return; }
         MessageBusService.cache[topic].forEach(cb => cb(title, data));
     }
 
@@ -46,7 +46,7 @@ export class MessageBusService {
      * @param {IMessageBusCallback} callback The callback to call.
      */
     public subscribe(topic: string, callback: IMessageBusCallback): MessageBusHandle {
-        if (!MessageBusService.cache[topic]) MessageBusService.cache[topic] = new Array<IMessageBusCallback>();
+        if (!MessageBusService.cache[topic]) { MessageBusService.cache[topic] = new Array<IMessageBusCallback>(); }
         MessageBusService.cache[topic].push(callback);
         return new MessageBusHandle(topic, callback);
     }
