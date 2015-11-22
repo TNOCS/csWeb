@@ -30,7 +30,6 @@ export class MessageBusService {
     // constructor(public Connection: ClientConnection.ConnectionManager) {
     // }
 
-
     /**
      * Publish to a topic
      */
@@ -57,7 +56,7 @@ export class MessageBusService {
     public unsubscribe(handle: MessageBusHandle): void {
         var topic = handle.topic;
         var callback = handle.callback;
-        if (!MessageBusService.cache[topic]) return;
+        if (!MessageBusService.cache[topic]) {return;}
         MessageBusService.cache[topic].forEach((cb, idx) => {
             if (cb == callback) {
                 MessageBusService.cache[topic].splice(idx, 1);
