@@ -72,7 +72,8 @@ describe('Helpers', function() {
             expect(result.length).toEqual(2);
         });
 
-        fit('should add property types', function() {
+        // TODO Add test where the rt is not null!
+        it('should add property types', function() {
             var f = <csComp.Services.IFeature>{};
             var ft = <csComp.Services.IFeatureType>{};
             var rt = <csComp.Services.TypeResource>{};
@@ -81,16 +82,16 @@ describe('Helpers', function() {
             f.properties = {};
             f.properties['test'] = 0;
             ft.propertyTypeData = [];
-            result = csComp.Helpers.addPropertyTypes(f, ft, rt);
+            result = csComp.Helpers.addPropertyTypes(f, ft, null);
             expect(result).toEqual(ft);
-            // var propertyType = <csComp.Services.IPropertyType>{};
-            // propertyType.label = 'test';
-            // ft.propertyTypeData.push(propertyType);
-            // result = csComp.Helpers.addPropertyTypes(f, ft, rt);
-            // expect(result).toEqual(ft);
-            // f.properties['test2'] = false;
-            // result = csComp.Helpers.addPropertyTypes(f, ft, rt);
-            // expect(result).toEqual(ft);
+            var propertyType = <csComp.Services.IPropertyType>{};
+            propertyType.label = 'test';
+            ft.propertyTypeData.push(propertyType);
+            result = csComp.Helpers.addPropertyTypes(f, ft, null);
+            expect(result).toEqual(ft);
+            f.properties['test2'] = false;
+            result = csComp.Helpers.addPropertyTypes(f, ft, null);
+            expect(result).toEqual(ft);
         });
 
         it('should create default types', function() {

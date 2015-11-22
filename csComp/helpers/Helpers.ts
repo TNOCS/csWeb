@@ -212,48 +212,41 @@
 
     export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource : csComp.Services.TypeResource): csComp.Services.IFeatureType {
         var type = featureType;
-        if (!type.propertyTypeData) {type.propertyTypeData = [];}
+        if (!type.propertyTypeData) { type.propertyTypeData = []; }
 
         for (var key in feature.properties) {
             //if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
             var pt : string;
             if (resource && resource.propertyTypeData) {
-                for (var k in resource.propertyTypeData)
-                        {                if (resource.propertyTypeData[k].label === key)
-                            {
-                                pt = k; 
-                            }
-                        }
+                for (var k in resource.propertyTypeData) {
+                    if (resource.propertyTypeData[k].label === key) {
+                        pt = k;
+                    }
+                }
             }
             if (!pt) {
-                if (!feature.properties.hasOwnProperty(key)) continue;
+                if (!feature.properties.hasOwnProperty(key)) { continue; }
                 var propertyType: csComp.Services.IPropertyType = {};
                 propertyType.label = key;
-                propertyType.title = key.replace('_', ' ');                
+                propertyType.title = key.replace('_', ' ');
                 var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
-                
+
                 // text is default, so we can ignore that
                 if (StringExt.isNumber(value))
-                    propertyType.type = 'number';
+                    { propertyType.type = 'number'; }
                 else if (StringExt.isBoolean(value))
-                    propertyType.type = 'boolean';
+                    { propertyType.type = 'boolean'; }
                 else if (StringExt.isBbcode(value))
-                    propertyType.type = 'bbcode';
-                // else
-                //     propertyType.type = 'text';
-                if (resource)
-                {
-                    var k = this.findUniqueKey(resource.propertyTypeData,key);
-                    if (k===key) delete propertyType.label;                    
-                    resource.propertyTypeData[k] = propertyType;                    
-                }
-                else{
+                    { propertyType.type = 'bbcode'; }
+                if (resource) {
+                    var ke = findUniqueKey(resource.propertyTypeData,key);
+                    if (ke === key) { delete propertyType.label; }
+                    resource.propertyTypeData[k] = propertyType;
+                } else {
                     featureType.propertyTypeData[key] = propertyType;
                 }
-                
             }
         }
-
         return type;
     }
 
