@@ -1,1 +1,9 @@
 * text eol=lf
+
+# text files
+*.d.ts text
+
+# images are binary
+*.png binary
+*.jpg binary
+*.pptx binary

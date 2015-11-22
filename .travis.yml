@@ -3,12 +3,12 @@ language: node_js
 node_js:
   - "4.0"
 install:
+  - "npm install -g npm@3.5.0"
   - "npm install -g typescript@1.6.2"
   - "npm install -g bower"
   - "npm install"
 script:
-    - gulp init
-    - gulp test
+    - gulp travis
     - cd .. && cat coverage/*/lcov.info | example/node_modules/coveralls/bin/coveralls.js
 notifications:
   slack: webcs:AnvBbkHIi7v9aTiS2H4suMkr

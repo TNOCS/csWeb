@@ -2,7 +2,7 @@ module Directives.Clock {
     /**
      * Config
      */
-    var moduleName = 'csComp';
+    var moduleName = "csComp";
 
     /**
       * Module

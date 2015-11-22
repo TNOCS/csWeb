@@ -11,35 +11,35 @@ import BagDatabase = require('../database/BagDatabase');
 import LocalBag = require('../database/LocalBag');
 import IBagOptions = require('../database/IBagOptions');
 import IGeoJsonFeature = require('./IGeoJsonFeature');
-import ApiManager = require('../api/ApiManager');
+import Api = require('../api/ApiManager');
 import async = require('async');
 
 export interface ILayerDefinition {
-    projectTitle: string,
-    reference: string,
-    group: string,
-    layerTitle: string,
-    description: string,
-    featureType: string,
-    geometryType: string,
-    parameter1: string,
-    parameter2: string,
-    parameter3: string,
-    parameter4: string,
-    iconUri: string,
-    iconSize: number,
-    drawingMode: string,
-    fillColor: string,
-    strokeColor: string,
-    selectedStrokeColor: string,
-    strokeWidth: number,
-    isEnabled: boolean,
-    clusterLevel: number,
-    useClustering: boolean,
-    opacity: number,
-    nameLabel: string,
-    includeOriginalProperties: boolean,
-    defaultFeatureType: string
+    projectTitle: string;
+    reference: string;
+    group: string;
+    layerTitle: string;
+    description: string;
+    featureType: string;
+    geometryType: string;
+    parameter1: string;
+    parameter2: string;
+    parameter3: string;
+    parameter4: string;
+    iconUri: string;
+    iconSize: number;
+    drawingMode: string;
+    fillColor: string;
+    strokeColor: string;
+    selectedStrokeColor: string;
+    strokeWidth: number;
+    isEnabled: boolean;
+    clusterLevel: number;
+    useClustering: boolean;
+    opacity: number;
+    nameLabel: string;
+    includeOriginalProperties: boolean;
+    defaultFeatureType: string;
 }
 
 export interface IProperty {
@@ -72,34 +72,34 @@ export interface IPropertyType {
 }
 
 export interface ILayerTemplate {
-    layerDefinition: ILayerDefinition[],
-    propertyTypes: IPropertyType[],
-    properties: IProperty[],
-    sensors?: IProperty[],
-    projectId?: string,
-    iconBase64?: string
+    layerDefinition: ILayerDefinition[];
+    propertyTypes: IPropertyType[];
+    properties: IProperty[];
+    sensors?: IProperty[];
+    projectId?: string;
+    iconBase64?: string;
 }
 
 export interface IBagContourRequest {
-    bounds: string,
-    layer: any
+    bounds: string;
+    layer: any;
 }
 
 /** A factory class to create new map layers based on input, e.g. from Excel */
 export class MapLayerFactory {
     templateFiles: IProperty[];
     featuresNotFound: any;
-    apiManager: ApiManager.ApiManager;
+    apiManager: Api.ApiManager;
 
     // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
-    constructor(private bag: BagDatabase.BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: ApiManager.ApiManager) {
+    constructor(private bag: BagDatabase.BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager) {
         var fileList: IProperty[] = [];
-        fs.readdir("public/data/templates", function(err, files) {
+        fs.readdir('public/data/templates', function(err, files) {
             if (err) {
-                console.log("Error while looking for templates");
+                console.log('Error while looking for templates');
             } else {
                 files.forEach((f) => {
-                    fileList[f.replace(/\.[^/.]+$/, "")] = ("public/data/templates/" + f); // Filter extension from key and store in dictionary
+                    fileList[f.replace(/\.[^/.]+$/, '')] = ('public/data/templates/' + f); // Filter extension from key and store in dictionary
                 });
             }
         });
@@ -147,7 +147,7 @@ export class MapLayerFactory {
                 console.log('-------------------------------------');
             }
 
-            console.log("New map created: publishing...");
+            console.log('New map created: publishing...');
             this.messageBus.publish('dynamic_project_layer', 'created', data);
             var combinedjson = this.splitJson(data);
             this.sendIconThroughApiManager(data.iconBase64, ld.iconUri);
@@ -157,7 +157,8 @@ export class MapLayerFactory {
     }
 
     private splitJson(data) {
-        var geojson = {}, resourcejson: any = {};
+        var geojson = {},
+            resourcejson: any = {};
         var combinedjson = data.geojson;
         if (combinedjson.hasOwnProperty('type') && combinedjson.hasOwnProperty('features')) {
             geojson = {
@@ -177,7 +178,7 @@ export class MapLayerFactory {
                         var propKeys: string = '';
                         defaultFeatureType.propertyTypeData.forEach((pt) => {
                             propertyTypeObjects[pt.label] = pt;
-                            propKeys = propKeys + pt.label + ';'
+                            propKeys = propKeys + pt.label + ';';
                         });
                         delete defaultFeatureType.propertyTypeData;
                         defaultFeatureType.propertyTypeKeys = propKeys;
@@ -191,32 +192,46 @@ export class MapLayerFactory {
                 }
             }
         }
+        // console.log('TODO REMOVE writing output');
+        // fs.writeFileSync('c:/Users/Erik/Downloads/tkb/' + data.reference + '_layer.json', JSON.stringify(geojson));
+        // fs.writeFileSync('c:/Users/Erik/Downloads/tkb/' + data.reference + '.json', JSON.stringify(resourcejson));
         return { geojson: geojson, resourcejson: resourcejson };
     }
 
     public sendIconThroughApiManager(b64: string, path: string) {
-        this.apiManager.addFile(b64, "", path, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+        this.apiManager.addFile(b64, '', path, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
             console.log(result);
         });
     }
 
     public sendResourceThroughApiManager(data: any, resourceId: string) {
         data.id = resourceId;
-        this.apiManager.addResource(data, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+        this.apiManager.addResource(data, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
             console.log(result);
         });
     }
 
     public sendLayerThroughApiManager(data: any) {
-        var layer: ApiManager.ILayer = this.apiManager.getLayerDefinition(<ApiManager.Layer>{ title: data.layerTitle, description: data.description, id: data.reference, features: data.geojson.features, enabled: data.enabled, defaultFeatureType: data.defaultFeatureType, typeUrl: 'data/api/resourceTypes/' + data.reference + '.json', opacity: data.opacity, dynamicResource: true });
-        var group: ApiManager.Group = this.apiManager.getGroupDefinition(<ApiManager.Group>{ title: data.group, id: data.group, clusterLevel: data.clusterLevel });
+        var layer: Api.ILayer = this.apiManager.getLayerDefinition(
+            <Api.Layer>{
+                title: data.layerTitle,
+                description: data.description,
+                id: data.reference,
+                features: data.geojson.features,
+                enabled: data.enabled,
+                defaultFeatureType: data.defaultFeatureType,
+                typeUrl: 'data/api/resourceTypes/' + data.reference + '.json',
+                opacity: data.opacity,
+                dynamicResource: true
+            });
+        var group: Api.Group = this.apiManager.getGroupDefinition(<Api.Group>{ title: data.group, id: data.group, clusterLevel: data.clusterLevel });
 
         async.series([
             (cb: Function) => {
-                this.apiManager.addUpdateLayer(layer, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                this.apiManager.addUpdateLayer(layer, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
                     console.log(result);
-                    if (result.result === ApiManager.ApiResult.LayerAlreadyExists) {
-                        this.apiManager.addUpdateLayer(layer, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                    if (result.result === Api.ApiResult.LayerAlreadyExists) {
+                        this.apiManager.addUpdateLayer(layer, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
                             console.log(result);
                             cb();
                         });
@@ -226,19 +241,19 @@ export class MapLayerFactory {
                 });
             },
             (cb: Function) => {
-                this.apiManager.addGroup(group, data.projectId, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                this.apiManager.addGroup(group, data.projectId, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
                     console.log(result);
                     cb();
                 });
             },
             (cb: Function) => {
-                this.apiManager.updateProjectTitle(data.project, data.projectId, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                this.apiManager.updateProjectTitle(data.project, data.projectId, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
                     console.log(result);
                     cb();
-                })
+                });
             },
             (cb: Function) => {
-                this.apiManager.addLayerToProject(data.projectId, group.id, layer.id, <ApiManager.ApiMeta>{ source: 'maplayerfactory' }, (result: ApiManager.CallbackResult) => {
+                this.apiManager.addLayerToProject(data.projectId, group.id, layer.id, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
                     console.log(result);
                     cb();
                 });
@@ -289,17 +304,17 @@ export class MapLayerFactory {
                 var props: { [key: string]: any } = {};
                 for (var p in area) {
                     if (area.hasOwnProperty(p)) {
-                        if (p !== 'contour') props[p] = area[p];
+                        if (p !== 'contour') { props[p] = area[p]; }
                     }
                 }
                 var f: IGeoJsonFeature = {
-                    type: "Feature",
+                    type: 'Feature',
                     geometry: JSON.parse(area.contour),
                     properties: props
                 };
                 layer.data.features.push(f);
             });
-            console.log("Updated bag layer: publishing" + areas.length + " features...");
+            console.log('Updated bag layer: publishing' + areas.length + ' features...');
             this.messageBus.publish('dynamic_project_layer', 'send-layer', layer);
         });
     }
@@ -312,7 +327,7 @@ export class MapLayerFactory {
         this.convertStringFormats(template.propertyTypes);
         // Check propertyTypeData for time-based data
         var timestamps = this.convertTimebasedPropertyData(template);
-        var featureTypeName = ld.featureType || "Default";
+        var featureTypeName = ld.featureType || 'Default';
         var featureTypeContent = {
             name: featureTypeName,
             style: {
@@ -322,23 +337,23 @@ export class MapLayerFactory {
                 drawingMode: ld.drawingMode,
                 stroke: ld.strokeWidth > 0,
                 strokeWidth: (typeof ld.strokeWidth !== 'undefined') ? ld.strokeWidth : 3,
-                strokeColor: ld.strokeColor || "#000",
-                selectedStrokeColor: ld.selectedStrokeColor || "#00f",
-                fillColor: ld.fillColor || "#ff0",
-                opacity: 1,//ld.opacity || 0.5,
-                fillOpacity: 1,//ld.opacity || 0.5,
+                strokeColor: ld.strokeColor || '#000',
+                selectedStrokeColor: ld.selectedStrokeColor || '#00f',
+                fillColor: ld.fillColor || '#ff0',
+                opacity: 1, //ld.opacity || 0.5,
+                fillOpacity: 1, //ld.opacity || 0.5,
                 nameLabel: ld.nameLabel
             },
             propertyTypeData: template.propertyTypes
-        }
+        };
         var geojson = {
-            type: "FeatureCollection",
+            type: 'FeatureCollection',
             featureTypes: {},
             features: features
         };
         geojson.featureTypes[featureTypeName] = featureTypeContent;
         if (timestamps.length > 0) {
-            geojson["timestamps"] = JSON.parse(JSON.stringify(timestamps));
+            geojson['timestamps'] = JSON.parse(JSON.stringify(timestamps));
         }
         // Convert dates (from a readable key to a JavaScript Date string notation)
         this.convertDateProperties(template.propertyTypes, template.properties);
@@ -346,114 +361,125 @@ export class MapLayerFactory {
         this.convertTypes(template.propertyTypes, template.properties);
         // Add geometry
         switch (ld.geometryType) {
-            case "Postcode6_en_huisnummer":
+            case 'Postcode6_en_huisnummer':
                 if (!ld.parameter1) {
-                    console.log("Error: Parameter1 should be the name of the column containing the zip code!")
+                    console.log('Error: Parameter1 should be the name of the column containing the zip code!');
                     return;
                 }
                 if (!ld.parameter2) {
-                    console.log("Error: Parameter2 should be the name of the column containing the house number!")
+                    console.log('Error: Parameter2 should be the name of the column containing the house number!');
                     return;
                 } if (!ld.parameter3) {
-                    console.log("Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!")
+                    console.log('Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!');
                 } if (!ld.parameter4) {
-                    console.log("Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!")
+                    console.log('Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!');
                 }
                 if (!ld.parameter3 || !ld.parameter4) {
-                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [],
+                        () => { callback(geojson); });
                 } else {
                     this.mergeHouseNumber(ld.parameter1, ld.parameter2, ld.parameter3, ld.parameter4, template.properties);
-                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.OnlyCoordinates, features, template.properties, template.propertyTypes, template.sensors || [],
+                        () => { callback(geojson); });
                 }
                 break;
-            case "Postcode6_en_huisnummer_met_bouwjaar":
+            case 'Postcode6_en_huisnummer_met_bouwjaar':
                 if (!ld.parameter1) {
-                    console.log("Error: Parameter1 should be the name of the column containing the zip code!")
+                    console.log('Error: Parameter1 should be the name of the column containing the zip code!');
                     return;
                 }
                 if (!ld.parameter2) {
-                    console.log("Error: Parameter2 should be the name of the column containing the house number!")
+                    console.log('Error: Parameter2 should be the name of the column containing the house number!');
                     return;
                 } if (!ld.parameter3) {
-                    console.log("Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!")
+                    console.log('Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!');
                 } if (!ld.parameter4) {
-                    console.log("Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!")
+                    console.log('Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!');
                 }
                 if (!ld.parameter3 || !ld.parameter4) {
-                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.WithBouwjaar, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.WithBouwjaar, features, template.properties, template.propertyTypes, template.sensors || [],
+                        () => { callback(geojson); });
                 } else {
                     this.mergeHouseNumber(ld.parameter1, ld.parameter2, ld.parameter3, ld.parameter4, template.properties);
-                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.WithBouwjaar, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.WithBouwjaar, features, template.properties, template.propertyTypes, template.sensors || [],
+                        () => { callback(geojson); });
                 }
                 break;
-            case "Postcode6_en_huisnummer_met_bag":
+            case 'Postcode6_en_huisnummer_met_bag':
                 if (!ld.parameter1) {
-                    console.log("Error: Parameter1 should be the name of the column containing the zip code!")
+                    console.log('Error: Parameter1 should be the name of the column containing the zip code!');
                     return;
                 }
                 if (!ld.parameter2) {
-                    console.log("Error: Parameter2 should be the name of the column containing the house number!")
+                    console.log('Error: Parameter2 should be the name of the column containing the house number!');
                     return;
                 } if (!ld.parameter3) {
-                    console.log("Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!")
+                    console.log('Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!');
                 } if (!ld.parameter4) {
-                    console.log("Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!")
+                    console.log('Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!');
                 }
                 if (!ld.parameter3 || !ld.parameter4) {
-                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.All, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.All, features, template.properties, template.propertyTypes, template.sensors || [],
+                        () => { callback(geojson); });
                 } else {
                     this.mergeHouseNumber(ld.parameter1, ld.parameter2, ld.parameter3, ld.parameter4, template.properties);
-                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.All, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.All, features, template.properties, template.propertyTypes, template.sensors || [],
+                        () => { callback(geojson); });
                 }
                 break;
-            case "Postcode6_en_huisnummer_met_bag_en_woningtype":
+            case 'Postcode6_en_huisnummer_met_bag_en_woningtype':
                 if (!ld.parameter1) {
-                    console.log("Error: Parameter1 should be the name of the column containing the zip code!")
+                    console.log('Error: Parameter1 should be the name of the column containing the zip code!');
                     return;
                 }
                 if (!ld.parameter2) {
-                    console.log("Error: Parameter2 should be the name of the column containing the house number!")
+                    console.log('Error: Parameter2 should be the name of the column containing the house number!');
                     return;
                 } if (!ld.parameter3) {
-                    console.log("Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!")
+                    console.log('Warning: Parameter3 should be the name of the column containing the house letter! Now using number only!');
                 } if (!ld.parameter4) {
-                    console.log("Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!")
+                    console.log('Warning: Parameter4 should be the name of the column containing the house number addition! Now using number only!');
                 }
                 if (!ld.parameter3 || !ld.parameter4) {
-                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.AddressCountInBuilding, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, ld.parameter2, IBagOptions.AddressCountInBuilding, features, template.properties, template.propertyTypes, template.sensors || [],
+                        () => { callback(geojson); });
                 } else {
                     this.mergeHouseNumber(ld.parameter1, ld.parameter2, ld.parameter3, ld.parameter4, template.properties);
-                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.AddressCountInBuilding, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                    this.createPointFeature(ld.parameter1, '_mergedHouseNumber', IBagOptions.AddressCountInBuilding, features, template.properties, template.propertyTypes, template.sensors || [],
+                        () => { callback(geojson); });
                 }
                 break;
-            case "Latitude_and_longitude":
+            case 'Latitude_and_longitude':
                 if (!ld.parameter1) {
-                    console.log("Error: Parameter1 should be the name of the column containing the latitude!")
+                    console.log('Error: Parameter1 should be the name of the column containing the latitude!');
                     return;
                 }
                 if (!ld.parameter2) {
-                    console.log("Error: Parameter2 should be the name of the column containing the longitude!")
+                    console.log('Error: Parameter2 should be the name of the column containing the longitude!');
                     return;
                 }
-                this.createLatLonFeature(ld.parameter1, ld.parameter2, features, template.properties, template.sensors || [], () => { callback(geojson) });
+                this.createLatLonFeature(ld.parameter1, ld.parameter2, features, template.properties, template.sensors || [],
+                    () => { callback(geojson); });
                 break;
-            case "RD_X_en_Y":
+            case 'RD_X_en_Y':
                 if (!ld.parameter1) {
-                    console.log("Error: Parameter1 should be the name of the column containing the RD X coordinate!")
+                    console.log('Error: Parameter1 should be the name of the column containing the RD X coordinate!');
                     return;
                 }
                 if (!ld.parameter2) {
-                    console.log("Error: Parameter2 should be the name of the column containing the RD Y coordinate!")
+                    console.log('Error: Parameter2 should be the name of the column containing the RD Y coordinate!');
                     return;
                 }
-                this.createRDFeature(ld.parameter1, ld.parameter2, features, template.properties, template.sensors || [], () => { callback(geojson) });
+                this.createRDFeature(ld.parameter1, ld.parameter2, features, template.properties, template.sensors || [],
+                    () => { callback(geojson); });
                 break;
             default:
                 if (!ld.parameter1) {
-                    console.log("Error: At least parameter1 should contain a value!")
+                    console.log('Error: At least parameter1 should contain a value!');
                     return;
                 }
-                this.createPolygonFeature(ld.geometryType, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [], () => { callback(geojson) });
+                this.createPolygonFeature(ld.geometryType, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [],
+                    () => { callback(geojson); });
                 break;
         }
         //console.log("Drawing mode" + ld.drawingMode);
@@ -471,17 +497,17 @@ export class MapLayerFactory {
      */
     private convertTimebasedPropertyData(template: ILayerTemplate) {
         var propertyTypes: IPropertyType[] = template.propertyTypes;
-        if (!propertyTypes) return;
+        if (!propertyTypes) { return; }
         var timestamps = [];
         var targetProperties = [];
         var realPropertyTypes: IPropertyType[] = []; //Filter out propertyTypes that are actually a timestamp value
         propertyTypes.forEach((pt) => {
-            if (pt.hasOwnProperty("targetProperty")) {
+            if (pt.hasOwnProperty('targetProperty')) {
                 //Prevent duplicate properties
-                if (targetProperties.indexOf(pt["targetProperty"]) < 0) targetProperties.push(pt["targetProperty"]);
+                if (targetProperties.indexOf(pt['targetProperty']) < 0) { targetProperties.push(pt['targetProperty']); }
                 //Prevent duplicate timestamps
-                var timestamp = this.convertTime(pt["date"], pt["time"]);
-                if (timestamps.indexOf(timestamp) < 0) timestamps.push(timestamp);
+                var timestamp = this.convertTime(pt['date'], pt['time']);
+                if (timestamps.indexOf(timestamp) < 0) { timestamps.push(timestamp); }
             } else {
                 realPropertyTypes.push(pt);
             }
@@ -510,27 +536,28 @@ export class MapLayerFactory {
                     }
                 }
             }
-            if (Object.keys(sensors).length !== 0) realSensors.push(sensors);
+            if (Object.keys(sensors).length !== 0) { realSensors.push(sensors); }
             realProperties.push(realProperty);
         });
-        if (realSensors.length > 0) template.sensors = realSensors;
+        if (realSensors.length > 0) { template.sensors = realSensors; }
         template.properties = realProperties;
         return timestamps;
     }
 
-    private createPolygonFeature(templateName: string, par1: string, inclTemplProps: boolean, features: IGeoJsonFeature[], properties: IProperty[], propertyTypes: IPropertyType[], sensors: IProperty[], callback: Function) {
-        if (!properties) callback();
+    private createPolygonFeature(templateName: string, par1: string, inclTemplProps: boolean, features: IGeoJsonFeature[], properties: IProperty[],
+        propertyTypes: IPropertyType[], sensors: IProperty[], callback: Function) {
+        if (!properties) { callback(); }
         if (!this.templateFiles.hasOwnProperty(templateName)) {
-            console.log("Error: could not find template: " + templateName);
+            console.log('Error: could not find template: ' + templateName);
             callback();
         }
         var templateUrl: string = this.templateFiles[templateName];
         var templateFile = fs.readFileSync(templateUrl);
         var templateJson = JSON.parse(templateFile.toString());
 
-        if (inclTemplProps && templateJson.featureTypes && templateJson.featureTypes.hasOwnProperty("Default")) {
-            templateJson.featureTypes["Default"].propertyTypeData.forEach((ft) => {
-                if (!properties[0].hasOwnProperty(ft.label) && ft.label !== "Name") { //Do not overwrite input data, only add new items
+        if (inclTemplProps && templateJson.featureTypes && templateJson.featureTypes.hasOwnProperty('Default')) {
+            templateJson.featureTypes['Default'].propertyTypeData.forEach((ft) => {
+                if (!properties[0].hasOwnProperty(ft.label) && ft.label !== 'Name') { //Do not overwrite input data, only add new items
                     propertyTypes.push(ft);
                 }
             });
@@ -539,22 +566,22 @@ export class MapLayerFactory {
         properties.forEach((p, index) => {
             var foundFeature = false;
             fts.some((f) => {
-                if (f.properties["Name"] === p[par1]) {
+                if (f.properties['Name'] === p[par1]) {
                     console.log(p[par1]);
                     if (inclTemplProps) {
                         for (var key in f.properties) {
-                            if (!p.hasOwnProperty(key) && key !== "Name") { //Do not overwrite input data, only add new items
+                            if (!p.hasOwnProperty(key) && key !== 'Name') { //Do not overwrite input data, only add new items
                                 p[key] = f.properties[key];
                             }
                         }
                     }
                     var featureJson: IGeoJsonFeature = {
-                        type: "Feature",
+                        type: 'Feature',
                         geometry: f.geometry,
                         properties: p
-                    }
+                    };
                     if (sensors.length > 0) {
-                        featureJson["sensors"] = sensors[index];
+                        featureJson['sensors'] = sensors[index];
                     }
                     features.push(featureJson);
                     foundFeature = true;
@@ -572,12 +599,12 @@ export class MapLayerFactory {
     }
 
     private createLatLonFeature(latString: string, lonString: string, features: IGeoJsonFeature[], properties: IProperty[], sensors: IProperty[], callback: Function) {
-        if (!properties) callback();
+        if (!properties) { callback(); }
         properties.forEach((prop, index) => {
             var lat = prop[latString];
             var lon = prop[lonString];
             if (isNaN(lat) || isNaN(lon)) {
-                console.log("Error: Not a valid coordinate ( " + lat + ", " + lon + ")");
+                console.log('Error: Not a valid coordinate ( ' + lat + ', ' + lon + ')');
             } else {
                 features.push(this.createFeature(lon, lat, prop, sensors[index] || {}));
             }
@@ -589,16 +616,18 @@ export class MapLayerFactory {
      * Convert the RD coordinate to WGS84.
      */
     private createRDFeature(rdX: string, rdY: string, features: IGeoJsonFeature[], properties: IProperty[], sensors: IProperty[], callback: Function) {
-        if (!properties) callback();
+        if (!properties) { callback(); }
         //https://github.com/yuletide/node-proj4js-defs/blob/master/epsg.js
-        //Proj4js.defs["EPSG:28992"] = "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs";
-        proj4.defs('RD', "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs");
+        //Proj4js.defs["EPSG:28992"] = "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 
+        //+ellps=bessel + towgs84=565.417, 50.3319, 465.552, -0.398957, 0.343988, -1.8774, 4.0725 + units=m + no_defs";
+        proj4.defs('RD', '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 ' +
+            ' +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs');
         var converter = proj4('RD');
         properties.forEach((prop, index) => {
             var x = prop[rdX];
             var y = prop[rdY];
             if (isNaN(x) || isNaN(y)) {
-                console.log("Error: Not a valid coordinate ( " + x + ", " + y + ")");
+                console.log('Error: Not a valid coordinate ( ' + x + ', ' + y + ')');
             } else {
                 var wgs = converter.inverse({ x: x, y: y });
                 //console.log(JSON.stringify(wgs));
@@ -625,8 +654,9 @@ export class MapLayerFactory {
         });
     }
 
-    private createPointFeature(zipCode: string, houseNumber: string, bagOptions: IBagOptions, features: IGeoJsonFeature[], properties: IProperty[], propertyTypes: IPropertyType[], sensors: IProperty[], callback: Function) {
-        if (!properties) callback();
+    private createPointFeature(zipCode: string, houseNumber: string, bagOptions: IBagOptions, features: IGeoJsonFeature[],
+        properties: IProperty[], propertyTypes: IPropertyType[], sensors: IProperty[], callback: Function) {
+        if (!properties) { callback(); }
         var todo = properties.length;
         var bg = this.bag;
         var asyncthis = this;
@@ -639,19 +669,19 @@ export class MapLayerFactory {
                 var nmb = prop[houseNumber];
                 bg.lookupBagAddress(zip, nmb, bagOptions, (locations: Location[]) => {
                     //console.log(todo);
-                    if (!locations || locations.length === 0 || typeof locations[0] == 'undefined') {
+                    if (!locations || locations.length === 0 || typeof locations[0] === 'undefined') {
                         console.log(`Cannot find location with zip: ${zip}, houseNumber: ${nmb}`);
                         asyncthis.featuresNotFound[`${zip}${nmb}`] = { zip: `${zip}`, number: `${nmb}` };
                     } else {
                         for (var key in locations[0]) {
-                            if (key !== "lon" && key !== "lat") {
+                            if (key !== 'lon' && key !== 'lat') {
                                 if (locations[0][key]) {
                                     prop[(key.charAt(0).toUpperCase() + key.slice(1))] = locations[0][key];
-                                    asyncthis.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), "BAG");
+                                    asyncthis.createPropertyType(propertyTypes, (key.charAt(0).toUpperCase() + key.slice(1)), 'BAG');
                                 }
                             }
                         }
-                        if (prop.hasOwnProperty('_mergedHouseNumber')) delete prop['_mergedHouseNumber'];
+                        if (prop.hasOwnProperty('_mergedHouseNumber')) { delete prop['_mergedHouseNumber']; }
                         //console.log('locations[0] ' + locations[0]);
                         features.push(asyncthis.createFeature(locations[0].lon, locations[0].lat, prop, sensors[index] || {}));
                     }
@@ -701,21 +731,21 @@ export class MapLayerFactory {
 
     private createFeature(lon: number, lat: number, properties: IProperty, sensors?: IProperty): IGeoJsonFeature {
         var gjson = {
-            type: "Feature",
+            type: 'Feature',
             geometry: {
-                type: "Point",
+                type: 'Point',
                 coordinates: [lon, lat]
             },
             properties: properties
-        }
+        };
         if (Object.keys(sensors).length !== 0) {
-            gjson["sensors"] = sensors;
+            gjson['sensors'] = sensors;
         }
         return gjson;
     }
 
     private createPropertyType(propertyTypes: IPropertyType[], name: string, section?: string) {
-        if (!name) return;
+        if (!name) { return; }
         var propertyTypeExists = false;
         propertyTypes.some((pt) => {
             if (pt.label.toLowerCase() === name.toLowerCase()) {
@@ -725,21 +755,21 @@ export class MapLayerFactory {
                 return false;
             }
         });
-        if (propertyTypeExists) return;
+        if (propertyTypeExists) { return; }
         var propType: IPropertyType = {
             label: name,
             title: name,
-            type: "text",
+            type: 'text',
             visibleInCallOut: true,
             canEdit: true,
             isSearchable: false
         };
-        if (section) propType["section"] = section;
+        if (section) { propType['section'] = section; }
         propertyTypes.push(propType);
     }
 
     private convertTime(date: string, time: string): number {
-        if (date.length < 6) return 0;
+        if (date.length < 6) { return 0; }
         var year = Number(date.substr(0, 4));
         var month = Number(date.substr(4, 2));
         var day = Number(date.substr(6, 2));
@@ -749,18 +779,18 @@ export class MapLayerFactory {
         d.setDate(day);
         //TODO: Take time into account
         var timeInMs = d.getTime();
-        console.log("Converted " + date + " " + time + " to " + d.toDateString() + " (" + d.getTime() + " ms)");
+        console.log('Converted ' + date + ' ' + time + ' to ' + d.toDateString() + ' (' + d.getTime() + ' ms)');
         return timeInMs;
     }
 
     private convertDateProperties(propertyTypes: IPropertyType[], properties: IProperty[]) {
-        if (!propertyTypes || !properties) return;
+        if (!propertyTypes || !properties) { return; }
         propertyTypes.forEach((pt) => {
-            if (pt.hasOwnProperty("type") && pt["type"] === "date") {
-                var name = pt["label"]; //Store name of the property with type "date"
+            if (pt.hasOwnProperty('type') && pt['type'] === 'date') {
+                var name = pt['label']; //Store name of the property with type "date"
                 properties.forEach((p) => {
                     if (p.hasOwnProperty(name)) {
-                        var timeInMs = this.convertTime(p[name], ""); //TODO: Add Time compatibility
+                        var timeInMs = this.convertTime(p[name], ''); //TODO: Add Time compatibility
                         var d = new Date(timeInMs);
                         p[name] = d.toString();
                     }
@@ -770,58 +800,58 @@ export class MapLayerFactory {
     }
 
     private convertTypes(propertyTypes: IPropertyType[], properties: IProperty[]) {
-        if (!propertyTypes || !properties) return;
+        if (!propertyTypes || !properties) { return; }
         propertyTypes.forEach((pt) => {
-            if (pt.hasOwnProperty("type") && pt["type"] === "url") {
-                var name = pt["label"]; //Store name of the property with type "url"
+            if (pt.hasOwnProperty('type') && pt['type'] === 'url') {
+                var name = pt['label']; //Store name of the property with type "url"
                 properties.forEach((p) => {
                     if (p.hasOwnProperty(name)) {
-                        if (p[name].substring(0, 3) === "www") {
+                        if (p[name].substring(0, 3) === 'www') {
                             p[name] = '[url=http://' + p[name] + ']' + p[name] + '[/url]';
                         } else {
                             p[name] = '[url=' + p[name] + ']' + p[name] + '[/url]';
                         }
                     }
                 });
-                pt["type"] = "bbcode";
+                pt['type'] = 'bbcode';
             }
         });
     }
 
     private convertStringFormats(properties) {
         properties.forEach(function(prop) {
-            if (prop.hasOwnProperty("stringFormat")) {
-                switch (prop["stringFormat"]) {
-                    case "No_decimals":
-                        prop["stringFormat"] = "{0:#,#}";
+            if (prop.hasOwnProperty('stringFormat')) {
+                switch (prop['stringFormat']) {
+                    case 'No_decimals':
+                        prop['stringFormat'] = '{0:#,#}';
                         break;
-                    case "One_decimal":
-                        prop["stringFormat"] = "{0:#,#.#}";
+                    case 'One_decimal':
+                        prop['stringFormat'] = '{0:#,#.#}';
                         break;
-                    case "Two_decimals":
-                        prop["stringFormat"] = "{0:#,#.##}";
+                    case 'Two_decimals':
+                        prop['stringFormat'] = '{0:#,#.##}';
                         break;
-                    case "Euro_no_decimals":
-                        prop["stringFormat"] = "€{0:#,#}";
+                    case 'Euro_no_decimals':
+                        prop['stringFormat'] = '€{0:#,#}';
                         break;
-                    case "Euro_two_decimals":
-                        prop["stringFormat"] = "€{0:#,#.00}";
+                    case 'Euro_two_decimals':
+                        prop['stringFormat'] = '€{0:#,#.00}';
                         break;
-                    case "Percentage_no_decimals":
-                        prop["stringFormat"] = "{0:#,#}%";
+                    case 'Percentage_no_decimals':
+                        prop['stringFormat'] = '{0:#,#}%';
                         break;
-                    case "Percentage_one_decimal":
-                        prop["stringFormat"] = "{0:#,#.#}%";
+                    case 'Percentage_one_decimal':
+                        prop['stringFormat'] = '{0:#,#.#}%';
                         break;
-                    case "Percentage_two_decimals":
-                        prop["stringFormat"] = "{0:#,#.##}%";
+                    case 'Percentage_two_decimals':
+                        prop['stringFormat'] = '{0:#,#.##}%';
                         break;
-                    case "Percentage_four_decimals":
-                        prop["stringFormat"] = "{0:#,#.####}%";
+                    case 'Percentage_four_decimals':
+                        prop['stringFormat'] = '{0:#,#.####}%';
                         break;
                     default:
-                        if ((prop["stringFormat"].indexOf('{') < 0) && (prop["stringFormat"].indexOf('}') < 0)) {
-                            console.log("stringFormat \'" + prop["stringFormat"] + "\' not found.");
+                        if ((prop['stringFormat'].indexOf('{') < 0) && (prop['stringFormat'].indexOf('}') < 0)) {
+                            console.log('stringFormat \'' + prop['stringFormat'] + '\' not found.');
                         }
                         break;
                 }
