@@ -196,32 +196,34 @@
 
         return res;
     }
-    
-    /// find a unique key name in object
+
+    /** find a unique key name in object */
     export function findUniqueKey(o : Object, key : string) : string 
     {
         var i = 2;
-        var pk = key;        
+        var pk = key;
         while (o.hasOwnProperty(pk))
         {
-            key=key + pk;
-            pk+=1;
+            key = key + pk;
+            pk += 1;
         }
-        return pk;        
+        return pk;
     }
 
     export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource : csComp.Services.TypeResource): csComp.Services.IFeatureType {
         var type = featureType;
-        if (!type.propertyTypeData) type.propertyTypeData = [];
+        if (!type.propertyTypeData) {type.propertyTypeData = [];}
 
         for (var key in feature.properties) {
             //if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
             var pt : string;
-            if (resource && resource.propertyTypeData) for (var k in resource.propertyTypeData)
-            {                if (resource.propertyTypeData[k].label === key)
-                {
-                    pt = k; 
-                }
+            if (resource && resource.propertyTypeData) {
+                for (var k in resource.propertyTypeData)
+                        {                if (resource.propertyTypeData[k].label === key)
+                            {
+                                pt = k; 
+                            }
+                        }
             }
             if (!pt) {
                 if (!feature.properties.hasOwnProperty(key)) continue;
