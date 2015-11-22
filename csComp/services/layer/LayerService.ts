@@ -357,7 +357,6 @@ module csComp.Services {
                 switch (action) {
                     case 'onFeatureDeselect':
                         // check sub-layers
-
                         break;
                     case 'onFeatureSelect':
                         // check sub-layers
@@ -375,6 +374,7 @@ module csComp.Services {
                                 this.updateGroupFeatures(feature.layer.group);
                             }
                             if (prop.type === "layer" && feature.properties.hasOwnProperty(prop.label)) {
+                                
                                 if (prop.activation === "automatic") this.removeSubLayers(feature.layer.lastSelectedFeature);
 
                                 feature.layer.lastSelectedFeature = feature;
@@ -394,8 +394,15 @@ module csComp.Services {
                                     }
 
                                     if (!pl.id) pl.id = l;
+                                    pl.groupId = "Wegen";
                                     if (!pl.group) {
-                                        pl.group = feature.layer.group;
+                                        if (pl.groupId)
+                                        {
+                                            pl.group = this.findGroupById(pl.groupId)
+                                        }
+                                        else{
+                                            pl.group = feature.layer.group;
+                                        }
                                     }
                                     else {
                                         if (typeof pl.group === 'string') {
@@ -405,6 +412,9 @@ module csComp.Services {
                                     if (!pl.type) pl.type = feature.layer.type;
                                     if (!pl.title) pl.title = feature.properties["Name"] + " " + prop.title;
                                     if (!pl.defaultFeatureType) pl.defaultFeatureType = "link";
+                                    if (!pl.typeUrl) pl.typeUrl = "api/resources/smartcycling";
+                                    
+                                    
                                     //pl.parentFeature = feature;
                                     pl.group.layers.push(pl);
                                 }

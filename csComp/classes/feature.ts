@@ -146,6 +146,12 @@ module csComp.Services {
         manual,
         automatic
     }
+    
+    export interface ILayerPropertyDetails{
+        activation? : string;
+        groupId? : string;
+        defaultFeatureType? : string;
+    }
 
     export interface IPropertyType {
         label?: string;
@@ -171,7 +177,7 @@ module csComp.Services {
         categories?: string[];
         languages?: ILanguageData;
         legend?: Legend;
-        activation?: string;
+        layerProps? : ILayerPropertyDetails;        
         targetid?: string;
     }
 

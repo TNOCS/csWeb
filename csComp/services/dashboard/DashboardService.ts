@@ -10,7 +10,8 @@ module csComp.Services {
         public icon: string = 'tachometer';
         public popover: string = '';
     }
-
+    
+   
     /** service for managing dashboards */
     export class DashboardService {
         public maxBounds: IBoundingBox;
@@ -21,7 +22,7 @@ module csComp.Services {
         public activeWidget: IWidget;
         public dashboards: any;
         public widgetTypes: { [key: string]: IWidget } = {};
-
+        public chartGenerators : { [key : string] : Function} = {};
         public socket;
         public editWidgetMode: boolean;
 
@@ -57,6 +58,8 @@ module csComp.Services {
             this.mainDashboard = new csComp.Services.Dashboard();
             this.dashboards = [];
             this.dashboards["main"] = this.mainDashboard;
+            
+            this.chartGenerators["property-sensordata"] = ()=>{ return new csComp.Services.propertySensordataGenerator(this.$layerService,this);}
 
 
             this.$messageBusService.subscribe("dashboard", (event: string, id: string) => {
