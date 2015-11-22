@@ -1,6 +1,6 @@
 describe('MessageBus', function() {
   // load the module
-  beforeEach(module('csComp.Services'));
+  beforeEach(angular.mock.module('csComp.Services'));
 
   it('should pass', function() {
     expect(true).toBeTruthy();

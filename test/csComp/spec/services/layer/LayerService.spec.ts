@@ -1,12 +1,12 @@
 describe('csComp.Services.LayerService', function() {
 
     // load the module
-    beforeEach(module('csComp'));
-    beforeEach(module('solutionMock'));
-    beforeEach(module('projectMock'));
-    beforeEach(module('mockedDataSource'));
+    beforeEach(angular.mock.module('csComp'));
+    beforeEach(angular.mock.module('solutionMock'));
+    beforeEach(angular.mock.module('projectMock'));
+    beforeEach(angular.mock.module('mockedDataSource'));
 
-    beforeEach(module(function($provide) {
+    beforeEach(angular.mock.module(function($provide) {
         $provide.value('$translate', jasmine.createSpyObj('translateSpy', ['preferredLanguage']));
         $provide.value('localStorageService', jasmine.createSpyObj('localStorageServiceSpy', ['get']));
         $provide.value('$mapService', jasmine.createSpyObj('mapServiceSpy', ['get']));

@@ -6,13 +6,13 @@ describe('DataTable.DataTable', function() {
     var vm: DataTable.DataTableCtrl;
 
     // load the module
-    beforeEach(module('csComp'));
-    beforeEach(module('csWebApp'));
+    beforeEach(angular.mock.module('csComp'));
+    beforeEach(angular.mock.module('csWebApp'));
 
     beforeEach(function() {
         var mockTranslate;
         beforeEach(() => {
-            module(function($provide) {
+            angular.mock.module(function($provide) {
                 $provide.value('$translate', mockTranslate);
             });
             mockTranslate = function(key) {

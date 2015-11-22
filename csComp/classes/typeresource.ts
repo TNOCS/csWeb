@@ -25,8 +25,12 @@ module csComp.Services {
                 featureTypes: {},
                 propertyTypeData: {}
             };
-            for (var rt in resource.featureTypes) data.featureTypes[rt] = Project.serializeFeatureType(resource.featureTypes[rt]);
-            for (var pt in resource.propertyTypeData) data.propertyTypeData[pt] = resource.propertyTypeData[pt];
+            for (var rt in resource.featureTypes) { 
+                data.featureTypes[rt] = Project.serializeFeatureType(resource.featureTypes[rt]);
+            }
+            for (var pt in resource.propertyTypeData) { 
+                data.propertyTypeData[pt] = resource.propertyTypeData[pt];
+            }
 
             return JSON.stringify(data);
 
