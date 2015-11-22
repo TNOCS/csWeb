@@ -574,12 +574,12 @@ module csComp.Services {
                         this.$http.get(url)
                             .success((resource: TypeResource | string) => {
                                 success = true;
-                                if (resource && resource !== 'null') {
+                                if (!resource || (typeof resource === 'string' && resource !== 'null')) {
+                                    this.$messageBusService.notify('Error loading resource type', url);
+                                } else if (resource instanceof TypeResource) {
                                     resource.url = url;
                                     this.initTypeResources(resource);
                                     this.$messageBusService.publish('typesource', url, resource);
-                                } else {
-                                    this.$messageBusService.notify('Error loading resource type', url);
                                 }
                                 callback();
                             })
