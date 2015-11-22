@@ -13,38 +13,14 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'example/public/bower_components/jquery/dist/jquery.min.js',
-            'example/public/bower_components/bootstrap/dist/js/bootstrap.min.js',
-            'example/public/bower_components/angular/angular.min.js',
-            'example/public/bower_components/angular-mocks/angular-mocks.js',
-            'example/public/bower_components/angular-cookies/angular-cookies.min.js',
-            'example/public/bower_components/angular-ui-router/release/angular-ui-router.min.js',
-            'example/public/bower_components/angular-translate/angular-translate.min.js',
-            'example/public/bower_components/leaflet/dist/leaflet.js',
-            'example/public/bower_components/leaflet.locatecontrol/src/L.Control.Locate.js',
-            'example/public/bower_components/leaflet-ajax/dist/leaflet.ajax.min.js',
-            'example/public/bower_components/leaflet.markercluster/dist/leaflet.markercluster.js',
-            'example/public/bower_components/angular-bootstrap/ui-bootstrap.min.js',
-            'example/public/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js',
-            'example/public/bower_components/angular-utils-pagination/dirPagination.js',
-            'example/public/bower_components/angular-local-storage/dist/angular-local-storage.min.js',
-            'example/public/bower_components/angular-sanitize/angular-sanitize.min.js',
-            'example/public/bower_components/angular-ui-select/dist/select.js',
-            'example/public/bower_components/chroma-js/chroma.min.js',
-            'example/public/bower_components/d3/d3.min.js',
-            'example/public/bower_components/d3-tip/index.js',
-            'example/public/bower_components/crossfilter/crossfilter.min.js',
-            'example/public/bower_components/async/lib/async.js',
-            'example/public/bower_components/jquery-ui/jquery-ui.min.js',
-            'example/public/bower_components/underscore/underscore-min.js',
-            'example/public/bower_components/moment/min/moment.min.js',
-            'example/public/bower_components/spectrum/spectrum.js',
-            'example/public/bower_components/togeojson/togeojson.js',
-            'example/public/bower_components/interact/dist/interact.min.js',
-            'example/public/bower_components/angular-animate/angular-animate.min.js',
+            'dist-bower/csWeb-dep.js',
+            'test/bower_components/angularUtils-pagination/dirPagination.js',
             'dist-bower/csComp.js',
+            'test/csComp/app.js',
+            'dist-bower/csTemplates.js',
+            'test/bower_components/angular-mocks/angular-mocks.js',
             'test/csComp/spec/**/*.js',
-            'test/csComp/mock/**/*.js',
+            'test/csComp/mock/**/*.js'
         ],
 
         // list of files to exclude
@@ -57,7 +33,7 @@ module.exports = function(config) {
             // do not include tests or libraries
             // (these files will be instrumented by Istanbul)
             //'csComp/js/**/*.js': ['coverage'] // not working anymore???
-            'example/public/cs/js/csComp.js': ['coverage']
+            'dist-bower/csComp.js': ['coverage']
         },
 
         // test results reporter to use
