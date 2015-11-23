@@ -58,7 +58,7 @@ module csComp.Services {
             ];
         }
 
-        public addLayer(layer: ProjectLayer, callback: Function) {
+        public addLayer(layer: ProjectLayer, callback: Function, data = null) {
             layer.renderType = "tilelayer";
             callback(layer);
             //this.$rootScope.$apply();

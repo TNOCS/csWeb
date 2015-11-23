@@ -57,6 +57,7 @@ module LayersDirective {
             });
             this.allCollapsed = false;
             this.$messageBusService.subscribe('project', (title: string, project: csComp.Services.Project) => {
+                this.project = project;
                 if (title !== 'loaded' || !project) return;
                 if (project.hasOwnProperty('collapseAllLayers') && project.collapseAllLayers === true) {
                     this.allCollapsed = true;
@@ -64,6 +65,24 @@ module LayersDirective {
                     this.allCollapsed = false;
                 }
             });
+            this.$messageBusService.subscribe('layerdrop',(title: string, layer : csComp.Services.ProjectLayer)=>{
+                this.dropLayer(layer);            
+            });                                           
+        }
+        
+        public dropLayer(layer : csComp.Services.ProjectLayer)
+        {
+            this.initGroups();            
+            this.initResources();
+            
+                        
+                (<any>$('#leftPanelTab a[data-target="#layers"]')).tab('show');
+                this.state = "createlayer";
+                this.newLayer = layer;  
+                this.newGroup = layer.id;              
+                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                this.$scope.$apply();
+            };
         }
 
         public editGroup(group: csComp.Services.ProjectGroup) {
@@ -245,7 +264,7 @@ module LayersDirective {
         }
 
         public loadAvailableLayers() {
-            this.project = this.$layerService.project;
+            
             this.mylayers = [];
 
             if (this.project.groups) {
@@ -344,9 +363,10 @@ module LayersDirective {
                     if (this.layerResourceType === "<new>") {
                         this.newLayer.typeUrl = "/api/resources/" + this.newLayer.title;
                         var r = <csComp.Services.TypeResource>{ id: this.newLayer.title, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
+                        if (this.newLayer.data && this.newLayer.data.features && this.newLayer.data.features.length>0) 
+                            r.featureTypes["default"] = csComp.Helpers.createDefaultType(this.newLayer.data.features[0]);                                                
                         this.$http.post("/api/resources", r)
                             .success((data) => {
-
                         })
                             .error((e) => {
                             console.log('error adding resource');
@@ -356,7 +376,8 @@ module LayersDirective {
                         this.newLayer.typeUrl = this.layerResourceType;
                     }
 
-                    var l = { id: nl.title, title: nl.title, isDynamic: true, type: nl.type, storage : 'file', description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url };
+                    var l = { id: nl.title, title: nl.title, isDynamic: true, type: nl.type, storage : 'file', description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url, features : [] };
+                    if (this.newLayer.data) l.features = this.newLayer.data.features;
                     this.$http.post("/api/layers", l)
                         .success((data) => {
                         console.log(data);
@@ -370,9 +391,11 @@ module LayersDirective {
                 if (this.layerResourceType === "<new>") {
 
                 }
+                
+                this.$layerService.addLayer(this.newLayer);
 
-                var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", this.newLayer, "Edit layer");
-                this.$messageBusService.publish("rightpanel", "activate", rpt);
+                //var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", this.newLayer, "Edit layer");
+                //this.$messageBusService.publish("rightpanel", "activate", rpt);
             }
             this.exitDirectory();
         }

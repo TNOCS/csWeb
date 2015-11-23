@@ -26,7 +26,7 @@ module csComp.Services {
         featureTypeName?: string;
         fType?: IFeatureType;
         effectiveStyle: IFeatureTypeStyle;
-        isInitialized?: boolean;
+        _isInitialized?: boolean;
         lastUpdated: number;
         gui: Object;
         sensors?: { [id: string]: any[] }
@@ -63,7 +63,7 @@ module csComp.Services {
         fType: IFeatureType;
         /** calculated style, used for final rendering */
         effectiveStyle: IFeatureTypeStyle;
-        isInitialized: boolean;
+        _isInitialized: boolean;
         sensors: { [id: string]: any[] }
         timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         coordinates: IGeoJsonGeometry[];          // used for temporal data
@@ -211,7 +211,7 @@ module csComp.Services {
         innerTextSize?: number;
         analysispropertyType?: any;
         rotateProperty?: string;
-        isInitialized?: boolean;
+        _isInitialized?: boolean;
     }
 
     export interface IFeatureType {
@@ -230,7 +230,7 @@ module csComp.Services {
          */
         propertyTypeKeys?: string;
         languages?: ILanguageData;
-        isInitialized?: boolean;
+        _isInitialized?: boolean;
     }
 
     export interface IGeoJsonFile {

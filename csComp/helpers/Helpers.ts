@@ -20,22 +20,40 @@
         return result;
     }
 
-    export function getDefaultFeatureStyle(): csComp.Services.IFeatureTypeStyle {
+    export function getDefaultFeatureStyle(feature: csComp.Services.IFeature): csComp.Services.IFeatureTypeStyle {
+        if (feature.geometry.type.toLowerCase() === "point") {
+            var p: csComp.Services.IFeatureTypeStyle = {
+                nameLabel: "Name",
+                drawingMode: "Point",
+                strokeWidth: 1,
+                strokeColor: "#0033ff",
+                fillOpacity: 0.75,
+                opacity: 0.75,
+                fillColor: "#FFFF00",
+                stroke: true,
+                rotate: 0,
+                iconUri: "cs/images/marker.png",
+                iconHeight: 32,
+                iconWidth: 32
+            };
+            return p;
+        }
+        else {
+            var s: csComp.Services.IFeatureTypeStyle = {
+                nameLabel: "Name",
+                drawingMode : "Polygon",
+                strokeWidth: 1,
+                strokeColor: "#0033ff",
+                fillOpacity: 0.75,
+                opacity: 0.75,
+                fillColor: "#FFFF00",
+                stroke: true,                
+                iconUri: "cs/images/marker.png",                
+            };
+            return s;
+        }
         //TODO: check compatibility for both heatmaps and other features
-        var s: csComp.Services.IFeatureTypeStyle = {
-            nameLabel: "Name",
-            strokeWidth: 3,
-            strokeColor: "#0033ff",
-            fillOpacity: 0.75,
-            opacity: 1,
-            fillColor: "#FFFF00",
-            stroke: true,
-            rotate: 0,
-            iconUri: "cs/images/marker.png",
-            iconHeight: 32,
-            iconWidth: 32
-        };
-        return s;
+        
     }
 
     /**
@@ -198,25 +216,23 @@
     }
 
     /** find a unique key name in object */
-    export function findUniqueKey(o : Object, key : string) : string 
-    {
+    export function findUniqueKey(o: Object, key: string): string {
         var i = 2;
         var pk = key;
-        while (o.hasOwnProperty(pk))
-        {
+        while (o.hasOwnProperty(pk)) {
             key = key + pk;
             pk += 1;
         }
         return pk;
     }
 
-    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource : csComp.Services.TypeResource): csComp.Services.IFeatureType {
+    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource: csComp.Services.TypeResource): csComp.Services.IFeatureType {
         var type = featureType;
         if (!type.propertyTypeData) { type.propertyTypeData = []; }
 
         for (var key in feature.properties) {
             //if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
-            var pt : string;
+            var pt: string;
             if (resource && resource.propertyTypeData) {
                 for (var k in resource.propertyTypeData) {
                     if (resource.propertyTypeData[k].label === key) {
@@ -233,13 +249,13 @@
 
                 // text is default, so we can ignore that
                 if (StringExt.isNumber(value))
-                    { propertyType.type = 'number'; }
+                { propertyType.type = 'number'; }
                 else if (StringExt.isBoolean(value))
-                    { propertyType.type = 'boolean'; }
+                { propertyType.type = 'boolean'; }
                 else if (StringExt.isBbcode(value))
-                    { propertyType.type = 'bbcode'; }
+                { propertyType.type = 'bbcode'; }
                 if (resource) {
-                    var ke = findUniqueKey(resource.propertyTypeData,key);
+                    var ke = findUniqueKey(resource.propertyTypeData, key);
                     if (ke === key) { delete propertyType.label; }
                     resource.propertyTypeData[k] = propertyType;
                 } else {
@@ -255,13 +271,13 @@
      */
     export function createDefaultType(feature: csComp.Services.IFeature): csComp.Services.IFeatureType {
         var type: csComp.Services.IFeatureType = {};
-        type.style = getDefaultFeatureStyle();
+        type.style = getDefaultFeatureStyle(feature);
         type.propertyTypeData = [];
-
         this.addPropertyTypes(feature, type);
-
         return type;
     }
+    
+    
 
     /**
      * Convert a property value to a display value using the property info.

@@ -20,7 +20,7 @@ module csComp.Services {
             return null;
         }
 
-        public addLayer(layer: ProjectLayer, callback: Function) {
+        public addLayer(layer: ProjectLayer, callback: Function, data = null) {
             async.series([
                 (cb) => {
                     layer.renderType = "heatmap";

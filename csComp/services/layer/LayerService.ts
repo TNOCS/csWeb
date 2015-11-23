@@ -30,7 +30,7 @@ module csComp.Services {
     export interface ILayerSource {
         title: string;
         service: LayerService;
-        addLayer(layer: ProjectLayer, callback: Function);
+        addLayer(layer: ProjectLayer, callback: Function, data : Object);
         removeLayer(layer: ProjectLayer): void;
         refreshLayer(layer: ProjectLayer): void;
         requiresLayer: boolean;
@@ -193,13 +193,71 @@ module csComp.Services {
             });
 
             this.checkMobile();
-            //this.enableDrop();
+            this.enableDrop();
         }
-        
-        public enableDrop()
-        {
-            alert('enable drop');
-            console.log('enable drop');
+
+        public enableDrop() {
+            var w = <any>window;
+            if (w.File && w.FileList && w.FileReader) {
+                console.log('enable drop');
+                var obj = $("body");
+                obj.on('dragenter', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $(this).css('border', '2px solid #0B85A1');
+                });
+                obj.on('dragover', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                });
+                obj.on('drop', (e) => {
+
+                    $(this).css('border', '2px dotted #0B85A1');
+                    e.preventDefault();
+
+                    var ev = <any>e.originalEvent;
+                    var files = ev.dataTransfer.files;
+                    if (files.length > 1) {
+                        this.$messageBusService.notify("File upload", "Only one file at a time permitted");
+                    }
+                    else {
+                        this.handleFileUpload(files, obj);
+                    }
+ 
+                    //We need to send dropped files to Server
+                
+                });
+            }
+        }
+
+        public handleFileUpload(files, obj) {
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                console.log(file);
+                var reader = new FileReader();
+                reader.onload = (e: any) => {
+                    // get file content
+                    var text = e.target.result;
+                    var obj = JSON.parse(text);
+                    if (obj && obj.type && ["featurecollection","geojson","dynamicgeojson"].indexOf((<string>obj.type).toLowerCase())>=0)
+                    {                                                
+                        var newLayer = new csComp.Services.ProjectLayer();
+                        var id = file.name.toLowerCase().replace('.json','').replace('.geojson','');
+                        newLayer.id = id;
+                        newLayer.title = id;
+                        newLayer.type = "dynamicgeojson";       
+                        newLayer.groupId = this.project.groups[0].id;
+                        newLayer.group = this.project.groups[0];
+                        newLayer.data = obj;                        
+                        this.$messageBusService.publish("layerdrop","new",newLayer);                        
+                    }
+                    else{
+                        this.$messageBusService.notify("File upload", "File format not recognized");
+                    }
+                    
+                }
+                reader.readAsText(file);                
+            }
         }
 
         public checkMobile() {
@@ -381,7 +439,7 @@ module csComp.Services {
                                 this.updateGroupFeatures(feature.layer.group);
                             }
                             if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
-                                
+
                                 if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer.lastSelectedFeature);
 
                                 feature.layer.lastSelectedFeature = feature;
@@ -403,11 +461,10 @@ module csComp.Services {
                                     if (!pl.id) pl.id = l;
                                     pl.groupId = "Wegen";
                                     if (!pl.group) {
-                                        if (pl.groupId)
-                                        {
+                                        if (pl.groupId) {
                                             pl.group = this.findGroupById(pl.groupId)
                                         }
-                                        else{
+                                        else {
                                             pl.group = feature.layer.group;
                                         }
                                     }
@@ -447,7 +504,7 @@ module csComp.Services {
             }
         }
 
-        public addLayer(layer: ProjectLayer, layerloaded?: Function) {
+        public addLayer(layer: ProjectLayer, layerloaded?: Function, data = null) {
             if (this.loadedLayers.containsKey(layer.id) && (!layer.quickRefresh || layer.quickRefresh == false)) return;
             if (layer.isLoading) return;
             layer.isLoading = true;
@@ -519,7 +576,7 @@ module csComp.Services {
                             //if (layerloaded) layerloaded(layer);
                         }
                         this.$messageBusService.publish('layer', 'activated', layer);
-                    });
+                    },data);
                     this.$messageBusService.publish('timeline', 'updateFeatures');
                     callback(null, null);
                 },
@@ -547,7 +604,7 @@ module csComp.Services {
 
         public expandGroup(layer: ProjectLayer) {
             // expand the group in the layerlist if it is collapsed
-            if (!layer || !layer.group) {return;}
+            if (!layer || !layer.group) { return; }
             var id = '#layergroup_' + layer.group.id;
             (<any>$(id)).collapse('show');
             $('*[data-target="' + id + '"]').removeClass('collapsed');
@@ -594,12 +651,11 @@ module csComp.Services {
                                 if (!resource || (typeof resource === 'string' && resource !== 'null')) {
                                     this.$messageBusService.notify('Error loading resource type', url);
                                 } else {
-                                    var r  = <TypeResource>resource; 
-                                    if (r)
-                                    {
-                                    r.url = url;
-                                    this.initTypeResources(r);
-                                    this.$messageBusService.publish('typesource', url, r);
+                                    var r = <TypeResource>resource;
+                                    if (r) {
+                                        r.url = url;
+                                        this.initTypeResources(r);
+                                        this.$messageBusService.publish('typesource', url, r);
                                     }
                                 }
                                 callback();
@@ -1064,8 +1120,8 @@ module csComp.Services {
          * init feature (add to feature list, crossfilter)
          */
         public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false, publishToTimeline: boolean = true): IFeatureType {
-            if (!feature.isInitialized) {
-                feature.isInitialized = true;
+            if (!feature._isInitialized) {
+                feature._isInitialized = true;
                 feature.gui = {};
 
                 if (!feature.logs) feature.logs = {};
@@ -1128,7 +1184,7 @@ module csComp.Services {
         * Calculate the effective feature style.
         */
         public calculateFeatureStyle(feature: IFeature) {
-            var s = csComp.Helpers.getDefaultFeatureStyle();
+            var s = csComp.Helpers.getDefaultFeatureStyle(feature);
 
             var ft = this.getFeatureType(feature);
             if (ft.style) {
@@ -1212,8 +1268,8 @@ module csComp.Services {
         * Initialize the feature type and its property types by setting default property values, and by localizing it.
         */
         private initFeatureType(ft: IFeatureType) {
-            if (ft.isInitialized) return;
-            ft.isInitialized = true;
+            if (ft._isInitialized) return;
+            ft._isInitialized = true;
             this.initIconUri(ft);
             if (ft.languages != null && this.currentLocale in ft.languages) {
                 var locale = ft.languages[this.currentLocale];

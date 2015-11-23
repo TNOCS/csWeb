@@ -16,7 +16,7 @@ module csComp.Services {
             this.service.addLayer(layer);
         }
 
-        public addLayer(layer: ProjectLayer, callback: Function) {
+        public addLayer(layer: ProjectLayer, callback: Function, data = null) {
             this.baseAddLayer(layer, callback);
         }
 
