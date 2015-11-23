@@ -231,7 +231,7 @@ gulp.task('init', function (cb) {
         'servercomp_tsc',
         // csComp section
         //'comp_tsd',
-        //'comp_tsconfig_files',
+        'comp_tsconfig_files',
         'comp_tsc',
         'built_csComp',
         'built_csComp.d.ts',
