@@ -62,11 +62,11 @@ function run(command, cb) {
 gulp.task('bower', function (cb) {
     gulp.src([
         'csComp/includes/bower_dep/bower.json', // bower install
-    ]).pipe(install(cb));
+    ]).pipe(install());
 
     var assets = useref.assets();
 
-    gulp.src('./csComp/includes/bower_dep/index.html')
+    return gulp.src('./csComp/includes/bower_dep/index.html')
         .pipe(assets)
         .pipe(assets.restore())
         .pipe(useref())
