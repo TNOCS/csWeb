@@ -6,7 +6,7 @@
 //     return "";
 // }
 
-﻿module csComp.Helpers {
+module csComp.Helpers {
 
     /**
      * Serialize an array of type T to a JSON string, by calling the callback on each array element.
@@ -19,6 +19,24 @@
         });
         return result;
     }
+    
+    export function cloneWithoutUnderscore(v: any): any {
+            if (typeof v !== "object") return v;
+            if (v instanceof Array) {
+                var a = [];
+                v.forEach((i) => {
+                    a.push(this.cloneWithoutUnderscore(i));
+                })
+                return a;
+            }
+            else {
+                var c = {};
+                for (var k in v) {
+                    if (k[0] !== '_') c[k] = this.cloneWithoutUnderscore(v[k]);
+                }
+                return c;
+            }            
+        }
 
     export function getDefaultFeatureStyle(feature: csComp.Services.IFeature): csComp.Services.IFeatureTypeStyle {
         if (feature.geometry.type.toLowerCase() === "point") {
@@ -27,12 +45,12 @@
                 drawingMode: "Point",
                 strokeWidth: 1,
                 strokeColor: "#0033ff",
-                fillOpacity: 0.75,
-                opacity: 0.75,
+                fillOpacity: 1,
+                opacity: 1,
                 fillColor: "#FFFF00",
                 stroke: true,
                 rotate: 0,
-                iconUri: "cs/images/marker.png",
+                cornerRadius:50,               
                 iconHeight: 32,
                 iconWidth: 32
             };
@@ -228,7 +246,7 @@
 
     export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource: csComp.Services.TypeResource): csComp.Services.IFeatureType {
         var type = featureType;
-        if (!type.propertyTypeData) { type.propertyTypeData = []; }
+        
 
         for (var key in feature.properties) {
             //if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
@@ -257,8 +275,9 @@
                 if (resource) {
                     var ke = findUniqueKey(resource.propertyTypeData, key);
                     if (ke === key) { delete propertyType.label; }
-                    resource.propertyTypeData[k] = propertyType;
+                    resource.propertyTypeData[ke] = propertyType;
                 } else {
+                    if (!featureType.propertyTypeData) { featureType.propertyTypeData = []; }
                     featureType.propertyTypeData[key] = propertyType;
                 }
             }
@@ -269,11 +288,10 @@
     /**
      * In case we are dealing with a regular JSON file without type information, create a default type.
      */
-    export function createDefaultType(feature: csComp.Services.IFeature): csComp.Services.IFeatureType {
+    export function createDefaultType(feature: csComp.Services.IFeature, resource : csComp.Services.TypeResource): csComp.Services.IFeatureType {
         var type: csComp.Services.IFeatureType = {};
-        type.style = getDefaultFeatureStyle(feature);
-        type.propertyTypeData = [];
-        this.addPropertyTypes(feature, type);
+        type.style = getDefaultFeatureStyle(feature);        
+        this.addPropertyTypes(feature, type,resource);
         return type;
     }
     

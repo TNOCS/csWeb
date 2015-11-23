@@ -190,10 +190,10 @@ module LayersDirective {
         public addProjectLayer() {
             
             if (this.layerResourceType === "<new>") {
-                        this.selectedLayer.typeUrl = "/api/resources/" + this.selectedLayer.title;
+                        this.selectedLayer.typeUrl = "api/resources/" + this.selectedLayer.title;
                         
                         var r = <csComp.Services.TypeResource>{ id: this.selectedLayer.title, title: this.selectedLayer.title, featureTypes: { }, propertyTypeData: {} };
-                        r.featureTypes["default"] = <csComp.Services.IFeatureType>{ name : "default", style : <csComp.Services.IFeatureTypeStyle>{
+                        r.featureTypes["Default"] = <csComp.Services.IFeatureType>{ name : "Default", style : <csComp.Services.IFeatureTypeStyle>{
                             drawingMode : "Point"
                         }}; 
                         this.$layerService.saveResource(r);
@@ -361,11 +361,11 @@ module LayersDirective {
                 if (this.newLayer.type === "dynamicgeojson") {
                     this.newLayer.url = "api/layers/" + nl.title;
                     if (this.layerResourceType === "<new>") {
-                        this.newLayer.typeUrl = "/api/resources/" + this.newLayer.title;
+                        this.newLayer.typeUrl = "api/resources/" + this.newLayer.title;
                         var r = <csComp.Services.TypeResource>{ id: this.newLayer.title, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
                         if (this.newLayer.data && this.newLayer.data.features && this.newLayer.data.features.length>0) 
-                            r.featureTypes["default"] = csComp.Helpers.createDefaultType(this.newLayer.data.features[0]);                                                
-                        this.$http.post("/api/resources", r)
+                            r.featureTypes["Default"] = csComp.Helpers.createDefaultType(this.newLayer.data.features[0],r);                                                
+                        this.$http.post("api/resources", r)
                             .success((data) => {
                         })
                             .error((e) => {

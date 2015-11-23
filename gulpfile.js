@@ -59,14 +59,18 @@ function run(command, cb) {
     }
 }
 
-gulp.task('bower', ['bower_install'], function (cb) {
+gulp.task('bower_useref',function(cb){
     var assets = useref.assets();
 
     return gulp.src('./csComp/includes/bower_dep/index.html')
         .pipe(assets)
         .pipe(assets.restore())
         .pipe(useref())
-        .pipe(gulp.dest('./dist-bower'));
+        .pipe(gulp.dest('./dist-bower')); 
+});
+
+gulp.task('bower', ['bower_install','bower_useref'], function (cb) {
+   
 });
 
 gulp.task('bower_install', function () {

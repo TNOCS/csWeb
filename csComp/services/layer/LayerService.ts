@@ -593,7 +593,7 @@ module csComp.Services {
 
         public saveResource(resource: TypeResource) {
             console.log('saving feature type');
-            this.$http.post('/api/resources', resource)
+            this.$http.post('/api/resources', csComp.Helpers.cloneWithoutUnderscore(resource))
                 .success((data) => {
                     console.log('resource saved');
                 })
@@ -1153,8 +1153,7 @@ module csComp.Services {
 
                 this.calculateFeatureStyle(feature);
                 feature.propertiesOld = {};
-                this.trackFeature(feature);
-
+                if (layer.useLog) this.trackFeature(feature);
                 if (applyDigest && this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
                 if (publishToTimeline) this.$messageBusService.publish('timeline', 'updateFeatures');
             }
@@ -1842,7 +1841,7 @@ module csComp.Services {
             if (featureTypes.length > 0) {
                 this._featureTypes[feature.featureTypeName] = featureTypes[0];
             } else {
-                this._featureTypes[feature.featureTypeName] = csComp.Helpers.createDefaultType(feature);
+                this._featureTypes[feature.featureTypeName] = csComp.Helpers.createDefaultType(feature,null);
             }
         }
 
@@ -2703,9 +2702,10 @@ module csComp.Services {
             f.properties['updated'] = new Date().getTime();
             // check if feature is in dynamic layer
             if (f.layer.isDynamic) {
-                var l = this.trackFeature(f);
+                
 
                 if (f.layer.useLog) {
+                    var l = this.trackFeature(f);
                     var s = new LayerUpdate();
                     s.layerId = f.layerId;
                     s.action = LayerUpdateAction.updateLog;
