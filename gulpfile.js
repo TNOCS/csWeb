@@ -62,7 +62,7 @@ function run(command, cb) {
 gulp.task('bower', function (cb) {
     gulp.src([
         'csComp/includes/bower_dep/bower.json', // bower install
-    ]).pipe(install());
+    ]).pipe(install(cb));
 
     var assets = useref.assets();
 
@@ -249,7 +249,7 @@ gulp.task('travis', function (cb) {
         cb);
 });
 
-gulp.task('karma', function (cb) {
+gulp.task('karma', ['bower'], function (cb) {
     new karma.Server({
         configFile: __dirname + '/test/karma.conf.js',
         singleRun: true,

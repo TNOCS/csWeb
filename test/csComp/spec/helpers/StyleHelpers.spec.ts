@@ -1,6 +1,8 @@
 describe('StyleHelpers', function() {
     beforeEach(angular.mock.module('csComp'));
+
     var mockTranslate;
+
     beforeEach(function() {
         angular.mock.module(function($provide) {
             $provide.value('$translate', mockTranslate);
@@ -10,11 +12,13 @@ describe('StyleHelpers', function() {
             return mct;
         };
     });
+
     var groupStyle, translate;
     beforeEach(inject(function($translate) {
         translate = $translate;
         groupStyle = new csComp.Services.GroupStyle(translate);
     }));
+
     describe('Initial state', () => {
         it('should have function getColorFromStringValue', function() {
             var color = csComp.Helpers.getColorFromStringValue('wrongFormat', groupStyle);
