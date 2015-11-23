@@ -31,7 +31,7 @@ describe('DataTable.DataTable', function() {
         $sce = _$sce_;
         layerService = _layerService_;
         $translate = _$translate_;
-        httpBackend.whenGET('bower_components/angularUtils-pagination/dirPagination.tpl.html').respond(function() { });
+        httpBackend.whenGET('bower_components/angularUtils-pagination/dirPagination.tpl.html').respond({});
         $compile = _$compile_;
         $templateCache = _$templateCache_;
         element = $templateCache.get('directives/DataTable/DataTable.tpl.html');
@@ -42,7 +42,7 @@ describe('DataTable.DataTable', function() {
         vm = angElement.isolateScope().vm;
     }));
 
-    it('scope to be defined', () => {
+    fit('scope to be defined', () => {
         expect(scope).toBeDefined();
     });
 
