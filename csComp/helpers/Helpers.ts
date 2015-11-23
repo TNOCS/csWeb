@@ -6,7 +6,7 @@
 //     return "";
 // }
 
-﻿module csComp.Helpers {
+module csComp.Helpers {
 
     /**
      * Serialize an array of type T to a JSON string, by calling the callback on each array element.
@@ -23,15 +23,15 @@
     export function getDefaultFeatureStyle(): csComp.Services.IFeatureTypeStyle {
         //TODO: check compatibility for both heatmaps and other features
         var s: csComp.Services.IFeatureTypeStyle = {
-            nameLabel: "Name",
+            nameLabel: 'Name',
             strokeWidth: 3,
-            strokeColor: "#0033ff",
+            strokeColor: '#0033ff',
             fillOpacity: 0.75,
             opacity: 1,
-            fillColor: "#FFFF00",
+            fillColor: '#FFFF00',
             stroke: true,
             rotate: 0,
-            iconUri: "cs/images/marker.png",
+            iconUri: 'bower_components/csweb/dist-bower/images/marker.png',
             iconHeight: 32,
             iconWidth: 32
         };
