@@ -42,7 +42,7 @@ describe('DataTable.DataTable', function() {
         vm = angElement.isolateScope().vm;
     }));
 
-    fit('scope to be defined', () => {
+    it('scope to be defined', () => {
         expect(scope).toBeDefined();
     });
 
