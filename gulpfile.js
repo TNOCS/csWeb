@@ -59,11 +59,7 @@ function run(command, cb) {
     }
 }
 
-gulp.task('bower', function (cb) {
-    gulp.src([
-        'csComp/includes/bower_dep/bower.json', // bower install
-    ]).pipe(install(cb));
-
+gulp.task('bower', ['bower_install'], function (cb) {
     var assets = useref.assets();
 
     return gulp.src('./csComp/includes/bower_dep/index.html')
@@ -71,6 +67,12 @@ gulp.task('bower', function (cb) {
         .pipe(assets.restore())
         .pipe(useref())
         .pipe(gulp.dest('./dist-bower'));
+});
+
+gulp.task('bower_install', function () {
+    return gulp.src([
+        'csComp/includes/bower_dep/bower.json', // bower install
+    ]).pipe(install());
 });
 
 
