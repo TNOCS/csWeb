@@ -193,6 +193,13 @@ module csComp.Services {
             });
 
             this.checkMobile();
+            //this.enableDrop();
+        }
+        
+        public enableDrop()
+        {
+            alert('enable drop');
+            console.log('enable drop');
         }
 
         public checkMobile() {
@@ -357,12 +364,11 @@ module csComp.Services {
                 switch (action) {
                     case 'onFeatureDeselect':
                         // check sub-layers
-
                         break;
                     case 'onFeatureSelect':
                         // check sub-layers
                         props.forEach((prop: IPropertyType) => {
-                            if (prop.type === 'matrix' && prop.activation === 'automatic' && feature.properties.hasOwnProperty(prop.label)) {
+                            if (prop.type === 'matrix' && prop.layerProps && prop.layerProps.activation === 'automatic' && feature.properties.hasOwnProperty(prop.label)) {
                                 var matrix = feature.properties[prop.label];
                                 this.project.features.forEach(f=> {
                                     if (f.layer == feature.layer && f.properties.hasOwnProperty(prop.targetid) && matrix.hasOwnProperty(f.properties[prop.targetid])) {
@@ -375,7 +381,8 @@ module csComp.Services {
                                 this.updateGroupFeatures(feature.layer.group);
                             }
                             if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
-                                if (prop.activation === 'automatic') this.removeSubLayers(feature.layer.lastSelectedFeature);
+                                
+                                if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer.lastSelectedFeature);
 
                                 feature.layer.lastSelectedFeature = feature;
 
@@ -394,8 +401,15 @@ module csComp.Services {
                                     }
 
                                     if (!pl.id) pl.id = l;
+                                    pl.groupId = "Wegen";
                                     if (!pl.group) {
-                                        pl.group = feature.layer.group;
+                                        if (pl.groupId)
+                                        {
+                                            pl.group = this.findGroupById(pl.groupId)
+                                        }
+                                        else{
+                                            pl.group = feature.layer.group;
+                                        }
                                     }
                                     else {
                                         if (typeof pl.group === 'string') {
@@ -405,6 +419,9 @@ module csComp.Services {
                                     if (!pl.type) pl.type = feature.layer.type;
                                     if (!pl.title) pl.title = feature.properties['Name'] + ' ' + prop.title;
                                     if (!pl.defaultFeatureType) pl.defaultFeatureType = 'link';
+                                    if (!pl.typeUrl) pl.typeUrl = "api/resources/smartcycling";
+                                    
+                                    
                                     //pl.parentFeature = feature;
                                     pl.group.layers.push(pl);
                                 }
@@ -576,10 +593,14 @@ module csComp.Services {
                                 success = true;
                                 if (!resource || (typeof resource === 'string' && resource !== 'null')) {
                                     this.$messageBusService.notify('Error loading resource type', url);
-                                } else if (resource instanceof TypeResource) {
-                                    resource.url = url;
-                                    this.initTypeResources(resource);
-                                    this.$messageBusService.publish('typesource', url, resource);
+                                } else {
+                                    var r  = <TypeResource>resource; 
+                                    if (r)
+                                    {
+                                    r.url = url;
+                                    this.initTypeResources(r);
+                                    this.$messageBusService.publish('typesource', url, r);
+                                    }
                                 }
                                 callback();
                             })

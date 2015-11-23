@@ -6,14 +6,19 @@ module ChartsWidget {
          */
         content: string;
         key: string;
-        lite : boolean;
+        lite: boolean;
         spec: any;
+        generator: any;
         _id: string;
         _view: any;
     }
 
     declare var vg;
     declare var vl;
+
+
+
+
 
     export interface IChartScope extends ng.IScope {
         vm: ChartCtrl;
@@ -22,10 +27,14 @@ module ChartsWidget {
         spec: string;
     }
 
+
+
     export class ChartCtrl {
         private scope: IChartScope;
-        public widget: csComp.Services.IWidget;
+        public widget: csComp.Services.BaseWidget;
         private parentWidget: JQuery;
+        private generator: csComp.Services.IChartGenerator;
+
         private defaultSpec = {
             "width": 300,
             "height": 200,
@@ -93,64 +102,94 @@ module ChartsWidget {
             '$timeout',
             'layerService',
             'messageBusService',
-            'mapService'
+            'mapService',
+            'dashboardService'
         ];
 
         constructor(
-            private $scope: IChartScope,
+            public $scope: IChartScope,
             private $timeout: ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
-            private $mapService: csComp.Services.MapService
-            ) {
+            private $mapService: csComp.Services.MapService,
+            private $dashboardService: csComp.Services.DashboardService
+        ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = par.widget;
 
             $scope.data = <ChartData>this.widget.data;
             $scope.data._id = this.widget.id;
+            $('#' +this.widget.elementId).on('remove',()=>{
+                if (this.generator) this.generator.stop();
+            })
+            //$scope.$on('destroy', () => {
+                
+            
+
+
         }
 
         private keyHandle;
 
-
-
-        public startChart() {
+        public initChart() {
             var d = this.$scope.data;
-            if (!d.spec) d.spec = this.defaultSpec;
             var vgspec = d.spec;
             if (d.lite) vgspec = vl.compile(d.spec);
             //parse(vgspec);
-            var res = vg.embed('#vis' + d._id, vgspec, (view, vega_spec) => {
-                d._view = view;
-
-                // Callback receiving the View instance and parsed Vega spec...
-                // The View resides under the '#vis' element
-            });
-
-            if (d.key) {
-                this.keyHandle = this.$layerService.$messageBusService.serverSubscribe(d.key, "key", (topic: string, msg: csComp.Services.ClientMessage) => {
-                    switch (msg.action) {
-                        case "key":
-                        if (msg.data.item.hasOwnProperty("values"))
-                        {
-                            d.spec.data = msg.data.item;
-                        }
-                        else{
-                            d.spec = msg.data.item;
-                        }
-                        // if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]' ) {
-                        //     d.spec.data = msg.data.item;
-                        // } else {
-                        //
-                        // }
-                        vgspec = d.spec;
-                        if (d.lite) vgspec = vl.compile(d.spec);
-                        vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + d._id }).update(); });
-                        d._view.update();
-                        break;
-                    }
+            if (vgspec)
+                var res = vg.embed('#vis' + d._id, vgspec, (view, vega_spec) => {
+                    d._view = view;
+                    // Callback receiving the View instance and parsed Vega spec...
+                    // The View resides under the '#vis' element
                 });
+        }
+
+        public updateChart() {
+            var d = this.$scope.data;
+            var vgspec = d.spec;
+            if (d.lite) vgspec = vl.compile(d.spec);
+            vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + d._id }).update(); });
+            d._view.update();
+        }
+
+        public startChart() {
+            var d = this.$scope.data;
+            
+            // if a chart generator is specified, find it and start it
+            if (!d.spec && d.generator) {
+                if (d.generator.type && this.$dashboardService.chartGenerators.hasOwnProperty(d.generator.type)) {
+                    this.generator = <csComp.Services.IChartGenerator>this.$dashboardService.chartGenerators[d.generator.type]();
+                    this.generator.start(this);
+                    return;
+                }
+            }           
+            else {
+                // if no generator is specified, use the spec from data
+                if (!d.spec) d.spec = this.defaultSpec;
+                this.initChart();
+
+                // check if a key is defined, a key can be used to listen to new data or complete vega specifications
+                if (d.key) {
+                    this.keyHandle = this.$layerService.$messageBusService.serverSubscribe(d.key, "key", (topic: string, msg: csComp.Services.ClientMessage) => {
+                        switch (msg.action) {
+                            case "key":
+                                if (msg.data.item.hasOwnProperty("values")) {
+                                    d.spec.data = msg.data.item;
+                                }
+                                else {
+                                    d.spec = msg.data.item;
+                                }
+                                // if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]' ) {
+                                //     d.spec.data = msg.data.item;
+                                // } else {
+                                //
+                                // }
+                                this.updateChart();
+                                break;
+                        }
+                    });
+                }
             }
         }
     }

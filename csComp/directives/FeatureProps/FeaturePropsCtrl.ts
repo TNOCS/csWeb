@@ -387,16 +387,15 @@ module FeatureProps {
 
         public saveFeatureType() {
             var resource = this.$layerService.findResourceByFeature(this.$scope.feature);
-            if (resource) this.$layerService.saveResource(resource);            
+            if (resource) { this.$layerService.saveResource(resource); }
         }
-        
+
         public savePropertyType(propType : csComp.Services.IPropertyType)
         {
             console.log('saving property');
             console.log(propType);
             var resource = this.$layerService.findResourceByFeature(this.$scope.feature);
             this.$layerService.saveResource(resource);
-            
             this.displayFeature(this.$scope.feature);
         }
 
