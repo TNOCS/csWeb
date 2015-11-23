@@ -226,7 +226,7 @@ gulp.task('test_tsc', function (cb) {
 gulp.task('init', function (cb) {
     runSequence(
          // csServerComp section
-        'servercomp_tsd',
+        //'servercomp_tsd',
         'servercomp_tsconfig_files',
         'servercomp_tsc',
         // csComp section
