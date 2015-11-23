@@ -193,6 +193,13 @@ module csComp.Services {
             });
 
             this.checkMobile();
+            //this.enableDrop();
+        }
+        
+        public enableDrop()
+        {
+            alert('enable drop');
+            console.log('enable drop');
         }
 
         public checkMobile() {
@@ -361,7 +368,7 @@ module csComp.Services {
                     case 'onFeatureSelect':
                         // check sub-layers
                         props.forEach((prop: IPropertyType) => {
-                            if (prop.type === 'matrix' && prop.activation === 'automatic' && feature.properties.hasOwnProperty(prop.label)) {
+                            if (prop.type === 'matrix' && prop.layerProps && prop.layerProps.activation === 'automatic' && feature.properties.hasOwnProperty(prop.label)) {
                                 var matrix = feature.properties[prop.label];
                                 this.project.features.forEach(f=> {
                                     if (f.layer == feature.layer && f.properties.hasOwnProperty(prop.targetid) && matrix.hasOwnProperty(f.properties[prop.targetid])) {
@@ -375,7 +382,7 @@ module csComp.Services {
                             }
                             if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
                                 
-                                if (prop.activation === 'automatic') this.removeSubLayers(feature.layer.lastSelectedFeature);
+                                if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer.lastSelectedFeature);
 
                                 feature.layer.lastSelectedFeature = feature;
 
@@ -586,10 +593,14 @@ module csComp.Services {
                                 success = true;
                                 if (!resource || (typeof resource === 'string' && resource !== 'null')) {
                                     this.$messageBusService.notify('Error loading resource type', url);
-                                } else if (resource instanceof TypeResource) {
-                                    resource.url = url;
-                                    this.initTypeResources(resource);
-                                    this.$messageBusService.publish('typesource', url, resource);
+                                } else {
+                                    var r  = <TypeResource>resource; 
+                                    if (r)
+                                    {
+                                    r.url = url;
+                                    this.initTypeResources(r);
+                                    this.$messageBusService.publish('typesource', url, r);
+                                    }
                                 }
                                 callback();
                             })
