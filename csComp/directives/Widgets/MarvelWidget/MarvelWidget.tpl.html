@@ -1,0 +1,18 @@
+<div>
+    <div class="row" style="margin-left:15px;margin-right:0px;">
+        <div class="col-md-9" style="font-size:16px; font-weight:bold;margin-bottom:2px;">{{data.title}}</div>
+        <div class="col-md-3">
+            <div>
+                <button class="fa fa-times leftpanel-header-button" ng-click="vm.close()" style="padding-right:0px" />
+                <button class="fa fa-plus-square-o leftpanel-header-button" ng-click="vm.minimize()" ng-show="minimized" />
+                <button class="fa fa-minus-square-o leftpanel-header-button" ng-click="vm.minimize()" ng-hide="minimized" />
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" style="padding:0px;font-size:12px;" ng-hide="minimized">
+        <div>
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="marvelViz" preserveAspectRatio="xMidYMid meet">
+            </svg>
+        </div>
+    </div>
+</div>
