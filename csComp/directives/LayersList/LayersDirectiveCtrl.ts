@@ -233,8 +233,8 @@ module LayersDirective {
 
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
             this.state = "layers";
-            if (layer.gui["featureTypes"]) {
-                for (var key in layer.gui["featureTypes"]) {
+            if (layer._gui["featureTypes"]) {
+                for (var key in layer._gui["featureTypes"]) {
                     interact('#layerfeaturetype-' + key).onstart = null;
                     interact('#layerfeaturetype-' + key).onmove = null;
                     interact('#layerfeaturetype-' + key).onend = null;

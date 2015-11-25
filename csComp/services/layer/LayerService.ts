@@ -710,12 +710,29 @@ module csComp.Services {
             }
             if (source.propertyTypeData) {
                 for (var key in source.propertyTypeData) {
-                    var propertyType: IPropertyType = source.propertyTypeData[key];
+                    var propertyType: IPropertyType = source.propertyTypeData[key];                     
+                    propertyType.id =source.url + '#' + key; 
                     this.initPropertyType(propertyType);
                     if (!propertyType.label) propertyType.label = key;
                     this.propertyTypeData[key] = propertyType;
                 }
             }
+        }
+        
+        public getLayerPropertyTypes(layer : ProjectLayer) : IPropertyType[]
+        {
+            var res : IPropertyType[] = [];
+            if (layer.typeUrl && layer.defaultFeatureType)
+                                {
+                                    var t = this.getFeatureTypeById(layer.typeUrl + "#" + layer.defaultFeatureType);
+                                    if (t.propertyTypeKeys)
+                                    {
+                                        
+                                    }
+                                }
+                                
+            
+            return res;
         }
 
         checkLayerLegend(layer: ProjectLayer, property: string) {
@@ -1141,8 +1158,8 @@ module csComp.Services {
                 // resolve feature type                
                 feature.fType = this.getFeatureType(feature);
                 var resource = this.findResourceByFeature(feature);
-                this.initFeatureType(feature.fType);
-
+                //this.initFeatureType(feature.fType);
+                               
                 // add missing properties
                 //if (feature.fType.showAllProperties) 
                 csComp.Helpers.addPropertyTypes(feature, feature.fType, resource);
@@ -1330,6 +1347,15 @@ module csComp.Services {
                 if (locale.options != null) pt.options = locale.options;
             };
         }
+        
+        public findResourceByLayer(layer: ProjectLayer) : TypeResource {
+            if (layer && layer.typeUrl) {
+                if (this.typesResources.hasOwnProperty(layer.typeUrl)) {
+                    return this.typesResources[layer.typeUrl];
+                }
+                else return null;
+            } else return null;
+        }
 
         public findResourceByFeature(feature: IFeature) {
             if (feature.layer && feature.layer.typeUrl) {
@@ -1449,6 +1475,28 @@ module csComp.Services {
                 });
             });
             return r;
+        }
+        
+        public setGroupStyle(group : ProjectGroup, property : IPropertyType)
+        {
+            var gs = new GroupStyle(this.$translate);
+                    gs.id = Helpers.getGuid();
+                    gs.title = property.title;                    
+                    gs.visualAspect = 'fillColor';
+                    gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
+                    gs.info = this.calculatePropertyInfo(group, property.label);
+                    gs.enabled = true;
+                    gs.property = property.label;
+                    gs.group = group;
+                    
+                        gs.colors = ['white', '#FF5500'];
+                 this.saveStyle(group, gs);
+                this.project.features.forEach((fe: IFeature) => {
+                    if (fe.layer.group == group) {
+                        this.calculateFeatureStyle(fe);
+                        this.activeMapRenderer.updateFeature(fe);
+                    }
+                });   
         }
 
         /**
@@ -1878,7 +1926,7 @@ module csComp.Services {
 
             layer.enabled = false;
             layer.isLoading = false;
-            layer.gui.more = false;
+            layer._gui.more = false;
             //if (layer.refreshTimer) layer.stop();
 
             // make sure the timers are disabled
@@ -2474,7 +2522,7 @@ module csComp.Services {
         public initLayer(group: ProjectGroup, layer: ProjectLayer, layerIds?: string[]) {
             if (layer.id == null) layer.id = Helpers.getGuid();
             layer.type = (layer.type) ? layer.type.toLowerCase() : 'geojson';
-            layer.gui = {};
+            layer._gui = {};
             layer.renderType = (layer.renderType) ? layer.renderType.toLowerCase() : layer.type;
             if (layer.type === 'dynamicgeojson') layer.isDynamic = true;
             if (layer.reference == null) layer.reference = layer.id; //Helpers.getGuid();

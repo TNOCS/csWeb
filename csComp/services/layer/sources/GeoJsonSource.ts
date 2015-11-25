@@ -403,7 +403,7 @@ module csComp.Services {
 
         removeLayer(layer: ProjectLayer) {
             layer.isConnected = false;
-            if (layer.gui['editing']) this.stopAddingFeatures(layer);
+            if (layer._gui['editing']) this.stopAddingFeatures(layer);
             this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
         }
 
@@ -420,13 +420,13 @@ module csComp.Services {
                 g.layers.forEach((l: csComp.Services.ProjectLayer) => {
                     if (l === layer) {
                         v = true;
-                        l.gui['editing'] = true;
+                        l._gui['editing'] = true;
                     }
                     else {
-                        l.gui['editing'] = false;
+                        l._gui['editing'] = false;
                     }
                 })
-                g.gui.editing = v;
+                g._gui.editing = v;
             });
             this.service.editing = true;
             this.initAvailableFeatureTypes(layer);
@@ -446,16 +446,16 @@ module csComp.Services {
                     }
                 }
             }
-            layer.gui["featureTypes"] = featureTypes;
+            layer._gui["featureTypes"] = featureTypes;
 
         }
 
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
-            delete layer.gui["featureTypes"];
+            delete layer._gui["featureTypes"];
             this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
-                delete g.gui['editing'];
+                delete g._gui['editing'];
                 g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                    l.gui['editing'] = false;
+                    l._gui['editing'] = false;
                 })
             });
             this.service.editing = false;

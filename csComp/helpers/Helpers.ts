@@ -19,24 +19,24 @@ module csComp.Helpers {
         });
         return result;
     }
-    
+
     export function cloneWithoutUnderscore(v: any): any {
-            if (typeof v !== "object") return v;
-            if (v instanceof Array) {
-                var a = [];
-                v.forEach((i) => {
-                    a.push(this.cloneWithoutUnderscore(i));
-                })
-                return a;
-            }
-            else {
-                var c = {};
-                for (var k in v) {
-                    if (k[0] !== '_') c[k] = this.cloneWithoutUnderscore(v[k]);
-                }
-                return c;
-            }            
+        if (typeof v !== "object") return v;
+        if (v instanceof Array) {
+            var a = [];
+            v.forEach((i) => {
+                a.push(this.cloneWithoutUnderscore(i));
+            })
+            return a;
         }
+        else {
+            var c = {};
+            for (var k in v) {
+                if (k[0] !== '_') c[k] = this.cloneWithoutUnderscore(v[k]);
+            }
+            return c;
+        }
+    }
 
     export function getDefaultFeatureStyle(feature: csComp.Services.IFeature): csComp.Services.IFeatureTypeStyle {
         if (feature.geometry.type.toLowerCase() === "point") {
@@ -50,7 +50,7 @@ module csComp.Helpers {
                 fillColor: "#FFFF00",
                 stroke: true,
                 rotate: 0,
-                cornerRadius:50,               
+                cornerRadius: 50,
                 iconHeight: 32,
                 iconWidth: 32
             };
@@ -59,14 +59,14 @@ module csComp.Helpers {
         else {
             var s: csComp.Services.IFeatureTypeStyle = {
                 nameLabel: "Name",
-                drawingMode : "Polygon",
+                drawingMode: "Polygon",
                 strokeWidth: 1,
                 strokeColor: "#0033ff",
                 fillOpacity: 0.75,
                 opacity: 0.75,
                 fillColor: "#FFFF00",
-                stroke: true,                
-                iconUri: "cs/images/marker.png",                
+                stroke: true,
+                iconUri: "cs/images/marker.png",
             };
             return s;
         }
@@ -246,52 +246,61 @@ module csComp.Helpers {
 
     export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource: csComp.Services.TypeResource): csComp.Services.IFeatureType {
         var type = featureType;
-        
-
+        // var labels = [];
+        // if (resource && resource.propertyTypeData)
+        //     for (var k in resource.propertyTypeData) { if (labels.indexOf(resource.propertyTypeData[k].label) === -1) labels.push(resource.propertyTypeData[k].label); }
+                
         for (var key in feature.properties) {
-            //if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
-            var pt: string;
-            if (resource && resource.propertyTypeData) {
-                for (var k in resource.propertyTypeData) {
-                    if (resource.propertyTypeData[k].label === key) {
-                        pt = k;
-                    }
-                }
-            }
+            var pt: csComp.Services.IPropertyType;
+            if (resource) pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key });
             if (!pt) {
                 if (!feature.properties.hasOwnProperty(key)) { continue; }
-                var propertyType: csComp.Services.IPropertyType = {};
-                propertyType.label = key;
-                propertyType.title = key.replace('_', ' ');
+                pt = {};
+                pt.label = key;
+                pt.title = key.replace('_', ' ');
                 var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
 
                 // text is default, so we can ignore that
                 if (StringExt.isNumber(value))
-                { propertyType.type = 'number'; }
+                { pt.type = 'number'; }
                 else if (StringExt.isBoolean(value))
-                { propertyType.type = 'boolean'; }
+                { pt.type = 'boolean'; }
                 else if (StringExt.isBbcode(value))
-                { propertyType.type = 'bbcode'; }
+                { pt.type = 'bbcode'; }
                 if (resource) {
                     var ke = findUniqueKey(resource.propertyTypeData, key);
-                    if (ke === key) { delete propertyType.label; }
-                    resource.propertyTypeData[ke] = propertyType;
+                    if (ke === key) { delete pt.label; }
+                    resource.propertyTypeData[ke] = pt;
                 } else {
                     if (!featureType.propertyTypeData) { featureType.propertyTypeData = []; }
-                    featureType.propertyTypeData[key] = propertyType;
+                    featureType.propertyTypeData[key] = pt;
                 }
             }
+            updateSection(feature.layer, pt);
+            
         }
         return type;
+    }
+
+    export function updateSection(layer: csComp.Services.ProjectLayer, prop: csComp.Services.IPropertyType) {
+        if (!layer || !prop) return;
+        if (prop.type === "number")
+        {
+            if (!layer._gui.hasOwnProperty("sections")) layer._gui["sections"] = {};
+            var sections: { [key: string]: csComp.Services.Section } = layer._gui["sections"];
+            var s = (prop.section) ? prop.section : "general";
+            if (!sections.hasOwnProperty(s)) sections[s] = new csComp.Services.Section();
+            if (!sections[s].properties.hasOwnProperty(prop.label)) sections[s].properties[prop.label] = prop;
+        }        
     }
 
     /**
      * In case we are dealing with a regular JSON file without type information, create a default type.
      */
-    export function createDefaultType(feature: csComp.Services.IFeature, resource : csComp.Services.TypeResource): csComp.Services.IFeatureType {
+    export function createDefaultType(feature: csComp.Services.IFeature, resource: csComp.Services.TypeResource): csComp.Services.IFeatureType {
         var type: csComp.Services.IFeatureType = {};
-        type.style = getDefaultFeatureStyle(feature);        
-        this.addPropertyTypes(feature, type,resource);
+        type.style = getDefaultFeatureStyle(feature);
+        this.addPropertyTypes(feature, type, resource);
         return type;
     }
     
