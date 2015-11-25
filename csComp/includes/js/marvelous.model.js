@@ -1,6 +1,8 @@
 var Marvelous = (function() {
 
     var currentmodel;
+	var widgetHeightMargin = 25; // content offset from widget top
+	var widgetWidthMargin = 5; // content offset from widget left border
 
     var Model = function() {
         this.nodes = null;
@@ -14,8 +16,8 @@ var Marvelous = (function() {
             m.clearMode();
         });
         this.widget = widget;
-        this.width = parseInt(this.widget.css("width"));
-        this.height = parseInt(this.widget.css("height")) - 20;
+        this.width = parseInt(this.widget.css("width")) - widgetWidthMargin;
+        this.height = parseInt(this.widget.css("height")) - widgetHeightMargin;
         var svg = d3.select("#marvelViz");
         svg.selectAll("g").remove();
         svg.append("g").attr("class", "conns");
@@ -57,8 +59,9 @@ var Marvelous = (function() {
         var w = nodeBox.width;
         var h = nodeBox.height;
         var scale = Math.min(parseInt(this.width) / w, parseInt(this.height) / h);
-        var transX = (this.widget.offset().left - $("g.nodes").offset().left) * scale;
-        var transY = (this.widget.offset().top - $("g.nodes").offset().top) * scale;
+		scale *= 0.98; // leave some margins
+        var transX = (this.widget.offset().left + widgetWidthMargin - $("g.nodes").offset().left) * scale;
+        var transY = (this.widget.offset().top + widgetHeightMargin - $("g.nodes").offset().top) * scale;
         this.zoomListener.translate([transX, transY]).scale(scale);
         this.zoomListener.event(this.rect);
 
@@ -101,7 +104,7 @@ var Marvelous = (function() {
 
         node.select("rect").attr("y", function(d) {
             return d.Center._y - 20;
-        }).attr("width", 150).attr("height", 40).attr("rx", 8).attr("ry", 8).attr(
+        }).attr("width", 130).attr("height", 40).attr("rx", 8).attr("ry", 8).attr(
             "style", "stroke:black;stroke-width:2").attr(
             "fill",
             function(d) {
@@ -122,7 +125,7 @@ var Marvelous = (function() {
             function(d) {
                 var tw = d3.select(this.parentNode).select("text").node()
                     .getComputedTextLength();
-                d.calculatedWidth = Math.max(tw + 20, 150);
+                d.calculatedWidth = Math.max(tw + 10, 130);
                 return d.calculatedWidth;
             }).attr("x", function(d) {
             return d.Center._x - d.calculatedWidth / 2;

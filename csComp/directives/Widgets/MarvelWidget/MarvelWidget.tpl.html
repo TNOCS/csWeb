@@ -1,18 +1,42 @@
 <div>
     <div class="row" style="margin-left:15px;margin-right:0px;">
-        <div class="col-md-9" style="font-size:16px; font-weight:bold;margin-bottom:2px;">{{data.title}}</div>
-        <div class="col-md-3">
+        <div class="col-md-8" style="font-size:14px; font-weight:bold;margin-bottom:2px;">{{data.title}}</div>
+        <div class="col-md-4">
             <div>
                 <button class="fa fa-times leftpanel-header-button" ng-click="vm.close()" style="padding-right:0px" />
-                <button class="fa fa-plus-square-o leftpanel-header-button" ng-click="vm.minimize()" ng-show="minimized" />
-                <button class="fa fa-minus-square-o leftpanel-header-button" ng-click="vm.minimize()" ng-hide="minimized" />
+                <button class="fa fa-plus leftpanel-header-button" ng-click="vm.minimize()" ng-show="minimized" />
+                <button class="fa fa-minus leftpanel-header-button" ng-click="vm.minimize()" ng-hide="minimized" />
+                <button class="fa fa-floppy-o leftpanel-header-button" ng-click="vm.edit()" ng-show="editmode" />
+                <button class="fa fa-cog leftpanel-header-button" ng-click="vm.edit()" ng-hide="editmode" />
             </div>
         </div>
     </div>
     <div class="col-md-12" style="padding:0px;font-size:12px;" ng-hide="minimized">
-        <div>
+        <div ng-hide="editmode">
             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="marvelViz" preserveAspectRatio="xMidYMid meet">
+                <marker id="markerArrow" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="8" markerHeight="6" style="fill:grey;">
+                    <polyline points="0,0 10,5 0,10 1,5"></polyline>
+                </marker>
             </svg>
+        </div>
+        <div ng-show="editmode">
+            <div ng-repeat="dep in dependencyTypes">
+                <div class="row" style="margin-left:15px;margin-right:0px;">
+                    <div class="col-md-1">
+                        <input type="checkbox" ng-click="vm.addDependency(dep)" id="check-{{dep}}" ng-checked="selectedFeature.properties.hasOwnProperty(dep)" />
+                    </div>
+                    <div class="col-md-9">
+                        <div ng-if="selectedFeature.properties.hasOwnProperty(dep)">
+                            <label class="control-label" for="depValue">{{dep}}</label>
+                            <input id="depValue" name="textinput" type="number" ng-model="selectedFeature.properties[dep]" placeholder="value" class="input-xlarge">
+                        </div>
+                        <div ng-if="!selectedFeature.properties.hasOwnProperty(dep)">
+                            <label class="control-label" for="depValue">{{dep}}</label>
+                            <input disabled id="depValue" name="textinput" type="number" placeholder="value" class="input-xlarge">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

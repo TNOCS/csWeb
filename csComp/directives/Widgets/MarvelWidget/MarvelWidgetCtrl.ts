@@ -1,29 +1,21 @@
 module MarvelWidget {
     export class MarvelWidgetData {
         title: string;
-        /**
-         * Content to display: you can either provide it directly, or specify a URL, in which case it will replace the content.
-         */
-        content: string;
-        url: string;
-        /**
-         * The actual content is being converted, if necessary, and set to the markdown text.
-         */
-        mdText: string;
+        /** Folder containing the marvel diagrams */
+        marvelFolder: string;
         /**
          * If provided, indicates the feature type that needs to be selected in order to show the widget.
          */
         featureTypeName: string;
-        /**
-         * If provided, a list of properties that need to be injected into the content in order to generate the mdText.
-         */
-        dynamicProperties: string[];
     }
 
     export interface IMarvelWidgetScope extends ng.IScope {
         vm: MarvelWidgetCtrl;
         data: MarvelWidgetData;
         minimized: boolean;
+        editmode: boolean;
+        selectedFeature: csComp.Services.IFeature;
+        dependencyTypes: string[];
     }
 
     export class MarvelWidgetCtrl {
@@ -50,12 +42,13 @@ module MarvelWidget {
             var par = <any>$scope.$parent;
             this.widget = par.widget;
             this.parentWidget = $("#" + this.widget.elementId).parent();
+            $scope.dependencyTypes = ['_dep_water', '_dep_UPS', '_dep_features'];
 
             $scope.data = <MarvelWidgetData>this.widget.data;
-            $scope.data.mdText = $scope.data.content;
             $scope.minimized = false;
+            $scope.editmode = false;
 
-            if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
+            if (typeof $scope.data.featureTypeName !== 'undefined') {
                 // Hide widget
                 this.parentWidget.hide();
                 this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
@@ -69,16 +62,6 @@ module MarvelWidget {
                     }
                 });
             }
-
-            if (typeof $scope.data.url === 'undefined') return;
-            $.get($scope.data.url, (md) => {
-                $timeout(() => {
-                    $scope.data.content = $scope.data.mdText = md;
-                    $scope.data.title = 'Marvel test';
-                    var w = $("#" + this.widget.elementId);
-                    Marvelous.model($scope.data.mdText, 'Test', w);
-                }, 0);
-            });
         }
 
         private minimize() {
@@ -88,6 +71,11 @@ module MarvelWidget {
             } else {
                 this.parentWidget.css("height", this.widget.height);
             }
+        }
+
+        private edit() {
+            (this.$scope.editmode) ? this.save() : null;
+            this.$scope.editmode = !this.$scope.editmode;
         }
 
         private close() {
@@ -102,26 +90,37 @@ module MarvelWidget {
             return str.replace(new RegExp(this.escapeRegExp(find), 'g'), replace);
         }
 
+        private addDependency(dep: string) {
+            if (this.$scope.selectedFeature.properties.hasOwnProperty(dep)) {
+                delete this.$scope.selectedFeature.properties[dep];
+            } else {
+                this.$scope.selectedFeature.properties[dep] = 0;
+            }
+        }
+
+        private save() {
+            this.$messageBus.serverPublish("cs/layers/powerstations/feature/" + this.$scope.selectedFeature.id, csComp.Services.Feature.serialize(this.$scope.selectedFeature));
+            console.log('Published feature changes');
+        }
+
         private selectFeature(feature: csComp.Services.IFeature) {
-            if (!feature || !feature.isSelected || feature.featureTypeName !== this.$scope.data.featureTypeName) {
+            if (!feature || !feature.isSelected) {
                 this.parentWidget.hide();
                 return;
             }
-            this.$timeout(() => {
-                var md = this.$scope.data.content;
-                var i = 0;
-                this.$scope.data.dynamicProperties.forEach(p => {
-                    var searchPattern = '{{' + i++ + '}}';
-                    var displayText = '';
-                    if (feature.properties.hasOwnProperty(p)) {
-                        var pt = this.$layerService.getPropertyType(feature, p);
-                        displayText = csComp.Helpers.convertPropertyInfo(pt, feature.properties[p]);
-                    }
-                    md = this.replaceAll(md, searchPattern, displayText);
-                });
-                this.parentWidget.show();
-                this.$scope.data.mdText = md;
-            }, 0);
+            if (typeof this.$scope.data.marvelFolder === 'undefined') return;
+            if (!feature.fType || !feature.fType.name) return;
+            this.$scope.selectedFeature = feature;
+            var featureTypeName = feature.fType.name.replace(/(\_\d$)/, ''); // Remove state appendix (e.g. Hospital_0)
+            var filePath = this.$scope.data.marvelFolder + featureTypeName + '.mrvjson';
+            this.parentWidget.show();
+            $.get(filePath, (marvel) => {
+                this.$timeout(() => {
+                    this.$scope.data.title = featureTypeName;
+                    var w = $("#" + this.widget.elementId);
+                    Marvelous.model(marvel, featureTypeName, w);
+                }, 0);
+            });
         }
     }
 
