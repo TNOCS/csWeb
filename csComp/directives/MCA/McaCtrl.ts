@@ -84,6 +84,8 @@ module Mca {
             messageBusService.subscribe('layer', (title) => {//, layer: csComp.Services.ProjectLayer) => {
                 switch (title) {
                     case 'deactivate':
+                        this.updateAvailableMcas();
+                        break;
                     case 'activated':
                         this.updateAvailableMcas();
                         this.calculateMca();
@@ -313,7 +315,7 @@ module Mca {
 
         public featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("MC: featureMessageReceived");
-            if (!this.mca) { return; }
+            if (!this.mca || this.mca.featureIds.indexOf(feature.featureTypeName) < 0) return;
             switch (title) {
                 case 'onFeatureSelect':
                     this.updateSelectedFeature(feature, true);
@@ -513,7 +515,7 @@ module Mca {
         }
 
         calculateMca() {
-            if (!this.mca) { return; }
+            if (!this.mca) return;
             var mca = this.mca;
             mca.featureIds.forEach((featureId: string) => {
                 if (!(this.layerService._featureTypes.hasOwnProperty(featureId))) { return; }
