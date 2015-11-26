@@ -23,7 +23,7 @@ module csComp.Helpers {
 
     export function getImageUri(ft: csComp.Services.IFeatureType): string {
         if (!ft) return;
-        var iconUri = (ft && ft.style && ft.style.iconUri) ? ft.style.iconUri : "cs/images/marker.png";
+        var iconUri = (ft && ft.style && ft.style.iconUri) ? ft.style.iconUri : 'bower_components/csweb/dist-bower/images/marker.png';
         if (iconUri.indexOf('{') >= 0) iconUri = iconUri.replace('{', '').replace('}', '');
 
         if (ft && ft.style != null && ft.style.drawingMode != null && ft.style.drawingMode.toLowerCase() != "point") {
@@ -35,7 +35,7 @@ module csComp.Helpers {
         } else if (ft && ft.style != null && iconUri != null) {
             return iconUri;
         } else {
-            return 'cs/images/marker.png';
+            return 'bower_components/csweb/dist-bower/images/marker.png';
         }
     }
 

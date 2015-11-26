@@ -84,8 +84,8 @@ module csComp.Helpers {
         if (navigator.msSaveBlob) {
             // IE 10+
             var link: any = document.createElement('a');
-            link.addEventListener("click", event => {
-                var blob = new Blob([data], { "type": "text/" + fileType + ";charset=utf-8;" });
+            link.addEventListener('click', event => {
+                var blob = new Blob([data], { 'type': 'text/' + fileType + ';charset=utf-8;' });
                 navigator.msSaveBlob(blob, filename);
             }, false);
             document.body.appendChild(link);
@@ -99,7 +99,7 @@ module csComp.Helpers {
             // Support for browsers that support the data uri.
             var a: any = document.createElement('a');
             document.body.appendChild(a);
-            a.href = "data:text/" + fileType + ";charset=utf-8," + encodeURI(data);
+            a.href = 'data:text/' + fileType + ';charset=utf-8,' + encodeURI(data);
             a.target = '_blank';
             a.download = filename;
             a.click();
@@ -109,10 +109,10 @@ module csComp.Helpers {
 
 
 
-    declare var String;//: StringExt.IStringExt;
+    declare var String; //: StringExt.IStringExt;
 
     export function supportsDataUri() {
-        var isOldIE = navigator.appName === "Microsoft Internet Explorer";
+        var isOldIE = navigator.appName === 'Microsoft Internet Explorer';
         var isIE11 = !!navigator.userAgent.match(/Trident\/7\./);
         return !(isOldIE || isIE11);  //Return true if not any IE
     }
@@ -145,11 +145,14 @@ module csComp.Helpers {
     export function featureTitle(type: csComp.Services.IFeatureType, feature: IFeature): string {
         var title = '';
         if (feature.hasOwnProperty('properties')) {
-            if (feature.properties.hasOwnProperty('Name')) title = feature.properties['Name'];
-            else if (feature.properties.hasOwnProperty('name')) title = feature.properties['name'];
-            else if (feature.properties.hasOwnProperty('naam')) title = feature.properties['naam'];
-        }
-        else if (type != null && type.style != null && type.style.nameLabel) {
+            if (feature.properties.hasOwnProperty('Name')) {
+                title = feature.properties['Name'];
+            } else if (feature.properties.hasOwnProperty('name')) {
+                title = feature.properties['name'];
+            } else if (feature.properties.hasOwnProperty('naam')) {
+                title = feature.properties['naam'];
+            }
+        } else if (type != null && type.style != null && type.style.nameLabel) {
             title = feature.properties[type.style.nameLabel];
         }
         if (!csComp.StringExt.isNullOrEmpty(title) && !$.isNumeric(title))
@@ -261,12 +264,13 @@ module csComp.Helpers {
                 var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
 
                 // text is default, so we can ignore that
-                if (StringExt.isNumber(value))
+                if (StringExt.isNumber(value)) {
                 { pt.type = 'number'; }
-                else if (StringExt.isBoolean(value))
+                } else if (StringExt.isBoolean(value)) {
                 { pt.type = 'boolean'; }
-                else if (StringExt.isBbcode(value))
+                } else if (StringExt.isBbcode(value)) {
                 { pt.type = 'bbcode'; }
+                }
                 if (resource) {
                     var ke = findUniqueKey(resource.propertyTypeData, key);
                     if (ke === key) { delete pt.label; }
@@ -316,44 +320,47 @@ module csComp.Helpers {
         if (csComp.StringExt.isNullOrEmpty(text)) return text;
         if (!pt.type) return text;
         switch (pt.type) {
-            case "bbcode":
+            case 'bbcode':
                 if (!csComp.StringExt.isNullOrEmpty(pt.stringFormat))
                     text = String.format(pt.stringFormat, text);
                 displayValue = XBBCODE.process({ text: text }).html;
                 break;
-            case "number":
-                if (!$.isNumeric(text))
+            case 'number':
+                if (!$.isNumeric(text)) {
                     displayValue = text;
-                else if (!pt.stringFormat)
+                } else if (!pt.stringFormat) {
                     displayValue = text.toString();
-                else
+                } else {
                     displayValue = String.format(pt.stringFormat, parseFloat(text));
+                }
                 break;
-            case "options":
-                if (!$.isNumeric(text))
+            case 'options':
+                if (!$.isNumeric(text)) {
                     displayValue = text;
-                else
+                } else {
                     displayValue = pt.options[text];
+                }
                 break;
-            case "rank":
+            case 'rank':
                 var rank = text.split(',');
-                if (rank.length != 2) return text;
-                if (pt.stringFormat)
+                if (rank.length !== 2) return text;
+                if (pt.stringFormat) {
                     displayValue = String.format(pt.stringFormat, rank[0], rank[1]);
-                else
-                    displayValue = String.format("{0} / {1}", rank[0], rank[1]);
+                } else {
+                    displayValue = String.format('{0} / {1}', rank[0], rank[1]);
+                }
                 break;
-            case "hierarchy":
-                var hierarchy = text.split(";");
+            case 'hierarchy':
+                var hierarchy = text.split(';');
                 var count = hierarchy[0];
                 var calculation = hierarchy[1];
                 displayValue = count.toString();
                 break;
-            case "date":
+            case 'date':
                 var d = new Date(Date.parse(text));
                 displayValue = d.toLocaleString();
                 break;
-            case "duration": //in ms
+            case 'duration': //in ms
                 if (!$.isNumeric(text)) {
                     displayValue = text;
                 } else {

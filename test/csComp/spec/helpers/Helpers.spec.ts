@@ -106,7 +106,7 @@ describe('Helpers', function() {
                 stroke: true,
                 opacity: 1,
                 rotate: 0,
-                iconUri: 'cs/images/marker.png',
+                iconUri: 'bower_components/csweb/dist-bower/images/marker.png',
                 iconHeight: 32,
                 iconWidth: 32
             });
