@@ -127,6 +127,7 @@ module MarvelWidget {
         private addDependencyFeature(dep: string) {
             if (!this.$scope.selectedFeature.properties.hasOwnProperty(dep)) return;
             var newVal = $('#add-' + dep).val();
+            if (!newVal || (newVal === '')) return;
             if (!this.$scope.selectedFeature.properties[dep].some((d) => { return newVal === d; })) {
                 this.$scope.selectedFeature.properties[dep].push(newVal);
                 $('#add-' + dep).val('');

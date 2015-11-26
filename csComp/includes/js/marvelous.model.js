@@ -103,11 +103,14 @@ var Marvelous = (function() {
         });
 
         node.select("rect").attr("y", function(d) {
-            return d.Center._y - 20;
-        }).attr("width", 130).attr("height", 40).attr("rx", 8).attr("ry", 8).attr(
-            "style", "stroke:black;stroke-width:2").attr(
-            "fill",
-            function(d) {
+                return (d.isConditional) ? d.Center._y : d.Center._y - 20;
+            })
+            .attr("width", function(d) { return (d.isConditional) ? 0 : 130; })
+            .attr("height", function(d) { return (d.isConditional) ? 0 : 40; })
+            .attr("rx", function(d) { return (d.isConditional) ? 0 : 8; })
+            .attr("ry", function(d) { return (d.isConditional) ? 0 : 8; })
+            .attr("style", "stroke:black;stroke-width:2")
+            .attr("fill", function(d) {
                 return "rgb(" + d.Background.R + "," + d.Background.G + "," + d.Background.B + ")";
             });
 
@@ -116,7 +119,7 @@ var Marvelous = (function() {
         }).attr("y", function(d) {
             return d.Center._y + 5;
         }).text(function(d) {
-            return d.Name;
+            return (d.isConditional) ? '' : d.Name;
         }).attr("text-anchor", "middle");
 
         // fix width
@@ -166,9 +169,12 @@ var Marvelous = (function() {
             function(d) {
                 var from = m.nodes[d.FromVariable];
                 var to = m.nodes[d.ToVariable];
-                var toc = Marvelous.boxPoint(to.calculatedWidth + 8, 48, [to.Center._x,
-                    to.Center._y
-                ], [from.Center._x, from.Center._y]);
+                var toc;
+                if (to.isConditional) {
+                    toc = Marvelous.boxPoint(0, 0, [to.Center._x, to.Center._y], [from.Center._x, from.Center._y]);
+                } else {
+                    toc = Marvelous.boxPoint(to.calculatedWidth + 8, 48, [to.Center._x, to.Center._y], [from.Center._x, from.Center._y]);
+                }
                 var frc = Marvelous.boxPoint(from.calculatedWidth + 2, 42, [
                     from.Center._x, from.Center._y
                 ], [to.Center._x,
@@ -321,6 +327,11 @@ var Marvelous = (function() {
             var model = new Model();
             // connections
             model.connections = data.GetModelResult.Connections;
+            if (data.GetModelResult.ConditionalConnections) {
+                data.GetModelResult.ConditionalConnections.forEach(function(c) {
+                    model.connections.push(c);
+                });
+            }
             // initialize select field
             for (var i in model.connections) {
                 model.connections[i].select = 0;
@@ -329,6 +340,12 @@ var Marvelous = (function() {
             model.nodes = {};
             for (var i in data.GetModelResult.Variables) {
                 model.nodes[data.GetModelResult.Variables[i].Id] = data.GetModelResult.Variables[i];
+            }
+            if (data.GetModelResult.ConditionalVariables) {
+                for (var i in data.GetModelResult.ConditionalVariables) {
+                    data.GetModelResult.ConditionalVariables[i].isConditional = true;
+                    model.nodes[data.GetModelResult.ConditionalVariables[i].Id] = data.GetModelResult.ConditionalVariables[i];
+                }
             }
             return model;
         },
