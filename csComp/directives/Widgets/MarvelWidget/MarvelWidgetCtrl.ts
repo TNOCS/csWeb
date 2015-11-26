@@ -9,13 +9,18 @@ module MarvelWidget {
         featureTypeName: string;
     }
 
+    export interface IDependency {
+        label: string;
+        type: string;
+    }
+
     export interface IMarvelWidgetScope extends ng.IScope {
         vm: MarvelWidgetCtrl;
         data: MarvelWidgetData;
         minimized: boolean;
         editmode: boolean;
         selectedFeature: csComp.Services.IFeature;
-        dependencyTypes: string[];
+        dependencyTypes: { [key: string]: IDependency };
     }
 
     export class MarvelWidgetCtrl {
@@ -42,7 +47,7 @@ module MarvelWidget {
             var par = <any>$scope.$parent;
             this.widget = par.widget;
             this.parentWidget = $("#" + this.widget.elementId).parent();
-            $scope.dependencyTypes = ['_dep_water', '_dep_UPS', '_dep_features'];
+            this.initDependencies();
 
             $scope.data = <MarvelWidgetData>this.widget.data;
             $scope.minimized = false;
@@ -62,6 +67,14 @@ module MarvelWidget {
                     }
                 });
             }
+        }
+
+        private initDependencies(): { [key: string]: IDependency } {
+            this.$scope.dependencyTypes = {};
+            this.$scope.dependencyTypes['_dep_water'] = { label: 'Water level [m]', type: 'number' };
+            this.$scope.dependencyTypes['_dep_UPS'] = { label: 'UPS duration [mins]', type: 'number' };
+            this.$scope.dependencyTypes['_dep_features'] = { label: 'Specific features', type: 'stringarray' };
+            return {};
         }
 
         private minimize() {
@@ -90,16 +103,49 @@ module MarvelWidget {
             return str.replace(new RegExp(this.escapeRegExp(find), 'g'), replace);
         }
 
-        private addDependency(dep: string) {
-            if (this.$scope.selectedFeature.properties.hasOwnProperty(dep)) {
-                delete this.$scope.selectedFeature.properties[dep];
+        private addDependency(id: string, dep: IDependency) {
+            if (this.$scope.selectedFeature.properties.hasOwnProperty(id)) {
+                delete this.$scope.selectedFeature.properties[id];
             } else {
-                this.$scope.selectedFeature.properties[dep] = 0;
+                switch (dep.type) {
+                    case 'number':
+                        this.$scope.selectedFeature.properties[id] = 0;
+                        break;
+                    case 'string':
+                        this.$scope.selectedFeature.properties[id] = '';
+                        break;
+                    case 'stringarray':
+                        this.$scope.selectedFeature.properties[id] = [];
+                        break;
+                    default:
+                        this.$scope.selectedFeature.properties[id] = null;
+                        break;
+                }
+            }
+        }
+
+        private addDependencyFeature(dep: string) {
+            if (!this.$scope.selectedFeature.properties.hasOwnProperty(dep)) return;
+            var newVal = $('#add-' + dep).val();
+            if (!this.$scope.selectedFeature.properties[dep].some((d) => { return newVal === d; })) {
+                this.$scope.selectedFeature.properties[dep].push(newVal);
+                $('#add-' + dep).val('');
+            }
+        }
+
+        private removeDependencyFeature(dep: string, name: string) {
+            if (this.$scope.selectedFeature.properties.hasOwnProperty(dep)) {
+                this.$scope.selectedFeature.properties[dep] = this.$scope.selectedFeature.properties[dep].filter((d) => { return name !== d; });
             }
         }
 
         private save() {
-            this.$messageBus.serverPublish("cs/layers/powerstations/feature/" + this.$scope.selectedFeature.id, csComp.Services.Feature.serialize(this.$scope.selectedFeature));
+            var f = this.$scope.selectedFeature;
+            var s = new csComp.Services.LayerUpdate();
+            s.layerId = f.layerId;
+            s.action = csComp.Services.LayerUpdateAction.updateFeature;
+            s.item = csComp.Services.Feature.serialize(f);
+            this.$messageBus.serverSendMessageAction("layer", s);
             console.log('Published feature changes');
         }
 

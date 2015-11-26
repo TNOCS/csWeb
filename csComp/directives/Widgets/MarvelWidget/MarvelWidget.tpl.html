@@ -20,19 +20,49 @@
             </svg>
         </div>
         <div ng-show="editmode">
-            <div ng-repeat="dep in dependencyTypes">
+            <div ng-repeat="(id, dep) in dependencyTypes">
                 <div class="row" style="margin-left:15px;margin-right:0px;">
                     <div class="col-md-1">
-                        <input type="checkbox" ng-click="vm.addDependency(dep)" id="check-{{dep}}" ng-checked="selectedFeature.properties.hasOwnProperty(dep)" />
+                        <input type="checkbox" ng-click="vm.addDependency(id, dep)" id="check-{{id}}" ng-checked="selectedFeature.properties.hasOwnProperty(id)" />
                     </div>
-                    <div class="col-md-9">
-                        <div ng-if="selectedFeature.properties.hasOwnProperty(dep)">
-                            <label class="control-label" for="depValue">{{dep}}</label>
-                            <input id="depValue" name="textinput" type="number" ng-model="selectedFeature.properties[dep]" placeholder="value" class="input-xlarge">
-                        </div>
-                        <div ng-if="!selectedFeature.properties.hasOwnProperty(dep)">
-                            <label class="control-label" for="depValue">{{dep}}</label>
-                            <input disabled id="depValue" name="textinput" type="number" placeholder="value" class="input-xlarge">
+                    <div class="col-md-10">
+                        <div ng-switch="dep.type">
+                            <div ng-switch-when="number">
+                                <div ng-if="selectedFeature.properties.hasOwnProperty(id)">
+                                    <label class="control-label" for="depValue">{{dep.label}}</label>
+                                    <input id="depValue" name="textinput" type="number" ng-model="selectedFeature.properties[id]" placeholder="value" class="input">
+                                </div>
+                                <div ng-if="!selectedFeature.properties.hasOwnProperty(id)">
+                                    <label class="control-label" for="depValue">{{dep.label}}</label>
+                                    <input disabled id="depValue" type="number" name="textinput" placeholder="value" class="input">
+                                </div>
+                            </div>
+                            <div ng-switch-when="string">
+                                <div ng-if="selectedFeature.properties.hasOwnProperty(id)">
+                                    <label class="control-label" for="depValue">{{dep.label}}</label>
+                                    <input id="depValue" name="textinput" ng-model="selectedFeature.properties[id]" placeholder="value" class="input">
+                                </div>
+                                <div ng-if="!selectedFeature.properties.hasOwnProperty(id)">
+                                    <label class="control-label" for="depValue">{{dep.label}}</label>
+                                    <input disabled id="depValue" name="textinput" placeholder="value" class="input">
+                                </div>
+                            </div>
+                            <div ng-switch-when="stringarray">
+                                <div ng-if="selectedFeature.properties.hasOwnProperty(id)">
+                                    <div ng-repeat="name in selectedFeature.properties[id]">
+                                        <label class="control-label" for="depName">{{$index}}</label>
+                                        <input disabled id="depName" name="textinput" ng-model="name" placeholder="value" class="input">
+                                        <button class="fa fa-minus leftpanel-header-button" ng-click="vm.removeDependencyFeature(id, name)" />
+                                    </div>
+                                    <label class="control-label" for="depValue">{{dep.label}}</label>
+                                    <input id="add-{{id}}" name="textinput" placeholder="Featurename" class="input">
+                                    <button class="fa fa-plus leftpanel-header-button" ng-click="vm.addDependencyFeature(id)" />
+                                </div>
+                                <div ng-if="!selectedFeature.properties.hasOwnProperty(id)">
+                                    <label class="control-label" for="depValue">{{dep.label}}</label>
+                                    <input disabled id="depValue" name="textinput" placeholder="Featurename" class="input">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
