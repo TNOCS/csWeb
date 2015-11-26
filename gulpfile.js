@@ -261,7 +261,7 @@ gulp.task('karma', ['bower'], function (cb) {
 gulp.task('test', function (cb) {
     runSequence(
         'built_csComp.d.ts',
-        //'test_tsd',
+        'test_tsd',
         'test_tsconfig_files',
         'test_tsc',
         'karma',
