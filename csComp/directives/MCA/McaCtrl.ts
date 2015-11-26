@@ -33,7 +33,7 @@ module Mca {
         ratingStates: any;
     }
 
-    declare var String;//: csComp.StringExt.IStringExt;
+    declare var String; //: csComp.StringExt.IStringExt;
 
     export class McaCtrl {
         private static mcaChartId = 'mcaChart';
@@ -273,7 +273,7 @@ module Mca {
         }
 
         private saveMca(mca: Models.Mca) {
-            if (!mca) {return;}
+            if (!mca) return;
             this.deleteMca(mca);
             this.saveMcaToProject(mca);
             this.saveMcaToLocalStorage(mca);
@@ -330,7 +330,7 @@ module Mca {
                     break;
             }
             this.scopeApply();
-        }
+        };
 
         private scopeApply() {
             if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
@@ -551,7 +551,7 @@ module Mca {
                         ? mca.scaleMaxValue > mca.scaleMinValue
                             ? (position: number) => { return mca.scaleMaxValue - Math.round(position / scaleFactor); }
                             : (position: number) => { return mca.scaleMinValue + Math.round(position / scaleFactor); }
-                        : (position: number) => { return position };
+                        : (position: number) => { return position; };
                     var prevScore = -1;
                     var rank: number = 1;
                     for (var i = 0; i < length; i++) {
