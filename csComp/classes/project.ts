@@ -52,7 +52,7 @@ module csComp.Services {
 
         static deserialize(input: DateRange): DateRange {
             var res = <DateRange>$.extend(new DateRange(), input);
-            if (typeof res.focus === "undefined" || res.focus === null) { res.focus = Date.now(); }
+            if (typeof res.focus === 'undefined' || res.focus === null) { res.focus = Date.now(); }
             return res;
         }
 
@@ -178,11 +178,11 @@ module csComp.Services {
             return JSON.stringify(Project.serializeableData(this), (key: string, value: any) => {
                 // Skip serializing certain keys
                 switch (key) {
-                    case "timestamp":
-                    //case "values":
-                    case "mcas":
-                    case "$$hashKey":
-                    case "div":
+                    case 'timestamp':
+                    //case 'values':
+                    //case 'mcas':
+                    case '$$hashKey':
+                    case 'div':
                         return undefined;
                     default:
                         return value;
@@ -233,7 +233,7 @@ module csComp.Services {
         public deserialize(input: Project): Project {
             var res = <Project>jQuery.extend(new Project(), input);
             res.solution = input.solution;
-            if (!input.opacity) input.opacity = 100;
+            if (!input.opacity) { input.opacity = 100; }
             if (input.timeLine) { res.timeLine = DateRange.deserialize(input.timeLine); }// <DateRange>jQuery.extend(new DateRange(), input.timeLine);
             if (input.dashboards) {
                 res.dashboards = [];

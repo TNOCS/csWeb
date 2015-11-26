@@ -49,13 +49,15 @@ module csComp.Services {
          */
         isConnected?: boolean;
         /**
-         * when a log is used all property & geometry changes when saved are recorded in a log, this allows you to go back in time, otherwise the complete feature with all its properties and geometry is overwritten
+         * When a log is used all property & geometry changes when saved are recorded in a log, this allows you to go back in time, 
+         * otherwise the complete feature with all its properties and geometry is overwritten
          */
         useLog?: boolean;
         /** indicates if features should be shown on timeline */
 
         showOnTimeline?: boolean;
-        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
+        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the 
+         * resourceType on every load */
         dynamicResource?: boolean;
         /** If true (default false), do not move the selected feature to the front of the SVG stack */
         disableMoveSelectionToFront: boolean;
@@ -116,7 +118,6 @@ module csComp.Services {
 
         /** last updated time */
         updated?: number;
-
     }
 
     /** Layer information. a layer is described in a project file and is always part of a group */
