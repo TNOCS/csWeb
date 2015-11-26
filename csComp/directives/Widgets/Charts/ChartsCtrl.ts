@@ -174,22 +174,24 @@ module ChartsWidget {
                     this.keyHandle = this.$layerService.$messageBusService.serverSubscribe(d.key, "key", (topic: string, msg: csComp.Services.ClientMessage) => {
                         switch (msg.action) {
                             case "key":
-                                if (msg.data.item.hasOwnProperty("values")) {
-                                    d.spec.data = msg.data.item;
-                                }
-                                else {
-                                    d.spec = msg.data.item;
-                                }
+                        if (msg.data.item.hasOwnProperty("values")) {
+                            d.spec.data = msg.data.item.values;
+                        } else {
+                            d.spec.data = msg.data.item;
+                        }
                                 // if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]' ) {
                                 //     d.spec.data = msg.data.item;
                                 // } else {
                                 //
                                 // }
                                 this.updateChart();
-                                break;
-                        }
-                    });
-                }
+                        //vgspec = d.spec;
+                        //if (d.lite) vgspec = vl.compile(d.spec);
+                        //vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + d._id }).update(); });
+                        //d._view.update();
+                        //break;
+                    }
+                });
             }
         }
     }
