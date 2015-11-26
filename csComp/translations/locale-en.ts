@@ -18,6 +18,8 @@ module Translations {
             SELECT_FEATURE_FOR_WIDGET: 'Please select a feature to show the widget.',
             SELECT_FEATURE_FOR_STYLE: 'Please select a feature to before setting the style.',
             SELECT_LAYER_GROUP: 'Select Layers',
+            SELECT_CATEGORY: 'Select Category',
+            SELECT_PROPERTIES: 'Select Properties',
             NO_RELATIONS_FOUND: 'No relations can be shown for the selected feature. Either the zoom level is too low, there are too many features in the view or there are no relations defined.',
             BASESTYLES: 'Baselayers',
             MAP: 'Maps',

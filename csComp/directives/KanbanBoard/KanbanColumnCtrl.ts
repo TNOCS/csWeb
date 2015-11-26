@@ -149,22 +149,22 @@ module KanbanColumn {
         }
 
         public createForm(feature: csComp.Services.IFeature) {
-            if (feature.gui["questions"]) {
-                delete feature.gui["questions"];
+            if (feature._gui["questions"]) {
+                delete feature._gui["questions"];
                 this.$layerService.unlockFeature(feature);
             }
             else if (this.$layerService.lockFeature(feature)) {
-                feature.gui["questions"] = [];
+                feature._gui["questions"] = [];
                 feature.properties[this.column.fields['question']].forEach((s: string) => {
                     var pt = this.$layerService.getPropertyType(feature, s);
-                    feature.gui["questions"].push({ property: s, ptype: pt });
+                    feature._gui["questions"].push({ property: s, ptype: pt });
                 });
             }
         }
 
         public sendForm(feature: csComp.Services.IFeature) {
             feature.properties["answered"] = true;
-            delete feature.gui["questions"];
+            delete feature._gui["questions"];
             this.$layerService.unlockFeature(feature);
             this.$layerService.saveFeature(feature, true);
         }
@@ -172,7 +172,7 @@ module KanbanColumn {
         public saveCategory(feature: csComp.Services.IFeature, property: string, value: string) {
             feature.properties["answered"] = true;
             feature.properties[property] = value;
-            delete feature.gui["questions"];
+            delete feature._gui["questions"];
             this.$layerService.unlockFeature(feature);
             this.$layerService.saveFeature(feature, true);
         }
@@ -182,8 +182,8 @@ module KanbanColumn {
                 if (feature.properties.hasOwnProperty('date')) {
 
                     var d = feature.properties['date'];
-                    if (!feature.hasOwnProperty('gui')) feature.gui = new Object;
-                    feature.gui['relativeTime'] = moment(d).fromNow();
+                    if (!feature.hasOwnProperty('gui')) feature._gui = new Object;
+                    feature._gui['relativeTime'] = moment(d).fromNow();
                 }
                 return "";
             })

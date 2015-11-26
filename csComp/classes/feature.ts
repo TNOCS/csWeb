@@ -33,7 +33,7 @@ module csComp.Services {
         effectiveStyle: IFeatureTypeStyle;
         _isInitialized?: boolean;
         lastUpdated: number;
-        gui: Object;
+        _gui: Object;
         sensors?: { [id: string]: any[] }
 
         logs?: { [id: string]: Log[] };
@@ -63,7 +63,7 @@ module csComp.Services {
         htmlStyle: string;
         featureTypeName: string;
         lastUpdated: number;
-        gui: Object = {};
+        _gui: Object = {};
         /** resolved feature type */
         fType: IFeatureType;
         /** calculated style, used for final rendering */

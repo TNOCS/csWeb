@@ -18,6 +18,8 @@ module Translations {
             SELECT_FEATURE_FOR_WIDGET: 'Selecteer een gebied om de widget te tonen.',
             SELECT_FEATURE_FOR_STYLE: 'Selecteer een gebied om de stijl te activeren.',
             SELECT_LAYER_GROUP : 'Selecteer lagen',
+            SELECT_CATEGORY: 'Selecteer categorie',
+            SELECT_PROPERTIES: 'Selecteer eigenschappen',
             NO_RELATIONS_FOUND: 'Geen relaties voor het geselecteerde item gevonden. Ofwel het zoomniveau is te laag, er zijn teveel items zichtbaar of er zijn geen relaties gedefiniëerd.',
             CHOOSE_DROPDOWN: 'Kies...',
             BASESTYLES: 'Basiskaarten',

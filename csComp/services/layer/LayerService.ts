@@ -910,7 +910,7 @@ module csComp.Services {
         }
 
         public editFeature(feature: IFeature) {
-            feature.gui['editMode'] = true;
+            feature._gui['editMode'] = true;
             this.selectFeature(feature);
         }
 
@@ -922,7 +922,7 @@ module csComp.Services {
 
         public selectFeature(feature: IFeature, multi = false, force = false) {
             if (force) { feature.isSelected = true } else feature.isSelected = !feature.isSelected;
-            feature.gui['title'] = Helpers.getFeatureTitle(feature);
+            feature._gui['title'] = Helpers.getFeatureTitle(feature);
             this.actionServices.forEach((as: IActionService) => {
                 if (feature.isSelected) { as.selectFeature(feature); } else { as.deselectFeature(feature); }
             })
@@ -1139,7 +1139,7 @@ module csComp.Services {
         public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false, publishToTimeline: boolean = true): IFeatureType {
             if (!feature._isInitialized) {
                 feature._isInitialized = true;
-                feature.gui = {};
+                feature._gui = {};
 
                 if (!feature.logs) feature.logs = {};
                 if (feature.properties == null) feature.properties = {};
@@ -1230,7 +1230,7 @@ module csComp.Services {
                 }
             }
 
-            feature.gui['style'] = {};
+            feature._gui['style'] = {};
             s.opacity = (feature.layer.isTransparent) ? 0 : s.opacity * (feature.layer.opacity / 100);
             s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);
             feature.layer.group.styles.forEach((gs: GroupStyle) => {
@@ -1241,11 +1241,11 @@ module csComp.Services {
                         switch (gs.visualAspect) {
                             case 'strokeColor':
                                 s.strokeColor = csComp.Helpers.getColor(v, gs);
-                                feature.gui['style'][gs.property] = s.strokeColor;
+                                feature._gui['style'][gs.property] = s.strokeColor;
                                 break;
                             case 'fillColor':
                                 s.fillColor = csComp.Helpers.getColor(v, gs);
-                                feature.gui['style'][gs.property] = s.fillColor;
+                                feature._gui['style'][gs.property] = s.fillColor;
                                 break;
                             case 'strokeWidth':
                                 s.strokeWidth = ((v - gs.info.min) / (gs.info.max - gs.info.min) * 10) + 1;
@@ -1260,11 +1260,11 @@ module csComp.Services {
                         switch (gs.visualAspect) {
                             case 'strokeColor':
                                 s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-                                feature.gui['style'][gs.property] = s.strokeColor;
+                                feature._gui['style'][gs.property] = s.strokeColor;
                                 break;
                             case 'fillColor':
                                 s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-                                feature.gui['style'][gs.property] = s.fillColor;
+                                feature._gui['style'][gs.property] = s.fillColor;
                                 break;
                         }
                     }
@@ -2689,7 +2689,7 @@ module csComp.Services {
             if (!result.hasOwnProperty(key)) result[key] = [];
             f.logs[key].push(log);
             result[key].push(log);
-            f.gui['lastUpdate'] = log.ts;
+            f._gui['lastUpdate'] = log.ts;
         }
 
         /**
@@ -2704,7 +2704,7 @@ module csComp.Services {
             if (!result.hasOwnProperty(key)) { result[key] = []; }
             f.logs[key].push(log);
             result[key].push(log);
-            f.gui['lastUpdate'] = log.ts;
+            f._gui['lastUpdate'] = log.ts;
         }
 
         private trackFeature(feature: IFeature): {} {
@@ -2724,28 +2724,54 @@ module csComp.Services {
         }
 
         public isLocked(f: IFeature): boolean {
-            return f.gui.hasOwnProperty('lock') || (f.gui.hasOwnProperty('editMode') && f.gui['editMode']);
+            return f._gui.hasOwnProperty('lock') || (f._gui.hasOwnProperty('editMode') && f._gui['editMode']);
         }
 
         /**
          * Set a lock property on the feature to signal others prevent feature updates
          */
         public lockFeature(f: IFeature): boolean {
-            if (f.gui.hasOwnProperty('lock')) {
+            if (f._gui.hasOwnProperty('lock')) {
                 return false;
             }
             else {
-                f.gui['lock'] = true;
+                f._gui['lock'] = true;
                 return true;
             }
         }
 
         public unlockFeature(f: IFeature) {
-            delete f.gui['lock'];
+            delete f._gui['lock'];
         }
 
 
+    public saveProject() {        
+            console.log('saving project');
+            setTimeout(() => {
+                var data = this.project.serialize();
+                var url = this.projectUrl.url; 
+                //.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
+                console.log('URL: ' + url);
+                $.ajax({
+                    url: url,
+                    type: "PUT",
+                    data: data,
+                    contentType: "application/json",
+                    complete: (d)=>{
+                        if (d.error) console.error('Error update project.json: ' + JSON.stringify(d));
+                        else console.log('Project.json updated succesfully!')
+                    }
+                });
+            }, 0);
+        }
 
+        private updateProjectReady(data) {
+            
+        }
+
+        /**
+         * Save feature back to the server
+         */
         public saveFeature(f: IFeature, logs: boolean = false) {
             f.properties['updated'] = new Date().getTime();
             // check if feature is in dynamic layer

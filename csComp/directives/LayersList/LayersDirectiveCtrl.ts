@@ -219,7 +219,9 @@ module LayersDirective {
                 group.layers.push(this.selectedLayer);
             }
             this.selectedLayer = null;
+            this.$layerService.saveProject();
             this.state = "layers";
+            
         }
 
         public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
@@ -384,7 +386,7 @@ module LayersDirective {
                     })
                         .error(() => {
                         console.log('error adding layer');
-
+                        return;
                     });
                 }
 
@@ -393,6 +395,7 @@ module LayersDirective {
                 }
                 
                 this.$layerService.addLayer(this.newLayer);
+                this.$layerService.saveProject();
 
                 //var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", this.newLayer, "Edit layer");
                 //this.$messageBusService.publish("rightpanel", "activate", rpt);
