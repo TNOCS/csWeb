@@ -23,17 +23,17 @@ module csComp.Helpers {
     export function getDefaultFeatureStyle(): csComp.Services.IFeatureTypeStyle {
         //TODO: check compatibility for both heatmaps and other features
         var s: csComp.Services.IFeatureTypeStyle = {
-            nameLabel: 'Name',
+            nameLabel:   'Name',
             strokeWidth: 3,
             strokeColor: '#0033ff',
             fillOpacity: 0.75,
-            opacity: 1,
-            fillColor: '#FFFF00',
-            stroke: true,
-            rotate: 0,
-            iconUri: 'bower_components/csweb/dist-bower/images/marker.png',
-            iconHeight: 32,
-            iconWidth: 32
+            opacity:     1,
+            fillColor:   '#FFFF00',
+            stroke:      true,
+            rotate:      0,
+            iconUri:     'bower_components/csweb/dist-bower/images/marker.png',
+            iconHeight:  32,
+            iconWidth:   32
         };
         return s;
     }
@@ -42,8 +42,8 @@ module csComp.Helpers {
      * Export data to the file system.
      */
     export function saveData(data: string, filename: string, fileType: string) {
-        fileType = fileType.replace(".", "");
-        filename = filename.replace("." + fileType, "") + "." + fileType; // if the filename already contains a type, first remove it before adding it.
+        fileType = fileType.replace('.', '');
+        filename = filename.replace('.' + fileType, '') + '.' + fileType; // if the filename already contains a type, first remove it before adding it.
 
         if (navigator.msSaveBlob) {
             // IE 10+
@@ -63,21 +63,19 @@ module csComp.Helpers {
             // Support for browsers that support the data uri.
             var a: any = document.createElement('a');
             document.body.appendChild(a);
-            a.href = 'data:text/' + fileType + ';charset=utf-8,' + encodeURI(data);
-            a.target = '_blank';
+            a.href     = 'data:    text/' + fileType + ';charset=utf-8,' + encodeURI(data);
+            a.target   = '_blank';
             a.download = filename;
             a.click();
             document.body.removeChild(a);
         }
     }
 
-
-
     declare var String; //: StringExt.IStringExt;
 
     export function supportsDataUri() {
         var isOldIE = navigator.appName === 'Microsoft Internet Explorer';
-        var isIE11 = !!navigator.userAgent.match(/Trident\/7\./);
+        var isIE11  = !!navigator.userAgent.match(/Trident\/7\./);
         return !(isOldIE || isIE11);  //Return true if not any IE
     }
 
@@ -85,7 +83,7 @@ module csComp.Helpers {
         var avg = average(values);
 
         var squareDiffs = values.map(value => {
-            var diff = value - avg;
+            var diff    = value - avg;
             var sqrDiff = diff * diff;
             return sqrDiff;
         });
@@ -134,21 +132,23 @@ module csComp.Helpers {
             var keys = type.propertyTypeKeys.split(';');
             keys.forEach((key) => {
                 // First, lookup key in global propertyTypeData
-                if (propertyTypeData && propertyTypeData.hasOwnProperty(key)) propertyTypes.push(propertyTypeData[key]);
-                // If you cannot find it there, look it up in the featureType's propertyTypeData.
-                else if (type.propertyTypeData != null) {
+                if (propertyTypeData && propertyTypeData.hasOwnProperty(key)) {
+                    propertyTypes.push(propertyTypeData[key]);
+                } else if (type.propertyTypeData != null) {
+                    // If you cannot find it there, look it up in the featureType's propertyTypeData.
                     var result = $.grep(type.propertyTypeData, e => e.label === key);
                     if (result.length >= 1) propertyTypes.push(result);
                 }
             });
         }
-        if (type.showAllProperties && feature && feature.properties) {
-            for (var key in feature.properties) {
-                if (!propertyTypes.some((pt: csComp.Services.IPropertyType) => pt.label == key)) {
-                    //var pt =
-                }
-            }
-        }
+        // EV REMOVE?
+        // if (type.showAllProperties && feature && feature.properties) {
+        //     for (var key in feature.properties) {
+        //         if (!propertyTypes.some((pt: csComp.Services.IPropertyType) => pt.label === key)) {
+        //             //var pt =
+        //         }
+        //     }
+        // }
         if (type.propertyTypeData != null) {
             if (type.propertyTypeData.forEach) {
                 type.propertyTypeData.forEach((pt) => {
@@ -171,7 +171,6 @@ module csComp.Helpers {
         //        if (!type.propertyTypeData) type.propertyTypeData = [];
 
         for (var key in feature.properties) {
-
             //if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
             if (!feature.properties.hasOwnProperty(key)) continue;
             var propertyType: csComp.Services.IPropertyType = [];
@@ -181,18 +180,19 @@ module csComp.Helpers {
             propertyType.visibleInCallOut = true;
             propertyType.canEdit = false;
             var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
-            if (StringExt.isDate(value))
+            if (StringExt.isDate(value)) {
                 propertyType.type = 'date';
-            else if (StringExt.isNumber(value))
+            } else if (StringExt.isNumber(value)) {
                 propertyType.type = 'number';
-            else if (StringExt.isBoolean(value))
+            } else if (StringExt.isBoolean(value)) {
                 propertyType.type = 'boolean';
-            else if (StringExt.isArray(value))
+            } else if (StringExt.isArray(value)) {
                 propertyType.type = 'tags';
-            else if (StringExt.isBbcode(value))
+            } else if (StringExt.isBbcode(value)) {
                 propertyType.type = 'bbcode';
-            else
+            } else {
                 propertyType.type = 'text';
+            }
             res.push(propertyType);
             //}
         }
@@ -201,12 +201,10 @@ module csComp.Helpers {
     }
 
     /** find a unique key name in object */
-    export function findUniqueKey(o : Object, key : string) : string 
-    {
+    export function findUniqueKey(o : Object, key : string) : string {
         var i = 2;
         var pk = key;
-        while (o.hasOwnProperty(pk))
-        {
+        while (o.hasOwnProperty(pk)) {
             key = key + pk;
             pk += 1;
         }
@@ -240,10 +238,10 @@ module csComp.Helpers {
                 } else if (StringExt.isBoolean(value)) {
                     propertyType.type = 'boolean';
                 } else if (StringExt.isBbcode(value)) {
-                    propertyType.type = 'bbcode'; 
+                    propertyType.type = 'bbcode';
                 }
                 if (resource) {
-                    var ke = findUniqueKey(resource.propertyTypeData,key);
+                    var ke = findUniqueKey(resource.propertyTypeData, key);
                     if (ke === key) { delete propertyType.label; }
                     resource.propertyTypeData[k] = propertyType;
                 } else {
@@ -408,7 +406,7 @@ module csComp.Helpers {
     }
 
     export function getGuid() {
-        var guid = (this.S4() + this.S4() + "-" + this.S4() + "-4" + this.S4().substr(0, 3) + "-" + this.S4() + "-" + this.S4() + this.S4() + this.S4()).toLowerCase();
+        var guid = (this.S4() + this.S4() + '-' + this.S4() + '-4' + this.S4().substr(0, 3) + '-' + this.S4() + '-' + this.S4() + this.S4() + this.S4()).toLowerCase();
         return guid;
     }
 
@@ -543,9 +541,8 @@ module csComp.Helpers {
 
         html += '\'>';
         if (feature.effectiveStyle.innerTextProperty != null && feature.properties.hasOwnProperty(feature.effectiveStyle.innerTextProperty)) {
-            html += "<span style='font-size:12px;vertical-align:-webkit-baseline-middle'>" + feature.properties[feature.effectiveStyle.innerTextProperty] + "</span>";
-        }
-        else if (iconUri != null) {
+            html += '<span style="font-size:12px;vertical-align:-webkit-baseline-middle">' + feature.properties[feature.effectiveStyle.innerTextProperty] + '</span>';
+        } else if (iconUri != null) {
             // Must the iconUri be formatted?
             if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
 
