@@ -6,7 +6,7 @@
                 <button class="fa fa-times leftpanel-header-button" ng-click="vm.close()" style="padding-right:0px" />
                 <button class="fa fa-plus leftpanel-header-button" ng-click="vm.minimize()" ng-show="minimized" />
                 <button class="fa fa-minus leftpanel-header-button" ng-click="vm.minimize()" ng-hide="minimized" />
-                <button class="fa fa-floppy-o leftpanel-header-button" ng-click="vm.edit()" ng-show="editmode" />
+                <button class="fa fa-floppy-o leftpanel-header-button" ng-click="vm.save()" ng-show="editmode" />
                 <button class="fa fa-cog leftpanel-header-button" ng-click="vm.edit()" ng-hide="editmode" />
             </div>
         </div>
@@ -49,14 +49,14 @@
                             </div>
                             <div ng-switch-when="stringarray">
                                 <div ng-if="selectedFeature.properties.hasOwnProperty(id)">
+                                    <label class="control-label-marvel" for="depValue">{{dep.label}}</label>
+                                    <input id="add-{{id}}" name="textinput" placeholder="Featurename" class="input">
+                                    <button class="fa fa-plus leftpanel-header-button" style="float:none" ng-click="vm.addDependencyFeature(id)" />
                                     <div ng-repeat="name in selectedFeature.properties[id]">
                                         <label class="control-label-marvel" for="depName">{{$index}}</label>
                                         <input disabled id="depName" name="textinput" ng-model="name" placeholder="value" class="input">
                                         <button class="fa fa-minus leftpanel-header-button" style="float:none" ng-click="vm.removeDependencyFeature(id, name)" />
                                     </div>
-                                    <label class="control-label-marvel" for="depValue">{{dep.label}}</label>
-                                    <input id="add-{{id}}" name="textinput" placeholder="Featurename" class="input">
-                                    <button class="fa fa-plus leftpanel-header-button" style="float:none" ng-click="vm.addDependencyFeature(id)" />
                                 </div>
                                 <div ng-if="!selectedFeature.properties.hasOwnProperty(id)">
                                     <label class="control-label-marvel" for="depValue">{{dep.label}}</label>
@@ -66,6 +66,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="row" style="margin-left:15px;margin-right:0px;margin-top:10px;">
+                <button class="btn btn-primary rightpanel-button" style="float:right; margin-right:8px" popover="Save dependencies to the selected feature only" popover-placement="top" popover-trigger="mouseenter" ng-click="vm.save()">Save single feature</button>
+                <button class="btn btn-primary rightpanel-button" style="float:right; margin-right:8px" popover="Save dependencies to all features of this type" popover-placement="top" popover-trigger="mouseenter" ng-click="vm.saveAll()">Save all</button>
             </div>
         </div>
     </div>

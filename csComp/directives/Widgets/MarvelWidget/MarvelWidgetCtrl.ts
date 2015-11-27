@@ -87,12 +87,39 @@ module MarvelWidget {
         }
 
         private edit() {
-            (this.$scope.editmode) ? this.save() : null;
             this.$scope.editmode = !this.$scope.editmode;
         }
 
         private close() {
             this.parentWidget.hide();
+        }
+
+        /** Save single feature update by sending it to the server over the messageBus  */
+        private save() {
+            var f = this.$scope.selectedFeature;
+            var s = new csComp.Services.LayerUpdate();
+            s.layerId = f.layerId;
+            s.action = csComp.Services.LayerUpdateAction.updateFeature;
+            s.item = csComp.Services.Feature.serialize(f);
+            this.$messageBus.serverSendMessageAction("layer", s);
+            this.edit(); // Toggle edit mode
+            console.log('Published feature changes');
+        }
+
+        /** Save all features of the selected feature's featureType. Set a property
+          * 'changeAllFeaturesOfType' to inform the simservice that all features
+          * should be updated.
+          */
+        private saveAll() {
+            var f = this.$scope.selectedFeature;
+            var s = new csComp.Services.LayerUpdate();
+            s.layerId = f.layerId;
+            s.action = csComp.Services.LayerUpdateAction.updateFeature;
+            s.item = csComp.Services.Feature.serialize(f);
+            s.item['changeAllFeaturesOfType'] = true;
+            this.$messageBus.serverSendMessageAction("layer", s);
+            this.edit(); // Toggle edit mode
+            console.log('Published feature changes');
         }
 
         private escapeRegExp(str: string) {
@@ -138,16 +165,6 @@ module MarvelWidget {
             if (this.$scope.selectedFeature.properties.hasOwnProperty(dep)) {
                 this.$scope.selectedFeature.properties[dep] = this.$scope.selectedFeature.properties[dep].filter((d) => { return name !== d; });
             }
-        }
-
-        private save() {
-            var f = this.$scope.selectedFeature;
-            var s = new csComp.Services.LayerUpdate();
-            s.layerId = f.layerId;
-            s.action = csComp.Services.LayerUpdateAction.updateFeature;
-            s.item = csComp.Services.Feature.serialize(f);
-            this.$messageBus.serverSendMessageAction("layer", s);
-            console.log('Published feature changes');
         }
 
         private selectFeature(feature: csComp.Services.IFeature) {
