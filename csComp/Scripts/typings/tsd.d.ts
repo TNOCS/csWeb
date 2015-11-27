@@ -12,3 +12,4 @@
 /// <reference path="q/Q.d.ts" />
 /// <reference path="underscore/underscore.d.ts" />
 /// <reference path="vega/vega.d.ts" />
+/// <reference path="angular-ui-router/angular-ui-router.d.ts" />
