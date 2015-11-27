@@ -88,6 +88,12 @@ module MarvelWidget {
 
         private edit() {
             this.$scope.editmode = !this.$scope.editmode;
+            if (!this.$scope.editmode) {
+                this.$timeout(() => {
+                    var w = $("#" + this.widget.elementId);
+                    Marvelous.refreshView(w);
+                }, 50);
+            }
         }
 
         private close() {
