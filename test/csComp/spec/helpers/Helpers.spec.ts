@@ -15,7 +15,7 @@ describe('Helpers', function() {
             $provide.value('$translate', mockTranslate);
         });
         mockTranslate = function(key) {
-            var mct = new MockColorTranslation();
+            var mct = new ColorTranslationMock.MockColorTranslation();
             return mct;
         };
     });
@@ -40,7 +40,7 @@ describe('Helpers', function() {
 
         it('should save data', function() {
             var e = document.createElement('a');
-            e.click = () => { };
+            e.click = () => {};
             spyOn(document, 'createElement').and.returnValue(e);
             var data = '{"testKey": "testVal"}';
             csComp.Helpers.saveData(data, 'fileName', 'txt');
@@ -227,6 +227,34 @@ describe('Helpers', function() {
                 var result: any = csComp.Helpers.setFeatureName(f);
                 expect(result.properties.hasOwnProperty('Name')).toBeTruthy();
             });
+        });
+
+        describe('When evaluating expressions', () => {
+            var f: csComp.Services.IFeature,
+                r: csComp.Services.ITypesResource;
+            beforeEach(function() {
+                f = <csComp.Services.IFeature>{};
+                f.properties = {
+                    'amount_men': 10000,
+                    'percentage_children': 0.1
+                };
+                f.fType = {};
+
+                r = <csComp.Services.ITypesResource>{};
+                r.propertyTypeData = {
+                    'amount_men': {
+                        'label': 'amount_men'
+                    },
+                    'percentage_children': {
+                        'label': 'percentage_children'
+                    },
+                    'amount_children': {
+                        'label': 'amount_children',
+                        'expression': 'amount_men * amount_children'
+                    },
+                };
+            });
+
         });
     });
 });
