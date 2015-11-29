@@ -621,7 +621,9 @@ body,
     padding-top: 30px;
     width: 30px;
     height: 30px;
-    background: url("/cs/images/search.png") no-repeat left center;
+    // background: url("/cs/images/search.png") no-repeat left center;
+    background-repeat: no-repeat;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAA7DAAAOwwHHb6hkAAABUUlEQVR42mP4//8/A7EYCIqA+A4QfwLizUAsRYp+rGYSYelrIP5PBBalqgOAoI5Ii1EwVRwABL/IsRwJs5LtAAKWnwRidSDmB+JSAo5gItkBQJCBwzA2AunkJbnRgW4QuiF/ScghqVj0txPtAGj2oixBMTDMIdUMfL5nIytbYZpjTpYDyC5YGBji0Mz6R9ABQBCLpmkbRaUbCZ6BabiCpkmC3g74RY3gp8QBx9E0WdLbAWZomu7T1QFUzgUz0cy6Qm45kEWlckCGWAekU6EkfE12SYjD9f9JsPwJFv1apDqAG0dteBiPxRIEqmUOUtsDKRQ2RrBhdlJbRNE0cAQrqW1CVjIs+UtAnoWcVrEkERbPRlL/noBaZpIcQGZZ8InY9iJNHAB1xBdimu80cwDUEd8IOYKmDoA64seAOgDqiJ8D6gCoI37TPQ3gCgmaZ0NSMAB74x5YB1CyNgAAAABJRU5ErkJggg==);
     /*images/map-black.png*/
 }
 .mapIcon {
