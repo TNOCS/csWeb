@@ -7,37 +7,37 @@ module csComp.Services {
         /**
          * property
          */
-        prop: string;
+        prop:  string;
         value: any;
-        user: string;
+        user:  string;
     }
 
     export interface IFeature {
-        id?: string;
-        index: number;
-        layerId: string;
-        layer: ProjectLayer;
-        type?: string;
-        geometry: IGeoJsonGeometry;
-        properties?: IProperty;
-        propertiesOld?: IProperty;
-        isSelected?: boolean;
-        htmlStyle?: string;
+        id?:               string;
+        index:            number;
+        layerId:          string;
+        layer:            ProjectLayer;
+        type?:            string;
+        geometry:         IGeoJsonGeometry;
+        properties?:      IProperty;
+        propertiesOld?:   IProperty;
+        isSelected?:      boolean;
+        htmlStyle?:       string;
         featureTypeName?: string;
-        fType?: IFeatureType;
-        effectiveStyle: IFeatureTypeStyle;
-        isInitialized?: boolean;
-        lastUpdated: number;
-        gui: Object;
-        sensors?: { [id: string]: any[] }
+        fType?:           IFeatureType;
+        effectiveStyle:   IFeatureTypeStyle;
+        isInitialized?:   boolean;
+        lastUpdated:      number;
+        gui:              Object;
+        sensors?:         { [id: string]: any[] }
 
-        logs?: { [id: string]: Log[] };
-        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        logs?:            { [id: string]: Log[] };
+        timestamps:       number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         /**
          * Temperal list of geometries used e.g. to move a point over time (bound to timestamps, same as sensors)
          */
         coordinates?: IGeoJsonGeometry[];          // used for temporal data
-        languages?: { [key: string]: ILocalisedData }
+        languages?:   { [key: string]: ILocalisedData }
     }
 
     /**
@@ -46,28 +46,28 @@ module csComp.Services {
      *
      */
     export class Feature implements IFeature {
-        id: string;
-        index: number;
-        layerId: string;
-        layer: ProjectLayer;
-        type: string;
-        geometry: IGeoJsonGeometry;
-        properties: IProperty;
-        propertiesOld: IProperty;
-        isSelected: boolean;
-        htmlStyle: string;
+        id:              string;
+        index:           number;
+        layerId:         string;
+        layer:           ProjectLayer;
+        type:            string;
+        geometry:        IGeoJsonGeometry;
+        properties:      IProperty;
+        propertiesOld:   IProperty;
+        isSelected:      boolean;
+        htmlStyle:       string;
         featureTypeName: string;
-        lastUpdated: number;
-        gui: Object = {};
+        lastUpdated:     number;
+        gui:             Object = {};
         /** resolved feature type */
         fType: IFeatureType;
         /** calculated style, used for final rendering */
         effectiveStyle: IFeatureTypeStyle;
-        isInitialized: boolean;
-        sensors: { [id: string]: any[] }
-        timestamps: number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
-        coordinates: IGeoJsonGeometry[];          // used for temporal data
-        logs: { [id: string]: Log[] } = {};
+        isInitialized:  boolean;
+        sensors:        { [id: string]: any[] }
+        timestamps:     number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
+        coordinates:    IGeoJsonGeometry[];          // used for temporal data
+        logs:           { [id: string]: Log[] }                                                                                                                                       = {};
 
         public static serialize(f: IFeature): IFeature {
             var res = <IFeature>{};
@@ -139,14 +139,14 @@ module csComp.Services {
     }
 
     export interface ILanguageData {
-        [key: string]: ILocalisedData
+        [key: string]: ILocalisedData;
     }
 
     export enum LayerActivationTypes {
         manual,
         automatic
     }
-    
+
     export interface ILayerPropertyDetails{
         activation? : string;
         groupId? : string;
@@ -154,31 +154,33 @@ module csComp.Services {
     }
 
     export interface IPropertyType {
-        label?: string;
-        title?: string;
-        description?: string;
-        type?: string;
-        section?: string;
-        stringFormat?: string;
+        label?:            string;
+        title?:            string;
+        description?:      string;
+        type?:             string;
+        section?:          string;
+        stringFormat?:     string;
         visibleInCallOut?: boolean;
-        canEdit?: boolean;
-        filterType?: string;
-        isSearchable?: boolean;
-        minValue?: number;
-        maxValue?: number;
-        defaultValue?: number;
-        count?: number;
-        calculation?: string;
-        subject?: string;
-        target?: string;
-        targetrelation?: string;
-        targetproperty?: string;
-        options?: string[];
-        categories?: string[];
-        languages?: ILanguageData;
-        legend?: Legend;
-        layerProps? : ILayerPropertyDetails;        
-        targetid?: string;
+        canEdit?:          boolean;
+        filterType?:       string;
+        isSearchable?:     boolean;
+        minValue?:         number;
+        maxValue?:         number;
+        defaultValue?:     number;
+        count?:            number;
+        calculation?:      string;
+        subject?:          string;
+        target?:           string;
+        targetrelation?:   string;
+        targetproperty?:   string;
+        options?:          string[];
+        categories?:       string[];
+        languages?:        ILanguageData;
+        legend?:           Legend;
+        layerProps? :      ILayerPropertyDetails;
+        targetid?:         string;
+        /** Angular expression */
+        expression?:       string;
     }
 
     export interface IPropertyTypeData {
@@ -186,41 +188,41 @@ module csComp.Services {
     }
 
     export interface IFeatureTypeStyle {
-        nameLabel?: string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
-        fillColor?: string;
-        strokeColor?: string;
-        selectedFillColor?: string;
-        selectedStrokeColor?: string;
-        selectedStrokeWidth?: number;
-        height?: number;
-        opacity?: number;
-        fillOpacity?: number;
-        stroke?: boolean;
-        drawingMode?: string;
-        strokeWidth?: number;
-        iconWidth?: number;
-        iconHeight?: number;
-        iconUri?: string;
-        modelUri?: string;
-        modelScale?: number;
+        nameLabel?:             string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
+        fillColor?:             string;
+        strokeColor?:           string;
+        selectedFillColor?:     string;
+        selectedStrokeColor?:   string;
+        selectedStrokeWidth?:   number;
+        height?:                number;
+        opacity?:               number;
+        fillOpacity?:           number;
+        stroke?:                boolean;
+        drawingMode?:           string;
+        strokeWidth?:           number;
+        iconWidth?:             number;
+        iconHeight?:            number;
+        iconUri?:               string;
+        modelUri?:              string;
+        modelScale?:            number;
         modelMinimumPixelSize?: number;
-        cornerRadius?: number;
-        maxTitleResolution?: string;
-        rotate?: number;
-        innerTextProperty?: string;
-        innerTextSize?: number;
-        analysispropertyType?: any;
-        rotateProperty?: string;
-        isInitialized?: boolean;
+        cornerRadius?:          number;
+        maxTitleResolution?:    string;
+        rotate?:                number;
+        innerTextProperty?:     string;
+        innerTextSize?:         number;
+        analysispropertyType?:  any;
+        rotateProperty?:        string;
+        isInitialized?:         boolean;
     }
 
     export interface IFeatureType {
-        id?: string;
-        name?: string;
-        style?: IFeatureTypeStyle;
-        legendItems?: LegendList.ILegendItem[];
-        properties?: {};
-        propertyTypeData?: IPropertyType[];
+        id?:                string;
+        name?:              string;
+        style?:             IFeatureTypeStyle;
+        legendItems?:       LegendList.ILegendItem[];
+        properties?:        {};
+        propertyTypeData?:  IPropertyType[];
         showAllProperties?: boolean;
         /** name of the property that contains a stringified L.GeoJSON object, which is shown when hovering above a feature */
         contourProperty?: string;
@@ -229,22 +231,22 @@ module csComp.Services {
          * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.
          */
         propertyTypeKeys?: string;
-        languages?: ILanguageData;
-        isInitialized?: boolean;
+        languages?:       ILanguageData;
+        isInitialized?:   boolean;
     }
 
     export interface IGeoJsonFile {
         featureTypes?: { [key: string]: IFeatureType };
-        type: string;
-        features: Array<IFeature>;
+        type:          string;
+        features:      Array<IFeature>;
     }
 
     export class PropertyInfo {
-        max: number;
-        min: number;
-        count: number;
-        mean: number;
+        max:      number;
+        min:      number;
+        count:    number;
+        mean:     number;
         varience: number;
-        sd: number;
+        sd:       number;
     }
 }

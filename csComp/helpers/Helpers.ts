@@ -211,42 +211,43 @@ module csComp.Helpers {
         return pk;
     }
 
-    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource : csComp.Services.TypeResource): csComp.Services.IFeatureType {
+    export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource: csComp.Services.TypeResource): csComp.Services.IFeatureType {
         var type = featureType;
         if (!type.propertyTypeData) { type.propertyTypeData = []; }
 
-        for (var key in feature.properties) {
-            //if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
+        for (let key in feature.properties) {
+            if (!feature.properties.hasOwnProperty(key)) continue;
             var pt : string;
             if (resource && resource.propertyTypeData) {
-                for (var k in resource.propertyTypeData) {
-                    if (resource.propertyTypeData[k].label === key) {
-                        pt = k;
-                    }
+                for (let k in resource.propertyTypeData) {
+                    let propType = resource.propertyTypeData[k];
+                    if (propType.label !== key) continue;
+                    pt = k;
+                    break;
                 }
             }
-            if (!pt) {
-                if (!feature.properties.hasOwnProperty(key)) { continue; }
-                var propertyType: csComp.Services.IPropertyType = {};
-                propertyType.label = key;
-                propertyType.title = key.replace('_', ' ');
-                var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+            if (pt) continue;
+            var propertyType: csComp.Services.IPropertyType = {};
+            propertyType.label = key;
+            propertyType.title = key.replace('_', ' ');
+            var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
 
-                // text is default, so we can ignore that
-                if (StringExt.isNumber(value)) {
-                    propertyType.type = 'number';
-                } else if (StringExt.isBoolean(value)) {
-                    propertyType.type = 'boolean';
-                } else if (StringExt.isBbcode(value)) {
-                    propertyType.type = 'bbcode';
-                }
-                if (resource) {
-                    var ke = findUniqueKey(resource.propertyTypeData, key);
-                    if (ke === key) { delete propertyType.label; }
-                    resource.propertyTypeData[k] = propertyType;
-                } else {
-                    featureType.propertyTypeData[key] = propertyType;
-                }
+            // text is default, so we can ignore that
+            if (StringExt.isNumber(value)) {
+                propertyType.type = 'number';
+            } else if (StringExt.isBoolean(value)) {
+                propertyType.type = 'boolean';
+            } else if (StringExt.isBbcode(value)) {
+                propertyType.type = 'bbcode';
+            }
+            if (resource) {
+                var ke = findUniqueKey(resource.propertyTypeData, key);
+                if (ke === key) delete propertyType.label;
+                // EV TODO In below expression, ke used to be k. However, that was certainly wrong, 
+                // since k was set in an internal loop. However, it may be that k => key
+                resource.propertyTypeData[ke] = propertyType;
+            } else {
+                featureType.propertyTypeData[key] = propertyType;
             }
         }
         return type;
@@ -558,5 +559,22 @@ module csComp.Helpers {
         iconHtml['iconPlusBorderWidth'] = iconPlusBorderWidth;
         iconHtml['iconPlusBorderHeight'] = iconPlusBorderHeight;
         return iconHtml;
+    }
+
+    /**
+     * Check whether the feature contains any expressions, and if so, evaluate them.
+     * @param  {ng.IParseService} $parse
+     * @param  {csComp.Services.TypeResource} resource
+     * @param  {IFeature} feature
+     */
+    export function evalExpression($parse: ng.IParseService, resource: csComp.Services.TypeResource, feature: IFeature) {
+        if (!resource || !resource.propertyTypeData) return;
+        for (let k in resource.propertyTypeData) {
+            let propType = resource.propertyTypeData[k];
+            if (!propType.expression) continue;
+            var parsedExpression = $parse(propType.expression);
+            feature.properties[propType.label] = parsedExpression(feature.properties);
+        }
+// 
     }
 }

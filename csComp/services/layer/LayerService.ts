@@ -94,18 +94,20 @@ module csComp.Services {
             'mapService',
             '$rootScope',
             'geoService',
-            '$http'
+            '$http',
+            '$parse'
         ];
 
         constructor(
-            private $location: ng.ILocationService,
-            public $compile: any,
-            public $translate: ng.translate.ITranslateService,
+            private $location:         ng.ILocationService,
+            public $compile:           any,
+            public $translate:         ng.translate.ITranslateService,
             public $messageBusService: Services.MessageBusService,
-            public $mapService: Services.MapService,
-            public $rootScope: any,
-            public geoService: GeoService,
-            public $http: ng.IHttpService
+            public $mapService:        Services.MapService,
+            public $rootScope:         any,
+            public geoService:         GeoService,
+            public $http:              ng.IHttpService,
+            private $parse:            ng.IParseService
         ) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
@@ -136,44 +138,38 @@ module csComp.Services {
             this.throttleTimelineUpdate = _.throttle(this.updateAllLogs, 500);
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
-                switch (trigger) {
-                    case 'focusChange':
-                        this.updateSensorData();
-                        this.throttleTimelineUpdate();
-                        //this.updateAllLogs();
-                        break;
-                }
+                if (trigger !== 'focusChange') return;
+                this.updateSensorData();
+                this.throttleTimelineUpdate();
+                //this.updateAllLogs();
             });
 
             $messageBusService.subscribe('language', (title: string, language: string) => {
-                switch (title) {
-                    case 'newLanguage':
-                        this.currentLocale = language;
-                        $messageBusService.notifyWithTranslation('LAYER_SERVICE.RELOAD_PROJECT_TITLE', 'LAYER_SERVICE.RELOAD_PROJECT_MSG');
-                        this.openProject(this.projectUrl);
-                        break;
-                }
+                if (title !== 'newLanguage') return;
+                this.currentLocale = language;
+                $messageBusService.notifyWithTranslation('LAYER_SERVICE.RELOAD_PROJECT_TITLE', 'LAYER_SERVICE.RELOAD_PROJECT_MSG');
+                this.openProject(this.projectUrl);
             });
 
             $messageBusService.subscribe('mapbbox', (title: string, bbox: string) => {
-                if (title === 'update') {
-                    for (var l in this.loadedLayers) {
-                        var layer = <ProjectLayer>this.loadedLayers[l];
-                        if (layer.refreshBBOX) {
-                            layer.BBOX = bbox;
-                            layer.layerSource.refreshLayer(layer);
-                        }
+                if (title !== 'update') return;
+                for (var l in this.loadedLayers) {
+                    var layer = <ProjectLayer>this.loadedLayers[l];
+                    if (layer.refreshBBOX) {
+                        layer.BBOX = bbox;
+                        layer.layerSource.refreshLayer(layer);
                     }
                 }
             });
 
-            $messageBusService.subscribe('geo', (action, loc: csComp.Services.Geoposition) => {
-                switch (action) {
-                    case 'pos':
-                        //alert(loc.coords.latitude + ' - ' + loc.coords.longitude);
-                        break;
-                }
-            });
+            // EV TODO Remove - Doesn't do anything
+            // $messageBusService.subscribe('geo', (action, loc: csComp.Services.Geoposition) => {
+            //     switch (action) {
+            //         case 'pos':
+            //             //alert(loc.coords.latitude + ' - ' + loc.coords.longitude);
+            //             break;
+            //     }
+            // });
 
             //this.geoService.start();
 
@@ -195,7 +191,7 @@ module csComp.Services {
             this.checkMobile();
             //this.enableDrop();
         }
-        
+
         public enableDrop()
         {
             alert('enable drop');
@@ -219,7 +215,7 @@ module csComp.Services {
                 });
                 options.forEach((a: IActionOption) => {
                     a.feature = feature;
-                })
+                });
             } else if (type === ActionType.Hover) {
                 this.actionServices.forEach((as: csComp.Services.IActionService) => {
                     var asOptions = as.getFeatureHoverActions(feature);
@@ -227,7 +223,7 @@ module csComp.Services {
                 });
                 options.forEach((a: IActionOption) => {
                     a.feature = feature;
-                })
+                });
             }
             return options;
         }
@@ -371,7 +367,7 @@ module csComp.Services {
                             if (prop.type === 'matrix' && prop.layerProps && prop.layerProps.activation === 'automatic' && feature.properties.hasOwnProperty(prop.label)) {
                                 var matrix = feature.properties[prop.label];
                                 this.project.features.forEach(f=> {
-                                    if (f.layer == feature.layer && f.properties.hasOwnProperty(prop.targetid) && matrix.hasOwnProperty(f.properties[prop.targetid])) {
+                                    if (f.layer === feature.layer && f.properties.hasOwnProperty(prop.targetid) && matrix.hasOwnProperty(f.properties[prop.targetid])) {
                                         var newValue = matrix[f.properties[prop.targetid]];
                                         for (var val in newValue) {
                                             f.properties[val] = newValue[val];
@@ -552,8 +548,7 @@ module csComp.Services {
             (<any>$(id)).collapse('show');
             $('*[data-target="' + id + '"]').removeClass('collapsed');
             //(<any>$('div#layergroupStyle')).removeClass('collapsed');
-            //
-            if (this.$rootScope.$root.$$phase !== '$apply' && this.$rootScope.$root.$$phase !== '$digest') { this.$rootScope.$apply(); }
+            this.apply();
         }
 
         public collapseAll() {
@@ -1092,14 +1087,16 @@ module csComp.Services {
                 csComp.Helpers.addPropertyTypes(feature, feature.fType, resource);
 
                 // Do we have a name?
-                if (!feature.properties.hasOwnProperty('Name'))
-                    Helpers.setFeatureName(feature, this.propertyTypeData);
+                if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
 
                 this.calculateFeatureStyle(feature);
-                feature.propertiesOld = {};
+                feature.propertiesOld = {}
+                // EV TODO Shouldn't we add a track? boolean, to indicate that we want to track it?
                 this.trackFeature(feature);
 
-                if (applyDigest && this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+                Helpers.evalExpression(this.$parse, resource, feature);
+
+                if (applyDigest) this.apply();
                 if (publishToTimeline) this.$messageBusService.publish('timeline', 'updateFeatures');
             }
             return feature.type;
@@ -1260,10 +1257,10 @@ module csComp.Services {
         */
         private setDefaultPropertyType(pt: IPropertyType) {
             if (!pt.type) pt.type = 'text';
-            if (typeof pt.title == 'undefined') pt.title = pt.label;
-            if (typeof pt.canEdit == 'undefined') pt.canEdit = false;
-            if (typeof pt.visibleInCallOut == 'undefined') pt.visibleInCallOut = true;
-            if (typeof pt.isSearchable == 'undefined' && pt.type === 'text') pt.isSearchable = true;
+            if (typeof pt.title === 'undefined') pt.title = pt.label;
+            if (typeof pt.canEdit === 'undefined') pt.canEdit = false;
+            if (typeof pt.visibleInCallOut === 'undefined') pt.visibleInCallOut = true;
+            if (typeof pt.isSearchable === 'undefined' && pt.type === 'text') pt.isSearchable = true;
         }
 
         private localizePropertyType(pt: IPropertyType) {
@@ -1864,7 +1861,7 @@ module csComp.Services {
 
             this.rebuildFilters(g);
             if (removeFromGroup) layer.group.layers = layer.group.layers.filter((pl: ProjectLayer) => pl != layer);
-            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+            this.apply();
             this.$messageBusService.publish('layer', 'deactivate', layer);
             this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
             this.$messageBusService.publish('timeline', 'updateFeatures');
@@ -2270,12 +2267,18 @@ module csComp.Services {
                                     this.removeLayer(g.layers[layerIndex]);
                                     this.addLayer(g.layers[layerIndex], () => {
                                         if (currentStyle && currentStyle.length > 0)
-                                            this.setStyle({ feature: { featureTypeName: l.url + '#' + l.defaultFeatureType, layer: l }, property: currentStyle[0].property, key: currentStyle[0].title, meta: currentStyle[0].meta }, false, null, currentStyle[0]);
+                                            this.setStyle({
+                                                feature: {
+                                                    featureTypeName: l.url + '#' + l.defaultFeatureType,
+                                                    layer: l
+                                                },
+                                                property: currentStyle[0].property,
+                                                key: currentStyle[0].title,
+                                                meta: currentStyle[0].meta
+                                            }, false, null, currentStyle[0]);
                                     });
                                 }
-                                if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') {
-                                    this.$rootScope.$apply();
-                                }
+                                this.apply();
                             });
 
                             // init group
@@ -2289,13 +2292,13 @@ module csComp.Services {
                                 if (l.groupId) { g = this.findGroupById(l.groupId); } else { l.groupId = 'main'; }
                                 if (g != null) {
                                     g.layers.forEach((layer: ProjectLayer) => {
-                                        if (layer.id == l.id) {
+                                        if (layer.id === l.id) {
                                             this.removeLayer(layer, true);
                                             //console.log('remove layer'+layer.id);
                                         }
                                     });
 
-                                    if (g.layers.length == 0) {
+                                    if (g.layers.length === 0) {
                                         this.removeGroup(g);
                                     }
                                 }
@@ -2310,7 +2313,7 @@ module csComp.Services {
             }
 
             if (prj.hasOwnProperty('collapseAllLayers') && prj.collapseAllLayers === true) {
-                if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+                this.apply();
                 this.collapseAll();
             }
 
@@ -2323,6 +2326,10 @@ module csComp.Services {
                 }
                 this.$messageBusService.publish('dashboard-main', 'activated', startd);
             }
+        }
+
+        private apply() {
+            if (this.$rootScope.$root.$$phase !== '$apply' && this.$rootScope.$root.$$phase !== '$digest') this.$rootScope.$apply();
         }
 
         public toggleLayer(layer: ProjectLayer) {
@@ -2342,7 +2349,7 @@ module csComp.Services {
             }
             group.ndx = null;
             this.project.groups = this.project.groups.filter((g: ProjectGroup) => g != group);
-            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+            this.apply();
         }
 
         /** initializes project group (create crossfilter index, clustering, initializes layers) */
@@ -2453,7 +2460,7 @@ module csComp.Services {
                             }
                             ss.activeValue = d.value;
                             this.$messageBusService.publish('sensor-' + ds.id + '/' + d.sensor, 'update', ss.activeValue);
-                            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); }
+                            this.apply();
                         }
                     }
                 });
@@ -2609,12 +2616,11 @@ module csComp.Services {
             for (var key in feature.properties) {
                 if (!feature.propertiesOld.hasOwnProperty(key)) {
                     this.trackPropertyLog(feature, key, result);
-                }
-                else if (JSON.stringify(feature.propertiesOld[key]) != JSON.stringify(feature.properties[key])) {
+                } else if (JSON.stringify(feature.propertiesOld[key]) !== JSON.stringify(feature.properties[key])) {
                     this.trackPropertyLog(feature, key, result);
                 }
             }
-            if (JSON.stringify(feature.propertiesOld['~geometry']) != JSON.stringify(feature.geometry)) {
+            if (JSON.stringify(feature.propertiesOld['~geometry']) !== JSON.stringify(feature.geometry)) {
                 this.trackGeometry(feature, result);
             }
             return result;
