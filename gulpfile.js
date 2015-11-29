@@ -66,7 +66,8 @@ gulp.task('bower', ['bower_install'], function (cb) {
         .pipe(assets)
         .pipe(assets.restore())
         .pipe(useref())
-        .pipe(gulp.dest('./dist-bower'));
+        .pipe(gulp.dest('./dist-bower'))
+        .pipe(gulp.dest('./test/bower_components'));
 });
 
 gulp.task('concat_css', ['include_css'], function (cb) {
@@ -328,7 +329,8 @@ gulp.task('built_csComp', function () {
     // .pipe(debug({title: 'after ordering:'}))
         .pipe(concat('csComp.js'))
     //.pipe(gulp.dest(path2csWeb + 'example/public/cs/js'))
-        .pipe(gulp.dest(path2csWeb + 'dist-bower'));
+        .pipe(gulp.dest(path2csWeb + 'dist-bower'))
+        .pipe(gulp.dest(path2csWeb + 'test/bower_components'));
 });
 
 gulp.task('compile_all', function () {
@@ -361,7 +363,8 @@ gulp.task('create_templateCache', function () {
 
     gulp.src(path2csWeb + 'csComp/**/*.tpl.html')
         .pipe(templateCache(options))
-        .pipe(gulp.dest(path2csWeb + 'dist-bower'));
+        .pipe(gulp.dest(path2csWeb + 'dist-bower'))
+        .pipe(gulp.dest(path2csWeb + 'test/bower_components'));
 });
 
 gulp.task('minify_csComp', function () {
