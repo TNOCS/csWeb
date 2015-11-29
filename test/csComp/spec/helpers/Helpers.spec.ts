@@ -254,6 +254,10 @@ describe('Helpers', function() {
                     },
                 };
             });
+            it('', () => {
+                var result = 100 * 5;
+                expect(result).toBe(500);
+            });
 
         });
     });

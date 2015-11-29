@@ -19,7 +19,7 @@ describe('DataTable.DataTable', function() {
                 $provide.value('$translate', mockTranslate);
             });
             mockTranslate = function(key) {
-                var mct = new MockColorTranslation();
+                var mct = new ColorTranslationMock.MockColorTranslation();
                 return mct;
             };
         });
