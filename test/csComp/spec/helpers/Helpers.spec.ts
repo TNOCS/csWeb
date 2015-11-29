@@ -229,10 +229,13 @@ describe('Helpers', function() {
             });
         });
 
-        describe('When evaluating expressions', () => {
+        describe('When evaluating an expression', () => {
             var f: csComp.Services.IFeature,
-                r: csComp.Services.ITypesResource;
-            beforeEach(function() {
+                r: csComp.Services.ITypesResource,
+                $parse: ng.IParseService;
+
+            beforeEach(inject(function(_$parse_) {
+                $parse = _$parse_;
                 f = <csComp.Services.IFeature>{};
                 f.properties = {
                     'amount_men': 10000,
@@ -250,13 +253,32 @@ describe('Helpers', function() {
                     },
                     'amount_children': {
                         'label': 'amount_children',
-                        'expression': 'amount_men * amount_children'
+                        'expression': 'amount_men * percentage_children'
                     },
                 };
-            });
-            it('', () => {
-                var result = 100 * 5;
-                expect(result).toBe(500);
+            }));
+            it('should be calculated correctly.', () => {
+                // var getter = $parse('user.name');
+                // var setter = getter.assign;
+                // var context = {user:{name:'angular'}};
+                // var locals = {user:{name:'local'}};
+
+                // expect(getter(context)).toEqual('angular');
+                // setter(context, 'newValue');
+                // expect(context.user.name).toEqual('newValue');
+                // expect(getter(context, locals)).toEqual('local');
+
+                // var simpleGet = $parse('amount_men');
+                // expect(simpleGet(f.properties)).toBe(10000);
+
+                // var complexGet = $parse('amount_men * percentage_children');
+                // expect(complexGet(f.properties)).toBe(1000);
+
+                var children = r.propertyTypeData['amount_children'];
+                var expression = $parse(children.expression);
+                expect(expression(f.properties)).toBe(1000);
+                f.properties['amount_men'] = 50000;
+                expect(expression(f.properties)).toBe(5000);
             });
 
         });
