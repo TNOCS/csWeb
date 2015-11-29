@@ -69,12 +69,21 @@ gulp.task('bower', ['bower_install'], function (cb) {
         .pipe(gulp.dest('./dist-bower'));
 });
 
+gulp.task('concat_css', ['include_css'], function (cb) {
+    var assets = useref.assets();
+
+    return gulp.src('./csComp/includes/bower_dep/index.html')
+        .pipe(assets)
+        .pipe(assets.restore())
+        .pipe(useref())
+        .pipe(gulp.dest('./dist-bower'));
+});
+
 gulp.task('bower_install', function () {
     return gulp.src([
         'csComp/includes/bower_dep/bower.json', // bower install
     ]).pipe(install());
 });
-
 
 // This task runs tsd command on csComp folder
 gulp.task('comp_tsd', function (cb) {
@@ -116,7 +125,7 @@ gulp.task('comp_tsconfig_files', function () {
                 '!./js/**/*.js',
                 '!./node_modules/**/*.ts',
             ],
-            exclude: [],
+            exclude: []
         },
     };
     var globPattern = ['./csComp/**/*.ts',
@@ -287,8 +296,8 @@ gulp.task('clean', function (cb) {
         path2csWeb + 'test/csComp/**/*.js',
         path2csWeb + 'test/Scripts/typings/cs/**/',
     ], {
-           force: true
-        }, cb);
+        force: true
+    }, cb);
 });
 
 gulp.task('sass', function () {
@@ -365,7 +374,7 @@ gulp.task('minify_csComp', function () {
         .pipe(gulp.dest(path2csWeb + 'dist-bower'));
 });
 
-gulp.task('include_css', function () {
+gulp.task('include_css', ['sass'], function () {
     gulp.src(path2csWeb + 'csComp/includes/css/*.*')
         .pipe(plumber())
         .pipe(changed(path2csWeb + 'dist-bower/css'))
@@ -382,8 +391,8 @@ gulp.task('include_images', function () {
 gulp.task('watch', function (cb) {
     gulp.watch(path2csWeb + 'csComp/js/**/*.js', ['built_csComp', 'built_csComp.d.ts']);
     gulp.watch(path2csWeb + 'csComp/**/*.tpl.html', ['create_templateCache']);
-    gulp.watch(path2csWeb + 'csComp/includes/**/*.scss', ['sass']);
-    gulp.watch(path2csWeb + 'csComp/includes/**/*.css', ['include_css']);
+    gulp.watch(path2csWeb + 'csComp/includes/**/*.scss', ['concat_css']);
+    gulp.watch(path2csWeb + 'csComp/includes/**/*.css', ['concat_css']);
     gulp.watch(path2csWeb + 'csComp/includes/images/*.*', ['include_images']);
 });
 
