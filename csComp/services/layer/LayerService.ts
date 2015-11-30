@@ -2472,10 +2472,10 @@ module csComp.Services {
                 if (locale.description) group.description = locale.description;
             }
             if (group.clustering) {
-                group.cluster = new L.MarkerClusterGroup({
-                    maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
+                group.cluster = new L.MarkerClusterGroup({                    
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
+                //maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
                 group.cluster.on('clustermouseover', (a) => {
                     if (a.layer._childClusters.length === 0) {
                         var childs = a.layer.getAllChildMarkers();
