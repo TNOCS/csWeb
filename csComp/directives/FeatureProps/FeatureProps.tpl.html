@@ -174,18 +174,13 @@
                                                 <a data-ng-show="item.feature._gui['style'][item.property]" class="fa fa-paint-brush smallFaIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)"
                                                 style="cursor: pointer"></a>
                                             </div>
-                                            <div class="property-action" style="left:30px">
+                                            <div ng-if="item.propertyType.type === 'number'" class="property-action" style="left:30px">
                                                 <a class="fa fa-calculator makeNarrow" ng-click="item.showMore=!item.showMore;vm.getPropStats(item)" style="cursor: pointer"></a>
                                             </div>
                                             <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="left:45px">
                                                 <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer"></a>
-                                            </div>
-                                            
+                                            </div>                                            
                                         </div>
-
-
-
-
                                     </div>
                                     <div ng-if="item.configMode" class="feature-prop-config">
                                         <div class="row">
