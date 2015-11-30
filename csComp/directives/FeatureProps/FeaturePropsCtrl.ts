@@ -170,6 +170,7 @@ module FeatureProps {
             this.sectionKeys = this.sectionKeys.sort();
         }
 
+
         private addProperty(mi: IPropertyType, feature: IFeature, infoCallOutSection: CallOutSection, hierarchyCallOutSection: CallOutSection) {
             var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
             if (callOutSection.propertyTypes.hasOwnProperty(mi.label)) return; // Prevent duplicate properties in the same  section
