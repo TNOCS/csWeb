@@ -40,8 +40,8 @@
 
             </ul>
         </div>
-        
-        
+
+
     </div>
 
     <h4 style="position:absolute;right:3px;top:45px">
@@ -84,13 +84,15 @@
                 </td>-->
             <div class="panel-group" id="accordion">
                 <form name="form" class="css-form" novalidate>
-                    <div class="panel feature-prop-property" popover="{{(item.description) ? item.description : ''}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
+                    <div class="panel feature-prop-property" popover="{{(item.description) ? item.description : ''}}" popover-placement="left"
+                    popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
                         <div ng-show="feature._gui.editMode" class="property-edit">
                             <div>
                                 <div>{{item.propertyType.title}}</div>
                                 <ng-form name="userFieldForm">
                                     <div ng-switch="item.propertyType.type">
-                                        <input ng-switch-when="date" type="text" class="form-control" datetime-picker="dd MMM yyyy HH:mm" ng-model="item.feature.properties[item.property]" is-open="false" />
+                                        <input ng-switch-when="date" type="text" class="form-control" datetime-picker="dd MMM yyyy HH:mm" ng-model="item.feature.properties[item.property]"
+                                        is-open="false" />
                                         <input ng-switch-when="number" type="number" name="number" data-ng-model="item.feature.properties[item.property]" class="form-control">
                                         <p class="not-valid-input" ng-show="userFieldForm.number.$invalid">Not a valid number</p>
                                         <textarea ng-switch-when="textarea" data-ng-model="item.feature.properties[item.property]" class="form-control" />
@@ -106,7 +108,7 @@
                         </div>
 
                         <!-- Currently-styled-property background gray -->
-                        <div ng-show="!feature._gui.editMode" class="panel-heading feature-prop-item" ng-style="(item.feature._gui['style'][item.property]) && {'border':'1px solid blue', 'background': 'lightgray'}" ng-click="item.showMore=!item.showMore;vm.getPropStats(item)">
+                        <div ng-show="!feature._gui.editMode" class="panel-heading feature-prop-item" ng-style="(item.feature._gui['style'][item.property]) && {'border':'1px solid blue', 'background': 'lightgray'}">
                             <!-- Currently-styled-property background styleColor -->
                             <!-- <div ng-show="!feature._gui.editMode" class="panel-heading" style="border-radius: 3px; min-height: 36px; border: none;" ng-style="(item.feature._gui['style'][item.property]) && {'border':'1px solid blue', 'background': item.feature._gui.style[item.property]}"> -->
                             <div data-ng-switch="item.propertyType.type">
@@ -114,8 +116,9 @@
                                     <a ng-click="vm.openLayer(item)">{{item.propertyType.title}}</a>
                                 </div>
                                 <div ng-switch-default>
-                                    
-                                    <div ng-hide="item.isSensor" ng-if="!item.configMode" data-ng-switch="item.propertyType.type" class="feature-prop-value" style="float:right">
+
+                                    <div ng-hide="item.isSensor" ng-if="!item.configMode" data-ng-switch="item.propertyType.type" class="feature-prop-value"
+                                    style="float:right">
                                         <div ng-switch-when="date" class="text-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
                                             {{vm.getFormattedDate(item.feature.properties[item.property], item.propertyType)}}</div>
                                         <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
@@ -134,7 +137,7 @@
                                         <div class="feature-prop-title">
                                             {{item.key}}<span ng-if="item.isSensor" class="fa fa-area-chart makeNarrow" style="margin-left:5px;opacity:0.3"></span>
                                             <div ng-if="item.showMore" data-ng-switch="item.propertyType.type">
-                                                <div ng-switch-when="number" class="feature-prop-stats" >
+                                                <div ng-switch-when="number" class="feature-prop-stats">
                                                     <span class="fa fa-calculator" style="margin-right:2px"></span>
                                                     <span class="item-stat"><span class="item-stat-title">count</span>
                                                     <span class="item-stat-value">{{item.stats.count}}</span></span>
@@ -158,18 +161,26 @@
 
                                         </div>
                                         <div class="icons-on-hover" ng-if="!item.configMode">
-                                        <div class="property-action" style="right:0px">
-                                            <a data-ng-if="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
-                                            <a data-ng-if="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFaIconSelected makeNarrow" data-ng-show="item.canFilter" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
+                                            <div class="property-action" style="right:0px">
+                                                <a data-ng-if="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow"
+                                                data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
+                                                <a data-ng-if="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter smallFaIconSelected makeNarrow"
+                                                data-ng-show="item.canFilter" data-ng-click="vm.setFilter(item,$event)" style="cursor: pointer"></a>
+                                            </div>
+                                            <div data-ng-if="item.canStyle" class="property-action" style="left:15px">
+                                                <a data-ng-hide="item.feature._gui['style'][item.property]" class="fa fa-paint-brush makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)"
+                                                style="cursor: pointer"></a>
+                                                <a data-ng-show="item.feature._gui['style'][item.property]" class="fa fa-paint-brush smallFaIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)"
+                                                style="cursor: pointer"></a>
+                                            </div>
+                                            <div class="property-action" style="left:30px">
+                                                <a class="fa fa-calculator makeNarrow" ng-click="item.showMore=!item.showMore;vm.getPropStats(item)" style="cursor: pointer"></a>
+                                            </div>
+                                            <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="left:45px">
+                                                <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer"></a>
+                                            </div>
+                                            
                                         </div>
-                                        <div data-ng-if="item.canStyle" class="property-action" style="left:15px">
-                                            <a data-ng-hide="item.feature._gui['style'][item.property]" class="fa fa-paint-brush makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
-                                            <a data-ng-show="item.feature._gui['style'][item.property]" class="fa fa-paint-brush smallFaIconSelected makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)" style="cursor: pointer"></a>
-                                        </div>
-                                        <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="left:30px">
-                                            <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer"></a>
-                                        </div>
-                                    </div>
 
 
 
@@ -196,7 +207,8 @@
 
                                             <div class="col-md-6">
                                                 <div class="rightpanel-label">Type</div>
-                                                <select data-ng-model="item.propertyType.type" ng-options="item for item in ['bbcode', 'color', 'date', 'number', 'text']" class="form-control"></select>
+                                                <select data-ng-model="item.propertyType.type" ng-options="item for item in ['bbcode', 'color', 'date', 'number', 'text']"
+                                                class="form-control"></select>
                                             </div>
                                         </div>
 
@@ -221,7 +233,8 @@
                                                 <form class="form-inline">
                                                     <div class="rightpanel-label">Section</div>
 
-                                                    <input type="text" ng-enter="addSection(item.propertyType.section)" data-ng-model="item.propertyType.section" style="width: 200px;" class="form-control" />
+                                                    <input type="text" ng-enter="addSection(item.propertyType.section)" data-ng-model="item.propertyType.section" style="width: 200px;"
+                                                    class="form-control" />
                                                     <div class="btn-group">
                                                         <button class="btn dropdown-toggle" data-toggle="dropdown">
                                                             <span class="caret"></span>
@@ -252,19 +265,19 @@
                                                     <div class="col-md-6">
                                                         <input type="text" data-ng-model="item.propertyType.stringFormat" class="form-control" placeholder="Stringformat">
                                                     </div>
-                                                    
+
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="row">
                                             <div class="col-md-6">
-                                               <input type="checkbox" id="visibleInCallOut-{{featureType.id}}" ng-model="item.propertyType.visibleInCallout">
-                    <label for="visibleInCallOut-{{featureType.id}}">Show all properties</label>
-                                            </div>                                          
+                                                <input type="checkbox" id="visibleInCallOut-{{featureType.id}}" ng-model="item.propertyType.visibleInCallout">
+                                                <label for="visibleInCallOut-{{featureType.id}}">Show all properties</label>
+                                            </div>
                                         </div>
-                                        
-                             
+
+
                                         <button class="btn btn-primary rightpanel-button" ng-click="item.configMode=false;vm.savePropertyType(item.propertyType)">{{'SAVE' | translate}}</button>
                                     </div>
                                 </div>

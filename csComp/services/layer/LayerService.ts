@@ -715,8 +715,7 @@ module csComp.Services {
                     this.initPropertyType(propertyType);
                     if (!propertyType.label) propertyType.label = key;
                     this.propertyTypeData[key] = propertyType;
-                }
-            }
+                }             }
         }
         
         public getLayerPropertyTypes(layer : ProjectLayer) : IPropertyType[]
@@ -1496,7 +1495,8 @@ module csComp.Services {
                         this.calculateFeatureStyle(fe);
                         this.activeMapRenderer.updateFeature(fe);
                     }
-                });   
+                });
+                this.$messageBusService.publish('styles','updatedstyle',gs);   
         }
 
         /**
@@ -1558,6 +1558,7 @@ module csComp.Services {
                 });
 
                 if (openStyleTab) (<any>$('#leftPanelTab a[data-target="#styles"]')).tab('show'); // Select tab by name
+                this.$messageBusService.publish('styles','updatedstyle',gs);
                 return gs;
             }
             return null;
