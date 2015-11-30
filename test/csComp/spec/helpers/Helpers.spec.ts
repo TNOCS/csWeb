@@ -15,7 +15,7 @@ describe('Helpers', function() {
             $provide.value('$translate', mockTranslate);
         });
         mockTranslate = function(key) {
-            var mct = new MockColorTranslation();
+            var mct = new ColorTranslationMock.MockColorTranslation();
             return mct;
         };
     });
@@ -40,7 +40,7 @@ describe('Helpers', function() {
 
         it('should save data', function() {
             var e = document.createElement('a');
-            e.click = () => { };
+            e.click = () => {};
             spyOn(document, 'createElement').and.returnValue(e);
             var data = '{"testKey": "testVal"}';
             csComp.Helpers.saveData(data, 'fileName', 'txt');
@@ -227,6 +227,60 @@ describe('Helpers', function() {
                 var result: any = csComp.Helpers.setFeatureName(f);
                 expect(result.properties.hasOwnProperty('Name')).toBeTruthy();
             });
+        });
+
+        describe('When evaluating an expression', () => {
+            var f: csComp.Services.IFeature,
+                r: csComp.Services.ITypesResource,
+                $parse: ng.IParseService;
+
+            beforeEach(inject(function(_$parse_) {
+                $parse = _$parse_;
+                f = <csComp.Services.IFeature>{};
+                f.properties = {
+                    'amount_men': 10000,
+                    'percentage_children': 0.1
+                };
+                f.fType = {};
+
+                r = <csComp.Services.ITypesResource>{};
+                r.propertyTypeData = {
+                    'amount_men': {
+                        'label': 'amount_men'
+                    },
+                    'percentage_children': {
+                        'label': 'percentage_children'
+                    },
+                    'amount_children': {
+                        'label': 'amount_children',
+                        'expression': 'amount_men * percentage_children'
+                    },
+                };
+            }));
+            it('should be calculated correctly.', () => {
+                // var getter = $parse('user.name');
+                // var setter = getter.assign;
+                // var context = {user:{name:'angular'}};
+                // var locals = {user:{name:'local'}};
+
+                // expect(getter(context)).toEqual('angular');
+                // setter(context, 'newValue');
+                // expect(context.user.name).toEqual('newValue');
+                // expect(getter(context, locals)).toEqual('local');
+
+                // var simpleGet = $parse('amount_men');
+                // expect(simpleGet(f.properties)).toBe(10000);
+
+                // var complexGet = $parse('amount_men * percentage_children');
+                // expect(complexGet(f.properties)).toBe(1000);
+
+                var children = r.propertyTypeData['amount_children'];
+                var expression = $parse(children.expression);
+                expect(expression(f.properties)).toBe(1000);
+                f.properties['amount_men'] = 50000;
+                expect(expression(f.properties)).toBe(5000);
+            });
+
         });
     });
 });

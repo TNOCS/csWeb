@@ -33,7 +33,7 @@ module Mca {
         ratingStates: any;
     }
 
-    declare var String;//: csComp.StringExt.IStringExt;
+    declare var String; //: csComp.StringExt.IStringExt;
 
     export class McaCtrl {
         private static mcaChartId = 'mcaChart';
@@ -84,6 +84,8 @@ module Mca {
             messageBusService.subscribe('layer', (title) => {//, layer: csComp.Services.ProjectLayer) => {
                 switch (title) {
                     case 'deactivate':
+                        this.updateAvailableMcas();
+                        break;
                     case 'activated':
                         this.updateAvailableMcas();
                         this.calculateMca();
@@ -271,7 +273,7 @@ module Mca {
         }
 
         private saveMca(mca: Models.Mca) {
-            if (!mca) {return;}
+            if (!mca) return;
             this.deleteMca(mca);
             this.saveMcaToProject(mca);
             this.saveMcaToLocalStorage(mca);
@@ -313,7 +315,7 @@ module Mca {
 
         public featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("MC: featureMessageReceived");
-            if (!this.mca) { return; }
+            if (!this.mca || this.mca.featureIds.indexOf(feature.featureTypeName) < 0) return;
             switch (title) {
                 case 'onFeatureSelect':
                     this.updateSelectedFeature(feature, true);
@@ -328,7 +330,7 @@ module Mca {
                     break;
             }
             this.scopeApply();
-        }
+        };
 
         private scopeApply() {
             if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
@@ -513,7 +515,7 @@ module Mca {
         }
 
         calculateMca() {
-            if (!this.mca) { return; }
+            if (!this.mca) return;
             var mca = this.mca;
             mca.featureIds.forEach((featureId: string) => {
                 if (!(this.layerService._featureTypes.hasOwnProperty(featureId))) { return; }
@@ -549,7 +551,7 @@ module Mca {
                         ? mca.scaleMaxValue > mca.scaleMinValue
                             ? (position: number) => { return mca.scaleMaxValue - Math.round(position / scaleFactor); }
                             : (position: number) => { return mca.scaleMinValue + Math.round(position / scaleFactor); }
-                        : (position: number) => { return position };
+                        : (position: number) => { return position; };
                     var prevScore = -1;
                     var rank: number = 1;
                     for (var i = 0; i < length; i++) {

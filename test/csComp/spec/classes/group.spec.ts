@@ -41,7 +41,7 @@ describe('ProjectGroup', function() {
         var $myInjector;
         var fakeXML;
 
-        beforeEach(angular.mock.module("mockedOWSXML"));
+        beforeEach(angular.mock.module('mockedOWSXML'));
         beforeEach(inject(($injector, defaultXML) => {
             $httpBackend = $injector.get('$httpBackend');
             $myInjector = $injector;
@@ -65,14 +65,6 @@ describe('ProjectGroup', function() {
     });
 });
 
-
-class MockColorTranslation{
-    then = function(translation) {
-        translation('color');
-    }
-    constructor() {}
-};
-
 describe('csComp.Services.GroupStyle', function() {
 
     // load the module
@@ -84,7 +76,7 @@ describe('csComp.Services.GroupStyle', function() {
             $provide.value('$translate', mockTranslate);
         });
         mockTranslate = function(key) {
-            var mct = new MockColorTranslation();
+            var mct = new ColorTranslationMock.MockColorTranslation();
             return mct;
         };
     });

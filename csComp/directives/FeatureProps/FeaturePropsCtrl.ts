@@ -510,7 +510,7 @@ module FeatureProps {
             for (var s in this.$scope.callOut.sections) {
                 var sec = this.$scope.callOut.sections[s];
                 sec.properties.forEach((p: ICallOutProperty) => {
-                    if (p.property != item.property) {
+                    if (p.property !== item.property) {
                         var c = vg.util.cor(values, item.property, p.property);
                         p.cors[item.property] = { property: item.property, value: c }
                     }
@@ -521,14 +521,14 @@ module FeatureProps {
         public getPropStats(item: ICallOutProperty) {
             if (item.showMore) {
                 console.log('stats: calc stats for ' + item.property);
-                if (this.stats.indexOf(item.property) === -1) this.stats.push(item.property);
+                if (this.stats.indexOf(item.property) < 0) this.stats.push(item.property);
                 var values = this.$layerService.getPropertyValues(item.feature.layer, item.property);
                 var d = item.property;
                 var res = vg.util.summary(values, [item.property]);
                 item.stats = res[0];
                 item.stats.sum = item.stats.count * item.stats.mean;
             } else {
-                if (this.stats.indexOf(item.property) >= 0) this.stats = this.stats.filter((s) => s != item.property);
+                if (this.stats.indexOf(item.property) >= 0) this.stats = this.stats.filter((s) => s !== item.property);
             }
         }
 
@@ -537,7 +537,7 @@ module FeatureProps {
         private displayFeature(feature: IFeature): void {
             if (!feature) return;
             this.featureType = feature.fType;
-            this.featureType.id
+            //this.featureType.id
             // If we are dealing with a sensor, make sure that the feature's timestamps are valid so we can add it to a chart
             if (typeof feature.sensors !== 'undefined' && typeof feature.timestamps === 'undefined')
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;

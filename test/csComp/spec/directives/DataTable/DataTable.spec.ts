@@ -19,7 +19,7 @@ describe('DataTable.DataTable', function() {
                 $provide.value('$translate', mockTranslate);
             });
             mockTranslate = function(key) {
-                var mct = new MockColorTranslation();
+                var mct = new ColorTranslationMock.MockColorTranslation();
                 return mct;
             };
         });
@@ -132,14 +132,14 @@ describe('DataTable.DataTable', function() {
             expect(result).toEqual('mock');
         });
     });
-    describe('DataTableCtrl', () => {
-        xit('should create a GeoJson', () => {
-            var result = vm.downloadGeoJson();
-        });
-    });
-    describe('DataTableCtrl', () => {
-        xit('should create a Csv', () => {
-            var result = vm.downloadCsv();
-        });
-    });
+    // describe('DataTableCtrl', () => {
+    //     xit('should create a GeoJson', () => {
+    //         var result = vm.downloadGeoJson();
+    //     });
+    // });
+    // describe('DataTableCtrl', () => {
+    //     xit('should create a Csv', () => {
+    //         var result = vm.downloadCsv();
+    //     });
+    // });
 });
