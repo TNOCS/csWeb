@@ -136,7 +136,10 @@
                                     <div class="feature-prop-content" ng-if="!item.configMode">
                                         <div class="feature-prop-title">
                                             {{item.key}}<span ng-if="item.isSensor" class="fa fa-area-chart makeNarrow" style="margin-left:5px;opacity:0.3"></span>
-                                            <div ng-if="item.showMore" data-ng-switch="item.propertyType.type">
+                                            
+
+                                        </div>
+                                        <div ng-if="item.showMore" data-ng-switch="item.propertyType.type" style="margin-bottom:10px">
                                                 <div ng-switch-when="number" class="feature-prop-stats">
                                                     <span class="fa fa-calculator" style="margin-right:2px"></span>
                                                     <span class="item-stat"><span class="item-stat-title">count</span>
@@ -158,8 +161,6 @@
                                                     <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="90" showaxis="true"></sparkline-chart>
                                                 </div>
                                             </div>
-
-                                        </div>
                                         <div class="icons-on-hover" ng-if="!item.configMode">
                                             <div class="property-action" style="right:0px">
                                                 <a data-ng-if="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow"
