@@ -38,10 +38,6 @@ module csComp.Services {
                     this.updateChart(this.layer);
                 }
             })
-
-
-
-
             ctrl.initChart();
         }
 

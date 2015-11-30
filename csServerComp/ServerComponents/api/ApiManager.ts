@@ -381,18 +381,29 @@ export class ApiManager extends events.EventEmitter {
 
     /** Open layer config file*/
     public loadLayerConfig(cb: Function) {
-        Winston.info('manager: loading layer config');
-        this.layersFile = path.join(this.rootPath, 'layers.json');
 
-        fs.readFile(this.layersFile, 'utf8', (err, data) => {
-            if (!err && data) {
-                Winston.info('manager: layer config loaded');
-                this.layers = <{ [key: string]: Layer }>JSON.parse(data);
-            } else {
-                this.layers = {};
-            }
-            cb();
-        });
+        Winston.info('manager: loading layer config');
+        try {
+            this.layersFile = path.join(this.rootPath, 'layers.json');
+
+            fs.readFile(this.layersFile, 'utf8', (err, data) => {
+                if (!err && data) {
+                    Winston.info('manager: layer config loaded');
+                    try {
+                        this.layers = <{ [key: string]: Layer }>JSON.parse(data);
+                    }
+                    catch (e) {
+                        Winston.error('manager: error loading project config');
+                    }
+                } else {
+                    this.layers = {};
+                }
+                cb();
+            });
+        }
+        catch (e) {
+
+        }
     }
 
     /**
@@ -401,12 +412,20 @@ export class ApiManager extends events.EventEmitter {
     public loadProjectConfig(cb: Function) {
         Winston.info('manager: loading project config');
         this.projectsFile = path.join(this.rootPath, 'projects.json');
+
         fs.readFile(this.projectsFile, 'utf8', (err, data) => {
             if (err) {
                 Winston.error('manager: project config loading failed: ' + err.message);
             } else {
-                Winston.info('manager: project config loaded');
+                try
+                {                
                 this.projects = <{ [key: string]: Project }>JSON.parse(data);
+                Winston.info('manager: project config loaded');
+                }
+                catch(e)
+                {
+                    Winston.error('manager: error loading project config');
+                }
             }
             cb();
         });
@@ -584,8 +603,8 @@ export class ApiManager extends events.EventEmitter {
     public addGroup(group: Group, projectId: string, meta: ApiMeta, callback: Function) {
         var p: Project = this.findProject(projectId);
         if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: 'Project not found' }); return; }
-        if (!p.groups) {p.groups = [];}
-        if (!group.id) {group.id = helpers.newGuid();}
+        if (!p.groups) { p.groups = []; }
+        if (!group.id) { group.id = helpers.newGuid(); }
         if (p.groups.some((pg) => { return (group.id === pg.id) })) {
             p.groups.some((pg) => {
                 if (group.id === pg.id && group.clusterLevel) {
@@ -605,7 +624,7 @@ export class ApiManager extends events.EventEmitter {
     public removeGroup(groupId: string, projectId: string, meta: ApiMeta, callback: Function) {
         var p: Project = this.findProject(projectId);
         if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: 'Project not found' }); return; }
-        if (!p.groups) {p.groups = [];}
+        if (!p.groups) { p.groups = []; }
         if (!p.groups.some((pg) => { return (groupId === pg.id) })) {
             callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: 'Group not found' }); return;
         } else {
@@ -669,8 +688,8 @@ export class ApiManager extends events.EventEmitter {
             c.s.init(this, c.options, () => { });
             callb();
         }, () => {
-                callback();
-            })
+            callback();
+        })
     }
 
     /**
@@ -716,7 +735,7 @@ export class ApiManager extends events.EventEmitter {
      */
     public findStorage(object: StorageObject): IConnector {
         var storage = (object && object.storage) || this.defaultStorage;
-        if (this.connectors.hasOwnProperty(storage)) {return this.connectors[storage];}
+        if (this.connectors.hasOwnProperty(storage)) { return this.connectors[storage]; }
         return null;
     }
 
@@ -779,7 +798,7 @@ export class ApiManager extends events.EventEmitter {
      * Returns layer definition for a layer, this is the layer without the features (mostly used for directory)
      */
     public getLayerDefinition(layer: ILayer): ILayer {
-        if (!layer.hasOwnProperty('type')) {layer.type = 'geojson';}
+        if (!layer.hasOwnProperty('type')) { layer.type = 'geojson'; }
         var server = this.options.server || '';
         var r = <ILayer>{
             server: server,
@@ -803,7 +822,7 @@ export class ApiManager extends events.EventEmitter {
         };
         // Copy additional properties too.
         for (var key in layer) {
-            if (layer.hasOwnProperty(key) && !r.hasOwnProperty(key)) {r[key] = layer[key];}
+            if (layer.hasOwnProperty(key) && !r.hasOwnProperty(key)) { r[key] = layer[key]; }
         }
         return r;
     }
@@ -823,7 +842,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public searchLayers(keyword: string, layerIds: string[], meta: ApiMeta, callback: Function) {
-        if (!layerIds || layerIds.length === 0) {layerIds = _.keys(this.layers);}
+        if (!layerIds || layerIds.length === 0) { layerIds = _.keys(this.layers); }
         var result: Feature[] = [];
 
         async.each(layerIds, (lId, callback) => {
@@ -837,12 +856,12 @@ export class ApiManager extends events.EventEmitter {
                 });
             }
         }, (error) => {
-                if (!error) {
-                    callback(<CallbackResult>{ result: ApiResult.OK, features: result });
-                } else {
-                    callback(<CallbackResult>{ result: ApiResult.Error });
-                }
-            });
+            if (!error) {
+                callback(<CallbackResult>{ result: ApiResult.OK, features: result });
+            } else {
+                callback(<CallbackResult>{ result: ApiResult.Error });
+            }
+        });
 
     }
 
@@ -859,13 +878,13 @@ export class ApiManager extends events.EventEmitter {
     /** Create a new layer, store it, and return it. */
     public createLayer(layer: ILayer, meta: ApiMeta, callback: (result: CallbackResult) => void) {
         // give it an id if not available
-        if (!layer.hasOwnProperty('id')) {layer.id = helpers.newGuid();}
+        if (!layer.hasOwnProperty('id')) { layer.id = helpers.newGuid(); }
         // make sure layerid is lowercase
         layer.id = layer.id.toLowerCase();
         // take the id for the title if not available
-        if (!layer.hasOwnProperty('title')) {layer.title = layer.id;}
-        if (!layer.hasOwnProperty('features')) {layer.features = [];}
-        if (!layer.hasOwnProperty('tags')) {layer.tags = [];}
+        if (!layer.hasOwnProperty('title')) { layer.title = layer.id; }
+        if (!layer.hasOwnProperty('features')) { layer.features = []; }
+        if (!layer.hasOwnProperty('tags')) { layer.tags = []; }
         this.setUpdateLayer(layer, meta);
         Winston.info('api: add layer ' + layer.id);
         // If the layer already exists, overwrite it (we may have received a new description, for example, or a new location)
@@ -994,7 +1013,7 @@ export class ApiManager extends events.EventEmitter {
     public getInterfaces(meta: ApiMeta): IConnector[] {
         var res = [];
         for (var i in this.connectors) {
-            if (this.connectors[i].isInterface && (this.connectors[i].receiveCopy || meta.source !== i)) {res.push(this.connectors[i]);}
+            if (this.connectors[i].isInterface && (this.connectors[i].receiveCopy || meta.source !== i)) { res.push(this.connectors[i]); }
         }
         return res;
     }

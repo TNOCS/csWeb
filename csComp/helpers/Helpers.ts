@@ -253,10 +253,10 @@ module csComp.Helpers {
         // if (resource && resource.propertyTypeData)
         //     for (var k in resource.propertyTypeData) { if (labels.indexOf(resource.propertyTypeData[k].label) === -1) labels.push(resource.propertyTypeData[k].label); }
                 
-        for (let key in feature.properties) {
+        for (var key in feature.properties) {
             var pt: csComp.Services.IPropertyType;
             if (resource) pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key });
-                    if (propType.label !== key) continue;
+                    if (!pt || pt.label !== key) continue;
                     break;
                 pt = {};
                 pt.label = key;
@@ -276,14 +276,13 @@ module csComp.Helpers {
                     if (ke === key) { delete pt.label; }
                     resource.propertyTypeData[ke] = pt;
                 // since k was set in an internal loop. However, it may be that k => key
-                resource.propertyTypeData[ke] = propertyType;
+                resource.propertyTypeData[ke] = pt;
             } else {
                     if (!featureType.propertyTypeData) { featureType.propertyTypeData = []; }
                     featureType.propertyTypeData[key] = pt;
             }
         }
-            updateSection(feature.layer, pt);
-            
+            updateSection(feature.layer, pt);            
         return type;
     }
 
