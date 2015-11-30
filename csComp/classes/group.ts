@@ -24,8 +24,8 @@ module csComp.Services {
            group and deletion of existing styles. */
         styles: Array<GroupStyle>;
         showTitle: boolean;
-        cluster: L.MarkerClusterGroup;
-        vectors: L.LayerGroup<L.ILayer>;
+        _cluster: L.MarkerClusterGroup;
+        _vectors: L.LayerGroup<L.ILayer>;
         /** Turn on the leaflet markercluster */
         clustering: boolean;
         /** If set, at this zoom level and below markers will not be clustered. This defaults to disabled */

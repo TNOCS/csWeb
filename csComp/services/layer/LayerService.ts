@@ -2471,44 +2471,8 @@ module csComp.Services {
                 if (locale.title) group.title = locale.title;
                 if (locale.description) group.description = locale.description;
             }
-            if (group.clustering) {
-                group.cluster = new L.MarkerClusterGroup({                    
-                    disableClusteringAtZoom: group.clusterLevel || 0
-                });
-                //maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
-                group.cluster.on('clustermouseover', (a) => {
-                    if (a.layer._childClusters.length === 0) {
-                        var childs = a.layer.getAllChildMarkers();
-                        if (childs[0] && childs[0].hasOwnProperty('feature')) {
-                            var f = childs[0].feature;
-                            var actions = this.getActions(f, ActionType.Hover);
-                            actions.forEach((fa) => {
-                                if (fa.title.toLowerCase() === 'show') {
-                                    fa.callback(f, this);
-                                }
-                            });
-                        }
-                    }
-                });
-                group.cluster.on('clustermouseout', (a) => {
-                    if (a.layer._childClusters.length === 0) {
-                        var childs = a.layer.getAllChildMarkers();
-                        if (childs[0] && childs[0].hasOwnProperty('feature')) {
-                            var f = childs[0].feature;
-                            var actions = this.getActions(f, ActionType.Hover);
-                            actions.forEach((fa) => {
-                                if (fa.title.toLowerCase() === 'hide') {
-                                    fa.callback(f, this);
-                                }
-                            });
-                        }
-                    }
-                });
-                this.map.map.addLayer(group.cluster);
-            } else {
-                group.vectors = new L.LayerGroup<L.ILayer>();
-                this.map.map.addLayer(group.vectors);
-            }
+            this.activeMapRenderer.addGroup(group);
+            
             if (!group.layers) group.layers = [];
             group.layers.forEach((layer: ProjectLayer) => {
                 this.initLayer(group, layer, layerIds);
@@ -2816,8 +2780,8 @@ module csComp.Services {
         public resetMapFilter(group: ProjectGroup) {
             $.each(group.markers, (key, marker) => {
                 if (group.clustering) {
-                    var incluster = group.cluster.hasLayer(marker);
-                    if (!incluster) group.cluster.addLayer(marker);
+                    var incluster = group._cluster.hasLayer(marker);
+                    if (!incluster) group._cluster.addLayer(marker);
                 } else {
                     var onmap = this.map.map.hasLayer(marker);
                     if (!onmap) this.map.map.addLayer(marker);
