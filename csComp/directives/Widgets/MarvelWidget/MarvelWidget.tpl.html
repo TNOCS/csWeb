@@ -1,6 +1,6 @@
 <div>
     <div class="row" style="margin-left:15px;margin-right:0px;">
-        <div class="col-md-9" style="font-size:14px; font-weight:bold;margin-bottom:2px;">Risicodiagram voor een {{data.title.toLowerCase()}}</div>
+        <div class="col-md-9" style="font-size:14px; font-weight:bold;margin-bottom:2px;">{{'RISK_DIAGRAM_FOR' | translate}}{{data.title.toLowerCase()}}</div>
         <div class="col-md-3">
             <div>
                 <button class="fa fa-times leftpanel-header-button" ng-click="vm.close()" style="padding-right:0px" />
@@ -68,8 +68,8 @@
                 </div>
             </div>
             <div class="row" style="margin-left:15px;margin-right:0px;margin-top:10px;">
-                <button class="btn btn-primary rightpanel-button" style="float:right;margin:4px;padding:4px;" popover="Save dependencies to the selected feature only" popover-placement="top" popover-trigger="mouseenter" ng-click="vm.save()">Save {{selectedFeature.properties['Name']}}</button>
-                <button class="btn btn-primary rightpanel-button" style="float:right;margin:4px;padding:4px;" popover="Save dependencies to all features of this type" popover-placement="top" popover-trigger="mouseenter" ng-click="vm.saveAll()">Save every {{data.title.toLowerCase()}}</button>
+                <button class="btn btn-primary rightpanel-button" style="float:right;margin:4px;padding:4px;" popover="{{'SAVE_FEATURE_DEPENDENCIES' | translate}}" popover-placement="top" popover-trigger="mouseenter" ng-click="vm.save()">{{'SAVE_MARVEL' | translate}}{{selectedFeature.properties['Name']}}</button>
+                <button class="btn btn-primary rightpanel-button" style="float:right;margin:4px;padding:4px;" popover="{{'SAVE_FEATURETYPE_DEPENDENCIES' | translate}}" popover-placement="top" popover-trigger="mouseenter" ng-click="vm.saveAll()">{{'SAVE_EVERY_MARVEL' | translate}}{{data.title.toLowerCase()}}</button>
             </div>
         </div>
     </div>

@@ -31,6 +31,7 @@ module MarvelWidget {
         public static $inject = [
             '$scope',
             '$timeout',
+            '$translate',
             'layerService',
             'messageBusService',
             'mapService'
@@ -39,6 +40,7 @@ module MarvelWidget {
         constructor(
             private $scope: IMarvelWidgetScope,
             private $timeout: ng.ITimeoutService,
+            private $translate: ng.translate.ITranslateService,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService
@@ -71,9 +73,19 @@ module MarvelWidget {
 
         private initDependencies(): { [key: string]: IDependency } {
             this.$scope.dependencyTypes = {};
-            this.$scope.dependencyTypes['_dep_water'] = { label: 'Water level [m]', type: 'number' };
-            this.$scope.dependencyTypes['_dep_UPS'] = { label: 'UPS duration [mins]', type: 'number' };
-            this.$scope.dependencyTypes['_dep_features'] = { label: 'Specific features', type: 'stringarray' };
+            this.$scope.dependencyTypes['_dep_water'] = { label: '', type: 'number' };
+            this.$scope.dependencyTypes['_dep_UPS'] = { label: '', type: 'number' };
+            this.$scope.dependencyTypes['_dep_features'] = { label: '', type: 'stringarray' };
+            // Overwrite labels with translations
+            this.$translate('MARVEL_WATER_LEVEL').then(translation => {
+                this.$scope.dependencyTypes['_dep_water']['label'] = translation;
+            });
+            this.$translate('MARVEL_UPS_DURATION').then(translation => {
+                this.$scope.dependencyTypes['_dep_UPS']['label'] = translation;
+            });
+            this.$translate('MARVEL_FEATURE_DEP').then(translation => {
+                this.$scope.dependencyTypes['_dep_features']['label'] = translation;
+            });
             return {};
         }
 
