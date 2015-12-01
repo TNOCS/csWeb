@@ -95,7 +95,7 @@ module csComp.Services {
             '$rootScope',
             'geoService',
             '$http',
-            '$parse'
+            'expressionService'
         ];
 
         constructor(
@@ -107,7 +107,7 @@ module csComp.Services {
             public $rootScope:         any,
             public geoService:         GeoService,
             public $http:              ng.IHttpService,
-            private $parse:            ng.IParseService
+            private expressionService: csComp.Services.ExpressionService
         ) {
             //$translate('FILTER_INFO').then((translation) => console.log(translation));
             // NOTE EV: private props in constructor automatically become fields, so mb and map are superfluous.
@@ -377,7 +377,6 @@ module csComp.Services {
                                 this.updateGroupFeatures(feature.layer.group);
                             }
                             if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
-                                
                                 if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer.lastSelectedFeature);
 
                                 feature.layer.lastSelectedFeature = feature;
@@ -386,28 +385,23 @@ module csComp.Services {
                                 var pl = this.findLayer(l);
                                 if (pl) {
                                     this.addLayer(pl);
-                                }
-                                else {
+                                } else {
                                     if (typeof l === 'string') {
                                         pl = new ProjectLayer();
                                         pl.url = l;
-                                    }
-                                    else {
+                                    } else {
                                         pl = l;
                                     }
 
                                     if (!pl.id) pl.id = l;
-                                    pl.groupId = "Wegen";
+                                    pl.groupId = 'Wegen';
                                     if (!pl.group) {
-                                        if (pl.groupId)
-                                        {
+                                        if (pl.groupId) {
                                             pl.group = this.findGroupById(pl.groupId)
-                                        }
-                                        else{
+                                        } else {
                                             pl.group = feature.layer.group;
                                         }
-                                    }
-                                    else {
+                                    } else {
                                         if (typeof pl.group === 'string') {
                                             pl.group = this.findGroupById(<any>pl.group);
                                         }
@@ -415,9 +409,8 @@ module csComp.Services {
                                     if (!pl.type) pl.type = feature.layer.type;
                                     if (!pl.title) pl.title = feature.properties['Name'] + ' ' + prop.title;
                                     if (!pl.defaultFeatureType) pl.defaultFeatureType = 'link';
-                                    if (!pl.typeUrl) pl.typeUrl = "api/resources/smartcycling";
-                                    
-                                    
+                                    if (!pl.typeUrl) pl.typeUrl = 'api/resources/smartcycling';
+
                                     //pl.parentFeature = feature;
                                     pl.group.layers.push(pl);
                                 }
@@ -444,7 +437,7 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer, layerloaded?: Function) {
-            if (this.loadedLayers.containsKey(layer.id) && (!layer.quickRefresh || layer.quickRefresh == false)) return;
+            if (this.loadedLayers.containsKey(layer.id) && (!layer.quickRefresh || layer.quickRefresh === false)) return;
             if (layer.isLoading) return;
             layer.isLoading = true;
             this.$messageBusService.publish('layer', 'loading', layer);
@@ -463,7 +456,7 @@ module csComp.Services {
                     callback(null, null);
                 },
                 (callback) => {
-                    console.log('loading types : ' + layer.typeUrl);
+                    // console.log('loading types: ' + layer.typeUrl);
                     if (layer.typeUrl) {
                         this.loadTypeResources(layer.typeUrl, layer.dynamicResource || false, () => callback(null, null));
                     } else {
@@ -473,10 +466,10 @@ module csComp.Services {
                 (callback) => {
                     // load required feature layers, if applicable
                     this.loadRequiredLayers(layer);
-                    
+
                     // suport for loading default geojson
                     if (layer.type.toLowerCase() === 'featurecollection') layer.type = 'geojson';
-                    
+
                     // find layer source, and activate layer
                     var layerSource = layer.type.toLowerCase();
 
@@ -510,9 +503,10 @@ module csComp.Services {
                             this.activeMapRenderer.addLayer(layer);
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
-                            //this.$messageBusService.publish('layer', 'activated', layer);
+                            // this.$messageBusService.publish('layer', 'activated', layer);
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
-                            //if (layerloaded) layerloaded(layer);
+                            // if (layerloaded) layerloaded(layer);
+                            this.expressionService.evalLayer(l, this._featureTypes);
                         }
                         this.$messageBusService.publish('layer', 'activated', layer);
                     });
@@ -589,12 +583,11 @@ module csComp.Services {
                                 if (!resource || (typeof resource === 'string' && resource !== 'null')) {
                                     this.$messageBusService.notify('Error loading resource type', url);
                                 } else {
-                                    var r  = <TypeResource>resource; 
-                                    if (r)
-                                    {
-                                    r.url = url;
-                                    this.initTypeResources(r);
-                                    this.$messageBusService.publish('typesource', url, r);
+                                    var r  = <TypeResource>resource;
+                                    if (r) {
+                                        r.url = url;
+                                        this.initTypeResources(r);
+                                        this.$messageBusService.publish('typesource', url, r);
                                     }
                                 }
                                 callback();
@@ -1094,8 +1087,6 @@ module csComp.Services {
                 // EV TODO Shouldn't we add a track? boolean, to indicate that we want to track it?
                 this.trackFeature(feature);
 
-                Helpers.evalExpression(this.$parse, resource, feature);
-
                 if (applyDigest) this.apply();
                 if (publishToTimeline) this.$messageBusService.publish('timeline', 'updateFeatures');
             }
@@ -1216,7 +1207,7 @@ module csComp.Services {
                 var locale = ft.languages[this.currentLocale];
                 if (locale.name) ft.name = locale.name;
             }
-            if (ft.propertyTypeData == null || ft.propertyTypeData.length == 0) return;
+            if (ft.propertyTypeData == null || ft.propertyTypeData.length === 0) return;
             if (ft.propertyTypeData.forEach) {
                 ft.propertyTypeData.forEach((pt) => {
                     this.initPropertyType(pt);
@@ -1716,15 +1707,15 @@ module csComp.Services {
         */
         public getFeatureTypeId(feature: IFeature): string {
             if (!feature.hasOwnProperty('layer')) feature['layer'] = new ProjectLayer();
-            var name = feature.properties['FeatureTypeId'] || feature.properties['featureTypeId'] || feature.layer.defaultFeatureType || 'Default';
+            var ftId = feature.properties['FeatureTypeId'] || feature.properties['featureTypeId'] || feature.layer.defaultFeatureType || 'Default';
 
             // if (name.toLowerCase().startsWith('http://')) return name;
             // if (csComp.Helpers.startsWith(name.toLowerCase(), 'http://')) return name;
-            if (/^http:\/\//.test(name.toLowerCase())) return name;
-            if (feature.layer.typeUrl) return feature.layer.typeUrl + '#' + name;
+            if (/^http:\/\//.test(ftId.toLowerCase())) return ftId;
+            if (feature.layer.typeUrl) return feature.layer.typeUrl + '#' + ftId;
             return feature.layer.url
-                ? feature.layer.url + '#' + name
-                : this.project.url + '#' + name;
+                ? feature.layer.url + '#' + ftId
+                : this.project.url + '#' + ftId;
         }
 
         /**
@@ -2636,8 +2627,7 @@ module csComp.Services {
         public lockFeature(f: IFeature): boolean {
             if (f.gui.hasOwnProperty('lock')) {
                 return false;
-            }
-            else {
+            } else {
                 f.gui['lock'] = true;
                 return true;
             }
@@ -2646,8 +2636,6 @@ module csComp.Services {
         public unlockFeature(f: IFeature) {
             delete f.gui['lock'];
         }
-
-
 
         public saveFeature(f: IFeature, logs: boolean = false) {
             f.properties['updated'] = new Date().getTime();
@@ -2662,8 +2650,7 @@ module csComp.Services {
                     s.item = { featureId: f.id, logs: l };
                     //this.$messageBusService.serverPublish('layer', s);
                     this.$messageBusService.serverSendMessageAction('layer', s);
-                }
-                else {
+                } else {
                     var s = new LayerUpdate();
                     s.layerId = f.layerId;
                     s.action = LayerUpdateAction.updateFeature;
@@ -2731,5 +2718,5 @@ module csComp.Services {
         myModule = angular.module(moduleName, []);
     }
 
-    myModule.service('layerService', csComp.Services.LayerService)
+    myModule.service('layerService', csComp.Services.LayerService);
 }
