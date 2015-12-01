@@ -84,7 +84,7 @@ module csComp.Services {
                 var avgSquareDiff = average(squareDiffs);
                 return Math.sqrt(avgSquareDiff);
             }
-        }
+        };
 
         static $inject = [
             '$parse'

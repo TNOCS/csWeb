@@ -307,7 +307,7 @@ module csComp.Services {
 
             //Check if a notication with the same title exists. If so, update existing, if not, add new notification.
             if (this.notifications) {
-                this.notifications = this.notifications.filter((n)=>{ return (n.state && n.state !== 'closed')});
+                this.notifications = this.notifications.filter((n) => { return (n.state && n.state !== 'closed'); });
                 var updatedText: string;
                 this.notifications.some((n) => {
                     if (n.state === 'closed') return false;
@@ -545,7 +545,7 @@ module csComp.Services {
             var callback = handle.callback;
             if (!MessageBusService.cache[topic]) return;
             MessageBusService.cache[topic].forEach((cb, idx) => {
-                if (cb == callback) {
+                if (cb === callback) {
                     MessageBusService.cache[topic].splice(idx, 1);
                     return;
                 }
@@ -589,13 +589,13 @@ module csComp.Services {
 
         registerEvent(evtname: string) {
             this[evtname] = function(callback, replace) {
-                if (typeof callback == 'function') {
+                if (typeof callback === 'function') {
                     if (replace) this.unbindEvent(evtname);
 
                     this.bind(evtname, callback);
                 }
                 return this;
-            }
+            };
         }
 
         registerEvents(evtnames: Array<string>) {

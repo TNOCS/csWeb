@@ -445,12 +445,11 @@ module csComp.Services {
                     }
                 }
             }
-            layer.gui['featureTypes'] = featureTypes;
-
+            layer._gui['featureTypes'] = featureTypes;
         }
 
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
-            delete layer.gui['featureTypes'];
+            delete layer._gui['featureTypes'];
             this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
                 delete g._gui['editing'];
                 g.layers.forEach((l: csComp.Services.ProjectLayer) => {
