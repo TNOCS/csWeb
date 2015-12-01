@@ -70,15 +70,15 @@ module csComp.Services {
                 "width": width,
                 "height": height,
                 "data": { "values": _.first(_.sortBy(values, (v) => { return -v.value }), 10) },
-                "marktype": "bar",
-                "sort": false,
+                "marktype": "bar",                
                 "encoding": {
                     "x": { "name": "value", "type": "Q" },
-                    "y": { "name": "name", "type": "N", "sort": false }
+                    "y": { "name": "name", "type": "N"}
                 }
             }
 
             this.ctrl.$scope.data.title = this.style.title;
+            console.log(JSON.stringify(this.ctrl.$scope.data.spec));
             
             //this.ctrl.updateChart();
             this.ctrl.initChart();
