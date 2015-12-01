@@ -285,13 +285,13 @@ module Charts {
                                     .attr("opacity", 1);
                                 timestampText
                                     .attr("x", xpos - 6)
-                                    .attr("y", 4)
+                                    .attr("y", 8)
                                     .attr("dy", ".35em")
                                     .attr("opacity", 1)
                                     .text((d === data[0]) ? '' : ChartHelpers.timestampToString(d.time)); //Don't show timestamp for the first measurement, as it does not fit. Other option is to print it underneath the measurement value.
                                 measurementText
                                     .attr("x", xpos + 6)
-                                    .attr("y", 4)
+                                    .attr("y", 8)
                                     .attr("dy", ".35em")
                                     .attr("opacity", 1)
                                     .text(d.measurement);

@@ -124,7 +124,8 @@ module ChartsWidget {
 
         public initChart() {
             var d = this.$scope.data;
-            var vgspec = d.spec;
+            var vgspec = d.spec || {};
+
             if (d.lite) vgspec = vl.compile(d.spec);
             //parse(vgspec);
             if (vgspec)
@@ -136,11 +137,14 @@ module ChartsWidget {
         }
 
         public updateChart() {
-            var d = this.$scope.data;
-            var vgspec = d.spec;
-            if (d.lite) vgspec = vl.compile(d.spec);
-            console.log(JSON.stringify(vgspec));
-            if (d._view) d._view.update();
+           
+                var d = this.$scope.data;
+                var vgspec = d.spec;
+                if (d.lite) vgspec = vl.compile(d.spec);
+                console.log(JSON.stringify(vgspec));
+                if (d._view) d._view.update();
+           
+
         }
 
         public startChart() {

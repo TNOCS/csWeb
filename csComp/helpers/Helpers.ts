@@ -257,8 +257,8 @@ module csComp.Helpers {
             var pt: csComp.Services.IPropertyType;
             if (resource) pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key });
                     if (!pt || pt.label !== key) continue;
-                    break;
-                pt = {};
+                    
+                pt = {}; 
                 pt.label = key;
                 pt.title = key.replace('_', ' ');
             var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
@@ -281,8 +281,9 @@ module csComp.Helpers {
                     if (!featureType.propertyTypeData) { featureType.propertyTypeData = []; }
                     featureType.propertyTypeData[key] = pt;
             }
+            updateSection(feature.layer, pt);
         }
-            updateSection(feature.layer, pt);            
+                        
         return type;
     }
 
