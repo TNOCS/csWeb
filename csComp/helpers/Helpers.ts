@@ -99,8 +99,8 @@ module csComp.Helpers {
             // Support for browsers that support the data uri.
             var a: any = document.createElement('a');
             document.body.appendChild(a);
-            a.href     = 'data:    text/' + fileType + ';charset=utf-8,' + encodeURI(data);
-            a.target   = '_blank';
+            a.href = 'data:    text/' + fileType + ';charset=utf-8,' + encodeURI(data);
+            a.target = '_blank';
             a.download = filename;
             a.click();
             document.body.removeChild(a);
@@ -111,7 +111,7 @@ module csComp.Helpers {
 
     export function supportsDataUri() {
         var isOldIE = navigator.appName === 'Microsoft Internet Explorer';
-        var isIE11  = !!navigator.userAgent.match(/Trident\/7\./);
+        var isIE11 = !!navigator.userAgent.match(/Trident\/7\./);
         return !(isOldIE || isIE11);  //Return true if not any IE
     }
 
@@ -119,7 +119,7 @@ module csComp.Helpers {
         var avg = average(values);
 
         var squareDiffs = values.map(value => {
-            var diff    = value - avg;
+            var diff = value - avg;
             var sqrDiff = diff * diff;
             return sqrDiff;
         });
@@ -248,55 +248,60 @@ module csComp.Helpers {
     }
 
     export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource: csComp.Services.TypeResource): csComp.Services.IFeatureType {
-        var type = featureType;
-        // var labels = [];
-        // if (resource && resource.propertyTypeData)
-        //     for (var k in resource.propertyTypeData) { if (labels.indexOf(resource.propertyTypeData[k].label) === -1) labels.push(resource.propertyTypeData[k].label); }
-                
-        for (var key in feature.properties) {
-            var pt: csComp.Services.IPropertyType;
-            if (resource) pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key });
-                    if (!pt || pt.label !== key) continue;
-                    
-                pt = {}; 
+
+        var type = featureType;        
+        if (type.propertyTypeKeys) {
+            // type.propertyTypeKeys.split(',').forEach((key) => {
+            //     if (resource.propertyTypeData.hasOwnProperty(key)) {
+            //         updateSection(feature.layer, resource.propertyTypeData[key]);
+            //     }
+            // })
+        }
+        else {            
+            for (var key in feature.properties) {
+                var pt: csComp.Services.IPropertyType;
+                if (resource) pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key });
+                if (!pt || pt.label !== key) continue;
+
+                pt = {};
                 pt.label = key;
                 pt.title = key.replace('_', ' ');
-            var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+                var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
 
-            // text is default, so we can ignore that
-            if (StringExt.isNumber(value)) {
-                { pt.type = 'number'; }
-            } else if (StringExt.isBoolean(value)) {
-                { pt.type = 'boolean'; }
-            } else if (StringExt.isBbcode(value)) {
-                { pt.type = 'bbcode'; }
-            }
-            if (resource) {
+                // text is default, so we can ignore that
+                if (StringExt.isNumber(value)) {
+                    { pt.type = 'number'; }
+                } else if (StringExt.isBoolean(value)) {
+                    { pt.type = 'boolean'; }
+                } else if (StringExt.isBbcode(value)) {
+                    { pt.type = 'bbcode'; }
+                }
+                if (resource) {
                     var ke = findUniqueKey(resource.propertyTypeData, key);
                     if (ke === key) { delete pt.label; }
                     resource.propertyTypeData[ke] = pt;
-                // since k was set in an internal loop. However, it may be that k => key
-                resource.propertyTypeData[ke] = pt;
-            } else {
+                    // since k was set in an internal loop. However, it may be that k => key
+                    resource.propertyTypeData[ke] = pt;
+                } else {
                     if (!featureType.propertyTypeData) { featureType.propertyTypeData = []; }
                     featureType.propertyTypeData[key] = pt;
+                }
+                updateSection(feature.layer, pt);
             }
-            updateSection(feature.layer, pt);
         }
-                        
+
         return type;
     }
 
     export function updateSection(layer: csComp.Services.ProjectLayer, prop: csComp.Services.IPropertyType) {
         if (!layer || !prop) return;
-        if (prop.type === "number")
-        {
+        if (prop.type === "number") {
             if (!layer._gui.hasOwnProperty("sections")) layer._gui["sections"] = {};
             var sections: { [key: string]: csComp.Services.Section } = layer._gui["sections"];
             var s = (prop.section) ? prop.section : "general";
             if (!sections.hasOwnProperty(s)) sections[s] = new csComp.Services.Section();
             if (!sections[s].properties.hasOwnProperty(prop.label)) sections[s].properties[prop.label] = prop;
-        }        
+        }
     }
 
     /**
@@ -620,6 +625,6 @@ module csComp.Helpers {
             var parsedExpression = $parse(propType.expression);
             feature.properties[propType.label] = parsedExpression(feature.properties);
         }
-// 
+        // 
     }
 }

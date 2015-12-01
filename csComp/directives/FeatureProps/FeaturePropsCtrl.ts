@@ -308,7 +308,8 @@ module FeatureProps {
             private $compile: ng.ICompileService
         ) {
             this.setDropdownTitle();
-
+            this.$layerService.addLayer();
+            
 
             this.scope = $scope;
             $scope.vm = this;
