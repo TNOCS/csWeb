@@ -31,6 +31,7 @@ module MarvelWidget {
         public static $inject = [
             '$scope',
             '$timeout',
+            '$translate',
             'layerService',
             'messageBusService',
             'mapService'
@@ -39,6 +40,7 @@ module MarvelWidget {
         constructor(
             private $scope: IMarvelWidgetScope,
             private $timeout: ng.ITimeoutService,
+            private $translate: ng.translate.ITranslateService,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService
@@ -71,9 +73,19 @@ module MarvelWidget {
 
         private initDependencies(): { [key: string]: IDependency } {
             this.$scope.dependencyTypes = {};
-            this.$scope.dependencyTypes['_dep_water'] = { label: 'Water level [m]', type: 'number' };
-            this.$scope.dependencyTypes['_dep_UPS'] = { label: 'UPS duration [mins]', type: 'number' };
-            this.$scope.dependencyTypes['_dep_features'] = { label: 'Specific features', type: 'stringarray' };
+            this.$scope.dependencyTypes['_dep_water'] = { label: '', type: 'number' };
+            this.$scope.dependencyTypes['_dep_UPS'] = { label: '', type: 'number' };
+            this.$scope.dependencyTypes['_dep_features'] = { label: '', type: 'stringarray' };
+            // Overwrite labels with translations
+            this.$translate('MARVEL_WATER_LEVEL').then(translation => {
+                this.$scope.dependencyTypes['_dep_water']['label'] = translation;
+            });
+            this.$translate('MARVEL_UPS_DURATION').then(translation => {
+                this.$scope.dependencyTypes['_dep_UPS']['label'] = translation;
+            });
+            this.$translate('MARVEL_FEATURE_DEP').then(translation => {
+                this.$scope.dependencyTypes['_dep_features']['label'] = translation;
+            });
             return {};
         }
 
@@ -87,12 +99,45 @@ module MarvelWidget {
         }
 
         private edit() {
-            (this.$scope.editmode) ? this.save() : null;
             this.$scope.editmode = !this.$scope.editmode;
+            if (!this.$scope.editmode) {
+                this.$timeout(() => {
+                    var w = $("#" + this.widget.elementId);
+                    Marvelous.refreshView(w);
+                }, 50);
+            }
         }
 
         private close() {
             this.parentWidget.hide();
+        }
+
+        /** Save single feature update by sending it to the server over the messageBus  */
+        private save() {
+            var f = this.$scope.selectedFeature;
+            var s = new csComp.Services.LayerUpdate();
+            s.layerId = f.layerId;
+            s.action = csComp.Services.LayerUpdateAction.updateFeature;
+            s.item = csComp.Services.Feature.serialize(f);
+            this.$messageBus.serverSendMessageAction("layer", s);
+            this.edit(); // Toggle edit mode
+            console.log('Published feature changes');
+        }
+
+        /** Save all features of the selected feature's featureType. Set a property
+          * 'changeAllFeaturesOfType' to inform the simservice that all features
+          * should be updated.
+          */
+        private saveAll() {
+            var f = this.$scope.selectedFeature;
+            var s = new csComp.Services.LayerUpdate();
+            s.layerId = f.layerId;
+            s.action = csComp.Services.LayerUpdateAction.updateFeature;
+            s.item = csComp.Services.Feature.serialize(f);
+            s.item['changeAllFeaturesOfType'] = true;
+            this.$messageBus.serverSendMessageAction("layer", s);
+            this.edit(); // Toggle edit mode
+            console.log('Published feature changes');
         }
 
         private escapeRegExp(str: string) {
@@ -138,16 +183,6 @@ module MarvelWidget {
             if (this.$scope.selectedFeature.properties.hasOwnProperty(dep)) {
                 this.$scope.selectedFeature.properties[dep] = this.$scope.selectedFeature.properties[dep].filter((d) => { return name !== d; });
             }
-        }
-
-        private save() {
-            var f = this.$scope.selectedFeature;
-            var s = new csComp.Services.LayerUpdate();
-            s.layerId = f.layerId;
-            s.action = csComp.Services.LayerUpdateAction.updateFeature;
-            s.item = csComp.Services.Feature.serialize(f);
-            this.$messageBus.serverSendMessageAction("layer", s);
-            console.log('Published feature changes');
         }
 
         private selectFeature(feature: csComp.Services.IFeature) {
