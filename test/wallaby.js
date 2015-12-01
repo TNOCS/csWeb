@@ -26,13 +26,13 @@ module.exports = function (w) {
 
         compilers: {
             '**/*.ts': w.compilers.typeScript({
-                target: 1, // ES5
-                module: 1, // CommonJS
-                declaration: false,
-                noImplicitAny: false,
-                removeComments: true,
-                noLib: false,
-                preserveConstEnums: true,
+                target:                         1, // ES5
+                module:                         1, // CommonJS
+                declaration:                    false,
+                noImplicitAny:                  false,
+                removeComments:                 true,
+                noLib:                          false,
+                preserveConstEnums:             true,
                 suppressImplicitAnyIndexErrors: true
             })
         }//,

@@ -64,7 +64,7 @@ describe('csComp.Services.ExpressionService', function() {
             expect(expressionService.evalExpression('count(features, "amount_men")', f, f[0])).toBe(3);
             expect(expressionService.evalExpression('sum(features, "amount_men")', f, f[0])).toBe(60000);
             expect(expressionService.evalExpression('avg(features, "amount_men")', f, f[0])).toBe(20000);
-            expect(expressionService.evalExpression('std(features, "amount_men")', f, f[0])).toBeCloseTo(8165, 1);
+            expect(expressionService.evalExpression('std(features,"amount_men")', f, f[0])).toBeCloseTo(8165, 1);
         });
 
     });

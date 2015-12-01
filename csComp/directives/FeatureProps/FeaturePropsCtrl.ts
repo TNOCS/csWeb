@@ -152,8 +152,7 @@ module FeatureProps {
                             this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection);
                         }
                     });
-                }
-                else { // if not go through all properties and find a propertyType 
+                } else { // if not go through all properties and find a propertyType 
                     for (var key in feature.properties) {
                         var mi = layerservice.getPropertyType(feature, key);
 
@@ -180,7 +179,7 @@ module FeatureProps {
             var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
             if (callOutSection.propertyTypes.hasOwnProperty(mi.label)) return; // Prevent duplicate properties in the same  section
             callOutSection.propertyTypes[mi.label] = mi;
-            var text = feature.properties[mi.label]; if (mi.type === "hierarchy") {
+            var text = feature.properties[mi.label]; if (mi.type === 'hierarchy') {
                 var count = this.calculateHierarchyValue(mi, feature, this.propertyTypeData, this.layerservice);
                 text = count + ";" + feature.properties[mi.calculation];
             }
@@ -188,13 +187,13 @@ module FeatureProps {
             // Skip empty, non-editable values
             if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
 
-            var canFilter = (mi.type === "number" || mi.type === "text" || mi.type === "options" || mi.type === "date" || mi.type === 'boolean');
-            var canStyle = (mi.type === "number" || mi.type === "options" || mi.type === "color");
-            if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() != "none";
+            var canFilter = (mi.type === 'number' || mi.type === 'text' || mi.type === 'options' || mi.type === 'date' || mi.type === 'boolean');
+            var canStyle = (mi.type === 'number' || mi.type === 'options' || mi.type === 'color');
+            if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() !== 'none';
             if (mi.visibleInCallOut) {
                 callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
             }
-            if (mi.type === "hierarchy") {
+            if (mi.type === 'hierarchy') {
                 hierarchyCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
             }
             //searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
@@ -206,15 +205,15 @@ module FeatureProps {
             var propertyTypes = csComp.Helpers.getPropertyTypes(feature.fType, propertyTypeData);
             for (var p in propertyTypes) {
                 var pt = propertyTypes[p];
-                if (pt.type === "relation" && mi.targetrelation === pt.label) {
+                if (pt.type === 'relation' && mi.targetrelation === pt.label) {
                     countResults[pt.label] = pt.count;
-                    if (mi.calculation === "count") {
+                    if (mi.calculation === 'count') {
                         result = pt.count;
                     }
                 }
             }
 
-            if (mi.calculation === "ratio") {
+            if (mi.calculation === 'ratio') {
                 var featureName = feature.properties[mi.subject];
                 layerservice.project.features.forEach((f: csComp.Services.IFeature) => {
                     if (f.properties.hasOwnProperty(mi.target) && f.properties[mi.target] === featureName) {
@@ -266,15 +265,13 @@ module FeatureProps {
                     ? csComp.Helpers.convertStringFormat(feature, this.type.style.iconUri)
                     : this.type.style.iconUri;
         }
-
-
     }
 
     export class FeaturePropsCtrl {
         private scope: IFeaturePropsScope;
         public lastSelectedProperty: IPropertyType;
         private defaultDropdownTitle: string;
-        
+
         // list of active stats properties, used when switching between features to keep active stats open
         private stats = [];
 
@@ -293,8 +290,6 @@ module FeatureProps {
             '$compile'
         ];
 
-
-
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
@@ -308,7 +303,6 @@ module FeatureProps {
             private $compile: ng.ICompileService
         ) {
             this.setDropdownTitle();
-
 
             this.scope = $scope;
             $scope.vm = this;
@@ -330,7 +324,7 @@ module FeatureProps {
                     itemsWidth += itemWidth;
                 });
                 return itemsWidth;
-            }
+            };
 
             $scope.autocollapse = function(initializeTabPosition = false) {
                 var tabs = $('#featureTabs');
@@ -358,8 +352,8 @@ module FeatureProps {
             this.$scope.feature = this.$layerService.lastSelectedFeature;
 
 
-            this.$messageBusService.subscribe("timeline", (action, value) => {
-                if (action === "updateFeatures" && this.$scope.callOut) {
+            this.$messageBusService.subscribe('timeline', (action, value) => {
+                if (action === 'updateFeatures' && this.$scope.callOut) {
                     this.updateAllStatsDelay();
                 }
             });
@@ -368,7 +362,6 @@ module FeatureProps {
 
         updateAllStatsDelay = _.debounce(this.updateAllStats, 500);
         updateStatsDelay = (prop) => { _.debounce(this.getPropStats, 500, true); }
-
 
         private updateAllStats() {
             if (!this.$scope.callOut) return;
@@ -395,7 +388,6 @@ module FeatureProps {
             this.displayFeature(this.$scope.feature);
         }
 
-
         public selectProperty(prop: IPropertyType, $event: ng.IAngularEvent) {
             this.lastSelectedProperty = prop;
             $event.stopPropagation();
@@ -409,13 +401,13 @@ module FeatureProps {
         }
 
         public startEditFeature() {
-            this.$scope.feature._gui["editMode"] = true;
+            this.$scope.feature._gui['editMode'] = true;
             this.$layerService.updateFeature(this.$scope.feature);
         }
 
         public editFeature() {
-            var rpt = csComp.Helpers.createRightPanelTab("featuretype", "featuretype", this.$layerService.lastSelectedFeature, "Edit group");
-            this.$messageBusService.publish("rightpanel", "activate", rpt);
+            var rpt = csComp.Helpers.createRightPanelTab('featuretype', 'featuretype', this.$layerService.lastSelectedFeature, 'Edit group');
+            this.$messageBusService.publish('rightpanel', 'activate', rpt);
             this.$layerService.updateFeature(this.$layerService.lastSelectedFeature);
         }
 
@@ -451,51 +443,51 @@ module FeatureProps {
         private sidebarMessageReceived = (title: string): void => {
             //console.log("sidebarMessageReceived");
             switch (title) {
-                case "toggle":
+                case 'toggle':
                     this.$scope.showMenu = !this.$scope.showMenu;
                     break;
-                case "show":
+                case 'show':
                     this.$scope.showMenu = true;
                     break;
-                case "hide":
+                case 'hide':
                     this.$scope.showMenu = false;
                     break;
                 default:
             }
             // NOTE EV: You need to call apply only when an event is received outside the angular scope.
             // However, make sure you are not calling this inside an angular apply cycle, as it will generate an error.
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                 this.$scope.$apply();
             }
         }
 
         private featureMessageReceived = (title: string, feature: IFeature): void => {
             switch (title) {
-                case "onFeatureDeselect":
+                case 'onFeatureDeselect':
                     if (this.$layerService.selectedFeatures.length === 0) {
                         this.$layerService.visual.rightPanelVisible = false;
                     } else { this.updateAllStats(); }
                     break;
-                case "onFeatureSelect":
+                case 'onFeatureSelect':
                     this.displayFeature(this.$layerService.lastSelectedFeature);
                     this.$scope.feature = this.$layerService.lastSelectedFeature;
                     this.$layerService.visual.rightPanelVisible = true;
                     this.updateAllStats();
                     break;
-                case "onRelationsUpdated":
+                case 'onRelationsUpdated':
                     this.setShowSimpleTimeline();
                     this.displayFeature(feature);
                     this.updateHierarchyLinks(feature);
                     this.$scope.feature = feature;
                     this.$scope.autocollapse(true);
                     break;
-                case "onFeatureUpdated":
+                case 'onFeatureUpdated':
                     this.displayFeature(this.$layerService.lastSelectedFeature);
                     this.$scope.feature = this.$layerService.lastSelectedFeature;
                     break;
                 default:
             }
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                 this.$scope.$apply();
             }
         }
@@ -516,19 +508,17 @@ module FeatureProps {
 
         public createSparkLineChart(item: ICallOutProperty) {
             item.showChart = !item.showChart;
-            var ch = $("#featurepropchart_" + item._id);
+            var ch = $('#featurepropchart_' + item._id);
             ch.empty();
             if (item.showChart) {
                 var ns = <any>this.$scope;
                 ns.item = item;
-                                
+
                 // create sparkline                
                 var chartElement = this.$compile('<sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>')((<any>ch).scope());
-                ch.append(chartElement);                
-                
+                ch.append(chartElement);
                 //console.log(item);
             }
-
         }
 
         public getPropStats(item: ICallOutProperty) {
@@ -576,11 +566,11 @@ module FeatureProps {
             // Add properties defined inside of layers to the project-wide properties.
             this.$layerService.project.groups.forEach((group) => {
                 group.layers.forEach((l) => {
-                    if (l.type == "hierarchy" && l.enabled) {
+                    if (l.type === 'hierarchy' && l.enabled) {
                         if ((<any>(l.data)) && (<any>(l.data)).features) {
                             (<any>(l.data)).features[0].fType.propertyTypeData.forEach((pt) => {
-                                if (pt.type == "hierarchy") {
-                                    if (pt.targetlayer == feature.layerId) {
+                                if (pt.type === 'hierarchy') {
+                                    if (pt.targetlayer === feature.layerId) {
                                         var featureType = this.$layerService.getFeatureType(feature);
                                         var propertyTypes = csComp.Helpers.getPropertyTypes(feature.fType, this.$layerService.propertyTypeData);
                                         var found = false;
