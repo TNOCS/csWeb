@@ -6,7 +6,7 @@
   "bundle": "Scripts/typings/tsd.d.ts",
   "installed": {
     "async/async.d.ts": {
-      "commit": "fb2b3b1e068c9ff7d8f9b0851c08d37d96c95c38"
+      "commit": "7a3d6944036902996b87981e6150900952b35628"
     },
     "bcrypt/bcrypt.d.ts": {
       "commit": "62eedc3121a5e28c50473d2e4a9cefbcb9c3957f"

@@ -1,8 +1,8 @@
 var Marvelous = (function() {
 
     var currentmodel;
-	var widgetHeightMargin = 25; // content offset from widget top
-	var widgetWidthMargin = 5; // content offset from widget left border
+    var widgetHeightMargin = 25; // content offset from widget top
+    var widgetWidthMargin = 5; // content offset from widget left border
 
     var Model = function() {
         this.nodes = null;
@@ -20,6 +20,7 @@ var Marvelous = (function() {
         this.height = parseInt(this.widget.css("height")) - widgetHeightMargin;
         var svg = d3.select("#marvelViz");
         svg.selectAll("g").remove();
+        svg.selectAll("rect").remove();
         svg.append("g").attr("class", "conns");
         this.rect = svg.append("rect").attr("fill-opacity", 0).attr("class",
             "overlay");
@@ -59,7 +60,10 @@ var Marvelous = (function() {
         var w = nodeBox.width;
         var h = nodeBox.height;
         var scale = Math.min(parseInt(this.width) / w, parseInt(this.height) / h);
-		scale *= 0.98; // leave some margins
+        scale *= 0.98; // leave some margins
+        if (scale <= 0 || scale >= 10000) scale = 1;
+        if (transX <= 0 || transX >= 10000) transX = 0;
+        if (transY <= 0 || transY >= 10000) transY = 0;
         var transX = (this.widget.offset().left + widgetWidthMargin - $("g.nodes").offset().left) * scale;
         var transY = (this.widget.offset().top + widgetHeightMargin - $("g.nodes").offset().top) * scale;
         this.zoomListener.translate([transX, transY]).scale(scale);
@@ -105,10 +109,18 @@ var Marvelous = (function() {
         node.select("rect").attr("y", function(d) {
                 return (d.isConditional) ? d.Center._y : d.Center._y - 20;
             })
-            .attr("width", function(d) { return (d.isConditional) ? 0 : 130; })
-            .attr("height", function(d) { return (d.isConditional) ? 0 : 40; })
-            .attr("rx", function(d) { return (d.isConditional) ? 0 : 8; })
-            .attr("ry", function(d) { return (d.isConditional) ? 0 : 8; })
+            .attr("width", function(d) {
+                return (d.isConditional) ? 0 : 130;
+            })
+            .attr("height", function(d) {
+                return (d.isConditional) ? 0 : 40;
+            })
+            .attr("rx", function(d) {
+                return (d.isConditional) ? 0 : 8;
+            })
+            .attr("ry", function(d) {
+                return (d.isConditional) ? 0 : 8;
+            })
             .attr("style", "stroke:black;stroke-width:2")
             .attr("fill", function(d) {
                 return "rgb(" + d.Background.R + "," + d.Background.G + "," + d.Background.B + ")";
@@ -119,21 +131,21 @@ var Marvelous = (function() {
         }).attr("y", function(d) {
             return d.Center._y + 5;
         }).text(function(d) {
-            return (d.isConditional) ? '' : d.Name;
-        }).attr("text-anchor", "middle");
+            return (d.isConditional) ? ' ' : d.Name;
+        }).attr("text-anchor", "middle").attr("font-size", "20px").attr("font-weight", "bold");
 
         // fix width
-        node.select("rect").attr(
-            "width",
-            function(d) {
-                var tw = d3.select(this.parentNode).select("text").node()
-                    .getComputedTextLength();
+        node.select("rect").attr("width", function(d) {
+            if (d.isConditional) {
+                d.calculatedWidth = 1;
+            } else {
+                var tw = d3.select(this.parentNode).select("text").node().getComputedTextLength();
                 d.calculatedWidth = Math.max(tw + 10, 130);
-                return d.calculatedWidth;
-            }).attr("x", function(d) {
-            return d.Center._x - d.calculatedWidth / 2;
+            }
+            return d.calculatedWidth;
+        }).attr("x", function(d) {
+            return (d.isConditional) ? (d.Center._x) : (d.Center._x - d.calculatedWidth / 2);
         });
-
         node.exit().remove();
     };
 
@@ -350,6 +362,9 @@ var Marvelous = (function() {
             return model;
         },
 
+        refreshView: function(widgetElement) {
+            currentmodel.initView(widgetElement);
+        },
 
         // max = function(a) {
         // return Math.max.apply(null, a);

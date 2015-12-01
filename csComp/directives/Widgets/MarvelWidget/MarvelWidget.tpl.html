@@ -1,12 +1,12 @@
 <div>
     <div class="row" style="margin-left:15px;margin-right:0px;">
-        <div class="col-md-8" style="font-size:14px; font-weight:bold;margin-bottom:2px;">{{data.title}}</div>
-        <div class="col-md-4">
+        <div class="col-md-9" style="font-size:14px; font-weight:bold;margin-bottom:2px;">{{'RISK_DIAGRAM_FOR' | translate}}{{data.title.toLowerCase()}}</div>
+        <div class="col-md-3">
             <div>
                 <button class="fa fa-times leftpanel-header-button" ng-click="vm.close()" style="padding-right:0px" />
                 <button class="fa fa-plus leftpanel-header-button" ng-click="vm.minimize()" ng-show="minimized" />
                 <button class="fa fa-minus leftpanel-header-button" ng-click="vm.minimize()" ng-hide="minimized" />
-                <button class="fa fa-floppy-o leftpanel-header-button" ng-click="vm.edit()" ng-show="editmode" />
+                <button class="fa fa-share-alt leftpanel-header-button" ng-click="vm.save()" ng-show="editmode" />
                 <button class="fa fa-cog leftpanel-header-button" ng-click="vm.edit()" ng-hide="editmode" />
             </div>
         </div>
@@ -22,50 +22,54 @@
         <div ng-show="editmode" style="margin-top:20px">
             <div ng-repeat="(id, dep) in dependencyTypes">
                 <div class="row" style="margin-left:15px;margin-right:0px;">
-                    <div class="col-md-1">
+                    <div class="col-md-1" style="padding-right:5px">
                         <input type="checkbox" ng-click="vm.addDependency(id, dep)" id="check-{{id}}" ng-checked="selectedFeature.properties.hasOwnProperty(id)" />
                     </div>
-                    <div class="col-md-10">
+                    <div class="col-md-11" style="padding-left:5px">
                         <div ng-switch="dep.type">
                             <div ng-switch-when="number">
                                 <div ng-if="selectedFeature.properties.hasOwnProperty(id)">
                                     <label class="control-label-marvel" for="depValue">{{dep.label}}</label>
-                                    <input id="depValue" name="textinput" type="number" ng-model="selectedFeature.properties[id]" placeholder="value" class="input">
+                                    <input id="depValue" name="textinput" type="number" ng-model="selectedFeature.properties[id]" placeholder="value" class="input marvel-input">
                                 </div>
                                 <div ng-if="!selectedFeature.properties.hasOwnProperty(id)">
                                     <label class="control-label-marvel" for="depValue">{{dep.label}}</label>
-                                    <input disabled id="depValue" type="number" name="textinput" placeholder="value" class="input">
+                                    <input disabled id="depValue" type="number" name="textinput" placeholder="value" class="input marvel-input">
                                 </div>
                             </div>
                             <div ng-switch-when="string">
                                 <div ng-if="selectedFeature.properties.hasOwnProperty(id)">
                                     <label class="control-label-marvel" for="depValue">{{dep.label}}</label>
-                                    <input id="depValue" name="textinput" ng-model="selectedFeature.properties[id]" placeholder="value" class="input">
+                                    <input id="depValue" name="textinput" ng-model="selectedFeature.properties[id]" placeholder="value" class="input marvel-input">
                                 </div>
                                 <div ng-if="!selectedFeature.properties.hasOwnProperty(id)">
                                     <label class="control-label-marvel" for="depValue">{{dep.label}}</label>
-                                    <input disabled id="depValue" name="textinput" placeholder="value" class="input">
+                                    <input disabled id="depValue" name="textinput" placeholder="value" class="input marvel-input">
                                 </div>
                             </div>
                             <div ng-switch-when="stringarray">
                                 <div ng-if="selectedFeature.properties.hasOwnProperty(id)">
+                                    <label class="control-label-marvel" for="depValue">{{dep.label}}</label>
+                                    <input id="add-{{id}}" name="textinput" placeholder="Featurename" class="input marvel-input">
+                                    <button class="fa fa-plus leftpanel-header-button" style="float:none" ng-click="vm.addDependencyFeature(id)" />
                                     <div ng-repeat="name in selectedFeature.properties[id]">
                                         <label class="control-label-marvel" for="depName">{{$index}}</label>
-                                        <input disabled id="depName" name="textinput" ng-model="name" placeholder="value" class="input">
+                                        <input disabled id="depName" name="textinput" ng-model="name" placeholder="value" class="input marvel-input">
                                         <button class="fa fa-minus leftpanel-header-button" style="float:none" ng-click="vm.removeDependencyFeature(id, name)" />
                                     </div>
-                                    <label class="control-label-marvel" for="depValue">{{dep.label}}</label>
-                                    <input id="add-{{id}}" name="textinput" placeholder="Featurename" class="input">
-                                    <button class="fa fa-plus leftpanel-header-button" style="float:none" ng-click="vm.addDependencyFeature(id)" />
                                 </div>
                                 <div ng-if="!selectedFeature.properties.hasOwnProperty(id)">
                                     <label class="control-label-marvel" for="depValue">{{dep.label}}</label>
-                                    <input disabled id="depValue" name="textinput" placeholder="Featurename" class="input">
+                                    <input disabled id="depValue" name="textinput" placeholder="Featurename" class="input marvel-input">
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="row" style="margin-left:15px;margin-right:0px;margin-top:10px;">
+                <button class="btn btn-primary rightpanel-button" style="float:right;margin:4px;padding:4px;" popover="{{'SAVE_FEATURE_DEPENDENCIES' | translate}}" popover-placement="top" popover-trigger="mouseenter" ng-click="vm.save()">{{'SAVE_MARVEL' | translate}}{{selectedFeature.properties['Name']}}</button>
+                <button class="btn btn-primary rightpanel-button" style="float:right;margin:4px;padding:4px;" popover="{{'SAVE_FEATURETYPE_DEPENDENCIES' | translate}}" popover-placement="top" popover-trigger="mouseenter" ng-click="vm.saveAll()">{{'SAVE_EVERY_MARVEL' | translate}}{{data.title.toLowerCase()}}</button>
             </div>
         </div>
     </div>
