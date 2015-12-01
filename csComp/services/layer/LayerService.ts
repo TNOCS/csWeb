@@ -131,8 +131,8 @@ module csComp.Services {
             this.mapRenderers['leaflet'] = new LeafletRenderer();
             this.mapRenderers['leaflet'].init(this);
 
-            this.mapRenderers['cesium'] = new CesiumRenderer();
-            this.mapRenderers['cesium'].init(this);
+           // this.mapRenderers['cesium'] = new CesiumRenderer();
+            //this.mapRenderers['cesium'].init(this);
 
             this.initLayerSources();
             this.throttleTimelineUpdate = _.throttle(this.updateAllLogs, 500);

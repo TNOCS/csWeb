@@ -159,8 +159,8 @@
                                                 </div> -->
                                                 
                                             </div>
-                                            <div data-ng-if="item.isSensor && item.showChart" style="margin-bottom:10px;margin-top:10px">
-                                                    <sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>
+                                            <div data-ng-if="item.isSensor" style="margin-bottom:10px;margin-top:10px" id="featurepropchart_{{item._id}}">
+                                                    <!--<sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>-->
                                                 </div>
                                         <div class="icons-on-hover" ng-if="!item.configMode">
                                             <div class="property-action" style="right:0px">
@@ -179,7 +179,7 @@
                                                 <a class="fa fa-calculator makeNarrow" ng-click="item.showMore=!item.showMore;vm.getPropStats(item)" style="cursor: pointer"></a>
                                             </div>
                                             <div ng-if="item.isSensor" class="property-action" style="left:45px">
-                                                <a class="fa fa-area-chart makeNarrow" ng-click="item.showChart = !item.showChart"  style="cursor: pointer"></a>
+                                                <a class="fa fa-area-chart makeNarrow" ng-click="vm.createSparkLineChart(item)"  style="cursor: pointer"></a>
                                             </div>                                            
                                             <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="left:60px">
                                                 <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer"></a>

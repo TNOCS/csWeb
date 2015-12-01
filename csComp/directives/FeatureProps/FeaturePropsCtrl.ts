@@ -35,6 +35,7 @@ module FeatureProps {
     }
 
     export interface ICallOutProperty {
+        _id: string;
         key: string;
         value: string;
         property: string;
@@ -45,6 +46,7 @@ module FeatureProps {
         propertyType?: IPropertyType;
         isFilter: boolean;
         showMore: boolean;
+        showChart: boolean;
         stats: any;
         bins: any;
         cors: { [prop: string]: correlationResult };
@@ -53,8 +55,10 @@ module FeatureProps {
     export class CallOutProperty implements ICallOutProperty {
         public stats: any;
         public bins: any;
-        showMore: boolean;
-        cors: { [prop: string]: correlationResult };
+        public _id: string;
+        public showMore: boolean;
+        public showChart: boolean;
+        public cors: { [prop: string]: correlationResult };
         constructor(
             public key: string,
             public value: string,
@@ -64,10 +68,11 @@ module FeatureProps {
             public feature: IFeature,
             public isFilter: boolean,
             public isSensor: boolean,
+
             public description?: string,
             public propertyType?: IPropertyType,
             public timestamps?: number[],
-            public sensor?: number[]) { this.cors = {} }
+            public sensor?: number[]) { this.cors = {}; this._id = csComp.Helpers.getGuid(); }
     }
 
     export interface ICallOutSection {
@@ -269,6 +274,8 @@ module FeatureProps {
         private scope: IFeaturePropsScope;
         public lastSelectedProperty: IPropertyType;
         private defaultDropdownTitle: string;
+        
+        // list of active stats properties, used when switching between features to keep active stats open
         private stats = [];
 
         // $inject annotation.
@@ -282,7 +289,8 @@ module FeatureProps {
             'mapService',
             'layerService',
             'messageBusService',
-            '$translate'
+            '$translate',
+            '$compile'
         ];
 
 
@@ -296,7 +304,8 @@ module FeatureProps {
             private $mapService: csComp.Services.MapService,
             private $layerService: csComp.Services.LayerService,
             private $messageBusService: csComp.Services.MessageBusService,
-            private $translate: ng.translate.ITranslateService
+            private $translate: ng.translate.ITranslateService,
+            private $compile: ng.ICompileService
         ) {
             this.setDropdownTitle();
 
@@ -503,6 +512,23 @@ module FeatureProps {
                     }
                 });
             }
+        }
+
+        public createSparkLineChart(item: ICallOutProperty) {
+            item.showChart = !item.showChart;
+            var ch = $("#featurepropchart_" + item._id);
+            ch.empty();
+            if (item.showChart) {
+                var ns = <any>this.$scope;
+                ns.item = item;
+                                
+                // create sparkline                
+                var chartElement = this.$compile('<sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>')((<any>ch).scope());
+                ch.append(chartElement);                
+                
+                //console.log(item);
+            }
+
         }
 
         public getPropStats(item: ICallOutProperty) {
