@@ -53,7 +53,7 @@
     "leaflet": "~0.7.7",
     "leaflet-ajax": "~2.0.0",
     "leaflet.locatecontrol": "~0.45.1",
-    "leaflet.markercluster": "~0.4.0",
+    "leaflet.markercluster": "~0.4.0-hotfix.1",
     "moment": "~2.10.6",
     "pnotify": "~2.1.0",
     "spectrum": "1.7.1",
