@@ -560,21 +560,4 @@ module csComp.Helpers {
         iconHtml['iconPlusBorderHeight'] = iconPlusBorderHeight;
         return iconHtml;
     }
-
-    /**
-     * Check whether the feature contains any expressions, and if so, evaluate them.
-     * @param  {ng.IParseService} $parse
-     * @param  {csComp.Services.TypeResource} resource
-     * @param  {IFeature} feature
-     */
-    export function evalExpression($parse: ng.IParseService, resource: csComp.Services.TypeResource, feature: IFeature) {
-        if (!resource || !resource.propertyTypeData) return;
-        for (let k in resource.propertyTypeData) {
-            let propType = resource.propertyTypeData[k];
-            if (!propType.expression) continue;
-            var parsedExpression = $parse(propType.expression);
-            feature.properties[propType.label] = parsedExpression(feature.properties);
-        }
-// 
-    }
 }
