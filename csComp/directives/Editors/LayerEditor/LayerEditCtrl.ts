@@ -55,7 +55,7 @@ module LayerEdit {
                         var id = this.layer.typeUrl + "#" + this.layer.defaultFeatureType;
                         ft.id = this.layer.defaultFeatureType;
                         ft.name = ft.id;
-                        ft.style = csComp.Helpers.getDefaultFeatureStyle();
+                        ft.style = csComp.Helpers.getDefaultFeatureStyle(null);
                         if (!r.featureTypes.hasOwnProperty(id)) {
                             var ft = <csComp.Services.IFeatureType>{};
                             ft.id = this.layer.defaultFeatureType;

@@ -48,7 +48,7 @@ module csComp.Services {
         /**
          * gui is used for setting temp. properties for rendering
          */
-        gui: any = {};
+        _gui: any = {};
 
         /**
          * Returns an object which contains all the data that must be serialized.

@@ -16,7 +16,7 @@ module csComp.Services {
             return null;
         }
 
-        public addLayer(layer: ProjectLayer, callback: Function) {
+        public addLayer(layer: ProjectLayer, callback: Function, data = null) {
             var wms: any = L.tileLayer.wms(layer.url, <any>{
                 layers: layer.wmsLayers,
                 opacity: layer.opacity / 100,

@@ -16,8 +16,8 @@ module csComp.Services {
             layer.enabled = isEnabled;
         }
 
-        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
-            this.baseAddLayer(layer, callback);
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
+            this.baseAddLayer(layer, callback, data);
         }
 
         /** zoom to boundaries of layer */
@@ -34,38 +34,49 @@ module csComp.Services {
             ];
         }
 
-        protected baseAddLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
+        protected baseAddLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
+            if (data != null) console.log('we got him');
             this.layer = layer;
             async.series([
                 (cb) => {
                     layer.renderType = 'geojson';
-                    // Open a layer URL
-                    layer.isLoading = true;
-                                                           
-                    // get data
-                    var u = layer.url.replace('[BBOX]', layer.BBOX);
                     
-                    // check proxy
-                    if (layer.useProxy) u = '/api/proxy?url=' + u;
-
-                    this.$http.get(u)
-                        .success((data) => {
-                        layer.count = 0;
-                        layer.isLoading = false;
+                    // already got data (propably from drop action)
+                    if (data) {
                         layer.enabled = true;
-                        this.initLayer(data, layer);
-                        if (this.layer.fitToMap) this.fitMap(this.layer);
-                        cb(null, null);
-                    })
-                        .error(() => {
-                        layer.count = 0;
-                        layer.isLoading = false;
-                        layer.enabled = false;
-                        layer.isConnected = false;
-                        this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
-                        // this.service.$messageBusService.publish('layer', 'error', layer);
-                        cb(null, null);
-                    });
+                        this.initLayer(data,layer);
+                        cb(null,null);
+
+                    }
+                    else {
+                        // Open a layer URL
+                        layer.isLoading = true;
+                                   
+                        // get data
+                        var u = layer.url.replace('[BBOX]', layer.BBOX);
+                    
+                        // check proxy
+                    	if (layer.useProxy) u = '/api/proxy?url=' + u;
+
+                        this.$http.get(u)
+                            .success((data) => {
+                                layer.count = 0;
+                                layer.isLoading = false;
+                                layer.enabled = true;
+                                this.initLayer(data, layer);
+                                if (this.layer.fitToMap) this.fitMap(this.layer);
+                                cb(null, null);
+                            })
+                            .error(() => {
+                                layer.count = 0;
+                                layer.isLoading = false;
+                                layer.enabled = false;
+                                layer.isConnected = false;
+                                this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
+                                // this.service.$messageBusService.publish('layer', 'error', layer);
+                                cb(null, null);
+                            });
+                    }
                 },
                 // Callback
                 () => {
@@ -380,19 +391,19 @@ module csComp.Services {
             });
         }
 
-        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
             layer.isDynamic = true;
             this.baseAddLayer(layer, (layer: ProjectLayer) => {
                 callback(layer);
                 if (layer.enabled) {
                     this.initSubscriptions(layer);
                 }
-            });
+            }, data);
         }
 
         removeLayer(layer: ProjectLayer) {
             layer.isConnected = false;
-            if (layer.gui['editing']) this.stopAddingFeatures(layer);
+            if (layer._gui['editing']) this.stopAddingFeatures(layer);
             this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
         }
 
@@ -409,12 +420,12 @@ module csComp.Services {
                 g.layers.forEach((l: csComp.Services.ProjectLayer) => {
                     if (l === layer) {
                         v = true;
-                        l.gui['editing'] = true;
+                        l._gui['editing'] = true;
                     } else {
-                        l.gui['editing'] = false;
+                        l._gui['editing'] = false;
                     }
                 })
-                g.gui.editing = v;
+                g._gui.editing = v;
             });
             this.service.editing = true;
             this.initAvailableFeatureTypes(layer);
@@ -441,9 +452,9 @@ module csComp.Services {
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
             delete layer.gui['featureTypes'];
             this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
-                delete g.gui['editing'];
+                delete g._gui['editing'];
                 g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                    l.gui['editing'] = false;
+                    l._gui['editing'] = false;
                 });
             });
             this.service.editing = false;
@@ -495,11 +506,11 @@ module csComp.Services {
                 this.service.$messageBusService.publish('timeline', 'updateFeatures');
             })
                 .error((e) => {
-                console.log('EsriJsonSource called $HTTP with errors: ' + e);
-            }).finally(() => {
-                layer.isLoading = false;
-                callback(layer);
-            });
+                    console.log('EsriJsonSource called $HTTP with errors: ' + e);
+                }).finally(() => {
+                    layer.isLoading = false;
+                    callback(layer);
+                });
         }
     }
 }

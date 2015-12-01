@@ -45,7 +45,7 @@
     </div>
     <div id="selected-objects">
         <div ng-repeat="f in vm.$layerService.selectedFeatures">
-            <a class="feature-item" ng-click="vm.selectFeature(f)">{{f.gui.title}}</a>
+            <a class="feature-item" ng-click="vm.selectFeature(f)">{{f._gui.title}}</a>
         </div>
     </div>
 </div>

@@ -239,7 +239,7 @@ module csComp.Services {
         /**
          * gui is used for setting temp. values for rendering
          */
-        gui: any = {};
+        _gui: any = {};
         /** image for this layer */
         image: string;
 

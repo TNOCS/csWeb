@@ -252,8 +252,8 @@ module csComp.Services {
         }
 
         public selectFeature(feature) {
-            if (feature.gui.hasOwnProperty("dragged")) {
-                delete feature.gui["dragged"];
+            if (feature._gui.hasOwnProperty("dragged")) {
+                delete feature._gui["dragged"];
             }
             else {
                 this.service.selectFeature(feature, this.cntrlIsPressed);
@@ -287,7 +287,7 @@ module csComp.Services {
         }
 
         private canDrag(feature: IFeature): boolean {
-            return feature.gui.hasOwnProperty('editMode') && feature.gui['editMode'] == true;
+            return feature._gui.hasOwnProperty('editMode') && feature._gui['editMode'] == true;
         }
 
 
@@ -328,7 +328,7 @@ module csComp.Services {
                     });
 
                     marker.on('dragstart', (event: L.LeafletEvent) => {
-                        feature.gui["dragged"] = true;
+                        feature._gui["dragged"] = true;
                     });
 
                     marker.on('dragend', (event: L.LeafletEvent) => {

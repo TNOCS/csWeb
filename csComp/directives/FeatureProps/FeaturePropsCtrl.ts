@@ -413,7 +413,7 @@ module FeatureProps {
         }
 
         public startEditFeature() {
-            this.$scope.feature.gui["editMode"] = true;
+            this.$scope.feature._gui["editMode"] = true;
             this.$layerService.updateFeature(this.$scope.feature);
         }
 

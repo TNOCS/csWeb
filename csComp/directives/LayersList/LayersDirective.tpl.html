@@ -81,7 +81,7 @@
 
         </div>
     </div>
-    <!-- ng-show="vm.layer.gui.featureTypes && vm.layer.gui.editing" -->
+    <!-- ng-show="vm.layer._gui.featureTypes && vm.layer._gui.editing" -->
     <div ng-if="vm.state === 'editlayer'">
         <h3 class="leftpanel-header" style="width: 100%">
             <div class="leftpanel-header-button-container-left">
@@ -99,7 +99,7 @@
             <span translate="DONE"></span>
         </div> -->
         <div id="layerfeaturetype-{{key}}" class="legendItem draggable" style="width:30px;height:30px" when-ready="vm.initDrag(key,vm.layer)"
-        ng-repeat="(key,legendItem) in vm.layer.gui.featureTypes">
+        ng-repeat="(key,legendItem) in vm.layer._gui.featureTypes">
             <span>
                 <img ng-src="{{legendItem.style.iconUri}}" style="margin-top: -12px;width: 20px;height: 20px;margin-left: 5px;" />
 
@@ -126,17 +126,17 @@
         </h3>
 
         <!-- overflow-y: auto; overflow-x: hidden;  -->
-        <!-- ng-hide="vm.layer.gui.featureTypes && vm.layer.gui.editing" -->
+        <!-- ng-hide="vm.layer._gui.featureTypes && vm.layer._gui.editing" -->
         <div class="scrolling" style="margin-top: -10px; margin-left:-20px;padding-left:0px;overflow-y: auto; overflow-x: hidden"
         resize resize-y="95">
-            <div ng-hide="vm.$layerService.editing && !group.gui.editing" data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
+            <div ng-hide="vm.$layerService.editing && !group._gui.editing" data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
                 <div id="layergroupStyle" style="float: left; margin-left: 10px; margin-top: 5px" data-toggle="collapse" data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
                 <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter"
                 popover-append-to-body="true" class="group-title">{{group.title}}</div>
                 <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:25px;top:3px;cursor:pointer"
                 ng-click="vm.editGroup(group)"></div>
                 <div id="layergroup_{{group.id}}" class="collapse in">
-                    <div ng-class="{false : '', true:'layer-more'}[layer.gui.more==true]" ng-hide="vm.$layerService.editing && !layer.gui.editing"
+                    <div ng-class="{false : '', true:'layer-more'}[layer._gui.more==true]" ng-hide="vm.$layerService.editing && !layer._gui.editing"
                     popover="{{(layer.description) ? layer.description : ''}}" popover-append-to-body="true" popover-placement="right"
                     popover-trigger="mouseenter" data-ng-repeat="layer in group.layers">
                         <!--bs-popover>-->
@@ -148,7 +148,7 @@
                                 <label for="cblayer{{layer.id}}">
                                     {{layer.title}}
                                 </label>
-                                <div ng-show="layer.enabled" class="left-menu dropdown-toggle pull-left" ng-click="layer.gui.more=!layer.gui.more">
+                                <div ng-show="layer.enabled" class="left-menu dropdown-toggle pull-left" ng-click="layer._gui.more=!layer._gui.more">
                                 </div>
                                 <div ng-show="layer.isLoading" class="spinner">
                                     <div class="bounce1"></div>
@@ -166,7 +166,7 @@
                             </div>
                         </div>
 
-                        <div ng-show="layer.gui.more && !layer.gui.editing" style="position:relative;min-height:30px">
+                        <div ng-show="layer._gui.more && !layer._gui.editing" style="position:relative;min-height:30px">
                             <input class="ui-slider" ng-change="vm.setLayerOpacity(layer)" style="position:absolute;top:3px;width:100px;left:40px" type="range"
                             min='0' max='100' ng-model="layer.opacity" />
                         </div>

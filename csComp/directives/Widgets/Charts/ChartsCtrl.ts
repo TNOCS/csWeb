@@ -139,15 +139,15 @@ module ChartsWidget {
             var d = this.$scope.data;
             var vgspec = d.spec;
             if (d.lite) vgspec = vl.compile(d.spec);
-            vg.parse.spec(vgspec, (chart) => { chart({ el: '#vis' + d._id }).update(); });
-            d._view.update();
+            console.log(JSON.stringify(vgspec));
+            if (d._view) d._view.update();
         }
 
         public startChart() {
             var d = this.$scope.data;
 
             // if a chart generator is specified, find it and start it
-            if (!d.spec && d.generator) {
+            if (d.generator) {
                 if (d.generator.type && this.$dashboardService.chartGenerators.hasOwnProperty(d.generator.type)) {
                     this.generator = <csComp.Services.IChartGenerator>this.$dashboardService.chartGenerators[d.generator.type]();
                     this.generator.start(this);

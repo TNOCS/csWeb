@@ -1,4 +1,9 @@
 module csComp.Services {
+    
+    export class Section {
+        public properties: { [key : string] : csComp.Services.IPropertyType} = {};
+    }
+    
     export class Log {
         /**
          * Timestamp, epoch ms
@@ -26,9 +31,9 @@ module csComp.Services {
         featureTypeName?: string;
         fType?:           IFeatureType;
         effectiveStyle:   IFeatureTypeStyle;
-        isInitialized?:   boolean;
+        _isInitialized?: boolean;
         lastUpdated:      number;
-        gui:              Object;
+        _gui: Object;
         sensors?:         { [id: string]: any[] }
 
         logs?:            { [id: string]: Log[] };
@@ -58,12 +63,12 @@ module csComp.Services {
         htmlStyle:       string;
         featureTypeName: string;
         lastUpdated:     number;
-        gui:             Object = {};
+        _gui: Object = {};
         /** resolved feature type */
         fType: IFeatureType;
         /** calculated style, used for final rendering */
         effectiveStyle: IFeatureTypeStyle;
-        isInitialized:  boolean;
+        _isInitialized: boolean;
         sensors:        { [id: string]: any[] }
         timestamps:     number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         coordinates:    IGeoJsonGeometry[];          // used for temporal data
@@ -154,8 +159,9 @@ module csComp.Services {
     }
 
     export interface IPropertyType {
+        id? : string;
         label?:            string;
-        title?:            string;
+        title?: string;        
         description?:      string;
         type?:             string;
         section?:          string;
@@ -213,7 +219,7 @@ module csComp.Services {
         innerTextSize?:         number;
         analysispropertyType?:  any;
         rotateProperty?:        string;
-        isInitialized?:         boolean;
+        _isInitialized?: boolean;
     }
 
     export interface IFeatureType {
@@ -232,7 +238,7 @@ module csComp.Services {
          */
         propertyTypeKeys?: string;
         languages?:       ILanguageData;
-        isInitialized?:   boolean;
+        _isInitialized?: boolean;
     }
 
     export interface IGeoJsonFile {
