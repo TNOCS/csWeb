@@ -303,8 +303,7 @@ module FeatureProps {
             private $compile: ng.ICompileService
         ) {
             this.setDropdownTitle();
-            this.$layerService.addLayer();
-            
+            //this.$layerService.addLayer();
             this.scope = $scope;
             $scope.vm = this;
             $scope.showMenu = false;
@@ -313,9 +312,9 @@ module FeatureProps {
                 $messageBusService.publish('FeatureTab', 'activated', { sectionTitle: sectionTitle, section: section });
             };
 
-            //$messageBusService.subscribe("sidebar", this.sidebarMessageReceived);
+            //$messageBusService.subscribe('sidebar', this.sidebarMessageReceived);
             console.log('init featurepropsctrl');
-            $messageBusService.subscribe("feature", this.featureMessageReceived);
+            $messageBusService.subscribe('feature', this.featureMessageReceived);
 
             var widthOfList = function() {
                 var itemsWidth = 0;
