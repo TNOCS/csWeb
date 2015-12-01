@@ -700,14 +700,15 @@ module csComp.Services {
             }
             if (source.propertyTypeData) {
                 for (var key in source.propertyTypeData) {
-                    var propertyType: IPropertyType = source.propertyTypeData[key];                     
-                    propertyType.id =source.url + '#' + key; 
+                    var propertyType: IPropertyType = source.propertyTypeData[key];
+                    propertyType.id = source.url + '#' + key;
                     this.initPropertyType(propertyType);
                     if (!propertyType.label) propertyType.label = key;
                     this.propertyTypeData[key] = propertyType;
-                }             }
+                }
+            }
         }
-        
+
         public getLayerPropertyTypes(layer : ProjectLayer) : IPropertyType[]
         {
             var res : IPropertyType[] = [];
@@ -1607,7 +1608,7 @@ module csComp.Services {
         }
 
         setLocationFilter(group: ProjectGroup) {
-            if (group.filters.some((f) => { return f.filterType === 'location' })) return;
+            if (group.filters.some((f) => { return f.filterType === 'location'; })) return;
             var gf = new GroupFilter();
             gf.id = Helpers.getGuid();
             gf.group = group;
@@ -1622,7 +1623,7 @@ module csComp.Services {
         setFeatureAreaFilter(f: IFeature) {
             this.project.groups.forEach(g => {
                 if (g.id === f.layer.group.id) return;
-                if (!g.filters.some((f) => { return f.filterType === 'area' })) {
+                if (!g.filters.some((f) => { return f.filterType === 'area'; })) {
                     var gf = new GroupFilter();
                     gf.id = Helpers.getGuid();
                     gf.group = g;
@@ -1785,21 +1786,21 @@ module csComp.Services {
             var res: IPropertyType;
             // search for local propertytypes in featuretype
             if (feature.fType && feature.fType.propertyTypeData) {
-                res = _.find(feature.fType.propertyTypeData, (pt: IPropertyType) => { return pt.label === property });
+                res = _.find(feature.fType.propertyTypeData, (pt: IPropertyType) => { return pt.label === property; });
+                if (res) return res;
             }
 
-            if (!res && feature.fType.propertyTypeKeys && feature.layer.typeUrl && this.typesResources.hasOwnProperty(feature.layer.typeUrl)) {
-                var rt = this.typesResources[feature.layer.typeUrl];
+            if (!feature.layer.typeUrl || !this.typesResources.hasOwnProperty(feature.layer.typeUrl)) return res;
+            var rt = this.typesResources[feature.layer.typeUrl];
+
+            if (feature.fType.propertyTypeKeys) {
                 feature.fType.propertyTypeKeys.split(';').forEach((key: string) => {
                     if (rt.propertyTypeData.hasOwnProperty(key) && rt.propertyTypeData[key].label === property) res = rt.propertyTypeData[key];
                 });
             }
 
-            if (!res && feature.layer.typeUrl) {
-                if (this.typesResources.hasOwnProperty(feature.layer.typeUrl)) {
-                    var rs = this.typesResources[feature.layer.typeUrl];
-                    res = _.find(rs.propertyTypeData, (pt: IPropertyType) => { return pt.label === property });
-                }
+            if (!res) {
+                res = _.find(rt.propertyTypeData, (pt: IPropertyType) => { return pt.label === property; });
             }
 
             return res;
