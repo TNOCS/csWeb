@@ -170,7 +170,7 @@ module Filters {
 
         public remove() {
             if (this.$scope.filter) {
-                this.locationFilter.disable();
+                if (this.locationFilter && this.locationFilter.isEnabled) this.locationFilter.disable();
                 this.$layerService.removeFilter(this.$scope.filter);
             }
         }

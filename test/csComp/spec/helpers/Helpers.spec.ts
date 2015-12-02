@@ -6,16 +6,16 @@ class SerializeableClass {
     };
 };
 
-describe('Helpers', function() {
-    beforeEach(module('csComp'));
+describe('Helpers spec:', function() {
+    beforeEach(angular.mock.module('csComp'));
 
     var mockTranslate;
     beforeEach(function() {
-        module(function($provide) {
+        angular.mock.module(function($provide) {
             $provide.value('$translate', mockTranslate);
         });
         mockTranslate = function(key) {
-            var mct = new MockColorTranslation();
+            var mct = new ColorTranslationMock.MockColorTranslation();
             return mct;
         };
     });
@@ -40,7 +40,7 @@ describe('Helpers', function() {
 
         it('should save data', function() {
             var e = document.createElement('a');
-            e.click = () => { };
+            e.click = () => {};
             spyOn(document, 'createElement').and.returnValue(e);
             var data = '{"testKey": "testVal"}';
             csComp.Helpers.saveData(data, 'fileName', 'txt');
@@ -72,30 +72,44 @@ describe('Helpers', function() {
             expect(result.length).toEqual(2);
         });
 
+        // TODO Add test where the rt is not null!
         it('should add property types', function() {
             var f = <csComp.Services.IFeature>{};
             var ft = <csComp.Services.IFeatureType>{};
-            var result = csComp.Helpers.addPropertyTypes(f, ft);
+            var rt = <csComp.Services.TypeResource>{};
+            var result = csComp.Helpers.addPropertyTypes(f, ft, rt);
             expect(result).toEqual(ft);
             f.properties = {};
             f.properties['test'] = 0;
             ft.propertyTypeData = [];
-            result = csComp.Helpers.addPropertyTypes(f, ft);
+            result = csComp.Helpers.addPropertyTypes(f, ft, null);
             expect(result).toEqual(ft);
             var propertyType = <csComp.Services.IPropertyType>{};
             propertyType.label = 'test';
             ft.propertyTypeData.push(propertyType);
-            result = csComp.Helpers.addPropertyTypes(f, ft);
+            result = csComp.Helpers.addPropertyTypes(f, ft, null);
             expect(result).toEqual(ft);
             f.properties['test2'] = false;
-            result = csComp.Helpers.addPropertyTypes(f, ft);
+            result = csComp.Helpers.addPropertyTypes(f, ft, null);
             expect(result).toEqual(ft);
         });
 
         it('should create default types', function() {
             var f = <csComp.Services.IFeature>{};
             var result = csComp.Helpers.createDefaultType(f);
-            expect(result.style).toEqual({ nameLabel: 'Name', strokeWidth: 3, strokeColor: '#0033ff', fillOpacity: 0.75, fillColor: '#FFFF00', stroke: true, opacity: 1, rotate: 0, iconUri: 'cs/images/marker.png', iconHeight: 32, iconWidth: 32 });
+            expect(result.style).toEqual({ 
+                nameLabel: 'Name',
+                strokeWidth: 3,
+                strokeColor: '#0033ff',
+                fillOpacity: 0.75,
+                fillColor: '#FFFF00',
+                stroke: true,
+                opacity: 1,
+                rotate: 0,
+                iconUri: 'bower_components/csweb/dist-bower/images/marker.png',
+                iconHeight: 32,
+                iconWidth: 32
+            });
             expect(result.propertyTypeData).toEqual([]);
         });
 

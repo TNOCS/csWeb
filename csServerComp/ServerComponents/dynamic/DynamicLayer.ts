@@ -1,5 +1,5 @@
 import express = require('express')
-import events = require("events");
+import events = require('events');
 import ClientConnection = require('./ClientConnection');
 import MessageBus = require('../bus/MessageBus');
 import fs = require('fs');
@@ -58,7 +58,6 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     }
 
     public getLayer(req: express.Request, res: express.Response) {
-
         res.send(JSON.stringify(this.geojson));
     }
 
@@ -69,8 +68,7 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
                 this.geojson.features.forEach((f: Feature) => {
                     this.initFeature(f);
                 });
-            }
-            else {
+            } else {
                 console.log('error:' + this.file);
             }
         });
@@ -82,7 +80,9 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     }
 
     public initFeature(f: any) {
-        if (!f.id) f.id = utils.newGuid();
+        if (!f.id) {
+            f.id = utils.newGuid();
+        }
     }
 
     public updateSensorValue(ss: any, date: number, value: number) {
@@ -92,32 +92,34 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     }
 
     addFeature(f, updated = true) {
-        if (updated) f.properties['updated'] = new Date().getTime();
+        if (updated) {
+            f.properties['updated'] = new Date().getTime();
+        }
         this.initFeature(f);
-        if (this.manager) this.manager.addFeature(this.layerId, f, {}, (cb) => {
-
-        });
+        if (this.manager) {
+            this.manager.addFeature(this.layerId, f, {}, (cb) => {});
+        }
 
         //f.insertDate = new Date().getTime();
-        //this.connection.updateFeature(this.layerId, f, "feature-update");
+        //this.connection.updateFeature(this.layerId, f, 'feature-update');
     }
 
     public start() {
         console.log('start case layer');
-        this.server.get("/cases/" + this.layerId, (req, res) => { this.getLayer(req, res); });
+        this.server.get('/cases/' + this.layerId, (req, res) => { this.getLayer(req, res); });
 
         this.startDate = new Date().getTime();
         //this.OpenFile();
         // this.connection.registerLayer(this.layerId, (action: string, msg: ClientConnection.LayerMessage, client: string) => {
         //     var feature;
         //     switch (action) {
-        //         case "logUpdate":
+        //         case 'logUpdate':
         //             // find feature
         //             var featureId = msg.object.featureId;
         //
         //             this.updateLog(featureId, msg.object, client, true);
         //             break;
-        //         case "featureUpdate":
+        //         case 'featureUpdate':
         //             var ft: Feature = msg.object;
         //             this.updateFeature(ft, client, true);
         //             break;
@@ -129,14 +131,22 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
         var f: Feature;
         console.log(JSON.stringify(msgBody));
         this.geojson.features.some(feature => {
-            if (!feature.id || feature.id !== featureId) return false;
+            if (!feature.id || feature.id !== featureId) {
+                return false;
+            }
             // feature found
             f = feature;
             return true;
         });
-        if (!f) return; // feature not found
-        if (!f.hasOwnProperty('logs')) f.logs = {};
-        if (!f.hasOwnProperty('properties')) f.properties = {};
+        if (!f) {
+            return; // feature not found
+        }
+        if (!f.hasOwnProperty('logs')) { 
+            f.logs = {};
+        }
+        if (!f.hasOwnProperty('properties')) {
+            f.properties = {};
+        }
 
         // apply changes
         var logs = msgBody.logs;
@@ -149,10 +159,12 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
             });
 
             // send them to other clients
-            //this.connection.updateFeature(this.layerId, msgBody, "logs-update", client);
+            //this.connection.updateFeature(this.layerId, msgBody, 'logs-update', client);
         }
-        console.log("Log update" + featureId);
-        if (notify) this.emit("featureUpdated", this.layerId, featureId);
+        console.log('Log update' + featureId);
+        if (notify) {
+            this.emit('featureUpdated', this.layerId, featureId);
+        }
     }
 
     updateFeature(ft: Feature, client?: string, notify?: boolean) {
@@ -161,14 +173,15 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
         if (feature && feature.length > 0) {
             var index = this.geojson.features.indexOf(feature[0]);
             this.geojson.features[index] = ft;
-        }
-        else {
+        } else {
             this.geojson.features.push(ft);
         }
         //if (client)
-        //this.connection.updateFeature(this.layerId, ft, "feature-update", client);
+        //this.connection.updateFeature(this.layerId, ft, 'feature-update', client);
         //else
-        //this.connection.updateFeature(this.layerId, ft, "feature-update");
-        if (notify) this.emit("featureUpdated", this.layerId, ft.id);
+        //this.connection.updateFeature(this.layerId, ft, 'feature-update');
+        if (notify) {
+            this.emit('featureUpdated', this.layerId, ft.id);
+        }
     }
 }

@@ -14,7 +14,8 @@
     <div class="col-md-12" style="padding:0px;font-size:12px;" ng-hide="minimized">
         <div ng-hide="editmode">
             <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="marvelViz" preserveAspectRatio="xMidYMid meet">
-                <marker id="markerArrow" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="8" markerHeight="6" style="fill:grey;">
+                <marker id="markerArrow" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" orient="auto" markerWidth="8" markerHeight="6"
+                style="fill:grey;">
                     <polyline points="0,0 10,5 0,10 1,5"></polyline>
                 </marker>
             </svg>
@@ -23,7 +24,8 @@
             <div ng-repeat="(id, dep) in dependencyTypes">
                 <div class="row" style="margin-left:15px;margin-right:0px;">
                     <div class="col-md-1" style="padding-right:5px">
-                        <input type="checkbox" ng-click="vm.addDependency(id, dep)" id="check-{{id}}" ng-checked="selectedFeature.properties.hasOwnProperty(id)" />
+                        <input type="checkbox" ng-click="vm.addDependency(id, dep)" id="check-{{id}}" ng-checked="selectedFeature.properties.hasOwnProperty(id)"
+                        />
                     </div>
                     <div class="col-md-11" style="padding-left:5px">
                         <div ng-switch="dep.type">
@@ -67,9 +69,19 @@
                     </div>
                 </div>
             </div>
+            <div class="row" style="margin-left:15px;margin-right:0px;">
+                <div class="col-md-offset-1 col-md-11" style="padding-left:5px">
+                    <label class="control-label-marvel" for="select-state">{{'STATE' | translate}}</label>
+                    <select id="select-state" data-ng-model="selectedFeature.properties['state']" class="marvel-input">
+                        <option ng-selected="selectedFeature.properties['state']===$index" ng-repeat="state in states track by $index" value="{{$index}}">{{state}}</option>
+                    </select>
+                </div>
+            </div>
             <div class="row" style="margin-left:15px;margin-right:0px;margin-top:10px;">
-                <button class="btn btn-primary rightpanel-button" style="float:right;margin:4px;padding:4px;" popover="{{'SAVE_FEATURE_DEPENDENCIES' | translate}}" popover-placement="top" popover-trigger="mouseenter" ng-click="vm.save()">{{'SAVE_MARVEL' | translate}}{{selectedFeature.properties['Name']}}</button>
-                <button class="btn btn-primary rightpanel-button" style="float:right;margin:4px;padding:4px;" popover="{{'SAVE_FEATURETYPE_DEPENDENCIES' | translate}}" popover-placement="top" popover-trigger="mouseenter" ng-click="vm.saveAll()">{{'SAVE_EVERY_MARVEL' | translate}}{{data.title.toLowerCase()}}</button>
+                <button class="btn btn-primary rightpanel-button" style="float:right;margin:4px;padding:4px;" popover="{{'SAVE_FEATURE_DEPENDENCIES' | translate}}"
+                popover-placement="top" popover-trigger="mouseenter" ng-click="vm.save()">{{'SAVE_MARVEL' | translate}}{{selectedFeature.properties['Name']}}</button>
+                <button class="btn btn-primary rightpanel-button" style="float:right;margin:4px;padding:4px;" popover="{{'SAVE_FEATURETYPE_DEPENDENCIES' | translate}}"
+                popover-placement="top" popover-trigger="mouseenter" ng-click="vm.saveAll()">{{'SAVE_EVERY_MARVEL' | translate}}{{data.title.toLowerCase()}}</button>
             </div>
         </div>
     </div>

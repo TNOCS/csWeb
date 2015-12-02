@@ -23,7 +23,7 @@
             <div class="row">
                 <div class="col-md-6 checkbox dashboard-edit-checkbox">
                     <div class="rightpanel-label">Type</div>
-                    <select data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line']" class="form-control"></select>
+                    <select data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line','Polygon']" class="form-control"></select>
                 </div>
             </div>
             <div ng-show="featureType.style['drawingMode'] == 'Point'">
@@ -43,12 +43,12 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="rightpanel-label">Fill color</div>
-                    <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', chooseText: 'Select', format: 'hex' }"></spectrum-colorpicker>
+                    <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
                 </div>
 
                 <div class="col-md-3">
                     <div class="rightpanel-label">Stroke</div>
-                    <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', chooseText: 'Select',format: 'hex'}"></spectrum-colorpicker>
+                    <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
                 </div>
 
                 <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.strokeWidth.$invalid }">
@@ -61,7 +61,7 @@
                     <div class="rightpanel-label">Corner radius (%)</div>
                     <input type="number" name="cornerRadius" data-ng-model="featureType.style['cornerRadius']" class="form-control">
                 </div>
-                <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.opacity.$invalid }">
+                <div class="col-md-6"> <!--ng-class="{ 'has-error': featureTypeForm.opacity.$invalid }"-->
                     <div class="rightpanel-label">Opacity</div>
                     <input type="number" name="opacity" data-ng-model="featureType.style['opacity']" class="form-control">
                 </div>

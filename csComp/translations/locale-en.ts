@@ -17,6 +17,9 @@ module Translations {
             SELECT_A_FEATURE: 'Select a feature',
             SELECT_FEATURE_FOR_WIDGET: 'Please select a feature to show the widget.',
             SELECT_FEATURE_FOR_STYLE: 'Please select a feature to before setting the style.',
+            SELECT_LAYER_GROUP: 'Select Layers',
+            SELECT_CATEGORY: 'Select Category',
+            SELECT_PROPERTIES: 'Select Properties',
             NO_RELATIONS_FOUND: 'No relations can be shown for the selected feature. Either the zoom level is too low, there are too many features in the view or there are no relations defined.',
             BASESTYLES: 'Baselayers',
             MAP: 'Maps',
@@ -67,6 +70,18 @@ module Translations {
             EDIT: 'edit',
             APPLY: 'apply',
             REMOVE: 'remove',
+            STATS: {
+                COUNT: '#',
+                COUNT_TOOLTIP: 'Count of selected items',
+                MIN: 'min',
+                MIN_TOOLTIP: 'Minimum of selected items',
+                MAX: 'max',
+                MAX_TOOLTIP: 'Maximum of selected items',
+                MEAN: '&#x3bc;',
+                MEAN_TOOLTIP: 'Mean of selected items',
+                SUM: '&#x3a3;',
+                SUM_TOOLTIP: 'Sum of selected items'
+            },
             EXPERTMODE: {
                 BEGINNER: 'Novice',
                 INTERMEDIATE: 'Intermediate',
@@ -159,7 +174,8 @@ module Translations {
             SAVE_EVERY_MARVEL: 'Save every ',
             MARVEL_WATER_LEVEL: 'Water level [m]',
             MARVEL_UPS_DURATION: 'UPS duration [mins]',
-            MARVEL_FEATURE_DEP: 'Specific features'
+            MARVEL_FEATURE_DEP: 'Specific features',
+            STATE: 'State'
         };
     }
 }

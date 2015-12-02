@@ -54,9 +54,9 @@ module DashboardEdit {
 
 
         public updateHasParent() {
-            return;
-            if (this.parent !== "") this.dashboard.parents = [this.parent];
-            this.hasParent = this.dashboard.parents && this.dashboard.parents.length > 0;
+
+            // if (this.parent !== "") this.dashboard.parents = [this.parent];
+            // this.hasParent = this.dashboard.parents && this.dashboard.parents.length > 0;
         }
 
         public toggleTimeline() {
@@ -80,6 +80,11 @@ module DashboardEdit {
 
             for (var id in this.$layerService.loadedLayers) this.dashboard.visiblelayers.push(id);
         }
+        
+        public setBaseLayer()
+        {                        
+            this.dashboard.baselayer = this.$mapService.activeBaseLayerId;
+        }
 
 
         public toggleMap() {
@@ -101,7 +106,11 @@ module DashboardEdit {
             }
 
             if (db.showMap && this.dashboard.baselayer) {
-                this.$messageBusService.publish("map", "setbaselayer", this.dashboard.baselayer);
+                //this.$messageBusService.publish("map", "setbaselayer", this.dashboard.baselayer);
+                var layer : csComp.Services.BaseLayer = this.$layerService.$mapService.getBaselayer(this.dashboard.baselayer);
+                this.$layerService.activeMapRenderer.changeBaseLayer(layer);
+                this.$layerService.$mapService.changeBaseLayer(this.dashboard.baselayer);
+                this.$layerService.$mapService.changeBaseLayer(this.dashboard.baselayer);
             }
         }
 
@@ -131,12 +140,12 @@ module DashboardEdit {
             }
         }
 
-        public checkLegend(){
+        public checkLegend() {
             var db = this.$layerService.project.activeDashboard;
             if (!db.showLegend) {
                 var idxDelete = -1;
-                db.widgets.forEach((w,idx) => {
-                    if(w.id === 'legend') {idxDelete = idx;}
+                db.widgets.forEach((w, idx) => {
+                    if (w.id === 'legend') { idxDelete = idx; }
                 });
                 if (idxDelete > -1) db.widgets.splice(idxDelete, 1);
             }

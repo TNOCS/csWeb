@@ -1,6 +1,6 @@
 module csComp.Services {
     export class GeoJsonSource implements ILayerSource {
-        title = "geojson";
+        title = 'geojson';
         layer: ProjectLayer;
         requiresLayer = false;
         $http: ng.IHttpService;
@@ -16,52 +16,67 @@ module csComp.Services {
             layer.enabled = isEnabled;
         }
 
-        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
-            this.baseAddLayer(layer, callback);
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
+            this.baseAddLayer(layer, callback, data);
         }
 
         /** zoom to boundaries of layer */
         public fitMap(layer: ProjectLayer) {
             var b = Helpers.GeoExtensions.getBoundingBox(layer.data);
-            this.service.$messageBusService.publish("map", "setextent", b);
+            this.service.$messageBusService.publish('map', 'setextent', b);
         }
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
             return [
-                ["Fit map", (($itemScope) => this.fitMap(layer))],
+                ['Fit map', (($itemScope) => this.fitMap(layer))],
                 null,
                 ['Refresh', (($itemScope) => this.refreshLayer(layer))]
             ];
         }
 
-        protected baseAddLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
+        protected baseAddLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
+            if (data != null) console.log('we got him');
             this.layer = layer;
             async.series([
                 (cb) => {
-                    layer.renderType = "geojson";
-                    // Open a layer URL
-                    layer.isLoading = true;
-                    // get data
-                    var u = layer.url.replace('[BBOX]', layer.BBOX);
-
-                    this.$http.get(u)
-                        .success((data) => {
-                        layer.count = 0;
-                        layer.isLoading = false;
+                    layer.renderType = 'geojson';
+                    
+                    // already got data (propably from drop action)
+                    if (data) {
                         layer.enabled = true;
-                        this.initLayer(data, layer);
-                        if (this.layer.fitToMap) this.fitMap(this.layer);
-                        cb(null, null);
-                    })
-                        .error(() => {
-                        layer.count = 0;
-                        layer.isLoading = false;
-                        layer.enabled = false;
-                        layer.isConnected = false;
-                        this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
-                        // this.service.$messageBusService.publish('layer', 'error', layer);
-                        cb(null, null);
-                    });
+                        this.initLayer(data,layer);
+                        cb(null,null);
+
+                    }
+                    else {
+                        // Open a layer URL
+                        layer.isLoading = true;
+                                   
+                        // get data
+                        var u = layer.url.replace('[BBOX]', layer.BBOX);
+                    
+                        // check proxy
+                    	if (layer.useProxy) u = '/api/proxy?url=' + u;
+
+                        this.$http.get(u)
+                            .success((data) => {
+                                layer.count = 0;
+                                layer.isLoading = false;
+                                layer.enabled = true;
+                                this.initLayer(data, layer);
+                                if (this.layer.fitToMap) this.fitMap(this.layer);
+                                cb(null, null);
+                            })
+                            .error(() => {
+                                layer.count = 0;
+                                layer.isLoading = false;
+                                layer.enabled = false;
+                                layer.isConnected = false;
+                                this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + u);
+                                // this.service.$messageBusService.publish('layer', 'error', layer);
+                                cb(null, null);
+                            });
+                    }
                 },
                 // Callback
                 () => {
@@ -126,7 +141,7 @@ module csComp.Services {
                 })
             }
 
-            this.service.$messageBusService.publish("timeline", "updateFeatures");
+            this.service.$messageBusService.publish('timeline', 'updateFeatures');
         }
 
         removeLayer(layer: ProjectLayer) {
@@ -135,7 +150,7 @@ module csComp.Services {
             //Reset the default zoom when deactivating a layer with the parameter 'fitToMap' set to true.
             if (layer.fitToMap) {
                 if (!this.service.solution.viewBounds) return;
-                this.service.$messageBusService.publish("map", "setextent", this.service.solution.viewBounds);
+                this.service.$messageBusService.publish('map', 'setextent', this.service.solution.viewBounds);
             }
         }
 
@@ -195,7 +210,7 @@ module csComp.Services {
                             mode: leg.mode,
                             start: new Date(leg.startTime).toISOString(),
                             arrive: new Date(leg.endTime).toISOString(),
-                            duration: csComp.Helpers.convertPropertyInfo({ type: "duration" }, (+leg.duration) * 1000)
+                            duration: csComp.Helpers.convertPropertyInfo({ type: 'duration' }, (+leg.duration) * 1000)
                         };
                         (leg.agencyName) ? legDetails.agency = leg.agencyName : null;
                         (leg.routeShortName) ? legDetails.route = leg.routeShortName : null;
@@ -221,7 +236,7 @@ module csComp.Services {
     }
 
     export class DynamicGeoJsonSource extends GeoJsonSource {
-        title = "dynamicgeojson";
+        title = 'dynamicgeojson';
         connection: Connection;
 
         constructor(public service: LayerService, $http: ng.IHttpService) {
@@ -242,7 +257,7 @@ module csComp.Services {
                         this.service.calculateFeatureStyle(f);
                         this.service.updateFeature(f);
                         done = true;
-                        this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + " updated");
+                        this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + ' updated');
                         //  console.log('updating feature');
                         return true;
                     } else {
@@ -255,12 +270,12 @@ module csComp.Services {
                         layer.data.features.push(value);
                         this.service.initFeature(value, layer, false);
                         var m = this.service.activeMapRenderer.addFeature(value);
-                        if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, value.properties['Name'] + " added");
+                        if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, value.properties['Name'] + ' added');
                     } else {
                         features.push(value);
                         this.service.initFeature(value, this.layer);
                         var m = this.service.activeMapRenderer.addFeature(value);
-                        if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + " added");
+                        if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + ' added');
                     }
                 }
             } catch (e) {
@@ -302,19 +317,19 @@ module csComp.Services {
 
 
         public initSubscriptions(layer: ProjectLayer) {
-            layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, "layer", (topic: string, msg: ClientMessage) => {
-                console.log("action:" + msg.action);
+            layer.serverHandle = this.service.$messageBusService.serverSubscribe(layer.id, 'layer', (topic: string, msg: ClientMessage) => {
+                console.log('action:' + msg.action);
                 switch (msg.action) {
-                    case "unsubscribed":
+                    case 'unsubscribed':
                         this.service.$rootScope.$apply(() => {
                             layer.isConnected = false;
                         });
                         break;
-                    case "subscribed":
+                    case 'subscribed':
                         layer.isConnected = true;
                         //console.log('sucesfully subscribed');
                         break;
-                    case "layer":
+                    case 'layer':
                         if (msg.data != null) {
                             try {
                                 var lu = <LayerUpdate>msg.data;
@@ -344,14 +359,14 @@ module csComp.Services {
                                         var f = <Feature>lu.item;
                                         if (layer.id === lu.layerId) {
                                             this.service.$rootScope.$apply(() => {
-                                                this.updateFeatureByProperty("id", f.id, f, layer);
+                                                this.updateFeatureByProperty('id', f.id, f, layer);
                                             });
                                         }
                                         break;
                                     case LayerUpdateAction.deleteFeature:
                                         var feature = this.service.findFeature(layer, lu.featureId);
                                         if (feature) {
-                                            this.service.$messageBusService.notify(this.layer.title, feature.properties['Name'] + " removed");
+                                            this.service.$messageBusService.notify(this.layer.title, feature.properties['Name'] + ' removed');
                                             this.service.removeFeature(feature, false);
                                         }
 
@@ -376,25 +391,25 @@ module csComp.Services {
             });
         }
 
-        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
+        public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
             layer.isDynamic = true;
             this.baseAddLayer(layer, (layer: ProjectLayer) => {
                 callback(layer);
                 if (layer.enabled) {
                     this.initSubscriptions(layer);
                 }
-            });
+            }, data);
         }
 
         removeLayer(layer: ProjectLayer) {
             layer.isConnected = false;
-            if (layer.gui['editing']) this.stopAddingFeatures(layer);
+            if (layer._gui['editing']) this.stopAddingFeatures(layer);
             this.service.$messageBusService.serverUnsubscribe(layer.serverHandle);
         }
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
             var res: [[string, Function]] = [
-                ["Fit map", (($itemScope) => this.fitMap(layer))]
+                ['Fit map', (($itemScope) => this.fitMap(layer))]
             ];
             return res;
         }
@@ -405,13 +420,12 @@ module csComp.Services {
                 g.layers.forEach((l: csComp.Services.ProjectLayer) => {
                     if (l === layer) {
                         v = true;
-                        l.gui['editing'] = true;
-                    }
-                    else {
-                        l.gui['editing'] = false;
+                        l._gui['editing'] = true;
+                    } else {
+                        l._gui['editing'] = false;
                     }
                 })
-                g.gui.editing = v;
+                g._gui.editing = v;
             });
             this.service.editing = true;
             this.initAvailableFeatureTypes(layer);
@@ -424,41 +438,40 @@ module csComp.Services {
                 if (layer.typeUrl && this.service.typesResources.hasOwnProperty(layer.typeUrl)) {
                     for (var ft in this.service.typesResources[this.layer.typeUrl].featureTypes) {
                         var t = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
-                        if (t.style.drawingMode.toLowerCase() === "point") {
+                        if (t.style.drawingMode.toLowerCase() === 'point') {
                             featureTypes[ft] = this.service.typesResources[this.layer.typeUrl].featureTypes[ft];
                             featureTypes[ft].u = csComp.Helpers.getImageUri(ft);
                         }
                     }
                 }
             }
-            layer.gui["featureTypes"] = featureTypes;
-
+            layer._gui['featureTypes'] = featureTypes;
         }
 
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
-            delete layer.gui["featureTypes"];
+            delete layer._gui['featureTypes'];
             this.service.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
-                delete g.gui['editing'];
+                delete g._gui['editing'];
                 g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                    l.gui['editing'] = false;
-                })
+                    l._gui['editing'] = false;
+                });
             });
             this.service.editing = false;
         }
     }
 
     export interface IOtpLeg {
-        mode: string,
-        start: string,
-        arrive: string,
-        duration: string,
-        route?: string,
-        routeName?: string,
-        agency?: string
+        mode:       string;
+        start:      string;
+        arrive:     string;
+        duration:   string;
+        route?:     string;
+        routeName?: string;
+        agency?:    string;
     }
 
     export class EsriJsonSource extends GeoJsonSource {
-        title = "esrijson";
+        title = 'esrijson';
         connection: Connection;
         $http: ng.IHttpService;
 
@@ -468,20 +481,20 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
-            layer.renderType = "geojson";
+            layer.renderType = 'geojson';
             // Open a layer URL
 
             layer.isLoading = true;
             this.$http({
                 url: '/api/proxy',
-                method: "GET",
+                method: 'GET',
                 params: { url: layer.url }
             }).success((data: string) => {
                 var s = new esriJsonConverter.esriJsonConverter();
                 var geojson = s.toGeoJson(JSON.parse(data));
                 console.log(geojson);
 
-                layer.data = geojson;//csComp.Helpers.GeoExtensions.createFeatureCollection(features);
+                layer.data = geojson; //csComp.Helpers.GeoExtensions.createFeatureCollection(features);
 
                 if (layer.data.geometries && !layer.data.features) {
                     layer.data.features = layer.data.geometries;
@@ -489,14 +502,14 @@ module csComp.Services {
                 layer.data.features.forEach((f) => {
                     this.service.initFeature(f, layer, false, false);
                 });
-                this.service.$messageBusService.publish("timeline", "updateFeatures");
+                this.service.$messageBusService.publish('timeline', 'updateFeatures');
             })
                 .error((e) => {
-                console.log('EsriJsonSource called $HTTP with errors: ' + e);
-            }).finally(() => {
-                layer.isLoading = false;
-                callback(layer);
-            });
+                    console.log('EsriJsonSource called $HTTP with errors: ' + e);
+                }).finally(() => {
+                    layer.isLoading = false;
+                    callback(layer);
+                });
         }
     }
 }

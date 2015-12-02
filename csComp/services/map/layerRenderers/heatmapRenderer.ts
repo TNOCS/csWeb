@@ -18,7 +18,7 @@ module csComp.Services {
                         });
                     }
                 });
-                layer.group.cluster.addLayer(markers);
+                layer.group._cluster.addLayer(markers);
             } else {
                 layer.mapLayer = new L.LayerGroup<L.ILayer>();
                 service.map.map.addLayer(layer.mapLayer);

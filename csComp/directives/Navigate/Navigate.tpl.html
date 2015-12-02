@@ -7,9 +7,10 @@
         <div style="display:inline; cursor:pointer" ng-hide="vm.locationFilterActive">{{'ENABLE_LOCATION_FILTER' | translate}}</div>
         <div style="display:inline; cursor:pointer" ng-show="vm.locationFilterActive">{{'DISABLE_LOCATION_FILTER' | translate}}</div>
     </a> -->
-<!-- <div>
+<div>
     <input class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="layerFilter" placeholder="Search"></input>
-</div> -->
+</div>
+
 
 <div ng-if="vm.mobileLayers && vm.$layerService.isMobile" style="margin-top:10px">
     <div class="group-title" style="margin-left: 0">Share my location</div>
@@ -23,6 +24,7 @@
 <div style="margin-top:10px">
     <div class="group-title" style="margin-left: 0">Recent Layers</div>
 </div>
+
 <div id="recent-layers">
     <div ng-repeat="layer in vm.RecentLayers">
         <div class="layer" style="list-style-type: none;">
@@ -43,7 +45,7 @@
     </div>
     <div id="selected-objects">
         <div ng-repeat="f in vm.$layerService.selectedFeatures">
-            <a class="feature-item" ng-click="vm.selectFeature(f)">{{f.gui.title}}</a>
+            <a class="feature-item" ng-click="vm.selectFeature(f)">{{f._gui.title}}</a>
         </div>
     </div>
 </div>

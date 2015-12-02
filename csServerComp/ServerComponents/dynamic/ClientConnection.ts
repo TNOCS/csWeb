@@ -5,8 +5,8 @@ import ApiManager = require('../api/ApiManager');
 import ApiMeta = ApiManager.ApiMeta;
 
 
-module ClientConnection {
-    GetDataSource: Function;
+
+    //GetDataSource: Function;
     export class MsgSubscription {
         public id: string;
         public type: string;
@@ -331,5 +331,3 @@ module ClientConnection {
             }
         }
     }
-}
-export = ClientConnection;

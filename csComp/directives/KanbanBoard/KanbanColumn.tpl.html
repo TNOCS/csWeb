@@ -44,10 +44,10 @@
                     <div ng-click="vm.selectFeature(feature)" class="card-title">{{feature.properties[fields['title']]}}</div>
                     <div class="card-description">{{feature.properties[fields['description']]}}</div>
                     <div ng-show="feature.properties[fields['question']]" style="margin-left:25px">
-                        <!-- <button  ng-hide="feature.gui.questions" class="btn btn-primary" ng-click="vm.createForm(feature)">answer</button> -->
-                        <div ng-if="feature.gui.questions" style="margin-bottom:10px">
+                        <!-- <button  ng-hide="feature._gui.questions" class="btn btn-primary" ng-click="vm.createForm(feature)">answer</button> -->
+                        <div ng-if="feature._gui.questions" style="margin-bottom:10px">
                             <form name="question-form-{{feature.id}}">
-                                <div ng-repeat="question in feature.gui.questions">
+                                <div ng-repeat="question in feature._gui.questions">
                                     <div ng-switch='question.ptype.type'>
                                         <div ng-switch-when="category">
                                             <button ng-repeat="cat in question.ptype.categories" class="btn" ng-class="{'btn-primary' : feature.properties[question.property] === cat}" style="margin:5px" ng-click="vm.saveCategory(feature,question.property,cat)">
@@ -72,7 +72,7 @@
                     <!-- <span ng-repeat="t in feature.properties['tags']">[{{t}}]</span> -->
 
                     <span style="margin-left:25px;color:gray;opacity:0.75">
-                        <span class="fa fa-clock-o" /> {{feature.gui.relativeTime}}
+                        <span class="fa fa-clock-o" /> {{feature._gui.relativeTime}}
                     </span>
                     <div ng-if="fields['prio']" tooltip="Set priority" tooltip-append-to-body="true" class="card-prio dropdown" ng-click="vm.clickPrio($event)" ng-style="vm.getPrioColor(feature)">
                         <span href="" class="dropdown-toggle" data-toggle="dropdown">{{feature.properties[fields['prio']]}}</span>
@@ -114,7 +114,7 @@
                             <span href="" class="fa fa-search"></span>
                         </div>
 
-                        <div ng-hide="!feature.gui.questions" ng-click="vm.createForm(feature)" class="card-button card-question">
+                        <div ng-hide="!feature._gui.questions" ng-click="vm.createForm(feature)" class="card-button card-question">
                             <span href="" class="fa fa-question"></span>
                         </div>
 

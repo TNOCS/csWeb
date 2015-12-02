@@ -9,7 +9,8 @@ describe('DataSource', function() {
         datasource = new csComp.Services.DataSource();
     });
 
-    beforeEach(module('mockedDataSource'));
+    // See also: https://netdevplus.wordpress.com/2015/10/20/angularjs-with-typescript-unit-testing-services/
+    beforeEach(angular.mock.module('mockedDataSource'));
     var mockJSON;
     beforeEach(inject(function(defaultJSON) {
         mockJSON = defaultJSON;

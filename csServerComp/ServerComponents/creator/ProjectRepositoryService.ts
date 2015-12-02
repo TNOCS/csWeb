@@ -1,28 +1,28 @@
-import fs                         = require('fs');
-import path                       = require('path');
-import express                    = require('express');
-import IApiServiceManager         = require('../api/IApiServiceManager');
-import IStore                     = require("../import/IStore");
-import IProjectRepositoryService  = require("./IProjectRepositoryService");
-import ConfigurationService       = require('../configuration/ConfigurationService');
+import fs = require('fs');
+import path = require('path');
+import express = require('express');
+import IApiServiceManager = require('../api/IApiServiceManager');
+import IStore = require("../import/IStore");
+import IProjectRepositoryService = require("./IProjectRepositoryService");
+import ConfigurationService = require('../configuration/ConfigurationService');
 
 /* Multiple storage engine supported, e.g. file system, mongo  */
 class ProjectRepositoryService implements IProjectRepositoryService {
-    private server:          express.Express;
-    private config:          ConfigurationService;
+    private server: express.Express;
+    private config: ConfigurationService.ConfigurationService;
     private resourceTypeUrl: string;
-    private dataUrl:         string;
-    private projectUrl:      string;
-    id:                      string;
+    private dataUrl: string;
+    private projectUrl: string;
+    id: string;
 
     constructor(private store: IStore) { }
 
-    init(apiServiceManager: IApiServiceManager, server: express.Express, config: ConfigurationService) {
+    init(apiServiceManager: IApiServiceManager, server: express.Express, config: ConfigurationService.ConfigurationService) {
         this.server = server;
         this.config = config;
         this.resourceTypeUrl = apiServiceManager.BaseUrl + (config['resourceTypeAddress'] || '/resourceTypes');
-        this.dataUrl         = apiServiceManager.DataUrl + (config['resourceTypeAddress'] || '/resourceTypes');
-        this.projectUrl      = apiServiceManager.DataUrl + '/projects';
+        this.dataUrl = apiServiceManager.DataUrl + (config['resourceTypeAddress'] || '/resourceTypes');
+        this.projectUrl = apiServiceManager.DataUrl + '/projects';
 
         server.get(this.resourceTypeUrl, (req, res) => {
             var resourceTypes = this.getAll();
@@ -96,9 +96,9 @@ class ProjectRepositoryService implements IProjectRepositoryService {
     private yyyymmdd() {
         var date = new Date();
         var yyyy = date.getFullYear().toString();
-        var mm = (date.getMonth()+1).toString(); // getMonth() is zero-based
-        var dd  = date.getDate().toString();
-        return yyyy + (mm[1]?mm:"0"+mm[0]) + (dd[1]?dd:"0"+dd[0]); // padding
+        var mm = (date.getMonth() + 1).toString(); // getMonth() is zero-based
+        var dd = date.getDate().toString();
+        return yyyy + (mm[1] ? mm : "0" + mm[0]) + (dd[1] ? dd : "0" + dd[0]); // padding
     }
 
     shutdown() {
@@ -126,4 +126,4 @@ class ProjectRepositoryService implements IProjectRepositoryService {
     }
 
 }
-export=ProjectRepositoryService;
+export =ProjectRepositoryService;

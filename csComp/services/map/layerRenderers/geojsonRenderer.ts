@@ -15,7 +15,7 @@ module csComp.Services {
             var g = layer.group;
             //m = layer.group.vectors;
             if (g.clustering) {
-                var m = g.cluster;
+                var m = g._cluster;
                 service.project.features.forEach((feature: IFeature) => {
                     if (feature.layerId === layer.id) {
                         try {

@@ -89,18 +89,44 @@ module csComp.Services {
 
         }
 
-        public addGroup(group: ProjectGroup) {
-            // for clustering use a cluster layer
+        public addGroup(group: ProjectGroup) {            
             if (group.clustering) {
-                group.cluster = new L.MarkerClusterGroup({
-                    maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
+                group._cluster = new L.MarkerClusterGroup({                    
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
-                this.service.map.map.addLayer(group.cluster);
+                //maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
+                group._cluster.on('clustermouseover', (a) => {
+                    if (a.layer._childClusters.length === 0) {
+                        var childs = a.layer.getAllChildMarkers();
+                        if (childs[0] && childs[0].hasOwnProperty('feature')) {
+                            var f = childs[0].feature;
+                            var actions = this.service.getActions(f, ActionType.Hover);
+                            actions.forEach((fa) => {
+                                if (fa.title.toLowerCase() === 'show') {
+                                    fa.callback(f, this);
+                                }
+                            });
+                        }
+                    }
+                });
+                group._cluster.on('clustermouseout', (a) => {
+                    if (a.layer._childClusters.length === 0) {
+                        var childs = a.layer.getAllChildMarkers();
+                        if (childs[0] && childs[0].hasOwnProperty('feature')) {
+                            var f = childs[0].feature;
+                            var actions = this.service.getActions(f, ActionType.Hover);
+                            actions.forEach((fa) => {
+                                if (fa.title.toLowerCase() === 'hide') {
+                                    fa.callback(f, this);
+                                }
+                            });
+                        }
+                    }
+                });
+                this.map.addLayer(group._cluster);
             } else {
-                group.vectors = new L.LayerGroup<L.ILayer>();
-
-                this.service.map.map.addLayer(group.vectors);
+                group._vectors = new L.LayerGroup<L.ILayer>();
+                this.map.addLayer(group._vectors);
             }
         }
 
@@ -183,9 +209,9 @@ module csComp.Services {
                 var included;
                 if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
                 if (group.clustering) {
-                    var incluster = group.cluster.hasLayer(marker);
-                    if (!included && incluster) group.cluster.removeLayer(marker);
-                    if (included && !incluster) group.cluster.addLayer(marker);
+                    var incluster = group._cluster.hasLayer(marker);
+                    if (!included && incluster) group._cluster.removeLayer(marker);
+                    if (included && !incluster) group._cluster.addLayer(marker);
                 } else {
                     //var onmap = group.vectors.hasLayer(marker);
                     var onmap = this.service.map.map.hasLayer(marker);
@@ -204,7 +230,7 @@ module csComp.Services {
                     var g = layer.group;
 
                     if (g.clustering) {
-                        var m = g.cluster;
+                        var m = g._cluster;
                         try {
                             m.removeLayer(layer.group.markers[feature.id]);
                             delete layer.group.markers[feature.id];
@@ -212,7 +238,7 @@ module csComp.Services {
                     } else {
                         if (layer.group.markers.hasOwnProperty(feature.id)) {
                             layer.mapLayer.removeLayer(layer.group.markers[feature.id]);
-                            layer.group.vectors.removeLayer(layer.group.markers[feature.id]);
+                            layer.group._vectors.removeLayer(layer.group.markers[feature.id]);
                             delete layer.group.markers[feature.id];
                         }
                     }
@@ -236,7 +262,7 @@ module csComp.Services {
             } else {
                 marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
                 if (feature.isSelected && feature.layer && !feature.layer.disableMoveSelectionToFront && feature.layer.group) {
-                    if ((feature.layer.group.clustering && feature.layer.group.cluster && feature.layer.group.cluster.hasLayer(marker))
+                    if ((feature.layer.group.clustering && feature.layer.group._cluster && feature.layer.group._cluster.hasLayer(marker))
                         || feature.layer.group.markers.hasOwnProperty(marker.feature.id)) {
                         marker.bringToFront();
                     }
@@ -252,8 +278,8 @@ module csComp.Services {
         }
 
         public selectFeature(feature) {
-            if (feature.gui.hasOwnProperty("dragged")) {
-                delete feature.gui["dragged"];
+            if (feature._gui.hasOwnProperty("dragged")) {
+                delete feature._gui["dragged"];
             }
             else {
                 this.service.selectFeature(feature, this.cntrlIsPressed);
@@ -274,8 +300,8 @@ module csComp.Services {
                     }
                 });
                 m.feature = feature;
-                if (l.group.clustering && l.group.cluster) {
-                    l.group.cluster.addLayer(m);
+                if (l.group.clustering && l.group._cluster) {
+                    l.group._cluster.addLayer(m);
                 }
                 else {
                     if (l.mapLayer) {
@@ -287,7 +313,7 @@ module csComp.Services {
         }
 
         private canDrag(feature: IFeature): boolean {
-            return feature.gui.hasOwnProperty('editMode') && feature.gui['editMode'] == true;
+            return feature._gui.hasOwnProperty('editMode') && feature._gui['editMode'] == true;
         }
 
 
@@ -328,7 +354,7 @@ module csComp.Services {
                     });
 
                     marker.on('dragstart', (event: L.LeafletEvent) => {
-                        feature.gui["dragged"] = true;
+                        feature._gui["dragged"] = true;
                     });
 
                     marker.on('dragend', (event: L.LeafletEvent) => {

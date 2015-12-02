@@ -1,4 +1,4 @@
-﻿declare module XBBCODE {
+declare module XBBCODE {
     export interface IConfig {
         text                  : string;
         removeMisalignedTags? : boolean;

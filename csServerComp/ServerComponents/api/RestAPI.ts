@@ -12,6 +12,7 @@ import CallbackResult = ApiManager.CallbackResult;
 import ApiResult = ApiManager.ApiResult;
 import ApiMeta = ApiManager.ApiMeta;
 import Winston = require('winston');
+import request = require('request');
 
 export class RestAPI extends BaseConnector.BaseConnector {
     public manager: ApiManager.ApiManager;
@@ -21,7 +22,8 @@ export class RestAPI extends BaseConnector.BaseConnector {
     public filesUrl;
     public searchUrl;
     public projectsUrl;
-
+    public proxyUrl;
+    
     constructor(public server: express.Express, public baseUrl: string = "/api") {
         super();
         this.isInterface = true;
@@ -31,6 +33,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.filesUrl = baseUrl + "/files/";
         this.keysUrl = baseUrl + "/keys/";
         this.projectsUrl = baseUrl + "/projects/";
+        this.proxyUrl = baseUrl + "/proxy";
     }
 
     public init(layerManager: ApiManager.ApiManager, options: any, callback: Function) {
@@ -348,7 +351,36 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 res.send(result);
             });
         });
+        
+        // proxy service
+        this.server.get(this.proxyUrl, (req, res) => {
+            var id = req.query.url;
+            console.log(id);
+            this.getUrl(id, res);
+        });        
 
         callback();
+    }
+    
+    private getUrl(feedUrl: string, res: express.Response) {
+        Winston.info('proxy request: ' + feedUrl);
+        //feedUrl = 'http://rss.politie.nl/rss/algemeen/ab/algemeen.xml';
+
+        var parseNumbers = function(str) {
+            if (!isNaN(str)) {
+                str = str % 1 === 0 ? parseInt(str, 10) : parseFloat(str);
+            }
+            return str;
+        };
+
+        request(feedUrl, function(error, response, xml) {
+            if (!error && response.statusCode == 200) {
+                res.json(xml);
+
+            } else {
+                res.statusCode = 404;
+                res.end();
+            }
+        })
     }
 }

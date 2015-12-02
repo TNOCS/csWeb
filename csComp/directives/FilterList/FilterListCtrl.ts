@@ -1,4 +1,4 @@
-﻿module FilterList {
+module FilterList {
     export interface IFilterListScope extends ng.IScope {
         vm: FilterListCtrl;
     }

@@ -1,4 +1,4 @@
-﻿module Mca.Models {
+module Mca.Models {
     import IFeature = csComp.Services.IFeature;
     import Feature  = csComp.Services.Feature;
 
@@ -29,7 +29,7 @@
         //}
 
         constructor(scoringFunctionType?: ScoringFunctionType) {
-            if (typeof scoringFunctionType != 'undefined' && scoringFunctionType != null) this.type = scoringFunctionType;
+            if (typeof scoringFunctionType != 'undefined' && scoringFunctionType != null) { this.type = scoringFunctionType; }
             this.title = ScoringFunctionType[scoringFunctionType].toString();
         }
 
@@ -96,7 +96,6 @@
          * Format [x1,y1 x2,y2], and may contain special characters, such as min or max to define the minimum or maximum.
          */
         scores                                            : string;
-        propValues                                        : number[] = [];
         criteria                                          : Criterion[] = [];
         /** Piece-wise linear approximation of the scoring function by a set of x and y points */
         isPlaUpdated = false;
@@ -106,8 +105,10 @@
         maxValue                                          : number;
         minCutoffValue                                    : number;
         maxCutoffValue                                    : number;
-        x                                                 : number[] = [];
-        y                                                 : number[] = [];
+        // Do not serialize the following properties
+        _propValues                                       : number[] = [];
+        _x                                                : number[] = [];
+        _y                                                : number[] = [];
 
         deserialize(input: Criterion): Criterion {
             this.title          = input.title;
@@ -123,10 +124,24 @@
             this.minValue       = input.minValue;
             this.maxValue       = input.maxValue;
 
-            input.criteria.forEach((c) => {
-                this.criteria.push(new Criterion().deserialize(c));
-            });
+            if (input.criteria) {
+                input.criteria.forEach((c) => {
+                    this.criteria.push(new Criterion().deserialize(c));
+                });
+            }
             return this;
+        }
+
+        toJSON() {
+            var clone = {};
+            for (var key in this) {
+                if (key[0] === '_' || !this.hasOwnProperty(key)) continue;
+                clone[key] = this[key];
+            }
+            return clone;
+            // return JSON.stringify(this, (key, value) => {
+            //      return key[0] === '_' ? undefined : value;
+            // });
         }
 
         private requiresMinimum(): boolean {
@@ -138,8 +153,9 @@
         }
 
         getTitle() {
-            if (this.title) return this.title;
-            return this.label;
+            return this.title
+                ? this.title 
+                : this.label;
         }
 
         /**
@@ -147,7 +163,7 @@
          * which translates a property value to a MCA value in the range [0,1] using all features.
          */
         updatePla(features: IFeature[]) {
-            if (this.isPlaUpdated) return;
+            if (this.isPlaUpdated) { return; }
             if (this.criteria.length > 0) {
                 this.criteria.forEach((c) => {
                     c.updatePla(features);
@@ -156,30 +172,30 @@
                 return;
             }
             // Replace min and max by their values:
-            if (this.scores == null) return;
+            if (this.scores == null) { return; }
             var scores = this.scores;
-            this.propValues = [];
+            this._propValues = [];
             if (this.requiresMaximum() || this.requiresMinimum() || this.isPlaScaled) {
                 features.forEach((feature: Feature) => {
                     if (feature.properties.hasOwnProperty(this.label)) {
                         // The property is available. I use the '+' to convert the string value to a number.
                         var prop = feature.properties[this.label];
-                        if ($.isNumeric(prop)) this.propValues.push(prop);
+                        if ($.isNumeric(prop)) { this._propValues.push(prop); }
                     }
                 });
             }
             var max = this.maxValue,
                 min = this.minValue;
             if (this.isPlaScaled || this.requiresMaximum()) {
-                max = max || Math.max.apply(null, this.propValues);
+                max = max || Math.max.apply(null, this._propValues);
                 scores.replace('max', max.toPrecision(3));
             }
             if (this.isPlaScaled || this.requiresMinimum()) {
-                min = min || Math.min.apply(null, this.propValues);
+                min = min || Math.min.apply(null, this._propValues);
                 scores.replace('min', min.toPrecision(3));
             }
             if (this.isPlaScaled) {
-                var stats = csComp.Helpers.standardDeviation(this.propValues);
+                var stats = csComp.Helpers.standardDeviation(this._propValues);
                 max = max || Math.min(max, stats.avg + 2 * stats.stdDev);
                 min = min || Math.max(min, stats.avg - 2 * stats.stdDev);
             }
@@ -197,48 +213,54 @@
                 b = min + 0.1 * range;
             }
 
-            if (pla.length % 2 !== 0)
+            if (pla.length % 2 !== 0) {
                 throw Error(this.label + ' does not have an even (x,y) pair in scores.');
+            }
             for (var i = 0; i < pla.length / 2; i++) {
-                var x = parseFloat(pla[2*i]);
+                var x = parseFloat(pla[2 * i]);
                 if (this.isPlaScaled) {
                     // Scale x, i.e. x'=ax+b with x'(0)=min+0.1r and x'(10)=max-0.1r, r=max-min
                     // min+0.1r=b
                     // max-0.1r=10a+b=10a+min+0.1r <=> max-min-0.2r=10a <=> 0.8r=10a <=> a=0.08r
                     x = a * x + b;
                 }
-                if (i > 0 && this.x[i - 1] > x)
+                if (i > 0 && this._x[i - 1] > x) {
                     throw Error(this.label + ': x should increment continuously.');
-                this.x.push(x);
+                }
+                this._x.push(x);
                 // Test that y in [0, 1].
                 var y = parseFloat(pla[2*i+1]);
-                if (y < 0) y = 0;
-                else if (y > 1) y = 1;
-                this.y.push(y);
+                if (y < 0) {
+                    y = 0;
+                } else if (y > 1) { 
+                    y = 1;
+                }
+                this._y.push(y);
             }
             this.isPlaUpdated = true;
         }
 
         getScore(feature: IFeature): number {
-            if (!this.isPlaUpdated)
+            if (!this.isPlaUpdated) {
                 throw ('Error: PLA must be updated for criterion ' + this.title + '!');
+            }
             if (this.criteria.length === 0) {
                 // End point: compute the score for each feature
                 if (feature.properties.hasOwnProperty(this.label)) {
                     // The property is available
                     var x = feature.properties[this.label];
-                    if (this.maxCutoffValue <= x || x <= this.minCutoffValue) return 0;
-                    if (x < this.x[0]) return this.y[0];
-                    var last = this.x.length-1;
-                    if (x > this.x[last]) return this.y[last];
+                    if (this.maxCutoffValue <= x || x <= this.minCutoffValue) { return 0; }
+                    if (x < this._x[0]) { return this._y[0]; }
+                    var last = this._x.length - 1;
+                    if (x > this._x[last]) { return this._y[last]; }
                     //for (var k in this.x) {
-                    for (var k=0; k<this.x.length; k++) {
-                        if (x < this.x[k]) {
+                    for (var k = 0; k < this._x.length; k++) {
+                        if (x < this._x[k]) {
                             // Found relative position of x in this.x
-                            var x0 = this.x[k - 1];
-                            var x1 = this.x[k];
-                            var y0 = this.y[k - 1];
-                            var y1 = this.y[k];
+                            var x0 = this._x[k - 1];
+                            var x1 = this._x[k];
+                            var y0 = this._y[k - 1];
+                            var y1 = this._y[k];
                             // Use linear interpolation
                             return (y1 - y0) * (x - x0) / (x1 - x0);
                         }
@@ -264,6 +286,7 @@
 
     // NOTE: When extending a base class, make sure that the base class has been defined already.
     export class Mca extends Criterion implements csComp.Services.ISerializable<Mca> {
+        id             : string = csComp.Helpers.getGuid();
         /** Section of the callout */
         section        : string;
         stringFormat   : string;
@@ -283,13 +306,18 @@
             return this.label + '#';
         }
 
-        constructor() {
+        constructor(mca?: Models.Mca) {
             super();
-            this.weight = 1;
-            this.isPlaUpdated = false;
+            if (mca) {
+                this.deserialize(mca);
+            } else {
+                this.weight = 1;
+                this.isPlaUpdated = false;
+            }
         }
 
         deserialize(input: Mca): Mca {
+            this.id              = input.id;
             this.section         = input.section;
             this.stringFormat    = input.stringFormat;
             this.rankTitle       = input.rankTitle;
@@ -316,18 +344,19 @@
         }
 
         private calculateWeights(criteria?: Criterion[]): void {
-            if (!criteria) criteria = this.criteria;
+            if (!criteria) { criteria = this.criteria; }
             var totalWeight = 0;
             for (var k in criteria) {
-                if (!criteria.hasOwnProperty(k)) continue;
+                if (!criteria.hasOwnProperty(k)) { continue; }
                 var crit = criteria[k];
-                if (crit.criteria.length > 0)
+                if (crit.criteria.length > 0) {
                     this.calculateWeights(crit.criteria);
+                }
                 totalWeight += Math.abs(crit.userWeight);
             }
             if (totalWeight > 0) {
                 for (var j in criteria) {
-                    if (!criteria.hasOwnProperty(j)) continue;
+                    if (!criteria.hasOwnProperty(j)) { continue; }
                     var critj = criteria[j];
                     critj.weight = critj.userWeight / totalWeight;
                 }
@@ -341,15 +370,17 @@
             var i = 0;
             this.criteria.forEach((c) => {
                 totalSubcrit += c.criteria.length;
-                if (!c.color)
+                if (!c.color) {
                     c.color = redColors(i++).hex();
+                }
             });
             var blueColors = chroma.scale('PRGn').domain([0, totalSubcrit - 1], totalSubcrit);
             i = 0;
             this.criteria.forEach((c) => {
                 c.criteria.forEach((crit) => {
-                    if (!crit.color)
+                    if (!crit.color) {
                         crit.color = blueColors(i++).hex();
+                    }
                 });
             });
         }

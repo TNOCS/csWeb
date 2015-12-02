@@ -12,11 +12,11 @@ import RssGeoJSON = require("../helpers/RssGeoJSON");
 /* Multiple storage engine supported, e.g. file system, mongo  */
 class RssService implements IApiService {
     private server: express.Express;
-    private config: ConfigurationService;
+    private config: ConfigurationService.ConfigurationService;
     private baseUrl: string;
     id: string;
 
-    init(apiServiceManager: IApiServiceManager, server: express.Express, config: ConfigurationService) {
+    init(apiServiceManager: IApiServiceManager, server: express.Express, config: ConfigurationService.ConfigurationService) {
         this.server = server;
 
         this.baseUrl = apiServiceManager.BaseUrl + (config['rssAddress'] || '/rss');

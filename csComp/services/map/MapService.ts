@@ -18,6 +18,7 @@ module csComp.Services {
         public map: L.Map;
         public baseLayers: any;
         public activeBaseLayer: BaseLayer;
+        public activeBaseLayerId: string;
         public mapVisible: boolean = true;
         public timelineVisible: boolean = false;
         public rightMenuVisible: boolean = true;
@@ -119,6 +120,7 @@ module csComp.Services {
         public changeBaseLayer(layer: string) {
             var layerObj: BaseLayer = this.getBaselayer(layer);
             this.activeBaseLayer = layerObj;
+            this.activeBaseLayerId = layer;
         }
 
         public invalidate() {

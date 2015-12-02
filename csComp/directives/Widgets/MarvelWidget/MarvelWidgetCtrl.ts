@@ -21,12 +21,14 @@ module MarvelWidget {
         editmode: boolean;
         selectedFeature: csComp.Services.IFeature;
         dependencyTypes: { [key: string]: IDependency };
+        states: string[];
     }
 
     export class MarvelWidgetCtrl {
         private scope: IMarvelWidgetScope;
         private widget: csComp.Services.IWidget;
         private parentWidget: JQuery;
+        private defaultStates: string[];
 
         public static $inject = [
             '$scope',
@@ -44,11 +46,12 @@ module MarvelWidget {
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService
-            ) {
+        ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = par.widget;
             this.parentWidget = $("#" + this.widget.elementId).parent();
+            this.defaultStates = ['OK', 'Stressed', 'Failed'];
             this.initDependencies();
 
             $scope.data = <MarvelWidgetData>this.widget.data;
@@ -86,6 +89,7 @@ module MarvelWidget {
             this.$translate('MARVEL_FEATURE_DEP').then(translation => {
                 this.$scope.dependencyTypes['_dep_features']['label'] = translation;
             });
+            this.$scope.states = this.defaultStates;
             return {};
         }
 
@@ -191,14 +195,21 @@ module MarvelWidget {
                 return;
             }
             if (typeof this.$scope.data.marvelFolder === 'undefined') return;
-            if (!feature.fType || !feature.fType.name) return;
+            if (!feature.fType || !feature.fType.id) return;
+            //TODO: get the options from the propertyTypeData
+            var pts = csComp.Helpers.getPropertyTypes(feature.fType, {});
+            pts.forEach((p) => {
+                if (p.hasOwnProperty && p.hasOwnProperty('label') && p.label === 'state') {
+                    this.$scope.states = p.options;
+                }
+            });
             this.$scope.selectedFeature = feature;
-            var featureTypeName = feature.fType.name.replace(/(\_\d$)/, ''); // Remove state appendix (e.g. Hospital_0)
+            var featureTypeName = feature.fType.id.split('#').pop().replace(/(\_\d$)/, ''); // Remove state appendix (e.g. Hospital_0)
             var filePath = this.$scope.data.marvelFolder + featureTypeName + '.mrvjson';
             this.parentWidget.show();
             $.get(filePath, (marvel) => {
                 this.$timeout(() => {
-                    this.$scope.data.title = featureTypeName;
+                    this.$scope.data.title = feature.fType.name;
                     var w = $("#" + this.widget.elementId);
                     Marvelous.model(marvel, featureTypeName, w);
                 }, 0);

@@ -49,9 +49,8 @@ module FeatureTypeEditor {
 
         //** force features to be updated */
         public updateFeatureTypes(ft: csComp.Services.IFeatureType) {
+            console.log('updating ..');
             this.$layerService.updateFeatureTypes(ft);
-
-
         };
 
 

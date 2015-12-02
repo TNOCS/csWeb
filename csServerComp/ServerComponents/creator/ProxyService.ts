@@ -10,11 +10,11 @@ import ConfigurationService = require('../configuration/ConfigurationService');
 /* Multiple storage engine supported, e.g. file system, mongo  */
 class ProxyService implements IApiService {
     private server: express.Express;
-    private config: ConfigurationService;
+    private config: ConfigurationService.ConfigurationService;
     private baseUrl: string;
     id: string;
 
-    init(apiServiceManager: IApiServiceManager, server: express.Express, config: ConfigurationService) {
+    init(apiServiceManager: IApiServiceManager, server: express.Express, config: ConfigurationService.ConfigurationService) {
         this.server = server;
         console.log('init proxy');
 

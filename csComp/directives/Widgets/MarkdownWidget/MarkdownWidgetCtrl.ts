@@ -54,9 +54,10 @@ module MarkdownWidget {
             $scope.data.mdText = $scope.data.content;
             $scope.minimized = false;
 
+            this.parentWidget = $('#' + this.widget.elementId).parent();
+            
             if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
                 // Hide widget
-                this.parentWidget = $("#" + this.widget.elementId).parent();
                 this.parentWidget.hide();
                 this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
                     switch (action) {
@@ -81,10 +82,16 @@ module MarkdownWidget {
         private minimize() {
             this.$scope.minimized = !this.$scope.minimized;
             if (this.$scope.minimized) {
-                this.parentWidget.css("height", "30px");
+                this.parentWidget.css('height', '30px');
             } else {
-                this.parentWidget.css("height", this.widget.height);
+                this.parentWidget.css('height', this.widget.height);
             }
+        }
+
+        private canClose() {
+            return (this.$scope.data.hasOwnProperty('canClose'))
+                ? this.$scope.data['canClose']
+                : true;
         }
 
         private close() {
@@ -92,7 +99,7 @@ module MarkdownWidget {
         }
 
         private escapeRegExp(str: string) {
-            return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+            return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
         }
 
         private replaceAll(str: string, find: string, replace: string) {

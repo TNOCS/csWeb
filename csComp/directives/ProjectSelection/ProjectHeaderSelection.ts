@@ -1,4 +1,4 @@
-﻿module ProjectHeaderSelection {
+module ProjectHeaderSelection {
     /**
       * Config
       */

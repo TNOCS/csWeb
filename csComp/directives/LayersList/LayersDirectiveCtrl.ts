@@ -36,7 +36,8 @@ module LayersDirective {
             'messageBusService',
             'mapService',
             'dashboardService',
-            '$modal', '$http'
+            '$uibModal',
+            '$http'
         ];
 
         // dependencies are injected via AngularJS $injector
@@ -57,6 +58,7 @@ module LayersDirective {
             });
             this.allCollapsed = false;
             this.$messageBusService.subscribe('project', (title: string, project: csComp.Services.Project) => {
+                this.project = project;
                 if (title !== 'loaded' || !project) return;
                 if (project.hasOwnProperty('collapseAllLayers') && project.collapseAllLayers === true) {
                     this.allCollapsed = true;
@@ -64,6 +66,24 @@ module LayersDirective {
                     this.allCollapsed = false;
                 }
             });
+            this.$messageBusService.subscribe('layerdrop',(title: string, layer : csComp.Services.ProjectLayer)=>{
+                this.dropLayer(layer);            
+            });                                           
+        }
+        
+        public dropLayer(layer : csComp.Services.ProjectLayer)
+        {
+            this.initGroups();            
+            this.initResources();
+            
+                        
+                (<any>$('#leftPanelTab a[data-target="#layers"]')).tab('show');
+                this.state = "createlayer";
+                this.newLayer = layer;  
+                this.newGroup = layer.id;              
+                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                this.$scope.$apply();
+            };
         }
 
         public editGroup(group: csComp.Services.ProjectGroup) {
@@ -169,13 +189,40 @@ module LayersDirective {
         }
 
         public addProjectLayer() {
-            var group = this.$layerService.findGroupById(this.layerGroup);
+            
+            if (this.layerResourceType === "<new>") {
+                        this.selectedLayer.typeUrl = "api/resources/" + this.selectedLayer.title;
+                        
+                        var r = <csComp.Services.TypeResource>{ id: this.selectedLayer.title, title: this.selectedLayer.title, featureTypes: { }, propertyTypeData: {} };
+                        r.featureTypes["Default"] = <csComp.Services.IFeatureType>{ name : "Default", style : <csComp.Services.IFeatureTypeStyle>{
+                            drawingMode : "Point"
+                        }}; 
+                        this.$layerService.saveResource(r);
+                        
+                    }
+                    else {
+                        this.selectedLayer.typeUrl = this.layerResourceType;
+                    }
+            
+            var group;
+            if (this.layerGroup == "<new>") {
+                group = new csComp.Services.ProjectGroup;
+                group.title = this.newGroup;
+                this.$layerService.project.groups.push(group);
+                this.$layerService.initGroup(group);
+            }
+            else {
+                group = this.$layerService.findGroupById(this.layerGroup);
+            }
+            
             if (group) {
                 this.$layerService.initLayer(group, this.selectedLayer);
                 group.layers.push(this.selectedLayer);
             }
             this.selectedLayer = null;
+            this.$layerService.saveProject();
             this.state = "layers";
+            
         }
 
         public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
@@ -189,8 +236,8 @@ module LayersDirective {
 
         public stopAddingFeatures(layer: csComp.Services.ProjectLayer) {
             this.state = "layers";
-            if (layer.gui["featureTypes"]) {
-                for (var key in layer.gui["featureTypes"]) {
+            if (layer._gui["featureTypes"]) {
+                for (var key in layer._gui["featureTypes"]) {
                     interact('#layerfeaturetype-' + key).onstart = null;
                     interact('#layerfeaturetype-' + key).onmove = null;
                     interact('#layerfeaturetype-' + key).onend = null;
@@ -220,7 +267,7 @@ module LayersDirective {
         }
 
         public loadAvailableLayers() {
-            this.project = this.$layerService.project;
+            
             this.mylayers = [];
 
             if (this.project.groups) {
@@ -239,26 +286,28 @@ module LayersDirective {
 
         public openDirectory() {
             this.initGroups();
-            this.state = "directory";
             this.loadAvailableLayers();
-            return;
-            var modalInstance = this.$modal.open({
-                templateUrl: 'directives/LayersList/AddLayerView.tpl.html',
-                controller: AddLayerCtrl,
-                resolve: {
-                    //mca: () => newMca
-                }
-            });
-            modalInstance.result.then((s: any) => {
-                console.log('done adding');
-                console.log(s);
-                // this.showSparkline = false;
-                // this.addMca(mca);
-                // this.updateMca();
-                //console.log(JSON.stringify(mca, null, 2));
-            }, () => {
-                    //console.log('Modal dismissed at: ' + new Date());
-                });
+            this.initResources();
+            
+            this.state = "directory";            
+            
+            // var modalInstance = this.$modal.open({
+            //     templateUrl: 'directives/LayersList/AddLayerView.tpl.html',
+            //     controller: AddLayerCtrl,
+            //     resolve: {
+            //         //mca: () => newMca
+            //     }
+            // });
+            // modalInstance.result.then((s: any) => {
+            //     console.log('done adding');
+            //     console.log(s);
+            //     // this.showSparkline = false;
+            //     // this.addMca(mca);
+            //     // this.updateMca();
+            //     //console.log(JSON.stringify(mca, null, 2));
+            // }, () => {
+            //         //console.log('Modal dismissed at: ' + new Date());
+            //     });
         }
 
         private initResources() {
@@ -315,11 +364,12 @@ module LayersDirective {
                 if (this.newLayer.type === "dynamicgeojson") {
                     this.newLayer.url = "api/layers/" + nl.title;
                     if (this.layerResourceType === "<new>") {
-                        this.newLayer.typeUrl = "/api/resources/" + this.newLayer.title;
+                        this.newLayer.typeUrl = "api/resources/" + this.newLayer.title;
                         var r = <csComp.Services.TypeResource>{ id: this.newLayer.title, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
-                        this.$http.post("/api/resources/" + this.newLayer.title, r)
+                        if (this.newLayer.data && this.newLayer.data.features && this.newLayer.data.features.length>0) 
+                            r.featureTypes["Default"] = csComp.Helpers.createDefaultType(this.newLayer.data.features[0],r);                                                
+                        this.$http.post("api/resources", r)
                             .success((data) => {
-
                         })
                             .error((e) => {
                             console.log('error adding resource');
@@ -329,23 +379,27 @@ module LayersDirective {
                         this.newLayer.typeUrl = this.layerResourceType;
                     }
 
-                    var l = { id: nl.title, title: nl.title, isDynamic: true, type: nl.type, storage : 'file', description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url };
+                    var l = { id: nl.title, title: nl.title, isDynamic: true, type: nl.type, storage : 'file', description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url, features : [] };
+                    if (this.newLayer.data) l.features = this.newLayer.data.features;
                     this.$http.post("/api/layers", l)
                         .success((data) => {
                         console.log(data);
                     })
                         .error(() => {
                         console.log('error adding layer');
-
+                        return;
                     });
                 }
 
                 if (this.layerResourceType === "<new>") {
 
                 }
+                
+                this.$layerService.addLayer(this.newLayer);
+                this.$layerService.saveProject();
 
-                var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", this.newLayer, "Edit layer");
-                this.$messageBusService.publish("rightpanel", "activate", rpt);
+                //var rpt = csComp.Helpers.createRightPanelTab("edit", "layeredit", this.newLayer, "Edit layer");
+                //this.$messageBusService.publish("rightpanel", "activate", rpt);
             }
             this.exitDirectory();
         }

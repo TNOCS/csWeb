@@ -10,17 +10,17 @@ declare namespace Vega {
     spec(spec: Spec, callback: (chart: (args: ViewArgs) => View) => void): void;
     data(dataSet: Data[], callback: () => void): void;
     // TODO all the other stuff
-}
+  }
 
-export interface ViewArgs {
+  export interface ViewArgs {
     // TODO docs
     el: any;
     data?: any;
     hover?: boolean;
     renderer?: string;
-}
+  }
 
-export interface View {
+  export interface View {
     // TODO docs
     width(): number;
     width(w: number): View;
@@ -50,25 +50,25 @@ export interface View {
 
     defs(): Defs;
     defs(defs: Defs): View;
-}
+  }
 
-export interface Padding {
+  export interface Padding {
     // TODO docs
     top: number;
     right: number;
     bottom: number;
     left: number;
-}
+  }
 
-export interface UpdateOptions {
+  export interface UpdateOptions {
     // TODO docs
     props?: string;
     items?: any;
     duration?: number;
-    ease?: string;
-}
+    ease?: string; 
+  }
 
-export interface Bounds {
+  export interface Bounds {
     x1: number;
     y1: number;
     x2: number;
@@ -86,9 +86,9 @@ export interface Bounds {
     contains(x: number, y: number): boolean;
     width(): number;
     height(): number;
-}
+  }
 
-export interface Model {
+  export interface Model {
     defs(): Defs;
     defs(defs: Defs): Model;
 
@@ -111,40 +111,40 @@ export interface Model {
     encode(trans?: any/*TODO*/, request?: string, item?: any): Model;
 
     reset(): Model;
-}
+  }
 
   export namespace Runtime {
     export interface DataSets {
-    [name: string]: Datum[];
-}
+      [name: string]: Datum[];
+    }
 
-export interface Datum {
-    [key: string]: any
-}
+    export interface Datum {
+      [key: string]: any
+    }
 
-export interface Marks {
-    type: string;
-    width: number;
-    height: number;
-    scales: Scale[];
-    axes: Axis[];
-    legends: Legend[];
-    marks: Mark[];
-}
+    export interface Marks {
+      type: string;
+      width: number;
+      height: number;
+      scales: Scale[];
+      axes: Axis[];
+      legends: Legend[];
+      marks: Mark[];
+    }
 
-export interface PropertySets {
-    enter?: Properties;
-    exit?: Properties;
-    update?: Properties;
-    hover?: Properties;
-}
+    export interface PropertySets {
+      enter?: Properties;
+      exit?: Properties;
+      update?: Properties;
+      hover?: Properties;
+    }
 
-export interface Properties {
-    (item: Node, group: Node, trans: any/*TODO*/): void;
-}
+    export interface Properties {
+      (item: Node, group: Node, trans: any/*TODO*/): void;
+    }
   }
 
-export interface Node {
+  export interface Node {
     def: Vega.Mark;
     marktype: string;
     interactive: boolean;
@@ -159,20 +159,20 @@ export interface Node {
     touch(): void;
 
     // group members
-    scales?: { [name: string]: any };
+    scales?: {[name: string]: any};
     axisItems?: Node[];
-}
+  }
 
-export interface Defs {
+  export interface Defs {
     width: number;
     height: number;
     viewport?: number[];
     padding: any;
     marks: Runtime.Marks;
     data: Data[];
-}
+  }
 
-export interface Spec {
+  export interface Spec {
     /**
     * A unique name for the visualization specification.
     */
@@ -230,9 +230,9 @@ export interface Spec {
     * Graphical mark definitions.
     */
     marks: (Mark | GroupMark)[];
-}
+  }
 
-export interface Data {
+  export interface Data {
     /**
     * A unique name for the data set.
     */
@@ -265,59 +265,59 @@ export interface Data {
     *   source, values, or url properties.
     */
     transform?: Data.Transform[];
-}
+  }
 
   export namespace Data {
     export interface FormatBase {
+      /**
+      * The currently supported format types are json (JavaScript Object
+      * Notation), csv (comma-separated values), tsv (tab-separated values),
+      * topojson, and treejson.
+      */
+      type: string;
+      // TODO: fields for specific formats
+    }
+
     /**
-    * The currently supported format types are json (JavaScript Object
-    * Notation), csv (comma-separated values), tsv (tab-separated values),
-    * topojson, and treejson.
-    */
-    type: string;
-    // TODO: fields for specific formats
-}
-
-/**
- * The JSON property containing the desired data.
- * This parameter can be used when the loaded JSON file may have surrounding structure or meta-data.
- * For example "property": "values.features" is equivalent to retrieving json.values.features from the
- * loaded JSON object.
- */
-export interface JsonFormat extends FormatBase {
-    type: string; // "json"
-    property?: string;
-}
-
-export interface CsvOrTsvFormat extends FormatBase {
-    type: string; // "csv" | "tsv"
-    parse?: {
-        [propertyName: string]: string; // "number" | "boolean" | "date"
+     * The JSON property containing the desired data.
+     * This parameter can be used when the loaded JSON file may have surrounding structure or meta-data.
+     * For example "property": "values.features" is equivalent to retrieving json.values.features from the
+     * loaded JSON object.
+     */
+    export interface JsonFormat extends FormatBase {
+      type: string; // "json"
+      property?: string;
     }
-}
 
-export interface TopoJsonFormat extends FormatBase {
-    type: string; // "topojson"
-    feature?: string;
-    mesh?: string;
-}
-
-export interface TreeJson extends FormatBase {
-    type: string; // "treejson"
-    children?: string;
-    parse?: {
-        [propertyName: string]: string; // "number" | "boolean" | "date"
+    export interface CsvOrTsvFormat extends FormatBase {
+      type: string; // "csv" | "tsv"
+      parse?: {
+       [propertyName: string]: string; // "number" | "boolean" | "date"
+      }
     }
-}
 
-export type Format = JsonFormat | CsvOrTsvFormat | TopoJsonFormat | TreeJson;
+    export interface TopoJsonFormat extends FormatBase {
+      type: string; // "topojson"
+      feature?: string;
+      mesh?: string;
+    }
 
-export interface Transform {
-    // TODO
-}
+    export interface TreeJson extends FormatBase {
+      type: string; // "treejson"
+      children?: string;
+      parse?: {
+       [propertyName: string]: string; // "number" | "boolean" | "date"
+      }
+    }
+
+    export type Format = JsonFormat | CsvOrTsvFormat | TopoJsonFormat | TreeJson;
+
+    export interface Transform {
+      // TODO
+    }
   }
 
-export interface Scale {
+  export interface Scale {
     // TODO docs
 
     // -- Common scale properties
@@ -345,9 +345,9 @@ export interface Scale {
     // -- Quantitative scale properties
     exponent?: number;
     zero?: boolean;
-}
+  }
 
-export interface Axis {
+  export interface Axis {
     // TODO docs
     type: string;
     scale: string;
@@ -367,24 +367,24 @@ export interface Axis {
     layer?: string;
     grid?: boolean;
     properties?: Axis.Properties
-}
+  }
 
   export namespace Axis {
     export interface Properties {
-    ticks?: PropertySet;
-    minorTicks?: PropertySet;
-    grid?: PropertySet;
-    labels?: PropertySet;
-    title?: PropertySet;
-    axis?: PropertySet;
-}
+      ticks?: PropertySet;
+      minorTicks?: PropertySet;
+      grid?: PropertySet;
+      labels?: PropertySet;
+      title?: PropertySet;
+      axis?: PropertySet;
+    }
   }
 
-export interface Legend {
+  export interface Legend {
     // TODO
-}
+  }
 
-export interface Mark {
+  export interface Mark {
     // TODO docs
     // Stuff from Spec.Mark
     type: string; // "rect" | "symbol" | "path" | "arc" | "area" | "line" | "rule" | "image" | "text" | "group"
@@ -405,18 +405,18 @@ export interface Mark {
 
     // Runtime PropertySets
     properties?: PropertySets;
-}
+  }
 
-export module Mark {
+  export module Mark {
     export interface From {
-        // TODO docs
-        data?: string;
-        mark?: string;
-        transform?: Data.Transform[];
+      // TODO docs
+      data?: string;
+      mark?: string;
+      transform?: Data.Transform[];
     }
-}
+  }
 
-export interface GroupMark extends Mark {
+  export interface GroupMark extends Mark {
     type: string; // "group"
     /**
      * Scale transform definitions.
@@ -437,17 +437,17 @@ export interface GroupMark extends Mark {
      * This arrangement of nested data is typically achieved by facetting the data, such that each group-level data element includes its own array of sub-elements
      */
     marks?: (Mark | GroupMark)[];
-}
+  }
 
-export interface PropertySets {
+  export interface PropertySets {
     // TODO docs
     enter?: PropertySet;
     exit?: PropertySet;
     update?: PropertySet;
     hover?: PropertySet;
-}
+  }
 
-export interface PropertySet {
+  export interface PropertySet {
     // TODO docs
 
     // -- Shared visual properties
@@ -499,9 +499,9 @@ export interface PropertySet {
     fontSize?: ValueRef;
     fontWeight?: ValueRef;
     fontStyle?: ValueRef;
-}
+  }
 
-export interface ValueRef {
+  export interface ValueRef {
     // TODO docs
     value?: any;
     field?: any;
@@ -510,34 +510,34 @@ export interface ValueRef {
     mult?: number;
     offset?: number;
     band?: boolean;
-}
+  }
 }
 
 declare namespace vg {
-    export var parse: Vega.Parse;
+  export var parse: Vega.Parse;
   export namespace scene {
-        export function item(mark: Vega.Node): Vega.Node;
-    }
+    export function item(mark: Vega.Node): Vega.Node;
+  }
+  
+  export class Bounds implements Vega.Bounds {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+    clear(): Bounds;
+    set(x1: number, y1: number, x2: number, y2: number): Bounds;
+    add(x: number, y: number): Bounds;
+    expand(d: number): Bounds;
+    round(): Bounds;
+    translate(dx: number, dy: number): Bounds;
+    rotate(angle: number, x: number, y: number): Bounds;
+    union(b: Bounds): Bounds;
+    encloses(b: Bounds): boolean;
+    intersects(b: Bounds): boolean;
+    contains(x: number, y: number): boolean;
+    width(): number;
+    height(): number;
+  }
 
-    export class Bounds implements Vega.Bounds {
-        x1: number;
-        y1: number;
-        x2: number;
-        y2: number;
-        clear(): Bounds;
-        set(x1: number, y1: number, x2: number, y2: number): Bounds;
-        add(x: number, y: number): Bounds;
-        expand(d: number): Bounds;
-        round(): Bounds;
-        translate(dx: number, dy: number): Bounds;
-        rotate(angle: number, x: number, y: number): Bounds;
-        union(b: Bounds): Bounds;
-        encloses(b: Bounds): boolean;
-        intersects(b: Bounds): boolean;
-        contains(x: number, y: number): boolean;
-        width(): number;
-        height(): number;
-    }
-
-    // TODO: classes for View, Model, etc.
+  // TODO: classes for View, Model, etc.
 }

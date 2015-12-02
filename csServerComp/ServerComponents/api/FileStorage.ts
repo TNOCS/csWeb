@@ -312,8 +312,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var id = this.getResourceId(fileName);
         Winston.info('filestore: openfile ' + id);
         if (!this.resources.hasOwnProperty(id)) {
-            fs.readFile(fileName, "utf8", (err, data) => {
-                if (!err) {
+            fs.readFile(fileName, 'utf8', (err, data) => {
+                if (!err && data && data.length > 0) {
                     var res = <ResourceFile>JSON.parse(data.removeBOM());
                     res.id = id;
                     this.resources[id] = res;
@@ -327,8 +327,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var id = this.getProjectId(fileName);
         Winston.info('filestore: openfile ' + id);
         if (!this.projects.hasOwnProperty(id)) {
-            fs.readFile(fileName, "utf8", (err, data) => {
-                if (!err) {
+            fs.readFile(fileName, 'utf8', (err, data) => {
+                if (!err && data && data.length > 0) {
                     var project = <Project>JSON.parse(data);
                     this.manager.getProjectDefinition(project);
                     this.projects[id] = project;
@@ -345,7 +345,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
             });
         }
 
-        if (path.basename(fileName) === 'project.json') return;
+        if (path.basename(fileName) === 'project.json') {return;}
     }
 
 

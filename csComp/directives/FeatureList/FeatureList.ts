@@ -1,4 +1,4 @@
-﻿module FeatureList {
+module FeatureList {
     /**
       * Config
       */

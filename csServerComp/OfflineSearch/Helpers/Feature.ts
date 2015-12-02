@@ -21,7 +21,7 @@ export interface IFeature {
     htmlStyle?: string;
     featureTypeName?: string;
     fType?: IFeatureType;
-    isInitialized?: boolean;
+    _isInitialized?: boolean;
     /**
     * An optional dictionary of sensors, where each sensor or measurement represents the value of the sensor
     * at a certain point in time. Is often used with the layer's timestamp property in case all sensors have the same
@@ -55,7 +55,7 @@ export declare class Feature implements IFeature {
     htmlStyle: string;
     featureTypeName: string;
     fType: IFeatureType;
-    isInitialized: boolean;
+    _isInitialized: boolean;
     sensors: {
         [id: string]: any[];
     };

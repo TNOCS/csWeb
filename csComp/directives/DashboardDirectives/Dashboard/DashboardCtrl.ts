@@ -49,7 +49,7 @@ module Dashboard {
             private $dashboardService: csComp.Services.DashboardService,
             private $templateCache: any,
             private $timeout: ng.ITimeoutService
-            ) {
+        ) {
 
             //alert('init dashboard ctrl');
 
@@ -168,7 +168,10 @@ module Dashboard {
             }
 
             if (this.$scope.dashboard.showMap && this.$scope.dashboard.baselayer) {
-                this.$messageBusService.publish("map", "setbaselayer", this.$scope.dashboard.baselayer);
+                //this.$messageBusService.publish("map", "setbaselayer", this.$scope.dashboard.baselayer);
+                var layer: csComp.Services.BaseLayer = this.$layerService.$mapService.getBaselayer(this.$scope.dashboard.baselayer);
+                this.$layerService.activeMapRenderer.changeBaseLayer(layer);
+                this.$layerService.$mapService.changeBaseLayer(this.$scope.dashboard.baselayer);
             }
         }
 
@@ -177,7 +180,7 @@ module Dashboard {
             if (db.visiblelayers && db.visiblelayers.length > 0 && this.$layerService.project.groups) {
                 this.$layerService.project.groups.forEach((g: csComp.Services.ProjectGroup) => {
                     g.layers.forEach((l: csComp.Services.ProjectLayer) => {
-                        if (l.enabled && db.visiblelayers.indexOf(l.reference) == -1) {
+                        if (l.enabled && db.visiblelayers.indexOf(l.reference) === -1) {
                             this.$layerService.removeLayer(l);
                             l.enabled = false;
                         }
@@ -198,13 +201,13 @@ module Dashboard {
         }
 
         public checkTimeline() {
-            if (this.$scope.dashboard.showTimeline != this.$mapService.timelineVisible) {
+            if (this.$scope.dashboard.showTimeline !== this.$mapService.timelineVisible) {
                 if (this.$scope.dashboard.showTimeline && this.$mapService.isIntermediate) {
                     this.$mapService.timelineVisible = true;
                 } else {
                     this.$mapService.timelineVisible = false;
                 }
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
             }
         }
 
@@ -243,56 +246,51 @@ module Dashboard {
                     widget._ijs = interact('#' + widget.elementId + '-parent')
                         .resizable({ inertia: true })
                         .on('down', (e) => {
-                        if (widget._interaction) widget._isMoving = true;
-                        if (this.$dashboardService.activeWidget != widget) {
-                            //this.$dashboardService.editWidget(widget)
+                            if (widget._interaction) widget._isMoving = true;
+                            if (this.$dashboardService.activeWidget != widget) {
+                                //this.$dashboardService.editWidget(widget)
+                            }
                         }
-                    }
                         )
                         .on('up', (e) => widget._isMoving = false)
                         .on('dragmove', (event) => {
-                        if (widget.left || (!widget.left && widget.left !== "")) {
-                            widget.left = this.setValue(event.dx, widget.left);
-                            if (widget.width && widget.width !== "") {
-                                widget.right = "";
+                            if (widget.left || (!widget.left && widget.left !== "")) {
+                                widget.left = this.setValue(event.dx, widget.left);
+                                if (widget.width && widget.width !== "") {
+                                    widget.right = "";
+                                } else {
+                                    widget.right = this.setValue(-event.dx, widget.right);
+                                }
                             } else {
+                                if (!widget.right || widget.right === "") {
+                                    widget.right = 1000 + "px";
+                                }
                                 widget.right = this.setValue(-event.dx, widget.right);
                             }
-                        }
-                        else {
-                            if (!widget.right || widget.right === "") {
-                                widget.right = 1000 + "px";
-                            }
-                            widget.right = this.setValue(-event.dx, widget.right);
-                        }
-                        if (widget.top && widget.top !== "") {
-                            widget.top = this.setValue(event.dy, widget.top);
-                            if (widget.bottom) {
-                                if (widget.height) {
-                                    widget.bottom = "";
+                            if (widget.top && widget.top !== "") {
+                                widget.top = this.setValue(event.dy, widget.top);
+                                if (widget.bottom) {
+                                    if (widget.height) {
+                                        widget.bottom = "";
+                                    } else { widget.bottom = this.setValue(-event.dy, widget.bottom); }
                                 }
-                                else
-                                { widget.bottom = this.setValue(-event.dy, widget.bottom); }
+                            } else {
+                                widget.bottom = this.setValue(-event.dy, widget.bottom);
                             }
-                        }
-                        else {
-                            widget.bottom = this.setValue(-event.dy, widget.bottom);
-                        }
 
-                        if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
-                    })
+                            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                        })
                         .on('resizemove', (event) => {
-                        widget.height = this.setValue(event.dy, widget.height);
-                        if (widget.left && widget.right) {
-                            widget.right = this.setValue(-event.dx, widget.right);
-                        }
-                        else {
-                            if (!widget.width) widget.width = "300px";
-                            widget.width = this.setValue(event.dx, widget.width);
-                        }
-                        if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                            widget.height = this.setValue(event.dy, widget.height);
+                            if (widget.left && widget.right) {
+                                widget.right = this.setValue(-event.dx, widget.right);
+                            } else {
+                                if (!widget.width) widget.width = "300px";
+                                widget.width = this.setValue(event.dx, widget.width);
+                            }
+                            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
 
-                    })
+                        })
 
             }, 10);
 
