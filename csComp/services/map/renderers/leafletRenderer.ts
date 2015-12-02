@@ -53,7 +53,6 @@ module csComp.Services {
         }
 
         public getExtent(): csComp.Services.IBoundingBox {
-
             var r = <IBoundingBox>{};
             if (this.map) {
                 var b = this.map.getBounds();

@@ -162,7 +162,7 @@ module csComp.Helpers {
     export function getPropertyTypes(type: csComp.Services.IFeatureType, propertyTypeData: csComp.Services.IPropertyTypeData, feature?: csComp.Services.IFeature) {
         var propertyTypes: Array<csComp.Services.IPropertyType> = [];
 
-        if (type.propertyTypeKeys != null) {
+        if (type.propertyTypeKeys && type.propertyTypeKeys.length > 0 && typeof type.propertyTypeKeys === 'string') {
             var keys = type.propertyTypeKeys.split(';');
             keys.forEach((key) => {
                 // First, lookup key in global propertyTypeData
@@ -260,33 +260,33 @@ module csComp.Helpers {
             for (var key in feature.properties) {
                 var pt: csComp.Services.IPropertyType;
                 if (resource) pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key });
-                pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key });
-                if (!pt || pt.label !== key) continue;
+                if (!pt) {
+                    pt = {};
+                    pt.label = key;
+                    pt.title = key.replace('_', ' ');
+                    var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
 
-                pt = {};
-                pt.label = key;
-                pt.title = key.replace('_', ' ');
-                var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+                    // text is default, so we can ignore that
+                    if (StringExt.isNumber(value)) {
+                        { pt.type = 'number'; }
+                    } else if (StringExt.isBoolean(value)) {
+                        { pt.type = 'boolean'; }
+                    } else if (StringExt.isBbcode(value)) {
+                        { pt.type = 'bbcode'; }
+                    }
+                    if (resource) {
+                        var ke = findUniqueKey(resource.propertyTypeData, key);
+                        if (ke === key) { delete pt.label; }
+                        resource.propertyTypeData[ke] = pt;
+                        // since k was set in an internal loop. However, it may be that k => key
+                        resource.propertyTypeData[ke] = pt;
+                    } else {
+                        if (!featureType._propertyTypeData) { featureType._propertyTypeData = []; }
+                        featureType._propertyTypeData[key] = pt;
+                    }
+                    updateSection(feature.layer, pt);
+                }
 
-                // text is default, so we can ignore that
-                if (StringExt.isNumber(value)) {
-                    { pt.type = 'number'; }
-                } else if (StringExt.isBoolean(value)) {
-                    { pt.type = 'boolean'; }
-                } else if (StringExt.isBbcode(value)) {
-                    { pt.type = 'bbcode'; }
-                }
-                if (resource) {
-                    var ke = findUniqueKey(resource.propertyTypeData, key);
-                    if (ke === key) { delete pt.label; }
-                    resource.propertyTypeData[ke] = pt;
-                    // since k was set in an internal loop. However, it may be that k => key
-                    resource.propertyTypeData[ke] = pt;
-                } else {
-                    if (!featureType._propertyTypeData) { featureType._propertyTypeData = []; }
-                    featureType._propertyTypeData[key] = pt;
-                }
-                updateSection(feature.layer, pt);
             }
         }
 
