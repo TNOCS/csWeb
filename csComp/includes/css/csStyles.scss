@@ -2,9 +2,7 @@
 /*custom fonts - Bitter, Montserrat*/
 $background-dark: #42145f;
 $background-light: #b5a3c1;
-.scrolling {
-}
- ::-webkit-scrollbar {
+::-webkit-scrollbar {
     width: 5px;
 }
  ::-webkit-scrollbar-track {
@@ -106,12 +104,9 @@ body,
 }
 
 /* vega charts */
-.vega-title
-{
-    font-size: 22px;
-    
+.vega-title {
+    font-size: 22px; 
 }
-
 /* leaflet context menu */
 .leaflet-contextmenu {
     display: none;
@@ -335,16 +330,19 @@ body,
 .connected-layer {
     opacity: 1;
 }
-.left-menu {
-    background: url("bower_components/csweb/dist-bower/images/menu-left.png");
-    background-position: right bottom;
-    background-repeat: no-repeat;
-    position: absolute;
-    right: 3px;
-    top: 0;
-    width: 16px;
-    height: 16px;
+.pointer {
     cursor: pointer;
+}
+.left-menu {
+  background-position: right bottom;
+  background-repeat: no-repeat;
+  position: absolute;
+  right: 3px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAABp0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuMTAw9HKhAAAAXUlEQVQ4T2P8//8/A0Vg1AAGhtEwoCwM5s6de55QIDJCUymMhifaVatW7a+vr/9PyABsqZyxv7//CUgzWQZMmzbtJkwzqQYwzpw58yqyZpIMAAUYumaiDcClGWQAAOzWdn0ACsmvAAAAAElFTkSuQmCC);
+  cursor: pointer; 
 }
 .menu {
     position: relative;
