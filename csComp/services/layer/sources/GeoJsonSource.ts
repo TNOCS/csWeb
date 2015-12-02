@@ -119,6 +119,13 @@ module csComp.Services {
             layer.data.features.forEach((f) => {
                 this.service.initFeature(f, layer, false, false);
             });
+            if (data.features.length>0)
+            {
+                var firstFeature = data.features[0];
+                var resource = this.service.findResourceByFeature(firstFeature);
+                csComp.Helpers.addPropertyTypes(firstFeature, firstFeature.fType, resource);
+            }
+            
 
             layer.isTransparent = false;
             // Subscribe to zoom events
