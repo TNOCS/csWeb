@@ -83,8 +83,7 @@ module csComp.Services {
 
         startDashboardId: string;
 
-        public visual: VisualState = new VisualState();
-        throttleTimelineUpdate: Function;
+        public visual: VisualState = new VisualState();        
         throttleSensorDataUpdate: Function;
 
         static $inject = [
@@ -135,15 +134,17 @@ module csComp.Services {
             // this.mapRenderers['cesium'] = new CesiumRenderer();
             //this.mapRenderers['cesium'].init(this);
 
-            this.initLayerSources();
-            this.throttleTimelineUpdate = _.throttle(this.updateAllLogs, 500);
-            this.throttleSensorDataUpdate = _.debounce(this.updateSensorData,1000);
+            this.initLayerSources();            
+            this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, 1000);
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
-                if (trigger !== 'focusChange') return;
-                this.throttleSensorDataUpdate();
-                this.throttleTimelineUpdate();
-                //this.updateAllLogs();
+                switch (trigger) {
+                    case 'focusChange':
+                        this.throttleSensorDataUpdate();                        
+                        break;
+                    case 'timeSpanUpdated':                        
+                        break;
+                }
             });
 
             $messageBusService.subscribe('language', (title: string, language: string) => {
@@ -436,9 +437,9 @@ module csComp.Services {
                                 this.updateGroupFeatures(feature.layer.group);
                             }
                             if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
-                                if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer.lastSelectedFeature);
+                                if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer._lastSelectedFeature);
 
-                                feature.layer.lastSelectedFeature = feature;
+                                feature.layer._lastSelectedFeature = feature;
 
                                 var l = feature.properties[prop.label];
                                 var pl = this.findLayer(l);
@@ -557,8 +558,7 @@ module csComp.Services {
 
                         if (l.enabled) {
                             this.loadedLayers[layer.id] = l;
-                            this.updateSensorData();
-                            this.updateAllLogs();
+                            this.updateSensorData();                            
                             this.activeMapRenderer.addLayer(layer);
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
@@ -961,16 +961,6 @@ module csComp.Services {
             }
         }
 
-        public updateAllLogs() {
-            if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
-            this.project.features.forEach((f: IFeature) => {
-                if (f.layer.isDynamic && f.layer.useLog) {
-                    //if (f.gui.hasOwnProperty('lastUpdate') && this.project.timeLine.focusDate < f.gui['lastUpdate'])
-                    this.updateLog(f);
-                }
-            });
-        }
-
         private lookupLog(logs: Log[], timestamp: number): Log {
             if (!logs || logs.length == 0) return <Log>{};
             var d = logs; //_.sortBy(logs, 'ts');
@@ -1028,68 +1018,74 @@ module csComp.Services {
             }
         }
 
-        /** update for all features the active sensor data values and update styles */
-        public updateSensorData() {
-            if (this.project == null || this.project.timeLine == null || this.project.features == null || this.loadedLayers.count() === 0) return;            
-                var date = this.project.timeLine.focus;
-                var timepos = {};
-                                
-                this.project.features.forEach((f: IFeature) => {
-                    var l = f.layer;
+        public updateFeatureSensorData(f: IFeature, date: number, timepos: Object) {
+            var l = f.layer;
+            if (f.sensors || f.coordinates) {
 
-                    if (l != null) {
-                        if (f.sensors || f.coordinates) {
-                            var getIndex = (d: Number, timestamps: Number[]) => {
-                                for (var i = 1; i < timestamps.length; i++) {
-                                    if (timestamps[i] > d) {
-                                        return i;
-                                    }
-                                }
-                                return timestamps.length - 1;
-                            }
-                            var pos = 0;
-                            if (f.timestamps) // check if feature contains timestamps
-                            {
-                                pos = getIndex(date, f.timestamps);
-                            } else if (l.timestamps) {
-                                if (timepos.hasOwnProperty(f.layerId)) {
-                                    pos = timepos[f.layerId];
-                                }
-                                else {
-                                    pos = getIndex(date, l.timestamps);
-                                    timepos[f.layerId] = pos;
-                                }
-                            }
-
-                            // check if a new coordinate is avaiable
-                            if (f.coordinates && f.geometry && f.coordinates.length > pos && f.coordinates[pos] != f.geometry.coordinates) {
-                                f.geometry.coordinates = f.coordinates[pos];
-                                // get marker
-                                if (l.group.markers.hasOwnProperty(f.id)) {
-                                    var m = l.group.markers[f.id]
-                                    // update position
-                                    m.setLatLng(new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]));
-                                }
-                            }
-                            if (f.sensors) {
-                                for (var sensorTitle in f.sensors) {
-                                    var sensor = f.sensors[sensorTitle];
-                                    var value = sensor[pos];
-                                    f.properties[sensorTitle] = value;
-                                }
-                                this.calculateFeatureStyle(f);
-                                this.activeMapRenderer.updateFeature(f);
-
-                                if (f.isSelected)
-                                    this.$messageBusService.publish('feature', 'onFeatureUpdated', f);
-                            }
+                var getIndex = (d: Number, timestamps: Number[]) => {
+                    for (var i = 1; i < timestamps.length; i++) {
+                        if (timestamps[i] > d) {
+                            return i;
                         }
                     }
-                });
-            
+                    return timestamps.length - 1;
+                }
+                var pos = 0;
+                if (f.timestamps) // check if feature contains timestamps
+                {
+                    pos = getIndex(date, f.timestamps);
+                } else if (l.timestamps) {
+                    if (timepos.hasOwnProperty(f.layerId)) {
+                        pos = timepos[f.layerId];
+                    }
+                    else {
+                        pos = getIndex(date, l.timestamps);
+                        timepos[f.layerId] = pos;
+                    }
+                }
+                // check if a new coordinate is avaiable
+                if (f.coordinates && f.geometry && f.coordinates.length > pos && f.coordinates[pos] != f.geometry.coordinates) {
+                    f.geometry.coordinates = f.coordinates[pos];
+                    // get marker
+                    if (l.group.markers.hasOwnProperty(f.id)) {
+                        var m = l.group.markers[f.id]
+                        // update position
+                        m.setLatLng(new L.LatLng(f.geometry.coordinates[1], f.geometry.coordinates[0]));
+                    }
+                }
+                if (f.sensors) {
+                    for (var sensorTitle in f.sensors) {
+                        var sensor = f.sensors[sensorTitle];
+                        var value = sensor[pos];
+                        f.properties[sensorTitle] = value;
+                    }
+                    this.calculateFeatureStyle(f);
+                    this.activeMapRenderer.updateFeature(f);
 
+                    if (f.isSelected) this.$messageBusService.publish('feature', 'onFeatureUpdated', f);                    
+                }
+            }
+        }
 
+        /** update for all features the active sensor data values and update styles */
+        public updateSensorData() {
+            if (this.project == null || this.project.timeLine == null || this.project.features == null || this.loadedLayers.count() === 0) return;
+            var date = this.project.timeLine.focus;
+            var timepos = {};
 
+            this.loadedLayers.values().forEach(l=> {
+                if (l.hasSensorData && l.data.features.length() > 0) {
+                    l.data.features.forEach((f: IFeature) => {                        
+                        this.updateFeatureSensorData(f, date, timepos);
+                    });
+                }
+                if (l.isDynamic && l.useLog)
+                {
+                    l.data.features.forEach((f: IFeature) => {
+                        this.updateLog(f);                                                
+                    });
+                }
+            });            
         }
 
         /***
