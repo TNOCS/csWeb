@@ -315,7 +315,7 @@ module Mca {
 
         public featureMessageReceived = (title: string, feature: IFeature): void => {
             //console.log("MC: featureMessageReceived");
-            if (!this.mca || this.mca.featureIds.indexOf(feature.featureTypeName) < 0) return;
+            if (!this.mca || !feature || this.mca.featureIds.indexOf(feature.featureTypeName) < 0) return;
             switch (title) {
                 case 'onFeatureSelect':
                     this.updateSelectedFeature(feature, true);

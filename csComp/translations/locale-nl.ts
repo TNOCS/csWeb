@@ -77,10 +77,17 @@ module Translations {
                 MIN_TOOLTIP: 'Minimum van geselecteerde items',
                 MAX: 'max',
                 MAX_TOOLTIP: 'Maximum van geselecteerde items',
-                MEAN: '&#x3bc;',
+                MEAN: 'µ',
                 MEAN_TOOLTIP: 'Gemiddelde van geselecteerde items',
-                SUM: '&#x3a3;',
+                SUM: 'Σ',
                 SUM_TOOLTIP: 'Som van geselecteerde items'
+            },
+            UTILS: {
+                FILTER: 'Gebruik dit kenmerk als filter',
+                STYLE: 'Gebruik dit kenmerk als stijl',
+                STATS: 'Toon de statistieken van dit kenmerk',
+                CHART: 'Toon het verloop van dit kenmerk in de tijd',
+                CONFIG: 'Configureer dit kenmerk'
             },
             EXPERTMODE: {
                 BEGINNER: 'Beginner',

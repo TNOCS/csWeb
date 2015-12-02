@@ -56,20 +56,20 @@ module Dashboard {
             $scope.vm = this;
 
             $messageBusService.subscribe('project', (e, f) => {
-                if (e === "loaded") {
+                if (e === 'loaded') {
                     $scope.dashboard = null;
                 }
             });
 
 
             $scope.initDashboard = () => {
-                //if (!$scope.container) $scope.container = "main";
-                $messageBusService.subscribe("dashboard-" + $scope.container, (s: string, d: csComp.Services.Dashboard) => {
+                //if (!$scope.container) $scope.container = 'main';
+                $messageBusService.subscribe('dashboard-' + $scope.container, (s: string, d: csComp.Services.Dashboard) => {
                     this.project = $layerService.project;
                     this.project.activeDashboard = d;
                     //alert(this.project.activeDashboard.id);
                     switch (s) {
-                        case "activated":
+                        case 'activated':
                             $scope.dashboard = d;
                             this.updateDashboard();
                             break;
@@ -84,8 +84,7 @@ module Dashboard {
                             var ad = this.project.activeDashboard;
                             if (this.$mapService.isIntermediate && (!ad.hasOwnProperty('showTimeline') || ad.showTimeline === true)) {
                                 this.$messageBusService.publish('timeline', 'isEnabled', true);
-                            }
-                            else {
+                            } else {
                                 this.$messageBusService.publish('timeline', 'isEnabled', false);
                             }
                         }
@@ -105,7 +104,7 @@ module Dashboard {
         }
 
         public updateWidget(w: csComp.Services.IWidget) {
-            console.log('updating widget ' + w.directive);
+            //console.log('updating widget ' + w.directive);
             if (w._initialized && this.$scope.dashboard._initialized) return;
             w._initialized = true;
             var widgetElement;
@@ -114,15 +113,13 @@ module Dashboard {
 
             if (w.template) {
                 widgetElement = this.$compile(this.$templateCache.get(w.template))(newScope);
-            }
-            else if (w.url) {
-                widgetElement = this.$compile("<div>url</div>")(this.$scope);
+            } else if (w.url) {
+                widgetElement = this.$compile('<div>url</div>')(this.$scope);
             } else if (w.directive) {
                 //var newScope : ng.IScope;
-                widgetElement = this.$compile("<" + w.directive + "></" + w.directive + ">")(newScope);
-
+                widgetElement = this.$compile('<' + w.directive + '></' + w.directive + '>')(newScope);
             } else {
-                widgetElement = this.$compile("<h1>hoi</h1>")(this.$scope);
+                widgetElement = this.$compile('<h1>hoi</h1>')(this.$scope);
             }
 
             var resized = function() {
@@ -133,23 +130,20 @@ module Dashboard {
                 widgetElement.resize(resized);
 
                 //alert(w.elementId);
-                var el = $("#" + w.elementId);
+                var el = $('#' + w.elementId);
                 el.empty();
                 el.append(widgetElement);
             }
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
         }
 
         public toggleInteract(widget: csComp.Services.IWidget) {
             widget._interaction = !widget._interaction;
             if (widget._interaction) {
                 interact('#' + widget.elementId + '-parent').draggable(true);
-            }
-            else {
+            } else {
                 interact('#' + widget.elementId + '-parent').draggable(false);
             }
-
-
         }
 
         public checkMap() {
@@ -159,7 +153,7 @@ module Dashboard {
                 } else {
                     this.$layerService.visual.mapVisible = false;
                 }
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
             }
 
             if (this.$scope.dashboard.viewBounds) {
@@ -215,7 +209,7 @@ module Dashboard {
             if (!value || value.indexOf('%') >= 0) return value;
             var left = parseInt(value.replace('px', ''));
             left += diff;
-            return left + "px";
+            return left + 'px';
         }
 
         public removeWidget(widget: csComp.Services.IWidget) {
@@ -242,7 +236,6 @@ module Dashboard {
                 // observer.observe(target, config);
 
                 if (!widget._ijs)
-
                     widget._ijs = interact('#' + widget.elementId + '-parent')
                         .resizable({ inertia: true })
                         .on('down', (e) => {
@@ -256,46 +249,42 @@ module Dashboard {
                         .on('dragmove', (event) => {
                             if (widget.left || (!widget.left && widget.left !== "")) {
                                 widget.left = this.setValue(event.dx, widget.left);
-                                if (widget.width && widget.width !== "") {
-                                    widget.right = "";
+                                if (widget.width && widget.width !== '') {
+                                    widget.right = '';
                                 } else {
                                     widget.right = this.setValue(-event.dx, widget.right);
                                 }
                             } else {
-                                if (!widget.right || widget.right === "") {
-                                    widget.right = 1000 + "px";
+                                if (!widget.right || widget.right === '') {
+                                    widget.right = 1000 + 'px';
                                 }
                                 widget.right = this.setValue(-event.dx, widget.right);
                             }
-                            if (widget.top && widget.top !== "") {
+                            if (widget.top && widget.top !== '') {
                                 widget.top = this.setValue(event.dy, widget.top);
                                 if (widget.bottom) {
                                     if (widget.height) {
-                                        widget.bottom = "";
+                                        widget.bottom = '';
                                     } else { widget.bottom = this.setValue(-event.dy, widget.bottom); }
                                 }
                             } else {
                                 widget.bottom = this.setValue(-event.dy, widget.bottom);
                             }
 
-                            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
                         })
                         .on('resizemove', (event) => {
                             widget.height = this.setValue(event.dy, widget.height);
                             if (widget.left && widget.right) {
                                 widget.right = this.setValue(-event.dx, widget.right);
                             } else {
-                                if (!widget.width) widget.width = "300px";
+                                if (!widget.width) widget.width = '300px';
                                 widget.width = this.setValue(event.dx, widget.width);
                             }
-                            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
-
-                        })
-
+                            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                        });
             }, 10);
-
         }
-
 
         // if (!d.widgets) d.widgets = [];
         // if (d.showLegend) {
@@ -342,12 +331,12 @@ module Dashboard {
                     this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
                         this.updateWidget(w);
                     });
-                })
+                });
             }, 100);
 
             //this.$layerService.rightMenuVisible = d.showLeftmenu;
             //this.$mapService.rightMenuVisible = d.showRightmenu;
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
         }
     }
 }

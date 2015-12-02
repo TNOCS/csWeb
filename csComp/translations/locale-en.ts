@@ -77,10 +77,17 @@ module Translations {
                 MIN_TOOLTIP: 'Minimum of selected items',
                 MAX: 'max',
                 MAX_TOOLTIP: 'Maximum of selected items',
-                MEAN: '&#x3bc;',
+                MEAN: 'µ',
                 MEAN_TOOLTIP: 'Mean of selected items',
-                SUM: '&#x3a3;',
+                SUM: 'Σ',
                 SUM_TOOLTIP: 'Sum of selected items'
+            },
+            UTILS: {
+                FILTER: 'Use this property as filter',
+                STYLE: 'Use this property as style',
+                STATS: 'Show property statistics',
+                CHART: 'Show property in time',
+                CONFIG: 'Configure property'
             },
             EXPERTMODE: {
                 BEGINNER: 'Novice',

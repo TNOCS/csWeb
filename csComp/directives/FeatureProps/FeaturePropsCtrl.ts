@@ -523,7 +523,7 @@ module FeatureProps {
 
         public getPropStats(item: ICallOutProperty) {
             if (item.showMore) {
-                console.log('stats: calc stats for ' + item.property);
+                //console.log('stats: calc stats for ' + item.property);
                 if (this.stats.indexOf(item.property) < 0) this.stats.push(item.property);
                 var values = this.$layerService.getPropertyValues(item.feature.layer, item.property);
                 var d = item.property;
@@ -618,9 +618,9 @@ module FeatureProps {
             var time = this.timestamps = new Array<{ title: string; timestamp: number }>();
             (layer.timestamps || feature.timestamps).forEach((ts) => {
                 var date = new Date(ts);
-                var dateString = String.format("{0}-{1:00}-{2:00}", date.getFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
+                var dateString = String.format('{0}-{1:00}-{2:00}', date.getFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
                 if (date.getUTCHours() > 0 || date.getUTCMinutes() > 0)
-                    dateString += String.format(" {0:00}:{1:00}", date.getUTCHours(), date.getUTCMinutes());
+                    dateString += String.format(' {0:00}:{1:00}', date.getUTCHours(), date.getUTCMinutes());
                 time.push({ title: dateString, timestamp: ts });
             });
 
@@ -632,8 +632,7 @@ module FeatureProps {
             } else if (focus < time[0].timestamp) {
                 this.focusTime = time[0].title;
                 this.setTime(time[0]);
-            }
-            else {
+            } else {
                 for (var i = 1; i < time.length; i++) {
                     if (focus > time[i].timestamp) continue;
                     this.focusTime = time[i].title;
@@ -648,13 +647,13 @@ module FeatureProps {
             var d = new Date(date.toString());
             this.$layerService.project.timeLine.isLive = false;
             this.$layerService.project.timeLine.setFocus(d);
-            this.$messageBusService.publish("timeline", "setFocus", d);
+            this.$messageBusService.publish('timeline', 'setFocus', d);
         }
 
         setTime(time: { title: string; timestamp: number }) {
             this.focusTime = time.title;
             this.$layerService.project.timeLine.setFocus(new Date(time.timestamp));
-            this.$messageBusService.publish("timeline", "focusChange", time.timestamp);
+            this.$messageBusService.publish('timeline', 'focusChange', time.timestamp);
         }
 
         getFormattedDate(fp, pt: IPropertyType): string {
@@ -672,9 +671,9 @@ module FeatureProps {
             }
         }
 
-        //When a feature has multiple sections, a dropdown list is created with the title defined in the language entry "CHOOSE_DROPDOWN" (e.g. "Choose..." or "Data...")
+        //When a feature has multiple sections, a dropdown list is created with the title defined in the language entry 'CHOOSE_DROPDOWN' (e.g. 'Choose...' or 'Data...')
         private setDropdownTitle() {
-            this.$translate("CHOOSE_DROPDOWN").then(translation => {
+            this.$translate('CHOOSE_DROPDOWN').then(translation => {
                 if (typeof translation === 'string' && translation.length > 0) {
                     this.defaultDropdownTitle = translation;
                 } else {
