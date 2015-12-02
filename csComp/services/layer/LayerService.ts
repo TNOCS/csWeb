@@ -1131,7 +1131,7 @@ module csComp.Services {
                 feature.fType = this.getFeatureType(feature);
                 
                 //this.initFeatureType(feature.fType);
-                               
+
                 // add missing properties
                 //if (feature.fType.showAllProperties) 
                 
@@ -1149,7 +1149,6 @@ module csComp.Services {
 
         /** remove feature */
         public removeFeature(feature: IFeature, dynamic: boolean = false) {
-
             this.project.features = this.project.features.filter((f: IFeature) => { return f != feature; });
             feature.layer.data.features = feature.layer.data.features.filter((f: IFeature) => { return f != feature; });
             if (feature.layer.group.filterResult)
@@ -1269,18 +1268,6 @@ module csComp.Services {
                     ft.propertyTypeKeys.split(';').forEach((key: string) => {
                         if (propertyTypes.hasOwnProperty(key)) ft._propertyTypeData.push(propertyTypes[key]);
                     });
-                }
-                return;
-            }
-            if (ft._propertyTypeData.forEach) {
-                ft._propertyTypeData.forEach((pt) => {
-                    this.initPropertyType(pt);
-                });
-            } else {
-                for (var ptlabel in ft._propertyTypeData) {
-                    if (ft._propertyTypeData.hasOwnProperty(ptlabel)) {
-                        this.initPropertyType(ft._propertyTypeData[ptlabel]);
-                    }
                 }
             }
         }

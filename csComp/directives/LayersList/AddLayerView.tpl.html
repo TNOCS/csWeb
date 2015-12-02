@@ -77,8 +77,8 @@
     </div> -->
     <div class="modal-body container-fluid">
         <button type="button" class="close" data-ng-click="vm.cancel()" aria-hidden="true">&times;</button>
-        <tabset>
-            <tab heading="Directory">
+        <uib-tabset>
+            <uib-tab heading="Directory">
                 <div ng-show="vm.selectedLayer == null" class="row">
                     <div ng-repeat="layer in vm.layers" class="col-md-2 addlayer-container" ng-click="vm.selectProjectLayer(layer)">
                         <img class="addlayer-image" src="http://www.tom-carden.co.uk/wp-content/uploads/2008/10/osm-yahoo-flash.png">
@@ -110,8 +110,8 @@
                     </div>
                     <button type="button" class="btn btn-primary" data-ng-click="vm.addProjectLayer()">Add layer</button>
                 </div>
-            </tab>
-            <tab heading="New Layer">
+            </uib-tab>
+            <uib-tab heading="New Layer">
                 <div class="form-group">
                     <label for="groupDescription">Title</label>
                     <input type="text" class="form-control" id="layerTitle" ng-model="vm.layerTitle" placeholder="Enter title layer">
@@ -123,9 +123,9 @@
                     </select>
                 </div>
                 <button type="button" class="btn btn-primary" data-ng-click="vm.addLayer()">Next</button>
-            </tab>
+            </uib-tab>
 
-            <tab heading="New Group">
+            <uib-tab heading="New Group">
                 <div class="form-group">
                     <label for="groupName">Group Title</label>
                     <input type="text" class="form-control" id="groupTitle" ng-model="vm.groupTitle" placeholder="Enter group title">
@@ -137,12 +137,7 @@
 
                 <button type="button" class="btn btn-warning" data-ng-click="vm.cancel()" translate>CANCEL_BTN</button>
                 <button type="button" class="btn btn-primary" data-ng-click="vm.addGroup()" translate>OK_BTN</button>
-            </tab>
-            <!-- <tab heading="Long Justified">Long Labeled Justified content</tab> -->
-        </tabset>
+            </uib-tab>
+        </uib-tabset>
     </div>
-    <!-- <div class="modal-footer">
-        <button type="button" class="btn btn-warning" data-ng-click="vm.cancel()" translate>CANCEL_BTN</button>
-        <button type="button" class="btn btn-primary" data-ng-click="vm.done()" translate>OK_BTN</button>
-    </div> -->
 </div>

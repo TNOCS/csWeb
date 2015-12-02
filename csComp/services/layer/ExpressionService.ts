@@ -162,7 +162,6 @@ module csComp.Services {
             };
             return parsedExpression(scope, this.ops);
         }
-
     }
 
     /**

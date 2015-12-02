@@ -70,6 +70,18 @@ module Translations {
             DONE: 'klaar',
             CONFIG: 'config',
             EDIT: 'aanpassen',
+            STATS: {
+                COUNT: '#',
+                COUNT_TOOLTIP: 'Aantal geselecteerde items',
+                MIN: 'min',
+                MIN_TOOLTIP: 'Minimum van geselecteerde items',
+                MAX: 'max',
+                MAX_TOOLTIP: 'Maximum van geselecteerde items',
+                MEAN: '&#x3bc;',
+                MEAN_TOOLTIP: 'Gemiddelde van geselecteerde items',
+                SUM: '&#x3a3;',
+                SUM_TOOLTIP: 'Som van geselecteerde items'
+            },
             EXPERTMODE: {
                 BEGINNER: 'Beginner',
                 INTERMEDIATE: 'Gevorderd',
@@ -162,7 +174,8 @@ module Translations {
             SAVE_EVERY_MARVEL: 'Bewaar ieder ',
             MARVEL_WATER_LEVEL: 'Waterniveau [m]',
             MARVEL_UPS_DURATION: 'Noodstroom duur [min]',
-            MARVEL_FEATURE_DEP: 'Specifieke objecten'
+            MARVEL_FEATURE_DEP: 'Specifieke objecten',
+            STATE: 'Status'
         }
     }
 }
