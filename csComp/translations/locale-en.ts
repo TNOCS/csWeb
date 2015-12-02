@@ -70,6 +70,18 @@ module Translations {
             EDIT: 'edit',
             APPLY: 'apply',
             REMOVE: 'remove',
+            STATS: {
+                COUNT: '#',
+                COUNT_TOOLTIP: 'Count of selected items',
+                MIN: 'min',
+                MIN_TOOLTIP: 'Minimum of selected items',
+                MAX: 'max',
+                MAX_TOOLTIP: 'Maximum of selected items',
+                MEAN: '&#x3bc;',
+                MEAN_TOOLTIP: 'Mean of selected items',
+                SUM: '&#x3a3;',
+                SUM_TOOLTIP: 'Sum of selected items'
+            },
             EXPERTMODE: {
                 BEGINNER: 'Novice',
                 INTERMEDIATE: 'Intermediate',
