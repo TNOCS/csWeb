@@ -105,7 +105,7 @@ module csComp.Services {
             var defaultFeatureType = layer.typeUrl + '#' + layer.defaultFeatureType;
             if (defaultFeatureType && featureTypes.hasOwnProperty(defaultFeatureType)) {
                 let ft = featureTypes[defaultFeatureType];
-                ft.propertyTypeData.forEach(pt => this.evalExpressions(pt, layer.data.features));
+                ft._propertyTypeData.forEach(pt => this.evalExpressions(pt, layer.data.features));
             }
             layer.data.features.forEach((f: IFeature) => {
                 if (!f.properties.hasOwnProperty('featureTypeId')) return;

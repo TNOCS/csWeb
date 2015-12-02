@@ -21,15 +21,14 @@ module csComp.Helpers {
     }
 
     export function cloneWithoutUnderscore(v: any): any {
-        if (typeof v !== "object") return v;
+        if (typeof v !== 'object') return v;
         if (v instanceof Array) {
             var a = [];
             v.forEach((i) => {
                 a.push(this.cloneWithoutUnderscore(i));
-            })
+            });
             return a;
-        }
-        else {
+        } else {
             var c = {};
             for (var k in v) {
                 if (k[0] !== '_') c[k] = this.cloneWithoutUnderscore(v[k]);
@@ -39,15 +38,15 @@ module csComp.Helpers {
     }
 
     export function getDefaultFeatureStyle(feature: csComp.Services.IFeature): csComp.Services.IFeatureTypeStyle {
-        if (feature.geometry.type.toLowerCase() === "point") {
+        if (feature.geometry.type.toLowerCase() === 'point') {
             var p: csComp.Services.IFeatureTypeStyle = {
-                nameLabel: "Name",
-                drawingMode: "Point",
+                nameLabel: 'Name',
+                drawingMode: 'Point',
                 strokeWidth: 1,
-                strokeColor: "#0033ff",
+                strokeColor: '#0033ff',
                 fillOpacity: 1,
                 opacity: 1,
-                fillColor: "#FFFF00",
+                fillColor: '#FFFF00',
                 stroke: true,
                 rotate: 0,
                 cornerRadius: 50,
@@ -55,18 +54,17 @@ module csComp.Helpers {
                 iconWidth: 32
             };
             return p;
-        }
-        else {
+        } else {
             var s: csComp.Services.IFeatureTypeStyle = {
-                nameLabel: "Name",
-                drawingMode: "Polygon",
+                nameLabel: 'Name',
+                drawingMode: 'Polygon',
                 strokeWidth: 1,
-                strokeColor: "#0033ff",
+                strokeColor: '#0033ff',
                 fillOpacity: 0.75,
                 opacity: 0.75,
-                fillColor: "#FFFF00",
+                fillColor: '#FFFF00',
                 stroke: true,
-                iconUri: "cs/images/marker.png",
+                iconUri: 'cs/images/marker.png',
             };
             return s;
         }
@@ -170,9 +168,9 @@ module csComp.Helpers {
                 // First, lookup key in global propertyTypeData
                 if (propertyTypeData && propertyTypeData.hasOwnProperty(key)) {
                     propertyTypes.push(propertyTypeData[key]);
-                } else if (type.propertyTypeData != null) {
+                } else if (type._propertyTypeData != null) {
                     // If you cannot find it there, look it up in the featureType's propertyTypeData.
-                    var result = $.grep(type.propertyTypeData, e => e.label === key);
+                    var result = $.grep(type._propertyTypeData, e => e.label === key);
                     if (result.length >= 1) propertyTypes.push(result);
                 }
             });
@@ -185,15 +183,15 @@ module csComp.Helpers {
         //         }
         //     }
         // }
-        if (type.propertyTypeData != null) {
-            if (type.propertyTypeData.forEach) {
-                type.propertyTypeData.forEach((pt) => {
+        if (type._propertyTypeData != null) {
+            if (type._propertyTypeData.forEach) {
+                type._propertyTypeData.forEach((pt) => {
                     propertyTypes.push(pt);
                 });
             } else {
-                for (var ptlabel in type.propertyTypeData) {
-                    if (type.propertyTypeData.hasOwnProperty(ptlabel)) {
-                        propertyTypes.push(type.propertyTypeData[ptlabel]);
+                for (var ptlabel in type._propertyTypeData) {
+                    if (type._propertyTypeData.hasOwnProperty(ptlabel)) {
+                        propertyTypes.push(type._propertyTypeData[ptlabel]);
                     }
                 }
             }
@@ -261,6 +259,7 @@ module csComp.Helpers {
             for (var key in feature.properties) {
                 var pt: csComp.Services.IPropertyType;
                 if (resource) pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key });
+                pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key });
                 if (!pt || pt.label !== key) continue;
 
                 pt = {};
@@ -283,8 +282,8 @@ module csComp.Helpers {
                     // since k was set in an internal loop. However, it may be that k => key
                     resource.propertyTypeData[ke] = pt;
                 } else {
-                    if (!featureType.propertyTypeData) { featureType.propertyTypeData = []; }
-                    featureType.propertyTypeData[key] = pt;
+                    if (!featureType._propertyTypeData) { featureType._propertyTypeData = []; }
+                    featureType._propertyTypeData[key] = pt;
                 }
                 updateSection(feature.layer, pt);
             }
@@ -408,9 +407,9 @@ module csComp.Helpers {
             }
         }
         // Case three: the feature has a Name property which specifies a string format, meaning that the Name is derived from several existing properties.
-        if (feature.fType.propertyTypeData != null) {
-            for (var i = 0; i < feature.fType.propertyTypeData.length; i++) {
-                var propertyType = feature.fType.propertyTypeData[i];
+        if (feature.fType._propertyTypeData != null) {
+            for (var i = 0; i < feature.fType._propertyTypeData.length; i++) {
+                var propertyType = feature.fType._propertyTypeData[i];
                 if (propertyType.label !== 'Name' || !propertyType.stringFormat) continue;
                 feature.properties['Name'] = Helpers.convertStringFormat(feature, propertyType.stringFormat);
                 return feature;
@@ -491,10 +490,10 @@ module csComp.Helpers {
                 if (!featureType.name) featureType.name = f.featureTypeName.replace('_Default', '');
                 data.featureTypes[f.featureTypeName] = featureType;
                 if (featureType.propertyTypeKeys) {
-                    featureType.propertyTypeData = [];
+                    featureType._propertyTypeData = [];
                     featureType.propertyTypeKeys.split(';').forEach((key) => {
                         if (layerService.propertyTypeData.hasOwnProperty(key)) {
-                            featureType.propertyTypeData.push(layerService.propertyTypeData[key]);
+                            featureType._propertyTypeData.push(layerService.propertyTypeData[key]);
                         }
                     });
                 }

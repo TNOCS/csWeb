@@ -228,7 +228,7 @@ module csComp.Services {
         style?:             IFeatureTypeStyle;
         legendItems?:       LegendList.ILegendItem[];
         properties?:        {};
-        propertyTypeData?:  IPropertyType[];
+        _propertyTypeData?: IPropertyType[];
         showAllProperties?: boolean;
         /** name of the property that contains a stringified L.GeoJSON object, which is shown when hovering above a feature */
         contourProperty?: string;

@@ -579,7 +579,7 @@ module FeatureProps {
                                                 found = true;
                                             }
                                         });
-                                        if (!found) featureType.propertyTypeData.push(pt);
+                                        if (!found) featureType._propertyTypeData.push(pt);
                                     }
                                 }
                             });

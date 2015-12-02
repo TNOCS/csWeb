@@ -688,23 +688,24 @@ module csComp.Services {
             this.typesResources[source.url] = source;
             if (!source.title) source.title = source.url;
             var featureTypes = source.featureTypes;
-            if (featureTypes) {
-                for (var typeName in featureTypes) {
-                    var tn = source.url + '#' + typeName;
-                    //if (!this._featureTypes.hasOwnProperty(tn)) continue;
-                    var featureType: IFeatureType = featureTypes[typeName];
-                    featureType.id = tn;
-                    this.initFeatureType(featureType);
-                    this._featureTypes[tn] = featureType;
-                }
-            }
             if (source.propertyTypeData) {
                 for (var key in source.propertyTypeData) {
                     var propertyType: IPropertyType = source.propertyTypeData[key];
                     propertyType.id = source.url + '#' + key;
                     this.initPropertyType(propertyType);
                     if (!propertyType.label) propertyType.label = key;
+                    // EV Check that this doesn't cause errors when two different resource files define the same key. Shouldn't we use the id?
                     this.propertyTypeData[key] = propertyType;
+                }
+            }
+            if (featureTypes) {
+                for (var typeName in featureTypes) {
+                    var tn = source.url + '#' + typeName;
+                    //if (!this._featureTypes.hasOwnProperty(tn)) continue;
+                    var featureType: IFeatureType = featureTypes[typeName];
+                    featureType.id = tn;
+                    this.initFeatureType(featureType, source.propertyTypeData);
+                    this._featureTypes[tn] = featureType;
                 }
             }
         }
@@ -1272,7 +1273,7 @@ module csComp.Services {
         /**
         * Initialize the feature type and its property types by setting default property values, and by localizing it.
         */
-        private initFeatureType(ft: IFeatureType) {
+        private initFeatureType(ft: IFeatureType, propertyTypes: { [key: string]: IPropertyType }) {
             if (ft._isInitialized) return;
             ft._isInitialized = true;
             this.initIconUri(ft);
@@ -1280,15 +1281,23 @@ module csComp.Services {
                 var locale = ft.languages[this.currentLocale];
                 if (locale.name) ft.name = locale.name;
             }
-            if (ft.propertyTypeData == null || ft.propertyTypeData.length === 0) return;
-            if (ft.propertyTypeData.forEach) {
-                ft.propertyTypeData.forEach((pt) => {
+            if (!ft._propertyTypeData || ft._propertyTypeData.length === 0) {
+                ft._propertyTypeData = [];
+                if (ft.propertyTypeKeys) {
+                    ft.propertyTypeKeys.split(';').forEach((key: string) => {
+                        if (propertyTypes.hasOwnProperty(key)) ft._propertyTypeData.push(propertyTypes[key]);
+                    });
+                }
+                return;
+            }
+            if (ft._propertyTypeData.forEach) {
+                ft._propertyTypeData.forEach((pt) => {
                     this.initPropertyType(pt);
                 });
             } else {
-                for (var ptlabel in ft.propertyTypeData) {
-                    if (ft.propertyTypeData.hasOwnProperty(ptlabel)) {
-                        this.initPropertyType(ft.propertyTypeData[ptlabel]);
+                for (var ptlabel in ft._propertyTypeData) {
+                    if (ft._propertyTypeData.hasOwnProperty(ptlabel)) {
+                        this.initPropertyType(ft._propertyTypeData[ptlabel]);
                     }
                 }
             }
@@ -1785,8 +1794,8 @@ module csComp.Services {
         public getPropertyType(feature: IFeature, property: string): IPropertyType {
             var res: IPropertyType;
             // search for local propertytypes in featuretype
-            if (feature.fType && feature.fType.propertyTypeData) {
-                res = _.find(feature.fType.propertyTypeData, (pt: IPropertyType) => { return pt.label === property; });
+            if (feature.fType && feature.fType._propertyTypeData) {
+                res = _.find(feature.fType._propertyTypeData, (pt: IPropertyType) => { return pt.label === property; });
                 if (res) return res;
             }
 

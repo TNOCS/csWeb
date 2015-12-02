@@ -54,8 +54,8 @@ module Heatmap {
                     var ft = this.dataset.featureTypes[k];
                     heatmap.addHeatmapItem(new HeatmapItem(ft.name, ft));
                     var propertyTypeData: csComp.Services.IPropertyType[];
-                    if (!ft.propertyTypeData) continue;
-                    ft.propertyTypeData.forEach((pt) => {
+                    if (!ft._propertyTypeData) continue;
+                    ft._propertyTypeData.forEach((pt) => {
                         if (pt.type == 'options') {
                             var i = 0;
                             pt.options.forEach((o) => {

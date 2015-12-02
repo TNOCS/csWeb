@@ -236,8 +236,8 @@ module DataTable {
             var featureType: csComp.Services.IFeatureType;
             for (var key in data.featureTypes) {
                 featureType = data.featureTypes[key];
-                if (featureType.propertyTypeData != null) {
-                  featureType.propertyTypeData.forEach(ptd => {
+                if (featureType._propertyTypeData != null) {
+                  featureType._propertyTypeData.forEach(ptd => {
                     if (featureType.style.nameLabel == ptd.label) {
                       mis.splice(0,0,ptd);
                     } else {
@@ -252,8 +252,8 @@ module DataTable {
                         if (k in this.$layerService.propertyTypeData)
                           propertyType = this.$layerService.propertyTypeData[k];
                             //mis.push(this.$layerService.propertyTypeData[k]);
-                        else if (featureType.propertyTypeData != null) {
-                            var result = $.grep(featureType.propertyTypeData, e => e.label === k);
+                        else if (featureType._propertyTypeData != null) {
+                            var result = $.grep(featureType._propertyTypeData, e => e.label === k);
                             //if (result.length >= 1) mis.push(result[0]);
                             if (result.length >= 1) propertyType = result[0];
                         }
@@ -266,8 +266,8 @@ module DataTable {
                           }
                         }
                     });
-                } else if (featureType.propertyTypeData != null) {
-                    featureType.propertyTypeData.forEach((mi) => {
+                } else if (featureType._propertyTypeData != null) {
+                    featureType._propertyTypeData.forEach((mi) => {
                       //mis.push(mi)
 
                       if (featureType.style.nameLabel == mi.label) {

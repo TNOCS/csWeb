@@ -600,8 +600,8 @@ module Mca {
             if (forceUpdate || labelIndex < 0) {
                 var pt = McaCtrl.createPropertyType(mca);
                 if (labelIndex < 0) {
-                    if (!featureType.propertyTypeData) { featureType.propertyTypeData = []; }
-                    featureType.propertyTypeData.push(pt); // NOTE: propertyTypes refers to a new list, so you cannot add to it.
+                    if (!featureType._propertyTypeData) { featureType._propertyTypeData = []; }
+                    featureType._propertyTypeData.push(pt); // NOTE: propertyTypes refers to a new list, so you cannot add to it.
                 } else {
                     propertyTypes[labelIndex] = pt;        // NOTE: but you should be able to overwrite an existing property.
                 }
@@ -618,7 +618,7 @@ module Mca {
             if (forceUpdate || labelIndex < 0) {
                 pt = McaCtrl.createRankPropertyType(mca);
                 if (labelIndex < 0) {
-                    featureType.propertyTypeData.push(pt);
+                    featureType._propertyTypeData.push(pt);
                 } else {
                     propertyTypes[labelIndex] = pt;
                 }
