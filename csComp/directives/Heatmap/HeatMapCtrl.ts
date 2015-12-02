@@ -33,7 +33,7 @@ module Heatmap {
 
         static $inject = [
           '$scope',
-          '$modal',
+          '$uibModal',
           '$translate',
           '$timeout',
           'localStorageService',

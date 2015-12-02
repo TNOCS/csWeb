@@ -62,7 +62,7 @@ module Mca {
 
         static $inject = [
             '$scope',
-            '$modal',
+            '$uibModal',
             '$translate',
             '$timeout',
             'localStorageService',

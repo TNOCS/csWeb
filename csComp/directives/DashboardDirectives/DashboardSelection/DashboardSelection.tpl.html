@@ -26,8 +26,8 @@
             clear: left;
         }
 
-        .widgettypes-list {}
-
+        /*.widgettypes-list {}
+*/
         .widgettypes-list-container {
             overflow-y: auto;
             position: relative;
@@ -43,8 +43,8 @@
         </div>
     </h3>
     <div>
-        <tabset>
-            <tab heading="Dashboards">
+        <uib-tabset>
+            <uib-tab heading="Dashboards">
                 <ul style="padding: 0;list-style-type: none">
                     <li data-ng-repeat="value in vm.$layerService.project.dashboards">
                         <div ng-click="vm.$dashboardService.selectDashboard(value,'main')" ng-class="{'dashboard-selected' : value == vm.$layerService.project.activeDashboard}" class="dashboard-item">
@@ -59,8 +59,8 @@
                         </div>
                     </li>
                 </ul>
-            </tab>
-            <tab ng-show="vm.$mapService.isAdminExpert" heading="Widgets">
+            </uib-tab>
+            <uib-tab ng-show="vm.$mapService.isAdminExpert" heading="Widgets">
                 <div style="margin-right:10px">
                     <label class="editor-title input-xlarge">Widget Style</label>
                     <select data-ng-model="vm.style" ng-change="vm.selectStyle()" class="form-control">
@@ -72,7 +72,7 @@
                             <li data-ng-repeat="(key,type) in vm.$dashboardService.widgetTypes" style="height:85px">
                                 <div style="width:100%;height:85px">
                                     <div style="float:left;padding:20px" id="widgettype-{{key}}" when-ready="vm.initDrag(key)" class="draggable" ng-style="{'background' : widgetStyle.background,'border-color':widgetStyle.borderColor,'border-width':widgetStyle.borderWidth,'border-radius':widgetStyle.borderRadius,'opacity' : widgetStyle.opacity}">
-                                        <img ng-src="{{type.icon}}"></img>
+                                        <img ng-src="{{type.icon}}">
                                     </div>
                                     <div style="position:absolute;left:100px">
                                         <div class="widgetType-title">{{key}}</div>
@@ -83,10 +83,7 @@
                         </ul>
                     </div>
                 </div>
-
-            </tab>
-            <!-- <tab heading="Long Justified">Long Labeled Justified content</tab> -->
-        </tabset>
+            </uib-tab>
+        </uib-tabset>
     </div>
-
 </div>

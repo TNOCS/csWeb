@@ -36,7 +36,8 @@ module LayersDirective {
             'messageBusService',
             'mapService',
             'dashboardService',
-            '$modal', '$http'
+            '$uibModal',
+            '$http'
         ];
 
         // dependencies are injected via AngularJS $injector
