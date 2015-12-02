@@ -305,14 +305,6 @@ gulp.task('clean', function (cb) {
     }, cb);
 });
 
-gulp.task('sass', function () {
-    gulp.src(path2csWeb + 'csComp/includes/css/*.scss')
-        .pipe(sass().on('error', sass.logError))
-        .pipe(changed(path2csWeb + 'csComp/includes/css/'))
-        .pipe(gulp.dest(path2csWeb + 'csComp/includes/css/'));
-    //.pipe(gulp.dest(path2csWeb + 'dist-bower/'));
-});
-
 gulp.task('deploy-githubpages', function () {
     return gulp.src("path2csWeb + 'dist/**/*")
         .pipe(deploy({
@@ -379,6 +371,13 @@ gulp.task('minify_csComp', function () {
             suffix: '.min'
         }))
         .pipe(gulp.dest(path2csWeb + 'dist-bower'));
+});
+
+gulp.task('sass', function () {
+    gulp.src(path2csWeb + 'csComp/includes/css/*.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(gulp.dest(path2csWeb + 'dist-bower/css'))
+        .pipe(gulp.dest(path2csWeb + 'csComp/includes/css'));
 });
 
 gulp.task('include_css', ['sass'], function () {
