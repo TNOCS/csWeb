@@ -174,7 +174,8 @@ module Translations {
             SAVE_EVERY_MARVEL: 'Bewaar ieder ',
             MARVEL_WATER_LEVEL: 'Waterniveau [m]',
             MARVEL_UPS_DURATION: 'Noodstroom duur [min]',
-            MARVEL_FEATURE_DEP: 'Specifieke objecten'
+            MARVEL_FEATURE_DEP: 'Specifieke objecten',
+            STATE: 'Status'
         }
     }
 }

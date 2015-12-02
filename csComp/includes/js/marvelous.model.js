@@ -56,16 +56,16 @@ var Marvelous = (function() {
     };
 
     Model.prototype.scaleToFit = function() {
-        var nodeBox = d3.select("#marvelViz").select("g.nodes").node().getBBox();
-        var w = nodeBox.width;
-        var h = nodeBox.height;
+        var nodeBox = d3.select("#marvelViz").select("g.conns").node().getBBox();
+        var w = nodeBox.width + 400;
+        var h = nodeBox.height + 160;
         var scale = Math.min(parseInt(this.width) / w, parseInt(this.height) / h);
         scale *= 0.98; // leave some margins
         if (scale <= 0 || scale >= 10000) scale = 1;
-        if (transX <= 0 || transX >= 10000) transX = 0;
-        if (transY <= 0 || transY >= 10000) transY = 0;
-        var transX = (this.widget.offset().left + widgetWidthMargin - $("g.nodes").offset().left) * scale;
-        var transY = (this.widget.offset().top + widgetHeightMargin - $("g.nodes").offset().top) * scale;
+        if (transX <= -10000 || transX >= 10000) transX = 0;
+        if (transY <= -10000 || transY >= 10000) transY = 0;
+        var transX = (this.widget.offset().left + widgetWidthMargin - $("g.conns").offset().left + 200) * scale;
+        var transY = (this.widget.offset().top + widgetHeightMargin - $("g.conns").offset().top + 80) * scale;
         this.zoomListener.translate([transX, transY]).scale(scale);
         this.zoomListener.event(this.rect);
 

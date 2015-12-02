@@ -69,7 +69,7 @@
     <div ng-hide="configMode" class="tab-content" style="top:50px; overflow-y: auto; overflow-x: hidden" resize resize-y="150">
         <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="key in callOut.sectionKeys">
             <div class="panel-group" id="accordion">
-                <form name="form" class="css-form" novalidate>
+                <form name="form" class="css-form" style="padding-bottom:40px" novalidate>
                     <div class="panel feature-prop-property" popover="{{(item.description) ? item.description : ''}}" popover-placement="left"
                     popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
                         <div ng-show="feature._gui.editMode" class="property-edit">
