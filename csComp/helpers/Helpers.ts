@@ -246,16 +246,17 @@ module csComp.Helpers {
     }
 
     export function addPropertyTypes(feature: csComp.Services.IFeature, featureType: csComp.Services.IFeatureType, resource: csComp.Services.TypeResource): csComp.Services.IFeatureType {
-
-        var type = featureType;        
-        if (type.propertyTypeKeys) {
+        var type = featureType;
+        if (type._propertyTypeData && type._propertyTypeData.length > 0) {
+            type._propertyTypeData.forEach(pt => {
+                this.updateSection(feature.layer, pt);
+            });
             // type.propertyTypeKeys.split(',').forEach((key) => {
             //     if (resource.propertyTypeData.hasOwnProperty(key)) {
             //         updateSection(feature.layer, resource.propertyTypeData[key]);
             //     }
             // })
-        }
-        else {            
+        } else {
             for (var key in feature.properties) {
                 var pt: csComp.Services.IPropertyType;
                 if (resource) pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key });

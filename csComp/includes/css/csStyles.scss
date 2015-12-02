@@ -507,9 +507,9 @@ body,
     font-weight: bold;
     font-size: 18px;
 }
-.feature-prop-active-filter {
+// .feature-prop-active-filter {
 
-}
+// }
 .aster-score {
     line-height: 1;
     font-weight: bold;
@@ -870,14 +870,20 @@ body,
     margin-left: 0;
     background: transparent;
 }
-.feature-prop-stats {
-    margin-top: 10px;
+.feature-prop-stats {    
     font-size: 12px;
     opacity: 0.8;
 }
-.item-stat-title {
-
+.feature-prop-value-align-right {
+    margin-top: -2em;
+    float: right;
 }
+.item-stat {
+    white-space: nowrap;
+}
+// .item-stat-title {
+
+// }
 .item-stat-value {
     font-weight: 700;
     margin-right: 10px;

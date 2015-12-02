@@ -116,52 +116,46 @@
                                     <a ng-click="vm.openLayer(item)">{{item.propertyType.title}}</a>
                                 </div>
                                 <div ng-switch-default>
-
-                                    <div ng-hide="item.isSensor" ng-if="!item.configMode" data-ng-switch="item.propertyType.type" class="feature-prop-value"
-                                    style="float:right">
-                                        <div ng-switch-when="date" class="text-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
+                                    <div class="feature-prop-title">{{item.propertyType.title}}</div>
+                                    <div ng-hide="item.isSensor" ng-if="!item.configMode" data-ng-switch="item.propertyType.type" class="feature-prop-value">
+                                        <div ng-switch-when="date" class="feature-prop-value-align-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
                                             {{vm.getFormattedDate(item.feature.properties[item.property], item.propertyType)}}</div>
-                                        <div ng-switch-when="boolean" class="text-right">{{item.feature.properties[item.property]}}</div>
-                                        <div ng-switch-when="category" class="text-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
-                                        <div ng-switch-when="textarea" style="clear:both;margin-left:40px" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
-                                        <div ng-switch-when="bbcode" style="text-right" ng-bind-html="vm.toTrusted(item.value)"></div>
+                                        <div ng-switch-when="boolean" class="feature-prop-value-align-right">{{item.feature.properties[item.property]}}</div>
+                                        <div ng-switch-when="category" class="feature-prop-value-align-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
+                                        <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
+                                        <div ng-switch-when="bbcode" class="feature-prop-value-align-right" ng-bind-html="vm.toTrusted(item.value)"></div>
                                         <div ng-switch-when="media">
                                             <!-- <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img> -->
                                             <div ng-repeat="media in item.feature.properties[item.property]">
-                                                <img ng-src="{{media}}" style="width:300px;float:left;margin:5px"></img>
+                                                <img ng-src="{{media}}" style="width:300px;float:left;margin:5px">
                                             </div>
                                         </div>
-                                        <div ng-switch-default class="text-right" style="margin-left:40px" data-ng-bind-html="vm.toTrusted(item.value)"></div>
+                                        <div ng-switch-default class="feature-prop-value-align-right" data-ng-bind-html="vm.toTrusted(item.value)"></div>
                                     </div>
                                     <div class="feature-prop-content" ng-if="!item.configMode">
-                                        <div class="feature-prop-title">
-                                            {{item.key}}
-                                            
 
-                                        </div>
                                         <div ng-if="item.showMore" data-ng-switch="item.propertyType.type" style="margin-bottom:10px">
-                                                <div ng-switch-when="number" class="feature-prop-stats">
-                                                    <span class="fa fa-calculator" style="margin-right:2px"></span>
-                                                    <span class="item-stat"><span class="item-stat-title">count</span>
-                                                    <span class="item-stat-value">{{item.stats.count}}</span></span>
-                                                    <span class="item-stat"><span class="item-stat-title">min</span>
-                                                    <span class="item-stat-value">{{item.stats.min}}</span></span>
-                                                    <span class="item-stat"><span class="item-stat-title">max</span>
-                                                    <span class="item-stat-value">{{item.stats.max}}</span></span>
-                                                    <span class="item-stat"><span class="item-stat-title">sum</span>
-                                                    <span class="item-stat-value" stringy ng-model="item.stats.sum"></span></span>
-                                                    <span class="item-stat"><span class="item-stat-title">mean</span>
-                                                    <span class="item-stat-value" stringy ng-model="item.stats.mean"></span></span>
-                                                    <!-- <button class="button" ng-click="vm.setCorrelation(item,$event)">cor</button> -->
-                                                </div>
-                                                <!-- <div ng-repeat="(key,cor) in item.cors">
+                                            <div ng-switch-when="number" class="feature-prop-stats">                                                
+                                                <span class="item-stat"><span class="item-stat-title">count</span>
+                                                <span class="item-stat-value">{{item.stats.count}}</span></span>
+                                                <span class="item-stat"><span class="item-stat-title">min</span>
+                                                <span class="item-stat-value">{{item.stats.min}}</span></span>
+                                                <span class="item-stat"><span class="item-stat-title">max</span>
+                                                <span class="item-stat-value">{{item.stats.max}}</span></span>
+                                                <span class="item-stat"><span class="item-stat-title">sum</span>
+                                                <span class="item-stat-value" stringy ng-model="item.stats.sum"></span></span>
+                                                <span class="item-stat"><span class="item-stat-title">mean</span>
+                                                <span class="item-stat-value" stringy ng-model="item.stats.mean"></span></span>
+                                                <!-- <button class="button" ng-click="vm.setCorrelation(item,$event)">cor</button> -->
+                                            </div>
+                                            <!-- <div ng-repeat="(key,cor) in item.cors">
                                                     <div><span>{{key}}</span>:<span>{{cor.value}}</span>
                                                 </div> -->
-                                                
-                                            </div>
-                                            <div data-ng-if="item.isSensor" style="margin-bottom:10px;margin-top:10px" id="featurepropchart_{{item._id}}">
-                                                    <!--<sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>-->
-                                                </div>
+
+                                        </div>
+                                        <div data-ng-if="item.isSensor" style="margin-bottom:10px;margin-top:10px" id="featurepropchart_{{item._id}}">
+                                            <!--<sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>-->
+                                        </div>
                                         <div class="icons-on-hover" ng-if="!item.configMode">
                                             <div class="property-action" style="right:0px">
                                                 <a data-ng-if="item.canFilter" data-ng-hide="vm.$layerService.findFilter(item.feature.layer.group, item.property)" class="fa fa-filter makeNarrow"
@@ -179,11 +173,11 @@
                                                 <a class="fa fa-calculator makeNarrow" ng-click="item.showMore=!item.showMore;vm.getPropStats(item)" style="cursor: pointer"></a>
                                             </div>
                                             <div ng-if="item.isSensor" class="property-action" style="left:45px">
-                                                <a class="fa fa-area-chart makeNarrow" ng-click="vm.createSparkLineChart(item)"  style="cursor: pointer"></a>
-                                            </div>                                            
+                                                <a class="fa fa-area-chart makeNarrow" ng-click="vm.createSparkLineChart(item)" style="cursor: pointer"></a>
+                                            </div>
                                             <div ng-if="vm.$mapService.isAdminExpert" class="property-action" style="left:60px">
                                                 <a class="fa fa-cog makeNarrow" data-toggle="collapse" ng-click="item.configMode=!item.configMode" style="cursor: pointer"></a>
-                                            </div>                                            
+                                            </div>
                                         </div>
                                     </div>
                                     <div ng-if="item.configMode" class="feature-prop-config">

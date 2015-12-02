@@ -143,7 +143,8 @@ module csComp.Services {
                 features: features,
                 properties: {}
             };
-            for (var feature in features) {
+            for (var feature of features) {
+                if (!feature.properties) continue;
                 let hasFeatureType = feature.properties.hasOwnProperty('featureTypeId');
                 if ((hasFeatureType && feature.properties['featureTypeid'] === propertyType.label)
                     || !hasFeatureType && isDefaultPropertyType) {
