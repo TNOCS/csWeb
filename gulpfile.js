@@ -395,12 +395,17 @@ gulp.task('include_images', function () {
         .pipe(gulp.dest(path2csWeb + 'dist-bower/images'));
 });
 
+var watchOptions = {
+    interval: 750, // default 100
+    debounceDelay: 1000, // default 500
+    mode: 'watch'
+};
 gulp.task('watch', function (cb) {
-    gulp.watch(path2csWeb + 'csComp/js/**/*.js', ['built_csComp', 'built_csComp.d.ts']);
-    gulp.watch(path2csWeb + 'csComp/**/*.tpl.html', ['create_templateCache']);
-    gulp.watch(path2csWeb + 'csComp/includes/**/*.scss', ['concat_css']);
-    gulp.watch(path2csWeb + 'csComp/includes/**/*.css', ['concat_css']);
-    gulp.watch(path2csWeb + 'csComp/includes/images/*.*', ['include_images']);
+    gulp.watch(path2csWeb + 'csComp/js/**/*.js', watchOptions, ['built_csComp', 'built_csComp.d.ts']);
+    gulp.watch(path2csWeb + 'csComp/directives/**/*.tpl.html', watchOptions, ['create_templateCache']);
+    gulp.watch(path2csWeb + 'csComp/includes/css/csStyles.scss', watchOptions, ['concat_css']);
+    //gulp.watch(path2csWeb + 'csComp/includes/**/*.css', watchOptions, ['concat_css']);
+    gulp.watch(path2csWeb + 'csComp/includes/images/*.*', watchOptions, ['include_images']);
 });
 
 // Initiallize the project and update the npm and bower package folders
