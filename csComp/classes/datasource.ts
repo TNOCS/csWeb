@@ -1,4 +1,12 @@
 module csComp.Services {
+
+    export interface ISensorLinkResult {
+        timeStamps: number[];
+        data: (number[])[];
+        properties: string[];
+        timeAggregation: string;
+    }
+
     export class SensorSet {
         id: string;
         title: string;
@@ -87,21 +95,21 @@ module csComp.Services {
             if (ds.url != null) {
                 $http.get(ds.url)
                     .success((temp: DataSource) => {
-                    if (temp != null) {
-                        ds.id = temp.id;
-                        if (!ds.hasOwnProperty('sensors')) {
-                            ds.sensors = temp.sensors;
-                        } else {
-                            for (var s in temp.sensors) {
-                                if (temp.sensors.hasOwnProperty(s)) {
-                                    ds.sensors[s] = this.merge_sensor(ds.sensors[s], temp.sensors[s]);
+                        if (temp != null) {
+                            ds.id = temp.id;
+                            if (!ds.hasOwnProperty('sensors')) {
+                                ds.sensors = temp.sensors;
+                            } else {
+                                for (var s in temp.sensors) {
+                                    if (temp.sensors.hasOwnProperty(s)) {
+                                        ds.sensors[s] = this.merge_sensor(ds.sensors[s], temp.sensors[s]);
+                                    }
                                 }
                             }
+                            ds.title = temp.title;
+                            callback();
                         }
-                        ds.title = temp.title;
-                        callback();
-                    }
-                })
+                    })
                     .error(() => { console.log("Error on Data source -- do something ?"); });
             }
         }

@@ -140,8 +140,7 @@ module ChartsWidget {
            
                 var d = this.$scope.data;
                 var vgspec = d.spec;
-                if (d.lite) vgspec = vl.compile(d.spec);
-                console.log(JSON.stringify(vgspec));
+                if (d.lite) vgspec = vl.compile(d.spec);                
                 if (d._view) d._view.update();
            
 
@@ -169,8 +168,8 @@ module ChartsWidget {
                             case 'key':
                                 if (msg.data.item.hasOwnProperty('values')) {
                                     d.spec.data = msg.data.item.values;
-                                } else {
-                                    d.spec.data = msg.data.item;
+                                } else if (msg.data.item.hasOwnProperty('data')) {
+                                    d.spec = msg.data.item;
                                 }
                                 // if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]' ) {
                                 //     d.spec.data = msg.data.item;

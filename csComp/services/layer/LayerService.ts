@@ -67,7 +67,7 @@ module csComp.Services {
 
         currentLocale: string;
         /** layers that are currently active */
-        loadedLayers = new csComp.Helpers.Dictionary<ProjectLayer>();
+        loadedLayers: { [key: string]: ProjectLayer } = {};
         /** list of available layer sources */
         layerSources: { [key: string]: ILayerSource };
         /** list of available map renderers */
@@ -83,7 +83,7 @@ module csComp.Services {
 
         startDashboardId: string;
 
-        public visual: VisualState = new VisualState();        
+        public visual: VisualState = new VisualState();
         throttleSensorDataUpdate: Function;
 
         static $inject = [
@@ -134,15 +134,16 @@ module csComp.Services {
             // this.mapRenderers['cesium'] = new CesiumRenderer();
             //this.mapRenderers['cesium'].init(this);
 
-            this.initLayerSources();            
+            this.initLayerSources();
             this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, 1000);
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
                     case 'focusChange':
-                        this.throttleSensorDataUpdate();                        
+                        this.throttleSensorDataUpdate();
                         break;
-                    case 'timeSpanUpdated':                        
+                    case 'timeSpanUpdated':
+                        this.updateSensorLinks();
                         break;
                 }
             });
@@ -193,6 +194,45 @@ module csComp.Services {
 
             this.checkMobile();
             this.enableDrop();
+        }
+
+        /**
+         * Get external sensordata for loaded layers with sensor links enabled
+         */
+        public updateSensorLinks() {
+            var updated = false;
+            console.log('updating sensorlinks');
+            for (var l in this.loadedLayers) {
+                var layer = <ProjectLayer>this.loadedLayers[l];                
+                console.log(layer.title);
+                if (layer.sensorLink) {
+                    console.log('downloading ' + layer.sensorLink.url);
+                    this.$http.get(layer.sensorLink.url)
+                        .success((data: ISensorLinkResult) => {
+                            updated = true;
+                            layer.timestamps = data.timeStamps;
+                            layer.data.features.forEach((f: IFeature) => { f.sensors = {};
+                            data.properties.forEach(s=>f.sensors[s] = []); 
+                            });
+                            var t = 0;
+                            
+                            data.data.forEach(ts => {
+                                var i = 0;
+                                layer.data.features.forEach((f: IFeature) => {
+                                    data.properties.forEach(s=>{
+                                    f.sensors[s].push(data.data[t][i]);
+                                    i += 1;    
+                                    })                                                                       
+                                });
+                                t += 1;
+                            });  
+                            this.throttleSensorDataUpdate();                                                                                  
+                        })
+                        .error((e) => {
+                            console.log('error loading sensor data');
+                        });
+                }
+            };            
         }
 
         public enableDrop() {
@@ -402,7 +442,7 @@ module csComp.Services {
                 if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
                     var l = feature.properties[prop.label];
 
-                    if (this.loadedLayers.containsKey(l)) {
+                    if (this.loadedLayers.hasOwnProperty(l)) {
                         var layer = this.loadedLayers[l];
                         this.removeLayer(this.loadedLayers[l], true);
                     }
@@ -497,7 +537,7 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer, layerloaded?: Function, data = null) {
-            if (this.loadedLayers.containsKey(layer.id) && (!layer.quickRefresh || layer.quickRefresh === false)) return;
+            if (this.loadedLayers.hasOwnProperty(layer.id) && (!layer.quickRefresh || layer.quickRefresh === false)) return;
             if (layer.isLoading) return;
             layer.isLoading = true;
             this.$messageBusService.publish('layer', 'loading', layer);
@@ -558,7 +598,7 @@ module csComp.Services {
 
                         if (l.enabled) {
                             this.loadedLayers[layer.id] = l;
-                            this.updateSensorData();                            
+                            this.updateSensorData();
                             this.activeMapRenderer.addLayer(layer);
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
@@ -1062,30 +1102,32 @@ module csComp.Services {
                     this.calculateFeatureStyle(f);
                     this.activeMapRenderer.updateFeature(f);
 
-                    if (f.isSelected) this.$messageBusService.publish('feature', 'onFeatureUpdated', f);                    
+                    if (f.isSelected) this.$messageBusService.publish('feature', 'onFeatureUpdated', f);
                 }
             }
         }
+                
 
         /** update for all features the active sensor data values and update styles */
         public updateSensorData() {
-            if (this.project == null || this.project.timeLine == null || this.project.features == null || this.loadedLayers.count() === 0) return;
+            if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
             var date = this.project.timeLine.focus;
             var timepos = {};
 
-            this.loadedLayers.values().forEach(l=> {
-                if (l.hasSensorData && l.data.features.length() > 0) {
-                    l.data.features.forEach((f: IFeature) => {                        
+            for (var ll in this.loadedLayers) {
+                var l = this.loadedLayers[ll];
+                if ((l.hasSensorData || l.sensorLink) && l.data.features) {
+                    console.log('updating sensor data for ' + l.title);
+                    l.data.features.forEach((f: IFeature) => {
                         this.updateFeatureSensorData(f, date, timepos);
                     });
                 }
-                if (l.isDynamic && l.useLog)
-                {
+                if (l.isDynamic && l.useLog) {
                     l.data.features.forEach((f: IFeature) => {
-                        this.updateLog(f);                                                
+                        this.updateLog(f);
                     });
                 }
-            });            
+            };
         }
 
         /***
@@ -1419,7 +1461,7 @@ module csComp.Services {
         * Find a loaded layer with a specific id.
         */
         findLoadedLayer(id: string): ProjectLayer {
-            if (this.loadedLayers.containsKey(id)) return this.loadedLayers[id];
+            if (this.loadedLayers.hasOwnProperty(id)) return this.loadedLayers[id];
             return null;
         }
 
@@ -1427,7 +1469,7 @@ module csComp.Services {
          * Find a layer with a specific id.
          */
         findLayer(id: string): ProjectLayer {
-            if (this.loadedLayers.containsKey(id)) return this.loadedLayers[id];
+            if (this.loadedLayers.hasOwnProperty(id)) return this.loadedLayers[id];
             //return null;
             var r: ProjectLayer;
             this.project.groups.forEach(g => {
@@ -1896,7 +1938,7 @@ module csComp.Services {
             // make sure the timers are disabled
             this.checkLayerTimer(layer);
 
-            this.loadedLayers.remove(layer.id);
+            delete this.loadedLayers[layer.id];
 
             // find layer source, and remove layer
             if (!layer.layerSource) layer.layerSource = this.layerSources[layer.type.toLowerCase()];
@@ -1945,7 +1987,7 @@ module csComp.Services {
          */
         openSolution(url: string, layers?: string, initialProject?: string): void {
             //console.log('layers (openSolution): ' + JSON.stringify(layers));
-            this.loadedLayers.clear();
+            this.loadedLayers = {};
 
             var searchParams = this.$location.search();
             if (searchParams.hasOwnProperty('project')) {
