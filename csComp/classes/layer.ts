@@ -1,4 +1,9 @@
 module csComp.Services {
+    
+    export interface ISensorLink
+    {
+        url? : string;        
+    }
 
     /** Interface of a project layer
      *  Note that this is a copy of the similarly named class, but the advantage is that I can use the
@@ -16,6 +21,9 @@ module csComp.Services {
         description?: string;
         /** link to one or more meta description files containing  */
         typeUrl?: string | string[];
+        
+        /** link to url for dynamic sensor data */
+        sensorLink? : ISensorLink;
         /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
         type: string;
         /** render type */
@@ -44,8 +52,12 @@ module csComp.Services {
         refreshBBOX?: boolean;
         /** indicates that this is a dynamic layer (dynamicgeojson) */
         isDynamic?: boolean;
+        
+        /** this layer contains sensor data, updated when focusTime changes */
+        hasSensorData? : boolean;
+        
         /**
-         * if layer is connected, indicate if it is online
+         * indicates if a dynamic layer is connected
          */
         isConnected?: boolean;
         /**
@@ -143,6 +155,8 @@ module csComp.Services {
         hierarchySettings: FeatureRelations.IHierarchySettings;
         /** In case we keep the type (feature,property) information in a separate file */
         typeUrl: string;
+        /** link to url for dynamic sensor data */
+        sensorLink : ISensorLink;
         /** WMS sublayers that must be loaded */
         wmsLayers: string;
         /** If enabled, load the layer */
@@ -224,7 +238,7 @@ module csComp.Services {
         /** Whether layer can be quickly updated instead of completely rerendered */
         quickRefresh: boolean;
 
-        lastSelectedFeature: IFeature;
+        _lastSelectedFeature: IFeature;
 
         /** link to a parent feature, e.g. city layer references to a parent provence */
         parentFeature: IFeature;
@@ -232,9 +246,19 @@ module csComp.Services {
         /** key name of default feature type */
         defaultFeatureType: string;
 
+        /**  dynamic projects have a realtime connection with the server. This connection allows you to make changes to the feature & property types and 
+        feature geometry and property values. changes are distributed to all active clients in realtime */        
         isDynamic: boolean;
+        
+        /** logging mechanism allows you to specify specific property values and geometries in time,  it works the same way as sensor data but is optimized for smaller amounts of data and allows not only numbers
+        but also text, geometries, etc., where sensors are optimized for many different values, but only numbers         
+        */
         useLog: boolean;
+        
         isConnected: boolean;
+        
+        /** this layer contains sensor data, updated when focusTime changes */
+        hasSensorData : boolean;
 
         /**
          * gui is used for setting temp. values for rendering
@@ -283,6 +307,7 @@ module csComp.Services {
                 heatmapItems: csComp.Helpers.serialize(pl.heatmapItems, Heatmap.HeatmapItem.serializeableData),
                 url: pl.url,
                 typeUrl: pl.typeUrl,
+                sensorLink : pl.sensorLink,
                 wmsLayers: pl.wmsLayers,
                 opacity: pl.opacity,
                 isSublayer: pl.isSublayer,
@@ -297,8 +322,7 @@ module csComp.Services {
                 defaultLegendProperty: pl.defaultLegendProperty,
                 useProxy: pl.useProxy,
                 isDynamic: pl.isDynamic,
-                useLog: pl.useLog,
-                gui: {},
+                useLog: pl.useLog,                
                 tags: pl.tags,
                 fitToMap: pl.fitToMap,
                 minZoom: pl.minZoom,

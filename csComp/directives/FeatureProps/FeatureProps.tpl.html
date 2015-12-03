@@ -103,7 +103,7 @@
                                 </div>
                                 <div ng-switch-default>
                                     <div class="feature-prop-title">{{item.propertyType.title}}</div>
-                                    <div ng-hide="item.isSensor" ng-if="!item.configMode" data-ng-switch="item.propertyType.type" class="feature-prop-value">
+                                    <div ng-if="!item.configMode" data-ng-switch="item.propertyType.type" class="feature-prop-value">
                                         <div ng-switch-when="date" class="feature-prop-value-align-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
                                             {{vm.getFormattedDate(item.feature.properties[item.property], item.propertyType)}}</div>
                                         <div ng-switch-when="boolean" class="feature-prop-value-align-right">{{item.feature.properties[item.property]}}</div>

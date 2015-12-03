@@ -231,10 +231,23 @@ module Timeline {
             this.$layerService.timeline.setOptions(this.options);
             this.$layerService.timeline.redraw();
         }
+        
+        private throttleTimeSpanUpdate = _.debounce(this.triggerTimeSpanUpdated, 1000);
+        
+        /**
+         * trigger a debounced timespan updated message on the message bus
+         */
+        private triggerTimeSpanUpdated()
+        {
+            this.$messageBusService.publish("timeline","timeSpanUpdated","");            
+        }
 
-
+        /**
+         * time span was updated by timeline control
+         */
         public onRangeChanged(prop) {
             this.updateFocusTime();
+            this.throttleTimeSpanUpdate();
         }
 
         public start() {
