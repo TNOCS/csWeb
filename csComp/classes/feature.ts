@@ -159,9 +159,9 @@ module csComp.Services {
     }
 
     export interface IPropertyType {
-        id? : string;
+        id?:               string;
         label?:            string;
-        title?: string;        
+        title?:            string;
         description?:      string;
         type?:             string;
         section?:          string;

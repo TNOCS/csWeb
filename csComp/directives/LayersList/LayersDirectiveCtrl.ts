@@ -67,21 +67,20 @@ module LayersDirective {
                 }
             });
             this.$messageBusService.subscribe('layerdrop',(title: string, layer : csComp.Services.ProjectLayer)=>{
-                this.dropLayer(layer);            
-            });                                           
+                this.dropLayer(layer);
+            });
         }
-        
+
         public dropLayer(layer : csComp.Services.ProjectLayer)
         {
-            this.initGroups();            
+            this.initGroups();
             this.initResources();
-            
-                        
-                (<any>$('#leftPanelTab a[data-target="#layers"]')).tab('show');
-                this.state = "createlayer";
-                this.newLayer = layer;  
-                this.newGroup = layer.id;              
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+
+            (<any>$('#leftPanelTab a[data-target="#layers"]')).tab('show');
+            this.state = 'createlayer';
+            this.newLayer = layer;
+            this.newGroup = layer.id;
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                 this.$scope.$apply();
             };
         }
@@ -95,7 +94,6 @@ module LayersDirective {
             var rpt = csComp.Helpers.createRightPanelTab('edit', 'layeredit', layer, 'Edit layer', 'Edit layer');
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
-
 
         public createType() {
             if (this.layer.typeUrl) {
