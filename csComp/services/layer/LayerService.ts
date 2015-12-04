@@ -1303,7 +1303,7 @@ module csComp.Services {
             if (!ft._propertyTypeData || ft._propertyTypeData.length === 0) {
                 ft._propertyTypeData = [];
                 if (ft.propertyTypeKeys && ft.propertyTypeKeys.length > 0) {
-                    ft.propertyTypeKeys.split(';').forEach((key: string) => {
+                    ft.propertyTypeKeys.split(/[,;]+/).forEach((key: string) => {
                         if (propertyTypes.hasOwnProperty(key)) ft._propertyTypeData.push(propertyTypes[key]);
                     });
                 }
