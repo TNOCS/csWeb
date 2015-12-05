@@ -237,8 +237,10 @@ module csComp.Services {
          * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.
          */
         propertyTypeKeys?: string;
-        languages?:       ILanguageData;
-        _isInitialized?: boolean;
+        languages?:        ILanguageData;
+        /** Optional expression that is shown in the legend list. */
+        expression?:       string;
+        _isInitialized?:   boolean;
     }
 
     export interface IGeoJsonFile {
