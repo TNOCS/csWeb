@@ -1,7 +1,7 @@
 module csComp.Services {
     export class LeafletRenderer implements IMapRenderer {
 
-        title = "leaflet";
+        title = 'leaflet';
         service: LayerService;
         $messageBusService: MessageBusService;
         map: L.Map;
@@ -22,29 +22,30 @@ module csComp.Services {
         }
 
         public enable() {
-            if ($("map").length !== 1) return;
-            this.service.$mapService.map = L.map("map", {
-
-                //var tl  = L.map("mapleft", {
+            if ($('map').length !== 1) return;
+            this.service.$mapService.map = L.map('map', {
                 zoomControl: false,
                 maxZoom: 19,
                 attributionControl: true
-
             });
             this.map = this.service.$mapService.map;
 
-            this.service.$mapService.map.on('moveend', (t, event: any) => {
-                var b = (<L.Map>(this.service.$mapService.map)).getBounds();
-                this.$messageBusService.publish("mapbbox", "update", b.toBBoxString());
+            this.map.on('moveend', (t, event: any) => this.updateBoundingBox());
 
-                var boundingBox: csComp.Services.IBoundingBox = { southWest: [b.getSouthWest().lat, b.getSouthWest().lng], northEast: [b.getNorthEast().lat, b.getNorthEast().lng] };
-                this.service.$mapService.maxBounds = boundingBox;
-            });
-
-            this.service.$mapService.map.on('zoomend', (t, event: any) => {
+            this.map.on('zoomend', (t, event: any) => {
                 var z: number = (<L.Map>(this.service.$mapService.map)).getZoom();
                 this.$messageBusService.publish('map', 'zoom', z);
             });
+
+            this.map.once('load', () => this.updateBoundingBox());
+        }
+
+        private updateBoundingBox() {
+            var b = (<L.Map>(this.map)).getBounds();
+            this.$messageBusService.publish('mapbbox', 'update', b.toBBoxString());
+
+            var boundingBox: csComp.Services.IBoundingBox = { southWest: [b.getSouth(), b.getWest()], northEast: [b.getNorth(), b.getEast()] };
+            this.service.$mapService.maxBounds = boundingBox;
         }
 
         public getLatLon(x: number, y: number): { lat: number, lon: number } {
@@ -81,7 +82,7 @@ module csComp.Services {
         public disable() {
             this.service.$mapService.map.remove();
             this.service.$mapService.map = null;
-            $("#map").empty();
+            $('#map').empty();
         }
 
         public refreshLayer() {
@@ -131,7 +132,7 @@ module csComp.Services {
 
         public removeLayer(layer: ProjectLayer) {
             switch (layer.renderType) {
-                case "geojson":
+                case 'geojson':
                     GeojsonRenderer.remove(this.service, layer);
                     break;
                 default:
@@ -174,7 +175,7 @@ module csComp.Services {
                 opacity: style.opacity,
                 fillOpacity: style.fillOpacity
             };
-            s["color"] = (typeof style.stroke !== 'undefined' && style.stroke === false)
+            s['color'] = (typeof style.stroke !== 'undefined' && style.stroke === false)
                 ? style.fillColor
                 : style.strokeColor;
             return s;
@@ -182,19 +183,19 @@ module csComp.Services {
 
         public addLayer(layer: ProjectLayer) {
             switch (layer.renderType) {
-                case "geojson":
+                case 'geojson':
                     GeojsonRenderer.render(this.service, layer, this);
                     break;
-                case "tilelayer":
+                case 'tilelayer':
                     TileLayerRenderer.render(this.service, layer);
                     break;
-                case "wms":
+                case 'wms':
                     WmsRenderer.render(this.service, layer);
                     break;
-                case "gridlayer":
+                case 'gridlayer':
                     GridLayerRenderer.render(this.service, layer);
                     break;
-                case "heatmap":
+                case 'heatmap':
                     HeatmapRenderer.render(this.service, layer, this);
                     break;
             }
@@ -225,7 +226,7 @@ module csComp.Services {
         public removeFeature(feature: IFeature) {
             var layer = feature.layer;
             switch (layer.renderType) {
-                case "geojson":
+                case 'geojson':
                     var g = layer.group;
 
                     if (g.clustering) {
@@ -277,8 +278,8 @@ module csComp.Services {
         }
 
         public selectFeature(feature) {
-            if (feature._gui.hasOwnProperty("dragged")) {
-                delete feature._gui["dragged"];
+            if (feature._gui.hasOwnProperty('dragged')) {
+                delete feature._gui['dragged'];
             }
             else {
                 this.service.selectFeature(feature, this.cntrlIsPressed);
@@ -335,25 +336,25 @@ module csComp.Services {
                         this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
 
                         //e.stopPropagation();
-                        var button: any = $("#map-contextmenu-button");
-                        var menu: any = $("#map-contextmenu");
+                        var button: any = $('#map-contextmenu-button');
+                        var menu: any = $('#map-contextmenu');
                         button.dropdown('toggle');
                         var mapSize = this.map.getSize();
                         if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
-                            menu.css("left", e.originalEvent.x + 5);
+                            menu.css('left', e.originalEvent.x + 5);
                         } else {
-                            menu.css("left", e.originalEvent.x - 5 - menu.width());
+                            menu.css('left', e.originalEvent.x - 5 - menu.width());
                         }
                         if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
-                            menu.css("top", e.originalEvent.y - 35);
+                            menu.css('top', e.originalEvent.y - 35);
                         } else {
-                            menu.css("top", e.originalEvent.y - 70 - menu.height());
+                            menu.css('top', e.originalEvent.y - 70 - menu.height());
                         }
                         if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
                     });
 
                     marker.on('dragstart', (event: L.LeafletEvent) => {
-                        feature._gui["dragged"] = true;
+                        feature._gui['dragged'] = true;
                     });
 
                     marker.on('dragend', (event: L.LeafletEvent) => {
@@ -374,19 +375,19 @@ module csComp.Services {
                         this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
 
                         //e.stopPropagation();
-                        var button: any = $("#map-contextmenu-button");
-                        var menu: any = $("#map-contextmenu");
+                        var button: any = $('#map-contextmenu-button');
+                        var menu: any = $('#map-contextmenu');
                         button.dropdown('toggle');
                         var mapSize = this.map.getSize();
                         if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
-                            menu.css("left", e.originalEvent.x + 5);
+                            menu.css('left', e.originalEvent.x + 5);
                         } else {
-                            menu.css("left", e.originalEvent.x - 5 - menu.width());
+                            menu.css('left', e.originalEvent.x - 5 - menu.width());
                         }
                         if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
-                            menu.css("top", e.originalEvent.y - 35);
+                            menu.css('top', e.originalEvent.y - 35);
                         } else {
-                            menu.css("top", e.originalEvent.y - 70 - menu.height());
+                            menu.css('top', e.originalEvent.y - 70 - menu.height());
                         }
                         if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
                     });
@@ -422,7 +423,7 @@ module csComp.Services {
                     html: iconHtml['html']
                 });
                 //icon = new L.DivIcon({
-                //    className: "style" + feature.poiTypeName,
+                //    className: 'style' + feature.poiTypeName,
                 //    iconSize: new L.Point(feature.fType.style.iconWidth, feature.fType.style.iconHeight)
                 //});
             }
@@ -514,6 +515,4 @@ module csComp.Services {
             if (this.popup != null && e.latlng != null) this.popup.setLatLng(e.latlng);
         }
     }
-
-
 }

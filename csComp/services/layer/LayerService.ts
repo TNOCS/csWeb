@@ -203,43 +203,43 @@ module csComp.Services {
             var updated = false;
             console.log('updating sensorlinks');
             for (var l in this.loadedLayers) {
-                var layer = <ProjectLayer>this.loadedLayers[l];                
+                var layer = <ProjectLayer>this.loadedLayers[l];
                 console.log(layer.title);
                 if (layer.sensorLink) {
                     console.log('downloading ' + layer.sensorLink.url);
                     this.$http.get(layer.sensorLink.url)
                         .success((data: ISensorLinkResult) => {
-                            updated = true;
-                            layer.timestamps = data.timeStamps;
-                            layer.data.features.forEach((f: IFeature) => { f.sensors = {};
-                            data.properties.forEach(s=>f.sensors[s] = []); 
+                                updated = true;
+                                layer.timestamps = data.timeStamps;
+                                layer.data.features.forEach((f: IFeature) => { f.sensors = {};
+                                data.properties.forEach(s => f.sensors[s] = []);
                             });
                             var t = 0;
-                            
+
                             data.data.forEach(ts => {
                                 var i = 0;
                                 layer.data.features.forEach((f: IFeature) => {
-                                    data.properties.forEach(s=>{
-                                    f.sensors[s].push(data.data[t][i]);
-                                    i += 1;    
-                                    })                                                                       
+                                    data.properties.forEach(s => {
+                                        f.sensors[s].push(data.data[t][i]);
+                                        i += 1;
+                                    });
                                 });
                                 t += 1;
-                            });  
-                            this.throttleSensorDataUpdate();                                                                                  
+                            });
+                            this.throttleSensorDataUpdate();
                         })
                         .error((e) => {
                             console.log('error loading sensor data');
                         });
                 }
-            };            
+            };
         }
 
         public enableDrop() {
             var w = <any>window;
             if (w.File && w.FileList && w.FileReader) {
                 console.log('enable drop');
-                var obj = $("body");
+                var obj = $('body');
                 obj.on('dragenter', (e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -257,14 +257,12 @@ module csComp.Services {
                     var ev = <any>e.originalEvent;
                     var files = ev.dataTransfer.files;
                     if (files.length > 1) {
-                        this.$messageBusService.notify("File upload", "Only one file at a time permitted");
-                    }
-                    else {
+                        this.$messageBusService.notify('File upload', 'Only one file at a time permitted');
+                    } else {
                         this.handleFileUpload(files, obj);
                     }
- 
+
                     //We need to send dropped files to Server
-                
                 });
             }
         }
@@ -278,22 +276,20 @@ module csComp.Services {
                     // get file content
                     var text = e.target.result;
                     var obj = JSON.parse(text);
-                    if (obj && obj.type && ["featurecollection", "geojson", "dynamicgeojson"].indexOf((<string>obj.type).toLowerCase()) >= 0) {
+                    if (obj && obj.type && ['featurecollection', 'geojson', 'dynamicgeojson'].indexOf((<string>obj.type).toLowerCase()) >= 0) {
                         var newLayer = new csComp.Services.ProjectLayer();
                         var id = file.name.toLowerCase().replace('.json', '').replace('.geojson', '');
                         newLayer.id = id;
                         newLayer.title = id;
-                        newLayer.type = "dynamicgeojson";
+                        newLayer.type = 'dynamicgeojson';
                         newLayer.groupId = this.project.groups[0].id;
                         newLayer.group = this.project.groups[0];
                         newLayer.data = obj;
-                        this.$messageBusService.publish("layerdrop", "new", newLayer);
+                        this.$messageBusService.publish('layerdrop', 'new', newLayer);
+                    } else {
+                        this.$messageBusService.notify('File upload', 'File format not recognized');
                     }
-                    else {
-                        this.$messageBusService.notify("File upload", "File format not recognized");
-                    }
-
-                }
+                };
                 reader.readAsText(file);
             }
         }
@@ -338,7 +334,7 @@ module csComp.Services {
                 return false;
             });
             if (asAlreadyExists) {
-                console.log('Actionservice ' + as.id + ' already exists.')
+                console.log('Actionservice ' + as.id + ' already exists.');
             } else {
                 this.actionServices.push(as);
                 as.init(this);
@@ -1167,12 +1163,12 @@ module csComp.Services {
 
                 // resolve feature type                
                 feature.fType = this.getFeatureType(feature);
-                
+
                 //this.initFeatureType(feature.fType);
 
                 // add missing properties
                 //if (feature.fType.showAllProperties) 
-                
+
                 // Do we have a name?
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
 
@@ -2563,11 +2559,11 @@ module csComp.Services {
         /** Find a sensor set for a specific source/sensor combination. Key should be something like datasource/sensorid */
         public findSensorSet(key: string, callback: Function) {
             var kk = key.split('/');
-            if (kk.length == 2) {
+            if (kk.length === 2) {
                 var dataSourceId = kk[0];
                 var sensorId = kk[1];
 
-                var dss = this.project.datasources.filter((ds: DataSource) => { return ds.id === dataSourceId });
+                var dss = this.project.datasources.filter((ds: DataSource) => { return ds.id === dataSourceId; });
                 if (dss.length === 0) {
                     var ds = new DataSource();
                     ds.id = dataSourceId;
@@ -2579,8 +2575,7 @@ module csComp.Services {
                 ds = dss[0];
                 if (ds.sensors.hasOwnProperty(sensorId)) {
                     callback(ds.sensors[sensorId]);
-                }
-                else {
+                } else {
                     var ss = new SensorSet();
                     ss.id = sensorId;
                     ss.title = sensorId;
@@ -2603,8 +2598,7 @@ module csComp.Services {
             var features = [];
             if (this.selectedFeatures.length > 1) {
                 features = this.selectedFeatures;
-            }
-            else {
+            } else {
                 features = (layer.group.filterResult) ? layer.group.filterResult : layer.data.features;
             }
             if (features) features.forEach((f: IFeature) => { if (f.layerId === layer.id) r.push(f.properties); });
@@ -2639,7 +2633,7 @@ module csComp.Services {
                     });
                 }
             });
-            if (isNaN(sum) || r.count == 0) {
+            if (isNaN(sum) || r.count === 0) {
 
             } else {
                 r.mean = sum / r.count;
