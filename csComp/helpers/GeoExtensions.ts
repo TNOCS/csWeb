@@ -7,7 +7,7 @@ module csComp.Helpers {
             type: string;
             coordinates: Array<number> | Array<Array<number>> | Array<Array<Array<number>>>
         };
-        properties: Object
+        properties: Object;
     }
 
     export interface IGeoFeatureCollection {
@@ -20,6 +20,16 @@ module csComp.Helpers {
     * Source: http://www.csgnetwork.com/degreelenllavcalc.html
     */
     export class GeoExtensions {
+
+        static getFeatureBounds(feature: IFeature): L.LatLng[] | L.LatLngBounds {
+            switch (feature.geometry.type) {
+                case 'Point':
+                    return [new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0])];
+                default:
+                    var bounds = d3.geo.bounds(feature);
+                    return new L.LatLngBounds([bounds[0][1], bounds[0][0]], [bounds[1][1], bounds[1][0]]);
+            }
+        }
 
         static getBoundingBox(data) {
             var bounds: any = {}, coords, point, latitude, longitude;
