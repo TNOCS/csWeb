@@ -1,8 +1,11 @@
 module LegendList {
     export interface ILegendItem {
-        title: string;
-        uri: string;
-        html: string;
+        title:       string;
+        uri:         string;
+        html:        string;
+        count?:      number;
+        subtitles?:  string[];
+        features?:   IFeature[];
     }
 
     export interface ILegendListScope extends ng.IScope {
@@ -12,46 +15,65 @@ module LegendList {
     }
 
     export class LegendListCtrl {
+        /** Active bounding box */
+        private bbox: L.LatLngBounds;
+
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
         // it is better to have it close to the constructor, because the parameters must match in count and type.
         // See http://docs.angularjs.org/guide/di
         public static $inject = [
             '$scope',
+            '$sce',
+            '$timeout',
             'layerService',
             'mapService',
             'messageBusService',
-            '$sce'
+            'expressionService'
         ];
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
             private $scope: ILegendListScope,
-            private $layerService: csComp.Services.LayerService,
-            private $mapService: csComp.Services.MapService,
-            private $messageBusService: csComp.Services.MessageBusService,
-            private $sce: ng.ISCEService
+            private $sce: ng.ISCEService,
+            private $timeout: ng.ITimeoutService,
+            private layerService: csComp.Services.LayerService,
+            private mapService: csComp.Services.MapService,
+            private messageBusService: csComp.Services.MessageBusService,
+            private expressionService: csComp.Services.ExpressionService
             ) {
             $scope.vm = this;
 
-            $messageBusService.subscribe('project', (title) => {
+            messageBusService.subscribe('project', (title) => {
                 switch (title) {
-                    case "loaded":
+                    case 'loaded':
                         // Update the legend when a project is loaded.
                         this.updateLegendItems();
                         break;
                 }
             });
 
-            $messageBusService.subscribe('layer', (title) => {
+            messageBusService.subscribe('layer', (title) => {
                 switch (title) {
-                    case "activated":
-                    case "deactivate":
+                    case 'activated':
+                    case 'deactivate':
                         // Update the legend when a layer is added or removed.
                         this.updateLegendItems();
                         break;
                 }
+            });
+
+            messageBusService.subscribe('mapbbox', (title, data: string) => {
+                if (!$('#legend').is(':visible')) return;
+                if (title !== 'update') return;
+                var pts: number[] = [];
+                data.split(',').forEach(p => {
+                    pts.push(+p);
+                });
+                this.bbox = new L.LatLngBounds([pts[1], pts[0]], [pts[3], pts[2]]);
+                // console.log('BBOX: ' + this.bbox.toBBoxString());
+                this.updateLegendItems();
             });
 
             this.updateLegendItems();
@@ -63,13 +85,13 @@ module LegendList {
 
         /**
          * Three approaches for creating a legend can be used:
-         * 1. Using the featureTypes loaded in LayerService, which is quick, but also includes items that are not on the list.
+         * 1. Using the featureTypes loaded in LayerService, which is quick, but also includes items that are not shown.
          *    Also, when deactivating the layer, items persist in the legendlist. Finally, items with an icon based on a property
          *    are only shown once (e.g., houses with energylabels).
          * 2. Second approach is to loop over all features on the map and select unique legend items. This is slower for large
          *    amounts of features, but the items in the legendlist are always complete and correct.
          * 3. Third approach is to use a legend that is defined in a featuretype. This is useful if you want to show a custom legend.
-         * For 1. use "updateLegendItemsUsingFeatureTypes()", for 2. use "updateLegendItemsUsingFeatures(), for 3. use "updateLegendStatically()"
+         * For 1. use 'updateLegendItemsUsingFeatureTypes()', for 2. use 'updateLegendItemsUsingFeatures(), for 3. use 'updateLegendStatically()'
          */
         private updateLegendItems() {
             //this.updateLegendItemsUsingFeatureTypes(); // 1.
@@ -82,50 +104,49 @@ module LegendList {
          * that corresponding featureType is acquired. When the featureType has a property 'legend' in which legenditems are defined,
          * these items are added to the legend.
          * Example definition in the FeatureType:
-         * "MyFeatureType" : {
-         *   "legendItems" : [{
-         *     "title" : "My feature",
-         *     "uri" : "images/myicon.png"
+         * 'MyFeatureType' : {
+         *   'legendItems' : [{
+         *     'title' : 'My feature',
+         *     'uri' : 'images/myicon.png'
          *   }]
          * }
          */
         private updateLegendStatically() {
-            var project = this.$layerService.project;
+            var project = this.layerService.project;
             if (!project) return;
             if (!project.hasOwnProperty('groups')) { console.log('Creating legend failed: no groups found'); return; }
             var legendItems: Array<ILegendItem> = [];
             var processedFeatureTypes = {};
             project.groups.forEach((g) => {
-                if (g.hasOwnProperty('layers')) {
-                    g.layers.forEach((l) => {
-                        if (l.enabled && l.hasOwnProperty('typeUrl') && l.hasOwnProperty('defaultFeatureType')) {
-                            var typeName = l.typeUrl + "#" + l.defaultFeatureType;
-                            var fType = this.$layerService.getFeatureTypeById(typeName);
-                            if (!processedFeatureTypes.hasOwnProperty(typeName) && fType && fType.hasOwnProperty('legendItems')) {
-                                fType['legendItems'].forEach((i) => {
-                                    legendItems.push({ title: i.title, uri: i.uri || '', html: i.html || '' });
-                                });
-                            }
-                            processedFeatureTypes[typeName] = true;
+                if (!g.hasOwnProperty('layers')) return;
+                g.layers.forEach((l) => {
+                    if (l.enabled && l.hasOwnProperty('typeUrl') && l.hasOwnProperty('defaultFeatureType')) {
+                        var typeName = l.typeUrl + '#' + l.defaultFeatureType;
+                        var fType = this.layerService.getFeatureTypeById(typeName);
+                        if (!processedFeatureTypes.hasOwnProperty(typeName) && fType && fType.hasOwnProperty('legendItems')) {
+                            fType['legendItems'].forEach((i) => {
+                                legendItems.push({ title: i.title, uri: i.uri || '', html: i.html || '' });
+                            });
                         }
-                    })
-                }
-            })
+                        processedFeatureTypes[typeName] = true;
+                    }
+                });
+            });
             this.$scope.legendItems = legendItems;
         }
 
         private updateLegendItemsUsingFeatureTypes() {
             var legendItems: Array<ILegendItem> = [];
             var existingItems: Array<String> = [];
-            for (var key in this.$layerService._featureTypes) {
-                var ft = this.$layerService._featureTypes[key];
+            for (var key in this.layerService._featureTypes) {
+                var ft = this.layerService._featureTypes[key];
                 var uri = csComp.Helpers.getImageUri(ft);
                 var html = '';
                 var title = this.getName(key, ft);
                 var existingItem = title + uri;
                 if (existingItems.indexOf(existingItem) < 0) {
                     existingItems.push(existingItem);
-                    legendItems.push({ "title": title, "uri": uri, "html": html });
+                    legendItems.push({ 'title': title, 'uri': uri, 'html': html });
                 }
             }
             legendItems.sort((a: ILegendItem, b: ILegendItem) => {
@@ -137,21 +158,26 @@ module LegendList {
         }
 
         private updateLegendItemsUsingFeatures() {
+            if (!this.bbox) return;
+
             var sort = true;
             var processedFeatureTypes = {};
             var legendItems: Array<ILegendItem> = [];
-            var existingItems: Array<String> = [];
-            if (!this.$layerService.project || this.$layerService.project.features.length === 0) {
+            var existingItems: Array<string> = [];
+            if (!this.layerService.project || this.layerService.project.features.length === 0) {
                 this.$scope.legendItems = legendItems;
                 return;
             }
             // Loop over all features on the map
-            this.$layerService.project.features.forEach((f) => {
+            this.layerService.project.features.forEach((f) => {
+                if (!this.bbox.contains(csComp.Helpers.GeoExtensions.getFeatureBounds(f))) return;
                 var ft: csComp.Services.IFeatureType = f.fType;
-                if (!ft) ft = this.$layerService.getFeatureType(f);
-                // If a (static) legend is defined in the featureType, use it
+                if (!ft) ft = this.layerService.getFeatureType(f);
+                if (!ft) return;
+                
                 if (processedFeatureTypes.hasOwnProperty(ft.name)) return;
-                if (ft && ft.hasOwnProperty('legendItems')) {
+                // If a (static) legend is defined in the featureType, use it
+                if (ft.hasOwnProperty('legendItems')) {
                     ft['legendItems'].forEach((i) => {
                         legendItems.push({ title: i.title, uri: i.uri || '', html: i.html || '' });
                     });
@@ -161,13 +187,24 @@ module LegendList {
                 }
                 // Else get the legend entry from the feature style
                 var uri = (ft && ft.style && ft.style.hasOwnProperty('iconUri')) ? csComp.Helpers.convertStringFormat(f, ft.style.iconUri) : csComp.Helpers.getImageUri(ft);
-                if (uri.indexOf('_Media') >= 0) f.effectiveStyle.iconUri = "cs/images/polygon.png";
+                if (uri.indexOf('_Media') >= 0) f.effectiveStyle.iconUri = 'cs/images/polygon.png';
                 var html = csComp.Helpers.createIconHtml(f, ft)['html'];
                 var title = ft.name || f.layer.title || ((ft.id) ? ft.id.split('#').pop() : 'undefined');
                 var existingItem = title + uri;
-                if (existingItems.indexOf(existingItem) < 0) {
+                var i = existingItems.indexOf(existingItem);
+                var expression = '';
+                if (ft.expression) {
+                    console.time('Expression');
+                    var features: IFeature[] = this.layerService.project.features.filter((feature) => { return feature.fType === ft; });
+                    expression = this.expressionService.evalExpression(ft.expression, features, f);
+                    console.timeEnd('Expression');
+                    console.log('Expression: ' + expression);
+                }
+                if (i < 0) {
                     existingItems.push(existingItem);
-                    legendItems.push({ "title": title, "uri": uri, "html": html });
+                    legendItems.push({ title: title, uri: uri, html: html, count: 1, subtitles: [expression] });
+                } else {
+                    legendItems[i].count++;
                 }
             });
             if (sort) {
@@ -177,16 +214,14 @@ module LegendList {
                     return 0;
                 });
             }
-            this.$scope.legendItems = legendItems;
+            this.$timeout(() => {
+                this.$scope.legendItems = legendItems;
+            }, 0);
         }
-
-
-
 
         private getName(key: string, ft: csComp.Services.IFeatureType): string {
-            return ft.name || key.split('#').pop()
+            return ft.name || key.split('#').pop();
         }
-
 
         public toTrusted(html: string): string {
             try {
