@@ -34,14 +34,15 @@ module csComp.Services {
 
             this.initExpertMode();
             this.baseLayers = {};
-            this.initMap();
 
             $messageBusService.subscribe('timeline', (title: string, data) => {
                 switch (title) {
                     case 'isEnabled':
                         this.timelineVisible = data;
                         if (this.timelineVisible) {
-                            this.$timeout(() => { this.$messageBusService.publish('timeline', 'loadProjectTimeRange') }, 100);
+                            this.$timeout(() => { 
+                                this.$messageBusService.publish('timeline', 'loadProjectTimeRange');
+                            }, 100);
                         }
                         break;
                 }
@@ -52,24 +53,21 @@ module csComp.Services {
                     case 'setextent':
                         // console.log(data);
                         // take the navbar and leftpanel into account using padding (50px height, 370px left)
-                        this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast), {paddingTopLeft: new L.Point(370, 50)});
-
+                        this.map.fitBounds(new L.LatLngBounds(data.southWest, data.northEast), { paddingTopLeft: new L.Point(370, 50) });
                         break;
                 }
-            })
-
-
+            });
         }
 
         /**
-      * The expert mode can either be set manually, e.g. using this directive, or by setting the expertMode property in the
-      * project.json file. In neither are set, we assume that we are dealing with an expert, so all features should be enabled.
-      *
-      * Precedence:
-      * - when a declaration is absent, assume Expert.
-      * - when the mode is set in local storage, take that value.
-      * - when the mode is set in the project.json file, take that value.
-      */
+         * The expert mode can either be set manually, e.g. using this directive, or by setting the expertMode property in the
+         * project.json file. In neither are set, we assume that we are dealing with an expert, so all features should be enabled.
+         *
+         * Precedence:
+         * - when a declaration is absent, assume Expert.
+         * - when the mode is set in local storage, take that value.
+         * - when the mode is set in the project.json file, take that value.
+         */
         private initExpertMode() {
             this.expertMode = this.$localStorageService.get(MapService.expertModeKey);
             if (!this.expertMode) {
@@ -105,13 +103,6 @@ module csComp.Services {
             return this.expertMode === Expertise.Admin;
         }
 
-        public initMap() {
-            // alert('map service');
-            // this.map = L.map("map", {
-            //     zoomControl: false,
-            //     attributionControl: true
-            // });
-        }
         public getBaselayer(layer: string) {
             var layerObj: BaseLayer = this.baseLayers[layer];
             return layerObj;
@@ -139,14 +130,14 @@ module csComp.Services {
          */
         public zoomTo(feature: IFeature, zoomLevel: number = 14) {
             var center: L.LatLng;
-            if (feature.geometry.type.toUpperCase() == 'POINT') {
+            if (feature.geometry.type.toUpperCase() === 'POINT') {
                 center = new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
                 this.map.setView(center, zoomLevel);
             } else {
                 var bb: Array<number>;
-                if (feature.geometry.type.toUpperCase().indexOf("MULTI") < 0)
+                if (feature.geometry.type.toUpperCase().indexOf('MULTI') < 0) {
                     bb = this.getBoundingBox(feature.geometry.coordinates[0]);
-                else { // MULTIPOLYGON or MULTILINESTRING
+                } else { // MULTIPOLYGON or MULTILINESTRING
                     bb = [1000, -1000, 1000, -1000];
                     feature.geometry.coordinates.forEach((c) => {
                         var b = this.getBoundingBox(c[0]);
@@ -158,8 +149,8 @@ module csComp.Services {
                 var northEast = L.latLng(Math.max(bb[2], bb[3]), Math.max(bb[0], bb[1]) + spacingLon);
                 this.map.fitBounds(new L.LatLngBounds(southWest, northEast));
             }
-            this.$messageBusService.publish("sidebar", "show");
-            this.$messageBusService.publish("feature", "onFeatureSelect", feature);
+            this.$messageBusService.publish('sidebar', 'show');
+            this.$messageBusService.publish('feature', 'onFeatureSelect', feature);
         }
 
         //private getCentroid(arr) {
@@ -194,5 +185,5 @@ module csComp.Services {
         myModule = angular.module(moduleName, []);
     }
 
-    myModule.service('mapService', csComp.Services.MapService)
+    myModule.service('mapService', csComp.Services.MapService);
 }

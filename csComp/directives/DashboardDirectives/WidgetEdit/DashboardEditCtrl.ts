@@ -96,13 +96,13 @@ module DashboardEdit {
 
         public checkMap() {
             var db = this.$layerService.project.activeDashboard;
-            if (db.showMap != this.$layerService.visual.mapVisible) {
+            if (db.showMap !== this.$layerService.visual.mapVisible) {
                 if (db.showMap) {
                     this.$layerService.visual.mapVisible = true;
                 } else {
                     this.$layerService.visual.mapVisible = false;
                 }
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
             }
 
             if (db.showMap && this.dashboard.baselayer) {
@@ -122,21 +122,21 @@ module DashboardEdit {
                 var s = new Date(db.timeline.start);
                 var e = new Date();
                 if (db.timeline.end) e = new Date(db.timeline.end);
-                //this.$messageBusService.publish("timeline", "updateTimerange", { "start": s, "end": e});
-                this.$messageBusService.publish("timeline", "updateTimerange", { start: s, end: e });
+                //this.$messageBusService.publish('timeline', 'updateTimerange', { 'start': s, 'end': e});
+                this.$messageBusService.publish('timeline', 'updateTimerange', { start: s, end: e });
 
 
                 //this.$layerService.project.timeLine.setFocus(db.timeline.focusDate, db.timeline.startDate, db.timeline.endDate);
             }
 
-            if (db.showTimeline != this.$mapService.timelineVisible) {
+            if (db.showTimeline !== this.$mapService.timelineVisible) {
                 if (db.showTimeline) {
                     this.$mapService.timelineVisible = true;
                 } else {
                     this.$mapService.timelineVisible = false;
                 }
 
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
             }
         }
 
@@ -150,7 +150,7 @@ module DashboardEdit {
                 if (idxDelete > -1) db.widgets.splice(idxDelete, 1);
             }
             this.$dashboardService.selectDashboard(db, 'main');
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
         }
 
     }

@@ -137,13 +137,11 @@ module ChartsWidget {
         }
 
         public updateChart() {
-           
-                var d = this.$scope.data;
-                var vgspec = d.spec;
-                if (d.lite) vgspec = vl.compile(d.spec);                
-                if (d._view) d._view.update();
-           
-
+            var d = this.$scope.data;
+            var vgspec = d.spec;
+            if (d.lite) vgspec = vl.compile(d.spec);
+            //if (d._view) d._view.update();
+            vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + this.$scope.data._id }).update(); });
         }
 
         public startChart() {
@@ -171,11 +169,6 @@ module ChartsWidget {
                                 } else if (msg.data.item.hasOwnProperty('data')) {
                                     d.spec = msg.data.item;
                                 }
-                                // if (msg.data.item && Object.prototype.toString.call(msg.data.item) === '[object Array]' ) {
-                                //     d.spec.data = msg.data.item;
-                                // } else {
-                                //
-                                // }
                                 this.initChart();
                                 break;
                         }

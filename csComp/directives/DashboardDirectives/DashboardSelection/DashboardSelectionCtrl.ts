@@ -194,7 +194,7 @@ module DashboardSelection {
 
             if (dashboard) {
                 //this.$dashboardService.mainDashboard = dashboard;
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
 
                 setTimeout(() => {
 
