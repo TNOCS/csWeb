@@ -184,6 +184,8 @@ module csComp.Services {
         languages?:        ILanguageData;
         legend?:           Legend;
         layerProps? :      ILayerPropertyDetails;
+        min? : number;
+        max? : number;
         targetid?:         string;
         /** Angular expression */
         expression?:       string;

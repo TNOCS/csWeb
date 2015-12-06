@@ -176,7 +176,7 @@ module ChartsWidget {
                                 // } else {
                                 //
                                 // }
-                                this.updateChart();
+                                this.initChart();
                                 break;
                         }
                     });

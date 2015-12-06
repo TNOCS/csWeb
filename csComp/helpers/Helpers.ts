@@ -38,7 +38,7 @@ module csComp.Helpers {
     }
 
     export function getDefaultFeatureStyle(feature: csComp.Services.IFeature): csComp.Services.IFeatureTypeStyle {
-        if (feature.geometry.type.toLowerCase() === 'point') {
+        if (feature && feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'point') {
             var p: csComp.Services.IFeatureTypeStyle = {
                 nameLabel: 'Name',
                 drawingMode: 'Point',
@@ -274,7 +274,7 @@ module csComp.Helpers {
                     } else if (StringExt.isBbcode(value)) {
                         { pt.type = 'bbcode'; }
                     }
-                    if (resource) {
+                    if (resource && resource.propertyTypeData) {
                         var ke = findUniqueKey(resource.propertyTypeData, key);
                         if (ke === key) { delete pt.label; }
                         resource.propertyTypeData[ke] = pt;

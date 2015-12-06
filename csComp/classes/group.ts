@@ -148,7 +148,7 @@ module csComp.Services {
         value: any;
         stringValue: string;
         rangex: number[];
-        meta: IPropertyType;
+        meta: IPropertyType;        
         to: number;
         from: number;
     }

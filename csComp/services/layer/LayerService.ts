@@ -1244,6 +1244,9 @@ module csComp.Services {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     //delete feature.gui[gs.property];
                     var v = Number(feature.properties[gs.property]);
+                    try{
+                        
+                    
                     if (!isNaN(v)) {
                         switch (gs.visualAspect) {
                             case 'strokeColor':
@@ -1253,7 +1256,7 @@ module csComp.Services {
                             case 'fillColor':
                                 s.fillColor = csComp.Helpers.getColor(v, gs);
                                 feature._gui['style'][gs.property] = s.fillColor;
-                                if (feature.geometry.type.toLowerCase() === 'linestring') s.strokeColor = s.fillColor; //s.strokeColor = s.fillColor;                                
+                                if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'linestring') s.strokeColor = s.fillColor; //s.strokeColor = s.fillColor;                                
                                 break;
                             case 'strokeWidth':
                                 s.strokeWidth = ((v - gs.info.min) / (gs.info.max - gs.info.min) * 10) + 1;
@@ -1274,6 +1277,11 @@ module csComp.Services {
                                 feature._gui['style'][gs.property] = s.fillColor;
                                 break;
                         }
+                    }
+                    }
+                    catch (e)
+                    {
+                        console.log('Error setting style for feature ' + e.message);
                     }
                     //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                 }
@@ -1680,7 +1688,7 @@ module csComp.Services {
                         var gf = new GroupFilter();
                         gf.property = prop;
                         gf.id = Helpers.getGuid();
-                        gf.group = layer.group;
+                        gf.group = layer.group;                        
                         gf.meta = property.propertyType;
                         gf.filterType = 'bar';
                         if (gf.meta != null) {
