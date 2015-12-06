@@ -88,9 +88,9 @@ module csComp.Services {
 
         }
 
-        public addGroup(group: ProjectGroup) {            
+        public addGroup(group: ProjectGroup) {
             if (group.clustering) {
-                group._cluster = new L.MarkerClusterGroup({                    
+                group._cluster = new L.MarkerClusterGroup({
                     disableClusteringAtZoom: group.clusterLevel || 0
                 });
                 //maxClusterRadius: (zoom) => { if (zoom > 18) { return 2; } else { return group.maxClusterRadius || 80 } },
@@ -288,27 +288,30 @@ module csComp.Services {
         public addFeature(feature: IFeature): any {
             if (feature.geometry != null) {
                 var m = this.createFeature(feature);
-                var l = <ProjectLayer>feature.layer;
-                l.group.markers[feature.id] = m;
-                m.on({
-                    mouseover: (a) => this.showFeatureTooltip(a, l.group),
-                    mouseout: (s) => this.hideFeatureTooltip(s),
-                    mousemove: (d) => this.updateFeatureTooltip(d),
-                    click: (e) => {
-                        this.selectFeature(feature);
+                if (m) {
+                    var l = <ProjectLayer>feature.layer;
+                    l.group.markers[feature.id] = m;
+                    m.on({
+                        mouseover: (a) => this.showFeatureTooltip(a, l.group),
+                        mouseout: (s) => this.hideFeatureTooltip(s),
+                        mousemove: (d) => this.updateFeatureTooltip(d),
+                        click: (e) => {
+                            this.selectFeature(feature);
+                        }
+                    });
+                    m.feature = feature;
+                    if (l.group.clustering && l.group._cluster) {
+                        l.group._cluster.addLayer(m);
                     }
-                });
-                m.feature = feature;
-                if (l.group.clustering && l.group._cluster) {
-                    l.group._cluster.addLayer(m);
-                }
-                else {
-                    if (l.mapLayer) {
-                        l.mapLayer.addLayer(m);
+                    else {
+                        if (l.mapLayer) {
+                            l.mapLayer.addLayer(m);
+                        }
                     }
+                    return m;
                 }
-                return m;
-            } else return null;
+            }
+            return null;
         }
 
         private canDrag(feature: IFeature): boolean {
@@ -367,35 +370,42 @@ module csComp.Services {
 
                     break;
                 default:
-                    marker = L.GeoJSON.geometryToLayer(<any>feature);
-                    marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
+                    try {
+                        marker = L.GeoJSON.geometryToLayer(<any>feature);
+                        marker.setStyle(this.getLeafletStyle(feature.effectiveStyle));
 
-                    marker.on('contextmenu', (e: any) => {
-                        this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
+                        marker.on('contextmenu', (e: any) => {
+                            this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
 
-                        //e.stopPropagation();
-                        var button: any = $("#map-contextmenu-button");
-                        var menu: any = $("#map-contextmenu");
-                        button.dropdown('toggle');
-                        var mapSize = this.map.getSize();
-                        if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
-                            menu.css("left", e.originalEvent.x + 5);
-                        } else {
-                            menu.css("left", e.originalEvent.x - 5 - menu.width());
-                        }
-                        if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
-                            menu.css("top", e.originalEvent.y - 35);
-                        } else {
-                            menu.css("top", e.originalEvent.y - 70 - menu.height());
-                        }
-                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
-                    });
-
+                            //e.stopPropagation();
+                            var button: any = $("#map-contextmenu-button");
+                            var menu: any = $("#map-contextmenu");
+                            button.dropdown('toggle');
+                            var mapSize = this.map.getSize();
+                            if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
+                                menu.css("left", e.originalEvent.x + 5);
+                            } else {
+                                menu.css("left", e.originalEvent.x - 5 - menu.width());
+                            }
+                            if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
+                                menu.css("top", e.originalEvent.y - 35);
+                            } else {
+                                menu.css("top", e.originalEvent.y - 70 - menu.height());
+                            }
+                            if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+                        });
+                    }
+                    catch (e) {
+                        console.log('Error creating leaflet feature');
+                        console.log(feature);
+                    }                   
                     //marker = L.multiPolygon(latlng, polyoptions);
                     break;
             }
-            marker.feature = feature;
-            feature.layer.group.markers[feature.id] = marker;
+            if (marker) {
+                marker.feature = feature;
+                feature.layer.group.markers[feature.id] = marker;
+            }
 
             return marker;
         }
