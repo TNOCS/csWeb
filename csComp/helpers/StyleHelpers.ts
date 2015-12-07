@@ -101,14 +101,17 @@ module csComp.Helpers {
         if (gs.activeLegend) {
             return getColorFromLegend(v, gs.activeLegend)
         }
+        
+        var max = gs.info.userMax || gs.info.max;
+        var min = gs.info.userMin || gs.info.min;
 
-        if (v > gs.info.max) return gs.colors[gs.colors.length - 1];
-        if (v < gs.info.min) return gs.colors[0];
+        if (v >max) return gs.colors[gs.colors.length - 1];
+        if (v < min) return gs.colors[0];
         //var bezInterpolator = chroma.interpolate.bezier(gs.colors);
         //var r = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
         //return r;
         var color = d3.scale.linear()
-            .domain([gs.info.min, gs.info.max])//domain and range should have the same arraylength!!!
+            .domain([min, max])//domain and range should have the same arraylength!!!
             .range(gs.colors);
         var hexColor = color(v).toString();
         return hexColor;

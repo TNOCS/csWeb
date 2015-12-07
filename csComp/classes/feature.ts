@@ -256,5 +256,7 @@ module csComp.Services {
         mean:     number;
         varience: number;
         sd:       number;
+        userMin : number;
+        userMax : number;
     }
 }

@@ -2656,6 +2656,8 @@ module csComp.Services {
             }
             if (this.propertyTypeData.hasOwnProperty(property)) {
                 var mid = this.propertyTypeData[property];
+                r.userMin = mid.min;
+                r.userMax = mid.max;
             }
             return r;
         }
