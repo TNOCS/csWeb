@@ -960,12 +960,19 @@ body,
 }
 .dashboard-name {
     font-size: 18px;
+    cursor : pointer;
 }
 .dashboard-item {
     margin-right: 5px;
     padding: 3px;
     cursor: pointer;
 }
+
+.dashboard-header-link
+{
+  cursor:pointer;  
+}
+
 .dashboard-selected {
     background: black;
     color: white;

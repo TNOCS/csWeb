@@ -249,14 +249,14 @@ module csComp.Services {
         features:      Array<IFeature>;
     }
 
-    export class PropertyInfo {
+    export interface PropertyInfo {
         max:      number;
         min:      number;
         count:    number;
         mean:     number;
         varience: number;
         sd:       number;
-        userMin : number;
-        userMax : number;
+        userMin? : number;
+        userMax? : number;
     }
 }

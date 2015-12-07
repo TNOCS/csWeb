@@ -2625,7 +2625,7 @@ module csComp.Services {
          * Calculate min/max/count for a specific property in a group
          */
         public calculatePropertyInfo(group: ProjectGroup, property: string): PropertyInfo {
-            var r = new PropertyInfo();
+            var r = <PropertyInfo>{};
             r.count = 0;
             var sum = 0;   // stores sum of elements
             var sumsq = 0; // stores sum of squares
