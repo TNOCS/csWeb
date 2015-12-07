@@ -1349,6 +1349,15 @@ module csComp.Services {
             if (typeof pt.canEdit === 'undefined') pt.canEdit = false;
             if (typeof pt.visibleInCallOut === 'undefined') pt.visibleInCallOut = true;
             if (typeof pt.isSearchable === 'undefined' && pt.type === 'text') pt.isSearchable = true;
+            if (pt.options && _.isArray(pt.options)){                
+                var oo = <string[]>pt.options;
+                pt.options = {};
+                var i = 0;
+                oo.forEach(o=>{
+                    pt.options[i] = o;
+                    i+=1;
+                });                 
+            }
         }
 
         private localizePropertyType(pt: IPropertyType) {
@@ -1700,9 +1709,11 @@ module csComp.Services {
                                     case 'date':
                                         gf.filterType = 'date';
                                         break;
-                                    case 'number':
-                                    case 'options':
+                                    case 'number':                                    
                                         gf.filterType = 'bar';
+                                        break;
+                                    case 'options':
+                                        gf.filterType = 'row';
                                         break;
                                     //case 'rank':
                                     //    gf.filterType  = 'bar';

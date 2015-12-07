@@ -179,7 +179,7 @@ module csComp.Services {
         target?:           string;
         targetrelation?:   string;
         targetproperty?:   string;
-        options?:          string[];
+        options?:          Object;
         categories?:       string[];
         languages?:        ILanguageData;
         legend?:           Legend;

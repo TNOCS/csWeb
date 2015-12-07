@@ -28,7 +28,7 @@ module csComp.Helpers {
 
         if (ft && ft.style != null && ft.style.drawingMode != null && ft.style.drawingMode.toLowerCase() != "point") {
             if (iconUri.indexOf('_Media') < 0) {
-                    return iconUri;
+                return iconUri;
             } else {
                 return 'cs/images/polygon.png';
             }
@@ -58,12 +58,23 @@ module csComp.Helpers {
         return defaultcolor;
     }
 
-    export function getColorFromLegend(v: number, l: csComp.Services.Legend, defaultcolor = '#000000') {
+    export function getColorFromLegend(v: any, l: csComp.Services.Legend, defaultcolor = '#000000') {
         var s: string = l.id;
         var n = l.legendEntries.length;
         if (n == 0) return (defaultcolor);
         var e1 = l.legendEntries[0];    // first
         var e2 = l.legendEntries[n - 1];  // last
+        if (l.legendKind.toLowerCase() === 'discretestrings') {
+            var i: number = 0;
+            while (i < n) {
+                var e = l.legendEntries[i];
+                if (v.toString() === e.stringValue) {
+                    return e.color;
+                }
+                i++;
+            }
+            return defaultcolor;
+        }
         if (l.legendKind.toLowerCase() === 'interpolated') {
             // interpolate between two colors
             if (v < e1.value) return e1.color;
@@ -82,12 +93,17 @@ module csComp.Helpers {
             return (defaultcolor);
         }
         if (l.legendKind.toLowerCase() === 'discrete') {
-            if (v < e1.interval.min) return l.legendEntries[0].color;
-            if (v > e2.interval.max) return l.legendEntries[n - 1].color;
+            if (e1.interval && e2.interval && e1.interval.min && e2.interval.max) {
+                if (v < e1.interval.min) return l.legendEntries[0].color;
+                if (v > e2.interval.max) return l.legendEntries[n - 1].color;
+            }
             var i: number = 0;
             while (i < n) {
                 var e = l.legendEntries[i];
-                if ((v >= e.interval.min) && (v <= e.interval.max)) {
+                if (e.value)
+                {
+                     if (v === e.value) return e.color;
+                } else if (e.interval && (v >= e.interval.min) && (v <= e.interval.max)) {
                     return e.color;
                 }
                 i++;
@@ -101,11 +117,11 @@ module csComp.Helpers {
         if (gs.activeLegend) {
             return getColorFromLegend(v, gs.activeLegend)
         }
-        
+
         var max = gs.info.userMax || gs.info.max;
         var min = gs.info.userMin || gs.info.min;
 
-        if (v >max) return gs.colors[gs.colors.length - 1];
+        if (v > max) return gs.colors[gs.colors.length - 1];
         if (v < min) return gs.colors[0];
         //var bezInterpolator = chroma.interpolate.bezier(gs.colors);
         //var r = bezInterpolator((v - gs.info.sdMin) / (gs.info.sdMax - gs.info.sdMin)).hex();
