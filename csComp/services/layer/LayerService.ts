@@ -2157,6 +2157,11 @@ module csComp.Services {
 
             this.initTypeResources(this.project);
 
+            if (this.project.eventTab) {
+                var rpt = csComp.Helpers.createRightPanelTab('eventtab', 'eventtab', {}, 'Events', "{{'EVENT_INFO' | translate}}", 'bolt');
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+            }
+
             if (!this.project.dashboards) {
                 this.project.dashboards = [];
                 var d = new Services.Dashboard();
@@ -2324,11 +2329,12 @@ module csComp.Services {
                                     var l = this.findLayer(layer.id);
                                     if (!l) {
                                         //this.$messageBusService.notify('New layer available', layer.title);
-                                    }
-                                    else {
+                                    } else {
                                         this.$messageBusService.notify('New update available for layer ', layer.title);
                                         if (l.enabled) {
+                                            var wasRightPanelVisible = this.visual.rightPanelVisible;
                                             l.layerSource.refreshLayer(l);
+                                            this.visual.rightPanelVisible = wasRightPanelVisible;
                                         }
                                     }
                                 }

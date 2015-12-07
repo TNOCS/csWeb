@@ -7,6 +7,12 @@ module KanbanColumn {
         columnOrderBy: string;
         query: string;
         fields: any;
+        layer: csComp.Services.ProjectLayer;
+        /** In case the KanbanColumn should use a temporary layer instead of a project layer, this should be set
+         *  to true and the layer should be passed through the scope variables. One example where this is used, 
+         *  is in the EventTab. 
+         */
+        providedlayer: boolean;
     }
 
     export class ColumnFilter {
@@ -17,8 +23,11 @@ module KanbanColumn {
     }
 
     export class Column {
+        title: string;
         id: string;
         filters: ColumnFilter;
+        propertyTags: string[];
+        timeReference: string;
         roles: string[];
         fields: any;
         orderBy: string;
@@ -53,14 +62,14 @@ module KanbanColumn {
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private mapService: csComp.Services.MapService
-            ) {
+        ) {
             $scope.vm = this;
 
             //var par = <any>$scope.$parent;
             //this.kanban = par.widget.data;
             this.column = $scope.column;
             $scope.fields = this.column.fields;
-
+            this.layer = $scope.layer;
 
             if ($scope.fields.hasOwnProperty('prio')) this.sortOptions = this.sortOptions.concat(['High priority', 'Low Priority']);
             if ($scope.fields.hasOwnProperty('date')) this.sortOptions = this.sortOptions.concat(['New', 'Old']);
@@ -180,10 +189,16 @@ module KanbanColumn {
         public updateTime() {
             this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
                 if (feature.properties.hasOwnProperty('date')) {
-
-                    var d = feature.properties['date'];
-                    if (!feature.hasOwnProperty('gui')) feature._gui = new Object;
-                    feature._gui['relativeTime'] = moment(d).fromNow();
+                    // Select a timereference to use, e.g., actual date or the timeline's focusdate
+                    if (this.column.timeReference && this.column.timeReference.toLowerCase() === 'timeline') {
+                        var d = feature.properties['date'];
+                        if (!feature.hasOwnProperty('_gui')) feature._gui = new Object;
+                        feature._gui['relativeTime'] = moment(d).from(moment(new Date(this.$layerService.project.timeLine.focus)));
+                    } else {
+                        var d = feature.properties['date'];
+                        if (!feature.hasOwnProperty('_gui')) feature._gui = new Object;
+                        feature._gui['relativeTime'] = moment(d).fromNow();
+                    }
                 }
                 return "";
             })
@@ -254,16 +269,17 @@ module KanbanColumn {
         we only use the first one for now
          */
         initLayers() {
+            var providedLayer = this.$scope.providedlayer;
+            if (providedLayer) {
+                this.layer = this.$scope.layer;
+                return;
+            }
             var c = this.$scope.column;
-
-
             var lid = c.filters.layerId;
             this.layer = this.$layerService.findLayer(lid);
             if (this.layer) {
-                this.$layerService.addLayer(this.layer, (t) => {
-                });
+                this.$layerService.addLayer(this.layer, (t) => { });
             }
-
         }
     }
 }

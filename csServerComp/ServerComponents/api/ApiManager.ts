@@ -30,6 +30,8 @@ export enum ApiResult {
 export interface IApiManagerOptions {
     /** Host:port name */
     server?: string;
+    /** Location of the simulation data */
+    simDataFolder?: string;
     /** Specify what MQTT should subscribe to */
     mqttSubscriptions?: string[];
     [key: string]: any;
