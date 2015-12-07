@@ -58,6 +58,8 @@ module EventTab {
                 filters: columnFilter,
                 roles: [],
                 fields: {'title':'Name', 'updated':'updated', 'prio':'prio'},
+                propertyTags: ['layerTitle', 'state'],
+                timeReference: 'timeline',
                 orderBy: 'New',
                 actions: null,
                 canShare: false
@@ -115,14 +117,25 @@ module EventTab {
         }
 
         private addEvent(f: IFeature) {
-            f.properties['date'] = new Date();
-            f.properties['updated'] = new Date();
-            if (!f.properties.hasOwnProperty('tags')) f.properties['tags'] = [];
-            f.properties['tags'].push(f.layer.id);
-            f.properties['tags'].push(f.properties['state']);
-            f.properties['description'] = f.properties['Name'] + ' is in state: ' + f.properties['state'];
-            f.layerId = 'eventlayerid';
-            this.layer.data.features.push(f);
+            var newF = new csComp.Services.Feature();
+            newF.layer = this.layer;
+            newF.geometry = f.geometry;
+            newF.fType = f.fType;
+            newF.effectiveStyle = f.effectiveStyle;
+            newF.type = f.type;
+            newF.id = csComp.Helpers.getGuid();
+            newF._gui = f._gui;
+            newF.properties = f.properties;
+            newF.properties['date'] = new Date(this.$layerService.project.timeLine.focus);
+            newF.properties['updated'] = new Date(this.$layerService.project.timeLine.focus);
+            newF.properties['layerTitle'] = f.layer.id;
+            if (!newF.properties.hasOwnProperty('tags')) newF.properties['tags'] = [];
+            this.kanban.columns[0].propertyTags.forEach((tag)=> {
+                if (newF.properties.hasOwnProperty(tag)) newF.properties['tags'].push(newF.properties[tag]);
+            });
+            newF.properties['description'] = newF.properties['Name'] + ' is in state: ' + newF.properties['state'];
+            newF.layerId = 'eventlayerid';
+            this.layer.data.features.push(newF);
         }
 
         /**

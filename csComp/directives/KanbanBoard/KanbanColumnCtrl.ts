@@ -26,6 +26,8 @@ module KanbanColumn {
         title: string;
         id: string;
         filters: ColumnFilter;
+        propertyTags: string[];
+        timeReference: string;
         roles: string[];
         fields: any;
         orderBy: string;
@@ -187,10 +189,16 @@ module KanbanColumn {
         public updateTime() {
             this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
                 if (feature.properties.hasOwnProperty('date')) {
-
-                    var d = feature.properties['date'];
-                    if (!feature.hasOwnProperty('gui')) feature._gui = new Object;
-                    feature._gui['relativeTime'] = moment(d).fromNow();
+                    // Select a timereference to use, e.g., actual date or the timeline's focusdate
+                    if (this.column.timeReference && this.column.timeReference.toLowerCase() === 'timeline') {
+                        var d = feature.properties['date'];
+                        if (!feature.hasOwnProperty('_gui')) feature._gui = new Object;
+                        feature._gui['relativeTime'] = moment(d).from(moment(new Date(this.$layerService.project.timeLine.focus)));
+                    } else {
+                        var d = feature.properties['date'];
+                        if (!feature.hasOwnProperty('_gui')) feature._gui = new Object;
+                        feature._gui['relativeTime'] = moment(d).fromNow();
+                    }
                 }
                 return "";
             })
