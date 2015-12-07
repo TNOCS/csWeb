@@ -182,7 +182,8 @@ module Translations {
             MARVEL_WATER_LEVEL: 'Water level [m]',
             MARVEL_UPS_DURATION: 'UPS duration [mins]',
             MARVEL_FEATURE_DEP: 'Specific features',
-            STATE: 'State'
+            STATE: 'State',
+            EVENT_INFO: 'Show a list of events'
         };
     }
 }
