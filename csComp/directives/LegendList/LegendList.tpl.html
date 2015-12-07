@@ -1,14 +1,17 @@
 <div style="position: relative;">
     <h4 class="leftpanel-header" translate="LEGEND"></h4>
-    <div style="overflow-y: auto;overflow-x: hidden;" resize resize-y="150">
-        <div class="legend">
-            <div ng-repeat="legendItem in legendItems" class="legendItem">
-                <div style="display:inline-block;padding-bottom:5px">
-                    <div ng-hide="legendItem.html === ''" ng-bind-html="vm.toTrusted(legendItem.html)" style="display:inline-block" />
-                    <div ng-show="legendItem.html === ''" class="legendIcon">
-                           <img ng-src="{{legendItem.uri}}" class="legendImage">
+    <div style="overflow-y: auto;overflow-x: hidden; margin: -10px 0 0 -10px" resize resize-y="150">
+        <div class="panel-group">
+            <div ng-repeat="legendItem in legendItems" class="legendTable panel">
+                <div class="legendCellLeft" style="width: 50px">
+                    <div ng-if="legendItem.html" ng-bind-html="vm.toTrusted(legendItem.html)" class="media-object" />
+                    <div ng-if="!legendItem.html" class="legendIcon"><img ng-src="{{legendItem.uri}}" class="media-object"></div>
+                </div>
+                <div class="legendCellRight">
+                    <h4 ng-if="legendItem.title" class="legendTitle" ng-bind-html="vm.toTrusted(legendItem.title + ' (#' + legendItem.count + ')')"></h4>
+                    <div ng-if="legendItem.subtitles">
+                        <div ng-repeat="subtitle in legendItem.subtitles" class="legendText">{{subtitle}}</div>
                     </div>
-                    <div ng-hide="!legendItem.title" class="legendText" ng-bind-html="vm.toTrusted(legendItem.title + ' (#' + legendItem.count + ')')"></div>
                 </div>
             </div>
         </div>

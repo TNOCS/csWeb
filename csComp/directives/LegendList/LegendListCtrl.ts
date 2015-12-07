@@ -158,8 +158,6 @@ module LegendList {
         }
 
         private updateLegendItemsUsingFeatures() {
-            if (!this.bbox) return;
-
             var sort = true;
             var processedFeatureTypes = {};
             var legendItems: Array<ILegendItem> = [];
@@ -170,42 +168,44 @@ module LegendList {
             }
             // Loop over all features on the map
             this.layerService.project.features.forEach((f) => {
-                if (!this.bbox.contains(csComp.Helpers.GeoExtensions.getFeatureBounds(f))) return;
+                if (this.bbox && !this.bbox.contains(csComp.Helpers.GeoExtensions.getFeatureBounds(f))) return;
                 var ft: csComp.Services.IFeatureType = f.fType;
                 if (!ft) ft = this.layerService.getFeatureType(f);
-                if (!ft) return;
-                
-                if (processedFeatureTypes.hasOwnProperty(ft.name)) return;
-                // If a (static) legend is defined in the featureType, use it
-                if (ft.hasOwnProperty('legendItems')) {
-                    ft['legendItems'].forEach((i) => {
-                        legendItems.push({ title: i.title, uri: i.uri || '', html: i.html || '' });
-                    });
-                    sort = false;
-                    processedFeatureTypes[ft.name] = true;
-                    return;
-                }
-                // Else get the legend entry from the feature style
-                var uri = (ft && ft.style && ft.style.hasOwnProperty('iconUri')) ? csComp.Helpers.convertStringFormat(f, ft.style.iconUri) : csComp.Helpers.getImageUri(ft);
-                if (uri.indexOf('_Media') >= 0) f.effectiveStyle.iconUri = 'cs/images/polygon.png';
-                var html = csComp.Helpers.createIconHtml(f, ft)['html'];
-                var title = ft.name || f.layer.title || ((ft.id) ? ft.id.split('#').pop() : 'undefined');
-                var existingItem = title + uri;
+                if (!ft || processedFeatureTypes.hasOwnProperty(ft.name)) return;
+                let uri = ft.style && ft.style.hasOwnProperty('iconUri')
+                    ? csComp.Helpers.convertStringFormat(f, ft.style.iconUri)
+                    : csComp.Helpers.getImageUri(ft);
+                let title = ft.name || f.layer.title || (ft.id ? ft.id.split('#').pop() : 'undefined');
+                let existingItem = title + uri;
                 var i = existingItems.indexOf(existingItem);
-                var expression = '';
-                if (ft.expression) {
-                    console.time('Expression');
-                    var features: IFeature[] = this.layerService.project.features.filter((feature) => { return feature.fType === ft; });
-                    expression = this.expressionService.evalExpression(ft.expression, features, f);
-                    console.timeEnd('Expression');
-                    console.log('Expression: ' + expression);
-                }
                 if (i < 0) {
+                    // If a (static) legend is defined in the featureType, use it
+                    if (ft.hasOwnProperty('legendItems')) {
+                        ft['legendItems'].forEach((i) => {
+                            legendItems.push({ title: i.title, uri: i.uri || '', html: i.html || '' });
+                        });
+                        sort = false;
+                        processedFeatureTypes[ft.name] = true;
+                        return;
+                    }
+                    // Else get the legend entry from the feature style
+                    if (uri.indexOf('_Media') >= 0) f.effectiveStyle.iconUri = 'cs/images/polygon.png';
+                    let html = csComp.Helpers.createIconHtml(f, ft)['html'];
                     existingItems.push(existingItem);
-                    legendItems.push({ title: title, uri: uri, html: html, count: 1, subtitles: [expression] });
+                    var subtitles: string[];
+                    if (ft.expressions) {
+                        let expressions = ft.expressions;
+                        if (typeof expressions === 'string') { 
+                            subtitles = [ expressions ];
+                        } else {
+                            subtitles = JSON.parse(JSON.stringify(expressions));
+                        }
+                    }
+                    legendItems.push({ title: title, uri: uri, html: html, count: 1, subtitles: subtitles, features: [f] });
                 } else {
                     legendItems[i].count++;
-                }
+                    legendItems[i].features.push(f);
+                }                
             });
             if (sort) {
                 legendItems.sort((a: ILegendItem, b: ILegendItem) => {
@@ -214,6 +214,18 @@ module LegendList {
                     return 0;
                 });
             }
+            legendItems.forEach(li => {
+                li.count = li.features.length;
+                if (li.subtitles && li.subtitles.length > 0) {
+                    console.time('Expression');
+                    for (let i = 0, _length = li.subtitles.length; i < _length; i++) {
+                        li.subtitles[i] = this.expressionService.evalExpression(li.subtitles[i], li.features, null); 
+                        console.log('Expression: ' + li.subtitles[i]);
+                    }
+                    console.timeEnd('Expression');
+                    delete li.features;
+                }
+            });
             this.$timeout(() => {
                 this.$scope.legendItems = legendItems;
             }, 0);

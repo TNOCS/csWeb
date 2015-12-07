@@ -481,14 +481,40 @@ body,
 .table > td {
     border: none;
 }
+.legendTable {
+   display: table;
+   width: 100%;
+   table-layout: fixed;
+}
+.legendCellLeft {
+    display: table-cell;
+    vertical-align: top;
+    height: 100%;
+    width: 40px;
+}
+.legendCellRight {
+    display: table-cell;
+    vertical-align: top;
+    height: 100%;
+    width: 100%;
+}
+.legendPanelItem {
+    padding-bottom: 5px;
+    margin-left: -10px;
+    margin-top: -10px;
+}
+.legendTitle {
+    display: inline-block;
+    margin: 0 0 4px 0;
+    position: relative;
+    font-weight: bold;
+    overflow: hidden;
+}
 .legendText {
     display: inline-block;
-    overflow-wrap: break-word;
-    margin-top: 3px;
-    margin-left: 5px;
-    float: inherit;
+    margin-top: -4px;
     position: relative;
-    width: 180px;
+    overflow: hidden;
 }
 .widget-parent {
     display: block;

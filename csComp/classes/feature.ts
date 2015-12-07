@@ -238,8 +238,8 @@ module csComp.Services {
          */
         propertyTypeKeys?: string;
         languages?:        ILanguageData;
-        /** Optional expression that is shown in the legend list. */
-        expression?:       string;
+        /** Optional expressions that is/are shown in the legend list. */
+        expressions?:      string | string[];
         _isInitialized?:   boolean;
     }
 
