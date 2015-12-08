@@ -4,7 +4,7 @@ module LegendList {
         uri:         string;
         html:        string;
         count?:      number;
-        subtitles?:  string[];
+        expressions?:  IPropertyType[];
         features?:   IFeature[];
     }
 
@@ -17,6 +17,8 @@ module LegendList {
     export class LegendListCtrl {
         /** Active bounding box */
         private bbox: L.LatLngBounds;
+        /** If true, the legend is visible in the DOM. */
+        private isVisible = false;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -65,7 +67,6 @@ module LegendList {
             });
 
             messageBusService.subscribe('mapbbox', (title, data: string) => {
-                if (!$('#legend').is(':visible')) return;
                 if (title !== 'update') return;
                 var pts: number[] = [];
                 data.split(',').forEach(p => {
@@ -73,10 +74,16 @@ module LegendList {
                 });
                 this.bbox = new L.LatLngBounds([pts[1], pts[0]], [pts[3], pts[2]]);
                 // console.log('BBOX: ' + this.bbox.toBBoxString());
-                this.updateLegendItems();
+                if (this.isVisible) this.updateLegendItems();
             });
 
-            this.updateLegendItems();
+            // receive a trigger to redraw the legend when it becomes visible.        
+            $scope.$watch(() => {
+                return $('#legend').is(':visible')
+            }, (isVisible: boolean) => {
+                this.isVisible = isVisible;
+                if (isVisible) this.updateLegendItems();
+            });
 
             $scope.legendItems = [];
 
@@ -168,6 +175,7 @@ module LegendList {
             }
             // Loop over all features on the map
             this.layerService.project.features.forEach((f) => {
+                if (!f._gui.included) return;
                 if (this.bbox && !this.bbox.contains(csComp.Helpers.GeoExtensions.getFeatureBounds(f))) return;
                 var ft: csComp.Services.IFeatureType = f.fType;
                 if (!ft) ft = this.layerService.getFeatureType(f);
@@ -192,18 +200,8 @@ module LegendList {
                     if (uri.indexOf('_Media') >= 0) f.effectiveStyle.iconUri = 'cs/images/polygon.png';
                     let html = csComp.Helpers.createIconHtml(f, ft)['html'];
                     existingItems.push(existingItem);
-                    var subtitles: string[];
-                    if (ft.expressions) {
-                        let expressions = ft.expressions;
-                        if (typeof expressions === 'string') { 
-                            subtitles = [ expressions ];
-                        } else {
-                            subtitles = JSON.parse(JSON.stringify(expressions));
-                        }
-                    }
-                    legendItems.push({ title: title, uri: uri, html: html, count: 1, subtitles: subtitles, features: [f] });
+                    legendItems.push({ title: title, uri: uri, html: html, count: 1, expressions: ft.legendExpr, features: [f] });
                 } else {
-                    legendItems[i].count++;
                     legendItems[i].features.push(f);
                 }                
             });
@@ -216,11 +214,11 @@ module LegendList {
             }
             legendItems.forEach(li => {
                 li.count = li.features.length;
-                if (li.subtitles && li.subtitles.length > 0) {
+                if (li.expressions && li.expressions.length > 0) {
                     console.time('Expression');
-                    for (let i = 0, _length = li.subtitles.length; i < _length; i++) {
-                        li.subtitles[i] = this.expressionService.evalExpression(li.subtitles[i], li.features, null); 
-                        console.log('Expression: ' + li.subtitles[i]);
+                    for (let i = 0, _length = li.expressions.length; i < _length; i++) {
+                        let pt = li.expressions[i];
+                        pt.calculation = this.expressionService.evalPropertyType(pt, li.features, null);                    
                     }
                     console.timeEnd('Expression');
                     delete li.features;

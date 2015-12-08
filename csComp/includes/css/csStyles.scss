@@ -490,7 +490,7 @@ body,
     display: table-cell;
     vertical-align: top;
     height: 100%;
-    width: 40px;
+    width: 35px;
 }
 .legendCellRight {
     display: table-cell;
@@ -510,11 +510,19 @@ body,
     font-weight: bold;
     overflow: hidden;
 }
-.legendText {
+.legend-prop-title {
     display: inline-block;
     margin-top: -4px;
     position: relative;
     overflow: hidden;
+    font-size: 12px;
+}
+.legend-prop-value {
+    margin-top: -4px;
+    position: relative;
+    overflow: hidden;
+    font-weight: 800;
+    float: right!important;
 }
 .widget-parent {
     display: block;
@@ -859,12 +867,12 @@ body,
 }
 .icons-on-hover {
    float: left;
-    position: relative;
-    display: none;
-    top: -10px;    
-    
+   position: relative;
+   display: none;
+   top: -10px;  
 }
 .property-action {
+    cursor: pointer;
     position: relative;
     display: inline-block;
 }

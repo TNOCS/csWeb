@@ -88,7 +88,7 @@ module csComp.Services {
             percentage: (features: Array<IFeature>, a: string, b: string) => {
                 let sum_a = this.ops.sum(features, a);
                 let sum_b = this.ops.sum(features, b);
-                return 100 * sum_a / sum_b;
+                return sum_a / sum_b;
             }
         };
 
@@ -167,6 +167,12 @@ module csComp.Services {
                 properties: feature ? feature.properties : null
             };
             return parsedExpression(scope, this.ops);
+        }
+
+        /** Evaluate the expression in a property */        
+        evalPropertyType(pt: IPropertyType, features: IFeature[], feature?: IFeature) {
+            if (!pt.expression) return null;
+            return csComp.Helpers.convertPropertyInfo(pt, this.evalExpression(pt.expression, features, feature));
         }
     }
 

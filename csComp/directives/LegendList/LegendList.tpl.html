@@ -9,8 +9,11 @@
                 </div>
                 <div class="legendCellRight">
                     <h4 ng-if="legendItem.title" class="legendTitle" ng-bind-html="vm.toTrusted(legendItem.title + ' (#' + legendItem.count + ')')"></h4>
-                    <div ng-if="legendItem.subtitles">
-                        <div ng-repeat="subtitle in legendItem.subtitles" class="legendText">{{subtitle}}</div>
+                    <div ng-if="legendItem.expressions">
+                        <div ng-repeat="expression in legendItem.expressions">
+                            <span class="legend-prop-title">{{expression.title}}</span>
+                            <span class="legend-prop-value">{{expression.calculation}}</span>
+                        </div>
                     </div>
                 </div>
             </div>
