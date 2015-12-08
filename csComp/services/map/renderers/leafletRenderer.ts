@@ -206,8 +206,8 @@ module csComp.Services {
          */
         public updateMapFilter(group: ProjectGroup) {
             $.each(group.markers, (key, marker) => {
-                var included;
-                if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
+                var included: boolean = marker.feature._gui.included;
+                // if (group.filterResult) included = group.filterResult.filter((f: IFeature) => f.id === key).length > 0;
                 if (group.clustering) {
                     var incluster = group._cluster.hasLayer(marker);
                     if (!included && incluster) group._cluster.removeLayer(marker);

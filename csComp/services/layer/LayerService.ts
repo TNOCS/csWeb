@@ -968,14 +968,12 @@ module csComp.Services {
                     if (this.selectedFeatures.indexOf(feature) === -1) {
                         this.selectedFeatures.push(feature);
                     }
-                }
-                else {
+                } else {
                     if (this.selectedFeatures.indexOf(feature) >= 0) {
                         this.selectedFeatures = this.selectedFeatures.filter((f) => { return f.id !== feature.id; });
                     }
                 }
-            }
-            else {
+            } else {
                 this.selectedFeatures.forEach((f) => { if (f != feature) this.deselectFeature(f) });
                 this.selectedFeatures = (feature.isSelected) ? [feature] : [];
             }
@@ -1145,7 +1143,9 @@ module csComp.Services {
         public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false, publishToTimeline: boolean = true): IFeatureType {
             if (!feature._isInitialized) {
                 feature._isInitialized = true;
-                feature._gui = {};
+                feature._gui = {
+                    included: true
+                };
 
                 if (!feature.logs) feature.logs = {};
                 if (feature.properties == null) feature.properties = {};
@@ -1707,23 +1707,10 @@ module csComp.Services {
 
                         gf.title = property.key;
                         gf.rangex = [0, 1];
-
-                        // if (gf.filterType === 'text') {
-                        //     var old = layer.group.filters.filter((flt: GroupFilter) => flt.filterType === 'text');
-                        //     old.forEach((groupFilter: GroupFilter) => {
-                        //         groupFilter.dimension.filterAll();
-                        //         groupFilter.dimension.dispose();
-                        //     });
-                        //     layer.group.filters = layer.group.filters.filter((groupFilter: GroupFilter) => groupFilter.filterType !== 'text');
-                        // }
                         // add filter
                         layer.group.filters.push(gf);
                     } else {
                         this.removeFilter(filter);
-                        //layer.group.filters = layer.group.filters.filter((f: GroupFilter) => f.property != property.property);
-                        // var pos = layer.group.filters.indexOf(filter);
-                        // if (pos !== -1)
-                        //     layer.group.filters.slice(pos, 1);
                     }
                 }
                 (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
@@ -1732,7 +1719,7 @@ module csComp.Services {
         }
 
         public createScatterFilter(group: ProjectGroup, prop1: string, prop2: string) {
-            console.log('create scatter ' + prop1 + '-' + prop2);
+            //console.log('create scatter ' + prop1 + '-' + prop2);
 
             var gf = new GroupFilter();
             gf.property = prop1;
@@ -1791,7 +1778,7 @@ module csComp.Services {
         }
 
         /**
-         * Returs propertytype for a specific property in a feature
+         * Returns propertytype for a specific property in a feature
          */
         public getPropertyType(feature: IFeature, property: string): IPropertyType {
             var res: IPropertyType;
@@ -1913,9 +1900,7 @@ module csComp.Services {
         rebuildFilters(g: ProjectGroup) {
             // remove all data from crossfilter group
             g.ndx = crossfilter([]);
-
             var features = this.getGroupFeatures(g);
-
             g.ndx.add(features);
         }
 
@@ -2768,24 +2753,38 @@ module csComp.Services {
             }
         }
 
+        /** 
+         * Update the filter status of a feature, i.e. the _gui.included property.
+         * When a filter is applied, and the feature is not shown anymore, the feature._gui.included = false.
+         * In all other cases, it is true. */        
+        private updateFilterStatusFeature(group: ProjectGroup) {
+            //console.time('Filter');
+            this.project.features.forEach(f => { 
+                if (f.layer.group === group) f._gui.included = false;
+            });
+            group.filterResult.forEach(f => { 
+                f._gui.included = true;
+            });
+            //console.timeEnd('Filter');
+        }        
+        
         /***
          * Update map markers in cluster after changing filter
          */
         public updateMapFilter(group: ProjectGroup) {
+            this.updateFilterStatusFeature(group);
             this.activeMapRenderer.updateMapFilter(group);
             // update timeline list
             this.$messageBusService.publish('timeline', 'updateFeatures', group.id);
-
         }
 
         public resetMapFilter(group: ProjectGroup) {
+            this.updateFilterStatusFeature(group);
             $.each(group.markers, (key, marker) => {
                 if (group.clustering) {
-                    var incluster = group._cluster.hasLayer(marker);
-                    if (!incluster) group._cluster.addLayer(marker);
+                    if (!group._cluster.hasLayer(marker)) group._cluster.addLayer(marker);
                 } else {
-                    var onmap = this.map.map.hasLayer(marker);
-                    if (!onmap) this.map.map.addLayer(marker);
+                    if (!this.map.map.hasLayer(marker)) this.map.map.addLayer(marker);
                 }
             });
         }

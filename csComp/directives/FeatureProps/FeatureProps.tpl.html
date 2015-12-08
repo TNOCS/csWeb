@@ -1,7 +1,7 @@
 <div data-ng-cloak class="rightpanel-content" id="featureprops-content" style="max-width: 355px">
     <h4 class="rightpanel-header">
         <!-- Show popup with complete title for long names -->
-        <div ng-if="callOut.title.length >= 27" popover="{{callOut.title}}" popover-placement="bottom" popover-trigger="mouseenter" popover-append-to-body="true">
+        <div ng-if="callOut.title.length >= 27" uib-popover="{{callOut.title}}" popover-placement="bottom" popover-trigger="mouseenter" popover-append-to-body="true">
             <img data-ng-if="callOut.icon" ng-src="{{callOut.icon}}" width="24" height="24" style="margin-left:5px" alt="Icon" /> &nbsp;&nbsp;{{callOut.title}}
         </div>
         <div ng-if="callOut.title.length < 27">
@@ -70,7 +70,7 @@
         <div class="tab-pane" data-ng-class="{active : $first}" id="rp-{{$index}}" data-ng-repeat="key in callOut.sectionKeys">
             <div class="panel-group" id="accordion">
                 <form name="form" class="css-form" style="padding-bottom:40px" novalidate>
-                    <div class="panel feature-prop-property" popover="{{(item.description) ? item.description : ''}}" popover-placement="left"
+                    <div class="panel feature-prop-property" uib-popover="{{(item.description) ? item.description : ''}}" popover-placement="left"
                     popover-trigger="mouseenter" popover-append-to-body="true" data-ng-repeat="item in callOut.sections[key].properties">
                         <div ng-show="feature._gui.editMode" class="property-edit">
                             <div>
