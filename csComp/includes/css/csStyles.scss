@@ -1546,6 +1546,9 @@ input[type="checkbox"] {
 .table {
     margin-bottom: 0;
 }
+.nav > li {
+    cursor: pointer;
+}
 .nav-pills > li > a {
     border-radius: 0;
 }

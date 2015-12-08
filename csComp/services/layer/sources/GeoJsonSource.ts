@@ -264,9 +264,9 @@ module csComp.Services {
                         this.service.updateFeature(f);
                         done = true;
                         if (this.service.project.eventTab) {
-                            this.service.$messageBusService.publish('eventtab', 'updated', value);
+                            this.service.$messageBusService.publish('eventtab', 'updated', f);
                         } else {
-                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + ' updated');
+                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, f.properties['Name'] + ' updated');
                         }
                         //  console.log('updating feature');
                         return true;
@@ -384,11 +384,11 @@ module csComp.Services {
                                     case LayerUpdateAction.deleteFeature:
                                         var feature = this.service.findFeature(layer, lu.featureId);
                                         if (feature) {
-                                            this.service.$messageBusService.notify(this.layer.title, feature.properties['Name'] + ' removed');
+                                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, feature.properties['Name'] + ' removed');
                                             this.service.removeFeature(feature, false);
                                         }
 
-                                        lu.featureId
+                                        // lu.featureId
                                         // lu.object.forEach((f) => {
                                         //
                                         //     //this.service.removeFeature(f);

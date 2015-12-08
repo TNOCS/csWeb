@@ -183,7 +183,8 @@ module Translations {
             MARVEL_UPS_DURATION: 'UPS duration [mins]',
             MARVEL_FEATURE_DEP: 'Specific features',
             STATE: 'State',
-            EVENT_INFO: 'Show a list of events'
+            EVENT_INFO: 'Show a list of events',
+            CLEAR_EVENTS: 'Clear event log'
         };
     }
 }

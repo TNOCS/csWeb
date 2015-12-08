@@ -183,7 +183,8 @@ module Translations {
             MARVEL_UPS_DURATION: 'Noodstroom duur [min]',
             MARVEL_FEATURE_DEP: 'Specifieke objecten',
             STATE: 'Status',
-            EVENT_INFO: 'Show a list of events'
+            EVENT_INFO: 'Toon lijst van gebeurtenissen',
+            CLEAR_EVENTS: 'Lijst leegmaken'
         }
     }
 }
