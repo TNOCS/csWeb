@@ -1,15 +1,21 @@
-<div>
-    <div class="row" style="margin-left:15px;margin-right:0px;">
-        <div class="col-md-8" style="font-size:16px; font-weight:bold;margin-bottom:2px;">{{data.title}}</div>
-        <div>
-            <div>
-                <button class="pull-right makeNarrow fa fa-times leftpanel-header-button" ng-if="vm.canClose()" ng-click="vm.close()" />
-                <button class="pull-right makeNarrow fa fa-plus leftpanel-header-button" ng-click="vm.minimize()" ng-show="minimized" />
-                <button class="pull-right makeNarrow fa fa-minus leftpanel-header-button" ng-click="vm.minimize()" ng-hide="minimized" />
-            </div>
+<div style="margin: 2px 5px;">
+    <div class="row" style="display: inline-block; margin-left: 2px;">
+        <div style="display: inline-block; font-size:16px; font-weight:bold; margin-bottom:2px;">{{data.title}}</div>
+        <div style="display: inline-block; margin-right:5px; position: absolute; top: 2px; right: 0px;">
+            <a style="display: inline-block; float: right; padding: 0 2px;" ng-click="vm.close()"    ng-if="vm.canClose()"><i class="fa fa-times"></i></a>
+            <a style="display: inline-block; float: right; padding: 0 2px;" ng-click="vm.minimize()" ng-show="minimized">  <i class="fa fa-plus"></i></a>
+            <a style="display: inline-block; float: right; padding: 0 2px;" ng-click="vm.minimize()" ng-hide="minimized">  <i class="fa fa-minus"></i></a>
         </div>
+        <!--<div class="display:inline-block; margin-right:10px; btn-group btn-group-sm" role="group">
+            <a ng-click="vm.minimize()">
+                <i class="makeNarrow fa fa-plus"></i>
+            </a>
+            <button type="button" class="btn btn-secondary makeNarrow fa fa-plus leftpanel-header-button" ng-click="vm.minimize()" ng-show="minimized" />
+            <button type="button" class="btn btn-secondary makeNarrow fa fa-minus leftpanel-header-button" ng-click="vm.minimize()" ng-hide="minimized" />
+            <button type="button" class="btn btn-secondary makeNarrow fa fa-times leftpanel-header-button" ng-if="vm.canClose()" ng-click="vm.close()" />
+        </div>-->
     </div>
-    <div class="col-md-12" style="padding:0px;font-size:12px;" ng-hide="minimized">
+    <div class="row" style="padding:0px;font-size:12px;" ng-hide="minimized">
         <wiz-markdown class="active-text" content="data.mdText" style="margin-left:15px;margin-right:15px"></wiz-markdown>
     </div>
 </div>
