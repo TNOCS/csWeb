@@ -44,8 +44,8 @@ module csComp.Services {
                     // already got data (propably from drop action)
                     if (data) {
                         layer.enabled = true;
-                        this.initLayer(data,layer);
-                        cb(null,null);
+                        this.initLayer(data, layer);
+                        cb(null, null);
 
                     }
                     else {
@@ -56,7 +56,7 @@ module csComp.Services {
                         var u = layer.url.replace('[BBOX]', layer.BBOX);
                     
                         // check proxy
-                    	if (layer.useProxy) u = '/api/proxy?url=' + u;
+                        if (layer.useProxy) u = '/api/proxy?url=' + u;
 
                         this.$http.get(u)
                             .success((data) => {
@@ -119,13 +119,12 @@ module csComp.Services {
             layer.data.features.forEach((f) => {
                 this.service.initFeature(f, layer, false, false);
             });
-            if (data.features.length>0)
-            {
+            if (data.features.length > 0) {
                 var firstFeature = data.features[0];
                 var resource = this.service.findResourceByFeature(firstFeature);
                 csComp.Helpers.addPropertyTypes(firstFeature, firstFeature.fType, resource);
             }
-            
+
 
             layer.isTransparent = false;
             // Subscribe to zoom events
@@ -264,7 +263,11 @@ module csComp.Services {
                         this.service.calculateFeatureStyle(f);
                         this.service.updateFeature(f);
                         done = true;
-                        this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + ' updated');
+                        if (this.service.project.eventTab) {
+                            this.service.$messageBusService.publish('eventtab', 'updated', value);
+                        } else {
+                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + ' updated');
+                        }
                         //  console.log('updating feature');
                         return true;
                     } else {
@@ -277,12 +280,20 @@ module csComp.Services {
                         layer.data.features.push(value);
                         this.service.initFeature(value, layer, false);
                         var m = this.service.activeMapRenderer.addFeature(value);
-                        if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, value.properties['Name'] + ' added');
+                        if (this.service.project.eventTab) {
+                            this.service.$messageBusService.publish('eventtab', 'added', value);
+                        } else {
+                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, value.properties['Name'] + ' added');
+                        }
                     } else {
                         features.push(value);
                         this.service.initFeature(value, this.layer);
                         var m = this.service.activeMapRenderer.addFeature(value);
-                        if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + ' added');
+                        if (this.service.project.eventTab) {
+                            this.service.$messageBusService.publish('eventtab', 'added', value);
+                        } else {
+                            if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + ' added');
+                        }
                     }
                 }
             } catch (e) {
@@ -468,13 +479,13 @@ module csComp.Services {
     }
 
     export interface IOtpLeg {
-        mode:       string;
-        start:      string;
-        arrive:     string;
-        duration:   string;
-        route?:     string;
+        mode: string;
+        start: string;
+        arrive: string;
+        duration: string;
+        route?: string;
         routeName?: string;
-        agency?:    string;
+        agency?: string;
     }
 
     export class EsriJsonSource extends GeoJsonSource {

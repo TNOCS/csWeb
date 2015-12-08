@@ -170,6 +170,7 @@ module csComp.Services {
         layerDirectory: string;
         expertMode = Expertise.Expert;
         markers = {};
+        eventTab: boolean; 
 
         /**
          * Serialize the project to a JSON string.
@@ -226,7 +227,8 @@ module csComp.Services {
                 featureTypes: project.featureTypes, //reset
                 propertyTypeData: project.propertyTypeData,
                 groups: csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData),
-                layerDirectory: project.layerDirectory
+                layerDirectory: project.layerDirectory,
+                eventTab: project.eventTab
             };
         }
 
