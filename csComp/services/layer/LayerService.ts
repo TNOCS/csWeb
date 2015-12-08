@@ -1,30 +1,7 @@
 module csComp.Services {
     'use strict';
 
-    export enum ActionType {
-        Context = 0,
-        Hover = 1
-    }
-
-    export interface IActionOption {
-        title: string;
-        icon: string;
-        feature: IFeature;
-        callback: Function;
-    }
-
-    export interface IActionService {
-        id: string;
-        init(ls: LayerService);
-        stop();
-        addFeature(feature: IFeature);
-        removeFeature(feature: IFeature);
-        selectFeature(feature: IFeature);
-        getFeatureActions(feature: IFeature): IActionOption[];
-        getFeatureHoverActions(feature: IFeature): IActionOption[];
-        deselectFeature(feature: IFeature);
-        updateFeature(feuture: IFeature);
-    }
+    
 
     /** describes a layer source, every layer has a layer source that is responsible for importing the data (e.g. geojson, wms, etc */
     export interface ILayerSource {
@@ -494,7 +471,7 @@ module csComp.Services {
                                     }
 
                                     if (!pl.id) pl.id = l;
-                                    pl.groupId = 'Wegen';
+                                    pl.groupId = prop.layerProps.groupId;
                                     if (!pl.group) {
                                         if (pl.groupId) {
                                             pl.group = this.findGroupById(pl.groupId)
@@ -508,8 +485,9 @@ module csComp.Services {
                                     }
                                     if (!pl.type) pl.type = feature.layer.type;
                                     if (!pl.title) pl.title = feature.properties['Name'] + ' ' + prop.title;
-                                    if (!pl.defaultFeatureType) pl.defaultFeatureType = 'link';
-                                    if (!pl.typeUrl) pl.typeUrl = 'api/resources/smartcycling';
+                                    if (!pl.defaultFeatureType) pl.defaultFeatureType = prop.layerProps.defaultFeatureType;
+                                    if (!pl.typeUrl) pl.typeUrl = prop.layerProps.typeUrl;
+                                    pl.hasSensorData = true;
 
                                     //pl.parentFeature = feature;
                                     pl.group.layers.push(pl);

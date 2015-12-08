@@ -156,6 +156,7 @@ module csComp.Services {
         activation? : string;
         groupId? : string;
         defaultFeatureType? : string;
+        typeUrl? : string;
     }
 
     export interface IPropertyType {

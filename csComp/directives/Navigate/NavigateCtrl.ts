@@ -1,7 +1,10 @@
 module Navigate {
     export interface INavigateScope extends ng.IScope {
         vm: NavigateCtrl;
+        search: string;
     }
+
+
 
     export class RecentFeature {
         public id: string;
@@ -20,6 +23,8 @@ module Navigate {
         public UserName: string;
         public MyFeature: csComp.Services.Feature;
         private lastPost = { longitude: 0, latitude: 0 }
+        public searchResults: csComp.Services.ISearchResultItem[] = [];
+        
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -39,7 +44,7 @@ module Navigate {
             private $messageBus: csComp.Services.MessageBusService,
             private localStorageService: ng.localStorage.ILocalStorageService,
             private geoService: csComp.Services.GeoService
-            ) {
+        ) {
             $scope.vm = this;
 
 
@@ -49,6 +54,36 @@ module Navigate {
                     this.initRecentFeatures();
                     if (this.$layerService.isMobile) this.initMobileLayers(p);
                 }
+            });
+
+            $scope.$watch("search", _.throttle((search) => {
+                // This code will be invoked after 1 second from the last time 'id' has changed.
+                
+                if (search && search.length > 0) {
+                    this.doSearch(search);                    
+                }
+                else {
+                    this.searchResults = [];
+                }
+                // Code that does something based on $scope.id                
+            }, 500));
+        }
+        
+        public selectSearchResult(item : csComp.Services.ISearchResultItem)
+        {
+            if (item.click) item.click(item);
+        }
+
+        private doSearch(search: string) {
+                        
+            this.$layerService.actionServices.forEach(as => {
+                if (as.search)                    
+                        as.search(<csComp.Services.ISearchQuery>{ query: search, results: this.searchResults }, (error, result) => {                            
+                            this.searchResults = this.searchResults.filter(sr=>{ return sr.service !== as.id});
+                            this.searchResults = this.searchResults.concat(result);    
+                            //if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }        
+                        });
+                     
             });
         }
 
@@ -71,22 +106,22 @@ module Navigate {
                     })
                 } else { cb(); }
             }, (cb) => {
-                    this.mobileLayer = l;
-                    var f = new csComp.Services.Feature();
-                    f.layerId = this.mobileLayer.id;
-                    f.geometry = {
-                        type: 'Point', coordinates: []
-                    };
-                    // todo disable
-                    f.geometry.coordinates = [this.lastPost.longitude, this.lastPost.latitude]; //[0, 0]; //loc.coords.longitude, loc.coords.latitude];
-                    f.id = this.UserName;
-                    f.properties = { "Name": this.UserName };
-                    //layer.data.features.push(f);
-                    this.$layerService.initFeature(f, this.mobileLayer);
-                    this.$layerService.activeMapRenderer.addFeature(f);
-                    this.$layerService.saveFeature(f);
-                    this.MyFeature = f;
-                }]);
+                this.mobileLayer = l;
+                var f = new csComp.Services.Feature();
+                f.layerId = this.mobileLayer.id;
+                f.geometry = {
+                    type: 'Point', coordinates: []
+                };
+                // todo disable
+                f.geometry.coordinates = [this.lastPost.longitude, this.lastPost.latitude]; //[0, 0]; //loc.coords.longitude, loc.coords.latitude];
+                f.id = this.UserName;
+                f.properties = { "Name": this.UserName };
+                //layer.data.features.push(f);
+                this.$layerService.initFeature(f, this.mobileLayer);
+                this.$layerService.activeMapRenderer.addFeature(f);
+                this.$layerService.saveFeature(f);
+                this.MyFeature = f;
+            }]);
 
         }
 

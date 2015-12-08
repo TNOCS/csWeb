@@ -3,15 +3,9 @@ module MatrixAction {
     import IFeature = csComp.Services.IFeature;
     import IActionOption = csComp.Services.IActionOption;
 
-    export class MatrixActionModel implements csComp.Services.IActionService {
+    export class MatrixActionModel extends csComp.Services.BasicActionService {
         public id: string = 'MatrixActionModel';
-        private layerService: csComp.Services.LayerService
-
-        stop() { }
-        addFeature(feature: IFeature) { }
-        removeFeature(feature: IFeature) { }
-        selectFeature(feature: IFeature) { }
-
+                
         getFeatureActions(feature: IFeature): IActionOption[] {
             return [];
         }
@@ -29,10 +23,6 @@ module MatrixAction {
             return [showContourOption, hideContourOption];
         }
 
-        deselectFeature(feature: IFeature) { }
-
-        updateFeature(feuture: IFeature) { }
-
         private showContour(feature: IFeature, layerService: csComp.Services.LayerService) {
             if (layerService.currentContour) layerService.map.map.removeLayer(layerService.currentContour); //remove old contour first
             var fType = layerService.getFeatureType(feature);
@@ -48,7 +38,7 @@ module MatrixAction {
         }
 
         public init(layerService: csComp.Services.LayerService) {
-            console.log('init ContourActionService');
+            super.init(layerService);
         }
     }
 }

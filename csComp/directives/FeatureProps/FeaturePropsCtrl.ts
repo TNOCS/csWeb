@@ -132,8 +132,8 @@ module FeatureProps {
 
             var displayValue: string;
             if (type != null) {
-                var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
-                if (propertyTypes.length === 0) { for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]); };
+                //var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
+                //if (propertyTypes.length === 0) { for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]); };
 
                 //
                 if (type.showAllProperties || this.mapservice.isAdminExpert) {
@@ -147,7 +147,7 @@ module FeatureProps {
 
                 // if feature type has propertyTypeKeys defined use these to show the order of the properties 
                 if (feature.fType.propertyTypeKeys) {
-                    propertyTypes.forEach((mi: IPropertyType) => {
+                    feature.fType._propertyTypeData.forEach((mi: IPropertyType) => {
                         if (feature.properties.hasOwnProperty(mi.label) && mi.visibleInCallOut) {
                             this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection);
                         }
