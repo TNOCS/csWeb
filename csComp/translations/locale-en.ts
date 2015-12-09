@@ -181,7 +181,7 @@ module Translations {
             SAVE_EVERY_MARVEL: 'Save every ',
             MARVEL_WATER_LEVEL: 'Water level [m]',
             MARVEL_UPS_DURATION: 'UPS duration [mins]',
-            MARVEL_FEATURE_DEP: 'Specific features',
+            MARVEL_FEATURE_DEP: 'Depends on',
             STATE: 'State',
             EVENT_INFO: 'Show a list of events',
             CLEAR_EVENTS: 'Clear event log'
