@@ -5,7 +5,7 @@ var chokidar = require('chokidar');
 import ClientConnection = require('./ClientConnection');
 import MessageBus = require('../bus/MessageBus');
 
-module LayerDirectory {
+export module LayerDirectory {
     export class LayerDirectory {
         public project: any;
 
@@ -39,10 +39,5 @@ module LayerDirectory {
             };
             res.send(result);
         }
-
-
     }
-
 }
-
-export = LayerDirectory;

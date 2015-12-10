@@ -3,7 +3,7 @@ import http             = require('http');
 import ClientConnection = require("./ClientConnection");
 import DynamicLayer     = require("./DynamicLayer");
 
-module DataSource {
+export module DataSource {
     export class SensorSet {
         title: string;
         type: string;
@@ -78,4 +78,3 @@ module DataSource {
         }
     }
 }
-export = DataSource;
