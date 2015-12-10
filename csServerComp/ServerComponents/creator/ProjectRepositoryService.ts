@@ -7,7 +7,7 @@ import IProjectRepositoryService = require("./IProjectRepositoryService");
 import ConfigurationService = require('../configuration/ConfigurationService');
 
 /* Multiple storage engine supported, e.g. file system, mongo  */
-class ProjectRepositoryService implements IProjectRepositoryService {
+export class ProjectRepositoryService implements IProjectRepositoryService {
     private server: express.Express;
     private config: ConfigurationService.ConfigurationService;
     private resourceTypeUrl: string;
@@ -126,4 +126,3 @@ class ProjectRepositoryService implements IProjectRepositoryService {
     }
 
 }
-export =ProjectRepositoryService;
