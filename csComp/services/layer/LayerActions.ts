@@ -20,6 +20,8 @@ module csComp.Services {
         feature? : IFeature;
         description? : string;
         title: string;
+        score? : number;
+        icon? : string;
         service : string;
         click : Function;
     }
@@ -101,23 +103,28 @@ module csComp.Services {
         public search(query : ISearchQuery, result : SearchResultHandler)
         {            
             var r : ISearchResultItem[]= [];
+            var temp = [];
             this.layerService.project.features.forEach(f=>{
                 
-                    var title = csComp.Helpers.getFeatureTitle(f);                    
-                    if (r.length<20 && title.toLowerCase().indexOf(query.query.toLowerCase())>=0)
-                    {                                                
-                        var res =<ISearchResultItem>{ title : title, description : f.layer.title, feature : f, service : this.id, click : ()=>{
-                            
+                    var title = csComp.Helpers.getFeatureTitle(f);
+                    
+                     if (title)
+                     {
+                        var score = title.toString().score(query.query, null);
+                        temp.push({score : score, feature : f, title : title});                                 
+                     }
+            });
+            temp.sort((a, b) => { return b.score - a.score; }).forEach((rs)=>{
+                if (r.length<20)
+                {
+                    var f = <IFeature>rs.feature;
+                    var res =<ISearchResultItem>{ title : rs.title, description : f.layer.title, feature : f, score : rs.score, icon: 'data/projects/smartcycling/buurt.png', service : this.id, click : ()=>{                            
                             this.layerService.$mapService.zoomTo(f);
                             this.layerService.selectFeature(f); } } 
-                        if (f.fType && f.fType.name!=="default") res.description += " (" + f.fType.name + ")";
+                        //if (f.fType && f.fType.name!=="default") res.description += " (" + f.fType.name + ")";
                         r.push(res);
-                                                
-                    }
-                    
-                
-                
-            })            
+                }
+            })                          
             result(null,r);
         }
 

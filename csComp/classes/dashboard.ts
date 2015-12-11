@@ -2,7 +2,6 @@ module csComp.Services {
 
     export class Widget {
         public content: Function;
-
         constructor() { }
     }
 

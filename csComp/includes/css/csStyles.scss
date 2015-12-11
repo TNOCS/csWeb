@@ -2526,6 +2526,29 @@ input[type="checkbox"] {
     font-size: 14px;
 }
 
+.search-result-title{    
+    font-size:15px;
+    font-weight: 700;
+}
+
+.search-result-description{    
+    font-size:13px;    
+}
+
+.search-result-details
+{
+    left:25px; position:relative;top:0;width:230px;margin-bottom: 4px
+}
+
+.search-result-image
+{
+    position: absolute;
+    left:0;
+    top:0;
+    width: 20px;
+    height:20px;
+}
+
 /* End Kanban board style */
 
 /* dc-charts */

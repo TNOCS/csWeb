@@ -11,10 +11,13 @@
     <input class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="search" placeholder="Search"></input>
 </div>
 
-<div ng-if="vm.searchResults.length>0">
-    <div ng-repeat="r in vm.searchResults" style="cursor:pointer" ng-click="vm.selectSearchResult(r)">
+<div ng-if="vm.searchResults.length>0" class="scrolling" style="overflow-y: auto; overflow-x: hidden;margin-top:10px" resize resize-y="95">
+    <div ng-repeat="r in vm.searchResults" style="cursor:pointer;position:relative" ng-click="vm.selectSearchResult(r)">
+        <img ng-if="r.icon" class="search-result-image" ng-src="{{r.icon}}">
+        <div class="search-result-details">
         <div class="search-result-title">{{r.title}}</div>
         <div ng-if="r.description" class="search-result-description">{{r.description}}</div>
+        </div>
     </div>
 </div>
 <div ng-if="!vm.searchResults.length>0">
@@ -64,7 +67,7 @@
     <div id="recent-objects">
         <div ng-repeat="f in vm.RecentFeatures">
             <a class="feature-item" ng-if="f.feature" ng-click="vm.selectFeature(f.feature)">{{f.name}}</a>
-            <div ng-if="!f.feature">{{f.name}} ({{f.layerId}})</div>
+            <!--<div ng-if="!f.feature">{{f.name}} ({{f.layerId}})</div>-->
         </div>
     </div>
 </div>

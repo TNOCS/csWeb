@@ -81,7 +81,7 @@ module Navigate {
                         as.search(<csComp.Services.ISearchQuery>{ query: search, results: this.searchResults }, (error, result) => {                            
                             this.searchResults = this.searchResults.filter(sr=>{ return sr.service !== as.id});
                             this.searchResults = this.searchResults.concat(result);    
-                            //if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }        
+                            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }        
                         });
                      
             });
