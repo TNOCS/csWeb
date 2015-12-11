@@ -441,7 +441,7 @@ module csComp.Services {
                     case 'onFeatureSelect':
                         // check sub-layers
                         props.forEach((prop: IPropertyType) => {
-                            if (prop.type === 'matrix' && prop.layerProps && prop.layerProps.activation === 'automatic' && feature.properties.hasOwnProperty(prop.label)) {
+                            if (prop.type === 'matrix' && feature.properties.hasOwnProperty(prop.label)) {
                                 var matrix = feature.properties[prop.label];
                                 this.project.features.forEach(f=> {
                                     if (f.layer === feature.layer && f.properties.hasOwnProperty(prop.targetid) && matrix.hasOwnProperty(f.properties[prop.targetid])) {
