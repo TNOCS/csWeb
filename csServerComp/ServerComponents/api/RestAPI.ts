@@ -13,6 +13,7 @@ import ApiResult = ApiManager.ApiResult;
 import ApiMeta = ApiManager.ApiMeta;
 import Winston = require('winston');
 import request = require('request');
+import fs = require('fs');
 
 export class RestAPI extends BaseConnector.BaseConnector {
     public manager: ApiManager.ApiManager;
@@ -23,7 +24,8 @@ export class RestAPI extends BaseConnector.BaseConnector {
     public searchUrl;
     public projectsUrl;
     public proxyUrl;
-    
+    public tilesUrl;
+
     constructor(public server: express.Express, public baseUrl: string = "/api") {
         super();
         this.isInterface = true;
@@ -34,6 +36,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.keysUrl = baseUrl + "/keys/";
         this.projectsUrl = baseUrl + "/projects/";
         this.proxyUrl = baseUrl + "/proxy";
+        this.tilesUrl = baseUrl + "/tiles/"
     }
 
     public init(layerManager: ApiManager.ApiManager, options: any, callback: Function) {
@@ -241,7 +244,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 res.send(result);
             });
         }
-            )
+        )
 
         // LOGS
 
@@ -351,17 +354,17 @@ export class RestAPI extends BaseConnector.BaseConnector {
                 res.send(result);
             });
         });
-        
+                
         // proxy service
         this.server.get(this.proxyUrl, (req, res) => {
             var id = req.query.url;
             console.log(id);
             this.getUrl(id, res);
-        });        
+        });
 
         callback();
     }
-    
+
     private getUrl(feedUrl: string, res: express.Response) {
         Winston.info('proxy request: ' + feedUrl);
         //feedUrl = 'http://rss.politie.nl/rss/algemeen/ab/algemeen.xml';
