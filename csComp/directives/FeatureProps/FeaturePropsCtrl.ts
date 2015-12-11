@@ -272,8 +272,9 @@ module FeatureProps {
         public lastSelectedProperty: IPropertyType;
         private defaultDropdownTitle: string;
 
-        // list of active stats properties, used when switching between features to keep active stats open
-        private stats = [];
+        // list of active stats/charts properties, used when switching between features to keep active stats open
+        private showMore = [];
+        private showChart = [];
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -505,18 +506,25 @@ module FeatureProps {
                 });
             }
         }
-
-        public createSparkLineChart(item: ICallOutProperty) {
-            item.showChart = !item.showChart;
+        
+        public addSparkline(item : ICallOutProperty)
+        {
             var ch = $('#featurepropchart_' + item._id);
             ch.empty();
-            if (item.showChart) {
+            if (this.showChart.indexOf(item.property) < 0) this.showChart.push(item.property);
                 var ns = <any>this.$scope;
                 ns.item = item;
 
                 // create sparkline                
                 var chartElement = this.$compile('<sparkline-chart timestamps="item.timestamps" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>')((<any>ch).scope());
                 ch.append(chartElement);
+        }
+
+        public createSparkLineChart(item: ICallOutProperty) {
+            item.showChart = !item.showChart;
+            
+            if (item.showChart) {                
+                this.addSparkline(item);
                 //console.log(item);
             }
         }
@@ -524,14 +532,14 @@ module FeatureProps {
         public getPropStats(item: ICallOutProperty) {
             if (item.showMore) {
                 //console.log('stats: calc stats for ' + item.property);
-                if (this.stats.indexOf(item.property) < 0) this.stats.push(item.property);
+                if (this.showMore.indexOf(item.property) < 0) this.showMore.push(item.property);
                 var values = this.$layerService.getPropertyValues(item.feature.layer, item.property);
                 var d = item.property;
                 var res = vg.util.summary(values, [item.property]);
                 item.stats = res[0];
                 item.stats.sum = item.stats.count * item.stats.mean;
             } else {
-                if (this.stats.indexOf(item.property) >= 0) this.stats = this.stats.filter((s) => s !== item.property);
+                if (this.showMore.indexOf(item.property) >= 0) this.showMore = this.showMore.filter((s) => s !== item.property);
             }
         }
 
@@ -546,12 +554,14 @@ module FeatureProps {
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
 
             this.$scope.callOut = new CallOut(this.featureType, feature, this.$layerService.propertyTypeData, this.$layerService, this.$mapService);
-            if (this.stats.length > 0) {
+            if (this.showMore.length > 0 || this.showChart.length>0) {
                 for (var s in this.$scope.callOut.sections) {
                     var sec = this.$scope.callOut.sections[s];
                     sec.properties.forEach((p: ICallOutProperty) => {
-                        p.showMore = this.stats.indexOf(p.property) >= 0;
-                        this.getPropStats(p);
+                        p.showMore = this.showMore.indexOf(p.property) >= 0;
+                        p.showChart = this.showChart.indexOf(p.property) >= 0;
+                        if (p.showChart) this.addSparkline(p);                        
+                        if (p.showMore) this.getPropStats(p);
                     });
                 }
             }
@@ -591,7 +601,7 @@ module FeatureProps {
         }
 
         showSensorData(property: ICallOutProperty) {
-            console.log(property);
+            //console.log(property);
         }
 
         timestamps = new Array<{ title: string; timestamp: number }>();
