@@ -17,7 +17,7 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
-            this.baseAddLayer(layer, callback, data);
+            this.baseAddLayer(layer, callback, data);            
         }
 
         /** zoom to boundaries of layer */
@@ -25,13 +25,27 @@ module csComp.Services {
             var b = Helpers.GeoExtensions.getBoundingBox(layer.data);
             this.service.$messageBusService.publish('map', 'setextent', b);
         }
+        
+        /** zoom to boundaries of layer */
+        public fitTimeline(layer: ProjectLayer) {
+            if (layer.hasSensorData && layer.timestamps && layer.timestamps.length>0)
+            {
+                var min = layer.timestamps[0];
+                var max = layer.timestamps[layer.timestamps.length-1];
+                this.service.$messageBusService.publish('timeline','updateTimerange',{start : min, end : max});                
+                                
+            }
+            
+        }
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
-            return [
-                ['Fit map', (($itemScope) => this.fitMap(layer))],
-                null,
-                ['Refresh', (($itemScope) => this.refreshLayer(layer))]
-            ];
+            var result : [[string, Function]] = [
+                ['Fit map', (($itemScope) => this.fitMap(layer))]];
+                if (layer.hasSensorData && layer.timestamps) result.push(['Fit time', (($itemScope) => this.fitTimeline(layer))]);
+               result.push(null);
+               result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);
+            
+            return result; 
         }
 
         protected baseAddLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
@@ -64,7 +78,8 @@ module csComp.Services {
                                 layer.isLoading = false;
                                 layer.enabled = true;
                                 this.initLayer(data, layer);
-                                if (this.layer.fitToMap) this.fitMap(this.layer);
+                                if (layer.fitToMap) this.fitMap(layer);
+                                if (layer.hasSensorData) this.fitTimeline(layer);
                                 cb(null, null);
                             })
                             .error(() => {
@@ -427,8 +442,9 @@ module csComp.Services {
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
             var res: [[string, Function]] = [
-                ['Fit map', (($itemScope) => this.fitMap(layer))]
+                ['Fit map', (($itemScope) => this.fitMap(layer))]                
             ];
+            
             return res;
         }
 
