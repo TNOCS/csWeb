@@ -1,4 +1,5 @@
 import IFeature = csComp.Services.IFeature;
+import IPropertyType = csComp.Services.IPropertyType;
 import IActionOption = csComp.Services.IActionOption;
 
 module Accessibility {

@@ -17,8 +17,14 @@ module csComp.Services {
         user:  string;
     }
 
+    export interface IGuiObject {
+        /** When true, the feature is included on the map, as opposed to being removed by a filter. */
+        included: boolean;
+        [key: string]: any;
+    }    
+    
     export interface IFeature {
-        id?:               string;
+        id?:              string;
         index:            number;
         layerId:          string;
         layer:            ProjectLayer;
@@ -31,9 +37,9 @@ module csComp.Services {
         featureTypeName?: string;
         fType?:           IFeatureType;
         effectiveStyle:   IFeatureTypeStyle;
-        _isInitialized?: boolean;
+        _isInitialized?:  boolean;
         lastUpdated:      number;
-        _gui: Object;
+        _gui:             IGuiObject;
         sensors?:         { [id: string]: any[] }
 
         logs?:            { [id: string]: Log[] };
@@ -63,7 +69,7 @@ module csComp.Services {
         htmlStyle:       string;
         featureTypeName: string;
         lastUpdated:     number;
-        _gui: Object = {};
+        _gui:            IGuiObject = { included: true };
         /** resolved feature type */
         fType: IFeatureType;
         /** calculated style, used for final rendering */
@@ -230,6 +236,8 @@ module csComp.Services {
         name?:              string;
         style?:             IFeatureTypeStyle;
         legendItems?:       LegendList.ILegendItem[];
+        /** Optional expressions that are shown in the legend list. */
+        legendExpr?:        IPropertyType[];
         properties?:        {};
         _propertyTypeData?: IPropertyType[];
         showAllProperties?: boolean;
@@ -240,8 +248,8 @@ module csComp.Services {
          * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.
          */
         propertyTypeKeys?: string;
-        languages?:       ILanguageData;
-        _isInitialized?: boolean;
+        languages?:        ILanguageData;
+        _isInitialized?:   boolean;
     }
 
     export interface IGeoJsonFile {

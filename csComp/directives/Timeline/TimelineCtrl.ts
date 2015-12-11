@@ -47,6 +47,7 @@ module Timeline {
         public expandButtonBottom = 52;
         public items = new vis.DataSet();
         private debounceUpdate: Function;
+        private debounceSetItems: Function;
         private ids: string[] = [];
 
 
@@ -58,7 +59,7 @@ module Timeline {
             private $mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService,
             private TimelineService: Timeline.ITimelineService
-            ) {
+        ) {
             this.loadLocales();
 
 
@@ -72,6 +73,7 @@ module Timeline {
             };
 
             this.debounceUpdate = _.debounce(this.updateFeatures, 500);
+            this.debounceSetItems = _.debounce((items) => { this.setItems(items); }, 500);
 
             $scope.vm = this;
 
@@ -131,6 +133,12 @@ module Timeline {
                     case "updateFeatures":
                         this.debounceUpdate();
                         break;
+                    case "setItems":
+                        this.debounceSetItems(data);
+                        break;
+                    case "setGroups":
+                        this.setGroups(data);
+                        break;
                 }
             }
         }
@@ -139,6 +147,18 @@ module Timeline {
             this.updateFocusTimeContainer(data);
             console.log(`Moved timeline and focuscontainer to ${data}`)
         }, 300, true);
+
+        private setItems(items: any[]) {
+            if (!items) return;
+            var its = new vis.DataSet(items);
+            this.$scope.timeline.setItems(its);
+        }
+
+        private setGroups(groups: any[]) {
+            if (!groups) return;
+            var gs = new vis.DataSet(groups);
+            this.$scope.timeline.setGroups(gs);
+        }
 
         private updateFeatures() {
             console.log("timeline:updating features");
@@ -231,15 +251,14 @@ module Timeline {
             this.$layerService.timeline.setOptions(this.options);
             this.$layerService.timeline.redraw();
         }
-        
+
         private throttleTimeSpanUpdate = _.debounce(this.triggerTimeSpanUpdated, 1000);
         
         /**
          * trigger a debounced timespan updated message on the message bus
          */
-        private triggerTimeSpanUpdated()
-        {
-            this.$messageBusService.publish("timeline","timeSpanUpdated","");            
+        private triggerTimeSpanUpdated() {
+            this.$messageBusService.publish("timeline", "timeSpanUpdated", "");
         }
 
         /**

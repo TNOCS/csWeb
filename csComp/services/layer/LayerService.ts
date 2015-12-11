@@ -180,43 +180,43 @@ module csComp.Services {
             var updated = false;
             console.log('updating sensorlinks');
             for (var l in this.loadedLayers) {
-                var layer = <ProjectLayer>this.loadedLayers[l];                
+                var layer = <ProjectLayer>this.loadedLayers[l];
                 console.log(layer.title);
                 if (layer.sensorLink) {
                     console.log('downloading ' + layer.sensorLink.url);
                     this.$http.get(layer.sensorLink.url)
                         .success((data: ISensorLinkResult) => {
-                            updated = true;
-                            layer.timestamps = data.timeStamps;
-                            layer.data.features.forEach((f: IFeature) => { f.sensors = {};
-                            data.properties.forEach(s=>f.sensors[s] = []); 
+                                updated = true;
+                                layer.timestamps = data.timeStamps;
+                                layer.data.features.forEach((f: IFeature) => { f.sensors = {};
+                                data.properties.forEach(s => f.sensors[s] = []);
                             });
                             var t = 0;
-                            
+
                             data.data.forEach(ts => {
                                 var i = 0;
                                 layer.data.features.forEach((f: IFeature) => {
-                                    data.properties.forEach(s=>{
-                                    f.sensors[s].push(data.data[t][i]);
-                                    i += 1;    
-                                    })                                                                       
+                                    data.properties.forEach(s => {
+                                        f.sensors[s].push(data.data[t][i]);
+                                        i += 1;
+                                    });
                                 });
                                 t += 1;
-                            });  
-                            this.throttleSensorDataUpdate();                                                                                  
+                            });
+                            this.throttleSensorDataUpdate();
                         })
                         .error((e) => {
                             console.log('error loading sensor data');
                         });
                 }
-            };            
+            };
         }
 
         public enableDrop() {
             var w = <any>window;
             if (w.File && w.FileList && w.FileReader) {
                 console.log('enable drop');
-                var obj = $("body");
+                var obj = $('body');
                 obj.on('dragenter', (e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -234,14 +234,12 @@ module csComp.Services {
                     var ev = <any>e.originalEvent;
                     var files = ev.dataTransfer.files;
                     if (files.length > 1) {
-                        this.$messageBusService.notify("File upload", "Only one file at a time permitted");
-                    }
-                    else {
+                        this.$messageBusService.notify('File upload', 'Only one file at a time permitted');
+                    } else {
                         this.handleFileUpload(files, obj);
                     }
- 
+
                     //We need to send dropped files to Server
-                
                 });
             }
         }
@@ -255,22 +253,20 @@ module csComp.Services {
                     // get file content
                     var text = e.target.result;
                     var obj = JSON.parse(text);
-                    if (obj && obj.type && ["featurecollection", "geojson", "dynamicgeojson"].indexOf((<string>obj.type).toLowerCase()) >= 0) {
+                    if (obj && obj.type && ['featurecollection', 'geojson', 'dynamicgeojson'].indexOf((<string>obj.type).toLowerCase()) >= 0) {
                         var newLayer = new csComp.Services.ProjectLayer();
                         var id = file.name.toLowerCase().replace('.json', '').replace('.geojson', '');
                         newLayer.id = id;
                         newLayer.title = id;
-                        newLayer.type = "dynamicgeojson";
+                        newLayer.type = 'dynamicgeojson';
                         newLayer.groupId = this.project.groups[0].id;
                         newLayer.group = this.project.groups[0];
                         newLayer.data = obj;
-                        this.$messageBusService.publish("layerdrop", "new", newLayer);
+                        this.$messageBusService.publish('layerdrop', 'new', newLayer);
+                    } else {
+                        this.$messageBusService.notify('File upload', 'File format not recognized');
                     }
-                    else {
-                        this.$messageBusService.notify("File upload", "File format not recognized");
-                    }
-
-                }
+                };
                 reader.readAsText(file);
             }
         }
@@ -315,7 +311,7 @@ module csComp.Services {
                 return false;
             });
             if (asAlreadyExists) {
-                console.log('Actionservice ' + as.id + ' already exists.')
+                console.log('Actionservice ' + as.id + ' already exists.');
             } else {
                 this.actionServices.push(as);
                 as.init(this);
@@ -950,14 +946,12 @@ module csComp.Services {
                     if (this.selectedFeatures.indexOf(feature) === -1) {
                         this.selectedFeatures.push(feature);
                     }
-                }
-                else {
+                } else {
                     if (this.selectedFeatures.indexOf(feature) >= 0) {
                         this.selectedFeatures = this.selectedFeatures.filter((f) => { return f.id !== feature.id; });
                     }
                 }
-            }
-            else {
+            } else {
                 this.selectedFeatures.forEach((f) => { if (f != feature) this.deselectFeature(f) });
                 this.selectedFeatures = (feature.isSelected) ? [feature] : [];
             }
@@ -1127,7 +1121,9 @@ module csComp.Services {
         public initFeature(feature: IFeature, layer: ProjectLayer, applyDigest: boolean = false, publishToTimeline: boolean = true): IFeatureType {
             if (!feature._isInitialized) {
                 feature._isInitialized = true;
-                feature._gui = {};
+                feature._gui = {
+                    included: true
+                };
 
                 if (!feature.logs) feature.logs = {};
                 if (feature.properties == null) feature.properties = {};
@@ -1145,12 +1141,12 @@ module csComp.Services {
 
                 // resolve feature type                
                 feature.fType = this.getFeatureType(feature);
-                
+
                 //this.initFeatureType(feature.fType);
 
                 // add missing properties
                 //if (feature.fType.showAllProperties) 
-                
+
                 // Do we have a name?
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
 
@@ -1289,7 +1285,7 @@ module csComp.Services {
             if (!ft._propertyTypeData || ft._propertyTypeData.length === 0) {
                 ft._propertyTypeData = [];
                 if (ft.propertyTypeKeys && ft.propertyTypeKeys.length > 0) {
-                    ft.propertyTypeKeys.split(';').forEach((key: string) => {
+                    ft.propertyTypeKeys.split(/[,;]+/).forEach((key: string) => {
                         if (propertyTypes.hasOwnProperty(key)) ft._propertyTypeData.push(propertyTypes[key]);
                     });
                 }
@@ -1708,23 +1704,10 @@ module csComp.Services {
 
                         gf.title = property.key;
                         gf.rangex = [0, 1];
-
-                        // if (gf.filterType === 'text') {
-                        //     var old = layer.group.filters.filter((flt: GroupFilter) => flt.filterType === 'text');
-                        //     old.forEach((groupFilter: GroupFilter) => {
-                        //         groupFilter.dimension.filterAll();
-                        //         groupFilter.dimension.dispose();
-                        //     });
-                        //     layer.group.filters = layer.group.filters.filter((groupFilter: GroupFilter) => groupFilter.filterType !== 'text');
-                        // }
                         // add filter
                         layer.group.filters.push(gf);
                     } else {
                         this.removeFilter(filter);
-                        //layer.group.filters = layer.group.filters.filter((f: GroupFilter) => f.property != property.property);
-                        // var pos = layer.group.filters.indexOf(filter);
-                        // if (pos !== -1)
-                        //     layer.group.filters.slice(pos, 1);
                     }
                 }
                 (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
@@ -1733,7 +1716,7 @@ module csComp.Services {
         }
 
         public createScatterFilter(group: ProjectGroup, prop1: string, prop2: string) {
-            console.log('create scatter ' + prop1 + '-' + prop2);
+            //console.log('create scatter ' + prop1 + '-' + prop2);
 
             var gf = new GroupFilter();
             gf.property = prop1;
@@ -1792,7 +1775,7 @@ module csComp.Services {
         }
 
         /**
-         * Returs propertytype for a specific property in a feature
+         * Returns propertytype for a specific property in a feature
          */
         public getPropertyType(feature: IFeature, property: string): IPropertyType {
             var res: IPropertyType;
@@ -1914,9 +1897,7 @@ module csComp.Services {
         rebuildFilters(g: ProjectGroup) {
             // remove all data from crossfilter group
             g.ndx = crossfilter([]);
-
             var features = this.getGroupFeatures(g);
-
             g.ndx.add(features);
         }
 
@@ -2566,11 +2547,11 @@ module csComp.Services {
         /** Find a sensor set for a specific source/sensor combination. Key should be something like datasource/sensorid */
         public findSensorSet(key: string, callback: Function) {
             var kk = key.split('/');
-            if (kk.length == 2) {
+            if (kk.length === 2) {
                 var dataSourceId = kk[0];
                 var sensorId = kk[1];
 
-                var dss = this.project.datasources.filter((ds: DataSource) => { return ds.id === dataSourceId });
+                var dss = this.project.datasources.filter((ds: DataSource) => { return ds.id === dataSourceId; });
                 if (dss.length === 0) {
                     var ds = new DataSource();
                     ds.id = dataSourceId;
@@ -2582,8 +2563,7 @@ module csComp.Services {
                 ds = dss[0];
                 if (ds.sensors.hasOwnProperty(sensorId)) {
                     callback(ds.sensors[sensorId]);
-                }
-                else {
+                } else {
                     var ss = new SensorSet();
                     ss.id = sensorId;
                     ss.title = sensorId;
@@ -2606,8 +2586,7 @@ module csComp.Services {
             var features = [];
             if (this.selectedFeatures.length > 1) {
                 features = this.selectedFeatures;
-            }
-            else {
+            } else {
                 features = (layer.group.filterResult) ? layer.group.filterResult : layer.data.features;
             }
             if (features) features.forEach((f: IFeature) => { if (f.layerId === layer.id) r.push(f.properties); });
@@ -2642,7 +2621,7 @@ module csComp.Services {
                     });
                 }
             });
-            if (isNaN(sum) || r.count == 0) {
+            if (isNaN(sum) || r.count === 0) {
 
             } else {
                 r.mean = sum / r.count;
@@ -2779,24 +2758,38 @@ module csComp.Services {
             }
         }
 
+        /** 
+         * Update the filter status of a feature, i.e. the _gui.included property.
+         * When a filter is applied, and the feature is not shown anymore, the feature._gui.included = false.
+         * In all other cases, it is true. */        
+        private updateFilterStatusFeature(group: ProjectGroup) {
+            //console.time('Filter');
+            this.project.features.forEach(f => { 
+                if (f.layer.group === group) f._gui.included = false;
+            });
+            group.filterResult.forEach(f => { 
+                f._gui.included = true;
+            });
+            //console.timeEnd('Filter');
+        }        
+        
         /***
          * Update map markers in cluster after changing filter
          */
         public updateMapFilter(group: ProjectGroup) {
+            this.updateFilterStatusFeature(group);
             this.activeMapRenderer.updateMapFilter(group);
             // update timeline list
             this.$messageBusService.publish('timeline', 'updateFeatures', group.id);
-
         }
 
         public resetMapFilter(group: ProjectGroup) {
+            this.updateFilterStatusFeature(group);
             $.each(group.markers, (key, marker) => {
                 if (group.clustering) {
-                    var incluster = group._cluster.hasLayer(marker);
-                    if (!incluster) group._cluster.addLayer(marker);
+                    if (!group._cluster.hasLayer(marker)) group._cluster.addLayer(marker);
                 } else {
-                    var onmap = this.map.map.hasLayer(marker);
-                    if (!onmap) this.map.map.addLayer(marker);
+                    if (!this.map.map.hasLayer(marker)) this.map.map.addLayer(marker);
                 }
             });
         }

@@ -15,6 +15,10 @@ module EventTab {
         private scope: IEventTabScope;
         public kanban: KanbanColumn.KanbanConfig;
         public layer: csComp.Services.ProjectLayer;
+        private debounceSendItems: Function;
+        private tlItems: any[]; // Timeline items
+        private newItems: any[]; // Timeline items that are not sent yet
+        private tlGroups: any[]; // Timeline groups
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -57,10 +61,10 @@ module EventTab {
                 id: 'eventtab',
                 filters: columnFilter,
                 roles: [],
-                fields: {'title':'Name', 'updated':'updated', 'prio':'prio'},
+                fields: { 'title': 'Name', 'updated': 'updated', 'prio': 'prio', 'description': 'description' },
                 propertyTags: ['layerTitle', 'state'],
                 timeReference: 'timeline',
-                orderBy: 'New',
+                orderBy: 'Updated',
                 actions: null,
                 canShare: false
             };
@@ -70,6 +74,12 @@ module EventTab {
                 canAdd: false
             };
 
+            // Don't flood the messagebus, but cache all items and send them together after a second
+            this.debounceSendItems = _.debounce(this.sendTimelineItems, 1000);
+            this.tlItems = [];
+            this.newItems = [];
+            this.tlGroups = [];
+
             this.$messageBusService.subscribe('eventtab', (topic, value) => {
                 if (!value || !topic) return;
                 switch (topic) {
@@ -78,6 +88,9 @@ module EventTab {
                         break;
                     case 'added':
                         this.addEvent(value);
+                        break;
+                    case 'reset':
+                        this.reset();
                         break;
                     default:
                         console.log('EventTab: Event type not found');
@@ -101,7 +114,15 @@ module EventTab {
             l.data.features = [];
             l.isDynamic = false;
             this.layer = l;
-            // this.$layerService.addLayer(this.eventLayer);
+        }
+
+        public reset() {
+            this.tlItems = [];
+            this.newItems = [];
+            this.tlGroups = [];
+            this.sendTimelineItems();
+            this.sendTimelineGroups();
+            this.layer.data.features = [];
         }
 
         private addUpdateEvent(f: IFeature) {
@@ -126,16 +147,88 @@ module EventTab {
             newF.id = csComp.Helpers.getGuid();
             newF._gui = f._gui;
             newF.properties = f.properties;
+            var pts = csComp.Helpers.getPropertyTypes(f.fType, {});
+            var stateText;
+            pts.some((p) => {
+                if (p.hasOwnProperty && p.hasOwnProperty('label') && p.label === 'state') {
+                    stateText = p.options[newF.properties['state']];
+                    return true;
+                }
+                return false;
+            });
             newF.properties['date'] = new Date(this.$layerService.project.timeLine.focus);
             newF.properties['updated'] = new Date(this.$layerService.project.timeLine.focus);
-            newF.properties['layerTitle'] = f.layer.id;
+            newF.properties['layerTitle'] = (f.layer) ? f.layer.id : '';
             if (!newF.properties.hasOwnProperty('tags')) newF.properties['tags'] = [];
-            this.kanban.columns[0].propertyTags.forEach((tag)=> {
-                if (newF.properties.hasOwnProperty(tag)) newF.properties['tags'].push(newF.properties[tag]);
+            this.kanban.columns[0].propertyTags.forEach((tag) => {
+                if (newF.properties.hasOwnProperty(tag)) {
+                    pts.some((p) => {
+                        if (p.hasOwnProperty && p.hasOwnProperty('label') && p.label === 'state') {
+                            newF.properties['tags'].push(csComp.Helpers.convertPropertyInfo(p, newF.properties[tag]));
+                            return true;
+                        }
+                        return false;
+                    });
+                }
             });
-            newF.properties['description'] = newF.properties['Name'] + ' is in state: ' + newF.properties['state'];
+            newF.properties['description'] = 'changed to state: ' + (stateText ? stateText : newF.properties['state']);
             newF.layerId = 'eventlayerid';
+            this.addTimelineItem(newF);
             this.layer.data.features.push(newF);
+        }
+
+        private addTimelineItem(f: IFeature) {
+            var timelineItem = {
+                start: f.properties['updated'],
+                content: f.properties['Name'],
+                id: f.id,
+                group: f.fType.name
+            };
+            // Check if group exists on timeline, otherwise create it
+            if (!this.tlGroups.some((g) => { return timelineItem.group === g.title; })) {
+                var timelineGroup = {
+                    content: f.fType.name,
+                    id: f.fType.name,
+                    title: f.fType.name
+                };
+                this.tlGroups.push(timelineGroup);
+                this.sendTimelineGroups();
+            }
+            this.newItems.push(timelineItem);
+            this.debounceSendItems();
+        }
+
+        private mergeItems() {
+            //Sort items per group
+            var changedGroups = {};
+            this.newItems.forEach((i) => {
+                if (changedGroups.hasOwnProperty(i.group)) {
+                    changedGroups[i.group].push(i);
+                } else {
+                    changedGroups[i.group] = [i];
+                }
+            });
+            Object.keys(changedGroups).forEach((key) => {
+                if (changedGroups[key].length === 1) {
+                    // If there is 1 item, send the raw item
+                    this.tlItems.push(changedGroups[key][0]);
+                } else if (changedGroups[key].length > 1) {
+                    // else merge items
+                    var mergedItem = changedGroups[key][0];
+                    mergedItem['content'] = changedGroups[key].length.toString() + ' ' + changedGroups[key][0].group + 's affected';
+                    this.tlItems.push(mergedItem);
+                }
+            });
+            this.newItems = [];
+        }
+
+        private sendTimelineItems() {
+            this.mergeItems();
+            this.$messageBusService.publish('timeline', 'setItems', this.tlItems);
+        }
+
+        private sendTimelineGroups() {
+            this.$messageBusService.publish('timeline', 'setGroups', this.tlGroups);
         }
 
         /**

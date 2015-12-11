@@ -49,9 +49,6 @@ module Filters {
             if (par.hasOwnProperty('filter')) {
                 $scope.filter = par['filter'];
             }
-            else {
-
-            }
             if ($scope && $scope.filter) {
                 setTimeout(() => this.initLocationFilter());
                 //$timeout.call(()=>this.initLocationFilter());
@@ -76,8 +73,8 @@ module Filters {
                 this.locationFilter.on('enabled', (e) => {
                     this.updateLocationFilter(e.bounds);
                 });
-                this.locationFilter.on('disabled', (e) => {
-                });
+                // this.locationFilter.on('disabled', (e) => {
+                // });
                 this.locationFilter.enable();
                 this.updateLocationFilter(this.locationFilter.getBounds());
             } else if (this.locationFilter.isEnabled()) {
@@ -114,9 +111,9 @@ module Filters {
             filter.dimension = dcDim;
 
             this.helperDim = crossfilter([
-                { title: "inside" },
-                { title: "outside" }
-            ]).dimension(d => { return d.title });
+                { title: 'inside' },
+                { title: 'outside' }
+            ]).dimension(d => { return d.title; });
             this.helperGroup = this.helperDim.group((d) => {
                 return d;
             });
@@ -150,15 +147,15 @@ module Filters {
             });
 
             this.helperGroup.all().forEach((hg) => {
-                if (hg.key === "inside") {
+                if (hg.key === 'inside') {
                     hg.value = f.dimension.top(Infinity).length;
                 }
-                if (hg.key === "outside") {
+                if (hg.key === 'outside') {
                     hg.value = f.dimension.groupAll().value() - f.dimension.top(Infinity).length;
                 }
             });
 
-            this.isEmpty = !(this.helperGroup.all().some((hg) => {return hg.value !== 0}));
+            this.isEmpty = !(this.helperGroup.all().some((hg) => { return hg.value !== 0; }));
 
             group.filterResult = f.dimension.top(Infinity);
 

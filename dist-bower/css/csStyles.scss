@@ -461,8 +461,8 @@ body,
     padding-top: 10px;
 }
 .legendImage {
-    width: 25px;
-    height: 25px;
+    width: 24px;
+    height: 24px;
 }
 .makeNarrow {
     margin-left: -2px;
@@ -481,14 +481,48 @@ body,
 .table > td {
     border: none;
 }
-.legendText {
+.legendTable {
+   display: table;
+   width: 100%;
+   table-layout: fixed;
+}
+.legendCellLeft {
+    display: table-cell;
+    vertical-align: top;
+    height: 100%;
+    width: 35px;
+}
+.legendCellRight {
+    display: table-cell;
+    vertical-align: top;
+    height: 100%;
+    width: 100%;
+}
+.legendPanelItem {
+    padding-bottom: 5px;
+    margin-left: -10px;
+    margin-top: -10px;
+}
+.legendTitle {
     display: inline-block;
-    overflow-wrap: break-word;
-    margin-top: 3px;
-    margin-left: 5px;
-    float: inherit;
+    margin: 0 0 4px 0;
     position: relative;
-    width: 180px;
+    font-weight: bold;
+    overflow: hidden;
+}
+.legend-prop-title {
+    display: inline-block;
+    margin-top: -4px;
+    position: relative;
+    overflow: hidden;
+    font-size: 12px;
+}
+.legend-prop-value {
+    margin-top: -4px;
+    position: relative;
+    overflow: hidden;
+    font-weight: 800;
+    float: right!important;
 }
 .widget-parent {
     display: block;
@@ -833,12 +867,12 @@ body,
 }
 .icons-on-hover {
    float: left;
-    position: relative;
-    display: none;
-    top: -10px;    
-    
+   position: relative;
+   display: none;
+   top: -10px;  
 }
 .property-action {
+    cursor: pointer;
     position: relative;
     display: inline-block;
 }
@@ -1518,6 +1552,9 @@ input[type="checkbox"] {
 }
 .table {
     margin-bottom: 0;
+}
+.nav > li {
+    cursor: pointer;
 }
 .nav-pills > li > a {
     border-radius: 0;

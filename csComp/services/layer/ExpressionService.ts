@@ -83,6 +83,12 @@ module csComp.Services {
 
                 var avgSquareDiff = average(squareDiffs);
                 return Math.sqrt(avgSquareDiff);
+            },
+            /** Calculate percentage of a with respect to b, i.e. a/b * 100% */
+            percentage: (features: Array<IFeature>, a: string, b: string) => {
+                let sum_a = this.ops.sum(features, a);
+                let sum_b = this.ops.sum(features, b);
+                return sum_a / sum_b;
             }
         };
 
@@ -154,13 +160,19 @@ module csComp.Services {
             }
         }
 
-        evalExpression(expression: string, features: IFeature[], feature: IFeature) {
+        evalExpression(expression: string, features: IFeature[], feature?: IFeature) {
             var parsedExpression = this.$parse(expression);
             var scope = {
                 features: features,
-                properties: feature.properties
+                properties: feature ? feature.properties : null
             };
             return parsedExpression(scope, this.ops);
+        }
+
+        /** Evaluate the expression in a property */        
+        evalPropertyType(pt: IPropertyType, features: IFeature[], feature?: IFeature) {
+            if (!pt.expression) return null;
+            return csComp.Helpers.convertPropertyInfo(pt, this.evalExpression(pt.expression, features, feature));
         }
     }
 
