@@ -23,6 +23,9 @@ module csComp.Services {
         public start(ctrl: ChartsWidget.ChartCtrl) {
             this.ctrl = ctrl;
             this.options = ctrl.$scope.data.generator;
+            this.mb.subscribe('timeline',(action : string, range : any)=>{
+               if (action === "timeSpanUpdated" && this.lastSelectedFeature) this.selectFeature(this.lastSelectedFeature);
+            });
 
             this.mb.subscribe('feature', (action: string, feature: any) => {
                 switch (action) {
@@ -36,52 +39,47 @@ module csComp.Services {
 
             ctrl.initChart();
         }
+        
+        private lastSelectedFeature : Feature;
 
         private selectFeature(f: Feature) {
             if (!this.options.hasOwnProperty("featureType") || this.options["featureType"] === f.fType.name) {
+                this.lastSelectedFeature = f;
                 var properties = [];
-                if (this.options.hasOwnProperty("properties"))
-                {
+                if (this.options.hasOwnProperty("properties")) {
                     // set width/height using the widget width/height (must be set) 
-                    var width = parseInt(this.ctrl.widget.width.toLowerCase().replace('px','').replace('%',''))-50;
-                    var height = parseInt(this.ctrl.widget.height.toLowerCase().replace('px','').replace('%',''))-50;
+                    var width = parseInt(this.ctrl.widget.width.toLowerCase().replace('px', '').replace('%', '')) - 50;
+                    var height = parseInt(this.ctrl.widget.height.toLowerCase().replace('px', '').replace('%', '')) - 75;
                     // make sure we have an array of properties
-                    if (this.options.properties instanceof Array)
-                    {
+                    if (this.options.properties instanceof Array) {
                         properties = this.options.properties;
-                    }                    
-                    else if (this.options.properties instanceof String)
-                    {
+                    }
+                    else if (this.options.properties instanceof String) {
                         properties = [this.options.properties];
                     }
                     var values = [];
-                    properties.forEach((p : string)=>{
-                        if (f.sensors.hasOwnProperty(p))
-                        {
-                         //   f.sensors[p].forEach()
+                    properties.forEach((p: string) => {
+                        if (f.sensors.hasOwnProperty(p)) {
+                            var i =0;
+                            f.layer.timestamps.forEach(t=>{
+                                var s = f.sensors[p][i];
+                                if (s===-1) s = null;
+                                if (f.sensors[p].length>i) values.push({x : t, y : s, c : 0});
+                               i+=1; 
+                            });
+                            
+                            //   f.sensors[p].forEach()
                         }
                     })
-                } //f.properties.hasOwnProperty(this.options.property)) {
                     
-                    this.ctrl.$scope.data.spec = {
+                    var spec = {
                         "width": width,
                         "height": height,
                         "padding": { "top": 10, "left": 30, "bottom": 30, "right": 10 },
                         "data": [
                             {
-                                "name": "table",
-                                "values": [
-                                    { "x": 0, "y": 28, "c": 0 }, { "x": 0, "y": 55, "c": 1 },
-                                    { "x": 1, "y": 43, "c": 0 }, { "x": 1, "y": 91, "c": 1 },
-                                    { "x": 2, "y": 81, "c": 0 }, { "x": 2, "y": 53, "c": 1 },
-                                    { "x": 3, "y": 19, "c": 0 }, { "x": 3, "y": 87, "c": 1 },
-                                    { "x": 4, "y": 52, "c": 0 }, { "x": 4, "y": 48, "c": 1 },
-                                    { "x": 5, "y": 24, "c": 0 }, { "x": 5, "y": 49, "c": 1 },
-                                    { "x": 6, "y": 87, "c": 0 }, { "x": 6, "y": 66, "c": 1 },
-                                    { "x": 7, "y": 17, "c": 0 }, { "x": 7, "y": 27, "c": 1 },
-                                    { "x": 8, "y": 68, "c": 0 }, { "x": 8, "y": 16, "c": 1 },
-                                    { "x": 9, "y": 49, "c": 0 }, { "x": 9, "y": 15, "c": 1 }
-                                ]
+                                "values": values,
+                                "name": "table"
                             },
                             {
                                 "name": "stats",
@@ -98,10 +96,12 @@ module csComp.Services {
                         "scales": [
                             {
                                 "name": "x",
-                                "type": "ordinal",
+                                "type": "time",
                                 "range": "width",
                                 "points": true,
-                                "domain": { "data": "table", "field": "x" }
+                                "domain": { "data": "table", "field": "x" },
+                                "domainMin" : this.$layerService.project.timeLine.start,
+                                "domainMax" : this.$layerService.project.timeLine.end
                             },
                             {
                                 "name": "y",
@@ -154,10 +154,12 @@ module csComp.Services {
                             }
                         ]
                     };
+                    //console.log(JSON.stringify(spec));
+                    this.ctrl.$scope.data.spec = spec;
                     this.ctrl.updateChart();
-
                 }
-            
+            }
+
 
         }
 

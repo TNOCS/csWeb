@@ -46,6 +46,14 @@ module Charts {
             //    dateString += String.format(" {0:00}:{1:00}", date.getUTCHours(), date.getUTCMinutes());
             return dateString;
         }
+        
+        static timestampToTimeString(ts: number) {
+            var date = new Date(ts);
+            var dateString = String.format("{0}:{2:00}:{2:00}", date.getHours(), date.getMinutes() + 1, date.getSeconds());
+            //if (date.getUTCHours() > 0 || date.getUTCMinutes() > 0)
+            //    dateString += String.format(" {0:00}:{1:00}", date.getUTCHours(), date.getUTCMinutes());
+            return dateString;
+        }
 
         // Easy way to bind multiple functions to window.onresize
         // TODO: give a way to remove a function after its bound, other than removing all of them

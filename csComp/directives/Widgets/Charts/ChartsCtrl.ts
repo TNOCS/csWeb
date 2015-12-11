@@ -123,6 +123,7 @@ module ChartsWidget {
         private keyHandle;
 
         public initChart() {
+            
             var d = this.$scope.data;
             var vgspec = d.spec || {};
 
