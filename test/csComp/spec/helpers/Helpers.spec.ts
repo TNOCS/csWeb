@@ -60,8 +60,8 @@ describe('Helpers spec:', function() {
             var result = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
             expect(result).toEqual([]);
             var propertyType = <csComp.Services.IPropertyType>{};
-            type.propertyTypeData = [];
-            type.propertyTypeData.push(propertyType);
+            type._propertyTypeData = [];
+            type._propertyTypeData.push(propertyType);
             result = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
             expect(result.length).toEqual(1);
             type.propertyTypeKeys = 'test';
@@ -81,12 +81,12 @@ describe('Helpers spec:', function() {
             expect(result).toEqual(ft);
             f.properties = {};
             f.properties['test'] = 0;
-            ft.propertyTypeData = [];
+            ft._propertyTypeData = [];
             result = csComp.Helpers.addPropertyTypes(f, ft, null);
             expect(result).toEqual(ft);
             var propertyType = <csComp.Services.IPropertyType>{};
             propertyType.label = 'test';
-            ft.propertyTypeData.push(propertyType);
+            ft._propertyTypeData.push(propertyType);
             result = csComp.Helpers.addPropertyTypes(f, ft, null);
             expect(result).toEqual(ft);
             f.properties['test2'] = false;
@@ -96,7 +96,7 @@ describe('Helpers spec:', function() {
 
         it('should create default types', function() {
             var f = <csComp.Services.IFeature>{};
-            var result = csComp.Helpers.createDefaultType(f);
+            var result = csComp.Helpers.createDefaultType(f, null);
             expect(result.style).toEqual({ 
                 nameLabel: 'Name',
                 strokeWidth: 3,
@@ -110,7 +110,7 @@ describe('Helpers spec:', function() {
                 iconHeight: 32,
                 iconWidth: 32
             });
-            expect(result.propertyTypeData).toEqual([]);
+            expect(result._propertyTypeData).toEqual([]);
         });
 
         describe('When converting propertyinfo', () => {

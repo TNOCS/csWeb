@@ -141,6 +141,42 @@ gulp.task('comp_tsconfig_files', function () {
     return buildTsconfig(config, globPattern, 'csComp');
 });
 
+gulp.task('tsconfig', function () {
+    var globPattern = [
+        './Scripts/**/*.d.ts',
+        './csComp/**/*.ts',
+        './csServerComp/**/*.ts',
+        './test/**/*.ts',
+        '!./dist-npm',
+        '!./dist-bower',
+        '!./docker-dev',
+        '!./docs',
+        '!./csServerComp/OfflineSearch/**/*.ts',
+        '!./js/**/*.d.ts',
+        '!./js/**/*.js',
+        '!./node_modules/**/*.ts',
+    ];
+    var config = {
+        tsOrder: ['**/*.ts'],
+        tsConfig: {
+            compilerOptions: {
+                target: 'es5',
+                module: 'commonjs',
+                declaration: true,
+                noImplicitAny: false,
+                removeComments: false,
+                noLib: false,
+                outDir: 'js',
+                sourceMap: true,
+            },
+            filesGlob: globPattern,
+            exclude: []
+        },
+    };
+    return buildTsconfig(config, globPattern, './');
+});
+
+
 // This task updates the typescript dependencies on tsconfig file for csServerComp
 gulp.task('servercomp_tsconfig_files', function () {
     var config = {

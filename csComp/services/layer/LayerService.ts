@@ -1,8 +1,6 @@
 module csComp.Services {
     'use strict';
 
-    
-
     /** describes a layer source, every layer has a layer source that is responsible for importing the data (e.g. geojson, wms, etc */
     export interface ILayerSource {
         title: string;
