@@ -4,28 +4,27 @@ module.exports = function (w) {
 
     return {
         files: [
-            { pattern: 'bower_components/csWeb-dep.js', instrument: false },
-            { pattern: 'bower_components/angularUtils-pagination/dirPagination.js', instrument: false },
-            { pattern: 'bower_components/csComp.js', instrument: true },
-            { pattern: 'csComp/app.js', instrument: false },
-            { pattern: 'bower_components/csTemplates.js', instrument: true },
-            { pattern: 'bower_components/angular-mocks/angular-mocks.js', instrument: false },
-            { pattern: 'csComp/mock/**/*.js', instrument: true }
+            { pattern: 'dist-bower/csWeb-dep.js', instrument: false },
+            { pattern: 'test/bower_components/angularUtils-pagination/dirPagination.js', instrument: false },
+            { pattern: 'dist-bower/csComp.js', instrument: true },
+            { pattern: 'test/csComp/app.js', instrument: false },
+            { pattern: 'dist-bower/csTemplates.js', instrument: true },
+            { pattern: 'test/bower_components/angular-mocks/angular-mocks.js', instrument: false },
+            { pattern: 'out/test/csComp/mock/**/*.js', instrument: true }
         ],
 
         tests: [
-            // 'csComp/mock/**/*.ts',
-            'csComp/spec/**/*.ts'
+            'test/csComp/spec/**/*.ts'
         ],
 
-        debug: false,
+        debug: true,
 
         // env: {
         //     type: 'node'
         // },
 
         compilers: {
-            '**/*.ts': w.compilers.typeScript({
+            'test/**/*.ts': w.compilers.typeScript({
                 target:                         1, // ES5
                 module:                         1, // CommonJS
                 declaration:                    false,
