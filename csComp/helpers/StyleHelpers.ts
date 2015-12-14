@@ -59,11 +59,8 @@ module csComp.Helpers {
     }
 
     export function getColorFromLegend(v: any, l: csComp.Services.Legend, defaultcolor = '#000000') {
-        var s: string = l.id;
         var n = l.legendEntries.length;
-        if (n == 0) return (defaultcolor);
-        var e1 = l.legendEntries[0];    // first
-        var e2 = l.legendEntries[n - 1];  // last
+        if (n === 0) return (defaultcolor);
         if (l.legendKind.toLowerCase() === 'discretestrings') {
             var i: number = 0;
             while (i < n) {
@@ -75,6 +72,8 @@ module csComp.Helpers {
             }
             return defaultcolor;
         }
+        var e1 = l.legendEntries[0];    // first
+        var e2 = l.legendEntries[n - 1];  // last
         if (l.legendKind.toLowerCase() === 'interpolated') {
             // interpolate between two colors
             if (v < e1.value) return e1.color;
@@ -93,16 +92,15 @@ module csComp.Helpers {
             return (defaultcolor);
         }
         if (l.legendKind.toLowerCase() === 'discrete') {
-            if (e1.interval && e2.interval && e1.interval.min && e2.interval.max) {
-                if (v < e1.interval.min) return l.legendEntries[0].color;
-                if (v > e2.interval.max) return l.legendEntries[n - 1].color;
+            if (e1.interval && e2.interval && typeof e1.interval.min !== 'undefined' && typeof e2.interval.max !== 'undefined') {
+                if (v < e1.interval.min) return e1.color;
+                if (v > e2.interval.max) return e2.color;
             }
             var i: number = 0;
             while (i < n) {
                 var e = l.legendEntries[i];
-                if (e.value)
-                {
-                     if (v === e.value) return e.color;
+                if (e.value) {
+                    if (v === e.value) return e.color;
                 } else if (e.interval && (v >= e.interval.min) && (v <= e.interval.max)) {
                     return e.color;
                 }
