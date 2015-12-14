@@ -39,9 +39,7 @@ module csComp.Helpers {
         }
     }
 
-    export function getColorFromStringLegend(v: string, l: csComp.Services.Legend) {
-        var defaultcolor: string = '#000000';
-        var s: String = l.id;
+    export function getColorFromStringLegend(v: string, l: csComp.Services.Legend, defaultcolor: string = '#000000') {
         var n = l.legendEntries.length;
         if (n === 0) return (defaultcolor);
         if (l.legendKind.toLowerCase() === 'discretestrings') {

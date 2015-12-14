@@ -5,7 +5,7 @@ bower/bower_components/
 *.config
 coverage/
 
-js/
+out/
 .vscode/
 
 csComp/dist/

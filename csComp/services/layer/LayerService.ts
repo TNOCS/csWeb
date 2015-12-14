@@ -213,7 +213,6 @@ module csComp.Services {
         public enableDrop() {
             var w = <any>window;
             if (w.File && w.FileList && w.FileReader) {
-                console.log('enable drop');
                 var obj = $('body');
                 obj.on('dragenter', (e) => {
                     e.stopPropagation();
@@ -225,7 +224,6 @@ module csComp.Services {
                     e.preventDefault();
                 });
                 obj.on('drop', (e) => {
-
                     $(this).css('border', '2px dotted #0B85A1');
                     e.preventDefault();
 
