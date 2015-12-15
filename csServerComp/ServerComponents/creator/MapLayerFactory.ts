@@ -13,6 +13,7 @@ import IBagOptions = require('../database/IBagOptions');
 import IGeoJsonFeature = require('./IGeoJsonFeature');
 import Api = require('../api/ApiManager');
 import async = require('async');
+import winston = require('winston');
 
 export interface ILayerDefinition {
     projectTitle: string;
@@ -212,6 +213,7 @@ export class MapLayerFactory {
     }
 
     public sendLayerThroughApiManager(data: any) {
+        // winston.info('Send layer: ' + JSON.stringify(data));
         var layer: Api.ILayer = this.apiManager.getLayerDefinition(
             <Api.Layer>{
                 title: data.layerTitle,
@@ -224,20 +226,14 @@ export class MapLayerFactory {
                 opacity: data.opacity,
                 dynamicResource: true
             });
+        layer.features = data.geojson.features;
         var group: Api.Group = this.apiManager.getGroupDefinition(<Api.Group>{ title: data.group, id: data.group, clusterLevel: data.clusterLevel });
 
         async.series([
             (cb: Function) => {
                 this.apiManager.addUpdateLayer(layer, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
                     console.log(result);
-                    if (result.result === Api.ApiResult.LayerAlreadyExists) {
-                        this.apiManager.addUpdateLayer(layer, <Api.ApiMeta>{ source: 'maplayerfactory' }, (result: Api.CallbackResult) => {
-                            console.log(result);
-                            cb();
-                        });
-                    } else {
-                        cb();
-                    }
+                    cb();
                 });
             },
             (cb: Function) => {

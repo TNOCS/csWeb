@@ -200,7 +200,7 @@ module MarvelWidget {
             var pts = csComp.Helpers.getPropertyTypes(feature.fType, {});
             pts.forEach((p) => {
                 if (p.hasOwnProperty && p.hasOwnProperty('label') && p.label === 'state') {
-                    this.$scope.states = p.options;
+                    this.$scope.states = _.values(p.options);
                 }
             });
             this.$scope.selectedFeature = feature;

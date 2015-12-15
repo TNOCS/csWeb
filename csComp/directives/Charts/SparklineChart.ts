@@ -222,6 +222,14 @@ module Charts {
                                 .attr("opacity", 0)
                                 .style("text-anchor", "end")
                                 .text("");
+                                var timestampTimeText = chart.append("text")
+                                .attr("x", 0)
+                                .attr("y", 16)
+                                .attr("dy", ".35em")
+                                .attr("opacity", 0)
+                                .style("text-anchor", "end")
+                                .text("");
+                                
                             var measurementText = chart.append("text")
                                 .attr("x", 0)
                                 .attr("y", 0)
@@ -233,7 +241,7 @@ module Charts {
                             var pathLength = pathEl.getTotalLength();
 
                             chart
-                            //.on("mouseover", function () { })
+                            .on("mouseover", function () { })
                                 .on("mouseout", function() {
                                 cursor.attr("opacity", 0);
                                 timestampText.attr("opacity", 0);
@@ -274,7 +282,7 @@ module Charts {
                                 }
                                 else if (i <= 0) d = data[0];
                                 else d = data[data.length - 1];
-                                xpos = x(d.time);
+                                xpos = x(d.time);                                                                
 
                                 // draw
                                 cursor
@@ -289,6 +297,12 @@ module Charts {
                                     .attr("dy", ".35em")
                                     .attr("opacity", 1)
                                     .text((d === data[0]) ? '' : ChartHelpers.timestampToString(d.time)); //Don't show timestamp for the first measurement, as it does not fit. Other option is to print it underneath the measurement value.
+                                timestampTimeText
+                                    .attr("x", xpos - 6)
+                                    .attr("y", 16)
+                                    .attr("dy", ".35em")
+                                    .attr("opacity", 1)
+                                    .text((d === data[0]) ? '' : ChartHelpers.timestampToTimeString(d.time)); //Don't show timestamp for the first measurement, as it does not fit. Other option is to print it underneath the measurement value.
                                 measurementText
                                     .attr("x", xpos + 6)
                                     .attr("y", 8)

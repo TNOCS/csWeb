@@ -1,31 +1,6 @@
 module csComp.Services {
     'use strict';
 
-    export enum ActionType {
-        Context = 0,
-        Hover = 1
-    }
-
-    export interface IActionOption {
-        title: string;
-        icon: string;
-        feature: IFeature;
-        callback: Function;
-    }
-
-    export interface IActionService {
-        id: string;
-        init(ls: LayerService);
-        stop();
-        addFeature(feature: IFeature);
-        removeFeature(feature: IFeature);
-        selectFeature(feature: IFeature);
-        getFeatureActions(feature: IFeature): IActionOption[];
-        getFeatureHoverActions(feature: IFeature): IActionOption[];
-        deselectFeature(feature: IFeature);
-        updateFeature(feuture: IFeature);
-    }
-
     /** describes a layer source, every layer has a layer source that is responsible for importing the data (e.g. geojson, wms, etc */
     export interface ILayerSource {
         title: string;
@@ -238,7 +213,6 @@ module csComp.Services {
         public enableDrop() {
             var w = <any>window;
             if (w.File && w.FileList && w.FileReader) {
-                console.log('enable drop');
                 var obj = $('body');
                 obj.on('dragenter', (e) => {
                     e.stopPropagation();
@@ -250,7 +224,6 @@ module csComp.Services {
                     e.preventDefault();
                 });
                 obj.on('drop', (e) => {
-
                     $(this).css('border', '2px dotted #0B85A1');
                     e.preventDefault();
 
@@ -460,7 +433,7 @@ module csComp.Services {
                     case 'onFeatureSelect':
                         // check sub-layers
                         props.forEach((prop: IPropertyType) => {
-                            if (prop.type === 'matrix' && prop.layerProps && prop.layerProps.activation === 'automatic' && feature.properties.hasOwnProperty(prop.label)) {
+                            if (prop.type === 'matrix' && feature.properties.hasOwnProperty(prop.label)) {
                                 var matrix = feature.properties[prop.label];
                                 this.project.features.forEach(f=> {
                                     if (f.layer === feature.layer && f.properties.hasOwnProperty(prop.targetid) && matrix.hasOwnProperty(f.properties[prop.targetid])) {
@@ -490,7 +463,7 @@ module csComp.Services {
                                     }
 
                                     if (!pl.id) pl.id = l;
-                                    pl.groupId = 'Wegen';
+                                    pl.groupId = prop.layerProps.groupId;
                                     if (!pl.group) {
                                         if (pl.groupId) {
                                             pl.group = this.findGroupById(pl.groupId)
@@ -504,8 +477,9 @@ module csComp.Services {
                                     }
                                     if (!pl.type) pl.type = feature.layer.type;
                                     if (!pl.title) pl.title = feature.properties['Name'] + ' ' + prop.title;
-                                    if (!pl.defaultFeatureType) pl.defaultFeatureType = 'link';
-                                    if (!pl.typeUrl) pl.typeUrl = 'api/resources/smartcycling';
+                                    if (!pl.defaultFeatureType) pl.defaultFeatureType = prop.layerProps.defaultFeatureType;
+                                    if (!pl.typeUrl) pl.typeUrl = prop.layerProps.typeUrl;
+                                    pl.hasSensorData = true;
 
                                     //pl.parentFeature = feature;
                                     pl.group.layers.push(pl);
@@ -1240,6 +1214,9 @@ module csComp.Services {
                 if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
                     //delete feature.gui[gs.property];
                     var v = Number(feature.properties[gs.property]);
+                    try{
+                        
+                    
                     if (!isNaN(v)) {
                         switch (gs.visualAspect) {
                             case 'strokeColor':
@@ -1249,7 +1226,7 @@ module csComp.Services {
                             case 'fillColor':
                                 s.fillColor = csComp.Helpers.getColor(v, gs);
                                 feature._gui['style'][gs.property] = s.fillColor;
-                                if (feature.geometry.type.toLowerCase() === 'linestring') s.strokeColor = s.fillColor; //s.strokeColor = s.fillColor;                                
+                                if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'linestring') s.strokeColor = s.fillColor; //s.strokeColor = s.fillColor;                                
                                 break;
                             case 'strokeWidth':
                                 s.strokeWidth = ((v - gs.info.min) / (gs.info.max - gs.info.min) * 10) + 1;
@@ -1270,6 +1247,11 @@ module csComp.Services {
                                 feature._gui['style'][gs.property] = s.fillColor;
                                 break;
                         }
+                    }
+                    }
+                    catch (e)
+                    {
+                        console.log('Error setting style for feature ' + e.message);
                     }
                     //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                 }
@@ -1337,6 +1319,15 @@ module csComp.Services {
             if (typeof pt.canEdit === 'undefined') pt.canEdit = false;
             if (typeof pt.visibleInCallOut === 'undefined') pt.visibleInCallOut = true;
             if (typeof pt.isSearchable === 'undefined' && pt.type === 'text') pt.isSearchable = true;
+            if (pt.options && _.isArray(pt.options)){                
+                var oo = <string[]>pt.options;
+                pt.options = {};
+                var i = 0;
+                oo.forEach(o=>{
+                    pt.options[i] = o;
+                    i+=1;
+                });                 
+            }
         }
 
         private localizePropertyType(pt: IPropertyType) {
@@ -1676,7 +1667,7 @@ module csComp.Services {
                         var gf = new GroupFilter();
                         gf.property = prop;
                         gf.id = Helpers.getGuid();
-                        gf.group = layer.group;
+                        gf.group = layer.group;                        
                         gf.meta = property.propertyType;
                         gf.filterType = 'bar';
                         if (gf.meta != null) {
@@ -1688,9 +1679,11 @@ module csComp.Services {
                                     case 'date':
                                         gf.filterType = 'date';
                                         break;
-                                    case 'number':
-                                    case 'options':
+                                    case 'number':                                    
                                         gf.filterType = 'bar';
+                                        break;
+                                    case 'options':
+                                        gf.filterType = 'row';
                                         break;
                                     //case 'rank':
                                     //    gf.filterType  = 'bar';
@@ -2602,7 +2595,7 @@ module csComp.Services {
          * Calculate min/max/count for a specific property in a group
          */
         public calculatePropertyInfo(group: ProjectGroup, property: string): PropertyInfo {
-            var r = new PropertyInfo();
+            var r = <PropertyInfo>{};
             r.count = 0;
             var sum = 0;   // stores sum of elements
             var sumsq = 0; // stores sum of squares
@@ -2633,6 +2626,8 @@ module csComp.Services {
             }
             if (this.propertyTypeData.hasOwnProperty(property)) {
                 var mid = this.propertyTypeData[property];
+                r.userMin = mid.min;
+                r.userMax = mid.max;
             }
             return r;
         }

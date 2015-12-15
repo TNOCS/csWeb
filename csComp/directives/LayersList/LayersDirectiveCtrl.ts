@@ -357,13 +357,13 @@ module LayersDirective {
                 group.layers.push(this.newLayer);
 
                 var nl = this.newLayer;
-
+                var id = nl.title.replace(' ','_').toLowerCase();
                 /// create layer on server
                 if (this.newLayer.type === "dynamicgeojson") {
-                    this.newLayer.url = "api/layers/" + nl.title;
+                    this.newLayer.url = "api/layers/" + id;
                     if (this.layerResourceType === "<new>") {
-                        this.newLayer.typeUrl = "api/resources/" + this.newLayer.title;
-                        var r = <csComp.Services.TypeResource>{ id: this.newLayer.title, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
+                        this.newLayer.typeUrl = "api/resources/" + id;
+                        var r = <csComp.Services.TypeResource>{ id: id, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
                         if (this.newLayer.data && this.newLayer.data.features && this.newLayer.data.features.length>0) 
                             r.featureTypes["Default"] = csComp.Helpers.createDefaultType(this.newLayer.data.features[0],r);                                                
                         this.$http.post("api/resources", r)
@@ -376,8 +376,9 @@ module LayersDirective {
                     else {
                         this.newLayer.typeUrl = this.layerResourceType;
                     }
+                    
 
-                    var l = { id: nl.title, title: nl.title, isDynamic: true, type: nl.type, storage : 'file', description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url, features : [] };
+                    var l = { id: id, title: nl.title, isDynamic: true, type: nl.type, storage : 'file', description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url, features : [] };
                     if (this.newLayer.data) l.features = this.newLayer.data.features;
                     this.$http.post("/api/layers", l)
                         .success((data) => {

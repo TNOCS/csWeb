@@ -60,8 +60,8 @@ describe('Helpers spec:', function() {
             var result = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
             expect(result).toEqual([]);
             var propertyType = <csComp.Services.IPropertyType>{};
-            type.propertyTypeData = [];
-            type.propertyTypeData.push(propertyType);
+            type._propertyTypeData = [];
+            type._propertyTypeData.push(propertyType);
             result = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
             expect(result.length).toEqual(1);
             type.propertyTypeKeys = 'test';
@@ -74,19 +74,19 @@ describe('Helpers spec:', function() {
 
         // TODO Add test where the rt is not null!
         it('should add property types', function() {
-            var f = <csComp.Services.IFeature>{};
-            var ft = <csComp.Services.IFeatureType>{};
-            var rt = <csComp.Services.TypeResource>{};
+            var f = <csComp.Services.IFeature>{},
+                ft = <csComp.Services.IFeatureType>{},
+                rt = <csComp.Services.TypeResource>{};
             var result = csComp.Helpers.addPropertyTypes(f, ft, rt);
             expect(result).toEqual(ft);
             f.properties = {};
             f.properties['test'] = 0;
-            ft.propertyTypeData = [];
+            ft._propertyTypeData = [];
             result = csComp.Helpers.addPropertyTypes(f, ft, null);
             expect(result).toEqual(ft);
             var propertyType = <csComp.Services.IPropertyType>{};
             propertyType.label = 'test';
-            ft.propertyTypeData.push(propertyType);
+            ft._propertyTypeData.push(propertyType);
             result = csComp.Helpers.addPropertyTypes(f, ft, null);
             expect(result).toEqual(ft);
             f.properties['test2'] = false;
@@ -96,21 +96,33 @@ describe('Helpers spec:', function() {
 
         it('should create default types', function() {
             var f = <csComp.Services.IFeature>{};
-            var result = csComp.Helpers.createDefaultType(f);
-            expect(result.style).toEqual({ 
+            var rt = <csComp.Services.TypeResource>{};
+            var result = csComp.Helpers.createDefaultType(f, rt);
+            // expect(result.style).toEqual({ 
+            //     nameLabel: 'Name',
+            //     strokeWidth: 3,
+            //     strokeColor: '#0033ff',
+            //     fillOpacity: 0.75,
+            //     fillColor: '#FFFF00',
+            //     stroke: true,
+            //     opacity: 1,
+            //     rotate: 0,
+            //     iconUri: 'bower_components/csweb/dist-bower/images/marker.png',
+            //     iconHeight: 32,
+            //     iconWidth: 32
+            // });
+            expect(result.style).toEqual({
                 nameLabel: 'Name',
-                strokeWidth: 3,
+                drawingMode: 'Polygon',
+                strokeWidth: 1,
                 strokeColor: '#0033ff',
                 fillOpacity: 0.75,
+                opacity: 0.75,
                 fillColor: '#FFFF00',
                 stroke: true,
-                opacity: 1,
-                rotate: 0,
-                iconUri: 'bower_components/csweb/dist-bower/images/marker.png',
-                iconHeight: 32,
-                iconWidth: 32
+                iconUri: 'cs/images/marker.png'
             });
-            expect(result.propertyTypeData).toEqual([]);
+            expect(result._propertyTypeData).toEqual(undefined);
         });
 
         describe('When converting propertyinfo', () => {
@@ -188,7 +200,7 @@ describe('Helpers spec:', function() {
         });
 
         describe('When setting featurename', () => {
-            var f;
+            var f = <csComp.Services.IFeature>{};
             beforeEach(function() {
                 f = <csComp.Services.IFeature>{};
                 f.properties = {};
@@ -202,12 +214,13 @@ describe('Helpers spec:', function() {
             it('should set name from stringformat', function() {
                 f.properties['first'] = 'First property';
                 f.properties['pi'] = 3.1415;
-                f.fType.propertyTypeData = [];
-                var pt = <csComp.Services.IPropertyType>{};
-                pt.label = 'Name';
-                pt.stringFormat = '{pi}';
-                f.fType.propertyTypeData.push(pt);
-                var result: any = csComp.Helpers.setFeatureName(f);
+                f.fType._propertyTypeData = [];
+                var pt = <csComp.Services.IPropertyType>{
+                    label: 'Name',
+                    stringFormat: '{pi}',
+                };
+                f.fType._propertyTypeData.push(pt);
+                var result = csComp.Helpers.setFeatureName(f);
                 expect(result.properties['Name']).toEqual('3.1415');
             });
             it('should set name from style', function() {

@@ -339,7 +339,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     // project.logo = "";
                     // project.url = "/api/projects/" + id;
                     this.manager.updateProject(project, {}, () => { });
-                } else {
+                } else if (err) {
                     Winston.error('Error reading file: ' + id + '(' + err.message + ')')
                 }
             });

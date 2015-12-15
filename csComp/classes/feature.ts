@@ -162,6 +162,7 @@ module csComp.Services {
         activation? : string;
         groupId? : string;
         defaultFeatureType? : string;
+        typeUrl? : string;
     }
 
     export interface IPropertyType {
@@ -185,11 +186,13 @@ module csComp.Services {
         target?:           string;
         targetrelation?:   string;
         targetproperty?:   string;
-        options?:          string[];
+        options?:          Object;
         categories?:       string[];
         languages?:        ILanguageData;
         legend?:           Legend;
         layerProps? :      ILayerPropertyDetails;
+        min? : number;
+        max? : number;
         targetid?:         string;
         /** Angular expression */
         expression?:       string;
@@ -239,14 +242,14 @@ module csComp.Services {
         _propertyTypeData?: IPropertyType[];
         showAllProperties?: boolean;
         /** name of the property that contains a stringified L.GeoJSON object, which is shown when hovering above a feature */
-        contourProperty?: string;
+        contourProperty?:  string;
         /**
          * Optional list of propertyType keys, separated by semi-colons.
          * The keys can be resolved in the project's propertyTypeData dictionary, or in the local propertyTypeData.
          */
-        propertyTypeKeys?: string;
-        languages?:        ILanguageData;
-        _isInitialized?:   boolean;
+        propertyTypeKeys?:  string;
+        languages?:         ILanguageData;
+        _isInitialized?:    boolean;
     }
 
     export interface IGeoJsonFile {
@@ -255,12 +258,14 @@ module csComp.Services {
         features:      Array<IFeature>;
     }
 
-    export class PropertyInfo {
+    export interface PropertyInfo {
         max:      number;
         min:      number;
         count:    number;
         mean:     number;
         varience: number;
         sd:       number;
+        userMin?: number;
+        userMax?: number;
     }
 }

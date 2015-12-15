@@ -5,6 +5,9 @@ bower/bower_components/
 *.config
 coverage/
 
+
+.vscode/
+
 csComp/dist/
 csComp/includes/bower_dep/bower_components/
 csComp/includes/css/csStyles.css
@@ -20,10 +23,12 @@ csServerComp/ServerComponents/**/*.js
 dist-bower/
 dist-bower/**/*.*
 
-dist-npm/
-dist-npm/**/*.d.ts
-dist-npm/**/*.js
-dist-npm/ServerComponents/
+out/csComp/**/*.*
+out/csServerComp/**/*.d.ts
+out/csServerComp/**/*.js
+out/csServerComp/**/*.map
+out/csServerComp/ServerComponents/
+out/test/**/*.*
 
 example/dist/
 example/layers/*.js

@@ -19,8 +19,8 @@ module.exports = function(config) {
             'test/csComp/app.js',
             'dist-bower/csTemplates.js',
             'test/bower_components/angular-mocks/angular-mocks.js',
-            'test/csComp/spec/**/*.js',
-            'test/csComp/mock/**/*.js'
+            'out/test/csComp/spec/**/*.js',
+            'out/test/csComp/mock/**/*.js'
         ],
 
         // list of files to exclude

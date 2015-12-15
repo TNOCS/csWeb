@@ -201,7 +201,8 @@ module csComp.Services {
          * When enabling the refresh timer, store the returned timer token so we can stop the timer later.
          * @type {number}
          */
-        timerToken: number;
+        timerToken: any;
+        // timerToken: number;
         /**
         * A list of UNIX timestamp, or the UTC time in milliseconds since 1/1/1970, which define the time a sensor value
         * was taken. So in case we have 10 timestamps, each feature's sensor (key) in the feature's sensors dictionary should

@@ -58,13 +58,15 @@ module Heatmap {
                     ft._propertyTypeData.forEach((pt) => {
                         if (pt.type == 'options') {
                             var i = 0;
-                            pt.options.forEach((o) => {
+                            for (var oo in pt.options)
+                            {
+                                var o = pt.options[oo];
                                 var hi = new HeatmapItem(o, ft);
                                 hi.propertyLabel = pt.label;
                                 hi.propertyTitle = pt.title;
                                 hi.optionIndex   = i++;
                                 heatmap.addHeatmapItem(hi);
-                            });
+                            }                            
                         }
                     });
                 }

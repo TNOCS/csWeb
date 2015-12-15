@@ -8,54 +8,66 @@
         <div style="display:inline; cursor:pointer" ng-show="vm.locationFilterActive">{{'DISABLE_LOCATION_FILTER' | translate}}</div>
     </a> -->
 <div>
-    <input class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="layerFilter" placeholder="Search"></input>
+    <input class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="search" placeholder="Search"></input>
 </div>
 
-
-<div ng-if="vm.mobileLayers && vm.$layerService.isMobile" style="margin-top:10px">
-    <div class="group-title" style="margin-left: 0">Share my location</div>
-    <input ng-if="!vm.mobileLayer" class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="vm.UserName" placeholder="User Name"></input>
-    <div class="btn btn-danger" ng-if="vm.mobileLayer" ng-click="vm.leave(vm.mobileLayer)">Leave {{vm.mobileLayer.title}}</div>
-    <div ng-if="!vm.mobileLayer" ng-repeat="l in vm.mobileLayers">
-        <div class="btn btn-success" ng-click="vm.join(l)">Join {{l.title}}</div>
+<div ng-if="vm.searchResults.length>0" class="scrolling" style="overflow-y: auto; overflow-x: hidden;margin-top:10px" resize resize-y="95">
+    <div ng-repeat="r in vm.searchResults" style="cursor:pointer;position:relative" ng-click="vm.selectSearchResult(r)">
+        <img ng-if="r.icon" class="search-result-image" ng-src="{{r.icon}}">
+        <div class="search-result-details">
+        <div class="search-result-title">{{r.title}}</div>
+        <div ng-if="r.description" class="search-result-description">{{r.description}}</div>
+        </div>
     </div>
 </div>
+<div ng-if="!vm.searchResults.length>0">
 
-<div style="margin-top:10px">
-    <div class="group-title" style="margin-left: 0">Recent Layers</div>
-</div>
+    <div ng-if="vm.mobileLayers && vm.$layerService.isMobile" style="margin-top:10px">
+        <div class="group-title" style="margin-left: 0">Share my location</div>
+        <input ng-if="!vm.mobileLayer" class="addlayer-filter" type="text" class="form-control" id="layerFilter" ng-model="vm.UserName"
+        placeholder="User Name"></input>
+        <div class="btn btn-danger" ng-if="vm.mobileLayer" ng-click="vm.leave(vm.mobileLayer)">Leave {{vm.mobileLayer.title}}</div>
+        <div ng-if="!vm.mobileLayer" ng-repeat="l in vm.mobileLayers">
+            <div class="btn btn-success" ng-click="vm.join(l)">Join {{l.title}}</div>
+        </div>
+    </div>
 
-<div id="recent-layers">
-    <div ng-repeat="layer in vm.RecentLayers">
-        <div class="layer" style="list-style-type: none;">
-            <div ng-class="{false : 'checkbox checkbox-primary', true:'radio radio-primary'}[group.oneLayerActive==true]" style="margin-top: 0px;margin-bottom: 0px;">
-                <input type="checkbox" id="rcblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
-                <label for="rcblayer{{layer.id}}">
-                    {{layer.title}}
-                </label>
+    <div style="margin-top:10px">
+        <div class="group-title" style="margin-left: 0">Recent Layers</div>
+    </div>
+
+    <div id="recent-layers">
+        <div ng-repeat="layer in vm.RecentLayers">
+            <div class="layer" style="list-style-type: none;">
+                <div ng-class="{false : 'checkbox checkbox-primary', true:'radio radio-primary'}[group.oneLayerActive==true]" style="margin-top: 0px;margin-bottom: 0px;">
+                    <input type="checkbox" id="rcblayer{{layer.id}}" ng-model="layer.enabled" data-ng-click="vm.toggleLayer(layer);">
+                    <label for="rcblayer{{layer.id}}">
+                        {{layer.title}}
+                    </label>
+                </div>
+            </div>
+        </div>
+        <a data-target="#layers" data-toggle="tab">show all</a>
+    </div>
+
+    <div style="margin-top:10px" ng-if="vm.$layerService.selectedFeatures.length>1">
+        <div>
+            <div class="group-title" style="margin-left: 0">Selected Objects</div>
+        </div>
+        <div id="selected-objects">
+            <div ng-repeat="f in vm.$layerService.selectedFeatures">
+                <a class="feature-item" ng-click="vm.selectFeature(f)">{{f._gui.title}}</a>
             </div>
         </div>
     </div>
-    <a data-target="#layers" data-toggle="tab">show all</a>
-</div>
 
-<div style="margin-top:10px" ng-if="vm.$layerService.selectedFeatures.length>1">
-    <div>
-        <div class="group-title" style="margin-left: 0">Selected Objects</div>
+    <div style="margin-top:10px">
+        <div class="group-title" style="margin-left: 0">Recent Objects</div>
     </div>
-    <div id="selected-objects">
-        <div ng-repeat="f in vm.$layerService.selectedFeatures">
-            <a class="feature-item" ng-click="vm.selectFeature(f)">{{f._gui.title}}</a>
+    <div id="recent-objects">
+        <div ng-repeat="f in vm.RecentFeatures">
+            <a class="feature-item" ng-if="f.feature" ng-click="vm.selectFeature(f.feature)">{{f.name}}</a>
+            <!--<div ng-if="!f.feature">{{f.name}} ({{f.layerId}})</div>-->
         </div>
-    </div>
-</div>
-
-<div style="margin-top:10px">
-    <div class="group-title" style="margin-left: 0">Recent Objects</div>
-</div>
-<div id="recent-objects">
-    <div ng-repeat="f in vm.RecentFeatures">
-        <a class="feature-item" ng-if="f.feature" ng-click="vm.selectFeature(f.feature)">{{f.name}}</a>
-        <div ng-if="!f.feature">{{f.name}} ({{f.layerId}})</div>
     </div>
 </div>

@@ -29,7 +29,7 @@ describe('Feature', function() {
 
 describe('PropertyInfo', function() {
         it('should construct a new propertyInfo object', () => {
-            var pi = new csComp.Services.PropertyInfo();
+            var pi = <csComp.Services.PropertyInfo>{};
             expect(pi).toBeDefined();
         });
 

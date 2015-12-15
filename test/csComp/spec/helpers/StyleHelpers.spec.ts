@@ -61,8 +61,8 @@ describe('StyleHelpers', function() {
             color = csComp.Helpers.getColorFromLegend(0.5, legend, '#001100');
             expect(color).toEqual('#001100');
             legend.legendKind = 'interpolated';
-            legend.legendEntries.push({ 'stringValue': 'blue', 'color': '#000011', 'label': 'blue', 'interval': { 'min': 0, 'max': 1 }, 'value': 0 });
-            legend.legendEntries.push({ 'stringValue': 'green', 'color': '#001100', 'label': 'blue', 'interval': { 'min': 0, 'max': 1 }, 'value': 1 });
+            legend.legendEntries.push({ stringValue: 'blue' , color: '#000011', label: 'blue', interval: { min: 0, max: 1 }, value: 0 });
+            legend.legendEntries.push({ stringValue: 'green', color: '#001100', label: 'blue', interval: { min: 0, max: 1 }, value: 1 });
             color = csComp.Helpers.getColorFromLegend(-0.5, legend, '#000000');
             expect(color).toEqual('#000011');
             color = csComp.Helpers.getColorFromLegend(1.5, legend, '#000000');
