@@ -5,6 +5,9 @@ bower/bower_components/
 *.config
 coverage/
 
+out/
+.vscode/
+
 csComp/dist/
 csComp/includes/bower_dep/bower_components/
 csComp/includes/css/csStyles.css

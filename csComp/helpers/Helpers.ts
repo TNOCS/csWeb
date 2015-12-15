@@ -64,6 +64,8 @@ module csComp.Helpers {
                 opacity: 0.75,
                 fillColor: '#FFFF00',
                 stroke: true,
+                //EV TODO Shouldn't it be the following?
+                // iconUri: 'bower_components/csweb/dist-bower/images/marker.png',
                 iconUri: 'cs/images/marker.png',
             };
             return s;
@@ -397,7 +399,7 @@ module csComp.Helpers {
         // Case two: the feature's style tells us what property to use for the name.
         if (feature.fType && feature.fType.style && feature.fType.style.nameLabel) {
             var nameLabel = feature.fType.style.nameLabel;
-            if (nameLabel && feature.properties.hasOwnProperty(nameLabel)) {
+            if (feature.properties.hasOwnProperty(nameLabel)) {
                 if (propertyTypeData && propertyTypeData.hasOwnProperty(nameLabel)) {
                     feature.properties['Name'] = convertPropertyInfo(propertyTypeData[nameLabel], feature.properties[nameLabel]);
                 } else {
@@ -407,7 +409,8 @@ module csComp.Helpers {
             }
         }
         // Case three: the feature has a Name property which specifies a string format, meaning that the Name is derived from several existing properties.
-        if (feature.fType._propertyTypeData != null) {
+        if (feature.fType._propertyTypeData) {
+            // for .. of
             for (var i = 0; i < feature.fType._propertyTypeData.length; i++) {
                 var propertyType = feature.fType._propertyTypeData[i];
                 if (propertyType.label !== 'Name' || !propertyType.stringFormat) continue;

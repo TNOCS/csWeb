@@ -1,8 +1,6 @@
 module csComp.Services {
     'use strict';
 
-    
-
     /** describes a layer source, every layer has a layer source that is responsible for importing the data (e.g. geojson, wms, etc */
     export interface ILayerSource {
         title: string;
@@ -215,7 +213,6 @@ module csComp.Services {
         public enableDrop() {
             var w = <any>window;
             if (w.File && w.FileList && w.FileReader) {
-                console.log('enable drop');
                 var obj = $('body');
                 obj.on('dragenter', (e) => {
                     e.stopPropagation();
@@ -227,7 +224,6 @@ module csComp.Services {
                     e.preventDefault();
                 });
                 obj.on('drop', (e) => {
-
                     $(this).css('border', '2px dotted #0B85A1');
                     e.preventDefault();
 

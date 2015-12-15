@@ -1,17 +1,10 @@
 // Documentation
 //
-// For compiling csServerComp, we need to:
-// * INIT [servercomp_tsconfig_files] update the tsconfig file
-// * INIT [servercomp_tsc] transpile the ts files in csServerComp, outDir = ./dist-npm.
-//   Run tsc -w -p . in vscode or any other editor (tsc watches for file changes, and runs tsc on save).
-// * [built_csServerComp.d.ts] watch the generated d.ts files in dist-npm, and concatenate them to dist-npm/csWeb.d.ts.
-// * Copy this to test folder.
-//
-// For compiling csComp, we need to:
-// * INIT [comp_tsconfig_files] update the tsconfig file
-// * INIT [servercomp_tsc] transpile the ts files in csComp, outDir = js
-//   Run tsc -w -p . in vscode or any other editor (tsc watches for file changes, and runs tsc on save).
+// For compiling, we need to:
+// * INIT [tsconfig] update the tsconfig file
+// * INIT [tsc] transpile the ts files to folder outDir.
 // * [built_csComp, built_csComp.d.ts] watch the generated *.js and *.d.ts files and concatenate them to dist-bower/csComp.js, dist-bower/csComp.d.ts.
+//   Run tsc -w -p . in vscode or any other editor (tsc watches for file changes, and runs tsc on save).
 // * [sass, include-js, include-css] watch sass and other included files
 // * Copy this to test folder.
 
@@ -44,7 +37,8 @@ var gulp = require('gulp'),
 // Configure gulp scripts
 // Output application name
 var appName = 'csWebApp',
-    path2csWeb = './';
+    path2csWeb = './',
+    outDir = 'out';
 
 function run(command, cb) {
     console.log('Run command: ' + command);
@@ -66,8 +60,7 @@ gulp.task('bower_useref',function(cb){
         .pipe(assets)
         .pipe(assets.restore())
         .pipe(useref())
-        .pipe(gulp.dest('./dist-bower'))
-        .pipe(gulp.dest('./test/bower_components'));
+        .pipe(gulp.dest('./dist-bower'));
 });
 
 gulp.task('concat_css', ['include_css'], function (cb) {
@@ -80,22 +73,12 @@ gulp.task('concat_css', ['include_css'], function (cb) {
         .pipe(gulp.dest('./dist-bower')); 
 });
 
-gulp.task('bower', ['bower_install','bower_useref'], function (cb) {
-   
-});
+gulp.task('bower', ['bower_install','bower_useref']);
 
 gulp.task('bower_install', function () {
     return gulp.src([
         'csComp/includes/bower_dep/bower.json', // bower install
     ]).pipe(install());
-});
-
-// This task runs tsd command on csComp folder
-gulp.task('comp_tsd', function (cb) {
-    tsd({
-        command: 'reinstall',
-        config: 'csComp/tsd.json',
-    }, cb);
 });
 
 function buildTsconfig(config, globPattern, basedir) {
@@ -108,154 +91,56 @@ function buildTsconfig(config, globPattern, basedir) {
         .pipe(gulp.dest(basedir));
 }
 
-// This task updates the typescript dependencies on tsconfig file for csComp
-gulp.task('comp_tsconfig_files', function () {
+// This task updates the typescript dependencies on tsconfig file
+gulp.task('tsconfig', function () {
+    var globPattern = [
+        './Scripts/**/*.d.ts',
+        './csComp/**/*.ts',
+        './csServerComp/**/*.ts',
+        './test/**/*.ts',
+        '!./csComp/includes/**/*.ts',
+        '!./dist-npm',
+        '!./dist-bower',
+        '!./docker-dev',
+        '!./docs',
+        '!./csServerComp/OfflineSearch/**/*.ts',
+        '!./js/**/*.d.ts',
+        '!./js/**/*.js',
+        '!./node_modules/**/*.ts',
+    ];
     var config = {
         tsOrder: ['**/*.ts'],
         tsConfig: {
+            version: '1.7.3',
             compilerOptions: {
                 target: 'es5',
                 module: 'commonjs',
                 declaration: true,
                 noImplicitAny: false,
                 removeComments: false,
+                preserveConstEnums: true,
                 noLib: false,
-                outDir: 'js',
+                outDir: outDir,
                 sourceMap: true,
             },
-            filesGlob: [
-                './**/*.ts',
-                '!./dist/csComp.d.ts',
-                '!./js/**/*.d.ts',
-                '!./js/**/*.js',
-                '!./node_modules/**/*.ts',
-            ],
+            filesGlob: globPattern,
             exclude: []
         },
     };
-    var globPattern = ['./csComp/**/*.ts',
-        '!./csComp/includes/**/*.d.ts',
-        '!./csComp/js/**/*.d.ts',
-        '!./csComp/js/**/*.js',
-    ];
-    return buildTsconfig(config, globPattern, 'csComp');
-});
-
-// This task updates the typescript dependencies on tsconfig file for csServerComp
-gulp.task('servercomp_tsconfig_files', function () {
-    var config = {
-        tsOrder: ['**/*.ts'],
-        tsConfig: {
-            version: '1.6.2',
-            compilerOptions: {
-                target: 'es5',
-                module: 'commonjs',
-                declaration: true,
-                noImplicitAny: false,
-                outDir: './../dist-npm',
-                removeComments: true,
-                noLib: false,
-                preserveConstEnums: true,
-                suppressImplicitAnyIndexErrors: true,
-                sourceMap: true,
-            },
-            filesGlob: [
-                './**/*.ts',
-                '!./**/*.d.ts',
-                './Scripts/**/*.d.ts',
-                '!./OfflineSearch/**/*.*',
-            ],
-            exclude: [],
-        },
-    };
-    var globPattern = ['csServerComp/**/*.ts',
-        '!csServerComp/OfflineSearch/**/*.ts',
-        '!csServerComp/ServerComponents/**/*.d.ts',
-        '!csServerComp/Classes/*.d.ts',
-    ];
-    return buildTsconfig(config, globPattern, 'csServerComp');
-});
-
-gulp.task('test_tsconfig_files', function () {
-    var config = {
-        tsOrder: ['**/*.ts'],
-        tsConfig: {
-            version: '1.5.0-alpha',
-            compilerOptions: {
-                target: 'es5',
-                module: 'commonjs',
-                declaration: false,
-                noImplicitAny: false,
-                removeComments: true,
-                noLib: false,
-                preserveConstEnums: true,
-                suppressImplicitAnyIndexErrors: true,
-            },
-            filesGlob: [
-                './**/*.ts',
-                '!./node_modules/**/*.ts',
-            ],
-            exclude: [],
-        },
-    };
-    return buildTsconfig(config, './test/**/*.ts', 'test');
+    return buildTsconfig(config, globPattern, './');
 });
 
 // This task compiles typescript on csComp
-gulp.task('comp_tsc', function (cb) {
-    return run('tsc -p csComp', cb);
+gulp.task('tsc', function (cb) {
+    return run('tsc -p .', cb);
 });
 
 // This task runs tsd command on csServerComp folder
-gulp.task('servercomp_tsd', function (cb) {
+gulp.task('tsd', function (cb) {
     tsd({
         command: 'reinstall',
-        config: 'csServerComp/tsd.json',
+        config: 'tsd.json',
     }, cb);
-});
-
-// This task compiles typescript on csServerComp, sending the output to dist-npm
-gulp.task('servercomp_tsc', function (cb) {
-    gulp.src('package.json')
-        .pipe(gulp.dest('dist-npm'));
-    return run('tsc -p csServerComp', cb);
-});
-
-gulp.task('tsc', function (cb) {
-    return run('tsc -w -p csServerComp & tsc -w -p csComp', cb);
-});
-
-// This task runs tsd command on test folder
-gulp.task('test_tsd', function (cb) {
-    tsd({
-        command: 'reinstall',
-        config: 'test/tsd.json',
-    }, cb);
-});
-
-gulp.task('test_tsc', function (cb) {
-    return run('tsc -p test', cb);
-});
-
-gulp.task('init', function (cb) {
-    runSequence(
-         // csServerComp section
-        'servercomp_tsd',
-        'servercomp_tsconfig_files',
-        'servercomp_tsc',
-        // csComp section
-        //'comp_tsd',
-        'comp_tsconfig_files',
-        'comp_tsc',
-        'built_csComp',
-        'built_csComp.d.ts',
-        'sass',
-        'create_templateCache',
-        // dependencies
-        'bower',
-        'include_css',
-        'include_images',
-        cb);
 });
 
 gulp.task('travis', function (cb) {
@@ -274,10 +159,6 @@ gulp.task('karma', ['bower'], function (cb) {
 
 gulp.task('test', function (cb) {
     runSequence(
-        'built_csComp.d.ts',
-        'test_tsd',
-        'test_tsconfig_files',
-        'test_tsc',
         'karma',
         cb);
 });
@@ -296,10 +177,7 @@ gulp.task('start', ['init']);
 gulp.task('clean', function (cb) {
     // NOTE Careful! Removes all generated javascript files and certain folders.
     del([
-        path2csWeb + 'csServerComp/ServerComponents/**/*.js',
-        path2csWeb + 'csComp/js/**',
-        path2csWeb + 'test/csComp/**/*.js',
-        path2csWeb + 'test/Scripts/typings/cs/**/',
+        path2csWeb + outDir,
     ], {
         force: true
     }, cb);
@@ -314,40 +192,18 @@ gulp.task('deploy-githubpages', function () {
 });
 
 gulp.task('built_csComp', function () {
-    return gulp.src(path2csWeb + 'csComp/js/**/*.js')
-    // .pipe(debug({
-    //     title: 'built_csComp:'
-    // }))
-    // .pipe(debug({title: 'before ordering:'}))
-    // .pipe(order([
-    //     "translations/locale-nl.js"
-    // ]))
-    // .pipe(debug({title: 'after ordering:'}))
+    return gulp.src(path2csWeb + outDir + '/csComp/**/*.js')
         .pipe(concat('csComp.js'))
-    //.pipe(gulp.dest(path2csWeb + 'example/public/cs/js'))
-        .pipe(gulp.dest(path2csWeb + 'dist-bower'))
-        .pipe(gulp.dest(path2csWeb + 'test/bower_components'));
-});
-
-gulp.task('compile_all', function () {
-    /* runsequence('servercomp_tsc','comp_tsc','test_tsc'); insead ? */
-    exec('cd ' + path2csWeb + 'csServerComp && tsc');
-    exec('cd ' + path2csWeb + 'csComp && tsc');
-    //exec('tsc');
-    exec('cd ' + path2csWeb + 'test && tsc');
+        .pipe(gulp.dest(path2csWeb + 'dist-bower'));
 });
 
 gulp.task('built_csComp.d.ts', function () {
-    return gulp.src(path2csWeb + 'csComp/js/**/*.d.ts')
+    return gulp.src(path2csWeb + outDir + '/csComp/**/*.d.ts')
         .pipe(plumber())
         .pipe(concat('csComp.d.ts'))
         .pipe(insert.prepend('/// <reference path="../leaflet/leaflet.d.ts" />\r\n'))
         .pipe(insert.prepend('/// <reference path="../crossfilter/crossfilter.d.ts" />\r\n'))
-    // .pipe(changed(path2csWeb + 'example/Scripts/typings/cs'))
-    // .pipe(gulp.dest(path2csWeb + 'example/Scripts/typings/cs'))
-    //.pipe(changed(path2csWeb + 'test/Scripts/typings/cs'))
-        .pipe(gulp.dest(path2csWeb + 'dist-bower'))
-        .pipe(gulp.dest(path2csWeb + 'test/Scripts/typings/cs'));
+        .pipe(gulp.dest(path2csWeb + 'dist-bower'));
 });
 
 gulp.task('create_templateCache', function () {
@@ -400,18 +256,30 @@ var watchOptions = {
     mode: 'watch'
 };
 gulp.task('watch', function (cb) {
-    gulp.watch(path2csWeb + 'csComp/js/**/*.js', watchOptions, ['built_csComp', 'built_csComp.d.ts']);
+    gulp.watch(path2csWeb + outDir + '/csComp/**/*.js', watchOptions, ['built_csComp', 'built_csComp.d.ts']);
     gulp.watch(path2csWeb + 'csComp/directives/**/*.tpl.html', watchOptions, ['create_templateCache']);
     gulp.watch(path2csWeb + 'csComp/includes/css/csStyles.scss', watchOptions, ['concat_css']);
-    //gulp.watch(path2csWeb + 'csComp/includes/**/*.css', watchOptions, ['concat_css']);
     gulp.watch(path2csWeb + 'csComp/includes/images/*.*', watchOptions, ['include_images']);
+});
+
+gulp.task('init', function (cb) {
+    runSequence(
+        'tsd',
+        'tsconfig',
+        'tsc',
+        'built_csComp',
+        'built_csComp.d.ts',
+        'sass',
+        'create_templateCache',
+        'bower',
+        'include_css',
+        'include_images',
+        cb);
 });
 
 // Initiallize the project and update the npm and bower package folders
 gulp.task('update_packages', [
     'init',
-    'built_csComp',
-    'built_csComp.d.ts',
     'minify_csComp'    
 ]);
 
