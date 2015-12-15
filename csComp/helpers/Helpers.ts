@@ -286,7 +286,6 @@ module csComp.Helpers {
                     }
                     updateSection(feature.layer, pt);
                 }
-
             }
         }
 
@@ -313,8 +312,6 @@ module csComp.Helpers {
         this.addPropertyTypes(feature, type, resource);
         return type;
     }
-    
-    
 
     /**
      * Convert a property value to a display value using the property info.
