@@ -1,6 +1,4 @@
 module csComp.Services {
-    'use strict';
-
     /** describes a layer source, every layer has a layer source that is responsible for importing the data (e.g. geojson, wms, etc */
     export interface ILayerSource {
         title: string;
@@ -106,8 +104,8 @@ module csComp.Services {
             this.mapRenderers['leaflet'] = new LeafletRenderer();
             this.mapRenderers['leaflet'].init(this);
 
-            // this.mapRenderers['cesium'] = new CesiumRenderer();
-            //this.mapRenderers['cesium'].init(this);
+            this.mapRenderers['cesium'] = new CesiumRenderer();
+            this.mapRenderers['cesium'].init(this);
 
             this.initLayerSources();
             this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, 1000);
@@ -898,13 +896,13 @@ module csComp.Services {
         }
 
         public selectRenderer(renderer: string) {
+            if (!renderer) return;
             if (this.activeMapRenderer && this.activeMapRenderer.title === renderer) return;
 
-            if (this.activeMapRenderer) this.activeMapRenderer.disable();
-
             if (this.mapRenderers.hasOwnProperty(renderer)) {
+                if (this.activeMapRenderer) this.activeMapRenderer.disable();
                 this.activeMapRenderer = this.mapRenderers[renderer];
-                this.activeMapRenderer.enable();
+                this.activeMapRenderer.enable(this.$mapService.activeBaseLayer);
             }
         }
 

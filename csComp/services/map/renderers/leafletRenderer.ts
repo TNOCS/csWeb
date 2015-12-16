@@ -1,6 +1,5 @@
 module csComp.Services {
     export class LeafletRenderer implements IMapRenderer {
-
         title = 'leaflet';
         service: LayerService;
         $messageBusService: MessageBusService;
@@ -40,6 +39,34 @@ module csComp.Services {
             this.map.once('load', () => this.updateBoundingBox());
         }
 
+        public disable() {
+            this.map.remove();
+            this.map = this.service.$mapService.map = null;
+            $('#map').empty();
+        }
+
+        // private enableMap() {
+        //     this.map.dragging.enable();
+        //     this.map.touchZoom.enable();
+        //     this.map.doubleClickZoom.enable();
+        //     this.map.scrollWheelZoom.enable();
+        //     this.map.boxZoom.enable();
+        //     this.map.keyboard.enable();
+        //     if (this.map.tap) this.map.tap.enable();
+        //     document.getElementById('map').style.cursor = 'grab';
+        // }
+
+        // private disableMap() {
+        //     this.map.dragging.disable();
+        //     this.map.touchZoom.disable();
+        //     this.map.doubleClickZoom.disable();
+        //     this.map.scrollWheelZoom.disable();
+        //     this.map.boxZoom.disable();
+        //     this.map.keyboard.disable();
+        //     if (this.map.tap) this.map.tap.disable();
+        //     document.getElementById('map').style.cursor = 'default';
+        // }
+
         private updateBoundingBox() {
             var b = (<L.Map>(this.map)).getBounds();
             this.$messageBusService.publish('mapbbox', 'update', b.toBBoxString());
@@ -63,7 +90,6 @@ module csComp.Services {
                 r.northEast = [ne.lat, ne.lng];
             }
             return r;
-
         }
 
         public fitBounds(bounds: csComp.Services.IBoundingBox) {
@@ -79,14 +105,8 @@ module csComp.Services {
             return this.service.$mapService.map.getZoom();
         }
 
-        public disable() {
-            this.service.$mapService.map.remove();
-            this.service.$mapService.map = null;
-            $('#map').empty();
-        }
-
         public refreshLayer() {
-
+            return;
         }
 
         public addGroup(group: ProjectGroup) {
