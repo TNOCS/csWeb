@@ -1,6 +1,6 @@
 {
   "name": "csweb",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "description": "CommonSense web application",
   "main": "dist-npm/index.js",
   "typings": "dist-npm/index",
@@ -12,9 +12,6 @@
     "type": "git",
     "url": "https://github.com/TNOCS/csWeb"
   },
-  "files": [
-    "dist-csServerComp/"
-  ],
   "license": "MIT",
   "dependencies": {
     "async": "^1.4.2",
@@ -23,19 +20,15 @@
     "cors": "^2.7.1",
     "express": "^4.12.4",
     "fs-extra": "^0.24.0",
-    "jwt-simple": "^0.3.1",
-    "kerberos": "0.0.17",
-    "lru-cache": "^2.7.0",    
-    "mongodb": "^2.0.37",    
+    "jwt-simple": "^0.3.1",    
+    "lru-cache": "^2.7.0",        
     "mqtt": "^1.3.5",
-    "mqtt-router": "^0.5.0",
-    "pg": "^4.3.0",
+    "mqtt-router": "^0.5.0",    
     "proj4": "^2.3.6",
     "request": "^2.65.0",
     "serve-favicon": "^2.2.1",
     "sift": "^2.0.9",
-    "socket.io": "^1.3.5",
-    "sqlite3": "^3.1.0",
+    "socket.io": "^1.3.5",    
     "underscore": "^1.8.3",
     "which": "^1.2.0",
     "winston": "^1.0.1",
