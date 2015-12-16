@@ -1,6 +1,6 @@
 {
   "name": "csweb",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "description": "CommonSense web application",
   "main": "dist-npm/index.js",
   "typings": "dist-npm/index",
@@ -11,10 +11,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/TNOCS/csWeb"
-  },
-  "files": [
-    "dist-csServerComp/"
-  ],
+  },  
   "license": "MIT",
   "dependencies": {
     "async": "^1.4.2",
