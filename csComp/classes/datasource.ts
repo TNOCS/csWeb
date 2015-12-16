@@ -110,7 +110,7 @@ module csComp.Services {
                             callback();
                         }
                     })
-                    .error(() => { console.log("Error on Data source -- do something ?"); });
+                    .error(() => { console.log('Error on Data source -- do something ?'); });
             }
         }
     }

@@ -1,8 +1,8 @@
 module csComp.Services {
-    
+
     export interface ISensorLink
     {
-        url? : string;        
+        url? : string;
     }
 
     /** Interface of a project layer
@@ -21,7 +21,6 @@ module csComp.Services {
         description?: string;
         /** link to one or more meta description files containing  */
         typeUrl?: string | string[];
-        
         /** link to url for dynamic sensor data */
         sensorLink? : ISensorLink;
         /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */

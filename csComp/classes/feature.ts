@@ -1,9 +1,9 @@
 module csComp.Services {
-    
+
     export class Section {
         public properties: { [key : string] : csComp.Services.IPropertyType} = {};
     }
-    
+
     export class Log {
         /**
          * Timestamp, epoch ms
@@ -21,13 +21,13 @@ module csComp.Services {
         /** When true, the feature is included on the map, as opposed to being removed by a filter. */
         included: boolean;
         [key: string]: any;
-    }    
-    
+    }
+
     export interface IFeature {
         id?:              string;
         index:            number;
         layerId:          string;
-        layer:            ProjectLayer;
+        layer:            csComp.Services.ProjectLayer;
         type?:            string;
         geometry:         IGeoJsonGeometry;
         properties?:      IProperty;
@@ -40,15 +40,14 @@ module csComp.Services {
         _isInitialized?:  boolean;
         lastUpdated:      number;
         _gui:             IGuiObject;
-        sensors?:         { [id: string]: any[] }
-
+        sensors?:         { [id: string]: any[] };
         logs?:            { [id: string]: Log[] };
         timestamps:       number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         /**
          * Temperal list of geometries used e.g. to move a point over time (bound to timestamps, same as sensors)
          */
         coordinates?: IGeoJsonGeometry[];          // used for temporal data
-        languages?:   { [key: string]: ILocalisedData }
+        languages?:   { [key: string]: ILocalisedData };
     }
 
     /**
@@ -75,10 +74,10 @@ module csComp.Services {
         /** calculated style, used for final rendering */
         effectiveStyle: IFeatureTypeStyle;
         _isInitialized: boolean;
-        sensors:        { [id: string]: any[] }
+        sensors:        { [id: string]: any[] };
         timestamps:     number[]; //epoch timestamps for sensor data or coordinates (replaces timestamps in layer, if all features use same timestamps recom. to use layer timestamps
         coordinates:    IGeoJsonGeometry[];          // used for temporal data
-        logs:           { [id: string]: Log[] }                                                                                                                                       = {};
+        logs:           { [id: string]: Log[] } = {};
 
         public static serialize(f: IFeature): IFeature {
             var res = <IFeature>{};

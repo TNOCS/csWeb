@@ -4,8 +4,8 @@ import IActionOption = csComp.Services.IActionOption;
 
 module Accessibility {
     export class AccessibilityModel implements csComp.Services.IActionService {
-        private layerService: csComp.Services.LayerService
-        id = "accessibilityActions";
+        private layerService: csComp.Services.LayerService;
+        id = 'accessibilityActions';
         stop() { }
         addFeature(feature: IFeature) { }
         removeFeature(feature: IFeature) { }
@@ -15,19 +15,19 @@ module Accessibility {
 
         getFeatureActions(feature: IFeature): IActionOption[] {
             var accessibilityOption1 = <IActionOption>{
-                title: "Show accessibility"
+                title: 'Show accessibility'
             }
             accessibilityOption1.callback = this.showAccessibility;
             var accessibilityOption2 = <IActionOption>{
-                title: "Remove accessibility"
+                title: 'Remove accessibility'
             }
             accessibilityOption2.callback = this.removeAccessibility;
             var accessibilityOption3 = <IActionOption>{
-                title: "Plan route from"
+                title: 'Plan route from'
             }
             accessibilityOption3.callback = this.planRouteFrom;
             var accessibilityOption4 = <IActionOption>{
-                title: "Plan route to"
+                title: 'Plan route to'
             }
             accessibilityOption4.callback = this.planRouteTo;
             return [accessibilityOption1, accessibilityOption2, accessibilityOption3, accessibilityOption4];
@@ -57,8 +57,8 @@ module Accessibility {
                 accessibilityLayer.url = urlParams.join('&');
                 if (!accessibilityLayer.enabled) {
                     layerService.addLayer(accessibilityLayer);
-                    var rpt = csComp.Helpers.createRightPanelTab("rightpanel", "accessibility", accessibilityLayer, "Accessibility options");
-                    layerService.$messageBusService.publish("rightpanel", "activate", rpt);
+                    var rpt = csComp.Helpers.createRightPanelTab('rightpanel', 'accessibility', accessibilityLayer, 'Accessibility options');
+                    layerService.$messageBusService.publish('rightpanel', 'activate', rpt);
                 } else {
                     if (accessibilityLayer.layerSource) accessibilityLayer.layerSource.refreshLayer(accessibilityLayer);
                 }
@@ -89,8 +89,8 @@ module Accessibility {
                 } else {
                     if (routeLayer.layerSource) routeLayer.layerSource.refreshLayer(routeLayer);
                 }
-                var rpt = csComp.Helpers.createRightPanelTab("rightpanel", "tripplanner", routeLayer, "Route planner");
-                layerService.$messageBusService.publish("rightpanel", "activate", rpt);
+                var rpt = csComp.Helpers.createRightPanelTab('rightpanel', 'tripplanner', routeLayer, 'Route planner');
+                layerService.$messageBusService.publish('rightpanel', 'activate', rpt);
             } else {
                 //TODO: create a new layer to show route on
             }
@@ -109,14 +109,14 @@ module Accessibility {
         public init(layerService: csComp.Services.LayerService) {
             console.log('init AccessibilityActionService');
             this.layerService = layerService;
-            this.layerService.$messageBusService.serverSubscribe("accessibility", "msg", (title: string, mcb: csComp.Services.IMessageBusCallback) => {
-                if (mcb["data"] === "restart") {
-                    this.layerService.$messageBusService.notify("restarting server", "restarting", csComp.Services.NotifyLocation.TopRight);
+            this.layerService.$messageBusService.serverSubscribe('accessibility', 'msg', (title: string, mcb: csComp.Services.IMessageBusCallback) => {
+                if (mcb['data'] === 'restart') {
+                    this.layerService.$messageBusService.notify('restarting server', 'restarting', csComp.Services.NotifyLocation.TopRight);
                     location.reload();
                 }
 
                 //
-                // var layer = this.layerService.findLayer("demo");
+                // var layer = this.layerService.findLayer('demo');
                 // layer.layerSource.refreshLayer(layer);
                 //console.log(title);
             })
@@ -170,16 +170,16 @@ module Accessibility {
             ) {
             this.scope = $scope;
             $scope.vm = this;
-            this.layer = $scope.$parent["data"];
+            this.layer = $scope.$parent['data'];
             this.cutoffTimes = [];
             this.urlParameters = {};
             this.bikeSpeedKm;
             this.walkSpeedKm;
             this.urlKeys.forEach((key) => { this.urlParameters[key] = 0 });
             this.transportModes = {};
-            this.transportModes["Walking"] = "WALK";
-            this.transportModes["Biking"] = "BICYCLE";
-            //this.transportModes["Car"] = "CAR";
+            this.transportModes['Walking'] = 'WALK';
+            this.transportModes['Biking'] = 'BICYCLE';
+            //this.transportModes['Car'] = 'CAR';
         }
 
         public refreshAccessibility() {
@@ -232,19 +232,19 @@ module Accessibility {
             if (this.urlParameters.hasOwnProperty('walkSpeed')) this.walkSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['walkSpeed']).toFixed(2);
             if (this.urlParameters.hasOwnProperty('bikeSpeed')) this.bikeSpeedKm = +csComp.Helpers.GeoExtensions.convertMileToKm(this.urlParameters['bikeSpeed']).toFixed(2);
 
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
         }
 
         private addCutoffTime() {
             this.cutoffTimes.push(0);
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
         }
 
         private removeCutoffTime(index: number) {
             if (index < this.cutoffTimes.length && index > -1) {
                 this.cutoffTimes.splice(index, 1);
             }
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
         }
     }
 }
