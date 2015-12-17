@@ -262,7 +262,6 @@ module csComp.Services {
                         });
                         dfd.resolve();
                     }, 0);
-
                     break;
 
                 case 'WMS':

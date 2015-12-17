@@ -22,6 +22,10 @@ module csComp.Services {
 
         public enable() {
             if ($('map').length !== 1) return;
+            if (this.map) {
+                this.enableMap();
+                return;
+            }
             this.service.$mapService.map = L.map('map', {
                 zoomControl: false,
                 maxZoom: 19,
@@ -40,32 +44,33 @@ module csComp.Services {
         }
 
         public disable() {
-            this.map.remove();
-            this.map = this.service.$mapService.map = null;
-            $('#map').empty();
+            this.disableMap();
+            // this.map.remove();
+            // this.map = this.service.$mapService.map = null;
+            // $('#map').empty();
         }
 
-        // private enableMap() {
-        //     this.map.dragging.enable();
-        //     this.map.touchZoom.enable();
-        //     this.map.doubleClickZoom.enable();
-        //     this.map.scrollWheelZoom.enable();
-        //     this.map.boxZoom.enable();
-        //     this.map.keyboard.enable();
-        //     if (this.map.tap) this.map.tap.enable();
-        //     document.getElementById('map').style.cursor = 'grab';
-        // }
+        private enableMap() {
+            this.map.dragging.enable();
+            this.map.touchZoom.enable();
+            this.map.doubleClickZoom.enable();
+            this.map.scrollWheelZoom.enable();
+            this.map.boxZoom.enable();
+            this.map.keyboard.enable();
+            if (this.map.tap) this.map.tap.enable();
+            document.getElementById('map').style.cursor = 'grab';
+        }
 
-        // private disableMap() {
-        //     this.map.dragging.disable();
-        //     this.map.touchZoom.disable();
-        //     this.map.doubleClickZoom.disable();
-        //     this.map.scrollWheelZoom.disable();
-        //     this.map.boxZoom.disable();
-        //     this.map.keyboard.disable();
-        //     if (this.map.tap) this.map.tap.disable();
-        //     document.getElementById('map').style.cursor = 'default';
-        // }
+        private disableMap() {
+            this.map.dragging.disable();
+            this.map.touchZoom.disable();
+            this.map.doubleClickZoom.disable();
+            this.map.scrollWheelZoom.disable();
+            this.map.boxZoom.disable();
+            this.map.keyboard.disable();
+            if (this.map.tap) this.map.tap.disable();
+            document.getElementById('map').style.cursor = 'default';
+        }
 
         private updateBoundingBox() {
             var b = (<L.Map>(this.map)).getBounds();
