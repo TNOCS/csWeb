@@ -243,6 +243,8 @@ module csComp.Services {
         rotate?:                number;
         /** The property that specifies the rotation angle */
         rotateProperty?:        string;
+        /** The property that specifies the height (in Cesium) */
+        heightProperty?:        string;
         /** The property's text that should be displayed on top of the icon */
         innerTextProperty?:     string;
         /** The size of the property's text on top of the icon */

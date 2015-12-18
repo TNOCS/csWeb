@@ -1203,6 +1203,9 @@ module csComp.Services {
                 if (ft.style.rotateProperty && feature.properties.hasOwnProperty(ft.style.rotateProperty)) {
                     s.rotate = Number(feature.properties[ft.style.rotateProperty]);
                 }
+                if (ft.style.heightProperty && feature.properties.hasOwnProperty(ft.style.heightProperty)) {
+                    s.height = Number(feature.properties[ft.style.heightProperty]);
+                }
             }
 
             feature._gui['style'] = {};
