@@ -349,36 +349,45 @@ module csComp.Services {
             });
         }
 
-        private updateEntity(entity, feature: IFeature) {
-            var height = feature.properties['mediaan_hoogte'] === undefined ? feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
+        /** 
+         * The feature height is either set in a property, or in a style. Otherwise, it is 0.
+         * In either case, the effective style is calculated in LayerService.calculateFeatureStyle.
+         */
+        private getFeatureHeight(feature: IFeature) {
+            return feature.effectiveStyle.height || 0;
+        }
 
+        private updateEntity(entity, feature: IFeature) {
             if (feature.fType.style.iconUri !== undefined && entity.billboard !== undefined) {
                 entity.billboard.width = feature.effectiveStyle.iconWidth;
                 entity.billboard.height = feature.effectiveStyle.iconHeight;
             }
 
+            var fillColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+
             switch (feature.geometry.type.toUpperCase()) {
                 case 'POINT':
                 case 'MULTIPOINT':
-                    entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
-                    entity.point.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
-                    entity.point.color = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+                    let position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+                    entity.position = position;
+                    entity.point.position = position;
+                    entity.point.color = fillColor;
                     entity.point.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
                     entity.point.outlineWidth = feature.effectiveStyle.strokeWidth;
                     break;
 
                 case 'POLYGON':
                 case 'MULTIPOLYGON':
-                    entity.polygon.material = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+                    entity.polygon.material = fillColor;
                     entity.polygon.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
                     // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
                     entity.polygon.outlineWidth = feature.effectiveStyle.strokeWidth;
-                    entity.polygon.extrudedHeight = height;
+                    entity.polygon.extrudedHeight = this.getFeatureHeight(feature);
                     break;
 
                 case 'LINESTRING':
                 case 'MULTILINESTRING':
-                    entity.polyline.material = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+                    entity.polyline.material = fillColor;
                     entity.polyline.width = feature.effectiveStyle.strokeWidth;
                     break;
 
@@ -403,16 +412,11 @@ module csComp.Services {
             // link the feature to the entity for CommonSense.selectFeature
             entity.feature = feature;
 
-            if (feature.properties['Name'] !== undefined)
-                entity.name = feature.properties['Name'];
-
-            // override for buildings from Top10NL
-            var height = feature.properties['mediaan_hoogte'] === undefined
-                ? feature.effectiveStyle.height
-                : feature.properties['mediaan_hoogte'];
+            //if (feature.properties['Name'] !== undefined)
+            entity.name = feature.properties['Name'];
 
             var pixelSize = 5;
-            if (feature.fType.style.iconUri !== undefined) {
+            if (typeof feature.fType.style.iconUri !== 'undefined') {
                 // a billboard is an icon for a feature
                 entity.billboard = {
                     image: feature.fType.style.iconUri,
@@ -423,6 +427,8 @@ module csComp.Services {
                 pixelSize = 35;
             }
 
+            var fillColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+
             switch (feature.geometry.type.toUpperCase()) {
                 case 'POINT':
                     // if there is no icon, a PointGraphics object is used as a fallback mechanism
@@ -431,7 +437,7 @@ module csComp.Services {
                     entity.point = {
                         pixelSize: pixelSize,
                         position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]),
-                        color: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                        color: fillColor,
                         outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
                         outlineWidth: feature.effectiveStyle.strokeWidth
                     };
@@ -445,7 +451,7 @@ module csComp.Services {
                         entity_multi.point = {
                             pixelSize: pixelSize,
                             position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[i][0], feature.geometry.coordinates[i][1], feature.geometry.coordinates[i][2]),
-                            color: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            color: fillColor,
                             outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
                             outlineWidth: feature.effectiveStyle.strokeWidth
                         };
@@ -458,12 +464,12 @@ module csComp.Services {
                 case 'POLYGON':
                     entity.polygon = new Cesium.PolygonGraphics({
                         hierarchy: this.createPolygon(feature.geometry.coordinates).hierarchy,
-                        material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                        material: fillColor,
                         outline: true,
                         outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
                         // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
                         outlineWidth: feature.effectiveStyle.strokeWidth,
-                        extrudedHeight: height,
+                        extrudedHeight: this.getFeatureHeight(feature),
                         perPositionHeight: true
                     });
                     break;
@@ -476,11 +482,11 @@ module csComp.Services {
 
                         var polygon = new Cesium.PolygonGraphics({
                             hierarchy: polygons[i].hierarchy,
-                            material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            material: fillColor,
                             outline: true,
                             outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
                             outlineWidth: feature.effectiveStyle.strokeWidth,
-                            extrudedHeight: height,
+                            extrudedHeight: this.getFeatureHeight(feature),
                             perPositionHeight: true
                         });
                         entity_multi.polygon = polygon;
@@ -493,7 +499,7 @@ module csComp.Services {
                 case 'LINESTRING':
                     entity.polyline = new Cesium.PolylineGraphics({
                         positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates),
-                        material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                        material: fillColor,
                         width: feature.effectiveStyle.strokeWidth
                     });
                     break;
@@ -505,7 +511,7 @@ module csComp.Services {
 
                         entity.polyline = new Cesium.PolylineGraphics({
                             positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates[i]),
-                            material: Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor),
+                            material: fillColor,
                             width: feature.effectiveStyle.strokeWidth
                         });
 
