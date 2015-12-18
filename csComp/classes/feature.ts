@@ -202,32 +202,54 @@ module csComp.Services {
     }
 
     export interface IFeatureTypeStyle {
-        nameLabel?:             string; // Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature.
+        /** Default value is Name, i.e. the feature.properties.Name contains the title/name of the feature. */
+        nameLabel?:             string;
+        /** The background fill color */
         fillColor?:             string;
+        /** The stroke/outline color */
         strokeColor?:           string;
+        /** The stroke/outline width */
+        strokeWidth?:           number;
+        /** The background fill color when selected */
         selectedFillColor?:     string;
+        /** The stroke/outline color when selected */
         selectedStrokeColor?:   string;
+        /** The stroke/outline width when selected */
         selectedStrokeWidth?:   number;
+        /** Height of the property, e.g. when styling a property in Cesium */
         height?:                number;
         opacity?:               number;
         fillOpacity?:           number;
+        /** Default true, draw an outline around the feature (sometimes, you wish to turn it off when dealing with a grid) */
         stroke?:                boolean;
         drawingMode?:           string;
-        strokeWidth?:           number;
+        /** The width of the icon on the map in pixels */
         iconWidth?:             number;
+        /** The height of the icon on the map in pixels */
         iconHeight?:            number;
+        /** The URL of the icon on the map */
         iconUri?:               string;
+        /** The URL of the model on the map (for Cesium) */
         modelUri?:              string;
+        /** The scale of the model on the map (for Cesium) */
         modelScale?:            number;
+        /** The minimum pixel size of the model on the map (for Cesium) */
         modelMinimumPixelSize?: number;
+        /** The rounding of the icon's background */
         cornerRadius?:          number;
+        /** At what map resolution should we stop displaying the title. */
         maxTitleResolution?:    string;
+        /** When true, set the rotation of the icon, e.g. when simulating moving objects */
         rotate?:                number;
+        /** The property that specifies the rotation angle */
+        rotateProperty?:        string;
+        /** The property's text that should be displayed on top of the icon */
         innerTextProperty?:     string;
+        /** The size of the property's text on top of the icon */
         innerTextSize?:         number;
         analysispropertyType?:  any;
-        rotateProperty?:        string;
-        _isInitialized?: boolean;
+        /** Internal (private) property, indicating that the feature has been initialized (initFeatureType has been called) */
+        _isInitialized?:        boolean;
     }
 
     export interface IFeatureType {

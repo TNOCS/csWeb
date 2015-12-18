@@ -350,7 +350,9 @@ module csComp.Services {
         }
 
         private updateEntity(entity, feature: IFeature) {
-            var height = feature.properties['mediaan_hoogte'] === undefined ? feature.effectiveStyle.height : feature.properties['mediaan_hoogte'];
+            var height = feature.properties['extrude'] === undefined
+                ? feature.effectiveStyle.height
+                : feature.properties['extrude'];
 
             if (feature.fType.style.iconUri !== undefined && entity.billboard !== undefined) {
                 entity.billboard.width = feature.effectiveStyle.iconWidth;
@@ -403,13 +405,13 @@ module csComp.Services {
             // link the feature to the entity for CommonSense.selectFeature
             entity.feature = feature;
 
-            if (feature.properties['Name'] !== undefined)
-                entity.name = feature.properties['Name'];
+            //if (feature.properties['Name'] !== undefined)
+            entity.name = feature.properties['Name'];
 
             // override for buildings from Top10NL
-            var height = feature.properties['mediaan_hoogte'] === undefined
+            var height = feature.properties['extrude'] === undefined
                 ? feature.effectiveStyle.height
-                : feature.properties['mediaan_hoogte'];
+                : feature.properties['extrude'];
 
             var pixelSize = 5;
             if (feature.fType.style.iconUri !== undefined) {
