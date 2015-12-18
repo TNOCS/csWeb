@@ -219,7 +219,6 @@ export class MapLayerFactory {
                 title: data.layerTitle,
                 description: data.description,
                 id: data.reference,
-                features: data.geojson.features,
                 enabled: data.enabled,
                 defaultFeatureType: data.defaultFeatureType,
                 typeUrl: 'data/api/resourceTypes/' + data.reference + '.json',
