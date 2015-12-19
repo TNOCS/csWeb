@@ -358,12 +358,13 @@ module csComp.Services {
         }
 
         private updateEntity(entity, feature: IFeature) {
+            var effStyle = feature.effectiveStyle;
             if (feature.fType.style.iconUri !== undefined && entity.billboard !== undefined) {
-                entity.billboard.width = feature.effectiveStyle.iconWidth;
-                entity.billboard.height = feature.effectiveStyle.iconHeight;
+                entity.billboard.width  = effStyle.iconWidth;
+                entity.billboard.height = effStyle.iconHeight;
             }
 
-            var fillColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
+            var fillColor = Cesium.Color.fromCssColorString(effStyle.fillColor);
 
             switch (feature.geometry.type.toUpperCase()) {
                 case 'POINT':
@@ -372,23 +373,23 @@ module csComp.Services {
                     entity.position = position;
                     entity.point.position = position;
                     entity.point.color = fillColor;
-                    entity.point.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
-                    entity.point.outlineWidth = feature.effectiveStyle.strokeWidth;
+                    entity.point.outlineColor = Cesium.Color.fromCssColorString(effStyle.strokeColor);
+                    entity.point.outlineWidth = effStyle.strokeWidth;
                     break;
 
                 case 'POLYGON':
                 case 'MULTIPOLYGON':
                     entity.polygon.material = fillColor;
-                    entity.polygon.outlineColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor);
+                    entity.polygon.outlineColor = Cesium.Color.fromCssColorString(effStyle.strokeColor);
                     // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
-                    entity.polygon.outlineWidth = feature.effectiveStyle.strokeWidth;
+                    entity.polygon.outlineWidth = effStyle.strokeWidth;
                     entity.polygon.extrudedHeight = this.getFeatureHeight(feature);
                     break;
 
                 case 'LINESTRING':
                 case 'MULTILINESTRING':
                     entity.polyline.material = fillColor;
-                    entity.polyline.width = feature.effectiveStyle.strokeWidth;
+                    entity.polyline.width = effStyle.strokeWidth;
                     break;
 
                 default:
@@ -416,21 +417,22 @@ module csComp.Services {
             entity.name = feature.properties['Name'];
 
             var pixelSize = 5;
-            if (typeof feature.fType.style.iconUri !== 'undefined') {
-                // a billboard is an icon for a feature
-                entity.billboard = {
-                    image: feature.fType.style.iconUri,
-                    width: feature.effectiveStyle.iconWidth,
-                    height: feature.effectiveStyle.iconHeight
-                };
-                // we draw this point very large because it serves as a background for the billboards
-                pixelSize = 35;
-            }
-
-            var fillColor = Cesium.Color.fromCssColorString(feature.effectiveStyle.fillColor);
-
+            var style     = feature.fType.style;
+            var effStyle  = feature.effectiveStyle;
+            var fillColor = Cesium.Color.fromCssColorString(effStyle.fillColor).withAlpha(effStyle.fillOpacity);
             switch (feature.geometry.type.toUpperCase()) {
                 case 'POINT':
+                    if (typeof style.iconUri !== 'undefined') {
+                        // a billboard is an icon for a feature
+                        entity.billboard = {
+                            image: style.iconUri,
+                            width: effStyle.iconWidth,
+                            height: effStyle.iconHeight
+                        };
+                        // we draw this point very large because it serves as a background for the billboards
+                        pixelSize = 35;
+                    }
+
                     // if there is no icon, a PointGraphics object is used as a fallback mechanism
                     entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
 
@@ -438,8 +440,8 @@ module csComp.Services {
                         pixelSize: pixelSize,
                         position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]),
                         color: fillColor,
-                        outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                        outlineWidth: feature.effectiveStyle.strokeWidth
+                        outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
+                        outlineWidth: effStyle.strokeWidth
                     };
                     break;
 
@@ -452,8 +454,8 @@ module csComp.Services {
                             pixelSize: pixelSize,
                             position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[i][0], feature.geometry.coordinates[i][1], feature.geometry.coordinates[i][2]),
                             color: fillColor,
-                            outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                            outlineWidth: feature.effectiveStyle.strokeWidth
+                            outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
+                            outlineWidth: effStyle.strokeWidth
                         };
 
                         this.viewer.entities.add(entity_multi);
@@ -465,10 +467,10 @@ module csComp.Services {
                     entity.polygon = new Cesium.PolygonGraphics({
                         hierarchy: this.createPolygon(feature.geometry.coordinates).hierarchy,
                         material: fillColor,
-                        outline: true,
-                        outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
+                        outline: style.stroke,
+                        outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
                         // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
-                        outlineWidth: feature.effectiveStyle.strokeWidth,
+                        outlineWidth: effStyle.strokeWidth,
                         extrudedHeight: this.getFeatureHeight(feature),
                         perPositionHeight: true
                     });
@@ -483,9 +485,9 @@ module csComp.Services {
                         var polygon = new Cesium.PolygonGraphics({
                             hierarchy: polygons[i].hierarchy,
                             material: fillColor,
-                            outline: true,
-                            outlineColor: Cesium.Color.fromCssColorString(feature.effectiveStyle.strokeColor),
-                            outlineWidth: feature.effectiveStyle.strokeWidth,
+                            outline: style.stroke,
+                            outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
+                            outlineWidth: effStyle.strokeWidth,
                             extrudedHeight: this.getFeatureHeight(feature),
                             perPositionHeight: true
                         });
@@ -500,7 +502,7 @@ module csComp.Services {
                     entity.polyline = new Cesium.PolylineGraphics({
                         positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates),
                         material: fillColor,
-                        width: feature.effectiveStyle.strokeWidth
+                        width: effStyle.strokeWidth
                     });
                     break;
 
@@ -512,7 +514,7 @@ module csComp.Services {
                         entity.polyline = new Cesium.PolylineGraphics({
                             positions: this.coordinatesArrayToCartesianArray(feature.geometry.coordinates[i]),
                             material: fillColor,
-                            width: feature.effectiveStyle.strokeWidth
+                            width: effStyle.strokeWidth
                         });
 
                         this.viewer.entities.add(entity_multi);
@@ -527,9 +529,9 @@ module csComp.Services {
 
             // add a 3D model if we have one
             if (feature.properties['FeatureTypeId'] === '3Dmodel') {
-                var modelUri = feature.effectiveStyle.modelUri || feature.properties['modelUri'] || '';
-                var modelScale = feature.effectiveStyle.modelScale || feature.properties['modelScale'] || 1;
-                var modelMinimumPixelSize = feature.effectiveStyle.modelMinimumPixelSize || feature.properties['modelMinimumPixelSize'] || 32;
+                var modelUri = effStyle.modelUri || feature.properties['modelUri'] || '';
+                var modelScale = effStyle.modelScale || feature.properties['modelScale'] || 1;
+                var modelMinimumPixelSize = effStyle.modelMinimumPixelSize || feature.properties['modelMinimumPixelSize'] || 32;
 
                 entity.model = new Cesium.ModelGraphics({
                     uri: modelUri,
