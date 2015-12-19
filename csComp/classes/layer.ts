@@ -68,6 +68,8 @@ module csComp.Services {
         dynamicResource?: boolean;
         /** If true (default false), do not move the selected feature to the front of the SVG stack */
         disableMoveSelectionToFront: boolean;
+        /** Default true, but if set to false, do not notify the timeline of changes. */
+        timeAware: boolean;
         /** if true, use the current focustime to retrieve data from the server */
         timeDependent?: boolean;
         layerSource: ILayerSource;
@@ -164,6 +166,8 @@ module csComp.Services {
         showOnTimeline: boolean;
         /** If true (default false), do not move the selected feature to the front of the SVG stack */
         disableMoveSelectionToFront: boolean;
+        /** Default true, but if set to false, do not notify the timeline of changes. */
+        timeAware: boolean = true;
         /** if true, use the current focustime to retrieve data from the server */
         timeDependent: boolean;
         /** time interval for unique time requests, in milliseconds */
@@ -313,6 +317,7 @@ module csComp.Services {
                 isDynamic:             pl.isDynamic,
                 useLog:                pl.useLog,
                 tags:                  pl.tags,
+                timeAware:             pl.timeAware,
                 fitToMap:              pl.fitToMap,
                 minZoom:               pl.minZoom,
                 maxZoom:               pl.maxZoom
@@ -325,43 +330,43 @@ module csComp.Services {
      * They are described in the project file
      */
     export interface IBaseLayer {
-        id: string;
-        title: string;
-        isDefault: boolean;
-        subtitle: string;
-        preview: string;
+        id:              string;
+        title:           string;
+        isDefault:       boolean;
+        subtitle:        string;
+        preview:         string;
         /** URL pointing to the basemap source. */
-        url: string;
+        url:             string;
         /** Maximum zoom level */
-        maxZoom: number;
+        maxZoom:         number;
         /** Minimum zoom level */
-        minZoom: number;
-        subdomains: string[];
+        minZoom:         number;
+        subdomains:      string[];
         /** String that is shown on the map, attributing the source of the basemap */
-        attribution: string;
-        test: string;
-        cesium_url?: string;
+        attribution:     string;
+        test:            string;
+        cesium_url?:     string;
         cesium_maptype?: string;
     }
+
     export class BaseLayer implements IBaseLayer {
-        id: string;
-        title: string;
+        id:        string;
+        title:     string;
         isDefault: boolean;
-        subtitle: string;
-        preview: string;
+        subtitle:  string;
+        preview:   string;
         /** URL pointing to the basemap source. */
         url: string;
         /** Maximum zoom level */
         maxZoom: number;
         /** Minimum zoom level */
-        minZoom: number;
+        minZoom:    number;
         subdomains: string[];
-
         /** String that is shown on the map, attributing the source of the basemap */
-        attribution: string;
-        test: string;
-
-        cesium_url: string;
+        attribution:    string;
+        test:           string;
+        /** Cesium specific URL to retreive the tiles */
+        cesium_url:     string;
         cesium_maptype: string;
     }
 }

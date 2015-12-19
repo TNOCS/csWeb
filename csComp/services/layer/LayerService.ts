@@ -544,6 +544,7 @@ module csComp.Services {
                     if (!this.layerSources.hasOwnProperty(layerSource)) {
                         // We don't know how to deal with an unknown layer source, so stop here.
                         layer.isLoading = false;
+                        this.$messageBusService.publish('layer', 'error', layer);
                         callback(null, null);
                         // TODO Stop spinner
                         return;
@@ -577,7 +578,7 @@ module csComp.Services {
                         }
                         this.$messageBusService.publish('layer', 'activated', layer);
                     }, data);
-                    this.$messageBusService.publish('timeline', 'updateFeatures');
+                    if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
                     callback(null, null);
                 },
                 (callback) => {
@@ -1146,7 +1147,7 @@ module csComp.Services {
                 feature.propertiesOld = {};
                 if (layer.useLog) this.trackFeature(feature);
                 if (applyDigest) this.apply();
-                if (publishToTimeline) this.$messageBusService.publish('timeline', 'updateFeatures');
+                if (layer.timeAware && publishToTimeline) this.$messageBusService.publish('timeline', 'updateFeatures');
             }
             return feature.type;
         }
@@ -1942,7 +1943,7 @@ module csComp.Services {
             this.apply();
             this.$messageBusService.publish('layer', 'deactivate', layer);
             this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'edit');
-            this.$messageBusService.publish('timeline', 'updateFeatures');
+            if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
         }
 
         /***

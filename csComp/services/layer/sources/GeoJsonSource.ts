@@ -131,7 +131,6 @@ module csComp.Services {
                 csComp.Helpers.addPropertyTypes(firstFeature, firstFeature.fType, resource);
             }
 
-
             layer.isTransparent = false;
             // Subscribe to zoom events
             if (layer.minZoom || layer.maxZoom) {
@@ -153,7 +152,7 @@ module csComp.Services {
                 });
             }
 
-            this.service.$messageBusService.publish('timeline', 'updateFeatures');
+            if (layer.timeAware) this.service.$messageBusService.publish('timeline', 'updateFeatures');
         }
 
         removeLayer(layer: ProjectLayer) {
@@ -522,7 +521,7 @@ module csComp.Services {
                 layer.data.features.forEach((f) => {
                     this.service.initFeature(f, layer, false, false);
                 });
-                this.service.$messageBusService.publish('timeline', 'updateFeatures');
+                if (layer.timeAware) this.service.$messageBusService.publish('timeline', 'updateFeatures');
             }).error((e) => {
                     console.log('EsriJsonSource called $HTTP with errors: ' + e);
                 }).finally(() => {
