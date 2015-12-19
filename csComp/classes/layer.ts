@@ -1,7 +1,6 @@
 module csComp.Services {
 
-    export interface ISensorLink
-    {
+    export interface ISensorLink {
         url? : string;
     }
 
@@ -51,10 +50,8 @@ module csComp.Services {
         refreshBBOX?: boolean;
         /** indicates that this is a dynamic layer (dynamicgeojson) */
         isDynamic?: boolean;
-        
         /** this layer contains sensor data, updated when focusTime changes */
         hasSensorData? : boolean;
-        
         /**
          * indicates if a dynamic layer is connected
          */
@@ -65,17 +62,14 @@ module csComp.Services {
          */
         useLog?: boolean;
         /** indicates if features should be shown on timeline */
-
         showOnTimeline?: boolean;
         /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the 
          * resourceType on every load */
         dynamicResource?: boolean;
         /** If true (default false), do not move the selected feature to the front of the SVG stack */
         disableMoveSelectionToFront: boolean;
-
         /** if true, use the current focustime to retrieve data from the server */
         timeDependent?: boolean;
-
         layerSource: ILayerSource;
         /**
          * Number of seconds between automatic layer refresh.
@@ -107,26 +101,19 @@ module csComp.Services {
         data?: any;
         cesiumDatasource?: any;
         items?: any;
-
         /** use a timestamp with each url request to make them unique (only tile layer for now, timestamp created after each refresh )*/
         disableCache?: boolean;
         /** key attached for identifying to */
         cacheKey?: string;
-
         /** handle for receiving server events */
         serverHandle?: MessageBusHandle;
-
         parentFeature: IFeature;
-
         /** list of tags describing this layer */
         tags?: string;
-
         /** key name of default feature type */
         defaultFeatureType?: string;
-
         /** image for this layer */
         image?: string;
-
         /** last updated time */
         updated?: number;
     }
@@ -247,16 +234,18 @@ module csComp.Services {
         defaultFeatureType: string;
 
         /**  dynamic projects have a realtime connection with the server. This connection allows you to make changes to the feature & property types and 
-        feature geometry and property values. changes are distributed to all active clients in realtime */        
+        feature geometry and property values. changes are distributed to all active clients in realtime */
         isDynamic: boolean;
-        
-        /** logging mechanism allows you to specify specific property values and geometries in time,  it works the same way as sensor data but is optimized for smaller amounts of data and allows not only numbers
-        but also text, geometries, etc., where sensors are optimized for many different values, but only numbers         
+
+        /** 
+         * Logging mechanism allows you to specify specific property values and geometries in time,  
+         * it works the same way as sensor data but is optimized for smaller amounts of data and allows not only numbers 
+         * but also text, geometries, etc., where sensors are optimized for many different values, but only numbers         
         */
         useLog: boolean;
-        
+
         isConnected: boolean;
-        
+
         /** this layer contains sensor data, updated when focusTime changes */
         hasSensorData : boolean;
 
@@ -273,7 +262,7 @@ module csComp.Services {
         /** last updated time */
         updated: number;
 
-        /** show notification on new feature*/
+        /** show notification on new feature */
         showFeatureNotifications: boolean = true;
 
         /** Change the map extent to fit the contents of the layer
@@ -298,35 +287,35 @@ module csComp.Services {
          */
         public static serializeableData(pl: ProjectLayer): Object {
             return {
-                id: pl.id,
-                title: pl.title,
-                description: pl.description,
-                type: pl.type,
-                renderType: pl.renderType,
-                heatmapSettings: pl.heatmapSettings,
-                heatmapItems: csComp.Helpers.serialize(pl.heatmapItems, Heatmap.HeatmapItem.serializeableData),
-                url: pl.url,
-                typeUrl: pl.typeUrl,
-                sensorLink : pl.sensorLink,
-                wmsLayers: pl.wmsLayers,
-                opacity: pl.opacity,
-                isSublayer: pl.isSublayer,
-                BBOX: pl.BBOX,
-                refreshBBOX: pl.refreshBBOX,
-                refreshTimeInterval: pl.refreshTimeInterval,
-                quickRefresh: pl.quickRefresh,
-                languages: pl.languages,
-                events: pl.events,
-                dataSourceParameters: pl.dataSourceParameters,
-                defaultFeatureType: pl.defaultFeatureType,
+                id:                    pl.id,
+                title:                 pl.title,
+                description:           pl.description,
+                type:                  pl.type,
+                renderType:            pl.renderType,
+                heatmapSettings:       pl.heatmapSettings,
+                heatmapItems:          csComp.Helpers.serialize(pl.heatmapItems, Heatmap.HeatmapItem.serializeableData),
+                url:                   pl.url,
+                typeUrl:               pl.typeUrl,
+                sensorLink :           pl.sensorLink,
+                wmsLayers:             pl.wmsLayers,
+                opacity:               pl.opacity,
+                isSublayer:            pl.isSublayer,
+                BBOX:                  pl.BBOX,
+                refreshBBOX:           pl.refreshBBOX,
+                refreshTimeInterval:   pl.refreshTimeInterval,
+                quickRefresh:          pl.quickRefresh,
+                languages:             pl.languages,
+                events:                pl.events,
+                dataSourceParameters:  pl.dataSourceParameters,
+                defaultFeatureType:    pl.defaultFeatureType,
                 defaultLegendProperty: pl.defaultLegendProperty,
-                useProxy: pl.useProxy,
-                isDynamic: pl.isDynamic,
-                useLog: pl.useLog,                
-                tags: pl.tags,
-                fitToMap: pl.fitToMap,
-                minZoom: pl.minZoom,
-                maxZoom: pl.maxZoom
+                useProxy:              pl.useProxy,
+                isDynamic:             pl.isDynamic,
+                useLog:                pl.useLog,
+                tags:                  pl.tags,
+                fitToMap:              pl.fitToMap,
+                minZoom:               pl.minZoom,
+                maxZoom:               pl.maxZoom
             };
         }
     }

@@ -141,11 +141,11 @@ module csComp.Services {
     }
 
     export interface ILocalisedData {
-        name?: string;
-        title?: string;
+        name?:        string;
+        title?:       string;
         description?: string;
-        section?: string;
-        options?: string[];
+        section?:     string;
+        options?:     string[];
     }
 
     export interface ILanguageData {
@@ -157,11 +157,11 @@ module csComp.Services {
         automatic
     }
 
-    export interface ILayerPropertyDetails{
-        activation? : string;
-        groupId? : string;
-        defaultFeatureType? : string;
-        typeUrl? : string;
+    export interface ILayerPropertyDetails {
+        activation?:         string;
+        groupId?:            string;
+        defaultFeatureType?: string;
+        typeUrl?:            string;
     }
 
     export interface IPropertyType {
@@ -189,9 +189,9 @@ module csComp.Services {
         categories?:       string[];
         languages?:        ILanguageData;
         legend?:           Legend;
-        layerProps? :      ILayerPropertyDetails;
-        min? : number;
-        max? : number;
+        layerProps?:       ILayerPropertyDetails;
+        min?:              number;
+        max?:              number;
         targetid?:         string;
         /** Angular expression */
         expression?:       string;

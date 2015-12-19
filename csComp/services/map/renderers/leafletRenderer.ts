@@ -169,7 +169,7 @@ module csComp.Services {
         baseLayer: L.ILayer;
 
         public changeBaseLayer(layerObj: BaseLayer) {
-            if (layerObj == this.service.$mapService.activeBaseLayer) return;
+            if (layerObj === this.service.$mapService.activeBaseLayer) return;
             if (this.baseLayer) this.service.map.map.removeLayer(this.baseLayer);
             this.baseLayer = this.createBaseLayer(layerObj);
 
@@ -305,8 +305,7 @@ module csComp.Services {
         public selectFeature(feature) {
             if (feature._gui.hasOwnProperty('dragged')) {
                 delete feature._gui['dragged'];
-            }
-            else {
+            } else {
                 this.service.selectFeature(feature, this.cntrlIsPressed);
             }
         }
@@ -328,8 +327,7 @@ module csComp.Services {
                     m.feature = feature;
                     if (l.group.clustering && l.group._cluster) {
                         l.group._cluster.addLayer(m);
-                    }
-                    else {
+                    } else {
                         if (l.mapLayer) {
                             l.mapLayer.addLayer(m);
                         }
@@ -341,9 +339,8 @@ module csComp.Services {
         }
 
         private canDrag(feature: IFeature): boolean {
-            return feature._gui.hasOwnProperty('editMode') && feature._gui['editMode'] == true;
+            return feature._gui.hasOwnProperty('editMode') && feature._gui['editMode'] === true;
         }
-
 
         /**
          * add a feature
@@ -378,7 +375,7 @@ module csComp.Services {
                         } else {
                             menu.css('top', e.originalEvent.y - 70 - menu.height());
                         }
-                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+                        if (this.service.$rootScope.$$phase !== '$apply' && this.service.$rootScope.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
                     });
 
                     marker.on('dragstart', (event: L.LeafletEvent) => {
@@ -404,27 +401,26 @@ module csComp.Services {
                             this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
 
                             //e.stopPropagation();
-                            var button: any = $("#map-contextmenu-button");
-                            var menu: any = $("#map-contextmenu");
+                            var button: any = $('#map-contextmenu-button');
+                            var menu: any = $('#map-contextmenu');
                             button.dropdown('toggle');
                             var mapSize = this.map.getSize();
                             if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
-                                menu.css("left", e.originalEvent.x + 5);
+                                menu.css('left', e.originalEvent.x + 5);
                             } else {
-                                menu.css("left", e.originalEvent.x - 5 - menu.width());
+                                menu.css('left', e.originalEvent.x - 5 - menu.width());
                             }
                             if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
-                                menu.css("top", e.originalEvent.y - 35);
+                                menu.css('top', e.originalEvent.y - 35);
                             } else {
-                                menu.css("top", e.originalEvent.y - 70 - menu.height());
+                                menu.css('top', e.originalEvent.y - 70 - menu.height());
                             }
-                            if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+                            if (this.service.$rootScope.$$phase !== '$apply' && this.service.$rootScope.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
                         });
-                    }
-                    catch (e) {
+                    } catch (e) {
                         console.log('Error creating leaflet feature');
                         console.log(feature);
-                    }                   
+                    }
                     //marker = L.multiPolygon(latlng, polyoptions);
                     break;
             }
