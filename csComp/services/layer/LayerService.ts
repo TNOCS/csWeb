@@ -607,8 +607,7 @@ module csComp.Services {
             if (!layer || !layer.group) { return; }
             var id = '#layergroup_' + layer.group.id;
             (<any>$(id)).collapse('show');
-            $('*[data-target='' + id + '']').removeClass('collapsed');
-            //(<any>$('div#layergroupStyle')).removeClass('collapsed');
+            $('*[data-target="' + id + '"]').removeClass('collapsed');
             this.apply();
         }
 
@@ -1543,7 +1542,7 @@ module csComp.Services {
                     }
                 });
 
-                if (openStyleTab) (<any>$('#leftPanelTab a[data-target='#styles']')).tab('show'); // Select tab by name
+                if (openStyleTab) (<any>$('#leftPanelTab a[data-target="#styles"]')).tab('show'); // Select tab by name
                 this.$messageBusService.publish('styles', 'updatedstyle', gs);
                 return gs;
             }
@@ -1589,7 +1588,7 @@ module csComp.Services {
                 if (pos !== -1) group.filters.slice(pos, 1);
 
             }
-            (<any>$('#leftPanelTab a[data-target='#filters']')).tab('show'); // Select tab by name
+            (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
         }
 
         /**
@@ -1598,7 +1597,7 @@ module csComp.Services {
         setFilter(filter: GroupFilter, group: csComp.Services.ProjectGroup) {
             filter.group = group;
             group.filters.push(filter);
-            (<any>$('#leftPanelTab a[data-target='#filters']')).tab('show'); // Select tab by name
+            (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
             this.triggerUpdateFilter(group.id);
         }
 
@@ -1611,7 +1610,7 @@ module csComp.Services {
             gf.title = 'Location';
             gf.rangex = [0, 1];
             group.filters.push(gf);
-            (<any>$('#leftPanelTab a[data-target='#filters']')).tab('show'); // Select tab by name
+            (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
             this.triggerUpdateFilter(group.id);
         }
 
@@ -1699,7 +1698,7 @@ module csComp.Services {
                         this.removeFilter(filter);
                     }
                 }
-                (<any>$('#leftPanelTab a[data-target='#filters']')).tab('show'); // Select tab by name
+                (<any>$('#leftPanelTab a[data-target="#filters"]')).tab('show'); // Select tab by name
             }
             this.triggerUpdateFilter(layer.group.id);
         }
@@ -2090,7 +2089,6 @@ module csComp.Services {
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
             prj.solution = this.solution;
             this.project = new Project().deserialize(prj);
-
 
             if (!this.project.timeLine) {
                 this.project.timeLine = new DateRange();
