@@ -545,13 +545,13 @@ module csComp.Services {
             }
 
             //account for rotation
-            if (feature.properties['Track'] !== undefined) {
+            if (effStyle.rotate !== 0) {
                 var headingQuaternion = Cesium
                     .Transforms
                     .headingPitchRollQuaternion(Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0],
                         feature.geometry.coordinates[1],
                         feature.geometry.coordinates[2]),
-                    Cesium.Math.toRadians(feature.properties['Track']), 0, 0);
+                    Cesium.Math.toRadians(effStyle.rotate), 0, 0);
                 entity.orientation = headingQuaternion;
             }
 
