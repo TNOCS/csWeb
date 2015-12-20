@@ -261,7 +261,7 @@ describe('Helpers spec:', function() {
                 }
             };
         });
-        fit('should be created correctly', () => {
+        it('should be created correctly', () => {
             var icon = csComp.Helpers.createIconHtml(f);
             expect(icon.html)
                 .toBe('<div style="display: inline-block;vertical-align: middle;text-align: center;'
@@ -270,7 +270,7 @@ describe('Helpers spec:', function() {
             expect(icon.iconPlusBorderHeight).toBe(30);
             expect(icon.iconPlusBorderWidth) .toBe(30);
         });
-        fit('should use the innerText properties', () => {
+        it('should use the innerText properties', () => {
             f.properties = {
                 inner: 'My inner text'
             };

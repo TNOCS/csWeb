@@ -1177,33 +1177,53 @@ module csComp.Services {
             var s = csComp.Helpers.getDefaultFeatureStyle(feature);
 
             var ft = this.getFeatureType(feature);
-            if (ft.style) {
-                if (ft.style.nameLabel) s.nameLabel = ft.style.nameLabel;
-                if (ft.style.iconUri) s.iconUri = ft.style.iconUri;
-                if (ft.style.fillOpacity) s.fillOpacity = ft.style.fillOpacity;
-                if (ft.style.opacity) s.opacity = ft.style.opacity;
-                if (ft.style.fillColor) s.fillColor = csComp.Helpers.getColorString(ft.style.fillColor);
+            var style = ft.style;
+            var properties = feature.properties;
+            if (style) {
+                if (style.nameLabel) s.nameLabel = style.nameLabel;
+                if (style.iconUri) s.iconUri = style.iconUri;
+                if (style.fillOpacity) s.fillOpacity = style.fillOpacity;
+                if (style.opacity) s.opacity = style.opacity;
+                if (style.fillColor) s.fillColor = csComp.Helpers.getColorString(style.fillColor);
                 // Stroke is a boolean property, so you have to check whether it is undefined.
-                if (typeof ft.style.stroke !== 'undefined') s.stroke = ft.style.stroke;
-                if (ft.style.strokeColor) s.strokeColor = csComp.Helpers.getColorString(ft.style.strokeColor, '#fff');
+                if (typeof style.stroke !== 'undefined') s.stroke = style.stroke;
+                if (style.strokeColor) s.strokeColor = csComp.Helpers.getColorString(style.strokeColor, '#fff');
                 // StrokeWidth can be 0 (interpreted as false), so you have to check whether it is undefined.
-                if (typeof ft.style.strokeWidth !== 'undefined') s.strokeWidth = ft.style.strokeWidth;
-                if (ft.style.selectedStrokeColor) s.selectedStrokeColor = csComp.Helpers.getColorString(ft.style.selectedStrokeColor, '#000');
-                if (ft.style.selectedFillColor) s.selectedFillColor = csComp.Helpers.getColorString(ft.style.selectedFillColor);
-                if (ft.style.selectedStrokeWidth) s.selectedStrokeWidth = ft.style.selectedStrokeWidth;
-                if (ft.style.iconWidth) s.iconWidth = ft.style.iconWidth;
-                if (ft.style.iconHeight) s.iconHeight = ft.style.iconHeight;
-                if (ft.style.modelUri) s.modelUri = ft.style.modelUri;
-                if (ft.style.modelScale) s.modelScale = ft.style.modelScale;
-                if (ft.style.modelMinimumPixelSize) s.modelMinimumPixelSize = ft.style.modelMinimumPixelSize;
-                if (ft.style.innerTextProperty) s.innerTextProperty = ft.style.innerTextProperty;
-                if (ft.style.innerTextSize) s.innerTextSize = ft.style.innerTextSize;
-                if (ft.style.cornerRadius) s.cornerRadius = ft.style.cornerRadius;
-                if (ft.style.rotateProperty && feature.properties.hasOwnProperty(ft.style.rotateProperty)) {
-                    s.rotate = Number(feature.properties[ft.style.rotateProperty]);
+                if (typeof style.strokeWidth !== 'undefined') s.strokeWidth = style.strokeWidth;
+                if (style.selectedStrokeColor) s.selectedStrokeColor = csComp.Helpers.getColorString(style.selectedStrokeColor, '#000');
+                if (style.selectedFillColor) s.selectedFillColor = csComp.Helpers.getColorString(style.selectedFillColor);
+                if (style.selectedStrokeWidth) s.selectedStrokeWidth = style.selectedStrokeWidth;
+                if (style.iconWidth) s.iconWidth = style.iconWidth;
+                if (style.iconHeight) s.iconHeight = style.iconHeight;
+                if (style.modelUri) s.modelUri = style.modelUri;
+                if (style.modelScale) s.modelScale = style.modelScale;
+                if (style.modelMinimumPixelSize) s.modelMinimumPixelSize = style.modelMinimumPixelSize;
+                if (style.innerTextProperty) s.innerTextProperty = style.innerTextProperty;
+                if (style.innerTextSize) s.innerTextSize = style.innerTextSize;
+                if (style.cornerRadius) s.cornerRadius = style.cornerRadius;
+                if (style.rotateProperty && properties.hasOwnProperty(style.rotateProperty)) {
+                    s.rotate = Number(properties[style.rotateProperty]);
                 }
-                if (ft.style.heightProperty && feature.properties.hasOwnProperty(ft.style.heightProperty)) {
-                    s.height = Number(feature.properties[ft.style.heightProperty]);
+                if (style.heightProperty && properties.hasOwnProperty(style.heightProperty)) {
+                    s.height = Number(properties[style.heightProperty]);
+                } else {
+                    s.height = style.height;
+                }
+                // For Cesium
+                if (style.modelUriProperty && properties.hasOwnProperty(style.modelUriProperty)) {
+                    s.modelUri = properties[style.modelUriProperty];
+                } else {
+                    s.modelUri = style.modelUri;
+                }
+                if (style.modelScaleProperty && properties.hasOwnProperty(style.modelScaleProperty)) {
+                    s.modelScale = properties[style.modelScaleProperty];
+                } else {
+                    s.modelScale = style.modelScale;
+                }
+                if (style.modelMinimumPixelSizeProperty && properties.hasOwnProperty(style.modelMinimumPixelSizeProperty)) {
+                    s.modelMinimumPixelSize = properties[style.modelMinimumPixelSizeProperty];
+                } else {
+                    s.modelMinimumPixelSize = style.modelMinimumPixelSize;
                 }
             }
 

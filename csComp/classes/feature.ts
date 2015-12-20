@@ -231,10 +231,16 @@ module csComp.Services {
         iconUri?:               string;
         /** The URL of the model on the map (for Cesium) */
         modelUri?:              string;
+        /** The name of the property that contains the model URI on the map (for Cesium) */
+        modelUriProperty?:      string;
         /** The scale of the model on the map (for Cesium) */
         modelScale?:            number;
-        /** The minimum pixel size of the model on the map (for Cesium) */
+        /** The name of the property that contains the scale of the model (for Cesium, default 1) */
+        modelScaleProperty?:    string;
+        /** The minimum pixel size of the model on the map (for Cesium, default 32) */
         modelMinimumPixelSize?: number;
+        /** The name of the property that contains the minimum size of the model (for Cesium) */
+        modelMinimumPixelSizeProperty?: string;
         /** The rounding of the icon's background */
         cornerRadius?:          number;
         /** At what map resolution should we stop displaying the title. */

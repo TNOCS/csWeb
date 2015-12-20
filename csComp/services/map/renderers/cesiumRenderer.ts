@@ -422,7 +422,7 @@ module csComp.Services {
             var fillColor = Cesium.Color.fromCssColorString(effStyle.fillColor).withAlpha(effStyle.fillOpacity);
             switch (feature.geometry.type.toUpperCase()) {
                 case 'POINT':
-                    if (typeof style.iconUri !== 'undefined') {
+                    if (typeof style.iconUri !== 'undefined' && !effStyle.modelUri) {
                         // a billboard is an icon for a feature
                         entity.billboard = {
                             image: style.iconUri,
@@ -528,15 +528,11 @@ module csComp.Services {
             }
 
             // add a 3D model if we have one
-            if (feature.properties['FeatureTypeId'] === '3Dmodel') {
-                var modelUri = effStyle.modelUri || feature.properties['modelUri'] || '';
-                var modelScale = effStyle.modelScale || feature.properties['modelScale'] || 1;
-                var modelMinimumPixelSize = effStyle.modelMinimumPixelSize || feature.properties['modelMinimumPixelSize'] || 32;
-
+            if (effStyle.modelUri) {
                 entity.model = new Cesium.ModelGraphics({
-                    uri: modelUri,
-                    scale: modelScale,
-                    minimumPixelSize: modelMinimumPixelSize
+                    uri:              effStyle.modelUri,
+                    scale:            effStyle.modelScale || 1,
+                    minimumPixelSize: effStyle.modelMinimumPixelSize || 32
                 });
 
                 // Hide icon and point when we have a 3D model
