@@ -126,7 +126,7 @@ describe('Helpers spec:', function() {
         });
 
         describe('When converting propertyinfo', () => {
-            var pt;
+            var pt: csComp.Services.IPropertyType;
             beforeEach(function() {
                 pt = <csComp.Services.IPropertyType>{};
             });
@@ -240,6 +240,47 @@ describe('Helpers spec:', function() {
                 var result: any = csComp.Helpers.setFeatureName(f);
                 expect(result.properties.hasOwnProperty('Name')).toBeTruthy();
             });
+        });
+    });
+
+    describe('Icons', () => {
+        var f: csComp.Services.IFeature;
+        beforeEach(() => {
+            f = <csComp.Services.IFeature>{
+                effectiveStyle: <csComp.Services.IFeatureTypeStyle>{
+                    iconHeight: 24,
+                    iconWidth: 24,
+                    iconUri: 'images/marker.png',
+                    cornerRadius: 5,
+                    fillColor: '#ff0000',
+                    fillOpacity: 0.5,
+                    strokeWidth: 3,
+                    strokeColor: '#ffff00',
+                    opacity: 0.5,
+                    stroke: true
+                }
+            };
+        });
+        fit('should be created correctly', () => {
+            var icon = csComp.Helpers.createIconHtml(f);
+            expect(icon.html)
+                .toBe('<div style="display: inline-block;vertical-align: middle;text-align: center;'
+                + 'background:#ff0000;width:30px;height:30px;border-radius:5%;border-style:solid;border-color:#ffff00;border-width:3px;opacity:0.5;">'
+                + '<img src="images/marker.png" style="width:24px;height:24px;display:block" /></div>');
+            expect(icon.iconPlusBorderHeight).toBe(30);
+            expect(icon.iconPlusBorderWidth) .toBe(30);
+        });
+        fit('should use the innerText properties', () => {
+            f.properties = {
+                inner: 'My inner text'
+            };
+            f.effectiveStyle.innerTextProperty = 'inner';
+            f.effectiveStyle.innerTextSize = 14;
+            var icon = csComp.Helpers.createIconHtml(f);
+            expect(icon.html)
+                .toBe('<div style="display: inline-block;vertical-align: middle;text-align: center;'
+                + 'background:#ff0000;width:30px;height:30px;border-radius:5%;border-style:solid;border-color:#ffff00;border-width:3px;opacity:0.5;">'
+                + '<span style="font-size:14px;vertical-align:-webkit-baseline-middle">My inner text</span></div>');
         });
     });
 });

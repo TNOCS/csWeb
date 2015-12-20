@@ -66,12 +66,11 @@ module csComp.Helpers {
                 stroke: true,
                 //EV TODO Shouldn't it be the following?
                 // iconUri: 'bower_components/csweb/dist-bower/images/marker.png',
-                iconUri: 'cs/images/marker.png',
+                iconUri: 'cs/images/marker.png'
             };
             return s;
         }
         //TODO: check compatibility for both heatmaps and other features
-        
     }
 
     /**
@@ -261,7 +260,7 @@ module csComp.Helpers {
         } else {
             for (var key in feature.properties) {
                 var pt: csComp.Services.IPropertyType;
-                if (resource) pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key });
+                if (resource) pt = _.find(_.values(resource.propertyTypeData), (i) => { return i.label === key; });
                 if (!pt) {
                     pt = {};
                     pt.label = key;
@@ -296,10 +295,10 @@ module csComp.Helpers {
 
     export function updateSection(layer: csComp.Services.ProjectLayer, prop: csComp.Services.IPropertyType) {
         if (!layer || !prop) return;
-        if (prop.type === "number") {
-            if (!layer._gui.hasOwnProperty("sections")) layer._gui["sections"] = {};
-            var sections: { [key: string]: csComp.Services.Section } = layer._gui["sections"];
-            var s = (prop.section) ? prop.section : "general";
+        if (prop.type === 'number') {
+            if (!layer._gui.hasOwnProperty('sections')) layer._gui['sections'] = {};
+            var sections: { [key: string]: csComp.Services.Section } = layer._gui['sections'];
+            var s = (prop.section) ? prop.section : 'general';
             if (!sections.hasOwnProperty(s)) sections[s] = new csComp.Services.Section();
             if (!sections[s].properties.hasOwnProperty(prop.label)) sections[s].properties[prop.label] = prop;
         }
@@ -552,61 +551,58 @@ module csComp.Helpers {
         return url;
     }
 
-    export function createIconHtml(feature: IFeature, featureType: csComp.Services.IFeatureType): { [key: string]: any } {
+    export function createIconHtml(feature: IFeature): {
+        html: string,
+        iconPlusBorderWidth: number,
+        iconPlusBorderHeight: number
+    } {
         var html = '<div ';
-        var props = {};
-        var ft = featureType;
 
+        var effectiveStyle = feature.effectiveStyle;
         //if (feature.poiTypeName != null) html += "class='style" + feature.poiTypeName + "'";
-        var iconUri = feature.effectiveStyle.iconUri; //ft.style.iconUri;
+        var iconUri = effectiveStyle.iconUri; //ft.style.iconUri;
         //if (ft.style.fillColor == null && iconUri == null) ft.style.fillColor = 'lightgray';
 
         // TODO refactor to object
         var iconPlusBorderWidth, iconPlusBorderHeight;
-        if (feature.effectiveStyle.hasOwnProperty('strokeWidth') && feature.effectiveStyle.strokeWidth > 0) {
-            iconPlusBorderWidth = feature.effectiveStyle.iconWidth + (2 * feature.effectiveStyle.strokeWidth);
-            iconPlusBorderHeight = feature.effectiveStyle.iconHeight + (2 * feature.effectiveStyle.strokeWidth);
+        if (effectiveStyle.hasOwnProperty('strokeWidth') && effectiveStyle.strokeWidth > 0) {
+            iconPlusBorderWidth = effectiveStyle.iconWidth + (2 * effectiveStyle.strokeWidth);
+            iconPlusBorderHeight = effectiveStyle.iconHeight + (2 * effectiveStyle.strokeWidth);
         } else {
-            iconPlusBorderWidth = feature.effectiveStyle.iconWidth;
-            iconPlusBorderHeight = feature.effectiveStyle.iconHeight;
-        }
-        props['background'] = feature.effectiveStyle.fillColor;
-        props['width'] = iconPlusBorderWidth + 'px';
-        props['height'] = iconPlusBorderWidth + 'px';
-        props['border-radius'] = feature.effectiveStyle.cornerRadius + '%';
-        props['border-style'] = 'solid';
-        props['border-color'] = feature.effectiveStyle.strokeColor;
-        props['border-width'] = feature.effectiveStyle.strokeWidth + 'px';
-        props['opacity'] = feature.effectiveStyle.opacity;
-
-        //if (feature.isSelected) {
-        //props['border-width'] = '3px';
-        //}
-
-        html += ' style=\'display: inline-block;vertical-align: middle;text-align: center;';
-        for (var key in props) {
-            if (!props.hasOwnProperty(key)) continue;
-            html += key + ':' + props[key] + ';';
+            iconPlusBorderWidth = effectiveStyle.iconWidth;
+            iconPlusBorderHeight = effectiveStyle.iconHeight;
         }
 
-        html += '\'>';
-        if (feature.effectiveStyle.innerTextProperty != null && feature.properties.hasOwnProperty(feature.effectiveStyle.innerTextProperty)) {
-            html += '<span style="font-size:12px;vertical-align:-webkit-baseline-middle">' + feature.properties[feature.effectiveStyle.innerTextProperty] + '</span>';
+        html += 'style="display: inline-block;vertical-align: middle;text-align: center;'
+            + `background:${effectiveStyle.fillColor};`
+            + `width:${iconPlusBorderWidth}px;`
+            + `height:${iconPlusBorderHeight}px;`
+            + `border-radius:${effectiveStyle.cornerRadius}%;`
+            + 'border-style:solid;'
+            + `border-color:${effectiveStyle.strokeColor};`
+            + `border-width:${effectiveStyle.strokeWidth}px;`
+            + `opacity:${effectiveStyle.opacity};`
+            + '">';
+
+        if (effectiveStyle.innerTextProperty != null && feature.properties.hasOwnProperty(effectiveStyle.innerTextProperty)) {
+            var textSize = effectiveStyle.innerTextSize || 12;
+            html += `<span style="font-size:${textSize}px;vertical-align:-webkit-baseline-middle">${feature.properties[effectiveStyle.innerTextProperty]}</span>`;
         } else if (iconUri != null) {
             // Must the iconUri be formatted?
             if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
 
-            html += '<img src=\'' + iconUri + '\' style=\'width:' + (feature.effectiveStyle.iconWidth) + 'px;height:' + (feature.effectiveStyle.iconHeight) + 'px;display:block';
-            if (feature.effectiveStyle.rotate && feature.effectiveStyle.rotate > 0) html += ';transform:rotate(' + feature.effectiveStyle.rotate + 'deg)';
-            html += '\' />';
+            html += '<img src="' + iconUri + '" style="width:' + (effectiveStyle.iconWidth) + 'px;height:' + (effectiveStyle.iconHeight) + 'px;display:block';
+            if (effectiveStyle.rotate && effectiveStyle.rotate > 0) html += ';transform:rotate(' + effectiveStyle.rotate + 'deg)';
+            html += '" />';
         }
 
         html += '</div>';
 
-        var iconHtml: { [key: string]: any } = {};
-        iconHtml['html'] = html;
-        iconHtml['iconPlusBorderWidth'] = iconPlusBorderWidth;
-        iconHtml['iconPlusBorderHeight'] = iconPlusBorderHeight;
+        var iconHtml = {
+            html: html,
+            iconPlusBorderWidth: iconPlusBorderWidth,
+            iconPlusBorderHeight: iconPlusBorderHeight
+        };
         return iconHtml;
     }
 }

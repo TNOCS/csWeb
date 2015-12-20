@@ -432,8 +432,6 @@ module csComp.Services {
             return marker;
         }
 
-
-
         /**
          * create icon based of feature style
          */
@@ -446,7 +444,7 @@ module csComp.Services {
                     html: feature.htmlStyle
                 });
             } else {
-                var iconHtml = csComp.Helpers.createIconHtml(feature, this.service.getFeatureType(feature));
+                var iconHtml = csComp.Helpers.createIconHtml(feature);
 
                 icon = new L.DivIcon({
                     className: '',
