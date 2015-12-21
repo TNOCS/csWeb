@@ -1,34 +1,37 @@
 describe('DataTable.DataTable', function() {
 
-    var scope, httpBackend, $compile, $templateCache, $translate, $sce;
+    var httpBackend: ng.IHttpBackendService;
+    var $compile: ng.ICompileService;
+
+    var scope, $templateCache, $translate, $sce;
     var element, compiled, mockTranslate, angElement;
     var layerService: csComp.Services.LayerService;
     var vm: DataTable.DataTableCtrl;
 
     // load the module
-    beforeEach(module('csComp'));
-    beforeEach(module('csWebApp'));
+    beforeEach(angular.mock.module('csComp'));
+    beforeEach(angular.mock.module('csWebApp'));
 
     beforeEach(function() {
         var mockTranslate;
         beforeEach(() => {
-            module(function($provide) {
+            angular.mock.module(function($provide) {
                 $provide.value('$translate', mockTranslate);
             });
             mockTranslate = function(key) {
-                var mct = new MockColorTranslation();
+                var mct = new ColorTranslationMock.MockColorTranslation();
                 return mct;
             };
         });
     });
 
-    beforeEach(inject(function($rootScope, _$compile_, _$templateCache_, $httpBackend, _$translate_, _layerService_, _$sce_) {
+    beforeEach(angular.mock.inject(($rootScope: ng.IRootScopeService, _$compile_, _$templateCache_, _$httpBackend_, _$sce_, _layerService_, _$translate_) => {
         scope = $rootScope.$new();
-        httpBackend = $httpBackend;
+        httpBackend = _$httpBackend_;
         $sce = _$sce_;
         layerService = _layerService_;
         $translate = _$translate_;
-        httpBackend.when("GET", 'bower_components/angular-utils-pagination/dirPagination.tpl.html').respond();
+        httpBackend.whenGET('bower_components/angularUtils-pagination/dirPagination.tpl.html').respond({});
         $compile = _$compile_;
         $templateCache = _$templateCache_;
         element = $templateCache.get('directives/DataTable/DataTable.tpl.html');
@@ -39,8 +42,14 @@ describe('DataTable.DataTable', function() {
         vm = angElement.isolateScope().vm;
     }));
 
+    it('scope to be defined', () => {
+        expect(scope).toBeDefined();
+    });
+
     describe('Initial template', () => {
         it('should contain the string selectedLayerId', () => {
+            // console.log(JSON.stringify(element, null, 2));
+            // expect(true).toBe(true);
             expect(element).toContain('selectedLayerId');
         });
     });
@@ -123,14 +132,14 @@ describe('DataTable.DataTable', function() {
             expect(result).toEqual('mock');
         });
     });
-    describe('DataTableCtrl', () => {
-        xit('should create a GeoJson', () => {
-            var result = vm.downloadGeoJson();
-        });
-    });
-    describe('DataTableCtrl', () => {
-        xit('should create a Csv', () => {
-            var result = vm.downloadCsv();
-        });
-    });
+    // describe('DataTableCtrl', () => {
+    //     xit('should create a GeoJson', () => {
+    //         var result = vm.downloadGeoJson();
+    //     });
+    // });
+    // describe('DataTableCtrl', () => {
+    //     xit('should create a Csv', () => {
+    //         var result = vm.downloadCsv();
+    //     });
+    // });
 });

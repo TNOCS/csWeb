@@ -6,6 +6,7 @@ module FeatureTypeEditor {
         vm: FeatureTypeEditorCtrl;
         data: IFeature;
         featureType: csComp.Services.IFeatureType;
+        featureTypeId : string;
     }
 
     export class FeatureTypeEditorCtrl {
@@ -33,8 +34,7 @@ module FeatureTypeEditor {
             ) {
             this.$scope.vm = this;
             if (this.$scope.$root.hasOwnProperty('data')) {
-                $scope.data = $scope.$root['data'];
-                $scope.featureType = $scope.data.fType;
+                $scope.featureType = (<any>$scope.$parent.$parent).vm.featureType;
 
                 console.log('feature type editor');
                 console.log($scope.featureType);
@@ -49,9 +49,8 @@ module FeatureTypeEditor {
 
         //** force features to be updated */
         public updateFeatureTypes(ft: csComp.Services.IFeatureType) {
+            console.log('updating ..');
             this.$layerService.updateFeatureTypes(ft);
-
-
         };
 
 

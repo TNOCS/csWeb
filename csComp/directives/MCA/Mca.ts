@@ -1,4 +1,4 @@
-﻿module Mca {
+module Mca {
     'use strict';
 
     /**

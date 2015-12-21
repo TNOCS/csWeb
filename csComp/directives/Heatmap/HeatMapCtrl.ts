@@ -33,7 +33,7 @@ module Heatmap {
 
         static $inject = [
           '$scope',
-          '$modal',
+          '$uibModal',
           '$translate',
           '$timeout',
           'localStorageService',
@@ -54,7 +54,7 @@ module Heatmap {
         ) {
           $scope.vm = this;
 
-          messageBusService.subscribe('layer',(title, layer) => {//, layer: csComp.Services.ProjectLayer) => {
+          messageBusService.subscribe('layer', (title, layer) => {//, layer: csComp.Services.ProjectLayer) => {
               switch (title) {
                   case 'deactivate':
                       /* For an explanation to the removing of layers, see the bottom of this file */
@@ -74,7 +74,6 @@ module Heatmap {
                               }
                           }
                       }
-                      //this.updateHeatmap();
                       break;
               }
           });
@@ -93,9 +92,7 @@ module Heatmap {
                       this.initializeHeatmap();
                       break;
               }
-          });
-
-          /*messageBusService.subscribe('feature', this.featureMessageReceived);*/
+          })
 
           $translate('HEATMAP.DELETE_MSG').then(translation => {
               HeatmapCtrl.confirmationMsg1 = translation;

@@ -3,6 +3,7 @@ class Location {
     lat: number;
     bouwjaar: number;
     huisnummer: number;
+    huisletter: string;
     huisnummertoevoeging: string;
     postcode: string;
     woonplaatsnaam: string;

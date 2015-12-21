@@ -1,15 +1,15 @@
 module MarkdownWidget {
     export class MarkdownWidgetData {
-        title:   string;
+        title: string;
         /**
          * Content to display: you can either provide it directly, or specify a URL, in which case it will replace the content.
          */
         content: string;
-        url:     string;
+        url: string;
         /**
          * The actual content is being converted, if necessary, and set to the markdown text.
          */
-        mdText:  string;
+        mdText: string;
         /**
          * If provided, indicates the feature type that needs to be selected in order to show the widget.
          */
@@ -21,8 +21,9 @@ module MarkdownWidget {
     }
 
     export interface IMarkdownWidgetScope extends ng.IScope {
-        vm  : MarkdownWidgetCtrl;
+        vm: MarkdownWidgetCtrl;
         data: MarkdownWidgetData;
+        minimized: boolean;
     }
 
     export class MarkdownWidgetCtrl {
@@ -39,11 +40,11 @@ module MarkdownWidget {
         ];
 
         constructor(
-            private $scope       : IMarkdownWidgetScope,
-            private $timeout     : ng.ITimeoutService,
+            private $scope: IMarkdownWidgetScope,
+            private $timeout: ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService,
-            private $messageBus  : csComp.Services.MessageBusService,
-            private $mapService  : csComp.Services.MapService
+            private $messageBus: csComp.Services.MessageBusService,
+            private $mapService: csComp.Services.MapService
             ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
@@ -51,13 +52,16 @@ module MarkdownWidget {
 
             $scope.data = <MarkdownWidgetData>this.widget.data;
             $scope.data.mdText = $scope.data.content;
+            $scope.minimized = false;
 
+            this.parentWidget = $('#' + this.widget.elementId).parent();
+            
             if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
                 // Hide widget
-                this.parentWidget = $("#" + this.widget.elementId).parent();
                 this.parentWidget.hide();
                 this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
                     switch (action) {
+                        case 'onFeatureDeselect':
                         case 'onFeatureSelect':
                             this.selectFeature(feature);
                             break;
@@ -75,8 +79,27 @@ module MarkdownWidget {
             });
         }
 
+        private minimize() {
+            this.$scope.minimized = !this.$scope.minimized;
+            if (this.$scope.minimized) {
+                this.parentWidget.css('height', '30px');
+            } else {
+                this.parentWidget.css('height', this.widget.height);
+            }
+        }
+
+        private canClose() {
+            return (this.$scope.data.hasOwnProperty('canClose'))
+                ? this.$scope.data['canClose']
+                : true;
+        }
+
+        private close() {
+            this.parentWidget.hide();
+        }
+
         private escapeRegExp(str: string) {
-            return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+            return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
         }
 
         private replaceAll(str: string, find: string, replace: string) {
@@ -84,7 +107,7 @@ module MarkdownWidget {
         }
 
         private selectFeature(feature: csComp.Services.IFeature) {
-            if (feature.featureTypeName !== this.$scope.data.featureTypeName) {
+            if (!feature || !feature.isSelected || feature.featureTypeName !== this.$scope.data.featureTypeName) {
                 this.parentWidget.hide();
                 return;
             }
@@ -93,7 +116,12 @@ module MarkdownWidget {
                 var i = 0;
                 this.$scope.data.dynamicProperties.forEach(p => {
                     var searchPattern = '{{' + i++ + '}}';
-                    md = this.replaceAll(md, searchPattern, feature.properties[p]);
+                    var displayText = '';
+                    if (feature.properties.hasOwnProperty(p)) {
+                        var pt = this.$layerService.getPropertyType(feature, p);
+                        displayText = csComp.Helpers.convertPropertyInfo(pt, feature.properties[p]);
+                    }
+                    md = this.replaceAll(md, searchPattern, displayText);
                 });
                 this.parentWidget.show();
                 this.$scope.data.mdText = md;

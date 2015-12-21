@@ -1,4 +1,4 @@
-﻿module csComp.Search {
+module csComp.Search {
     export interface ISearchFormScope extends ng.IScope {
         vm      : SearchFormCtrl;
         location: L.LatLng;

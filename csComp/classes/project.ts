@@ -3,10 +3,10 @@ module csComp.Services {
     * Expert level for determining what options to show to the user.
     */
     export enum Expertise {
-        Beginner = 1,
+        Beginner     = 1,
         Intermediate = 2,
-        Expert = 3,
-        Admin = 4
+        Expert       = 3,
+        Admin        = 4
     }
 
     /**
@@ -14,26 +14,36 @@ module csComp.Services {
     * @see http://stackoverflow.com/a/22886730/319711
     */
     export interface ISerializable<T> {
-        deserialize(input: Object): T;
+        deserialize(input: Object, solution?: Solution): T;
     }
 
     export class VisualState {
-        public leftPanelVisible: boolean = true;
+        public leftPanelVisible:  boolean = true;
         public rightPanelVisible: boolean = false;
-        public dashboardVisible: boolean = true;
-        public mapVisible: boolean = true;
-        public timelineVisible: boolean = true;
+        public dashboardVisible:  boolean = true;
+        public mapVisible:        boolean = true;
+        public timelineVisible:   boolean = true;
+
+        // For debugging purposes, I've added below functionality so I can set breakpoints on the setter.
+        // get rightPanelVisible(): boolean {
+        //     console.log(`Right panel visible (get): ${this._rightPanelVisible}`);
+        //     return this._rightPanelVisible;
+        // }
+        // set rightPanelVisible(isVisible: boolean) {
+        //     this._rightPanelVisible = isVisible;
+        //     console.log(`Right panel visible (set): ${this._rightPanelVisible}`);
+        // }
     }
 
     //** class for describing time ranges for timeline, including focus time */
     export class DateRange {
-        start: number;
-        end: number;
-        focus: number;
-        range: number; // total time range in ms
-        zoomLevel: number;
+        start:         number;
+        end:           number;
+        focus:         number;
+        range:         number; // total time range in ms
+        zoomLevel:     number;
         zoomLevelName: string;
-        isLive: boolean;
+        isLive:        boolean;
 
         //constructor() {
         //    if (!this.focus) this.setFocus(new Date());
@@ -41,7 +51,7 @@ module csComp.Services {
 
         static deserialize(input: DateRange): DateRange {
             var res = <DateRange>$.extend(new DateRange(), input);
-            if (typeof res.focus === "undefined" || res.focus === null) { res.focus = Date.now(); }
+            if (typeof res.focus === 'undefined' || res.focus === null) { res.focus = Date.now(); }
             return res;
         }
 
@@ -82,11 +92,12 @@ module csComp.Services {
      * e.g. you could make it so that you can switch between different regions or different domains of interest.
      */
     export class Solution {
-        title: string;
-        maxBounds: IBoundingBox;
-        viewBounds: IBoundingBox;
-        baselayers: IBaseLayer[];
-        projects: SolutionProject[];
+        title:        string;
+        maxBounds:    IBoundingBox;
+        viewBounds:   IBoundingBox;
+        baselayers:   IBaseLayer[];
+        widgetStyles: { [key: string]: WidgetStyle } = {};
+        projects:     SolutionProject[];
     }
 
     /** Project within a solution file, refers to a project url*/
@@ -100,7 +111,7 @@ module csComp.Services {
     * Simple class to hold the user privileges.
     */
     export interface IPrivileges {
-        mca: { expertMode: boolean; };
+        mca:     { expertMode: boolean; };
         heatmap: { expertMode: boolean; };
     }
 
@@ -111,52 +122,54 @@ module csComp.Services {
     }
 
     export interface ITimelineOptions {
-        width?: string;
-        height?: string;
-        eventMargin?: number;
+        width?:           string;
+        height?:          string;
+        eventMargin?:     number;
         eventMarginAxis?: number;
-        editable?: boolean;
-        layout?: string;
+        editable?:        boolean;
+        layout?:          string;
         /** NOTE: For internal use only. Do not set it, as it will be overwritten by the $layerService.currentLocale. */
-        locale?: string;
+        locale?:   string;
         timeLine?: DateRange;
     }
 
     /** project configuration. */
     export class Project implements ISerializable<Project> {
-        id: string;
-        title: string;
+        id:          string;
+        title:       string;
         description: string;
-        logo: string;
-        otpServer: string;
-        url: string;
+        logo:        string;
+        otpServer:   string;
+        storage:     string;
+        url:         string;
+        opacity:     number;
         /** true if a dynamic project and you want to subscribe to project changes using socket.io */
-        connected: boolean;
-        activeDashboard: Dashboard;
-        baselayers: IBaseLayer[];
-        allFeatureTypes: { [id: string]: IFeatureType };
-        featureTypes: { [id: string]: IFeatureType };
-        propertyTypeData: { [id: string]: IPropertyType };
-        groups: ProjectGroup[];
-        mapFilterResult: L.Marker[];
-        startposition: Coordinates;
-        features: IFeature[];
-        timeLine: DateRange;
-        mcas: Mca.Models.Mca[];
-        dashboards: Dashboard[];
-        typeUrls: string[];
-        datasources: DataSource[];
-        dataSets: DataSet[];
-        viewBounds: IBoundingBox;
+        connected:         boolean;
+        activeDashboard:   Dashboard;
+        baselayers:        IBaseLayer[];
+        allFeatureTypes:   { [id: string]: IFeatureType };
+        featureTypes:      { [id: string]: IFeatureType };
+        propertyTypeData:  { [id: string]: IPropertyType };
+        solution:          Solution;
+        groups:            ProjectGroup[];
+        mapFilterResult:   L.Marker[];
+        startposition:     Coordinates;
+        features:          IFeature[];
+        timeLine:          DateRange;
+        mcas:              Mca.Models.Mca[];
+        dashboards:        Dashboard[];
+        typeUrls:          string[];
+        datasources:       DataSource[];
+        dataSets:          DataSet[];
+        viewBounds:        IBoundingBox;
         collapseAllLayers: boolean;
-        userPrivileges: IPrivileges;
-        languages: ILanguageData;
+        userPrivileges:    IPrivileges;
+        languages:         ILanguageData;
         /** link to layer directory, if empty do not use it */
         layerDirectory: string;
-
-
-        expertMode = Expertise.Expert;
-        markers = {};
+        expertMode      = Expertise.Expert;
+        markers         = {};
+        eventTab:       boolean;
 
         /**
          * Serialize the project to a JSON string.
@@ -165,10 +178,11 @@ module csComp.Services {
             return JSON.stringify(Project.serializeableData(this), (key: string, value: any) => {
                 // Skip serializing certain keys
                 switch (key) {
-                    case "timestamp":
-                    case "values":
-                    case "$$hashKey":
-                    case "div":
+                    case 'timestamp':
+                    //case 'values':
+                    //case 'mcas':
+                    case '$$hashKey':
+                    case 'div':
                         return undefined;
                     default:
                         return value;
@@ -190,44 +204,50 @@ module csComp.Services {
          */
         public static serializeableData(project: Project): Object {
             return {
-                id: project.id,
-                title: project.title,
-                description: project.description,
-                logo: project.logo,
-                otpServer: project.otpServer,
-                url: project.url,
-                connected: project.connected,
-                startPosition: project.startposition,
-                timeLine: project.timeLine,
-                mcas: project.mcas,
-                datasources: csComp.Helpers.serialize<DataSource>(project.datasources, DataSource.serializeableData),
-                dashboards: csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
-                viewBounds: project.viewBounds,
+                id:                project.id,
+                title:             project.title,
+                description:       project.description,
+                logo:              project.logo,
+                otpServer:         project.otpServer,
+                url:               project.url,
+                connected:         project.connected,
+                startPosition:     project.startposition,
+                timeLine:          project.timeLine,
+                opacity:           project.opacity,
+                mcas:              project.mcas,
+                datasources:       csComp.Helpers.serialize<DataSource>(project.datasources, DataSource.serializeableData),
+                dashboards:        csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
+                viewBounds:        project.viewBounds,
                 collapseAllLayers: project.collapseAllLayers,
-                userPrivileges: project.userPrivileges,
-                languages: project.languages,
-                expertMode: project.expertMode,
-                baselayers: project.baselayers,
-                featureTypes: project.featureTypes, //reset
-                propertyTypeData: project.propertyTypeData,
-                groups: csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData)
+                userPrivileges:    project.userPrivileges,
+                languages:         project.languages,
+                expertMode:        project.expertMode,
+                baselayers:        project.baselayers,
+                featureTypes:      project.featureTypes, //reset
+                propertyTypeData:  project.propertyTypeData,
+                groups:            csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData),
+                layerDirectory:    project.layerDirectory,
+                eventTab:          project.eventTab
             };
         }
 
         public deserialize(input: Project): Project {
             var res = <Project>jQuery.extend(new Project(), input);
+            res.solution = input.solution;
+            if (!input.opacity) { input.opacity = 100; }
             if (input.timeLine) { res.timeLine = DateRange.deserialize(input.timeLine); }// <DateRange>jQuery.extend(new DateRange(), input.timeLine);
             if (input.dashboards) {
                 res.dashboards = [];
                 input.dashboards.forEach((d) => {
-                    res.dashboards.push(Dashboard.deserialize(d));
+                    res.dashboards.push(Dashboard.deserialize(d, input.solution));
                 });
-
-                for (var index in input.mcas) {
-                    var mca = input.mcas[index];
-                    res.mcas.push(new Mca.Models.Mca().deserialize(mca));
-                }
             }
+            res.mcas = [];
+            for (var index in input.mcas) {
+                var mca = new Mca.Models.Mca();
+                res.mcas.push(mca.deserialize(input.mcas[index]));
+            }
+
             if (!res.propertyTypeData) { res.propertyTypeData = {}; }
             if (!res.mcas) { res.mcas = []; }
             if (input.groups) {
@@ -240,6 +260,4 @@ module csComp.Services {
             return res;
         }
     }
-
-
 }

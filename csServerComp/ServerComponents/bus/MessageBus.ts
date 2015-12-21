@@ -1,5 +1,4 @@
-require('rootpath')();
-import ClientConnection = require("ServerComponents/dynamic/ClientConnection");
+import ClientConnection = require("../dynamic/ClientConnection");
 
 /**
  * Interface for message bus callbacks, i.e. (data: any) => any,
@@ -31,13 +30,12 @@ export class MessageBusService {
     // constructor(public Connection: ClientConnection.ConnectionManager) {
     // }
 
-
     /**
      * Publish to a topic
      */
     public publish(topic: string, title: string, data?: any): void {
         //window.console.log("publish: " + topic + ", " + title);
-        if (!MessageBusService.cache[topic]) return;
+        if (!MessageBusService.cache[topic]) { return; }
         MessageBusService.cache[topic].forEach(cb => cb(title, data));
     }
 
@@ -47,7 +45,7 @@ export class MessageBusService {
      * @param {IMessageBusCallback} callback The callback to call.
      */
     public subscribe(topic: string, callback: IMessageBusCallback): MessageBusHandle {
-        if (!MessageBusService.cache[topic]) MessageBusService.cache[topic] = new Array<IMessageBusCallback>();
+        if (!MessageBusService.cache[topic]) { MessageBusService.cache[topic] = new Array<IMessageBusCallback>(); }
         MessageBusService.cache[topic].push(callback);
         return new MessageBusHandle(topic, callback);
     }
@@ -58,7 +56,7 @@ export class MessageBusService {
     public unsubscribe(handle: MessageBusHandle): void {
         var topic = handle.topic;
         var callback = handle.callback;
-        if (!MessageBusService.cache[topic]) return;
+        if (!MessageBusService.cache[topic]) {return;}
         MessageBusService.cache[topic].forEach((cb, idx) => {
             if (cb == callback) {
                 MessageBusService.cache[topic].splice(idx, 1);

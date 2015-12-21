@@ -1,0 +1,37 @@
+<div style="margin-top: 20px;">
+    <div class="horizontalstack">
+        <a href="#" ng-click="vm.stop()" class="stackitem">
+            <img src="bower_components/csweb/dist-bower/images/widgets/Media-Stop.png" alt="Stop">
+        </a>
+        <a href="#" ng-show="vm.isPlaying" ng-click="vm.pause()" class="stackitem">
+            <img src="bower_components/csweb/dist-bower/images/widgets/Media-Pause.png" alt="Pause">
+        </a>
+        <a href="#" ng-show="!vm.isPlaying" ng-click="vm.play()" class="stackitem">
+            <img src="bower_components/csweb/dist-bower/images/widgets/Media-Play.png" alt="Play">
+        </a>
+
+        <a href="#" ng-click="vm.openCalendar($event, prop)" class="stackitem" ng-model="vm.time" datetime-picker="dd-MM-yyyy HH:mm" timepicker-options="vm.timeOptions" is-open="vm.isOpen">
+            <img src="bower_components/csweb/dist-bower/images/widgets/Clock.png" alt="Set time" ng-class="{disabledImg: !vm.isStopped}">
+        </a>
+
+        <div class="verticalstack">
+            <a href="#" ng-click="vm.increaseSpeed()">
+                <img src="bower_components/csweb/dist-bower/images/widgets/IncreaseSpeed.png" alt="Increase speed" style="width:24px;height:24px">
+            </a>
+            <a href="#" ng-click="vm.decreaseSpeed()">
+                <img src="bower_components/csweb/dist-bower/images/widgets/DecreaseSpeed.png" alt="Decrease speed" style="width:24px;height:24px;">
+            </a>
+        </div>
+        <a href="#">
+            <img src="bower_components/csweb/dist-bower/images/widgets/Speed.png" alt="Speed" style="margin: 5px 5px 5px 0;">
+        </a>
+        <div align="right" class="verticalstack">
+            <span data-toggle="tooltip" title="Current simulation speed.">{{vm.speed}}x</span>
+            <span data-toggle="tooltip" title="Simulation run time.">{{vm.timeSinceStartString}}</span>
+        </div>
+    </div>
+
+    <div class="horizontalstack" style="font-size: 2em;">
+        <clock time="{{vm.time.valueOf()}}" format="dd-MM-yyyy HH:mm:ss" class="stackitem"></clock>
+    </div>
+</div>

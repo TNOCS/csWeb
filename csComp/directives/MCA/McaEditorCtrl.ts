@@ -1,4 +1,4 @@
-﻿module Mca {
+module Mca {
     'use strict';
 
     import IFeature      = csComp.Services.IFeature;
@@ -179,13 +179,13 @@
                 keys.forEach((k) => {
                     if (this.$layerService.propertyTypeData.hasOwnProperty(k))
                         pis.push(this.$layerService.propertyTypeData[k]);
-                    else if (featureType.propertyTypeData != null) {
-                        var result = $.grep(featureType.propertyTypeData, e => e.label === k);
+                    else if (featureType._propertyTypeData != null) {
+                        var result = $.grep(featureType._propertyTypeData, e => e.label === k);
                         if (result.length >= 1) pis.push(result);
                     }
                 });
-            } else if (featureType.propertyTypeData != null) {
-                featureType.propertyTypeData.forEach((mi) => pis.push(mi));
+            } else if (featureType._propertyTypeData != null) {
+                featureType._propertyTypeData.forEach((mi) => pis.push(mi));
             }
             pis.forEach((pi) => {
                 // TODO Later, we could also include categories and not only numbers, where each category represents a certain value.

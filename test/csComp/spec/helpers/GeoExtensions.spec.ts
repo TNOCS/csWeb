@@ -6,19 +6,19 @@ describe('GeoExtensions', function() {
             expect(geoExt).toBeDefined();
         });
         it('should get bounding box from data', function() {
-            var data = {features: [ {type:"Feature",geometry:{type: "Point", coordinates:[0,0]}},
-                                    {type:"Feature",geometry:{type: "Point", coordinates:[1,1]}},
-                                    {type:"Feature",geometry:{type: "Point", coordinates:[2,2]}}]};
+            var data = {features: [ {type: 'Feature', geometry:{type: 'Point', coordinates:[0, 0]}},
+                                    {type: 'Feature', geometry:{type: 'Point', coordinates:[1, 1]}},
+                                    {type: 'Feature', geometry:{type: 'Point', coordinates:[2, 2]}}]};
             var bounds = csComp.Helpers.GeoExtensions.getBoundingBox(data);
             expect(bounds).toBeDefined();
-            expect(bounds.southWest).toEqual([0,0]);
-            expect(bounds.northEast).toEqual([2,2]);
+            expect(bounds.southWest).toEqual([0, 0]);
+            expect(bounds.northEast).toEqual([2, 2]);
         });
         it('should convert deg2rad', function() {
             var rad = csComp.Helpers.GeoExtensions.deg2rad(180);
             expect(rad).toBeCloseTo(3.1415, 2);
         });
-        it('should convert deg2rad', function() {
+        it('should convert rad2deg', function() {
             var deg = csComp.Helpers.GeoExtensions.rad2deg(1.5708);
             expect(deg).toBeCloseTo(90, 1);
         });

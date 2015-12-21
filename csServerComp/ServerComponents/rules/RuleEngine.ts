@@ -4,7 +4,9 @@ import HyperTimer = require('hypertimer');
 import WorldState = require('./WorldState');
 import Rule = require('./Rule');
 import DynamicLayer = require("../dynamic/DynamicLayer");
-import GeoJSON = require("../helpers/GeoJSON");
+import Api = require('../api/ApiManager');
+import Layer = Api.Layer;
+import Feature = Api.Feature;
 
 export interface IRuleEngineService {
     /**
@@ -12,11 +14,14 @@ export interface IRuleEngineService {
      * @action: logs-update, feature-update
      * @skip: this one will be skipped ( e.g original source)
      */
-    updateFeature?: (feature: GeoJSON.IFeature) => void;
+    updateFeature?: (feature: Feature) => void;
+    addFeature?: (feature: Feature) => void;
     /** Update log message */
-    updateLog?: (featureId: string, msgBody: DynamicLayer.IMessageBody) => void;
+    updateLog?: (featureId: string, msgBody: {
+        [key: string]: Api.Log[];
+    }) => void;
 
-    layer?: DynamicLayer.IDynamicLayer;
+    layer?: Layer;
     activateRule?: (ruleId: string) => void;
     deactivateRule?: (ruleId: string) => void;
     timer?: HyperTimer;
@@ -34,7 +39,7 @@ export class RuleEngine {
     /** A set of rules to deactivate at the end of the rule evaluation cycle */
     private deactivateRules: string[] = [];
     /** Unprocessed features that haven't been evaluated yet */
-    private featureQueue: GeoJSON.IFeature[] = [];
+    private featureQueue: Feature[] = [];
     private isBusy: boolean;
     private timer: HyperTimer;
 
@@ -44,55 +49,63 @@ export class RuleEngine {
      * @skip: this one will be skipped ( e.g original source)
      */
     service: IRuleEngineService = {};
+    layer : Api.Layer;
 
-    constructor(layer: DynamicLayer.IDynamicLayer) {
+    constructor(manager: Api.ApiManager, layerId: string) {
         this.timer = new HyperTimer();
-
-        this.service.updateFeature = (feature: GeoJSON.IFeature) => layer.updateFeature(feature);
-        this.service.updateLog = (featureId: string, msgBody: DynamicLayer.IMessageBody) => layer.updateLog(featureId, msgBody);
-        this.service.layer = layer;
-        this.service.activateRule = (ruleId: string) => this.activateRule(ruleId);
-        this.service.deactivateRule = (ruleId: string) => this.deactivateRule(ruleId);
-        this.service.timer = this.timer;
-        this.timer.on('error', (err) => {
-            console.log('Error:', err);
-        });
-
-        layer.on("featureUpdated", (layerId: string, featureId: string) => {
-            console.log(`Feature update with id ${featureId} and layer id ${layerId} received in the rule engine.`)
-
-            this.worldState.activeFeature = undefined;
-            layer.geojson.features.some(f => {
-                if (f.id !== featureId) return false;
-                this.worldState.activeFeature = f;
-                this.evaluateRules(f);
-                return true;
+        manager.getLayer(layerId,{},(result : Api.CallbackResult)=>{
+            this.layer = result.layer;
+            this.service.updateFeature = (feature: Feature) => manager.updateFeature(layerId, feature, {}, () => {});
+            this.service.addFeature = (feature: Feature) => manager.addFeature(layerId, feature, {}, () => {});
+            this.service.updateLog = (featureId: string, logs: {
+                [key: string]: Api.Log[];
+            }) => manager.updateLogs(layerId, featureId, logs, {}, () => {});
+            this.service.layer = this.layer;
+            this.service.activateRule = (ruleId: string) => this.activateRule(ruleId);
+            this.service.deactivateRule = (ruleId: string) => this.deactivateRule(ruleId);
+            this.service.timer = this.timer;
+            this.timer.on('error', (err) => {
+                console.log('Error:', err);
             });
+
+            manager.on(Api.Event[Api.Event.FeatureChanged], ( fc: { id: string, type: Api.ChangeType, value: Feature }) => {
+                if (fc.id !== layerId) return;
+                console.log(`Feature update with id ${fc.value.id} and layer id ${layerId} received in the rule engine.`)
+                var featureId = fc.value.id;
+                this.worldState.activeFeature = undefined;
+                this.layer.features.some(f => {
+                    if (f.id !== featureId) return false;
+                    this.worldState.activeFeature = f;
+                    this.evaluateRules(f);
+                    return true;
+                });
+            });
+
+            // layer.connection.subscribe("rti", (msg: { action: string; data: any }, id: string) => {
+            //     switch (msg.data) {
+            //         case "restart":
+            //             console.log("Rule engine: restarting script");
+            //             this.timer.destroy();
+            //             this.timer = new HyperTimer();
+            //             this.timer.on('error', (err) => {
+            //                 console.log('Error:', err);
+            //             });
+            //             this.worldState = new WorldState();
+            //             this.activeRules = [];
+            //             this.inactiveRules = [];
+            //             this.activateRules = [];
+            //             this.deactivateRules = [];
+            //             this.featureQueue = [];
+            //             this.isBusy = false;
+            //             var scriptCount = this.loadedScripts.length;
+            //             this.loadedScripts.forEach(s => {
+            //                 this.loadRuleFile(s, this.timer.getTime());
+            //             });
+            //             break;
+            //     }
+            // });
         });
 
-        layer.connection.subscribe("rti", (msg: { action: string; data: any }, id: string) => {
-            switch (msg.data) {
-                case "restart":
-                    console.log("Rule engine: restarting script");
-                    this.timer.destroy();
-                    this.timer = new HyperTimer();
-                    this.timer.on('error', (err) => {
-                        console.log('Error:', err);
-                    });
-                    this.worldState = new WorldState();
-                    this.activeRules = [];
-                    this.inactiveRules = [];
-                    this.activateRules = [];
-                    this.deactivateRules = [];
-                    this.featureQueue = [];
-                    this.isBusy = false;
-                    var scriptCount = this.loadedScripts.length;
-                    this.loadedScripts.forEach(s => {
-                        this.loadRuleFile(s, this.timer.getTime());
-                    });
-                    break;
-            }
-        });
     }
 
     /**
@@ -160,7 +173,7 @@ export class RuleEngine {
                 console.error(err);
                 return;
             }
-            var geojson: GeoJSON.IGeoJson = JSON.parse(data);
+            var geojson: Layer = JSON.parse(data);
             console.log("#features: " + geojson.features.length);
             geojson.features.forEach(f => {
                 this.worldState.features.push(f);
@@ -176,7 +189,7 @@ export class RuleEngine {
     /**
      * Add a rule to the engine.
      */
-    addRule(rule: Rule.IRule, feature?: GeoJSON.IFeature, activationTime?: Date) {
+    addRule(rule: Rule.IRule, feature?: Feature, activationTime?: Date) {
         if (typeof rule.actions === 'undefined' || rule.actions.length === 0 || rule.actions[0].length === 0) return;
         var newRule = new Rule.Rule(rule, activationTime);
         if (!rule.isGenericRule && feature) {
@@ -191,7 +204,7 @@ export class RuleEngine {
     /**
      * Evaluate the rules, processing the current feature
      */
-    evaluateRules(feature?: GeoJSON.IFeature) {
+    evaluateRules(feature?: Feature) {
         if (this.isBusy) {
             console.warn("Added feature ${feature.id} to the queue (#items: $this.featureQueue.length}).");
             this.featureQueue.push(feature);
@@ -199,7 +212,7 @@ export class RuleEngine {
         }
         this.isBusy = true;
         // Update the set of applicable rules
-        this.activeRules   = this.activeRules.filter(r => r.isActive);
+        this.activeRules = this.activeRules.filter(r => r.isActive);
         this.inactiveRules = this.inactiveRules.filter(r => !r.isActive);
         console.log(`Starting to evaluate ${this.activeRules.length} rules...`);
         // Process all rules

@@ -142,18 +142,18 @@ module PropertyTypes {
         private editModeMessageReceived = (title: string): void => {
             switch (title) {
                 case "enable":
-                    this.$messageBusService.publish("sidebar", "showEdit");
+                    this.$messageBusService.publish('sidebar', 'showEdit');
                     this.$scope.vm = this;
                     this.$scope.propertyTypes = this.$layerService.project.propertyTypeData;
                     break;
-                case "disable":
-                    this.$messageBusService.publish("sidebar", "hideEdit");
+                case 'disable':
+                    this.$messageBusService.publish('sidebar', 'hideEdit');
                     break;
                 default:
             }
             // NOTE EV: You need to call apply only when an event is received outside the angular scope.
             // However, make sure you are not calling this inside an angular apply cycle, as it will generate an error.
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                 this.$scope.$apply();
             }
         }

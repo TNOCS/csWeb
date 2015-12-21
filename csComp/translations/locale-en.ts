@@ -5,7 +5,7 @@ module Translations {
             OK_BTN: 'OK',
             FROM: 'from',
             TO: 'to',
-            REMOVE: 'Remove',
+            NAVIGATE: 'Start',
             CREATE_SCATTER: 'Create scatter with',
             EXPAND_ALL: 'Expand all',
             COLLAPSE_ALL: 'Collapse all',
@@ -14,13 +14,23 @@ module Translations {
             CHOOSE_DROPDOWN: 'Choose...',
             ENABLE_LOCATION_FILTER: 'Enable location filter',
             DISABLE_LOCATION_FILTER: 'Disable location filter',
+            SELECT_A_FEATURE: 'Select a feature',
             SELECT_FEATURE_FOR_WIDGET: 'Please select a feature to show the widget.',
+            SELECT_FEATURE_FOR_STYLE: 'Please select a feature to before setting the style.',
+            SELECT_LAYER_GROUP: 'Select Layers',
+            SELECT_CATEGORY: 'Select Category',
+            SELECT_PROPERTIES: 'Select Properties',
             NO_RELATIONS_FOUND: 'No relations can be shown for the selected feature. Either the zoom level is too low, there are too many features in the view or there are no relations defined.',
             BASESTYLES: 'Baselayers',
             MAP: 'Maps',
             MAP_LABEL: 'Map',
             TABLE_LABEL: 'Table',
             LAYERS: 'Layers',
+            DIRECTORY: 'Available layers',
+            CREATELAYER: 'Create new layer',
+            ADDFEATURES: 'Add items',
+            ADDTYPE: 'Add new type',
+            DONE: 'done',
             FILTERS: 'Filters',
             FILTER_INFO: 'At the moment, no filters have been selected. In order to add a filter, click on an icon or area on the map, and click on the filter icon (<span class="fa fa-filter"></span>) in the right menu. This will create a filter for the selected property.',
             STYLES: 'Styles',
@@ -58,6 +68,27 @@ module Translations {
             SAVE: 'save',
             CONFIG: 'config',
             EDIT: 'edit',
+            APPLY: 'apply',
+            REMOVE: 'remove',
+            STATS: {
+                COUNT: '#',
+                COUNT_TOOLTIP: 'Count of selected items',
+                MIN: 'min',
+                MIN_TOOLTIP: 'Minimum of selected items',
+                MAX: 'max',
+                MAX_TOOLTIP: 'Maximum of selected items',
+                MEAN: 'µ',
+                MEAN_TOOLTIP: 'Mean of selected items',
+                SUM: 'Σ',
+                SUM_TOOLTIP: 'Sum of selected items'
+            },
+            UTILS: {
+                FILTER: 'Use this property as filter',
+                STYLE: 'Use this property as style',
+                STATS: 'Show property statistics',
+                CHART: 'Show property in time',
+                CONFIG: 'Configure property'
+            },
             EXPERTMODE: {
                 BEGINNER: 'Novice',
                 INTERMEDIATE: 'Intermediate',
@@ -127,12 +158,14 @@ module Translations {
                 GAUSSIAN: 'Normal distribution increasing function between min and max.',
                 ADD_MCA: 'Add a new MCA.',
                 DELETE_MCA: 'Delete the MCA.',
-                EDIT_MCA: 'Edit the MCA.'
+                EDIT_MCA: 'Edit the MCA.',
+                SET_STYLE: 'Set style'
             },
             PROJECTSETTINGS: {
                 TITLE: 'Project Settings',
                 DESCRIPTION: 'Settings'
             },
+            CHOOSE_CATEGORY: 'Choose category...',
             SHOW5: 'Show 5 items',
             SHOW10: 'Show 10 items',
             SHOW15: 'Show 15 items',
@@ -140,7 +173,18 @@ module Translations {
             SHOW25: 'Show 25 items',
             SHOW30: 'Show 30 items',
             SHOW35: 'Show 35 items',
-            SHOW40: 'Show 40 items'
+            SHOW40: 'Show 40 items',
+            RISK_DIAGRAM_FOR: 'Risk-diagram for a ',
+            SAVE_FEATURE_DEPENDENCIES: 'Save dependencies to the selected feature only',
+            SAVE_FEATURETYPE_DEPENDENCIES: 'Save dependencies to all features of this type',
+            SAVE_MARVEL: 'Save ',
+            SAVE_EVERY_MARVEL: 'Save every ',
+            MARVEL_WATER_LEVEL: 'Water level [m]',
+            MARVEL_UPS_DURATION: 'UPS duration [mins]',
+            MARVEL_FEATURE_DEP: 'Depends on',
+            STATE: 'State',
+            EVENT_INFO: 'Show a list of events',
+            CLEAR_EVENTS: 'Clear event log'
         };
     }
 }

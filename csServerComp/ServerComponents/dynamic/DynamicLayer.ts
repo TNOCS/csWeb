@@ -1,20 +1,21 @@
-require('rootpath')();
 import express = require('express')
-import events = require("events");
+import events = require('events');
 import ClientConnection = require('./ClientConnection');
 import MessageBus = require('../bus/MessageBus');
 import fs = require('fs');
 import path = require('path');
 import utils = require('../helpers/Utils');
-import GeoJSON = require("../helpers/GeoJSON");
+import ApiManager = require('../api/ApiManager');
+import Layer = ApiManager.Layer;
+import Feature = ApiManager.Feature;
 
 export interface IDynamicLayer {
-    geojson?: GeoJSON.IGeoJson;
+    geojson?: Layer;
     connection?: ClientConnection.ConnectionManager;
     getLayer(req: express.Request, res: express.Response);
     getDataSource(req: express.Request, res: express.Response);
     addFeature?: (feature: any) => void;
-    updateFeature?: (ft: GeoJSON.IFeature, client?: string, notify?: boolean) => void;
+    updateFeature?: (ft: Feature, client?: string, notify?: boolean) => void;
     updateLog?: (featureId: string, msgBody: IMessageBody, client?: string, notify?: boolean) => void;
     layerId: string;
     start();
@@ -40,15 +41,16 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     /**
      * Working copy of geojson file
      */
-    public geojson: GeoJSON.IGeoJson;
+    public geojson: Layer;
+
     public server: express.Express;
     public messageBus: MessageBus.MessageBusService;
     public connection: ClientConnection.ConnectionManager;
     public startDate: number;
 
-    constructor(public layerId: string, file: string, server: express.Express, messageBus: MessageBus.MessageBusService, connection: ClientConnection.ConnectionManager) {
+    constructor(public manager: ApiManager.ApiManager, public layerId: string, file: string, server: express.Express, messageBus: MessageBus.MessageBusService, connection: ClientConnection.ConnectionManager) {
         super();
-        this.geojson = { features: [] };
+        this.geojson = new Layer();
         this.file = file;
         this.server = server;
         this.messageBus = messageBus;
@@ -63,11 +65,10 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
         fs.readFile(this.file, 'utf8', (err, data) => {
             if (!err) {
                 this.geojson = JSON.parse(data);
-                this.geojson.features.forEach((f: csComp.Services.IFeature) => {
+                this.geojson.features.forEach((f: Feature) => {
                     this.initFeature(f);
                 });
-            }
-            else {
+            } else {
                 console.log('error:' + this.file);
             }
         });
@@ -79,7 +80,9 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     }
 
     public initFeature(f: any) {
-        if (!f.id) f.id = utils.newGuid();
+        if (!f.id) {
+            f.id = utils.newGuid();
+        }
     }
 
     public updateSensorValue(ss: any, date: number, value: number) {
@@ -89,48 +92,61 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
     }
 
     addFeature(f, updated = true) {
-        if (updated) f.properties['updated'] = new Date().getTime();
+        if (updated) {
+            f.properties['updated'] = new Date().getTime();
+        }
         this.initFeature(f);
-        this.geojson.features.push(f);
-        f.insertDate = new Date().getTime();
-        this.connection.updateFeature(this.layerId, f, "feature-update");
+        if (this.manager) {
+            this.manager.addFeature(this.layerId, f, {}, (cb) => {});
+        }
+
+        //f.insertDate = new Date().getTime();
+        //this.connection.updateFeature(this.layerId, f, 'feature-update');
     }
 
     public start() {
         console.log('start case layer');
-        this.server.get("/cases/" + this.layerId, (req, res) => { this.getLayer(req, res); });
+        this.server.get('/cases/' + this.layerId, (req, res) => { this.getLayer(req, res); });
 
         this.startDate = new Date().getTime();
         //this.OpenFile();
-        this.connection.registerLayer(this.layerId, (action: string, msg: ClientConnection.LayerMessage, client: string) => {
-            var feature;
-            switch (action) {
-                case "logUpdate":
-                    // find feature
-                    var featureId = msg.object.featureId;
-
-                    this.updateLog(featureId, msg.object, client, true);
-                    break;
-                case "featureUpdate":
-                    var ft: GeoJSON.IFeature = msg.object;
-                    this.updateFeature(ft, client, true);
-                    break;
-            }
-        });
+        // this.connection.registerLayer(this.layerId, (action: string, msg: ClientConnection.LayerMessage, client: string) => {
+        //     var feature;
+        //     switch (action) {
+        //         case 'logUpdate':
+        //             // find feature
+        //             var featureId = msg.object.featureId;
+        //
+        //             this.updateLog(featureId, msg.object, client, true);
+        //             break;
+        //         case 'featureUpdate':
+        //             var ft: Feature = msg.object;
+        //             this.updateFeature(ft, client, true);
+        //             break;
+        //     }
+        // });
     }
 
     updateLog(featureId: string, msgBody: IMessageBody, client?: string, notify?: boolean) {
-        var f: GeoJSON.IFeature;
+        var f: Feature;
         console.log(JSON.stringify(msgBody));
         this.geojson.features.some(feature => {
-            if (!feature.id || feature.id !== featureId) return false;
+            if (!feature.id || feature.id !== featureId) {
+                return false;
+            }
             // feature found
             f = feature;
             return true;
         });
-        if (!f) return; // feature not found
-        if (!f.hasOwnProperty('logs')) f.logs = {};
-        if (!f.hasOwnProperty('properties')) f.properties = {};
+        if (!f) {
+            return; // feature not found
+        }
+        if (!f.hasOwnProperty('logs')) { 
+            f.logs = {};
+        }
+        if (!f.hasOwnProperty('properties')) {
+            f.properties = {};
+        }
 
         // apply changes
         var logs = msgBody.logs;
@@ -143,26 +159,29 @@ export class DynamicLayer extends events.EventEmitter implements IDynamicLayer {
             });
 
             // send them to other clients
-            this.connection.updateFeature(this.layerId, msgBody, "logs-update", client);
+            //this.connection.updateFeature(this.layerId, msgBody, 'logs-update', client);
         }
-        console.log("Log update" + featureId);
-        if (notify) this.emit("featureUpdated", this.layerId, featureId);
+        console.log('Log update' + featureId);
+        if (notify) {
+            this.emit('featureUpdated', this.layerId, featureId);
+        }
     }
 
-    updateFeature(ft: GeoJSON.IFeature, client?: string, notify?: boolean) {
+    updateFeature(ft: Feature, client?: string, notify?: boolean) {
         this.initFeature(ft);
         var feature = this.geojson.features.filter((k) => { return k.id && k.id === ft.id });
         if (feature && feature.length > 0) {
             var index = this.geojson.features.indexOf(feature[0]);
             this.geojson.features[index] = ft;
-        }
-        else {
+        } else {
             this.geojson.features.push(ft);
         }
-        if (client)
-            this.connection.updateFeature(this.layerId, ft, "feature-update", client);
-        else
-            this.connection.updateFeature(this.layerId, ft, "feature-update");
-        if (notify) this.emit("featureUpdated", this.layerId, ft.id);
+        //if (client)
+        //this.connection.updateFeature(this.layerId, ft, 'feature-update', client);
+        //else
+        //this.connection.updateFeature(this.layerId, ft, 'feature-update');
+        if (notify) {
+            this.emit('featureUpdated', this.layerId, ft.id);
+        }
     }
 }

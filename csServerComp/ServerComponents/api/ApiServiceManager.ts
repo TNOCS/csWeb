@@ -4,13 +4,14 @@ import IApiService = require('./IApiService');
 import Utils = require('../helpers/Utils');
 import IApiServiceManager = require('./IApiServiceManager');
 
-class ApiServiceManager implements IApiServiceManager {
+
+export class ApiServiceManager implements IApiServiceManager {
     private baseUrl: string;
     private dataUrl: string;
 
     private apiServices: IApiService[] = [];
 
-    constructor(private server: express.Express, private config: ConfigurationService) {
+    constructor(private server: express.Express, private config: ConfigurationService.ConfigurationService) {
         this.baseUrl = config['apiAddress'] || '/api';
         this.dataUrl = config['dataApiAddress'] || '/data';
     }
@@ -53,4 +54,3 @@ class ApiServiceManager implements IApiServiceManager {
         }
     }
 }
-export = ApiServiceManager;

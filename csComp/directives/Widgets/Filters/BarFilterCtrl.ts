@@ -111,8 +111,8 @@ module Filters {
             var info = this.$layerService.calculatePropertyInfo(group, filter.property);
 
             var nBins = 20;
-            var min = info.min;
-            var max = info.max;
+            var min = info.min; //filter.meta.min || info.min;
+            var max = info.max; //filter.meta.max || info.max;
             filter.rangex[0] = min;
             filter.rangex[1] = max;
             filter.from = min;
@@ -210,7 +210,6 @@ module Filters {
                 this.dcChart.render();
                 dc.renderAll();
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
-                console.log('update filter');
             }, 10);
 
         }
@@ -235,7 +234,6 @@ module Filters {
                 this.$layerService.removeFilter(this.$scope.filter);
             }
         }
-
 
     }
 }

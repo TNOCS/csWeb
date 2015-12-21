@@ -10,6 +10,9 @@
 
             <div class="rightpanel-label">Feature title</div>
             <input type="text" data-ng-model="featureType.name" class="form-control" />
+            
+            <div class="rightpanel-label">Title property (used to display name)</div>
+            <input type="text" data-ng-model="featureType.style.nameLabel" class="form-control" />
 
             <div class="rightpanel-label">Icon Image</div>
             <div class="row">
@@ -20,7 +23,12 @@
                     <input type="text" data-ng-model="featureType.style['iconUri']" class="form-control">
                 </div>
             </div>
-
+            <div class="row">
+                <div class="col-md-6 checkbox dashboard-edit-checkbox">
+                    <div class="rightpanel-label">Type</div>
+                    <select data-ng-model="featureType.style['drawingMode']" ng-options="item for item in ['Point','Line','Polygon']" class="form-control"></select>
+                </div>
+            </div>
             <div ng-show="featureType.style['drawingMode'] == 'Point'">
                 <div class="row">
                     <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.iconHeight.$invalid }">
@@ -38,12 +46,12 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="rightpanel-label">Fill color</div>
-                    <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', chooseText: 'Select', format: 'hex' }"></spectrum-colorpicker>
+                    <spectrum-colorpicker data-ng-model="featureType.style['fillColor']" options="{ cancelText: 'Cancel', chooseText: 'Select', preferredFormat: 'hex' }"></spectrum-colorpicker>
                 </div>
 
                 <div class="col-md-3">
                     <div class="rightpanel-label">Stroke</div>
-                    <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', chooseText: 'Select',format: 'hex'}"></spectrum-colorpicker>
+                    <spectrum-colorpicker data-ng-model="featureType.style['strokeColor']" options="{cancelText: 'Cancel', chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
                 </div>
 
                 <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.strokeWidth.$invalid }">
@@ -56,7 +64,7 @@
                     <div class="rightpanel-label">Corner radius (%)</div>
                     <input type="number" name="cornerRadius" data-ng-model="featureType.style['cornerRadius']" class="form-control">
                 </div>
-                <div class="col-md-6" ng-class="{ 'has-error': featureTypeForm.opacity.$invalid }">
+                <div class="col-md-6"> <!--ng-class="{ 'has-error': featureTypeForm.opacity.$invalid }"-->
                     <div class="rightpanel-label">Opacity</div>
                     <input type="number" name="opacity" data-ng-model="featureType.style['opacity']" class="form-control">
                 </div>
@@ -68,7 +76,7 @@
                 </div>
             </div>
 
-            <button class="btn btn-primary rightpanel-button" data-ng-click="vm.updateFeatureTypes(featureType)">Opslaan</button>
+            <button class="btn btn-primary rightpanel-button" data-ng-click="vm.updateFeatureTypes(featureType)">{{'APPLY' | translate}}</button>
         </form>
     </div>
 

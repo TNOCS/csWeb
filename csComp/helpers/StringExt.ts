@@ -37,7 +37,7 @@ module csComp.StringExt {
      */
     export function isBoolean(s: any): boolean {
         return s === 'true' || s === 'false';
-        if (typeof s === 'boolean') return true;
+        //if (typeof s === 'boolean') return true;
     }
 
     /*
@@ -52,7 +52,7 @@ module csComp.StringExt {
      */
     export function isBbcode(s: any): boolean {
         return false;
-        if (s == null) return false;
-        return s.indexOf("[b]") > 0 || s.indexOf("[i]") > 0 || s.indexOf("[url") > 0;
+        // if (s == null) return false;
+        // return s.indexOf("[b]") > 0 || s.indexOf("[i]") > 0 || s.indexOf("[url") > 0;
     }
 }

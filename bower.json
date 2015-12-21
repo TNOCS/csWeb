@@ -1,0 +1,33 @@
+{
+    "name": "csweb",
+    "version": "0.2.15",
+    "main": "dist-bower/csComp.js",
+    "ignore": [
+        "csComp",
+        "csServerComp",
+        "dist-npm",
+        "example",
+        "docker-dev",
+        "docs",
+        "node_modules",
+        "test",
+        "bower.json",
+        "gulp.js",
+        "Dockerfile",
+        "package.json",
+        "dist",
+        "README.md",
+        ".vscode",
+        ".bithoundrc",
+        ".editorconfig",
+        ".gitignore",
+        ".travis.yml",
+        "LICENSE",
+        "install_karma.bat",
+        "updateAll.bat"
+    ],
+    "dependencies": {
+    },
+    "devDependencies": {
+    }
+}

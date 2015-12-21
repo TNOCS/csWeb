@@ -1,0 +1,21 @@
+<div data-ng-cloak class="rightpanel-content" style="width:100%">
+    <h4 class="rightpanel-header">
+        <i class="fa fa-bolt rightpanel-header-icon" />Event tab
+        <button class="fa fa-trash leftpanel-header-button" ng-click="vm.reset()" style="margin-right:20px" popover="{{'CLEAR_EVENTS' | translate}}"
+                    popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true"/>
+    </h4>
+    <style>
+        .card-item {
+            margin-left: 2px;
+        }
+        
+        .kanbanColumn-column {
+            width: 320px;
+        }
+    </style>
+    <div data-ng-cloak style="margin:5px;overflow-y:auto" resize resize-y="150">
+        <div ng-repeat="column in vm.kanban.columns" data-columnindex="{{$index}}" id="column{{$index}}">
+            <kanban-column providedlayer="true" layer="vm.layer" column="column" class="kanbanColumn-column" style="margin-left:10px" />
+        </div>
+    </div>
+</div>

@@ -1,5 +1,7 @@
 <div>
-   <h4>{{filter.title}}</h4>
-  <input type='text' class='filter-text' ng-model='filter.stringValue' />
-  <a class='btn btn-filter-delete' ng-click="vm.remove()" ><i class='fa fa-remove'></i></a>
+    <div style="display:inline-block; width:100%;">
+        <h4 style="display:inline-block;">{{filter.title}}</h4>
+        <a class='btn btn-filter-delete' ng-click="vm.remove()" style="float:right;"><i class='fa fa-remove'></i></a>
+    </div>
+    <input type='text' class='filter-text' ng-model='filter.stringValue' />
 </div>

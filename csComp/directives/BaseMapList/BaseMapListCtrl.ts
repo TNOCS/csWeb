@@ -1,4 +1,4 @@
-﻿module BaseMapList {
+module BaseMapList {
     export interface IBaseMapScope extends ng.IScope {
         vm: BaseMapListCtrl;
     }

@@ -35,12 +35,13 @@ module csComp.Services {
 
         public add(listener: () => void): void {
             /// <summary>Registers a new listener for the event.</summary>
-            /// <param name="listener">The callback function to register.</param>
+            /// <param name='listener'>The callback function to register.</param>
             this._listeners.push(listener);
         }
+
         public remove(listener?: () => void): void {
             /// <summary>Unregisters a listener from the event.</summary>
-            /// <param name="listener">The callback function that was registered. If missing then all listeners will be removed.</param>
+            /// <param name='listener'>The callback function that was registered. If missing then all listeners will be removed.</param>
             if (typeof listener === 'function') {
                 for (var i = 0, l = this._listeners.length; i < l; l++) {
                     if (this._listeners[i] === listener) {
@@ -55,7 +56,7 @@ module csComp.Services {
 
         public trigger(...a: any[]): void {
             /// <summary>Invokes all of the listeners for this event.</summary>
-            /// <param name="args">Optional set of arguments to pass to listners.</param>
+            /// <param name='args'>Optional set of arguments to pass to listners.</param>
             var context = {};
             var listeners = this._listeners.slice(0);
             for (var i = 0, l = listeners.length; i < l; i++) {
@@ -81,16 +82,16 @@ module csComp.Services {
         // Events
         public events: IMessageEvent = new TypedEvent();
 
-        constructor(public id: string, public url: string) {
+        constructor(public id: string, public url: string, public bus: MessageBusService) {
 
         }
 
         public unsubscribe(id: string, callback: IMessageBusCallback) {
             if (this.subscriptions.hasOwnProperty(id)) {
                 var s = this.subscriptions[id];
-                s.callbacks = s.callbacks.filter((f) => { return f != callback; })
-                if (s.callbacks.length == 0) {
-                    this.socket.emit(id, { action: "unsubscribe" });
+                s.callbacks = s.callbacks.filter((f) => { return f !== callback; });
+                if (s.callbacks.length === 0) {
+                    this.socket.emit(id, { action: 'unsubscribe' });
                     this.socket.removeListener(id, s.serverCallback);
                     s.serverCallback = null;
                     delete this.subscriptions[id];
@@ -103,7 +104,15 @@ module csComp.Services {
             for (var s in this.subscriptions) {
                 console.log('reconnecting ' + s);
                 var sub = this.subscriptions[s];
-                this.socket.emit("subscribe", { id: sub.id, target: sub.target, type: sub.type });
+                this.socket.emit('subscribe', { id: sub.id, target: sub.target, type: sub.type });
+            }
+        }
+
+        public disconnectAll() {
+            console.log('resubscribing...');
+            for (var s in this.subscriptions) {
+                var sub = this.subscriptions[s];
+                sub.callbacks.forEach(cb => cb(sub.id, { action: 'unsubscribed' }));
             }
         }
 
@@ -111,22 +120,24 @@ module csComp.Services {
             var sub: ServerSubscription;
             var subs = [];
             for (var s in this.subscriptions) {
-                if (this.subscriptions[s].target == target && this.subscriptions[s].type == type) subs.push(this.subscriptions[s]);
+                if (this.subscriptions[s].target === target && this.subscriptions[s].type === type) subs.push(this.subscriptions[s]);
             }
 
-            if (subs == null || subs.length == 0) {
+            if (subs == null || subs.length === 0) {
                 sub = new ServerSubscription(target, type);
-                this.socket.emit("subscribe", { id: sub.id, target: sub.target, type: sub.type });
+                this.socket.emit('subscribe', { id: sub.id, target: sub.target, type: sub.type });
 
                 sub.callbacks.push(callback);
                 this.subscriptions[sub.id] = sub;
                 sub.serverCallback = (r) => {
+                    if (type === 'key') {
+                        this.bus.publish('keyupdate', target, r);
+                    }
                     //console.log(r.action);
                     sub.callbacks.forEach(cb => cb(sub.id, r));
                 };
                 this.socket.on(sub.id, sub.serverCallback);
-            }
-            else {
+            } else {
                 sub = subs[0];
                 sub.callbacks.push(callback);
             }
@@ -135,7 +146,7 @@ module csComp.Services {
         }
 
         public connect(callback: Function) {
-            if (this.isConnected || this.isConnecting || typeof io === "undefined") return;
+            if (this.isConnected || this.isConnecting || typeof io === 'undefined') return;
             this.socket = io();
             this.isConnecting = true;
             this.socket.on('connect', () => {
@@ -143,14 +154,15 @@ module csComp.Services {
                 console.log('socket.io connected');
                 this.isConnecting = false;
                 this.isConnected = true;
-                this.events.trigger("connected");
+                this.events.trigger('connected');
                 this.reSubscribeAll();
                 callback();
             });
             this.socket.on('disconnect', () => {
-                console.log('socket.io disconnected');
                 this.isConnecting = false;
                 this.isConnected = false;
+                this.disconnectAll();
+                this.events.trigger('disconnected');
             });
             this.socket.on('reconnect_attempt', () => {
                 console.log('socket.io reconnect attempt');
@@ -164,7 +176,7 @@ module csComp.Services {
 
         }
 
-        public disconnect() { }
+        public disconnect() { return; }
     }
 
     export enum NotifyLocation {
@@ -207,9 +219,10 @@ module csComp.Services {
         ];
 
         private connections: { [id: string]: Connection } = {};
+        private notifications: any[] = [];
 
         constructor(private $translate: ng.translate.ITranslateService) {
-            PNotify.prototype.options.styling = "fontawesome";
+            PNotify.prototype.options.styling = 'fontawesome';
         }
 
         getConnection(id: string): Connection {
@@ -218,10 +231,10 @@ module csComp.Services {
         }
 
         public initConnection(id: string, url: string, callback: Function) {
-            if (id == null) id = "";
+            if (id == null) id = '';
             var c = this.getConnection(id);
             if (c == null) {
-                c = new Connection(id, url);
+                c = new Connection(id, url, this);
                 this.connections[c.id] = c;
             }
             this.connections[id].connect(() => {
@@ -234,24 +247,24 @@ module csComp.Services {
             });
         }
 
-        public serverPublish(topic: string, message: any, serverId = "") {
+        public serverPublish(topic: string, message: any, serverId = '') {
             var c = this.getConnection(serverId);
             if (c == null) return null;
             c.socket.emit(topic, message);
         }
 
-        public serverSendMessage(msg: ClientMessage, serverId = "") {
+        public serverSendMessage(msg: ClientMessage, serverId = '') {
             var c = this.getConnection(serverId);
             if (c == null) return null;
-            c.socket.emit("msg", msg);
+            c.socket.emit('msg', msg);
         }
 
-        public serverSendMessageAction(action: string, data: any, serverId = "") {
+        public serverSendMessageAction(action: string, data: any, serverId = '') {
             var cm = new ClientMessage(action, data);
             this.serverSendMessage(cm, serverId);
         }
 
-        public serverSubscribe(target: string, type: string, callback: IMessageBusCallback, serverId = ""): MessageBusHandle {
+        public serverSubscribe(target: string, type: string, callback: IMessageBusCallback, serverId = ''): MessageBusHandle {
             var c = this.getConnection(serverId);
             if (c == null) return null;
 
@@ -259,7 +272,8 @@ module csComp.Services {
             return new MessageBusHandle(sub.id, callback);
         }
 
-        public serverUnsubscribe(handle: MessageBusHandle, serverId = "") {
+        public serverUnsubscribe(handle: MessageBusHandle, serverId: string = '') {
+            if (!handle) return;
             var c = this.getConnection(serverId);
             if (c == null) return null;
             c.unsubscribe(handle.topic, handle.callback);
@@ -279,6 +293,8 @@ module csComp.Services {
             });
         }
 
+
+
 		/**
 		 * Publish a notification
          * @title:       the title of the notification
@@ -287,9 +303,47 @@ module csComp.Services {
          * @notifyType:  the type of notification
 		 */
         public notify(title: string, text: string, location = NotifyLocation.TopRight, notifyType = NotifyType.Normal) {
+            console.log('notify : ' + title);
+
+            //Check if a notication with the same title exists. If so, update existing, if not, add new notification.
+            if (this.notifications) {
+                this.notifications = this.notifications.filter((n) => { return (n.state && n.state !== 'closed'); });
+                var updatedText: string;
+                this.notifications.some((n) => {
+                    if (n.state === 'closed') return false;
+                    if (n.options.title === title) {
+                        var foundText = false;
+                        var splittedText = n.options.text.split('\n');
+                        splittedText.some((textLine, index, _splittedText) => {
+                            if (textLine.replace(/(\ \<\d+\>$)/, '') === text) {
+                                let txt = textLine.replace(/(\ \<\d+\>$)/, '');
+                                let nrWithBrackets = textLine.match(/(\ \<\d+\>$)/);
+                                var nr;
+                                nr = (!nrWithBrackets) ? 2 : +(nrWithBrackets[0].match(/\d+/)) + 1;
+                                _splittedText[index] = txt + ' <' + nr + '>';
+                                foundText = true;
+                                return true;
+                            }
+                            return false;
+                        });
+                        if (!foundText) {
+                            splittedText.push(text);
+                        }
+                        updatedText = splittedText.join('\n');
+                        n.update({text: updatedText});
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                if (updatedText) {
+                    return;
+                }
+            }
+
             var cssLocation: string;
             var cornerglass: string = 'ui-pnotify-sharp';
-            var myStack : { dir1: string, dir2: string } = { dir1: "", dir2: "" };
+            var myStack: { dir1: string, dir2: string } = { dir1: '', dir2: '' };
             switch (location) {
                 case NotifyLocation.BottomLeft:
                     cssLocation = 'stack-bottomleft';
@@ -302,7 +356,7 @@ module csComp.Services {
                     myStack.dir2 = 'right';
                     break;
                 default:
-                //case NotifyLocation.TopRight:
+                    //case NotifyLocation.TopRight:
                     cssLocation = 'stack-topright';
                     myStack.dir1 = 'down';
                     myStack.dir2 = 'left';
@@ -339,7 +393,69 @@ module csComp.Services {
                     options.type = 'success';
                     break;
             }
-            var pn = new PNotify(options);
+            //var pn = new PNotify(options);
+
+
+
+            // var s = new PNotify({
+            //     title: 'Non-Blocking Notice',
+            //     text: 'I\'m a non-blocking notice with buttons.',
+            //
+            //     buttons: {
+            //         show_on_nonblock: true
+            //     }
+            // });
+
+            //var stack_bar_top = { 'dir1': 'down', 'dir2': 'right', 'push': 'top', 'width': '500px', 'spacing1': 0, 'spacing2': 0 };
+            //var stack_bar_top = { 'dir1': 'down', 'dir2': 'right', 'push': 'top', 'firstpos1': 0, 'firstpos2': ($(window).width() / 2 - 500) }
+            var stack_bar_bottom = { 'dir1': 'up', 'dir2': 'right', 'spacing1': 0, 'spacing2': 0 };
+
+            var opts = {
+                title: title,
+                text: text,
+                cornerclass: 'ui-pnotify-sharp',
+                shadow: false,
+                nonblock: {
+                    nonblock: true,
+                    nonblock_opacity: .2
+                },
+
+                // confirm: {
+                //     confirm: true,
+                //     buttons: [{
+                //         buttons: [{
+                //             text: 'Fries',
+                //             addClass: 'btn-primary',
+                //             click: (notice) => {
+                //                 notice.update({
+                //                     title: 'You\'ve Chosen a Side',
+                //                     text: 'You want fries.',
+                //                     icon: true,
+                //                     type: 'info',
+                //                     hide: true,
+                //                     confirm: {
+                //                         confirm: false
+                //                     },
+                //                     buttons: {
+                //                         show_on_nonblock: true,
+                //                         closer: true,
+                //                         sticker: true
+                //                     }
+                //                 });
+                //             }
+                //         }]
+                //     }]
+                // },
+                buttons: {
+                    closer: false,
+                    sticker: false
+                },
+                type: 'info',
+                hide: true
+            };
+
+            var PNot = new PNotify(opts);
+            this.notifications.push(PNot);
         }
 
 		/**
@@ -365,8 +481,8 @@ module csComp.Services {
                 },
                 icon: 'fa fa-question-circle',
                 cornerclass: 'ui-pnotify-sharp',
-                addclass: "stack-topright",
-                stack: { "dir1": "down", "dir2": "left", "firstpos1": 25, "firstpos2": 25 }
+                addclass: 'stack-topright',
+                stack: { 'dir1': 'down', 'dir2': 'left', 'firstpos1': 25, 'firstpos2': 25 }
             };
 
             var pn = new PNotify(options).get()
@@ -375,13 +491,13 @@ module csComp.Services {
         }
 
         public notifyBottom(title: string, text: string) {
-            var stack_bar_bottom = { "dir1": "up", "dir2": "right", "spacing1": 0, "spacing2": 0 };
+            var stack_bar_bottom = { 'dir1': 'up', 'dir2': 'right', 'spacing1': 0, 'spacing2': 0 };
             var options = {
-                title: "Over Here",
-                text: "Check me out. I'm in a different stack.",
-                addclass: "stack-bar-bottom",
-                cornerclass: "",
-                width: "70%",
+                title: 'Over Here',
+                text: 'Check me out. I\'m in a different stack.',
+                addclass: 'stack-bar-bottom',
+                cornerclass: '',
+                width: '70%',
                 stack: stack_bar_bottom
             };
             var pn = new PNotify(options);
@@ -394,14 +510,14 @@ module csComp.Services {
 		 */
         public notifyData(data: any) {
             var pn = new PNotify(data);
-            //this.publish("notify", "", data);
+            //this.publish('notify', '', data);
         }
 
 		/**
 		 * Publish to a topic
 		 */
         public publish(topic: string, title: string, data?: any): void {
-            //window.console.log("publish: " + topic + ", " + title);
+            //window.console.log('publish: ' + topic + ', ' + title);
             if (!MessageBusService.cache[topic]) return;
             MessageBusService.cache[topic].forEach(cb => cb(title, data));
         }
@@ -429,7 +545,7 @@ module csComp.Services {
             var callback = handle.callback;
             if (!MessageBusService.cache[topic]) return;
             MessageBusService.cache[topic].forEach((cb, idx) => {
-                if (cb == callback) {
+                if (cb === callback) {
                     MessageBusService.cache[topic].splice(idx, 1);
                     return;
                 }
@@ -473,13 +589,13 @@ module csComp.Services {
 
         registerEvent(evtname: string) {
             this[evtname] = function(callback, replace) {
-                if (typeof callback == 'function') {
+                if (typeof callback === 'function') {
                     if (replace) this.unbindEvent(evtname);
 
                     this.bind(evtname, callback);
                 }
                 return this;
-            }
+            };
         }
 
         registerEvents(evtnames: Array<string>) {

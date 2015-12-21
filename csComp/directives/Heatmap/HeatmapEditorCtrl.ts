@@ -54,17 +54,19 @@ module Heatmap {
                     var ft = this.dataset.featureTypes[k];
                     heatmap.addHeatmapItem(new HeatmapItem(ft.name, ft));
                     var propertyTypeData: csComp.Services.IPropertyType[];
-                    if (!ft.propertyTypeData) continue;
-                    ft.propertyTypeData.forEach((pt) => {
+                    if (!ft._propertyTypeData) continue;
+                    ft._propertyTypeData.forEach((pt) => {
                         if (pt.type == 'options') {
                             var i = 0;
-                            pt.options.forEach((o) => {
+                            for (var oo in pt.options)
+                            {
+                                var o = pt.options[oo];
                                 var hi = new HeatmapItem(o, ft);
                                 hi.propertyLabel = pt.label;
                                 hi.propertyTitle = pt.title;
                                 hi.optionIndex   = i++;
                                 heatmap.addHeatmapItem(hi);
-                            });
+                            }                            
                         }
                     });
                 }

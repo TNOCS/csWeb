@@ -16,12 +16,11 @@ module csComp.Services {
             this.generateHeatmap(layer);
         }
 
-        public layerMenuOptions(layer : ProjectLayer) : [[string,Function]]
-        {
-          return null;
+        public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
+            return null;
         }
 
-        public addLayer(layer: ProjectLayer, callback: Function) {
+        public addLayer(layer: ProjectLayer, callback: Function, data = null) {
             async.series([
                 (cb) => {
                     layer.renderType = "heatmap";
@@ -148,14 +147,15 @@ module csComp.Services {
 
                 // Set default style for the heatmap:
                 if ((<any>(layer.data)).features[0]) {
-                    var calloutProp = new FeatureProps.CallOutProperty("totalIntensity", "0", "totalIntensity", true, true,(<any>(layer.data)).features[0], false, false);
-                    var propinfo = new PropertyInfo();
+                    var calloutProp = new FeatureProps.CallOutProperty("totalIntensity", "0", "totalIntensity", true, true, (<any>(layer.data)).features[0], false, false);
+                    var propinfo = <PropertyInfo>{};
                     // Tweak the group style info to keep constant min/max color values on panning and zooming.
                     propinfo.count = (<any>(layer.data)).features.length;
                     propinfo.max = 1;
                     propinfo.min = -1;
-                    propinfo.sdMax = propinfo.max;
-                    propinfo.sdMin = propinfo.min;
+                    
+                    propinfo.userMax = propinfo.max;
+                    propinfo.userMin = propinfo.min;
                     propinfo.mean = 0;
                     propinfo.varience = 0.67;
                     propinfo.sd = Math.sqrt(propinfo.varience);

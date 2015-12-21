@@ -5,7 +5,7 @@
     <button id="map-contextmenu-button" class="btn" style="position:absolute;left:800px;top:300px;display:none" data-toggle="dropdown"></button>
 <ul id="map-contextmenu" class="dropdown-menu" role="menu" style="position:absolute;left:600px;top:400px">
     <li ng-repeat="option in vm.$layerService._activeContextMenu">
-        <a ng-click="option.callback(option.feature,vm.$layerService);">{{option.title}}</a>
+        <a  ng-click="option.callback(option.feature,vm.$layerService);">{{option.title}}</a>
     </li>
 </ul>
 </div>

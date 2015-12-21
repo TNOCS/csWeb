@@ -2,20 +2,23 @@ module csComp.Services {
     export class RssDataSource extends csComp.Services.GeoJsonSource {
         title = "RSS datasource";
 
-        constructor(public service: csComp.Services.LayerService) {
-            super(service);
+        constructor(public service: csComp.Services.LayerService, $http: ng.IHttpService) {
+            super(service, $http);
         }
 
         public addLayer(layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
             this.layer = layer;
             layer.type = 'geojson';
+
             // Open a layer URL
             layer.isLoading = true;
             layer.count = 0;
 
-            $.getJSON('/api/rss', {
-                url: layer.url
-            }, (data, textStatus) => {
+            this.$http({
+                url: '/api/rss',
+                method: "GET",
+                params: { url: layer.url }
+            }).success((data) => {
                     layer.data = data;//csComp.Helpers.GeoExtensions.createFeatureCollection(features);
 
                     if (layer.data.geometries && !layer.data.features) {
@@ -28,7 +31,10 @@ module csComp.Services {
 
                     layer.isLoading = false;
                     callback(layer);
-                });
+            })
+            .error(() => {
+                console.log('RssDataSource called $HTTP with errors...');
+            });
         }
     }
 }

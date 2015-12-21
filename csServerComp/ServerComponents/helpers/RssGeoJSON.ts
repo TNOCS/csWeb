@@ -8,15 +8,15 @@ export class RssGeoJSON {
 
 export class RssFeature {
     type = "Feature";
+    id: string;
     geometry: {
         type: string;
         coordinates: number[];
     };
-    properties: { [key: string]: string | number | boolean | Date } = {};
+    properties: { [key: string]: string | number | boolean | Date | any } = {};
 
     constructor(lat?: number | string, lon?: number | string) {
-        if (lat && lon)
-        {
+        if (lat && lon) {
             this.geometry = {
                 type: "Point",
                 coordinates: [+lon, +lat]

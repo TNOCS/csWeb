@@ -419,9 +419,9 @@ module csComp.Helpers {
             var tip = d3.tip()
                 .attr('class', 'd3-tip')
                 .offset([0, 0])
-                .html(d => '<strong>' + d.data.label + ": </strong> <span style='color:orangered'>" +
-                    Math.round(d.data.weight * 100) + "% x " + Math.round(d.data.score) + "&nbsp; = " +
-                    Math.round(d.data.weight * d.data.score) + "</span>");
+                .html(d => '<strong>' + d.data.label + ': </strong> <span style="color:orangered">' +
+                    Math.round(d.data.weight * 100) + '% x ' + Math.round(d.data.score) + '&nbsp; = ' +
+                    Math.round(d.data.weight * d.data.score) + '</span>');
 
             var arc = d3.svg.arc()
                 .innerRadius(innerRadius)
@@ -432,42 +432,41 @@ module csComp.Helpers {
                 .outerRadius(radius);
 
             var svg = d3.select('#' + parentId)
-                .append("svg")
-                .attr("id", svgId)
-                .attr("width", width)
-                .attr("height", height)
-                .attr("style", "display: block; margin: 0 auto;")
-                .append("g")
-                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+                .append('svg')
+                .attr('id', svgId)
+                .attr('width', width)
+                .attr('height', height)
+                .attr('style', 'display: block; margin: 0 auto;')
+                .append('g')
+                .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
 
             try {
                 svg.call(tip);
-            }
-            catch (err) {
-                console.log("Error: " + err.message);
+            } catch (err) {
+                console.log('Error: ' + err.message);
             }
 
             var colors = chroma.scale(colorScale).domain([0, data.length - 1], data.length);
-            var path = svg.selectAll(".solidArc")
+            var path = svg.selectAll('.solidArc')
                 .data(pie(data))
-                .enter().append("path")
-                .attr("fill", (d, i) => d.data.color || colors(i).hex())
-                .attr("class", "solidArc")
-                .attr("stroke", "gray")
-                .attr("d", arc)
+                .enter().append('path')
+                .attr('fill', (d, i) => d.data.color || colors(i).hex())
+                .attr('class', 'solidArc')
+                .attr('stroke', 'gray')
+                .attr('d', arc)
                 .on('mouseover', (d, i) => {
                     tip.show(d, i);
                     // $rootScope.$broadcast('tooltipShown', { id: d.data.id });
                 })
                 .on('mouseout', tip.hide);
 
-            var outerPath = svg.selectAll(".outlineArc")
+            var outerPath = svg.selectAll('.outlineArc')
                 .data(pie(data))
-                .enter().append("path")
-                .attr("fill", "none")
-                .attr("stroke", "gray")
-                .attr("class", "outlineArc")
-                .attr("d", outlineArc);
+                .enter().append('path')
+                .attr('fill', 'none')
+                .attr('stroke', 'gray')
+                .attr('class', 'outlineArc')
+                .attr('d', outlineArc);
 
 
             // calculate the weighted mean score
@@ -478,10 +477,10 @@ module csComp.Helpers {
                 totalScore += p.weight * p.score;
             });
 
-            svg.append("svg:text")
-                .attr("class", "aster-score")
-                .attr("dy", ".35em")
-                .attr("text-anchor", "middle") // text-align: right
+            svg.append('svg:text')
+                .attr('class', 'aster-score')
+                .attr('dy', '.35em')
+                .attr('text-anchor', 'middle') // text-align: right
                 .text(Math.round(totalScore / totalWeight));
         }
 

@@ -1,0 +1,26 @@
+<div style="margin-top: 20px; height: 400px; margin-left: 8px; width: 275px;" class="kanbanColumn-column">
+    <div class="card-list-scroll-container">
+        <div class="card-list-container">
+            <ul class="card-list">
+                <li class="card-item" ng-class="vm.getClass(feature)" } ng-repeat="(key, state) in vm.states">
+                    <div style="float:left">
+                        <div class="led" ng-class="{'led-green': state.state === 'Ready', 'led-orange': state.state === 'Pause', 'led-red': state.state === 'Busy'}"></div>
+                        <!-- <img ng-src="{{feature.effectiveStyle.iconUri}}" style="width:20px;height:20px;margin-right:5px"></img> -->
+                    </div>
+                    <div class="card-title">{{state.name}} ({{state.state}})</div>
+                    <div ng-show="state.msg" class="card-description" style="width: 230px; white-space: normal">{{state.msg}}</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!--
+
+    <div style="margin-top: 20px;">
+        <ul class="list-unstyled">
+            <li ng-repeat="(key, state) in vm.states" class="horizontalstack pull-left">
+                <span>{{state.name}} ({{state.state}})</span>
+                <div ng-show="state.msg">{{state.msg}}</div>
+            </li>
+        </ul>
+    </div> -->
+</div>

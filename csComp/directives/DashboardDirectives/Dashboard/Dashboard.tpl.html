@@ -12,18 +12,36 @@
             top: 0;
             left: 0;
         }
+
+        .leftpanel-header-button
+        {
+
+        }
+
+        .opacity1 {
+            opacity:1
+        }
     </style>
-    <div style="position:relative;width:100%; height:100%;pointer-events: none">
+    <div style="position:relative;width:100%; height:100%">
         <img ng-show="dashboard.showBackgroundImage" class="backgroundImage" src="{{dashboard.backgroundimage}}"></img>
-        <ul style="padding:0;pointer-events: none; height:100%">
-            <li ng-repeat="widget in dashboard.widgets" class="widget-parent" ng-class="{widgethover : widget.hover}" ng-show="widget.enabled && !(!vm.$mapService.isAdminExpert && widget.hideIfLeftPanel && vm.$layerService.visual.leftPanelVisible)">
-                <div class="widget-container widget-entrance" ng-hide="widget.collapse" style="position:absolute" ng-style="{'background' : widget.background,'border-color':widget.borderColor,'top':widget.top,'left':widget.left,'right':widget.right,'border-width':widget.borderWidth,'border-radius':widget.borderRadius,'width':widget.width,'height':widget.height,'opacity' : widget.opacity}">
+        <ul style="padding:0;height:100%" id="dashboardwidgets">
+            <li ng-repeat="widget in dashboard.widgets" when-ready="vm.isReady(widget)" id="{{widget.elementId}}-container" class="widget-parent" ng-class="{widgethover : widget.hover}" ng-show="widget.enabled && !(!vm.$mapService.isAdminExpert && widget.hideIfLeftPanel && vm.$layerService.visual.leftPanelVisible)">
+                <div class="widget-container widget-entrance" id="{{widget.elementId}}-parent" ng-hide="widget.collapse" style="position:absolute" ng-style="{'background' : widget.effectiveStyle.background,'border-color':widget.effectiveStyle.borderColor,'top':widget.top,'bottom':widget.bottom,'left':widget.left,'right':widget.right,'border-width':widget.effectiveStyle.borderWidth,'border-radius':widget.effectiveStyle.borderRadius,'width':widget.width,'height':widget.height,'opacity' : widget.effectiveStyle.opacity}">
+                    <div ng-show="widget._interaction" style="position:absolute;width:100%;height:100%">
+                        <div ng-show="widget.left" class="fa fa-chevron-left" style="color:blue;left:-5px;top:50%;position:absolute"></div>
+                        <div ng-show="widget.right" class="fa fa-chevron-right" style="color:blue;right:0px;top:50%;position:absolute"></div>
+                        <div ng-show="widget.top" class="fa fa-chevron-up" style="color:blue;left:50%;top:-7px;position:absolute"></div>
+                        <div ng-show="widget.bottom" class="fa fa-chevron-down" style="color:blue;left:50%;bottom:0;position:absolute"></div>
+                    </div>
+
                     <!-- ,'border-color':widget.borderColor,'border-width':widget.borderwidth,'border-radius':widget.borderradius,'top':widget.top;'bottom':widget.bottom;'left':widget.left;'right':widget.right;'position': absolute;'width':widget.width;'height':widget.height} -->
                     <!-- <div class="widget-container widget-entrance" ng-hide="widget.collapse" style="background:{{widget.background}};border-color:{{widget.borderColor}};border-width:{{widget.borderwidth}};border-radius:{{widget.borderradius}};top: {{widget.top}};bottom: {{widget.bottom}};left:{{widget.left}};right:{{widget.right}};position: absolute;width:{{widget.width}};height:{{widget.height}}"> -->
-                    <div id="{{widget.elementId}}" when-ready="vm.isReady(widget)" class="box-content" style="width:100%;height:100%">
+                    <div id="{{widget.elementId}}" class="box-content" style="width:100%;height:100%">
                     </div>
-                    <div ng-show="vm.$mapService.isAdminExpert" class="widgeteditbutton" ng-class="{widgeteditmode : vm.$dashboardService.activeWidget == widget}" style="position:absolute;top:0;right:0">
-                        <button ng-click="vm.$dashboardService.editWidget(widget)" class="button fa fa-cog leftpanel-header-button" />
+                    <div ng-show="vm.$mapService.isAdminExpert" class="widgeteditbutton" style="position:absolute;top:0;right:0;width:75px">
+                        <button ng-click="vm.$dashboardService.editWidget(widget)" ng-class="{opacity1 : vm.$dashboardService.activeWidget == widget}" class="button fa fa-cog leftpanel-header-button" />
+                        <!-- <button ng-click="vm.$dashboardService.removeWidget(widget)" class="button fa fa-trash leftpanel-header-button" /> -->
+                        <button ng-click="vm.toggleInteract(widget)"  ng-class="{opacity1 : widget._interaction}" class="button fa fa-arrows leftpanel-header-button" />
                     </div>
                 </div>
             </li>

@@ -7,22 +7,32 @@ module KanbanColumn {
         columnOrderBy: string;
         query: string;
         fields: any;
+        layer: csComp.Services.ProjectLayer;
+        /** In case the KanbanColumn should use a temporary layer instead of a project layer, this should be set
+         *  to true and the layer should be passed through the scope variables. One example where this is used, 
+         *  is in the EventTab. 
+         */
+        providedlayer: boolean;
     }
 
     export class ColumnFilter {
-        layerIds: string[];
+        layerId: string;
         prio: number;
         roles: string[];
         tags: string[];
     }
 
     export class Column {
+        title: string;
         id: string;
         filters: ColumnFilter;
+        propertyTags: string[];
+        timeReference: string;
         roles: string[];
         fields: any;
         orderBy: string;
         actions: string[];
+        canShare: boolean;
     }
 
     declare var _;
@@ -52,13 +62,14 @@ module KanbanColumn {
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private mapService: csComp.Services.MapService
-            ) {
+        ) {
             $scope.vm = this;
 
             //var par = <any>$scope.$parent;
             //this.kanban = par.widget.data;
             this.column = $scope.column;
             $scope.fields = this.column.fields;
+            this.layer = $scope.layer;
 
             if ($scope.fields.hasOwnProperty('prio')) this.sortOptions = this.sortOptions.concat(['High priority', 'Low Priority']);
             if ($scope.fields.hasOwnProperty('date')) this.sortOptions = this.sortOptions.concat(['New', 'Old']);
@@ -67,6 +78,8 @@ module KanbanColumn {
 
             // check if layers should be enabled
             this.initLayers();
+
+            if (!this.column.hasOwnProperty('canShare')) this.column.canShare = true;
 
             if (this.column.orderBy)
                 this.setOrder(this.column.orderBy)
@@ -77,7 +90,7 @@ module KanbanColumn {
                 var result = true;
                 if (!$scope.column) return false;
                 // Check that the layerId is applicable.
-                if (result && !_.contains(this.column.filters.layerIds, feature.layerId)) return false;
+                if (result && this.column.filters.layerId !== feature.layerId) return false;
                 // Role filter: is a simple AND filter.
                 if (this.column.filters.roles && this.column.filters.roles.length > 0 && feature.properties.hasOwnProperty('roles')) {
                     this.column.filters.roles.forEach((r: string) => {
@@ -145,22 +158,22 @@ module KanbanColumn {
         }
 
         public createForm(feature: csComp.Services.IFeature) {
-            if (feature.gui["questions"]) {
-                delete feature.gui["questions"];
+            if (feature._gui["questions"]) {
+                delete feature._gui["questions"];
                 this.$layerService.unlockFeature(feature);
             }
             else if (this.$layerService.lockFeature(feature)) {
-                feature.gui["questions"] = [];
+                feature._gui["questions"] = [];
                 feature.properties[this.column.fields['question']].forEach((s: string) => {
                     var pt = this.$layerService.getPropertyType(feature, s);
-                    feature.gui["questions"].push({ property: s, ptype: pt });
+                    feature._gui["questions"].push({ property: s, ptype: pt });
                 });
             }
         }
 
         public sendForm(feature: csComp.Services.IFeature) {
             feature.properties["answered"] = true;
-            delete feature.gui["questions"];
+            delete feature._gui["questions"];
             this.$layerService.unlockFeature(feature);
             this.$layerService.saveFeature(feature, true);
         }
@@ -168,7 +181,7 @@ module KanbanColumn {
         public saveCategory(feature: csComp.Services.IFeature, property: string, value: string) {
             feature.properties["answered"] = true;
             feature.properties[property] = value;
-            delete feature.gui["questions"];
+            delete feature._gui["questions"];
             this.$layerService.unlockFeature(feature);
             this.$layerService.saveFeature(feature, true);
         }
@@ -176,10 +189,16 @@ module KanbanColumn {
         public updateTime() {
             this.$layerService.project.features.forEach((feature: csComp.Services.IFeature) => {
                 if (feature.properties.hasOwnProperty('date')) {
-
-                    var d = feature.properties['date'];
-                    if (!feature.hasOwnProperty('gui')) feature.gui = new Object;
-                    feature.gui['relativeTime'] = moment(d).fromNow();
+                    // Select a timereference to use, e.g., actual date or the timeline's focusdate
+                    if (this.column.timeReference && this.column.timeReference.toLowerCase() === 'timeline') {
+                        var d = feature.properties['date'];
+                        if (!feature.hasOwnProperty('_gui')) feature._gui = <csComp.Services.IGuiObject>{};
+                        feature._gui['relativeTime'] = moment(d).from(moment(new Date(this.$layerService.project.timeLine.focus)));
+                    } else {
+                        var d = feature.properties['date'];
+                        if (!feature.hasOwnProperty('_gui')) feature._gui = <csComp.Services.IGuiObject>{};
+                        feature._gui['relativeTime'] = moment(d).fromNow();
+                    }
                 }
                 return "";
             })
@@ -201,13 +220,13 @@ module KanbanColumn {
             this.$messageBus.publish("kanbanaction", action, feature);
         }
 
-        public getPrioColor(feature: csComp.Services.IFeature) {
+        public getPrioColor(feature: csComp.Services.IFeature): any {
             var colors = ["white", "black", "red", "orange", "blue", "green"];
             if (feature.properties.hasOwnProperty(this.column.fields['prio']))
                 return {
                     "background-color": colors[parseInt(feature.properties[this.column.fields['prio']])]
-                }
-            return {};
+                };
+            return { "background-color": "white" };
         }
 
         public setOrder(order: string) {
@@ -250,16 +269,17 @@ module KanbanColumn {
         we only use the first one for now
          */
         initLayers() {
+            var providedLayer = this.$scope.providedlayer;
+            if (providedLayer) {
+                this.layer = this.$scope.layer;
+                return;
+            }
             var c = this.$scope.column;
-
-            if (c.filters.layerIds && c.filters.layerIds.length > 0) {
-                var lid = c.filters.layerIds[0];
-                this.layer = this.$layerService.findLayer(lid);
-                if (this.layer) {
-                    this.$layerService.addLayer(this.layer, (t) => {
-                    });
-                }
-            };
+            var lid = c.filters.layerId;
+            this.layer = this.$layerService.findLayer(lid);
+            if (this.layer) {
+                this.$layerService.addLayer(this.layer, (t) => { });
+            }
         }
     }
 }

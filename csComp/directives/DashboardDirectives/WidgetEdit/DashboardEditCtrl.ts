@@ -4,6 +4,8 @@ module DashboardEdit {
     import IPropertyType = csComp.Services.IPropertyType;
     import IPropertyTypeData = csComp.Services.IPropertyTypeData;
 
+    declare var interact;
+
 
     export interface IDashboardEditScope extends ng.IScope {
         vm: DashboardEditCtrl;
@@ -32,7 +34,7 @@ module DashboardEdit {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope: IDashboardEditScope,
+            public $scope: IDashboardEditScope,
             private $mapService: csComp.Services.MapService,
             private $layerService: csComp.Services.LayerService,
             private $messageBusService: csComp.Services.MessageBusService,
@@ -43,12 +45,18 @@ module DashboardEdit {
             this.dashboard = $scope.$parent["data"];
             if (this.dashboard.parents && this.dashboard.parents.length > 0) this.parent = this.dashboard.parents[0];
             this.updateHasParent();
+            console.log(this.$dashboardService.widgetTypes);
+            // setup draggable elements.
+
+
         }
 
+
+
         public updateHasParent() {
-            return;
-            if (this.parent !== "") this.dashboard.parents = [this.parent];
-            this.hasParent = this.dashboard.parents && this.dashboard.parents.length > 0;
+
+            // if (this.parent !== "") this.dashboard.parents = [this.parent];
+            // this.hasParent = this.dashboard.parents && this.dashboard.parents.length > 0;
         }
 
         public toggleTimeline() {
@@ -72,6 +80,11 @@ module DashboardEdit {
 
             for (var id in this.$layerService.loadedLayers) this.dashboard.visiblelayers.push(id);
         }
+        
+        public setBaseLayer()
+        {                        
+            this.dashboard.baselayer = this.$mapService.activeBaseLayerId;
+        }
 
 
         public toggleMap() {
@@ -81,34 +94,23 @@ module DashboardEdit {
 
         }
 
-        public addWidget(event) {
-            //if (event.target.tagName !== 'INPUT') return;
-            console.log("Add widget");
-            var w = <csComp.Services.IWidget>{};
-            w.directive = "indicators";
-            var idata = new Indicators.indicatorData();
-            idata.title = "NewWidget";
-            idata.orientation = "vertical";
-            w.data = idata;
-            w.enabled = true;
-            w.parentDashboard = this.dashboard;
-            this.$dashboardService.addNewWidget(w, this.dashboard);
-            this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
-        }
-
         public checkMap() {
             var db = this.$layerService.project.activeDashboard;
-            if (db.showMap != this.$layerService.visual.mapVisible) {
+            if (db.showMap !== this.$layerService.visual.mapVisible) {
                 if (db.showMap) {
                     this.$layerService.visual.mapVisible = true;
                 } else {
                     this.$layerService.visual.mapVisible = false;
                 }
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
             }
 
             if (db.showMap && this.dashboard.baselayer) {
-                this.$messageBusService.publish("map", "setbaselayer", this.dashboard.baselayer);
+                //this.$messageBusService.publish("map", "setbaselayer", this.dashboard.baselayer);
+                var layer : csComp.Services.BaseLayer = this.$layerService.$mapService.getBaselayer(this.dashboard.baselayer);
+                this.$layerService.activeMapRenderer.changeBaseLayer(layer);
+                this.$layerService.$mapService.changeBaseLayer(this.dashboard.baselayer);
+                this.$layerService.$mapService.changeBaseLayer(this.dashboard.baselayer);
             }
         }
 
@@ -120,35 +122,35 @@ module DashboardEdit {
                 var s = new Date(db.timeline.start);
                 var e = new Date();
                 if (db.timeline.end) e = new Date(db.timeline.end);
-                //this.$messageBusService.publish("timeline", "updateTimerange", { "start": s, "end": e});
-                this.$messageBusService.publish("timeline", "updateTimerange", { start: s, end: e });
+                //this.$messageBusService.publish('timeline', 'updateTimerange', { 'start': s, 'end': e});
+                this.$messageBusService.publish('timeline', 'updateTimerange', { start: s, end: e });
 
 
                 //this.$layerService.project.timeLine.setFocus(db.timeline.focusDate, db.timeline.startDate, db.timeline.endDate);
             }
 
-            if (db.showTimeline != this.$mapService.timelineVisible) {
+            if (db.showTimeline !== this.$mapService.timelineVisible) {
                 if (db.showTimeline) {
                     this.$mapService.timelineVisible = true;
                 } else {
                     this.$mapService.timelineVisible = false;
                 }
 
-                if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
             }
         }
 
-        public checkLegend(){
+        public checkLegend() {
             var db = this.$layerService.project.activeDashboard;
             if (!db.showLegend) {
                 var idxDelete = -1;
-                db.widgets.forEach((w,idx) => {
-                    if(w.id === 'legend') {idxDelete = idx;}
+                db.widgets.forEach((w, idx) => {
+                    if (w.id === 'legend') { idxDelete = idx; }
                 });
                 if (idxDelete > -1) db.widgets.splice(idxDelete, 1);
             }
             this.$dashboardService.selectDashboard(db, 'main');
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
         }
 
     }

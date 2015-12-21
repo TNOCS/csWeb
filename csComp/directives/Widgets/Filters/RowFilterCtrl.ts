@@ -5,7 +5,8 @@ module Filters {
         vm: RowFilterCtrl;
         filter: csComp.Services.GroupFilter;
         options: Function;
-        editMode: boolean;
+        removeString: string;
+        createScatterString: string;
     }
 
     export class RowFilterCtrl {
@@ -20,7 +21,8 @@ module Filters {
             '$scope',
             'layerService',
             'messageBusService',
-            '$timeout'
+            '$timeout',
+            '$translate'
         ];
 
         // dependencies are injected via AngularJS $injector
@@ -29,11 +31,17 @@ module Filters {
             public $scope: IRowFilterScope,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
-            private $timeout: ng.ITimeoutService
-            ) {
+            private $timeout: ng.ITimeoutService,
+            private $translate: ng.translate.ITranslateService
+        ) {
             $scope.vm = this;
 
-
+            $translate('REMOVE').then((translation) => {
+                $scope.removeString = translation;
+            });
+            $translate('CREATE_SCATTER').then((translation) => {
+                $scope.createScatterString = translation;
+            });
 
             var par = <any>$scope.$parent.$parent;
 
@@ -49,10 +57,10 @@ module Filters {
 
                 $scope.options = (() => {
                     var res = [];
-                    res.push(['remove', () => this.remove()]);
+                    res.push([$scope.removeString, () => this.remove()]);
                     $scope.filter.group.filters.forEach((gf: csComp.Services.GroupFilter) => {
-                        if (gf.filterType == "bar" && gf.property != $scope.filter.property) {
-                            res.push(['create scatter with ' + gf.title, () => this.createScatter(gf)]);
+                        if (gf.filterType == "row" && gf.property != $scope.filter.property) {
+                            res.push([$scope.createScatterString + ' ' + gf.title, () => this.createScatter(gf)]);
                         }
                     });
 
@@ -69,9 +77,20 @@ module Filters {
         }
 
         private displayFilterRange(min, max) {
+            if ((+min) > (+max)) {
+                min = max;
+            }
             var filter = this.$scope.filter;
-            (<any>filter).from = min;
-            (<any>filter).to = max;
+            if (filter.rangex[0] < min) {
+                filter.from = min;
+            } else {
+                filter.from = filter.rangex[0];
+            }
+            if (filter.rangex[1] > max) {
+                filter.to = max;
+            } else {
+                filter.to = filter.rangex[1];
+            }
             this.$scope.$apply();
         }
 
@@ -87,105 +106,71 @@ module Filters {
 
             this.$scope.$apply();
 
-            // var filterFrom = $('#fsfrom_' + filter.id);
-            // var filterTo = $('#fsto_' + filter.id);
-            // var info = this.$layerService.calculatePropertyInfo(group, filter.property);
-            //
-            // var nBins = 20;
-            // var min = info.sdMin;
-            // var max = info.sdMax + (info.sdMax - info.sdMin) * 0.01;
-            //
-            // var binWidth = (max - min) / nBins;
-
+            var pt : csComp.Services.IPropertyType;
+            
+           
             var dcDim = group.ndx.dimension(d => {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
                 else {
+                    if (!pt) pt = this.$layerService.getPropertyType(d,filter.property);
                     if (d.properties[filter.property] != null) {
-                        return d.properties[filter.property];
-                        // var a = parseInt(d.properties[filter.property]);
-                        // if (a >= min && a <= max) {
-                        //     return Math.floor(a / binWidth) * binWidth;
-                        // } else {
-                        //     return null;
-                        // }
+                        
+                        var a = d.properties[filter.property];
+                        var r;
+                        if (pt && pt.options && pt.options.hasOwnProperty(a)) {
+                            r = a + "." + pt.options[a];
+                        } else { r = a + "." + a}
+                        return r;
                     }
                     return null;
-                    //return a;
                 }
             });
             filter.dimension = dcDim;
-
-            var dcGroup = dcDim.group().reduceCount();
-
+            var dcGroup = dcDim.group();
 
             //var scale =
-            this.dcChart.width(275)
-                .height(110)
+            this.dcChart.width(315)
+                .height(210)                
                 .dimension(dcDim)
                 .group(dcGroup)
-                .transitionDuration(100)
-                .gap(5) //d3.scale.quantize().domain([0, 10]).range(d3.range(1, 4));
-            // .filterPrinter(filters => {
-            // var s = '';
-            // if (filters.length > 0) {
-            //     var localFilter = filters[0];
-            //     this.displayFilterRange(localFilter[0].toFixed(2), localFilter[1].toFixed(2))
-            //     //  $("#filterfrom_" + filter.id).empty();
-            //     //$("#filterfrom_" + filter.id).text(localFilter[0].toFixed(2));
-            //
-            //
-            //     s += localFilter[0];
-            // }
-
-            //     return s;
-            // })
-                .on('filtered', (e) => {
-                var fil = e.hasFilter();
-                if (fil) {
-                    //filterRange.show();
-                } else {
-                    //filterRange.hide();
-                }
-                dc.events.trigger(() => {
-                    group.filterResult = dcDim.top(Infinity);
-                    this.$layerService.updateFilterGroupCount(group);
-                }, 0);
-                dc.events.trigger(() => {
-                    this.$layerService.updateMapFilter(group);
-                }, 100);
-            });
+                .title(d=> {
+                    console.log(d); 
+                    return d.key })
+                .elasticX(true)                
+                .colors(d=>{
+                    if (pt.legend)
+                    {                        
+                        if (pt.options) return csComp.Helpers.getColorFromLegend(parseInt(d.split('.')[0]),pt.legend);
+                    }
+                    else
+                    {
+                        return "red";    
+                    }
+                    
+                    
+                })
+                .on('renderlet', (e) => {
+                    // var fil = e.hasFilter();
+                    // var s = '';
+                    // if (e.filters.length > 0) {
+                    //     var localFilter = e.filters[0];
+                    //     this.displayFilterRange(+(localFilter[0]).toFixed(2), (+localFilter[1]).toFixed(2))
+                    //     s += localFilter[0];
+                    // }
+                    dc.events.trigger(() => {
+                        this.$layerService.updateFilterGroupCount(group);
+                    }, 0);
+                    dc.events.trigger(() => {
+                        group.filterResult = dcDim.top(Infinity);
+                        this.$layerService.updateMapFilter(group);
+                    }, 100);
+                });
+            this.dcChart.selectAll();
             //this.displayFilterRange(min,max);
 
-            //
-            //
-            // filterFrom.on('change', () => {
-            //     if ($.isNumeric(filterFrom.val())) {
-            //         var min = parseInt(filterFrom.val());
-            //         var filters = this.dcChart.filters();
-            //         if (filters.length > 0) {
-            //             filters[0][0] = min;
-            //             this.dcChart.filter(filters[0]);
-            //             this.dcChart.render();
-            //             //dcDim.filter(filters[0]);
-            //             dc.redrawAll();
-            //             //dc.renderAll();
-            //         }
-            //     }
-            // });
-            // filterTo.on('change', () => {
-            //     if ($.isNumeric(filterTo.val())) {
-            //         var max = parseInt(filterTo.val());
-            //         var filters = this.dcChart.filters();
-            //         if (filters.length > 0) {
-            //             filters[0][1] = max;
-            //             this.dcChart.filter(filters[0]);
-            //             dcDim.filter(filters[0]);
-            //             dc.renderAll();
-            //         }
-            //         //dc.redrawAll();
-            //     }
-            //     //dcDim.filter([min, min + 100]);
-            // });
+
+            
+
 
             //this.$scope.$watch('filter.from',()=>this.updateFilter());
             //  this.$scope.$watch('filter.to',()=>this.updateFilter());
@@ -198,32 +183,38 @@ module Filters {
             //    dcChart.x(d3.scale.linear().domain([propInfo.min - dif, propInfo.max + dif]));
             //}
 
-            // this.dcChart.yAxis().ticks(5);
-            // this.dcChart.xAxis().ticks(5);
+            //this.dcChart.yAxis().ticks(5);
+            //this.dcChart.xAxis().ticks(5);
             //this.dcChart.mouseZoomable(true);
             dc.renderAll();
+            this.updateRange();
             //  this.updateChartRange(this.dcChart,filter);
 
         }
 
         private updateFilter() {
             setTimeout(() => {
-                this.dcChart.filter([(<any>this.$scope.filter).from, (<any>this.$scope.filter).to]);
+                this.dcChart.filter([this.$scope.filter.from, this.$scope.filter.to]);
                 this.dcChart.render();
                 dc.renderAll();
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
-                console.log('update filter');
             }, 10);
 
         }
 
         public updateRange() {
             setTimeout(() => {
-                this.dcChart.filter([(<any>this.$scope.filter).from, (<any>this.$scope.filter).to]);
+                var filter = this.$scope.filter;
+                var group = filter.group;
+                this.displayFilterRange(this.$scope.filter.from, this.$scope.filter.to);
+                this.dcChart.filterAll();
+                this.dcChart.filter((<any>dc).filters.RangedFilter(this.$scope.filter.from, this.$scope.filter.to));
                 this.dcChart.render();
+                dc.redrawAll();
+                group.filterResult = filter.dimension.top(Infinity);
                 this.$layerService.updateMapFilter(this.$scope.filter.group);
-                console.log('update filter');
-            }, 10);
+                this.$scope.$apply();
+            }, 0);
         }
 
         public remove() {
@@ -231,7 +222,6 @@ module Filters {
                 this.$layerService.removeFilter(this.$scope.filter);
             }
         }
-
 
     }
 }

@@ -1,4 +1,4 @@
-﻿module Charts {
+module Charts {
     'use strict'
 
     declare var String;
@@ -42,6 +42,14 @@
         static timestampToString(ts: number) {
             var date = new Date(ts);
             var dateString = String.format("{0}-{1:00}-{2:00}", date.getFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
+            //if (date.getUTCHours() > 0 || date.getUTCMinutes() > 0)
+            //    dateString += String.format(" {0:00}:{1:00}", date.getUTCHours(), date.getUTCMinutes());
+            return dateString;
+        }
+        
+        static timestampToTimeString(ts: number) {
+            var date = new Date(ts);
+            var dateString = String.format("{0}:{2:00}:{2:00}", date.getHours(), date.getMinutes() + 1, date.getSeconds());
             //if (date.getUTCHours() > 0 || date.getUTCMinutes() > 0)
             //    dateString += String.format(" {0:00}:{1:00}", date.getUTCHours(), date.getUTCMinutes());
             return dateString;

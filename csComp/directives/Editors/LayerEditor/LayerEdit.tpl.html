@@ -3,7 +3,7 @@
         <i class="layersIcon rightpanel-header-icon" />Layer Editor
     </h4>
 
-    <div data-ng-cloak style="margin:5px;overflow-y:auto">
+    <div data-ng-cloak style="margin:5px;overflow-y:auto" resize resize-y="150">
         <div class="controls">
             <label class="editor-title input-xlarge" for="layerTitle">Title</label>
             <input id="layerTitle" name="textinput" type="text" ng-model="vm.layer.title" placeholder="placeholder" class="input-xlarge editor-text-input">
@@ -26,7 +26,7 @@
                     <option value="dynamicgeojson">Dynamic Geojson</option>
                     <option value="esrijson">Esri Json</option>
                     <option value="wms">Wms</option>
-                    <option value="rss">Rss</option>
+                    <option value="tilelayer">Tile Layer</option>
                 </select>
             </div>
             <div class="controls">
@@ -39,21 +39,25 @@
             </div>
             <div ng-show="vm.layer.type=='geojson' || vm.layer.type=='rss' || vm.layer.type=='dynamicgeojson' || vm.layer.type=='esrijson'">
                 <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
-                    <input disabled="true" type="checkbox" id="useProxy-{{vm.layer.id}}" ng-model="group.useProxy">
+                    <input type="checkbox" id="useProxy-{{vm.layer.id}}" ng-model="vm.layer.useProxy">
                     <label for="useProxy-{{vm.layer.id}}">use proxy (used for external urls)</label>
                 </div>
-                <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+                <!-- <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
                     <input type="checkbox" id="dynamic-{{vm.layer.id}}" ng-model="group.dynamic">
                     <label for="dynamic-{{vm.layer.id}}">dynamic</label>
-                </div>
+                </div> -->
                 <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
-                    <input type="checkbox" id="bbox-{{vm.layer.id}}" ng-model="group.refreshBBOX">
+                    <input type="checkbox" id="bbox-{{vm.layer.id}}" ng-model="vm.layer.useProxy.refreshBBOX">
                     <label for="bbox-{{vm.layer.id}}">refresh bounding box</label>
                 </div>
                 <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
+                    <input type="checkbox" id="isdynamic-{{vm.layer.id}}" ng-model="vm.layer.isDynamic">
+                    <label for="isdynamic-{{vm.layer.id}}">is dynamic</label>
+                </div>
+                <!-- <div class="checkbox dashboard-edit-checkbox" style="margin-left: 20px">
                     <input type="checkbox" id="isFeed-{{vm.layer.isFeed}}" ng-model="group.isFeed">
                     <label for="isFeed-{{vm.layer.id}}">is a feed</label>
-                </div>
+                </div> -->
                 <div class="controls" style="position:relative" ng-if="vm.layer.typeUrl">
                     <label class="editor-title input-xlarge" for="defaultFeatureType">Default Feature Type</label>
                     <input id="layerTitle" name="textinput" type="text" ng-model="vm.layer.defaultFeatureType" placeholder="placeholder" class="input-xlarge editor-text-input">
@@ -71,7 +75,7 @@
                 </div>
 
             </div>
-            <div class="controls" style="margin-top:10px">
+            <div class="controls" style="margin-top:10px; margin-bottom: 40px;">
                 <button class="btn" ng-click="vm.removeLayer()">remove layer</button>
             </div>
         </div>

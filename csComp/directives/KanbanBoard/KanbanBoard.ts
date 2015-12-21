@@ -18,7 +18,7 @@ module KanbanColumn {
     /**
       * Directive to display the available map layers.
       */
-    myModule.directive('kanbanBoard', [
+    myModule.directive('kanbanboard', [
         function(): ng.IDirective {
             return {
                 terminal: true,  // do not compile any other internal directives

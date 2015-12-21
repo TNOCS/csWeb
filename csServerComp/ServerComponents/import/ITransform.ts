@@ -52,7 +52,7 @@ export interface ITransform {
      */
     outputDataTypes?: OutputDataType[];
 
-    create?(config: ConfigurationService, opt?: ITransformFactoryOptions): NodeJS.ReadWriteStream;
+    create?(config: ConfigurationService.ConfigurationService, opt?: ITransformFactoryOptions): NodeJS.ReadWriteStream;
 
     initialize(opt: ITransformFactoryOptions, callback: (error)=>void);
 }

@@ -1,0 +1,26 @@
+<div>
+
+    <h4 class="rightpanel-header">
+        IFrame Editor
+        <div style="float:right;margin-right:10px">
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-save leftpanel-header-button" ng-click="vm.update()" />
+        </div>
+    </h4>
+
+    <div data-ng-cloak tab-content isolate-scope style="margin:5px; overflow-y: auto; overflow-x: hidden;" resize resize-y="140">
+        <div style="margin-left:5px;margin-right:20px">
+            <div class="col-md-12">
+                <label class="editor-title input-xlarge" for="chartTitle">Url</label>
+                <input name="chartTitle" type="text" ng-model="data.url" placeholder="placeholder" class="input-xlarge editor-text-input">
+            </div>
+            <div class="col-md-6">
+                <label class="control-label" for="widgetWidth">Width</label>
+                <input id="widgetWidth" name="textinput" type="number" ng-model="data.width" placeholder="width" class="input-xlarge">
+            </div>
+            <div class="col-md-6">
+                <label class="control-label" for="widgetHeight">Height</label>
+                <input id="widgetHeight" name="textinput" type="number" ng-model="data.height" placeholder="height" class="input-xlarge">
+            </div>
+        </div>
+
+</div>

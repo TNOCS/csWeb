@@ -5,6 +5,7 @@ module Translations {
             OK_BTN: 'OK',
             FROM: 'van',
             TO: 'tot',
+            NAVIGATE:'Start',
             REMOVE: 'Verwijder',
             CREATE_SCATTER: 'Creeer spreidingsdiagram',
             EXPAND_ALL: 'Alles uitklappen',
@@ -12,8 +13,13 @@ module Translations {
             SELECT_ALL: 'Selecteer alles',
             DESELECT_ALL: 'Deselecteer alles',
             ENABLE_LOCATION_FILTER: 'Activeer locatiefilter',
+            SELECT_A_FEATURE: 'Selecteer een feature',
             DISABLE_LOCATION_FILTER: 'Deactiveer locatiefilter',
             SELECT_FEATURE_FOR_WIDGET: 'Selecteer een gebied om de widget te tonen.',
+            SELECT_FEATURE_FOR_STYLE: 'Selecteer een gebied om de stijl te activeren.',
+            SELECT_LAYER_GROUP : 'Selecteer lagen',
+            SELECT_CATEGORY: 'Selecteer categorie',
+            SELECT_PROPERTIES: 'Selecteer eigenschappen',
             NO_RELATIONS_FOUND: 'Geen relaties voor het geselecteerde item gevonden. Ofwel het zoomniveau is te laag, er zijn teveel items zichtbaar of er zijn geen relaties gedefiniëerd.',
             CHOOSE_DROPDOWN: 'Kies...',
             BASESTYLES: 'Basiskaarten',
@@ -21,6 +27,10 @@ module Translations {
             MAP_LABEL: 'Kaart',
             TABLE_LABEL: 'Tabel',
             LAYERS: 'Kaartlagen',
+            DIRECTORY: 'Beschikbare lagen',
+            CREATELAYER: 'Nieuwe laag maken',
+            ADDFEATURES: 'Objecten toevoegen',
+            ADDTYPE:'Nieuwe type toevoegen',
             FILTERS: 'Filters',
             FILTER_INFO: 'Momenteel zijn er geen filters geselecteerd. Klik op een icoon of gebied op de kaart, en klik op het filter icoontje (<span class="fa fa-filter"></span>) in het rechter menu om een filter toe te voegen. Dan wordt er een filter aangemaakt voor de geselecteerde eigenschap.',
             STYLES: 'Stijlen',
@@ -56,8 +66,29 @@ module Translations {
             WHITE_ORANGE: 'wit - oranje',
             ORANGE_WHITE: 'oranje - wit',
             SAVE: 'opslaan',
+            APPLY: 'toepassen',
+            DONE: 'klaar',
             CONFIG: 'config',
             EDIT: 'aanpassen',
+            STATS: {
+                COUNT: '#',
+                COUNT_TOOLTIP: 'Aantal geselecteerde items',
+                MIN: 'min',
+                MIN_TOOLTIP: 'Minimum van geselecteerde items',
+                MAX: 'max',
+                MAX_TOOLTIP: 'Maximum van geselecteerde items',
+                MEAN: 'µ',
+                MEAN_TOOLTIP: 'Gemiddelde van geselecteerde items',
+                SUM: 'Σ',
+                SUM_TOOLTIP: 'Som van geselecteerde items'
+            },
+            UTILS: {
+                FILTER: 'Gebruik dit kenmerk als filter',
+                STYLE: 'Gebruik dit kenmerk als stijl',
+                STATS: 'Toon de statistieken van dit kenmerk',
+                CHART: 'Toon het verloop van dit kenmerk in de tijd',
+                CONFIG: 'Configureer dit kenmerk'
+            },
             EXPERTMODE: {
                 BEGINNER: 'Beginner',
                 INTERMEDIATE: 'Gevorderd',
@@ -127,12 +158,14 @@ module Translations {
                 GAUSSIAN: 'Normale verdeling tussen onder- en bovengrens.',
                 ADD_MCA: 'Maak een nieuwe MCA.',
                 DELETE_MCA: 'Verwijder de MCA.',
-                EDIT_MCA: 'Bewerk de MCA.'
+                EDIT_MCA: 'Bewerk de MCA.',
+                SET_STYLE: 'Activeer stijl'
             },
             PROJECTSETTINGS: {
                 TITLE: 'Project instellingen',
                 DESCRIPTION: 'Instellingen'
             },
+            CHOOSE_CATEGORY: 'Kies categorie...',
             SHOW5: 'Toon 5 regels',
             SHOW10: 'Toon 10 regels',
             SHOW15: 'Toon 15 regels',
@@ -140,7 +173,18 @@ module Translations {
             SHOW25: 'Toon 25 regels',
             SHOW30: 'Toon 30 regels',
             SHOW35: 'Toon 35 regels',
-            SHOW40: 'Toon 40 regels'
+            SHOW40: 'Toon 40 regels',
+            RISK_DIAGRAM_FOR: 'Risicodiagram voor een ',
+            SAVE_FEATURE_DEPENDENCIES: 'Sla de afhankelijkheden op alléén voor het geselecteerde object',
+            SAVE_FEATURETYPE_DEPENDENCIES: 'Sla de afhankelijkheden op voor alle object van dit type',
+            SAVE_MARVEL: 'Bewaar ',
+            SAVE_EVERY_MARVEL: 'Bewaar ieder ',
+            MARVEL_WATER_LEVEL: 'Waterniveau [m]',
+            MARVEL_UPS_DURATION: 'Noodstroom duur [min]',
+            MARVEL_FEATURE_DEP: 'Afhankelijk van',
+            STATE: 'Status',
+            EVENT_INFO: 'Toon lijst van gebeurtenissen',
+            CLEAR_EVENTS: 'Lijst leegmaken'
         }
     }
 }

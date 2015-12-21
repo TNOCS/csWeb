@@ -22,6 +22,7 @@ module Charts {
         timestamps: number[];
         update: boolean;
         sensor: number[];
+        property: string;
         width?: number;
         height?: number;
         closed?: boolean;
@@ -38,6 +39,7 @@ module Charts {
                 scope: {
                     timestamps: '=',  // = means that we use angular to evaluate the expression,
                     sensor: '=',
+                    property: '=',
                     update: '=',
                     focusTime: '=',
                     showaxis: '=',
@@ -63,6 +65,7 @@ module Charts {
                             var margin = scope.margin || { top: 15, right: 5, bottom: 0, left: 10 };
                             var width = scope.width || 100;
                             var height = scope.height || 70;
+                            console.log('heigth:' + height);
                             var showAxis = typeof scope.showaxis !== 'undefined' && scope.showaxis;
                             var closed = typeof scope.closed !== 'undefined' && scope.closed;
                             var cursorTextHeight = 12;// + (showAxis ? 5 : 0); // leave room for the cursor text (timestamp | measurement)
@@ -92,7 +95,9 @@ module Charts {
 
 
                             for (var i = 0; i < scope.timestamps.length; i++) {
-                                data.push({ time: scope.timestamps[i], measurement: scope.sensor[i] });
+                                var m = scope.property ? scope.property : 'value';
+                                var me = $.isArray(scope.sensor[i]) ? scope.sensor[i][m] : scope.sensor[i];
+                                data.push({ time: scope.timestamps[i], measurement: me });
                             }
 
                             //data.push({time:scope.timestamps[scope.timestamps.length-1],measurement:0});
@@ -159,7 +164,7 @@ module Charts {
                                     .attr("y", ymin)
                                     .attr("dy", ".35em")
                                     .style("text-anchor", "end")
-                                    //.text(d3.max(y.domain()));
+                                //.text(d3.max(y.domain()));
                                     .text();
                                 // y-axis, min
                                 chart.append('line')
@@ -217,6 +222,14 @@ module Charts {
                                 .attr("opacity", 0)
                                 .style("text-anchor", "end")
                                 .text("");
+                                var timestampTimeText = chart.append("text")
+                                .attr("x", 0)
+                                .attr("y", 16)
+                                .attr("dy", ".35em")
+                                .attr("opacity", 0)
+                                .style("text-anchor", "end")
+                                .text("");
+                                
                             var measurementText = chart.append("text")
                                 .attr("x", 0)
                                 .attr("y", 0)
@@ -228,7 +241,7 @@ module Charts {
                             var pathLength = pathEl.getTotalLength();
 
                             chart
-                            //.on("mouseover", function () { })
+                            .on("mouseover", function () { })
                                 .on("mouseout", function() {
                                 cursor.attr("opacity", 0);
                                 timestampText.attr("opacity", 0);
@@ -269,7 +282,7 @@ module Charts {
                                 }
                                 else if (i <= 0) d = data[0];
                                 else d = data[data.length - 1];
-                                xpos = x(d.time);
+                                xpos = x(d.time);                                                                
 
                                 // draw
                                 cursor
@@ -280,13 +293,19 @@ module Charts {
                                     .attr("opacity", 1);
                                 timestampText
                                     .attr("x", xpos - 6)
-                                    .attr("y", 4)
+                                    .attr("y", 8)
                                     .attr("dy", ".35em")
                                     .attr("opacity", 1)
                                     .text((d === data[0]) ? '' : ChartHelpers.timestampToString(d.time)); //Don't show timestamp for the first measurement, as it does not fit. Other option is to print it underneath the measurement value.
+                                timestampTimeText
+                                    .attr("x", xpos - 6)
+                                    .attr("y", 16)
+                                    .attr("dy", ".35em")
+                                    .attr("opacity", 1)
+                                    .text((d === data[0]) ? '' : ChartHelpers.timestampToTimeString(d.time)); //Don't show timestamp for the first measurement, as it does not fit. Other option is to print it underneath the measurement value.
                                 measurementText
                                     .attr("x", xpos + 6)
-                                    .attr("y", 4)
+                                    .attr("y", 8)
                                     .attr("dy", ".35em")
                                     .attr("opacity", 1)
                                     .text(d.measurement);

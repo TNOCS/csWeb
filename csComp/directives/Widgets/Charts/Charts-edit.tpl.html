@@ -1,0 +1,41 @@
+<div style="background:white">
+    <h4 class="rightpanel-header">&nbsp;&nbsp;Chart Editor
+        <div style="float:right;margin-right:10px">
+            <button tooltip-html-unsafe="{{'CONFIG' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-pencil leftpanel-header-button" ng-show="!configMode" ng-click="configMode=true" />
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button" ng-show="configMode" ng-click="configMode=false; vm.updateChart()" />
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-save leftpanel-header-button" ng-show="configMode" ng-click="vm.updateChart()" />
+            <button tooltip-html-unsafe="{{'SAVE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-save leftpanel-header-button" ng-show="!configMode" ng-click="vm.refreshChart()" />
+        </div>
+    </h4>
+    <div ng-if="!configMode" style="margin-left:5px;margin-right:20px">
+        <div class="col-md-12">
+            <label class="editor-title input-xlarge" for="chartTitle">Title</label>
+            <input name="chartTitle" type="text" ng-model="data.title" placeholder="placeholder" class="input-xlarge editor-text-input">
+        </div>
+        <div class="col-md-6">
+            <label class="control-label" for="widgetWidth">Width</label>
+            <input id="widgetWidth" name="textinput" type="number" ng-model="data.spec.width" placeholder="width" class="input-xlarge">
+        </div>
+        <div class="col-md-6">
+            <label class="control-label" for="widgetHeight">Height</label>
+            <input id="widgetHeight" name="textinput" type="number" ng-model="data.spec.height" placeholder="height" class="input-xlarge">
+        </div>
+        <div class="col-md-6" >
+            <input type="checkbox" id="widgetchartlite" ng-model="data.lite">
+            <label for="widgetchartlite">use vega-lite specification</label>
+        </div>
+        <div class="col-md-12">
+            <label class="editor-title input-xlarge" for="chartKey">Key</label>
+            <input name="chartKey" type="text" ng-model="data.key" placeholder="placeholder" class="input-xlarge editor-text-input">
+        </div>
+    </div>
+    <div ng-if="configMode" style="left:52px;top:36px;right:0;bottom:0;position:absolute">
+        <div id="vegaeditor" when-ready="vm.setupEditor()" ng-model="data.spec" style="left:0;top:0;right:0;bottom:0;position:absolute">
+
+        </div>
+    </div>
+    <!-- <textarea ng-model="spec" style="width:300px;height:300px"></textarea>
+    <button class="btn" ng-click="vm.loadChart()">load</button>
+    <button class="btn" ng-click="vm.updateChart()">save</button>
+     -->
+</div>

@@ -1,5 +1,9 @@
 module csComp.Services {
 
+    export interface ISensorLink {
+        url? : string;
+    }
+
     /** Interface of a project layer
      *  Note that this is a copy of the similarly named class, but the advantage is that I can use the
      *  interface definition also on the server side.
@@ -16,6 +20,8 @@ module csComp.Services {
         description?: string;
         /** link to one or more meta description files containing  */
         typeUrl?: string | string[];
+        /** link to url for dynamic sensor data */
+        sensorLink? : ISensorLink;
         /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
         type: string;
         /** render type */
@@ -42,13 +48,30 @@ module csComp.Services {
         useProxy?: boolean;
         /** force refresh on chaning bounding box */
         refreshBBOX?: boolean;
-        /** if this is a feed, the layer features can be shown on timeline and  */
+        /** indicates that this is a dynamic layer (dynamicgeojson) */
         isDynamic?: boolean;
+        /** this layer contains sensor data, updated when focusTime changes */
+        hasSensorData? : boolean;
+        /**
+         * indicates if a dynamic layer is connected
+         */
+        isConnected?: boolean;
+        /**
+         * When a log is used all property & geometry changes when saved are recorded in a log, this allows you to go back in time, 
+         * otherwise the complete feature with all its properties and geometry is overwritten
+         */
+        useLog?: boolean;
         /** indicates if features should be shown on timeline */
         showOnTimeline?: boolean;
-        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
+        /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the 
+         * resourceType on every load */
         dynamicResource?: boolean;
-
+        /** If true (default false), do not move the selected feature to the front of the SVG stack */
+        disableMoveSelectionToFront: boolean;
+        /** Default true, but if set to false, do not notify the timeline of changes. */
+        timeAware: boolean;
+        /** if true, use the current focustime to retrieve data from the server */
+        timeDependent?: boolean;
         layerSource: ILayerSource;
         /**
          * Number of seconds between automatic layer refresh.
@@ -80,20 +103,21 @@ module csComp.Services {
         data?: any;
         cesiumDatasource?: any;
         items?: any;
-
         /** use a timestamp with each url request to make them unique (only tile layer for now, timestamp created after each refresh )*/
         disableCache?: boolean;
         /** key attached for identifying to */
         cacheKey?: string;
-
         /** handle for receiving server events */
         serverHandle?: MessageBusHandle;
-
         parentFeature: IFeature;
-
+        /** list of tags describing this layer */
+        tags?: string;
         /** key name of default feature type */
         defaultFeatureType?: string;
-
+        /** image for this layer */
+        image?: string;
+        /** last updated time */
+        updated?: number;
     }
 
     /** Layer information. a layer is described in a project file and is always part of a group */
@@ -119,6 +143,8 @@ module csComp.Services {
         hierarchySettings: FeatureRelations.IHierarchySettings;
         /** In case we keep the type (feature,property) information in a separate file */
         typeUrl: string;
+        /** link to url for dynamic sensor data */
+        sensorLink : ISensorLink;
         /** WMS sublayers that must be loaded */
         wmsLayers: string;
         /** If enabled, load the layer */
@@ -138,6 +164,17 @@ module csComp.Services {
         useProxy: boolean;
         /** indicates if features should be shown on timeline */
         showOnTimeline: boolean;
+        /** If true (default false), do not move the selected feature to the front of the SVG stack */
+        disableMoveSelectionToFront: boolean;
+        /** Default true, but if set to false, do not notify the timeline of changes. */
+        timeAware: boolean = true;
+        /** if true, use the current focustime to retrieve data from the server */
+        timeDependent: boolean;
+        /** time interval for unique time requests, in milliseconds */
+        timeResolution: number;
+        /** format timerequest e.g. YYYYmmDDHH */
+        timeFormatString: string;
+
         /** if true, use the current bounding box to retreive data from the server */
         refreshBBOX: boolean;
         /** if the resourceType of the layer might change while the project is loaded, set dynamicResource to true to reload the resourceType on every load */
@@ -149,12 +186,13 @@ module csComp.Services {
          * Number of seconds between automatic layer refresh.
          * @type {number}
          */
-        refreshTimer: number;
+        refreshTimeInterval: number;
         /**
          * When enabling the refresh timer, store the returned timer token so we can stop the timer later.
          * @type {number}
          */
-        timerToken: number;
+        timerToken: any;
+        // timerToken: number;
         /**
         * A list of UNIX timestamp, or the UTC time in milliseconds since 1/1/1970, which define the time a sensor value
         * was taken. So in case we have 10 timestamps, each feature's sensor (key) in the feature's sensors dictionary should
@@ -191,7 +229,7 @@ module csComp.Services {
         /** Whether layer can be quickly updated instead of completely rerendered */
         quickRefresh: boolean;
 
-        lastSelectedFeature: IFeature;
+        _lastSelectedFeature: IFeature;
 
         /** link to a parent feature, e.g. city layer references to a parent provence */
         parentFeature: IFeature;
@@ -199,36 +237,90 @@ module csComp.Services {
         /** key name of default feature type */
         defaultFeatureType: string;
 
+        /**  dynamic projects have a realtime connection with the server. This connection allows you to make changes to the feature & property types and 
+        feature geometry and property values. changes are distributed to all active clients in realtime */
         isDynamic: boolean;
 
+        /** 
+         * Logging mechanism allows you to specify specific property values and geometries in time,  
+         * it works the same way as sensor data but is optimized for smaller amounts of data and allows not only numbers 
+         * but also text, geometries, etc., where sensors are optimized for many different values, but only numbers         
+        */
+        useLog: boolean;
+
+        isConnected: boolean;
+
+        /** this layer contains sensor data, updated when focusTime changes */
+        hasSensorData : boolean;
+
+        /**
+         * gui is used for setting temp. values for rendering
+         */
+        _gui: any = {};
+        /** image for this layer */
+        image: string;
+
+        /** list of tags describing this layer */
+        tags: string;
+
+        /** last updated time */
+        updated: number;
+
+        /** show notification on new feature */
+        showFeatureNotifications: boolean = true;
+
+        /** Change the map extent to fit the contents of the layer
+         *  when it is activated
+         */
+        fitToMap: boolean;
+
+        /** Select a min and max zoom for the layer to be shown.
+         *  When the zoomlevel is out of range, hide all features using the opacity.
+         */
+        minZoom: number;
+        maxZoom: number;
+
+        /** handle for receiving zoom events */
+        zoomHandle: MessageBusHandle;
+
+        /** True when the layer features are transparent, e.g. when outside zoom range */
+        isTransparent: boolean;
 
         /**
          * Returns an object which contains all the data that must be serialized.
          */
         public static serializeableData(pl: ProjectLayer): Object {
             return {
-                id: pl.id,
-                title: pl.title,
-                description: pl.description,
-                type: pl.type,
-                renderType: pl.renderType,
-                heatmapSettings: pl.heatmapSettings,
-                heatmapItems: csComp.Helpers.serialize(pl.heatmapItems, Heatmap.HeatmapItem.serializeableData),
-                url: pl.url,
-                typeUrl: pl.typeUrl,
-                wmsLayers: pl.wmsLayers,
-                opacity: pl.opacity,
-                isSublayer: pl.isSublayer,
-                BBOX: pl.BBOX,
-                refreshBBOX: pl.refreshBBOX,
-                refreshTimer: pl.refreshTimer,
-                quickRefresh: pl.quickRefresh,
-                languages: pl.languages,
-                events: pl.events,
-                dataSourceParameters: pl.dataSourceParameters,
-                defaultFeatureType: pl.defaultFeatureType,
+                id:                    pl.id,
+                title:                 pl.title,
+                description:           pl.description,
+                type:                  pl.type,
+                renderType:            pl.renderType,
+                heatmapSettings:       pl.heatmapSettings,
+                heatmapItems:          csComp.Helpers.serialize(pl.heatmapItems, Heatmap.HeatmapItem.serializeableData),
+                url:                   pl.url,
+                typeUrl:               pl.typeUrl,
+                sensorLink :           pl.sensorLink,
+                wmsLayers:             pl.wmsLayers,
+                opacity:               pl.opacity,
+                isSublayer:            pl.isSublayer,
+                BBOX:                  pl.BBOX,
+                refreshBBOX:           pl.refreshBBOX,
+                refreshTimeInterval:   pl.refreshTimeInterval,
+                quickRefresh:          pl.quickRefresh,
+                languages:             pl.languages,
+                events:                pl.events,
+                dataSourceParameters:  pl.dataSourceParameters,
+                defaultFeatureType:    pl.defaultFeatureType,
                 defaultLegendProperty: pl.defaultLegendProperty,
-                useProxy: pl.useProxy
+                useProxy:              pl.useProxy,
+                isDynamic:             pl.isDynamic,
+                useLog:                pl.useLog,
+                tags:                  pl.tags,
+                timeAware:             pl.timeAware,
+                fitToMap:              pl.fitToMap,
+                minZoom:               pl.minZoom,
+                maxZoom:               pl.maxZoom
             };
         }
     }
@@ -238,45 +330,43 @@ module csComp.Services {
      * They are described in the project file
      */
     export interface IBaseLayer {
-        id: string;
-        title: string;
-        isDefault: boolean;
-        subtitle: string;
-        preview: string;
+        id:              string;
+        title:           string;
+        isDefault:       boolean;
+        subtitle:        string;
+        preview:         string;
         /** URL pointing to the basemap source. */
-        url: string;
+        url:             string;
         /** Maximum zoom level */
-        maxZoom: number;
+        maxZoom:         number;
         /** Minimum zoom level */
-        minZoom: number;
-        subdomains: string[];
+        minZoom:         number;
+        subdomains:      string[];
         /** String that is shown on the map, attributing the source of the basemap */
-        attribution: string;
-        test: string;
-        cesium_url?: string;
+        attribution:     string;
+        test:            string;
+        cesium_url?:     string;
         cesium_maptype?: string;
     }
+
     export class BaseLayer implements IBaseLayer {
-        id: string;
-        title: string;
+        id:        string;
+        title:     string;
         isDefault: boolean;
-        subtitle: string;
-        preview: string;
+        subtitle:  string;
+        preview:   string;
         /** URL pointing to the basemap source. */
         url: string;
         /** Maximum zoom level */
         maxZoom: number;
         /** Minimum zoom level */
-        minZoom: number;
+        minZoom:    number;
         subdomains: string[];
-
         /** String that is shown on the map, attributing the source of the basemap */
-        attribution: string;
-        test: string;
-
-        cesium_url: string;
+        attribution:    string;
+        test:           string;
+        /** Cesium specific URL to retreive the tiles */
+        cesium_url:     string;
         cesium_maptype: string;
     }
-
-
 }

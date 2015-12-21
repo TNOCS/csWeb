@@ -9,7 +9,8 @@ describe('DataSource', function() {
         datasource = new csComp.Services.DataSource();
     });
 
-    beforeEach(module('mockedDataSource'));
+    // See also: https://netdevplus.wordpress.com/2015/10/20/angularjs-with-typescript-unit-testing-services/
+    beforeEach(angular.mock.module('mockedDataSource'));
     var mockJSON;
     beforeEach(inject(function(defaultJSON) {
         mockJSON = defaultJSON;
@@ -32,23 +33,32 @@ describe('DataSource', function() {
     });
 
     describe('loading a datafile', () => {
+        var $http;
+        var $httpBackend;
+        var targetURL = './path/to/json';
+
+        beforeEach(inject(($injector) => {
+            $http = $injector.get('$http');
+            $httpBackend = $injector.get('$httpBackend');
+            $httpBackend.when('GET', targetURL).respond(200, mockJSON);
+        }));
+
         it('should load the data with the correct path', function() {
-            spyOn($, 'getJSON');
-            datasource.url = './path/to/json';
-            csComp.Services.DataSource.LoadData(datasource, () => { });
-            expect($.getJSON).toHaveBeenCalledWith('./path/to/json', jasmine.any(Function));
+            $httpBackend.expectGET(targetURL);
+
+            datasource.url = targetURL;
+            csComp.Services.DataSource.LoadData($http, datasource, () => { });
+
+            $httpBackend.flush();
         });
 
         it('should parse the data correctly', function() {
-            //var jsonSpy = spyOn($, 'getJSON').and.callFake(function(url, callback) {
-            //    callback({ 'id' : 'datasource', 'title' : 'test', 'sensors' : {'test' : {'id' : 'test', 'timestamps': [1, 2], 'values' : [2, 3] } } });
-            //});
-            var jsonSpy = spyOn($, 'getJSON').and.callFake(function(url, callback) {
-               callback(mockJSON);
-            });
-            datasource.url = 'test.json';
-            csComp.Services.DataSource.LoadData(datasource, () => {
-            });
+            $httpBackend.expectGET(targetURL);
+
+            datasource.url = targetURL;
+            csComp.Services.DataSource.LoadData($http, datasource, () => {});
+
+            $httpBackend.flush();
 
             expect(datasource.id).toEqual('datasource');
             expect(datasource.hasOwnProperty('sensors')).toBeTruthy();
