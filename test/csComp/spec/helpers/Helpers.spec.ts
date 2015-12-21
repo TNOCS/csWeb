@@ -217,7 +217,7 @@ describe('Helpers spec:', function() {
                 f.fType._propertyTypeData = [];
                 var pt = <csComp.Services.IPropertyType>{
                     label: 'Name',
-                    stringFormat: '{pi}',
+                    stringFormat: '{pi}'
                 };
                 f.fType._propertyTypeData.push(pt);
                 var result = csComp.Helpers.setFeatureName(f);

@@ -182,7 +182,7 @@ module csComp.Services {
                             if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
                         }
                         rowLength = Math.max(rowLength, valueLength + f.title.length);
-                        content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
+                        content += '<tr><td><div class="smallFilterIcon"></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
                     }
                 });
             }
@@ -199,12 +199,12 @@ module csComp.Services {
                         }
                         var tl = s.title ? s.title.length : 10;
                         rowLength = Math.max(rowLength, valueLength + tl);
-                        content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
+                        content += '<tr><td><div class="smallStyleIcon"></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
                     }
                 });
             }
             var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
-            content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
+            content = '<table style="width:' + widthInPixels + 'px;">' + content + '</table>';
 
             // cesium does not have a popup class like leaflet does, so we create our own div with absolute position
             this.popup = $('<div class="cesiumPopup featureTooltip"></div>')
