@@ -152,6 +152,7 @@ export class Project implements StorageObject {
     id: string;
     title: string;
     url: string;
+    staticUrl : string;
     description: string;
     logo: string;
     connected: boolean;
@@ -775,8 +776,9 @@ export class ApiManager extends events.EventEmitter {
             title: project.title ? project.title : project.id,
             connected: project.connected ? project.connected : true,
             logo: project.logo ? project.logo : 'images/CommonSenseRound.png',
-            groups: project.groups ? project.groups : [],
-            url: project.url ? project.url : '/api/projects/' + project.id
+            //groups: project.groups ? project.groups : [],
+            url: project.url ? project.url : '/api/projects/' + project.id,
+            staticUrl : project.staticUrl
         };
         return p;
     }

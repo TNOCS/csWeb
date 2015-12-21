@@ -84,7 +84,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
             var watcher = chokidar.watch(this.projectsPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
                 if (action == "add") {
-                    Winston.info('filestore: new file found : ' + path);
+                    Winston.info('filestore: new project found : ' + path);
                     this.openProjectFile(path);
                 }
                 if (action == "unlink") {
@@ -326,26 +326,35 @@ export class FileStorage extends BaseConnector.BaseConnector {
     private openProjectFile(fileName: string) {
         var id = this.getProjectId(fileName);
         Winston.info('filestore: openfile ' + id);
-        if (!this.projects.hasOwnProperty(id)) {
-            fs.readFile(fileName, 'utf8', (err, data) => {
-                if (!err && data && data.length > 0) {
-                    var project = <Project>JSON.parse(data);
-                    this.manager.getProjectDefinition(project);
+
+        fs.readFile(fileName, 'utf8', (err, data) => {
+            if (!err && data && data.length > 0) {
+                var project = <Project>JSON.parse(data);
+                if (!project.hasOwnProperty('id')) project.id = helpers.newGuid();
+                project.id = project.id.replace(new RegExp(' ','g'),'');
+
+                if (!this.projects.hasOwnProperty(project.id)) {
+                    id = project.id;
+
+                    //var proj = this.manager.getProjectDefinition(project);
                     this.projects[id] = project;
-                    // project.storage = this.id;
+                    project.storage = this.id;
+                    //console.log(JSON.stringify(project));
                     // project.id = id;
                     // project.title = id;
                     // project.groups = [];
                     // project.logo = "";
-                    // project.url = "/api/projects/" + id;
+                    project.url = "/api/projects/" + id;
+                    project.staticUrl = fileName;
                     this.manager.updateProject(project, {}, () => { });
-                } else if (err) {
-                    Winston.error('Error reading file: ' + id + '(' + err.message + ')')
                 }
-            });
-        }
+            } else if (err) {
+                Winston.error('Error reading file: ' + id + '(' + err.message + ')')
+            }
+        });
+        
 
-        if (path.basename(fileName) === 'project.json') {return;}
+        //if (path.basename(fileName) === 'project.json') {return;}
     }
 
 
@@ -362,7 +371,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         try {
             this.projects[project.id] = project;
             this.saveProjectDelay(project);
-            callback(<CallbackResult> { result: ApiResult.OK, project: project });
+            callback(<CallbackResult>{ result: ApiResult.OK, project: project });
         }
         catch (e) {
             callback(<CallbackResult>{ result: ApiResult.OK, error: null });
@@ -396,7 +405,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         try {
             this.layers[layer.id] = layer;
             this.saveLayerDelay(layer);
-            callback(<CallbackResult> { result: ApiResult.OK });
+            callback(<CallbackResult>{ result: ApiResult.OK });
         }
         catch (e) {
             callback(<CallbackResult>{ result: ApiResult.OK, error: null });
@@ -519,7 +528,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         l.features.forEach((f: Feature) => {
             if (f.id === featureId)
                 found = true;
-            callback(<CallbackResult> { result: ApiResult.OK, feature: f });
+            callback(<CallbackResult>{ result: ApiResult.OK, feature: f });
         })
         if (!found) callback(<CallbackResult>{ result: ApiResult.Error });
     }
