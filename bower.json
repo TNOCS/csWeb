@@ -1,0 +1,31 @@
+{
+  "name": "csWeb-example",
+  "version": "0.1.0",
+  "authors": [
+    "Erik Vullings",
+    "Arnoud de Jong"
+  ],
+  "main": "../server.js",
+  "moduleType": [
+    "node"
+  ],
+  "keywords": [
+    "map"
+  ],
+  "license": "MIT",
+  "description": "csWeb example project",
+  "homepage": "http://github.com/TNOCS/csWeb",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "csweb": "~0.2.8",
+    "font-awesome": "~4.4.0",
+    "angularUtils-pagination": "angular-utils-pagination#~0.9.2"
+  }
+}

@@ -8,6 +8,24 @@
         "southWest": [50.7, 3.3],
         "northEast": [53.5, 7.3]
     },
+    "widgetStyles": {
+        "default": {
+            "borderWidth": 1,
+            "background": "white"
+        },
+        "simple": {
+            "borderWidth": 1,
+            "background": "white"
+        },
+        "transparent": {
+            "borderWidth": 0,
+            "background": "transparent"
+        },
+        "red": {
+            "borderWidth": 3,
+            "background": "red"
+        }
+    },
     "baselayers": [{
         "title": "OpenStreetMap HOT",
         "subtitle": "Road",
@@ -96,24 +114,6 @@
         "cesium_maptype": "arcgis",
         "attribution": "Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC",
         "preview": "http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/11/673/1051.png"
-    }, {
-        "title": "Terrain Day",
-        "subtitle": "HERE",
-        "subdomains": [1, 2, 3, 4],
-        "minZoom": 0,
-        "maxZoom": 20,
-        "url": "http://{s}.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/terrain.day/{z}/{x}/{y}/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg",
-        "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
-        "preview": "http://1.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/terrain.day/11/673/1051/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg"
-    }, {
-        "title": "Satellite Day",
-        "subtitle": "HERE",
-        "subdomains": [1, 2, 3, 4],
-        "minZoom": 0,
-        "maxZoom": 20,
-        "url": "http://{s}.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/satellite.day/{z}/{x}/{y}/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg",
-        "attribution": "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
-        "preview": "http://1.aerial.maps.cit.api.here.com/maptile/2.1/maptile/newest/satellite.day/11/673/1051/256/png8?app_id=Y8m9dK2brESDPGJPdrvs&app_code=dq2MYIvjAotR8tHvY8Q_Dg"
     }, {
         "title": "Positron",
         "isDefault": true,

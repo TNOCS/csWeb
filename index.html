@@ -9,11 +9,6 @@
         </script>
     <![endif]-->
 
-    <script type="text/javascript">
-        if (screen.width <= 719) {
-            document.location = "m.html";
-        }
-    </script>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -27,23 +22,33 @@
     <!--TODO Add your title here-->
     <title>csWeb</title>
 
-    <link rel="stylesheet" href="css/csWeb.css">
+    <link rel="stylesheet" href="bower_components/Font-Awesome/css/font-awesome.min.css" />
+
+    <!-- build:css css/csWeb.css -->
+    <link rel="stylesheet" href="bower_components/csweb/dist-bower/csWeb-dep.css" />
+    <link rel="stylesheet" href="bower_components/csweb/dist-bower/css/csStyles.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="css/style.css">
+    <!-- endbuild -->
     <link rel="shortcut icon" href="favicon.ico">
 </head>
 
 <body data-ng-controller="appCtrl" data-ng-cloak data-ng-init="showMap=true">
+    <!--<script>L_PREFER_CANVAS = true;</script>-->
     <script src="/socket.io/socket.io.js"></script>
-    <script src="csWeb.js"></script>
-    <script src="cs/js/cesium.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.min.js" type="text/javascript" charset="utf-8"></script>
+    <!-- build:js csWeb.js -->
+    <script src="bower_components/csweb/dist-bower/csWeb-dep.js"></script>
+    <script src="bower_components/angularUtils-pagination/dirPagination.js"></script>
+    <script src="bower_components/csweb/dist-bower/csComp.js"></script>
+    <script src="app/app.js"></script>
+    <script src="bower_components/csweb/dist-bower/csTemplates.js"></script>
+    <!-- endbuild -->
 
     <div role="navigation" class="navbar navbar-inverse navbar-fixed-top">
 
         <div class="navbar-header" data-ng-cloak>
-            <a class="menutoggle" ng-click="vm.$layerService.visual.leftPanelVisible = !vm.$layerService.visual.leftPanelVisible" popover="{{'TOGGLE_MENU' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true"><i class="fa fa-bars"></i></a>
-            <!--<a class="navbar-brand" style="margin-top: -5px;" href="{{vm.$layerService.project.url}}" target="_blank">
-                <img data-ng-src="{{vm.$layerService.project.logo}}" alt="{{vm.$layerService.project.title}}" width="32" height="32" />
-                {{vm.$layerService.project.title}}
-            </a>-->
+            <a class="menutoggle" ng-click="vm.$layerService.visual.leftPanelVisible = !vm.$layerService.visual.leftPanelVisible" uib-popover="{{'TOGGLE_MENU' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true"><i class="fa fa-bars"></i></a>
         </div>
 
         <!-- Link to views -->
@@ -72,72 +77,79 @@
 
     <div style="position: absolute;width: 100%;height:100%;pointer-events: none;display:table">
 
-        <div ng-show="vm.$layerService.visual.leftPanelVisible" class="leftpanel leftpanel-entrance" ng-cloak style="pointer-events: all">
-            <div style="width:350px;height:100vh;background:white">
+        <div ng-show="vm.$layerService.visual.leftPanelVisible" class="leftpanel leftpanel-entrance" ng-cloak>
+            <div class="leftpanel-container">
                 <!-- http://stackoverflow.com/questions/1575141/make-div-100-height-of-browser-window -->
-                <div class="col-xs-3 leftpanel-tab">
+                <div class="leftpanel-tab">
                     <!-- required for floating -->
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs tabs-left" id="leftPanelTab">
-                        <!-- 'tabs-right' for right tabs -->
-                        <li popover="{{'BASESTYLES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#basestyles" data-toggle="tab" data-ng-if="vm.$mapService.isIntermediate">
+                        <li class="active" uib-popover="{{'NAVIGATE' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#navigate" data-toggle="tab">
+                                <div class="searchIcon"></div>
+                            </a>
+                        </li>                        
+                        <li uib-popover="{{'BASESTYLES' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#basestyles" data-toggle="tab" data-ng-if="vm.$mapService.isIntermediate">
                                 <div class="mapIcon"></div>
                             </a>
                         </li>
-                        <li class="active" popover="{{'LAYERS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#layers" data-toggle="tab">
+                        <li uib-popover="{{'LAYERS' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#layers" data-toggle="tab">
                                 <div class="layersIcon"></div>
                             </a>
                         </li>
-                        <li popover="{{'FILTERS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#filters" data-toggle="tab">
+                        <li uib-popover="{{'FILTERS' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#filters" data-toggle="tab">
                                 <div class="filtersIcon"></div>
                             </a>
                         </li>
-                        <li popover="{{'STYLES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#styles" data-toggle="tab">
+                        <li uib-popover="{{'STYLES' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#styles" data-toggle="tab">
                                 <div class="stylesIcon"></div>
                             </a>
                         </li>
-                        <li popover="{{'MCA.NAME' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#mca" data-toggle="tab" data-ng-if="vm.$mapService.isExpert">
+                        <li uib-popover="{{'MCA.NAME' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#mca" data-toggle="tab" data-ng-if="vm.$mapService.isExpert">
                                 <div class="mcaIcon"></div>
                             </a>
                         </li>
-                        <li popover="{{'HEATMAP.NAME' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#heatmap" data-toggle="tab" data-ng-if="vm.$mapService.isExpert">
+                        <li uib-popover="{{'HEATMAP.NAME' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#heatmap" data-toggle="tab" data-ng-if="vm.$mapService.isExpert">
                                 <div class="heatmapIcon"></div>
                             </a>
                         </li>
-                        <li popover="{{'FEATURES' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#features" data-toggle="tab">
+                        <li uib-popover="{{'FEATURES' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#features" data-toggle="tab">
                                 <div class="featuresIcon"></div>
                             </a>
                         </li>
-                        <li popover="{{'LEGEND' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#legend" data-toggle="tab">
+                        <li uib-popover="{{'LEGEND' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#legend" data-toggle="tab">
                                 <div class="mainLegendIcon"></div>
                             </a>
                         </li>
-                        <li popover="{{'DASHBOARD_SELECTION' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#dashboardselection" data-ng-if="vm.$mapService.isExpert" data-toggle="tab"><i class="fa fa-tachometer fa-2x" style="color: black"></i>
+                        <li uib-popover="{{'DASHBOARD_SELECTION' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#dashboardselection" data-ng-if="vm.$mapService.isExpert" data-toggle="tab"><i class="fa fa-tachometer fa-2x" style="color: black"></i>
                       </a>
                         </li>
-                        <li popover="{{'SETTINGS' | translate}}" popover-popup-delay=750 popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
-                            <a href="#settings" data-toggle="tab" data-ng-if="vm.$mapService.isAdminExpert">
+                        <li uib-popover="{{'SETTINGS' | translate}}" popover-popup-delay="750" popover-placement="right" popover-trigger="mouseenter" popover-append-to-body="true">
+                            <a data-target="#settings" data-toggle="tab" data-ng-if="vm.$mapService.isAdminExpert">
                                 <i class="fa fa-gear fa-2x" style="color: black"></i>
                             </a>
                         </li>
                     </ul>
                 </div>
 
-                <div class="col-xs-9 leftpanel-content">
+                <div class="leftpanel-content">
                     <!-- Tab panes -->
-                    <div class="tab-content ">
+                    <div class="tab-content ">                        
+
+                        <navigate class="tab-pane active" id="navigate" data-ng-if="!vm.$layerService.isMobile"></navigate>
+
                         <base-map-list class="tab-pane" id="basestyles"></base-map-list>
 
-                        <layers-directive class="tab-pane active" id="layers"></layers-directive>
+                        <layers-directive class="tab-pane" id="layers"></layers-directive>
 
                         <filter-list class="tab-pane" id="filters"></filter-list>
 
@@ -159,51 +171,22 @@
             </div>
         </div>
         <dashboardirective container="main" style="display:table-cell;width:100%;vertical-align: top;" dashboard="vm.$dashboardService.mainDashboard"></dashboardirective>
-        <!-- class="dashboard-directive" -->
 
-        <div class="rightpanel" style="position:absolute">
-            <div id="rightpanelTabContainer" class="tabbable tabs-left" style="display:table; height:100%; padding:0px;">
+        <div id="rightpanel" class="rightpanel">
+            <div id="rightpanelTabContainer" class="tabbable tabs-left rightpanelContainer">
                 <!-- Nav tabs -->
-                <ul id="rightpanelTabs" class="nav nav-tabs" style="margin-right:0px; width:50px; height:100%; display:table-cell">
-                    <li style="margin-top:10px" ng-style="!vm.$layerService.visual.rightPanelVisible && {'opacity':0}" ng-click="vm.$layerService.visual.rightPanelVisible = false" popover="{{'HIDE_PANEL' | translate}}" popover-placement="left" popover-trigger="mouseenter"
-                    popover-append-to-body="true">
+                <ul id="rightpanelTabs" class="nav nav-tabs rightpanelTabs" ng-class="{'rightpanelTabs-collapsed' : !vm.$layerService.visual.rightPanelVisible}">
+                    <li style="margin-top:5px" ng-style="!vm.$layerService.visual.rightPanelVisible && {'opacity':0}" ng-click="vm.$layerService.visual.rightPanelVisible = false" uib-popover="{{'HIDE_PANEL' | translate}}" popover-placement="left" popover-trigger="mouseenter" popover-append-to-body="true">
                         <a class="rightpanel-hidetab">
                             <span class="fa fa-2x fa-chevron-right"></span>
                         </a>
                     </li>
                 </ul>
-                <div id="rightpanelTabPanes" ng-show="vm.$layerService.visual.rightPanelVisible" class="tab-content" style="display: table-cell; vertical-align:top; width:100%; height:100%; background-color: white;">
+                <div id="rightpanelTabPanes" ng-show="vm.$layerService.visual.rightPanelVisible" class="tab-content rightpanelTabPanes">
                 </div>
             </div>
         </div>
 
-        <!-- Right menu items -->
-        <!-- <script>
-            $('#rightpanelTabs a').click(function(e) {
-                var tab = $(this);
-                if (tab.parent('li').hasClass('tab-toggle')) {
-                    var foo = $("#rightpanelTabPanes").children(".tab-pane");
-                    if (foo.hasClass('active')) {
-                        foo.removeClass('active');
-                    } else {
-                        foo.addClass('active');
-                    }
-
-                }
-                if (tab.parent('li').hasClass('active')) {
-                    window.setTimeout(function() {
-                        var foo = $("#rightpanelTabPanes").children(".tab-pane");
-                        foo.removeClass('active');
-                        tab.parent('li').removeClass('active');
-                        $('.leaflet-control-zoom').css('visibility', 'visible');
-                        $('.leaflet-control-locate').css('visibility', 'visible');
-                    }, 1);
-                } else {
-                    $('.leaflet-control-zoom').css('visibility', 'hidden');
-                    $('.leaflet-control-locate').css('visibility', 'hidden');
-                }
-            });
-        </script> -->
     </div>
 
     <!--Loading spinner-->
@@ -215,7 +198,7 @@
         </div>
     </div>
 
-    <timeline data-ng-show="vm.$mapService.timelineVisible" style="height: 100vh;"></timeline>
+    <timeline data-ng-show="vm.$mapService.timelineVisible && !vm.$layerService.isMobile" style="height: 100vh;"></timeline>
 </body>
 
 </html>
