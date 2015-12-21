@@ -104,8 +104,6 @@ gulp.task('tsconfig', function () {
         '!./docker-dev',
         '!./docs',
         '!./csServerComp/OfflineSearch/**/*.ts',
-        '!./js/**/*.d.ts',
-        '!./js/**/*.js',
         '!./node_modules/**/*.ts',
     ];
     var config = {

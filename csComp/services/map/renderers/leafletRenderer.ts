@@ -1,6 +1,5 @@
 module csComp.Services {
     export class LeafletRenderer implements IMapRenderer {
-
         title = 'leaflet';
         service: LayerService;
         $messageBusService: MessageBusService;
@@ -23,6 +22,10 @@ module csComp.Services {
 
         public enable() {
             if ($('map').length !== 1) return;
+            if (this.map) {
+                this.enableMap();
+                return;
+            }
             this.service.$mapService.map = L.map('map', {
                 zoomControl: false,
                 maxZoom: 19,
@@ -38,6 +41,35 @@ module csComp.Services {
             });
 
             this.map.once('load', () => this.updateBoundingBox());
+        }
+
+        public disable() {
+            this.disableMap();
+            // this.map.remove();
+            // this.map = this.service.$mapService.map = null;
+            // $('#map').empty();
+        }
+
+        private enableMap() {
+            this.map.dragging.enable();
+            this.map.touchZoom.enable();
+            this.map.doubleClickZoom.enable();
+            this.map.scrollWheelZoom.enable();
+            this.map.boxZoom.enable();
+            this.map.keyboard.enable();
+            if (this.map.tap) this.map.tap.enable();
+            document.getElementById('map').style.cursor = 'grab';
+        }
+
+        private disableMap() {
+            this.map.dragging.disable();
+            this.map.touchZoom.disable();
+            this.map.doubleClickZoom.disable();
+            this.map.scrollWheelZoom.disable();
+            this.map.boxZoom.disable();
+            this.map.keyboard.disable();
+            if (this.map.tap) this.map.tap.disable();
+            document.getElementById('map').style.cursor = 'default';
         }
 
         private updateBoundingBox() {
@@ -63,7 +95,6 @@ module csComp.Services {
                 r.northEast = [ne.lat, ne.lng];
             }
             return r;
-
         }
 
         public fitBounds(bounds: csComp.Services.IBoundingBox) {
@@ -79,14 +110,8 @@ module csComp.Services {
             return this.service.$mapService.map.getZoom();
         }
 
-        public disable() {
-            this.service.$mapService.map.remove();
-            this.service.$mapService.map = null;
-            $('#map').empty();
-        }
-
         public refreshLayer() {
-
+            return;
         }
 
         public addGroup(group: ProjectGroup) {
@@ -144,7 +169,7 @@ module csComp.Services {
         baseLayer: L.ILayer;
 
         public changeBaseLayer(layerObj: BaseLayer) {
-            if (layerObj == this.service.$mapService.activeBaseLayer) return;
+            if (layerObj === this.service.$mapService.activeBaseLayer) return;
             if (this.baseLayer) this.service.map.map.removeLayer(this.baseLayer);
             this.baseLayer = this.createBaseLayer(layerObj);
 
@@ -280,8 +305,7 @@ module csComp.Services {
         public selectFeature(feature) {
             if (feature._gui.hasOwnProperty('dragged')) {
                 delete feature._gui['dragged'];
-            }
-            else {
+            } else {
                 this.service.selectFeature(feature, this.cntrlIsPressed);
             }
         }
@@ -303,8 +327,7 @@ module csComp.Services {
                     m.feature = feature;
                     if (l.group.clustering && l.group._cluster) {
                         l.group._cluster.addLayer(m);
-                    }
-                    else {
+                    } else {
                         if (l.mapLayer) {
                             l.mapLayer.addLayer(m);
                         }
@@ -316,9 +339,8 @@ module csComp.Services {
         }
 
         private canDrag(feature: IFeature): boolean {
-            return feature._gui.hasOwnProperty('editMode') && feature._gui['editMode'] == true;
+            return feature._gui.hasOwnProperty('editMode') && feature._gui['editMode'] === true;
         }
-
 
         /**
          * add a feature
@@ -353,7 +375,7 @@ module csComp.Services {
                         } else {
                             menu.css('top', e.originalEvent.y - 70 - menu.height());
                         }
-                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+                        if (this.service.$rootScope.$$phase !== '$apply' && this.service.$rootScope.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
                     });
 
                     marker.on('dragstart', (event: L.LeafletEvent) => {
@@ -379,27 +401,26 @@ module csComp.Services {
                             this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
 
                             //e.stopPropagation();
-                            var button: any = $("#map-contextmenu-button");
-                            var menu: any = $("#map-contextmenu");
+                            var button: any = $('#map-contextmenu-button');
+                            var menu: any = $('#map-contextmenu');
                             button.dropdown('toggle');
                             var mapSize = this.map.getSize();
                             if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
-                                menu.css("left", e.originalEvent.x + 5);
+                                menu.css('left', e.originalEvent.x + 5);
                             } else {
-                                menu.css("left", e.originalEvent.x - 5 - menu.width());
+                                menu.css('left', e.originalEvent.x - 5 - menu.width());
                             }
                             if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
-                                menu.css("top", e.originalEvent.y - 35);
+                                menu.css('top', e.originalEvent.y - 35);
                             } else {
-                                menu.css("top", e.originalEvent.y - 70 - menu.height());
+                                menu.css('top', e.originalEvent.y - 70 - menu.height());
                             }
-                            if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+                            if (this.service.$rootScope.$$phase !== '$apply' && this.service.$rootScope.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
                         });
-                    }
-                    catch (e) {
+                    } catch (e) {
                         console.log('Error creating leaflet feature');
                         console.log(feature);
-                    }                   
+                    }
                     //marker = L.multiPolygon(latlng, polyoptions);
                     break;
             }
@@ -410,8 +431,6 @@ module csComp.Services {
 
             return marker;
         }
-
-
 
         /**
          * create icon based of feature style
@@ -425,7 +444,7 @@ module csComp.Services {
                     html: feature.htmlStyle
                 });
             } else {
-                var iconHtml = csComp.Helpers.createIconHtml(feature, this.service.getFeatureType(feature));
+                var iconHtml = csComp.Helpers.createIconHtml(feature);
 
                 icon = new L.DivIcon({
                     className: '',
