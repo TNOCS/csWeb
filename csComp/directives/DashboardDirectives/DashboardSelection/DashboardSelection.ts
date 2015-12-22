@@ -26,7 +26,8 @@ module DashboardSelection {
                 restrict: 'E',    // E = elements, other options are A=attributes and C=classes
                 scope: {},     // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
                 templateUrl: 'directives/DashboardDirectives/DashboardSelection/DashboardSelection.tpl.html',
-                //template: html,   // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
+                //template: html,   // I use gulp automatian to compile the FeatureProperties.tpl.html to a simple TS file, 
+                // FeatureProperties.tpl.ts, which contains the html as string. The advantage is that you can use HTML intellisence in the html file.
                 //compile             : el          => {    // I need to explicitly compile it in order to use interpolation like {{xxx}}
                 //    var fn                        = $compile(el);
                 //    return scope                  => {
@@ -60,7 +61,7 @@ module DashboardSelection {
         }
     ]).directive('bsPopover', () => {
             return (scope, element, attrs) => {
-                element.find("a[rel=popover]").popover({ placement: 'right', html: 'true' });
+                element.find('a[rel=popover]').popover({ placement: 'right', html: 'true' });
             };
         });
 
