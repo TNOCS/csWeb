@@ -26,12 +26,12 @@ module csComp.Services {
                 this.enableMap();
                 return;
             }
-            this.service.$mapService.map = L.map('map', {
+            var mapOptions: L.Map.MapOptions = {
                 zoomControl: false,
                 maxZoom: 19,
                 attributionControl: true
-            });
-            this.map = this.service.$mapService.map;
+            };
+            this.map = this.service.$mapService.map = L.map('map', mapOptions);
 
             this.map.on('moveend', (t, event: any) => this.updateBoundingBox());
 
@@ -168,26 +168,26 @@ module csComp.Services {
 
         baseLayer: L.ILayer;
 
-        public changeBaseLayer(layerObj: BaseLayer) {
-            if (layerObj === this.service.$mapService.activeBaseLayer) return;
-            if (this.baseLayer) this.service.map.map.removeLayer(this.baseLayer);
+        public changeBaseLayer(layerObj: BaseLayer, force: boolean = false) {
+            if (!force && layerObj === this.service.$mapService.activeBaseLayer) return;
+            if (this.baseLayer) this.map.removeLayer(this.baseLayer);
             this.baseLayer = this.createBaseLayer(layerObj);
 
-            this.service.map.map.addLayer(this.baseLayer);
+            this.map.addLayer(this.baseLayer);
 
-            this.service.map.map.setZoom(this.service.map.map.getZoom());
-            this.service.map.map.fire('baselayerchange', { layer: this.baseLayer });
+            this.map.setZoom(this.service.map.map.getZoom());
+            this.map.fire('baselayerchange', { layer: this.baseLayer });
         }
 
         private createBaseLayer(layerObj: BaseLayer) {
             var options: L.TileLayerOptions = { noWrap: true };
             options['subtitle'] = layerObj.subtitle;
             options['preview'] = layerObj.preview;
-            if (layerObj.subdomains != null) options['subdomains'] = layerObj.subdomains;
-            if (layerObj.maxZoom != null) options.maxZoom = layerObj.maxZoom;
-            if (layerObj.minZoom != null) options.minZoom = layerObj.minZoom;
-            if (layerObj.attribution != null) options.attribution = layerObj.attribution;
-            if (layerObj.id != null) options['id'] = layerObj.id;
+            if (layerObj.subdomains) options['subdomains'] = layerObj.subdomains;
+            if (layerObj.maxZoom) options.maxZoom = layerObj.maxZoom;
+            if (layerObj.minZoom) options.minZoom = layerObj.minZoom;
+            if (layerObj.attribution) options.attribution = layerObj.attribution;
+            if (layerObj.id) options['id'] = layerObj.id;
             var layer = L.tileLayer(layerObj.url, options);
 
             return layer;
