@@ -2599,36 +2599,35 @@ module csComp.Services {
         }
 
         /**
-         * Calculate min/max/count for a specific property in a group
+         * Calculate min/max/count/mean/varience/sd for a specific property in a group
          */
         public calculatePropertyInfo(group: ProjectGroup, property: string): PropertyInfo {
-            var r = <PropertyInfo>{};
-            r.count = 0;
-            var sum = 0;   // stores sum of elements
-            var sumsq = 0; // stores sum of squares
+            var r = <PropertyInfo> {
+                count: 0,
+                max: Number.MIN_VALUE,
+                min: Number.MAX_VALUE
+            };
+            var sumOfElements = 0;
+            var sumOfSquares  = 0;
 
             group.layers.forEach((l: ProjectLayer) => {
                 if (l.enabled) {
                     this.project.features.forEach((f: IFeature) => {
                         if (f.layerId === l.id && f.properties.hasOwnProperty(property)) {
-                            var s = f.properties[property];
-                            var v = Number(s);
-                            if (!isNaN(v)) {
-                                r.count += 1;
-                                sum = sum + v;
-                                sumsq = sumsq + v * v;
-                                if (r.max == null || v > r.max) r.max = v;
-                                if (r.min == null || v < r.min) r.min = v;
-                            }
+                            var v = Number(f.properties[property]);
+                            if (isNaN(v)) return;
+                            r.count++;
+                            sumOfElements += v;
+                            sumOfSquares  += v * v;
+                            if (v > r.max) r.max = v;
+                            if (v < r.min) r.min = v;
                         }
                     });
                 }
             });
-            if (isNaN(sum) || r.count === 0) {
-
-            } else {
-                r.mean = sum / r.count;
-                r.varience = sumsq / r.count - r.mean * r.mean;
+            if (!isNaN(sumOfElements) && r.count !== 0) {
+                r.mean = sumOfElements / r.count;
+                r.varience = sumOfSquares / r.count - r.mean * r.mean;
                 r.sd = Math.sqrt(r.varience);
             }
             if (this.propertyTypeData.hasOwnProperty(property)) {
@@ -2638,8 +2637,6 @@ module csComp.Services {
             }
             return r;
         }
-
-
 
         public updateFilterGroupCount(group: ProjectGroup) {
             if (group.filterResult != null)

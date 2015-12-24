@@ -189,8 +189,69 @@ describe('csComp.Services.LayerService', function() {
     });
 
     describe('Remove layer', () => {
-        xit('Should remove layer',()=>{
+        xit('should remove layer', () => {
             //layerService.project = new csComp.Services.Project();
         });
-    })
+    });
+
+    describe('Calculating property info', () => {
+        it('should calculate the basic statistical functions', () => {
+            var layer = <csComp.Services.ProjectLayer> {
+                type: 'fake',
+                id: 'people',
+                enabled: true
+            };
+            var group = <csComp.Services.ProjectGroup>{
+                layers: [ layer ]
+            };
+            layerService.project = new csComp.Services.Project();
+            layerService.project.features = [];
+            layerService.project.features.push(<csComp.Services.IFeature> {
+                index: 0,
+                layerId: 'people',
+                layer: layer,
+                geometry: <csComp.Services.IGeoJsonGeometry>{},
+                effectiveStyle: {},
+                lastUpdated: Date.now(),
+                timestamps: [],
+                properties: {
+                    'people': 10
+                },
+                _gui:<csComp.Services.IGuiObject>{}
+            });
+            layerService.project.features.push(<csComp.Services.IFeature> {
+                index: 0,
+                layerId: 'people',
+                layer: layer,
+                geometry: <csComp.Services.IGeoJsonGeometry>{},
+                effectiveStyle: {},
+                lastUpdated: Date.now(),
+                timestamps: [],
+                properties: {
+                    'people': 20
+                },
+                _gui:<csComp.Services.IGuiObject>{}
+            });
+            layerService.project.features.push(<csComp.Services.IFeature> {
+                index: 0,
+                layerId: 'people',
+                layer: layer,
+                geometry: <csComp.Services.IGeoJsonGeometry>{},
+                effectiveStyle: {},
+                lastUpdated: Date.now(),
+                timestamps: [],
+                properties: {
+                    'people': 30
+                },
+                _gui:<csComp.Services.IGuiObject>{}
+            });
+            var stats = layerService.calculatePropertyInfo(group, 'people');
+            expect(stats.count).toBe(3);
+            expect(stats.min).toBe(10);
+            expect(stats.max).toBe(30);
+            expect(stats.mean).toBe(20);
+            expect(stats.varience).toBeCloseTo(66.667, 0.001);
+            expect(stats.sd).toBeCloseTo(8.165, 0.001);
+        });
+    });
 });
