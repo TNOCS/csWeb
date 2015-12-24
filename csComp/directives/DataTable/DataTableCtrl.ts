@@ -167,8 +167,12 @@ module DataTable {
                                 f.featureTypeName = f.properties['FeatureTypeId'];
                             } else if (data.featureTypes.hasOwnProperty('Default')) {
                                 f.featureTypeName = 'Default';
-                            } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType != "") {
-                              f.featureTypeName = selectedLayer.defaultFeatureType;
+                            } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType !== '') {
+                                if (selectedLayer.defaultFeatureType.indexOf('#') > -1) {
+                                        f.featureTypeName = selectedLayer.defaultFeatureType;
+                                } else {
+                                    f.featureTypeName = selectedLayer.typeUrl + '#' + selectedLayer.defaultFeatureType;
+                                }
                             }
                             if (!(f.featureTypeName in data.featureTypes))
                                 data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
