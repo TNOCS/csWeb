@@ -77,7 +77,7 @@ module Filters {
             filter.from = filter.rangex[0] < min
                 ? min
                 : filter.rangex[0];
-            filter.to = filter.rangex[0] > max
+            filter.to = filter.rangex[1] > max
                 ? max
                 : filter.rangex[1];
             this.$scope.$apply();
@@ -100,10 +100,10 @@ module Filters {
             var min = info.min; //filter.meta.min || info.min;
             var max = info.max; //filter.meta.max || info.max;
             var binWidth = Math.ceil(Math.abs(max - min) / nBins);
-            max  = min + nBins * binWidth;
+            //max  = min + nBins * binWidth;
             var dx = Math.round(binWidth / 2);
             filter.from = filter.rangex[0] = min - dx;
-            filter.to   = filter.rangex[1] = max;
+            filter.to   = filter.rangex[1] = min + nBins * binWidth;//max;
 
             var dcDim = group.ndx.dimension(d => {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
@@ -154,18 +154,7 @@ module Filters {
             this.dcChart.selectAll();
             //this.displayFilterRange(min,max);
 
-            this.dcChart.xUnits(() => { return 13; });
-
-            //this.$scope.$watch('filter.from',()=>this.updateFilter());
-            //  this.$scope.$watch('filter.to',()=>this.updateFilter());
-
-            //if (filter.meta != null && filter.meta.minValue != null) {
-            //    dcChart.x(d3.scale.linear().domain([filter.meta.minValue, filter.meta.maxValue]));
-            //} else {
-            //    var propInfo = this.calculatePropertyInfo(group, filter.property);
-            //    var dif = (propInfo.max - propInfo.min) / 100;
-            //    dcChart.x(d3.scale.linear().domain([propInfo.min - dif, propInfo.max + dif]));
-            //}
+            this.dcChart.xUnits(() => { return 100 / nBins; });
 
             this.dcChart.yAxis().ticks(5);
             this.dcChart.xAxis().ticks(5);
