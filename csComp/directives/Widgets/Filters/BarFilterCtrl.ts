@@ -103,7 +103,7 @@ module Filters {
             //max  = min + nBins * binWidth;
             var dx = Math.round(binWidth / 2);
             filter.from = filter.rangex[0] = min - dx;
-            filter.to   = filter.rangex[1] = min + nBins * binWidth;//max;
+            filter.to   = filter.rangex[1] = min + nBins * binWidth; //max;
 
             var dcDim = group.ndx.dimension(d => {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
@@ -130,7 +130,7 @@ module Filters {
                     var s = '';
                     if (filters.length > 0) {
                         var localFilter = filters[0];
-                        this.displayFilterRange(parseFloat(localFilter[0]).toFixed(2), parseFloat(localFilter[1]).toFixed(2))
+                        this.displayFilterRange(parseFloat(localFilter[0]).toFixed(2), parseFloat(localFilter[1]).toFixed(2));
                         s += localFilter[0];
                     }
                     return s;
@@ -139,7 +139,7 @@ module Filters {
                     var s = '';
                     if (e.filters.length > 0) {
                         var localFilter = e.filters[0];
-                        this.displayFilterRange(+(localFilter[0]).toFixed(2), (+localFilter[1]).toFixed(2))
+                        this.displayFilterRange(+(localFilter[0]).toFixed(2), (+localFilter[1]).toFixed(2));
                         s += localFilter[0];
                     }
                     dc.events.trigger(() => {

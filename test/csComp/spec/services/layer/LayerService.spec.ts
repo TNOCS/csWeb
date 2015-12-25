@@ -177,7 +177,7 @@ describe('csComp.Services.LayerService', function() {
             expect(layerService.project.datasources.length).toEqual(1);
 
             var ds;
-            layerService.findSensorSet('datasource/test', (cb) => {ds = cb;} );
+            layerService.findSensorSet('datasource/test', (cb) => { ds = cb; });
             console.log('OK: ' + ++i);
             expect(ds.id).toEqual('test');
 
