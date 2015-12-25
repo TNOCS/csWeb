@@ -14,6 +14,21 @@
         "maxTitleResolution": -1
       }
     },
+    "postcode4": {
+      "name": "postcode4",
+      "style": {
+        "fillColor": "#ffff99",
+        "strokeColor": "#000000",
+        "drawingMode": "MultiPolygon",
+        "strokeWidth": 1,
+        "iconWidth": 32,
+        "iconHeight": 32,
+        "iconUri": "images/gemeente.png",
+        "nameLabel": "NAAM",
+        "maxTitleResolution": -1
+      },
+      "propertyTypeKeys": "NAAM"
+    },
     "plane": {
       "name": "Vliegtuig",
       "style": {
@@ -141,6 +156,10 @@
     }
   },
   "propertyTypeData": {
+    "NAAM": {
+        "type": "text",
+        "title": "Postcode 4"
+    },
     "sensor_test": {
       "type": "number",
       "title": "Test value",

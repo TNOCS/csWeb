@@ -56,7 +56,7 @@
         "zorgkantoor",
         "Hospitals"
       ],
-      "baselayer": "Satellite Day",
+      "baselayer": "World Imagery",
       "viewBounds": {
         "southWest": [
           50.7,
@@ -759,7 +759,6 @@
           "description": "Statistical data per city in Dutch. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)",
           "type": "topojson",
           "renderType": "topojson",
-          "heatmapItems": null,
           "url": "data/projects/20141104_csMap/postcode4.topo.json",
           "typeUrl": "data/resourceTypes/resources.json",
           "opacity": 100,
@@ -773,7 +772,7 @@
               "description": "Statistical data per city in Dutch. (Source: CBS, BAG, TNO, DigiMV. Geactualiseerd: 1 november 2014.)"
             }
           },
-          "defaultFeatureType": "gemeente"
+          "defaultFeatureType": "postcode4"
         },
         {
           "id": "ESRIGrid",
