@@ -120,7 +120,7 @@ describe('Helpers spec:', function() {
                 opacity: 0.75,
                 fillColor: '#FFFF00',
                 stroke: true,
-                iconUri: 'cs/images/marker.png'
+                iconUri: 'bower_components/csweb/dist-bower/images/marker.png'
             });
             expect(result._propertyTypeData).toEqual(undefined);
         });
