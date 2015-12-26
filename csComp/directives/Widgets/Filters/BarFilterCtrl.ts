@@ -97,13 +97,13 @@ module Filters {
             var info = this.$layerService.calculatePropertyInfo(group, filter.property);
 
             var nBins = Math.ceil(Math.sqrt(Object.keys(group.markers).length));
-            var min = info.min; //filter.meta.min || info.min;
-            var max = info.max; //filter.meta.max || info.max;
+            var min = info.min;
+            var max = info.max;
             var binWidth = Math.ceil(Math.abs(max - min) / nBins);
-            //max  = min + nBins * binWidth;
+            max  = min + nBins * binWidth;
             var dx = Math.round(binWidth / 2);
             filter.from = filter.rangex[0] = min - dx;
-            filter.to   = filter.rangex[1] = min + nBins * binWidth; //max;
+            filter.to   = filter.rangex[1] = max;
 
             var dcDim = group.ndx.dimension(d => {
                 if (!d.properties.hasOwnProperty(filter.property)) return null;
