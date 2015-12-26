@@ -36,11 +36,11 @@ module csComp.Services {
         }
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
-            var result : [[string, Function]] = [
+            var result: [[string, Function]] = [
                 ['Fit map', (($itemScope) => this.fitMap(layer))]];
-                if (layer.hasSensorData && layer.timestamps) result.push(['Fit time', (($itemScope) => this.fitTimeline(layer))]);
-               result.push(null);
-               result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);
+            if (layer.hasSensorData && layer.timestamps) result.push(['Fit time', (($itemScope) => this.fitTimeline(layer))]);
+            result.push(null);
+            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);
             return result;
         }
 
@@ -256,6 +256,10 @@ module csComp.Services {
         }
 
         private updateFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer = null) {
+            var configSettings = {};
+            if (layer.id === 'newsfeed') {
+                configSettings = { titleKey: 'Name', descriptionKey: 'news_title', dateKey: 'news_date' };
+            };
             try {
                 var features = (<any>this.layer.data).features;
                 if (features == null)
@@ -269,7 +273,7 @@ module csComp.Services {
                         this.service.updateFeature(f);
                         done = true;
                         if (this.service.project.eventTab) {
-                            this.service.$messageBusService.publish('eventtab', 'updated', f);
+                            this.service.$messageBusService.publish('eventtab', 'updated', { feature: f, config: configSettings });
                         } else {
                             if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, f.properties['Name'] + ' updated');
                         }
@@ -286,7 +290,7 @@ module csComp.Services {
                         this.service.initFeature(value, layer, false);
                         var m = this.service.activeMapRenderer.addFeature(value);
                         if (this.service.project.eventTab) {
-                            this.service.$messageBusService.publish('eventtab', 'added', value);
+                            this.service.$messageBusService.publish('eventtab', 'added', { feature: value, config: configSettings });
                         } else {
                             if (layer.showFeatureNotifications) this.service.$messageBusService.notify(layer.title, value.properties['Name'] + ' added');
                         }
@@ -295,7 +299,7 @@ module csComp.Services {
                         this.service.initFeature(value, this.layer);
                         var m = this.service.activeMapRenderer.addFeature(value);
                         if (this.service.project.eventTab) {
-                            this.service.$messageBusService.publish('eventtab', 'added', value);
+                            this.service.$messageBusService.publish('eventtab', 'added', { feature: value, config: configSettings });
                         } else {
                             if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, value.properties['Name'] + ' added');
                         }
@@ -523,11 +527,11 @@ module csComp.Services {
                 });
                 if (layer.timeAware) this.service.$messageBusService.publish('timeline', 'updateFeatures');
             }).error((e) => {
-                    console.log('EsriJsonSource called $HTTP with errors: ' + e);
-                }).finally(() => {
-                    layer.isLoading = false;
-                    callback(layer);
-                });
+                console.log('EsriJsonSource called $HTTP with errors: ' + e);
+            }).finally(() => {
+                layer.isLoading = false;
+                callback(layer);
+            });
         }
     }
 }

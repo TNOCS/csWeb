@@ -137,7 +137,17 @@ module EventTab {
             foundFeature.properties['updated'] = new Date();
         }
 
-        private addEvent(f: IFeature) {
+        /** 
+         * Add a card-item to the event list. Provide a feature, and optionally some property-keys of data you want to display.
+         */
+        private addEvent(data: {feature: IFeature, config: {titleKey: string, descriptionKey: string, dateKey: string}}) {
+            var f = data.feature;
+            var config = data.config;
+            var titleKey = (!config.titleKey) ? 'Name' : config.titleKey;
+            var descriptionKey = (!config.descriptionKey) ? 'state' : config.descriptionKey;
+            var dateKey = (!config.dateKey) ? 'timeline' : config.dateKey;
+
+            //Create event feature
             var newF = new csComp.Services.Feature();
             newF.layer = this.layer;
             newF.geometry = f.geometry;
@@ -147,23 +157,33 @@ module EventTab {
             newF.id = csComp.Helpers.getGuid();
             newF._gui = f._gui;
             newF.properties = f.properties;
+
+            // Try to find propertytype for description label
             var pts = csComp.Helpers.getPropertyTypes(f.fType, {});
-            var stateText;
+            var descrText;
             pts.some((p) => {
-                if (p.hasOwnProperty && p.hasOwnProperty('label') && p.label === 'state') {
-                    stateText = p.options[newF.properties['state']];
+                if (p.hasOwnProperty && p.hasOwnProperty('label') && p.label === descriptionKey && p.hasOwnProperty('options')) {
+                    descrText = p.options[newF.properties[descriptionKey]];
                     return true;
                 }
                 return false;
             });
-            newF.properties['date'] = new Date(this.$layerService.project.timeLine.focus);
-            newF.properties['updated'] = new Date(this.$layerService.project.timeLine.focus);
+
+            // Set the item date
+            if (dateKey === 'timeline') {
+                newF.properties['date'] = new Date(this.$layerService.project.timeLine.focus);
+                newF.properties['updated'] = new Date(this.$layerService.project.timeLine.focus);
+            } else {
+                newF.properties['date'] = new Date(newF.properties[dateKey]);
+                newF.properties['updated'] = new Date(newF.properties[dateKey]);
+            }
+
             newF.properties['layerTitle'] = (f.layer) ? f.layer.id : '';
             if (!newF.properties.hasOwnProperty('tags')) newF.properties['tags'] = [];
             this.kanban.columns[0].propertyTags.forEach((tag) => {
                 if (newF.properties.hasOwnProperty(tag)) {
                     pts.some((p) => {
-                        if (p.hasOwnProperty && p.hasOwnProperty('label') && p.label === 'state') {
+                        if (p.hasOwnProperty && p.hasOwnProperty('label') && p.label === descriptionKey) {
                             newF.properties['tags'].push(csComp.Helpers.convertPropertyInfo(p, newF.properties[tag]));
                             return true;
                         }
@@ -171,7 +191,7 @@ module EventTab {
                     });
                 }
             });
-            newF.properties['description'] = 'changed to state: ' + (stateText ? stateText : newF.properties['state']);
+            newF.properties['description'] = (descrText ? descrText : newF.properties[descriptionKey]);
             newF.layerId = 'eventlayerid';
             this.addTimelineItem(newF);
             this.layer.data.features.push(newF);
@@ -215,7 +235,7 @@ module EventTab {
                 } else if (changedGroups[key].length > 1) {
                     // else merge items
                     var mergedItem = changedGroups[key][0];
-                    mergedItem['content'] = changedGroups[key].length.toString() + ' ' + changedGroups[key][0].group + 's affected';
+                    mergedItem['content'] = changedGroups[key].length.toString() + ' ' + changedGroups[key][0].group + ' updates';
                     this.tlItems.push(mergedItem);
                 }
             });

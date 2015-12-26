@@ -358,7 +358,12 @@ module csComp.Helpers {
                 displayValue = count.toString();
                 break;
             case 'date':
-                var d = new Date(Date.parse(text));
+                var d;
+                if ($.isNumeric(text)) {
+                    d = new Date(text);
+                } else {
+                    d = new Date(Date.parse(text));
+                }
                 displayValue = d.toLocaleString();
                 break;
             case 'duration': //in ms
