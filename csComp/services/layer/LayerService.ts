@@ -418,18 +418,16 @@ module csComp.Services {
         }
 
         /**
-        check for every feature (de)select if layers should automatically be activated
+        * Check for every feature (de)select if layers should automatically be activated
         */
         private checkFeatureSubLayers() {
             this.$messageBusService.subscribe('feature', (action: string, feature: IFeature) => {
                 if (!feature || !feature.fType) return;
-                var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
                 switch (action) {
                     case 'onFeatureDeselect':
-                        // check sub-layers
                         break;
                     case 'onFeatureSelect':
-                        // check sub-layers
+                        var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
                         props.forEach((prop: IPropertyType) => {
                             if (prop.type === 'matrix' && feature.properties.hasOwnProperty(prop.label)) {
                                 var matrix = feature.properties[prop.label];
@@ -1508,8 +1506,8 @@ module csComp.Services {
         /**
          * Creates a GroupStyle based on a property and adds it to a group.
          * If the group already has a style which contains legends, those legends are copied into the newly created group.
-         * Already existing groups (for the same visualAspect) are replaced by the new group
-         * Restoring a previously used groupstyle is possible by sending that GroupStyle object
+         * Already existing groups (for the same visualAspect) are replaced by the new group.
+         * Restoring a previously used groupstyle is possible by sending that GroupStyle object.
          */
         public setStyle(property: any, openStyleTab = false, customStyleInfo?: PropertyInfo, groupStyle?: GroupStyle) {
             // parameter property is of the type ICallOutProperty. explicit declaration gives the red squigglies
@@ -1527,7 +1525,9 @@ module csComp.Services {
                     gs.id = Helpers.getGuid();
                     gs.title = property.key;
                     gs.meta = property.meta;
-                    gs.visualAspect = (ft.style && ft.style.drawingMode && ft.style.drawingMode.toLowerCase() === 'line') ? 'strokeColor' : 'fillColor';
+                    gs.visualAspect = (ft.style && ft.style.drawingMode && ft.style.drawingMode.toLowerCase() === 'line')
+                        ? 'strokeColor'
+                        : 'fillColor';
                     gs.canSelectColor = gs.visualAspect.toLowerCase().indexOf('color') > -1;
 
                     gs.property = property.property;
