@@ -154,7 +154,7 @@ module csComp.Services {
     }
 
     /**
-     * Styles can determine how features are shown on the map
+     * Styles determine how features are shown on the map.
      */
     export class GroupStyle {
         id:               string;
