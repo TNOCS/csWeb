@@ -458,59 +458,142 @@ module csComp.Services {
             }
             return icon;
         }
-
-        /***
-         * Show tooltip with name, styles & filters.
+        /**
+         * Add a new entry to the tooltip.
+         * @param  {string} content: existing HTML content
+         * @param  {IFeature} feature: selected feature
+         * @param  {string} property: selected property
+         * @param  {IPropertyType} meta: meta info added to the group or style filter
+         * @param  {string} title: title of the entry
+         * @param  {boolean} isFilter: is true, if we need to add a filter icon, otherwise a style icon will be applied
          */
-        showFeatureTooltip(e: L.LeafletMouseEvent, group: ProjectGroup) {
+        private addEntryToTooltip(content: string, feature: IFeature, property: string, meta: IPropertyType, title: string, isFilter: boolean) {
+            var value = feature.properties[property];
+            if (!value) return;
+            var valueLength = value.toString().length;
+            if (meta) {
+                value = Helpers.convertPropertyInfo(meta, value);
+                if (meta.type !== 'bbcode') valueLength = value.toString().length;
+            } else {
+                if (feature.fType._propertyTypeData) {
+                    feature.fType._propertyTypeData.some(pt => {
+                        if (pt.label !== property) return false;
+                        meta = pt;
+                        value = Helpers.convertPropertyInfo(pt, value);
+                        return true;
+                    });
+                }
+            }
+            return {
+                length: valueLength + title.length,
+                content: content + `<tr><td><div class="fa ${isFilter ? 'fa-filter' : 'fa-paint-brush'}"></td><td>${title}</td><td>${value}</td></tr>`
+            };
+        }
+
+        generateTooltipContent(e: L.LeafletMouseEvent, group: ProjectGroup) {
             var layer = e.target;
             var feature = <Feature>layer.feature;
             // add title
-            var title = layer.feature.properties.Name;
+            var title = feature.properties['Name'];
             var rowLength = (title) ? title.length : 1;
             var content = '<td colspan=\'3\'>' + title + '</td></tr>';
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
                     if (!feature.properties.hasOwnProperty(f.property)) return;
-                    var value = feature.properties[f.property];
-                    if (value) {
-                        var valueLength = value.toString().length;
-                        if (f.meta != null) {
-                            value = Helpers.convertPropertyInfo(f.meta, value);
-                            if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
-                        }
-                        rowLength = Math.max(rowLength, valueLength + f.title.length);
-                        content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
-                    }
+                    let entry = this.addEntryToTooltip(content, feature, f.property, f.meta, f.title, true);
+                    content = entry.content;
+                    rowLength = Math.max(rowLength, entry.length);
                 });
             }
 
             // add style values, only in case they haven't been added already as filter
             if (group.styles != null && group.styles.length > 0) {
                 group.styles.forEach((s: GroupStyle) => {
-                    if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property === s.property; }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
-                        var value = feature.properties[s.property];
-                        var valueLength = value.toString().length;
-                        if (s.meta != null) {
-                            value = Helpers.convertPropertyInfo(s.meta, value);
-                            if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
-                        }
+                    if (group.filters != null && group.filters.filter((f: GroupFilter) => {
+                        return f.property === s.property;
+                    }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
+                        let entry = this.addEntryToTooltip(content, feature, s.property, s.meta, s.title, false);
+                        content = entry.content;
                         var tl = s.title ? s.title.length : 10;
-                        rowLength = Math.max(rowLength, valueLength + tl);
-                        content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
+                        rowLength = Math.max(rowLength, entry.length + tl);
                     }
                 });
             }
             var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
-            content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
+            return {
+                content: '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>',
+                widthInPixels: widthInPixels
+            };
+        }
+
+        /**
+         * Show tooltip with name, styles & filters.
+         */
+        showFeatureTooltip(e: L.LeafletMouseEvent, group: ProjectGroup) {
+            var layer   = e.target;
+            var feature = <Feature>layer.feature;
+            var tooltip = this.generateTooltipContent(e, group);
+
+            // var layer = e.target;
+            // var feature = <Feature>layer.feature;
+            // // add title
+            // var title = feature.properties['Name'];
+            // var rowLength = (title) ? title.length : 1;
+            // var content = '<td colspan=\'3\'>' + title + '</td></tr>';
+            // // add filter values
+            // if (group.filters != null && group.filters.length > 0) {
+            //     group.filters.forEach((f: GroupFilter) => {
+            //         if (!feature.properties.hasOwnProperty(f.property)) return;
+            //         var value = feature.properties[f.property];
+            //         if (value) {
+            //             var valueLength = value.toString().length;
+            //             if (f.meta) {
+            //                 value = Helpers.convertPropertyInfo(f.meta, value);
+            //                 if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
+            //             } else {
+            //                 if (feature.fType._propertyTypeData) {
+            //                     feature.fType._propertyTypeData.some(pt => {
+            //                         if (pt.label !== f.property) return false;
+            //                         f.meta = pt;
+            //                         value = Helpers.convertPropertyInfo(pt, value);
+            //                         return true;
+            //                     });
+            //                 }
+            //             }
+            //             rowLength = Math.max(rowLength, valueLength + f.title.length);
+            //             content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
+            //         }
+            //     });
+            // }
+
+            // // add style values, only in case they haven't been added already as filter
+            // if (group.styles != null && group.styles.length > 0) {
+            //     group.styles.forEach((s: GroupStyle) => {
+            //         if (group.filters != null && group.filters.filter((f: GroupFilter) => {
+            //             return f.property === s.property;
+            //         }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
+            //             var value = feature.properties[s.property];
+            //             var valueLength = value.toString().length;
+            //             if (s.meta != null) {
+            //                 value = Helpers.convertPropertyInfo(s.meta, value);
+            //                 if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
+            //             }
+            //             var tl = s.title ? s.title.length : 10;
+            //             rowLength = Math.max(rowLength, valueLength + tl);
+            //             content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
+            //         }
+            //     });
+            // }
+            // var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
+            // content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
 
             this.popup = L.popup({
-                offset: new L.Point(-widthInPixels / 2 - 40, -5),
+                offset: new L.Point(-tooltip.widthInPixels / 2 - 40, -5),
                 closeOnClick: true,
                 autoPan: false,
                 className: 'featureTooltip'
-            }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
+            }).setLatLng(e.latlng).setContent(tooltip.content).openOn(this.service.map.map);
 
             //In case a contour is available, show it.
             var hoverActions = this.service.getActions(feature, ActionType.Hover);

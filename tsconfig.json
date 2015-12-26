@@ -338,6 +338,7 @@
         "test/csComp/spec/helpers/Utils.spec.ts",
         "test/csComp/spec/services/bus/MessageBus.spec.ts",
         "test/csComp/spec/services/layer/ExpressionService.spec.ts",
-        "test/csComp/spec/services/layer/LayerService.spec.ts"
+        "test/csComp/spec/services/layer/LayerService.spec.ts",
+        "test/csComp/spec/services/map/renderers/LeafletRenderer.spec.ts"
     ]
 }
