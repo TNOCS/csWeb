@@ -55,7 +55,7 @@ describe('csComp.Services.LeafletRenderer', function() {
             var tooltip = renderer.generateTooltipContent(e, group);
             expect(tooltip).toBeDefined();
             expect(tooltip.content).toContain('Number of men');
-            expect(tooltip.content).toContain('1.000.000');
+            expect(tooltip.content.replace('.', ',')).toContain('1,000,000'); // change thousand separator in Dutch
         });
 
         it('should have an entry for each style.', () => {
@@ -67,7 +67,7 @@ describe('csComp.Services.LeafletRenderer', function() {
             var tooltip = renderer.generateTooltipContent(e, group);
             expect(tooltip).toBeDefined();
             expect(tooltip.content).toContain('Percentage of children');
-            expect(tooltip.content).toContain('12,50%');
+            expect(tooltip.content.replace(',', '.')).toContain('12.50%'); // change decimal point in Dutch
         });
 
     });
