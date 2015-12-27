@@ -1,9 +1,9 @@
-
 module DataTable {
-    import IGeoJsonFile = csComp.Services.IGeoJsonFile;
+    import IGeoJsonFile  = csComp.Services.IGeoJsonFile;
     import IPropertyType = csComp.Services.IPropertyType;
-    import IFeature = csComp.Services.IFeature;
-    import ProjectLayer = csComp.Services.ProjectLayer;
+    import IFeature      = csComp.Services.IFeature;
+    import IFeatureType  = csComp.Services.IFeatureType;
+    import ProjectLayer  = csComp.Services.ProjectLayer;
 
     export interface IDataTableViewScope extends ng.IScope {
         vm: DataTableCtrl;
@@ -22,7 +22,7 @@ module DataTable {
     declare var String;
 
     export class DataTableCtrl {
-        public mapLabel: string = "map";
+        public mapLabel: string = 'map';
         public dataset: IGeoJsonFile;
         public selectedType: csComp.Services.IFeatureType;
         public numberOfItems: number = 10;
@@ -62,7 +62,7 @@ module DataTable {
             private $layerService: csComp.Services.LayerService,
             private $localStorageService: ng.localStorage.ILocalStorageService,
             private $messageBusService: csComp.Services.MessageBusService
-            ) {
+        ) {
             // 'vm' stands for 'view model'. We're adding a reference to the controller to the scope
             // for its methods to be accessible from view / HTML
             $scope.vm = this;
@@ -87,10 +87,7 @@ module DataTable {
             });
 
             $messageBusService.publish('timeline', 'isEnabled', 'false');
-
-
         }
-
 
         /**
          * Add a label to local storage and bind it to the scope.
@@ -105,37 +102,36 @@ module DataTable {
          * Create a list of layer options and select the one used previously.
          */
         private updateLayerOptions() {
-
             var chooseLayerOption = {
-                "group": '',
-                "id": this.mapLabel,
-                "title": ''//this.$translate("CHOOSE_CATEGORY")//this.mapFeatureTitle
+                'group': '',
+                'id': this.mapLabel,
+                'title': ''//this.$translate('CHOOSE_CATEGORY')//this.mapFeatureTitle
             };
             this.layerOptions.push(chooseLayerOption);
 
-            this.$translate("CHOOSE_CATEGORY").then(translation=>{
-              chooseLayerOption.title = translation
+            this.$translate('CHOOSE_CATEGORY').then(translation => {
+                chooseLayerOption.title = translation;
             });
 
             if (this.$layerService.project == null || this.$layerService.project.groups == null) return;
             this.$layerService.project.groups.forEach((group) => {
                 group.layers.forEach((layer) => {
                     this.layerOptions.push({
-                        "group": group.title,
-                        "id": layer.id,
-                        "title": layer.title
+                        'group': group.title,
+                        'id': layer.id,
+                        'title': layer.title
                     });
                 });
             });
 
             for (var layerKey in this.$layerService.loadedLayers) {
-              if (this.selectedLayerId == null) {
-                return;
-              }
-              var layer: ProjectLayer = this.$layerService.loadedLayers[layerKey];
-              if (layer.enabled) {
-                this.selectedLayerId = layer.id;
-              }
+                if (this.selectedLayerId == null) {
+                    return;
+                }
+                var layer: ProjectLayer = this.$layerService.loadedLayers[layerKey];
+                if (layer.enabled) {
+                    this.selectedLayerId = layer.id;
+                }
             };
             //this.selectedLayerId =  //this.$localStorageService.get('vm.selectedLayerId');
         }
@@ -146,49 +142,45 @@ module DataTable {
             if (selectedLayer == null) return this.loadMapLayers();
 
             async.series([
-              (callback)=>{
-                if (selectedLayer.typeUrl != null) {
-                  this.$layerService.loadTypeResources(selectedLayer.typeUrl, true, ()=>{
-                    callback();
-                  });
-                } else {
-                  callback();
-                }
-              },
-              (callback)=> {
-                this.$http.get(selectedLayer.url).
-                    success((data: IGeoJsonFile) => {
-                    this.dataset = data;
-
-                    if (data.featureTypes == null) data.featureTypes = {};
-                    if (data.features) {
-                        data.features.forEach((f: IFeature) => {
-                            if (f.properties.hasOwnProperty('FeatureTypeId')) {
-                                f.featureTypeName = f.properties['FeatureTypeId'];
-                            } else if (data.featureTypes.hasOwnProperty('Default')) {
-                                f.featureTypeName = 'Default';
-                            } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType !== '') {
-                                if (selectedLayer.defaultFeatureType.indexOf('#') > -1) {
-                                        f.featureTypeName = selectedLayer.defaultFeatureType;
-                                } else {
-                                    f.featureTypeName = selectedLayer.typeUrl + '#' + selectedLayer.defaultFeatureType;
-                                }
-                            }
-                            if (!(f.featureTypeName in data.featureTypes))
-                                data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
-                        });
-                        this.updatepropertyType(data);
+                (callback) => {
+                    if (selectedLayer.typeUrl != null) {
+                        this.$layerService.loadTypeResources(selectedLayer.typeUrl, true, () => callback());
+                    } else {
+                        callback();
                     }
+                },
+                (callback) => {
+                    this.$http.get(selectedLayer.url).
+                        success((data: IGeoJsonFile) => {
+                            this.dataset = data;
 
-                    callback();
-                }).
-                    error((data, status, headers, config) => {
-                    this.$messageBusService.notify("ERROR opening " + selectedLayer.title, "Could not get the data.");
-                    callback();
-                });
-              }
+                            if (data.featureTypes == null) data.featureTypes = {};
+                            if (data.features) {
+                                data.features.forEach((f: IFeature) => {
+                                    if (f.properties.hasOwnProperty('FeatureTypeId')) {
+                                        f.featureTypeName = f.properties['FeatureTypeId'];
+                                    } else if (data.featureTypes.hasOwnProperty('Default')) {
+                                        f.featureTypeName = 'Default';
+                                    } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType !== '') {
+                                        if (selectedLayer.defaultFeatureType.indexOf('#') > -1) {
+                                            f.featureTypeName = selectedLayer.defaultFeatureType;
+                                        } else {
+                                            f.featureTypeName = selectedLayer.typeUrl + '#' + selectedLayer.defaultFeatureType;
+                                        }
+                                    }
+                                    if (!(f.featureTypeName in data.featureTypes))
+                                        data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
+                                });
+                                this.updatePropertyType(data, selectedLayer);
+                            }
+
+                            callback();
+                        }).error((data, status, headers, config) => {
+                            this.$messageBusService.notify('ERROR opening ' + selectedLayer.title, 'Could not get the data.');
+                            callback();
+                        });
+                }
             ]);
-
         }
 
         /**
@@ -216,81 +208,58 @@ module DataTable {
             });
 
             this.dataset = data;
-            this.updatepropertyType(data);
+            this.updatePropertyType(data);
         }
 
-        private updatepropertyType(data: IGeoJsonFile): void {
-            this.propertyTypes = [];
-            this.headers = [];
-            this.rows = [];
-            var titles: Array<string> = [];
-            var mis: Array<IPropertyType> = [];
-            // Push the Name, so it always appears on top.
-            /* rely on namelabel to determine the first property
-            mis.push({
-                label: "Name",
-                visibleInCallOut: true,
-                title: "Naam",
-                type: "text",
-                filterType: "text",
-                isSearchable: true
-            });
-            */
+        private addPropertyType(mis: IPropertyType[], nameLabel: string, ptd: IPropertyType) {
+            if (nameLabel === ptd.label) {
+                mis.splice(0, 0, ptd);
+            } else {
+                mis.push(ptd);
+            }
+        }
 
-            var featureType: csComp.Services.IFeatureType;
+        private updatePropertyType(data: IGeoJsonFile, layer: ProjectLayer): void {
+            this.propertyTypes = [];
+            this.headers       = [];
+            this.rows          = [];
+            var titles:        string[]        = [],
+                mis:           IPropertyType[] = [],
+                featureType:   IFeatureType,
+                nameLabel:     string;
+
             for (var key in data.featureTypes) {
                 featureType = data.featureTypes[key];
-                if (featureType._propertyTypeData != null) {
-                  featureType._propertyTypeData.forEach(ptd => {
-                    if (featureType.style.nameLabel == ptd.label) {
-                      mis.splice(0,0,ptd);
-                    } else {
-                      mis.push(ptd);
-                    }
-                  });
-                }
-                if (featureType.propertyTypeKeys != null) {
-                    var keys: Array<string> = featureType.propertyTypeKeys.split(';');
+                nameLabel = featureType.style.nameLabel;
+                if (featureType._propertyTypeData && featureType._propertyTypeData.length > 0) {
+                    featureType._propertyTypeData.forEach(ptd => this.addPropertyType(mis, nameLabel, ptd));
+                } else if (featureType.propertyTypeKeys) {
+                    var keys: Array<string> = featureType.propertyTypeKeys.split(/[,;]+/);
                     keys.forEach((k) => {
-                        var propertyType: csComp.Services.IPropertyType = null;
-                        if (k in this.$layerService.propertyTypeData)
-                          propertyType = this.$layerService.propertyTypeData[k];
-                            //mis.push(this.$layerService.propertyTypeData[k]);
-                        else if (featureType._propertyTypeData != null) {
+                        let ptd: csComp.Services.IPropertyType;
+                        if (k in this.$layerService.propertyTypeData) {
+                            ptd = this.$layerService.propertyTypeData[k];
+                        } else if (featureType._propertyTypeData) {
                             var result = $.grep(featureType._propertyTypeData, e => e.label === k);
-                            //if (result.length >= 1) mis.push(result[0]);
-                            if (result.length >= 1) propertyType = result[0];
+                            if (result.length >= 1) ptd = result[0];
                         }
 
-                        if (propertyType != null) {
-                          if (featureType.style.nameLabel == propertyType.label) {
-                            mis.splice(0,0,propertyType);
-                          } else {
-                            mis.push(propertyType);
-                          }
+                        if (ptd) {
+                            this.addPropertyType(mis, nameLabel, ptd);
                         }
                     });
-                } else if (featureType._propertyTypeData != null) {
-                    featureType._propertyTypeData.forEach((mi) => {
-                      //mis.push(mi)
-
-                      if (featureType.style.nameLabel == mi.label) {
-                        mis.splice(0,0,mi);
-                      } else {
-                        mis.push(mi);
-                      }
-                      /*
-                      var existingMis = mis.filter(existingMi=>existingMi.title == mi.title);
-                      if (existingMis.length > 0) {
-                        mis.splice(mis.indexOf(existingMis[0]),1,mi);
-                      } else {
-                        mis.push(mi);
-                      }
-                      */
-                    });
+                } else if (data.features && data.features.length > 0) { // Take the first feature and derive your properties from that.
+                    var feature = data.features[0];
+                    feature.layer = layer;
+                    for (var key in feature.properties) {
+                        let ptd = this.$layerService.getPropertyType(feature, key);
+                        if (ptd) {
+                            this.addPropertyType(mis, nameLabel, ptd);
+                        }
+                    }
                 }
-                mis.forEach((mi) => {
-                    if ((mi.visibleInCallOut || mi.label === "Name") && titles.indexOf(mi.title) < 0) {
+                mis.forEach(mi => {
+                    if ((mi.visibleInCallOut || mi.label === 'Name') && titles.indexOf(mi.title) < 0) {
                         titles.push(mi.title);
                         this.propertyTypes.push(mi);
                     }
@@ -301,7 +270,7 @@ module DataTable {
             this.propertyTypes.push(csComp.Helpers.GeoExtensions.createPropertyType('Lon'));
 
             // Select the first couple of headers
-            var nmbrOfDefaultSelectedHeaders = 3;
+            const nmbrOfDefaultSelectedHeaders = 3;
             for (var i = 0; i < nmbrOfDefaultSelectedHeaders; i++) {
                 this.headers.push(titles[i]);
             }
@@ -326,7 +295,7 @@ module DataTable {
                 var group = this.$layerService.project.groups[i];
                 for (var j = 0; j < group.layers.length; j++) {
                     var layer = group.layers[j];
-                    if (layer.id != id) continue;
+                    if (layer.id !== id) continue;
                     return layer;
                 }
             }
@@ -407,7 +376,7 @@ module DataTable {
             this.sortingColumn = headerIndex;
             this.rows = this.rows.sort((a, b) => {
                 var order: boolean; // Original sort order
-                if (a[headerIndex].type == 'number')
+                if (a[headerIndex].type === 'number')
                     order = a[headerIndex].originalValue > b[headerIndex].originalValue;
                 else
                     order = a[headerIndex].originalValue.toLowerCase() > b[headerIndex].originalValue.toLowerCase();
@@ -442,8 +411,8 @@ module DataTable {
             this.$timeout(() => {
                 var data = this.$layerService.project.serialize();
                 //console.log(data);
-                console.log("Save settings: ");
-                csComp.Helpers.saveData(geoJsonString, filename, "json");
+                console.log('Save settings: ');
+                csComp.Helpers.saveData(geoJsonString, filename, 'json');
             }, 0);
         }
 
@@ -467,8 +436,8 @@ module DataTable {
             this.$timeout(() => {
                 var data = this.$layerService.project.serialize();
                 //console.log(data);
-                console.log("Save settings: ");
-                csComp.Helpers.saveData(csvString, filename, "csv");
+                console.log('Save settings: ');
+                csComp.Helpers.saveData(csvString, filename, 'csv');
             }, 0);
         }
 

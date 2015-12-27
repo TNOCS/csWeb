@@ -1784,7 +1784,7 @@ module csComp.Services {
         }
 
         /**
-         * Returns propertytype for a specific property in a feature
+         * Returns PropertyType for a specific property in a feature
          */
         public getPropertyType(feature: IFeature, property: string): IPropertyType {
             var res: IPropertyType;
@@ -1795,7 +1795,6 @@ module csComp.Services {
             }
 
             if (!feature.layer.typeUrl || !this.typesResources.hasOwnProperty(feature.layer.typeUrl)) return res;
-            var rt = this.typesResources[feature.layer.typeUrl];
 
             // if (feature.fType.propertyTypeKeys && typeof feature.fType.propertyTypeKeys === 'string') {
             //     feature.fType.propertyTypeKeys.split(';').forEach((key: string) => {
@@ -1804,6 +1803,7 @@ module csComp.Services {
             // }
 
             if (!res) {
+                var rt = this.typesResources[feature.layer.typeUrl];
                 res = _.find(rt.propertyTypeData, (pt: IPropertyType) => { return pt.label === property; });
             }
 

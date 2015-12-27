@@ -162,7 +162,7 @@ module csComp.Helpers {
         var propertyTypes: Array<csComp.Services.IPropertyType> = [];
 
         if (type.propertyTypeKeys && type.propertyTypeKeys.length > 0 && typeof type.propertyTypeKeys === 'string') {
-            var keys = type.propertyTypeKeys.split(';');
+            var keys = type.propertyTypeKeys.split(/[,;]+/);
             keys.forEach((key) => {
                 // First, lookup key in global propertyTypeData
                 if (propertyTypeData && propertyTypeData.hasOwnProperty(key)) {
@@ -493,7 +493,7 @@ module csComp.Helpers {
                 data.featureTypes[f.featureTypeName] = featureType;
                 if (featureType.propertyTypeKeys) {
                     featureType._propertyTypeData = [];
-                    featureType.propertyTypeKeys.split(';').forEach((key) => {
+                    featureType.propertyTypeKeys.split(/[,;]+/).forEach((key) => {
                         if (layerService.propertyTypeData.hasOwnProperty(key)) {
                             featureType._propertyTypeData.push(layerService.propertyTypeData[key]);
                         }
