@@ -140,7 +140,6 @@ module csComp.Services {
             this.$location.search('dashboard', dashboard.id);
         }
 
-
         public activateTab(tab: RightPanelTab) {
             if (!tab.hasOwnProperty('container')) return;
             this.$layerService.visual.rightPanelVisible = true;

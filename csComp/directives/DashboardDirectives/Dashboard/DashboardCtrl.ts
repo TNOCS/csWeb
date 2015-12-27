@@ -285,6 +285,32 @@ module Dashboard {
             }, 10);
         }
 
+        private checkLegend(d: Dashboard) {
+            if (!d.showLegend) return;
+            var legendWidgetPresent = false;
+            d.widgets.forEach(w => {
+                if (w.id === 'legend') legendWidgetPresent = true;
+            });
+            if (!legendWidgetPresent) {
+                //console.log('Create legend');
+                var w = <csComp.Services.IWidget>{};
+                w.directive        = 'legend-directive';
+                w.id               = csComp.Helpers.getGuid();
+                w.elementId        = 'widget-' + w.id;
+                w.parentDashboard  = d;
+                w.title            = 'Legend';
+                w.data             = {mode: 'lastSelectedStyle'};
+                w.left             = '10px';
+                w.top              = '20px';
+                w.width            = '150px';
+                w.enabled          = true;
+                d.widgets.push(w);
+                //this.$dashboardService.
+                //this.$dashboardService.addNewWidget(w, d);
+                //this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
+            }
+        };
+
         // if (!d.widgets) d.widgets = [];
         // if (d.showLegend) {
         //     var legendWidgetPresent = false;
@@ -310,6 +336,7 @@ module Dashboard {
             var d = this.$scope.dashboard;
             if (!d) return;
 
+            this.checkLegend(d);
             this.checkMap();
             this.checkTimeline();
             this.checkLayers();
