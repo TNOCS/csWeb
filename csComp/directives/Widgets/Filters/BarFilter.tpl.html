@@ -3,7 +3,7 @@
         <div style="display:inline-block; width:100%;">
             <h4 style="display:inline-block;">{{filter.title}}</h4>
             <div class="left-menu dropdown-toggle pull-left" style="float: right!important; position:relative;" ng-click="vm.openLayerMenu($event)"></div>
-            <a class='btn fa fa-remove' style="float: right;" ng-click="vm.remove()"></a>
+            <a class="btn fa fa-remove" style="float: right;" ng-click="vm.remove()"></a>
         </div>
         <div id="filter_{{filter.id}}"></div>
         <div ng-hide="editMode">
@@ -19,8 +19,9 @@
                     <b>{{'TO' | translate}}</b>
                     <input style="max-width: 60px;" type="text" ng-model="filter.to" />
                     <button class="btn fa fa-check makeNarrow" style="margin-left:4px" ng-click="vm.updateRange();editMode=false"></button>
-                    <button class="btn fa fa-remove makeNarrow" style="margin-left:4px" ng-click="editMode=false"></button>
+                    <!--<button class="btn fa fa-remove makeNarrow" style="margin-left:4px" ng-click="editMode=false"></button>-->
                 </div>
             </span>
         </div>
     </div>
+</div>

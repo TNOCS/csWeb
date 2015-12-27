@@ -38,7 +38,7 @@ module DashboardSelection {
         ) {
             $scope.vm = this;
             this.$messageBusService.subscribe('project', (s, a) => {
-                this.style = "default";
+                this.style = 'default';
                 this.selectStyle();
             });
         }
@@ -54,8 +54,8 @@ module DashboardSelection {
                     starty = 0;
                     event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
                     event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
-                    event.target.style.width = "300px";
-                    event.target.style.height = "300px";
+                    event.target.style.width = '300px';
+                    event.target.style.height = '300px';
                 })
                 .on('dragmove', (event) => {
                     event.interaction.x += event.dx;
@@ -85,8 +85,8 @@ module DashboardSelection {
                     event.target.setAttribute('data-y', 0);
                     event.target.style.left = '0px';
                     event.target.style.top = '0px';
-                    event.target.style.width = "75px";
-                    event.target.style.height = "75px";
+                    event.target.style.width = '75px';
+                    event.target.style.height = '75px';
                     //console.log(key);
                 });
         }
@@ -95,16 +95,15 @@ module DashboardSelection {
             this.$dashboardService.editWidget(widget);
         }
 
-        /***
-        Start editing a specific dashboard
+        /**
+        * Start editing a specific dashboard
         */
         public startDashboardEdit(dashboard: csComp.Services.Dashboard) {
-
             var rpt = new csComp.Services.RightPanelTab();
-            rpt.container = "dashboard";
+            rpt.container = 'dashboard';
             rpt.data = dashboard;
-            rpt.directive = "dashboardedit";
-            this.$messageBusService.publish("rightpanel", "activate", rpt);
+            rpt.directive = 'dashboardedit';
+            this.$messageBusService.publish('rightpanel', 'activate', rpt);
 
             this.$layerService.project.dashboards.forEach((d: csComp.Services.Dashboard) => {
                 if (d.id !== dashboard.id) {
@@ -115,9 +114,8 @@ module DashboardSelection {
             this.$dashboardService.stopEditWidget();
         }
 
-
-        /***
-        Stop editing a specific dashboard
+        /**
+        * Stop editing a specific dashboard
         */
         public stopDashboardEdit(dashboard: csComp.Services.Dashboard) {
             this.$layerService.project.dashboards.forEach((d: csComp.Services.Dashboard) => {
@@ -147,7 +145,7 @@ module DashboardSelection {
             d.id = csComp.Helpers.getGuid();
             d.showLeftmenu = true;
             d.showMap = true;
-            d.name = "New Dashboard";
+            d.name = 'New Dashboard';
             this.$layerService.project.dashboards.push(d);
         }
 

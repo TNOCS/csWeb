@@ -190,7 +190,9 @@ module csComp.Services {
         languages?:        ILanguageData;
         legend?:           Legend;
         layerProps?:       ILayerPropertyDetails;
+        /** User defined minimum value */
         min?:              number;
+        /** User defined maximum value */
         max?:              number;
         targetid?:         string;
         /** Angular expression */

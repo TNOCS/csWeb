@@ -74,6 +74,7 @@ module csComp.Services {
                         break;
                 }
             });
+
             this.widgetTypes['indicators'] = <IWidget>{
                 id: 'indicators',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/indicators.png',

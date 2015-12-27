@@ -117,6 +117,7 @@ module csComp.Services {
         }
 
         public subscribe(target: string, type: string, callback: IMessageBusCallback): ServerSubscription {
+            if (!this.socket) return;
             var sub: ServerSubscription;
             var subs = [];
             for (var s in this.subscriptions) {

@@ -64,9 +64,7 @@ module csComp.Helpers {
                 opacity: 0.75,
                 fillColor: '#FFFF00',
                 stroke: true,
-                //EV TODO Shouldn't it be the following?
-                // iconUri: 'bower_components/csweb/dist-bower/images/marker.png',
-                iconUri: 'cs/images/marker.png'
+                iconUri: 'bower_components/csweb/dist-bower/images/marker.png'
             };
             return s;
         }

@@ -7,79 +7,80 @@ module FeatureProps {
     declare var vg;
 
     class FeaturePropsOptions implements L.SidebarOptions {
-        public position: string;
+        public position:    string;
         public closeButton: boolean;
-        public autoPan: boolean;
+        public autoPan:     boolean;
 
         constructor(position: string) {
-            this.position = position;
+            this.position    = position;
             this.closeButton = true;
-            this.autoPan = true;
+            this.autoPan     = true;
         }
     }
 
     export interface IFeaturePropsScope extends ng.IScope {
-        vm: FeaturePropsCtrl;
-        showMenu: boolean;
-        feature: IFeature;
-        callOut: CallOut;
-        tabs: JQuery;
-        tabScrollDelta: number;
+        vm:                               FeaturePropsCtrl;
+        showMenu:                         boolean;
+        feature:                          IFeature;
+        callOut:                          CallOut;
+        tabs:                             JQuery;
+        tabScrollDelta:                   number;
         featureTabActivated(sectionTitle: string, section: CallOutSection);
-        autocollapse(init: boolean): void;
+        autocollapse(init:                boolean): void;
     }
 
-    export interface correlationResult {
+    export interface ICorrelationResult {
         property: string;
-        value: Object;
+        value:    Object;
     }
 
     export interface ICallOutProperty {
-        _id: string;
-        key: string;
-        value: string;
-        property: string;
-        canFilter: boolean;
-        canStyle: boolean;
-        feature: IFeature;
-        description?: string;
+        _id:           string;
+        key:           string;
+        value:         string;
+        property:      string;
+        canFilter:     boolean;
+        canStyle:      boolean;
+        feature:       IFeature;
+        description?:  string;
         propertyType?: IPropertyType;
-        isFilter: boolean;
-        showMore: boolean;
-        showChart: boolean;
-        stats: any;
-        bins: any;
-        cors: { [prop: string]: correlationResult };
+        isFilter:      boolean;
+        showMore:      boolean;
+        showChart:     boolean;
+        stats:         any;
+        bins:          any;
+        cors:          { [prop: string]: ICorrelationResult };
     }
 
     export class CallOutProperty implements ICallOutProperty {
-        public stats: any;
-        public bins: any;
-        public _id: string;
-        public showMore: boolean;
+        public stats:     any;
+        public bins:      any;
+        public _id:       string;
+        public showMore:  boolean;
         public showChart: boolean;
-        public cors: { [prop: string]: correlationResult };
+        public cors:      { [prop: string]: ICorrelationResult };
         constructor(
-            public key: string,
-            public value: string,
-            public property: string,
-            public canFilter: boolean,
-            public canStyle: boolean,
-            public feature: IFeature,
-            public isFilter: boolean,
-            public isSensor: boolean,
+            public key:           string,
+            public value:         string,
+            public property:      string,
+            public canFilter:     boolean,
+            public canStyle:      boolean,
+            public feature:       IFeature,
+            public isFilter:      boolean,
+            public isSensor:      boolean,
 
-            public description?: string,
+            public description?:  string,
             public propertyType?: IPropertyType,
-            public timestamps?: number[],
-            public sensor?: number[]) { this.cors = {}; this._id = csComp.Helpers.getGuid(); }
+            public timestamps?:   number[],
+            public sensor?:       number[]) { this.cors = {}; this._id = csComp.Helpers.getGuid(); }
     }
 
     export interface ICallOutSection {
         propertyTypes: { [label: string]: IPropertyType }; // Probably not needed
         properties: Array<ICallOutProperty>;
         sectionIcon: string;
-        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, propertyType?: IPropertyType): void;
+        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature,
+            isFilter: boolean, description?: string, propertyType?: IPropertyType): void;
         hasProperties(): boolean;
     }
 
@@ -96,12 +97,18 @@ module FeatureProps {
 
         showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
-        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, description?: string, propertyType?: IPropertyType): void {
+        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature,
+            isFilter: boolean, description?: string, propertyType?: IPropertyType): void {
             var isSensor = feature.sensors && feature.sensors.hasOwnProperty(property);
-            if (isSensor)
-                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, propertyType, feature.timestamps, feature.sensors[property]));
-            else
-                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description ? description : null, propertyType));
+            if (isSensor) {
+                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description
+                    ? description
+                    : null, propertyType, feature.timestamps, feature.sensors[property]));
+            } else {
+                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description
+                    ? description
+                    : null, propertyType));
+            }
         }
 
         hasProperties(): boolean {
@@ -118,7 +125,12 @@ module FeatureProps {
         public sectionKeys: string[];
         public hasInfoSection: boolean;
 
-        constructor(private type: IFeatureType, private feature: IFeature, private propertyTypeData: IPropertyTypeData, private layerservice: csComp.Services.LayerService, private mapservice: csComp.Services.MapService) {
+        constructor(
+            private type: IFeatureType,
+            private feature: IFeature,
+            private propertyTypeData: IPropertyTypeData,
+            private layerservice: csComp.Services.LayerService,
+            private mapservice: csComp.Services.MapService) {
             this.sections = {};
             this.sectionKeys = [];
             this.hasInfoSection = false;
@@ -134,8 +146,6 @@ module FeatureProps {
             if (type != null) {
                 //var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
                 //if (propertyTypes.length === 0) { for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]); };
-
-                //
                 if (type.showAllProperties || this.mapservice.isAdminExpert) {
                     // var missing = csComp.Helpers.getMissingPropertyTypes(feature);
                     // missing.forEach((pt: csComp.Services.IPropertyType) => {
@@ -174,14 +184,13 @@ module FeatureProps {
             this.sectionKeys = this.sectionKeys.sort();
         }
 
-
         private addProperty(mi: IPropertyType, feature: IFeature, infoCallOutSection: CallOutSection, hierarchyCallOutSection: CallOutSection) {
             var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
             if (callOutSection.propertyTypes.hasOwnProperty(mi.label)) return; // Prevent duplicate properties in the same  section
             callOutSection.propertyTypes[mi.label] = mi;
             var text = feature.properties[mi.label]; if (mi.type === 'hierarchy') {
                 var count = this.calculateHierarchyValue(mi, feature, this.propertyTypeData, this.layerservice);
-                text = count + ";" + feature.properties[mi.calculation];
+                text = count + ';' + feature.properties[mi.calculation];
             }
             var displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
             // Skip empty, non-editable values
@@ -352,17 +361,15 @@ module FeatureProps {
             this.displayFeature(this.$layerService.lastSelectedFeature);
             this.$scope.feature = this.$layerService.lastSelectedFeature;
 
-
             this.$messageBusService.subscribe('timeline', (action, value) => {
                 if (action === 'updateFeatures' && this.$scope.callOut) {
                     this.updateAllStatsDelay();
                 }
             });
-
         }
 
         updateAllStatsDelay = _.debounce(this.updateAllStats, 500);
-        updateStatsDelay = (prop) => { _.debounce(this.getPropStats, 500, true); }
+        updateStatsDelay = (prop) => { _.debounce(this.getPropStats, 500, true); };
 
         private updateAllStats() {
             if (!this.$scope.callOut) return;
@@ -460,18 +467,22 @@ module FeatureProps {
             if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                 this.$scope.$apply();
             }
-        }
+        };
 
         private featureMessageReceived = (title: string, feature: IFeature): void => {
+            var callApply = true;
             switch (title) {
                 case 'onFeatureDeselect':
                     if (this.$layerService.selectedFeatures.length === 0) {
                         this.$layerService.visual.rightPanelVisible = false;
-                    } else { this.updateAllStats(); }
+                    } else {
+                        this.updateAllStats();
+                    }
                     break;
                 case 'onFeatureSelect':
-                    this.displayFeature(this.$layerService.lastSelectedFeature);
-                    this.$scope.feature = this.$layerService.lastSelectedFeature;
+                    callApply = false;
+                    this.displayFeature(feature);
+                    //this.$scope.feature = this.$layerService.lastSelectedFeature;
                     this.$layerService.visual.rightPanelVisible = true;
                     this.updateAllStats();
                     break;
@@ -486,12 +497,11 @@ module FeatureProps {
                     this.displayFeature(this.$layerService.lastSelectedFeature);
                     this.$scope.feature = this.$layerService.lastSelectedFeature;
                     break;
-                default:
             }
-            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
+            if (callApply && this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                 this.$scope.$apply();
             }
-        }
+        };
 
         public setCorrelation(item: ICallOutProperty, $event: ng.IAngularEvent) {
             $event.stopPropagation();
@@ -501,14 +511,16 @@ module FeatureProps {
                 sec.properties.forEach((p: ICallOutProperty) => {
                     if (p.property !== item.property) {
                         var c = vg.util.cor(values, item.property, p.property);
-                        p.cors[item.property] = { property: item.property, value: c }
+                        p.cors[item.property] = {
+                            property: item.property,
+                            value: c
+                        };
                     }
                 });
             }
         }
-        
-        public addSparkline(item : ICallOutProperty)
-        {
+
+        public addSparkline(item : ICallOutProperty) {
             var ch = $('#featurepropchart_' + item._id);
             ch.empty();
             if (this.showChart.indexOf(item.property) < 0) this.showChart.push(item.property);
@@ -522,10 +534,9 @@ module FeatureProps {
 
         public createSparkLineChart(item: ICallOutProperty) {
             item.showChart = !item.showChart;
-            
-            if (item.showChart) {                
+
+            if (item.showChart) {
                 this.addSparkline(item);
-                //console.log(item);
             }
         }
 
@@ -554,14 +565,14 @@ module FeatureProps {
                 feature.timestamps = this.$layerService.findLayer(feature.layerId).timestamps;
 
             this.$scope.callOut = new CallOut(this.featureType, feature, this.$layerService.propertyTypeData, this.$layerService, this.$mapService);
-            if (this.showMore.length > 0 || this.showChart.length>0) {
+            if (this.showMore.length > 0 || this.showChart.length > 0) {
                 for (var s in this.$scope.callOut.sections) {
                     var sec = this.$scope.callOut.sections[s];
                     sec.properties.forEach((p: ICallOutProperty) => {
-                        p.showMore = this.showMore.indexOf(p.property) >= 0;
+                        p.showMore  = this.showMore .indexOf(p.property) >= 0;
                         p.showChart = this.showChart.indexOf(p.property) >= 0;
-                        if (p.showChart) this.addSparkline(p);                        
-                        if (p.showMore) this.getPropStats(p);
+                        if (p.showChart) this.addSparkline(p);
+                        if (p.showMore ) this.getPropStats(p);
                     });
                 }
             }

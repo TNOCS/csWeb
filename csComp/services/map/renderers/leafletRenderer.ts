@@ -26,12 +26,12 @@ module csComp.Services {
                 this.enableMap();
                 return;
             }
-            this.service.$mapService.map = L.map('map', {
+            var mapOptions: L.Map.MapOptions = {
                 zoomControl: false,
                 maxZoom: 19,
                 attributionControl: true
-            });
-            this.map = this.service.$mapService.map;
+            };
+            this.map = this.service.$mapService.map = L.map('map', mapOptions);
 
             this.map.on('moveend', (t, event: any) => this.updateBoundingBox());
 
@@ -168,26 +168,26 @@ module csComp.Services {
 
         baseLayer: L.ILayer;
 
-        public changeBaseLayer(layerObj: BaseLayer) {
-            if (layerObj === this.service.$mapService.activeBaseLayer) return;
-            if (this.baseLayer) this.service.map.map.removeLayer(this.baseLayer);
+        public changeBaseLayer(layerObj: BaseLayer, force: boolean = false) {
+            if (!force && layerObj === this.service.$mapService.activeBaseLayer) return;
+            if (this.baseLayer) this.map.removeLayer(this.baseLayer);
             this.baseLayer = this.createBaseLayer(layerObj);
 
-            this.service.map.map.addLayer(this.baseLayer);
+            this.map.addLayer(this.baseLayer);
 
-            this.service.map.map.setZoom(this.service.map.map.getZoom());
-            this.service.map.map.fire('baselayerchange', { layer: this.baseLayer });
+            this.map.setZoom(this.service.map.map.getZoom());
+            this.map.fire('baselayerchange', { layer: this.baseLayer });
         }
 
         private createBaseLayer(layerObj: BaseLayer) {
             var options: L.TileLayerOptions = { noWrap: true };
             options['subtitle'] = layerObj.subtitle;
             options['preview'] = layerObj.preview;
-            if (layerObj.subdomains != null) options['subdomains'] = layerObj.subdomains;
-            if (layerObj.maxZoom != null) options.maxZoom = layerObj.maxZoom;
-            if (layerObj.minZoom != null) options.minZoom = layerObj.minZoom;
-            if (layerObj.attribution != null) options.attribution = layerObj.attribution;
-            if (layerObj.id != null) options['id'] = layerObj.id;
+            if (layerObj.subdomains) options['subdomains'] = layerObj.subdomains;
+            if (layerObj.maxZoom) options.maxZoom = layerObj.maxZoom;
+            if (layerObj.minZoom) options.minZoom = layerObj.minZoom;
+            if (layerObj.attribution) options.attribution = layerObj.attribution;
+            if (layerObj.id) options['id'] = layerObj.id;
             var layer = L.tileLayer(layerObj.url, options);
 
             return layer;
@@ -458,59 +458,142 @@ module csComp.Services {
             }
             return icon;
         }
-
-        /***
-         * Show tooltip with name, styles & filters.
+        /**
+         * Add a new entry to the tooltip.
+         * @param  {string} content: existing HTML content
+         * @param  {IFeature} feature: selected feature
+         * @param  {string} property: selected property
+         * @param  {IPropertyType} meta: meta info added to the group or style filter
+         * @param  {string} title: title of the entry
+         * @param  {boolean} isFilter: is true, if we need to add a filter icon, otherwise a style icon will be applied
          */
-        showFeatureTooltip(e: L.LeafletMouseEvent, group: ProjectGroup) {
+        private addEntryToTooltip(content: string, feature: IFeature, property: string, meta: IPropertyType, title: string, isFilter: boolean) {
+            var value = feature.properties[property];
+            if (!value) return;
+            var valueLength = value.toString().length;
+            if (meta) {
+                value = Helpers.convertPropertyInfo(meta, value);
+                if (meta.type !== 'bbcode') valueLength = value.toString().length;
+            } else {
+                if (feature.fType._propertyTypeData) {
+                    feature.fType._propertyTypeData.some(pt => {
+                        if (pt.label !== property) return false;
+                        meta = pt;
+                        value = Helpers.convertPropertyInfo(pt, value);
+                        return true;
+                    });
+                }
+            }
+            return {
+                length: valueLength + title.length,
+                content: content + `<tr><td><div class="fa ${isFilter ? 'fa-filter' : 'fa-paint-brush'}"></td><td>${title}</td><td>${value}</td></tr>`
+            };
+        }
+
+        generateTooltipContent(e: L.LeafletMouseEvent, group: ProjectGroup) {
             var layer = e.target;
             var feature = <Feature>layer.feature;
             // add title
-            var title = layer.feature.properties.Name;
+            var title = feature.properties['Name'];
             var rowLength = (title) ? title.length : 1;
             var content = '<td colspan=\'3\'>' + title + '</td></tr>';
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
                     if (!feature.properties.hasOwnProperty(f.property)) return;
-                    var value = feature.properties[f.property];
-                    if (value) {
-                        var valueLength = value.toString().length;
-                        if (f.meta != null) {
-                            value = Helpers.convertPropertyInfo(f.meta, value);
-                            if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
-                        }
-                        rowLength = Math.max(rowLength, valueLength + f.title.length);
-                        content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
-                    }
+                    let entry = this.addEntryToTooltip(content, feature, f.property, f.meta, f.title, true);
+                    content = entry.content;
+                    rowLength = Math.max(rowLength, entry.length);
                 });
             }
 
             // add style values, only in case they haven't been added already as filter
             if (group.styles != null && group.styles.length > 0) {
                 group.styles.forEach((s: GroupStyle) => {
-                    if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property === s.property; }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
-                        var value = feature.properties[s.property];
-                        var valueLength = value.toString().length;
-                        if (s.meta != null) {
-                            value = Helpers.convertPropertyInfo(s.meta, value);
-                            if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
-                        }
+                    if (group.filters != null && group.filters.filter((f: GroupFilter) => {
+                        return f.property === s.property;
+                    }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
+                        let entry = this.addEntryToTooltip(content, feature, s.property, s.meta, s.title, false);
+                        content = entry.content;
                         var tl = s.title ? s.title.length : 10;
-                        rowLength = Math.max(rowLength, valueLength + tl);
-                        content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
+                        rowLength = Math.max(rowLength, entry.length + tl);
                     }
                 });
             }
             var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
-            content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
+            return {
+                content: '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>',
+                widthInPixels: widthInPixels
+            };
+        }
+
+        /**
+         * Show tooltip with name, styles & filters.
+         */
+        showFeatureTooltip(e: L.LeafletMouseEvent, group: ProjectGroup) {
+            var layer   = e.target;
+            var feature = <Feature>layer.feature;
+            var tooltip = this.generateTooltipContent(e, group);
+
+            // var layer = e.target;
+            // var feature = <Feature>layer.feature;
+            // // add title
+            // var title = feature.properties['Name'];
+            // var rowLength = (title) ? title.length : 1;
+            // var content = '<td colspan=\'3\'>' + title + '</td></tr>';
+            // // add filter values
+            // if (group.filters != null && group.filters.length > 0) {
+            //     group.filters.forEach((f: GroupFilter) => {
+            //         if (!feature.properties.hasOwnProperty(f.property)) return;
+            //         var value = feature.properties[f.property];
+            //         if (value) {
+            //             var valueLength = value.toString().length;
+            //             if (f.meta) {
+            //                 value = Helpers.convertPropertyInfo(f.meta, value);
+            //                 if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
+            //             } else {
+            //                 if (feature.fType._propertyTypeData) {
+            //                     feature.fType._propertyTypeData.some(pt => {
+            //                         if (pt.label !== f.property) return false;
+            //                         f.meta = pt;
+            //                         value = Helpers.convertPropertyInfo(pt, value);
+            //                         return true;
+            //                     });
+            //                 }
+            //             }
+            //             rowLength = Math.max(rowLength, valueLength + f.title.length);
+            //             content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
+            //         }
+            //     });
+            // }
+
+            // // add style values, only in case they haven't been added already as filter
+            // if (group.styles != null && group.styles.length > 0) {
+            //     group.styles.forEach((s: GroupStyle) => {
+            //         if (group.filters != null && group.filters.filter((f: GroupFilter) => {
+            //             return f.property === s.property;
+            //         }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
+            //             var value = feature.properties[s.property];
+            //             var valueLength = value.toString().length;
+            //             if (s.meta != null) {
+            //                 value = Helpers.convertPropertyInfo(s.meta, value);
+            //                 if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
+            //             }
+            //             var tl = s.title ? s.title.length : 10;
+            //             rowLength = Math.max(rowLength, valueLength + tl);
+            //             content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
+            //         }
+            //     });
+            // }
+            // var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
+            // content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
 
             this.popup = L.popup({
-                offset: new L.Point(-widthInPixels / 2 - 40, -5),
+                offset: new L.Point(-tooltip.widthInPixels / 2 - 40, -5),
                 closeOnClick: true,
                 autoPan: false,
                 className: 'featureTooltip'
-            }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
+            }).setLatLng(e.latlng).setContent(tooltip.content).openOn(this.service.map.map);
 
             //In case a contour is available, show it.
             var hoverActions = this.service.getActions(feature, ActionType.Hover);

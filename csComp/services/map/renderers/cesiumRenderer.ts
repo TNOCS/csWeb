@@ -38,7 +38,7 @@ module csComp.Services {
                 });
 
                 this.camera = this.viewer.camera;
-                this.scene = this.viewer.scene;
+                this.scene  = this.viewer.scene;
 
                 setTimeout(() => {
                     for (var i = 0; i < this.service.project.features.length; ++i)
