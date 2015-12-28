@@ -208,8 +208,7 @@ module DataTable {
             });
 
             this.dataset = data;
-            var l = this.findLayerById(this.selectedLayerId);
-            this.updatePropertyType(data, l);
+            this.updatePropertyType(data);
         }
 
         private addPropertyType(mis: IPropertyType[], nameLabel: string, ptd: IPropertyType) {
@@ -359,12 +358,15 @@ module DataTable {
          */
         public sortOrderClass(headerIndex: number, reverseOrder: boolean): string {
             var t: string;
-            if (reverseOrder != null && headerIndex === this.sortingColumn) {
-                t = ('fa fa-sort-' + ((reverseOrder) ? 'desc' : 'asc'));
-            } else {
-                t = 'fa fa-sort';
-            }
-            return t;
+            return (reverseOrder != null && headerIndex === this.sortingColumn)
+                ? 'fa fa-sort-' + (reverseOrder ? 'desc' : 'asc')
+                : 'fa fa-sort';
+            // if (reverseOrder != null && headerIndex === this.sortingColumn) {
+            //     t = ('fa fa-sort-' + ((reverseOrder) ? 'desc' : 'asc'));
+            // } else {
+            //     t = 'fa fa-sort';
+            // }
+            // return t;
         }
 
         /**
@@ -382,7 +384,6 @@ module DataTable {
                 return order === reverseOrder
                     ? 1
                     : -1;
-                }
             });
         }
 
