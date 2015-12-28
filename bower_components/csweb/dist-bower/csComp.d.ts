@@ -127,12 +127,12 @@ declare module csComp.Services {
         showMap: boolean;
         mobile: boolean;
         showTimeline: boolean;
-        showLeftmenu: boolean;
-        showLegend: boolean;
-        showRightmenu: boolean;
-        showBackgroundImage: boolean;
         draggable: boolean;
         resizable: boolean;
+        showLeftmenu: boolean;
+        showRightmenu: boolean;
+        showLegend: boolean;
+        showBackgroundImage: boolean;
         background: string;
         backgroundimage: string;
         visiblelayers: string[];
@@ -390,7 +390,9 @@ declare module csComp.Services {
         languages?: ILanguageData;
         legend?: Legend;
         layerProps?: ILayerPropertyDetails;
+        /** User defined minimum value */
         min?: number;
+        /** User defined maximum value */
         max?: number;
         targetid?: string;
         /** Angular expression */
@@ -576,7 +578,7 @@ declare module csComp.Services {
         from: number;
     }
     /**
-     * Styles can determine how features are shown on the map
+     * Styles determine how features are shown on the map.
      */
     class GroupStyle {
         id: string;
@@ -2037,7 +2039,8 @@ declare module DataTable {
          * Load the features as visible on the map.
          */
         private loadMapLayers();
-        private updatepropertyType(data);
+        private addPropertyType(mis, nameLabel, ptd);
+        private updatePropertyType(data, layer?);
         toggleSelection(propertyTypeTitle: string): void;
         private findLayerById(id);
         /**
@@ -2099,11 +2102,15 @@ declare module EventTab {
         private init();
         reset(): void;
         private addUpdateEvent(f);
-        private addEvent(f);
+        /**
+         * Add a card-item to the event list. Provide a feature, and optionally some property-keys of data you want to display.
+         */
+        private addEvent(data);
         private addTimelineItem(f);
         private mergeItems();
         private sendTimelineItems();
         private sendTimelineGroups();
+        private zoomTo(data);
         /**
          * Callback function
          * @see {http://stackoverflow.com/questions/12756423/is-there-an-alias-for-this-in-typescript}
@@ -2192,7 +2199,7 @@ declare module FeatureProps {
         featureTabActivated(sectionTitle: string, section: CallOutSection): any;
         autocollapse(init: boolean): void;
     }
-    interface correlationResult {
+    interface ICorrelationResult {
         property: string;
         value: Object;
     }
@@ -2212,7 +2219,7 @@ declare module FeatureProps {
         stats: any;
         bins: any;
         cors: {
-            [prop: string]: correlationResult;
+            [prop: string]: ICorrelationResult;
         };
     }
     class CallOutProperty implements ICallOutProperty {
@@ -2234,7 +2241,7 @@ declare module FeatureProps {
         showMore: boolean;
         showChart: boolean;
         cors: {
-            [prop: string]: correlationResult;
+            [prop: string]: ICorrelationResult;
         };
         constructor(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature, isFilter: boolean, isSensor: boolean, description?: string, propertyType?: IPropertyType, timestamps?: number[], sensor?: number[]);
     }
@@ -3064,33 +3071,6 @@ declare module Legend {
     }
 }
 
-declare module MapElement {
-    /**
-      * Module
-      */
-    var myModule: any;
-}
-
-declare module MapElement {
-    interface IMapElementScope extends ng.IScope {
-        vm: MapElementCtrl;
-        mapid: string;
-        initMap: Function;
-    }
-    class MapElementCtrl {
-        private $scope;
-        private $layerService;
-        private mapService;
-        private $messageBusService;
-        private scope;
-        private locale;
-        options: string[];
-        static $inject: string[];
-        constructor($scope: IMapElementScope, $layerService: csComp.Services.LayerService, mapService: csComp.Services.MapService, $messageBusService: csComp.Services.MessageBusService);
-        initMap(): void;
-    }
-}
-
 declare module LegendList {
     /**
       * Module
@@ -3154,6 +3134,33 @@ declare module LegendList {
         private updateLegendItemsUsingFeatures();
         private getName(key, ft);
         toTrusted(html: string): string;
+    }
+}
+
+declare module MapElement {
+    /**
+      * Module
+      */
+    var myModule: any;
+}
+
+declare module MapElement {
+    interface IMapElementScope extends ng.IScope {
+        vm: MapElementCtrl;
+        mapid: string;
+        initMap: Function;
+    }
+    class MapElementCtrl {
+        private $scope;
+        private $layerService;
+        private mapService;
+        private $messageBusService;
+        private scope;
+        private locale;
+        options: string[];
+        static $inject: string[];
+        constructor($scope: IMapElementScope, $layerService: csComp.Services.LayerService, mapService: csComp.Services.MapService, $messageBusService: csComp.Services.MessageBusService);
+        initMap(): void;
     }
 }
 
@@ -3855,6 +3862,9 @@ declare module Voting {
     var myModule: any;
 }
 
+declare module Authentication {
+}
+
 declare module csComp.Services {
     interface IMessageBusCallback {
         (title: string, data?: any): any;
@@ -4003,9 +4013,6 @@ declare module csComp.Services {
       * Module
       */
     var myModule: any;
-}
-
-declare module Authentication {
 }
 
 declare module csComp.Services {
@@ -4355,7 +4362,7 @@ declare module csComp.Services {
         private initLayerSources();
         private removeSubLayers(feature);
         /**
-        check for every feature (de)select if layers should automatically be activated
+        * Check for every feature (de)select if layers should automatically be activated
         */
         private checkFeatureSubLayers();
         loadRequiredLayers(layer: ProjectLayer): void;
@@ -4479,8 +4486,8 @@ declare module csComp.Services {
         /**
          * Creates a GroupStyle based on a property and adds it to a group.
          * If the group already has a style which contains legends, those legends are copied into the newly created group.
-         * Already existing groups (for the same visualAspect) are replaced by the new group
-         * Restoring a previously used groupstyle is possible by sending that GroupStyle object
+         * Already existing groups (for the same visualAspect) are replaced by the new group.
+         * Restoring a previously used groupstyle is possible by sending that GroupStyle object.
          */
         setStyle(property: any, openStyleTab?: boolean, customStyleInfo?: PropertyInfo, groupStyle?: GroupStyle): any;
         toggleStyle(property: any, group: ProjectGroup, openStyleTab?: boolean, customStyleInfo?: PropertyInfo): void;
@@ -4506,7 +4513,7 @@ declare module csComp.Services {
         /** remove filter from group */
         removeFilter(filter: GroupFilter): void;
         /**
-         * Returns propertytype for a specific property in a feature
+         * Returns PropertyType for a specific property in a feature
          */
         getPropertyType(feature: IFeature, property: string): IPropertyType;
         /**
@@ -4570,7 +4577,7 @@ declare module csComp.Services {
         findSensorSet(key: string, callback: Function): any;
         getPropertyValues(layer: ProjectLayer, property: string): Object[];
         /**
-         * Calculate min/max/count for a specific property in a group
+         * Calculate min/max/count/mean/varience/sd for a specific property in a group
          */
         calculatePropertyInfo(group: ProjectGroup, property: string): PropertyInfo;
         updateFilterGroupCount(group: ProjectGroup): void;
@@ -4749,6 +4756,7 @@ declare module Dashboard {
         private setValue(diff, value);
         removeWidget(widget: csComp.Services.IWidget): void;
         isReady(widget: csComp.Services.IWidget): void;
+        private checkLegend(d);
         updateDashboard(): void;
     }
 }
@@ -4808,12 +4816,12 @@ declare module DashboardSelection {
         constructor($scope: any, $layerService: csComp.Services.LayerService, $dashboardService: csComp.Services.DashboardService, $mapService: csComp.Services.MapService, $messageBusService: csComp.Services.MessageBusService);
         initDrag(key: string): void;
         startWidgetEdit(widget: csComp.Services.BaseWidget): void;
-        /***
-        Start editing a specific dashboard
+        /**
+        * Start editing a specific dashboard
         */
         startDashboardEdit(dashboard: csComp.Services.Dashboard): void;
-        /***
-        Stop editing a specific dashboard
+        /**
+        * Stop editing a specific dashboard
         */
         stopDashboardEdit(dashboard: csComp.Services.Dashboard): void;
         stopEdit(): void;
@@ -4895,35 +4903,6 @@ declare module WidgetEdit {
     }
 }
 
-declare module GroupEdit {
-    /**
-      * Module
-      */
-    var myModule: any;
-}
-
-declare module GroupEdit {
-    interface IGroupEditScope extends ng.IScope {
-        vm: GroupEditCtrl;
-        group: csComp.Services.ProjectGroup;
-    }
-    class GroupEditCtrl {
-        private $scope;
-        private $mapService;
-        private $layerService;
-        private $messageBusService;
-        private $dashboardService;
-        private scope;
-        noLayerSelected: boolean;
-        static $inject: string[];
-        constructor($scope: IGroupEditScope, $mapService: csComp.Services.MapService, $layerService: csComp.Services.LayerService, $messageBusService: csComp.Services.MessageBusService, $dashboardService: csComp.Services.DashboardService);
-        updateLayers(): void;
-        removeGroup(): void;
-        toggleClustering(): void;
-        updateOws(): void;
-    }
-}
-
 declare module FeatureTypeEditor {
     /**
       * Module
@@ -4976,6 +4955,35 @@ declare module FeatureTypes {
         constructor($scope: IFeatureTypesScope, $layerService: csComp.Services.LayerService, $messageBusService: csComp.Services.MessageBusService);
         updateFeatureTypes(ft: csComp.Services.IFeatureType): void;
         selectResource(): void;
+    }
+}
+
+declare module GroupEdit {
+    /**
+      * Module
+      */
+    var myModule: any;
+}
+
+declare module GroupEdit {
+    interface IGroupEditScope extends ng.IScope {
+        vm: GroupEditCtrl;
+        group: csComp.Services.ProjectGroup;
+    }
+    class GroupEditCtrl {
+        private $scope;
+        private $mapService;
+        private $layerService;
+        private $messageBusService;
+        private $dashboardService;
+        private scope;
+        noLayerSelected: boolean;
+        static $inject: string[];
+        constructor($scope: IGroupEditScope, $mapService: csComp.Services.MapService, $layerService: csComp.Services.LayerService, $messageBusService: csComp.Services.MessageBusService, $dashboardService: csComp.Services.DashboardService);
+        updateLayers(): void;
+        removeGroup(): void;
+        toggleClustering(): void;
+        updateOws(): void;
     }
 }
 
@@ -5323,7 +5331,6 @@ declare module Filters {
         constructor($scope: IScatterFilterScope, $layerService: csComp.Services.LayerService, $messageBus: csComp.Services.MessageBusService, $timeout: ng.ITimeoutService);
         private displayFilterRange(min, max);
         private dcChart;
-        initBarFilter(): void;
         private addScatterFilter();
         private updateFilter();
         updateRange(): void;
@@ -5424,7 +5431,7 @@ declare module Indicators {
     }
     interface IIndicatorsEditCtrl extends ng.IScope {
         vm: IndicatorsEditCtrl;
-        data: indicatorData;
+        data: IndicatorData;
     }
     class IndicatorsEditCtrl {
         private $scope;
@@ -5447,14 +5454,14 @@ declare module Indicators {
         static $inject: string[];
         constructor($scope: IIndicatorsEditCtrl, $timeout: ng.ITimeoutService, $compile: any, $layerService: csComp.Services.LayerService, $templateCache: any, $messageBus: csComp.Services.MessageBusService, $mapService: csComp.Services.MapService, $dashboardService: csComp.Services.DashboardService);
         colorUpdated(c: any, i: any): void;
-        updatePropertyTypes(indic: indicator): void;
-        moveUp(i: indicator): void;
+        updatePropertyTypes(indic: Indicator): void;
+        moveUp(i: Indicator): void;
         deleteIndicator(i: string): void;
-        updateIndicator(i: indicator): void;
-        initIndicator(i: indicator): void;
-        updateVisual(i: indicator): void;
+        updateIndicator(i: Indicator): void;
+        initIndicator(i: Indicator): void;
+        updateVisual(i: Indicator): void;
         addIndicator(): void;
-        sensorChanged(i: indicator): void;
+        sensorChanged(i: Indicator): void;
     }
 }
 
@@ -5466,12 +5473,12 @@ declare module Indicators {
 }
 
 declare module Indicators {
-    class indicatorData {
+    class IndicatorData {
         title: string;
         orientation: string;
-        indicators: indicator[];
+        indicators: Indicator[];
     }
-    class indicator {
+    class Indicator {
         title: string;
         visual: string;
         type: string;
@@ -5484,7 +5491,7 @@ declare module Indicators {
         sensor: string;
         _sensorSet: csComp.Services.SensorSet;
         layer: string;
-        /** dashboard to select after click */
+        /** Dashboard to select after click */
         dashboard: string;
         source: string;
         isActive: boolean;
@@ -5504,7 +5511,7 @@ declare module Indicators {
     }
     interface IIndicatorsScope extends ng.IScope {
         vm: IndicatorsCtrl;
-        data: indicatorData;
+        data: IndicatorData;
     }
     class IndicatorsCtrl implements csComp.Services.IWidgetCtrl {
         private $scope;
@@ -5518,12 +5525,12 @@ declare module Indicators {
         private widget;
         static $inject: string[];
         constructor($scope: IIndicatorsScope, $timeout: ng.ITimeoutService, $layerService: csComp.Services.LayerService, $messageBus: csComp.Services.MessageBusService, $mapService: csComp.Services.MapService, $dashboardService: csComp.Services.DashboardService, $translate: ng.translate.ITranslateService);
-        forceUpdateIndicator(i: indicator, value: any): void;
-        updateIndicator(i: indicator): void;
+        forceUpdateIndicator(i: Indicator, value: any): void;
+        updateIndicator(i: Indicator): void;
         startEdit(): void;
         private checkLayers();
-        selectIndicator(i: indicator): void;
-        indicatorInit(i: indicator, scope: any): void;
+        selectIndicator(i: Indicator): void;
+        indicatorInit(i: Indicator, scope: any): void;
         private selectFeature(f, i);
     }
 }
@@ -6479,7 +6486,7 @@ declare module csComp.Services {
         addGroup(group: ProjectGroup): void;
         removeLayer(layer: ProjectLayer): void;
         baseLayer: L.ILayer;
-        changeBaseLayer(layerObj: BaseLayer): void;
+        changeBaseLayer(layerObj: BaseLayer, force?: boolean): void;
         private createBaseLayer(layerObj);
         private getLeafletStyle(style);
         addLayer(layer: ProjectLayer): void;
@@ -6501,7 +6508,21 @@ declare module csComp.Services {
          * create icon based of feature style
          */
         getPointIcon(feature: IFeature): any;
-        /***
+        /**
+         * Add a new entry to the tooltip.
+         * @param  {string} content: existing HTML content
+         * @param  {IFeature} feature: selected feature
+         * @param  {string} property: selected property
+         * @param  {IPropertyType} meta: meta info added to the group or style filter
+         * @param  {string} title: title of the entry
+         * @param  {boolean} isFilter: is true, if we need to add a filter icon, otherwise a style icon will be applied
+         */
+        private addEntryToTooltip(content, feature, property, meta, title, isFilter);
+        generateTooltipContent(e: L.LeafletMouseEvent, group: ProjectGroup): {
+            content: string;
+            widthInPixels: number;
+        };
+        /**
          * Show tooltip with name, styles & filters.
          */
         showFeatureTooltip(e: L.LeafletMouseEvent, group: ProjectGroup): void;
