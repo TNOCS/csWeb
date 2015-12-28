@@ -363,8 +363,7 @@ module DataTable {
             var t: string;
             if (reverseOrder != null && headerIndex == this.sortingColumn) {
                 t = ('fa fa-sort-' + ((reverseOrder) ? 'desc' : 'asc'));
-            }
-            else {
+            } else {
                 t = 'fa fa-sort';
             }
             return t;
@@ -377,14 +376,16 @@ module DataTable {
             this.sortingColumn = headerIndex;
             this.rows = this.rows.sort((a, b) => {
                 var order: boolean; // Original sort order
-                if (a[headerIndex].type === 'number')
+                if (a[headerIndex].type === 'number' || a[headerIndex].type === 'date') {
                     order = a[headerIndex].originalValue > b[headerIndex].originalValue;
-                else
+                } else {
                     order = a[headerIndex].originalValue.toLowerCase() > b[headerIndex].originalValue.toLowerCase();
-                if (order == reverseOrder)
+                }
+                if (order === reverseOrder) {
                     return 1;
-                else
+                } else {
                     return -1;
+                }
             });
         }
 
