@@ -208,7 +208,8 @@ module DataTable {
             });
 
             this.dataset = data;
-            this.updatePropertyType(data);
+            var l = this.findLayerById(this.selectedLayerId);
+            this.updatePropertyType(data, l);
         }
 
         private addPropertyType(mis: IPropertyType[], nameLabel: string, ptd: IPropertyType) {
