@@ -208,7 +208,8 @@ module DataTable {
             });
 
             this.dataset = data;
-            this.updatePropertyType(data);
+            var l = this.findLayerById(this.selectedLayerId);
+            this.updatePropertyType(data, l);
         }
 
         private addPropertyType(mis: IPropertyType[], nameLabel: string, ptd: IPropertyType) {
@@ -373,7 +374,7 @@ module DataTable {
             this.sortingColumn = headerIndex;
             this.rows = this.rows.sort((a, b) => {
                 var order: boolean; // Original sort order
-                if (a[headerIndex].type === 'number') {
+                if (a[headerIndex].type === 'number' || a[headerIndex].type === 'date') {
                     order = a[headerIndex].originalValue > b[headerIndex].originalValue;
                 } else {
                     order = a[headerIndex].originalValue.toLowerCase() > b[headerIndex].originalValue.toLowerCase();
@@ -381,6 +382,7 @@ module DataTable {
                 return order === reverseOrder
                     ? 1
                     : -1;
+                }
             });
         }
 

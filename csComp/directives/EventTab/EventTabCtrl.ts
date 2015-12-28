@@ -92,6 +92,9 @@ module EventTab {
                     case 'reset':
                         this.reset();
                         break;
+                    case 'zoomto':
+                        this.zoomTo(value);
+                        break;
                     default:
                         console.log('EventTab: Event type not found');
                 }
@@ -140,7 +143,7 @@ module EventTab {
         /** 
          * Add a card-item to the event list. Provide a feature, and optionally some property-keys of data you want to display.
          */
-        private addEvent(data: {feature: IFeature, config: {titleKey: string, descriptionKey: string, dateKey: string}}) {
+        private addEvent(data: { feature: IFeature, config: { titleKey: string, descriptionKey: string, dateKey: string } }) {
             var f = data.feature;
             var config = data.config;
             var titleKey = (!config.titleKey) ? 'Name' : config.titleKey;
@@ -249,6 +252,21 @@ module EventTab {
 
         private sendTimelineGroups() {
             this.$messageBusService.publish('timeline', 'setGroups', this.tlGroups);
+        }
+
+        private zoomTo(data: any) {
+            if (!data.hasOwnProperty('id')) return;
+            var foundFeature;
+            this.layer.data.features.some((f) => {
+                if (f.id === data.id) {
+                    foundFeature = f;
+                    return true;
+                }
+                return false;
+            });
+            if (foundFeature) {
+                this.$mapService.zoomTo(foundFeature, this.$mapService.map.getZoom());
+            }
         }
 
         /**

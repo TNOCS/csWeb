@@ -210,7 +210,11 @@ module Timeline {
                 if (properties.items && properties.items.length > 0) {
                     var id = properties.items[0];
                     var f = this.$layerService.findFeatureById(id);
-                    if (f) this.$layerService.selectFeature(f);
+                    if (f) {
+                        this.$layerService.selectFeature(f);
+                    } else if (this.$layerService.project.eventTab) {
+                        this.$messageBusService.publish('eventtab', 'zoomto', {id: id});
+                    }
                 }
             });
 

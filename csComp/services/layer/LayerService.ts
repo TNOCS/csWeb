@@ -1375,6 +1375,7 @@ module csComp.Services {
          * find a filter for a specific group/property combination
          */
         private findFilter(group: ProjectGroup, property: string): GroupFilter {
+            if (!group || !property) return;
             if (group.filters == null) group.filters = [];
             var r = group.filters.filter((f: GroupFilter) => f.property === property);
             if (r.length > 0) return r[0];
