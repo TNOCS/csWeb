@@ -29,7 +29,7 @@ module Indicators {
                 replace: true,    // Remove the directive from the DOM
                 transclude: true,    // Add elements and attributes to the template
                 controller: IndicatorsEditCtrl
-            }
+            };
         }
     ]);
 
@@ -47,7 +47,7 @@ module Indicators {
     export interface IIndicatorsEditCtrl extends ng.IScope {
         vm: IndicatorsEditCtrl;
 
-        data: indicatorData;
+        data: IndicatorData;
     }
 
     export class IndicatorsEditCtrl {
@@ -89,62 +89,108 @@ module Indicators {
             this.widget = <csComp.Services.IWidget>par.data;
             this.propertyTypes = [];
 
-            $scope.data = <indicatorData>this.widget.data;
+            $scope.data = <IndicatorData>this.widget.data;
 
             this.indicatorVisuals = {};
-            this.indicatorVisuals["bullet"] = { id: "bullet", title: "Bullet chart", input: {} };
-            this.indicatorVisuals["circular"] = { id: "circular", title: "Circular", input: { value: { type: "expression", default: "~['value']" }, min: { type: "expression", default: 0 }, max: { type: "expression", default: 0 } } };
-            this.indicatorVisuals["sparkline"] = { id: "sparkline", title: "Sparkline", input: { property: { type: "string", default: "value" }, height: { type: "string", default: "50" } } };
-            this.indicatorVisuals["bar"] = { id: "bar", title: "Bar chart", input: {} };
-            this.indicatorVisuals["singlevalue"] = { id: "singlevalue", title: "Value", input: { value: { type: "expression", default: "~['value']" } } };
+            this.indicatorVisuals['bullet'] = {
+                id: 'bullet',
+                title: 'Bullet chart',
+                input: {}
+            };
+            this.indicatorVisuals['circular'] = {
+                id: 'circular',
+                title: 'Circular',
+                input: {
+                    value: {
+                        type: 'expression',
+                        default: '~[\'value\']' },
+                        min: {
+                            type: 'expression',
+                            default: 0
+                        },
+                        max: {
+                            type: 'expression',
+                            default: 0
+                        }
+                    }
+                };
+            this.indicatorVisuals['sparkline'] = {
+                id: 'sparkline',
+                title: 'Sparkline',
+                input: {
+                    property: {
+                        type: 'string',
+                        default: 'value'
+                    },
+                    height: {
+                        type: 'string',
+                        default: '50'
+                    }
+                }
+            };
+            this.indicatorVisuals['bar'] = {
+                id: 'bar',
+                title: 'Bar chart',
+                input: {}
+            };
+            this.indicatorVisuals['singlevalue'] = {
+                id: 'singlevalue',
+                title: 'Value',
+                input: {
+                    value: {
+                        type: 'expression',
+                        default: '~[\'value\']'
+                    }
+                }
+            };
         }
+
         //
         // //** select a typesResource collection from the dropdown */
         public colorUpdated(c: any, i: any) {
             i.color = c;
         }
 
-        public updatePropertyTypes(indic: indicator) {
+        public updatePropertyTypes(indic: Indicator) {
             var fType = this.$layerService._featureTypes[indic.featureTypeName];
             if (fType) this.propertyTypeData = csComp.Helpers.getPropertyTypes(fType, this.$layerService.propertyTypeData);
         }
 
-        public moveUp(i: indicator) {
+        public moveUp(i: Indicator) {
             var pos = this.$scope.data.indicators.indexOf(i);
             //this.$scope.data.indicators.move()
         }
 
         public deleteIndicator(i: string) {
-            this.$scope.data.indicators = this.$scope.data.indicators.filter((ind: indicator) => { return ind.id != i })
+            this.$scope.data.indicators = this.$scope.data.indicators.filter((ind: Indicator) => { return ind.id !== i; });
         }
 
-        public updateIndicator(i: indicator) {
+        public updateIndicator(i: Indicator) {
             i.propertyTypes = [];
             i.propertyTypeTitles = [];
             this.propertyTypes.forEach((pt) => {
                 i.propertyTypes.push(pt.label);
                 i.propertyTypeTitles.push(pt.title);
             });
-            if (this.$layerService.lastSelectedFeature && i.source === "feature") {
+            if (this.$layerService.lastSelectedFeature && i.source === 'feature') {
                 this.$messageBus.publish('feature', 'onUpdateWithLastSelected', { indicator: i, feature: undefined });
             }
             i._toggleUpdate = !i._toggleUpdate;
             this.updateVisual(i);
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); };
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); };
         }
 
-        public initIndicator(i: indicator) {
+        public initIndicator(i: Indicator) {
             this.updateVisual(i);
         }
 
-        public updateVisual(i: indicator) {
+        public updateVisual(i: Indicator) {
             if (!i.inputs) i.inputs = {};
             var r: { [key: string]: any }  = {};
             for (var key in this.indicatorVisuals[i.visual].input) {
                 if (i.inputs && i.inputs.hasOwnProperty(key)) {
                     r[key] = i.inputs[key];
-                }
-                else {
+                } else {
                     var v = this.indicatorVisuals[i.visual].input;
                     r[key] = v[key].default;
                 }
@@ -153,20 +199,20 @@ module Indicators {
         }
 
         public addIndicator() {
-            var newIndicator = new indicator();
-            newIndicator.title = "New Indicator"
-            newIndicator.visual = "circular";
-            newIndicator.sensor = "";
-            newIndicator.source = "feature";
-            newIndicator.featureTypeName = "";
+            var newIndicator = new Indicator();
+            newIndicator.title = 'New Indicator';
+            newIndicator.visual = 'circular';
+            newIndicator.sensor = '';
+            newIndicator.source = 'feature';
+            newIndicator.featureTypeName = '';
             newIndicator.propertyTypes = [];
             this.updateVisual(newIndicator);
             if (!this.$scope.data.indicators) this.$scope.data.indicators = [];
             this.$scope.data.indicators.push(newIndicator);
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); };
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); };
         }
 
-        public sensorChanged(i: indicator) {
+        public sensorChanged(i: Indicator) {
             var sourceString = i.sensor.split('/');
             if (sourceString.length > 1) {
                 this.$layerService.project.datasources.forEach((ds) => {
@@ -178,7 +224,7 @@ module Indicators {
                 });
             }
             i._toggleUpdate = !i._toggleUpdate;
-            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); };
+            if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); };
         }
     }
 }
