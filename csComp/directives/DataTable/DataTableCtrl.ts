@@ -219,7 +219,7 @@ module DataTable {
             }
         }
 
-        private updatePropertyType(data: IGeoJsonFile, layer: ProjectLayer): void {
+        private updatePropertyType(data: IGeoJsonFile, layer?: ProjectLayer): void {
             this.propertyTypes = [];
             this.headers       = [];
             this.rows          = [];
@@ -248,7 +248,7 @@ module DataTable {
                             this.addPropertyType(mis, nameLabel, ptd);
                         }
                     });
-                } else if (data.features && data.features.length > 0) { // Take the first feature and derive your properties from that.
+                } else if (layer && data.features && data.features.length > 0) { // Take the first feature and derive your properties from that.
                     var feature = data.features[0];
                     feature.layer = layer;
                     for (var key in feature.properties) {
@@ -279,12 +279,9 @@ module DataTable {
 
         public toggleSelection(propertyTypeTitle: string) {
             var idx = this.headers.indexOf(propertyTypeTitle);
-            // is currently selected
-            if (idx > -1) {
+            if (idx > -1) { // is currently selected
                 this.headers.splice(idx, 1);
-            }
-            // is newly selected
-            else {
+            } else { // is newly selected
                 this.headers.push(propertyTypeTitle);
             }
             this.rows = this.getRows();
@@ -316,7 +313,8 @@ module DataTable {
             var displayValue: string;
             if (this.dataset && this.dataset.features) {
                 this.dataset.features.forEach((f: IFeature) => {
-                    var row: Array<TableField> = [];
+                    let row: Array<TableField> = [];
+                    let text: string;
                     meta.forEach((mi) => {
                         if (mi.label === 'Lat') {
                             (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[1] : displayValue = '';
@@ -325,7 +323,7 @@ module DataTable {
                             (f.geometry.type === 'Point') ? displayValue = f.geometry.coordinates[0] : displayValue = '';
                             text = displayValue;
                         } else {
-                            var text = f.properties[mi.label];
+                            text = f.properties[mi.label];
                             displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
                         }
                         //if (!text)
@@ -360,10 +358,9 @@ module DataTable {
          */
         public sortOrderClass(headerIndex: number, reverseOrder: boolean): string {
             var t: string;
-            if (reverseOrder != null && headerIndex == this.sortingColumn) {
+            if (reverseOrder != null && headerIndex === this.sortingColumn) {
                 t = ('fa fa-sort-' + ((reverseOrder) ? 'desc' : 'asc'));
-            }
-            else {
+            } else {
                 t = 'fa fa-sort';
             }
             return t;
@@ -376,14 +373,14 @@ module DataTable {
             this.sortingColumn = headerIndex;
             this.rows = this.rows.sort((a, b) => {
                 var order: boolean; // Original sort order
-                if (a[headerIndex].type === 'number')
+                if (a[headerIndex].type === 'number') {
                     order = a[headerIndex].originalValue > b[headerIndex].originalValue;
-                else
+                } else {
                     order = a[headerIndex].originalValue.toLowerCase() > b[headerIndex].originalValue.toLowerCase();
-                if (order == reverseOrder)
-                    return 1;
-                else
-                    return -1;
+                }
+                return order === reverseOrder
+                    ? 1
+                    : -1;
             });
         }
 
