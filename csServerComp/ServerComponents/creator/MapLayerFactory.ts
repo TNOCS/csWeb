@@ -801,8 +801,9 @@ export class MapLayerFactory {
                 properties.forEach((p) => {
                     if (p.hasOwnProperty(name)) {
                         var timeInMs = this.convertTime(p[name], ''); //TODO: Add Time compatibility
-                        var d = new Date(timeInMs);
-                        p[name] = d.toString();
+                        p[name] = timeInMs;
+                        //var d = new Date(timeInMs);
+                        //p[name] = d.toString();
                     }
                 });
             }
