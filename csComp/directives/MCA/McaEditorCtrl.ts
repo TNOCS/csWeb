@@ -175,7 +175,7 @@ module Mca {
                 scoringFunctionType : this.scoringFunctions[0].type
             });
             if (featureType.propertyTypeKeys != null) {
-                var keys = featureType.propertyTypeKeys.split(';');
+                var keys = featureType.propertyTypeKeys.split(/[,;]+/);
                 keys.forEach((k) => {
                     if (this.$layerService.propertyTypeData.hasOwnProperty(k))
                         pis.push(this.$layerService.propertyTypeData[k]);

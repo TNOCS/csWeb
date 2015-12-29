@@ -569,7 +569,7 @@ module csComp.Services {
                             this.activeMapRenderer.addLayer(layer);
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
-                            // this.$messageBusService.publish('layer', 'activated', layer);
+                            this.$messageBusService.publish('layer', 'activated', layer);
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             // if (layerloaded) layerloaded(layer);
                             this.expressionService.evalLayer(l, this._featureTypes);
@@ -1375,6 +1375,7 @@ module csComp.Services {
          * find a filter for a specific group/property combination
          */
         private findFilter(group: ProjectGroup, property: string): GroupFilter {
+            if (!group || !property) return;
             if (group.filters == null) group.filters = [];
             var r = group.filters.filter((f: GroupFilter) => f.property === property);
             if (r.length > 0) return r[0];
@@ -1784,7 +1785,7 @@ module csComp.Services {
         }
 
         /**
-         * Returns propertytype for a specific property in a feature
+         * Returns PropertyType for a specific property in a feature
          */
         public getPropertyType(feature: IFeature, property: string): IPropertyType {
             var res: IPropertyType;
@@ -1795,7 +1796,6 @@ module csComp.Services {
             }
 
             if (!feature.layer.typeUrl || !this.typesResources.hasOwnProperty(feature.layer.typeUrl)) return res;
-            var rt = this.typesResources[feature.layer.typeUrl];
 
             // if (feature.fType.propertyTypeKeys && typeof feature.fType.propertyTypeKeys === 'string') {
             //     feature.fType.propertyTypeKeys.split(';').forEach((key: string) => {
@@ -1804,6 +1804,7 @@ module csComp.Services {
             // }
 
             if (!res) {
+                var rt = this.typesResources[feature.layer.typeUrl];
                 res = _.find(rt.propertyTypeData, (pt: IPropertyType) => { return pt.label === property; });
             }
 
