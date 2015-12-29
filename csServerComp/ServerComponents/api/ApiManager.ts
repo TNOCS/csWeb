@@ -205,6 +205,7 @@ export interface ILayer extends StorageObject {
     isDynamic?: boolean;
     features?: Feature[];
     data?: any;
+    timestamps?: number[];
     [key: string]: any;
 }
 

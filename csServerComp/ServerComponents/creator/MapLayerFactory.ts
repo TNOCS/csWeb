@@ -237,6 +237,7 @@ export class MapLayerFactory {
                 dynamicResource: true
             });
         layer.features = data.geojson.features;
+        layer.timestamps = data.geojson.timestamps;
         var group: Api.Group = this.apiManager.getGroupDefinition(<Api.Group>{ title: data.group, id: data.group, clusterLevel: data.clusterLevel });
 
         async.series([
@@ -500,8 +501,6 @@ export class MapLayerFactory {
      * This function extracts the timestamps and sensorvalues from the
      * template.propertyTypes. Every sensorvalue is parsed as propertyType in
      * MS Excel, which should be converted to a sensor-array for each feature.
-     * Note: Each propertyname is appended with a 6-digit number, as JSON objects
-     * need unique keys. These are trimmed in this function.
      * @param  {ILayerTemplate} template : The input template coming from MS Excel
      * @return {array} timestamps        : An array with all date/times converted to milliseconds
      */
@@ -509,15 +508,17 @@ export class MapLayerFactory {
         var propertyTypes: IPropertyType[] = template.propertyTypes;
         if (!propertyTypes) { return; }
         var timestamps = [];
-        var targetProperties = [];
+        var targetPropertyTypes = [];
         var realPropertyTypes: IPropertyType[] = []; //Filter out propertyTypes that are actually a timestamp value
         propertyTypes.forEach((pt) => {
             if (pt.hasOwnProperty('targetProperty')) {
-                //Prevent duplicate properties
-                if (targetProperties.indexOf(pt['targetProperty']) < 0) { targetProperties.push(pt['targetProperty']); }
-                //Prevent duplicate timestamps
+                if (pt['targetProperty'] !== pt['label']) {
+                    targetPropertyTypes.push(pt);
+                } else {
+                    realPropertyTypes.push(pt);
+                }
                 var timestamp = this.convertTime(pt['date'], pt['time']);
-                if (timestamps.indexOf(timestamp) < 0) { timestamps.push(timestamp); }
+                timestamps.push(timestamp);
             } else {
                 realPropertyTypes.push(pt);
             }
@@ -533,16 +534,26 @@ export class MapLayerFactory {
         properties.forEach((p) => {
             var realProperty: IProperty = {};
             var sensors: IProperty = {};
-            targetProperties.forEach((tp: string) => {
-                sensors[tp] = [];
+            realPropertyTypes.forEach((tp: IPropertyType) => {
+                if (tp.hasOwnProperty('targetProperty')) {
+                    sensors[tp.label] = [];
+                }
             });
             for (var key in p) {
                 if (p.hasOwnProperty(key)) {
-                    var itemName: string = key.substr(0, key.length - 6);
-                    if (targetProperties.indexOf(itemName) >= 0) {
-                        sensors[itemName].push(p[key]);
-                    } else {
+                    var itemName: string = key;
+                    if (!targetPropertyTypes.some((tp) => {
+                        if (itemName === tp['label']) {
+                            sensors[tp['targetProperty']].push(p[key]);
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    })) {
                         realProperty[itemName] = p[key];
+                        if (sensors.hasOwnProperty(itemName)) {
+                            sensors[itemName].push(p[key]);
+                        }
                     }
                 }
             }
