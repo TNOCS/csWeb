@@ -48,6 +48,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         this.iconPath = path.join(rootpath, "../images/");
         // check if rootpath exists, otherwise create it, including its parents
         if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
+        if (!fs.existsSync(this.iconPath)) { fs.mkdirsSync(this.iconPath); }
         if (watch) {
             this.watchLayersFolder();
             this.watchKeysFolder();
@@ -173,9 +174,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var fn = this.getKeyFilename(key.id);
         fs.outputFile(fn, JSON.stringify(key), (error) => {
             if (error) {
-                Winston.error('filestore: error writing file : ' + fn + error.message);
-            }
-            else {
+                Winston.error('filestore: error writing key-file : ' + fn + error.message);
+            } else {
                 Winston.info('filestore: file saved : ' + fn);
             }
         });
@@ -185,9 +185,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var fn = this.getResourceFilename(res.id);
         fs.outputFile(fn, JSON.stringify(res), (error) => {
             if (error) {
-                Winston.error('filestore: error writing file : ' + fn);
-            }
-            else {
+                Winston.error('filestore: error writing resourcefile : ' + fn);
+            } else {
                 Winston.info('filestore: file saved : ' + fn);
             }
         });
@@ -197,9 +196,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var fn = this.getProjectFilename(project.id);
         fs.writeFile(fn, JSON.stringify(project), (error) => {
             if (error) {
-                Winston.info('error writing file : ' + fn);
-            }
-            else {
+                Winston.info('error writing project file : ' + fn);
+            } else {
                 Winston.info('filestore: file saved : ' + fn);
             }
         });
@@ -209,9 +207,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var binaryData = new Buffer(media.base64, 'base64');
         fs.writeFile(media.fileUri, binaryData, (error) => {
             if (error) {
-                Winston.error('filestore: error writing file : ' + media.fileUri);
-            }
-            else {
+                Winston.error('filestore: error writing base64-file : ' + media.fileUri + ' (err: ' + error + ')');
+            } else {
                 Winston.info('filestore: file saved : ' + media.fileUri);
             }
         });

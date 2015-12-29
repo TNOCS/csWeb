@@ -12,8 +12,10 @@ import LocalBag = require('../database/LocalBag');
 import IBagOptions = require('../database/IBagOptions');
 import IGeoJsonFeature = require('./IGeoJsonFeature');
 import Api = require('../api/ApiManager');
+import Utils = require('../helpers/Utils');
 import async = require('async');
 import winston = require('winston');
+import path = require('path');
 
 export interface ILayerDefinition {
     projectTitle: string;
@@ -41,6 +43,8 @@ export interface ILayerDefinition {
     nameLabel: string;
     includeOriginalProperties: boolean;
     defaultFeatureType: string;
+    geometryFile: string;
+    geometryKey: string;
 }
 
 export interface IProperty {
@@ -122,20 +126,27 @@ export class MapLayerFactory {
             //if (!fs.existsSync("public/data/projects/DynamicExample/" + ld.group)) fs.mkdirSync("public/data/projects/DynamicExample/" + ld.group);
             //fs.writeFileSync("public/data/projects/DynamicExample/" + ld.group + "/" + ld.layerTitle + ".json", JSON.stringify(geojson));
 
+            if (!template.projectId || !ld.reference) {
+                console.log('Error: No project or layer ID');
+                return;
+            }
+            var layerId = template.projectId + ld.reference.toLowerCase();
             var data = {
                 project: ld.projectTitle,
-                projectId: (template.projectId) ? template.projectId : ld.projectTitle,
+                projectId: template.projectId,
                 layerTitle: ld.layerTitle,
                 description: ld.description,
-                reference: (ld.reference) ? ld.reference.toLowerCase() : ld.reference,
-                featureType: ld.featureType,
+                reference: layerId,
+                featureType: layerId,
                 opacity: ld.opacity,
                 clusterLevel: ld.clusterLevel,
                 useClustering: ld.useClustering,
                 group: ld.group,
                 geojson: geojson,
                 enabled: ld.isEnabled,
-                iconBase64: template.iconBase64
+                iconBase64: template.iconBase64,
+                geometryFile: ld.geometryFile,
+                geometryKey: ld.geometryKey
             };
             if (Object.keys(this.featuresNotFound).length !== 0) {
                 console.log('Adresses that could not be found are:');
@@ -151,7 +162,7 @@ export class MapLayerFactory {
             console.log('New map created: publishing...');
             this.messageBus.publish('dynamic_project_layer', 'created', data);
             var combinedjson = this.splitJson(data);
-            this.sendIconThroughApiManager(data.iconBase64, ld.iconUri);
+            this.sendIconThroughApiManager(data.iconBase64, path.basename(ld.iconUri));
             this.sendResourceThroughApiManager(combinedjson.resourcejson, data.reference); //For now set layerID = resourceID
             this.sendLayerThroughApiManager(data);
         });
@@ -322,6 +333,10 @@ export class MapLayerFactory {
         this.convertStringFormats(template.propertyTypes);
         // Check propertyTypeData for time-based data
         var timestamps = this.convertTimebasedPropertyData(template);
+
+        //Add projectID to the icon name to make it unique
+        var iconName = path.join(path.basename(ld.iconUri, path.extname(ld.iconUri)) + template.projectId + path.extname(ld.iconUri));
+        ld.iconUri = path.join('data', 'images', iconName);
         var featureTypeName = ld.featureType || 'Default';
         var featureTypeContent = {
             name: featureTypeName,
@@ -473,7 +488,7 @@ export class MapLayerFactory {
                     console.log('Error: At least parameter1 should contain a value!');
                     return;
                 }
-                this.createPolygonFeature(ld.geometryType, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [],
+                this.createPolygonFeature(ld.geometryFile, ld.geometryKey, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [],
                     () => { callback(geojson); });
                 break;
         }
@@ -539,7 +554,7 @@ export class MapLayerFactory {
         return timestamps;
     }
 
-    private createPolygonFeature(templateName: string, par1: string, inclTemplProps: boolean, features: IGeoJsonFeature[], properties: IProperty[],
+    private createPolygonFeature(templateName: string, templateKey: string, par1: string, inclTemplProps: boolean, features: IGeoJsonFeature[], properties: IProperty[],
         propertyTypes: IPropertyType[], sensors: IProperty[], callback: Function) {
         if (!properties) { callback(); }
         if (!this.templateFiles.hasOwnProperty(templateName)) {
@@ -552,7 +567,7 @@ export class MapLayerFactory {
 
         if (inclTemplProps && templateJson.featureTypes && templateJson.featureTypes.hasOwnProperty('Default')) {
             templateJson.featureTypes['Default'].propertyTypeData.forEach((ft) => {
-                if (!properties[0].hasOwnProperty(ft.label) && ft.label !== 'Name') { //Do not overwrite input data, only add new items
+                if (!properties[0].hasOwnProperty(ft.label) && ft.label !== templateKey) { //Do not overwrite input data, only add new items
                     propertyTypes.push(ft);
                 }
             });
@@ -561,11 +576,11 @@ export class MapLayerFactory {
         properties.forEach((p, index) => {
             var foundFeature = false;
             fts.some((f) => {
-                if (f.properties['Name'] === p[par1]) {
+                if (f.properties[templateKey] === p[par1]) {
                     console.log(p[par1]);
                     if (inclTemplProps) {
                         for (var key in f.properties) {
-                            if (!p.hasOwnProperty(key) && key !== 'Name') { //Do not overwrite input data, only add new items
+                            if (!p.hasOwnProperty(key) && key !== templateKey) { //Do not overwrite input data, only add new items
                                 p[key] = f.properties[key];
                             }
                         }
