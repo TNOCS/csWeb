@@ -12,8 +12,10 @@ import LocalBag = require('../database/LocalBag');
 import IBagOptions = require('../database/IBagOptions');
 import IGeoJsonFeature = require('./IGeoJsonFeature');
 import Api = require('../api/ApiManager');
+import Utils = require('../helpers/Utils');
 import async = require('async');
 import winston = require('winston');
+import path = require('path');
 
 export interface ILayerDefinition {
     projectTitle: string;
@@ -41,6 +43,8 @@ export interface ILayerDefinition {
     nameLabel: string;
     includeOriginalProperties: boolean;
     defaultFeatureType: string;
+    geometryFile: string;
+    geometryKey: string;
 }
 
 export interface IProperty {
@@ -122,20 +126,27 @@ export class MapLayerFactory {
             //if (!fs.existsSync("public/data/projects/DynamicExample/" + ld.group)) fs.mkdirSync("public/data/projects/DynamicExample/" + ld.group);
             //fs.writeFileSync("public/data/projects/DynamicExample/" + ld.group + "/" + ld.layerTitle + ".json", JSON.stringify(geojson));
 
+            if (!template.projectId || !ld.reference) {
+                console.log('Error: No project or layer ID');
+                return;
+            }
+            var layerId = template.projectId + ld.reference.toLowerCase();
             var data = {
                 project: ld.projectTitle,
-                projectId: (template.projectId) ? template.projectId : ld.projectTitle,
+                projectId: template.projectId,
                 layerTitle: ld.layerTitle,
                 description: ld.description,
-                reference: (ld.reference) ? ld.reference.toLowerCase() : ld.reference,
-                featureType: ld.featureType,
+                reference: layerId,
+                featureType: layerId,
                 opacity: ld.opacity,
                 clusterLevel: ld.clusterLevel,
                 useClustering: ld.useClustering,
                 group: ld.group,
                 geojson: geojson,
                 enabled: ld.isEnabled,
-                iconBase64: template.iconBase64
+                iconBase64: template.iconBase64,
+                geometryFile: ld.geometryFile,
+                geometryKey: ld.geometryKey
             };
             if (Object.keys(this.featuresNotFound).length !== 0) {
                 console.log('Adresses that could not be found are:');
@@ -151,7 +162,7 @@ export class MapLayerFactory {
             console.log('New map created: publishing...');
             this.messageBus.publish('dynamic_project_layer', 'created', data);
             var combinedjson = this.splitJson(data);
-            this.sendIconThroughApiManager(data.iconBase64, ld.iconUri);
+            this.sendIconThroughApiManager(data.iconBase64, path.basename(ld.iconUri));
             this.sendResourceThroughApiManager(combinedjson.resourcejson, data.reference); //For now set layerID = resourceID
             this.sendLayerThroughApiManager(data);
         });
@@ -226,6 +237,7 @@ export class MapLayerFactory {
                 dynamicResource: true
             });
         layer.features = data.geojson.features;
+        layer.timestamps = data.geojson.timestamps;
         var group: Api.Group = this.apiManager.getGroupDefinition(<Api.Group>{ title: data.group, id: data.group, clusterLevel: data.clusterLevel });
 
         async.series([
@@ -322,6 +334,10 @@ export class MapLayerFactory {
         this.convertStringFormats(template.propertyTypes);
         // Check propertyTypeData for time-based data
         var timestamps = this.convertTimebasedPropertyData(template);
+
+        //Add projectID to the icon name to make it unique
+        var iconName = path.join(path.basename(ld.iconUri, path.extname(ld.iconUri)) + template.projectId + path.extname(ld.iconUri));
+        ld.iconUri = path.join('data', 'images', iconName);
         var featureTypeName = ld.featureType || 'Default';
         var featureTypeContent = {
             name: featureTypeName,
@@ -473,7 +489,7 @@ export class MapLayerFactory {
                     console.log('Error: At least parameter1 should contain a value!');
                     return;
                 }
-                this.createPolygonFeature(ld.geometryType, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [],
+                this.createPolygonFeature(ld.geometryFile, ld.geometryKey, ld.parameter1, ld.includeOriginalProperties, features, template.properties, template.propertyTypes, template.sensors || [],
                     () => { callback(geojson); });
                 break;
         }
@@ -485,8 +501,6 @@ export class MapLayerFactory {
      * This function extracts the timestamps and sensorvalues from the
      * template.propertyTypes. Every sensorvalue is parsed as propertyType in
      * MS Excel, which should be converted to a sensor-array for each feature.
-     * Note: Each propertyname is appended with a 6-digit number, as JSON objects
-     * need unique keys. These are trimmed in this function.
      * @param  {ILayerTemplate} template : The input template coming from MS Excel
      * @return {array} timestamps        : An array with all date/times converted to milliseconds
      */
@@ -494,15 +508,17 @@ export class MapLayerFactory {
         var propertyTypes: IPropertyType[] = template.propertyTypes;
         if (!propertyTypes) { return; }
         var timestamps = [];
-        var targetProperties = [];
+        var targetPropertyTypes = [];
         var realPropertyTypes: IPropertyType[] = []; //Filter out propertyTypes that are actually a timestamp value
         propertyTypes.forEach((pt) => {
             if (pt.hasOwnProperty('targetProperty')) {
-                //Prevent duplicate properties
-                if (targetProperties.indexOf(pt['targetProperty']) < 0) { targetProperties.push(pt['targetProperty']); }
-                //Prevent duplicate timestamps
+                if (pt['targetProperty'] !== pt['label']) {
+                    targetPropertyTypes.push(pt);
+                } else {
+                    realPropertyTypes.push(pt);
+                }
                 var timestamp = this.convertTime(pt['date'], pt['time']);
-                if (timestamps.indexOf(timestamp) < 0) { timestamps.push(timestamp); }
+                timestamps.push(timestamp);
             } else {
                 realPropertyTypes.push(pt);
             }
@@ -518,16 +534,26 @@ export class MapLayerFactory {
         properties.forEach((p) => {
             var realProperty: IProperty = {};
             var sensors: IProperty = {};
-            targetProperties.forEach((tp: string) => {
-                sensors[tp] = [];
+            realPropertyTypes.forEach((tp: IPropertyType) => {
+                if (tp.hasOwnProperty('targetProperty')) {
+                    sensors[tp.label] = [];
+                }
             });
             for (var key in p) {
                 if (p.hasOwnProperty(key)) {
-                    var itemName: string = key.substr(0, key.length - 6);
-                    if (targetProperties.indexOf(itemName) >= 0) {
-                        sensors[itemName].push(p[key]);
-                    } else {
+                    var itemName: string = key;
+                    if (!targetPropertyTypes.some((tp) => {
+                        if (itemName === tp['label']) {
+                            sensors[tp['targetProperty']].push(p[key]);
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    })) {
                         realProperty[itemName] = p[key];
+                        if (sensors.hasOwnProperty(itemName)) {
+                            sensors[itemName].push(p[key]);
+                        }
                     }
                 }
             }
@@ -539,7 +565,7 @@ export class MapLayerFactory {
         return timestamps;
     }
 
-    private createPolygonFeature(templateName: string, par1: string, inclTemplProps: boolean, features: IGeoJsonFeature[], properties: IProperty[],
+    private createPolygonFeature(templateName: string, templateKey: string, par1: string, inclTemplProps: boolean, features: IGeoJsonFeature[], properties: IProperty[],
         propertyTypes: IPropertyType[], sensors: IProperty[], callback: Function) {
         if (!properties) { callback(); }
         if (!this.templateFiles.hasOwnProperty(templateName)) {
@@ -552,7 +578,7 @@ export class MapLayerFactory {
 
         if (inclTemplProps && templateJson.featureTypes && templateJson.featureTypes.hasOwnProperty('Default')) {
             templateJson.featureTypes['Default'].propertyTypeData.forEach((ft) => {
-                if (!properties[0].hasOwnProperty(ft.label) && ft.label !== 'Name') { //Do not overwrite input data, only add new items
+                if (!properties[0].hasOwnProperty(ft.label) && ft.label !== templateKey) { //Do not overwrite input data, only add new items
                     propertyTypes.push(ft);
                 }
             });
@@ -561,11 +587,11 @@ export class MapLayerFactory {
         properties.forEach((p, index) => {
             var foundFeature = false;
             fts.some((f) => {
-                if (f.properties['Name'] === p[par1]) {
+                if (f.properties[templateKey] === p[par1]) {
                     console.log(p[par1]);
                     if (inclTemplProps) {
                         for (var key in f.properties) {
-                            if (!p.hasOwnProperty(key) && key !== 'Name') { //Do not overwrite input data, only add new items
+                            if (!p.hasOwnProperty(key) && key !== templateKey) { //Do not overwrite input data, only add new items
                                 p[key] = f.properties[key];
                             }
                         }
@@ -786,8 +812,9 @@ export class MapLayerFactory {
                 properties.forEach((p) => {
                     if (p.hasOwnProperty(name)) {
                         var timeInMs = this.convertTime(p[name], ''); //TODO: Add Time compatibility
-                        var d = new Date(timeInMs);
-                        p[name] = d.toString();
+                        p[name] = timeInMs;
+                        //var d = new Date(timeInMs);
+                        //p[name] = d.toString();
                     }
                 });
             }

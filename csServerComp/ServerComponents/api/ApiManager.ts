@@ -206,6 +206,7 @@ export interface ILayer extends StorageObject {
     isDynamic?: boolean;
     features?: Feature[];
     data?: any;
+    timestamps?: number[];
     [key: string]: any;
 }
 
@@ -664,7 +665,7 @@ export class ApiManager extends events.EventEmitter {
                 callback(r);
             });
         } else {
-            callback(<CallbackResult>{ result: ApiResult.ProjectAlreadyExists, error: 'Project already exists' });
+            callback(<CallbackResult>{ result: ApiResult.ProjectAlreadyExists, project: this.projects[project.id], error: 'Project already exists' });
         }
         // ARNOUD? Shouldn't this be at the end of the if clause, as the project may already exist?
         this.saveProjectDelay(this.projects[project.id]);
@@ -978,7 +979,7 @@ export class ApiManager extends events.EventEmitter {
                         Winston.warn('updating project finished');
                     });
                 }
-                callback(<CallbackResult>{ result: ApiResult.OK });
+                callback(<CallbackResult>{ result: ApiResult.OK, project: p });
 
                 this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: project.id, type: ChangeType.Update, value: project });
                 this.saveProjectDelay(project);
