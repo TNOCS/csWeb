@@ -469,7 +469,7 @@ module csComp.Services {
          */
         private addEntryToTooltip(content: string, feature: IFeature, property: string, meta: IPropertyType, title: string, isFilter: boolean) {
             var value = feature.properties[property];
-            if (!value) return;
+            if (typeof value === 'undefined') return { length: 0, content: '' };
             var valueLength = value.toString().length;
             if (meta) {
                 value = Helpers.convertPropertyInfo(meta, value);
