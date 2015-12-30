@@ -482,7 +482,7 @@ module FeatureProps {
                 case 'onFeatureSelect':
                     callApply = false;
                     this.displayFeature(feature);
-                    //this.$scope.feature = this.$layerService.lastSelectedFeature;
+                    this.$scope.feature = this.$layerService.lastSelectedFeature;
                     this.$layerService.visual.rightPanelVisible = true;
                     this.updateAllStats();
                     break;

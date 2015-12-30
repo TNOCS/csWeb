@@ -117,6 +117,18 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var projectFile = path.join(f, "project.json");
         if (fs.existsSync(projectFile)) {
             this.openProjectFile(projectFile, folder, true);
+            
+            var rf = path.join(f,"resources");
+            if (fs.existsSync(rf))
+            {
+                fs.readdir(rf,(error,files)=>{
+                    if (!error){
+                        files.forEach(file=>{
+                            this.openResourceFile(path.join(rf,file));                                                        
+                        });
+                    }                   
+                });
+            }            
             //Winston.error('project file found : ' + folder);
         }
         else {
@@ -194,8 +206,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
         return path.join(this.keysPath, keyId + ".json");
     }
 
-    private getResourceFilename(resId: string) {
-        return path.join(this.resourcesPath, resId + ".json");
+    private getResourceFilename(re: ResourceFile) {
+        console.log('!!! resource file loc:' + re._localFile);
+        return re._localFile;
+        //return path.join(this.resourcesPath, resId + ".json");
     }
 
     private saveKeyFile(key: Key) {
@@ -210,7 +224,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     private saveResourceFile(res: ResourceFile) {
-        var fn = this.getResourceFilename(res.id);
+        var fn = this.getResourceFilename(res);
         fs.outputFile(fn, JSON.stringify(res), (error) => {
             if (error) {
                 Winston.error('filestore: error writing resourcefile : ' + fn);
@@ -339,14 +353,17 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     private openResourceFile(fileName: string) {
         var id = this.getResourceId(fileName);
+        console.log('!! open resource file : ' + fileName + " (" + id + ")");
         Winston.info('filestore: openfile ' + id);
         if (!this.resources.hasOwnProperty(id)) {
             fs.readFile(fileName, 'utf8', (err, data) => {
                 if (!err && data && data.length > 0) {
                     var res = <ResourceFile>JSON.parse(data.removeBOM());
+                    res._localFile = fileName;
                     res.id = id;
                     this.resources[id] = res;
                     this.manager.addResource(res, <ApiMeta>{ source: this.id }, () => { });
+                    this.saveResourceFile(res);
                 }
             });
         }

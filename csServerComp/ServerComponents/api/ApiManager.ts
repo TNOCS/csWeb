@@ -298,6 +298,7 @@ export class PropertyType {
 }
 
 export class ResourceFile implements StorageObject {
+    _localFile : string;
     featureTypes: { [key: string]: FeatureType };
     propertyTypes: { [key: string]: PropertyType };
     id: string;
@@ -525,6 +526,10 @@ export class ApiManager extends events.EventEmitter {
      * Update/add a resource and save it to file
      */
     public addResource(resource: ResourceFile, meta: ApiMeta, callback: Function) {
+        if (this.resources.hasOwnProperty(resource.id))
+        {
+            resource._localFile = this.resources[resource.id]._localFile;
+        }
         this.resources[resource.id] = resource;
         var s = this.findStorage(resource);
         this.getInterfaces(meta).forEach((i: IConnector) => {
