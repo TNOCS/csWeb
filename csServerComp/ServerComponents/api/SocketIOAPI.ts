@@ -50,16 +50,15 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
                         this.manager.deleteFeature(lu.layerId, lu.item, <ApiMeta>{ source: this.id, user: clientId }, (r) => { });
                         break;
                 }
-            }
-            //result.data
+            }            
         });
-        this.connection.subscribe('project', (result: ClientConnection.ClientMessage, clientId: string) => {
+        this.connection.subscribe('project', (result: ClientConnection.ClientMessage, clientId: string) => {                        
             var lu = <ClientConnection.ProjectUpdate>result.data;
-            if (lu) {
+            if (lu) {                
                 ///TODO: check if lu.layerId really exists
                 switch (lu.action) {
-                    case ClientConnection.ProjectUpdateAction.updateProject:
-                        var p: Project = lu.item;
+                    case ClientConnection.ProjectUpdateAction.updateProject:                        
+                        var p: Project = JSON.parse(lu.item);                                                                        
                         this.manager.updateProject(p, <ApiMeta>{ source: this.id, user: clientId }, (r) => { });
                         break;
                     case ClientConnection.ProjectUpdateAction.deleteProject:

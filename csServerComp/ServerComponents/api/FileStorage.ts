@@ -35,6 +35,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public blobPath: string;
     public iconPath: string;
     public projectsPath: string;
+    public staticProjectsPath: string;
     public resourcesPath: string;
 
     constructor(public rootpath: string, watch: boolean = true) {
@@ -78,11 +79,17 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }, 1000);
     }
 
+    private getDirectories(srcpath) {
+        return fs.readdirSync(srcpath).filter((file) => {
+            return fs.statSync(path.join(srcpath, file)).isDirectory();
+        });
+    }
+
     public watchProjectsFolder() {
         Winston.info('filestore: watch folder:' + this.projectsPath);
         if (!fs.existsSync(this.projectsPath)) { fs.mkdirSync(this.projectsPath); }
         setTimeout(() => {
-            var watcher = chokidar.watch(this.projectsPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
+            var watcher = chokidar.watch(this.projectsPath, { ignoreInitial: false, depth: 0, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
                 if (action == "add") {
                     Winston.info('filestore: new project found : ' + path);
@@ -96,7 +103,26 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     //this.addLayer(path);
                 }
             }));
+            var folders = this.getDirectories(this.projectsPath);
+            folders.forEach((folder: string) => {
+                this.openStaticFolder(folder);
+            });
+
         }, 1000);
+    }
+
+    public openStaticFolder(folder: string) {
+        // check if project file exists
+        var f = path.join(this.projectsPath, folder);
+        var projectFile = path.join(f, "project.json");
+        if (fs.existsSync(projectFile)) {
+            this.openProjectFile(projectFile, folder, true);
+            //Winston.error('project file found : ' + folder);
+        }
+        else {
+            Winston.error('project file not found : ' + folder);
+        }
+
     }
 
     public watchKeysFolder() {
@@ -105,14 +131,16 @@ export class FileStorage extends BaseConnector.BaseConnector {
         setTimeout(() => {
             var watcher = chokidar.watch(this.keysPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
-                if (action == "add") {
-                    Winston.info('filestore: new file found : ' + path);
-                    this.openKeyFile(path);
-                }
-                if (action == "unlink") {
-                    this.closeKeyFile(path);
-                }
-                if (action == "change") {
+                if (!fs.statSync(path).isDirectory()) {
+                    if (action == "add") {
+                        Winston.info('filestore: new file found : ' + path);
+                        this.openKeyFile(path);
+                    }
+                    if (action == "unlink") {
+                        this.closeKeyFile(path);
+                    }
+                    if (action == "change") {
+                    }
                 }
             }));
         }, 1000);
@@ -192,8 +220,11 @@ export class FileStorage extends BaseConnector.BaseConnector {
         });
     }
 
+    /** Save project file to disk */
     private saveProjectFile(project: Project) {
-        var fn = this.getProjectFilename(project.id);
+        var fn = project._localFile;
+        Winston.info('writing project file : ' + fn);
+        //this.getProjectFilename(project.id);
         fs.writeFile(fn, JSON.stringify(project), (error) => {
             if (error) {
                 Winston.info('error writing project file : ' + fn);
@@ -203,6 +234,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         });
     }
 
+    /** save media file */
     private saveBase64(media: Media) {
         var binaryData = new Buffer(media.base64, 'base64');
         fs.writeFile(media.fileUri, binaryData, (error) => {
@@ -320,15 +352,19 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }
     }
 
-    private openProjectFile(fileName: string) {
-        var id = this.getProjectId(fileName);
-        Winston.info('filestore: openfile ' + id);
+    private openProjectFile(fileName: string, id?: string, isDynamic?: boolean) {
+        if (!id) id = this.getProjectId(fileName);
+        Winston.info('filestore: openfile ' + fileName);
 
         fs.readFile(fileName, 'utf8', (err, data) => {
             if (!err && data && data.length > 0) {
                 var project = <Project>JSON.parse(data);
-                if (!project.hasOwnProperty('id')) project.id = helpers.newGuid();
-                project.id = project.id.replace(new RegExp(' ','g'),'');
+                project._localFile = fileName;                
+                if (typeof project.id === 'undefined') {                    
+                    project.id = id || helpers.newGuid();
+                    this.manager.getProjectId(project);
+                    this.saveProjectFile(project);
+                }
 
                 if (!this.projects.hasOwnProperty(project.id)) {
                     id = project.id;
@@ -341,8 +377,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     // project.title = id;
                     // project.groups = [];
                     // project.logo = "";
+                    
+                    if (typeof isDynamic !== 'undefined') project.isDynamic = isDynamic;
                     project.url = "/api/projects/" + id;
-                    project.staticUrl = fileName;
+
                     this.manager.updateProject(project, {}, () => { });
                 }
             } else if (err) {
@@ -386,6 +424,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     public updateProject(project: Project, meta: ApiMeta, callback: Function) {
         if (this.projects.hasOwnProperty(project.id)) {
+            
             this.projects[project.id] = project;
             this.saveProjectDelay(project);
             Winston.info('Added project ' + project.id + ' to FileStorage projects');

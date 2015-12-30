@@ -10,6 +10,7 @@ module csComp.Services {
         getRequiredLayers?(layer: ProjectLayer): ProjectLayer[];
         layerMenuOptions(layer: ProjectLayer): [[string, Function]];
     }
+     
 
     /** layer service is responsible for reading and managing all project, layer and sensor related data */
     export class LayerService {
@@ -2107,10 +2108,13 @@ module csComp.Services {
                 this.parseProject(project, solutionProject, layerIds);
             }
         }
+        
 
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
             prj.solution = this.solution;
             this.project = new Project().deserialize(prj);
+            
+            if (typeof this.project.isDynamic === 'undefined') this.project.isDynamic = solutionProject.dynamic;
 
             if (!this.project.timeLine) {
                 this.project.timeLine = new DateRange();
@@ -2222,8 +2226,9 @@ module csComp.Services {
                         this.$mapService.zoomToLocation(new L.LatLng(prj.startposition.latitude, prj.startposition.longitude));
                     }
                 });
-            }
-            if (this.project.connected) {
+            }                       
+            
+            if (this.project.isDynamic) {
                 if (!this.project.layerDirectory) this.project.layerDirectory = '/api/layers';
                 // check connection
                 this.$messageBusService.initConnection('', '', () => {
@@ -2483,7 +2488,6 @@ module csComp.Services {
                 if (filter.id != null) filter.id = Helpers.getGuid();
             });
 
-
         }
 
         /** initializes a layer (check for id, language, references group, add to active map renderer) */
@@ -2708,26 +2712,30 @@ module csComp.Services {
         }
 
 
-        public saveProject() {
+        public updateProject() {
             console.log('saving project');
-            setTimeout(() => {
+            setTimeout(() => {                
                 var data = this.project.serialize();
                 var url = this.projectUrl.url;
+                
+                var pu = <ProjectUpdate>{ projectId : this.project.id, action : ProjectUpdateAction.updateProject, item : data};
+                               
+                this.$messageBusService.serverSendMessageAction("project",pu);
                 //.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
-                console.log('URL: ' + url);
-                $.ajax({
-                    url: url,
-                    type: 'PUT',
-                    data: data,
-                    contentType: 'application/json',
-                    complete: (d) => {
-                        if (d.error) {
-                            console.error('Error update project.json: ' + JSON.stringify(d));
-                        } else {
-                            console.log('Project.json updated succesfully!');
-                        }
-                    }
-                });
+                // console.log('URL: ' + url);
+                // $.ajax({
+                //     url: url,
+                //     type: 'PUT',
+                //     data: data,
+                //     contentType: 'application/json',
+                //     complete: (d) => {
+                //         if (d.error) {
+                //             console.error('Error update project.json: ' + JSON.stringify(d));
+                //         } else {
+                //             console.log('Project.json updated succesfully!');
+                //         }
+                //     }
+                // });
             }, 0);
         }
 
@@ -2814,6 +2822,23 @@ module csComp.Services {
         updateFeature,
         updateLog,
         deleteFeature
+    }
+    
+       /**
+     * List of available action for sending/receiving project actions over socket.io channel
+     */
+    export enum ProjectUpdateAction {
+        updateProject,
+        deleteProject
+    }
+    
+      /**
+     * object for sending project messages over socket.io channel
+     */
+    export class ProjectUpdate {
+        public projectId: string;
+        public action: ProjectUpdateAction;
+        public item: any;
     }
 
     /**

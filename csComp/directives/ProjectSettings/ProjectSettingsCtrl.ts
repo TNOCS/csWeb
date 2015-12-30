@@ -15,6 +15,8 @@ module ProjectSettings {
             '$timeout',
             'layerService'
         ];
+        
+        public project : csComp.Services.Project;
 
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
@@ -24,6 +26,7 @@ module ProjectSettings {
             private $layerService: csComp.Services.LayerService
             ) {
             $scope.vm = this;
+
         }
 
         saveSettings() {
@@ -36,20 +39,8 @@ module ProjectSettings {
         }
 
         updateProject() {
-            console.log('Updating project');
-            this.$timeout(() => {
-                var data = this.$layerService.project.serialize();
-                var url = this.$layerService.projectUrl.url; 
-                //.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
-                console.log('URL: ' + url);
-                $.ajax({
-                    url: url,
-                    type: "PUT",
-                    data: data,
-                    contentType: "application/json",
-                    complete: this.updateProjectReady
-                });
-            }, 0);
+            this.$layerService.updateProject();
+            
 
             // for (var id in this.$layerService.typesResources) {
             //     if (id.indexOf('data/resourceTypes/') >= 0) {

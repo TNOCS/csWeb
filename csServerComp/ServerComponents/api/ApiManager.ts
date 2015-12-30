@@ -148,16 +148,19 @@ export class Key implements StorageObject {
     values: Object[];
 }
 
+/**
+ * Project definition 
+ */
 export class Project implements StorageObject {
     id: string;
     title: string;
     url: string;
-    staticUrl : string;
+    _localFile: string;
     description: string;
     logo: string;
-    connected: boolean;
     storage: string;
     groups: Group[];
+    isDynamic: boolean;
 }
 
 export class Group {
@@ -421,13 +424,11 @@ export class ApiManager extends events.EventEmitter {
             if (err) {
                 Winston.error('manager: project config loading failed: ' + err.message);
             } else {
-                try
-                {                
-                this.projects = <{ [key: string]: Project }>JSON.parse(data);
-                Winston.info('manager: project config loaded');
+                try {
+                    this.projects = <{ [key: string]: Project }>JSON.parse(data);
+                    Winston.info('manager: project config loaded');
                 }
-                catch(e)
-                {
+                catch (e) {
                     Winston.error('manager: error loading project config');
                 }
             }
@@ -664,11 +665,12 @@ export class ApiManager extends events.EventEmitter {
                 this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: project.id, type: ChangeType.Create, value: project });
                 callback(r);
             });
+
+            this.saveProjectDelay(this.projects[project.id]);
         } else {
             callback(<CallbackResult>{ result: ApiResult.ProjectAlreadyExists, project: this.projects[project.id], error: 'Project already exists' });
         }
-        // ARNOUD? Shouldn't this be at the end of the if clause, as the project may already exist?
-        this.saveProjectDelay(this.projects[project.id]);
+
     }
 
     /**
@@ -766,6 +768,14 @@ export class ApiManager extends events.EventEmitter {
         var key = this.findKey(keyId);
         return this.findStorage(key);
     }
+    
+    /**
+     * Make sure the project has an unique project id
+     */
+    public getProjectId(project: Project): string {
+        project.id = project.id.replace(new RegExp(' ', 'g'), '');
+        return project.id;
+    }
 
     /**
      * Returns project definition for a project
@@ -775,11 +785,11 @@ export class ApiManager extends events.EventEmitter {
             id: project.id ? project.id : helpers.newGuid(),
             storage: project.storage ? project.storage : '',
             title: project.title ? project.title : project.id,
-            connected: project.connected ? project.connected : true,
+            isDynamic: (typeof project.isDynamic !== 'undefined') ? project.isDynamic : true,
             logo: project.logo ? project.logo : 'images/CommonSenseRound.png',
             //groups: project.groups ? project.groups : [],
             url: project.url ? project.url : '/api/projects/' + project.id,
-            staticUrl : project.staticUrl
+            _localFile: project._localFile
         };
         return p;
     }
@@ -966,8 +976,13 @@ export class ApiManager extends events.EventEmitter {
             },
             // update project
             (cb: Function) => {
+                var file = this.projects[project.id]._localFile;
+                if (file && !project._localFile) project._localFile = file;                
+
                 var p = this.getProjectDefinition(project);
+
                 this.projects[p.id] = p;
+                
 
                 this.getInterfaces(meta).forEach((i: IConnector) => {
                     i.updateProject(project, meta, () => { });
