@@ -420,13 +420,11 @@ export class ApiManager extends events.EventEmitter {
             if (err) {
                 Winston.error('manager: project config loading failed: ' + err.message);
             } else {
-                try
-                {                
-                this.projects = <{ [key: string]: Project }>JSON.parse(data);
-                Winston.info('manager: project config loaded');
+                try {
+                    this.projects = <{ [key: string]: Project }>JSON.parse(data);
+                    Winston.info('manager: project config loaded');
                 }
-                catch(e)
-                {
+                catch (e) {
                     Winston.error('manager: error loading project config');
                 }
             }
@@ -613,7 +611,7 @@ export class ApiManager extends events.EventEmitter {
                 if (group.id === pg.id && group.clusterLevel) {
                     pg['clusterLevel'] = group.clusterLevel;
                 }
-                return (group.id === pg.id)
+                return (group.id === pg.id);
             });
             callback(<CallbackResult>{ result: ApiResult.GroupAlreadyExists, error: 'Group exists' }); return;
         } else {
@@ -621,6 +619,27 @@ export class ApiManager extends events.EventEmitter {
             p.groups.push(group);
             this.updateProject(p, meta, () => { });
             callback(<CallbackResult>{ result: ApiResult.OK });
+        }
+    }
+
+    public updateGroup(projectId: string, groupId: string, newGroup: Group, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: 'Project not found' }); return; }
+        if (!newGroup || !groupId || !p.groups) { callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: 'Group Not Found' }); return; }
+        if (p.groups.some((pg) => { return (groupId === pg.id); })) {
+            p.groups.some((pg) => {
+                if (groupId === pg.id) {
+                    Object.keys(newGroup).forEach((key) => {
+                        pg[key] = newGroup[key];
+                    });
+                    return true;
+                }
+                return false;
+            });
+            this.updateProject(p, meta, () => { });
+            callback(<CallbackResult>{ result: ApiResult.OK }); return;
+        } else {
+            callback(<CallbackResult>{ result: ApiResult.GroupNotFound, error: 'Group Not Found' }); return;
         }
     }
 
