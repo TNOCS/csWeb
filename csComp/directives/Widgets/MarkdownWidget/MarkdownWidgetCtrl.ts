@@ -7,6 +7,12 @@ module MarkdownWidget {
         content: string;
         url: string;
         /**
+         * Set true to use translate the content. To use it, create a separate file
+         * for each language and add a pre-extension to the file corresponding to the language code, e.g.
+         * data/mycontent.en.txt or data/mycontent.nl.txt . The url should then be "data/mycontent.txt"
+         */
+        useLanguagePrefix: boolean;
+        /**
          * The actual content is being converted, if necessary, and set to the markdown text.
          */
         mdText: string;
@@ -55,7 +61,7 @@ module MarkdownWidget {
             $scope.minimized = false;
 
             this.parentWidget = $('#' + this.widget.elementId).parent();
-            
+
             if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
                 // Hide widget
                 this.parentWidget.hide();
@@ -72,7 +78,14 @@ module MarkdownWidget {
             }
 
             if (typeof $scope.data.url === 'undefined') return;
-            $.get($scope.data.url, (md) => {
+            var url = $scope.data.url;
+            if ($scope.data.useLanguagePrefix) {
+                var extensions = url.split('.');
+                var newExtension = this.$layerService.currentLocale + '.' + extensions.pop();
+                extensions.push(newExtension);
+                url = extensions.join('.');
+            }
+            $.get(url, (md) => {
                 $timeout(() => {
                     $scope.data.content = $scope.data.mdText = md;
                 }, 0);
