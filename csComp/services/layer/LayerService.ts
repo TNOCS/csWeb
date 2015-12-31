@@ -2317,9 +2317,11 @@ module csComp.Services {
                                         console.log('Project already exists (' + project.title + ')');
                                     }
                                 } else {
-                                    this.$messageBusService.notify('New update available for project ', project.title);
-                                    //var solProj = this.solution.projects.filter(sp => { return (sp.title === project.title) }).pop();
-                                    this.openProject(solutionProject, null, project);
+                                    if (project.id === this.project.id) {
+                                        this.$messageBusService.notify('New update available for project ', project.title);
+                                        //var solProj = this.solution.projects.filter(sp => { return (sp.title === project.title) }).pop();
+                                        this.openProject(solutionProject, null, project);
+                                    }
                                 }
                             }
                         }
