@@ -343,7 +343,8 @@ module Dashboard {
             this.checkViewbound();
 
             //this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
-            if (!this.$mapService.isAdminExpert) {
+            // if (!this.$mapService.isAdminExpert) {
+            if (!d._initialized) {
                 this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
                 this.$layerService.visual.rightPanelVisible = d.showRightmenu;
             }
