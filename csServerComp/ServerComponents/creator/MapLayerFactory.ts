@@ -790,7 +790,7 @@ export class MapLayerFactory {
     }
 
     private convertTime(date: string, time: string): number {
-        if (date.length < 6) { return 0; }
+        if (!date || date.length < 6) { return 0; }
         var year = Number(date.substr(0, 4));
         var month = Number(date.substr(4, 2));
         var day = Number(date.substr(6, 2));

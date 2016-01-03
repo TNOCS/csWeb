@@ -26,6 +26,7 @@ module Charts {
         width?: number;
         height?: number;
         closed?: boolean;
+        smooth?: boolean;
         margin?: { top: number; right: number; bottom: number; left: number; };
         showaxis?: boolean;
     }
@@ -43,7 +44,8 @@ module Charts {
                     update: '=',
                     focusTime: '=',
                     showaxis: '=',
-                    closed: '=',
+                    closed: '=', // whether to fill the area under the sparkline with a solid color
+                    smooth: '=', // whether to smoothen the line (might result in weird artifacts)
                     width: '@',  // the value is used as is
                     height: '@',
                     margin: '@'
@@ -68,6 +70,7 @@ module Charts {
                             console.log('heigth:' + height);
                             var showAxis = typeof scope.showaxis !== 'undefined' && scope.showaxis;
                             var closed = typeof scope.closed !== 'undefined' && scope.closed;
+                            var smooth = typeof scope.smooth !== 'undefined' && scope.smooth;
                             var cursorTextHeight = 12;// + (showAxis ? 5 : 0); // leave room for the cursor text (timestamp | measurement)
                             $(element[0]).empty();
                             var chart = d3.select(element[0])
@@ -86,7 +89,7 @@ module Charts {
 
 
                             var line = d3.svg.line()
-                                .interpolate((closed) ? "linear-closed" : "cardinal")
+                                .interpolate((smooth) ? "cardinal" : "linear")
                                 .x(function(d) { return x(d.time); })
                                 .y(function(d) { return y(d.measurement); });
 
