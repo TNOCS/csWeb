@@ -4,8 +4,6 @@ module Navigate {
         search: string;
     }
 
-
-
     export class RecentFeature {
         public id: string;
         public name: string;
@@ -22,9 +20,8 @@ module Navigate {
         public RecentFeatures: RecentFeature[] = [];
         public UserName: string;
         public MyFeature: csComp.Services.Feature;
-        private lastPost = { longitude: 0, latitude: 0 }
+        private lastPost = { longitude: 0, latitude: 0 };
         public searchResults: csComp.Services.ISearchResultItem[] = [];
-        
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -33,7 +30,9 @@ module Navigate {
         public static $inject = [
             '$scope',
             'layerService',
-            'messageBusService', 'localStorageService', 'geoService'
+            'messageBusService',
+            'localStorageService',
+            'geoService'
         ];
 
         // dependencies are injected via AngularJS $injector
@@ -56,34 +55,30 @@ module Navigate {
                 }
             });
 
-            $scope.$watch("search", _.throttle((search) => {
+            $scope.$watch('search', _.throttle((search) => {
                 // This code will be invoked after 1 second from the last time 'id' has changed.
-                
                 if (search && search.length > 0) {
-                    this.doSearch(search);                    
-                }
-                else {
+                    this.doSearch(search);
+                } else {
                     this.searchResults = [];
                 }
                 // Code that does something based on $scope.id                
             }, 500));
         }
-        
-        public selectSearchResult(item : csComp.Services.ISearchResultItem)
-        {
+
+        public selectSearchResult(item : csComp.Services.ISearchResultItem) {
             if (item.click) item.click(item);
         }
 
         private doSearch(search: string) {
-                        
             this.$layerService.actionServices.forEach(as => {
-                if (as.search)                    
-                        as.search(<csComp.Services.ISearchQuery>{ query: search, results: this.searchResults }, (error, result) => {                            
-                            this.searchResults = this.searchResults.filter(sr=>{ return sr.service !== as.id});
-                            this.searchResults = this.searchResults.concat(result);    
-                            if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }        
-                        });
-                     
+                if (as.search) {
+                    as.search(<csComp.Services.ISearchQuery>{ query: search, results: this.searchResults }, (error, result) => {
+                        this.searchResults = this.searchResults.filter(sr => { return sr.service !== as.id; });
+                        this.searchResults = this.searchResults.concat(result);
+                        if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                    });
+                }
             });
         }
 
@@ -98,12 +93,12 @@ module Navigate {
         }
 
         private join(l: csComp.Services.ProjectLayer) {
-            this.localStorageService.set("username", this.UserName);
+            this.localStorageService.set('username', this.UserName);
             async.series([(cb) => {
                 if (!l.enabled) {
                     this.$layerService.addLayer(l, () => {
                         cb();
-                    })
+                    });
                 } else { cb(); }
             }, (cb) => {
                 this.mobileLayer = l;
@@ -115,7 +110,7 @@ module Navigate {
                 // todo disable
                 f.geometry.coordinates = [this.lastPost.longitude, this.lastPost.latitude]; //[0, 0]; //loc.coords.longitude, loc.coords.latitude];
                 f.id = this.UserName;
-                f.properties = { "Name": this.UserName };
+                f.properties = { 'Name': this.UserName };
                 //layer.data.features.push(f);
                 this.$layerService.initFeature(f, this.mobileLayer);
                 this.$layerService.activeMapRenderer.addFeature(f);
@@ -126,20 +121,20 @@ module Navigate {
         }
 
         private initMobileLayers(p: csComp.Services.Project) {
-            this.UserName = this.localStorageService.get("username");
-            if (!this.UserName) this.UserName = "mobile user";
+            this.UserName = this.localStorageService.get('username');
+            if (!this.UserName) this.UserName = 'mobile user';
             this.mobileLayers = [];
 
-            p.groups.forEach((g=> {
+            p.groups.forEach((g => {
                 g.layers.forEach((l) => {
                     if (l.tags && l.tags.indexOf('mobile') >= 0) this.mobileLayers.push(l);
                 });
-            }))
+            }));
 
             if (this.$layerService.isMobile) {
-                this.$messageBus.subscribe("geo", (action, loc: csComp.Services.Geoposition) => {
+                this.$messageBus.subscribe('geo', (action, loc: csComp.Services.Geoposition) => {
                     switch (action) {
-                        case "pos":
+                        case 'pos':
                             if (this.mobileLayer && this.MyFeature) {
                                 this.lastPost = loc.coords;
                                 this.MyFeature.geometry.coordinates = [loc.coords.longitude, loc.coords.latitude];
@@ -150,14 +145,13 @@ module Navigate {
                     }
                 });
 
-
                 this.geoService.start({});
             }
         }
 
         private updateRecentFeaturesList() {
             setTimeout(() => {
-                var ids = this.localStorageService.get("recentfeatures");
+                var ids = this.localStorageService.get('recentfeatures');
                 if (ids) {
                     this.RecentFeatures = ids;
                     this.RecentFeatures.forEach((rf: RecentFeature) => {
@@ -168,7 +162,6 @@ module Navigate {
                     });
                 }
             }, 0);
-
         }
 
         private selectFeature(feature: IFeature) {
@@ -179,14 +172,14 @@ module Navigate {
             this.updateRecentFeaturesList();
             this.$messageBus.subscribe('feature', (a, feature: csComp.Services.IFeature) => {
                 if (a === 'onFeatureSelect') {
-                    this.RecentFeatures = this.RecentFeatures.filter(f=> f.id != feature.id);
+                    this.RecentFeatures = this.RecentFeatures.filter(f => f.id !== feature.id);
                     var rf = <RecentFeature>{ id: feature.id, name: csComp.Helpers.getFeatureTitle(feature), layerId: feature.layerId, feature: feature };
                     this.RecentFeatures.splice(0, 0, rf);
                     if (this.RecentFeatures.length > 5) this.RecentFeatures.pop();
                     var save = [];
-                    this.RecentFeatures.forEach((f) => save.push(<RecentFeature>{ id: f.id, name: f.name, layerId: f.layerId }))
-                    this.localStorageService.set("recentfeatures", save);
-                    if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                    this.RecentFeatures.forEach((f) => save.push(<RecentFeature>{ id: f.id, name: f.name, layerId: f.layerId }));
+                    this.localStorageService.set('recentfeatures', save);
+                    if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                         this.$scope.$apply();
                     }
                 }
@@ -198,26 +191,25 @@ module Navigate {
         }
 
         private initRecentLayers() {
-            var ids = this.localStorageService.get("recentlayers");
-            if (ids) ids.forEach(id=> {
+            var ids = this.localStorageService.get('recentlayers');
+            if (ids) ids.forEach(id => {
                 var l = this.$layerService.findLayer(id);
                 if (l) this.RecentLayers.push(l);
-            })
+            });
 
             this.$messageBus.subscribe('layer', (a, layer: csComp.Services.ProjectLayer) => {
                 if (a === 'activated') {
-                    this.RecentLayers = this.RecentLayers.filter(f=> f.id != layer.id);
+                    this.RecentLayers = this.RecentLayers.filter(f => f.id !== layer.id);
                     this.RecentLayers.splice(0, 0, layer);
                     if (this.RecentLayers.length > 5) this.RecentLayers.pop();
-                    ids = []; this.RecentLayers.forEach(l=> ids.push(l.id));
-                    this.localStorageService.set("recentlayers", ids);
-                    if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
+                    ids = []; this.RecentLayers.forEach(l => ids.push(l.id));
+                    this.localStorageService.set('recentlayers', ids);
+                    if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                         this.$scope.$apply();
                     }
                 }
                 this.updateRecentFeaturesList();
             });
         }
-
     }
 }
