@@ -72,13 +72,12 @@ module Navigate {
 
         private doSearch(search: string) {
             this.$layerService.actionServices.forEach(as => {
-                if (as.search) {
-                    as.search(<csComp.Services.ISearchQuery>{ query: search, results: this.searchResults }, (error, result) => {
-                        this.searchResults = this.searchResults.filter(sr => { return sr.service !== as.id; });
-                        this.searchResults = this.searchResults.concat(result);
-                        if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
-                    });
-                }
+                if (!as.search) return;
+                as.search(<csComp.Services.ISearchQuery>{ query: search, results: this.searchResults }, (error, result) => {
+                    this.searchResults = this.searchResults.filter(sr => { return sr.service !== as.id; });
+                    this.searchResults = this.searchResults.concat(result);
+                    if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                });
             });
         }
 
