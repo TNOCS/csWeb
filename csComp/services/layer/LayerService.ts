@@ -152,6 +152,7 @@ module csComp.Services {
             //this.geoService.start();
 
             this.addActionService(new LayerActions());
+            this.addActionService(new MatrixAction.MatrixActionModel());
 
             var delayFocusChange = _.debounce((date) => {
                 for (var l in this.loadedLayers) {
@@ -430,18 +431,7 @@ module csComp.Services {
                     case 'onFeatureSelect':
                         var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
                         props.forEach((prop: IPropertyType) => {
-                            if (prop.type === 'matrix' && feature.properties.hasOwnProperty(prop.label)) {
-                                var matrix = feature.properties[prop.label];
-                                this.project.features.forEach(f => {
-                                    if (f.layer === feature.layer && f.properties.hasOwnProperty(prop.targetid) && matrix.hasOwnProperty(f.properties[prop.targetid])) {
-                                        var newValue = matrix[f.properties[prop.targetid]];
-                                        for (var val in newValue) {
-                                            f.properties[val] = newValue[val];
-                                        }
-                                    }
-                                });
-                                this.updateGroupFeatures(feature.layer.group);
-                            }
+                            
                             if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
                                 if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer._lastSelectedFeature);
 
@@ -570,6 +560,11 @@ module csComp.Services {
                             this.activeMapRenderer.addLayer(layer);
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
+                            
+                            if (this.actionServices) this.actionServices.forEach(as=>{
+                                if (as.addLayer) as.addLayer(layer); 
+                            });
+                            
                             this.$messageBusService.publish('layer', 'activated', layer);
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             // if (layerloaded) layerloaded(layer);
@@ -847,7 +842,7 @@ module csComp.Services {
             }
         }
 
-        private updateGroupFeatures(group: ProjectGroup) {
+        public updateGroupFeatures(group: ProjectGroup) {
             if (!group) return;
             this.project.features.forEach((f: IFeature) => {
                 if (f.layer.group === group) {
@@ -1134,12 +1129,6 @@ module csComp.Services {
                 // resolve feature type                
                 feature.fType = this.getFeatureType(feature);
 
-                //this.initFeatureType(feature.fType);
-
-                // add missing properties
-                //if (feature.fType.showAllProperties) 
-
-                // Do we have a name?
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
 
                 this.calculateFeatureStyle(feature);
@@ -1403,6 +1392,15 @@ module csComp.Services {
          */
         findFeatureById(featureId: string): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.id === featureId; });
+        }
+        
+        /**
+         * Find a feature by layerId and FeatureId.
+         * @property {string}
+         * @value {number}
+         */
+        findFeatureByPropertyValue(property : string, value : Object): IFeature {
+            return _.find(this.project.features, (f: IFeature) => { return f.properties.hasOwnProperty(property) && f.properties[property] === value; });
         }
 
         /**
@@ -2664,7 +2662,7 @@ module csComp.Services {
         }
 
         /**
-         * Check for property changes inside a feature, return a set of logs in result
+         * Check for property changes for a specific key inside a feature, return a set of logs in result
          */
         private trackPropertyLog(f: IFeature, key: string, result: {}) {
             var log = <Log>{
@@ -2678,6 +2676,7 @@ module csComp.Services {
             f._gui['lastUpdate'] = log.ts;
         }
 
+        /** Check for property changes inside a feature, return a set of logs in result */
         private trackFeature(feature: IFeature): {} {
             var result = {};
             for (var key in feature.properties) {

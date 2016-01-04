@@ -38,6 +38,8 @@ module csComp.Services {
         init(ls: LayerService);
         stop();
         addFeature(feature: IFeature);
+        addLayer(layer : IProjectLayer);
+        removeLayer(layer : IProjectLayer);
         removeFeature(feature: IFeature);
         selectFeature(feature: IFeature);
         getFeatureActions(feature: IFeature): IActionOption[];
@@ -65,6 +67,9 @@ module csComp.Services {
         }
 
         deselectFeature(feature: IFeature) { }
+        
+        addLayer(layer : IProjectLayer) {}
+        removeLayer(layer : IProjectLayer) {}
 
         updateFeature(feuture: IFeature) { }
         
@@ -73,9 +78,9 @@ module csComp.Services {
             result(null,[]);
         }
 
-        public init(layerService: csComp.Services.LayerService) {        
+        public init(layerService: csComp.Services.LayerService) {
             this.layerService = layerService;
-        }        
+        }
     } 
 
     export class LayerActions extends BasicActionService {

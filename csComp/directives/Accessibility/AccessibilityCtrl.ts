@@ -12,6 +12,9 @@ module Accessibility {
         selectFeature(feature: IFeature) {
             console.log('accessibility:feature selected');
         }
+        
+        addLayer(layer : csComp.Services.IProjectLayer) {}
+        removeLayer(layer : csComp.Services.IProjectLayer) {}
 
         getFeatureActions(feature: IFeature): IActionOption[] {
             var accessibilityOption1 = <IActionOption>{
