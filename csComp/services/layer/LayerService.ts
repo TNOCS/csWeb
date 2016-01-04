@@ -1228,50 +1228,52 @@ module csComp.Services {
             feature._gui['style'] = {};
             s.opacity = (feature.layer.isTransparent) ? 0 : s.opacity * (feature.layer.opacity / 100);
             s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);
-            feature.layer.group.styles.forEach((gs: GroupStyle) => {
-                if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
-                    //delete feature.gui[gs.property];
-                    var v = Number(feature.properties[gs.property]);
-                    try {
-                        if (!isNaN(v)) {
-                            switch (gs.visualAspect) {
-                                case 'strokeColor':
-                                    s.strokeColor = csComp.Helpers.getColor(v, gs);
-                                    feature._gui['style'][gs.property] = s.strokeColor;
-                                    break;
-                                case 'fillColor':
-                                    s.fillColor = csComp.Helpers.getColor(v, gs);
-                                    feature._gui['style'][gs.property] = s.fillColor;
-                                    if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'linestring') {
-                                        s.strokeColor = s.fillColor; //s.strokeColor = s.fillColor; 
-                                    }
-                                    break;
-                                case 'strokeWidth':
-                                    s.strokeWidth = ((v - gs.info.min) / (gs.info.max - gs.info.min) * 10) + 1;
-                                    break;
-                                case 'height':
-                                    s.height = ((v - gs.info.min) / (gs.info.max - gs.info.min) * 25000);
-                                    break;
+            if (feature.layer && feature.layer.group && feature.layer.group.styles) {
+                feature.layer.group.styles.forEach((gs: GroupStyle) => {
+                    if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {
+                        //delete feature.gui[gs.property];
+                        var v = Number(feature.properties[gs.property]);
+                        try {
+                            if (!isNaN(v)) {
+                                switch (gs.visualAspect) {
+                                    case 'strokeColor':
+                                        s.strokeColor = csComp.Helpers.getColor(v, gs);
+                                        feature._gui['style'][gs.property] = s.strokeColor;
+                                        break;
+                                    case 'fillColor':
+                                        s.fillColor = csComp.Helpers.getColor(v, gs);
+                                        feature._gui['style'][gs.property] = s.fillColor;
+                                        if (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'linestring') {
+                                            s.strokeColor = s.fillColor; //s.strokeColor = s.fillColor; 
+                                        }
+                                        break;
+                                    case 'strokeWidth':
+                                        s.strokeWidth = ((v - gs.info.min) / (gs.info.max - gs.info.min) * 10) + 1;
+                                        break;
+                                    case 'height':
+                                        s.height = ((v - gs.info.min) / (gs.info.max - gs.info.min) * 25000);
+                                        break;
+                                }
+                            } else {
+                                var ss = feature.properties[gs.property];
+                                switch (gs.visualAspect) {
+                                    case 'strokeColor':
+                                        s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                        feature._gui['style'][gs.property] = s.strokeColor;
+                                        break;
+                                    case 'fillColor':
+                                        s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
+                                        feature._gui['style'][gs.property] = s.fillColor;
+                                        break;
+                                }
                             }
-                        } else {
-                            var ss = feature.properties[gs.property];
-                            switch (gs.visualAspect) {
-                                case 'strokeColor':
-                                    s.strokeColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-                                    feature._gui['style'][gs.property] = s.strokeColor;
-                                    break;
-                                case 'fillColor':
-                                    s.fillColor = csComp.Helpers.getColorFromStringValue(ss, gs);
-                                    feature._gui['style'][gs.property] = s.fillColor;
-                                    break;
-                            }
+                        } catch (e) {
+                            console.log('Error setting style for feature ' + e.message);
                         }
-                    } catch (e) {
-                        console.log('Error setting style for feature ' + e.message);
+                        //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
                     }
-                    //s.fillColor = this.getColor(feature.properties[layer.group.styleProperty], null);
-                }
-            });
+                });
+            }
 
             if (feature.isSelected) {
                 s.strokeWidth = s.selectedStrokeWidth || 3;
