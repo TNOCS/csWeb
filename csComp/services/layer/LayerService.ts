@@ -2126,7 +2126,7 @@ module csComp.Services {
             this.initTypeResources(this.project);
 
             if (this.project.eventTab) {
-                var rpt = csComp.Helpers.createRightPanelTab('eventtab', 'eventtab', {}, 'Events', '{{"EVENT_INFO" | translate}}', 'bolt');
+                var rpt = csComp.Helpers.createRightPanelTab('eventtab', 'eventtab', {}, 'Events', '{{"EVENT_INFO" | translate}}', 'book');
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
             }
 
