@@ -108,7 +108,7 @@
                                             {{vm.getFormattedDate(item.feature.properties[item.property], item.propertyType)}}</div>
                                         <div ng-switch-when="boolean" class="feature-prop-value-align-right">{{item.feature.properties[item.property]}}</div>
                                         <div ng-switch-when="category" class="feature-prop-value-align-right">{{vm.toTrusted(item.feature.properties[item.property])}}</div>
-                                        <div ng-switch-when="textarea" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
+                                        <div ng-switch-when="textarea" class="enable-newlines" style="clear:both" data-ng-bind-html="vm.toTrusted(item.feature.properties[item.property])"></div>
                                         <div ng-switch-when="bbcode" class="feature-prop-value-align-right" ng-bind-html="vm.toTrusted(item.value)"></div>
                                         <div ng-switch-when="media">
                                             <!-- <img ng-src="{{item.feature.properties[item.property]}}" style="width:300px; float:left;margin:5px"></img> -->
