@@ -2430,6 +2430,10 @@ module csComp.Services {
                 }
                 this.$messageBusService.publish('dashboard-main', 'activated', startd);
             }
+
+            if (this.project.useOfflineSearch) {
+                this.addActionService(new OfflineSearchActions(this.$http, this.project.url));
+            }
         }
 
         private apply() {

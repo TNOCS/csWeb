@@ -111,14 +111,14 @@ module csComp.Services {
                 }
             });
             temp.sort((a, b) => { return b.score - a.score; }).forEach((rs) => {
-                if (r.length < 20) {
+                if (r.length < 10) {
                     var f = <IFeature>rs.feature;
                     var res = <ISearchResultItem>{
                         title: rs.title,
                         description: f.layer.title,
                         feature: f,
                         score: rs.score,
-                        icon: 'data/projects/smartcycling/buurt.png',
+                        icon: 'bower_components/csweb/dist-bower/images/large-marker.png',
                         service: this.id,
                         click : () => {
                             this.layerService.$mapService.zoomTo(f);
