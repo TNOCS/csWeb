@@ -959,7 +959,17 @@ export class ApiManager extends events.EventEmitter {
                 this.saveLayersDelay(layer);
                 cb();
             }
-        ])
+        ]);
+    }
+
+    // Removes all groups (and thus layers too) from a project
+    public clearProject(projectId: string, meta: ApiMeta, callback: Function) {
+        var p: Project = this.findProject(projectId);
+        if (!p) { callback(<CallbackResult>{ result: ApiResult.ProjectNotFound, error: 'Project not found' }); return; }
+        p.groups = [];
+        this.updateProject(p, {}, (result: CallbackResult) => {
+            callback(result);
+        });
     }
 
     public updateProjectTitle(projectTitle: string, projectId: string, meta: ApiMeta, callback: Function) {
