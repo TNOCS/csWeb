@@ -50,9 +50,6 @@ module Dashboard {
             private $templateCache: any,
             private $timeout: ng.ITimeoutService
         ) {
-
-            //alert('init dashboard ctrl');
-
             $scope.vm = this;
 
             $messageBusService.subscribe('project', (e, f) => {
@@ -61,10 +58,11 @@ module Dashboard {
                 }
             });
 
-
             $scope.initDashboard = () => {
                 //if (!$scope.container) $scope.container = 'main';
-                $messageBusService.subscribe('dashboard-' + $scope.container, (s: string, d: csComp.Services.Dashboard) => {
+                //$messageBusService.subscribe('dashboard-' + $scope.container, (s: string, d: csComp.Services.Dashboard) => {
+                // In LayerService, you expect the name to be dashboard-main too. 
+                $messageBusService.subscribe('dashboard-main', (s: string, d: csComp.Services.Dashboard) => {
                     this.project = $layerService.project;
                     this.project.activeDashboard = d;
                     //alert(this.project.activeDashboard.id);
@@ -147,7 +145,7 @@ module Dashboard {
         }
 
         public checkMap() {
-            if (this.$scope.dashboard.showMap != this.$layerService.visual.mapVisible) {
+            if (this.$scope.dashboard.showMap !== this.$layerService.visual.mapVisible) {
                 if (this.$scope.dashboard.showMap) {
                     this.$layerService.visual.mapVisible = true;
                 } else {
@@ -207,13 +205,15 @@ module Dashboard {
 
         private setValue(diff: number, value: string): string {
             if (!value || value.indexOf('%') >= 0) return value;
-            var left = parseInt(value.replace('px', ''));
+            var left = parseInt(value.replace('px', ''), 10);
             left += diff;
             return left + 'px';
         }
 
         public removeWidget(widget: csComp.Services.IWidget) {
-            this.$scope.dashboard.widgets = this.$scope.dashboard.widgets.filter((w) => { return w != widget; });
+            this.$scope.dashboard.widgets = this.$scope.dashboard.widgets.filter((w) => {
+                return w !== widget;
+            });
         }
 
         public isReady(widget: csComp.Services.IWidget) {
@@ -240,14 +240,13 @@ module Dashboard {
                         .resizable({ inertia: true })
                         .on('down', (e) => {
                             if (widget._interaction) widget._isMoving = true;
-                            if (this.$dashboardService.activeWidget != widget) {
-                                //this.$dashboardService.editWidget(widget)
-                            }
-                        }
-                        )
+                            // if (this.$dashboardService.activeWidget !== widget) {
+                            //     //this.$dashboardService.editWidget(widget)
+                            // }
+                        })
                         .on('up', (e) => widget._isMoving = false)
                         .on('dragmove', (event) => {
-                            if (widget.left || (!widget.left && widget.left !== "")) {
+                            if (widget.left || (!widget.left && widget.left !== '')) {
                                 widget.left = this.setValue(event.dx, widget.left);
                                 if (widget.width && widget.width !== '') {
                                     widget.right = '';
@@ -286,6 +285,32 @@ module Dashboard {
             }, 10);
         }
 
+        private checkLegend(d: Dashboard) {
+            if (!d.showLegend) return;
+            var legendWidgetPresent = false;
+            d.widgets.forEach(w => {
+                if (w.id === 'legend') legendWidgetPresent = true;
+            });
+            if (!legendWidgetPresent) {
+                //console.log('Create legend');
+                var w = <csComp.Services.IWidget>{};
+                w.directive        = 'legend-directive';
+                w.id               = csComp.Helpers.getGuid();
+                w.elementId        = 'widget-' + w.id;
+                w.parentDashboard  = d;
+                w.title            = 'Legend';
+                w.data             = {mode: 'lastSelectedStyle'};
+                w.left             = '10px';
+                w.top              = '20px';
+                w.width            = '150px';
+                w.enabled          = true;
+                d.widgets.push(w);
+                //this.$dashboardService.
+                //this.$dashboardService.addNewWidget(w, d);
+                //this.$dashboardService.selectDashboard(this.$layerService.project.activeDashboard, 'main');
+            }
+        };
+
         // if (!d.widgets) d.widgets = [];
         // if (d.showLegend) {
         //     var legendWidgetPresent = false;
@@ -311,13 +336,15 @@ module Dashboard {
             var d = this.$scope.dashboard;
             if (!d) return;
 
+            this.checkLegend(d);
             this.checkMap();
             this.checkTimeline();
             this.checkLayers();
             this.checkViewbound();
 
             //this.$messageBusService.publish("leftmenu",(d.showLeftmenu) ? "show" : "hide");
-            if (!this.$mapService.isAdminExpert) {
+            // if (!this.$mapService.isAdminExpert) {
+            if (!d._initialized) {
                 this.$layerService.visual.leftPanelVisible = d.showLeftmenu;
                 this.$layerService.visual.rightPanelVisible = d.showRightmenu;
             }

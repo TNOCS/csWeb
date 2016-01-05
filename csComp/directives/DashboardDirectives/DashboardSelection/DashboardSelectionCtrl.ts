@@ -15,8 +15,6 @@ module DashboardSelection {
         public activeWidget: csComp.Services.BaseWidget;
         public style: string;
 
-
-
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
         // it is better to have it close to the constructor, because the parameters must match in count and type.
@@ -38,12 +36,11 @@ module DashboardSelection {
             private $mapService: csComp.Services.MapService,
             private $messageBusService: csComp.Services.MessageBusService
         ) {
-
             $scope.vm = this;
             this.$messageBusService.subscribe('project', (s, a) => {
-                this.style = "default";
+                this.style = 'default';
                 this.selectStyle();
-            })
+            });
         }
 
         public initDrag(key: string) {
@@ -57,17 +54,14 @@ module DashboardSelection {
                     starty = 0;
                     event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
                     event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
-                    event.target.style.width = "300px";
-                    event.target.style.height = "300px";
+                    event.target.style.width = '300px';
+                    event.target.style.height = '300px';
                 })
                 .on('dragmove', (event) => {
                     event.interaction.x += event.dx;
                     event.interaction.y += event.dy;
-
-
                     event.target.style.left = event.interaction.x + 'px';
                     event.target.style.top = event.interaction.y + 'px';
-
                 })
                 .on('dragend', (event) => {
                     setTimeout(() => {
@@ -84,7 +78,6 @@ module DashboardSelection {
                         widget.enabled = true;
                         csComp.Services.Dashboard.addNewWidget(widget, this.$layerService.project.activeDashboard, this.$layerService.solution);
                         this.$dashboardService.editWidget(widget)
-
                     }, 100);
 
                     //this.$dashboardService.mainDashboard.widgets.push(widget);
@@ -92,12 +85,9 @@ module DashboardSelection {
                     event.target.setAttribute('data-y', 0);
                     event.target.style.left = '0px';
                     event.target.style.top = '0px';
-                    event.target.style.width = "75px";
-                    event.target.style.height = "75px";
-
-
-
-                    console.log(key);
+                    event.target.style.width = '75px';
+                    event.target.style.height = '75px';
+                    //console.log(key);
                 });
         }
 
@@ -105,48 +95,41 @@ module DashboardSelection {
             this.$dashboardService.editWidget(widget);
         }
 
-        /***
-        Start editing a specific dashboard
+        /**
+        * Start editing a specific dashboard
         */
         public startDashboardEdit(dashboard: csComp.Services.Dashboard) {
-
             var rpt = new csComp.Services.RightPanelTab();
-            rpt.container = "dashboard";
+            rpt.container = 'dashboard';
             rpt.data = dashboard;
-            rpt.directive = "dashboardedit";
-            this.$messageBusService.publish("rightpanel", "activate", rpt);
+            rpt.directive = 'dashboardedit';
+            this.$messageBusService.publish('rightpanel', 'activate', rpt);
 
             this.$layerService.project.dashboards.forEach((d: csComp.Services.Dashboard) => {
                 if (d.id !== dashboard.id) {
                     d.editMode = false;
                     d.disabled = true;
                 }
-            }
-            );
+            });
             this.$dashboardService.stopEditWidget();
         }
 
-
-        /***
-        Stop editing a specific dashboard
+        /**
+        * Stop editing a specific dashboard
         */
         public stopDashboardEdit(dashboard: csComp.Services.Dashboard) {
             this.$layerService.project.dashboards.forEach((d: csComp.Services.Dashboard) => {
                 d.disabled = false;
                 d.editMode = false;
-            }
-            );
+            });
             this.$dashboardService.stopEditWidget();
         }
 
         public stopEdit() {
             this.stopDashboardEdit(this.$layerService.project.activeDashboard);
-
         }
 
-        public startEdit() {
-
-        }
+        public startEdit() {}
 
         public widgetHighlight(widget: csComp.Services.BaseWidget) {
             widget.hover = true;
@@ -158,27 +141,23 @@ module DashboardSelection {
 
         /** Add new dashboard */
         public addDashboard(widget: csComp.Services.IWidget) {
-            var id = csComp.Helpers.getGuid();
             var d = new csComp.Services.Dashboard();
-            d.id = id;
+            d.id = csComp.Helpers.getGuid();
             d.showLeftmenu = true;
             d.showMap = true;
-            d.name = "New Dashboard";
+            d.name = 'New Dashboard';
             this.$layerService.project.dashboards.push(d);
         }
 
         /** Remove existing dashboard */
         public removeDashboard(key: string) {
             this.$layerService.project.dashboards = this.$layerService.project.dashboards.filter((s: csComp.Services.Dashboard) => s.id !== key);
-
         }
 
         public selectStyle() {
             this.$scope.widgetStyle = this.$layerService.solution.widgetStyles[this.style];
             console.log(this.$scope.widgetStyle);
         }
-
-
 
         /** publish a message that a new dashboard was selected */
         private publishDashboardUpdate() {

@@ -30,7 +30,7 @@ String.prototype.score = function (word, fuzziness?) {
   if (this === word) { return 1; }
 
   //if it's not a perfect match and is empty return 0
-  if (word === "") { return 0; }
+  if (word === '') { return 0; }
 
   var runningScore = 0,
       charScore,
@@ -52,7 +52,7 @@ String.prototype.score = function (word, fuzziness?) {
   // Walk through word and add up scores.
   // Code duplication occurs to prevent checking fuzziness inside for loop
   if (fuzziness) {
-    for (i = 0; i < wordLength; i+=1) {
+    for (i = 0; i < wordLength; i += 1) {
 
       // Find next first case-insensitive match of a character.
       idxOf = lString.indexOf(lWord[i], startAt);
@@ -98,7 +98,7 @@ String.prototype.score = function (word, fuzziness?) {
   }
 
   // Reduce penalty for longer strings.
-  finalScore = 0.5 * (runningScore / strLength    + runningScore / wordLength) / fuzzies;
+  finalScore = 0.5 * (runningScore / strLength + runningScore / wordLength) / fuzzies;
 
   if ((lWord[0] === lString[0]) && (finalScore < 0.85)) {
     finalScore += 0.15;

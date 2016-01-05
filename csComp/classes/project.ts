@@ -3,10 +3,10 @@ module csComp.Services {
     * Expert level for determining what options to show to the user.
     */
     export enum Expertise {
-        Beginner = 1,
+        Beginner     = 1,
         Intermediate = 2,
-        Expert = 3,
-        Admin = 4
+        Expert       = 3,
+        Admin        = 4
     }
 
     /**
@@ -18,11 +18,11 @@ module csComp.Services {
     }
 
     export class VisualState {
-        public leftPanelVisible: boolean = true;
+        public leftPanelVisible:  boolean = true;
         public rightPanelVisible: boolean = false;
-        public dashboardVisible: boolean = true;
-        public mapVisible: boolean = true;
-        public timelineVisible: boolean = true;
+        public dashboardVisible:  boolean = true;
+        public mapVisible:        boolean = true;
+        public timelineVisible:   boolean = true;
 
         // For debugging purposes, I've added below functionality so I can set breakpoints on the setter.
         // get rightPanelVisible(): boolean {
@@ -33,18 +33,17 @@ module csComp.Services {
         //     this._rightPanelVisible = isVisible;
         //     console.log(`Right panel visible (set): ${this._rightPanelVisible}`);
         // }
-
     }
 
     //** class for describing time ranges for timeline, including focus time */
     export class DateRange {
-        start: number;
-        end: number;
-        focus: number;
-        range: number; // total time range in ms
-        zoomLevel: number;
+        start:         number;
+        end:           number;
+        focus:         number;
+        range:         number; // total time range in ms
+        zoomLevel:     number;
         zoomLevelName: string;
-        isLive: boolean;
+        isLive:        boolean;
 
         //constructor() {
         //    if (!this.focus) this.setFocus(new Date());
@@ -93,12 +92,12 @@ module csComp.Services {
      * e.g. you could make it so that you can switch between different regions or different domains of interest.
      */
     export class Solution {
-        title: string;
-        maxBounds: IBoundingBox;
-        viewBounds: IBoundingBox;
-        baselayers: IBaseLayer[];
+        title:        string;
+        maxBounds:    IBoundingBox;
+        viewBounds:   IBoundingBox;
+        baselayers:   IBaseLayer[];
         widgetStyles: { [key: string]: WidgetStyle } = {};
-        projects: SolutionProject[];
+        projects:     SolutionProject[];
     }
 
     /** Project within a solution file, refers to a project url*/
@@ -112,7 +111,7 @@ module csComp.Services {
     * Simple class to hold the user privileges.
     */
     export interface IPrivileges {
-        mca: { expertMode: boolean; };
+        mca:     { expertMode: boolean; };
         heatmap: { expertMode: boolean; };
     }
 
@@ -123,55 +122,56 @@ module csComp.Services {
     }
 
     export interface ITimelineOptions {
-        width?: string;
-        height?: string;
-        eventMargin?: number;
+        width?:           string;
+        height?:          string;
+        eventMargin?:     number;
         eventMarginAxis?: number;
-        editable?: boolean;
-        layout?: string;
+        editable?:        boolean;
+        layout?:          string;
         /** NOTE: For internal use only. Do not set it, as it will be overwritten by the $layerService.currentLocale. */
-        locale?: string;
+        locale?:   string;
         timeLine?: DateRange;
     }
 
     /** project configuration. */
     export class Project implements ISerializable<Project> {
-        id: string;
-        title: string;
+        id:          string;
+        title:       string;
         description: string;
-        logo: string;
-        otpServer: string;
-        storage: string;
-        url: string;
-        opacity: number;
+        logo:        string;
+        otpServer:   string;
+        storage:     string;
+        url:         string;
+        opacity:     number;
         /** true if a dynamic project and you want to subscribe to project changes using socket.io */
-        connected: boolean;
-        activeDashboard: Dashboard;
-        baselayers: IBaseLayer[];
-        allFeatureTypes: { [id: string]: IFeatureType };
-        featureTypes: { [id: string]: IFeatureType };
-        propertyTypeData: { [id: string]: IPropertyType };
-        solution: Solution;
-        groups: ProjectGroup[];
-        mapFilterResult: L.Marker[];
-        startposition: Coordinates;
-        features: IFeature[];
-        timeLine: DateRange;
-        mcas: Mca.Models.Mca[];
-        dashboards: Dashboard[];
-        typeUrls: string[];
-        datasources: DataSource[];
-        dataSets: DataSet[];
-        viewBounds: IBoundingBox;
+        connected:         boolean;
+        activeDashboard:   Dashboard;
+        baselayers:        IBaseLayer[];
+        allFeatureTypes:   { [id: string]: IFeatureType };
+        featureTypes:      { [id: string]: IFeatureType };
+        propertyTypeData:  { [id: string]: IPropertyType };
+        solution:          Solution;
+        groups:            ProjectGroup[];
+        mapFilterResult:   L.Marker[];
+        startposition:     Coordinates;
+        features:          IFeature[];
+        timeLine:          DateRange;
+        mcas:              Mca.Models.Mca[];
+        dashboards:        Dashboard[];
+        typeUrls:          string[];
+        datasources:       DataSource[];
+        dataSets:          DataSet[];
+        viewBounds:        IBoundingBox;
         collapseAllLayers: boolean;
-        userPrivileges: IPrivileges;
-        languages: ILanguageData;
+        userPrivileges:    IPrivileges;
+        languages:         ILanguageData;
         /** link to layer directory, if empty do not use it */
         layerDirectory: string;
-        expertMode = Expertise.Expert;
-        markers = {};
-        eventTab: boolean; 
-
+        expertMode      = Expertise.Expert;
+        markers         = {};
+        eventTab:       boolean;
+        /** If true (default false), indicates that we should load an offline search result. */
+        useOfflineSearch: boolean = false;
         /**
          * Serialize the project to a JSON string.
          */
@@ -205,30 +205,30 @@ module csComp.Services {
          */
         public static serializeableData(project: Project): Object {
             return {
-                id: project.id,
-                title: project.title,
-                description: project.description,
-                logo: project.logo,
-                otpServer: project.otpServer,
-                url: project.url,
-                connected: project.connected,
-                startPosition: project.startposition,
-                timeLine: project.timeLine,
-                opacity: project.opacity,
-                mcas: project.mcas,
-                datasources: csComp.Helpers.serialize<DataSource>(project.datasources, DataSource.serializeableData),
-                dashboards: csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
-                viewBounds: project.viewBounds,
+                id:                project.id,
+                title:             project.title,
+                description:       project.description,
+                logo:              project.logo,
+                otpServer:         project.otpServer,
+                url:               project.url,
+                connected:         project.connected,
+                startPosition:     project.startposition,
+                timeLine:          project.timeLine,
+                opacity:           project.opacity,
+                mcas:              project.mcas,
+                datasources:       csComp.Helpers.serialize<DataSource>(project.datasources, DataSource.serializeableData),
+                dashboards:        csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
+                viewBounds:        project.viewBounds,
                 collapseAllLayers: project.collapseAllLayers,
-                userPrivileges: project.userPrivileges,
-                languages: project.languages,
-                expertMode: project.expertMode,
-                baselayers: project.baselayers,
-                featureTypes: project.featureTypes, //reset
-                propertyTypeData: project.propertyTypeData,
-                groups: csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData),
-                layerDirectory: project.layerDirectory,
-                eventTab: project.eventTab
+                userPrivileges:    project.userPrivileges,
+                languages:         project.languages,
+                expertMode:        project.expertMode,
+                baselayers:        project.baselayers,
+                featureTypes:      project.featureTypes, //reset
+                propertyTypeData:  project.propertyTypeData,
+                groups:            csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData),
+                layerDirectory:    project.layerDirectory,
+                eventTab:          project.eventTab
             };
         }
 
@@ -261,6 +261,4 @@ module csComp.Services {
             return res;
         }
     }
-
-
 }

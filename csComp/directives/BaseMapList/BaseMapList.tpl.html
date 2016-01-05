@@ -1,11 +1,11 @@
-﻿<div>
+<div>
     <h4 class="leftpanel-header" translate="MAP"></h4>
     <div data-ng-repeat="(key, value) in vm.$mapService.baseLayers" style="clear:left;">
         <div ng-click="vm.selectBaseLayer(key);" class="select-basestyle">
             <img data-ng-src="{{value.preview}}" class="preview-base-layer" style="margin-bottom:5px" />
             <div style="margin:3px;float:left">
-                <span style="font-size: 18px;font-weight: bold;">{{key}}</span><br />
-                {{value.subtitle}}
+                <span style="font-size: 18px;font-weight: bold;">{{::key}}</span><br />
+                {{::value.subtitle}}
             </div>
         </div>
     </div>

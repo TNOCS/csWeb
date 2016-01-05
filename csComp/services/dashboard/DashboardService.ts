@@ -74,6 +74,7 @@ module csComp.Services {
                         break;
                 }
             });
+
             this.widgetTypes['indicators'] = <IWidget>{
                 id: 'indicators',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/indicators.png',
@@ -138,7 +139,6 @@ module csComp.Services {
             this.$messageBusService.publish('dashboard-' + container, 'activated', dashboard);
             this.$location.search('dashboard', dashboard.id);
         }
-
 
         public activateTab(tab: RightPanelTab) {
             if (!tab.hasOwnProperty('container')) return;

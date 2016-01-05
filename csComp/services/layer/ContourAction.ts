@@ -19,11 +19,11 @@ module ContourAction {
         getFeatureHoverActions(feature: IFeature): IActionOption[] {
             if (!feature) return [];
             var showContourOption = <IActionOption>{
-                title: "show"
+                title: 'show'
             };
             showContourOption.callback = this.showContour;
             var hideContourOption = <IActionOption>{
-                title: "hide"
+                title: 'hide'
             };
             hideContourOption.callback = this.hideContour;
             return [showContourOption, hideContourOption];

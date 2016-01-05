@@ -217,29 +217,29 @@ module csComp.Services {
     }
 
     export class Dashboard {
-        widgets: IWidget[];
-        editMode: boolean;
-        showMap: boolean;
-        mobile: boolean = true;
-        showTimeline: boolean = true;
-        showLeftmenu: boolean;
-        showLegend: boolean = false;
-        showRightmenu: boolean = false;
-        showBackgroundImage: boolean = false;
-        draggable: boolean = true;
-        resizable: boolean = true;
-        background: string;
-        backgroundimage: string;
-        visiblelayers: string[];
+        widgets:              IWidget[];
+        editMode:             boolean;
+        showMap:              boolean;
+        mobile:               boolean = true;
+        showTimeline:         boolean = true;
+        draggable:            boolean = true;
+        resizable:            boolean = true;
+        showLeftmenu:         boolean = true;
+        showRightmenu:        boolean = false;
+        showLegend:           boolean = false;
+        showBackgroundImage:  boolean = false;
+        background:           string;
+        backgroundimage:      string;
+        visiblelayers:        string[];
         visibleLeftMenuItems: string[];
-        baselayer: string;
-        viewBounds: IBoundingBox;
-        timeline: DateRange;
-        id: string;
-        name: string;
-        disabled: boolean;
-        parents: string[];
-        _initialized: boolean;
+        baselayer:            string;
+        viewBounds:           IBoundingBox;
+        timeline:             DateRange;
+        id:                   string;
+        name:                 string;
+        disabled:             boolean;
+        parents:              string[];
+        _initialized:         boolean;
 
         constructor() {
             this.widgets = [];
@@ -250,23 +250,23 @@ module csComp.Services {
          */
         public static serializeableData(d: Dashboard): Object {
             return {
-                id: d.id,
-                name: d.name,
-                editMode: d.editMode,
-                showMap: d.showMap,
-                showTimeline: d.showTimeline,
-                showLeftmenu: d.showLeftmenu,
-                showLegend: d.showLegend,
-                showRightmenu: d.showRightmenu,
-                showBackgroundImage: d.showBackgroundImage,
-                background: d.background,
-                backgroundimage: d.backgroundimage,
-                visiblelayers: d.visiblelayers,
-                baselayer: d.baselayer,
-                viewBounds: d.viewBounds,
-                widgets: csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData),
+                id:                   d.id,
+                name:                 d.name,
+                editMode:             d.editMode,
+                showMap:              d.showMap,
+                showTimeline:         d.showTimeline,
+                showLeftmenu:         d.showLeftmenu,
+                showLegend:           d.showLegend,
+                showRightmenu:        d.showRightmenu,
+                showBackgroundImage:  d.showBackgroundImage,
+                background:           d.background,
+                backgroundimage:      d.backgroundimage,
+                visiblelayers:        d.visiblelayers,
+                baselayer:            d.baselayer,
+                viewBounds:           d.viewBounds,
+                widgets:              csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData),
                 visibleLeftMenuItems: d.visibleLeftMenuItems,
-                mobile: d.mobile
+                mobile:               d.mobile
             }
         }
 

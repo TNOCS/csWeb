@@ -82,10 +82,11 @@ export class RestAPI extends BaseConnector.BaseConnector {
             var project = new Project();
             project = req.body;
             this.manager.addProject(project, <ApiMeta>{ source: 'rest' }, (result: CallbackResult) => {
-                if (result.result === ApiResult.OK)
+                if (result.result === ApiResult.OK || result.result === ApiResult.ProjectAlreadyExists) {
                     res.send(result.project);
+                }
             });
-        })
+        });
 
         // gets the entire project
         this.server.get(this.projectsUrl + ':projectId', (req: any, res: any) => {
@@ -96,7 +97,7 @@ export class RestAPI extends BaseConnector.BaseConnector {
                     res.sendStatus(result.result);
                 }
             });
-        })
+        });
 
         //Updates EVERY layer in the project.
         this.server.put(this.projectsUrl + ':projectId', (req: any, res: any) => {

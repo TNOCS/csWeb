@@ -22,7 +22,9 @@ module csComp.Helpers {
     export class GeoExtensions {
 
         static getFeatureBounds(feature: IFeature): L.LatLng[] | L.LatLngBounds {
-            switch (feature.geometry.type) {
+            if (!feature || !feature.geometry) return [new L.LatLng(360, 180)]; // Return illegal coordinate.
+            var geoType = feature.geometry.type || 'Point';
+            switch (geoType) {
                 case 'Point':
                     return [new L.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0])];
                 default:

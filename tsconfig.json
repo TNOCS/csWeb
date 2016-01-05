@@ -15,7 +15,7 @@
         "./csServerComp/**/*.ts", "./test/**/*.ts",
         "!./csComp/includes/**/*.ts", "!./dist-npm", "!./dist-bower",
         "!./docker-dev", "!./docs", "!./csServerComp/OfflineSearch/**/*.ts",
-        "!./js/**/*.d.ts", "!./js/**/*.js", "!./node_modules/**/*.ts"
+        "!./node_modules/**/*.ts"
     ],
     "exclude": [],
     "comment": "! This tsconfig.json file has been generated automatically, please DO NOT edit manually.",
@@ -170,6 +170,7 @@
         "csComp/services/dashboard/DashboardService.ts",
         "csComp/services/dashboard/top10chart.ts",
         "csComp/services/geolocation/geolocation.ts",
+        "csComp/services/layer/actions/OfflineSearchAction.ts",
         "csComp/services/layer/ContourAction.ts",
         "csComp/services/layer/ExpressionService.ts",
         "csComp/services/layer/LayerActions.ts",
@@ -338,6 +339,7 @@
         "test/csComp/spec/helpers/Utils.spec.ts",
         "test/csComp/spec/services/bus/MessageBus.spec.ts",
         "test/csComp/spec/services/layer/ExpressionService.spec.ts",
-        "test/csComp/spec/services/layer/LayerService.spec.ts"
+        "test/csComp/spec/services/layer/LayerService.spec.ts",
+        "test/csComp/spec/services/map/renderers/LeafletRenderer.spec.ts"
     ]
 }

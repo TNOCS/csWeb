@@ -1,6 +1,5 @@
 module csComp.Services {
     export class LeafletRenderer implements IMapRenderer {
-
         title = 'leaflet';
         service: LayerService;
         $messageBusService: MessageBusService;
@@ -23,12 +22,16 @@ module csComp.Services {
 
         public enable() {
             if ($('map').length !== 1) return;
-            this.service.$mapService.map = L.map('map', {
+            if (this.map) {
+                this.enableMap();
+                return;
+            }
+            var mapOptions: L.Map.MapOptions = {
                 zoomControl: false,
                 maxZoom: 19,
                 attributionControl: true
-            });
-            this.map = this.service.$mapService.map;
+            };
+            this.map = this.service.$mapService.map = L.map('map', mapOptions);
 
             this.map.on('moveend', (t, event: any) => this.updateBoundingBox());
 
@@ -38,6 +41,35 @@ module csComp.Services {
             });
 
             this.map.once('load', () => this.updateBoundingBox());
+        }
+
+        public disable() {
+            this.disableMap();
+            // this.map.remove();
+            // this.map = this.service.$mapService.map = null;
+            // $('#map').empty();
+        }
+
+        private enableMap() {
+            this.map.dragging.enable();
+            this.map.touchZoom.enable();
+            this.map.doubleClickZoom.enable();
+            this.map.scrollWheelZoom.enable();
+            this.map.boxZoom.enable();
+            this.map.keyboard.enable();
+            if (this.map.tap) this.map.tap.enable();
+            document.getElementById('map').style.cursor = 'grab';
+        }
+
+        private disableMap() {
+            this.map.dragging.disable();
+            this.map.touchZoom.disable();
+            this.map.doubleClickZoom.disable();
+            this.map.scrollWheelZoom.disable();
+            this.map.boxZoom.disable();
+            this.map.keyboard.disable();
+            if (this.map.tap) this.map.tap.disable();
+            document.getElementById('map').style.cursor = 'default';
         }
 
         private updateBoundingBox() {
@@ -63,7 +95,6 @@ module csComp.Services {
                 r.northEast = [ne.lat, ne.lng];
             }
             return r;
-
         }
 
         public fitBounds(bounds: csComp.Services.IBoundingBox) {
@@ -79,14 +110,8 @@ module csComp.Services {
             return this.service.$mapService.map.getZoom();
         }
 
-        public disable() {
-            this.service.$mapService.map.remove();
-            this.service.$mapService.map = null;
-            $('#map').empty();
-        }
-
         public refreshLayer() {
-
+            return;
         }
 
         public addGroup(group: ProjectGroup) {
@@ -143,26 +168,26 @@ module csComp.Services {
 
         baseLayer: L.ILayer;
 
-        public changeBaseLayer(layerObj: BaseLayer) {
-            if (layerObj == this.service.$mapService.activeBaseLayer) return;
-            if (this.baseLayer) this.service.map.map.removeLayer(this.baseLayer);
+        public changeBaseLayer(layerObj: BaseLayer, force: boolean = false) {
+            if (!force && layerObj === this.service.$mapService.activeBaseLayer) return;
+            if (this.baseLayer) this.map.removeLayer(this.baseLayer);
             this.baseLayer = this.createBaseLayer(layerObj);
 
-            this.service.map.map.addLayer(this.baseLayer);
+            this.map.addLayer(this.baseLayer);
 
-            this.service.map.map.setZoom(this.service.map.map.getZoom());
-            this.service.map.map.fire('baselayerchange', { layer: this.baseLayer });
+            this.map.setZoom(this.service.map.map.getZoom());
+            this.map.fire('baselayerchange', { layer: this.baseLayer });
         }
 
         private createBaseLayer(layerObj: BaseLayer) {
             var options: L.TileLayerOptions = { noWrap: true };
             options['subtitle'] = layerObj.subtitle;
             options['preview'] = layerObj.preview;
-            if (layerObj.subdomains != null) options['subdomains'] = layerObj.subdomains;
-            if (layerObj.maxZoom != null) options.maxZoom = layerObj.maxZoom;
-            if (layerObj.minZoom != null) options.minZoom = layerObj.minZoom;
-            if (layerObj.attribution != null) options.attribution = layerObj.attribution;
-            if (layerObj.id != null) options['id'] = layerObj.id;
+            if (layerObj.subdomains) options['subdomains'] = layerObj.subdomains;
+            if (layerObj.maxZoom) options.maxZoom = layerObj.maxZoom;
+            if (layerObj.minZoom) options.minZoom = layerObj.minZoom;
+            if (layerObj.attribution) options.attribution = layerObj.attribution;
+            if (layerObj.id) options['id'] = layerObj.id;
             var layer = L.tileLayer(layerObj.url, options);
 
             return layer;
@@ -280,8 +305,7 @@ module csComp.Services {
         public selectFeature(feature) {
             if (feature._gui.hasOwnProperty('dragged')) {
                 delete feature._gui['dragged'];
-            }
-            else {
+            } else {
                 this.service.selectFeature(feature, this.cntrlIsPressed);
             }
         }
@@ -303,8 +327,7 @@ module csComp.Services {
                     m.feature = feature;
                     if (l.group.clustering && l.group._cluster) {
                         l.group._cluster.addLayer(m);
-                    }
-                    else {
+                    } else {
                         if (l.mapLayer) {
                             l.mapLayer.addLayer(m);
                         }
@@ -316,9 +339,8 @@ module csComp.Services {
         }
 
         private canDrag(feature: IFeature): boolean {
-            return feature._gui.hasOwnProperty('editMode') && feature._gui['editMode'] == true;
+            return feature._gui.hasOwnProperty('editMode') && feature._gui['editMode'] === true;
         }
-
 
         /**
          * add a feature
@@ -353,7 +375,7 @@ module csComp.Services {
                         } else {
                             menu.css('top', e.originalEvent.y - 70 - menu.height());
                         }
-                        if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+                        if (this.service.$rootScope.$$phase !== '$apply' && this.service.$rootScope.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
                     });
 
                     marker.on('dragstart', (event: L.LeafletEvent) => {
@@ -379,27 +401,26 @@ module csComp.Services {
                             this.service._activeContextMenu = this.service.getActions(feature, ActionType.Context);
 
                             //e.stopPropagation();
-                            var button: any = $("#map-contextmenu-button");
-                            var menu: any = $("#map-contextmenu");
+                            var button: any = $('#map-contextmenu-button');
+                            var menu: any = $('#map-contextmenu');
                             button.dropdown('toggle');
                             var mapSize = this.map.getSize();
                             if (e.originalEvent.x < (mapSize.x / 2)) {//left half of screen
-                                menu.css("left", e.originalEvent.x + 5);
+                                menu.css('left', e.originalEvent.x + 5);
                             } else {
-                                menu.css("left", e.originalEvent.x - 5 - menu.width());
+                                menu.css('left', e.originalEvent.x - 5 - menu.width());
                             }
                             if (e.originalEvent.y < (mapSize.y / 2)) {//top half of screen
-                                menu.css("top", e.originalEvent.y - 35);
+                                menu.css('top', e.originalEvent.y - 35);
                             } else {
-                                menu.css("top", e.originalEvent.y - 70 - menu.height());
+                                menu.css('top', e.originalEvent.y - 70 - menu.height());
                             }
-                            if (this.service.$rootScope.$$phase != '$apply' && this.service.$rootScope.$$phase != '$digest') { this.service.$rootScope.$apply(); }
+                            if (this.service.$rootScope.$$phase !== '$apply' && this.service.$rootScope.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
                         });
-                    }
-                    catch (e) {
+                    } catch (e) {
                         console.log('Error creating leaflet feature');
                         console.log(feature);
-                    }                   
+                    }
                     //marker = L.multiPolygon(latlng, polyoptions);
                     break;
             }
@@ -410,8 +431,6 @@ module csComp.Services {
 
             return marker;
         }
-
-
 
         /**
          * create icon based of feature style
@@ -425,7 +444,7 @@ module csComp.Services {
                     html: feature.htmlStyle
                 });
             } else {
-                var iconHtml = csComp.Helpers.createIconHtml(feature, this.service.getFeatureType(feature));
+                var iconHtml = csComp.Helpers.createIconHtml(feature);
 
                 icon = new L.DivIcon({
                     className: '',
@@ -439,59 +458,142 @@ module csComp.Services {
             }
             return icon;
         }
-
-        /***
-         * Show tooltip with name, styles & filters.
+        /**
+         * Add a new entry to the tooltip.
+         * @param  {string} content: existing HTML content
+         * @param  {IFeature} feature: selected feature
+         * @param  {string} property: selected property
+         * @param  {IPropertyType} meta: meta info added to the group or style filter
+         * @param  {string} title: title of the entry
+         * @param  {boolean} isFilter: is true, if we need to add a filter icon, otherwise a style icon will be applied
          */
-        showFeatureTooltip(e: L.LeafletMouseEvent, group: ProjectGroup) {
+        private addEntryToTooltip(content: string, feature: IFeature, property: string, meta: IPropertyType, title: string, isFilter: boolean) {
+            var value = feature.properties[property];
+            if (typeof value === 'undefined') return { length: 0, content: '' };
+            var valueLength = value.toString().length;
+            if (meta) {
+                value = Helpers.convertPropertyInfo(meta, value);
+                if (meta.type !== 'bbcode') valueLength = value.toString().length;
+            } else {
+                if (feature.fType._propertyTypeData) {
+                    feature.fType._propertyTypeData.some(pt => {
+                        if (pt.label !== property) return false;
+                        meta = pt;
+                        value = Helpers.convertPropertyInfo(pt, value);
+                        return true;
+                    });
+                }
+            }
+            return {
+                length: valueLength + title.length,
+                content: content + `<tr><td><div class="fa ${isFilter ? 'fa-filter' : 'fa-paint-brush'}"></td><td>${title}</td><td>${value}</td></tr>`
+            };
+        }
+
+        generateTooltipContent(e: L.LeafletMouseEvent, group: ProjectGroup) {
             var layer = e.target;
             var feature = <Feature>layer.feature;
             // add title
-            var title = layer.feature.properties.Name;
+            var title = feature.properties['Name'];
             var rowLength = (title) ? title.length : 1;
             var content = '<td colspan=\'3\'>' + title + '</td></tr>';
             // add filter values
             if (group.filters != null && group.filters.length > 0) {
                 group.filters.forEach((f: GroupFilter) => {
                     if (!feature.properties.hasOwnProperty(f.property)) return;
-                    var value = feature.properties[f.property];
-                    if (value) {
-                        var valueLength = value.toString().length;
-                        if (f.meta != null) {
-                            value = Helpers.convertPropertyInfo(f.meta, value);
-                            if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
-                        }
-                        rowLength = Math.max(rowLength, valueLength + f.title.length);
-                        content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
-                    }
+                    let entry = this.addEntryToTooltip(content, feature, f.property, f.meta, f.title, true);
+                    content = entry.content;
+                    rowLength = Math.max(rowLength, entry.length);
                 });
             }
 
             // add style values, only in case they haven't been added already as filter
             if (group.styles != null && group.styles.length > 0) {
                 group.styles.forEach((s: GroupStyle) => {
-                    if (group.filters != null && group.filters.filter((f: GroupFilter) => { return f.property === s.property; }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
-                        var value = feature.properties[s.property];
-                        var valueLength = value.toString().length;
-                        if (s.meta != null) {
-                            value = Helpers.convertPropertyInfo(s.meta, value);
-                            if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
-                        }
+                    if (group.filters != null && group.filters.filter((f: GroupFilter) => {
+                        return f.property === s.property;
+                    }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
+                        let entry = this.addEntryToTooltip(content, feature, s.property, s.meta, s.title, false);
+                        content = entry.content;
                         var tl = s.title ? s.title.length : 10;
-                        rowLength = Math.max(rowLength, valueLength + tl);
-                        content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
+                        rowLength = Math.max(rowLength, entry.length + tl);
                     }
                 });
             }
             var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
-            content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
+            return {
+                content: '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>',
+                widthInPixels: widthInPixels
+            };
+        }
+
+        /**
+         * Show tooltip with name, styles & filters.
+         */
+        showFeatureTooltip(e: L.LeafletMouseEvent, group: ProjectGroup) {
+            var layer   = e.target;
+            var feature = <Feature>layer.feature;
+            var tooltip = this.generateTooltipContent(e, group);
+
+            // var layer = e.target;
+            // var feature = <Feature>layer.feature;
+            // // add title
+            // var title = feature.properties['Name'];
+            // var rowLength = (title) ? title.length : 1;
+            // var content = '<td colspan=\'3\'>' + title + '</td></tr>';
+            // // add filter values
+            // if (group.filters != null && group.filters.length > 0) {
+            //     group.filters.forEach((f: GroupFilter) => {
+            //         if (!feature.properties.hasOwnProperty(f.property)) return;
+            //         var value = feature.properties[f.property];
+            //         if (value) {
+            //             var valueLength = value.toString().length;
+            //             if (f.meta) {
+            //                 value = Helpers.convertPropertyInfo(f.meta, value);
+            //                 if (f.meta.type !== 'bbcode') valueLength = value.toString().length;
+            //             } else {
+            //                 if (feature.fType._propertyTypeData) {
+            //                     feature.fType._propertyTypeData.some(pt => {
+            //                         if (pt.label !== f.property) return false;
+            //                         f.meta = pt;
+            //                         value = Helpers.convertPropertyInfo(pt, value);
+            //                         return true;
+            //                     });
+            //                 }
+            //             }
+            //             rowLength = Math.max(rowLength, valueLength + f.title.length);
+            //             content += '<tr><td><div class=\'smallFilterIcon\'></td><td>' + f.title + '</td><td>' + value + '</td></tr>';
+            //         }
+            //     });
+            // }
+
+            // // add style values, only in case they haven't been added already as filter
+            // if (group.styles != null && group.styles.length > 0) {
+            //     group.styles.forEach((s: GroupStyle) => {
+            //         if (group.filters != null && group.filters.filter((f: GroupFilter) => {
+            //             return f.property === s.property;
+            //         }).length === 0 && feature.properties.hasOwnProperty(s.property)) {
+            //             var value = feature.properties[s.property];
+            //             var valueLength = value.toString().length;
+            //             if (s.meta != null) {
+            //                 value = Helpers.convertPropertyInfo(s.meta, value);
+            //                 if (s.meta.type !== 'bbcode') valueLength = value.toString().length;
+            //             }
+            //             var tl = s.title ? s.title.length : 10;
+            //             rowLength = Math.max(rowLength, valueLength + tl);
+            //             content += '<tr><td><div class=\'smallStyleIcon\'></td><td>' + s.title + '</td><td>' + value + '</td></tr>';
+            //         }
+            //     });
+            // }
+            // var widthInPixels = Math.max(Math.min(rowLength * 7 + 15, 250), 130);
+            // content = '<table style=\'width:' + widthInPixels + 'px;\'>' + content + '</table>';
 
             this.popup = L.popup({
-                offset: new L.Point(-widthInPixels / 2 - 40, -5),
+                offset: new L.Point(-tooltip.widthInPixels / 2 - 40, -5),
                 closeOnClick: true,
                 autoPan: false,
                 className: 'featureTooltip'
-            }).setLatLng(e.latlng).setContent(content).openOn(this.service.map.map);
+            }).setLatLng(e.latlng).setContent(tooltip.content).openOn(this.service.map.map);
 
             //In case a contour is available, show it.
             var hoverActions = this.service.getActions(feature, ActionType.Hover);

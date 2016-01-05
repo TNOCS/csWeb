@@ -79,7 +79,7 @@ module LegendList {
 
             // receive a trigger to redraw the legend when it becomes visible.        
             $scope.$watch(() => {
-                return $('#legend').is(':visible')
+                return $('#legend').is(':visible');
             }, (isVisible: boolean) => {
                 this.isVisible = isVisible;
                 if (isVisible) this.updateLegendItems();
@@ -198,12 +198,12 @@ module LegendList {
                     }
                     // Else get the legend entry from the feature style
                     if (uri.indexOf('_Media') >= 0) f.effectiveStyle.iconUri = 'cs/images/polygon.png';
-                    let html = csComp.Helpers.createIconHtml(f, ft)['html'];
+                    let html = csComp.Helpers.createIconHtml(f)['html'];
                     existingItems.push(existingItem);
                     legendItems.push({ title: title, uri: uri, html: html, count: 1, expressions: ft.legendExpr, features: [f] });
                 } else {
                     legendItems[i].features.push(f);
-                }                
+                }
             });
             if (sort) {
                 legendItems.sort((a: ILegendItem, b: ILegendItem) => {
@@ -215,12 +215,10 @@ module LegendList {
             legendItems.forEach(li => {
                 li.count = li.features.length;
                 if (li.expressions && li.expressions.length > 0) {
-                    console.time('Expression');
                     for (let i = 0, _length = li.expressions.length; i < _length; i++) {
                         let pt = li.expressions[i];
-                        pt.calculation = this.expressionService.evalPropertyType(pt, li.features, null);                    
+                        pt.calculation = this.expressionService.evalPropertyType(pt, li.features, null);
                     }
-                    console.timeEnd('Expression');
                     delete li.features;
                 }
             });
