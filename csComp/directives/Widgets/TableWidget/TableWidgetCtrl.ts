@@ -1,10 +1,29 @@
-module MarkdownWidget {
-    export class MarkdownWidgetData {
+module TableWidget {
+    export interface ITableDefinition {
+        /** Number of columns */
+        nrOfCols: number;
+        /** Number of rows */
+        nrOfRows: number;
+        /** Headers of each column */
+        columnHeaders: string[];
+        /** Titles of each row */
+        rowTitles: string[];
+        /**
+         * Content grid of the table: you can either provide it directly, or specify a URL, in which case it will replace the content.
+         */
+        datagrid: string[][];
+        /** 
+         * Allows for defining a style for each cell of the datagrid.
+         */
+        stylegrid: string[][];
+    }
+
+    export class TableWidgetData {
         title: string;
         /**
-         * Content to display: you can either provide it directly, or specify a URL, in which case it will replace the content.
+         * Table content definition: you can either provide it directly, or specify a URL, in which case it will replace the content.
          */
-        content: string;
+        content: ITableDefinition;
         url: string;
         /**
          * Allows you to provide a link to a text file containing a list of properties (i.e. key-value pairs). When the keys
@@ -18,27 +37,27 @@ module MarkdownWidget {
          */
         useLanguagePrefix: boolean;
         /**
-         * The actual content is being converted, if necessary, and set to the markdown text.
+         * The actual table with headers and content
          */
-        mdText: string;
+        tableHtml: string;
         /**
          * If provided, indicates the feature type that needs to be selected in order to show the widget.
          */
         featureTypeName: string;
         /**
-         * If provided, a list of properties that need to be injected into the content in order to generate the mdText.
+         * If provided, a list of properties that need to be injected into the content in order to generate the table.
          */
         dynamicProperties: string[];
     }
 
-    export interface IMarkdownWidgetScope extends ng.IScope {
-        vm: MarkdownWidgetCtrl;
-        data: MarkdownWidgetData;
+    export interface ITableWidgetScope extends ng.IScope {
+        vm: TableWidgetCtrl;
+        data: TableWidgetData;
         minimized: boolean;
     }
 
-    export class MarkdownWidgetCtrl {
-        private scope: IMarkdownWidgetScope;
+    export class TableWidgetCtrl {
+        private scope: ITableWidgetScope;
         private widget: csComp.Services.IWidget;
         private parentWidget: JQuery;
         private dataProperties: { [key: string]: any };
@@ -52,7 +71,7 @@ module MarkdownWidget {
         ];
 
         constructor(
-            private $scope: IMarkdownWidgetScope,
+            private $scope: ITableWidgetScope,
             private $timeout: ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
@@ -62,8 +81,8 @@ module MarkdownWidget {
             var par = <any>$scope.$parent;
             this.widget = par.widget;
 
-            $scope.data = <MarkdownWidgetData>this.widget.data;
-            $scope.data.mdText = $scope.data.content;
+            $scope.data = <TableWidgetData>this.widget.data;
+            $scope.data.tableHtml = '<table></table>';
             $scope.minimized = false;
             this.dataProperties = {};
 
@@ -92,9 +111,15 @@ module MarkdownWidget {
                     extensions.push(newExtension);
                     url = extensions.join('.');
                 }
-                $.get(url, (md) => {
+                $.get(url, (table: string) => {
                     $timeout(() => {
-                        $scope.data.content = $scope.data.mdText = md;
+                        try {
+                            $scope.data.content = JSON.parse(table);
+                            this.createTable();
+                            this.updateTable();
+                        } catch (error) {
+                            console.log('Error parsing table');
+                        }
                     }, 0);
                 });
             }
@@ -109,6 +134,34 @@ module MarkdownWidget {
                     }, 0);
                 });
             }
+        }
+
+        private createTable() {
+            var data = this.$scope.data.content;
+            var table = '<table style="width:100%">';
+            if (!data.hasOwnProperty('columnHeaders')) return;
+            table += '<tr class="tablewidget-row">';
+            data.columnHeaders.forEach((h) => {
+                table += '<th class="tablewidget-cell border-bottom" style="width:' + 100 / (data.nrOfCols + 1) + '%">' + h + '</th>';
+            });
+            table += '</tr>';
+            if (!data.hasOwnProperty('rowTitles') || !data.hasOwnProperty('datagrid')) return;
+            data.datagrid.forEach((row, ri) => {
+                table += '<tr class="tablewidget-row">';
+                table += '<th class="border-right">' + data.rowTitles[ri] + '</th>';
+                row.forEach((col, ci) => {
+                    let style = (data.stylegrid) ? data.stylegrid[ri][ci] : '';
+                    table += '<td class="tablewidget-cell" style="' + style + '">' + data.datagrid[ri][ci] + '</td>';
+                });
+                table += '</tr>';
+            });
+            table += '</table>';
+            this.$scope.data.tableHtml = table;
+        }
+
+        private updateTable() {
+            var tableContainer = $('#' + this.widget.elementId).find('#widgettable-container');
+            tableContainer.html(this.$scope.data.tableHtml);
         }
 
         private minimize() {
@@ -144,7 +197,7 @@ module MarkdownWidget {
                 return;
             }
             this.$timeout(() => {
-                var md = this.$scope.data.content;
+                var d = this.$scope.data.tableHtml;
                 var i = 0;
                 this.$scope.data.dynamicProperties.forEach(p => {
                     var searchPattern = '{{' + i++ + '}}';
@@ -153,27 +206,28 @@ module MarkdownWidget {
                         var pt = this.$layerService.getPropertyType(feature, p);
                         displayText = csComp.Helpers.convertPropertyInfo(pt, feature.properties[p]);
                     }
-                    md = this.replaceAll(md, searchPattern, displayText);
+                    d = this.replaceAll(d, searchPattern, displayText);
                 });
                 this.parentWidget.show();
-                this.$scope.data.mdText = md;
+                this.$scope.data.tableHtml = d;
+                this.updateTable();
             }, 0);
         }
 
         private replaceKeys() {
-            var md = this.$scope.data.content;
+            var d = this.$scope.data.tableHtml;
             this.$timeout(() => {
                 var keys = Object.keys(this.dataProperties);
                 keys.forEach((k) => {
                     if (this.dataProperties.hasOwnProperty(k)) {
                         let searchPattern = '{{' + k + '}}';
                         let replacePattern = this.dataProperties[k];
-                        md = this.replaceAll(md, searchPattern, replacePattern);
+                        d = this.replaceAll(d, searchPattern, replacePattern);
                     }
                 });
-                this.$scope.data.mdText = md;
+                this.$scope.data.tableHtml = d;
+                this.updateTable();
             }, 0);
         }
     }
-
 }

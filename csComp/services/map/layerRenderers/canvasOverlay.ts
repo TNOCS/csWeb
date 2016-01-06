@@ -14,7 +14,18 @@ module L {
         initialize: function(userDrawFunc, layer, options) {
             this._layer = layer,
             this._userDrawFunc = userDrawFunc;
+            this._layerAdd = this;
             Util.setOptions(this, options);
+        },
+
+        call: function(layer) {
+          this.onAdd(layer._mapToAdd);
+        },
+
+        fire: function(action) {
+            if (action && action === 'remove') {
+                //console.log('Canvas layer removed');
+            }
         },
 
         drawing: function(userDrawFunc) {

@@ -1,0 +1,13 @@
+<div style="margin: 2px 5px;">
+    <div class="row" style="display: inline-block; margin-left: 2px;">
+        <h1 style="display: inline-block;margin-bottom:2px;">{{data.title}}</h1>
+        <div style="display: inline-block; margin-right:5px; position: absolute; top: 2px; right: 0px;">
+            <a style="display: inline-block; float: right; padding: 0 2px;" ng-click="vm.close()"    ng-if="vm.canClose()"><i class="fa fa-times"></i></a>
+            <a style="display: inline-block; float: right; padding: 0 2px;" ng-click="vm.minimize()" ng-show="minimized">  <i class="fa fa-plus"></i></a>
+            <a style="display: inline-block; float: right; padding: 0 2px;" ng-click="vm.minimize()" ng-hide="minimized">  <i class="fa fa-minus"></i></a>
+        </div>
+    </div>
+    <div class="row" style="padding:0px;font-size:12px;" ng-hide="minimized">
+        <div id="widgettable-container" style="margin-left:15px;margin-right:15px"></div>
+    </div>
+</div>

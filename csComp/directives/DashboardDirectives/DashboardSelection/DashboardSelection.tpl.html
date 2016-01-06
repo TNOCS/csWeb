@@ -72,7 +72,7 @@
                             <li data-ng-repeat="(key,type) in vm.$dashboardService.widgetTypes" style="height:85px">
                                 <div style="width:100%;height:85px">
                                     <div style="float:left;padding:20px" id="widgettype-{{key}}" when-ready="vm.initDrag(key)" class="draggable" ng-style="{'background' : widgetStyle.background,'border-color':widgetStyle.borderColor,'border-width':widgetStyle.borderWidth,'border-radius':widgetStyle.borderRadius,'opacity' : widgetStyle.opacity}">
-                                        <img ng-src="{{type.icon}}">
+                                        <img ng-src="{{type.icon}}" style="width:32px">
                                     </div>
                                     <div style="position:absolute;left:100px">
                                         <div class="widgetType-title">{{key}}</div>
