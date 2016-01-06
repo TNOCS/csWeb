@@ -1079,6 +1079,24 @@ body,
     content: " ";
 }
 
+.tablewidget-row {
+    height: 30px;
+    width: 100%;
+    padding: 5px;
+}
+
+.tablewidget-cell {
+    padding: 5px;
+}
+
+.border-right {
+    border-right: solid black 1px;
+}
+
+.border-bottom {
+    border-bottom: solid black 1px;
+}
+
 /*HISTOGRAM*/
 .bar rect {
     fill: steelblue;

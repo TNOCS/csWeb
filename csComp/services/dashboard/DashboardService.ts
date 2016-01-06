@@ -90,6 +90,11 @@ module csComp.Services {
                 icon: 'bower_components/csweb/dist-bower/images/widgets/markdown.png',
                 description: 'Show custom markdown or html content'
             };
+            this.widgetTypes['tablewidget'] = <IWidget>{
+                id: 'tablewidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/table.png',
+                description: 'Shows a data table'
+            };
             this.widgetTypes['mcawidget'] = <IWidget>{
                 id: 'mcawidget',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/mca.png',
