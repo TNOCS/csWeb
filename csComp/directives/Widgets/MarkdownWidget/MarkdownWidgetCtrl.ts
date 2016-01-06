@@ -7,6 +7,11 @@ module MarkdownWidget {
         content: string;
         url: string;
         /**
+         * Allows you to provide a link to a text file containing a list of properties (i.e. key-value pairs). When the keys
+         * are stated in the markdown content (between curly braces {{KEY}}), they will be replaced by the value. 
+         */
+        dataSourceUrl: string;
+        /**
          * Set true to use translate the content. To use it, create a separate file
          * for each language and add a pre-extension to the file corresponding to the language code, e.g.
          * data/mycontent.en.txt or data/mycontent.nl.txt . The url should then be "data/mycontent.txt"
@@ -36,6 +41,7 @@ module MarkdownWidget {
         private scope: IMarkdownWidgetScope;
         private widget: csComp.Services.IWidget;
         private parentWidget: JQuery;
+        private dataProperties: { [key: string]: any };
 
         public static $inject = [
             '$scope',
@@ -51,7 +57,7 @@ module MarkdownWidget {
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
             private $mapService: csComp.Services.MapService
-            ) {
+        ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = par.widget;
@@ -59,6 +65,7 @@ module MarkdownWidget {
             $scope.data = <MarkdownWidgetData>this.widget.data;
             $scope.data.mdText = $scope.data.content;
             $scope.minimized = false;
+            this.dataProperties = {};
 
             this.parentWidget = $('#' + this.widget.elementId).parent();
 
@@ -77,19 +84,31 @@ module MarkdownWidget {
                 });
             }
 
-            if (typeof $scope.data.url === 'undefined') return;
-            var url = $scope.data.url;
-            if ($scope.data.useLanguagePrefix) {
-                var extensions = url.split('.');
-                var newExtension = this.$layerService.currentLocale + '.' + extensions.pop();
-                extensions.push(newExtension);
-                url = extensions.join('.');
+            if (!(typeof $scope.data.url === 'undefined')) {
+                var url = $scope.data.url;
+                if ($scope.data.useLanguagePrefix) {
+                    var extensions = url.split('.');
+                    var newExtension = this.$layerService.currentLocale + '.' + extensions.pop();
+                    extensions.push(newExtension);
+                    url = extensions.join('.');
+                }
+                $.get(url, (md) => {
+                    $timeout(() => {
+                        $scope.data.content = $scope.data.mdText = md;
+                    }, 0);
+                });
             }
-            $.get(url, (md) => {
-                $timeout(() => {
-                    $scope.data.content = $scope.data.mdText = md;
-                }, 0);
-            });
+
+            // in case a separate datafile is used
+            if (!(typeof $scope.data.dataSourceUrl === 'undefined')) {
+                url = $scope.data.dataSourceUrl;
+                $.get(url, (properties) => {
+                    $timeout(() => {
+                        this.dataProperties = JSON.parse(properties);
+                        this.replaceKeys();
+                    }, 0);
+                });
+            }
         }
 
         private minimize() {
@@ -137,6 +156,21 @@ module MarkdownWidget {
                     md = this.replaceAll(md, searchPattern, displayText);
                 });
                 this.parentWidget.show();
+                this.$scope.data.mdText = md;
+            }, 0);
+        }
+
+        private replaceKeys() {
+            var md = this.$scope.data.content;
+            this.$timeout(() => {
+                var keys = Object.keys(this.dataProperties);
+                keys.forEach((k) => {
+                    if (this.dataProperties.hasOwnProperty(k)) {
+                        let searchPattern = '{{' + k + '}}';
+                        let replacePattern = this.dataProperties[k];
+                        md = this.replaceAll(md, searchPattern, replacePattern);
+                    }
+                });
                 this.$scope.data.mdText = md;
             }, 0);
         }
