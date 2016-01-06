@@ -161,6 +161,7 @@ module csComp.Services {
         activation?:         string;
         groupId?:            string;
         defaultFeatureType?: string;
+        defaultLegendProperty? : string;
         typeUrl?:            string;
     }
 
@@ -189,6 +190,8 @@ module csComp.Services {
         categories?:       string[];
         languages?:        ILanguageData;
         legend?:           Legend;
+        /** if defined, this sensor value will be removed. this can be usefull for sensor data that uses -1 or -999999 as empty sensor data */
+        sensorNull? : Object;
         layerProps?:       ILayerPropertyDetails;
         /** User defined minimum value */
         min?:              number;

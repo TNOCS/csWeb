@@ -466,6 +466,7 @@ module csComp.Services {
                                     if (!pl.title) pl.title = feature.properties['Name'] + ' ' + prop.title;
                                     if (!pl.defaultFeatureType) pl.defaultFeatureType = prop.layerProps.defaultFeatureType;
                                     if (!pl.typeUrl) pl.typeUrl = prop.layerProps.typeUrl;
+                                    if (!pl.defaultLegendProperty) pl.defaultLegendProperty = prop.layerProps.defaultLegendProperty;
                                     pl.hasSensorData = true;
 
                                     //pl.parentFeature = feature;
@@ -1111,6 +1112,8 @@ module csComp.Services {
                 feature._gui = {
                     included: true
                 };
+                
+                
 
                 if (!feature.logs) feature.logs = {};
                 if (feature.properties == null) feature.properties = {};
@@ -1130,6 +1133,22 @@ module csComp.Services {
                 feature.fType = this.getFeatureType(feature);
 
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
+                
+                if (feature.sensors)
+                {
+                    for (var s in feature.sensors)
+                    {
+                        var propType = this.getPropertyType(feature,s);
+                        if (propType.sensorNull)
+                        {
+                            for (var i = 0; i < feature.sensors[s].length;i++)
+                            {
+                               if (feature.sensors[s][i] === propType.sensorNull) feature.sensors[s][i]= 0;
+                            }                             
+                            console.log(feature.sensors[s]);
+                        }
+                    }
+                }
 
                 this.calculateFeatureStyle(feature);
                 feature.propertiesOld = {};
