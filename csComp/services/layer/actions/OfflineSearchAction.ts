@@ -242,12 +242,12 @@ module csComp.Services {
             if (!projectLayer) return;
 
             if (projectLayer.enabled) {
-                this.selectFeature(layer.id, selectedItem.entry.featureIndex);
+                this.selectFeatureById(layer.id, selectedItem.entry.featureIndex);
                 return;
             } else {
                 var handle = this.layerService.$messageBusService.subscribe('layer', (title: string, layer: csComp.Services.ProjectLayer) => {
                     if (title !== 'activated' || projectLayer.url !== layer.url) return;
-                    this.selectFeature(layer.id, selectedItem.entry.featureIndex);
+                    this.selectFeatureById(layer.id, selectedItem.entry.featureIndex);
                     this.layerService.$messageBusService.unsubscribe(handle);
                 });
                 this.layerService.addLayer(projectLayer);
@@ -257,9 +257,13 @@ module csComp.Services {
             group.collapse('show');
         }
 
-        private selectFeature(layerId: string, featureIndex: number) {
+        private selectFeatureById(layerId: string, featureIndex: number) {
             var feature = this.layerService.findFeatureByIndex(layerId, featureIndex);
             if (feature == null) return;
+            this.selectFeature(feature);
+        }
+
+        public selectFeature(feature: IFeature) {
             this.layerService.$mapService.zoomTo(feature);
             this.layerService.selectFeature(feature);
         }
