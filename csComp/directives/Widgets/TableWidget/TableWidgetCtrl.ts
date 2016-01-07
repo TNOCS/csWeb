@@ -48,6 +48,7 @@ module TableWidget {
          * If provided, a list of properties that need to be injected into the content in order to generate the table.
          */
         dynamicProperties: string[];
+
         /**
          * If provided, shows a caption under the table
          */
@@ -235,7 +236,6 @@ module TableWidget {
                 this.updateTable();
             }, 0);
         }
-
         public toTrusted(html: string): string {
             try {
                 if (html === undefined || html === null)

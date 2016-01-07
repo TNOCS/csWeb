@@ -185,7 +185,6 @@ import ApiMeta = ApiManager.ApiMeta;
         public registerProject(projectId: string, callback: MessageBus.IMessageBusCallback) {
             var sub = new ProjectSubscription();
             sub.projectId = projectId;
-
             sub.callback = callback;
             //this.subscriptions.push(sub);
         }

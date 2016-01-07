@@ -148,15 +148,19 @@ export class Key implements StorageObject {
     values: Object[];
 }
 
+/**
+ * Project definition 
+ */
 export class Project implements StorageObject {
     id: string;
     title: string;
     url: string;
+    _localFile: string;
     description: string;
     logo: string;
-    connected: boolean;
     storage: string;
     groups: Group[];
+    isDynamic: boolean;
 }
 
 export class Group {
@@ -294,6 +298,7 @@ export class PropertyType {
 }
 
 export class ResourceFile implements StorageObject {
+    _localFile : string;
     featureTypes: { [key: string]: FeatureType };
     propertyTypes: { [key: string]: PropertyType };
     id: string;
@@ -521,6 +526,10 @@ export class ApiManager extends events.EventEmitter {
      * Update/add a resource and save it to file
      */
     public addResource(resource: ResourceFile, meta: ApiMeta, callback: Function) {
+        if (this.resources.hasOwnProperty(resource.id))
+        {
+            resource._localFile = this.resources[resource.id]._localFile;
+        }
         this.resources[resource.id] = resource;
         var s = this.findStorage(resource);
         this.getInterfaces(meta).forEach((i: IConnector) => {
@@ -682,11 +691,12 @@ export class ApiManager extends events.EventEmitter {
                 this.emit(Event[Event.ProjectChanged], <IChangeEvent>{ id: project.id, type: ChangeType.Create, value: project });
                 callback(r);
             });
+
+            this.saveProjectDelay(this.projects[project.id]);
         } else {
             callback(<CallbackResult>{ result: ApiResult.ProjectAlreadyExists, project: this.projects[project.id], error: 'Project already exists' });
         }
-        // ARNOUD? Shouldn't this be at the end of the if clause, as the project may already exist?
-        this.saveProjectDelay(this.projects[project.id]);
+
     }
 
     /**
@@ -784,6 +794,14 @@ export class ApiManager extends events.EventEmitter {
         var key = this.findKey(keyId);
         return this.findStorage(key);
     }
+    
+    /**
+     * Make sure the project has an unique project id
+     */
+    public getProjectId(project: Project): string {
+        project.id = project.id.replace(new RegExp(' ', 'g'), '');
+        return project.id;
+    }
 
     /**
      * Returns project definition for a project
@@ -793,10 +811,11 @@ export class ApiManager extends events.EventEmitter {
             id: project.id ? project.id : helpers.newGuid(),
             storage: project.storage ? project.storage : '',
             title: project.title ? project.title : project.id,
-            connected: project.connected ? project.connected : true,
+            isDynamic: (typeof project.isDynamic !== 'undefined') ? project.isDynamic : true,
             logo: project.logo ? project.logo : 'images/CommonSenseRound.png',
-            groups: project.groups ? project.groups : [],
-            url: project.url ? project.url : '/api/projects/' + project.id
+            //groups: project.groups ? project.groups : [],
+            url: project.url ? project.url : '/api/projects/' + project.id,
+            _localFile: project._localFile
         };
         return p;
     }
@@ -993,8 +1012,13 @@ export class ApiManager extends events.EventEmitter {
             },
             // update project
             (cb: Function) => {
+                var file = this.projects[project.id]._localFile;
+                if (file && !project._localFile) project._localFile = file;                
+
                 var p = this.getProjectDefinition(project);
+
                 this.projects[p.id] = p;
+                
 
                 this.getInterfaces(meta).forEach((i: IConnector) => {
                     i.updateProject(project, meta, () => { });

@@ -10,6 +10,7 @@ module csComp.Services {
         getRequiredLayers?(layer: ProjectLayer): ProjectLayer[];
         layerMenuOptions(layer: ProjectLayer): [[string, Function]];
     }
+     
 
     /** layer service is responsible for reading and managing all project, layer and sensor related data */
     export class LayerService {
@@ -151,6 +152,7 @@ module csComp.Services {
             //this.geoService.start();
 
             this.addActionService(new LayerActions());
+            this.addActionService(new MatrixAction.MatrixActionModel());
 
             var delayFocusChange = _.debounce((date) => {
                 for (var l in this.loadedLayers) {
@@ -429,18 +431,7 @@ module csComp.Services {
                     case 'onFeatureSelect':
                         var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
                         props.forEach((prop: IPropertyType) => {
-                            if (prop.type === 'matrix' && feature.properties.hasOwnProperty(prop.label)) {
-                                var matrix = feature.properties[prop.label];
-                                this.project.features.forEach(f => {
-                                    if (f.layer === feature.layer && f.properties.hasOwnProperty(prop.targetid) && matrix.hasOwnProperty(f.properties[prop.targetid])) {
-                                        var newValue = matrix[f.properties[prop.targetid]];
-                                        for (var val in newValue) {
-                                            f.properties[val] = newValue[val];
-                                        }
-                                    }
-                                });
-                                this.updateGroupFeatures(feature.layer.group);
-                            }
+                            
                             if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
                                 if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer._lastSelectedFeature);
 
@@ -475,6 +466,7 @@ module csComp.Services {
                                     if (!pl.title) pl.title = feature.properties['Name'] + ' ' + prop.title;
                                     if (!pl.defaultFeatureType) pl.defaultFeatureType = prop.layerProps.defaultFeatureType;
                                     if (!pl.typeUrl) pl.typeUrl = prop.layerProps.typeUrl;
+                                    if (!pl.defaultLegendProperty) pl.defaultLegendProperty = prop.layerProps.defaultLegendProperty;
                                     pl.hasSensorData = true;
 
                                     //pl.parentFeature = feature;
@@ -569,6 +561,11 @@ module csComp.Services {
                             this.activeMapRenderer.addLayer(layer);
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
+                            
+                            if (this.actionServices) this.actionServices.forEach(as=>{
+                                if (as.addLayer) as.addLayer(layer); 
+                            });
+                            
                             this.$messageBusService.publish('layer', 'activated', layer);
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             // if (layerloaded) layerloaded(layer);
@@ -846,7 +843,7 @@ module csComp.Services {
             }
         }
 
-        private updateGroupFeatures(group: ProjectGroup) {
+        public updateGroupFeatures(group: ProjectGroup) {
             if (!group) return;
             this.project.features.forEach((f: IFeature) => {
                 if (f.layer.group === group) {
@@ -1115,6 +1112,8 @@ module csComp.Services {
                 feature._gui = {
                     included: true
                 };
+                
+                
 
                 if (!feature.logs) feature.logs = {};
                 if (feature.properties == null) feature.properties = {};
@@ -1133,13 +1132,23 @@ module csComp.Services {
                 // resolve feature type                
                 feature.fType = this.getFeatureType(feature);
 
-                //this.initFeatureType(feature.fType);
-
-                // add missing properties
-                //if (feature.fType.showAllProperties) 
-
-                // Do we have a name?
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
+                
+                if (feature.sensors)
+                {
+                    for (var s in feature.sensors)
+                    {
+                        var propType = this.getPropertyType(feature,s);
+                        if (propType.sensorNull)
+                        {
+                            for (var i = 0; i < feature.sensors[s].length;i++)
+                            {
+                               if (feature.sensors[s][i] === propType.sensorNull) feature.sensors[s][i]= 0;
+                            }                             
+                            console.log(feature.sensors[s]);
+                        }
+                    }
+                }
 
                 this.calculateFeatureStyle(feature);
                 feature.propertiesOld = {};
@@ -1404,6 +1413,15 @@ module csComp.Services {
          */
         findFeatureById(featureId: string): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.id === featureId; });
+        }
+        
+        /**
+         * Find a feature by layerId and FeatureId.
+         * @property {string}
+         * @value {number}
+         */
+        findFeatureByPropertyValue(property : string, value : Object): IFeature {
+            return _.find(this.project.features, (f: IFeature) => { return f.properties.hasOwnProperty(property) && f.properties[property] === value; });
         }
 
         /**
@@ -2109,10 +2127,13 @@ module csComp.Services {
                 this.parseProject(project, solutionProject, layerIds);
             }
         }
+        
 
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
             prj.solution = this.solution;
             this.project = new Project().deserialize(prj);
+            
+            if (typeof this.project.isDynamic === 'undefined') this.project.isDynamic = solutionProject.dynamic;
 
             if (!this.project.timeLine) {
                 this.project.timeLine = new DateRange();
@@ -2224,8 +2245,9 @@ module csComp.Services {
                         this.$mapService.zoomToLocation(new L.LatLng(prj.startposition.latitude, prj.startposition.longitude));
                     }
                 });
-            }
-            if (this.project.connected) {
+            }                       
+            
+            if (this.project.isDynamic) {
                 if (!this.project.layerDirectory) this.project.layerDirectory = '/api/layers';
                 // check connection
                 this.$messageBusService.initConnection('', '', () => {
@@ -2491,7 +2513,6 @@ module csComp.Services {
                 if (filter.id != null) filter.id = Helpers.getGuid();
             });
 
-
         }
 
         /** initializes a layer (check for id, language, references group, add to active map renderer) */
@@ -2666,7 +2687,7 @@ module csComp.Services {
         }
 
         /**
-         * Check for property changes inside a feature, return a set of logs in result
+         * Check for property changes for a specific key inside a feature, return a set of logs in result
          */
         private trackPropertyLog(f: IFeature, key: string, result: {}) {
             var log = <Log>{
@@ -2680,6 +2701,7 @@ module csComp.Services {
             f._gui['lastUpdate'] = log.ts;
         }
 
+        /** Check for property changes inside a feature, return a set of logs in result */
         private trackFeature(feature: IFeature): {} {
             var result = {};
             for (var key in feature.properties) {
@@ -2716,26 +2738,30 @@ module csComp.Services {
         }
 
 
-        public saveProject() {
+        public updateProject() {
             console.log('saving project');
-            setTimeout(() => {
+            setTimeout(() => {                
                 var data = this.project.serialize();
                 var url = this.projectUrl.url;
+                
+                var pu = <ProjectUpdate>{ projectId : this.project.id, action : ProjectUpdateAction.updateProject, item : data};
+                               
+                this.$messageBusService.serverSendMessageAction("project",pu);
                 //.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
-                console.log('URL: ' + url);
-                $.ajax({
-                    url: url,
-                    type: 'PUT',
-                    data: data,
-                    contentType: 'application/json',
-                    complete: (d) => {
-                        if (d.error) {
-                            console.error('Error update project.json: ' + JSON.stringify(d));
-                        } else {
-                            console.log('Project.json updated succesfully!');
-                        }
-                    }
-                });
+                // console.log('URL: ' + url);
+                // $.ajax({
+                //     url: url,
+                //     type: 'PUT',
+                //     data: data,
+                //     contentType: 'application/json',
+                //     complete: (d) => {
+                //         if (d.error) {
+                //             console.error('Error update project.json: ' + JSON.stringify(d));
+                //         } else {
+                //             console.log('Project.json updated succesfully!');
+                //         }
+                //     }
+                // });
             }, 0);
         }
 
@@ -2822,6 +2848,23 @@ module csComp.Services {
         updateFeature,
         updateLog,
         deleteFeature
+    }
+    
+       /**
+     * List of available action for sending/receiving project actions over socket.io channel
+     */
+    export enum ProjectUpdateAction {
+        updateProject,
+        deleteProject
+    }
+    
+      /**
+     * object for sending project messages over socket.io channel
+     */
+    export class ProjectUpdate {
+        public projectId: string;
+        public action: ProjectUpdateAction;
+        public item: any;
     }
 
     /**

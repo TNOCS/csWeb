@@ -230,6 +230,7 @@ module csComp.Services {
         showBackgroundImage:  boolean = false;
         background:           string;
         backgroundimage:      string;
+        disabledFeatures : string[];
         visiblelayers:        string[];
         visibleLeftMenuItems: string[];
         baselayer:            string;

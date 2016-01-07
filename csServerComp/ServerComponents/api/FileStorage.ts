@@ -35,6 +35,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     public blobPath: string;
     public iconPath: string;
     public projectsPath: string;
+    public staticProjectsPath: string;
     public resourcesPath: string;
 
     constructor(public rootpath: string, watch: boolean = true) {
@@ -78,14 +79,20 @@ export class FileStorage extends BaseConnector.BaseConnector {
         }, 1000);
     }
 
+    private getDirectories(srcpath) {
+        return fs.readdirSync(srcpath).filter((file) => {
+            return fs.statSync(path.join(srcpath, file)).isDirectory();
+        });
+    }
+
     public watchProjectsFolder() {
         Winston.info('filestore: watch folder:' + this.projectsPath);
         if (!fs.existsSync(this.projectsPath)) { fs.mkdirSync(this.projectsPath); }
         setTimeout(() => {
-            var watcher = chokidar.watch(this.projectsPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
+            var watcher = chokidar.watch(this.projectsPath, { ignoreInitial: false, depth: 0, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
                 if (action == "add") {
-                    Winston.info('filestore: new file found : ' + path);
+                    Winston.info('filestore: new project found : ' + path);
                     this.openProjectFile(path);
                 }
                 if (action == "unlink") {
@@ -96,7 +103,38 @@ export class FileStorage extends BaseConnector.BaseConnector {
                     //this.addLayer(path);
                 }
             }));
+            var folders = this.getDirectories(this.projectsPath);
+            folders.forEach((folder: string) => {
+                this.openStaticFolder(folder);
+            });
+
         }, 1000);
+    }
+
+    public openStaticFolder(folder: string) {
+        // check if project file exists
+        var f = path.join(this.projectsPath, folder);
+        var projectFile = path.join(f, "project.json");
+        if (fs.existsSync(projectFile)) {
+            this.openProjectFile(projectFile, folder, true);
+            
+            var rf = path.join(f,"resources");
+            if (fs.existsSync(rf))
+            {
+                fs.readdir(rf,(error,files)=>{
+                    if (!error){
+                        files.forEach(file=>{
+                            this.openResourceFile(path.join(rf,file));                                                        
+                        });
+                    }                   
+                });
+            }            
+            //Winston.error('project file found : ' + folder);
+        }
+        else {
+            Winston.error('project file not found : ' + folder);
+        }
+
     }
 
     public watchKeysFolder() {
@@ -105,14 +143,16 @@ export class FileStorage extends BaseConnector.BaseConnector {
         setTimeout(() => {
             var watcher = chokidar.watch(this.keysPath, { ignoreInitial: false, ignored: /[\/\\]\./, persistent: true });
             watcher.on('all', ((action, path) => {
-                if (action == "add") {
-                    Winston.info('filestore: new file found : ' + path);
-                    this.openKeyFile(path);
-                }
-                if (action == "unlink") {
-                    this.closeKeyFile(path);
-                }
-                if (action == "change") {
+                if (!fs.statSync(path).isDirectory()) {
+                    if (action == "add") {
+                        Winston.info('filestore: new file found : ' + path);
+                        this.openKeyFile(path);
+                    }
+                    if (action == "unlink") {
+                        this.closeKeyFile(path);
+                    }
+                    if (action == "change") {
+                    }
                 }
             }));
         }, 1000);
@@ -166,8 +206,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
         return path.join(this.keysPath, keyId + ".json");
     }
 
-    private getResourceFilename(resId: string) {
-        return path.join(this.resourcesPath, resId + ".json");
+    private getResourceFilename(re: ResourceFile) {
+        console.log('!!! resource file loc:' + re._localFile);
+        return re._localFile;
+        //return path.join(this.resourcesPath, resId + ".json");
     }
 
     private saveKeyFile(key: Key) {
@@ -182,7 +224,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     private saveResourceFile(res: ResourceFile) {
-        var fn = this.getResourceFilename(res.id);
+        var fn = this.getResourceFilename(res);
         fs.outputFile(fn, JSON.stringify(res), (error) => {
             if (error) {
                 Winston.error('filestore: error writing resourcefile : ' + fn);
@@ -192,8 +234,11 @@ export class FileStorage extends BaseConnector.BaseConnector {
         });
     }
 
+    /** Save project file to disk */
     private saveProjectFile(project: Project) {
-        var fn = this.getProjectFilename(project.id);
+        var fn = project._localFile;
+        Winston.info('writing project file : ' + fn);
+        //this.getProjectFilename(project.id);
         fs.writeFile(fn, JSON.stringify(project), (error) => {
             if (error) {
                 Winston.info('error writing project file : ' + fn);
@@ -203,6 +248,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         });
     }
 
+    /** save media file */
     private saveBase64(media: Media) {
         var binaryData = new Buffer(media.base64, 'base64');
         fs.writeFile(media.fileUri, binaryData, (error) => {
@@ -307,42 +353,60 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     private openResourceFile(fileName: string) {
         var id = this.getResourceId(fileName);
+        console.log('!! open resource file : ' + fileName + " (" + id + ")");
         Winston.info('filestore: openfile ' + id);
         if (!this.resources.hasOwnProperty(id)) {
             fs.readFile(fileName, 'utf8', (err, data) => {
                 if (!err && data && data.length > 0) {
                     var res = <ResourceFile>JSON.parse(data.removeBOM());
+                    res._localFile = fileName;
                     res.id = id;
                     this.resources[id] = res;
                     this.manager.addResource(res, <ApiMeta>{ source: this.id }, () => { });
+                    this.saveResourceFile(res);
                 }
             });
         }
     }
 
-    private openProjectFile(fileName: string) {
-        var id = this.getProjectId(fileName);
-        Winston.info('filestore: openfile ' + id);
-        if (!this.projects.hasOwnProperty(id)) {
-            fs.readFile(fileName, 'utf8', (err, data) => {
-                if (!err && data && data.length > 0) {
-                    var project = <Project>JSON.parse(data);
-                    this.manager.getProjectDefinition(project);
+    private openProjectFile(fileName: string, id?: string, isDynamic?: boolean) {
+        if (!id) id = this.getProjectId(fileName);
+        Winston.info('filestore: openfile ' + fileName);
+
+        fs.readFile(fileName, 'utf8', (err, data) => {
+            if (!err && data && data.length > 0) {
+                var project = <Project>JSON.parse(data);
+                project._localFile = fileName;                
+                if (typeof project.id === 'undefined') {                    
+                    project.id = id || helpers.newGuid();
+                    this.manager.getProjectId(project);
+                    this.saveProjectFile(project);
+                }
+
+                if (!this.projects.hasOwnProperty(project.id)) {
+                    id = project.id;
+
+                    //var proj = this.manager.getProjectDefinition(project);
                     this.projects[id] = project;
-                    // project.storage = this.id;
+                    project.storage = this.id;
+                    //console.log(JSON.stringify(project));
                     // project.id = id;
                     // project.title = id;
                     // project.groups = [];
                     // project.logo = "";
-                    // project.url = "/api/projects/" + id;
-                    this.manager.updateProject(project, {}, () => { });
-                } else if (err) {
-                    Winston.error('Error reading file: ' + id + '(' + err.message + ')')
-                }
-            });
-        }
+                    
+                    if (typeof isDynamic !== 'undefined') project.isDynamic = isDynamic;
+                    project.url = "/api/projects/" + id;
 
-        if (path.basename(fileName) === 'project.json') {return;}
+                    this.manager.updateProject(project, {}, () => { });
+                }
+            } else if (err) {
+                Winston.error('Error reading file: ' + id + '(' + err.message + ')')
+            }
+        });
+        
+
+        //if (path.basename(fileName) === 'project.json') {return;}
     }
 
 
@@ -359,7 +423,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         try {
             this.projects[project.id] = project;
             this.saveProjectDelay(project);
-            callback(<CallbackResult> { result: ApiResult.OK, project: project });
+            callback(<CallbackResult>{ result: ApiResult.OK, project: project });
         }
         catch (e) {
             callback(<CallbackResult>{ result: ApiResult.OK, error: null });
@@ -377,6 +441,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
     public updateProject(project: Project, meta: ApiMeta, callback: Function) {
         if (this.projects.hasOwnProperty(project.id)) {
+            
             this.projects[project.id] = project;
             this.saveProjectDelay(project);
             Winston.info('Added project ' + project.id + ' to FileStorage projects');
@@ -393,7 +458,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         try {
             this.layers[layer.id] = layer;
             this.saveLayerDelay(layer);
-            callback(<CallbackResult> { result: ApiResult.OK });
+            callback(<CallbackResult>{ result: ApiResult.OK });
         }
         catch (e) {
             callback(<CallbackResult>{ result: ApiResult.OK, error: null });
@@ -516,7 +581,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
         l.features.forEach((f: Feature) => {
             if (f.id === featureId)
                 found = true;
-            callback(<CallbackResult> { result: ApiResult.OK, feature: f });
+            callback(<CallbackResult>{ result: ApiResult.OK, feature: f });
         })
         if (!found) callback(<CallbackResult>{ result: ApiResult.Error });
     }

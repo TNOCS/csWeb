@@ -247,7 +247,6 @@ module csComp.Services {
          * but also text, geometries, etc., where sensors are optimized for many different values, but only numbers         
         */
         useLog: boolean;
-
         isConnected: boolean;
 
         /** this layer contains sensor data, updated when focusTime changes */
