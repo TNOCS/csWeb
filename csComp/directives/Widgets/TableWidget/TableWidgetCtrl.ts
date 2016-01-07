@@ -48,6 +48,11 @@ module TableWidget {
          * If provided, a list of properties that need to be injected into the content in order to generate the table.
          */
         dynamicProperties: string[];
+
+        /**
+         * If provided, shows a caption under the table
+         */
+        caption: string[];
     }
 
     export interface ITableWidgetScope extends ng.IScope {
@@ -67,7 +72,8 @@ module TableWidget {
             '$timeout',
             'layerService',
             'messageBusService',
-            'mapService'
+            'mapService',
+            '$sce'
         ];
 
         constructor(
@@ -75,7 +81,8 @@ module TableWidget {
             private $timeout: ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
-            private $mapService: csComp.Services.MapService
+            private $mapService: csComp.Services.MapService,
+            private $sce: ng.ISCEService
         ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
@@ -228,6 +235,16 @@ module TableWidget {
                 this.$scope.data.tableHtml = d;
                 this.updateTable();
             }, 0);
+        }
+        public toTrusted(html: string): string {
+            try {
+                if (html === undefined || html === null)
+                    return this.$sce.trustAsHtml(html);
+                return this.$sce.trustAsHtml(html.toString());
+            } catch (e) {
+                console.log(e + ': ' + html);
+                return '';
+            }
         }
     }
 }

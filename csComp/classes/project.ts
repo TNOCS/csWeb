@@ -170,7 +170,8 @@ module csComp.Services {
         expertMode      = Expertise.Expert;
         markers         = {};
         eventTab:       boolean;
-
+        /** If true (default false), indicates that we should load an offline search result. */
+        useOfflineSearch: boolean = false;
         /**
          * Serialize the project to a JSON string.
          */
