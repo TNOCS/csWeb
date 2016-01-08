@@ -144,7 +144,7 @@ module csComp.Services {
         url:         string;
         opacity:     number;
         /** true if a dynamic project and you want to subscribe to project changes using socket.io */
-        connected:         boolean;
+        isDynamic:         boolean;
         activeDashboard:   Dashboard;
         baselayers:        IBaseLayer[];
         allFeatureTypes:   { [id: string]: IFeatureType };
@@ -211,7 +211,7 @@ module csComp.Services {
                 logo:              project.logo,
                 otpServer:         project.otpServer,
                 url:               project.url,
-                connected:         project.connected,
+                isDynamic:         project.isDynamic,
                 startPosition:     project.startposition,
                 timeLine:          project.timeLine,
                 opacity:           project.opacity,
@@ -257,7 +257,7 @@ module csComp.Services {
                     res.groups.push(ProjectGroup.deserialize(group));
                 });
             }
-            if (res.id == null) { res.id = res.title; }
+            if (typeof res.id === 'undefined') { res.id = res.title; }
             return res;
         }
     }

@@ -11,6 +11,8 @@ module ContourAction {
         addFeature(feature: IFeature) { }
         removeFeature(feature: IFeature) { }
         selectFeature(feature: IFeature) { }
+        addLayer(layer : csComp.Services.IProjectLayer) {}
+        removeLayer(layer : csComp.Services.IProjectLayer) {}
 
         getFeatureActions(feature: IFeature): IActionOption[] {
             return [];

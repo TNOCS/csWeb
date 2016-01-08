@@ -16,6 +16,19 @@ module Dashboard {
         myModule = angular.module(moduleName, []);
     }
 
+    myModule.directive('feature', ['$interpolate', function($interpolate) {
+        return {
+            restrict: 'A',
+            priority: Number.MAX_VALUE, // execute last, after all other directives if any.
+            link: function($scope, $element, $attributes) {
+                if ($attributes.hasOwnProperty('feature')) {
+                    var f = $attributes['feature'];
+                    if (f === 'mca') $element.hide();
+                }
+            }
+        };
+    }]);
+
 
     myModule.directive('whenReady', ['$interpolate', function($interpolate) {
         return {

@@ -172,10 +172,29 @@ module csComp.Services {
             layer.isLoading = true;
             layer.count = 0;
 
-            var showNight = true;
             var defaultValue = 0;
+
+            // Check if an url to a file containing the intensity value is specified. If so, set it as defaultValue.
+            if (layer.url) {
+                this.$http.get(layer.url)
+                    .success((data) => {
+                        defaultValue = parseFloat(data.toString());
+                        this.continueInit(defaultValue, layer, callback);
+                    })
+                    .error(() => {
+                        console.log('Error reading day/night intensity file');
+                        this.continueInit(defaultValue, layer, callback);
+                    });
+            } else {
+                this.continueInit(defaultValue, layer, callback);
+            }
+        }
+
+        private continueInit(defaultValue: number, layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
+            var showNight = true;
+
             if (typeof layer.dataSourceParameters !== 'undefined') {
-                var gridParams = <INightDayDataSourceParameters> layer.dataSourceParameters;
+                var gridParams = <INightDayDataSourceParameters>layer.dataSourceParameters;
                 if (typeof gridParams.showNight !== 'undefined') showNight = gridParams.showNight;
                 if (typeof gridParams.value !== 'undefined') defaultValue = gridParams.value;
             }
@@ -207,6 +226,5 @@ module csComp.Services {
             layer.isLoading = false;
             callback(layer);
         }
-
     }
 }

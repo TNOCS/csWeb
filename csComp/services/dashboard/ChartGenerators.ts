@@ -164,7 +164,7 @@ module csComp.Services {
         }
 
         public stop() {
-            alert('stop');
+            //alert('stop');
         }
     }
 }

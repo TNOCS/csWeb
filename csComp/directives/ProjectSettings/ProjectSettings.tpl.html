@@ -1,10 +1,17 @@
 <div>
     <div class="wide-tooltip">
-        <span class="pull-right fa fa-info-circle fa-2x" tooltip-html-unsafe="{{'PROJECTSETTINGS.DESCRIPTION' | translate}}" tooltip-placement="bottom" tooltip-trigger="mouseenter" tooltip-append-to-body="false" style="margin-right: 5px;"></span>
+        <span class="pull-right fa fa-info-circle fa-2x" tooltip-html-unsafe="{{'PROJECTSETTINGS.DESCRIPTION' | translate}}" tooltip-placement="bottom"
+        tooltip-trigger="mouseenter" tooltip-append-to-body="false" style="margin-right: 5px;"></span>
         <h4 class="leftpanel-header" translate="PROJECTSETTINGS.TITLE"></h4>
     </div>
 
     <div style="overflow-y: auto; overflow-x: hidden; margin-top: -10px" resize resize-y="95">
+
+        <div class="controls">
+            <label class="editor-title input-xlarge" for="projectTitle">Title</label>
+            <input id="projectTitle" name="textinput" type="text" ng-model="vm.$layerService.project.title" placeholder="title" class="input-xlarge editor-text-input">
+        </div>
+
         <button type="button" class="btn btn-primary" data-ng-click="vm.updateProject()" style="margin-top: 5px; margin-right: 1em; float: right;">
             <i class="fa fa-save fa-2x"></i>
         </button>
@@ -12,4 +19,6 @@
             <i class="fa fa-download fa-2x"></i>
         </button>
     </div>
+
+
 </div>
