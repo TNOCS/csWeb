@@ -207,9 +207,9 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     private getResourceFilename(re: ResourceFile) {
-        console.log('!!! resource file loc:' + re._localFile);
-        return re._localFile;
-        //return path.join(this.resourcesPath, resId + ".json");
+        //console.log('!!! resource file loc:' + re._localFile);
+        //return re._localFile;
+        return path.join(this.resourcesPath, re.id + ".json");
     }
 
     private saveKeyFile(key: Key) {
