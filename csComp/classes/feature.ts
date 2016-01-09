@@ -234,6 +234,8 @@ module csComp.Services {
         iconHeight?:            number;
         /** The URL of the icon on the map */
         iconUri?:               string;
+        /** The property that specifies the height above the sea (in Cesium) */
+        heightAboveSeaProperty?:string;
         /** The URL of the model on the map (for Cesium) */
         modelUri?:              string;
         /** The name of the property that contains the model URI on the map (for Cesium) */
