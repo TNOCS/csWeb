@@ -345,6 +345,7 @@ module csComp.Services {
         attribution:     string;
         test:            string;
         cesium_url?:     string;
+        cesium_tileUrl?: string;
         cesium_maptype?: string;
     }
 
@@ -364,8 +365,10 @@ module csComp.Services {
         /** String that is shown on the map, attributing the source of the basemap */
         attribution:    string;
         test:           string;
-        /** Cesium specific URL to retreive the tiles */
+        /** Cesium specific URLs to retreive the tiles */
         cesium_url:     string;
         cesium_maptype: string;
+        /** Height tiles */
+        cesium_tileUrl: string;
     }
 }
