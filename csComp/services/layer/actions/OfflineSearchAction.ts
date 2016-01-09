@@ -166,7 +166,7 @@ module csComp.Services {
                         layer.groupTitle,
                         entry,
                         r.score
-                        ));
+                    ));
                 }
             }
             // Group search results by groupTitle | layerTitle
