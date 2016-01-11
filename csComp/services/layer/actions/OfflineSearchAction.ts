@@ -265,7 +265,8 @@ module csComp.Services {
 
         public selectFeature(feature: IFeature) {
             this.layerService.$mapService.zoomTo(feature);
-            this.layerService.selectFeature(feature);
+            // Force-select feature, otherwise we might deselect the feature immediately after it was selected.
+            this.layerService.selectFeature(feature, false, true);
         }
     }
 
