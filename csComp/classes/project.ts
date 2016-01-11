@@ -117,7 +117,9 @@ module csComp.Services {
 
     /** bouding box to specify a region. */
     export interface IBoundingBox {
+        /** Latitude = 0, Longitude = 1 */
         southWest: number[];
+        /** Latitude = 0, Longitude = 1 */
         northEast: number[];
     }
 

@@ -44,7 +44,7 @@ module csComp.Services {
             return result;
         }
 
-        protected baseAddLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {            
+        protected baseAddLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void, data = null) {
             this.layer = layer;
             async.series([
                 (cb) => {
@@ -129,8 +129,6 @@ module csComp.Services {
                 var resource = this.service.findResourceByFeature(firstFeature);
                 csComp.Helpers.addPropertyTypes(firstFeature, firstFeature.fType, resource);
             }
-            
-            
 
             layer.isTransparent = false;
             // Subscribe to zoom events

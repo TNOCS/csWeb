@@ -187,6 +187,7 @@
         "csComp/services/layer/sources/NightDayDataSource.ts",
         "csComp/services/layer/sources/RssDataSource.ts",
         "csComp/services/layer/sources/TileLayerSource.ts",
+        "csComp/services/layer/sources/VectorTileSource.ts",
         "csComp/services/layer/sources/WmsSource.ts",
         "csComp/services/map/layerRenderers/canvasOverlay.ts",
         "csComp/services/map/layerRenderers/geojsonRenderer.ts",
