@@ -83,14 +83,14 @@ module csComp.Helpers {
             return newData;
         }
 
+        static Rad2Deg = Math.PI / 180;
+
         static deg2rad(degree: number) {
-            var conv_factor = (2.0 * Math.PI) / 360.0;
-            return (degree * conv_factor);
+            return (degree * GeoExtensions.Rad2Deg);
         }
 
         static rad2deg(rad: number) {
-            var conv_factor = 360 / (2.0 * Math.PI);
-            return (rad * conv_factor);
+            return (rad / GeoExtensions.Rad2Deg);
         }
 
         /**
@@ -352,5 +352,66 @@ module csComp.Helpers {
             }
             return inside;
         }
+
+        /** Convert a string representation of a bounding box to an LatLngBounds.  */
+        static toBoundingBox(bb: string) {
+            var pts: number[] = [];
+            bb.split(',').forEach(p => {
+                pts.push(+p);
+            });
+            return new L.LatLngBounds([pts[1], pts[0]], [pts[3], pts[2]]);
+        }
+
+        /** Start slippy map computation */
+
+        /** Convert longitude to tile coordinate. */
+        private static lon2tile(lon, zoom) {
+            return (Math.floor((lon + 180) / 360 * Math.pow(2 , zoom)));
+        }
+
+        /** Convert latitude to tile coordinate. */
+        private static lat2tile(lat,  zoom) {
+            return (Math.floor((1 - Math.log(Math.tan(lat * GeoExtensions.Rad2Deg) + 1 / Math.cos(lat * GeoExtensions.Rad2Deg)) / Math.PI) / 2 * Math.pow(2, zoom)));
+        }
+
+        /**
+         * Convert a bounding box to slippy tile coordinates. 
+         * Returns an object that specifies the top, bottom, left and right tiles, as well as its width and height.
+         * 
+         * See http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#ECMAScript_.28JavaScript.2FActionScript.2C_etc..29
+         */
+        static slippyMapTiles(zoom: number, bbox: string | csComp.Services.IBoundingBox) {
+            var north_edge: number,
+                west_edge: number,
+                south_edge: number,
+                east_edge: number;
+            if (typeof bbox === 'string') {
+                let bb = GeoExtensions.toBoundingBox(bbox);
+                north_edge = bb.getNorth();
+                south_edge = bb.getSouth();
+                west_edge  = bb.getWest();
+                east_edge  = bb.getEast();
+            } else {
+                north_edge = bbox.northEast[0];
+                east_edge  = bbox.northEast[1];
+                south_edge = bbox.southWest[0];
+                west_edge  = bbox.southWest[1];
+            }
+            var top_tile    = GeoExtensions.lat2tile(north_edge, zoom); // eg.lat2tile(34.422, 9);
+            var left_tile   = GeoExtensions.lon2tile(west_edge, zoom);
+            var bottom_tile = GeoExtensions.lat2tile(south_edge, zoom);
+            var right_tile  = GeoExtensions.lon2tile(east_edge, zoom);
+            var width       = Math.abs(left_tile - right_tile) + 1;
+            var height      = Math.abs(top_tile - bottom_tile) + 1;
+            return {
+                top:    top_tile,
+                bottom: bottom_tile,
+                left:   left_tile,
+                right:  right_tile,
+                width:  width,
+                height: height
+            };
+        }
+        /** End slippy map computation */
     }
 }
