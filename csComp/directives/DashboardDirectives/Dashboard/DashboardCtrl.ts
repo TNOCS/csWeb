@@ -200,23 +200,24 @@ module Dashboard {
                     this.$mapService.timelineVisible = false;
                 }
                 if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
-					this.$scope.$apply(); 
-				}
+                    this.$scope.$apply(); 
+                }
             }
-			var d = this.$scope.dashboard;     // RS mod January 2016
+            var d = this.$scope.dashboard;     // RS mod January 2016
             if (d.showTimeline && d.timeline) {
                 //console.log("checkTimeline: dashboard has timeline");
-				this.$messageBusService.publish('timeline', 'updateTimerange', d.timeline);
-				// now move the focustimeContainer to the right position
-				if ((d.timeline.focus > d.timeline.start) && (d.timeline.focus < d.timeline.end)) {
-					var f = (d.timeline.focus - d.timeline.start) / (d.timeline.end - d.timeline.start);
-					//var w = $("#timeline").width();           // unfortunately, on the first call, 
-												//the timeline has a width of 100 (not resized yet)
-					//var w = $("#timeline").parent().width();  // does not help: = 0 on first call
-					var w = $("#map").width();                  // this works but might be dangerous
-					var newpos = f * w - $("#focustimeContainer").width() / 2;
-					$("#focustimeContainer").css('left', newpos);
-				}
+                this.$messageBusService.publish('timeline', 'updateTimerange', d.timeline);
+                // now move the focustimeContainer to the right position
+                if ( d.timeline.focus && d.timeline.start && d.timeline.end &&
+                    (d.timeline.focus > d.timeline.start) && (d.timeline.focus < d.timeline.end)) {
+                    var f = (d.timeline.focus - d.timeline.start) / (d.timeline.end - d.timeline.start);
+                    //var w = $("#timeline").width();           // unfortunately, on the first call, 
+                                                //the timeline has a width of 100 (not resized yet)
+                    //var w = $("#timeline").parent().width();  // does not help: = 0 on first call
+                    var w = $("#map").width();                  // this works but might be dangerous
+                    var newpos = f * w - $("#focustimeContainer").width() / 2;
+                    $("#focustimeContainer").css('left', newpos);
+                }
             }                                  // end RS mod
         }
 
