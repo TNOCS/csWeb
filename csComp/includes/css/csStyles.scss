@@ -367,6 +367,12 @@ body,
     height: 100%;
     position: absolute;
 }
+.widget-min-max-close{
+    display: inline-block;
+    float: right;
+    padding: 0 2px;
+    cursor: pointer;
+}
 .widgethover {
     opacity: 0.5;
 }
