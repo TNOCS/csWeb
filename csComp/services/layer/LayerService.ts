@@ -139,17 +139,6 @@ module csComp.Services {
                 }
             });
 
-            // EV TODO Remove - Doesn't do anything
-            // $messageBusService.subscribe('geo', (action, loc: csComp.Services.Geoposition) => {
-            //     switch (action) {
-            //         case 'pos':
-            //             //alert(loc.coords.latitude + ' - ' + loc.coords.longitude);
-            //             break;
-            //     }
-            // });
-
-            //this.geoService.start();
-
             this.addActionService(new LayerActions());
             this.addActionService(new MatrixAction.MatrixActionModel());
 
@@ -397,6 +386,9 @@ module csComp.Services {
 
             // add Database data source
             this.layerSources['database'] = new DatabaseSource(this);
+
+            // add VectorTile data source
+            this.layerSources['vectortile'] = new VectorTileSource(this);
 
             // check for every feature (de)select if layers should automatically be activated
             this.checkFeatureSubLayers();
