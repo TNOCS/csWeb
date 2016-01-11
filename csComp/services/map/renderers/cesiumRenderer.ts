@@ -461,11 +461,16 @@ module csComp.Services {
                     }
 
                     // if there is no icon, a PointGraphics object is used as a fallback mechanism
-                    entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+                    entity.position = Cesium.Cartesian3.fromDegrees(
+                        feature.geometry.coordinates[0],
+                        feature.geometry.coordinates[1],
+                        feature.geometry.coordinates[2] || this.getHeightAboveSeaLevel(feature));
+
+                    entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(entity.position, effStyle.rotate, 0, 0);
 
                     entity.point = {
                         pixelSize: pixelSize,
-                        position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]),
+                        position: entity.position,
                         color: fillColor,
                         outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
                         outlineWidth: effStyle.strokeWidth
@@ -573,7 +578,7 @@ module csComp.Services {
             // add a 3D model if we have one
             if (effStyle.modelUri) {
                 entity.model = new Cesium.ModelGraphics({
-                    uri:              effStyle.modelUri,
+                    uri:              `/models/${effStyle.modelUri}`,
                     scale:            effStyle.modelScale || 1,
                     minimumPixelSize: effStyle.modelMinimumPixelSize || 32
                 });
