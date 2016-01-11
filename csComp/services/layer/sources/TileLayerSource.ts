@@ -1,21 +1,16 @@
 module csComp.Services {
-    'use strict';
-
-    declare var L;
-
     export class TileLayerSource implements ILayerSource {
-        title = "tilelayer";
+        title = 'tilelayer';
         //service : LayerService;
         requiresLayer = false;
         private prevDateTimes: { [id: string]: string } = {};
-        constructor(public service: LayerService) {
-        }
+        constructor(public service: LayerService) {}
 
         public refreshLayer(layer: ProjectLayer) {
             //console.log('refreshing');
             if (layer.mapLayer.getLayers().length > 0) {
                 var l = <L.TileLayer>layer.mapLayer.getLayers()[0];
-                //console.log("layer ID: " + layer.id);
+                //console.log('layer ID: ' + layer.id);
                 var u = layer.url;
                 if (layer.timeDependent) {
                     // convert epoch to time string parameter
@@ -35,18 +30,18 @@ module csComp.Services {
                     var secs = d.getSeconds();
                     var sDateTime: string = sDate + Utils.twoDigitStr(hrs) +
                         Utils.twoDigitStr(mins) + Utils.twoDigitStr(secs);
-                    //console.log("DateTime: " + sDateTime);
+                    //console.log('DateTime: ' + sDateTime);
                     if (sDateTime === this.prevDateTimes[layer.id]) {
-                        //console.log("Same time stamp. No refresh");
-                        return
+                        //console.log('Same time stamp. No refresh');
+                        return;
                     }
                     this.prevDateTimes[layer.id] = sDateTime;
-                    u += "&time=" + sDateTime;
+                    u += '&time=' + sDateTime;
                     //console.log(u);
                 } else if (layer.disableCache) {
                     // check if we need to create a unique url to force a refresh
                     layer.cacheKey = new Date().getTime().toString();
-                    u += "&cache=" + layer.cacheKey;
+                    u += '&cache=' + layer.cacheKey;
                 }
                 l.setUrl(u);
             }
@@ -59,7 +54,7 @@ module csComp.Services {
         }
 
         public addLayer(layer: ProjectLayer, callback: Function, data = null) {
-            layer.renderType = "tilelayer";
+            layer.renderType = 'tilelayer';
             callback(layer);
             //this.$rootScope.$apply();
         }
