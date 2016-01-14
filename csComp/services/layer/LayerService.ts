@@ -181,27 +181,53 @@ module csComp.Services {
                 var layer = <ProjectLayer>this.loadedLayers[l];
                 console.log(layer.title);
                 if (layer.sensorLink) {
-                    console.log('downloading ' + layer.sensorLink.url);
-                    this.$http.get(layer.sensorLink.url)
+                    var link = layer.sensorLink.url + "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
+                    console.log('downloading ' + link);
+                    
+                    this.$http.get(link)
                         .success((data: ISensorLinkResult) => {
                                 updated = true;
-                                layer.timestamps = data.timeStamps;
+                                layer.timestamps = data.timestamps;
                                 layer.data.features.forEach((f: IFeature) => { f.sensors = {};
                                 data.properties.forEach(s => f.sensors[s] = []);
                             });
                             var t = 0;
+                            
+                            var featureLookup = []
+                            
+                            data.features.forEach(f =>{
+                               var index = _.findIndex(layer.data.features,((p : csComp.Services.IFeature)=>p.properties[layer.sensorLink.linkid] === f));
+                               featureLookup.push(index);                               
+                            });
 
                             data.data.forEach(ts => {
                                 var i = 0;
-                                layer.data.features.forEach((f: IFeature) => {
-                                    data.properties.forEach(s => {
-                                        f.sensors[s].push(data.data[t][i]);
-                                        i += 1;
-                                    });
+                                //var fi = featureLookup()
+                                //var f = layer.data.features[]
+                                data.properties.forEach(s => {
+                                featureLookup.forEach(index=>{
+                                    if (index>=0)
+                                    {
+                                        var f = layer.data.features[index];
+                                        var value = data.data[t][i];
+                                        if (value === -1) value = null;
+                                        f.sensors[s].push(value);
+                                    }
+                                    i += 1;    
+                                })
+                                
                                 });
+                                // layer.data.features.forEach((f: IFeature) => {
+                                //     data.properties.forEach(s => {
+                                //         f.sensors[s].push(data.data[t][i]);
+                                //         i += 1;
+                                //     });
+                                // });
                                 t += 1;
                             });
                             this.throttleSensorDataUpdate();
+                            
+                            //this.$messageBusService.publish("timeline","timeSpanUpdated");
                         })
                         .error((e) => {
                             console.log('error loading sensor data');
@@ -1139,7 +1165,7 @@ module csComp.Services {
                     for (var s in feature.sensors)
                     {
                         var propType = this.getPropertyType(feature,s);
-                        if (propType.sensorNull)
+                        if (propType && propType.sensorNull)
                         {
                             for (var i = 0; i < feature.sensors[s].length;i++)
                             {
