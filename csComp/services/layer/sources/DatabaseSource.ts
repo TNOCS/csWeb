@@ -44,6 +44,7 @@ module csComp.Services {
                         if (this.service.$mapService.map.getZoom() < 16) {
                             console.log('Zoom level too low, zoom in to show contours');
                             corners = new L.LatLngBounds(new L.LatLng(99.00000, 99.00000), new L.LatLng(99.00001, 99.00001));
+                            // TODO Shouldn't you return from here (call the callback)
                         } else {
                             corners = this.service.$mapService.map.getBounds();
                         }
@@ -67,10 +68,8 @@ module csComp.Services {
                             data: JSON.stringify(bagRequestData),
                             contentType: 'application/json',
                             dataType: 'json',
-                            success: ((data) => {
-                                console.log('Requested bag contours');
-                            }),
-                            error: () => { this.service.$messageBusService.publish('layer', 'error', layer); }
+                            success: (data) => console.log('Received bag contours'),
+                            error: () => this.service.$messageBusService.publish('layer', 'error', layer)
                         });
                     },
                     // Callback
@@ -82,7 +81,10 @@ module csComp.Services {
                 layer.count = 0;
                 layer.isLoading = false;
                 var projLayer = this.service.findLayer(layer.id);
-                if (projLayer) {projLayer.isLoading = false; projLayer.enabled = true; }
+                if (projLayer) {
+                    projLayer.isLoading = false;
+                    projLayer.enabled   = true;
+                }
                 layer.data.features.forEach((f) => {
                     this.service.initFeature(f, layer, false, false);
                 });

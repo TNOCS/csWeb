@@ -333,8 +333,8 @@ module csComp.Services {
             var data: string = this.getData(input);
             if (!data) return;
 
-            var propertyName = gridParams.propertyName || "v";
-            var noDataValue = gridParams.noDataValue || -9999;
+            var propertyName = (typeof gridParams.propertyName !== 'undefined') ? gridParams.propertyName : 'v';
+            var noDataValue = (typeof gridParams.noDataValue !== 'undefined') ? gridParams.noDataValue : -9999;
 
             var skipLinesAfterComment = gridParams.skipLinesAfterComment,
                 skipSpacesFromLine = gridParams.skipSpacesFromLine,
@@ -349,8 +349,8 @@ module csComp.Services {
                 lat = gridParams.startLat,
                 lon = gridParams.startLon;
 
-            var max = gridParams.maxThreshold || -Number.MAX_VALUE,
-                min = gridParams.minThreshold ||  Number.MAX_VALUE;
+            var max = (typeof gridParams.maxThreshold !== 'undefined') ? gridParams.maxThreshold : Number.MAX_VALUE,
+                min = (typeof gridParams.minThreshold !== 'undefined') ? gridParams.minThreshold : -Number.MAX_VALUE;
             var lines = data.split('\n'),
                 i = 0,
                 gridData: number[][] = [];
@@ -391,8 +391,9 @@ module csComp.Services {
                 gridData[i] = [];
                 cells.forEach(c => gridData[i].push(+c));
 
-                max = Math.max(max, ...gridData[i]);
-                min = Math.min(min, ...gridData[i]);
+                //Why is the minThreshold parameter overwritten by the smallest value in the grid???
+                //max = Math.max(max, ...gridData[i]);
+                //min = Math.min(min, ...gridData[i]);
 
                 i++;
             });
@@ -426,20 +427,20 @@ module csComp.Services {
                 longitudes.push(lon);
                 lon += deltaLon;
                 if (lon > 180) lon -= 360;
-            })
+            });
 
             var features: csComp.Helpers.IGeoFeature[] = [];
             var conrec = new csComp.Helpers.Conrec(),
                 nrIsoLevels: number,
                 isoLevels: number[];
 
-            if (typeof gridParams.contourLevels === 'undefined') nrIsoLevels = 10;
-            else {
+            if (typeof gridParams.contourLevels === 'undefined') {
+                nrIsoLevels = 10;
+            } else {
                 var cl = gridParams.contourLevels;
                 if (typeof cl === 'number') {
                     nrIsoLevels = cl;
-                }
-                else {
+                } else {
                     isoLevels = cl;
                     nrIsoLevels = cl.length;
                 }

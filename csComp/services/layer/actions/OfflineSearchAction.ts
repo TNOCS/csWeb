@@ -166,7 +166,7 @@ module csComp.Services {
                         layer.groupTitle,
                         entry,
                         r.score
-                        ));
+                    ));
                 }
             }
             // Group search results by groupTitle | layerTitle
@@ -253,19 +253,20 @@ module csComp.Services {
                 this.layerService.addLayer(projectLayer);
             }
 
-            var group:any = $('#layergroup_' + projectLayer.groupId);
+            var group: any = $('#layergroup_' + projectLayer.groupId);
             group.collapse('show');
         }
 
         private selectFeatureById(layerId: string, featureIndex: number) {
             var feature = this.layerService.findFeatureByIndex(layerId, featureIndex);
             if (feature == null) return;
-            this.selectFeature(feature);
+            this.layerService.$mapService.zoomTo(feature);
+            // Force-select feature, otherwise we might deselect the feature immediately after it was selected.
+            this.layerService.selectFeature(feature, false, true);
         }
 
         public selectFeature(feature: IFeature) {
-            this.layerService.$mapService.zoomTo(feature);
-            this.layerService.selectFeature(feature);
+
         }
     }
 
