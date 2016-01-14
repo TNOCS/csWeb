@@ -197,6 +197,42 @@ module csComp.Helpers {
         }
         return propertyTypes;
     }
+    
+    export function getPropertyKey(keyString : string, property : string) : string
+    {
+        var keys = keyString.split(';');
+        var prop = property;
+        var count = 1;
+        while (keys.indexOf(prop)>=0) {
+            prop=property + count;
+            count+=1;
+        }
+        return prop;
+    }
+
+    export function getPropertyType(feature: csComp.Services.IFeature, key: string): csComp.Services.IPropertyType {
+        var propertyType = <csComp.Services.IPropertyType>{};
+        propertyType.label = key;
+        propertyType.title = key.replace('_', ' ');
+        propertyType.isSearchable = true;
+        propertyType.visibleInCallOut = true;
+        propertyType.canEdit = false;
+        var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
+        if (StringExt.isDate(value)) {
+            propertyType.type = 'date';
+        } else if (StringExt.isNumber(value)) {
+            propertyType.type = 'number';
+        } else if (StringExt.isBoolean(value)) {
+            propertyType.type = 'boolean';
+        } else if (StringExt.isArray(value)) {
+            propertyType.type = 'tags';
+        } else if (StringExt.isBbcode(value)) {
+            propertyType.type = 'bbcode';
+        } else {
+            propertyType.type = 'text';
+        }
+        return propertyType;
+    }
 
     export function getMissingPropertyTypes(feature: csComp.Services.IFeature): csComp.Services.IPropertyType[] {
         //var type = featureType;
@@ -206,27 +242,7 @@ module csComp.Helpers {
         for (var key in feature.properties) {
             //if (!type.propertyTypeData.some((pt: csComp.Services.IPropertyType) => { return pt.label === key; })) {
             if (!feature.properties.hasOwnProperty(key)) continue;
-            var propertyType: csComp.Services.IPropertyType = [];
-            propertyType.label = key;
-            propertyType.title = key.replace('_', ' ');
-            propertyType.isSearchable = true;
-            propertyType.visibleInCallOut = true;
-            propertyType.canEdit = false;
-            var value = feature.properties[key]; // TODO Why does TS think we are returning an IStringToString object?
-            if (StringExt.isDate(value)) {
-                propertyType.type = 'date';
-            } else if (StringExt.isNumber(value)) {
-                propertyType.type = 'number';
-            } else if (StringExt.isBoolean(value)) {
-                propertyType.type = 'boolean';
-            } else if (StringExt.isArray(value)) {
-                propertyType.type = 'tags';
-            } else if (StringExt.isBbcode(value)) {
-                propertyType.type = 'bbcode';
-            } else {
-                propertyType.type = 'text';
-            }
-            res.push(propertyType);
+            res.push(getPropertyType(feature, key));
             //}
         }
 
