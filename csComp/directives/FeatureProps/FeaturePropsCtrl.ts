@@ -72,7 +72,9 @@ module FeatureProps {
             public description?:  string,
             public propertyType?: IPropertyType,
             public timestamps?:   number[],
-            public sensor?:       number[]) { this.cors = {}; this._id = csComp.Helpers.getGuid(); }
+            public sensor?:       number[],
+            public isDraft? : boolean) { this.cors = {}; this._id = csComp.Helpers.getGuid(); }
+            
     }
 
     export interface ICallOutSection {
@@ -80,7 +82,7 @@ module FeatureProps {
         properties: Array<ICallOutProperty>;
         sectionIcon: string;
         addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature,
-            isFilter: boolean, description?: string, propertyType?: IPropertyType): void;
+            isFilter: boolean, description?: string, propertyType?: IPropertyType, isDraft? : boolean): void;
         hasProperties(): boolean;
     }
 
@@ -98,16 +100,16 @@ module FeatureProps {
         showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
         addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature,
-            isFilter: boolean, description?: string, propertyType?: IPropertyType): void {
+            isFilter: boolean, description?: string, propertyType?: IPropertyType, isDraft? : boolean): void {
             var isSensor = feature.sensors && feature.sensors.hasOwnProperty(property);
             if (isSensor) {
                 this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description
                     ? description
-                    : null, propertyType, feature.timestamps, feature.sensors[property]));
+                    : null, propertyType, feature.timestamps, feature.sensors[property],isDraft));
             } else {
                 this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description
                     ? description
-                    : null, propertyType));
+                    : null, propertyType,null,null,isDraft));
             }
         }
 
@@ -144,30 +146,45 @@ module FeatureProps {
 
             var displayValue: string;
             if (type != null) {
+                
+                var missing;
                 //var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
                 //if (propertyTypes.length === 0) { for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]); };
-                if (type.showAllProperties || this.mapservice.isAdminExpert) {
-                    // var missing = csComp.Helpers.getMissingPropertyTypes(feature);
-                    // missing.forEach((pt: csComp.Services.IPropertyType) => {
-                    //     if (!propertyTypes.some(((p: csComp.Services.IPropertyType) => p.label === pt.label))) {
-                    //         propertyTypes.push(pt);
-                    //     }
-                    // });
-                }
+                // if (type.showAllProperties || this.mapservice.isAdminExpert) {
+                //     missing = csComp.Helpers.getMissingPropertyTypes(feature);                    
+                //     // missing.forEach((pt: csComp.Services.IPropertyType) => {
+                //     //     if (!propertyTypes.some(((p: csComp.Services.IPropertyType) => p.label === pt.label))) {
+                //     //         propertyTypes.push(pt);
+                //     //     }
+                //     // });
+                // }
 
                 // if feature type has propertyTypeKeys defined use these to show the order of the properties 
                 if (feature.fType.propertyTypeKeys) {
-                    feature.fType._propertyTypeData.forEach((mi: IPropertyType) => {
-                        if (feature.properties.hasOwnProperty(mi.label) && mi.visibleInCallOut) {
-                            this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection);
-                        }
+                    feature.fType._propertyTypeData.forEach((mi: IPropertyType) => {                        
+                        if (feature.properties.hasOwnProperty(mi.label))
+                        {
+                            if (mi.visibleInCallOut) this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection);
+                        }                        
                     });
+                    if (feature.fType.showAllProperties || this.mapservice.isAdminExpert)
+                    {
+                        for (var key in feature.properties) {                            
+                            var mi = csComp.Helpers.getPropertyType(feature, key);
+                            this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection,true);
+                        }                        
+                    }
                 } else { // if not go through all properties and find a propertyType 
                     for (var key in feature.properties) {
                         var mi = layerservice.getPropertyType(feature, key);
 
                         if (mi) {
                             this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection);
+                        }
+                        else if (feature.fType.showAllProperties || this.mapservice.isAdminExpert)
+                        {
+                            var prop = csComp.Helpers.getPropertyType(feature,key);
+                            this.addProperty(prop,feature,infoCallOutSection,hierarchyCallOutSection,true);                                                        
                         }
                     }
                 }
@@ -184,7 +201,7 @@ module FeatureProps {
             this.sectionKeys = this.sectionKeys.sort();
         }
 
-        private addProperty(mi: IPropertyType, feature: IFeature, infoCallOutSection: CallOutSection, hierarchyCallOutSection: CallOutSection) {
+        private addProperty(mi: IPropertyType, feature: IFeature, infoCallOutSection: CallOutSection, hierarchyCallOutSection: CallOutSection, isDraft = false) {
             var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
             if (callOutSection.propertyTypes.hasOwnProperty(mi.label)) return; // Prevent duplicate properties in the same  section
             callOutSection.propertyTypes[mi.label] = mi;
@@ -200,7 +217,7 @@ module FeatureProps {
             var canStyle = (mi.type === 'number' || mi.type === 'options' || mi.type === 'color');
             if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() !== 'none';
             if (mi.visibleInCallOut) {
-                callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi,isDraft);
             }
             if (mi.type === 'hierarchy') {
                 hierarchyCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
@@ -387,11 +404,24 @@ module FeatureProps {
             var resource = this.$layerService.findResourceByFeature(this.$scope.feature);
             if (resource) { this.$layerService.saveResource(resource); }
         }
+        
+        
 
-        public savePropertyType(propType: csComp.Services.IPropertyType) {
+        public savePropertyType(item : CallOutProperty) {
+            var propType = item.propertyType;
             console.log('saving property');
             console.log(propType);
             var resource = this.$layerService.findResourceByFeature(this.$scope.feature);
+            if (item.isDraft)
+            {
+                var key = csComp.Helpers.getPropertyKey(item.feature.fType.propertyTypeKeys,item.property);
+                resource.propertyTypeData[key] = propType;
+                item.feature.fType.propertyTypeKeys+=";" + key;
+                item.isDraft = false;         
+                this.$layerService.propertyTypeData[key] = propType;       
+                //alert('saving draft');
+            }
+            
             this.$layerService.saveResource(resource);
             this.displayFeature(this.$scope.feature);
         }
