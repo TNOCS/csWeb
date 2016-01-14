@@ -34,6 +34,7 @@ module MatrixAction {
 
 
         addLayer(layer: csComp.Services.IProjectLayer) {
+            if (!layer.data || !layer.data.features) return;
             layer.data.features.forEach((feature: IFeature) => {
                 var props = csComp.Helpers.getPropertyTypes(feature.fType, this.layerService.propertyTypeData);
                 props.forEach((prop: IPropertyType) => {
