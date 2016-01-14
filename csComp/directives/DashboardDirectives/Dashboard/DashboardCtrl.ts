@@ -68,7 +68,7 @@ module Dashboard {
                     //alert(this.project.activeDashboard.id);
                     switch (s) {
                         case 'activated':
-                            $scope.dashboard = d;
+                            $scope.dashboard = d; 
                             this.updateDashboard();
                             break;
                     }
@@ -193,6 +193,7 @@ module Dashboard {
         }
 
         public checkTimeline() {
+                        
             if (this.$scope.dashboard.showTimeline !== this.$mapService.timelineVisible) {
                 if (this.$scope.dashboard.showTimeline && this.$mapService.isIntermediate) {
                     this.$mapService.timelineVisible = true;
@@ -200,6 +201,15 @@ module Dashboard {
                     this.$mapService.timelineVisible = false;
                 }
                 if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+            }
+            
+            var db = this.$layerService.project.activeDashboard;
+           
+            if (db.timeline) {
+                var s = new Date(db.timeline.start);
+                var e = new Date();
+                if (db.timeline.end) e = new Date(db.timeline.end);                
+                this.$messageBusService.publish('timeline', 'updateTimerange', { start: s, end: e });
             }
         }
 
