@@ -10,7 +10,6 @@ module csComp.Services {
         getRequiredLayers?(layer: ProjectLayer): ProjectLayer[];
         layerMenuOptions(layer: ProjectLayer): [[string, Function]];
     }
-     
 
     /** layer service is responsible for reading and managing all project, layer and sensor related data */
     export class LayerService {
@@ -132,24 +131,13 @@ module csComp.Services {
             $messageBusService.subscribe('mapbbox', (title: string, bbox: string) => {
                 if (title !== 'update') return;
                 for (var l in this.loadedLayers) {
-                    var layer = <ProjectLayer>this.loadedLayers[l];
+                    var layer = this.loadedLayers[l];
                     if (layer.refreshBBOX) {
                         layer.BBOX = bbox;
                         layer.layerSource.refreshLayer(layer);
                     }
                 }
             });
-
-            // EV TODO Remove - Doesn't do anything
-            // $messageBusService.subscribe('geo', (action, loc: csComp.Services.Geoposition) => {
-            //     switch (action) {
-            //         case 'pos':
-            //             //alert(loc.coords.latitude + ' - ' + loc.coords.longitude);
-            //             break;
-            //     }
-            // });
-
-            //this.geoService.start();
 
             this.addActionService(new LayerActions());
             this.addActionService(new MatrixAction.MatrixActionModel());
@@ -425,6 +413,9 @@ module csComp.Services {
             // add Database data source
             this.layerSources['database'] = new DatabaseSource(this);
 
+            // add VectorTile data source
+            this.layerSources['vectortile'] = new VectorTileSource(this);
+
             // check for every feature (de)select if layers should automatically be activated
             this.checkFeatureSubLayers();
         }
@@ -457,7 +448,6 @@ module csComp.Services {
                     case 'onFeatureSelect':
                         var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
                         props.forEach((prop: IPropertyType) => {
-                            
                             if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
                                 if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer._lastSelectedFeature);
 
@@ -542,6 +532,7 @@ module csComp.Services {
                 (callback) => {
                     // console.log('loading types: ' + layer.typeUrl);
                     if (layer.typeUrl) {
+                        // TODO Check if we haven't loaded it already
                         this.loadTypeResources(layer.typeUrl, layer.dynamicResource || false, () => callback(null, null));
                     } else {
                         callback(null, null);
@@ -567,9 +558,9 @@ module csComp.Services {
                     }
                     layer.layerSource = this.layerSources[layerSource];
                     // load layer from source
-                    if (layer.type === 'database') {
+                    if (layerSource === 'database') {
                         this.$messageBusService.serverSubscribe(layer.id, 'layer', (sub: string, msg: any) => {
-                            console.log(msg);
+                            //console.log(msg);
                             if (msg.action === 'layer-update') {
                                 if (!msg.data.group) {
                                     msg.data.group = this.findGroupByLayerId(msg.data);
@@ -587,11 +578,11 @@ module csComp.Services {
                             this.activeMapRenderer.addLayer(layer);
                             if (layer.defaultLegendProperty) this.checkLayerLegend(layer, layer.defaultLegendProperty);
                             this.checkLayerTimer(layer);
-                            
-                            if (this.actionServices) this.actionServices.forEach(as=>{
-                                if (as.addLayer) as.addLayer(layer); 
+
+                            if (this.actionServices) this.actionServices.forEach(as => {
+                                if (as.addLayer) as.addLayer(layer);
                             });
-                            
+
                             this.$messageBusService.publish('layer', 'activated', layer);
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             // if (layerloaded) layerloaded(layer);
@@ -879,8 +870,9 @@ module csComp.Services {
             });
         }
 
-        /** Recompute the style of the layer features, e.g. after changing the opacity or after
-         *	zooming to a level outside the layers' range.
+        /** 
+         * Recompute the style of the layer features, e.g. after changing the opacity or after
+         * zooming to a level outside the layers' range.
          */
         public updateLayerFeatures(layer: ProjectLayer) {
             if (!layer) return;
@@ -1138,8 +1130,6 @@ module csComp.Services {
                 feature._gui = {
                     included: true
                 };
-                
-                
 
                 if (!feature.logs) feature.logs = {};
                 if (feature.properties == null) feature.properties = {};
@@ -1159,18 +1149,13 @@ module csComp.Services {
                 feature.fType = this.getFeatureType(feature);
 
                 if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
-                
-                if (feature.sensors)
-                {
-                    for (var s in feature.sensors)
-                    {
-                        var propType = this.getPropertyType(feature,s);
+                if (feature.sensors) {
+                    for (var s in feature.sensors) {
+                        var propType = this.getPropertyType(feature, s);
                         if (propType && propType.sensorNull)
-                        {
-                            for (var i = 0; i < feature.sensors[s].length;i++)
-                            {
-                               if (feature.sensors[s][i] === propType.sensorNull) feature.sensors[s][i]= 0;
-                            }                             
+                            for (var i = 0; i < feature.sensors[s].length; i++) {
+                               if (feature.sensors[s][i] === propType.sensorNull) feature.sensors[s][i] = 0;
+                            }
                             console.log(feature.sensors[s]);
                         }
                     }
@@ -1228,6 +1213,7 @@ module csComp.Services {
                 if (style.selectedStrokeWidth) s.selectedStrokeWidth = style.selectedStrokeWidth;
                 if (style.iconWidth) s.iconWidth = style.iconWidth;
                 if (style.iconHeight) s.iconHeight = style.iconHeight;
+                if (style.heightAboveSeaProperty) s.heightAboveSeaProperty = style.heightAboveSeaProperty;
                 if (style.modelUri) s.modelUri = style.modelUri;
                 if (style.modelScale) s.modelScale = style.modelScale;
                 if (style.modelMinimumPixelSize) s.modelMinimumPixelSize = style.modelMinimumPixelSize;
@@ -1440,7 +1426,7 @@ module csComp.Services {
         findFeatureById(featureId: string): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.id === featureId; });
         }
-        
+
         /**
          * Find a feature by layerId and FeatureId.
          * @property {string}
@@ -2048,6 +2034,7 @@ module csComp.Services {
                             if (b.subdomains != null) baselayer.subdomains = b.subdomains;
                             if (b.maxZoom != null) baselayer.maxZoom = b.maxZoom;
                             if (b.minZoom != null) baselayer.minZoom = b.minZoom;
+                            if (b.errorTileUrl != null) baselayer.errorTileUrl = b.errorTileUrl;
                             if (b.attribution != null) baselayer.attribution = b.attribution;
                             if (b.id != null) baselayer.id = b.id;
                             if (b.title != null) baselayer.title = b.title;
@@ -2055,6 +2042,7 @@ module csComp.Services {
                             if (b.preview != null) baselayer.preview = b.preview;
                             if (b.url != null) baselayer.url = b.url;
                             if (b.cesium_url != null) baselayer.cesium_url = b.cesium_url;
+                            if (b.cesium_tileUrl != null) baselayer.cesium_tileUrl = b.cesium_tileUrl;
                             if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
 
                             this.$mapService.baseLayers[b.title] = baselayer;
@@ -2153,12 +2141,11 @@ module csComp.Services {
                 this.parseProject(project, solutionProject, layerIds);
             }
         }
-        
 
         private parseProject(prj: Project, solutionProject: csComp.Services.SolutionProject, layerIds: Array<string>) {
             prj.solution = this.solution;
             this.project = new Project().deserialize(prj);
-            
+
             if (typeof this.project.isDynamic === 'undefined') this.project.isDynamic = solutionProject.dynamic;
 
             if (!this.project.timeLine) {
@@ -2271,8 +2258,8 @@ module csComp.Services {
                         this.$mapService.zoomToLocation(new L.LatLng(prj.startposition.latitude, prj.startposition.longitude));
                     }
                 });
-            }                       
-            
+            }
+
             if (this.project.isDynamic) {
                 if (!this.project.layerDirectory) this.project.layerDirectory = '/api/layers';
                 // check connection
@@ -2766,13 +2753,12 @@ module csComp.Services {
 
         public updateProject() {
             console.log('saving project');
-            setTimeout(() => {                
+            setTimeout(() => {
                 var data = this.project.serialize();
                 var url = this.projectUrl.url;
-                
+
                 var pu = <ProjectUpdate>{ projectId : this.project.id, action : ProjectUpdateAction.updateProject, item : data};
-                               
-                this.$messageBusService.serverSendMessageAction("project",pu);
+                this.$messageBusService.serverSendMessageAction('project', pu);
                 //.substr(0, this.$layerService.projectUrl.url.indexOf('/project.json'));
                 // console.log('URL: ' + url);
                 // $.ajax({
@@ -2875,16 +2861,16 @@ module csComp.Services {
         updateLog,
         deleteFeature
     }
-    
-       /**
+
+    /**
      * List of available action for sending/receiving project actions over socket.io channel
      */
     export enum ProjectUpdateAction {
         updateProject,
         deleteProject
     }
-    
-      /**
+
+    /**
      * object for sending project messages over socket.io channel
      */
     export class ProjectUpdate {

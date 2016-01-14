@@ -41,12 +41,12 @@ export class FileStorage extends BaseConnector.BaseConnector {
     constructor(public rootpath: string, watch: boolean = true) {
         super();
         this.receiveCopy = false;
-        this.keysPath = path.join(rootpath, "keys/");
-        this.layersPath = path.join(rootpath, "layers/");
-        this.projectsPath = path.join(rootpath, "projects/");
-        this.resourcesPath = path.join(rootpath, "resourceTypes/");
-        this.blobPath = path.join(rootpath, "blobs/");
-        this.iconPath = path.join(rootpath, "../images/");
+        this.keysPath      = path.join(rootpath, 'keys/');
+        this.layersPath    = path.join(rootpath, 'layers/');
+        this.projectsPath  = path.join(rootpath, 'projects/');
+        this.resourcesPath = path.join(rootpath, 'resourceTypes/');
+        this.blobPath      = path.join(rootpath, 'blobs/');
+        this.iconPath      = path.join(rootpath, '../images/');
         // check if rootpath exists, otherwise create it, including its parents
         if (!fs.existsSync(rootpath)) { fs.mkdirsSync(rootpath); }
         if (!fs.existsSync(this.iconPath)) { fs.mkdirsSync(this.iconPath); }
@@ -195,21 +195,27 @@ export class FileStorage extends BaseConnector.BaseConnector {
 
 
     private getProjectFilename(projectId: string) {
-        return path.join(this.projectsPath, projectId + ".json");
+        return path.join(this.projectsPath, projectId + '.json');
     }
 
     private getLayerFilename(layerId: string) {
-        return path.join(this.layersPath, layerId + ".json");
+        return path.join(this.layersPath, layerId + '.json');
     }
 
     private getKeyFilename(keyId: string) {
-        return path.join(this.keysPath, keyId + ".json");
+        return path.join(this.keysPath, keyId + '.json');
     }
 
+    // private getResourceFilename(re: ResourceFile) {
+    //     console.log('!!! resource file loc:' + re._localFile);
+    //     return re._localFile;
+    //     //return path.join(this.resourcesPath, resId + '.json');
+    // }
+
     private getResourceFilename(re: ResourceFile) {
-        console.log('!!! resource file loc:' + re._localFile);
-        return re._localFile;
-        //return path.join(this.resourcesPath, resId + ".json");
+        //console.log('!!! resource file loc:' + re._localFile);
+        //return re._localFile;
+        return path.join(this.resourcesPath, re.id + ".json");
     }
 
     private saveKeyFile(key: Key) {

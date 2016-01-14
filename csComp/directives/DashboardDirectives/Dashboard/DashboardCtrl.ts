@@ -200,7 +200,7 @@ module Dashboard {
                 } else {
                     this.$mapService.timelineVisible = false;
                 }
-                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
+                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
             }
             
             var db = this.$layerService.project.activeDashboard;
@@ -209,8 +209,8 @@ module Dashboard {
                 var s = new Date(db.timeline.start);
                 var e = new Date();
                 if (db.timeline.end) e = new Date(db.timeline.end);                
-                this.$messageBusService.publish('timeline', 'updateTimerange', { start: s, end: e });
-            }
+                this.$messageBusService.publish('timeline', 'updateTimerange', { start: s, end: e });                                   
+            }                                  // end RS mod
         }
 
         private setValue(diff: number, value: string): string {
