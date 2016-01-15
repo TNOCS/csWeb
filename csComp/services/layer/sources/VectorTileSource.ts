@@ -1,8 +1,6 @@
 module csComp.Services {
-    'use strict';
-
-    export class DatabaseSource implements ILayerSource {
-        title = 'database';
+    export class VectorTileSource implements ILayerSource {
+        title = 'vectortile';
         layer: ProjectLayer;
         requiresLayer = false;
 

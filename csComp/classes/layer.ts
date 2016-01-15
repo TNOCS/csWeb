@@ -340,6 +340,8 @@ module csComp.Services {
         maxZoom:         number;
         /** Minimum zoom level */
         minZoom:         number;
+        /** URL pointing to an error-tile that should be shown when the actual tile cannot be loaded */
+        errorTileUrl?:   string;
         subdomains:      string[];
         /** String that is shown on the map, attributing the source of the basemap */
         attribution:     string;
@@ -356,12 +358,14 @@ module csComp.Services {
         subtitle:  string;
         preview:   string;
         /** URL pointing to the basemap source. */
-        url: string;
+        url:            string;
         /** Maximum zoom level */
-        maxZoom: number;
+        maxZoom:        number;
         /** Minimum zoom level */
-        minZoom:    number;
-        subdomains: string[];
+        minZoom:        number;
+        /** URL pointing to an error-tile that should be shown when the actual tile cannot be loaded */
+        errorTileUrl:   string;
+        subdomains:     string[];
         /** String that is shown on the map, attributing the source of the basemap */
         attribution:    string;
         test:           string;

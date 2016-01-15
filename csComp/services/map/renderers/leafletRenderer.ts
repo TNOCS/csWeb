@@ -186,6 +186,7 @@ module csComp.Services {
             if (layerObj.subdomains) options['subdomains'] = layerObj.subdomains;
             if (layerObj.maxZoom) options.maxZoom = layerObj.maxZoom;
             if (layerObj.minZoom) options.minZoom = layerObj.minZoom;
+            if (layerObj.errorTileUrl) options.errorTileUrl = layerObj.errorTileUrl;
             if (layerObj.attribution) options.attribution = layerObj.attribution;
             if (layerObj.id) options['id'] = layerObj.id;
             var layer = L.tileLayer(layerObj.url, options);

@@ -1,6 +1,4 @@
 module csComp.Services {
-    declare var Cesium;
-
     export class CesiumRenderer implements IMapRenderer {
         title     = 'cesium';
         service:  LayerService;
@@ -331,7 +329,6 @@ module csComp.Services {
             toRemove.forEach(entity => {
                 this.viewer.entities.remove(entity);
             });
-
         }
 
         public removeFeatures(features: IFeature[]) {
@@ -371,6 +368,12 @@ module csComp.Services {
             return feature.effectiveStyle.height || 0;
         }
 
+        private getHeightAboveSeaLevel(feature: IFeature) {
+            return feature.effectiveStyle.heightAboveSeaProperty && feature.properties.hasOwnProperty(feature.effectiveStyle.heightAboveSeaProperty)
+                ? feature.properties[feature.effectiveStyle.heightAboveSeaProperty]
+                : undefined;
+        }
+
         private updateEntity(entity, feature: IFeature) {
             var effStyle = feature.effectiveStyle;
             if (feature.fType.style.iconUri !== undefined && entity.billboard !== undefined) {
@@ -397,7 +400,16 @@ module csComp.Services {
                     entity.polygon.outlineColor = Cesium.Color.fromCssColorString(effStyle.strokeColor);
                     // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
                     entity.polygon.outlineWidth = effStyle.strokeWidth;
-                    entity.polygon.extrudedHeight = this.getFeatureHeight(feature);
+                    var featureHeight  = this.getFeatureHeight(feature);
+                    var heightAboveSea = this.getHeightAboveSeaLevel(feature);
+                    if (heightAboveSea) {
+                        entity.polygon.perPositionHeight = false;
+                        entity.polygon.extrudedHeight    = heightAboveSea + featureHeight;
+                        entity.polygon.height            = heightAboveSea;
+                    } else {
+                        entity.polygon.perPositionHeight = true;
+                        entity.polygon.extrudedHeight    = featureHeight;
+                    }
                     break;
 
                 case 'LINESTRING':
@@ -422,7 +434,7 @@ module csComp.Services {
         }
 
         public createFeature(feature: IFeature) {
-            var height: number;
+            var featureHeight, heightAboveSea: number;
             var entity = this.viewer.entities.getOrCreateEntity(feature.id);
 
             // link the feature to the entity for CommonSense.selectFeature
@@ -449,11 +461,16 @@ module csComp.Services {
                     }
 
                     // if there is no icon, a PointGraphics object is used as a fallback mechanism
-                    entity.position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
+                    entity.position = Cesium.Cartesian3.fromDegrees(
+                        feature.geometry.coordinates[0],
+                        feature.geometry.coordinates[1],
+                        feature.geometry.coordinates[2] || this.getHeightAboveSeaLevel(feature));
+
+                    entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(entity.position, effStyle.rotate, 0, 0);
 
                     entity.point = {
                         pixelSize: pixelSize,
-                        position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]),
+                        position: entity.position,
                         color: fillColor,
                         outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
                         outlineWidth: effStyle.strokeWidth
@@ -479,48 +496,48 @@ module csComp.Services {
                     break;
 
                 case 'POLYGON':
-                    height = this.getFeatureHeight(feature);
+                    featureHeight  = this.getFeatureHeight(feature);
+                    heightAboveSea = this.getHeightAboveSeaLevel(feature);
                     entity.polygon = new Cesium.PolygonGraphics({
-                        hierarchy: this.createPolygon(feature.geometry.coordinates).hierarchy,
-                        material: fillColor,
-                        outline: style.stroke,
-                        outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
+                        hierarchy:    this.createPolygon(feature.geometry.coordinates).hierarchy,
+                        material:     fillColor,
+                        outline:      style.stroke,
+                        outlineColor: Cesium.Color.                                               fromCssColorString(effStyle.strokeColor),
                         // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
                         outlineWidth: effStyle.strokeWidth
                     });
-                    if (feature.properties.hasOwnProperty('height')) {
+                    if (heightAboveSea) {
                         entity.polygon.perPositionHeight = false;
-                        entity.polygon.extrudedHeight    = feature.properties['height'] + height;
-                        entity.polygon.height            = feature.properties['height'];
+                        entity.polygon.extrudedHeight    = heightAboveSea + featureHeight;
+                        entity.polygon.height            = heightAboveSea;
                     } else {
                         entity.polygon.perPositionHeight = true;
-                        entity.polygon.extrudedHeight    = height;
+                        entity.polygon.extrudedHeight    = featureHeight;
                     }
                     break;
 
                 case 'MULTIPOLYGON':
-                    height = this.getFeatureHeight(feature);
+                    featureHeight = this.getFeatureHeight(feature);
+                    heightAboveSea = this.getHeightAboveSeaLevel(feature);
                     var polygons = this.createMultiPolygon(feature.geometry.coordinates);
                     for (var i = 0; i < polygons.length; ++i) {
                         var entity_multi = new Cesium.Entity();
                         entity_multi.feature = feature;
 
                         var polygon = new Cesium.PolygonGraphics({
-                            hierarchy: polygons[i].hierarchy,
-                            material: fillColor,
-                            outline: style.stroke,
+                            hierarchy:    polygons[i].hierarchy,
+                            material:     fillColor,
+                            outline:      style.stroke,
                             outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
-                            outlineWidth: effStyle.strokeWidth,
-                            extrudedHeight: this.getFeatureHeight(feature),
-                            perPositionHeight: true
+                            outlineWidth: effStyle.strokeWidth
                         });
-                        if (feature.properties.hasOwnProperty('height')) {
+                        if (heightAboveSea) {
                             polygon.perPositionHeight = false;
-                            polygon.extrudedHeight    = feature.properties['height'] + height;
-                            polygon.height            = feature.properties['height'];
+                            polygon.extrudedHeight    = heightAboveSea + featureHeight;
+                            polygon.height            = heightAboveSea;
                         } else {
                             polygon.perPositionHeight = true;
-                            polygon.extrudedHeight    = height;
+                            polygon.extrudedHeight    = featureHeight;
                         }
                         entity_multi.polygon = polygon;
 
@@ -561,7 +578,7 @@ module csComp.Services {
             // add a 3D model if we have one
             if (effStyle.modelUri) {
                 entity.model = new Cesium.ModelGraphics({
-                    uri:              effStyle.modelUri,
+                    uri:              `/models/${effStyle.modelUri}`,
                     scale:            effStyle.modelScale || 1,
                     minimumPixelSize: effStyle.modelMinimumPixelSize || 32
                 });
