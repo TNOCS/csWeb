@@ -2029,6 +2029,7 @@ module csComp.Services {
                             if (b.preview != null) baselayer.preview = b.preview;
                             if (b.url != null) baselayer.url = b.url;
                             if (b.cesium_url != null) baselayer.cesium_url = b.cesium_url;
+                            if (b.cesium_tileUrl != null) baselayer.cesium_tileUrl = b.cesium_tileUrl;
                             if (b.cesium_maptype != null) baselayer.cesium_maptype = b.cesium_maptype;
 
                             this.$mapService.baseLayers[b.title] = baselayer;
