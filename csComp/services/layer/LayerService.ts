@@ -1159,7 +1159,8 @@ module csComp.Services {
                             console.log(feature.sensors[s]);
                         }
                     }
-                }
+                
+            
 
                 this.calculateFeatureStyle(feature);
                 feature.propertiesOld = {};
@@ -1167,6 +1168,7 @@ module csComp.Services {
                 if (applyDigest) this.apply();
                 if (layer.timeAware && publishToTimeline) this.$messageBusService.publish('timeline', 'updateFeatures');
             }
+         
             return feature.type;
         }
 

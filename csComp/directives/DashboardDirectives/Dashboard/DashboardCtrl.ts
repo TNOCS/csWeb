@@ -201,6 +201,8 @@ module Dashboard {
                     this.$mapService.timelineVisible = false;
                 }
                 if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
+                    this.$scope.$root.$apply();                     
+                }
             }
             
             var db = this.$layerService.project.activeDashboard;

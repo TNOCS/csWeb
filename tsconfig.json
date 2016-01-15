@@ -140,6 +140,8 @@
         "csComp/directives/Widgets/MarkdownWidget/Markdown-edit.ts",
         "csComp/directives/Widgets/MarkdownWidget/MarkdownWidget.ts",
         "csComp/directives/Widgets/MarkdownWidget/MarkdownWidgetCtrl.ts",
+        "csComp/directives/Widgets/HeaderWidget/HeaderWidget.ts",
+        "csComp/directives/Widgets/HeaderWidget/HeaderWidgetCtrl.ts",
         "csComp/directives/Widgets/MarvelWidget/MarvelWidget.ts",
         "csComp/directives/Widgets/MarvelWidget/MarvelWidgetCtrl.ts",
         "csComp/directives/Widgets/MCAWidget/MCAWidget.ts",
