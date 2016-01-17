@@ -388,7 +388,7 @@ module csComp.Services {
             this.layerSources['database'] = new DatabaseSource(this);
 
             // add VectorTile data source
-            this.layerSources['vectortile'] = new VectorTileSource(this);
+            this.layerSources['vectortile'] = new VectorTileSource(this, this.$http);
 
             // check for every feature (de)select if layers should automatically be activated
             this.checkFeatureSubLayers();

@@ -141,7 +141,7 @@ module csComp.Services {
         heatmapItems: Heatmap.IHeatmapItem[];
         /** Contains hierarchy settings */
         hierarchySettings: FeatureRelations.IHierarchySettings;
-        /** In case we keep the type (feature,property) information in a separate file */
+        /** Links to the the (feature & property) type definitions in a separate file */
         typeUrl: string;
         /** link to url for dynamic sensor data */
         sensorLink : ISensorLink;
