@@ -380,23 +380,17 @@ module csComp.Helpers {
          * 
          * See http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#ECMAScript_.28JavaScript.2FActionScript.2C_etc..29
          */
-        static slippyMapTiles(zoom: number, bbox: string | csComp.Services.IBoundingBox) {
-            var north_edge: number,
-                west_edge: number,
-                south_edge: number,
-                east_edge: number;
+        static slippyMapTiles(zoom: number, bbox: string | L.LatLngBounds) {
+            var bb: L.LatLngBounds;
             if (typeof bbox === 'string') {
-                let bb = GeoExtensions.toBoundingBox(bbox);
-                north_edge = bb.getNorth();
-                south_edge = bb.getSouth();
-                west_edge  = bb.getWest();
-                east_edge  = bb.getEast();
+                bb = GeoExtensions.toBoundingBox(bbox);
             } else {
-                north_edge = bbox.northEast[0];
-                east_edge  = bbox.northEast[1];
-                south_edge = bbox.southWest[0];
-                west_edge  = bbox.southWest[1];
+                bb = bbox;
             }
+            var north_edge = bb.getNorth(),
+                south_edge = bb.getSouth(),
+                west_edge  = bb.getWest(),
+                east_edge  = bb.getEast();
             var top_tile    = GeoExtensions.lat2tile(north_edge, zoom); // eg.lat2tile(34.422, 9);
             var left_tile   = GeoExtensions.lon2tile(west_edge, zoom);
             var bottom_tile = GeoExtensions.lat2tile(south_edge, zoom);
