@@ -557,9 +557,15 @@ module FeatureProps {
                 var ns = <any>this.$scope;
                 ns.item = item;
 
-                // create sparkline                
+                // create sparkline   
+                try
+                {             
                 var chartElement = this.$compile('<sparkline-chart timestamps="item.timestamps" smooth="false" closed="false" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>')((<any>ch).scope());
                 ch.append(chartElement);
+                }
+                catch (e){
+                    console.log('Error adding sparkline');
+                }
         }
 
         public createSparkLineChart(item: ICallOutProperty) {
@@ -567,6 +573,10 @@ module FeatureProps {
 
             if (item.showChart) {
                 this.addSparkline(item);
+            }
+            else{
+                var ch = $('#featurepropchart_' + item._id);
+                ch.empty();
             }
         }
 
