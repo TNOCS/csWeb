@@ -355,11 +355,18 @@ module csComp.Services {
                         layer.isConnected = true;
                         //console.log('sucesfully subscribed');
                         break;
+                    case 'msg' :
+                        var d = msg.data;
+                        if (d.hasOwnProperty('message'))
+                        {
+                            this.service.$messageBusService.notify(this.layer.title,d.message);                            
+                        }                        
+                        break;                 
                     case 'layer':
                         if (msg.data != null) {
                             try {
                                 var lu = <LayerUpdate>msg.data;
-                                switch (lu.action) {
+                                switch (lu.action) {                                    
                                     case LayerUpdateAction.updateLog:
                                         // find feature
                                         var fId = lu.featureId;

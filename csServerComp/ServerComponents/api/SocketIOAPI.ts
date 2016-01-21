@@ -52,6 +52,9 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
                 }
             }            
         });
+        
+        
+        
         this.connection.subscribe('project', (result: ClientConnection.ClientMessage, clientId: string) => {                        
             var lu = <ClientConnection.ProjectUpdate>result.data;
             if (lu) {                
@@ -83,6 +86,12 @@ export class SocketIOAPI extends BaseConnector.BaseConnector {
             //result.data
         })
         callback();
+    }
+    
+     /** Sends a message (json) to a specific project, only works with socket io for now */
+    public sendClientMessage(project : string, message : Object)
+    {        
+        this.connection.publish(project, "layer", "msg", message);
     }
 
     public addLayer(layer: Layer, meta: ApiMeta, callback: Function) {
