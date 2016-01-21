@@ -143,20 +143,27 @@ module csComp.Services {
             this.addActionService(new MatrixAction.MatrixActionModel());
 
             var delayFocusChange = _.debounce((date) => {
-                for (var l in this.loadedLayers) {
+                this.refreshActiveLayers();
+            }, 500);
+
+            $messageBusService.subscribe('timeline', (action: string, date: Date) => {
+                if (action === 'focusChange') { delayFocusChange(date);
+                    //this.refreshActiveLayers();
+                     }
+            });
+
+            this.checkMobile();
+            this.enableDrop();
+        }
+        
+        public refreshActiveLayers()
+        {
+            for (var l in this.loadedLayers) {
                     var layer = <ProjectLayer>this.loadedLayers[l];
                     if (layer.timeDependent) {
                         layer.layerSource.refreshLayer(layer);
                     }
                 }
-            }, 2000);
-
-            $messageBusService.subscribe('timeline', (action: string, date: Date) => {
-                if (action === 'focusChange') { delayFocusChange(date); }
-            });
-
-            this.checkMobile();
-            this.enableDrop();
         }
 
         /**
@@ -935,15 +942,20 @@ module csComp.Services {
                 feature.isSelected = !feature.isSelected;
             }
             feature._gui['title'] = Helpers.getFeatureTitle(feature);
+            
+            // deselect last feature and also update
+            if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
+                this.deselectFeature(this.lastSelectedFeature);
+                this.actionServices.forEach((as: IActionService) => as.deselectFeature(feature));
+            
+                this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
+            }
+            
             this.actionServices.forEach((as: IActionService) => {
                 if (feature.isSelected) { as.selectFeature(feature); } else { as.deselectFeature(feature); }
             });
 
-            // deselect last feature and also update
-            if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
-                this.deselectFeature(this.lastSelectedFeature);
-                this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
-            }
+            
             if (feature.isSelected) this.lastSelectedFeature = feature;
 
             // select new feature, set selected style and bring to front
@@ -1419,13 +1431,14 @@ module csComp.Services {
                     return feature;
             }
         }
-
+        
+        
         /**
          * Find a feature by layerId and FeatureId.
          * @layerId {string}
          * @featureIndex {number}
          */
-        findFeatureById(featureId: string): IFeature {
+        public findFeatureById(featureId: string): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.id === featureId; });
         }
 
@@ -1434,7 +1447,7 @@ module csComp.Services {
          * @property {string}
          * @value {number}
          */
-        findFeatureByPropertyValue(property : string, value : Object): IFeature {
+        public findFeatureByPropertyValue(property : string, value : Object): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.properties.hasOwnProperty(property) && f.properties[property] === value; });
         }
 
@@ -2861,7 +2874,7 @@ module csComp.Services {
     export enum LayerUpdateAction {
         updateFeature,
         updateLog,
-        deleteFeature
+        deleteFeature        
     }
 
     /**
