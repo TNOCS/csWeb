@@ -28,7 +28,7 @@ module csComp.Services {
             }
             var mapOptions: L.Map.MapOptions = {
                 zoomControl: false,
-                maxZoom: 19,
+                maxZoom: 22,
                 attributionControl: true
             };
             this.map = this.service.$mapService.map = L.map('map', mapOptions);
@@ -185,7 +185,8 @@ module csComp.Services {
             options['preview'] = layerObj.preview;
             if (layerObj.subdomains) options['subdomains'] = layerObj.subdomains;
             if (layerObj.maxZoom) options.maxZoom = layerObj.maxZoom;
-            if (layerObj.minZoom) options.minZoom = layerObj.minZoom;
+            if (layerObj.maxZoom) options.maxZoom = layerObj.maxZoom;
+            if (layerObj.maxNativeZoom) options.maxNativeZoom = layerObj.maxNativeZoom;
             if (layerObj.errorTileUrl) options.errorTileUrl = layerObj.errorTileUrl;
             if (layerObj.attribution) options.attribution = layerObj.attribution;
             if (layerObj.id) options['id'] = layerObj.id;

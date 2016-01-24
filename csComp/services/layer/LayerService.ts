@@ -2049,6 +2049,7 @@ module csComp.Services {
                             if (b.subdomains != null) baselayer.subdomains = b.subdomains;
                             if (b.maxZoom != null) baselayer.maxZoom = b.maxZoom;
                             if (b.minZoom != null) baselayer.minZoom = b.minZoom;
+                            if (b.maxNativeZoom != null) baselayer.maxNativeZoom = b.maxNativeZoom;
                             if (b.errorTileUrl != null) baselayer.errorTileUrl = b.errorTileUrl;
                             if (b.attribution != null) baselayer.attribution = b.attribution;
                             if (b.id != null) baselayer.id = b.id;
