@@ -56,6 +56,7 @@ module csComp.Services {
             this.dashboards['main'] = this.mainDashboard;
 
             this.chartGenerators['sensordata'] = () => { return new csComp.Services.propertySensordataGenerator(this.$layerService, this); };
+            this.chartGenerators['layerSensorData'] = () => { return new csComp.Services.layerPropertySensordataGenerator(this.$layerService,this);}
             this.chartGenerators['top10'] = () => { return new csComp.Services.top10Generator(this.$layerService, this); };
 
             // this.$messageBusService.subscribe("dashboard", (event: string, id: string) => {
@@ -89,6 +90,11 @@ module csComp.Services {
                 id: 'markdownwidget',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/markdown.png',
                 description: 'Show custom markdown or html content'
+            };
+            this.widgetTypes['headerwidget'] = <IWidget>{
+                id: 'headerwidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/markdown.png',
+                description: 'Shows a header'
             };
             this.widgetTypes['tablewidget'] = <IWidget>{
                 id: 'tablewidget',

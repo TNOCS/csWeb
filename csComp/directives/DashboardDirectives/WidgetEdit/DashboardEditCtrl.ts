@@ -115,29 +115,7 @@ module DashboardEdit {
         }
 
         public checkTimeline() {
-            var db = this.$layerService.project.activeDashboard;
-
-            if (db.timeline) {
-
-                var s = new Date(db.timeline.start);
-                var e = new Date();
-                if (db.timeline.end) e = new Date(db.timeline.end);
-                //this.$messageBusService.publish('timeline', 'updateTimerange', { 'start': s, 'end': e});
-                this.$messageBusService.publish('timeline', 'updateTimerange', { start: s, end: e });
-
-
-                //this.$layerService.project.timeLine.setFocus(db.timeline.focusDate, db.timeline.startDate, db.timeline.endDate);
-            }
-
-            if (db.showTimeline !== this.$mapService.timelineVisible) {
-                if (db.showTimeline) {
-                    this.$mapService.timelineVisible = true;
-                } else {
-                    this.$mapService.timelineVisible = false;
-                }
-
-                if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
-            }
+            
         }
 
         public checkLegend() {

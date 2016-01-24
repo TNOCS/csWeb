@@ -1,6 +1,7 @@
 import Winston = require('winston');
 import helpers = require('../helpers/Utils');
 import AuthApi = require('./AuthAPI');
+import socketio = require('./SocketIOAPI');
 import fs = require('fs');
 import path = require('path');
 import events = require('events');
@@ -267,6 +268,9 @@ export class Feature {
     public geometry: Geometry;
     public properties: { [key: string]: any };
     public logs: { [key: string]: Log[] };
+    public coordinates: any[];          // used for temporal data
+    public sensors : { [ key : string] : any[] };
+    public timestamps : number[];
 }
 
 /**
@@ -385,6 +389,18 @@ export class ApiManager extends events.EventEmitter {
                 callback();
             });
         });
+    }
+    
+    /** Sends a message (json) to a specific project, only works with socket io for now */
+    public sendClientMessage(project : string, message : Object)
+    {
+        if (this.connectors.hasOwnProperty('socketio'))
+        {
+            var c = <socketio.SocketIOAPI>this.connectors['socketio'];
+            c.sendClientMessage(project,message);    
+        }
+        
+        
     }
 
     /** Open layer config file*/

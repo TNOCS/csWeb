@@ -1,7 +1,8 @@
 module csComp.Services {
 
     export interface ISensorLinkResult {
-        timeStamps: number[];
+        features : string[];
+        timestamps: number[];
         data: (number[])[];
         properties: string[];
         timeAggregation: string;

@@ -1,6 +1,10 @@
 module csComp.Services {
 
+    /** object describing a link to a dynamic sensor set from the server */
     export interface ISensorLink {
+        /** name of the property that will used to lookup the feature */
+        linkid? : string;
+        /** url to fetch the sensor data */
         url? : string;
     }
 
@@ -316,6 +320,7 @@ module csComp.Services {
                 isDynamic:             pl.isDynamic,
                 useLog:                pl.useLog,
                 tags:                  pl.tags,
+                hasSensorData :        pl.hasSensorData,                
                 timeAware:             pl.timeAware,
                 fitToMap:              pl.fitToMap,
                 minZoom:               pl.minZoom,

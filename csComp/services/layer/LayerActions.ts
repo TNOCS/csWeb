@@ -17,20 +17,20 @@ module csComp.Services {
 
     export interface ISearchResultItem {
         type?: string;
-        feature? : IFeature;
-        description? : string;
+        feature?: IFeature;
+        description?: string;
         title: string;
-        score? : number;
-        icon? : string;
-        service : string;
-        click : Function;
+        score?: number;
+        icon?: string;
+        service: string;
+        click: Function;
     }
 
-    export declare type SearchResultHandler = (error : Error, result: ISearchResultItem[]) => void;
+    export declare type SearchResultHandler = (error: Error, result: ISearchResultItem[]) => void;
 
     export interface ISearchQuery {
-        query : string;
-        results : ISearchResultItem[];
+        query: string;
+        results: ISearchResultItem[];
     }
 
     export interface IActionService {
@@ -38,15 +38,15 @@ module csComp.Services {
         init(ls: LayerService);
         stop();
         addFeature(feature: IFeature);
-        addLayer(layer : IProjectLayer);
-        removeLayer(layer : IProjectLayer);
+        addLayer(layer: IProjectLayer);
+        removeLayer(layer: IProjectLayer);
         removeFeature(feature: IFeature);
         selectFeature(feature: IFeature);
         getFeatureActions(feature: IFeature): IActionOption[];
         getFeatureHoverActions(feature: IFeature): IActionOption[];
         deselectFeature(feature: IFeature);
         updateFeature(feuture: IFeature);
-        search?(query : ISearchQuery, result : SearchResultHandler);
+        search?(query: ISearchQuery, result: SearchResultHandler);
     }
 
     export class BasicActionService implements csComp.Services.IActionService {
@@ -67,13 +67,13 @@ module csComp.Services {
         }
 
         deselectFeature(feature: IFeature) { }
-        
-        addLayer(layer : IProjectLayer) {}
-        removeLayer(layer : IProjectLayer) {}
+
+        addLayer(layer: IProjectLayer) { }
+        removeLayer(layer: IProjectLayer) { }
 
         updateFeature(feuture: IFeature) { }
 
-        search(query : ISearchQuery, result : Function) {
+        search(query: ISearchQuery, result: Function) {
             result(null, []);
         }
 
@@ -86,33 +86,47 @@ module csComp.Services {
         public id: string = 'LayerActions';
 
         getFeatureActions(feature: IFeature): IActionOption[] {
+            var res = [];
+            if (feature.timestamps && feature.timestamps.length > 0) {
+                var setTimelineZoomActionOption = <IActionOption>{
+                    title: 'Zoom on timeline'
+                };
+                setTimelineZoomActionOption.callback = this.zoomFeatureTimeline;
+                res.push(setTimelineZoomActionOption);
+            }
             if (feature.layer.isDynamic) {
                 var setFilterActionOption = <IActionOption>{
                     title: 'Edit'
                 };
                 setFilterActionOption.callback = this.setAsFilter;
-                return [setFilterActionOption];
-            } else {
-                return [];
+                res.push(setFilterActionOption);
+
             }
+            return res;
         }
 
         getFeatureHoverActions(feature: IFeature): IActionOption[] {
             return [];
         }
 
+        private zoomFeatureTimeline(feature: IFeature, layerService: csComp.Services.LayerService) {
+            var s = new Date(feature.timestamps[0]);
+            var e = new Date(feature.timestamps[feature.timestamps.length - 1]);
+            layerService.$messageBusService.publish('timeline', 'updateTimerange', { start: s, end: e });
+        }
+
         private setAsFilter(feature: IFeature, layerService: csComp.Services.LayerService) {
             layerService.editFeature(feature);
         }
 
-        public search(query : ISearchQuery, result : SearchResultHandler) {
-            var r : ISearchResultItem[] = [];
+        public search(query: ISearchQuery, result: SearchResultHandler) {
+            var r: ISearchResultItem[] = [];
             var temp = [];
             this.layerService.project.features.forEach(f => {
                 var title = csComp.Helpers.getFeatureTitle(f);
                 if (title) {
                     var score = title.toString().score(query.query, null);
-                    temp.push({score : score, feature : f, title : title});
+                    temp.push({ score: score, feature: f, title: title });
                 }
             });
             temp.sort((a, b) => { return b.score - a.score; }).forEach((rs) => {
@@ -125,7 +139,7 @@ module csComp.Services {
                         score: rs.score,
                         icon: 'bower_components/csweb/dist-bower/images/large-marker.png',
                         service: this.id,
-                        click : () => {
+                        click: () => {
                             this.layerService.$mapService.zoomTo(f);
                             this.layerService.selectFeature(f);
                         }

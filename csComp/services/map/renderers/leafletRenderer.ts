@@ -470,7 +470,7 @@ module csComp.Services {
          */
         private addEntryToTooltip(content: string, feature: IFeature, property: string, meta: IPropertyType, title: string, isFilter: boolean) {
             var value = feature.properties[property];
-            if (typeof value === 'undefined') return { length: 0, content: '' };
+            if (typeof value === 'undefined' || value === null) return { length: 0, content: '' };
             var valueLength = value.toString().length;
             if (meta) {
                 value = Helpers.convertPropertyInfo(meta, value);
@@ -489,13 +489,13 @@ module csComp.Services {
                 length: valueLength + title.length,
                 content: content + `<tr><td><div class="fa ${isFilter ? 'fa-filter' : 'fa-paint-brush'}"></td><td>${title}</td><td>${value}</td></tr>`
             };
-        }
+        } 
 
         generateTooltipContent(e: L.LeafletMouseEvent, group: ProjectGroup) {
             var layer = e.target;
             var feature = <Feature>layer.feature;
             // add title
-            var title = feature.properties['Name'];
+            var title = csComp.Helpers.getFeatureTitle(feature);
             var rowLength = (title) ? title.length : 1;
             var content = '<td colspan=\'3\'>' + title + '</td></tr>';
             // add filter values
