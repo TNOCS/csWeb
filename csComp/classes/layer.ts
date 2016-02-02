@@ -1,6 +1,10 @@
 module csComp.Services {
 
+    /** object describing a link to a dynamic sensor set from the server */
     export interface ISensorLink {
+        /** name of the property that will used to lookup the feature */
+        linkid? : string;
+        /** url to fetch the sensor data */
         url? : string;
     }
 
@@ -141,7 +145,7 @@ module csComp.Services {
         heatmapItems: Heatmap.IHeatmapItem[];
         /** Contains hierarchy settings */
         hierarchySettings: FeatureRelations.IHierarchySettings;
-        /** In case we keep the type (feature,property) information in a separate file */
+        /** Links to the the (feature & property) type definitions in a separate file */
         typeUrl: string;
         /** link to url for dynamic sensor data */
         sensorLink : ISensorLink;
@@ -273,8 +277,9 @@ module csComp.Services {
          */
         fitToMap: boolean;
 
-        /** Select a min and max zoom for the layer to be shown.
-         *  When the zoomlevel is out of range, hide all features using the opacity.
+        /** 
+         * Select a min and max zoom for the layer to be shown.
+         * When the zoomlevel is out of range, hide all features using the opacity.
          */
         minZoom: number;
         maxZoom: number;
@@ -316,6 +321,7 @@ module csComp.Services {
                 isDynamic:             pl.isDynamic,
                 useLog:                pl.useLog,
                 tags:                  pl.tags,
+                hasSensorData :        pl.hasSensorData,
                 timeAware:             pl.timeAware,
                 fitToMap:              pl.fitToMap,
                 minZoom:               pl.minZoom,
@@ -340,6 +346,12 @@ module csComp.Services {
         maxZoom:         number;
         /** Minimum zoom level */
         minZoom:         number;
+        /** 
+         * Max native zoom level: 
+         * Maximum zoom number the tiles source has available. 
+         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled. 
+         */
+        maxNativeZoom:   number;
         /** URL pointing to an error-tile that should be shown when the actual tile cannot be loaded */
         errorTileUrl?:   string;
         subdomains:      string[];
@@ -363,6 +375,12 @@ module csComp.Services {
         maxZoom:        number;
         /** Minimum zoom level */
         minZoom:        number;
+        /** 
+         * Max native zoom level: 
+         * Maximum zoom number the tiles source has available. 
+         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled. 
+         */
+        maxNativeZoom = 19;
         /** URL pointing to an error-tile that should be shown when the actual tile cannot be loaded */
         errorTileUrl:   string;
         subdomains:     string[];

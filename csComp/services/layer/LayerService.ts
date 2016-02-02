@@ -143,20 +143,27 @@ module csComp.Services {
             this.addActionService(new MatrixAction.MatrixActionModel());
 
             var delayFocusChange = _.debounce((date) => {
-                for (var l in this.loadedLayers) {
+                this.refreshActiveLayers();
+            }, 500);
+
+            $messageBusService.subscribe('timeline', (action: string, date: Date) => {
+                if (action === 'focusChange') { delayFocusChange(date);
+                    //this.refreshActiveLayers();
+                     }
+            });
+
+            this.checkMobile();
+            this.enableDrop();
+        }
+        
+        public refreshActiveLayers()
+        {
+            for (var l in this.loadedLayers) {
                     var layer = <ProjectLayer>this.loadedLayers[l];
                     if (layer.timeDependent) {
                         layer.layerSource.refreshLayer(layer);
                     }
                 }
-            }, 2000);
-
-            $messageBusService.subscribe('timeline', (action: string, date: Date) => {
-                if (action === 'focusChange') { delayFocusChange(date); }
-            });
-
-            this.checkMobile();
-            this.enableDrop();
         }
 
         /**
@@ -169,27 +176,53 @@ module csComp.Services {
                 var layer = <ProjectLayer>this.loadedLayers[l];
                 console.log(layer.title);
                 if (layer.sensorLink) {
-                    console.log('downloading ' + layer.sensorLink.url);
-                    this.$http.get(layer.sensorLink.url)
+                    var link = layer.sensorLink.url + "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
+                    console.log('downloading ' + link);
+                    
+                    this.$http.get(link)
                         .success((data: ISensorLinkResult) => {
                                 updated = true;
-                                layer.timestamps = data.timeStamps;
+                                layer.timestamps = data.timestamps;
                                 layer.data.features.forEach((f: IFeature) => { f.sensors = {};
                                 data.properties.forEach(s => f.sensors[s] = []);
                             });
                             var t = 0;
+                            
+                            var featureLookup = []
+                            
+                            data.features.forEach(f =>{
+                               var index = _.findIndex(layer.data.features,((p : csComp.Services.IFeature)=>p.properties[layer.sensorLink.linkid] === f));
+                               featureLookup.push(index);                               
+                            });
 
                             data.data.forEach(ts => {
                                 var i = 0;
-                                layer.data.features.forEach((f: IFeature) => {
-                                    data.properties.forEach(s => {
-                                        f.sensors[s].push(data.data[t][i]);
-                                        i += 1;
-                                    });
+                                //var fi = featureLookup()
+                                //var f = layer.data.features[]
+                                data.properties.forEach(s => {
+                                featureLookup.forEach(index=>{
+                                    if (index>=0)
+                                    {
+                                        var f = layer.data.features[index];
+                                        var value = data.data[t][i];
+                                        if (value === -1) value = null;
+                                        f.sensors[s].push(value);
+                                    }
+                                    i += 1;    
+                                })
+                                
                                 });
+                                // layer.data.features.forEach((f: IFeature) => {
+                                //     data.properties.forEach(s => {
+                                //         f.sensors[s].push(data.data[t][i]);
+                                //         i += 1;
+                                //     });
+                                // });
                                 t += 1;
                             });
                             this.throttleSensorDataUpdate();
+                            
+                            //this.$messageBusService.publish("timeline","timeSpanUpdated");
                         })
                         .error((e) => {
                             console.log('error loading sensor data');
@@ -398,7 +431,7 @@ module csComp.Services {
             this.layerSources['database'] = new DatabaseSource(this);
 
             // add VectorTile data source
-            this.layerSources['vectortile'] = new VectorTileSource(this);
+            this.layerSources['vectortile'] = new VectorTileSource(this, this.$http);
 
             // check for every feature (de)select if layers should automatically be activated
             this.checkFeatureSubLayers();
@@ -919,15 +952,20 @@ module csComp.Services {
                 feature.isSelected = !feature.isSelected;
             }
             feature._gui['title'] = Helpers.getFeatureTitle(feature);
+            
+            // deselect last feature and also update
+            if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
+                this.deselectFeature(this.lastSelectedFeature);
+                this.actionServices.forEach((as: IActionService) => as.deselectFeature(feature));
+            
+                this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
+            }
+            
             this.actionServices.forEach((as: IActionService) => {
                 if (feature.isSelected) { as.selectFeature(feature); } else { as.deselectFeature(feature); }
             });
 
-            // deselect last feature and also update
-            if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
-                this.deselectFeature(this.lastSelectedFeature);
-                this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
-            }
+            
             if (feature.isSelected) this.lastSelectedFeature = feature;
 
             // select new feature, set selected style and bring to front
@@ -1136,14 +1174,15 @@ module csComp.Services {
                 if (feature.sensors) {
                     for (var s in feature.sensors) {
                         var propType = this.getPropertyType(feature, s);
-                        if (propType.sensorNull) {
+                        if (propType && propType.sensorNull)
                             for (var i = 0; i < feature.sensors[s].length; i++) {
                                if (feature.sensors[s][i] === propType.sensorNull) feature.sensors[s][i] = 0;
                             }
                             console.log(feature.sensors[s]);
                         }
                     }
-                }
+                
+            
 
                 this.calculateFeatureStyle(feature);
                 feature.propertiesOld = {};
@@ -1151,6 +1190,7 @@ module csComp.Services {
                 if (applyDigest) this.apply();
                 if (layer.timeAware && publishToTimeline) this.$messageBusService.publish('timeline', 'updateFeatures');
             }
+         
             return feature.type;
         }
 
@@ -1401,13 +1441,14 @@ module csComp.Services {
                     return feature;
             }
         }
-
+        
+        
         /**
          * Find a feature by layerId and FeatureId.
          * @layerId {string}
          * @featureIndex {number}
          */
-        findFeatureById(featureId: string): IFeature {
+        public findFeatureById(featureId: string): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.id === featureId; });
         }
 
@@ -1416,7 +1457,7 @@ module csComp.Services {
          * @property {string}
          * @value {number}
          */
-        findFeatureByPropertyValue(property : string, value : Object): IFeature {
+        public findFeatureByPropertyValue(property : string, value : Object): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.properties.hasOwnProperty(property) && f.properties[property] === value; });
         }
 
@@ -2018,6 +2059,7 @@ module csComp.Services {
                             if (b.subdomains != null) baselayer.subdomains = b.subdomains;
                             if (b.maxZoom != null) baselayer.maxZoom = b.maxZoom;
                             if (b.minZoom != null) baselayer.minZoom = b.minZoom;
+                            if (b.maxNativeZoom != null) baselayer.maxNativeZoom = b.maxNativeZoom;
                             if (b.errorTileUrl != null) baselayer.errorTileUrl = b.errorTileUrl;
                             if (b.attribution != null) baselayer.attribution = b.attribution;
                             if (b.id != null) baselayer.id = b.id;
@@ -2843,7 +2885,7 @@ module csComp.Services {
     export enum LayerUpdateAction {
         updateFeature,
         updateLog,
-        deleteFeature
+        deleteFeature        
     }
 
     /**

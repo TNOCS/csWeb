@@ -215,7 +215,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
     private getResourceFilename(re: ResourceFile) {
         //console.log('!!! resource file loc:' + re._localFile);
         //return re._localFile;
-        return path.join(this.resourcesPath, re.id + ".json");
+        return path.join(this.resourcesPath, re.id + '.json');
     }
 
     private saveKeyFile(key: Key) {
@@ -267,6 +267,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
     }
 
     private saveLayerFile(layer: Layer) {
+        try
+        {
         var fn = this.getLayerFilename(layer.id);
         fs.writeFile(fn, JSON.stringify(layer), (error) => {
             if (error) {
@@ -276,6 +278,11 @@ export class FileStorage extends BaseConnector.BaseConnector {
                 Winston.info('filestore: file saved : ' + fn);
             }
         });
+        }
+        catch (e)
+        {
+            Winston.error('Error writing layer ' + layer.title + ':' + e);
+        }
     }
 
     private getProjectId(fileName: string) {
@@ -586,8 +593,10 @@ export class FileStorage extends BaseConnector.BaseConnector {
         var found = false;
         l.features.forEach((f: Feature) => {
             if (f.id === featureId)
+            {
                 found = true;
-            callback(<CallbackResult>{ result: ApiResult.OK, feature: f });
+                callback(<CallbackResult>{ result: ApiResult.OK, feature: f });
+            }
         })
         if (!found) callback(<CallbackResult>{ result: ApiResult.Error });
     }

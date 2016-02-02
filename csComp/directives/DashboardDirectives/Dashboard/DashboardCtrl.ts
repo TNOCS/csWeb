@@ -68,7 +68,7 @@ module Dashboard {
                     //alert(this.project.activeDashboard.id);
                     switch (s) {
                         case 'activated':
-                            $scope.dashboard = d;
+                            $scope.dashboard = d; 
                             this.updateDashboard();
                             break;
                     }
@@ -202,6 +202,7 @@ module Dashboard {
         }
 
         public checkTimeline() {
+                        
             if (this.$scope.dashboard.showTimeline !== this.$mapService.timelineVisible) {
                 if (this.$scope.dashboard.showTimeline && this.$mapService.isIntermediate) {
                     this.$mapService.timelineVisible = true;

@@ -360,15 +360,22 @@ export class RestAPI extends BaseConnector.BaseConnector {
         this.server.get(this.proxyUrl, (req, res) => {
             var id = req.query.url;
             console.log(id);
-            this.getUrl(id, res);
+            this.getUrl(id,req, res);
         });
 
         callback();
     }
 
-    private getUrl(feedUrl: string, res: express.Response) {
-        Winston.info('proxy request: ' + feedUrl);
+    private getUrl(feedUrl: string, req : express.Request,res: express.Response) {
+        Winston.info('proxy request 2: ' + feedUrl);
         //feedUrl = 'http://rss.politie.nl/rss/algemeen/ab/algemeen.xml';
+        
+        
+        var options = {
+                method: 'get',
+                headers: req.headers
+            };
+
 
         var parseNumbers = function(str) {
             if (!isNaN(str)) {
@@ -377,9 +384,9 @@ export class RestAPI extends BaseConnector.BaseConnector {
             return str;
         };
 
-        request(feedUrl, function(error, response, xml) {
-            if (!error && response.statusCode == 200) {
-                res.json(xml);
+        request(feedUrl, options,function(error, response, xml) {
+            if (!error && response.statusCode == 200) {                
+                res.send(xml);
 
             } else {
                 res.statusCode = 404;

@@ -294,6 +294,10 @@ module csComp.Services {
         features:      Array<IFeature>;
     }
 
+    export interface IGeoJsonCollection {
+        [key: string]: IGeoJsonFile;
+    }
+
     export interface PropertyInfo {
         max:      number;
         min:      number;
