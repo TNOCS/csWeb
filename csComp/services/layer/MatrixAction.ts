@@ -34,6 +34,7 @@ module MatrixAction {
 
 
         addLayer(layer: csComp.Services.IProjectLayer) {
+            if (!layer.data || !layer.data.features) return;
             layer.data.features.forEach((feature: IFeature) => {
                 var props = csComp.Helpers.getPropertyTypes(feature.fType, this.layerService.propertyTypeData);
                 props.forEach((prop: IPropertyType) => {
@@ -50,13 +51,13 @@ module MatrixAction {
                                 if (!tf.properties.hasOwnProperty(lh)) tf.properties[lh] = 0;
                                 if (!tf.properties.hasOwnProperty(lb)) tf.properties[lb] = 0;
                                 tf.properties[lh] += kb.h;
-                                tf.properties[lb] += kb.b;                                
+                                tf.properties[lb] += kb.b;
                             }
-                        }                      
+                        }
                     }
                 });
 
-            });            
+            });
             //alert('add layer');
         }
 

@@ -87,6 +87,9 @@ module TableWidget {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = par.widget;
+            if (this.widget.directive && this.widget.directive !== 'tablewidget') {
+                console.log('Warning: ' + this.widget.directive + ' does not belong in TableWidgetCtrl!!! Id: ' + this.widget.id);
+            }
 
             $scope.data = <TableWidgetData>this.widget.data;
             $scope.data.tableHtml = '<table></table>';
@@ -125,7 +128,8 @@ module TableWidget {
                             this.createTable();
                             this.updateTable();
                         } catch (error) {
-                            console.log('Error parsing table');
+                            console.log('Error parsing table: ' + error.message);
+                            console.log('Table type: ' + (typeof table));
                         }
                     }, 0);
                 });
