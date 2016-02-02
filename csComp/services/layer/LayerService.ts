@@ -306,6 +306,16 @@ module csComp.Services {
             as.stop();
         }
 
+        public checkViewBounds() {
+            if (this.project && this.project.activeDashboard && this.project.activeDashboard.viewBounds) {
+                this.activeMapRenderer.fitBounds(this.project.activeDashboard.viewBounds);
+            } else if (this.project && this.project.viewBounds) {
+                this.activeMapRenderer.fitBounds(this.project.viewBounds);
+            } else if (this.solution && this.solution.viewBounds) {
+                this.activeMapRenderer.fitBounds(this.solution.viewBounds);
+            }
+        }
+
         /** Find a dashboard by ID */
         public findDashboardById(dashboardId: string) {
             var dashboard: csComp.Services.Dashboard;
