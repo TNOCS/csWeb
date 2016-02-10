@@ -277,8 +277,9 @@ module csComp.Services {
          */
         fitToMap: boolean;
 
-        /** Select a min and max zoom for the layer to be shown.
-         *  When the zoomlevel is out of range, hide all features using the opacity.
+        /** 
+         * Select a min and max zoom for the layer to be shown.
+         * When the zoomlevel is out of range, hide all features using the opacity.
          */
         minZoom: number;
         maxZoom: number;
@@ -320,7 +321,7 @@ module csComp.Services {
                 isDynamic:             pl.isDynamic,
                 useLog:                pl.useLog,
                 tags:                  pl.tags,
-                hasSensorData :        pl.hasSensorData,                
+                hasSensorData :        pl.hasSensorData,
                 timeAware:             pl.timeAware,
                 fitToMap:              pl.fitToMap,
                 minZoom:               pl.minZoom,
@@ -345,6 +346,12 @@ module csComp.Services {
         maxZoom:         number;
         /** Minimum zoom level */
         minZoom:         number;
+        /** 
+         * Max native zoom level: 
+         * Maximum zoom number the tiles source has available. 
+         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled. 
+         */
+        maxNativeZoom:   number;
         /** URL pointing to an error-tile that should be shown when the actual tile cannot be loaded */
         errorTileUrl?:   string;
         subdomains:      string[];
@@ -368,6 +375,12 @@ module csComp.Services {
         maxZoom:        number;
         /** Minimum zoom level */
         minZoom:        number;
+        /** 
+         * Max native zoom level: 
+         * Maximum zoom number the tiles source has available. 
+         * If it is specified, the tiles on all zoom levels higher than maxNativeZoom will be loaded from maxZoom level and auto-scaled. 
+         */
+        maxNativeZoom = 19;
         /** URL pointing to an error-tile that should be shown when the actual tile cannot be loaded */
         errorTileUrl:   string;
         subdomains:     string[];

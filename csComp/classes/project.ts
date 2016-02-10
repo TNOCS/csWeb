@@ -22,6 +22,8 @@ module csComp.Services {
         public rightPanelVisible: boolean = false;
         public dashboardVisible:  boolean = true;
         public mapVisible:        boolean = true;
+        public mapWidth:          string  = '100%';
+        public alignMapRight:     boolean = false; // Default align map left
         public timelineVisible:   boolean = true;
 
         // For debugging purposes, I've added below functionality so I can set breakpoints on the setter.

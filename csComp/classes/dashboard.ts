@@ -220,6 +220,8 @@ module csComp.Services {
         widgets:              IWidget[];
         editMode:             boolean;
         showMap:              boolean;
+        mapWidth:             string = '100%';
+        alignMapRight:        boolean = false;
         mobile:               boolean = true;
         showTimeline:         boolean = true;
         draggable:            boolean = true;
@@ -255,6 +257,8 @@ module csComp.Services {
                 name:                 d.name,
                 editMode:             d.editMode,
                 showMap:              d.showMap,
+                mapWidth:             d.mapWidth,
+                alignMapRight:        d.alignMapRight,
                 showTimeline:         d.showTimeline,
                 showLeftmenu:         d.showLeftmenu,
                 showLegend:           d.showLegend,

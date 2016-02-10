@@ -28,7 +28,7 @@ module csComp.Services {
                 for (var y = slippyTiles.top; y <= slippyTiles.bottom; y++) {
                     var url = layer.url.replace('{z}/{x}/{y}', `${zoom}/${x}/${y}`);
                     if (this.cache.hasOwnProperty(url)) {
-                        this.addFeatures(layer, this.cache[url]);
+                        this.addFeatures(layer, this.cache[url], true);
                         this.checkIfFinished(layer, callback);
                         continue;
                     }
@@ -78,10 +78,11 @@ module csComp.Services {
             }
         }
 
-        addFeatures(layer: ProjectLayer, data: IGeoJsonFile | IGeoJsonCollection) {
+        addFeatures(layer: ProjectLayer, data: IGeoJsonFile | IGeoJsonCollection, fromCache = false) {
             if (data.hasOwnProperty('features')) {
                 var geojson = <IGeoJsonFile>data;
                 geojson.features.forEach(f => {
+                    if (fromCache) f._isInitialized = false;
                     layer.data.features.push(f);
                     this.service.initFeature(f, layer, false, false);
                 });
@@ -90,6 +91,7 @@ module csComp.Services {
                 for (var key in col) {
                     if (!col.hasOwnProperty(key)) continue;
                     col[key].features.forEach(f => {
+                        if (fromCache) f._isInitialized = false;
                         f.properties['featureTypeId'] = key;
                         layer.data.features.push(f);
                         this.service.initFeature(f, layer, false, false);

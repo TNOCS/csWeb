@@ -339,6 +339,16 @@ module csComp.Services {
             as.stop();
         }
 
+        public checkViewBounds() {
+            if (this.project && this.project.activeDashboard && this.project.activeDashboard.viewBounds) {
+                this.activeMapRenderer.fitBounds(this.project.activeDashboard.viewBounds);
+            } else if (this.project && this.project.viewBounds) {
+                this.activeMapRenderer.fitBounds(this.project.viewBounds);
+            } else if (this.solution && this.solution.viewBounds) {
+                this.activeMapRenderer.fitBounds(this.solution.viewBounds);
+            }
+        }
+
         /** Find a dashboard by ID */
         public findDashboardById(dashboardId: string) {
             var dashboard: csComp.Services.Dashboard;
@@ -2049,6 +2059,7 @@ module csComp.Services {
                             if (b.subdomains != null) baselayer.subdomains = b.subdomains;
                             if (b.maxZoom != null) baselayer.maxZoom = b.maxZoom;
                             if (b.minZoom != null) baselayer.minZoom = b.minZoom;
+                            if (b.maxNativeZoom != null) baselayer.maxNativeZoom = b.maxNativeZoom;
                             if (b.errorTileUrl != null) baselayer.errorTileUrl = b.errorTileUrl;
                             if (b.attribution != null) baselayer.attribution = b.attribution;
                             if (b.id != null) baselayer.id = b.id;
