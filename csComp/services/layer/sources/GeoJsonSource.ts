@@ -437,10 +437,12 @@ module csComp.Services {
         }
 
         public layerMenuOptions(layer: ProjectLayer): [[string, Function]] {
-            var res: [[string, Function]] = [
-                ['Fit map', (($itemScope) => this.fitMap(layer))]
-            ];
-            return res;
+            var result: [[string, Function]] = [
+                ['Fit map', (($itemScope) => this.fitMap(layer))]];
+            if (layer.hasSensorData && layer.timestamps) result.push(['Fit time', (($itemScope) => this.fitTimeline(layer))]);
+            result.push(null);
+            result.push(['Refresh', (($itemScope) => this.refreshLayer(layer))]);
+            return result;
         }
 
         public startAddingFeatures(layer: csComp.Services.ProjectLayer) {

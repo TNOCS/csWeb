@@ -212,6 +212,7 @@ export interface ILayer extends StorageObject {
     data?: any;
     timestamps?: number[];
     [key: string]: any;
+    hasSensorData? : boolean;
 }
 
 /**
@@ -242,6 +243,7 @@ export class Layer implements StorageObject, ILayer {
     public tags: string[];
     public isDynamic: boolean;
     public features: Feature[] = [];
+    public hasSensorData : boolean;
 }
 
 /**
