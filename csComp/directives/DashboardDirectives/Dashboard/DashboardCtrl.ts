@@ -68,7 +68,7 @@ module Dashboard {
                     //alert(this.project.activeDashboard.id);
                     switch (s) {
                         case 'activated':
-                            $scope.dashboard = d; 
+                            $scope.dashboard = d;
                             this.updateDashboard();
                             break;
                     }
@@ -193,7 +193,7 @@ module Dashboard {
         }
 
         public checkTimeline() {
-                        
+
             if (this.$scope.dashboard.showTimeline !== this.$mapService.timelineVisible) {
                 if (this.$scope.dashboard.showTimeline && this.$mapService.isIntermediate) {
                     this.$mapService.timelineVisible = true;
@@ -201,17 +201,17 @@ module Dashboard {
                     this.$mapService.timelineVisible = false;
                 }
                 if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
-                    this.$scope.$root.$apply();                     
+                    this.$scope.$root.$apply();
                 }
             }
-            
+
             var db = this.$layerService.project.activeDashboard;
-           
+
             if (db.timeline) {
                 var s = new Date(db.timeline.start);
                 var e = new Date();
-                if (db.timeline.end) e = new Date(db.timeline.end);                
-                this.$messageBusService.publish('timeline', 'updateTimerange', { start: s, end: e });                                   
+                if (db.timeline.end) e = new Date(db.timeline.end);
+                this.$messageBusService.publish('timeline', 'updateTimerange', { start: s, end: e });
             }                                  // end RS mod
         }
 
@@ -231,6 +231,7 @@ module Dashboard {
         public isReady(widget: csComp.Services.IWidget) {
             this.updateWidget(widget);
             setTimeout(() => {
+                
                 // select the target node
                 // var target = document.querySelector('#' + widget.elementId + '-parent');
                 //
@@ -306,16 +307,16 @@ module Dashboard {
             if (!legendWidgetPresent) {
                 //console.log('Create legend');
                 var w = <csComp.Services.IWidget>{};
-                w.directive        = 'legend-directive';
-                w.id               = csComp.Helpers.getGuid();
-                w.elementId        = 'widget-' + w.id;
-                w.parentDashboard  = d;
-                w.title            = 'Legend';
-                w.data             = {mode: 'lastSelectedStyle'};
-                w.left             = '10px';
-                w.top              = '20px';
-                w.width            = '150px';
-                w.enabled          = true;
+                w.directive = 'legend-directive';
+                w.id = csComp.Helpers.getGuid();
+                w.elementId = 'widget-' + w.id;
+                w.parentDashboard = d;
+                w.title = 'Legend';
+                w.data = { mode: 'lastSelectedStyle' };
+                w.left = '10px';
+                w.top = '20px';
+                w.width = '150px';
+                w.enabled = true;
                 d.widgets.push(w);
                 //this.$dashboardService.
                 //this.$dashboardService.addNewWidget(w, d);
@@ -366,11 +367,15 @@ module Dashboard {
                     this.updateWidget(w);
                 });
                 d._initialized = true;
-                this.$scope.$watchCollection('dashboard.widgets', (da) => {
-                    this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
-                        this.updateWidget(w);
+                this.$timeout(()=>{
+                    this.$scope.$watchCollection('dashboard.widgets', (da) => {
+                        this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
+                            this.updateWidget(w);
+                        });
                     });
-                });
+                },300);
+                
+
             }, 100);
 
             //this.$layerService.rightMenuVisible = d.showLeftmenu;

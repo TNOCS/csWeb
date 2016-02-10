@@ -26,6 +26,7 @@ export class MessageBusHandle {
  */
 export class MessageBusService {
     private static cache: { [topic: string]: Array<IMessageBusCallback> } = {};
+    public static data : { [topic : string] : any};
 
     // constructor(public Connection: ClientConnection.ConnectionManager) {
     // }

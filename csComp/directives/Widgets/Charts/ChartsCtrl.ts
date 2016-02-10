@@ -123,32 +123,45 @@ module ChartsWidget {
         private keyHandle;
 
         public initChart() {
-            
-            var d = this.$scope.data;
-            var vgspec = d.spec || {};
 
-            if (d.lite) vgspec = vl.compile(d.spec);
-            //parse(vgspec);
-            if (vgspec)
-                var res = vg.embed('#vis' + d._id, vgspec, (view, vega_spec) => {
-                    d._view = view;
-                    //$('.vega-actions').css("display","none");
-                    // Callback receiving the View instance and parsed Vega spec...
-                    // The View resides under the '#vis' element
-                });
+            try {
+
+                var d = this.$scope.data;
+                var vgspec = d.spec || {};
+
+                if (d.lite) vgspec = vl.compile(d.spec);
+                //parse(vgspec);
+                if (vgspec)
+
+                    var res = vg.embed('#vis' + d._id, vgspec, (view, vega_spec) => {
+                        d._view = view;
+                        //$('.vega-actions').css("display","none");
+                        // Callback receiving the View instance and parsed Vega spec...
+                        // The View resides under the '#vis' element
+                    });
+            } catch (e) {
+
+            }
         }
 
         public updateChart() {
-            var d = this.$scope.data;
-            var vgspec = d.spec;
-            if (d.lite) vgspec = vl.compile(d.spec);
-            //if (d._view) d._view.update();
-            vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + this.$scope.data._id }).update(); });
-            
+            try {
+                var d = this.$scope.data;
+                var vgspec = d.spec;
+                if (d.lite) vgspec = vl.compile(d.spec);
+                //if (d._view) d._view.update();
+                vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + this.$scope.data._id }).update(); });
+            }
+            catch (e) {
+
+            }
+
         }
 
         public startChart() {
             var d = this.$scope.data;
+            
+            console.log(d);
 
             // if a chart generator is specified, find it and start it
             if (d.generator) {

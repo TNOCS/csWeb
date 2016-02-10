@@ -1440,7 +1440,7 @@ module csComp.Services {
          */
         public findFeatureById(featureId: string): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.id === featureId; });
-        }
+        } 
 
         /**
          * Find a feature by layerId and FeatureId.

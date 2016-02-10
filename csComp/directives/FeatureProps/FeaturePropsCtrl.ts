@@ -723,7 +723,8 @@ module FeatureProps {
             if (pt && pt.hasOwnProperty('stringFormat')) {
                 format = pt.stringFormat;
             } else {
-                format = 'DD MMMM YYYY';
+                return moment(fp).calendar();
+                //format = 'DD MMMM YYYY ';
             }
             if (moment(fp).format(format) === 'Invalid date') {
                 return moment(fp, 'YYYYMMDD').format(format);

@@ -1,5 +1,38 @@
-module HeaderWidget {
-    export class HeaderWidgetData {
+module InfoWidget {
+    
+    /**
+      * Config
+      */
+    var moduleName = 'csComp';
+
+    /**
+      * Module
+      */
+    export var myModule;
+    try {
+        myModule = angular.module(moduleName);
+    } catch (err) {
+        // named module does not exist, so create one
+        myModule = angular.module(moduleName, []);
+    } 
+
+    /**
+      * Directive to display the available map layers.
+      */
+    myModule.directive('infowidget', [function() : ng.IDirective {
+            return {
+                restrict   : 'E',     // E = elements, other options are A=attributes and C=classes
+                scope      : {
+                },      // isolated scope, separated from parent. Is however empty, as this directive is self contained by using the messagebus.
+                templateUrl: 'directives/Widgets/HeaderWidget/InfoWidget.tpl.html',
+                replace      : true,    // Remove the directive from the DOM
+                transclude   : false,   // Add elements and attributes to the template
+                controller   : InfoWidgetCtrl
+            }
+        }
+    ]);
+    
+    export class InfoWidgetData {
         title: string;
         subTitle : string;
         /**
@@ -32,14 +65,14 @@ module HeaderWidget {
         dynamicProperties: string[];
     }
 
-    export interface IHeaderWidgetScope extends ng.IScope {
-        vm: HeaderWidgetCtrl;
-        data: HeaderWidgetData;
+    export interface IInfoWidgetScope extends ng.IScope {
+        vm: InfoWidgetCtrl;
+        data: InfoWidgetData;
         minimized: boolean;
     }
 
-    export class HeaderWidgetCtrl {
-        private scope: IHeaderWidgetScope;
+    export class InfoWidgetCtrl {
+        private scope: IInfoWidgetScope;
         private widget: csComp.Services.IWidget;
         private parentWidget: JQuery;
         private dataProperties: { [key: string]: any };
@@ -53,7 +86,7 @@ module HeaderWidget {
         ];
 
         constructor(
-            private $scope: IHeaderWidgetScope,
+            private $scope: IInfoWidgetScope,
             private $timeout: ng.ITimeoutService,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService,
@@ -61,24 +94,18 @@ module HeaderWidget {
         ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
-            this.widget = par.widget;
-
-            $scope.data = <HeaderWidgetData>this.widget.data;
-            $scope.data.mdText = $scope.data.content;
-            $scope.minimized = false;
-            this.dataProperties = {};
-
-            this.parentWidget = $('#' + this.widget.elementId).parent();
+            this.widget = par;
+            $scope.data = <InfoWidgetData>this.widget.data;
+            if ($scope.data && $scope.data.content)
+            {
+                $scope.data.mdText = $scope.data.content;            
+                this.parentWidget = $('#' + this.widget.elementId).parent();
+            }
 
            
         }
         
-        public showContent()
-        {
-            var rpt = csComp.Helpers.createRightPanelTab('headerinfo', 'infowidget', this.$scope.data, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info-circle');
-            this.$messageBus.publish('rightpanel', 'activate', rpt);
-            this.$layerService.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
-        }
+        
 
        
     }
