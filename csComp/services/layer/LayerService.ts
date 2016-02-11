@@ -1181,8 +1181,7 @@ module csComp.Services {
                         if (propType && propType.sensorNull)
                             for (var i = 0; i < feature.sensors[s].length; i++) {
                                if (feature.sensors[s][i] === propType.sensorNull) feature.sensors[s][i] = 0;
-                            }
-                            console.log(feature.sensors[s]);
+                            }                            
                         }
                     }
                 
