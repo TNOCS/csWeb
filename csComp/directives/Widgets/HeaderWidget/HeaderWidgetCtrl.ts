@@ -2,6 +2,7 @@ module HeaderWidget {
     export class HeaderWidgetData {
         title: string;
         subTitle : string;
+        autoShow : boolean;
         /**
          * Content to display: you can either provide it directly, or specify a URL, in which case it will replace the content.
          */
@@ -62,10 +63,14 @@ module HeaderWidget {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = par.widget;
-
-            $scope.data = <HeaderWidgetData>this.widget.data;
-            $scope.data.mdText = $scope.data.content;
-            $scope.minimized = false;
+            if (this.widget.data)
+            {
+                $scope.data = <HeaderWidgetData>this.widget.data;
+                $scope.data.mdText = $scope.data.content;
+                if ($scope.data.autoShow) this.showContent();
+            }
+            
+            
             this.dataProperties = {};
 
             this.parentWidget = $('#' + this.widget.elementId).parent();
