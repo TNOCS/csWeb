@@ -529,7 +529,7 @@ module csComp.Helpers {
      * @return {RightPanelTab}    Returns the RightPanelTab instance. Add it to the
      * rightpanel by publishing it on the MessageBus.
      */
-    export function createRightPanelTab(container: string, directive: string, data: any, title: string, popover?: string, icon?: string): Services.RightPanelTab {
+    export function createRightPanelTab(container: string, directive: string, data: any, title: string, popover?: string, icon?: string, replace? : boolean): Services.RightPanelTab {
         var rpt = new Services.RightPanelTab();
         rpt.container = container;
         rpt.data = data;
@@ -537,6 +537,7 @@ module csComp.Helpers {
         rpt.directive = directive;
         rpt.popover = popover || '';
         rpt.icon = icon || 'tachometer';
+        rpt.replace = replace;
         return rpt;
     }
 

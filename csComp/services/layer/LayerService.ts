@@ -956,8 +956,7 @@ module csComp.Services {
             // deselect last feature and also update
             if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
                 this.deselectFeature(this.lastSelectedFeature);
-                this.actionServices.forEach((as: IActionService) => as.deselectFeature(feature));
-            
+                this.actionServices.forEach((as: IActionService) => as.deselectFeature(feature));            
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
             }
             
@@ -996,6 +995,11 @@ module csComp.Services {
                 // rpt.container = 'featurerelations';
                 // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
+                
+                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info',false);
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                //this.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
+
                 // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{'RELATED_FEATURES' | translate}}', 'link');
                 // this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{'FEATURE_INFO' | translate}}', 'info');

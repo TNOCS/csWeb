@@ -7,6 +7,7 @@ module csComp.Services {
         public data: any;
         public icon: string = 'tachometer';
         public popover: string = '';
+        public replace : boolean = true; 
     }
 
     /** service for managing dashboards */
@@ -22,6 +23,8 @@ module csComp.Services {
         public chartGenerators : { [key : string] : Function} = {};
         public socket;
         public editWidgetMode: boolean;
+        
+        public rightPanelTabs : { [key : string] : RightPanelTab } = {};
 
         public static $inject = [
             '$rootScope',
@@ -153,6 +156,7 @@ module csComp.Services {
 
         public activateTab(tab: RightPanelTab) {
             if (!tab.hasOwnProperty('container')) return;
+            if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) return;
             this.$layerService.visual.rightPanelVisible = true;
             var content = tab.container + '-content';
             $('#' + tab.container + '-tab').remove();
@@ -183,10 +187,12 @@ module csComp.Services {
             var widgetElement = this.$compile('<' + tab.directive + '></' + tab.directive + '>')(newScope);
             $('#' + content).append(widgetElement);
             (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+            this.rightPanelTabs[tab.container] = tab;
         }
 
         public deactivateTabContainer(container: string) {
             this.$layerService.visual.rightPanelVisible = false;
+            delete this.rightPanelTabs[container];
             var content = container + '-content';
             $('#' + container + '-tab').remove();
             try {
@@ -199,6 +205,7 @@ module csComp.Services {
                     // }
                 }
             } catch (e) { return; }
+            
         }
 
         public deactivateTab(tab: RightPanelTab) {
