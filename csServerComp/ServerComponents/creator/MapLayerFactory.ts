@@ -296,8 +296,6 @@ export class MapLayerFactory {
     }
 
     public processBagContours(req: express.Request, res: express.Response) {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end('');
         console.log('Received bag contours request. Processing...');
         var template: IBagContourRequest = req.body;
         var bounds = template.bounds;
@@ -307,22 +305,29 @@ export class MapLayerFactory {
         layer.data.features = [];
         layer.type = 'database';
         this.bag.lookupBagArea(bounds, (areas: Location[]) => {
-            areas.forEach((area: Location) => {
-                var props: { [key: string]: any } = {};
-                for (var p in area) {
-                    if (area.hasOwnProperty(p)) {
-                        if (p !== 'contour') { props[p] = area[p]; }
+            if (!areas || !areas.length || areas.length === 0) {
+                res.status(404).send({});
+            } else {
+                // Cap features at 1000
+                if (areas.length > 1000) { areas = areas.slice(0, 1000); }
+                areas.forEach((area: Location) => {
+                    var props: { [key: string]: any } = {};
+                    for (var p in area) {
+                        if (area.hasOwnProperty(p)) {
+                            if (p !== 'contour') { props[p] = area[p]; }
+                        }
                     }
-                }
-                var f: IGeoJsonFeature = {
-                    type: 'Feature',
-                    geometry: JSON.parse(area.contour),
-                    properties: props
-                };
-                layer.data.features.push(f);
-            });
-            console.log('Updated bag layer: publishing' + areas.length + ' features...');
-            this.messageBus.publish('dynamic_project_layer', 'send-layer', layer);
+                    var f: IGeoJsonFeature = {
+                        type: 'Feature',
+                        geometry: JSON.parse(area.contour),
+                        properties: props
+                    };
+                    layer.data.features.push(f);
+                });
+                console.log('Updated bag layer: publishing ' + areas.length + ' features...');
+                res.status(Api.ApiResult.OK).send({layer: layer});
+                // this.messageBus.publish('bagcontouren', 'layer-update', layer);
+            }
         });
     }
 
