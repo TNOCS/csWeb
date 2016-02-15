@@ -1,6 +1,7 @@
 class Location {
     lon: number;
     lat: number;
+    latlon: string;
     bouwjaar: number;
     huisnummer: number;
     huisletter: string;

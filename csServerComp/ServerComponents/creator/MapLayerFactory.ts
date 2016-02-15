@@ -98,6 +98,9 @@ export class MapLayerFactory {
 
     // constructor(private bag: LocalBag, private messageBus: MessageBus.MessageBusService) {
     constructor(private bag: BagDatabase.BagDatabase, private messageBus: MessageBus.MessageBusService, apiManager: Api.ApiManager) {
+        if (bag != null) {
+            bag.init();
+        }
         var fileList: IProperty[] = [];
         fs.readdir('public/data/templates', function(err, files) {
             if (err) {
@@ -299,7 +302,11 @@ export class MapLayerFactory {
         console.log('Received bag contours request. Processing...');
         var template: IBagContourRequest = req.body;
         var bounds = template.bounds;
-        var layer = template.layer;
+        var layer: csComp.Services.ProjectLayer = template.layer;
+        var getPointFeatures: boolean = false;
+        if (layer.dataSourceParameters && layer.dataSourceParameters.hasOwnProperty('getPointFeatures')) {
+            getPointFeatures = layer.dataSourceParameters['getPointFeatures'];
+        }
 
         layer.data = {};
         layer.data.features = [];
@@ -308,18 +315,26 @@ export class MapLayerFactory {
             if (!areas || !areas.length || areas.length === 0) {
                 res.status(404).send({});
             } else {
-                // Cap features at 1000
-                if (areas.length > 1000) { areas = areas.slice(0, 1000); }
                 areas.forEach((area: Location) => {
                     var props: { [key: string]: any } = {};
                     for (var p in area) {
-                        if (area.hasOwnProperty(p)) {
-                            if (p !== 'contour') { props[p] = area[p]; }
+                        if (area.hasOwnProperty(p) && area[p] != null) {
+                            // Save all columns to properties, except the ones used as geometry.
+                            if ((!getPointFeatures && (p === 'contour' || p === 'latlon'))
+                                || (getPointFeatures && p === 'latlon')) {
+                                    // skip
+                                } else {
+                                    if (!isNaN(parseFloat(area[p])) && isFinite(area[p])) {
+                                        props[p] = +area[p];
+                                    } else {
+                                        props[p] = area[p];
+                                    }
+                            }
                         }
                     }
                     var f: IGeoJsonFeature = {
                         type: 'Feature',
-                        geometry: JSON.parse(area.contour),
+                        geometry: (getPointFeatures) ? JSON.parse(area.latlon) : JSON.parse(area.contour),
                         properties: props
                     };
                     layer.data.features.push(f);
