@@ -104,6 +104,7 @@ module Dashboard {
         public updateWidget(w: csComp.Services.IWidget) {
             //console.log('updating widget ' + w.directive);
             if (w._initialized && this.$scope.dashboard._initialized) return;
+            
             w._initialized = true;
             var widgetElement;
             var newScope = this.$scope;
@@ -245,7 +246,7 @@ module Dashboard {
         }
 
         public isReady(widget: csComp.Services.IWidget) {
-            this.updateWidget(widget);
+            //this.updateWidget(widget); 
             setTimeout(() => {
                 
                 // select the target node
@@ -318,7 +319,7 @@ module Dashboard {
             if (!d.showLegend) return;
             var legendWidgetPresent = false;
             d.widgets.forEach(w => {
-                if (w.id === 'legend') legendWidgetPresent = true;
+                if (w.id === 'Legend') legendWidgetPresent = true;
             });
             if (!legendWidgetPresent) {
                 //console.log('Create legend');
@@ -382,7 +383,7 @@ module Dashboard {
                     w._initialized = false;
                     this.updateWidget(w);
                 });
-                d._initialized = true;
+                
                 this.$timeout(()=>{
                     this.$scope.$watchCollection('dashboard.widgets', (da) => {
                         this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
@@ -390,9 +391,9 @@ module Dashboard {
                         });
                     });
                 },300);
-                
+                d._initialized = true;
 
-            }, 100);
+            }, 500);
 
             //this.$layerService.rightMenuVisible = d.showLeftmenu;
             //this.$mapService.rightMenuVisible = d.showRightmenu;

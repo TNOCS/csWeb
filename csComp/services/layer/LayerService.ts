@@ -2491,8 +2491,8 @@ module csComp.Services {
                 // find dashboard from url
                 if (this.startDashboardId && this.findDashboardById(this.startDashboardId)) {
                     startd = this.findDashboardById(this.startDashboardId);
-                }
-                this.$messageBusService.publish('dashboard-main', 'activated', startd);
+                } 
+               // this.$messageBusService.publish('dashboard-main', 'activated', startd);
             }
 
             if (this.project.useOfflineSearch) {
