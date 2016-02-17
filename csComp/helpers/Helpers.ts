@@ -454,7 +454,8 @@ module csComp.Helpers {
         var convertedStringFormat = stringFormat;
         for (var j = 0; j < openingBrackets.length; j++) {
             var searchValue = stringFormat.substring(openingBrackets[j] + 1, closingBrackets[j]);
-            convertedStringFormat = convertedStringFormat.replace('{' + searchValue + '}', feature.properties[searchValue]);
+            var replaceValue = (feature.properties.hasOwnProperty(searchValue)) ? feature.properties[searchValue] : '';
+            convertedStringFormat = convertedStringFormat.replace('{' + searchValue + '}', replaceValue);
         }
         return convertedStringFormat;
     }

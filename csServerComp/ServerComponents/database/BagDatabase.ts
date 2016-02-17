@@ -1,6 +1,5 @@
 import express = require('express');
 import ConfigurationService = require('../configuration/ConfigurationService');
-import pg = require('pg');
 import Location = require('./Location');
 import IBagOptions = require('../database/IBagOptions');
 
@@ -9,13 +8,20 @@ import IBagOptions = require('../database/IBagOptions');
  */
 export class BagDatabase {
     private connectionString: string;
+    private isInitialized: boolean = false;
+    private pg;
 
     constructor(config: ConfigurationService.ConfigurationService) {
         this.connectionString = process.env.DATABASE_URL || config["bagConnectionString"];
-        //console.log("Poolsize: " + pg.defaults.poolSize);
-        pg.defaults.poolSize = 10;
+    }
+
+    public init() {
+        this.pg = require('pg');
+        if (this.isInitialized) return;
+        this.pg.defaults.poolSize = 10;
         console.log("BAG connection: " + this.connectionString);
-        console.log("Poolsize: " + pg.defaults.poolSize);
+        console.log("Poolsize: " + this.pg.defaults.poolSize);
+        this.isInitialized = true;
     }
 
     /**
@@ -104,7 +110,7 @@ export class BagDatabase {
             callback(null);
             return;
         }
-        pg.connect(this.connectionString, (err, client, done) => {
+        this.pg.connect(this.connectionString, (err, client, done) => {
             if (err) {
                 console.log(err);
                 callback(null);
@@ -112,8 +118,8 @@ export class BagDatabase {
             }
             //var sql = `SELECT ST_AsGeoJSON(ST_Transform(geovlak, 4326)) as area FROM ${sqlTable} WHERE ${sqlColumn}='${name}'`;
             // var sql = `SELECT adres.postcode, adres.huisnummer, ST_AsGeoJSON(ST_Force_2D(ST_Transform(pand.geovlak, 4326)), 6, 0) as contour, pand.bouwjaar FROM bagactueel.adres, bagactueel.pand, bagactueel.verblijfsobjectpand WHERE adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectpand.gerelateerdpand = pand.identificatie AND ST_Within(pand.geovlak, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992))`
-            var sql = `SELECT postcode, openbareruimtenaam, huisnummer, huisletter, huisnummertoevoeging, woonplaatsnaam, gemeentenaam, max(bouwjaar) as bouwjaar, max(gebruiksdoelverblijfsobject) as gebruiksdoelverblijfsobject, max(oppervlakteverblijfsobject) as oppervlakteverblijfsobject, max(pandid), max(lon) as lon, max(lat) as lat, max(contour) as contour, (SELECT COUNT(*) FROM bagactueel.verblijfsobject, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobjectgebruiksdoel WHERE verblijfsobjectpand.gerelateerdpand = max(pandid) AND verblijfsobject.identificatie = verblijfsobjectpand.identificatie AND verblijfsobject.identificatie = verblijfsobjectgebruiksdoel.identificatie AND verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject = 'woonfunctie') as woningen_in_pand FROM (SELECT adres.postcode, adres.openbareruimtenaam, adres.huisnummer, adres.huisletter, adres.huisnummertoevoeging, adres.woonplaatsnaam, adres.gemeentenaam, pand.bouwjaar, verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject as gebruiksdoelverblijfsobject, verblijfsobject.oppervlakteverblijfsobject as oppervlakteverblijfsobject, verblijfsobjectpand.gerelateerdpand as pandid, ST_X(ST_Transform(adres.geopunt, 4326)) as lon, ST_Y(ST_Transform(adres.geopunt, 4326)) as lat, ST_AsGeoJSON(ST_Force_2D(ST_Transform(pand.geovlak, 4326)), 6, 0) as contour FROM bagactueel.adres, bagactueel.pand, bagactueel.verblijfsobject, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobjectgebruiksdoel WHERE adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.identificatie = verblijfsobjectpand.identificatie AND verblijfsobjectpand.gerelateerdpand = pand.identificatie AND verblijfsobject.identificatie = verblijfsobjectpand.identificatie AND ST_Within(pand.geovlak, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992))) as temp GROUP BY postcode, openbareruimtenaam, huisnummer, huisletter, huisnummertoevoeging, woonplaatsnaam, gemeentenaam ORDER BY openbareruimtenaam, huisnummer, huisletter`
-            client.query(sql, (err, result)=> {
+            var sql = `SELECT postcode, openbareruimtenaam, huisnummer, huisletter, huisnummertoevoeging, woonplaatsnaam, gemeentenaam, max(bouwjaar) as bouwjaar, max(gebruiksdoelverblijfsobject) as gebruiksdoelverblijfsobject, max(oppervlakteverblijfsobject) as oppervlakteverblijfsobject, max(pandid) as pandid, max(latlon) as latlon, max(contour) as contour, (SELECT COUNT(DISTINCT(verblijfsobject.identificatie)) FROM bagactueel.verblijfsobject, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobjectgebruiksdoel WHERE verblijfsobjectpand.gerelateerdpand = max(pandid) AND verblijfsobject.identificatie = verblijfsobjectpand.identificatie AND verblijfsobject.identificatie = verblijfsobjectgebruiksdoel.identificatie AND verblijfsobject.verblijfsobjectstatus = 'Verblijfsobject in gebruik' AND verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject = 'woonfunctie' ) as woningen_in_pand FROM (SELECT adres.postcode, adres.openbareruimtenaam, adres.huisnummer, adres.huisletter, adres.huisnummertoevoeging, adres.woonplaatsnaam, adres.gemeentenaam, pand.bouwjaar, verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject as gebruiksdoelverblijfsobject, verblijfsobject.oppervlakteverblijfsobject as oppervlakteverblijfsobject, verblijfsobjectpand.gerelateerdpand as pandid, ST_AsGeoJSON(ST_Force_2D(ST_Transform(adres.geopunt, 4326)), 6, 0) as latlon, ST_AsGeoJSON(ST_Force_2D(ST_Transform(pand.geovlak, 4326)), 6, 0) as contour FROM bagactueel.adres, bagactueel.pand, bagactueel.verblijfsobject, bagactueel.verblijfsobjectpand, bagactueel.verblijfsobjectgebruiksdoel WHERE adres.adresseerbaarobject = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.identificatie = verblijfsobjectpand.identificatie AND verblijfsobjectgebruiksdoel.gebruiksdoelverblijfsobject = 'woonfunctie' AND verblijfsobjectpand.gerelateerdpand = pand.identificatie AND verblijfsobject.identificatie = verblijfsobjectpand.identificatie AND verblijfsobject.verblijfsobjectstatus = 'Verblijfsobject in gebruik' AND ST_Within(pand.geovlak, ST_Transform(ST_GeomFromGeoJSON('${bounds}'),28992))) as temp GROUP BY postcode, openbareruimtenaam, huisnummer, huisletter, huisnummertoevoeging, woonplaatsnaam, gemeentenaam ORDER BY openbareruimtenaam, huisnummer, huisletter LIMIT 1000`
+            client.query(sql, (err, result) => {
                 done();
                 if (err) {
                     console.log(err);
@@ -146,7 +152,7 @@ export class BagDatabase {
         var houseLetter: string = splittedAdressNumber.letter;
         var houseNumberAddition: string = splittedAdressNumber.addition;
 
-        pg.connect(this.connectionString, (err, client, done) => {
+        this.pg.connect(this.connectionString, (err, client, done) => {
             if (err) {
                 console.log(err);
                 callback(null);
@@ -214,7 +220,7 @@ export class BagDatabase {
         var houseNumber: number = this.formatHouseNumber(req.params.number);
         if (!houseNumber) return res.send(400, 'house number is missing');
 
-        pg.connect(this.connectionString, (err, client, done) => {
+        this.pg.connect(this.connectionString, (err, client, done) => {
             if (err) {
                 console.log(err);
                 return;
