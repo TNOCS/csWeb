@@ -18,7 +18,7 @@ module csComp.Services {
     }
 
     export class VisualState {
-        public leftPanelVisible:  boolean = true;
+        public leftPanelVisible:  boolean = false;
         public rightPanelVisible: boolean = false;
         public dashboardVisible:  boolean = true;
         public mapVisible:        boolean = true;

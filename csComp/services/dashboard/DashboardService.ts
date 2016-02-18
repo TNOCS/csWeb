@@ -195,7 +195,7 @@ module csComp.Services {
             $('#' + tab.container + '-tab-a').click(() => {
                 this.$layerService.visual.rightPanelVisible = true;
                 console.log('rp visible');
-                this.$rootScope.$apply();
+                if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); } 
             });
             var newScope = this.$rootScope;
             (<any>newScope).data = tab.data;
@@ -227,7 +227,7 @@ module csComp.Services {
                     // }
                 }
             } catch (e) { return; }
-            this.$rootScope.$apply(); 
+            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); } 
         }
 
         public deactivateTab(tab: RightPanelTab) {

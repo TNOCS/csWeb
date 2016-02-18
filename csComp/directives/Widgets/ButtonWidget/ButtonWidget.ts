@@ -27,22 +27,30 @@ module ButtonWidget {
 
     export interface IButtonWidgetScope extends ng.IScope {
         vm: ButtonWidgetCtrl;
+        data: IButtonData;
     }
 
     export interface IButtonWidget {
         id: string;
         name: string;
-        state: string;
-        time: Date;
-        msg?: string;
+    }
+
+    export interface IButtonData {
+        title: string;
+        action: string;
+        layer: string;
+
     }
 
     export class ButtonWidgetCtrl {
-        private states: { [id: string]: IButtonWidget } = {};
+
+        public disabled = false;
+        public active = false;
 
         public static $inject = [
             '$scope',
             '$http',
+            'layerService',
             'messageBusService',
             '$timeout'
         ];
@@ -50,22 +58,46 @@ module ButtonWidget {
         constructor(
             private $scope: IButtonWidgetScope,
             private $http: ng.IHttpService,
+            public layerService: csComp.Services.LayerService,
             private messageBusService: csComp.Services.MessageBusService,
+
             private $timeout: ng.ITimeoutService
         ) {
             $scope.vm = this;
 
-            messageBusService.serverSubscribe('Sim.ButtonWidget.', 'key', (title: string, msg: any) => {
-                if (!msg || !msg.hasOwnProperty('data') || !msg.data.hasOwnProperty('item')) return;
-                //console.log(`Server subscription received: ${title}, ${JSON.stringify(msg, null, 2) }.`);
-                this.$timeout(() => {
-                    var state = <IButtonWidget> msg.data.item;
-                    if (state.state === 'Exit')
-                        delete this.states[state.id];
-                    else
-                        this.states[state.name] = state; // Although id would be better, we could end up with the remains of restarted services.
-                }, 0);
-            })
+            var par = <any>$scope.$parent;
+            $scope.data = <IButtonData>par.widget.data;
+
+            switch ($scope.data.action) {
+                case "Activate Layer":
+                    this.checkLayer($scope.data.layer);
+                    this.messageBusService.subscribe("layer", (a, l) => this.checkLayer($scope.data.layer));
+                    break;
+            }
+        }
+
+        private checkLayer(layerId: string) {
+            var pl = this.layerService.findLayer(layerId);
+            if (typeof pl !== 'undefined') {
+                this.disabled = false;
+                this.active = pl.enabled;
+            }
+            else {
+                this.disabled = true;
+            }
+        }
+
+        public click() {
+            switch (this.$scope.data.action) {
+                case "Activate Layer":
+                    var pl = this.layerService.findLayer(this.$scope.data.layer);
+                    if (typeof pl !== 'undefined') {                        
+                        this.layerService.addLayer(pl);
+                        pl.enabled = true;
+                    }
+                    break;
+            }
+
         }
     }
 }
