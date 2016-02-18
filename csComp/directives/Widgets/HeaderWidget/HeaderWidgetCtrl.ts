@@ -69,10 +69,8 @@ module HeaderWidget {
                 $scope.data.mdText = $scope.data.content;
                 if ($scope.data.autoShow) this.showContent();
             }
-            
-            
+                        
             this.dataProperties = {};
-
             this.parentWidget = $('#' + this.widget.elementId).parent();
 
            

@@ -8,6 +8,7 @@ module csComp.Services {
         public icon: string = 'tachometer';
         public popover: string = '';
         public replace : boolean = true; 
+        public canClose : boolean = true;
     }
 
     /** service for managing dashboards */
@@ -160,10 +161,14 @@ module csComp.Services {
         }
 
         public activateTab(tab: RightPanelTab) {
-            if (!tab.hasOwnProperty('container')) return;
-            if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) return;
-            this.$layerService.visual.rightPanelVisible = true;
             var content = tab.container + '-content';
+            if (!tab.hasOwnProperty('container')) return;
+            if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) {
+                (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+                return;
+            }
+            this.$layerService.visual.rightPanelVisible = true;
+            
             $('#' + tab.container + '-tab').remove();
             var c = $('#' + content);
             try {
