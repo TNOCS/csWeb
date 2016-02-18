@@ -205,6 +205,15 @@ body,
     right: 350px;
     position: absolute;
 }
+
+.rightpanel-closebutton
+{    
+    position: absolute;
+    right:8px;
+    top:5px;
+    font-size: 30px; 
+}
+
 .rightpanelTabs-collapsed {
     right: 0;
 }

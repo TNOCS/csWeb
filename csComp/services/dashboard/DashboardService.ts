@@ -159,6 +159,11 @@ module csComp.Services {
             this.$messageBusService.publish('dashboard-' + container, 'activated', dashboard);
             this.$location.search('dashboard', dashboard.id);
         }
+        
+        public closeContainer()
+        {
+            alert('close container'); 
+        }
 
         public activateTab(tab: RightPanelTab) {
             var content = tab.container + '-content';
@@ -194,8 +199,15 @@ module csComp.Services {
             });
             var newScope = this.$rootScope;
             (<any>newScope).data = tab.data;
-            var widgetElement = this.$compile('<' + tab.directive + '></' + tab.directive + '>')(newScope);
+            var widgetElement = this.$compile('<' + tab.directive + '></' + tab.directive + '>')(newScope);            
             $('#' + content).append(widgetElement);
+            if (tab.canClose)
+            {                
+                $('#' + content).append('<div id="closebutton-' + tab.container + '" class="fa fa-times rightpanel-closebutton" />');
+                $('#closebutton-' + tab.container).click(()=>{
+                   this.deactivateTabContainer(tab.container); 
+                });
+            }
             (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
             this.rightPanelTabs[tab.container] = tab;
         }
@@ -215,7 +227,7 @@ module csComp.Services {
                     // }
                 }
             } catch (e) { return; }
-            
+            this.$rootScope.$apply(); 
         }
 
         public deactivateTab(tab: RightPanelTab) {
