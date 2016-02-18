@@ -121,8 +121,7 @@ gulp.task('tsconfig', function () {
                 outDir: outDir,
                 sourceMap: true,
             },
-            filesGlob: globPattern,
-            exclude: []
+            filesGlob: globPattern
         },
     };
     return buildTsconfig(config, globPattern, './');
