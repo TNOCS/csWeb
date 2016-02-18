@@ -79,6 +79,11 @@ module csComp.Services {
                 }
             });
 
+            this.widgetTypes['buttonwidget'] = <IWidget>{
+                id: 'buttonwidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/touchbutton.png',
+                description: 'Simple on/off button for executing an action.'
+            };
             this.widgetTypes['indicators'] = <IWidget>{
                 id: 'indicators',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/indicators.png',
