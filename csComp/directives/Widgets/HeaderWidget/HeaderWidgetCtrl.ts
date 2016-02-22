@@ -78,8 +78,8 @@ module HeaderWidget {
         
         public showContent()
         {
-            var rpt = csComp.Helpers.createRightPanelTab('headerinfo', 'infowidget', this.$scope.data, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'question');
-            this.$messageBus.publish('rightpanel', 'activate', rpt);
+            var rpt = csComp.Helpers.createRightPanelTab('headerinfo', 'infowidget', this.$scope.data, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'question',true);
+            this.$messageBus.publish('rightpanel', 'activate', rpt); 
             this.$layerService.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
         }
 

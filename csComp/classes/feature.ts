@@ -163,6 +163,7 @@ module csComp.Services {
         defaultFeatureType?: string;
         defaultLegendProperty? : string;
         typeUrl?:            string;
+        dashboard? : string;
     }
 
     export interface IPropertyType {

@@ -39,6 +39,8 @@ module ButtonWidget {
         title: string;
         action: string;
         layer: string;
+        group: string;
+        property: string;
 
     }
 
@@ -73,6 +75,10 @@ module ButtonWidget {
                     this.checkLayer($scope.data.layer);
                     this.messageBusService.subscribe("layer", (a, l) => this.checkLayer($scope.data.layer));
                     break;
+                case "Activate Style":
+                    this.checkStyle();
+                    this.messageBusService.subscribe("styles", (a, l) => this.checkStyle());
+                    break; 
             }
         }
 
@@ -87,14 +93,35 @@ module ButtonWidget {
             }
         }
 
+        private checkStyle() {
+            var group = this.layerService.findGroupById(this.$scope.data.group);
+            var prop = this.$scope.data.property;
+            if (prop.indexOf("#")>-1) prop = prop.split("#")[1];
+            if (typeof group !== 'undefined') {
+                var selected = group.styles.filter(gs=>{
+                    return gs.property === prop});
+                this.active = selected.length>0;
+            }
+        }
+
         public click() {
             switch (this.$scope.data.action) {
                 case "Activate Layer":
                     var pl = this.layerService.findLayer(this.$scope.data.layer);
-                    if (typeof pl !== 'undefined') {                        
+                    if (typeof pl !== 'undefined') {
                         this.layerService.addLayer(pl);
                         pl.enabled = true;
                     }
+                    break;
+                case "Activate Style":
+                    var group = this.layerService.findGroupById(this.$scope.data.group);
+                    if (typeof group !== 'undefined') {
+                        var propType = this.layerService.findPropertyTypeById(this.$scope.data.property);
+                        if (typeof propType !== 'undefined') {
+                            this.layerService.setGroupStyle(group, propType);                            
+                        }
+                    }
+
                     break;
             }
 

@@ -466,7 +466,10 @@ module csComp.Services {
                         var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
                         props.forEach((prop: IPropertyType) => {
                             if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
+                                
                                 if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer._lastSelectedFeature);
+                                if (typeof prop.layerProps.dashboard === 'undefined' || prop.layerProps.dashboard === this.project.activeDashboard.id)
+                                {
 
                                 feature.layer._lastSelectedFeature = feature;
 
@@ -506,6 +509,7 @@ module csComp.Services {
                                     pl.group.layers.push(pl);
                                 }
                                 this.addLayer(pl);
+                                }
                             }
                         });
                         break;
@@ -1419,6 +1423,21 @@ module csComp.Services {
                     return this.typesResources[typeUrl];
                 } else return null;
             } else return null;
+        } 
+        
+        public findPropertyTypeById(id : string) : IPropertyType
+        {            
+            if (id.indexOf('#')===-1) return null;
+            for (var r in this.typesResources)
+            {
+                if (id.indexOf(r)===0)
+                {
+                    var res = this.typesResources[r].propertyTypeData;
+                    var k = id.split('#')[1];
+                    if (res.hasOwnProperty(k)) return res[k];
+                }
+            }
+            return null;
         }
 
         /**
@@ -1552,8 +1571,16 @@ module csComp.Services {
             gs.enabled = true;
             gs.property = property.label;
             gs.group = group;
+            if (property.legend)
+            {
+                gs.activeLegend = property.legend;
+            }
+            else
+            {
+            gs.colors = ['white', '#FF5500'];    
+            }
 
-            gs.colors = ['white', '#FF5500'];
+            
             this.saveStyle(group, gs);
             this.project.features.forEach((fe: IFeature) => {
                 if (fe.layer.group === group) {
@@ -1602,7 +1629,6 @@ module csComp.Services {
                     gs.enabled = true;
                     gs.group = f.layer.group;
                     gs.meta = property.meta;
-
                     var ptd = this.propertyTypeData[property.property];
                     if (ptd && ptd.legend) {
                         gs.activeLegend = ptd.legend;

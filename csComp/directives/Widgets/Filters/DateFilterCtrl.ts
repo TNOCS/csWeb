@@ -51,10 +51,10 @@ module Filters {
               this.subHandle = $messageBus.subscribe('timeline', (trigger: string) => {
                   switch (trigger) {
                       case 'focusChange':
-              this.updateTextFilter();
+              this.updateDateFilter();
               break;
             }});
-            $scope.$watch('vm.switch',()=>{ this.updateTextFilter();});
+            $scope.$watch('vm.switch',()=>{ this.updateDateFilter();});
               // $scope.$watch('filter.stringValue', ()=> {
               //
               // });
@@ -71,7 +71,10 @@ module Filters {
             private check(d : string) : boolean
             {
               if (d != null) {
-                var dt = Date.parse(d);
+                  var dt;
+                  if (_.isNumber(d)) dt = d;
+                  if (_.isDate(d)) dt = Date.parse(d);
+                
                 switch (this.switch)
                 {
                   case "before": return dt>=this.$layerService.project.timeLine.focus; 
@@ -101,7 +104,7 @@ module Filters {
               });
             }
 
-            public updateTextFilter() {
+            public updateDateFilter() {
               var f = this.$scope.filter;
               if (!f.dimension) return;
               var group = f.group;
