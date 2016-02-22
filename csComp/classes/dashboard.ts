@@ -6,11 +6,11 @@ module csComp.Services {
     }
 
     export class WidgetStyle {
-        background: string;
-        borderWidth: string;
-        borderColor: string;
-        borderRadius: string;
-        opacity: number;
+        background:         string;
+        borderWidth:        string;
+        borderColor:        string;
+        borderRadius:       string;
+        opacity:            number;
         disableIfLeftPanel: boolean;
     }
 
