@@ -24,6 +24,7 @@ module csComp.Services {
         icon?: string;
         service: string;
         click: Function;
+        location?: IGeoJsonGeometry;
     }
 
     export declare type SearchResultHandler = (error: Error, result: ISearchResultItem[]) => void;

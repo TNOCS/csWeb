@@ -2524,6 +2524,10 @@ module csComp.Services {
             if (this.project.useOfflineSearch) {
                 this.addActionService(new OfflineSearchActions(this.$http, this.project.url));
             }
+
+            if (this.project.useOnlineSearch && this.project.hasOwnProperty('onlineSearchUrl')) {
+                this.addActionService(new OnlineSearchActions(this.$http, this.project.onlineSearchUrl));
+            }
         }
 
         private apply() {
