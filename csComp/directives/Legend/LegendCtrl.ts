@@ -94,6 +94,17 @@ module Legend {
                     });
                 }
             }
+            else
+            {
+                $scope.legend = <csComp.Services.Legend>this.widget.data;
+                if ($scope.$parent.hasOwnProperty('widget')) {
+                    if (!$scope.legend.hasOwnProperty('legendEntries')) {
+                        (<any>$scope.$parent).widget['enabled'] = false;
+                    } else {
+                        (<any>$scope.$parent).widget['enabled'] = true;
+                    }
+                }
+            }
         }
 
         createLegend(): csComp.Services.Legend {

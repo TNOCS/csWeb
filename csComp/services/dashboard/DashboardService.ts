@@ -125,6 +125,11 @@ module csComp.Services {
                 icon: 'bower_components/csweb/dist-bower/images/widgets/markdown.png',
                 description: 'Show kanbanboard'
             };
+            this.widgetTypes['legendDirective'] = <IWidget>{
+                id: 'legendDirective',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/markdown.png',
+                description: 'Show Legend'
+            };
             this.widgetTypes['navigator'] = <IWidget>{
                 id: 'navigatorwidget',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/markdown.png',
