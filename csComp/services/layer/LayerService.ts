@@ -2220,7 +2220,8 @@ module csComp.Services {
                 var rpt = csComp.Helpers.createRightPanelTab('eventtab', 'eventtab', {}, 'Events', '{{"EVENT_INFO" | translate}}', 'book');
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
             }
-
+            
+            // if no dashboards defined, create one
             if (!this.project.dashboards) {
                 this.project.dashboards = [];
                 var d = new Services.Dashboard();
@@ -2247,6 +2248,8 @@ module csComp.Services {
                 }];
                 this.project.dashboards.push(d2);
             } else {
+                
+                // initialize dashboards                
                 this.project.dashboards.forEach((d) => {
                     if (!d.id) { d.id = Helpers.getGuid(); }
                     if (d.widgets && d.widgets.length > 0)
@@ -2258,6 +2261,8 @@ module csComp.Services {
             }
             async.series([
                 (callback) => {
+                    
+                    // load extra type resources                    
                     if (this.project.typeUrls && this.project.typeUrls.length > 0) {
                         async.eachSeries(this.project.typeUrls, (item, cb) => {
                             this.loadTypeResources(item, false, () => cb(null));
@@ -2269,33 +2274,35 @@ module csComp.Services {
                     }
                 },
                 (callback) => {
+                    
+                    // load data resources
                     if (!this.project.datasources) this.project.datasources = [];
 
-                    this.project.datasources.forEach((ds: DataSource) => {
-                        if (ds.url) {
-                            DataSource.LoadData(this.$http, ds, () => {
-                                if (ds.type === 'dynamic') { this.checkDataSourceSubscriptions(ds); }
+                    // this.project.datasources.forEach((ds: DataSource) => {
+                    //     if (ds.url) {
+                    //         DataSource.LoadData(this.$http, ds, () => {
+                    //             if (ds.type === 'dynamic') { this.checkDataSourceSubscriptions(ds); }
 
-                                for (var s in ds.sensors) {
-                                    var ss: SensorSet = ds.sensors[s];
-                                    /// check if there is an propertytype available for this sensor
-                                    if (ss.propertyTypeKey != null && this.propertyTypeData.hasOwnProperty(ss.propertyTypeKey)) {
-                                        ss.propertyType = this.propertyTypeData[ss.propertyTypeKey];
-                                    } else { // else create a new one and store in project
-                                        var id = 'sensor-' + Helpers.getGuid();
-                                        var pt: IPropertyType = {};
-                                        pt.title = s;
-                                        ss.propertyTypeKey = id;
-                                        this.project.propertyTypeData[id] = pt;
-                                        ss.propertyType = pt;
-                                    }
-                                    if (ss.values && ss.values.length > 0) {
-                                        ss.activeValue = ss.values[ss.values.length - 1];
-                                    }
-                                }
-                            });
-                        }
-                    });
+                    //             for (var s in ds.sensors) {
+                    //                 var ss: SensorSet = ds.sensors[s];
+                    //                 /// check if there is an propertytype available for this sensor
+                    //                 if (ss.propertyTypeKey != null && this.propertyTypeData.hasOwnProperty(ss.propertyTypeKey)) {
+                    //                     ss.propertyType = this.propertyTypeData[ss.propertyTypeKey];
+                    //                 } else { // else create a new one and store in project
+                    //                     var id = 'sensor-' + Helpers.getGuid();
+                    //                     var pt: IPropertyType = {};
+                    //                     pt.title = s;
+                    //                     ss.propertyTypeKey = id;
+                    //                     this.project.propertyTypeData[id] = pt;
+                    //                     ss.propertyType = pt;
+                    //                 }
+                    //                 if (ss.values && ss.values.length > 0) {
+                    //                     ss.activeValue = ss.values[ss.values.length - 1];
+                    //                 }
+                    //             }
+                    //         });
+                    //     }
+                    // });
                 }
             ]);
 

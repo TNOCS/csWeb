@@ -41,6 +41,8 @@ declare module dc {
         width: IGetSet<number, T>;
         height: IGetSet<number, T>;
         minWidth: IGetSet<number, T>;
+        gap : any;
+        elasticX : any;
         minHeight: IGetSet<number, T>;
         dimension: IGetSet<any, T>;
         group: IGetSet<any, T>; // not sure here
