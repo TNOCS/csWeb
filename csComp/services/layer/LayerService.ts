@@ -133,8 +133,19 @@ module csComp.Services {
                 for (var l in this.loadedLayers) {
                     var layer = this.loadedLayers[l];
                     if (layer.refreshBBOX) {
+                        // When any groupstyle(s) present, store and re-apply after refreshing the layer
+                        var oldStyles;
+                        if (layer.group && layer.group.styles && layer.group.styles.length > 0) {
+                            oldStyles = layer.group.styles;
+                        }
                         layer.BBOX = bbox;
                         layer.layerSource.refreshLayer(layer);
+                        if (layer.group && oldStyles) {
+                            oldStyles.forEach((gs) => {
+                                this.saveStyle(layer.group, gs);
+                            });
+                            this.updateGroupFeatures(layer.group);
+                        }
                     }
                 }
             });
