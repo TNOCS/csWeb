@@ -48,6 +48,7 @@ module ButtonWidget {
 
         public disabled = false;
         public active = false;
+        public layer : csComp.Services.ProjectLayer;
 
         public static $inject = [
             '$scope',
@@ -83,10 +84,11 @@ module ButtonWidget {
         }
 
         private checkLayer(layerId: string) {
-            var pl = this.layerService.findLayer(layerId);
-            if (typeof pl !== 'undefined') {
+            this.layer = this.layerService.findLayer(layerId);
+                        
+            if (typeof this.layer !== 'undefined') {
                 this.disabled = false;
-                this.active = pl.enabled;
+                this.active = this.layer.enabled;
             }
             else {
                 this.disabled = true;
@@ -102,7 +104,7 @@ module ButtonWidget {
                     return gs.property === prop});
                 this.active = selected.length>0;
             }
-        }
+        } 
 
         public click() {
             switch (this.$scope.data.action) {
