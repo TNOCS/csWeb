@@ -64,6 +64,10 @@ module Dashboard {
                 // In LayerService, you expect the name to be dashboard-main too. 
                 $messageBusService.subscribe('dashboard-main', (s: string, d: csComp.Services.Dashboard) => {
                     this.project = $layerService.project;
+                    if (this.project.activeDashboard)
+                    {
+                        this.closeDashboard();                        
+                    }
                     this.project.activeDashboard = d;
                     //alert(this.project.activeDashboard.id);
                     switch (s) {
@@ -93,6 +97,13 @@ module Dashboard {
                 //this.updateDashboard();
                 //alert($scope.dashboard.name);
             };
+        }
+        
+        public closeDashboard()
+        {
+            this.project.activeDashboard.widgets.forEach(w=>{
+                if (w.stop) w.stop();                
+            })
         }
 
         public toggleWidget(widget: csComp.Services.IWidget) {

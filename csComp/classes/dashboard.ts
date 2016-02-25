@@ -51,6 +51,7 @@ module csComp.Services {
 
         init?: Function;
         start?: Function;
+        stop?:Function;
         left?: string;
         right?: string;
         top?: string;
