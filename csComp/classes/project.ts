@@ -178,6 +178,10 @@ module csComp.Services {
         eventTab:       boolean;
         /** If true (default false), indicates that we should load an offline search result. */
         useOfflineSearch: boolean = false;
+        /** If true (default false), indicates that we should enable an online search engine. */
+        useOnlineSearch: boolean = false;
+        /** If useOnlineSearch = true define the url of the online search engine. */
+        onlineSearchUrl: string;
         /**
          * Serialize the project to a JSON string.
          */
@@ -235,7 +239,10 @@ module csComp.Services {
                 propertyTypeData:  project.propertyTypeData,
                 groups:            csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData),
                 layerDirectory:    project.layerDirectory,
-                eventTab:          project.eventTab
+                eventTab:          project.eventTab,
+                useOfflineSearch:  project.useOnlineSearch,
+                useOnlineSearch:   project.useOnlineSearch,
+                onlineSearchUrl:   project.onlineSearchUrl
             };
         }
 

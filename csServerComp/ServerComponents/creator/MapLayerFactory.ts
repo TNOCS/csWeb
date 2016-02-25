@@ -90,6 +90,11 @@ export interface IBagContourRequest {
     layer: any;
 }
 
+export interface IBagSearchRequest {
+    query: string;
+    nrItems: number;
+}
+
 /** A factory class to create new map layers based on input, e.g. from Excel */
 export class MapLayerFactory {
     templateFiles: IProperty[];
@@ -300,6 +305,7 @@ export class MapLayerFactory {
 
     public processBagContours(req: express.Request, res: express.Response) {
         console.log('Received bag contours request. Processing...');
+        var start = new Date().getTime();
         var template: IBagContourRequest = req.body;
         var bounds = template.bounds;
         var layer: csComp.Services.ProjectLayer = template.layer;
@@ -322,13 +328,13 @@ export class MapLayerFactory {
                             // Save all columns to properties, except the ones used as geometry.
                             if ((!getPointFeatures && (p === 'contour' || p === 'latlon'))
                                 || (getPointFeatures && p === 'latlon')) {
-                                    // skip
+                                // skip
+                            } else {
+                                if (!isNaN(parseFloat(area[p])) && isFinite(area[p])) {
+                                    props[p] = +area[p];
                                 } else {
-                                    if (!isNaN(parseFloat(area[p])) && isFinite(area[p])) {
-                                        props[p] = +area[p];
-                                    } else {
-                                        props[p] = area[p];
-                                    }
+                                    props[p] = area[p];
+                                }
                             }
                         }
                     }
@@ -339,8 +345,76 @@ export class MapLayerFactory {
                     };
                     layer.data.features.push(f);
                 });
-                console.log('Updated bag layer: publishing ' + areas.length + ' features...');
-                res.status(Api.ApiResult.OK).send({layer: layer});
+                var diff = new Date().getTime() - start;
+                console.log('Updated bag layer: publishing ' + areas.length + ' features after ' + diff + ' ms.');
+                res.status(Api.ApiResult.OK).send({ layer: layer });
+                // this.messageBus.publish('bagcontouren', 'layer-update', layer);
+            }
+        });
+    }
+
+    public processBagSearchQuery(req: express.Request, res: express.Response) {
+        var start = new Date().getTime();
+        var template: IBagSearchRequest = req.body;
+        var query = template.query;
+        var nrItems = template.nrItems;
+        this.bag.searchAddress(query, nrItems, (results) => {
+            if (!results || !results.length || results.length === 0) {
+                res.status(200).send({});
+            } else {
+                var searchResults = [];
+                results.forEach((r) => {
+                    var sr = {
+                        title: `${r.title}`,
+                        description: `${r.description}`,
+                        score: 0.99,
+                        location: r.location
+                    };
+                    searchResults.push(sr);
+                });
+                var diff = new Date().getTime() - start;
+                console.log('Updated bag layer: returning ' + results.length + ' search results after ' + diff + ' ms.');
+                res.status(Api.ApiResult.OK).send({ result: searchResults });
+            }
+        });
+    }
+
+    public processBagBuurten(req: express.Request, res: express.Response) {
+        console.log('Received bag buurten request. Processing...');
+        var start = new Date().getTime();
+        var template: IBagContourRequest = req.body;
+        var bounds = template.bounds;
+        var layer: csComp.Services.ProjectLayer = template.layer;
+
+        layer.data = {};
+        layer.data.features = [];
+        layer.type = 'database';
+        this.bag.lookupBagBuurt(bounds, (areas: Location[]) => {
+            if (!areas || !areas.length || areas.length === 0) {
+                res.status(404).send({});
+            } else {
+                areas.forEach((area: Location) => {
+                    var props: { [key: string]: any } = {};
+                    for (var p in area) {
+                        if (area.hasOwnProperty(p) && area[p] != null && p !== 'contour') {
+                            // Save all columns to properties, except the ones used as geometry.
+                            if (!isNaN(parseFloat(area[p])) && isFinite(area[p])) {
+                                props[p] = +area[p];
+                            } else {
+                                props[p] = area[p];
+                            }
+                        }
+                    }
+                    var f: IGeoJsonFeature = {
+                        type: 'Feature',
+                        geometry: JSON.parse(area.contour),
+                        properties: props
+                    };
+                    layer.data.features.push(f);
+                });
+                var diff = new Date().getTime() - start;
+                console.log('Updated bag layer: publishing ' + areas.length + ' features after ' + diff + ' ms.');
+                res.status(Api.ApiResult.OK).send({ layer: layer });
                 // this.messageBus.publish('bagcontouren', 'layer-update', layer);
             }
         });

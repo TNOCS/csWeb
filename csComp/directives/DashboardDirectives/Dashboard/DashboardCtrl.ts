@@ -207,7 +207,9 @@ module Dashboard {
         }
 
         public checkViewbound() {
-            this.$layerService.checkViewBounds();
+            if (this.project.activeDashboard && this.project.activeDashboard.viewBounds) {
+                this.$layerService.activeMapRenderer.fitBounds(this.project.activeDashboard.viewBounds);
+            }
         }
 
         public checkTimeline() {

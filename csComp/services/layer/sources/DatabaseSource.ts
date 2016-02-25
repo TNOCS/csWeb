@@ -44,7 +44,7 @@ module csComp.Services {
                         minZoom = 15;
                     }
                     var corners;
-                    if (this.service.$mapService.map.getZoom() < 16) {
+                    if (this.service.$mapService.map.getZoom() < minZoom) {
                         this.service.$messageBusService.notify('Zoom level too low', 'Zoom in to show contours', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Info);
                         // initialize empty layer and return
                         this.initLayer(layer, callback);
