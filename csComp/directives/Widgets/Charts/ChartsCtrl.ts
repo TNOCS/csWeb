@@ -8,6 +8,7 @@ module ChartsWidget {
         key: string;
         lite: boolean;
         spec: any;
+        _spec: any;
         generator: any;
         _id: string;
         _view: any;
@@ -127,7 +128,7 @@ module ChartsWidget {
             try {
 
                 var d = this.$scope.data;
-                var vgspec = d.spec || {};
+                var vgspec = d.spec || d._spec || {};
 
                 if (d.lite) vgspec = vl.compile(d.spec);
                 //parse(vgspec);

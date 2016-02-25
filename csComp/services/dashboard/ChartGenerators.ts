@@ -164,7 +164,7 @@ module csComp.Services {
                         ]
                     };
                     //console.log(JSON.stringify(spec));
-                    this.ctrl.$scope.data.spec = spec;
+                    this.ctrl.$scope.data._spec = spec;
                     this.ctrl.updateChart();
                 }
             }
@@ -331,7 +331,7 @@ module csComp.Services {
                         ]
                     };
                     //console.log(JSON.stringify(spec));
-                    this.ctrl.$scope.data.spec = spec;
+                    this.ctrl.$scope.data._spec = spec;
                     this.ctrl.updateChart();
                 }
             }
