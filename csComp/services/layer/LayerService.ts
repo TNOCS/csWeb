@@ -608,8 +608,7 @@ module csComp.Services {
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             // if (layerloaded) layerloaded(layer);
                             this.expressionService.evalLayer(l, this._featureTypes);
-                        }
-                        this.$messageBusService.publish('layer', 'activated', layer);
+                        }                        
                     }, data);
                     if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
                     callback(null, null);
@@ -2525,12 +2524,14 @@ module csComp.Services {
                 if (this.startDashboardId && this.findDashboardById(this.startDashboardId)) {
                     startd = this.findDashboardById(this.startDashboardId);
                 } 
-               // this.$messageBusService.publish('dashboard-main', 'activated', startd);
+               this.$messageBusService.publish('dashboard-main', 'activated', startd);
             }
 
             if (this.project.useOfflineSearch) {
                 this.addActionService(new OfflineSearchActions(this.$http, this.project.url));
             }
+            
+            
         }
 
         private apply() {

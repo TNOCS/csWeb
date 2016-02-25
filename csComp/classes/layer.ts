@@ -128,6 +128,8 @@ module csComp.Services {
     export class ProjectLayer implements IProjectLayer {
         /** Key of the propertyTypeData entry that provides a legend for this layer **/
         defaultLegendProperty: string;
+        /** Key of the legend entry **/
+        defaultLegend : string;
         /** Title as displayed in the menu */
         title: string;
         /** Number of features in the layer */
@@ -317,6 +319,7 @@ module csComp.Services {
                 dataSourceParameters:  pl.dataSourceParameters,
                 defaultFeatureType:    pl.defaultFeatureType,
                 defaultLegendProperty: pl.defaultLegendProperty,
+                defaultLegend : pl.defaultLegend,
                 useProxy:              pl.useProxy,
                 isDynamic:             pl.isDynamic,
                 useLog:                pl.useLog,
