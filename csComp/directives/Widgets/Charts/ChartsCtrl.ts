@@ -128,9 +128,9 @@ module ChartsWidget {
             try {
 
                 var d = this.$scope.data;
-                var vgspec = d.spec || d._spec || {};
+                var vgspec = d._spec || {};
 
-                if (d.lite) vgspec = vl.compile(d.spec);
+                if (d.lite) vgspec = vl.compile(d._spec);
                 //parse(vgspec);
                 if (vgspec)
 
@@ -145,11 +145,11 @@ module ChartsWidget {
             }
         }
 
-        public updateChart() {
+        public updateChart() {  
             try {
                 var d = this.$scope.data;
-                var vgspec = d.spec;
-                if (d.lite) vgspec = vl.compile(d.spec);
+                var vgspec = d._spec;
+                if (d.lite) vgspec = vl.compile(d._spec);
                 //if (d._view) d._view.update();
                 vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + this.$scope.data._id }).update(); });
             }
@@ -172,8 +172,9 @@ module ChartsWidget {
                     return;
                 }
             } else {
-                // if no generator is specified, use the spec from data
-                if (!d.spec) d.spec = this.defaultSpec;
+                // if no generator is specified, use the spec from data                
+                    d._spec = d.spec || this.defaultSpec;
+                
                 this.initChart();
 
                 // check if a key is defined, a key can be used to listen to new data or complete vega specifications
@@ -182,9 +183,9 @@ module ChartsWidget {
                         switch (msg.action) {
                             case 'key':
                                 if (msg.data.item.hasOwnProperty('values')) {
-                                    d.spec.data = msg.data.item.values;
+                                    d._spec.data = msg.data.item.values;
                                 } else if (msg.data.item.hasOwnProperty('data')) {
-                                    d.spec = msg.data.item;
+                                    d._spec = msg.data.item;
                                 }
                                 this.initChart();
                                 break;
