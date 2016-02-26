@@ -11,7 +11,8 @@ export class ConfigurationService implements IConfiguration {
     /**
      * Create a configuration service based on a configuration file.
      */
-    constructor(private configurationFile: string) {
+    constructor(private configurationFile?: string) {
+        if (!configurationFile) return;
         var data = fs.readFileSync(configurationFile, 'utf8');
         var content: Object = JSON.parse(data);
         for (var key in content) {
