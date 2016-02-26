@@ -79,8 +79,17 @@ module ButtonWidget {
                 case "Activate Style":
                     this.checkStyle();
                     this.messageBusService.subscribe("styles", (a, l) => this.checkStyle());
-                    break; 
+                    break;
+                case "Activate Baselayer" :
+                    this.checkBaselayer(); 
+                    this.messageBusService.subscribe("baselayer", (a, l) => this.checkBaselayer()); 
+                    break;
             }
+        }
+        
+        private checkBaselayer()
+        {
+            this.active = this.layerService.$mapService.activeBaseLayerId === this.$scope.data.layer;
         }
 
         private checkLayer(layerId: string) {
@@ -123,7 +132,11 @@ module ButtonWidget {
                             this.layerService.setGroupStyle(group, propType);                            
                         }
                     }
-
+                    break;
+                case "Activate Baselayer" :
+                    var layer : csComp.Services.BaseLayer = this.layerService.$mapService.getBaselayer(this.$scope.data.layer);
+                    this.layerService.activeMapRenderer.changeBaseLayer(layer);
+                    this.layerService.$mapService.changeBaseLayer(this.$scope.data.layer);
                     break;
             }
 
