@@ -173,7 +173,7 @@ export class Group {
     layers: Layer[];
 }
 
-export class KeySubscription {
+export class ApiKeySubscription {
     id: string;
     /** Pattern you subscribe too */
     pattern: string;
@@ -348,7 +348,7 @@ export class ApiManager extends events.EventEmitter {
      */
     public keys: { [keyId: string]: Key } = {};
 
-    public keySubscriptions: { [id: string]: KeySubscription } = {};
+    public keySubscriptions: { [id: string]: ApiKeySubscription } = {};
 
     public defaultStorage = 'file';
     public defaultLogging = false;
@@ -1208,9 +1208,9 @@ export class ApiManager extends events.EventEmitter {
         s.getWithinPolygon(layerId, feature, meta, (result) => callback(result));
     }
 
-    public subscribeKey(pattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void): KeySubscription {
+    public subscribeKey(pattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void): ApiKeySubscription {
         Winston.info('api: added key subscription with pattern ' + pattern);
-        var sub = new KeySubscription();
+        var sub = new ApiKeySubscription();
         sub.id = helpers.newGuid();
         sub.pattern = pattern;
         sub.regexPattern = new RegExp(pattern.replace(/\//g, '\\/').replace(/\./g, '\\.'));

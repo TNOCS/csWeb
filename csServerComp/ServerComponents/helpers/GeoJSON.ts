@@ -1,5 +1,6 @@
 import ApiManager = require('../api/ApiManager');
 import Utils = require('./Utils');
+import IProperty = ApiManager.IProperty;
 
 export interface IGeoJson {
     id?: string;
@@ -58,10 +59,6 @@ export interface IFeature {
     * An optional language dictionary, where each key, e.g. 'en' for English, represents a localised data set. Each locale can overwrite
     * the value of the title, description etc. of a feature.
     */
-}
-
-export interface IProperty {
-    [key: string]: any;
 }
 
 /**

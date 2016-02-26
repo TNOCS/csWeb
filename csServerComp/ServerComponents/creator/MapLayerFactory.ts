@@ -16,6 +16,7 @@ import Utils = require('../helpers/Utils');
 import async = require('async');
 import winston = require('winston');
 import path = require('path');
+import IProperty = Api.IProperty;
 
 export interface ILayerDefinition {
     projectTitle: string;
@@ -45,10 +46,6 @@ export interface ILayerDefinition {
     defaultFeatureType: string;
     geometryFile: string;
     geometryKey: string;
-}
-
-export interface IProperty {
-    [key: string]: any;
 }
 
 export interface IPropertyType {

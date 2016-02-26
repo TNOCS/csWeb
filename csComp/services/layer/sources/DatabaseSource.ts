@@ -88,7 +88,7 @@ module csComp.Services {
                 }
             ]);
         }
-        
+
         private initLayer(layer: ProjectLayer, callback: Function) {
             var projLayer = this.service.findLayer(layer.id);
             if (projLayer) {
@@ -101,6 +101,10 @@ module csComp.Services {
                 projLayer.data.features.forEach((f) => {
                     this.service.initFeature(f, projLayer, false, false);
                 });
+            }
+            if (projLayer.typeUrl && projLayer.defaultFeatureType) {
+                var featureTypeName = projLayer.typeUrl + '#' + projLayer.defaultFeatureType;
+                this.service.evaluateLayerExpressions(projLayer, {featureTypeName: this.service.getFeatureTypeById(featureTypeName)});
             }
             if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
             callback(projLayer);

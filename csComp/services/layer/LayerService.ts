@@ -635,6 +635,10 @@ module csComp.Services {
             ]);
         }
 
+        public evaluateLayerExpressions(l: ProjectLayer, fTypes: {[key: string] : IFeatureType}) {
+            this.expressionService.evalLayer(l, fTypes);
+        }
+
         public saveResource(resource: TypeResource) {
             console.log('saving feature type');
             this.$http.post('/api/resources', csComp.Helpers.cloneWithoutUnderscore(resource))
