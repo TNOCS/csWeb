@@ -152,35 +152,41 @@ module DataTable {
                 (callback) => {
                     this.$http.get(selectedLayer.url).
                         success((data: IGeoJsonFile) => {
-                            this.dataset = data;
-
-                            if (data.featureTypes == null) data.featureTypes = {};
-                            if (data.features) {
-                                data.features.forEach((f: IFeature) => {
-                                    if (f.properties.hasOwnProperty('FeatureTypeId')) {
-                                        f.featureTypeName = f.properties['FeatureTypeId'];
-                                    } else if (data.featureTypes.hasOwnProperty('Default')) {
-                                        f.featureTypeName = 'Default';
-                                    } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType !== '') {
-                                        if (selectedLayer.defaultFeatureType.indexOf('#') > -1) {
-                                            f.featureTypeName = selectedLayer.defaultFeatureType;
-                                        } else {
-                                            f.featureTypeName = selectedLayer.typeUrl + '#' + selectedLayer.defaultFeatureType;
-                                        }
-                                    }
-                                    if (!(f.featureTypeName in data.featureTypes))
-                                        data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
-                                });
-                                this.updatePropertyType(data, selectedLayer);
-                            }
-
-                            callback();
+                            this.processData(selectedLayer, data, callback);
                         }).error((data, status, headers, config) => {
                             this.$messageBusService.notify('ERROR opening ' + selectedLayer.title, 'Could not get the data.');
-                            callback();
+                            if (selectedLayer && selectedLayer.data && selectedLayer.data.features) {
+                                this.processData(selectedLayer, selectedLayer.data, callback);
+                            } else {
+                                callback();
+                            }
                         });
                 }
             ]);
+        }
+
+        private processData(selectedLayer: ProjectLayer, data: IGeoJsonFile, callback: Function) {
+            this.dataset = data;
+            if (data.featureTypes == null) data.featureTypes = {};
+            if (data.features) {
+                data.features.forEach((f: IFeature) => {
+                    if (f.properties.hasOwnProperty('FeatureTypeId')) {
+                        f.featureTypeName = f.properties['FeatureTypeId'];
+                    } else if (data.featureTypes.hasOwnProperty('Default')) {
+                        f.featureTypeName = 'Default';
+                    } else if (selectedLayer.defaultFeatureType != null && selectedLayer.defaultFeatureType !== '') {
+                        if (selectedLayer.defaultFeatureType.indexOf('#') > -1) {
+                            f.featureTypeName = selectedLayer.defaultFeatureType;
+                        } else {
+                            f.featureTypeName = selectedLayer.typeUrl + '#' + selectedLayer.defaultFeatureType;
+                        }
+                    }
+                    if (!(f.featureTypeName in data.featureTypes))
+                        data.featureTypes[f.featureTypeName] = this.$layerService.getFeatureType(f);
+                });
+                this.updatePropertyType(data, selectedLayer);
+            }
+            callback();
         }
 
         /**

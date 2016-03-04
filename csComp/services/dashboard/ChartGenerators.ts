@@ -24,6 +24,7 @@ module csComp.Services {
             this.ctrl = ctrl;
             this.options = ctrl.$scope.data.generator;
             ctrl.widget.enabled = false;
+            $("#" + this.ctrl.widget.elementId + "-container").css("display","none");
             this.mb.subscribe('timeline',(action : string, range : any)=>{
                if (action === "timeSpanUpdated" && this.lastSelectedFeature) this.selectFeature(this.lastSelectedFeature);
             });
@@ -44,8 +45,11 @@ module csComp.Services {
         private lastSelectedFeature : Feature;
 
         private selectFeature(f: Feature) {
-            if (!f.sensors) return;
+            if (!f.sensors) {
+                $("#" + this.ctrl.widget.elementId + "-container").css("display","none");
+                return;}
             if (!this.options.hasOwnProperty("featureType") || this.options["featureType"] === f.fType.name) {
+                $("#" + this.ctrl.widget.elementId + "-container").css("display","block");
                 this.lastSelectedFeature = f;
                 var properties = [];
                 if (this.options.hasOwnProperty("properties")) {
@@ -160,7 +164,7 @@ module csComp.Services {
                         ]
                     };
                     //console.log(JSON.stringify(spec));
-                    this.ctrl.$scope.data.spec = spec;
+                    this.ctrl.$scope.data._spec = spec;
                     this.ctrl.updateChart();
                 }
             }
@@ -327,7 +331,7 @@ module csComp.Services {
                         ]
                     };
                     //console.log(JSON.stringify(spec));
-                    this.ctrl.$scope.data.spec = spec;
+                    this.ctrl.$scope.data._spec = spec;
                     this.ctrl.updateChart();
                 }
             }

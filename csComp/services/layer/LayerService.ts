@@ -133,8 +133,19 @@ module csComp.Services {
                 for (var l in this.loadedLayers) {
                     var layer = this.loadedLayers[l];
                     if (layer.refreshBBOX) {
+                        // When any groupstyle(s) present, store and re-apply after refreshing the layer
+                        var oldStyles;
+                        if (layer.group && layer.group.styles && layer.group.styles.length > 0) {
+                            oldStyles = layer.group.styles;
+                        }
                         layer.BBOX = bbox;
                         layer.layerSource.refreshLayer(layer);
+                        if (layer.group && oldStyles) {
+                            oldStyles.forEach((gs) => {
+                                this.saveStyle(layer.group, gs);
+                            });
+                            this.updateGroupFeatures(layer.group);
+                        }
                     }
                 }
             });
@@ -339,6 +350,16 @@ module csComp.Services {
             as.stop();
         }
 
+        public checkViewBounds() {
+            if (this.project && this.project.activeDashboard && this.project.activeDashboard.viewBounds) {
+                this.activeMapRenderer.fitBounds(this.project.activeDashboard.viewBounds);
+            } else if (this.project && this.project.viewBounds) {
+                this.activeMapRenderer.fitBounds(this.project.viewBounds);
+            } else if (this.solution && this.solution.viewBounds) {
+                this.activeMapRenderer.fitBounds(this.solution.viewBounds);
+            }
+        }
+
         /** Find a dashboard by ID */
         public findDashboardById(dashboardId: string) {
             var dashboard: csComp.Services.Dashboard;
@@ -456,7 +477,10 @@ module csComp.Services {
                         var props = csComp.Helpers.getPropertyTypes(feature.fType, this.propertyTypeData);
                         props.forEach((prop: IPropertyType) => {
                             if (prop.type === 'layer' && feature.properties.hasOwnProperty(prop.label)) {
+                                
                                 if (prop.layerProps && prop.layerProps.activation === 'automatic') this.removeSubLayers(feature.layer._lastSelectedFeature);
+                                if (typeof prop.layerProps.dashboard === 'undefined' || prop.layerProps.dashboard === this.project.activeDashboard.id)
+                                {
 
                                 feature.layer._lastSelectedFeature = feature;
 
@@ -496,6 +520,7 @@ module csComp.Services {
                                     pl.group.layers.push(pl);
                                 }
                                 this.addLayer(pl);
+                                }
                             }
                         });
                         break;
@@ -594,8 +619,7 @@ module csComp.Services {
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             // if (layerloaded) layerloaded(layer);
                             this.expressionService.evalLayer(l, this._featureTypes);
-                        }
-                        this.$messageBusService.publish('layer', 'activated', layer);
+                        }                        
                     }, data);
                     if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
                     callback(null, null);
@@ -609,6 +633,10 @@ module csComp.Services {
                     callback(null, null);
                 }
             ]);
+        }
+
+        public evaluateLayerExpressions(l: ProjectLayer, fTypes: {[key: string] : IFeatureType}) {
+            this.expressionService.evalLayer(l, fTypes);
         }
 
         public saveResource(resource: TypeResource) {
@@ -946,8 +974,7 @@ module csComp.Services {
             // deselect last feature and also update
             if (this.lastSelectedFeature != null && this.lastSelectedFeature !== feature && !multi) {
                 this.deselectFeature(this.lastSelectedFeature);
-                this.actionServices.forEach((as: IActionService) => as.deselectFeature(feature));
-            
+                this.actionServices.forEach((as: IActionService) => as.deselectFeature(feature));            
                 this.$messageBusService.publish('feature', 'onFeatureDeselect', this.lastSelectedFeature);
             }
             
@@ -986,6 +1013,11 @@ module csComp.Services {
                 // rpt.container = 'featurerelations';
                 // this.$messageBusService.publish('rightpanel', 'deactivate', rpt);
             } else {
+                
+                var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'info',false);
+                this.$messageBusService.publish('rightpanel', 'activate', rpt);
+                //this.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
+
                 // var rpt = csComp.Helpers.createRightPanelTab('featurerelations', 'featurerelations', feature, 'Related features', '{{'RELATED_FEATURES' | translate}}', 'link');
                 // this.$messageBusService.publish('rightpanel', 'activate', rpt);
                 // var rpt = csComp.Helpers.createRightPanelTab('featureprops', 'featureprops', feature, 'Selected feature', '{{'FEATURE_INFO' | translate}}', 'info');
@@ -1167,8 +1199,7 @@ module csComp.Services {
                         if (propType && propType.sensorNull)
                             for (var i = 0; i < feature.sensors[s].length; i++) {
                                if (feature.sensors[s][i] === propType.sensorNull) feature.sensors[s][i] = 0;
-                            }
-                            console.log(feature.sensors[s]);
+                            }                            
                         }
                     }
                 
@@ -1406,6 +1437,21 @@ module csComp.Services {
                     return this.typesResources[typeUrl];
                 } else return null;
             } else return null;
+        } 
+        
+        public findPropertyTypeById(id : string) : IPropertyType
+        {            
+            if (id.indexOf('#')===-1) return null;
+            for (var r in this.typesResources)
+            {
+                if (id.indexOf(r)===0)
+                {
+                    var res = this.typesResources[r].propertyTypeData;
+                    var k = id.split('#')[1];
+                    if (res.hasOwnProperty(k)) return res[k];
+                }
+            }
+            return null;
         }
 
         /**
@@ -1440,7 +1486,7 @@ module csComp.Services {
          */
         public findFeatureById(featureId: string): IFeature {
             return _.find(this.project.features, (f: IFeature) => { return f.id === featureId; });
-        }
+        } 
 
         /**
          * Find a feature by layerId and FeatureId.
@@ -1539,8 +1585,16 @@ module csComp.Services {
             gs.enabled = true;
             gs.property = property.label;
             gs.group = group;
+            if (property.legend)
+            {
+                gs.activeLegend = property.legend;
+            }
+            else
+            {
+            gs.colors = ['white', '#FF5500'];    
+            }
 
-            gs.colors = ['white', '#FF5500'];
+            
             this.saveStyle(group, gs);
             this.project.features.forEach((fe: IFeature) => {
                 if (fe.layer.group === group) {
@@ -1589,7 +1643,6 @@ module csComp.Services {
                     gs.enabled = true;
                     gs.group = f.layer.group;
                     gs.meta = property.meta;
-
                     var ptd = this.propertyTypeData[property.property];
                     if (ptd && ptd.legend) {
                         gs.activeLegend = ptd.legend;
@@ -2181,7 +2234,8 @@ module csComp.Services {
                 var rpt = csComp.Helpers.createRightPanelTab('eventtab', 'eventtab', {}, 'Events', '{{"EVENT_INFO" | translate}}', 'book');
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
             }
-
+            
+            // if no dashboards defined, create one
             if (!this.project.dashboards) {
                 this.project.dashboards = [];
                 var d = new Services.Dashboard();
@@ -2208,6 +2262,8 @@ module csComp.Services {
                 }];
                 this.project.dashboards.push(d2);
             } else {
+                
+                // initialize dashboards                
                 this.project.dashboards.forEach((d) => {
                     if (!d.id) { d.id = Helpers.getGuid(); }
                     if (d.widgets && d.widgets.length > 0)
@@ -2219,6 +2275,8 @@ module csComp.Services {
             }
             async.series([
                 (callback) => {
+                    
+                    // load extra type resources                    
                     if (this.project.typeUrls && this.project.typeUrls.length > 0) {
                         async.eachSeries(this.project.typeUrls, (item, cb) => {
                             this.loadTypeResources(item, false, () => cb(null));
@@ -2230,33 +2288,35 @@ module csComp.Services {
                     }
                 },
                 (callback) => {
+                    
+                    // load data resources
                     if (!this.project.datasources) this.project.datasources = [];
 
-                    this.project.datasources.forEach((ds: DataSource) => {
-                        if (ds.url) {
-                            DataSource.LoadData(this.$http, ds, () => {
-                                if (ds.type === 'dynamic') { this.checkDataSourceSubscriptions(ds); }
+                    // this.project.datasources.forEach((ds: DataSource) => {
+                    //     if (ds.url) {
+                    //         DataSource.LoadData(this.$http, ds, () => {
+                    //             if (ds.type === 'dynamic') { this.checkDataSourceSubscriptions(ds); }
 
-                                for (var s in ds.sensors) {
-                                    var ss: SensorSet = ds.sensors[s];
-                                    /// check if there is an propertytype available for this sensor
-                                    if (ss.propertyTypeKey != null && this.propertyTypeData.hasOwnProperty(ss.propertyTypeKey)) {
-                                        ss.propertyType = this.propertyTypeData[ss.propertyTypeKey];
-                                    } else { // else create a new one and store in project
-                                        var id = 'sensor-' + Helpers.getGuid();
-                                        var pt: IPropertyType = {};
-                                        pt.title = s;
-                                        ss.propertyTypeKey = id;
-                                        this.project.propertyTypeData[id] = pt;
-                                        ss.propertyType = pt;
-                                    }
-                                    if (ss.values && ss.values.length > 0) {
-                                        ss.activeValue = ss.values[ss.values.length - 1];
-                                    }
-                                }
-                            });
-                        }
-                    });
+                    //             for (var s in ds.sensors) {
+                    //                 var ss: SensorSet = ds.sensors[s];
+                    //                 /// check if there is an propertytype available for this sensor
+                    //                 if (ss.propertyTypeKey != null && this.propertyTypeData.hasOwnProperty(ss.propertyTypeKey)) {
+                    //                     ss.propertyType = this.propertyTypeData[ss.propertyTypeKey];
+                    //                 } else { // else create a new one and store in project
+                    //                     var id = 'sensor-' + Helpers.getGuid();
+                    //                     var pt: IPropertyType = {};
+                    //                     pt.title = s;
+                    //                     ss.propertyTypeKey = id;
+                    //                     this.project.propertyTypeData[id] = pt;
+                    //                     ss.propertyType = pt;
+                    //                 }
+                    //                 if (ss.values && ss.values.length > 0) {
+                    //                     ss.activeValue = ss.values[ss.values.length - 1];
+                    //                 }
+                    //             }
+                    //         });
+                    //     }
+                    // });
                 }
             ]);
 
@@ -2478,13 +2538,19 @@ module csComp.Services {
                 // find dashboard from url
                 if (this.startDashboardId && this.findDashboardById(this.startDashboardId)) {
                     startd = this.findDashboardById(this.startDashboardId);
-                }
-                this.$messageBusService.publish('dashboard-main', 'activated', startd);
+                } 
+               this.$messageBusService.publish('dashboard-main', 'activated', startd);
             }
 
             if (this.project.useOfflineSearch) {
                 this.addActionService(new OfflineSearchActions(this.$http, this.project.url));
             }
+
+            if (this.project.useOnlineSearch && this.project.hasOwnProperty('onlineSearchUrl')) {
+                this.addActionService(new OnlineSearchActions(this.$http, this.project.onlineSearchUrl));
+            }
+            
+            
         }
 
         private apply() {

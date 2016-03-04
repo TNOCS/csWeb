@@ -33,21 +33,25 @@ module csComp.Services {
 
         protected baseAddLayer(layer: ProjectLayer, callback: (layer: ProjectLayer) => void) {
             this.layer = layer;
-            if (!layer.data || !layer.data.features || layer.BBOX) {
-                async.series([
-                    (cb) => {
-                        layer.renderType = 'geojson';
-                        // Open a layer URL
-                        layer.isLoading = true;
-                        if (layer.BBOX) delete layer.BBOX;
-                        var corners;
-                        if (this.service.$mapService.map.getZoom() < 16) {
-                            console.log('Zoom level too low, zoom in to show contours');
-                            corners = new L.LatLngBounds(new L.LatLng(99.00000, 99.00000), new L.LatLng(99.00001, 99.00001));
-                            // TODO Shouldn't you return from here (call the callback)
-                        } else {
-                            corners = this.service.$mapService.map.getBounds();
-                        }
+            async.series([
+                (cb) => {
+                    layer.renderType = 'geojson';
+                    layer.isLoading = true;
+                    var minZoom;
+                    if (layer.dataSourceParameters && layer.dataSourceParameters.hasOwnProperty('minZoom')) {
+                        minZoom = layer.dataSourceParameters['minZoom'];
+                    } else {
+                        minZoom = 15;
+                    }
+                    var corners;
+                    if (this.service.$mapService.map.getZoom() < minZoom) {
+                        this.service.$messageBusService.notify('Zoom level too low', 'Zoom in to show contours', csComp.Services.NotifyLocation.TopRight, csComp.Services.NotifyType.Info);
+                        // initialize empty layer and return
+                        this.initLayer(layer, callback);
+                        return;
+                    } else {
+                        // When the zoomlevel is valid:
+                        corners = this.service.$mapService.map.getBounds();
                         var coords = [[
                             [corners.getSouthWest().lng, corners.getSouthWest().lat],
                             [corners.getNorthWest().lng, corners.getNorthWest().lat],
@@ -56,7 +60,7 @@ module csComp.Services {
                             [corners.getSouthWest().lng, corners.getSouthWest().lat]]];
                         var bounds = JSON.stringify({ type: 'Polygon', coordinates: coords, crs: { type: 'name', properties: { 'name': 'EPSG:4326' } } });
 
-                        // get data
+                        // get data from BAG
                         var bagRequestData = {
                             bounds: bounds,
                             layer: ProjectLayer.serializeableData(layer)
@@ -68,35 +72,50 @@ module csComp.Services {
                             data: JSON.stringify(bagRequestData),
                             contentType: 'application/json',
                             dataType: 'json',
-                            success: (data) => console.log('Received bag contours'),
+                            statusCode: {
+                                200: (data) => {
+                                    console.log('Received bag contours');
+                                    this.initLayer(data.layer, callback);
+                                },
+                                404: (data) => {
+                                    console.log('Could not get bag contours');
+                                    this.initLayer(layer, callback);
+                                }
+                            },
                             error: () => this.service.$messageBusService.publish('layer', 'error', layer)
                         });
-                    },
-                    // Callback
-                    () => {
-                        callback(layer);
                     }
-                ]);
-            } else {
-                layer.count = 0;
-                layer.isLoading = false;
-                var projLayer = this.service.findLayer(layer.id);
-                if (projLayer) {
-                    projLayer.isLoading = false;
-                    projLayer.enabled   = true;
                 }
-                layer.data.features.forEach((f) => {
-                    this.service.initFeature(f, layer, false, false);
-                });
-                if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
-                callback(layer);
+            ]);
+        }
+
+        private initLayer(layer: ProjectLayer, callback: Function) {
+            var projLayer = this.service.findLayer(layer.id);
+            if (projLayer) {
+                layer.count = 0;
+                projLayer.isLoading = false;
+                projLayer.enabled   = true;
+                projLayer.data = layer.data;
             }
+            if (projLayer.data && projLayer.data.features && projLayer.data.features.forEach) {
+                projLayer.data.features.forEach((f) => {
+                    this.service.initFeature(f, projLayer, false, false);
+                });
+            }
+            if (projLayer.typeUrl && projLayer.defaultFeatureType) {
+                var featureTypeName = projLayer.typeUrl + '#' + projLayer.defaultFeatureType;
+                this.service.evaluateLayerExpressions(projLayer, {featureTypeName: this.service.getFeatureTypeById(featureTypeName)});
+            }
+            if (this.service.$rootScope.$root.$$phase !== '$apply' && this.service.$rootScope.$root.$$phase !== '$digest') { this.service.$rootScope.$apply(); }
+            callback(projLayer);
         }
 
         removeLayer(layer: ProjectLayer) {
             var projLayer = this.service.findLayer(layer.id);
             if (projLayer) projLayer.enabled = false;
-            layer.data.features = {};
+            if (layer.data) {
+                layer.data['features'] = [];
+            }
             //alert('remove layer');
         }
     }

@@ -7,6 +7,8 @@ module csComp.Services {
         public data: any;
         public icon: string = 'tachometer';
         public popover: string = '';
+        public replace : boolean = true; 
+        public canClose : boolean = true;
     }
 
     /** service for managing dashboards */
@@ -22,6 +24,8 @@ module csComp.Services {
         public chartGenerators : { [key : string] : Function} = {};
         public socket;
         public editWidgetMode: boolean;
+        
+        public rightPanelTabs : { [key : string] : RightPanelTab } = {};
 
         public static $inject = [
             '$rootScope',
@@ -76,6 +80,11 @@ module csComp.Services {
                 }
             });
 
+            this.widgetTypes['buttonwidget'] = <IWidget>{
+                id: 'buttonwidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/touchbutton.png',
+                description: 'Simple on/off button for executing an action.'
+            };
             this.widgetTypes['indicators'] = <IWidget>{
                 id: 'indicators',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/indicators.png',
@@ -116,6 +125,11 @@ module csComp.Services {
                 icon: 'bower_components/csweb/dist-bower/images/widgets/markdown.png',
                 description: 'Show kanbanboard'
             };
+            this.widgetTypes['legendDirective'] = <IWidget>{
+                id: 'legendDirective',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/markdown.png',
+                description: 'Show Legend'
+            };
             this.widgetTypes['navigator'] = <IWidget>{
                 id: 'navigatorwidget',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/markdown.png',
@@ -146,15 +160,25 @@ module csComp.Services {
 
         public selectDashboard(dashboard: csComp.Services.Dashboard, container: string) {
             this.$messageBusService.publish('updatelegend', 'removelegend');
-            this.$layerService.project.activeDashboard = dashboard;
+            //this.$layerService.project.activeDashboard = dashboard;
             this.$messageBusService.publish('dashboard-' + container, 'activated', dashboard);
             this.$location.search('dashboard', dashboard.id);
         }
+        
+        public closeContainer()
+        {
+            alert('close container'); 
+        }
 
         public activateTab(tab: RightPanelTab) {
-            if (!tab.hasOwnProperty('container')) return;
-            this.$layerService.visual.rightPanelVisible = true;
             var content = tab.container + '-content';
+            if (!tab.hasOwnProperty('container')) return;
+            if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) {
+                (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+                return;
+            }
+            this.$layerService.visual.rightPanelVisible = true;
+            
             $('#' + tab.container + '-tab').remove();
             var c = $('#' + content);
             try {
@@ -176,17 +200,26 @@ module csComp.Services {
             $('#' + tab.container + '-tab-a').click(() => {
                 this.$layerService.visual.rightPanelVisible = true;
                 console.log('rp visible');
-                this.$rootScope.$apply();
+                if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); } 
             });
             var newScope = this.$rootScope;
             (<any>newScope).data = tab.data;
-            var widgetElement = this.$compile('<' + tab.directive + '></' + tab.directive + '>')(newScope);
+            var widgetElement = this.$compile('<' + tab.directive + '></' + tab.directive + '>')(newScope);            
             $('#' + content).append(widgetElement);
+            if (tab.canClose)
+            {                
+                $('#' + content).append('<div id="closebutton-' + tab.container + '" class="fa fa-times rightpanel-closebutton" />');
+                $('#closebutton-' + tab.container).click(()=>{
+                   this.deactivateTabContainer(tab.container); 
+                });
+            }
             (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+            this.rightPanelTabs[tab.container] = tab;
         }
 
         public deactivateTabContainer(container: string) {
             this.$layerService.visual.rightPanelVisible = false;
+            delete this.rightPanelTabs[container];
             var content = container + '-content';
             $('#' + container + '-tab').remove();
             try {
@@ -199,6 +232,7 @@ module csComp.Services {
                     // }
                 }
             } catch (e) { return; }
+            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); } 
         }
 
         public deactivateTab(tab: RightPanelTab) {

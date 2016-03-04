@@ -24,7 +24,7 @@ module PostMan {
                 replace      : true,    // Remove the directive from the DOM
                 transclude   : false,   // Add elements and attributes to the template
                 controller   : PostManEditCtrl
-            }
+            };
         }
     ]);
 }

@@ -51,13 +51,13 @@ module MatrixAction {
                                 if (!tf.properties.hasOwnProperty(lh)) tf.properties[lh] = 0;
                                 if (!tf.properties.hasOwnProperty(lb)) tf.properties[lb] = 0;
                                 tf.properties[lh] += kb.h;
-                                tf.properties[lb] += kb.b;                                
+                                tf.properties[lb] += kb.b;
                             }
-                        }                      
+                        }
                     }
                 });
 
-            });            
+            });
             //alert('add layer');
         }
 

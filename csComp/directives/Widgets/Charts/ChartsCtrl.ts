@@ -8,6 +8,7 @@ module ChartsWidget {
         key: string;
         lite: boolean;
         spec: any;
+        _spec: any;
         generator: any;
         _id: string;
         _view: any;
@@ -123,32 +124,45 @@ module ChartsWidget {
         private keyHandle;
 
         public initChart() {
-            
-            var d = this.$scope.data;
-            var vgspec = d.spec || {};
 
-            if (d.lite) vgspec = vl.compile(d.spec);
-            //parse(vgspec);
-            if (vgspec)
-                var res = vg.embed('#vis' + d._id, vgspec, (view, vega_spec) => {
-                    d._view = view;
-                    //$('.vega-actions').css("display","none");
-                    // Callback receiving the View instance and parsed Vega spec...
-                    // The View resides under the '#vis' element
-                });
+            try {
+
+                var d = this.$scope.data;
+                var vgspec = d._spec || {};
+
+                if (d.lite) vgspec = vl.compile(d._spec);
+                //parse(vgspec);
+                if (vgspec)
+
+                    var res = vg.embed('#vis' + d._id, vgspec, (view, vega_spec) => {
+                        d._view = view;
+                        //$('.vega-actions').css("display","none");
+                        // Callback receiving the View instance and parsed Vega spec...
+                        // The View resides under the '#vis' element
+                    });
+            } catch (e) {
+
+            }
         }
 
-        public updateChart() {
-            var d = this.$scope.data;
-            var vgspec = d.spec;
-            if (d.lite) vgspec = vl.compile(d.spec);
-            //if (d._view) d._view.update();
-            vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + this.$scope.data._id }).update(); });
-            
+        public updateChart() {  
+            try {
+                var d = this.$scope.data;
+                var vgspec = d._spec;
+                if (d.lite) vgspec = vl.compile(d._spec);
+                //if (d._view) d._view.update();
+                vg.parse.spec(vgspec, (chart) => { chart({ el: "#vis" + this.$scope.data._id }).update(); });
+            }
+            catch (e) {
+
+            }
+
         }
 
         public startChart() {
             var d = this.$scope.data;
+            
+            console.log(d);
 
             // if a chart generator is specified, find it and start it
             if (d.generator) {
@@ -158,8 +172,9 @@ module ChartsWidget {
                     return;
                 }
             } else {
-                // if no generator is specified, use the spec from data
-                if (!d.spec) d.spec = this.defaultSpec;
+                // if no generator is specified, use the spec from data                
+                    d._spec = d.spec || this.defaultSpec;
+                
                 this.initChart();
 
                 // check if a key is defined, a key can be used to listen to new data or complete vega specifications
@@ -168,9 +183,9 @@ module ChartsWidget {
                         switch (msg.action) {
                             case 'key':
                                 if (msg.data.item.hasOwnProperty('values')) {
-                                    d.spec.data = msg.data.item.values;
+                                    d._spec.data = msg.data.item.values;
                                 } else if (msg.data.item.hasOwnProperty('data')) {
-                                    d.spec = msg.data.item;
+                                    d._spec = msg.data.item;
                                 }
                                 this.initChart();
                                 break;
