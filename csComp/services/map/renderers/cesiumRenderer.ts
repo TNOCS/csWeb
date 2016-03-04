@@ -134,7 +134,7 @@ module csComp.Services {
                     mapProvider = new Cesium.ArcGisMapServerImageryProvider({
                         url: layer.cesium_url,
                         minimumLevel: layer.minZoom,
-                        maximumLevel: layer.maxZoom
+                        maximumLevel: layer.maxNativeZoom || layer.maxZoom
                     });
                     break;
 
@@ -142,7 +142,7 @@ module csComp.Services {
                     mapProvider = new Cesium.createOpenStreetMapImageryProvider({
                         url: layer.cesium_url,
                         minimumLevel: layer.minZoom,
-                        maximumLevel: layer.maxZoom
+                        maximumLevel: layer.maxNativeZoom || layer.maxZoom
                     });
                     break;
 
@@ -150,7 +150,7 @@ module csComp.Services {
                     mapProvider = new Cesium.WebMapTileServiceImageryProvider({
                         url: layer.cesium_url,
                         minimumLevel: layer.minZoom,
-                        maximumLevel: layer.maxZoom
+                        maximumLevel: layer.maxNativeZoom || layer.maxZoom
                     });
                     break;
 
@@ -158,7 +158,7 @@ module csComp.Services {
                     mapProvider = new Cesium.TileMapServiceImageryProvider({
                         url: layer.cesium_url,
                         minimumLevel: layer.minZoom,
-                        maximumLevel: layer.maxZoom
+                        maximumLevel: layer.maxNativeZoom || layer.maxZoom
                     });
                     break;
 

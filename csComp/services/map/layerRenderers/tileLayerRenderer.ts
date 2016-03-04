@@ -12,16 +12,16 @@ module csComp.Services {
                 var d = new Date(0);
                 d.setUTCSeconds(ft / 1000);
                 var sDate: string = d.yyyymmdd();
-                var hrs = d.getHours();
+                var hrs  = d.getHours();
                 var mins = d.getMinutes();
                 var secs = d.getSeconds();
                 var sTime: string = Utils.twoDigitStr(hrs) +
                     Utils.twoDigitStr(mins) + Utils.twoDigitStr(secs);
-                u += "&time=" + sDate + sTime;
+                u += '&time=' + sDate + sTime;
             } else if (layer.disableCache) {
                 // check if we need to create a unique url to force a refresh
                 layer.cacheKey = new Date().getTime().toString();
-                u += "&cache=" + layer.cacheKey;
+                u += '&cache=' + layer.cacheKey;
             }
 
             var tileLayer: any = L.tileLayer(u, { attribution: layer.description });
@@ -32,11 +32,11 @@ module csComp.Services {
             tileLayer.on('loading', (event) => {
                 layer.isLoading = true;
                 service.$rootScope.$apply();
-                if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') { service.$rootScope.$apply(); }
+                if (service.$rootScope.$$phase !== '$apply' && service.$rootScope.$$phase !== '$digest') { service.$rootScope.$apply(); }
             });
             tileLayer.on('load', (event) => {
                 layer.isLoading = false;
-                if (service.$rootScope.$$phase != '$apply' && service.$rootScope.$$phase != '$digest') { service.$rootScope.$apply(); }
+                if (service.$rootScope.$$phase !== '$apply' && service.$rootScope.$$phase !== '$digest') { service.$rootScope.$apply(); }
             });
             layer.isLoading = true;
         }

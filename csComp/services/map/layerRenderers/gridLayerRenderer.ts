@@ -36,7 +36,7 @@ module csComp.Services {
                     description: gs.title,
                     visualAspect: 'fillColor',
                     legendEntries: []
-                }
+                };
             } else {
                 gs.property = '';
                 gs.canSelectColor = false;
@@ -44,7 +44,7 @@ module csComp.Services {
                 gs.activeLegend = <Legend>gridParams.legend;
                 gs.activeLegend.legendEntries.forEach((le) => {
                     legend.push({val: le.value, color: le.color});
-                })
+                });
             }
             service.saveStyle(layer.group, gs);
 
@@ -122,7 +122,7 @@ module csComp.Services {
                 botOfFirstRow = map.latLngToContainerPoint(new L.LatLng(opt.topLeftLat + opt.deltaLat, opt.topLeftLon)),
                 deltaY = botOfFirstRow.y - topLeft.y;
 
-            var ctx = settings.canvas.getContext("2d");
+            var ctx = settings.canvas.getContext('2d');
             ctx.clearRect(0, 0, size.x, size.y);
 
             // Check the boundaries
@@ -149,9 +149,9 @@ module csComp.Services {
 
             ctx.globalAlpha = opt.opacity || 0.3;
 
-            console.time('process');
+            //console.time('process');
             var y = startY;
-            var lat = opt.topLeftLat;// + sI * opt.deltaLat;
+            var lat = opt.topLeftLat; // + sI * opt.deltaLat;
             for (var i = 0; i < eI; i++) {
                 lat += opt.deltaLat;
                 let botY = map.latLngToContainerPoint(new L.LatLng(lat, opt.topLeftLon)).y;
@@ -176,7 +176,7 @@ module csComp.Services {
                 }
                 y = botY;
             }
-            console.timeEnd('process');
+            //console.timeEnd('process');
         }
     }
 }
