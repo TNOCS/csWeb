@@ -163,7 +163,6 @@ module csComp.Services {
         defaultFeatureType?: string;
         defaultLegendProperty? : string;
         typeUrl?:            string;
-        dashboard? : string;
     }
 
     export interface IPropertyType {
@@ -193,7 +192,6 @@ module csComp.Services {
         legend?:           Legend;
         /** if defined, this sensor value will be removed. this can be usefull for sensor data that uses -1 or -999999 as empty sensor data */
         sensorNull? : Object;
-        hideValue? : boolean;
         layerProps?:       ILayerPropertyDetails;
         /** User defined minimum value */
         min?:              number;

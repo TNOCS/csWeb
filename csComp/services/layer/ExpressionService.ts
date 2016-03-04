@@ -115,7 +115,7 @@ module csComp.Services {
             }
             layer.data.features.forEach((f: IFeature) => {
                 if (!f.properties.hasOwnProperty('featureTypeId')) return;
-                let ftId = layer.url + f.properties['featureTypeId'];
+                let ftId = layer.url + f.properties['featureTypeid'];
                 if (!featureTypes.hasOwnProperty(ftId)) return;
                 let ft = featureTypes[ftId];
                 this.evalExpressions(ft, layer.data.features, false);

@@ -7,74 +7,74 @@ module FeatureProps {
     declare var vg;
 
     class FeaturePropsOptions implements L.SidebarOptions {
-        public position: string;
+        public position:    string;
         public closeButton: boolean;
-        public autoPan: boolean;
+        public autoPan:     boolean;
 
         constructor(position: string) {
-            this.position = position;
+            this.position    = position;
             this.closeButton = true;
-            this.autoPan = true;
+            this.autoPan     = true;
         }
     }
 
     export interface IFeaturePropsScope extends ng.IScope {
-        vm: FeaturePropsCtrl;
-        showMenu: boolean;
-        feature: IFeature;
-        callOut: CallOut;
-        tabs: JQuery;
-        tabScrollDelta: number;
+        vm:                               FeaturePropsCtrl;
+        showMenu:                         boolean;
+        feature:                          IFeature;
+        callOut:                          CallOut;
+        tabs:                             JQuery;
+        tabScrollDelta:                   number;
         featureTabActivated(sectionTitle: string, section: CallOutSection);
-        autocollapse(init: boolean): void;
+        autocollapse(init:                boolean): void;
     }
 
     export interface ICorrelationResult {
         property: string;
-        value: Object;
+        value:    Object;
     }
 
     export interface ICallOutProperty {
-        _id: string;
-        key: string;
-        value: string;
-        property: string;
-        canFilter: boolean;
-        canStyle: boolean;
-        feature: IFeature;
-        description?: string;
+        _id:           string;
+        key:           string;
+        value:         string;
+        property:      string;
+        canFilter:     boolean;
+        canStyle:      boolean;
+        feature:       IFeature;
+        description?:  string;
         propertyType?: IPropertyType;
-        isFilter: boolean;
-        showMore: boolean;
-        showChart: boolean;
-        stats: any;
-        bins: any;
-        cors: { [prop: string]: ICorrelationResult };
+        isFilter:      boolean;
+        showMore:      boolean;
+        showChart:     boolean;
+        stats:         any;
+        bins:          any;
+        cors:          { [prop: string]: ICorrelationResult };
     }
 
     export class CallOutProperty implements ICallOutProperty {
-        public stats: any;
-        public bins: any;
-        public _id: string;
-        public showMore: boolean;
+        public stats:     any;
+        public bins:      any;
+        public _id:       string;
+        public showMore:  boolean;
         public showChart: boolean;
-        public cors: { [prop: string]: ICorrelationResult };
+        public cors:      { [prop: string]: ICorrelationResult };
         constructor(
-            public key: string,
-            public value: string,
-            public property: string,
-            public canFilter: boolean,
-            public canStyle: boolean,
-            public feature: IFeature,
-            public isFilter: boolean,
-            public isSensor: boolean,
+            public key:           string,
+            public value:         string,
+            public property:      string,
+            public canFilter:     boolean,
+            public canStyle:      boolean,
+            public feature:       IFeature,
+            public isFilter:      boolean,
+            public isSensor:      boolean,
 
-            public description?: string,
+            public description?:  string,
             public propertyType?: IPropertyType,
-            public timestamps?: number[],
-            public sensor?: number[],
-            public isDraft?: boolean) { this.cors = {}; this._id = csComp.Helpers.getGuid(); }
-
+            public timestamps?:   number[],
+            public sensor?:       number[],
+            public isDraft? : boolean) { this.cors = {}; this._id = csComp.Helpers.getGuid(); }
+            
     }
 
     export interface ICallOutSection {
@@ -82,7 +82,7 @@ module FeatureProps {
         properties: Array<ICallOutProperty>;
         sectionIcon: string;
         addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature,
-            isFilter: boolean, description?: string, propertyType?: IPropertyType, isDraft?: boolean): void;
+            isFilter: boolean, description?: string, propertyType?: IPropertyType, isDraft? : boolean): void;
         hasProperties(): boolean;
     }
 
@@ -100,16 +100,16 @@ module FeatureProps {
         showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
         addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature,
-            isFilter: boolean, description?: string, propertyType?: IPropertyType, isDraft?: boolean): void {
+            isFilter: boolean, description?: string, propertyType?: IPropertyType, isDraft? : boolean): void {
             var isSensor = feature.sensors && feature.sensors.hasOwnProperty(property);
             if (isSensor) {
                 this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description
                     ? description
-                    : null, propertyType, feature.timestamps, feature.sensors[property], isDraft));
+                    : null, propertyType, feature.timestamps, feature.sensors[property],isDraft));
             } else {
                 this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description
                     ? description
-                    : null, propertyType, null, null, isDraft));
+                    : null, propertyType,null,null,isDraft));
             }
         }
 
@@ -146,7 +146,7 @@ module FeatureProps {
 
             var displayValue: string;
             if (type != null) {
-
+                
                 var missing;
                 //var propertyTypes = csComp.Helpers.getPropertyTypes(type, propertyTypeData);
                 //if (propertyTypes.length === 0) { for (var pt in layerservice.propertyTypeData) propertyTypes.push(layerservice.propertyTypeData[pt]); };
@@ -161,16 +161,18 @@ module FeatureProps {
 
                 // if feature type has propertyTypeKeys defined use these to show the order of the properties 
                 if (feature.fType.propertyTypeKeys) {
-                    feature.fType._propertyTypeData.forEach((mi: IPropertyType) => {
-                        if (feature.properties.hasOwnProperty(mi.label)) {
+                    feature.fType._propertyTypeData.forEach((mi: IPropertyType) => {                        
+                        if (feature.properties.hasOwnProperty(mi.label))
+                        {
                             if (mi.visibleInCallOut) this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection);
-                        }
+                        }                        
                     });
-                    if (feature.fType.showAllProperties || this.mapservice.isAdminExpert) {
-                        for (var key in feature.properties) {
+                    if (feature.fType.showAllProperties || this.mapservice.isAdminExpert)
+                    {
+                        for (var key in feature.properties) {                            
                             var mi = csComp.Helpers.getPropertyType(feature, key);
-                            this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection, true);
-                        }
+                            this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection,true);
+                        }                        
                     }
                 } else { // if not go through all properties and find a propertyType 
                     for (var key in feature.properties) {
@@ -179,9 +181,10 @@ module FeatureProps {
                         if (mi) {
                             this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection);
                         }
-                        else if (feature.fType.showAllProperties || this.mapservice.isAdminExpert) {
-                            var prop = csComp.Helpers.getPropertyType(feature, key);
-                            this.addProperty(prop, feature, infoCallOutSection, hierarchyCallOutSection, true);
+                        else if (feature.fType.showAllProperties || this.mapservice.isAdminExpert)
+                        {
+                            var prop = csComp.Helpers.getPropertyType(feature,key);
+                            this.addProperty(prop,feature,infoCallOutSection,hierarchyCallOutSection,true);                                                        
                         }
                     }
                 }
@@ -214,7 +217,7 @@ module FeatureProps {
             var canStyle = (mi.type === 'number' || mi.type === 'options' || mi.type === 'color');
             if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() !== 'none';
             if (mi.visibleInCallOut) {
-                callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi, isDraft);
+                callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi,isDraft);
             }
             if (mi.type === 'hierarchy') {
                 hierarchyCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
@@ -401,23 +404,24 @@ module FeatureProps {
             var resource = this.$layerService.findResourceByFeature(this.$scope.feature);
             if (resource) { this.$layerService.saveResource(resource); }
         }
+        
+        
 
-
-
-        public savePropertyType(item: CallOutProperty) {
+        public savePropertyType(item : CallOutProperty) {
             var propType = item.propertyType;
             console.log('saving property');
             console.log(propType);
             var resource = this.$layerService.findResourceByFeature(this.$scope.feature);
-            if (item.isDraft) {
-                var key = csComp.Helpers.getPropertyKey(item.feature.fType.propertyTypeKeys, item.property);
+            if (item.isDraft)
+            {
+                var key = csComp.Helpers.getPropertyKey(item.feature.fType.propertyTypeKeys,item.property);
                 resource.propertyTypeData[key] = propType;
-                item.feature.fType.propertyTypeKeys += ";" + key;
-                item.isDraft = false;
+                item.feature.fType.propertyTypeKeys+=";" + key;
+                item.isDraft = false;         
                 this.$layerService.propertyTypeData[key] = propType;       
                 //alert('saving draft');
             }
-
+            
             this.$layerService.saveResource(resource);
             this.displayFeature(this.$scope.feature);
         }
@@ -510,10 +514,7 @@ module FeatureProps {
                     this.displayFeature(feature);
                     this.$scope.feature = this.$layerService.lastSelectedFeature;
                     this.$layerService.visual.rightPanelVisible = true;
-                    this.updateAllStats(); 
-                    if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
-                        this.$scope.$apply();
-                    }
+                    this.updateAllStats();
                     break;
                 case 'onRelationsUpdated':
                     this.setShowSimpleTimeline();
@@ -549,21 +550,22 @@ module FeatureProps {
             }
         }
 
-        public addSparkline(item: ICallOutProperty) {
+        public addSparkline(item : ICallOutProperty) {
             var ch = $('#featurepropchart_' + item._id);
             ch.empty();
             if (this.showChart.indexOf(item.property) < 0) this.showChart.push(item.property);
-            var ns = <any>this.$scope;
-            ns.item = item;
+                var ns = <any>this.$scope;
+                ns.item = item;
 
-            // create sparkline   
-            try {
+                // create sparkline   
+                try
+                {             
                 var chartElement = this.$compile('<sparkline-chart timestamps="item.timestamps" smooth="false" closed="false" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>')((<any>ch).scope());
                 ch.append(chartElement);
-            }
-            catch (e) {
-                console.log('Error adding sparkline');
-            }
+                }
+                catch (e){
+                    console.log('Error adding sparkline');
+                }
         }
 
         public createSparkLineChart(item: ICallOutProperty) {
@@ -572,7 +574,7 @@ module FeatureProps {
             if (item.showChart) {
                 this.addSparkline(item);
             }
-            else {
+            else{
                 var ch = $('#featurepropchart_' + item._id);
                 ch.empty();
             }
@@ -607,10 +609,10 @@ module FeatureProps {
                 for (var s in this.$scope.callOut.sections) {
                     var sec = this.$scope.callOut.sections[s];
                     sec.properties.forEach((p: ICallOutProperty) => {
-                        p.showMore = this.showMore.indexOf(p.property) >= 0;
+                        p.showMore  = this.showMore .indexOf(p.property) >= 0;
                         p.showChart = this.showChart.indexOf(p.property) >= 0;
                         if (p.showChart) this.addSparkline(p);
-                        if (p.showMore) this.getPropStats(p);
+                        if (p.showMore ) this.getPropStats(p);
                     });
                 }
             }
@@ -721,8 +723,7 @@ module FeatureProps {
             if (pt && pt.hasOwnProperty('stringFormat')) {
                 format = pt.stringFormat;
             } else {
-                return moment(fp).calendar();
-                //format = 'DD MMMM YYYY ';
+                format = 'DD MMMM YYYY';
             }
             if (moment(fp).format(format) === 'Invalid date') {
                 return moment(fp, 'YYYYMMDD').format(format);

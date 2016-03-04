@@ -103,7 +103,7 @@
                                 </div>
                                 <div ng-switch-default>
                                     <div ng-style="item.isDraft && {'opacity':0.5}" class="feature-prop-title">{{item.propertyType.title}}</div>
-                                    <div ng-if="!item.configMode" ng-hide="item.propertyType.hideValue" data-ng-switch="item.propertyType.type" class="feature-prop-value">
+                                    <div ng-if="!item.configMode" data-ng-switch="item.propertyType.type" class="feature-prop-value">
                                         <div ng-switch-when="date" class="feature-prop-value-align-right" style="cursor:pointer;color:darkblue" ng-click="vm.zoomToDate(item.feature.properties[item.property])">
                                             {{vm.getFormattedDate(item.feature.properties[item.property], item.propertyType)}}</div>
                                         <div ng-switch-when="boolean" class="feature-prop-value-align-right">{{item.feature.properties[item.property]}}</div>

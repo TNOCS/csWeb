@@ -64,15 +64,11 @@ module Dashboard {
                 // In LayerService, you expect the name to be dashboard-main too. 
                 $messageBusService.subscribe('dashboard-main', (s: string, d: csComp.Services.Dashboard) => {
                     this.project = $layerService.project;
-                    if (this.project.activeDashboard)
-                    {
-                        this.closeDashboard();                        
-                    }
                     this.project.activeDashboard = d;
                     //alert(this.project.activeDashboard.id);
                     switch (s) {
                         case 'activated':
-                            $scope.dashboard = d;
+                            $scope.dashboard = d; 
                             this.updateDashboard();
                             break;
                     }
@@ -98,13 +94,6 @@ module Dashboard {
                 //alert($scope.dashboard.name);
             };
         }
-        
-        public closeDashboard()
-        {
-            this.project.activeDashboard.widgets.forEach(w=>{
-                if (w.stop) w.stop();                
-            })
-        }
 
         public toggleWidget(widget: csComp.Services.IWidget) {
             if (widget.canCollapse) {
@@ -115,7 +104,6 @@ module Dashboard {
         public updateWidget(w: csComp.Services.IWidget) {
             //console.log('updating widget ' + w.directive);
             if (w._initialized && this.$scope.dashboard._initialized) return;
-            
             w._initialized = true;
             var widgetElement;
             var newScope = this.$scope;
@@ -166,15 +154,6 @@ module Dashboard {
                 if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') { this.$scope.$apply(); }
             }
 
-            if (this.$layerService.visual.mapVisible && this.$scope.dashboard.mapWidth) {
-                this.$layerService.visual.mapWidth = this.$scope.dashboard.mapWidth;
-                if (this.$scope.dashboard.alignMapRight) {
-                    this.$layerService.visual.alignMapRight = true;
-                } else {
-                    this.$layerService.visual.alignMapRight = false;
-                }
-            }
-
             if (this.$scope.dashboard.viewBounds) {
                 console.log('set bound');
                 this.$layerService.activeMapRenderer.fitBounds(this.$scope.dashboard.viewBounds);
@@ -207,13 +186,14 @@ module Dashboard {
         }
 
         public checkViewbound() {
-            if (this.project.activeDashboard && this.project.activeDashboard.viewBounds) {
-                this.$layerService.activeMapRenderer.fitBounds(this.project.activeDashboard.viewBounds);
+            var db = this.$layerService.project.activeDashboard;
+            if (db.viewBounds) {
+                this.$layerService.activeMapRenderer.fitBounds(db.viewBounds);
             }
         }
 
         public checkTimeline() {
-
+                        
             if (this.$scope.dashboard.showTimeline !== this.$mapService.timelineVisible) {
                 if (this.$scope.dashboard.showTimeline && this.$mapService.isIntermediate) {
                     this.$mapService.timelineVisible = true;
@@ -221,24 +201,17 @@ module Dashboard {
                     this.$mapService.timelineVisible = false;
                 }
                 if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
-                    this.$scope.$root.$apply();
+                    this.$scope.$root.$apply();                     
                 }
             }
-            var d = this.$scope.dashboard;     // RS mod January 2016
-            if (d.showTimeline && d.timeline) {
-                //console.log("checkTimeline: dashboard has timeline");
-                this.$messageBusService.publish('timeline', 'updateTimerange', d.timeline);
-                // now move the focustimeContainer to the right position
-                if (d.timeline.focus && d.timeline.start && d.timeline.end &&
-                    (d.timeline.focus > d.timeline.start) && (d.timeline.focus < d.timeline.end)) {
-                    var f = (d.timeline.focus - d.timeline.start) / (d.timeline.end - d.timeline.start);
-                    //var w = $("#timeline").width();           // unfortunately, on the first call, 
-                    //the timeline has a width of 100 (not resized yet)
-                    //var w = $("#timeline").parent().width();  // does not help: = 0 on first call
-                    var w = $("#map").width();                  // this works but might be dangerous
-                    var newpos = f * w - $("#focustimeContainer").width() / 2;
-                    $("#focustimeContainer").css('left', newpos);
-                }
+            
+            var db = this.$layerService.project.activeDashboard;
+           
+            if (db.timeline) {
+                var s = new Date(db.timeline.start);
+                var e = new Date();
+                if (db.timeline.end) e = new Date(db.timeline.end);                
+                this.$messageBusService.publish('timeline', 'updateTimerange', { start: s, end: e });                                   
             }                                  // end RS mod
         }
 
@@ -256,9 +229,8 @@ module Dashboard {
         }
 
         public isReady(widget: csComp.Services.IWidget) {
-            //this.updateWidget(widget); 
+            this.updateWidget(widget);
             setTimeout(() => {
-                
                 // select the target node
                 // var target = document.querySelector('#' + widget.elementId + '-parent');
                 //
@@ -329,22 +301,21 @@ module Dashboard {
             if (!d.showLegend) return;
             var legendWidgetPresent = false;
             d.widgets.forEach(w => {
-                if (w.id === 'Legend') legendWidgetPresent = true;
+                if (w.id === 'legend') legendWidgetPresent = true;
             });
             if (!legendWidgetPresent) {
                 //console.log('Create legend');
                 var w = <csComp.Services.IWidget>{};
-                w.directive = 'legend-directive';
-                w.id = csComp.Helpers.getGuid();
-                w.elementId = 'widget-' + w.id;
-                w.parentDashboard = d;
-                w.title = 'Legend';
-                w.data = { mode: 'lastSelectedStyle' };
-                w.left = '10px';
-                w.customStyle = <csComp.Services.WidgetStyle>{ background : "White", borderColor : "Black", borderWidth : "1px"};                
-                w.top = '20px';
-                w.width = '150px';
-                w.enabled = true;
+                w.directive        = 'legend-directive';
+                w.id               = csComp.Helpers.getGuid();
+                w.elementId        = 'widget-' + w.id;
+                w.parentDashboard  = d;
+                w.title            = 'Legend';
+                w.data             = {mode: 'lastSelectedStyle'};
+                w.left             = '10px';
+                w.top              = '20px';
+                w.width            = '150px';
+                w.enabled          = true;
                 d.widgets.push(w);
                 //this.$dashboardService.
                 //this.$dashboardService.addNewWidget(w, d);
@@ -394,17 +365,13 @@ module Dashboard {
                     w._initialized = false;
                     this.updateWidget(w);
                 });
-                
-                this.$timeout(()=>{
-                    this.$scope.$watchCollection('dashboard.widgets', (da) => {
-                        this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
-                            this.updateWidget(w);
-                        });
-                    });
-                },300);
                 d._initialized = true;
-
-            }, 500);
+                this.$scope.$watchCollection('dashboard.widgets', (da) => {
+                    this.$scope.dashboard.widgets.forEach((w: csComp.Services.IWidget) => {
+                        this.updateWidget(w);
+                    });
+                });
+            }, 100);
 
             //this.$layerService.rightMenuVisible = d.showLeftmenu;
             //this.$mapService.rightMenuVisible = d.showRightmenu;

@@ -4,7 +4,6 @@ module ExpertMode {
     export interface IExpertModeScope extends ng.IScope {
         vm: ExpertModeCtrl;
         expertMode: Expertise;
-        enabled : boolean;
     }
 
     export class ExpertModeCtrl {
@@ -25,14 +24,10 @@ module ExpertMode {
             ) {
             $scope.vm = this;
             $scope.expertMode = $mapService.expertMode;
-            
+
             $messageBus.subscribe('expertMode', (title: string, mode: Expertise) => {
                 if (title !== 'newExpertise') return;
                 $scope.expertMode = mode;
-            });
-            
-            $messageBus.subscribe('project',(action, value)=>{
-               if (this.$layerService.project) this.$scope.enabled = this.$layerService.project.exportModeSelectionEnabled; 
             });
 
             $scope.$watch('expertMode', () => {

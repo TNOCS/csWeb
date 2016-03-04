@@ -44,7 +44,7 @@ module Legend {
             private $scope: ILegendDirectiveScope,
             private $layerService: csComp.Services.LayerService,
             private $messageBus: csComp.Services.MessageBusService
-        ) {
+            ) {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = (par.widget);
@@ -59,23 +59,7 @@ module Legend {
             // if ($scope.data.mode = 'lastSelectedStyle') {
             //     $scope.legend = this.createLegend($scope.data.propertyTypeKey);
             // }
-            if ($scope.data && $scope.data.mode === 'lastSelectedLayer') {
-                this.$messageBus.subscribe("layer", (a, l: csComp.Services.ProjectLayer) => {
-                    if (a === "activated")
-                    { $scope.legend = null;
-                     if (l && l.defaultLegend) {
-                        var tr = this.$layerService.findResourceByLayer(l);
-                        if (tr && tr.legends) { 
-                            if (tr.legends.hasOwnProperty(l.defaultLegend)) $scope.legend = <csComp.Services.Legend>tr.legends[l.defaultLegend];
-                        }
-
-                        console.log('activate new layer ' + l.title);
-                        
-                    }
-                    }
-                });
-            }
-            else if ($scope.data && $scope.data.mode === 'lastSelectedStyle') {
+            if ($scope.data && $scope.data.mode === 'lastSelectedStyle') {
                 $scope.legend = this.createLegend();
                 if ($scope.$parent.hasOwnProperty('widget')) {
                     if (!$scope.legend.hasOwnProperty('legendEntries')) {
@@ -108,16 +92,6 @@ module Legend {
                                 if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') { this.$scope.$apply(); }
                         }
                     });
-                }
-            }
-            else {
-                $scope.legend = <csComp.Services.Legend>this.widget.data;
-                if ($scope.$parent.hasOwnProperty('widget')) {
-                    if (!$scope.legend.hasOwnProperty('legendEntries')) {
-                        (<any>$scope.$parent).widget['enabled'] = false;
-                    } else {
-                        (<any>$scope.$parent).widget['enabled'] = true;
-                    }
                 }
             }
         }

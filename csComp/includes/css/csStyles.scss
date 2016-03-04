@@ -104,11 +104,6 @@ body,
     color: #aaa;
 }
 
-.header-template
-{
-    cursor: pointer;
-}
-
 .header-container
 {
     background:rgba(66,22,95, 0.7);    
@@ -205,16 +200,6 @@ body,
     right: 350px;
     position: absolute;
 }
-
-.rightpanel-closebutton
-{    
-    position: absolute;
-    right:8px;
-    top:5px;
-    font-size: 30px; 
-    cursor:pointer;
-}
-
 .rightpanelTabs-collapsed {
     right: 0;
 }
@@ -993,73 +978,16 @@ body,
     white-space: pre-wrap;
 }
 
-/* button widget */
-.button-widget 
-{
-    background: red;
-    cursor: pointer;
-}
-
-.button-title
-{
-    font-size: 20px;
-}
-
-
-    a.button-container {
-        background: $background-light;         
-        border-top: 1px solid $background-light;
-        color: rgba(25, 45, 55, .9);
-        cursor : pointer;
-        font-size: 20px;
-        margin-top:5px;
-        
-    }
-    
-    a.button-container:active {
-        background: $background-dark;    
-        color: white;
-    } 
-    
-    a.button-container-down {
-        background: $background-dark;    
-        color: white;
-    } 
-
-  /**
- * Base style
- */
-    
-    a.s3d {
-        clear: both;
-        -webkit-border-radius: 3px;
-        -moz-border-radius: 3px;
-        border-radius: 3px;
-        -webkit-box-shadow: 0 4px 5px rgba(0, 0, 0, .3);
-        -moz-box-shadow: 0 4px 5px rgba(0, 0, 0, .3);
-        box-shadow: 0 4px 5px rgba(0, 0, 0, .3);
-        display: inline-block !important;        
-        height: 100%;
-        margin: 0 0 10px;
-        padding: 0 10px 11px;
-        position: relative;
-        text-decoration: none;
-        text-shadow: 0 1px 1px rgba(255, 255, 255, .35);
-        width: 100%;
-    }
-    
-    
-
 
 /* leftpanel */
 .leftpanel-entrance {
-    -webkit-animation: fadeInLeft 0.0s;
+    -webkit-animation: fadeInLeft 0.5s;
 }
 .leftpanel-entrance.ng-hide {
     opacity: 0;
 }
 .leftpanel-exit {
-    -webkit-animation: fadeOutLeft 0.0s;
+    -webkit-animation: fadeOutLeft 0.5s;
 }
 .leftpanel-header-button {
     float: right;
@@ -1119,7 +1047,7 @@ body,
 }
 .control-label {
     font-size: 16px;
-    width: 120px;
+    width: 100px;
     margin-left: 5px;
 }
 .control-label-marvel {
@@ -1841,7 +1769,6 @@ input[type="checkbox"] {
     pointer-events: all;
     right: 0;
     top: 0;
-        z-index: 2; 
 }
 #rightpanelTabs {
 

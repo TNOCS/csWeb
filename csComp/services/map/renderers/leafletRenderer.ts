@@ -128,7 +128,7 @@ module csComp.Services {
                             var actions = this.service.getActions(f, ActionType.Hover);
                             actions.forEach((fa) => {
                                 if (fa.title.toLowerCase() === 'show') {
-                                    fa.callback(f, this.service);
+                                    fa.callback(f, this);
                                 }
                             });
                         }
@@ -142,7 +142,7 @@ module csComp.Services {
                             var actions = this.service.getActions(f, ActionType.Hover);
                             actions.forEach((fa) => {
                                 if (fa.title.toLowerCase() === 'hide') {
-                                    fa.callback(f, this.service);
+                                    fa.callback(f, this);
                                 }
                             });
                         }
@@ -184,7 +184,7 @@ module csComp.Services {
             options['subtitle'] = layerObj.subtitle;
             options['preview'] = layerObj.preview;
             if (layerObj.subdomains) options['subdomains'] = layerObj.subdomains;
-            if (layerObj.minZoom) options.minZoom = layerObj.minZoom;
+            if (layerObj.maxZoom) options.maxZoom = layerObj.maxZoom;
             if (layerObj.maxZoom) options.maxZoom = layerObj.maxZoom;
             if (layerObj.maxNativeZoom) options.maxNativeZoom = layerObj.maxNativeZoom;
             if (layerObj.errorTileUrl) options.errorTileUrl = layerObj.errorTileUrl;

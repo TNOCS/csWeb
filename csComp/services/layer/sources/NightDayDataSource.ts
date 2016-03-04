@@ -154,10 +154,6 @@ module csComp.Services {
          * Show the night (default) or day area.
          */
         showNight: boolean;
-        /** Title to show in the tooltip of the day area (default="Day")*/
-        dayName: string;
-        /** Title to show in the tooltip of the night area (default="Night")*/
-        nightName: string;
         /**
          * Set a property value for the area (default: intensity = 0)
          */
@@ -196,23 +192,19 @@ module csComp.Services {
 
         private continueInit(defaultValue: number, layer: csComp.Services.ProjectLayer, callback: (layer: csComp.Services.ProjectLayer) => void) {
             var showNight = true;
-            var nightName = 'Night';
-            var dayName = 'Day';
 
             if (typeof layer.dataSourceParameters !== 'undefined') {
                 var gridParams = <INightDayDataSourceParameters>layer.dataSourceParameters;
                 if (typeof gridParams.showNight !== 'undefined') showNight = gridParams.showNight;
-                if (typeof gridParams.nightName !== 'undefined') nightName = gridParams.nightName;
-                if (typeof gridParams.dayName !== 'undefined') dayName = gridParams.dayName;
                 if (typeof gridParams.value !== 'undefined') defaultValue = gridParams.value;
             }
             var terminator = new L.Terminator({ "showNight": showNight });
             var geojson = terminator.toGeoJSON();
             if (showNight) {
-                geojson.properties["Name"] = nightName;
+                geojson.properties["Name"] = "Night";
                 geojson.properties["night_intensity"] = defaultValue;
             } else {
-                geojson.properties["Name"] = dayName;
+                geojson.properties["Name"] = "Day";
                 geojson.properties["day_intensity"] = defaultValue;
             }
 

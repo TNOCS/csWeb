@@ -112,7 +112,6 @@ module csComp.Services {
             var layerObj: BaseLayer = this.getBaselayer(layer);
             this.activeBaseLayer = layerObj;
             this.activeBaseLayerId = layer;
-            this.$messageBusService.publish("baselayer","activated",layer);
         }
 
         public invalidate() {

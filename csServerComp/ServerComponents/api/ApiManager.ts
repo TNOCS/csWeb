@@ -173,7 +173,7 @@ export class Group {
     layers: Layer[];
 }
 
-export class ApiKeySubscription {
+export class KeySubscription {
     id: string;
     /** Pattern you subscribe too */
     pattern: string;
@@ -212,7 +212,6 @@ export interface ILayer extends StorageObject {
     data?: any;
     timestamps?: number[];
     [key: string]: any;
-    hasSensorData? : boolean;
 }
 
 /**
@@ -243,7 +242,6 @@ export class Layer implements StorageObject, ILayer {
     public tags: string[];
     public isDynamic: boolean;
     public features: Feature[] = [];
-    public hasSensorData : boolean;
 }
 
 /**
@@ -348,7 +346,7 @@ export class ApiManager extends events.EventEmitter {
      */
     public keys: { [keyId: string]: Key } = {};
 
-    public keySubscriptions: { [id: string]: ApiKeySubscription } = {};
+    public keySubscriptions: { [id: string]: KeySubscription } = {};
 
     public defaultStorage = 'file';
     public defaultLogging = false;
@@ -1208,9 +1206,9 @@ export class ApiManager extends events.EventEmitter {
         s.getWithinPolygon(layerId, feature, meta, (result) => callback(result));
     }
 
-    public subscribeKey(pattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void): ApiKeySubscription {
+    public subscribeKey(pattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void): KeySubscription {
         Winston.info('api: added key subscription with pattern ' + pattern);
-        var sub = new ApiKeySubscription();
+        var sub = new KeySubscription();
         sub.id = helpers.newGuid();
         sub.pattern = pattern;
         sub.regexPattern = new RegExp(pattern.replace(/\//g, '\\/').replace(/\./g, '\\.'));

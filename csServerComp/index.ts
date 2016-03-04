@@ -13,7 +13,7 @@ export * from './ServerComponents/api/ApiServiceManager';
 export * from './ServerComponents/bus/MessageBus';
 export * from './ServerComponents/api/MqttAPI';
 //export * from './ServerComponents/api/MongoDB';
-export * from './ServerComponents/database/BagDatabase';
+//export * from './ServerComponents/database/BagDatabase';
 //export * from './ServerComponents/database/LocalBag';
 export * from './ServerComponents/dynamic/ClientConnection';
 export * from './ServerComponents/dynamic/DataSource';

@@ -1,8 +1,6 @@
 module HeaderWidget {
     export class HeaderWidgetData {
         title: string;
-        subTitle : string;
-        autoShow : boolean;
         /**
          * Content to display: you can either provide it directly, or specify a URL, in which case it will replace the content.
          */
@@ -63,27 +61,119 @@ module HeaderWidget {
             $scope.vm = this;
             var par = <any>$scope.$parent;
             this.widget = par.widget;
-            if (this.widget.data)
-            {
-                $scope.data = <HeaderWidgetData>this.widget.data;
-                $scope.data.mdText = $scope.data.content;
-                if ($scope.data.autoShow) this.showContent();
-            }
-                        
+
+            $scope.data = <HeaderWidgetData>this.widget.data;
+            $scope.data.mdText = $scope.data.content;
+            $scope.minimized = false;
             this.dataProperties = {};
+
             this.parentWidget = $('#' + this.widget.elementId).parent();
 
-           
-        }
-        
-        public showContent()
-        {
-            var rpt = csComp.Helpers.createRightPanelTab('headerinfo', 'infowidget', this.$scope.data, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'question',true);
-            this.$messageBus.publish('rightpanel', 'activate', rpt); 
-            this.$layerService.visual.rightPanelVisible = true; // otherwise, the rightpanel briefly flashes open before closing.
+            if (typeof $scope.data.featureTypeName !== 'undefined' && typeof $scope.data.dynamicProperties !== 'undefined' && $scope.data.dynamicProperties.length > 0) {
+                // Hide widget
+                this.parentWidget.hide();
+                this.$messageBus.subscribe('feature', (action: string, feature: csComp.Services.IFeature) => {
+                    switch (action) {
+                        case 'onFeatureDeselect':
+                        case 'onFeatureSelect':
+                            this.selectFeature(feature);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            }
+
+            if (!(typeof $scope.data.url === 'undefined')) {
+                var url = $scope.data.url;
+                if ($scope.data.useLanguagePrefix) {
+                    var extensions = url.split('.');
+                    var newExtension = this.$layerService.currentLocale + '.' + extensions.pop();
+                    extensions.push(newExtension);
+                    url = extensions.join('.');
+                }
+                $.get(url, (md) => {
+                    $timeout(() => {
+                        $scope.data.content = $scope.data.mdText = md;
+                    }, 0);
+                });
+            }
+
+            // in case a separate datafile is used
+            if (!(typeof $scope.data.dataSourceUrl === 'undefined')) {
+                url = $scope.data.dataSourceUrl;
+                $.get(url, (properties) => {
+                    $timeout(() => {
+                        this.dataProperties = JSON.parse(properties);
+                        this.replaceKeys();
+                    }, 0);
+                });
+            }
         }
 
-       
+        private minimize() {
+            this.$scope.minimized = !this.$scope.minimized;
+            if (this.$scope.minimized) {
+                this.parentWidget.css('height', '30px');
+            } else {
+                this.parentWidget.css('height', this.widget.height);
+            }
+        }
+
+        private canClose() {
+            return (this.$scope.data.hasOwnProperty('canClose'))
+                ? this.$scope.data['canClose']
+                : true;
+        }
+
+        private close() {
+            this.parentWidget.hide();
+        }
+
+        private escapeRegExp(str: string) {
+            return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
+        }
+
+        private replaceAll(str: string, find: string, replace: string) {
+            return str.replace(new RegExp(this.escapeRegExp(find), 'g'), replace);
+        }
+
+        private selectFeature(feature: csComp.Services.IFeature) {
+            if (!feature || !feature.isSelected || feature.featureTypeName !== this.$scope.data.featureTypeName) {
+                this.parentWidget.hide();
+                return;
+            }
+            this.$timeout(() => {
+                var md = this.$scope.data.content;
+                var i = 0;
+                this.$scope.data.dynamicProperties.forEach(p => {
+                    var searchPattern = '{{' + i++ + '}}';
+                    var displayText = '';
+                    if (feature.properties.hasOwnProperty(p)) {
+                        var pt = this.$layerService.getPropertyType(feature, p);
+                        displayText = csComp.Helpers.convertPropertyInfo(pt, feature.properties[p]);
+                    }
+                    md = this.replaceAll(md, searchPattern, displayText);
+                });
+                this.parentWidget.show();
+                this.$scope.data.mdText = md;
+            }, 0);
+        }
+
+        private replaceKeys() {
+            var md = this.$scope.data.content;
+            this.$timeout(() => {
+                var keys = Object.keys(this.dataProperties);
+                keys.forEach((k) => {
+                    if (this.dataProperties.hasOwnProperty(k)) {
+                        let searchPattern = '{{' + k + '}}';
+                        let replacePattern = this.dataProperties[k];
+                        md = this.replaceAll(md, searchPattern, replacePattern);
+                    }
+                });
+                this.$scope.data.mdText = md;
+            }, 0);
+        }
     }
 
 }

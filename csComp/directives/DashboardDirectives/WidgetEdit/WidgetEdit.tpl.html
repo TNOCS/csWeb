@@ -59,13 +59,18 @@
         <div ng-show="widget.customStyle">
             <div class="row widget-row">
                 <div class="col-md-6">
-                    <label class="control-label" for="widgetBorderWidth">Border width</label>
+                    <label class="control-label" for="widgetBorderWidth">Border Width</label>
                     <input id="widgetBorderWidth" name="textinput" type="text" ng-model="widget.customStyle.borderWidth" placeholder="border width" class="input-xlarge">
                 </div>
                 <div class="col-md-6">
-                    <label class="control-label" for="widgetBorderColor">Border color</label>
+                    <label class="control-label" for="widgetBorderColor">Border Color</label>
                     <input id="widgetBorderColor" name="textinput" type="text" ng-model="widget.customStyle.borderColor" placeholder="border color" class="input-xlarge">
                 </div>
+                <!-- <div class="col-md-6">
+                <label class="control-label" for="widgetBorderColor">Border Color</label>
+                <br/>
+                <spectrum-colorpicker data-ng-model="widget.borderColor" options="{cancelText: 'Cancel', chooseText: 'Select',preferredFormat: 'hex'}"></spectrum-colorpicker>
+            </div> -->
             </div>
 
             <div class="row widget-row">
@@ -75,7 +80,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="control-label" for="widgetOpacity">Opacity</label>
-                    <input id="widgetOpacity" name="textinput" type="text" ng-model="widget.customStyle.opacity" placeholder="0.5" class="input-xlarge">
+                    <input id="widgetOpacity" name="textinput" type="text" ng-model="widget.customStyle.opacity" placeholder="left" class="input-xlarge">
                 </div>
             </div>
         </div>

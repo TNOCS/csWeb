@@ -6,11 +6,11 @@ module csComp.Services {
     }
 
     export class WidgetStyle {
-        background:         string;
-        borderWidth:        string;
-        borderColor:        string;
-        borderRadius:       string;
-        opacity:            number;
+        background: string;
+        borderWidth: string;
+        borderColor: string;
+        borderRadius: string;
+        opacity: number;
         disableIfLeftPanel: boolean;
     }
 
@@ -51,7 +51,6 @@ module csComp.Services {
 
         init?: Function;
         start?: Function;
-        stop?:Function;
         left?: string;
         right?: string;
         top?: string;
@@ -144,7 +143,8 @@ module csComp.Services {
                 title: w.title,
                 name: w.name,
                 timeDependent: w.timeDependent,
-                url: w.url,               
+                url: w.url,
+                elementId: w.elementId,
                 enabled: w.enabled,
                 customStyle: w.customStyle,
                 style: w.style,
@@ -220,8 +220,6 @@ module csComp.Services {
         widgets:              IWidget[];
         editMode:             boolean;
         showMap:              boolean;
-        mapWidth:             string = '100%';
-        alignMapRight:        boolean = false;
         mobile:               boolean = true;
         showTimeline:         boolean = true;
         draggable:            boolean = true;
@@ -257,8 +255,6 @@ module csComp.Services {
                 name:                 d.name,
                 editMode:             d.editMode,
                 showMap:              d.showMap,
-                mapWidth:             d.mapWidth,
-                alignMapRight:        d.alignMapRight,
                 showTimeline:         d.showTimeline,
                 showLeftmenu:         d.showLeftmenu,
                 showLegend:           d.showLegend,

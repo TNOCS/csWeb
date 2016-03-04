@@ -18,12 +18,10 @@ module csComp.Services {
     }
 
     export class VisualState {
-        public leftPanelVisible:  boolean = false;
+        public leftPanelVisible:  boolean = true;
         public rightPanelVisible: boolean = false;
         public dashboardVisible:  boolean = true;
         public mapVisible:        boolean = true;
-        public mapWidth:          string  = '100%';
-        public alignMapRight:     boolean = false; // Default align map left
         public timelineVisible:   boolean = true;
 
         // For debugging purposes, I've added below functionality so I can set breakpoints on the setter.
@@ -167,8 +165,6 @@ module csComp.Services {
         dataSets:          DataSet[];
         viewBounds:        IBoundingBox;
         collapseAllLayers: boolean;
-        /** if enabled a user can change mode (novice, intermediate, etc.), default = true */
-        exportModeSelectionEnabled : boolean;
         userPrivileges:    IPrivileges;
         languages:         ILanguageData;
         /** link to layer directory, if empty do not use it */
@@ -178,10 +174,6 @@ module csComp.Services {
         eventTab:       boolean;
         /** If true (default false), indicates that we should load an offline search result. */
         useOfflineSearch: boolean = false;
-        /** If true (default false), indicates that we should enable an online search engine. */
-        useOnlineSearch: boolean = false;
-        /** If useOnlineSearch = true define the url of the online search engine. */
-        onlineSearchUrl: string;
         /**
          * Serialize the project to a JSON string.
          */
@@ -232,24 +224,19 @@ module csComp.Services {
                 collapseAllLayers: project.collapseAllLayers,
                 userPrivileges:    project.userPrivileges,
                 languages:         project.languages,
-                modeSelection : project.exportModeSelectionEnabled,
                 expertMode:        project.expertMode,
                 baselayers:        project.baselayers,
                 featureTypes:      project.featureTypes, //reset
                 propertyTypeData:  project.propertyTypeData,
                 groups:            csComp.Helpers.serialize<ProjectGroup>(project.groups, ProjectGroup.serializeableData),
                 layerDirectory:    project.layerDirectory,
-                eventTab:          project.eventTab,
-                useOfflineSearch:  project.useOnlineSearch,
-                useOnlineSearch:   project.useOnlineSearch,
-                onlineSearchUrl:   project.onlineSearchUrl
+                eventTab:          project.eventTab
             };
         }
 
         public deserialize(input: Project): Project {
             var res = <Project>jQuery.extend(new Project(), input);
             res.solution = input.solution;
-            if (typeof input.exportModeSelectionEnabled === 'undefined' ) res.exportModeSelectionEnabled = true;
             if (!input.opacity) { input.opacity = 100; }
             if (input.timeLine) { res.timeLine = DateRange.deserialize(input.timeLine); }// <DateRange>jQuery.extend(new DateRange(), input.timeLine);
             if (input.dashboards) {

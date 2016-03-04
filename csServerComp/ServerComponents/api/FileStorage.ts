@@ -243,10 +243,8 @@ export class FileStorage extends BaseConnector.BaseConnector {
     /** Save project file to disk */
     private saveProjectFile(project: Project) {
         var fn = project._localFile;
-        if (!fn) {
-         fn = this.getProjectFilename(project.id);
-        }
         Winston.info('writing project file : ' + fn);
+        //this.getProjectFilename(project.id);
         fs.writeFile(fn, JSON.stringify(project), (error) => {
             if (error) {
                 Winston.info('error writing project file : ' + fn);
