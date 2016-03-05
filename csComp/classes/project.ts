@@ -46,6 +46,8 @@ module csComp.Services {
         zoomLevel:     number;
         zoomLevelName: string;
         isLive:        boolean;
+        enableLive:    boolean = true;
+        enablePlay:    boolean = true;
 
         //constructor() {
         //    if (!this.focus) this.setFocus(new Date());
@@ -54,6 +56,8 @@ module csComp.Services {
         static deserialize(input: DateRange): DateRange {
             var res = <DateRange>$.extend(new DateRange(), input);
             if (typeof res.focus === 'undefined' || res.focus === null) { res.focus = Date.now(); }
+            if (typeof res.enableLive === 'undefined') { res.enableLive = true }
+            if (typeof res.enablePlay === 'undefined') { res.enablePlay = true }
             return res;
         }
 

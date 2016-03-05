@@ -8,17 +8,17 @@
 
 
     <div class="callout top" ng-show="vm.$mapService.timelineVisible" id="focustimeContainer" style="position:absolute;bottom:{{vm.expandButtonBottom}}px;pointer-events:auto" >
-        <div class="timelineControl" ng-class="{isPlaying : vm.isPlaying}">
-            <span class="focustimeButton" ng-hide="vm.$layerService.project.timeLine.isLive">
+        <div class="timelineControl" ng-class="{isPlaying : vm.isPlaying}" >
+            <span ng-if="vm.$layerService.project.timeLine.enablePlay" class="focustimeButton" ng-hide="vm.$layerService.project.timeLine.isLive">
                 <div ng-hide="vm.isPlaying" class="fa fa-play focustimeButton" ng-click="vm.start()"></div>
                 <div ng-show="vm.isPlaying" class="fa fa-stop focustimeButton" ng-click="vm.stop()"></div>
             </span>
-            <span class="pintimeButton"  ng-show="vm.$layerService.project.timeLine.isLive">
+            <span ng-if="vm.$layerService.project.timeLine.enablePlay" class="pintimeButton"  ng-show="vm.$layerService.project.timeLine.isLive">
                 <div ng-hide="vm.isPinned" class="fa fa-thumb-tack" ng-click="vm.pin()"></div>
                 <div ng-show="vm.isPinned" class="fa fa-times-circle" ng-click="vm.unPin()"></div>
             </span>
-            <div style="float: right">{{vm.$layerService.project.timeLine.levelName}}</div>
-            <div  class="timelineFocusState" style="float: right">
+            <div style="float: right">{{vm.$layerService.project.timeLine.levelName}}</div> 
+            <div  class="timelineFocusState" ng-show="vm.$layerService.project.timeLine.enableLive" style="float: right">
                 <div ng-click="vm.stopLive()" class="islivebutton" ng-show="vm.$layerService.project.timeLine.isLive">live</div>
                 <div ng-click="vm.goLive()" class="livebutton" ng-hide="vm.$layerService.project.timeLine.isLive">go live</div>
             </div>
