@@ -166,7 +166,7 @@ module csComp.Services {
             this.checkMobile();
             this.enableDrop();
         }
-        
+
         public refreshActiveLayers()
         {
             for (var l in this.loadedLayers) {
@@ -1199,11 +1199,9 @@ module csComp.Services {
                         if (propType && propType.sensorNull)
                             for (var i = 0; i < feature.sensors[s].length; i++) {
                                if (feature.sensors[s][i] === propType.sensorNull) feature.sensors[s][i] = 0;
-                            }                            
+                            }
                         }
                     }
-                
-            
 
                 this.calculateFeatureStyle(feature);
                 feature.propertiesOld = {};
@@ -1211,7 +1209,6 @@ module csComp.Services {
                 if (applyDigest) this.apply();
                 if (layer.timeAware && publishToTimeline) this.$messageBusService.publish('timeline', 'updateFeatures');
             }
-         
             return feature.type;
         }
 

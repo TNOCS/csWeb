@@ -2,10 +2,10 @@ module csComp.Services {
     'use strict';
 
     export class HeatmapSource implements ILayerSource {
-        title = "heatmap";
+        title = 'heatmap';
         requiresLayer = true;
         //service: LayerService;
-        heatmapModel: Heatmap.HeatmapModel = new Heatmap.HeatmapModel("ProjectHeatmap");
+        heatmapModel: Heatmap.HeatmapModel = new Heatmap.HeatmapModel('ProjectHeatmap');
         constructor(public service: LayerService) { }
 
         //public init(service: LayerService) {
@@ -23,10 +23,10 @@ module csComp.Services {
         public addLayer(layer: ProjectLayer, callback: Function, data = null) {
             async.series([
                 (cb) => {
-                    layer.renderType = "heatmap";
+                    layer.renderType = 'heatmap';
                     layer.isLoading = true;
 
-                    if (layer.quickRefresh && layer.quickRefresh == true) {
+                    if (layer.quickRefresh && layer.quickRefresh === true) {
                         // In case the map has not moved, the heatmap cells do not need to be calculated again, only the style of the markers need to be updated.
                         this.heatmapModel.deserialize(layer);
                         this.heatmapModel.id = layer.id;
@@ -38,7 +38,9 @@ module csComp.Services {
                                 hiWeights[hi.toString()] = hi.weight;
                             });
 
-                            var weightedIntensityScale: number = ((this.heatmapModel.heatmapSettings.intensityScale / 3) * (this.heatmapModel.heatmapSettings.intensityScale / 3)); // Convert intensityscale from [1,...,5] to ~[0.1, 0.5, 1, 2, 3]
+                            var weightedIntensityScale: number = (
+                                (this.heatmapModel.heatmapSettings.intensityScale / 3) * (this.heatmapModel.heatmapSettings.intensityScale / 3)
+                            ); // Convert intensityscale from [1,...,5] to ~[0.1, 0.5, 1, 2, 3]
                             this.service.project.features.forEach((f: csComp.Services.IFeature) => {
                                 if (f.properties.hasOwnProperty('intensities') && f.properties.hasOwnProperty('contributors')) {
                                     var intensities = JSON.parse(f.properties['intensities']);
@@ -74,7 +76,7 @@ module csComp.Services {
 
         removeLayer(layer: ProjectLayer) {
             delete (this.heatmapModel);
-            this.heatmapModel = new Heatmap.HeatmapModel("ProjectHeatmap");
+            this.heatmapModel = new Heatmap.HeatmapModel('ProjectHeatmap');
             layer.enabled = false;
             layer.data = JSON;
             this.enableProjectLayer(layer); // Set project layer to disabled
@@ -83,18 +85,17 @@ module csComp.Services {
 
         /* Enables the project layer if the 'layer' parameter has the same id as a project layer */
         enableProjectLayer(layer: ProjectLayer) {
-            if (layer.id) {
-                this.service.project.groups.forEach((group) => {
-                    group.layers.forEach((l) => {
-                        if (l.id == layer.id) {
-                            l.enabled = layer.enabled;
-                            if (l.enabled == false) {
-                                layer.data = JSON;
-                            }
+            if (!layer.id) return;
+            this.service.project.groups.forEach((group) => {
+                group.layers.forEach((l) => {
+                    if (l.id === layer.id) {
+                        l.enabled = layer.enabled;
+                        if (l.enabled === false) {
+                            layer.data = JSON;
                         }
-                    });
+                    }
                 });
-            }
+            });
         }
 
         getRequiredLayers(layer: ProjectLayer) {
@@ -103,7 +104,7 @@ module csComp.Services {
                 layer.heatmapSettings.referenceList.forEach((ref: string) => {
                     this.service.project.groups.forEach((group) => {
                         group.layers.forEach((l) => {
-                            if (l.reference == ref) {
+                            if (l.reference === ref) {
                                 requiredLayers.push(l);
                             }
                         });
@@ -147,7 +148,7 @@ module csComp.Services {
 
                 // Set default style for the heatmap:
                 if ((<any>(layer.data)).features[0]) {
-                    var calloutProp = new FeatureProps.CallOutProperty("totalIntensity", "0", "totalIntensity", true, true, (<any>(layer.data)).features[0], false, false);
+                    var calloutProp = new FeatureProps.CallOutProperty("totalIntensity", "0", "totalIntensity", true, true, true, (<any>(layer.data)).features[0], false, false);
                     var propinfo = <PropertyInfo>{};
                     // Tweak the group style info to keep constant min/max color values on panning and zooming.
                     propinfo.count = (<any>(layer.data)).features.length;
