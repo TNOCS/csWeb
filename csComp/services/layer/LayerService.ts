@@ -166,7 +166,7 @@ module csComp.Services {
             this.checkMobile();
             this.enableDrop();
         }
-        
+
         public refreshActiveLayers()
         {
             for (var l in this.loadedLayers) {
