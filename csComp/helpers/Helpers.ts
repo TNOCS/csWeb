@@ -197,15 +197,14 @@ module csComp.Helpers {
         }
         return propertyTypes;
     }
-    
-    export function getPropertyKey(keyString : string, property : string) : string
-    {
+
+    export function getPropertyKey(keyString : string, property : string) : string {
         var keys = keyString.split(';');
         var prop = property;
         var count = 1;
-        while (keys.indexOf(prop)>=0) {
-            prop=property + count;
-            count+=1;
+        while (keys.indexOf(prop) >= 0) {
+            prop = property + count;
+            count++;
         }
         return prop;
     }
@@ -411,6 +410,10 @@ module csComp.Helpers {
             feature.properties['Name'] = feature.properties['name'];
             return feature;
         }
+        if (feature.properties.hasOwnProperty('NAME')) {
+            feature.properties['Name'] = feature.properties['NAME'];
+            return feature;
+        }
         // Case two: the feature's style tells us what property to use for the name.
         if (feature.fType && feature.fType.style && feature.fType.style.nameLabel) {
             var nameLabel = feature.fType.style.nameLabel;
@@ -539,7 +542,7 @@ module csComp.Helpers {
         rpt.popover = popover || '';
         rpt.icon = icon || 'tachometer';
         rpt.replace = replace;
-        if (typeof canClose !== "undefined") rpt.canClose = canClose;
+        if (typeof canClose !== 'undefined') rpt.canClose = canClose;
         return rpt;
     }
 
