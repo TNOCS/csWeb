@@ -416,7 +416,7 @@ module FeatureProps {
             if (item.isDraft) {
                 var key = csComp.Helpers.getPropertyKey(item.feature.fType.propertyTypeKeys, item.property);
                 resource.propertyTypeData[key] = propType;
-                item.feature.fType.propertyTypeKeys += ";" + key;
+                item.feature.fType.propertyTypeKeys += ';' + key;
                 item.isDraft = false;
                 this.$layerService.propertyTypeData[key] = propType;       
                 //alert('saving draft');
@@ -479,7 +479,7 @@ module FeatureProps {
          * @todo {notice the strange syntax using a fat arrow =>, which is to preserve the this reference in a callback!}
          */
         private sidebarMessageReceived = (title: string): void => {
-            //console.log("sidebarMessageReceived");
+            //console.log('sidebarMessageReceived');
             switch (title) {
                 case 'toggle':
                     this.$scope.showMenu = !this.$scope.showMenu;
@@ -562,10 +562,9 @@ module FeatureProps {
 
             // create sparkline   
             try {
-                var chartElement = this.$compile('<sparkline-chart timestamps="item.timestamps" smooth="false" closed="false" sensor="item.sensor" width="320" height="100" showaxis="true"></sparkline-chart>')((<any>ch).scope());
+                var chartElement = this.$compile('<sparkline-chart timestamps='item.timestamps' smooth='false' closed='false' sensor='item.sensor' width='320' height='100' showaxis='true'></sparkline-chart>')((<any>ch).scope());
                 ch.append(chartElement);
-            }
-            catch (e) {
+            } catch (e) {
                 console.log('Error adding sparkline');
             }
         }
@@ -575,8 +574,7 @@ module FeatureProps {
 
             if (item.showChart) {
                 this.addSparkline(item);
-            }
-            else {
+            } else {
                 var ch = $('#featurepropchart_' + item._id);
                 ch.empty();
             }
