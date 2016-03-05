@@ -41,6 +41,7 @@ module FeatureProps {
         property: string;
         canFilter: boolean;
         canStyle: boolean;
+        canShowStats: boolean;
         feature: IFeature;
         description?: string;
         propertyType?: IPropertyType;
@@ -65,6 +66,7 @@ module FeatureProps {
             public property: string,
             public canFilter: boolean,
             public canStyle: boolean,
+            public canShowStats: boolean,
             public feature: IFeature,
             public isFilter: boolean,
             public isSensor: boolean,
@@ -81,7 +83,7 @@ module FeatureProps {
         propertyTypes: { [label: string]: IPropertyType }; // Probably not needed
         properties: Array<ICallOutProperty>;
         sectionIcon: string;
-        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature,
+        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, canShowStats: boolean, feature: IFeature,
             isFilter: boolean, description?: string, propertyType?: IPropertyType, isDraft?: boolean): void;
         hasProperties(): boolean;
     }
@@ -99,15 +101,15 @@ module FeatureProps {
 
         showSectionIcon(): boolean { return !csComp.StringExt.isNullOrEmpty(this.sectionIcon); }
 
-        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, feature: IFeature,
+        addProperty(key: string, value: string, property: string, canFilter: boolean, canStyle: boolean, canShowStats: boolean, feature: IFeature,
             isFilter: boolean, description?: string, propertyType?: IPropertyType, isDraft?: boolean): void {
             var isSensor = feature.sensors && feature.sensors.hasOwnProperty(property);
             if (isSensor) {
-                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description
+                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, canShowStats, feature, isFilter, isSensor, description
                     ? description
                     : null, propertyType, feature.timestamps, feature.sensors[property], isDraft));
             } else {
-                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, feature, isFilter, isSensor, description
+                this.properties.push(new CallOutProperty(key, value, property, canFilter, canStyle, canShowStats, feature, isFilter, isSensor, description
                     ? description
                     : null, propertyType, null, null, isDraft));
             }
@@ -178,8 +180,7 @@ module FeatureProps {
 
                         if (mi) {
                             this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection);
-                        }
-                        else if (feature.fType.showAllProperties || this.mapservice.isAdminExpert) {
+                        } else if (feature.fType.showAllProperties || this.mapservice.isAdminExpert) {
                             var prop = csComp.Helpers.getPropertyType(feature, key);
                             this.addProperty(prop, feature, infoCallOutSection, hierarchyCallOutSection, true);
                         }
@@ -202,7 +203,8 @@ module FeatureProps {
             var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
             if (callOutSection.propertyTypes.hasOwnProperty(mi.label)) return; // Prevent duplicate properties in the same  section
             callOutSection.propertyTypes[mi.label] = mi;
-            var text = feature.properties[mi.label]; if (mi.type === 'hierarchy') {
+            var text = feature.properties[mi.label];
+            if (mi.type === 'hierarchy') {
                 var count = this.calculateHierarchyValue(mi, feature, this.propertyTypeData, this.layerservice);
                 text = count + ';' + feature.properties[mi.calculation];
             }
@@ -211,13 +213,15 @@ module FeatureProps {
             if (!mi.canEdit && csComp.StringExt.isNullOrEmpty(displayValue)) return;
 
             var canFilter = (mi.type === 'number' || mi.type === 'text' || mi.type === 'options' || mi.type === 'date' || mi.type === 'boolean');
+            if (mi.filterType) canFilter = mi.filterType.toLowerCase() !== 'none';
             var canStyle = (mi.type === 'number' || mi.type === 'options' || mi.type === 'color');
-            if (mi.filterType != null) canFilter = mi.filterType.toLowerCase() !== 'none';
+            if (mi.styleType) canStyle = mi.styleType.toLowerCase() !== 'none';
+            var canShowStats = (typeof mi.canShowStats === 'undefined') || mi.canShowStats;
             if (mi.visibleInCallOut) {
-                callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi, isDraft);
+                callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, canShowStats, feature, false, mi.description, mi, isDraft);
             }
             if (mi.type === 'hierarchy') {
-                hierarchyCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description, mi);
+                hierarchyCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, canShowStats, feature, false, mi.description, mi);
             }
             //searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
         }

@@ -21,7 +21,7 @@
         </div>
 
         <div class="row" ng-if="callOut.sectionCount() >= 3" ng-hide="configMode">
-            <ul class="nav nav-tabs" id="featureTabs" style="margin-left:10px">
+            <ul class="nav nav-tabs" id="featureTabs2" style="margin-left:10px">
                 <li data-toggle="tab" class="active" ng-init="firstCallOutsection=callOut.firstSection()">
                     <a data-target="#rp-0" data-toggle="tab" data-ng-if="firstCallOutsection.showSectionIcon()">
                         <i class="fa {{firstCallOutsection.sectionIcon}}"></i>
@@ -157,7 +157,7 @@
                                                 <a data-ng-hide="item.feature._gui['style'][item.property]" class="fa fa-paint-brush makeNarrow" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)"></a>
                                                 <a data-ng-show="item.feature._gui['style'][item.property]" class="fa fa-paint-brush smallFaIconSelected makeNarrow pointer" data-ng-click="vm.$layerService.toggleStyle(item);vm.selectProperty(item.propertyType,$event)"></a>
                                             </div>
-                                            <div ng-if="item.propertyType.type === 'number'" class="property-action" style="left:30px" uib-popover="{{'UTILS.STATS' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true">
+                                            <div ng-if="item.canShowStats && item.propertyType.type === 'number'" class="property-action" style="left:30px" uib-popover="{{'UTILS.STATS' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true">
                                                 <a class="fa fa-calculator makeNarrow pointer" ng-click="item.showMore=!item.showMore;vm.getPropStats(item)"></a>
                                             </div>
                                             <div ng-if="item.isSensor" class="property-action" style="left:45px" uib-popover="{{'UTILS.CHART' | translate}}" uib-popover-popup-delay="750" popover-placement="top" popover-trigger="mouseenter" popover-append-to-body="true">

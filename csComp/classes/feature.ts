@@ -176,7 +176,12 @@ module csComp.Services {
         stringFormat?:     string;
         visibleInCallOut?: boolean;
         canEdit?:          boolean;
+        /** If set to false, don't show the statistical information (for numbers) */
+        canShowStats?:     boolean;
+        /** Type of filter: none if you don't want to allow filtering */
         filterType?:       string;
+        /** Type of style: none if you don't want to allow styling */
+        styleType?:        string;
         isSearchable?:     boolean;
         minValue?:         number;
         maxValue?:         number;
