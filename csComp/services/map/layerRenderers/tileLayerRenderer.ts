@@ -31,22 +31,7 @@ module csComp.Services {
             service.map.map.addLayer(layer.mapLayer);
 
             if (layers.length > 1) {
-                var utfGrid = new (<any>L).UtfGrid(layers[1], {
-                    resolution: 4,
-                    useJsonP: false
-                });
-                utfGrid.on('click', function (e) {
-                    //click events are fired with e.data==null if an area with no hit is clicked
-                    if (e.data) {
-                        alert('click: ' + JSON.stringify(e.data, null, 2));
-                    } else {
-                        alert('click: nothing');
-                    }
-                });
-                utfGrid.on('mouseover', function (e) {
-                    console.log('hover: ' + JSON.stringify(e.data, null, 2));
-                });
-                service.map.map.addLayer(utfGrid);
+                TileLayerRenderer.addUtfGrid(service, layer, layers[1]);
             }
 
             layer.mapLayer.addLayer(tileLayer);
@@ -60,6 +45,35 @@ module csComp.Services {
                 if (service.$rootScope.$$phase !== '$apply' && service.$rootScope.$$phase !== '$digest') { service.$rootScope.$apply(); }
             });
             layer.isLoading = true;
+        }
+
+        /**
+         * Add a UTF Grid Layer to the tilelayer.
+         */
+        private static addUtfGrid(service: LayerService, layer: ProjectLayer, utfGridLayerUrl: string) {
+            var utfGrid = new (<any>L).UtfGrid(utfGridLayerUrl, {
+                resolution: 4,
+                useJsonP: false
+            });
+            utfGrid.on('click', function (e) {
+                //click events are fired with e.data==null if an area with no hit is clicked
+                if (e.data) {
+                    var feature = new Feature();
+                    feature.properties = e.data;
+                    feature.layer = layer;
+                    feature.featureTypeName = `${layer.typeUrl}#${layer.defaultFeatureType}`;
+                    feature.fType = service.getFeatureType(feature);
+                    if (!feature.properties.hasOwnProperty('Name')) Helpers.setFeatureName(feature, this.propertyTypeData);
+                    service.$messageBusService.publish('feature', 'onFeatureSelect', feature);
+                    console.log('Clicked: ' + JSON.stringify(e.data, null, 2));
+                } else {
+                    console.log('click: nothing');
+                }
+            });
+            // utfGrid.on('mouseover', function (e) {
+            //     console.log('hover: ' + JSON.stringify(e.data, null, 2));
+            // });
+            service.map.map.addLayer(utfGrid);
         }
     }
 }
