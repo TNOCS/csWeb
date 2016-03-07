@@ -78,7 +78,7 @@ module ButtonWidget {
                     break;
                 case "Activate Style":
                     this.checkStyle();
-                    this.messageBusService.subscribe("styles", (a, l) => this.checkStyle());
+                    this.messageBusService.subscribe("updatelegend", (a, l) => this.checkStyle());
                     break;
                 case "Activate Baselayer" :
                     this.checkBaselayer(); 
