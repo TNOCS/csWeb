@@ -1,0 +1,39 @@
+<div data-ng-cloak class="rightpanel-content" style="max-width: 355px">
+    <style>
+        .chart-list
+        {
+            list-style: none;
+        }
+        
+        .chart-list-item
+        {
+            margin-left: -20px
+        }
+        
+        .chart-list-title
+        {
+            font-weight: 600;
+            font-size:16px;
+        }
+    </style>
+    <h4 class="rightpanel-header" style="padding-left:5px">
+        {{vm.scan.config.title}}
+        <div style="float:right;margin-right:40px;font-size:27px">
+            <!--<button tooltip-html-unsafe="{{'CONFIG' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-cog leftpanel-header-button" ng-show="!configMode" ng-click="configMode=true" />-->
+            <button tooltip-html-unsafe="{{'DONE' | translate}}" tooltip-placement="top" tooltip-trigger="mouseenter" tooltip-append-to-body="false" class="button fa fa-check leftpanel-header-button"  ng-click="vm.update()" />
+        </div>
+    </h4>
+    <div>
+        <ul class="chart-list">
+            <li class="chart-list-item" ng-repeat="c in vm.scan.config.charts">
+                  <div class="checkbox checkbox-primary">
+                                <input id="cbchart{{c.id}}" type="checkbox" ng-model="c.enabled">                                
+                                <label class="chart-list-title" for="cbchart{{c.id}}">
+                                    {{c.title}}
+                                </label>
+                
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>

@@ -117,6 +117,8 @@
         "csComp/directives/TripPlanner/TripPlanner.ts",
         "csComp/directives/TripPlanner/TripPlannerCtrl.ts",
         "csComp/directives/Voting/Voting.ts",
+        "csComp/directives/IdvHelper/IdvHelper.ts",
+        "csComp/directives/IdvHelper/IdvEdit.ts",
         "csComp/directives/Widgets/ButtonWidget/ButtonWidget-edit.ts",
         "csComp/directives/Widgets/ButtonWidget/ButtonWidget.ts",
         "csComp/directives/Widgets/FocusTimeWidget/FocusTimeWidget.ts",
