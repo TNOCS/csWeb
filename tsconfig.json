@@ -119,6 +119,7 @@
         "csComp/directives/Voting/Voting.ts",
         "csComp/directives/Widgets/ButtonWidget/ButtonWidget-edit.ts",
         "csComp/directives/Widgets/ButtonWidget/ButtonWidget.ts",
+        "csComp/directives/Widgets/FocusTimeWidget/FocusTimeWidget.ts",
         "csComp/directives/Widgets/Charts/Charts-edit.ts",
         "csComp/directives/Widgets/Charts/Charts.ts",
         "csComp/directives/Widgets/Charts/ChartsCtrl.ts",

@@ -7,6 +7,7 @@ module csComp.Services {
         public data: any;
         public icon: string = 'tachometer';
         public popover: string = '';
+        public open : boolean = true;
         public replace : boolean = true; 
         public canClose : boolean = true;
     }
@@ -84,6 +85,11 @@ module csComp.Services {
                 id: 'buttonwidget',
                 icon: 'bower_components/csweb/dist-bower/images/widgets/touchbutton.png',
                 description: 'Simple on/off button for executing an action.'
+            };
+            this.widgetTypes['focustimewidget'] = <IWidget>{
+                id: 'focustimewidget',
+                icon: 'bower_components/csweb/dist-bower/images/widgets/touchbutton.png',
+                description: 'Widget showing focus time'
             };
             this.widgetTypes['indicators'] = <IWidget>{
                 id: 'indicators',

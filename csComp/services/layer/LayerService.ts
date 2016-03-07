@@ -108,7 +108,7 @@ module csComp.Services {
             this.mapRenderers['cesium'].init(this);
 
             this.initLayerSources();
-            this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, 1000);
+            this.throttleSensorDataUpdate = _.debounce(this.updateSensorData, 500);
 
             $messageBusService.subscribe('timeline', (trigger: string) => {
                 switch (trigger) {
@@ -176,23 +176,17 @@ module csComp.Services {
                     }
                 }
         }
-
-        /**
-         * Get external sensordata for loaded layers with sensor links enabled
-         */
-        public updateSensorLinks() {
-            var updated = false;
-            console.log('updating sensorlinks');
-            for (var l in this.loadedLayers) {
-                var layer = <ProjectLayer>this.loadedLayers[l];
-                console.log(layer.title);
-                if (layer.sensorLink) {
+        
+        public updateLayerSensorLink(layer : ProjectLayer)
+        {
+            if (layer.sensorLink) {
+                     
                     var link = layer.sensorLink.url + "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
                     console.log('downloading ' + link);
-                    
+                    layer._gui["loadingSensorLink"] = true;
                     this.$http.get(link)
-                        .success((data: ISensorLinkResult) => {
-                                updated = true;
+                        .success((data: ISensorLinkResult) => {     
+                            layer._gui["loadingSensorLink"] = false;                           
                                 layer.timestamps = data.timestamps;
                                 layer.data.features.forEach((f: IFeature) => { f.sensors = {};
                                 data.properties.forEach(s => f.sensors[s] = []);
@@ -236,9 +230,23 @@ module csComp.Services {
                             //this.$messageBusService.publish("timeline","timeSpanUpdated");
                         })
                         .error((e) => {
+                            layer._gui["loadingSensorLink"] = false;
                             console.log('error loading sensor data');
                         });
                 }
+        }
+
+        /**
+         * Get external sensordata for loaded layers with sensor links enabled
+         */
+        public updateSensorLinks() {
+            var updated = false;
+            console.log('updating sensorlinks');
+            for (var l in this.loadedLayers) {
+                var layer = <ProjectLayer>this.loadedLayers[l];
+                this.updateLayerSensorLink(layer);
+                console.log(layer.title);
+                
             };
         }
 
@@ -614,13 +622,17 @@ module csComp.Services {
                             if (this.actionServices) this.actionServices.forEach(as => {
                                 if (as.addLayer) as.addLayer(layer);
                             });
+                             
+                            this.updateLayerSensorLink(layer);
+                            this.updateLayerSensorData(layer,this.project.timeLine.focusDate());
 
                             this.$messageBusService.publish('layer', 'activated', layer);
                             this.$messageBusService.publish('updatelegend', 'updatedstyle');
                             // if (layerloaded) layerloaded(layer);
                             this.expressionService.evalLayer(l, this._featureTypes);
+                            
                         }                        
-                    }, data);
+                    }, data);                    
                     if (layer.timeAware) this.$messageBusService.publish('timeline', 'updateFeatures');
                     callback(null, null);
                 },
@@ -1082,28 +1094,31 @@ module csComp.Services {
                 this.$messageBusService.publish('feature', 'onFeatureUpdated');
             }
         }
+        
+        public getSensorIndex(d: Number, timestamps: Number[]) {
+            for (var i = 1; i < timestamps.length; i++) {
+                if (timestamps[i] > d) {
+                    return i;
+                }
+            }
+            return timestamps.length - 1;
+        };
 
-        public updateFeatureSensorData(f: IFeature, date: number, timepos: Object) {
+        /// calculate sensor data for a specific feature
+        public updateFeatureSensorData(f: IFeature, date: number) {
             var l = f.layer;
             if (f.sensors || f.coordinates) {
-
-                var getIndex = (d: Number, timestamps: Number[]) => {
-                    for (var i = 1; i < timestamps.length; i++) {
-                        if (timestamps[i] > d) {
-                            return i;
-                        }
-                    }
-                    return timestamps.length - 1;
-                };
+                
                 var pos = 0;
                 if (f.timestamps) { // check if feature contains timestamps
-                    pos = getIndex(date, f.timestamps);
+                    pos = this.getSensorIndex(date, f.timestamps);
                 } else if (l.timestamps) {
-                    if (timepos.hasOwnProperty(f.layerId)) {
-                        pos = timepos[f.layerId];
+                    if (l._gui.hasOwnProperty("timestampIndex")) {
+                        pos = l._gui["timestampIndex"];
                     } else {
-                        pos = getIndex(date, l.timestamps);
-                        timepos[f.layerId] = pos;
+                        pos = this.getSensorIndex(date, l.timestamps);
+                        l._gui["timestampIndex"] = pos;
+                        l._gui["timestamp"] = l.timestamps[pos];
                     }
                 }
                 // check if a new coordinate is avaiable
@@ -1129,26 +1144,36 @@ module csComp.Services {
                 }
             }
         }
-
-        /** update for all features the active sensor data values and update styles */
-        public updateSensorData() {
-            if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
-            var date = this.project.timeLine.focus;
-            var timepos = {};
-
-            for (var ll in this.loadedLayers) {
-                var l = this.loadedLayers[ll];
+        
+        public updateLayerSensorData(l : ProjectLayer, date)
+        {
+            delete l._gui["timestampIndex"];  
+                delete l._gui["timestamp"];
                 if ((l.hasSensorData || l.sensorLink) && l.data.features) {
                     console.log('updating sensor data for ' + l.title);
+                    
                     l.data.features.forEach((f: IFeature) => {
-                        this.updateFeatureSensorData(f, date, timepos);
+                        this.updateFeatureSensorData(f, date);
                     });
+                                        
+                    this.mb.publish("layer","sensordataUpdated",l);
+                    
                 }
                 if (l.isDynamic && l.useLog) {
                     l.data.features.forEach((f: IFeature) => {
                         this.updateLog(f);
                     });
                 }
+        }
+
+        /** update for all features the active sensor data values and update styles */
+        public updateSensorData() {
+            if (this.project == null || this.project.timeLine == null || this.project.features == null) return;
+            var date = this.project.timeLine.focus;
+            
+            for (var ll in this.loadedLayers) {
+                var l = this.loadedLayers[ll];
+                this.updateLayerSensorData(l,date);                                
             };
         }
 
@@ -1599,7 +1624,7 @@ module csComp.Services {
                     this.activeMapRenderer.updateFeature(fe);
                 }
             });
-            this.$messageBusService.publish('styles', 'updatedstyle', gs);
+            this.$messageBusService.publish('updatelegend', 'updatedstyle', gs);
         }
 
         /**
@@ -1662,7 +1687,7 @@ module csComp.Services {
                 });
 
                 if (openStyleTab) (<any>$('#leftPanelTab a[data-target="#styles"]')).tab('show'); // Select tab by name
-                this.$messageBusService.publish('styles', 'updatedstyle', gs);
+                this.$messageBusService.publish('updatelegend', 'updatedstyle', gs);
                 return gs;
             }
             return null;

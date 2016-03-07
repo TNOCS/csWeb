@@ -34,7 +34,7 @@ module csComp.Services {
                         this.layer = layer;                        
                         if (!this.options.layer || layer.id === this.options.layer) {
                             if (!this.options.property) {
-                                this.styleSub = this.mb.subscribe('styles', (l, style: GroupStyle) => {
+                                this.styleSub = this.mb.subscribe('updatelegend', (l, style: GroupStyle) => {
                                     if (l === 'updatedstyle') {
                                         this.property = style.property;
                                         this.updateChart(this.layer);

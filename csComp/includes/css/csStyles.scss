@@ -72,6 +72,20 @@ body,
     cursor: pointer;
 }
 
+/* focus time widget */
+.focustime-widget-date
+{
+    font-size: 20px;
+    color:black
+}
+
+.focustime-widget-time
+{
+    font-size: 30px;
+    color:black;
+    font-weight: 700;
+}
+
 /* layers */
 .addlayer-container {
     cursor: pointer;
