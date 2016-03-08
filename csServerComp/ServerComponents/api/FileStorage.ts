@@ -247,7 +247,7 @@ export class FileStorage extends BaseConnector.BaseConnector {
          fn = this.getProjectFilename(project.id);
         }
         Winston.info('writing project file : ' + fn);
-        fs.writeFile(fn, JSON.stringify(project), (error) => {
+        fs.writeFile(fn, JSON.stringify(project,null,4), (error) => {
             if (error) {
                 Winston.info('error writing project file : ' + fn);
             } else {
