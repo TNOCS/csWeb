@@ -6,10 +6,12 @@ module Idv {
         elementId?: string;
         containerId?: string;
         title?: string;
+        bins? : number;
         type?: string;
         property: string;
         secondProperty? : string;
         dimension?: any;
+        columns?:string[];
         group?: any;
         stat?: string;
         width?: number;
@@ -103,7 +105,7 @@ module Idv {
             var elastic = true;
 
 
- this.gridster = $(".gridster > ul").gridster({
+ this.gridster = (<any>$(".gridster > ul")).gridster({
                 widget_margins: [5, 5],
                 widget_base_dimensions: [this.defaultWidth - 20, 250],
                 min_cols: 6,
@@ -284,11 +286,13 @@ module Idv {
             if (!config.containerId) config.containerId = this.config.containerId;
             config.elementId = "ddchart-" + config.id;
             if (!config.title) config.title = config.property; 
+            
             if (!config.type) config.type = "row";
             var w = this.layerService.$compile("<li><header class='chart-title'><div class='fa fa-times' style='float:right;cursor:pointer' ng-click='vm.scan.reset(\"" + config.elementId + "\")'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>")(this.scope);
             this.gridster.add_widget(w,config.width,config.height); //"<li><header class='chart-title'><div class='fa fa-times' style='float:right' ng-click='vm.reset()'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>",config.width,config.height);
             //$("#" + config.containerId).append(newChart);
             
+         
             if (!config.stat) config.stat = "count";
             switch (config.stat) {
                 case "average":
@@ -312,17 +316,21 @@ module Idv {
                         var r =[+d[config.property],+d[config.secondProperty]]  
                         return r });
                     config.group = config.dimension.group();
+                    break;
+                case "time":
+                    config.dimension = this.ndx.dimension((d) =>{ return d[config.time] });
                     break;  
                 case "group":
-                    var n_bins = 10;
+                    if (!config.bins) config.bins = 20;
+                    var n_bins = config.bins;
                     var xExtent = d3.extent(this.data, (d) => { return parseFloat(d[config.property]); });
                     var binWidth = (xExtent[1] - xExtent[0]) / n_bins;
                     config.dimension = this.ndx.dimension((d) => {
                         var c = Math.floor(parseFloat(d[config.property]) / binWidth) * binWidth; 
-                        return c;
+                        return c;    
                     }                         );
                     config.group = config.dimension.group().reduceCount();
-                    break;              
+                    break;                              
                 case "count":
                     config.dimension = this.ndx.dimension(function(d) { return d[config.property] });
                     config.group = config.dimension.group().reduceCount();
@@ -330,25 +338,51 @@ module Idv {
             }
 
 
-            var w = config.width * this.defaultWidth;
-            var h = config.height * 220;
+            var width = config.width * this.defaultWidth;
+            var height = config.height * 220;
             
             
 
             switch (config.type) {
+                case "table":
+                    config.chart = dc.dataTable("#" + config.elementId);
+                    config.chart                     
+                        .dimension(config.dimension) 
+                    .group((d)=> {
+                    //      var format = d3.format('02d');
+                        var date = d[config.time];
+                        return "hoi";
+            }) 
+        
+        // (_optional_) max number of records to be shown, `default = 25`
+        .size(18)
+        // There are several ways to specify the columns; see the data-table documentation.
+        // This code demonstrates generating the column header automatically based on the columns.
+        .columns(config.columns)
+
+        // (_optional_) sort using the given field, `default = function(d){return d;}`
+        .sortBy(function (d) {
+            return d[config.time];
+        })
+        // (_optional_) sort order, `default = d3.ascending`
+        .order(d3.ascending);        
+                    break;
                 case "time":
                     config.chart = dc.lineChart("#" + config.elementId);
                     config.chart
-                        .width(w)
-                        .height(h)
-                        .x(d3.time.scale())
+                        .width(width)
+                        .height(height)
+                        .x(d3.time.scale().domain([new Date(2011, 0, 1), new Date(2016, 11, 31)]))
                         .elasticX(true)
                         .elasticY(true)
                         .mouseZoomable(true)
                         .renderHorizontalGridLines(true)
                         .brushOn(true)
                         .dimension(config.dimension)
-                        .group(config.group)
+                        .group(function (d) {
+                          //var format = d3.format('02d');
+                            return d[config.time];
+                        })                        
                         .renderHorizontalGridLines(true)
                         .on('renderlet', function(chart) {
                             chart.selectAll('rect').on("click", function(d) {
@@ -359,8 +393,8 @@ module Idv {
                 case "line":
                     config.chart = dc.lineChart("#" + config.elementId);
                     config.chart
-                        .width(w)
-                        .height(h)
+                        .width(width)
+                        .height(height)
                         .x(d3.scale.linear())
                         .elasticX(true)
                         .elasticY(true)                        
@@ -377,12 +411,12 @@ module Idv {
                  case "bar":
                     config.chart = dc.barChart("#" + config.elementId);
                     config.chart
-                        .width(w)
-                        .height(h)
+                        .width(width)
+                        .height(height)
                         .x(d3.scale.linear())
-                        .elasticX(true)                                                                        
-                        .centerBar(true)
-                        .elasticY(true)                        
+                        .elasticX(true)                                                                                                
+                        .elasticY(true)  
+                        .gap(1)                      
                         .renderHorizontalGridLines(true)
                         .dimension(config.dimension)
                         .group(config.group)
@@ -392,8 +426,8 @@ module Idv {
                     case "scatter":
                       config.chart = dc.scatterPlot("#" + config.elementId);
                       config.chart
-                        .width(w)
-                        .height(h)
+                        .width(width)
+                        .height(height)
                         .symbolSize(3)
                         .x(d3.scale.linear())
                         .y(d3.scale.linear())  
@@ -408,8 +442,8 @@ module Idv {
                 case "row":
                     config.chart = dc.rowChart("#" + config.elementId);
                     config.chart
-                        .width(w)
-                        .height(h)
+                        .width(width)
+                        .height(height)
                         .gap(1)
                         .elasticX(true)
                         .dimension(config.dimension)
