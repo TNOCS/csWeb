@@ -38,7 +38,8 @@ module csComp.Services {
                 this.camera = this.viewer.camera;
                 this.scene  = this.viewer.scene;
                 this.scene.globe.enableLighting = true;
-                this.scene.globe.depthTestAgainstTerrain = true;
+                // Only depth test when we are dealing with our own terrain (https://cesiumjs.org/Cesium/Build/Documentation/Globe.html)
+                this.scene.globe.depthTestAgainstTerrain = typeof baseLayer.cesium_tileUrl !== 'undefined';
 
                 setTimeout(() => {
                     for (var i = 0; i < this.service.project.features.length; ++i)
@@ -122,8 +123,6 @@ module csComp.Services {
                     requestWaterMask:     false,
                     requestVertexNormals: true
                 });
-            } else {
-                this.viewer.terrainProvider = null;
             }
         }
 
@@ -388,15 +387,17 @@ module csComp.Services {
                 case 'MULTIPOINT':
                     let position = Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0], feature.geometry.coordinates[1], feature.geometry.coordinates[2]);
                     entity.position = position;
-                    entity.point.position = position;
-                    entity.point.color = fillColor;
-                    entity.point.outlineColor = Cesium.Color.fromCssColorString(effStyle.strokeColor);
-                    entity.point.outlineWidth = effStyle.strokeWidth;
+                    if (entity.point) {
+                        entity.point.position     = position;
+                        entity.point.color        = fillColor;
+                        entity.point.outlineColor = Cesium.Color.fromCssColorString(effStyle.strokeColor);
+                        entity.point.outlineWidth = effStyle.strokeWidth;
+                    }
                     break;
 
                 case 'POLYGON':
                 case 'MULTIPOLYGON':
-                    entity.polygon.material = fillColor;
+                    entity.polygon.material     = fillColor;
                     entity.polygon.outlineColor = Cesium.Color.fromCssColorString(effStyle.strokeColor);
                     // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
                     entity.polygon.outlineWidth = effStyle.strokeWidth;
@@ -452,29 +453,29 @@ module csComp.Services {
                     if (typeof style.iconUri !== 'undefined' && !effStyle.modelUri) {
                         // a billboard is an icon for a feature
                         entity.billboard = {
-                            image: style.iconUri,
-                            width: effStyle.iconWidth,
+                            image:  style.iconUri,
+                            width:  effStyle.iconWidth,
                             height: effStyle.iconHeight
                         };
                         // we draw this point very large because it serves as a background for the billboards
                         pixelSize = 35;
+                    } else {
+                        entity.point = {
+                            pixelSize: pixelSize,
+                            color: fillColor,
+                            outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
+                            outlineWidth: effStyle.strokeWidth
+                        };
                     }
 
                     // if there is no icon, a PointGraphics object is used as a fallback mechanism
-                    entity.position = Cesium.Cartesian3.fromDegrees(
+                    let position = Cesium.Cartesian3.fromDegrees(
                         feature.geometry.coordinates[0],
                         feature.geometry.coordinates[1],
                         feature.geometry.coordinates[2] || this.getHeightAboveSeaLevel(feature));
+                    entity.position    = position;
+                    //entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(position, effStyle.rotate, 0, 0);
 
-                    entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(entity.position, effStyle.rotate, 0, 0);
-
-                    entity.point = {
-                        pixelSize: pixelSize,
-                        position: entity.position,
-                        color: fillColor,
-                        outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
-                        outlineWidth: effStyle.strokeWidth
-                    };
                     break;
 
                 case 'MULTIPOINT':
@@ -484,7 +485,10 @@ module csComp.Services {
 
                         entity_multi.point = {
                             pixelSize: pixelSize,
-                            position: Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[i][0], feature.geometry.coordinates[i][1], feature.geometry.coordinates[i][2]),
+                            position: Cesium.Cartesian3.fromDegrees(
+                                feature.geometry.coordinates[i][0],
+                                feature.geometry.coordinates[i][1], 
+                                feature.geometry.coordinates[i][2] || this.getHeightAboveSeaLevel(feature)),
                             color: fillColor,
                             outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
                             outlineWidth: effStyle.strokeWidth
@@ -502,7 +506,7 @@ module csComp.Services {
                         hierarchy:    this.createPolygon(feature.geometry.coordinates).hierarchy,
                         material:     fillColor,
                         outline:      style.stroke,
-                        outlineColor: Cesium.Color.                                               fromCssColorString(effStyle.strokeColor),
+                        outlineColor: Cesium.Color.fromCssColorString(effStyle.strokeColor),
                         // does not do anything on windows webGL: http://stackoverflow.com/questions/25394677/how-do-you-change-the-width-on-an-ellipseoutlinegeometry-in-cesium-map/25405483#25405483
                         outlineWidth: effStyle.strokeWidth
                     });
@@ -589,7 +593,7 @@ module csComp.Services {
             }
 
             //account for rotation
-            if (effStyle.rotate !== 0) {
+            if (effStyle.rotate) {
                 var headingQuaternion = Cesium
                     .Transforms
                     .headingPitchRollQuaternion(Cesium.Cartesian3.fromDegrees(feature.geometry.coordinates[0],
