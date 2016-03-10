@@ -271,19 +271,17 @@ body,
     list-style-type: none;
     height: 40px;
 }
-.legend-color-square {
+.legend-color-square { 
     display: inline;
     width: 20px;
-    height: 20px;
-    background: #4cff00;
+    height: 20px;    
     position: relative;
     left: -40px;
 }
 .legend-color-gradient-rect {
     display: inline;
     width: 30px;
-    height: 40px;
-    background: #4cff00;
+    height: 40px;    
     position: relative;
     left: -40px;
 }
@@ -1017,6 +1015,13 @@ body,
 .button-title
 {
     font-size: 20px;
+}
+
+.button-legend-label
+{
+    float:left;
+    font-size:10px;
+    margin-right:4px;
 }
 
 

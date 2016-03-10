@@ -646,6 +646,16 @@ module csComp.Services {
                 }
             ]);
         }
+        
+        /// If a layer has a default legend defined it will lookup the resource and return the legend 
+        public getLayerLegend(l: ProjectLayer): Legend {
+            var tr = this.findResourceByLayer(l);
+            if (tr && tr.legends) {
+                if (tr.legends.hasOwnProperty(l.defaultLegend)) return <csComp.Services.Legend>tr.legends[l.defaultLegend];
+            }
+            return null;
+
+        }
 
         public evaluateLayerExpressions(l: ProjectLayer, fTypes: {[key: string] : IFeatureType}) {
             this.expressionService.evalLayer(l, fTypes);

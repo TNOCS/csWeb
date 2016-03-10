@@ -41,9 +41,13 @@ module ButtonWidget {
         layer: string;
         group: string;
         property: string;
+        showLegend : boolean;
+        _legend : csComp.Services.Legend;
         _layer : csComp.Services.ProjectLayer;
         _disabled : boolean;
         _active : boolean;
+        _firstLegendLabel : string;
+        _lastLegendLabel : string;
     }
 
     export interface IButtonData {
@@ -110,6 +114,14 @@ module ButtonWidget {
 
         private checkLayer(b : IButton) {
             b._layer = this.layerService.findLayer(b.layer);
+            if (b.showLegend && b._layer.defaultLegend) {
+                b._legend = this.layerService.getLayerLegend(b._layer);
+                if (b._legend && b._legend.legendEntries && b._legend.legendEntries.length>0)
+                {
+                    b._firstLegendLabel = b._legend.legendEntries[b._legend.legendEntries.length-1].label;
+                    b._lastLegendLabel = b._legend.legendEntries[0].label; 
+                }
+            }                        
                         
             if (typeof b._layer !== 'undefined') {
                 b._disabled = false;

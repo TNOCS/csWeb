@@ -63,12 +63,10 @@ module Legend {
                 this.$messageBus.subscribe("layer", (a, l: csComp.Services.ProjectLayer) => {
                     if (a === "activated")
                     { $scope.legend = null;
+                        
                      if (l && l.defaultLegend) {
-                        var tr = this.$layerService.findResourceByLayer(l);
-                        if (tr && tr.legends) { 
-                            if (tr.legends.hasOwnProperty(l.defaultLegend)) $scope.legend = <csComp.Services.Legend>tr.legends[l.defaultLegend];
-                        }
-
+                         $scope.legend = this.$layerService.getLayerLegend(l);
+                        
                         console.log('activate new layer ' + l.title);
                         
                     }
