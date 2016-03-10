@@ -1,7 +1,9 @@
-<a ng-click="vm.click()" class="s3d button-container" ng-class="{'button-container-down': vm.active}">{{data.title}}
-    <div ng-show="vm.layer.isLoading" class="spinner" style="position:absolute;right:3px;top:-10px">
+<div ng-repeat="b in data.buttons" ng-click="$parent.vm.click(b)">
+    <a  class="s3d button-container" ng-class="{'button-container-down': b._active}">{{b.title}}
+    <div ng-show="b._layer.isLoading" class="spinner" style="position:absolute;right:3px;top:-10px">
                                     <div class="bounce1" style="background:white"></div>
                                     <div class="bounce2" style="background:white"></div>
                                     <div class="bounce3" style="background:white"></div>
                                 </div>
 </a>
+</div>

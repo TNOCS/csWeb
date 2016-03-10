@@ -34,21 +34,26 @@ module ButtonWidget {
         id: string;
         name: string;
     }
-
-    export interface IButtonData {
+    
+    export interface IButton{
         title: string;
         action: string;
         layer: string;
         group: string;
         property: string;
+        _layer : csComp.Services.ProjectLayer;
+        _disabled : boolean;
+        _active : boolean;
+    }
 
+    export interface IButtonData {
+        buttons : IButton[];        
     }
 
     export class ButtonWidgetCtrl {
 
-        public disabled = false;
-        public active = false;
-        public layer : csComp.Services.ProjectLayer;
+        
+        
 
         public static $inject = [
             '$scope',
@@ -70,73 +75,84 @@ module ButtonWidget {
 
             var par = <any>$scope.$parent;
             $scope.data = <IButtonData>par.widget.data;
-
-            switch ($scope.data.action) {
+            
+            if (typeof $scope.data.buttons === 'undefined')
+            {
+                $scope.data.buttons = [ ];                
+            }
+            
+            $scope.data.buttons.forEach(b =>
+            {
+                switch (b.action) {
                 case "Activate Layer":
-                    this.checkLayer($scope.data.layer);
-                    this.messageBusService.subscribe("layer", (a, l) => this.checkLayer($scope.data.layer));
+                    this.checkLayer(b);
+                    this.messageBusService.subscribe("layer", (a, l) => this.checkLayer(b));
                     break;
                 case "Activate Style":
-                    this.checkStyle();
-                    this.messageBusService.subscribe("updatelegend", (a, l) => this.checkStyle());
+                    this.checkStyle(b);
+                    this.messageBusService.subscribe("updatelegend", (a, l) => this.checkStyle(b));
                     break;
                 case "Activate Baselayer" :
-                    this.checkBaselayer(); 
-                    this.messageBusService.subscribe("baselayer", (a, l) => this.checkBaselayer()); 
+                    this.checkBaselayer(b); 
+                    this.messageBusService.subscribe("baselayer", (a, l) => this.checkBaselayer(b)); 
                     break;
             }
+                
+            });
+
+            
         }
         
-        private checkBaselayer()
+        private checkBaselayer(b : IButton)
         {
-            this.active = this.layerService.$mapService.activeBaseLayerId === this.$scope.data.layer;
+            b._active = this.layerService.$mapService.activeBaseLayerId === b.layer;
         }
 
-        private checkLayer(layerId: string) {
-            this.layer = this.layerService.findLayer(layerId);
+        private checkLayer(b : IButton) {
+            b._layer = this.layerService.findLayer(b.layer);
                         
-            if (typeof this.layer !== 'undefined') {
-                this.disabled = false;
-                this.active = this.layer.enabled;
+            if (typeof b._layer !== 'undefined') {
+                b._disabled = false;
+                b._active = b._layer.enabled;
             }
             else {
-                this.disabled = true;
+                b._disabled = true;
             }
         }
 
-        private checkStyle() {
-            var group = this.layerService.findGroupById(this.$scope.data.group);
-            var prop = this.$scope.data.property;
+        private checkStyle(b : IButton) {
+            var group = this.layerService.findGroupById(b.group);
+            var prop = b.property;
             if (prop.indexOf("#")>-1) prop = prop.split("#")[1];
             if (typeof group !== 'undefined') {
                 var selected = group.styles.filter(gs=>{
                     return gs.property === prop});
-                this.active = selected.length>0;
+                b._active = selected.length>0;
             }
         } 
 
-        public click() {
-            switch (this.$scope.data.action) {
+        public click(b : IButton) {
+            switch (b.action) {
                 case "Activate Layer":
-                    var pl = this.layerService.findLayer(this.$scope.data.layer);
+                    var pl = this.layerService.findLayer(b.layer);
                     if (typeof pl !== 'undefined') {
                         this.layerService.addLayer(pl);
                         pl.enabled = true;
                     }
                     break;
                 case "Activate Style":
-                    var group = this.layerService.findGroupById(this.$scope.data.group);
+                    var group = this.layerService.findGroupById(b.group);
                     if (typeof group !== 'undefined') {
-                        var propType = this.layerService.findPropertyTypeById(this.$scope.data.property);
+                        var propType = this.layerService.findPropertyTypeById(b.property);
                         if (typeof propType !== 'undefined') {
                             this.layerService.setGroupStyle(group, propType);                            
                         }
                     }
                     break;
                 case "Activate Baselayer" :
-                    var layer : csComp.Services.BaseLayer = this.layerService.$mapService.getBaselayer(this.$scope.data.layer);
+                    var layer : csComp.Services.BaseLayer = this.layerService.$mapService.getBaselayer(b.layer);
                     this.layerService.activeMapRenderer.changeBaseLayer(layer);
-                    this.layerService.$mapService.changeBaseLayer(this.$scope.data.layer);
+                    this.layerService.$mapService.changeBaseLayer(b.layer);
                     break;
             }
 
