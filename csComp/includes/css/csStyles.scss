@@ -456,7 +456,6 @@ body,
     width: 100%;
     height: 100%;
     pointer-events: none;
-    margin-top: -10px;
 }
 .dashboard-option {
     color: white;
@@ -992,12 +991,12 @@ body,
     display: block;
     
 }
-#featureprops-content:before {
-    display: block;
-    content: "";
-    height: 50px;
-    margin: -50px 0 0;
-}
+// #featureprops-content:before {
+//     display: block;
+//     content: "";
+//     height: 50px;
+//     margin: -50px 0 0;
+// }
 #featureprops-content:hover leftpanel-header-button-container {
     opacity: 0.5;
 }
@@ -1597,20 +1596,10 @@ div.leaflet-marker-icon.location-filter.move-marker {
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAARVBMVEUAAABOUVRPUVNPUVRPUlVQUlRRVFdRVFhSVFZSVFdSVFhiZGdjZGRkZGVvcHFwcHFwcHJwcXJxcXFxcXJxcXOCg4SDg4NMud+xAAAAAXRSTlMAQObYZgAAAE5JREFUeNqNzjkSgCAQRNFmU3EYEFnuf1QpBlPLDl74q6EPDcFsBpwYAkVCaQVC7hlfc95NJMUpYBEZ9wi8/KioXQH2tAjrxuAiCdReJw9PVAP1TnoDEQAAAABJRU5ErkJggg==) no-repeat;
     cursor: move;
 }
-
-/*@font-face {
-  font-family: "ROSansBold";
-  src: url("../webfonts/ROsanswebtextbold.eot?#iefix") format("embedded-opentype"), url("../webfonts/ROsanswebtextbold.ttf") format("opentype"), url("../webfonts/ROsanswebtextbold.woff") format("woff");
-  font-style: normal;
-  font-weight: bold;
+.sidebar {
+    position: absolute;
+    width: 350px;
 }
-
-@font-face {
-  font-family: "ROSansItalic";
-  src: url("../webfonts/ROsanswebtextitalic.eot?#iefix") format("embedded-opentype"), url("../webfonts/ROsanswebtextitalic.ttf") format("opentype"), url("../webfonts/ROsanswebtextitalic.woff") format("woff");
-  font-style: italic;
-  font-weight: normal;
-}*/
 .sidebar-wrapper {
     height: 100%;
     position: relative;
@@ -1855,12 +1844,12 @@ input[type="checkbox"] {
     position: absolute;
     height: 100%;
     max-width: 400px;
-    /*margin-top: 50px;*/
+    margin-top: 50px;
     display: table-cell;
     pointer-events: all;
     right: 0;
     top: 0;
-        z-index: 2; 
+    z-index: 2; 
 }
 #rightpanelTabs {
 
