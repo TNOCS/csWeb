@@ -4,6 +4,7 @@ module csComp.Services {
         service: LayerService;
         $messageBusService: MessageBusService;
         map: L.Map;
+        baseLayer: L.ILayer;
 
         private popup: L.Popup;
         private cntrlIsPressed = false;
@@ -166,20 +167,20 @@ module csComp.Services {
             }
         }
 
-        baseLayer: L.ILayer;
+
 
         public changeBaseLayer(layerObj: BaseLayer, force: boolean = false) {
             if (!force && layerObj === this.service.$mapService.activeBaseLayer) return;
-            if (this.baseLayer) this.map.removeLayer(this.baseLayer);
-            this.baseLayer = this.createBaseLayer(layerObj);
-
-            this.map.addLayer(this.baseLayer);
+            if (this.baseLayer && this.map.hasLayer(this.baseLayer)) this.map.removeLayer(this.baseLayer);
+            this.baseLayer = this.createBaseLayer(layerObj);            
+            this.map.addLayer(this.baseLayer, true);
+            (<any>this.baseLayer).bringToBack();            
 
             this.map.setZoom(this.service.map.map.getZoom());
             this.map.fire('baselayerchange', { layer: this.baseLayer });
         }
 
-        private createBaseLayer(layerObj: BaseLayer) {
+        private createBaseLayer(layerObj: BaseLayer) : L.TileLayer {
             var options: L.TileLayerOptions = { noWrap: true };
             options['subtitle'] = layerObj.subtitle;
             options['preview'] = layerObj.preview;
@@ -490,7 +491,7 @@ module csComp.Services {
                 length: valueLength + title.length,
                 content: content + `<tr><td><div class="fa ${isFilter ? 'fa-filter' : 'fa-paint-brush'}"></td><td>${title}</td><td>${value}</td></tr>`
             };
-        } 
+        }
 
         generateTooltipContent(e: L.LeafletMouseEvent, group: ProjectGroup) {
             var layer = e.target;
@@ -533,7 +534,7 @@ module csComp.Services {
          * Show tooltip with name, styles & filters.
          */
         showFeatureTooltip(e: L.LeafletMouseEvent, group: ProjectGroup) {
-            var layer   = e.target;
+            var layer = e.target;
             var feature = <Feature>layer.feature;
             var tooltip = this.generateTooltipContent(e, group);
 
