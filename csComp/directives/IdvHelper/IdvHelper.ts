@@ -8,7 +8,8 @@ module Idv {
         title?: string;
         bins? : number;
         type?: string;
-        property: string;
+        property?: string;
+        properties? : string[];
         secondProperty? : string;
         dimension?: any;
         columns?:string[];
@@ -36,6 +37,7 @@ module Idv {
     export class Idv {
 
         public static days = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
+        public static months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
         public config: ScanConfig;
         public ndx: CrossFilter.CrossFilter<any>;
         public gridster;
@@ -275,7 +277,7 @@ module Idv {
             dc.renderAll();
         }
 
-
+        
         public addChart(config: Idv.ChartConfig) {
             
             if (typeof config.enabled === 'undefined') config.enabled = true;
@@ -288,6 +290,12 @@ module Idv {
             if (!config.title) config.title = config.property; 
             
             if (!config.type) config.type = "row";
+            if (config.type === "search")
+            {
+                
+            }
+            else
+            {
             var w = this.layerService.$compile("<li><header class='chart-title'><div class='fa fa-times' style='float:right;cursor:pointer' ng-click='vm.scan.reset(\"" + config.elementId + "\")'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>")(this.scope);
             this.gridster.add_widget(w,config.width,config.height); //"<li><header class='chart-title'><div class='fa fa-times' style='float:right' ng-click='vm.reset()'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>",config.width,config.height);
             //$("#" + config.containerId).append(newChart);
@@ -311,8 +319,12 @@ module Idv {
                             break;
                     }                    
                     break;
+                case "pie" :
+                    config.dimension = this.ndx.dimension (d => {return config.property});
+                    config.group = config.dimension.group().count(); 
+                    break;
                 case "scatter" :
-                    config.dimension = this.ndx.dimension(function(d) {
+                    config.dimension = this.ndx.dimension((d)=> {
                         var r =[+d[config.property],+d[config.secondProperty]]  
                         return r });
                     config.group = config.dimension.group();
@@ -332,7 +344,7 @@ module Idv {
                     config.group = config.dimension.group().reduceCount();
                     break;                              
                 case "count":
-                    config.dimension = this.ndx.dimension(function(d) { return d[config.property] });
+                    config.dimension = this.ndx.dimension((d)=> { return d[config.property] });
                     config.group = config.dimension.group().reduceCount();
                     break;
             }
@@ -344,25 +356,74 @@ module Idv {
             
 
             switch (config.type) {
+                case "calendar":
+                
+                var calendarDimension = this.ndx.dimension((datum)=> {
+        //("%Y-%m-%d")
+        return datum.D;
+    });
+                
+                var calendarGroup = calendarDimension.group().reduce(
+    /* callback for when data is added to the current filter results */
+    (p, v) => {
+        ++p.count;   
+        p.bezoekers += v.Bezoekers;    
+        return p;
+    },
+    /* callback for when data is removed from the current filter results */
+    (p, v)=> {
+        --p.count;     
+        p.bezoekers -= v.Bezoekers;
+        return p;
+    },
+    /* initialize p */
+    ()=> {
+        return {count: 0, bezoekers : 0};
+    }
+);
+                
+                    config.chart = (<any>dc).calendarChart("#" + config.elementId);
+                    config.chart
+                        .width(width)
+                        .height(height)
+                        .dimension(calendarDimension)
+                        .group(calendarGroup)
+                        .valueAccessor(function (p) {
+                          return p[0].value.Bezoekers;
+                        })
+                    config.chart.rangeYears([2012,2016]).renderTitle(true);                         
+                        
+                    
+                    break;
                 case "table":
+                var c = [];
+        config.columns.forEach((ci : any)=>{
+            c.push({ label : ci.title, format : (d)=> {
+                if (ci.hasOwnProperty("type") && ci["type"] === "number") return d3.round(d[ci.property],1);                 
+                
+            return d[ci.property] }});
+        })
                     config.chart = dc.dataTable("#" + config.elementId);
-                    config.chart                     
+                    config.chart  
+                        .width(width)
+                        .height(height)                   
                         .dimension(config.dimension) 
                     .group((d)=> {
                     //      var format = d3.format('02d');
                         var date = d[config.time];
-                        return "hoi";
+                        return "";
             }) 
         
         // (_optional_) max number of records to be shown, `default = 25`
-        .size(18)
+        
         // There are several ways to specify the columns; see the data-table documentation.
         // This code demonstrates generating the column header automatically based on the columns.
-        .columns(config.columns)
+        
+        .columns(c)
 
         // (_optional_) sort using the given field, `default = function(d){return d;}`
-        .sortBy(function (d) {
-            return d[config.time];
+        .sortBy((d)=> {
+            return -d.Bezoekers;
         })
         // (_optional_) sort order, `default = d3.ascending`
         .order(d3.ascending);        
@@ -408,21 +469,44 @@ module Idv {
                             });
                         });
                     break;
+                case "pie":
+                    config.chart = dc.pieChart("#" + config.elementId);
+                    config.chart
+                        .width(width)
+                        .height(height)
+                        .slicesCap(10)
+                        .innerRadius(10)
+                        .dimension(config.dimension)
+                        .group(config.group)                                                
+                    break;
                  case "bar":
                     config.chart = dc.barChart("#" + config.elementId);
                     config.chart
                         .width(width)
                         .height(height)
-                        .x(d3.scale.linear())
+                        .x(d3.scale.linear())      
+                        .centerBar(false)
+                        .xUnits(function(){return 20;})                                          
                         .elasticX(true)                                                                                                
-                        .elasticY(true)  
-                        .gap(1)                      
+                        .elasticY(true)                                                                  
                         .renderHorizontalGridLines(true)
                         .dimension(config.dimension)
-                        .group(config.group)
-
-                    
-                    break;
+                        .group(config.group)                    
+                        break;
+                   case "stackedbar":
+                    config.chart = dc.barChart("#" + config.elementId);
+                    config.chart
+                        .width(width)
+                        .height(height)
+                        .x(d3.scale.linear())      
+                        .centerBar(false)
+                        .xUnits(function(){return 20;})                                          
+                        .elasticX(true)                                                                                                
+                        .elasticY(true)                                                                  
+                        .renderHorizontalGridLines(true)
+                        .dimension(config.dimension)
+                        .group(config.group)                    
+                        break;
                     case "scatter":
                       config.chart = dc.scatterPlot("#" + config.elementId);
                       config.chart
@@ -458,6 +542,11 @@ module Idv {
                                 return Idv.days.indexOf(d.key);
                             });
                             break;
+                            case "months":
+                            config.chart.ordering(function(d) {
+                                return Idv.months.indexOf(d.key);
+                            });
+                            break;
                         case "value":
                             config.chart.ordering(function(d) {
                                 return -d.value;
@@ -481,6 +570,7 @@ module Idv {
 
 
             console.log("Add chart " + config.title);
+        }
         }
 
     }
