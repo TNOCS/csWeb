@@ -170,7 +170,7 @@ module csComp.Services {
             this.$messageBusService.publish('dashboard-' + container, 'activated', dashboard);
             this.$location.search('dashboard', dashboard.id);
         }
-        
+
         public closeContainer()
         {
             alert('close container'); 
@@ -184,7 +184,7 @@ module csComp.Services {
                 return;
             }
             this.$layerService.visual.rightPanelVisible = true;
-            
+
             $('#' + tab.container + '-tab').remove();
             var c = $('#' + content);
             try {
@@ -206,17 +206,17 @@ module csComp.Services {
             $('#' + tab.container + '-tab-a').click(() => {
                 this.$layerService.visual.rightPanelVisible = true;
                 console.log('rp visible');
-                if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); } 
+                if (this.$rootScope.$root.$$phase !== '$apply' && this.$rootScope.$root.$$phase !== '$digest') { this.$rootScope.$apply(); } 
             });
             var newScope = this.$rootScope;
             (<any>newScope).data = tab.data;
-            var widgetElement = this.$compile('<' + tab.directive + '></' + tab.directive + '>')(newScope);            
+            var widgetElement = this.$compile('<' + tab.directive + '></' + tab.directive + '>')(newScope);
             $('#' + content).append(widgetElement);
             if (tab.canClose)
-            {                
+            {
                 $('#' + content).append('<div id="closebutton-' + tab.container + '" class="fa fa-times rightpanel-closebutton" />');
-                $('#closebutton-' + tab.container).click(()=>{
-                   this.deactivateTabContainer(tab.container); 
+                $('#closebutton-' + tab.container).click(() => {
+                   this.deactivateTabContainer(tab.container);
                 });
             }
             (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
@@ -238,7 +238,7 @@ module csComp.Services {
                     // }
                 }
             } catch (e) { return; }
-            if (this.$rootScope.$root.$$phase != '$apply' && this.$rootScope.$root.$$phase != '$digest') { this.$rootScope.$apply(); } 
+            if (this.$rootScope.$root.$$phase !== '$apply' && this.$rootScope.$root.$$phase !== '$digest') { this.$rootScope.$apply(); } 
         }
 
         public deactivateTab(tab: RightPanelTab) {
