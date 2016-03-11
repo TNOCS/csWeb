@@ -2,6 +2,8 @@
 /*custom fonts - Bitter, Montserrat*/
 $background-dark: #42145f;
 $background-light: #b5a3c1;
+$navbar-height: 50px;
+
 ::-webkit-scrollbar {
     width: 5px;
 }
@@ -213,6 +215,7 @@ body,
     padding: 0;
 }
 .rightpanelTabs {
+    pointer-events: none;
     margin-right: 0;
     width: 50px;
     height: 100%;
@@ -233,6 +236,7 @@ body,
     right: 0;
 }
 .rightpanelTabPanes {
+    pointer-events: all;
     position: absolute;
     vertical-align: top;
     width: 350px;
@@ -1592,8 +1596,8 @@ div.leaflet-marker-icon.location-filter.move-marker {
     cursor: move;
 }
 .sidebar {
+    pointer-events: none;
     position: absolute;
-    width: 350px;
 }
 .sidebar-wrapper {
     height: 100%;
@@ -1618,8 +1622,12 @@ div.leaflet-marker-icon.location-filter.move-marker {
     transition: all 0.25s ease-out;
     width: 100%;
 }
-body {
-    padding-top: 50px;
+.body {
+    position: absolute;
+    width: 100%;
+    top: $navbar-height;
+    bottom: 0;    
+    // padding-top: 50px;
 }
 input[type="radio"],
 input[type="checkbox"] {
@@ -1838,16 +1846,14 @@ input[type="checkbox"] {
 .rightpanel {
     position: absolute;
     height: 100%;
-    max-width: 400px;
-    margin-top: 50px;
-    display: table-cell;
-    pointer-events: all;
+    width: 100%;
+    // max-width: 400px;
+    // margin-top: 50px;
+    // display: table-cell;
+    pointer-events: none;
     right: 0;
     top: 0;
     z-index: 2; 
-}
-#rightpanelTabs {
-
 }
 #rightpanelTabPanes {
     @include box-shadow(-2px,0,10px,rgba(0,0,0,.2));
@@ -2315,6 +2321,7 @@ input[type="checkbox"] {
     margin-right: 0;
 }
 #rightpanelTabContainer.tabs-left > .nav-tabs {
+    pointer-events: all;    
     border-right: 1px solid #ddd;
     float: left;
 }
