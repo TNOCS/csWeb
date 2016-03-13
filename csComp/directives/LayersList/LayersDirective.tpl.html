@@ -12,9 +12,11 @@
             <span translate="CREATELAYER" />
         </h3>
         <div style="background:white;margin-right:10px">
-            <div class="form-group">
+            <form name="createNewLayerForm" ng-submit="vm.createNewLayer()" novalidate>
+            <div class="form-group" ng-class="{ 'has-error': createNewLayerForm.layerTitle.$invalid }">
                 <label for="groupDescription">Title</label>
-                <input type="text" class="form-control" id="layerTitle" ng-model="vm.newLayer.title" placeholder="Enter title layer">
+                <input type="text" class="form-control"  name="layerTitle" id="layerTitle" ng-model="vm.newLayer.title" placeholder="Enter title layer" validtitle>                 
+                 <span class="help-block" ng-show="createNewLayerForm.layerTitle.$error.validtitle">Not a valid title</span>                 
             </div>
             <div class="form-group">
                 <label class="editor-title input-xlarge">Types</label>
@@ -26,12 +28,14 @@
                 <select data-ng-model="vm.layerGroup" ng-options="g.id as g.title for g in vm.groups" class="form-control tt-input editor-text-input"
                 required />
             </div>
-            <div class="form-group" ng-show="vm.layerGroup=='<new>'">
+            <div class="form-group" ng-if="vm.layerGroup=='<new>'" ng-class="{ 'has-error': createNewLayerForm.groupTitle.$invalid }" >
                 <label class="editor-title input-xlarge">New Group</label>
-                <input type="text" class="form-control" id="layerTitle" ng-model="vm.newGroup" placeholder="Enter group title">
+                <input type="text" class="form-control" name="groupTitle" id="groupTitle" ng-model="vm.newGroup" duplicategroup validtitle placeholder="Enter group title">
+                <span class="help-block" ng-show="createNewLayerForm.groupTitle.$error.duplicategroup">Duplicate Group</span>
+                <span class="help-block" ng-show="createNewLayerForm.groupTitle.$error.validtitle">Not a valid title</span>                    
             </div>
-            <button type="button" class="btn btn-primary" data-ng-click="vm.addLayer()">Next</button>
-
+            <button type="submit" ng-disabled="!createNewLayerForm.$valid" class="btn btn-primary">Create layer</button>
+            </form>
         </div>
     </div>
 

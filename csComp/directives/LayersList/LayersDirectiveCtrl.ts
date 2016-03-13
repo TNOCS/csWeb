@@ -339,14 +339,25 @@ module LayersDirective {
             this.newLayer.type = "dynamicgeojson";
         }
 
-        public addLayer() {
+        /// create new layer 
+        public createNewLayer() {
             //this.loadAvailableLayers();
             var group: csComp.Services.ProjectGroup;
-            if (this.layerGroup == "<new>") {
+            
+            // new group was selected
+            if (this.layerGroup === "<new>") {
                 group = new csComp.Services.ProjectGroup;
                 group.title = this.newGroup;
-                this.$layerService.project.groups.push(group);
-                this.$layerService.initGroup(group);
+                if (this.$layerService.project.groups.some(g=>g.title === this.newGroup))
+                {
+                    this.$messageBusService.notify("Error creating group","Group already exists");
+                    return;
+                }
+                else
+                {
+                    this.$layerService.project.groups.push(group);
+                    this.$layerService.initGroup(group);
+                }
             }
             else {
                 group = this.$layerService.findGroupById(this.layerGroup);
