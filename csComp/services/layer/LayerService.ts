@@ -2430,6 +2430,8 @@ module csComp.Services {
                 if (!this.directoryHandle) {
                     this.directoryHandle = this.$messageBusService.serverSubscribe('', 'directory', (sub: string, msg: any) => {
                         if (msg.action === 'subscribed') return;
+                        
+                        // received layer update
                         if (msg.action === 'layer' && msg.data && msg.data.item) {
                             // Disabled for single-project-solutions, as layers from excel2map get updated twice: on layer update and on project update
                             if (this.openSingleProject === false) {
@@ -2449,6 +2451,8 @@ module csComp.Services {
                                 }
                             }
                         }
+                        
+                        // received project update
                         if (msg.action === 'project' && msg.data && msg.data.item) {
                             var project = <Project>msg.data.item;
                             if (project) {
@@ -2464,8 +2468,13 @@ module csComp.Services {
                                 } else {
                                     if (project.id === this.project.id) {
                                         this.$messageBusService.notify('New update available for project ', project.title);
+                                        // this.$messageBusService.confirm('The project has been updated, do you want to update it?', 'yes',()=>{
+                                        //     this.openProject(solutionProject, null, project);    
+                                        // });
+                                        //this.openProject(solutionProject, null, project);
+                                        
                                         //var solProj = this.solution.projects.filter(sp => { return (sp.title === project.title) }).pop();
-                                        this.openProject(solutionProject, null, project);
+                                        
                                     }
                                 }
                             }
