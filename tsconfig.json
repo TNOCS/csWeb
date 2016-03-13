@@ -165,6 +165,7 @@
         "csComp/directives/Widgets/SimTimeController/SimTimeControllerEditCtrl.ts",
         "csComp/directives/Widgets/TableWidget/TableWidget.ts",
         "csComp/directives/Widgets/TableWidget/TableWidgetCtrl.ts",
+        "csComp/helpers/ValidationDirectives.ts", 
         "csComp/helpers/ColorExt.ts", "csComp/helpers/conrec.ts",
         "csComp/helpers/DateExt.ts", "csComp/helpers/Dictionary.ts",
         "csComp/helpers/esriJsonConverter.ts",
