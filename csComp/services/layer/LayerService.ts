@@ -22,7 +22,7 @@ module csComp.Services {
         propertyTypeData: { [key: string]: IPropertyType; };
         
         /** website is running in touch mode */
-        touchMode : boolean = true;
+        touchMode : boolean = false;
 
         project: Project;
         projectUrl: SolutionProject; // URL of the current project
