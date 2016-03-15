@@ -1254,7 +1254,7 @@ export class ApiManager extends events.EventEmitter {
             this.addKey(k, meta, () => { });
         }
 
-        if (!value.hasOwnProperty('time')) value['time'] = new Date().getTime();
+        if (typeof value === 'object' &&  !value.hasOwnProperty('time')) value['time'] = new Date().getTime();
         var s = this.findStorageForKeyId(keyId);
         if (s) s.updateKey(keyId, value, meta, () => callback());
 
