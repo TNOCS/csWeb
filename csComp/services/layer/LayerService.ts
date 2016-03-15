@@ -20,6 +20,9 @@ module csComp.Services {
         map: Services.MapService;
         _featureTypes: { [key: string]: IFeatureType; };
         propertyTypeData: { [key: string]: IPropertyType; };
+        
+        /** website is running in touch mode */
+        touchMode : boolean = true;
 
         project: Project;
         projectUrl: SolutionProject; // URL of the current project
@@ -1608,6 +1611,8 @@ module csComp.Services {
         }
 
         public setGroupStyle(group: ProjectGroup, property: IPropertyType) {
+            if (typeof property === 'undefined' || property === null) return;
+            if (typeof group === 'undefined' || group === null) return;
             var gs = new GroupStyle(this.$translate);
             gs.id = Helpers.getGuid();
             gs.title = property.title;
@@ -2600,7 +2605,7 @@ module csComp.Services {
 
         public toggleLayer(layer: ProjectLayer) {
             if (layer.group.oneLayerActive && this.findLoadedLayer(layer.id)) layer.enabled = false;
-            if (layer.enabled) {
+            if (typeof layer.enabled === "undefined" || layer.enabled) {
                 this.addLayer(layer);
             } else {
                 this.removeLayer(layer);
