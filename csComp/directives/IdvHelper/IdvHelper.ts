@@ -276,6 +276,11 @@ module Idv {
             })
             dc.renderAll();
         }
+        
+        public hasFilter(id) :  boolean
+        {
+            return true;
+        }
 
         
         public addChart(config: Idv.ChartConfig) {
@@ -292,11 +297,14 @@ module Idv {
             if (!config.type) config.type = "row";
             if (config.type === "search")
             {
-                
+                 
             }
             else
             {
-            var w = this.layerService.$compile("<li><header class='chart-title'><div class='fa fa-times' style='float:right;cursor:pointer' ng-click='vm.scan.reset(\"" + config.elementId + "\")'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>")(this.scope);
+                                
+                // var chartScope = this.scope.$new(true);
+                // (<any>chartScope).config = config;                
+                var w = this.layerService.$compile("<li><header class='chart-title'><div class='fa fa-times' style='float:right;cursor:pointer' ng-click='vm.scan.reset(\"" + config.elementId + "\")'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>")(this.scope);
             this.gridster.add_widget(w,config.width,config.height); //"<li><header class='chart-title'><div class='fa fa-times' style='float:right' ng-click='vm.reset()'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>",config.width,config.height);
             //$("#" + config.containerId).append(newChart);
             
@@ -311,6 +319,7 @@ module Idv {
                             config.group = config.dimension.group().reduce(this.reduceAddAvg(config.secondProperty), this.reduceRemoveAvg(config.secondProperty), this.reduceInitAvg);
                             break;
                         case "line":
+                        case "bar":
                             config.dimension = this.ndx.dimension((d) =>{ return d[config.time] });
                             config.group = config.dimension.group().reduce(this.reduceAddAvg(config.property), this.reduceRemoveAvg(config.property), this.reduceInitAvg);
                         case "time":
@@ -356,77 +365,29 @@ module Idv {
             
 
             switch (config.type) {
-                case "calendar":
-                
-                var calendarDimension = this.ndx.dimension((datum)=> {
-        //("%Y-%m-%d")
-        return datum.D;
-    });
-                
-                var calendarGroup = calendarDimension.group().reduce(
-    /* callback for when data is added to the current filter results */
-    (p, v) => {
-        ++p.count;   
-        p.bezoekers += v.Bezoekers;    
-        return p;
-    },
-    /* callback for when data is removed from the current filter results */
-    (p, v)=> {
-        --p.count;     
-        p.bezoekers -= v.Bezoekers;
-        return p;
-    },
-    /* initialize p */
-    ()=> {
-        return {count: 0, bezoekers : 0};
-    }
-);
-                
-                    config.chart = (<any>dc).calendarChart("#" + config.elementId);
-                    config.chart
-                        .width(width)
-                        .height(height)
-                        .dimension(calendarDimension)
-                        .group(calendarGroup)
-                        .valueAccessor(function (p) {
-                          return p[0].value.Bezoekers;
-                        })
-                    config.chart.rangeYears([2012,2016]).renderTitle(true);                         
-                        
-                    
-                    break;
+               
                 case "table":
-                var c = [];
-        config.columns.forEach((ci : any)=>{
-            c.push({ label : ci.title, format : (d)=> {
-                if (ci.hasOwnProperty("type") && ci["type"] === "number") return d3.round(d[ci.property],1);                 
-                
-            return d[ci.property] }});
-        })
+                    var c = [];
+                    config.columns.forEach((ci : any)=>{
+                        c.push({ label : ci.title, format : (d)=> {
+                            if (ci.hasOwnProperty("type") && ci["type"] === "number") return d3.round(d[ci.property],1);                                 
+                            return d[ci.property] }
+                        });
+                    })
                     config.chart = dc.dataTable("#" + config.elementId);
                     config.chart  
                         .width(width)
                         .height(height)                   
                         .dimension(config.dimension) 
-                    .group((d)=> {
-                    //      var format = d3.format('02d');
-                        var date = d[config.time];
-                        return "";
-            }) 
-        
-        // (_optional_) max number of records to be shown, `default = 25`
-        
-        // There are several ways to specify the columns; see the data-table documentation.
-        // This code demonstrates generating the column header automatically based on the columns.
-        
-        .columns(c)
-
-        // (_optional_) sort using the given field, `default = function(d){return d;}`
-        .sortBy((d)=> {
-            return -d.Bezoekers;
-        })
-        // (_optional_) sort order, `default = d3.ascending`
-        .order(d3.ascending);        
+                        .group((d)=> {                    
+                            var date = d[config.time];
+                            return "";
+                        })         
+                        .columns(c)
+                        .sortBy((d)=> {
+                            return -d.Bezoekers;
+                         })
+                        .order(d3.ascending);        
                     break;
                 case "time":
                     config.chart = dc.lineChart("#" + config.elementId);
@@ -465,6 +426,7 @@ module Idv {
                         .mouseZoomable(true)
                         .on('renderlet', function(chart) {
                             chart.selectAll('rect').on("click", function(d) {
+                                
                                 // console.log("click!", d);
                             });
                         });
@@ -485,7 +447,7 @@ module Idv {
                         .width(width)
                         .height(height)
                         .x(d3.scale.linear())      
-                        .centerBar(false)
+                        .centerBar(true)
                         .xUnits(function(){return 20;})                                          
                         .elasticX(true)                                                                                                
                         .elasticY(true)                                                                  
