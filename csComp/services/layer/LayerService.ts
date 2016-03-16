@@ -183,9 +183,14 @@ module csComp.Services {
         public updateLayerSensorLink(layer : ProjectLayer)
         {
             if (layer.sensorLink) {
+                    // create sensorlink
                      
-                    var link = layer.sensorLink.url + "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
-                    if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;
+                    var link = layer.sensorLink.url;
+                    if (!this.project.activeDashboard.isLive)
+                    {
+                      link+= "&tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
+                      //if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;  
+                    }                     
                     layer._gui['lastSensorLink'] = link;
                     console.log('downloading ' + link);
                     layer._gui["loadingSensorLink"] = true;
@@ -200,10 +205,10 @@ module csComp.Services {
                             
                             var featureLookup = []
                             
-                            // data.features.forEach(f =>{
-                            //    var index = _.findIndex(layer.data.features,((p : csComp.Services.IFeature)=> p.properties[layer.sensorLink.linkid] === f));
-                            //    if (index!==-1) featureLookup.push(index);                               
-                            // });
+                            data.features.forEach(f =>{
+                               var index = _.findIndex(layer.data.features,((p : csComp.Services.IFeature)=> p.properties[layer.sensorLink.linkid] === f));
+                               if (index!==-1) featureLookup.push(index);                               
+                            });
                             
                             for (var s in data.data)
                             {
@@ -213,12 +218,16 @@ module csComp.Services {
                                     for (var fi = 0;fi < sensordata[ti].length; fi++)
                                     {
                                         // get feature
-                                        var f = layer.data.features[fi];
+                                        var findex = featureLookup[fi];
+                                        if (findex>=0)
+                                        {
+                                        var f = layer.data.features[findex];
                                         if (f)
                                         {
                                             var value = sensordata[ti][fi];
                                         //if (value === -1) value = null;
                                             f.sensors[s].push(value);
+                                        }
                                         }
                                         
                                     }                                    
