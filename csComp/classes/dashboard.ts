@@ -238,6 +238,8 @@ module csComp.Services {
         baselayer:            string;
         viewBounds:           IBoundingBox;
         timeline:             DateRange;
+        /** this dashboards shows live data, needed for sensor apis */
+        isLive:               boolean;
         id:                   string;
         name:                 string;
         disabled:             boolean;
@@ -271,7 +273,8 @@ module csComp.Services {
                 viewBounds:           d.viewBounds,
                 widgets:              csComp.Helpers.serialize(d.widgets, BaseWidget.serializeableData),
                 visibleLeftMenuItems: d.visibleLeftMenuItems,
-                mobile:               d.mobile
+                mobile:               d.mobile,
+                isLive:               d.isLive
             }
         }
 
@@ -279,6 +282,7 @@ module csComp.Services {
             var res = <Dashboard>$.extend(new Dashboard(), input);
 
             res.widgets = [];
+            if (typeof input.isLive === 'undefined') input.isLive = false;
             if (input.widgets) input.widgets.forEach((w: IWidget) => {
                 this.addNewWidget(w, res, solution);
             });
