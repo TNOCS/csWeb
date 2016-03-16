@@ -142,6 +142,17 @@ module csComp.Services {
         locale?:   string;
         timeLine?: DateRange;
     }
+    
+    export enum authMethods
+    {
+        none,
+        local
+    }
+    
+    export interface Profile
+    {
+        authenticationMethod : authMethods;
+    }
 
     /** project configuration. */
     export class Project implements ISerializable<Project> {
@@ -153,6 +164,7 @@ module csComp.Services {
         storage:     string;
         url:         string;
         opacity:     number;
+        profile : Profile;
         /** true if a dynamic project and you want to subscribe to project changes using socket.io */
         isDynamic:         boolean;
         activeDashboard:   Dashboard;
@@ -232,6 +244,7 @@ module csComp.Services {
                 timeLine:          project.timeLine,
                 opacity:           project.opacity,
                 mcas:              project.mcas,
+                profile:           project.profile,
                 datasources:       csComp.Helpers.serialize<DataSource>(project.datasources, DataSource.serializeableData),
                 dashboards:        csComp.Helpers.serialize<Dashboard>(project.dashboards, Dashboard.serializeableData),
                 viewBounds:        project.viewBounds,
@@ -256,6 +269,8 @@ module csComp.Services {
             var res = <Project>jQuery.extend(new Project(), input);
             res.solution = input.solution;
             if (typeof input.exportModeSelectionEnabled === 'undefined' ) res.exportModeSelectionEnabled = true;
+            if (typeof input.profile === 'undefined') res.profile = <Profile>{};            
+            if (typeof res.profile.authenticationMethod === 'undefined') res.profile.authenticationMethod = authMethods.local;
             if (!input.opacity) { input.opacity = 100; }
             if (input.timeLine) { res.timeLine = DateRange.deserialize(input.timeLine); }// <DateRange>jQuery.extend(new DateRange(), input.timeLine);
             if (input.dashboards) {
