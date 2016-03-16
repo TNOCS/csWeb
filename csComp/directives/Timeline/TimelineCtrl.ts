@@ -138,7 +138,7 @@ module Timeline {
 
         private setFocusContainerDebounce = _.debounce((data) => {
             this.updateFocusTimeContainer(data);
-            console.log(`Moved timeline and focuscontainer to ${data}`);
+            //console.log(`Moved timeline and focuscontainer to ${data}`);
         }, 300, true);
 
         private setItems(items: any[]) {
@@ -154,7 +154,7 @@ module Timeline {
         }
 
         private updateFeatures() {
-            console.log('timeline: updating features');
+            //console.log('timeline: updating features');
             //this.items = [];
             //this.$scope.timeline.redraw();
             var temp: string[] = [];

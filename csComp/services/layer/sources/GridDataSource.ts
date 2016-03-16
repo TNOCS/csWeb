@@ -176,7 +176,9 @@ module csComp.Services {
                 ]);
             }).fail((err) => {
                 layer.isLoading = false;
-                console.log(`Failed loading layer ${layer.title} due to ${err}.`)
+                this.service.$messageBusService.notify('ERROR loading ' + layer.title, '\nwhile loading: ' + err.statusText);
+                this.service.$messageBusService.publish('layer', 'error');
+                console.log(`Failed loading layer ${layer.title} due to ${JSON.stringify(err)}.`);
             });
         }
 

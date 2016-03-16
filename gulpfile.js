@@ -274,6 +274,19 @@ gulp.task('init', function (cb) {
         cb);
 });
 
+gulp.task('quick', function (cb) {
+    runSequence(
+        'tsconfig',
+        'tsc',
+        'built_csComp',
+        'built_csComp.d.ts',
+        'sass',
+        'create_templateCache',
+        'include_css',
+        'include_images',
+        cb);
+});
+
 // Initiallize the project and update the npm and bower package folders
 gulp.task('update_packages', [
     'init',
