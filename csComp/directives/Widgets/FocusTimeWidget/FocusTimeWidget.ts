@@ -107,7 +107,7 @@ module FocusTimeWidget {
                 if (this.layer._gui.hasOwnProperty("timestamp"))
                     this.$scope.$evalAsync(() => {
                         this.dateFormat = "dd-MM-yyyy";
-                        this.timeFormat = "hh:mm";
+                        this.timeFormat = "HH:mm ";
                         this.time = this.layer._gui["timestamp"];
                     });
         }
