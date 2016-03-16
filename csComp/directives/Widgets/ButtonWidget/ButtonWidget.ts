@@ -137,8 +137,23 @@ module ButtonWidget {
                 var selected = group.styles.filter(gs=>{
                     return gs.property === prop});
                 b._active = selected.length>0;
+                if (b._active && b.showLegend) {                     
+                    b._legend = selected[0].activeLegend;
+                    this.checkLegend(b); 
+                } else {b._legend = null; }                 
+                
             }
+            
         } 
+        
+        public checkLegend(b : IButton)
+        {
+            if (b._legend && b._legend.legendEntries.length>0)
+            {
+                if (typeof b._lastLegendLabel === 'undefined') b._lastLegendLabel = b._legend.legendEntries[0].label; 
+                if (typeof b._firstLegendLabel === 'undefined') b._firstLegendLabel = b._legend.legendEntries[b._legend.legendEntries.length-1].label;
+            }
+        }
 
         public click(b : IButton) {
             switch (b.action) {
