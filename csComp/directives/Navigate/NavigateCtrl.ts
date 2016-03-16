@@ -179,7 +179,7 @@ module Navigate {
                     this.RecentFeatures.forEach((f) => save.push(<RecentFeature>{ id: f.id, name: f.name, layerId: f.layerId }));
                     this.localStorageService.set('recentfeatures', save);
                     if (this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
-                        this.$scope.$apply();
+                        this.$scope.$root.$apply();
                     }
                 }
             });
