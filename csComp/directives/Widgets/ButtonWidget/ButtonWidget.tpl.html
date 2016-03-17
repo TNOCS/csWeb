@@ -1,36 +1,33 @@
-<div ng-repeat="b in data.buttons" ng-click="$parent.vm.click(b)" >
-  
-    <a  class="s3d button-container" ng-class="{'button-container-down': b._active}">{{b.title}}
+<div ng-repeat="b in data.buttons" ng-click="$parent.vm.click(b)">
+    <a class="s3d button-container" ng-class="{'button-container-down': b._active}">{{b.title}}
     <div ng-show="b._layer.isLoading" class="spinner" style="position:absolute;right:3px;top:-10px">
-                                    <div class="bounce1" style="background:white"></div>
-                                    <div class="bounce2" style="background:white"></div>
-                                    <div class="bounce3" style="background:white"></div>
-                                </div>
-                                <div ng-if="b.showLegend" ng-show="b._active">
-                                    <div data-ng-if="b._legend" style="float:left;clear:left">
+        <div class="bounce1" style="background:white"></div>
+        <div class="bounce2" style="background:white"></div>
+        <div class="bounce3" style="background:white"></div>
+    </div>
+    <div ng-if="b.showLegend" ng-show="b._active">
+        <div data-ng-if="b._legend" style="float:left;clear:left">
                                         
-        <div data-ng-if="b._legend.legendKind === 'discrete' || b._legend.legendKind === 'discreteStrings'  ">
-                <span class="button-legend-label">{{b._firstLegendLabel}}</span>
-                <div data-ng-repeat="le in b._legend.legendEntries | reverse" style="float:left;margin-right:4px;margin-top:3px" >
-                    <div ng-style="{'background-color': le.color}" style="width: 20px;height:8px" data-toggle="tooltip" title="{{le.label}}" ></div>                    
-                </div>
-                <span class="button-legend-label">{{b._lastLegendLabel}}</span>
-            
+        <div data-ng-if="b._legend.legendKind === 'discrete' || b._legend.legendKind === 'discreteStrings'">
+            <span class="button-legend-label">{{b._firstLegendLabel}}</span>
+            <div data-ng-repeat="le in b._legend.legendEntries | reverse" style="float:left;margin-right:4px;margin-top:3px" >
+                <div ng-style="{'background-color': le.color}" style="width: 20px;height:8px" data-toggle="tooltip" title="{{le.label}}" ></div>                    
+            </div>
+            <span class="button-legend-label">{{b._lastLegendLabel}}</span>
         </div>
-        <div data-ng-if="b._legend.legendKind === 'interpolated'">
-            
+        <div data-ng-if="b._legend.legendKind === 'interpolated'">      
             <ul class="legend-entry-list">
                 <li data-ng-repeat="(key, le) in b._legend.legendEntries | reverse" class="legend-entry-item-i">
                     <div ng-if="key < legend.legendEntries.length-1"
                          class="legend-color-gradient-rect"
                          ng-style="vm.getStyle(b._legend, le, key)"></div>
                     <div class="legend-label-i">{{le.label}}</div>
-                    <!-- die &nbsp; is echt nodig... -->
+                    <!-- do not remove &nbsp; needed! -->
                     <div>&nbsp;</div>
                 </li>
             </ul>
         </div>
-                                </div>
+    </div>
 </div>
 </a>
 </div>

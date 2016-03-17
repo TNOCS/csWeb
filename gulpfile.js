@@ -122,7 +122,7 @@ gulp.task('tsconfig', function () {
                 sourceMap: true,
             },
             filesGlob: globPattern
-        },
+        }
     };
     return buildTsconfig(config, globPattern, './');
 });
