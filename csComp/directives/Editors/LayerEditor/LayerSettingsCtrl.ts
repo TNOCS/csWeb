@@ -1,11 +1,11 @@
-module LayerEdit {
+module LayerSettings {
 
-    export interface ILayerEditScope extends ng.IScope {
-        vm: LayerEditCtrl;
+    export interface ILayerSettingsScope extends ng.IScope {
+        vm: LayerSettingsCtrl;
     }
 
-    export class LayerEditCtrl {
-        private scope: ILayerEditScope;
+    export class LayerSettingsCtrl {
+        private scope: ILayerSettingsScope;
         public layer: csComp.Services.ProjectLayer;
         public availabeTypes: { (key: string): csComp.Services.IFeatureType };
 
@@ -25,7 +25,7 @@ module LayerEdit {
         // dependencies are injected via AngularJS $injector
         // controller's name is registered in Application.ts and specified from ng-controller attribute in index.html
         constructor(
-            private $scope: ILayerEditScope,
+            private $scope: ILayerSettingsScope,
             private $http: ng.IHttpService,
             private $mapService: csComp.Services.MapService,
             private $layerService: csComp.Services.LayerService,

@@ -93,7 +93,7 @@
             </div>
             <span translate="ADDFEATURES"></span>
             <div ng-show="vm.$mapService.isIntermediate" class="leftpanel-header-button-container">
-                <button ng-if="vm.layer.typeUrl" style="cursor:pointer" class="fa fa-plus button leftpanel-header-button" ng-click="vm.createType()" popover="{{'ADDTYPE' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true" />
+                <button ng-if="vm.layer.typeUrl" style="cursor:pointer" class="fa fa-plus button leftpanel-header-button" ng-click="vm.addNewType()" popover="{{'ADDTYPE' | translate}}" popover-placement="bottom" popover-width="300" popover-trigger="mouseenter" popover-append-to-body="true" />
             </div>
         </h3>
 
@@ -169,8 +169,8 @@
                                     aria-expanded="false">
                                     </div>
                                     <ul class="dropdown-menu">
-                                        <li ng-click="vm.startAddingFeatures(layer)" class="dropdown-item" ng-show="layer.isDynamic && layer.enabled"><a>Edit Layer</a><span class="fa fa-plus dropdown-item-icon" /></li>
-                                        <li ng-click="vm.editLayer(layer)" class="dropdown-item" ng-show="vm.$mapService.isAdminExpert"><a>Settings</a><span class="fa fa-cog dropdown-item-icon" /></li>                                        
+                                        <li ng-click="vm.editLayer(layer)" class="dropdown-item" ng-show="layer.isDynamic && layer.enabled"><a>Edit Layer</a><span class="fa fa-plus dropdown-item-icon" /></li>
+                                        <li ng-click="vm.layerSettings(layer)" class="dropdown-item" ng-show="vm.$mapService.isAdminExpert"><a>Settings</a><span class="fa fa-cog dropdown-item-icon" /></li>                                        
                                     </ul>
                                 </div>
                                 <!-- Extra small button group -->

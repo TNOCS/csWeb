@@ -86,19 +86,20 @@ module LayersDirective {
         }
 
         public editGroup(group: csComp.Services.ProjectGroup) {
-            var rpt = csComp.Helpers.createRightPanelTab('edit', 'groupedit', group, 'Edit group', 'Edit group');
+            var rpt = csComp.Helpers.createRightPanelTab('edit', 'groupsettings', group, 'Group Settings', 'Group Settings','cog',true,true);
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
-        public editLayer(layer: csComp.Services.ProjectLayer) {
-            var rpt = csComp.Helpers.createRightPanelTab('edit', 'layeredit', layer, 'Edit layer', 'Edit layer');
+        public layerSettings(layer: csComp.Services.ProjectLayer) {
+            var rpt = csComp.Helpers.createRightPanelTab('edit', 'layersettings', layer, 'Layer Settings', 'Layer Settings','cog',true,true);
             this.$messageBusService.publish('rightpanel', 'activate', rpt);
         }
 
-        public createType() {
+        /** add new type to a resource file */
+        public addNewType() {
             if (this.layer.typeUrl) {
                 if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
-                    var tr = this.$layerService.typesResources[this.layer.typeUrl];
+                    var tr = this.$layerService.typesResources[this.layer.typeUrl];                    
                     var st = <csComp.Services.IFeatureTypeStyle>{
                         drawingMode: 'point',
                         fillColor: 'red'
@@ -108,7 +109,8 @@ module LayersDirective {
                     }
                     var id = nt.id;
                     tr.featureTypes[id] = nt;
-                    console.log(tr);
+                    this.$layerService.saveResource(tr);                    
+                    this.editLayer(this.layer);
                 }
 
 
@@ -223,7 +225,7 @@ module LayersDirective {
             
         }
 
-        public startAddingFeatures(layer: csComp.Services.ProjectLayer) {
+        public editLayer(layer: csComp.Services.ProjectLayer) {
             this.state = "editlayer";
             (<csComp.Services.DynamicGeoJsonSource>layer.layerSource).startAddingFeatures(layer);
             this.layer = layer;
