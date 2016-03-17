@@ -79,7 +79,7 @@
                                     <div ng-switch="item.propertyType.type">
                                         <input ng-switch-when="date" type="text" class="form-control" datetime-picker="dd MMM yyyy HH:mm" ng-model="item.feature.properties[item.property]"
                                         is-open="false" />
-                                        <input ng-switch-when="number" type="number" name="number" data-ng-model="item.feature.properties[item.property]" class="form-control">
+                                        <input ng-switch-when="number"  name="number" data-ng-model="item.feature.properties[item.property]" class="form-control">
                                         <p class="not-valid-input" ng-show="userFieldForm.number.$invalid">Not a valid number</p>
                                         <textarea ng-switch-when="textarea" data-ng-model="item.feature.properties[item.property]" class="form-control" />
                                         <input ng-switch-when="tags" type="text" name="tags" ng-list="," data-ng-model="item.feature.properties[item.property]">
