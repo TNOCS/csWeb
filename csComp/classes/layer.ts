@@ -215,6 +215,10 @@ module csComp.Services {
         events: Event[];
         /** Language information that can be used to localize the title and description */
         languages: ILanguageData;
+        
+        /** layer specific sensors, can be used for kpis */
+        sensors : {[id : string] : number[]}
+        
         /** layer original source */
         data: any;
         /**
@@ -306,6 +310,7 @@ module csComp.Services {
                 heatmapItems:          csComp.Helpers.serialize(pl.heatmapItems, Heatmap.HeatmapItem.serializeableData),
                 url:                   pl.url,
                 typeUrl:               pl.typeUrl,
+                sensors:               pl.sensors,
                 sensorLink :           pl.sensorLink,
                 wmsLayers:             pl.wmsLayers,
                 opacity:               pl.opacity,
