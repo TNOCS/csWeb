@@ -135,7 +135,7 @@ module ButtonWidget {
                 case 'Activate Layer':
                     var pl = this.layerService.findLayer(b.layer);
                     if (typeof pl !== 'undefined') {
-                        this.layerService.addLayer(pl);
+                        this.layerService.toggleLayer(pl);
                         pl.enabled = true;
                     }
                     break;

@@ -20,6 +20,9 @@ module csComp.Services {
         map: Services.MapService;
         _featureTypes: { [key: string]: IFeatureType; };
         propertyTypeData: { [key: string]: IPropertyType; };
+        
+        /** website is running in touch mode */
+        touchMode : boolean = false;
 
         project: Project;
         projectUrl: SolutionProject; // URL of the current project
@@ -182,6 +185,8 @@ module csComp.Services {
             if (layer.sensorLink) {
                      
                     var link = layer.sensorLink.url + "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
+                    if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;
+                    layer._gui['lastSensorLink'] = link;
                     console.log('downloading ' + link);
                     layer._gui["loadingSensorLink"] = true;
                     this.$http.get(link)
@@ -195,36 +200,67 @@ module csComp.Services {
                             
                             var featureLookup = []
                             
-                            data.features.forEach(f =>{
-                               var index = _.findIndex(layer.data.features,((p : csComp.Services.IFeature)=>p.properties[layer.sensorLink.linkid] === f));
-                               featureLookup.push(index);                               
-                            });
-
-                            data.data.forEach(ts => {
-                                var i = 0;
-                                //var fi = featureLookup()
-                                //var f = layer.data.features[]
-                                data.properties.forEach(s => {
-                                featureLookup.forEach(index=>{
-                                    if (index>=0)
+                            // data.features.forEach(f =>{
+                            //    var index = _.findIndex(layer.data.features,((p : csComp.Services.IFeature)=> p.properties[layer.sensorLink.linkid] === f));
+                            //    if (index!==-1) featureLookup.push(index);                               
+                            // });
+                            
+                            for (var s in data.data)
+                            {
+                                var sensordata = data.data[s];
+                                for (var ti =0; ti < data.timestamps.length;ti++)
+                                {
+                                    for (var fi = 0;fi < sensordata[ti].length; fi++)
                                     {
-                                        var f = layer.data.features[index];
-                                        var value = data.data[t][i];
-                                        if (value === -1) value = null;
-                                        f.sensors[s].push(value);
-                                    }
-                                    i += 1;    
-                                })
+                                        // get feature
+                                        var f = layer.data.features[fi];
+                                        if (f)
+                                        {
+                                            var value = sensordata[ti][fi];
+                                        //if (value === -1) value = null;
+                                            f.sensors[s].push(value);
+                                        }
+                                        
+                                    }                                    
+                                }
+                                // data.timestamps.forEach(t=>{
+                                //     featureLookup.forEach(index=>{
+                                //         var f = layer.data.features[index];
+                                //         f.sensors[s] 
+                                //     });    
+                                // })
                                 
-                                });
-                                // layer.data.features.forEach((f: IFeature) => {
-                                //     data.properties.forEach(s => {
-                                //         f.sensors[s].push(data.data[t][i]);
-                                //         i += 1;
-                                //     });
-                                // });
-                                t += 1;
-                            });
+                            //         if (index>=0)
+                                
+                                
+                                
+                            }
+
+                            // data.data.forEach(ts => {
+                            //     var i = 0;
+                            //     //var fi = featureLookup()
+                            //     //var f = layer.data.features[]
+                            //     data.properties.forEach(s => {
+                            //     featureLookup.forEach(index=>{
+                            //         if (index>=0)
+                            //         {
+                            //             var f = layer.data.features[index];
+                            //             var value = data.data[t][i];
+                            //             if (value === -1) value = null;
+                            //             f.sensors[s].push(value);
+                            //         }
+                            //         i += 1;    
+                            //     })
+                                
+                            //     });
+                            //     // layer.data.features.forEach((f: IFeature) => {
+                            //     //     data.properties.forEach(s => {
+                            //     //         f.sensors[s].push(data.data[t][i]);
+                            //     //         i += 1;
+                            //     //     });
+                            //     // });
+                            //     t += 1;
+                            // });
                             this.throttleSensorDataUpdate();
                             
                             //this.$messageBusService.publish("timeline","timeSpanUpdated");
@@ -1608,6 +1644,8 @@ module csComp.Services {
         }
 
         public setGroupStyle(group: ProjectGroup, property: IPropertyType) {
+            if (typeof property === 'undefined' || property === null) return;
+            if (typeof group === 'undefined' || group === null) return;
             var gs = new GroupStyle(this.$translate);
             gs.id = Helpers.getGuid();
             gs.title = property.title;
@@ -2600,7 +2638,7 @@ module csComp.Services {
 
         public toggleLayer(layer: ProjectLayer) {
             if (layer.group.oneLayerActive && this.findLoadedLayer(layer.id)) layer.enabled = false;
-            if (layer.enabled) {
+            if (typeof layer.enabled === "undefined" || layer.enabled) {
                 this.addLayer(layer);
             } else {
                 this.removeLayer(layer);

@@ -532,7 +532,7 @@ module FeatureProps {
                     break;
             }
             if (callApply && this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
-                this.$scope.$apply();
+                this.$scope.$root.$apply();
             }
         };
 

@@ -13,28 +13,30 @@
         </h3>
         <div style="background:white;margin-right:10px">
             <form name="createNewLayerForm" ng-submit="vm.createNewLayer()" novalidate>
-            <div class="form-group" ng-class="{ 'has-error': createNewLayerForm.layerTitle.$invalid }">
-                <label for="groupDescription">Title</label>
-                <input type="text" class="form-control"  name="layerTitle" id="layerTitle" ng-model="vm.newLayer.title" placeholder="Enter title layer" validtitle>                 
-                 <span class="help-block" ng-show="createNewLayerForm.layerTitle.$error.validtitle">Not a valid title</span>                 
-            </div>
-            <div class="form-group">
-                <label class="editor-title input-xlarge">Types</label>
-                <select data-ng-model="vm.layerResourceType" ng-options="k as v.title for (k,v) in vm.resources" class="form-control tt-input editor-text-input"
-                required />
-            </div>
-            <div class="form-group">
-                <label class="editor-title input-xlarge">Group</label>
-                <select data-ng-model="vm.layerGroup" ng-options="g.id as g.title for g in vm.groups" class="form-control tt-input editor-text-input"
-                required />
-            </div>
-            <div class="form-group" ng-if="vm.layerGroup=='<new>'" ng-class="{ 'has-error': createNewLayerForm.groupTitle.$invalid }" >
-                <label class="editor-title input-xlarge">New Group</label>
-                <input type="text" class="form-control" name="groupTitle" id="groupTitle" ng-model="vm.newGroup" duplicategroup validtitle placeholder="Enter group title">
-                <span class="help-block" ng-show="createNewLayerForm.groupTitle.$error.duplicategroup">Duplicate Group</span>
-                <span class="help-block" ng-show="createNewLayerForm.groupTitle.$error.validtitle">Not a valid title</span>                    
-            </div>
-            <button type="submit" ng-disabled="!createNewLayerForm.$valid" class="btn btn-primary">Create layer</button>
+                <div class="form-group" ng-class="{ 'has-error': createNewLayerForm.layerTitle.$invalid }">
+                    <label for="groupDescription">Title</label>
+                    <input type="text" class="form-control" name="layerTitle" id="layerTitle" ng-model="vm.newLayer.title" placeholder="Enter title layer"
+                    validtitle>
+                    <span class="help-block" ng-show="createNewLayerForm.layerTitle.$error.validtitle">Not a valid title</span>
+                </div>
+                <div class="form-group">
+                    <label class="editor-title input-xlarge">Types</label>
+                    <select data-ng-model="vm.layerResourceType" ng-options="k as v.title for (k,v) in vm.resources" class="form-control tt-input editor-text-input"
+                    required />
+                </div>
+                <div class="form-group">
+                    <label class="editor-title input-xlarge">Group</label>
+                    <select data-ng-model="vm.layerGroup" ng-options="g.id as g.title for g in vm.groups" class="form-control tt-input editor-text-input"
+                    required />
+                </div>
+                <div class="form-group" ng-if="vm.layerGroup=='<new>'" ng-class="{ 'has-error': createNewLayerForm.groupTitle.$invalid }">
+                    <label class="editor-title input-xlarge">New Group</label>
+                    <input type="text" class="form-control" name="groupTitle" id="groupTitle" ng-model="vm.newGroup" duplicategroup validtitle
+                    placeholder="Enter group title">
+                    <span class="help-block" ng-show="createNewLayerForm.groupTitle.$error.duplicategroup">Duplicate Group</span>
+                    <span class="help-block" ng-show="createNewLayerForm.groupTitle.$error.validtitle">Not a valid title</span>
+                </div>
+                <button type="submit" ng-disabled="!createNewLayerForm.$valid" class="btn btn-primary">Create layer</button>
             </form>
         </div>
     </div>
@@ -74,15 +76,13 @@
                     <label class="editor-title input-xlarge">New Group</label>
                     <input type="text" class="form-control" id="layerTitle" ng-model="vm.newGroup" placeholder="Enter group title">
                 </div>
-                <div class="form-group" ng-hide="vm.selectedLayer.typeUrl" >
-                <label class="editor-title input-xlarge">Types</label>
-                <select data-ng-model="vm.layerResourceType" ng-options="k as v.title for (k,v) in vm.resources" class="form-control tt-input editor-text-input"
-                required />
-            </div>
+                <div class="form-group" ng-hide="vm.selectedLayer.typeUrl">
+                    <label class="editor-title input-xlarge">Types</label>
+                    <select data-ng-model="vm.layerResourceType" ng-options="k as v.title for (k,v) in vm.resources" class="form-control tt-input editor-text-input"
+                    required />
+                </div>
                 <button type="button" class="btn btn-primary" data-ng-click="vm.addProjectLayer()">Add layer</button>
             </div>
-
-
         </div>
     </div>
     <!-- ng-show="vm.layer._gui.featureTypes && vm.layer._gui.editing" -->
@@ -131,9 +131,10 @@
 
         <!-- overflow-y: auto; overflow-x: hidden;  -->
         <!-- ng-hide="vm.layer._gui.featureTypes && vm.layer._gui.editing" -->
-        <div class="scrolling" style="margin-top: -10px; margin-left:-20px;padding-left:0px;overflow-y: auto; overflow-x: hidden"
+        <div class="scrolling" style="margin-top: -10px; margin-left:-20px;padding-left:0px;overflow-y: visible !important; overflow-x: visible !important"
         resize resize-y="95">
-            <div ng-hide="vm.$layerService.editing && !group._gui.editing" data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
+            <div ng-hide="vm.$layerService.editing && !group._gui.editing" ng-mouseenter="group._gui.mo = true" ng-mouseleave="group._gui.mo = false"
+            data-ng-repeat="group in vm.$layerService.project.groups" style="margin-left: 5px;position:relative;">
                 <div id="layergroupStyle" style="float: left; margin-left: 10px; margin-top: 5px" data-toggle="collapse" data-target="#layergroup_{{group.id}}"><i class="fa fa-chevron-down togglebutton toggle-arrow-down"></i><i class="fa fa-chevron-up togglebutton toggle-arrow-up"></i></div>
                 <div popover="{{(group.description) ? group.description : ''}}" popover-placement="right" popover-width="400" popover-trigger="mouseenter"
                 popover-append-to-body="true" class="group-title">{{group.title}}</div>
@@ -152,21 +153,28 @@
                                 <label for="cblayer{{layer.id}}">
                                     {{layer.title}}
                                 </label>
-                                <div ng-show="layer.enabled" class="left-menu dropdown-toggle pull-left" ng-click="layer._gui.more=!layer._gui.more">
-                                </div>
+                                
                                 <div ng-show="layer.isLoading" class="spinner">
                                     <div class="bounce1"></div>
                                     <div class="bounce2"></div>
                                     <div class="bounce3"></div>
                                 </div>
-                                <div ng-show="layer.isDynamic  && layer.enabled" popover="add items" style="position:absolute;right:40px;top:3px;cursor:pointer"
-                                popover-append-to-body="true" popover-placement="top" popover-trigger="mouseenter" class="fa fa-plus"
-                                ng-click="vm.startAddingFeatures(layer)"></div>
-                                <div ng-show="vm.$mapService.isAdminExpert" class="fa fa-cog" style="position:absolute;right:60px;top:3px;cursor:pointer"
-                                ng-click="vm.editLayer(layer)"></div>
-                                <div ng-show="layer.isDynamic" popover="{{(layer.isConnected) ? 'connected' : 'not connected'}}" popover-append-to-body="true"
+                                
+
+                                <!--<div ng-show="layer.isDynamic" popover="{{(layer.isConnected) ? 'connected' : 'not connected'}}" popover-append-to-body="true"
                                 popover-placement="top" popover-trigger="mouseenter" class="fa fa-plug" ng-class="{false : 'disconnected-layer', true:'connected-layer'}[layer.isConnected==true]"
-                                style="position:absolute;right:20px;top:3px"></div>
+                                style="position:absolute;right:20px;top:3px"></div>-->
+                                <div ng-show="group._gui.mo" class="" style="position:absolute;right:10px;top:3px">
+                                    <div class="fa fa-ellipsis-v dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" style="width:10px;cursor:pointer"
+                                    aria-expanded="false">
+                                    </div>
+                                    <ul class="dropdown-menu">
+                                        <li ng-click="vm.startAddingFeatures(layer)" class="dropdown-item" ng-show="layer.isDynamic && layer.enabled"><a>Edit Layer</a><span class="fa fa-plus dropdown-item-icon" /></li>
+                                        <li ng-click="vm.editLayer(layer)" class="dropdown-item" ng-show="vm.$mapService.isAdminExpert"><a>Settings</a><span class="fa fa-cog dropdown-item-icon" /></li>                                        
+                                    </ul>
+                                </div>
+                                <!-- Extra small button group -->
+
                             </div>
                         </div>
 
