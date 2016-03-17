@@ -62,6 +62,7 @@ module csComp.Services {
 
             this.chartGenerators['sensordata'] = () => { return new csComp.Services.propertySensordataGenerator(this.$layerService, this); };
             this.chartGenerators['layerSensorData'] = () => { return new csComp.Services.layerPropertySensordataGenerator(this.$layerService,this);}
+            this.chartGenerators['kpi'] =()=> { return new csComp.Services.layerKpiGenerator(this.$layerService,this);}
             this.chartGenerators['top10'] = () => { return new csComp.Services.top10Generator(this.$layerService, this); };
 
             // this.$messageBusService.subscribe("dashboard", (event: string, id: string) => {

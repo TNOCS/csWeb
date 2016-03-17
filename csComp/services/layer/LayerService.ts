@@ -191,16 +191,25 @@ module csComp.Services {
                       link+= "&tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
                       //if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;  
                     }                     
+                    else
+                    {
+                        link+="&tbox=24h"
+                    }
                     layer._gui['lastSensorLink'] = link;
                     console.log('downloading ' + link);
                     layer._gui["loadingSensorLink"] = true;
                     this.$http.get(link)
                         .success((data: ISensorLinkResult) => {     
-                            layer._gui["loadingSensorLink"] = false;                           
-                                layer.timestamps = data.timestamps;
-                                layer.data.features.forEach((f: IFeature) => { f.sensors = {};
-                                data.properties.forEach(s => f.sensors[s] = []);
-                            });
+                            layer._gui["loadingSensorLink"] = false;
+                            if (typeof data.kpis !== 'undefined')
+                            {
+                                layer.sensors = data.kpis; 
+                            }                           
+                            layer.timestamps = data.timestamps;
+                            layer.data.features.forEach((f: IFeature) => { 
+                                    f.sensors = {};
+                                    data.properties.forEach(s => f.sensors[s] = []);
+                                });
                             var t = 0;
                             
                             var featureLookup = []
@@ -232,47 +241,14 @@ module csComp.Services {
                                         
                                     }                                    
                                 }
-                                // data.timestamps.forEach(t=>{
-                                //     featureLookup.forEach(index=>{
-                                //         var f = layer.data.features[index];
-                                //         f.sensors[s] 
-                                //     });    
-                                // })
-                                
-                            //         if (index>=0)
-                                
                                 
                                 
                             }
 
-                            // data.data.forEach(ts => {
-                            //     var i = 0;
-                            //     //var fi = featureLookup()
-                            //     //var f = layer.data.features[]
-                            //     data.properties.forEach(s => {
-                            //     featureLookup.forEach(index=>{
-                            //         if (index>=0)
-                            //         {
-                            //             var f = layer.data.features[index];
-                            //             var value = data.data[t][i];
-                            //             if (value === -1) value = null;
-                            //             f.sensors[s].push(value);
-                            //         }
-                            //         i += 1;    
-                            //     })
-                                
-                            //     });
-                            //     // layer.data.features.forEach((f: IFeature) => {
-                            //     //     data.properties.forEach(s => {
-                            //     //         f.sensors[s].push(data.data[t][i]);
-                            //     //         i += 1;
-                            //     //     });
-                            //     // });
-                            //     t += 1;
-                            // });
+                           
                             this.throttleSensorDataUpdate();
                             
-                            //this.$messageBusService.publish("timeline","timeSpanUpdated");
+                            this.$messageBusService.publish("timeline","sensorLinkUpdated");
                         })
                         .error((e) => {
                             layer._gui["loadingSensorLink"] = false;
