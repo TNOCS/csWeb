@@ -3,6 +3,7 @@ module csComp.Services {
     export interface ISensorLinkResult {
         features : string[];
         timestamps: number[];
+        kpis :{[sensor : string ] : number[]}; 
         data: {[sensor : string ] : number[][]};
         properties: string[];
         timeAggregation: string;
