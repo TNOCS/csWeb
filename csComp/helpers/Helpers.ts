@@ -38,7 +38,7 @@ module csComp.Helpers {
     }
 
     export function getDefaultFeatureStyle(feature: csComp.Services.IFeature): csComp.Services.IFeatureTypeStyle {
-        if (feature && feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'point') {
+        if (feature && (feature.geometry && feature.geometry.type && feature.geometry.type.toLowerCase() === 'point') || (feature.fType && feature.fType.style && feature.fType.style.drawingMode && feature.fType.style.drawingMode === "point")) {
             var p: csComp.Services.IFeatureTypeStyle = {
                 nameLabel: 'Name',
                 drawingMode: 'Point',
@@ -575,6 +575,8 @@ module csComp.Helpers {
         url = url.substring(0, url.length - 1);
         return url;
     }
+    
+    
 
     export function createIconHtml(feature: IFeature): {
         html: string,

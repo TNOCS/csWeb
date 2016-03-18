@@ -88,6 +88,21 @@ body,
     font-weight: 700;
 }
 
+.featureType-item
+{
+    clear:both;
+    margin-bottom: 5px;
+}
+
+/* layer editor */
+.featureType-name
+{
+    font-size: 20px;
+    margin-left: 10px;
+    margin-top: 8px;
+    float: left;
+}
+
 /* layers */
 .addlayer-container {
     cursor: pointer;
@@ -1817,8 +1832,7 @@ input[type="checkbox"] {
 }
 .menutoggle {
     -moz-transition: all 0.2s ease-out 0s;
-    -webkit-transition: all 0.2s ease-out 0s;
-    border-right: 1px solid #eee;
+    -webkit-transition: all 0.2s ease-out 0s;    
     color: white;
     cursor: pointer;
     float: left;

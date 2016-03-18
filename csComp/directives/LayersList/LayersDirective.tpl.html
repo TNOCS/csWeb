@@ -102,13 +102,11 @@
         <div class="btn fa fa-check" ng-click="vm.stopAddingFeatures(vm.layer)">
             <span translate="DONE"></span>
         </div> -->
-        <div id="layerfeaturetype-{{key}}" class="legendItem draggable" style="width:30px;height:30px" when-ready="vm.initDrag(key,vm.layer)"
-        ng-repeat="(key,legendItem) in vm.layer._gui.featureTypes">
-            <span>
-                <img ng-src="{{legendItem.style.iconUri}}" style="margin-top: -12px;width: 20px;height: 20px;margin-left: 5px;" />
-
-                <div class="legendText" style="margin-left:5px"> {{legendItem.name}} </div>
-            </span>
+        <div ng-repeat="(key,featureType) in vm.layer._gui.featureTypes" class="featureType-item">
+            <div id="layerfeaturetype-{{key}}" class="draggable" style="width:30px;height:30px;border:none;float:left" when-ready="vm.initDrag(key,vm.layer)">
+                <feature-type featuretype="featureType" />               
+            </div>
+            <div class="featureType-name">{{featureType.name}}</div>
         </div>
     </div>
 
@@ -153,13 +151,13 @@
                                 <label for="cblayer{{layer.id}}">
                                     {{layer.title}}
                                 </label>
-                                
+
                                 <div ng-show="layer.isLoading" class="spinner">
                                     <div class="bounce1"></div>
                                     <div class="bounce2"></div>
                                     <div class="bounce3"></div>
                                 </div>
-                                
+
 
                                 <!--<div ng-show="layer.isDynamic" popover="{{(layer.isConnected) ? 'connected' : 'not connected'}}" popover-append-to-body="true"
                                 popover-placement="top" popover-trigger="mouseenter" class="fa fa-plug" ng-class="{false : 'disconnected-layer', true:'connected-layer'}[layer.isConnected==true]"
@@ -170,7 +168,7 @@
                                     </div>
                                     <ul class="dropdown-menu">
                                         <li ng-click="vm.editLayer(layer)" class="dropdown-item" ng-show="layer.isDynamic && layer.enabled"><a>Edit Layer</a><span class="fa fa-plus dropdown-item-icon" /></li>
-                                        <li ng-click="vm.layerSettings(layer)" class="dropdown-item" ng-show="vm.$mapService.isAdminExpert"><a>Settings</a><span class="fa fa-cog dropdown-item-icon" /></li>                                        
+                                        <li ng-click="vm.layerSettings(layer)" class="dropdown-item" ng-show="vm.$mapService.isAdminExpert"><a>Settings</a><span class="fa fa-cog dropdown-item-icon" /></li>
                                     </ul>
                                 </div>
                                 <!-- Extra small button group -->

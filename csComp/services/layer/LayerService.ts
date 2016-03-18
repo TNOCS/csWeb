@@ -1291,7 +1291,6 @@ module csComp.Services {
         */
         public calculateFeatureStyle(feature: IFeature) {
             var s = csComp.Helpers.getDefaultFeatureStyle(feature);
-
             var ft = this.getFeatureType(feature);
             var style = ft.style;
             var properties = feature.properties;
@@ -1345,8 +1344,12 @@ module csComp.Services {
             }
 
             feature._gui['style'] = {};
-            s.opacity = (feature.layer.isTransparent) ? 0 : s.opacity * (feature.layer.opacity / 100);
-            s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);
+            if (feature.layer)
+            {
+                s.opacity = (feature.layer.isTransparent) ? 0 : s.opacity * (feature.layer.opacity / 100);
+                s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);    
+            } 
+            
             if (feature.layer && feature.layer.group && feature.layer.group.styles) {
                 feature.layer.group.styles.forEach((gs: GroupStyle) => {
                     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {

@@ -104,8 +104,9 @@ module LayersDirective {
                         drawingMode: 'point',
                         fillColor: 'red'
                     };
+                    var d= new Date().getTime();
                     var nt = <csComp.Services.IFeatureType>{
-                        id: 'test', name: 'test', style: st
+                        id: 'test' + d, name: 'test' + d, style: st
                     }
                     var id = nt.id;
                     tr.featureTypes[id] = nt;
