@@ -292,6 +292,13 @@ module csComp.Services {
         /** True when the layer features are transparent, e.g. when outside zoom range */
         isTransparent: boolean;
 
+        /** Get the features from the layer's original source, if present. */
+        public static getFeatures(layer: ProjectLayer) {
+            return (layer.data && layer.data.features)
+                ? layer.data.features
+                : null;
+        }
+
         /**
          * Returns an object which contains all the data that must be serialized.
          */
