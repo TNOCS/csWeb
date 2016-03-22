@@ -121,12 +121,14 @@ export class RestDataSource {
     private initFeatures(fCollection: GeoJSONHelper.IGeoJson, updateTime: number) {
         if (!fCollection || !fCollection.features) return;
         if (!this.features) this.features = {};
-        fCollection.features.forEach((f: GeoJSONHelper.IFeature, ind) => {
-            this.features[f.id] = { f: f, updated: updateTime };
-            if (ind === fCollection.features.length - 1) {
-                Winston.info('RestDataSource initialized ' + fCollection.features.length + ' features.');
-            }
-        });
+        if (_.isArray(fCollection.features)) {
+            fCollection.features.forEach((f: GeoJSONHelper.IFeature, ind) => {
+                this.features[f.id] = { f: f, updated: updateTime };
+                if (ind === fCollection.features.length - 1) {
+                    Winston.info('RestDataSource initialized ' + fCollection.features.length + ' features.');
+                }
+            });
+        }
     }
 
     private findFeatureDiff(fCollection: GeoJSONHelper.IGeoJson, updateTime: number) {
@@ -166,10 +168,10 @@ export class RestDataSource {
                 }
             });
         }
-        this.apiManager.addUpdateFeatureBatch(this.layerId, this.featuresUpdates, {}, (r) => {});
+        this.apiManager.addUpdateFeatureBatch(this.layerId, this.featuresUpdates, {}, (r) => { });
         Winston.info(`Feature diff complete. ${updated} updated \t${added} added \t${notUpdated} not updated \t${removed} removed. (${this.counter})`);
     }
-    
+
     private isFeatureUpdated(f: Api.Feature): boolean {
         if (!f) return false;
         // Check geometry
