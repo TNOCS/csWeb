@@ -34,7 +34,6 @@
     "angular-animate": "^1.5.2",
     "angular-bootstrap": "^1.2.5",
     "angular-sanitize": "^1.5.2",
-    "angular-mocks": "~1.4.7",
     "angular-ui-router": "~0.2.18",
     "ui-select": "angular-ui-select#~0.13.2",
     "async": "~1.5.0",
@@ -58,7 +57,8 @@
     "spectrum": "1.7.1",
     "togeojson": "~0.13.0",
     "topojson": "~1.6.19",
-    "underscore": "~1.8.3"
+    "underscore": "~1.8.3",
+    "angular-mocks": "^1.5.2"
   },
   "resolutions": {
     "d3": "~3.5.9",
