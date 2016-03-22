@@ -46,9 +46,11 @@ export class RestDataSource {
     private restDataSourceUrl: string;
     private converter: IConverter;
     private restDataSourceOpts: IRestDataSourceSettings = <IRestDataSourceSettings>{};
+    private counter: number;
 
-    constructor(public server: express.Express, private apiManager: Api.ApiManager, public url: string = '/restdatasource') {
+    constructor(public server: express.Express, private apiManager: Api.ApiManager, public layerId: string, public url: string = '/restdatasource') {
         this.restDataSourceUrl = url;
+        this.layerId = layerId;
     }
 
     public init(options: IRestDataSourceSettings, callback: Function) {
@@ -57,9 +59,11 @@ export class RestDataSource {
             return;
         }
         Winston.info('Init Rest datasource on port ' + this.server.get('port') + '. Base path is ' + this.url);
+        this.counter = 1;
 
         this.restDataSourceOpts.converterFile = options.converterFile;
         this.restDataSourceOpts.url = options.url;
+        this.restDataSourceOpts.urlParams = options.urlParams || {};
         this.restDataSourceOpts.pollIntervalSeconds = options.pollIntervalSeconds || 60;
         this.restDataSourceOpts.pruneIntervalSeconds = options.pruneIntervalSeconds || 300;
         this.restDataSourceOpts.diffIgnoreGeometry = (options.hasOwnProperty('diffIgnoreGeometry')) ? false : options['diffIgnoreGeometry'];
@@ -82,7 +86,7 @@ export class RestDataSource {
             return;
         }
 
-        var urlDataParams = this.restDataSourceOpts.urlParams || {};
+        var urlDataParams = this.restDataSourceOpts.urlParams;
         urlDataParams['url'] = this.restDataSourceOpts.url;
         this.startRestPolling(urlDataParams);
 
@@ -101,6 +105,7 @@ export class RestDataSource {
     }
 
     private startRestPolling(dataParameters) {
+        dataParameters['counter'] = this.counter++;
         this.converter.getData(request, dataParameters, (result) => {
             var featureCollection = GeoJSONHelper.GeoJSONFactory.Create(result);
             if (!this.features || Object.keys(this.features).length === 0) {
@@ -130,23 +135,25 @@ export class RestDataSource {
         let notUpdated = 0, updated = 0, added = 0, removed = 0;
         let fts = fCollection.features;
         let fCollectionIds = [];
-        fts.forEach((f) => {
-            fCollectionIds.push(f.id);
-            if (!this.features.hasOwnProperty(f.id)) {
-                // ADD FEATURE
-                this.features[f.id] = { f: f, updated: updateTime };
-                this.featuresUpdates.push(<Api.IChangeEvent>{ value: f, type: Api.ChangeType.Create, id: f.id });
-                added += 1;
-            } else if (/**_.isEqual(f.properties, this.features[f.id].f.properties) && */_.isEqual(f.geometry, this.features[f.id].f.geometry)) {
-                // NO UPDATE
-                notUpdated += 1;
-            } else {
-                // UPDATE
-                this.features[f.id] = { f: f, updated: updateTime };
-                this.featuresUpdates.push(<Api.IChangeEvent>{ value: f, type: Api.ChangeType.Update, id: f.id });
-                updated += 1;
-            }
-        });
+        if (_.isArray(fts)) {
+            fts.forEach((f) => {
+                fCollectionIds.push(f.id);
+                if (!this.features.hasOwnProperty(f.id)) {
+                    // ADD FEATURE
+                    this.features[f.id] = { f: f, updated: updateTime };
+                    this.featuresUpdates.push(<Api.IChangeEvent>{ value: f, type: Api.ChangeType.Create, id: f.id });
+                    added += 1;
+                } else if (!this.isFeatureUpdated(f)) {
+                    // NO UPDATE
+                    notUpdated += 1;
+                } else {
+                    // UPDATE
+                    this.features[f.id] = { f: f, updated: updateTime };
+                    this.featuresUpdates.push(<Api.IChangeEvent>{ value: f, type: Api.ChangeType.Update, id: f.id });
+                    updated += 1;
+                }
+            });
+        }
         // CHECK INACTIVE FEATURES
         let inactiveFeatures = _.difference(Object.keys(this.features), fCollectionIds);
         if (inactiveFeatures && inactiveFeatures.length > 0) {
@@ -154,12 +161,41 @@ export class RestDataSource {
                 if ((updateTime - this.features[fId].updated) >= (this.restDataSourceOpts.pruneIntervalSeconds * 1000)) {
                     // REMOVE
                     this.featuresUpdates.push(<Api.IChangeEvent>{ value: this.features[fId].f, type: Api.ChangeType.Delete, id: this.features[fId].f.id });
+                    delete this.features[this.features[fId].f.id];
                     removed += 1;
                 }
             });
         }
-        this.apiManager.addUpdateFeatureBatch('sgbo_eenheden', this.featuresUpdates, {}, (r) => {});
-        Winston.info(`Feature diff complete. ${updated} updated \t${added} added \t${notUpdated} not updated \t${removed} removed.`);
+        this.apiManager.addUpdateFeatureBatch(this.layerId, this.featuresUpdates, {}, (r) => {});
+        Winston.info(`Feature diff complete. ${updated} updated \t${added} added \t${notUpdated} not updated \t${removed} removed. (${this.counter})`);
+    }
+    
+    private isFeatureUpdated(f: Api.Feature): boolean {
+        if (!f) return false;
+        // Check geometry
+        if (!this.restDataSourceOpts.diffIgnoreGeometry && !_.isEqual(f.geometry, this.features[f.id].f.geometry)) {
+            return true;
+        }
+        if (!f.properties) return false;
+        // Check for blacklisted properties
+        if (this.restDataSourceOpts.diffPropertiesBlacklist.length > 0) {
+            let blacklist = this.restDataSourceOpts.diffPropertiesBlacklist;
+            if (_.isEqual(_.omit(f.properties, blacklist), _.omit(this.features[f.id].f.properties, blacklist))) {
+                return false;
+            }
+        }
+        // Check for whitelisted properties
+        if (this.restDataSourceOpts.diffPropertiesWhitelist.length > 0) {
+            let whitelist = this.restDataSourceOpts.diffPropertiesWhitelist;
+            if (_.isEqual(_.pick(f.properties, whitelist), _.pick(this.features[f.id].f.properties, whitelist))) {
+                return false;
+            }
+        }
+        // Check all properties
+        if (_.isEqual(f.properties, this.features[f.id].f.properties)) {
+            return false;
+        }
+        return true;
     }
 
     private isConverterValid(): boolean {
