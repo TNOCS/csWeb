@@ -20,7 +20,6 @@ module csComp.Services {
         map: Services.MapService;
         _featureTypes: { [key: string]: IFeatureType; };
         propertyTypeData: { [key: string]: IPropertyType; };
-        
         /** website is running in touch mode */
         touchMode : boolean = false;
 
@@ -161,17 +160,17 @@ module csComp.Services {
             }, 500);
 
             $messageBusService.subscribe('timeline', (action: string, date: Date) => {
-                if (action === 'focusChange') { delayFocusChange(date);
+                if (action === 'focusChange') {
+                    delayFocusChange(date);
                     //this.refreshActiveLayers();
-                     }
+                }
             });
 
             this.checkMobile();
             this.enableDrop();
         }
 
-        public refreshActiveLayers()
-        {
+        public refreshActiveLayers() {
             for (var l in this.loadedLayers) {
                     var layer = <ProjectLayer>this.loadedLayers[l];
                     if (layer.timeDependent) {
@@ -179,49 +178,41 @@ module csComp.Services {
                     }
                 }
         }
-        
-        public updateLayerSensorLink(layer : ProjectLayer)
-        {
+
+        public updateLayerSensorLink(layer : ProjectLayer) {
             if (layer.sensorLink) {
-                     
-                    var link = layer.sensorLink.url + "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
+                    var link = layer.sensorLink.url + '?tbox=' + this.project.timeLine.start + ',' + this.project.timeLine.end;
                     if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;
                     layer._gui['lastSensorLink'] = link;
                     console.log('downloading ' + link);
-                    layer._gui["loadingSensorLink"] = true;
+                    layer._gui['loadingSensorLink'] = true;
                     this.$http.get(link)
-                        .success((data: ISensorLinkResult) => {     
-                            layer._gui["loadingSensorLink"] = false;                           
+                        .success((data: ISensorLinkResult) => {
+                            layer._gui['loadingSensorLink'] = false;
                                 layer.timestamps = data.timestamps;
                                 layer.data.features.forEach((f: IFeature) => { f.sensors = {};
                                 data.properties.forEach(s => f.sensors[s] = []);
                             });
                             var t = 0;
-                            
                             var featureLookup = []
-                            
+
                             // data.features.forEach(f =>{
                             //    var index = _.findIndex(layer.data.features,((p : csComp.Services.IFeature)=> p.properties[layer.sensorLink.linkid] === f));
                             //    if (index!==-1) featureLookup.push(index);                               
                             // });
-                            
-                            for (var s in data.data)
-                            {
+
+                            for (var s in data.data) {
                                 var sensordata = data.data[s];
-                                for (var ti =0; ti < data.timestamps.length;ti++)
-                                {
-                                    for (var fi = 0;fi < sensordata[ti].length; fi++)
-                                    {
+                                for (var ti = 0; ti < data.timestamps.length; ti++) {
+                                    for (var fi = 0; fi < sensordata[ti].length; fi++) {
                                         // get feature
                                         var f = layer.data.features[fi];
-                                        if (f)
-                                        {
+                                        if (f) {
                                             var value = sensordata[ti][fi];
                                         //if (value === -1) value = null;
                                             f.sensors[s].push(value);
                                         }
-                                        
-                                    }                                    
+                                    }
                                 }
                                 // data.timestamps.forEach(t=>{
                                 //     featureLookup.forEach(index=>{
@@ -229,11 +220,7 @@ module csComp.Services {
                                 //         f.sensors[s] 
                                 //     });    
                                 // })
-                                
                             //         if (index>=0)
-                                
-                                
-                                
                             }
 
                             // data.data.forEach(ts => {
@@ -251,7 +238,6 @@ module csComp.Services {
                             //         }
                             //         i += 1;    
                             //     })
-                                
                             //     });
                             //     // layer.data.features.forEach((f: IFeature) => {
                             //     //     data.properties.forEach(s => {
@@ -262,11 +248,10 @@ module csComp.Services {
                             //     t += 1;
                             // });
                             this.throttleSensorDataUpdate();
-                            
                             //this.$messageBusService.publish("timeline","timeSpanUpdated");
                         })
                         .error((e) => {
-                            layer._gui["loadingSensorLink"] = false;
+                            layer._gui['loadingSensorLink'] = false;
                             console.log('error loading sensor data');
                         });
                 }
@@ -282,7 +267,6 @@ module csComp.Services {
                 var layer = <ProjectLayer>this.loadedLayers[l];
                 this.updateLayerSensorLink(layer);
                 console.log(layer.title);
-                
             };
         }
 
@@ -310,7 +294,6 @@ module csComp.Services {
                     } else {
                         this.handleFileUpload(files, obj);
                     }
-
                     //We need to send dropped files to Server
                 });
             }
@@ -1658,13 +1641,10 @@ module csComp.Services {
             if (property.legend)
             {
                 gs.activeLegend = property.legend;
-            }
-            else
-            {
-            gs.colors = ['white', '#FF5500'];    
+            } else {
+                gs.colors = ['white', '#FF5500'];
             }
 
-            
             this.saveStyle(group, gs);
             this.project.features.forEach((fe: IFeature) => {
                 if (fe.layer.group === group) {
