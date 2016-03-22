@@ -38,7 +38,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         });
 
         this.client.on('connect', () => {
-            Winston.info("mqtt: connected");
+            Winston.debug("mqtt: connected");
             // server listens to all key updates
             if (!this.manager.isClient) {
                 var subscriptions = layerManager.options.mqttSubscriptions || '#';
@@ -68,7 +68,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                 var layer = this.extractLayer(message);
                 if (layer && layer.id) {
                     Winston.info(`mqtt: received definition for layer ${layer.id} on topic ${topic}`);
-                    Winston.info(`Definition: ${JSON.stringify(layer, null, 2)}`)
+                    Winston.debug(`Definition: ${JSON.stringify(layer, null, 2)}`)
                     this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
                 }
             }
@@ -83,7 +83,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                     try {
                         var layer = this.extractLayer(message);
                         if (layer) {
-                            Winston.info(`mqtt: update layer ${layerId} on topic ${topic}`);
+                            Winston.debug(`mqtt: update layer ${layerId} on topic ${topic}`);
                             this.manager.addUpdateLayer(layer, <ApiMeta>{ source: this.id }, () => { });
                         }
                     } catch (e) {
@@ -94,7 +94,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                         var featureId = ids[1];
                         var feature = <Feature>JSON.parse(message);
                         if (feature) {
-                            Winston.info(`mqtt: update feature ${featureId} for layer ${layerId} on topic ${topic}.`);
+                            Winston.debug(`mqtt: update feature ${featureId} for layer ${layerId} on topic ${topic}.`);
                             this.manager.updateFeature(layerId, feature, <ApiMeta>{ source: this.id }, () => { });
                         }
                     } catch (e) {
@@ -107,7 +107,7 @@ export class MqttAPI extends BaseConnector.BaseConnector {
                 if (kid) {
                     try {
                         var obj = JSON.parse(message);
-                        //Winston.info('mqtt: update key for id ' + kid + " : " + message);
+                        //Winston.debug('mqtt: update key for id ' + kid + " : " + message);
 
                         this.manager.updateKey(kid, obj, <ApiMeta>{ source: this.id }, () => { });
                     }
@@ -173,6 +173,14 @@ export class MqttAPI extends BaseConnector.BaseConnector {
         if (meta.source !== this.id)
             this.client.publish(`${this.layerPrefix}${layerId}/feature/${feature.id}`, JSON.stringify(feature));
         callback(<CallbackResult> { result: ApiResult.OK });
+    }
+    
+    public addUpdateFeatureBatch(layerId: string, features: ApiManager.IChangeEvent[], useLog: boolean, meta: ApiMeta, callback: Function) {
+        Winston.info('mqtt update feature batch');
+        if (meta.source !== this.id) {
+            this.client.publish(`${this.layerPrefix}${layerId}/featurebatch`, JSON.stringify(features));
+        }
+        callback(<CallbackResult>{ result: ApiResult.OK });
     }
 
     private sendFeature(layerId: string, featureId: string) {

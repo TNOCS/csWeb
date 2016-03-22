@@ -3020,7 +3020,22 @@ module csComp.Services {
     export enum LayerUpdateAction {
         updateFeature,
         updateLog,
-        deleteFeature        
+        deleteFeature,
+        updateLayer,
+        deleteLayer,
+        addUpdateFeatureBatch      
+    }
+    
+    /** Type of change in an ApiEvent */
+    export enum ChangeType {
+        Create, Update, Delete
+    }
+
+    /** When a key|layer|project is changed, the ChangeEvent is emitted with the following data. */
+    export interface IChangeEvent {
+        id: string;
+        type: ChangeType;
+        value?: Object;
     }
 
     /**
