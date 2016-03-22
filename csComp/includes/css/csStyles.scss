@@ -1196,19 +1196,19 @@ body,
     padding: 3px;
     pointer-events: all;
 }
-.modal {
-    display: block;
-}
-.modal-body:before,
-.modal-body:after {
-    display: table;
-    content: " ";
-}
-.modal-header:before,
-.modal-header:after {
-    display: table;
-    content: " ";
-}
+// .modal {
+//     display: block;
+// }
+// .modal-body:before,
+// .modal-body:after {
+//     display: table;
+//     content: " ";
+// }
+// .modal-header:before,
+// .modal-header:after {
+//     display: table;
+//     content: " ";
+// }
 
 .tablewidget-row {
     height: 30px;
