@@ -2155,6 +2155,10 @@ module csComp.Services {
 
             this.$http.get(url)
                 .success((solution: Solution) => {
+                    if (typeof solution !== 'object') {
+                        console.log('Error: obtained solution is not a json object!');
+                        return;
+                    }
                     if (solution.maxBounds) {
                         this.maxBounds = solution.maxBounds;
                         this.$mapService.map.setMaxBounds(new L.LatLngBounds(
