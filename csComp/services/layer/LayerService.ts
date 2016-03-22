@@ -2135,6 +2135,10 @@ module csComp.Services {
 
             this.$http.get(url)
                 .success((solution: Solution) => {
+                    if (typeof solution !== 'object') {
+                        console.log('Error: obtained solution is not a json object!');
+                        return;
+                    }
                     if (solution.maxBounds) {
                         this.maxBounds = solution.maxBounds;
                         this.$mapService.map.setMaxBounds(new L.LatLngBounds(
@@ -3000,7 +3004,22 @@ module csComp.Services {
     export enum LayerUpdateAction {
         updateFeature,
         updateLog,
-        deleteFeature        
+        deleteFeature,
+        updateLayer,
+        deleteLayer,
+        addUpdateFeatureBatch      
+    }
+    
+    /** Type of change in an ApiEvent */
+    export enum ChangeType {
+        Create, Update, Delete
+    }
+
+    /** When a key|layer|project is changed, the ChangeEvent is emitted with the following data. */
+    export interface IChangeEvent {
+        id: string;
+        type: ChangeType;
+        value?: Object;
     }
 
     /**

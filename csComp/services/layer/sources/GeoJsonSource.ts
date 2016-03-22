@@ -309,32 +309,12 @@ module csComp.Services {
             }
         }
 
-        private deleteFeatureByProperty(key, id, value: IFeature) {
+        private deleteFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer) {
             try {
-                var features = <IFeature[]>(<any>this.layer.data).features;
-
-                if (features == null) return;
-                var done = false;
-
-                features.some((f: IFeature) => {
-                    if (f.properties != null && f.properties.hasOwnProperty(key) && f.properties[key] === id) {
-                        f.properties = value.properties;
-                        f.geometry = value.geometry;
-                        this.service.calculateFeatureStyle(f);
-                        this.service.updateFeature(f);
-                        done = true;
-                        //  console.log('updating feature');
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
-                if (!done) {
-                    // console.log('adding feature');
-                    features.push(value);
-                    this.service.initFeature(value, this.layer);
-                    var m = this.service.activeMapRenderer.createFeature(value);
-
+                var feature = this.service.findFeature(layer, id);
+                if (feature) {
+                    if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, feature.properties['Name'] + ' removed');
+                    this.service.removeFeature(feature, false);
                 }
             } catch (e) {
                 console.log('error');
@@ -393,6 +373,24 @@ module csComp.Services {
                                         if (layer.id === lu.layerId) {
                                             this.service.$rootScope.$apply(() => {
                                                 this.updateFeatureByProperty('id', f.id, f, layer);
+                                            });
+                                        }
+                                        break;
+                                    case LayerUpdateAction.addUpdateFeatureBatch:
+                                        var fChanges: IChangeEvent[] = lu.item;
+                                        if (layer.id === lu.layerId && fChanges && fChanges.length > 0) {
+                                            this.service.$rootScope.$apply(() => {
+                                                fChanges.forEach((fc) => {
+                                                    switch (fc.type) {
+                                                        case ChangeType.Create:
+                                                        case ChangeType.Update:
+                                                            this.updateFeatureByProperty('id', fc.id, <Feature>fc.value, layer);
+                                                            break;
+                                                        case ChangeType.Delete:
+                                                            this.deleteFeatureByProperty('id', fc.id, <Feature>fc.value, layer);
+                                                            break;
+                                                    }
+                                                })
                                             });
                                         }
                                         break;

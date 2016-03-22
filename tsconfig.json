@@ -235,6 +235,7 @@
         "csServerComp/ServerComponents/creator/MapLayerFactory.ts",
         "csServerComp/ServerComponents/creator/ProjectRepositoryService.ts",
         "csServerComp/ServerComponents/creator/ProxyService.ts",
+        "csServerComp/ServerComponents/creator/RestDataService.ts",
         "csServerComp/ServerComponents/creator/RssService.ts",
         "csServerComp/ServerComponents/database/BagDatabase.ts",
         "csServerComp/ServerComponents/database/IBagAddress.ts",

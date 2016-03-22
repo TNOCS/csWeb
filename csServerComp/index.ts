@@ -22,6 +22,7 @@ export * from './ServerComponents/helpers/Utils';
 // export * from './ServerComponents/helpers/DateUtils';
 export * from './ServerComponents/creator/ProjectRepositoryService';
 export * from './ServerComponents/creator/MapLayerFactory';
+export * from './ServerComponents/creator/RestDataService';
 export * from './ServerComponents/import/Store';
 export * from './ServerComponents/import/IsoLines';
 export * from './ServerComponents/helpers/GeoJSON';
