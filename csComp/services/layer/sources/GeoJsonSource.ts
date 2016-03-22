@@ -514,19 +514,25 @@ module csComp.Services {
             // Open a layer URL
 
             layer.isLoading = true;
+            var url = (layer.useProxy) ?  '/api/proxy' : layer.url;
             this.$http({
-                url: '/api/proxy',
+                url: url,
                 method: 'GET',
                 params: { url: layer.url }
-            }).success((data: string) => {
+            }).success((data: any) => {
+                if (typeof data === 'string') {
+                    data = JSON.parse(data);
+                }
                 var s = new esriJsonConverter.esriJsonConverter();
-                var geojson = s.toGeoJson(JSON.parse(data));
-                console.log(geojson);
+                var geojson = s.toGeoJson(data);
 
                 layer.data = geojson; //csComp.Helpers.GeoExtensions.createFeatureCollection(features);
 
                 if (layer.data.geometries && !layer.data.features) {
                     layer.data.features = layer.data.geometries;
+                }
+                if (layer.dataSourceParameters && layer.dataSourceParameters['convertFromRD']) {
+                    csComp.Helpers.GeoExtensions.convertRDFeaturesToWGS84(layer.data.features);
                 }
                 layer.data.features.forEach((f) => {
                     this.service.initFeature(f, layer, false, false);
