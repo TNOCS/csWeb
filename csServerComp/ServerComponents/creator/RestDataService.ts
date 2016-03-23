@@ -3,7 +3,7 @@ import cors = require('cors')
 import Winston = require('winston');
 import request = require('request');
 import path = require('path');
-import fs = require('fs');
+import fs = require('fs-extra');
 import _ = require('underscore');
 import GeoJSONHelper = require('../helpers/GeoJSON');
 import Api = require('../api/ApiManager');
@@ -106,7 +106,8 @@ export class RestDataSource {
 
     private startRestPolling(dataParameters) {
         dataParameters['counter'] = this.counter++;
-        this.converter.getData(request, dataParameters, (result) => {
+        this.converter.getData(request, dataParameters, {apiManager: this.apiManager, fs: fs}, (result) => {
+            Winston.info('RestDataSource received ' + result.length || 0 + ' features');
             var featureCollection = GeoJSONHelper.GeoJSONFactory.Create(result);
             if (!this.features || Object.keys(this.features).length === 0) {
                 this.initFeatures(featureCollection, Date.now());
