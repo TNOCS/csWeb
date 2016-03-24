@@ -134,7 +134,8 @@ module csComp.Helpers {
      */
     export function getColorString(color: string, defaultColor = '#f00') {
         if (!color) return defaultColor;
-        if (color.length == 4 || color.length == 7) return color;
+        if (color === 'transparent') return '#00000000';
+        if (color.length === 4 || color.length === 7) return color;
         if (color.length === 9) return '#' + color.substr(3, 6);
         return defaultColor;
     }
