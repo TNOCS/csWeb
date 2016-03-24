@@ -39,7 +39,10 @@ module ContourAction {
             if (layerService.currentContour) layerService.map.map.removeLayer(layerService.currentContour); //remove old contour first
             var fType = layerService.getFeatureType(feature);
             if (fType && fType.hasOwnProperty('contourProperty') && feature.properties.hasOwnProperty(fType['contourProperty'])) {
-                var geoContour: L.GeoJSON = JSON.parse(feature.properties[fType.contourProperty]);
+                var contourProp = feature.properties[fType.contourProperty];
+                var geoContour: L.GeoJSON = typeof contourProp === 'object'
+                    ? contourProp
+                    : JSON.parse(contourProp);
                 layerService.currentContour = L.geoJson(geoContour);
                 layerService.currentContour.addTo(layerService.map.map);
             }
