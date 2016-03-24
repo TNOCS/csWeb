@@ -476,8 +476,11 @@ module csComp.Services {
          * @param  {boolean} isFilter: is true, if we need to add a filter icon, otherwise a style icon will be applied
          */
         private addEntryToTooltip(content: string, feature: IFeature, property: string, meta: IPropertyType, title: string, isFilter: boolean) {
+            if (!title || title.length === 0) return {
+                length: 0, content: content
+            };
             var value = feature.properties[property];
-            if (typeof value === 'undefined' || value === null) return { length: 0, content: '' };
+            if (typeof value === 'undefined' || value === null) return { length: 0, content: content };
             var valueLength = value.toString().length;
             if (meta) {
                 value = Helpers.convertPropertyInfo(meta, value);

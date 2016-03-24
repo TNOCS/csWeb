@@ -2288,7 +2288,7 @@ module csComp.Services {
                 var rpt = csComp.Helpers.createRightPanelTab('eventtab', 'eventtab', {}, 'Events', '{{"EVENT_INFO" | translate}}', 'book');
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
             }
-            
+
             // if no dashboards defined, create one
             if (!this.project.dashboards) {
                 this.project.dashboards = [];
