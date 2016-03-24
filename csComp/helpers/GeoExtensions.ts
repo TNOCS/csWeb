@@ -128,7 +128,7 @@ module csComp.Helpers {
                 }
             });
         }
-        
+
         static convertGeoJsonRDToWGS84(coord: number[]) {
             var latlon = GeoExtensions.convertRDToWGS84(coord[0], coord[1]);
             coord[0] = latlon.longitude;

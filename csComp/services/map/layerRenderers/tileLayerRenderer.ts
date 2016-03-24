@@ -50,7 +50,7 @@ module csComp.Services {
         /**
          * Add a UTF Grid Layer to the tilelayer.
          */
-        private static addUtfGrid(service: LayerService, layer: ProjectLayer, utfGridLayerUrl: string) {
+        static addUtfGrid(service: LayerService, layer: ProjectLayer, utfGridLayerUrl: string) {
             var utfGrid = new (<any>L).UtfGrid(utfGridLayerUrl, {
                 resolution: 4,
                 useJsonP: false

@@ -448,8 +448,7 @@ export class ApiManager extends events.EventEmitter {
                 try {
                     this.projects = <{ [key: string]: Project }>JSON.parse(data);
                     Winston.info('manager: project config loaded');
-                }
-                catch (e) {
+                } catch (e) {
                     Winston.error('manager: error loading project config');
                 }
             }
