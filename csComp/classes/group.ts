@@ -74,6 +74,9 @@ module csComp.Services {
             if (res.owsurl) {
                 res.loadLayersFromOWS();
             }
+            res.layers.forEach(layer => {
+                if (!layer.opacity) layer.opacity = 100;
+            });
             return res;
         }
 
