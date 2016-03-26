@@ -1,6 +1,11 @@
 // Karma configuration
 // Generated on Wed Jun 03 2015 16:17:08 GMT+0200 (W. Europe Daylight Time)
 
+// To run from the command line, make sure you have karma-cli installed using 
+// npm i -g karma-cli
+// so you can run
+// karma start --auto-watch=true --single-run=false --browsers=Chrome test\karma.conf.js
+
 module.exports = function(config) {
     config.set({
 
@@ -12,13 +17,15 @@ module.exports = function(config) {
         frameworks: ['jasmine'],
 
         // list of files / patterns to load in the browser
+        // Note that we don't need to load angular.js separately, as it's already included in csWeb-dep.js
         files: [
+            './node_modules/phantomjs-polyfill/bind-polyfill.js',
             'dist-bower/csWeb-dep.js',
+            'test/bower_components/angular-mocks/angular-mocks.js',
             'test/bower_components/angularUtils-pagination/dirPagination.js',
             'dist-bower/csComp.js',
             'test/csComp/app.js',
             'dist-bower/csTemplates.js',
-            'test/bower_components/angular-mocks/angular-mocks.js',
             'out/test/csComp/spec/**/*.js',
             'out/test/csComp/mock/**/*.js'
         ],
