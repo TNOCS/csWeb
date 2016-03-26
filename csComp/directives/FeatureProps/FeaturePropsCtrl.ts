@@ -530,6 +530,9 @@ module FeatureProps {
                     this.displayFeature(this.$layerService.lastSelectedFeature);
                     this.$scope.feature = this.$layerService.lastSelectedFeature;
                     break;
+                case 'onFeatureRemoved':
+                    if (feature === this.$layerService.lastSelectedFeature) this.$messageBusService.publish('rightpanel', 'deactiveContainer', 'featureprops');
+                    break;
             }
             if (callApply && this.$scope.$root.$$phase !== '$apply' && this.$scope.$root.$$phase !== '$digest') {
                 this.$scope.$root.$apply();
