@@ -53,7 +53,8 @@ function run(command, cb) {
     }
 }
 
-gulp.task('bower_useref',function(cb){
+// http://stackoverflow.com/questions/22824546/how-to-run-gulp-tasks-synchronously-one-after-the-other
+gulp.task('bower_useref', ['bower_install'], function(cb){
     return gulp.src('./csComp/includes/bower_dep/index.html')
         .pipe(useref())
         .pipe(gulp.dest('./dist-bower'));
