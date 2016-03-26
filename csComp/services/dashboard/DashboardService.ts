@@ -166,10 +166,18 @@ module csComp.Services {
         }
 
         public selectDashboard(dashboard: csComp.Services.Dashboard, container: string) {
+            this.$location.search('dashboard', dashboard.id);
+            if (!_.isUndefined(dashboard.refreshPage) && dashboard.refreshPage)
+            {
+                location.reload();   
+            }
+            else
+            {
             this.$messageBusService.publish('updatelegend', 'removelegend');
             //this.$layerService.project.activeDashboard = dashboard;
             this.$messageBusService.publish('dashboard-' + container, 'activated', dashboard);
-            this.$location.search('dashboard', dashboard.id);
+            
+            }
         }
 
         public closeContainer()
@@ -178,13 +186,15 @@ module csComp.Services {
         }
 
         public activateTab(tab: RightPanelTab) {
+            
+            
             var content = tab.container + '-content';
             if (!tab.hasOwnProperty('container')) return;
-            if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) {
+            if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) {                
                 (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
                 return;
             }
-            this.$layerService.visual.rightPanelVisible = true;
+            
 
             $('#' + tab.container + '-tab').remove();
             var c = $('#' + content);
@@ -220,7 +230,12 @@ module csComp.Services {
                    this.deactivateTabContainer(tab.container);
                 });
             }
-            (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+            
+            if (_.isUndefined(tab.open) || tab.open === true)
+            {            
+                (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
+                this.$layerService.visual.rightPanelVisible = true;
+            }
             this.rightPanelTabs[tab.container] = tab;
         }
 
