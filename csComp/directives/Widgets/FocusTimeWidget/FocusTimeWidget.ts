@@ -100,13 +100,14 @@ module FocusTimeWidget {
             }
 
         }
+        
+       
 
-        public checkLayerTimestamp() {
-            
+        public checkLayerTimestamp() {                   
             if (this.layer)
                 if (this.layer._gui.hasOwnProperty("timestamp"))
                     this.$scope.$evalAsync(() => {
-                        this.dateFormat = "dd-MM-yyyy";
+                        this.dateFormat = "dd-MM-yyyy EEE";
                         this.timeFormat = "HH:mm ";
                         this.time = this.layer._gui["timestamp"];
                     });
