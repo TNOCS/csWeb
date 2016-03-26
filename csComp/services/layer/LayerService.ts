@@ -1276,6 +1276,8 @@ module csComp.Services {
                 feature.layer.group.filterResult = feature.layer.group.filterResult.filter((f: IFeature) => { return f !== feature; });
             feature.layer.group.ndx.remove([feature]);
             this.activeMapRenderer.removeFeature(feature);
+            
+            this.$messageBusService.publish("feature","onFeatureRemoved",feature);
 
             if (dynamic) {
                 var s = new LayerUpdate();
@@ -1408,7 +1410,7 @@ module csComp.Services {
         /**
         * Initialize the feature type and its property types by setting default property values, and by localizing it.
         */
-        private initFeatureType(ft: IFeatureType, propertyTypes: { [key: string]: IPropertyType }) {
+        public initFeatureType(ft: IFeatureType, propertyTypes: { [key: string]: IPropertyType }) {
             if (ft._isInitialized) return;
             ft._isInitialized = true;
             this.initIconUri(ft);
@@ -2625,8 +2627,21 @@ module csComp.Services {
         }
 
         public toggleLayer(layer: ProjectLayer) {
-            if (layer.group.oneLayerActive && this.findLoadedLayer(layer.id)) layer.enabled = false;
-            if (typeof layer.enabled === "undefined" || layer.enabled) {
+            if (_.isUndefined(layer.enabled)) {
+                layer.enabled = true;
+            }
+            else
+            {
+                layer.enabled = !layer.enabled;
+            }
+            this.checkToggleLayer(layer);
+            //if (!_.isUndefined(layer.group.oneLayerActive) && this.findLoadedLayer(layer.id)) layer.enabled = false;
+            
+        }
+        
+        public checkToggleLayer(layer : ProjectLayer)
+        {
+            if (layer.enabled) {
                 this.addLayer(layer);
             } else {
                 this.removeLayer(layer);
