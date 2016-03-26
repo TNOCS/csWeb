@@ -60,6 +60,8 @@ module LayerSettings {
                             var ft = <csComp.Services.IFeatureType>{};
                             ft.id = this.layer.defaultFeatureType;
                             ft.name = ft.id;
+                            ft.style = <csComp.Services.IFeatureTypeStyle>{};
+                            ft.style.drawingMode = "Point"; 
                             // EV already called before.
                             //ft.style = csComp.Helpers.getDefaultFeatureStyle();
                             //if (ft.name.toLowerCase().startsWith("http://")) id = ft.name;
