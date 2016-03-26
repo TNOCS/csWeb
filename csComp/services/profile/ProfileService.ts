@@ -7,6 +7,9 @@ module csComp.Services {
      */
     export class ProfileService {
         
+        public loggedIn : boolean;
+        public validate : Function;
+        
         public static $inject = [
             
             'localStorageService',
@@ -14,6 +17,32 @@ module csComp.Services {
             'messageBusService'
 
         ];
+        
+        
+        public startLogin()
+        {
+            var rpt = csComp.Helpers.createRightPanelTab('profile', 'profiletab', null, 'Selected feature', '{{"FEATURE_INFO" | translate}}', 'user');
+            this.$messageBusService.publish('rightpanel', 'activate', rpt); 
+        }
+        
+        public validateUser(userName, userPassword)
+        {
+           if (_.isFunction(this.validate))
+           {
+               this.validate(userName, userPassword,(status : boolean,profile)=>{
+                   this.loggedIn = status;
+                   if (!this.loggedIn)
+                   {
+                       this.$messageBusService.notify("Login Result","Login Failed");
+                   }
+               })
+           } 
+        }
+        
+        public logout()
+        {
+            this.loggedIn = false;
+        }
 
         
         constructor(            
