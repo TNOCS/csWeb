@@ -245,6 +245,8 @@ module csComp.Services {
         disabled:             boolean;
         parents:              string[];
         _initialized:         boolean;
+        /** complete refresh page on activation */
+        refreshPage: boolean;
 
         constructor() {
             this.widgets = [];
