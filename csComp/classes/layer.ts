@@ -28,8 +28,8 @@ module csComp.Services {
         sensorLink? : ISensorLink;
         /** Type of layer, e.g. GeoJSON, TopoJSON, or WMS */
         type: string;
-        /** render type */
-        renderType: string;
+        /** render type */ 
+        renderType?: string;
         /** Data source */
         url: string;
         /** Contains extended heatmap information (e.g. list of references to required sources, or weights) */
