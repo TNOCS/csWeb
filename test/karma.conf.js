@@ -19,7 +19,6 @@ module.exports = function(config) {
         // list of files / patterns to load in the browser
         // Note that we don't need to load angular.js separately, as it's already included in csWeb-dep.js
         files: [
-            './node_modules/phantomjs-polyfill/bind-polyfill.js',
             'dist-bower/csWeb-dep.js',
             'test/bower_components/angular-mocks/angular-mocks.js',
             'test/bower_components/angularUtils-pagination/dirPagination.js',

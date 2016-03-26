@@ -54,11 +54,7 @@ function run(command, cb) {
 }
 
 gulp.task('bower_useref',function(cb){
-    var assets = useref.assets();
-
     return gulp.src('./csComp/includes/bower_dep/index.html')
-        .pipe(assets)
-        .pipe(assets.restore())
         .pipe(useref())
         .pipe(gulp.dest('./dist-bower'));
 });
