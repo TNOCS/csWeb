@@ -64,4 +64,30 @@ module Helpers.Resize {
             }
         }
     ]);
+    
+    var inputresizerApp = angular.module('inputresizer', []);
+
+myModule.directive('expandTo', ()=> {
+    return {
+      restrict: 'A',
+      link: ($scope, $element, $attributes)=> {
+        var expandsize = $attributes['expandTo'] || '50px';
+        var original = $element.width();
+        
+        $element.on('focus', ()=>{
+          $element.animate({
+            width: expandsize
+          }, 500, () => {
+            // Animation complete.
+          });
+        }).on('blur', ()=>{
+          $element.animate({
+            width: original + 'px'
+          }, 500, ()=> {
+            // Animation complete.
+          });
+        });
+      }
+    }
+  })
 }
