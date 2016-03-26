@@ -18,6 +18,13 @@ export function getDirectories(srcpath: string): string[] {
   });
 }
 
+/** Get all the files in a folder. */
+export function getFiles(srcpath: string): string[] {
+  return fs.readdirSync(srcpath).filter(function(file: string) {
+    return fs.statSync(path.join(srcpath, file)).isFile();
+  });
+}
+
 /**
  * Get the IP4 address (assuming you have only one active network card).
  * See also: http://stackoverflow.com/a/15075395/319711

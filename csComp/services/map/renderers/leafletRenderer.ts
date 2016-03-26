@@ -167,14 +167,12 @@ module csComp.Services {
             }
         }
 
-
-
         public changeBaseLayer(layerObj: BaseLayer, force: boolean = false) {
             if (!force && layerObj === this.service.$mapService.activeBaseLayer) return;
             if (this.baseLayer && this.map.hasLayer(this.baseLayer)) this.map.removeLayer(this.baseLayer);
-            this.baseLayer = this.createBaseLayer(layerObj);            
+            this.baseLayer = this.createBaseLayer(layerObj);
             this.map.addLayer(this.baseLayer, true);
-            (<any>this.baseLayer).bringToBack();            
+            (<any>this.baseLayer).bringToBack();
 
             this.map.setZoom(this.service.map.map.getZoom());
             this.map.fire('baselayerchange', { layer: this.baseLayer });
@@ -191,7 +189,14 @@ module csComp.Services {
             if (layerObj.errorTileUrl) options.errorTileUrl = layerObj.errorTileUrl;
             if (layerObj.attribution) options.attribution = layerObj.attribution;
             if (layerObj.id) options['id'] = layerObj.id;
-            var layer = L.tileLayer(layerObj.url, options);
+
+            var layers = layerObj.url.split('|');
+            var layer = L.tileLayer(layers[0], options);
+            if (layers.length > 1) {
+                var projectLayer = new ProjectLayer();
+                projectLayer.url = layers[1];
+                csComp.Services.TileLayerRenderer.addUtfGrid(this.service, projectLayer, layers[1]);
+            }
 
             return layer;
         }
@@ -471,8 +476,11 @@ module csComp.Services {
          * @param  {boolean} isFilter: is true, if we need to add a filter icon, otherwise a style icon will be applied
          */
         private addEntryToTooltip(content: string, feature: IFeature, property: string, meta: IPropertyType, title: string, isFilter: boolean) {
+            if (!title || title.length === 0) return {
+                length: 0, content: content
+            };
             var value = feature.properties[property];
-            if (typeof value === 'undefined' || value === null) return { length: 0, content: '' };
+            if (typeof value === 'undefined' || value === null) return { length: 0, content: content };
             var valueLength = value.toString().length;
             if (meta) {
                 value = Helpers.convertPropertyInfo(meta, value);

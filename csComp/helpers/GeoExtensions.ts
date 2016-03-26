@@ -92,6 +92,48 @@ module csComp.Helpers {
         static rad2deg(rad: number) {
             return (rad / GeoExtensions.Rad2Deg);
         }
+        
+        /**
+         * Convert an array of RD (Rijksdriehoek) features to WGS84.
+         * @param  {IFeature[]} rd [Array of features in RD]
+         * @return {void} The function changes the passed parameter, returns nothing.  [void]
+         * Source: http://home.solcon.nl/pvanmanen/Download/Transformatieformules.pdf, http://www.roelvanlisdonk.nl/?p=2950
+         */
+        static convertRDFeaturesToWGS84(rd: IFeature[]) {
+            if (!rd || rd.length <= 0) {
+                return;
+            }
+            rd.forEach((f: IFeature) => {
+                switch (f.geometry.type.toLowerCase()) {
+                    case 'point':
+                        GeoExtensions.convertGeoJsonRDToWGS84(f.geometry.coordinates);
+                        break;
+                    case 'linestring':
+                    case 'polygon':
+                        f.geometry.coordinates.forEach((line) => {
+                            line.forEach((segment) => {
+                                GeoExtensions.convertGeoJsonRDToWGS84(segment);
+                            });
+                        });
+                        break;
+                    case 'multipolygon':
+                        f.geometry.coordinates.forEach((poly) => {
+                            poly.forEach((line) => {
+                                line.forEach((segment) => {
+                                    GeoExtensions.convertGeoJsonRDToWGS84(segment);
+                                });
+                            });
+                        });
+                        break;
+                }
+            });
+        }
+
+        static convertGeoJsonRDToWGS84(coord: number[]) {
+            var latlon = GeoExtensions.convertRDToWGS84(coord[0], coord[1]);
+            coord[0] = latlon.longitude;
+            coord[1] = latlon.latitude;
+        }
 
         /**
          * Convert RD (Rijksdriehoek) coordinates to WGS84.

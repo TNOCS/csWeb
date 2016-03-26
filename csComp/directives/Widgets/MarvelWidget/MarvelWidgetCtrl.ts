@@ -207,14 +207,19 @@ module MarvelWidget {
             var featureTypeName = feature.fType.id.split('#').pop().replace(/(\_\d$)/, ''); // Remove state appendix (e.g. Hospital_0)
             var filePath = this.$scope.data.marvelFolder + featureTypeName + '.mrvjson';
             this.parentWidget.show();
-            $.get(filePath, (marvel) => {
-                this.$timeout(() => {
-                    this.$scope.data.title = feature.fType.name;
-                    var w = $("#" + this.widget.elementId);
-                    Marvelous.model(marvel, featureTypeName, w);
-                }, 0);
+            $.ajax({
+                url: filePath,
+                success: (marvel) => {
+                    this.$timeout(() => {
+                        this.$scope.data.title = feature.fType.name;
+                        var w = $("#" + this.widget.elementId);
+                        Marvelous.model(marvel, featureTypeName, w);
+                    }, 0);
+                },
+                error: () => {
+                    this.parentWidget.hide();
+                }
             });
         }
     }
-
 }

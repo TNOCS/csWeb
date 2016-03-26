@@ -60,7 +60,7 @@ export class CallbackResult {
 
 /** Event emitted by the ApiManager */
 export enum Event {
-    KeyChanged, PropertyChanged, FeatureChanged, LayerChanged, ProjectChanged
+    KeyChanged, PropertyChanged, FeatureChanged, LayerChanged, ProjectChanged, FeaturesChanged
 }
 
 /** Type of change in an ApiEvent */
@@ -95,6 +95,7 @@ export interface IConnector {
     getFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function);
     updateFeature(layerId: string, feature: any, useLog: boolean, meta: ApiMeta, callback: Function);
     deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function);
+    addUpdateFeatureBatch(layerId: string, features: any[], useLog: boolean, meta: ApiMeta, callback: Function);
     //log methods
     addLog(layerId: string, featureId: string, property: string, log: Log, meta: ApiMeta, callback: Function);
     getLog(layerId: string, featureId: string, meta: ApiMeta, callback: Function);
@@ -321,6 +322,7 @@ export class ResourceFile implements StorageObject {
  * FeatureChanged event when a feature is changed (CRUD).
  * LayerChanged event when a layer is changed (CRUD).
  * ProjectChanged event when a project is changed (CRUD).
+ * FeaturesChanged event when an array of features is changed (CRUD).
  */
 export class ApiManager extends events.EventEmitter {
     /**
@@ -380,7 +382,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public init(rootPath: string, callback: Function) {
-        Winston.info('Init layer manager (isClient=${this.isClient})', { cat: 'api' });
+        Winston.info(`Init layer manager (isClient=${this.isClient})`, { cat: 'api' });
         this.rootPath = rootPath;
         if (!fs.existsSync(rootPath)) {
             fs.mkdirSync(rootPath);
@@ -408,7 +410,7 @@ export class ApiManager extends events.EventEmitter {
     /** Open layer config file*/
     public loadLayerConfig(cb: Function) {
 
-        Winston.info('manager: loading layer config');
+        Winston.debug('manager: loading layer config');
         try {
             this.layersFile = path.join(this.rootPath, 'layers.json');
 
@@ -436,7 +438,7 @@ export class ApiManager extends events.EventEmitter {
      * Open project config file
      */
     public loadProjectConfig(cb: Function) {
-        Winston.info('manager: loading project config');
+        Winston.debug('manager: loading project config');
         this.projectsFile = path.join(this.rootPath, 'projects.json');
 
         fs.readFile(this.projectsFile, 'utf8', (err, data) => {
@@ -446,8 +448,7 @@ export class ApiManager extends events.EventEmitter {
                 try {
                     this.projects = <{ [key: string]: Project }>JSON.parse(data);
                     Winston.info('manager: project config loaded');
-                }
-                catch (e) {
+                } catch (e) {
                     Winston.error('manager: error loading project config');
                 }
             }
@@ -475,7 +476,7 @@ export class ApiManager extends events.EventEmitter {
     public saveProjectConfig() {
         fs.writeFile(this.projectsFile, JSON.stringify(this.projects), (error) => {
             if (error) {
-                Winston.info('manager: error saving project config: ' + error.message);
+                Winston.error('manager: error saving project config: ' + error.message);
             } else {
                 Winston.info('manager: project config saved');
             }
@@ -497,7 +498,7 @@ export class ApiManager extends events.EventEmitter {
         }
         fs.writeFile(this.layersFile, JSON.stringify(temp), (error) => {
             if (error) {
-                Winston.info('manager: error saving layer config');
+                Winston.error('manager: error saving layer config');
             } else {
                 Winston.info('manager: layer config saved');
             }
@@ -1100,7 +1101,7 @@ export class ApiManager extends events.EventEmitter {
     // Feature methods start here, in CRUD order.
 
     public addFeature(layerId: string, feature: Feature, meta: ApiMeta, callback: Function) {
-        Winston.info('feature added');
+        Winston.debug('feature added');
         var layer = this.findLayer(layerId);
         if (!layer) {
             callback(<CallbackResult>{ result: ApiResult.Error, error: 'layer not found' });
@@ -1163,6 +1164,18 @@ export class ApiManager extends events.EventEmitter {
         });
         this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: feature });
     }
+    
+    /** Similar to updateFeature, but with an array of updated features instead of one feature.
+     * 
+     */
+    public addUpdateFeatureBatch(layerId: string, features: IChangeEvent[], meta: ApiMeta, callback: Function) {
+        var s = this.findStorageForLayerId(layerId);
+        if (s) s.addUpdateFeatureBatch(layerId, features, true, meta, (result) => callback(result));
+        this.getInterfaces(meta).forEach((i: IConnector) => {
+            i.addUpdateFeatureBatch(layerId, features, false, meta, () => { });
+        });
+        this.emit(Event[Event.FeaturesChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: features });
+    }
 
     public deleteFeature(layerId: string, featureId: string, meta: ApiMeta, callback: Function) {
         var s = this.findStorageForLayerId(layerId);
@@ -1218,7 +1231,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public subscribeKey(pattern: string, meta: ApiMeta, callback: (topic: string, message: string, params?: Object) => void): ApiKeySubscription {
-        Winston.info('api: added key subscription with pattern ' + pattern);
+        Winston.debug('api: added key subscription with pattern ' + pattern);
         var sub = new ApiKeySubscription();
         sub.id = helpers.newGuid();
         sub.pattern = pattern;
@@ -1232,7 +1245,7 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public addKey(key: Key, meta: ApiMeta, callback: Function) {
-        Winston.info('add key ' + key.id);
+        Winston.debug('add key ' + key.id);
         var k = JSON.parse(JSON.stringify(key));
         delete k.values;
         this.keys[key.id] = k;

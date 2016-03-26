@@ -74,7 +74,8 @@ import ApiMeta = ApiManager.ApiMeta;
         updateLog,
         deleteFeature,
         updateLayer,
-        deleteLayer
+        deleteLayer,
+        addUpdateFeatureBatch
     }
 
     /**
@@ -275,7 +276,7 @@ import ApiMeta = ApiManager.ApiMeta;
 
         /**
          * Send update to all clients.
-         * @action: logs-update, feature-update
+         * @action: logs-update, feature-update, feature-batch-update
          * @meta: used to determine source/user, will skip
          */
         public updateFeature(layerId: string, update: LayerUpdate, meta: ApiMeta) {

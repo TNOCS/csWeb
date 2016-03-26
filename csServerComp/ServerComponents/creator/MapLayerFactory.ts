@@ -66,7 +66,7 @@ export interface IPropertyType {
     calculation?: string;
     subject?: string;
     target?: string;
-    targetrelation?: string;
+    targetlayers?: string[];
     targetproperty?: string;
     options?: string[];
     activation?: string;

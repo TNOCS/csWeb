@@ -188,8 +188,8 @@ module csComp.Services {
         public activateTab(tab: RightPanelTab) {
             
             
-            var content = tab.container + '-content';
             if (!tab.hasOwnProperty('container')) return;
+            var content = tab.container + '-content';
             if (this.rightPanelTabs.hasOwnProperty(tab.container) && this.rightPanelTabs[tab.container].directive === tab.directive && !tab.replace) {                
                 (<any>$('#rightpanelTabs a[data-target="#' + content + '"]')).tab('show');
                 return;

@@ -53,12 +53,9 @@ function run(command, cb) {
     }
 }
 
-gulp.task('bower_useref',function(cb){
-    var assets = useref.assets();
-
+// http://stackoverflow.com/questions/22824546/how-to-run-gulp-tasks-synchronously-one-after-the-other
+gulp.task('bower_useref', ['bower_install'], function(cb){
     return gulp.src('./csComp/includes/bower_dep/index.html')
-        .pipe(assets)
-        .pipe(assets.restore())
         .pipe(useref())
         .pipe(gulp.dest('./dist-bower'));
 });
@@ -122,7 +119,7 @@ gulp.task('tsconfig', function () {
                 sourceMap: true,
             },
             filesGlob: globPattern
-        },
+        }
     };
     return buildTsconfig(config, globPattern, './');
 });

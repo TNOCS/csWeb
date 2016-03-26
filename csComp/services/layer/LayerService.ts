@@ -20,7 +20,6 @@ module csComp.Services {
         map: Services.MapService;
         _featureTypes: { [key: string]: IFeatureType; };
         propertyTypeData: { [key: string]: IPropertyType; };
-        
         /** website is running in touch mode */
         touchMode : boolean = false;
 
@@ -161,17 +160,17 @@ module csComp.Services {
             }, 500);
 
             $messageBusService.subscribe('timeline', (action: string, date: Date) => {
-                if (action === 'focusChange') { delayFocusChange(date);
+                if (action === 'focusChange') {
+                    delayFocusChange(date);
                     //this.refreshActiveLayers();
-                     }
+                }
             });
 
             this.checkMobile();
             this.enableDrop();
         }
 
-        public refreshActiveLayers()
-        {
+        public refreshActiveLayers() {
             for (var l in this.loadedLayers) {
                     var layer = <ProjectLayer>this.loadedLayers[l];
                     if (layer.timeDependent) {
@@ -179,12 +178,10 @@ module csComp.Services {
                     }
                 }
         }
-        
-        public updateLayerSensorLink(layer : ProjectLayer)
-        {
+
+        public updateLayerSensorLink(layer : ProjectLayer) {
             if (layer.sensorLink) {
                     // create sensorlink
-                     
                     var link = layer.sensorLink.url;
                     if (!this.project.activeDashboard.isLive)
                     {
@@ -197,9 +194,9 @@ module csComp.Services {
                     }
                     layer._gui['lastSensorLink'] = link;
                     console.log('downloading ' + link);
-                    layer._gui["loadingSensorLink"] = true;
+                    layer._gui['loadingSensorLink'] = true;
                     this.$http.get(link)
-                        .success((data: ISensorLinkResult) => {     
+                        .success((data: ISensorLinkResult) => {
                             layer._gui["loadingSensorLink"] = false;
                             if (typeof data.kpis !== 'undefined')
                             {
@@ -211,47 +208,37 @@ module csComp.Services {
                                     data.properties.forEach(s => f.sensors[s] = []);
                                 });
                             var t = 0;
-                            
                             var featureLookup = []
-                            
+
                             data.features.forEach(f =>{
                                var index = _.findIndex(layer.data.features,((p : csComp.Services.IFeature)=> p.properties[layer.sensorLink.linkid] === f));
                                if (index!==-1) featureLookup.push(index);                               
                             });
-                            
-                            for (var s in data.data)
-                            {
+
+                            for (var s in data.data) {
                                 var sensordata = data.data[s];
-                                for (var ti =0; ti < data.timestamps.length;ti++)
-                                {
-                                    for (var fi = 0;fi < sensordata[ti].length; fi++)
-                                    {
+                                for (var ti = 0; ti < data.timestamps.length; ti++) {
+                                    for (var fi = 0; fi < sensordata[ti].length; fi++) {
                                         // get feature
                                         var findex = featureLookup[fi];
                                         if (findex>=0)
                                         {
                                         var f = layer.data.features[findex];
-                                        if (f)
-                                        {
                                             var value = sensordata[ti][fi];
                                         //if (value === -1) value = null;
                                             f.sensors[s].push(value);
                                         }
                                         }
-                                        
-                                    }                                    
+                                    }
                                 }
-                                
-                                
                             }
 
                            
                             this.throttleSensorDataUpdate();
-                            
                             this.$messageBusService.publish("timeline","sensorLinkUpdated");
                         })
                         .error((e) => {
-                            layer._gui["loadingSensorLink"] = false;
+                            layer._gui['loadingSensorLink'] = false;
                             console.log('error loading sensor data');
                         });
                 }
@@ -267,7 +254,6 @@ module csComp.Services {
                 var layer = <ProjectLayer>this.loadedLayers[l];
                 this.updateLayerSensorLink(layer);
                 console.log(layer.title);
-                
             };
         }
 
@@ -295,7 +281,6 @@ module csComp.Services {
                     } else {
                         this.handleFileUpload(files, obj);
                     }
-
                     //We need to send dropped files to Server
                 });
             }
@@ -1299,8 +1284,8 @@ module csComp.Services {
             if (style) {
                 if (style.nameLabel) s.nameLabel = style.nameLabel;
                 if (style.iconUri) s.iconUri = style.iconUri;
-                if (style.fillOpacity) s.fillOpacity = style.fillOpacity;
-                if (style.opacity) s.opacity = style.opacity;
+                if (style.fillOpacity >= 0) s.fillOpacity = style.fillOpacity;
+                if (style.opacity >= 0) s.opacity = style.opacity;
                 if (style.fillColor) s.fillColor = csComp.Helpers.getColorString(style.fillColor);
                 // Stroke is a boolean property, so you have to check whether it is undefined.
                 if (typeof style.stroke !== 'undefined') s.stroke = style.stroke;
@@ -1648,13 +1633,10 @@ module csComp.Services {
             if (property.legend)
             {
                 gs.activeLegend = property.legend;
-            }
-            else
-            {
-            gs.colors = ['white', '#FF5500'];    
+            } else {
+                gs.colors = ['white', '#FF5500'];
             }
 
-            
             this.saveStyle(group, gs);
             this.project.features.forEach((fe: IFeature) => {
                 if (fe.layer.group === group) {
@@ -2145,6 +2127,10 @@ module csComp.Services {
 
             this.$http.get(url)
                 .success((solution: Solution) => {
+                    if (typeof solution !== 'object') {
+                        console.log('Error: obtained solution is not a json object!');
+                        return;
+                    }
                     if (solution.maxBounds) {
                         this.maxBounds = solution.maxBounds;
                         this.$mapService.map.setMaxBounds(new L.LatLngBounds(
@@ -2294,7 +2280,7 @@ module csComp.Services {
                 var rpt = csComp.Helpers.createRightPanelTab('eventtab', 'eventtab', {}, 'Events', '{{"EVENT_INFO" | translate}}', 'book');
                 this.$messageBusService.publish('rightpanel', 'activate', rpt);
             }
-            
+
             // if no dashboards defined, create one
             if (!this.project.dashboards) {
                 this.project.dashboards = [];
@@ -3023,7 +3009,22 @@ module csComp.Services {
     export enum LayerUpdateAction {
         updateFeature,
         updateLog,
-        deleteFeature        
+        deleteFeature,
+        updateLayer,
+        deleteLayer,
+        addUpdateFeatureBatch      
+    }
+    
+    /** Type of change in an ApiEvent */
+    export enum ChangeType {
+        Create, Update, Delete
+    }
+
+    /** When a key|layer|project is changed, the ChangeEvent is emitted with the following data. */
+    export interface IChangeEvent {
+        id: string;
+        type: ChangeType;
+        value?: Object;
     }
 
     /**

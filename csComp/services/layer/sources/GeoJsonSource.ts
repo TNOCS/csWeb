@@ -309,32 +309,12 @@ module csComp.Services {
             }
         }
 
-        private deleteFeatureByProperty(key, id, value: IFeature) {
+        private deleteFeatureByProperty(key, id, value: IFeature, layer: ProjectLayer) {
             try {
-                var features = <IFeature[]>(<any>this.layer.data).features;
-
-                if (features == null) return;
-                var done = false;
-
-                features.some((f: IFeature) => {
-                    if (f.properties != null && f.properties.hasOwnProperty(key) && f.properties[key] === id) {
-                        f.properties = value.properties;
-                        f.geometry = value.geometry;
-                        this.service.calculateFeatureStyle(f);
-                        this.service.updateFeature(f);
-                        done = true;
-                        //  console.log('updating feature');
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
-                if (!done) {
-                    // console.log('adding feature');
-                    features.push(value);
-                    this.service.initFeature(value, this.layer);
-                    var m = this.service.activeMapRenderer.createFeature(value);
-
+                var feature = this.service.findFeature(layer, id);
+                if (feature) {
+                    if (layer.showFeatureNotifications) this.service.$messageBusService.notify(this.layer.title, feature.properties['Name'] + ' removed');
+                    this.service.removeFeature(feature, false);
                 }
             } catch (e) {
                 console.log('error');
@@ -357,16 +337,15 @@ module csComp.Services {
                         break;
                     case 'msg' :
                         var d = msg.data;
-                        if (d.hasOwnProperty('message'))
-                        {
-                            this.service.$messageBusService.notify(this.layer.title,d.message);                            
-                        }                        
-                        break;                 
+                        if (d.hasOwnProperty('message')) {
+                            this.service.$messageBusService.notify(this.layer.title,d.message);
+                        }
+                        break;
                     case 'layer':
                         if (msg.data != null) {
                             try {
                                 var lu = <LayerUpdate>msg.data;
-                                switch (lu.action) {                                    
+                                switch (lu.action) {
                                     case LayerUpdateAction.updateLog:
                                         // find feature
                                         var fId = lu.featureId;
@@ -393,6 +372,24 @@ module csComp.Services {
                                         if (layer.id === lu.layerId) {
                                             this.service.$rootScope.$apply(() => {
                                                 this.updateFeatureByProperty('id', f.id, f, layer);
+                                            });
+                                        }
+                                        break;
+                                    case LayerUpdateAction.addUpdateFeatureBatch:
+                                        var fChanges: IChangeEvent[] = lu.item;
+                                        if (layer.id === lu.layerId && fChanges && fChanges.length > 0) {
+                                            this.service.$rootScope.$apply(() => {
+                                                fChanges.forEach((fc) => {
+                                                    switch (fc.type) {
+                                                        case ChangeType.Create:
+                                                        case ChangeType.Update:
+                                                            this.updateFeatureByProperty('id', fc.id, <Feature>fc.value, layer);
+                                                            break;
+                                                        case ChangeType.Delete:
+                                                            this.deleteFeatureByProperty('id', fc.id, <Feature>fc.value, layer);
+                                                            break;
+                                                    }
+                                                })
                                             });
                                         }
                                         break;
@@ -517,19 +514,25 @@ module csComp.Services {
             // Open a layer URL
 
             layer.isLoading = true;
+            var url = (layer.useProxy) ?  '/api/proxy' : layer.url;
             this.$http({
-                url: '/api/proxy',
+                url: url,
                 method: 'GET',
                 params: { url: layer.url }
-            }).success((data: string) => {
+            }).success((data: any) => {
+                if (typeof data === 'string') {
+                    data = JSON.parse(data);
+                }
                 var s = new esriJsonConverter.esriJsonConverter();
-                var geojson = s.toGeoJson(JSON.parse(data));
-                console.log(geojson);
+                var geojson = s.toGeoJson(data);
 
                 layer.data = geojson; //csComp.Helpers.GeoExtensions.createFeatureCollection(features);
 
                 if (layer.data.geometries && !layer.data.features) {
                     layer.data.features = layer.data.geometries;
+                }
+                if (layer.dataSourceParameters && layer.dataSourceParameters['convertFromRD']) {
+                    csComp.Helpers.GeoExtensions.convertRDFeaturesToWGS84(layer.data.features);
                 }
                 layer.data.features.forEach((f) => {
                     this.service.initFeature(f, layer, false, false);

@@ -1,16 +1,20 @@
 module csComp.Helpers {
+    /** 
+     * Either get the color from the string value by using the active legend, or else return 
+     * the current value (e.g. assuming that the current property contains a color).
+     */
     export function getColorFromStringValue(v: string, gs: csComp.Services.GroupStyle) {
         if (gs.activeLegend) {
             var defaultcolor: string = '#000000';
             var l = gs.activeLegend;
             var s: String = l.id;
             var n = l.legendEntries.length;
-            if (n == 0) return (defaultcolor);
-            if (l.legendKind.toLowerCase() == 'discretestrings') {
+            if (n === 0) return (defaultcolor);
+            if (l.legendKind.toLowerCase() === 'discretestrings') {
                 var i: number = 0;
                 while (i < n) {
                     var e = l.legendEntries[i];
-                    if (v == e.stringValue) {
+                    if (v === e.stringValue) {
                         return e.color;
                     }
                     i++;
@@ -19,6 +23,7 @@ module csComp.Helpers {
             }
             return defaultcolor;
         }
+        return v;
     }
 
     export function getImageUri(ft: csComp.Services.IFeatureType): string {
@@ -134,7 +139,8 @@ module csComp.Helpers {
      */
     export function getColorString(color: string, defaultColor = '#f00') {
         if (!color) return defaultColor;
-        if (color.length == 4 || color.length == 7) return color;
+        if (color === 'transparent') return '#00000000';
+        if (color.length === 4 || color.length === 7) return color;
         if (color.length === 9) return '#' + color.substr(3, 6);
         return defaultColor;
     }

@@ -144,7 +144,7 @@ module FeatureProps {
 
             var infoCallOutSection = new CallOutSection('fa-info');
             //var searchCallOutSection = new CallOutSection('fa-filter');
-            var hierarchyCallOutSection = new CallOutSection('fa-link');
+            var linkCallOutSection = new CallOutSection('fa-link');
 
             var displayValue: string;
             if (type != null) {
@@ -164,14 +164,14 @@ module FeatureProps {
                 // if feature type has propertyTypeKeys defined use these to show the order of the properties 
                 if (feature.fType.propertyTypeKeys) {
                     feature.fType._propertyTypeData.forEach((mi: IPropertyType) => {
-                        if (feature.properties.hasOwnProperty(mi.label)) {
-                            if (mi.visibleInCallOut) this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection);
+                        if (feature.properties.hasOwnProperty(mi.label) || mi.type === 'relation') {
+                            if (mi.visibleInCallOut) this.addProperty(mi, feature, infoCallOutSection, linkCallOutSection);
                         }
                     });
                     if (feature.fType.showAllProperties || this.mapservice.isAdminExpert) {
                         for (var key in feature.properties) {
                             var mi = csComp.Helpers.getPropertyType(feature, key);
-                            this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection, true);
+                            this.addProperty(mi, feature, infoCallOutSection, linkCallOutSection, true);
                         }
                     }
                 } else { // if not go through all properties and find a propertyType 
@@ -179,10 +179,10 @@ module FeatureProps {
                         var mi = layerservice.getPropertyType(feature, key);
 
                         if (mi) {
-                            this.addProperty(mi, feature, infoCallOutSection, hierarchyCallOutSection);
+                            this.addProperty(mi, feature, infoCallOutSection, linkCallOutSection);
                         } else if (feature.fType.showAllProperties || this.mapservice.isAdminExpert) {
                             var prop = csComp.Helpers.getPropertyType(feature, key);
-                            this.addProperty(prop, feature, infoCallOutSection, hierarchyCallOutSection, true);
+                            this.addProperty(prop, feature, infoCallOutSection, linkCallOutSection, true);
                         }
                     }
                 }
@@ -194,19 +194,23 @@ module FeatureProps {
             } else {
                 this.hasInfoSection = false;
             }
-            if (hierarchyCallOutSection.properties.length > 0) { this.sections['hierarchy'] = hierarchyCallOutSection; this.sectionKeys.push('hierarchy'); }
+            if (linkCallOutSection.properties.length > 0) { this.sections['linkedfeatures'] = linkCallOutSection; this.sectionKeys.push('linkedfeatures'); }
             //if (searchCallOutSection.properties.length > 0) {this.sections['zzz Search'] = searchCallOutSection; this.sectionKeys.push('zzz Search');}
             this.sectionKeys = this.sectionKeys.sort();
         }
 
-        private addProperty(mi: IPropertyType, feature: IFeature, infoCallOutSection: CallOutSection, hierarchyCallOutSection: CallOutSection, isDraft = false) {
+        private addProperty(mi: IPropertyType, feature: IFeature, infoCallOutSection: CallOutSection, linkCallOutSection: CallOutSection, isDraft = false) {
             var callOutSection = this.getOrCreateCallOutSection(mi.section) || infoCallOutSection;
             if (callOutSection.propertyTypes.hasOwnProperty(mi.label)) return; // Prevent duplicate properties in the same  section
             callOutSection.propertyTypes[mi.label] = mi;
             var text = feature.properties[mi.label];
-            if (mi.type === 'hierarchy') {
-                var count = this.calculateHierarchyValue(mi, feature, this.propertyTypeData, this.layerservice);
-                text = count + ';' + feature.properties[mi.calculation];
+            if (mi.type === 'relation' && mi.visibleInCallOut) {
+                var results = this.getLinkedFeatures(mi, feature, this.propertyTypeData, this.layerservice);
+                var fPropType = <IPropertyType>{type: 'feature', label: 'relatedfeature'};
+                results.forEach((res: IFeature) => {
+                    fPropType.title = mi.title;
+                    linkCallOutSection.addProperty(res.id, csComp.Helpers.getFeatureTitle(res), fPropType.label, false, false, false, res, false, mi.description, fPropType);
+                });
             }
             var displayValue = csComp.Helpers.convertPropertyInfo(mi, text);
             // Skip empty, non-editable values
@@ -220,37 +224,44 @@ module FeatureProps {
             if (mi.visibleInCallOut) {
                 callOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, canShowStats, feature, false, mi.description, mi, isDraft);
             }
-            if (mi.type === 'hierarchy') {
-                hierarchyCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, canShowStats, feature, false, mi.description, mi);
-            }
+            
             //searchCallOutSection.addProperty(mi.title, displayValue, mi.label, canFilter, canStyle, feature, false, mi.description);
         }
 
-        private calculateHierarchyValue(mi: IPropertyType, feature: IFeature, propertyTypeData: IPropertyTypeData, layerservice: csComp.Services.LayerService): number {
-            var countResults = [];
-            var result: number = -1;
-            var propertyTypes = csComp.Helpers.getPropertyTypes(feature.fType, propertyTypeData);
-            for (var p in propertyTypes) {
-                var pt = propertyTypes[p];
-                if (pt.type === 'relation' && mi.targetrelation === pt.label) {
-                    countResults[pt.label] = pt.count;
-                    if (mi.calculation === 'count') {
-                        result = pt.count;
-                    }
-                }
-            }
-
-            if (mi.calculation === 'ratio') {
-                var featureName = feature.properties[mi.subject];
-                layerservice.project.features.forEach((f: csComp.Services.IFeature) => {
-                    if (f.properties.hasOwnProperty(mi.target) && f.properties[mi.target] === featureName) {
-                        if (f.properties.hasOwnProperty(mi.targetproperty)) {
-                            result = +f.properties[mi.targetproperty] / countResults[mi.targetrelation];
-                        }
+        private getLinkedFeatures(mi: IPropertyType, feature: IFeature, propertyTypeData: IPropertyTypeData, layerservice: csComp.Services.LayerService): IFeature[] {
+            var results = [];
+            var useTargetID = (!mi.target) ?  true : false; 
+            var useSubjectID = (!mi.subject) ? true : false;
+            // Search for the property when it is defined as subject, otherwise search for id.
+            var searchValue = (useSubjectID) ? feature.id : feature.properties[mi.subject];
+            var searchFeatures = [];
+            if (!mi.targetlayers) {
+                searchFeatures = feature.layer.data.features || [];
+            } else if (mi.targetlayers.length > 0 && mi.targetlayers[0] === '*') {
+                searchFeatures = layerservice.project.features;
+            } else {
+                mi.targetlayers.forEach((layerID) => {
+                    let l = layerservice.findLayer(layerID);
+                    if (l && l.data && l.data.features) {
+                        searchFeatures = searchFeatures.concat(l.data.features);
                     }
                 });
             }
-            return result;
+            results = searchFeatures.filter((f) => {
+                if (useTargetID) {
+                    if (f.id === searchValue && f.id !== feature.id) {
+                        return true;
+                    }
+                } else {
+                    if (f.properties && f.properties.hasOwnProperty(mi.target) && f.properties[mi.target] === searchValue) {
+                        if (f.id !== feature.id) { // Do not return self
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            });
+            return results;
         }
 
         public sectionCount(): number {
@@ -712,6 +723,11 @@ module FeatureProps {
             this.$layerService.project.timeLine.isLive = false;
             this.$layerService.project.timeLine.setFocus(d);
             this.$messageBusService.publish('timeline', 'setFocus', d);
+        }
+        
+        public selectFeature(feature: IFeature) {
+            if (!feature) return;
+            this.$layerService.selectFeature(feature);
         }
 
         setTime(time: { title: string; timestamp: number }) {

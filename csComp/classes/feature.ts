@@ -188,9 +188,17 @@ module csComp.Services {
         defaultValue?:     number;
         count?:            number;
         calculation?:      string;
+        /** For a type 'relation', subject defines which property key to use for the search value (e.g, search for the feature's name
+         * when the subject is 'Name'. When undefined, search for the feature id.
+         */
         subject?:          string;
+        /** For a type 'relation', target defines in which property key the subject should be searched for. When undefined, search the feature id. */
         target?:           string;
-        targetrelation?:   string;
+        /** For a type 'relation', targetlayers is an array of layer ID's that should be included in the search. 
+         * When undefined : search through the current layer.
+         * When ['*']     : search through all (enabled) layers of the project
+         */
+        targetlayers?:     string[];
         targetproperty?:   string;
         options?:          Object;
         categories?:       string[];

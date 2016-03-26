@@ -1171,7 +1171,7 @@ body,
     left:0;
     top:-8px;
     font-size: 12px;
-    
+    pointer-events: none;
 }
 .feature-prop-property:hover {
     margin-left: 0;
@@ -1180,6 +1180,10 @@ body,
 .panel-heading:hover .icons-on-hover {
     display: block;
     
+}
+.clickable-feature-prop {
+    cursor: pointer;
+    color:darkblue;
 }
 // #featureprops-content:before {
 //     display: block;
@@ -1391,19 +1395,19 @@ body,
     padding: 3px;
     pointer-events: all;
 }
-.modal {
-    display: block;
-}
-.modal-body:before,
-.modal-body:after {
-    display: table;
-    content: " ";
-}
-.modal-header:before,
-.modal-header:after {
-    display: table;
-    content: " ";
-}
+// .modal {
+//     display: block;
+// }
+// .modal-body:before,
+// .modal-body:after {
+//     display: table;
+//     content: " ";
+// }
+// .modal-header:before,
+// .modal-header:after {
+//     display: table;
+//     content: " ";
+// }
 
 .tablewidget-row {
     height: 30px;

@@ -5,13 +5,13 @@ module AreaFilter {
 
     export class AreaFilterModel implements csComp.Services.IActionService {
         public id: string = 'AreaFilterModel';
-        private layerService: csComp.Services.LayerService
+        private layerService: csComp.Services.LayerService;
 
         stop() { }
         addFeature(feature: IFeature) { }
         removeFeature(feature: IFeature) { }
         selectFeature(feature: IFeature) { }
-        
+
         addLayer(layer : csComp.Services.IProjectLayer) {}
         removeLayer(layer : csComp.Services.IProjectLayer) {}
 
@@ -21,11 +21,11 @@ module AreaFilter {
                 case 'MultiPolygon':
                 case 'Polygon':
                     var setFilterActionOption = <IActionOption>{
-                        title: "Set as area filter"
+                        title: 'Set as area filter'
                     };
                     setFilterActionOption.callback = this.setAsFilter;
                     var resetFilterActionOption = <IActionOption>{
-                        title: "Reset area filter"
+                        title: 'Reset area filter'
                     };
                     resetFilterActionOption.callback = this.resetFilter;
                     return [setFilterActionOption, resetFilterActionOption];
