@@ -21,6 +21,8 @@ module Idv {
         cap?: number;
         time? : string;
         ordering?: string;
+        propertyTitle? : string;
+        secondPropertyTitle? : string;
     } 
 
     export interface ScanConfig {
@@ -51,7 +53,8 @@ module Idv {
         public defaultWidth = 180;
         public DataLoaded: boolean;
         private scope: ng.IScope;
-
+        
+   
         public reduceAddAvg(attr) {
             return (p, v) => {
                 ++p.count
@@ -89,7 +92,7 @@ module Idv {
         public updateCharts() {
           
             if (this.gridster) {
-                $(".gridster > ul").empty(); 
+                $("#" + this.config.containerId).empty(); 
                 this.gridster.destroy(); }
           
 
@@ -105,15 +108,16 @@ module Idv {
             }
 
             var elastic = true;
+ 
 
-
- this.gridster = (<any>$(".gridster > ul")).gridster({
+            this.gridster = (<any>$("#" + this.config.containerId)).gridster({
                 widget_margins: [5, 5],
                 widget_base_dimensions: [this.defaultWidth - 20, 250],
                 min_cols: 6,
                 resize: {
                     enabled: false
                 },
+                autogrow_cols: true,
                 draggable: {
                     handle: 'header'
                 }
@@ -143,6 +147,12 @@ module Idv {
             
             done();
         }
+        
+        private resize()
+        {
+            $("#g-parent").css("height",$(window).height() - 100);   
+              $("#g-parent").css("width",$(window).width() - 100);
+        }
 
 
         public initCharts(scope: ng.IScope, layerService: csComp.Services.LayerService, prepare, done) {
@@ -150,6 +160,10 @@ module Idv {
             this.scope = scope;
             var store = 'records3';
             this.state = "Laden configuratie";
+            
+          $(window).resize(()=> {
+              this.resize();
+ });
             
             async.series([
                 // get enums
@@ -304,13 +318,27 @@ module Idv {
                                 
                 // var chartScope = this.scope.$new(true);
                 // (<any>chartScope).config = config;                
-                var w = this.layerService.$compile("<li><header class='chart-title'><div class='fa fa-times' style='float:right;cursor:pointer' ng-click='vm.scan.reset(\"" + config.elementId + "\")'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>")(this.scope);
+                var w = this.layerService.$compile("<li><header class='chart-title'><div class='fa fa-filter' style='float:right;cursor:pointer' ng-click='vm.scan.reset(\"" + config.elementId + "\")'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>")(this.scope);
             this.gridster.add_widget(w,config.width,config.height); //"<li><header class='chart-title'><div class='fa fa-times' style='float:right' ng-click='vm.reset()'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>",config.width,config.height);
             //$("#" + config.containerId).append(newChart);
             
          
             if (!config.stat) config.stat = "count";
             switch (config.stat) {
+                case "sum" :
+                 config.dimension = this.ndx.dimension((d)=> { return d[config.property] });
+                 config.group = config.dimension.group().reduceSum((d)=> {
+                     
+                     return +d[config.property];
+                    });
+                    switch (config.type)
+                    {
+                        case "pie":
+                           
+                       
+                            break;                        
+                    } 
+                    break;
                 case "average":
                     switch (config.type)
                     {
@@ -329,12 +357,12 @@ module Idv {
                     }                    
                     break;
                 case "pie" :
-                    config.dimension = this.ndx.dimension (d => {return config.property});
-                    config.group = config.dimension.group().count(); 
+                    config.dimension = config.dimension;
+                    config.group = config.dimension; 
                     break;
                 case "scatter" :
                     config.dimension = this.ndx.dimension((d)=> {
-                        var r =[+d[config.property],+d[config.secondProperty]]  
+                        var r =+d[config.property]  
                         return r });
                     config.group = config.dimension.group();
                     break;
@@ -400,6 +428,7 @@ module Idv {
                         .mouseZoomable(true)
                         .renderHorizontalGridLines(true)
                         .brushOn(true)
+                       
                         .dimension(config.dimension)
                         .group(function (d) {
                           //var format = d3.format('02d');
@@ -418,9 +447,9 @@ module Idv {
                         .width(width)
                         .height(height)
                         .x(d3.scale.linear())
-                        .elasticX(true)
+                        .elasticX(true)                         
                         .elasticY(true)                        
-                        .renderHorizontalGridLines(true)
+                        .renderHorizontalGridLines(false)
                         .dimension(config.dimension)
                         .group(config.group)
                         .mouseZoomable(true)
@@ -476,7 +505,8 @@ module Idv {
                         .height(height)
                         .symbolSize(3)
                         .x(d3.scale.linear())
-                        .y(d3.scale.linear())  
+                        .y(d3.scale.linear()) 
+                        
                         .elasticX(true)
                         .elasticY(true)                                                                                                
                         .dimension(config.dimension)
