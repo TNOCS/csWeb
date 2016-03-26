@@ -1,37 +1,31 @@
-<div  class="navbar-collapse collapse" ng-show="enabled" tooltip-html-unsafe="{{'EXPERTMODE.EXPLANATION' | translate}}" tooltip-placement="left" tooltip-trigger="mouseenter" tooltip-append-to-body="false">
+<div  class="navbar-collapse collapse" ng-show="enabled" >
     <ul class="nav navbar-nav">
         <li class="dropdown" style="margin-top:-15px">
             <a href="" class="navbar-brand dropdown-toggle pull-left" data-toggle="dropdown" style="color:white; margin-left:-10px;">
-                <div class="circle">
+                <div class="circle fa fa-user" style="background:gray;font-size:20px">
                     
                 </div>
             </a>
-            <ul class="dropdown-menu" role="menu">
-                <li>
-                    <a data-ng-click="vm.setExpertMode(1)">
-                        <span class="beginnerUserIcon" style="margin-left: -10px; width: 40px; height: 32px"></span>
-                        <div translate>EXPERTMODE.BEGINNER</div>
+            <ul class="dropdown-menu" role="menu" style="font-size:16px">
+                <li ng-show="!vm.profileServce.loggedIn">
+                    <a data-ng-click="vm.startLogin()">
+                        <span class="fa fa-sign-in" style="float:left;margin:5px"></span>
+                        <div>Login</div>
                     </a>
                 </li>
-                <li>
-                    <a data-ng-click="vm.setExpertMode(2)">
-                        <span class="intermediateUserIcon" style="margin-left: -10px; width: 40px; height: 32px"></span>
-                        <div translate>EXPERTMODE.INTERMEDIATE</div>
+                <li ng-show="vm.profileServce.loggedIn">
+                    <a data-ng-click="vm.logout()">
+                        <span class="fa fa-sign-out" style="float:left;margin:5px"></span>
+                        <div translate>Logout</div>
                     </a>
                 </li>
-                <li>
-                    <a data-ng-click="vm.setExpertMode(3)">
-                        <span class="expertUserIcon" style="margin-left: -10px; width: 40px; height: 32px"></span>
-                        <div translate>EXPERTMODE.EXPERT</div>
+                <li ng-show="vm.profileServce.loggedIn">
+                    <a data-ng-click="vm.showProfile()">
+                        <span class="fa fa-user" style="float:left;margin:5px"></span>
+                        <div translate>Profile</div>
                     </a>
                 </li>
-                <li>
-                    <a data-ng-click="vm.setExpertMode(4)">
-                        <span class="adminExpertUserIcon" style="margin-left: -10px; width: 40px; height: 32px"></span>
-                        <div translate>EXPERTMODE.ADMIN</div>
-                    </a>
-                </li>
-
+                
             </ul>
         </li>
     </ul>

@@ -1,12 +1,12 @@
-module ProfileHeader {
-    import Expertise = csComp.Services.Expertise;
+module ProfileTab {
+    
 
-    export interface IProfileHeaderScope extends ng.IScope {
-        vm: ProfileHeaderCtrl;        
+    export interface IProfileTabScope extends ng.IScope {
+        vm: ProfileTabCtrl;        
         enabled : boolean;
     }
 
-    export class ProfileHeaderCtrl {
+    export class ProfileTabCtrl {
         public static $inject = [
             '$scope',
             'localStorageService',
@@ -16,18 +16,22 @@ module ProfileHeader {
             'profileService'
         ]; 
         
+        public userName : string;
+        public userPassword : string;
+        
         public startLogin()
         {
             this.profileService.startLogin();
         }
         
-        public logout()
+        public validateUser()
         {
-            this.profileService.logout();
+            this.profileService.validateUser(this.userName,this.userPassword);
         }
-
+        
+     
         constructor(
-            private $scope: IProfileHeaderScope,
+            private $scope: IProfileTabScope,
             private $localStorageService: ng.localStorage.ILocalStorageService,
             private $layerService: csComp.Services.LayerService,
             private $mapService: csComp.Services.MapService,
@@ -36,9 +40,8 @@ module ProfileHeader {
             ) {
                 
             $scope.vm = this;
-            console.log('init profile service');
-                        
-                        
+            
+                       
             $messageBus.subscribe('project',(action, value)=>{
                if (this.$layerService.project) {
                    this.$scope.enabled = this.$layerService.project.profile.authenticationMethod != csComp.Services.authMethods.none;
@@ -84,16 +87,16 @@ module ProfileHeader {
       * As we want the expertMode to be always available, we have added it to the MapService service.
       */
     myModule
-        .directive('profileHeader', [
+        .directive('profiletab', [
             '$compile',
             function ($compile): ng.IDirective {
                 return {
                     terminal: true,
                     restrict: 'E',
                     scope: {},
-                    templateUrl: 'directives/Profile/ProfileHeader.tpl.html',
+                    templateUrl: 'directives/Profile/ProfileTab.tpl.html',
                     compile: el => {  // I need to explicitly compile it in order to use interpolation like {{xxx}}
-                        var fn = $compile(el);
+                        var fn = $compile(el); 
                         return scope => { 
                             fn(scope);
                         };
@@ -114,7 +117,7 @@ module ProfileHeader {
                    // },
                     replace: true,     // Remove the directive from the DOM
                     transclude: true,  // Add elements and attributes to the template
-                    controller: ProfileHeaderCtrl
+                    controller: ProfileTabCtrl
                 }
             }
         ]);
