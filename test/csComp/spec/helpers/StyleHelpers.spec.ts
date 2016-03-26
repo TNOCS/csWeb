@@ -22,7 +22,7 @@ describe('StyleHelpers', function() {
     describe('Initial state', () => {
         it('should have function getColorFromStringValue', function() {
             var color = csComp.Helpers.getColorFromStringValue('wrongFormat', groupStyle);
-            expect(color).toBeUndefined();
+            expect(color).toEqual('wrongFormat');
             groupStyle.activeLegend = { id: 'test', 'legendEntries': [], 'legendKind': 'discreteStrings' };
             color = csComp.Helpers.getColorFromStringValue('wrongFormat', groupStyle);
             expect(color).toEqual('#000000');
