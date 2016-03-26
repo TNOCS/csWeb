@@ -59,6 +59,7 @@
         "csComp/directives/Editors/PropertyTypeEditor/PropertyTypesCtrl.ts",
         "csComp/directives/EventTab/EventTab.ts",
         "csComp/directives/EventTab/EventTabCtrl.ts",
+        "csComp/directives/Profile/ProfileTabCtrl.ts",
         "csComp/directives/Profile/ProfileHeaderCtrl.ts",
         "csComp/directives/ExpertMode/ExpertMode.ts",
         "csComp/directives/ExpertMode/ExpertModeCtrl.ts",
