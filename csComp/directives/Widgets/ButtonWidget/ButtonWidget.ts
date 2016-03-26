@@ -28,6 +28,7 @@ module ButtonWidget {
     export interface IButtonWidgetScope extends ng.IScope {
         vm: ButtonWidgetCtrl;
         data: IButtonData;
+        buttons : IButton[];
     }
 
     export interface IButtonWidget {
@@ -40,6 +41,7 @@ module ButtonWidget {
         action: string;
         layer: string;
         group: string;
+        timerange : string;
         property: string;
         showLegend : boolean;
         _legend : csComp.Services.Legend;
@@ -47,11 +49,13 @@ module ButtonWidget {
         _disabled : boolean;
         _active : boolean;
         _firstLegendLabel : string;
-        _lastLegendLabel : string;
+        _lastLegendLabel : string;    
+        _canEdit : boolean;    
     }
 
     export interface IButtonData {
-        buttons : IButton[];        
+        buttons : IButton[];
+        layerGroup : string;        
     }
 
     export class ButtonWidgetCtrl {
@@ -77,14 +81,31 @@ module ButtonWidget {
             var par = <any>$scope.$parent;
             $scope.data = <IButtonData>par.widget.data;
             
+            
             if (typeof $scope.data.buttons === 'undefined')
             {
                 $scope.data.buttons = [ ];                
             }
             
-            $scope.data.buttons.forEach(b =>
+            if (!_.isUndefined($scope.data.layerGroup))
+            {
+                this.initLayerGroup();                
+            }
+            else
+            {
+                this.$scope.buttons = this.$scope.data.buttons;                                   
+                this.initButtons();
+            }    
+        }
+        
+        private initButtons()
+        {
+            this.$scope.buttons.forEach(b =>
             {
                 switch (b.action) {
+                case "Activate TimeRange":
+                    
+                    break;
                 case "Activate Layer":
                     this.checkLayer(b);
                     this.messageBusService.subscribe("layer", (a, l) => this.checkLayer(b));
@@ -100,17 +121,46 @@ module ButtonWidget {
             }
                 
             });
-
             
+        }
+        
+        private initLayerGroup()
+        {
+            this.checkLayerGroup();
+            this.messageBusService.subscribe("layer", (a, l) => this.checkLayerGroup());
+        }
+        
+        private checkLayerGroup() {
+            var group = this.layerService.findGroupById(this.$scope.data.layerGroup);
+            this.$scope.buttons = [];
+            if (!_.isUndefined(group)) {
+                group.layers.forEach(l => {
+                    var b = <IButton>{
+                            title: l.title,
+                            action: "Activate Layer",
+                            layer: l.id,
+                            showLegend: false
+                        };
+                    this.$scope.buttons.push(b);
+                    this.checkLayer(b);
+                    
+                });
+            }            
         }
         
         private checkBaselayer(b : IButton)
         {
             b._active = this.layerService.$mapService.activeBaseLayerId === b.layer;
         }
+        
+        public editLayer(b : IButton)
+        {            
+            console.log('edit layer');
+        }
 
         private checkLayer(b : IButton) {
             b._layer = this.layerService.findLayer(b.layer);
+            
             if (b.showLegend && b._layer.defaultLegend) {
                 b._legend = this.layerService.getLayerLegend(b._layer);
                 if (b._legend && b._legend.legendEntries && b._legend.legendEntries.length>0)
@@ -118,15 +168,18 @@ module ButtonWidget {
                     b._firstLegendLabel = b._legend.legendEntries[b._legend.legendEntries.length-1].label;
                     b._lastLegendLabel = b._legend.legendEntries[0].label; 
                 }
-            }                        
+            }  
+            
                         
-            if (typeof b._layer !== 'undefined') {
+            if (!_.isUndefined(b._layer)) {
                 b._disabled = false;
                 b._active = b._layer.enabled;
+                b._canEdit = b._layer.enabled && b._layer.isDynamic;                                             
             }
             else {
                 b._disabled = true;
             }
+            
         }
 
         private checkStyle(b : IButton) {
@@ -157,11 +210,16 @@ module ButtonWidget {
 
         public click(b : IButton) {
             switch (b.action) {
+                case "Activate TimeRange":
+                    console.log('time range');
+                    this.layerService.project.timeLine.start = new Date().getTime() - 1000 * 60 * 60 * 2;
+                    this.layerService.project.timeLine.end = new Date().getTime() + 1000 * 60 * 60 * 2;
+                    this.layerService.project.timeLine.focus = new Date().getTime();
+                    break;
                 case "Activate Layer":
                     var pl = this.layerService.findLayer(b.layer);
                     if (typeof pl !== 'undefined') {
-                        this.layerService.toggleLayer(pl);
-                        pl.enabled = true;
+                        this.layerService.toggleLayer(pl);                        
                     }
                     break;
                 case "Activate Style":
