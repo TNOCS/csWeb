@@ -463,8 +463,8 @@ module csComp.Services {
                                 "domain": { "data": "table", "field": "c" }
                             }
                         ],
-                        "axes": [
-                            { "type": "x", "scale": "x" },
+                        "axes": [ 
+                            { "type": "x", "scale": "x", "ticks" : 4 },
                             { "type": "y", "scale": "y" }
                         ],
                         "marks": [
@@ -500,7 +500,8 @@ module csComp.Services {
                             }
                         ]
                     };
-                    //console.log(JSON.stringify(spec));
+                    console.log('kpi');
+                    console.log(JSON.stringify(spec));
                     this.ctrl.$scope.data._spec = spec;
                     this.ctrl.updateChart();
                 }
