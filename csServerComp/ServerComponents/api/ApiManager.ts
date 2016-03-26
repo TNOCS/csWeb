@@ -794,6 +794,7 @@ export class ApiManager extends events.EventEmitter {
      */
     public findStorageForLayerId(layerId: string): IConnector {
         var layer = this.findLayer(layerId);
+        Winston.error('find layer ' + JSON.stringify(layer));
         return this.findStorage(layer);
     }
 
@@ -1114,7 +1115,7 @@ export class ApiManager extends events.EventEmitter {
                 this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Create, value: feature });
                 callback(<CallbackResult>{ result: ApiResult.OK });
             });
-        }
+        } 
     }
 
     public updateProperty(layerId: string, featureId: string, property: string, value: any, useLog: boolean, meta: ApiMeta, callback: Function) {
@@ -1147,8 +1148,16 @@ export class ApiManager extends events.EventEmitter {
     }
 
     public updateFeature(layerId: string, feature: any, meta: ApiMeta, callback: Function) {
+        Winston.error('saving feature: ' + layerId);
         var s = this.findStorageForLayerId(layerId);
-        if (s) s.updateFeature(layerId, feature, true, meta, (result) => callback(result));
+        if (s) {
+            
+            s.updateFeature(layerId, feature, true, meta, (result) => callback(result));
+        }
+        else
+        {
+            Winston.error('error saving feature');
+        }
         this.getInterfaces(meta).forEach((i: IConnector) => {
             i.updateFeature(layerId, feature, false, meta, () => { });
         });
