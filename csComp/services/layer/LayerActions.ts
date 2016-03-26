@@ -43,6 +43,7 @@ module csComp.Services {
         removeLayer(layer: IProjectLayer);
         removeFeature(feature: IFeature);
         selectFeature(feature: IFeature);
+        getLayerActions(layer: IProjectLayer): IActionOption[];
         getFeatureActions(feature: IFeature): IActionOption[];
         getFeatureHoverActions(feature: IFeature): IActionOption[];
         deselectFeature(feature: IFeature);
@@ -58,6 +59,10 @@ module csComp.Services {
         addFeature(feature: IFeature) { }
         removeFeature(feature: IFeature) { }
         selectFeature(feature: IFeature) { }
+
+        getLayerActions(layer: IProjectLayer): IActionOption[] {
+            return [];
+        }
 
         getFeatureActions(feature: IFeature): IActionOption[] {
             return [];
@@ -85,6 +90,27 @@ module csComp.Services {
 
     export class LayerActions extends BasicActionService {
         public id: string = 'LayerActions';
+
+        getLayerActions(layer: ProjectLayer): IActionOption[] {
+            if (!layer) return;
+            var res = [];
+
+            if (layer.layerSource) {
+                var refresh = <IActionOption>{ title: 'Refresh Layer', icon: 'refresh' };
+                refresh.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                    layer.layerSource.refreshLayer(layer);
+                };
+                res.push(refresh);
+            } 
+
+            var remove = <IActionOption>{ title: 'Remove Layer', icon: 'trash' };
+            remove.callback = (layer: ProjectLayer, layerService: csComp.Services.LayerService) => {
+                layerService.removeLayer(layer,true);
+            };
+            res.push(remove);
+            return res;
+
+        }
 
         getFeatureActions(feature: IFeature): IActionOption[] {
             var res = [];
