@@ -35,7 +35,7 @@ module LayersDirective {
     
     myModule.directive('featureType',['$compile','layerService', ($compile,layerService : csComp.Services.LayerService) => {
 
-        var getTemplate = (type : csComp.Services.IFeatureType)=> {
+        var getTemplate = ((type : csComp.Services.IFeatureType)=> {
             var f = <csComp.Services.Feature>{ };
             f.fType = type;
             f.featureTypeName = f.fType.name;
@@ -43,7 +43,8 @@ module LayersDirective {
                 layerService.calculateFeatureStyle(f);
             var html = csComp.Helpers.createIconHtml(f);
             return html.html;                         
-        }
+        });
+        
         return {
             restrict: 'E',
             scope: {
@@ -53,8 +54,8 @@ module LayersDirective {
                 var el = $compile(getTemplate(scope.featuretype))(scope);
                 element.html(el);
             }
-        };
-    });   
+        }
+    }]);    
     
     myModule.directive('featureType2', [
         '$compile',

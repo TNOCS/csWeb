@@ -5,7 +5,7 @@ module LayersDirective {
     export interface ILayersDirectiveScope extends ng.IScope {
         vm: LayersDirectiveCtrl;
         options: Function;
-        layerFilter: string;
+      
     }
 
     export class LayersDirectiveCtrl {
@@ -22,9 +22,10 @@ module LayersDirective {
         public layerResourceType: string;
         public resources: { [key: string]: csComp.Services.TypeResource };
         public layerGroup: any;
-        public layerTitle: string;
+        public layerTitle: string; 
         public newGroup: string;
         public groups: csComp.Services.ProjectGroup[];
+        public layerfilter: string;
 
         // $inject annotation.
         // It provides $injector with information about dependencies to be injected into constructor
@@ -69,6 +70,10 @@ module LayersDirective {
             this.$messageBusService.subscribe('layerdrop',(title: string, layer : csComp.Services.ProjectLayer)=>{
                 this.dropLayer(layer);
             });
+            
+            this.$messageBusService.subscribe('layer',(action: string, layer : csComp.Services.ProjectLayer)=>{
+                if (action === "deactivate" && layer === this.layer) this.stopAddingFeatures(layer);                
+            });
         }
 
         public dropLayer(layer : csComp.Services.ProjectLayer)
@@ -101,21 +106,72 @@ module LayersDirective {
                 if (this.$layerService.typesResources.hasOwnProperty(this.layer.typeUrl)) {
                     var tr = this.$layerService.typesResources[this.layer.typeUrl];                    
                     var st = <csComp.Services.IFeatureTypeStyle>{
-                        drawingMode: 'point',
-                        fillColor: 'red'
+                        drawingMode: 'Point',                        
+                        iconUri:'/images/home.png',
+                        cornerRadius : 50,
+                        fillColor: "yellow",
+                        iconWidth:30,
+                        iconHeight:30                        
                     };
-                    var d= new Date().getTime();
-                    var nt = <csComp.Services.IFeatureType>{
-                        id: 'test' + d, name: 'test' + d, style: st
-                    }
+                    var nt = <csComp.Services.IFeatureType>{};
+                    nt.id = csComp.Helpers.getGuid();
+                    nt.name = "new type";
+                    nt.style = st;
+                    nt.propertyTypeKeys = "title,notes";
+                    
                     var id = nt.id;
                     tr.featureTypes[id] = nt;
                     this.$layerService.saveResource(tr);                    
                     this.editLayer(this.layer);
+                    
                 }
 
 
             }
+        }
+        
+        public dropdownpos(event)
+        {
+            alert('drop down'); 
+        //     var dropDownTop = button.offset().top + button.outerHeight();
+        // dropdown.css('top', dropDownTop + "px");
+        // dropdown.css('left', button.offset().left + "px");
+        }
+        
+        public deleteFeaturetype(featureType: csComp.Services.IFeatureType) {
+            if (!_.isUndefined(featureType)) {
+                var tr = this.$layerService.findResourceByLayer(this.layer);
+                if (!_.isUndefined(tr)) {
+                    var types = [];
+                    for (var t in tr.featureTypes)
+                    {
+                        if (tr.featureTypes[t].id === featureType.id) types.push(t);
+                    }
+                    if (types.length>0)
+                    {
+                    types.forEach(t=>{
+                        tr.featureTypes[t] = null;
+                        delete tr.featureTypes[t];
+                    })
+                       this.$layerService.saveResource(tr);
+                    }
+                    
+                    this.editLayer(this.layer);
+                    
+                    
+                    
+                }
+            }
+        }
+        
+        public editFeaturetype(featureType : csComp.Services.IFeatureType)
+        {
+            var tr = this.$layerService.typesResources[this.layer.typeUrl];
+            featureType._resource = tr; 
+            var rpt = csComp.Helpers.createRightPanelTab('edit', 'feature-type-editor', featureType, 'Feature type', 'Feature type','cog',true,true);
+            this.$messageBusService.publish('rightpanel', 'activate', rpt);
+            
+            
         }
 
         public initGroups() {
@@ -127,56 +183,198 @@ module LayersDirective {
             g.title = "<new group>";
             this.groups.push(g);
         }
+        
+        // public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
+        //     var transformProp;
+        //     var startx, starty;
+
+        //     var i = interact('#layerfeaturetype-' + key)
+        //         .draggable({                
+        //         max: Infinity,
+        //         onstart: (event) => {
+        //             startx = 0;
+        //             starty = 0;
+        //             event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
+        //             event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
+        //              var interaction = event.interaction;
+                    
+        //             // if the pointer was moved while being held down
+        //             // and an interaction hasn't started yet
+        //                 var original = event.currentTarget,
+        //                     // create a clone of the currentTarget element
+        //                     clone = event.currentTarget.cloneNode(true);
+
+        //                 // insert the clone to the page
+        //                 // TODO: position the clone appropriately
+        //                 document.body.appendChild(clone);
+
+        //                 // start a drag interaction targeting the clone
+        //                 interaction.start({ name: 'drag' },
+        //                                     event.interactable,
+        //                                     clone);
+                    
+                    
+        //         },
+        //         onmove: (event) => {
+                    
+                   
+                    
+        //             event.interaction.x += event.dx;
+        //             event.interaction.y += event.dy;
+
+        //             event.target.style.left = event.interaction.x + 'px';
+        //             event.target.style.top = event.interaction.y + 'px';
+        //         },
+        //         onend: (event) => {
+        //             setTimeout(() => {
+        //                 var x = event.clientX;
+        //                 var y = event.clientY;
+        //                 var pos = this.$layerService.activeMapRenderer.getLatLon(x, y - 50);
+        //                 console.log(pos);
+        //                 var f = new csComp.Services.Feature();
+
+        //                 f.layerId = layer.id;
+        //                 f.geometry = {
+        //                     type: 'Point', coordinates: [pos.lon, pos.lat]
+        //                 };
+        //                 //f.
+        //                 f.properties = { "featureTypeId": key, "Name": key };
+        //                 layer.data.features.push(f);
+        //                 this.$layerService.initFeature(f, layer);
+        //                 this.$layerService.activeMapRenderer.addFeature(f);
+        //                 this.$layerService.saveFeature(f);
+        //             }, 100);
+
+        //             //this.$dashboardService.mainDashboard.widgets.push(widget);
+        //             event.target.setAttribute('data-x', 0);
+        //             event.target.setAttribute('data-y', 0);
+        //             event.target.style.left = '0px';
+        //             event.target.style.top = '0px';
+
+        //             console.log(key);
+        //         }
+        //     })
+        // }
 
         public initDrag(key: string, layer: csComp.Services.ProjectLayer) {
             var transformProp;
             var startx, starty;
 
-            var i = interact('#layerfeaturetype-' + key)
-                .draggable({
-                max: Infinity,
-                onstart: (event) => {
-                    startx = 0;
-                    starty = 0;
-                    event.interaction.x = parseInt(event.target.getAttribute('data-x'), 10) || 0;
-                    event.interaction.y = parseInt(event.target.getAttribute('data-y'), 10) || 0;
-                },
-                onmove: (event) => {
-                    event.interaction.x += event.dx;
-                    event.interaction.y += event.dy;
+            var i = interact('#layerfeaturetype-' + key).draggable({
 
-                    event.target.style.left = event.interaction.x + 'px';
-                    event.target.style.top = event.interaction.y + 'px';
+                'onmove': (event) => {
+
+                    var target = event.target;
+
+                    var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+                    var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+                    // translate the element
+                    target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+
+                    // update the posiion attributes
+                    target.setAttribute('data-x', x);
+                    target.setAttribute('data-y', y);
+
                 },
-                onend: (event) => {
+                'onend': (event) => {
+
+                    console.log('Draggable: ', event);
                     setTimeout(() => {
                         var x = event.clientX;
                         var y = event.clientY;
-                        var pos = this.$layerService.activeMapRenderer.getLatLon(x, y - 50);
+                        var pos = this.$layerService.activeMapRenderer.getLatLon(x, y);
                         console.log(pos);
                         var f = new csComp.Services.Feature();
-
                         f.layerId = layer.id;
                         f.geometry = {
                             type: 'Point', coordinates: [pos.lon, pos.lat]
                         };
-                        //f.
-                        f.properties = { "featureTypeId": key, "Name": key };
+                        f.properties = { "featureTypeId": key, "Name": fid };
+                        var tr = this.$layerService.findResourceByLayer(layer);
+                        var fid = "new object"
+                        if (tr.featureTypes.hasOwnProperty(key))
+                        {
+                            var ft = tr.featureTypes[key];
+                            if (!ft._isInitialized)
+                            {
+                                this.$layerService.initFeatureType(ft,tr.propertyTypeData);                                                              
+                            }
+                            if (_.isArray(ft._propertyTypeData))
+                            {
+                                for (var k in ft._propertyTypeData)
+                                {
+                                    var pt = ft._propertyTypeData[k];
+                                    ft._propertyTypeData.forEach(pt=>{
+                                    f.properties[pt.label] = pt.title; //_.isUndefined(pt.defaultValue) ? "" : pt.defaultValue;
+                                })
+                                }
+                            
+                            }  
+                            fid = ft.name;
+                            
+                        }
+
+                                                                        
                         layer.data.features.push(f);
                         this.$layerService.initFeature(f, layer);
                         this.$layerService.activeMapRenderer.addFeature(f);
                         this.$layerService.saveFeature(f);
-                    }, 100);
+                        this.$layerService.selectFeature(f);
+                        
+                    }, 10);
 
                     //this.$dashboardService.mainDashboard.widgets.push(widget);
-                    event.target.setAttribute('data-x', 0);
-                    event.target.setAttribute('data-y', 0);
-                    event.target.style.left = '0px';
-                    event.target.style.top = '0px';
-
-                    console.log(key);
+                    // event.target.setAttribute('data-x', 0);
+                    // event.target.setAttribute('data-y', 0);
+                    // event.target.style.left = '0px';
+                    // event.target.style.top = '0px';     
+                    $(event.target).remove();                                   
                 }
-            })
+            }).on('move', (event) => {
+
+                var interaction = event.interaction;
+
+                // if the pointer was moved while being held down
+                // and an interaction hasn't started yet
+                if (interaction.pointerIsDown && !interaction.interacting() && event.currentTarget.classList.contains('drag-element-source')) {
+
+                    var original = event.target;
+
+                    var pos = {left:0,top:0}; //$(original).offset();
+
+                    // create a clone of the currentTarget element
+                    var clone = event.currentTarget.cloneNode(true);
+
+                    // Remove CSS class using JS only (not jQuery or jQLite) - http://stackoverflow.com/a/2155786/4972844
+                    clone.className = clone.className.replace(/\bdrag-element-source\b/, '');
+                    
+                    pos.left = event.clientX-20; //-interaction.startOffset.left;
+                    pos.top = event.clientY-20; //-interaction.startOffset.top;
+                    
+
+                    // update the posiion attributes
+                  //  clone.setAttribute('data-x', pos.left);
+                   // clone.setAttribute('data-y', pos.top);
+                    $(clone).css("left", pos.left);
+                    $(clone).css("top", pos.top);
+                    $(clone).css("z-index", 1000);
+                    // insert the clone to the page
+                    // TODO: position the clone appropriately
+                    $(document.body).append(clone);
+
+                    // start a drag interaction targeting the clone
+                    interaction.start({ name: 'drag' }, event.interactable, clone);
+
+                } else {
+
+                    interaction.start({ name: 'drag' }, event.interactable, event.currentTarget);
+
+                }
+
+
+
+            });
         }
 
         public selectProjectLayer(layer: csComp.Services.ProjectLayer) {
@@ -196,8 +394,11 @@ module LayersDirective {
                         
                         var r = <csComp.Services.TypeResource>{ id: this.selectedLayer.title, title: this.selectedLayer.title, featureTypes: { }, propertyTypeData: {} };
                         r.featureTypes["Default"] = <csComp.Services.IFeatureType>{ name : "Default", style : <csComp.Services.IFeatureTypeStyle>{
-                            drawingMode : "Point"
+                            drawingMode : "Point", cornerRadius : 50, fillColor : 'yellow', iconHeight : 30, iconWidth : 30
                         }}; 
+                        r.propertyTypeData["name"] = <IPropertyType>{ label : "name", title : "Naam"};
+                        r.propertyTypeData["notes"] = <IPropertyType>{ label : "notes", notes : "Notes", type : "textarea"};
+                         
                         this.$layerService.saveResource(r);
                         
                     }
@@ -261,11 +462,6 @@ module LayersDirective {
             this.updateLayerOpacity(layer);
         }
 
-        public openLayerMenu(e) {
-            //e.stopPropagation();
-            (<any>$('.left-menu')).contextmenu('show', e);
-            //alert('open layers');
-        }
 
         public loadAvailableLayers() {
             
@@ -292,23 +488,6 @@ module LayersDirective {
             
             this.state = "directory";            
             
-            // var modalInstance = this.$modal.open({
-            //     templateUrl: 'directives/LayersList/AddLayerView.tpl.html',
-            //     controller: AddLayerCtrl,
-            //     resolve: {
-            //         //mca: () => newMca
-            //     }
-            // });
-            // modalInstance.result.then((s: any) => {
-            //     console.log('done adding');
-            //     console.log(s);
-            //     // this.showSparkline = false;
-            //     // this.addMca(mca);
-            //     // this.updateMca();
-            //     //console.log(JSON.stringify(mca, null, 2));
-            // }, () => {
-            //         //console.log('Modal dismissed at: ' + new Date());
-            //     });
         }
 
         private initResources() {
@@ -340,6 +519,8 @@ module LayersDirective {
             this.state = "createlayer";
             this.newLayer = new csComp.Services.ProjectLayer();
             this.newLayer.type = "dynamicgeojson";
+            this.newLayer.layerSource = this.$layerService.layerSources["dynamicgeojson"];
+            
         }
 
         /// create new layer 
@@ -374,7 +555,8 @@ module LayersDirective {
                 var id = nl.title.replace(' ','_').toLowerCase();
                 /// create layer on server
                 if (this.newLayer.type === "dynamicgeojson") {
-                    this.newLayer.url = "api/layers/" + id;
+                    this.newLayer.url = "api/layers/" + this.newLayer.id;
+                    
                     if (this.layerResourceType === "<new>") {
                         this.newLayer.typeUrl = "api/resources/" + id;
                         var r = <csComp.Services.TypeResource>{ id: id, title: this.newLayer.title, featureTypes: {}, propertyTypeData: {} };
@@ -391,8 +573,7 @@ module LayersDirective {
                         this.newLayer.typeUrl = this.layerResourceType;
                     }
                     
-
-                    var l = { id: id, title: nl.title, isDynamic: true, type: nl.type, storage : 'file', description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url, features : [] };
+                    var l = { id: this.newLayer.id, title: nl.title, isDynamic: true, type: nl.type, storage : 'file', description: nl.description, typeUrl: nl.typeUrl, tags: nl.tags, url: nl.url, features : [] };
                     if (this.newLayer.data) l.features = this.newLayer.data.features;
                     this.$http.post("/api/layers", l)
                         .success((data) => {
@@ -418,7 +599,7 @@ module LayersDirective {
         }
 
         public toggleLayer(layer: csComp.Services.ProjectLayer): void {
-            $(".left-menu").on("click", function(clickE) {
+            $(".left-menu").on("click", (clickE)=> {
                 //alert('context menu');
                 (<any>$(this)).contextmenu({ x: clickE.offsetX, y: clickE.offsetY });
             });
@@ -432,6 +613,27 @@ module LayersDirective {
             if (this.$scope.$root.$$phase != '$apply' && this.$scope.$root.$$phase != '$digest') {
                 this.$scope.$apply();
             }
+        }
+        
+        public clickAction(o : IActionOption, layer : csComp.Services.ProjectLayer )
+        {
+            o.callback(layer,this.$layerService);
+        }
+      
+        public openLayerMenu(event, layer : csComp.Services.ProjectLayer)
+        {
+            console.log('open layer menu');
+            event.stopPropagation();
+            layer._gui["options"] = [];
+            this.$layerService.actionServices.forEach(acs=>{   
+                if (_.isFunction(acs.getLayerActions)) acs.getLayerActions(layer).forEach(a=>layer._gui["options"].push(a));
+            })
+            if (layer.isDynamic && layer.enabled) layer._gui["options"].push({ title : "Edit Layer", callback : (l,ls)=> this.editLayer(l)});      
+            layer._gui["options"].push({ title : "Layer Settings", callback : (l,ls)=> this.layerSettings(l)}); 
+            
+            $(event.target).next().dropdown('toggle'); 
+            
+            //$(event.target).next().dropdown('toggle'); 
         }
 
         public collapseAll() {
