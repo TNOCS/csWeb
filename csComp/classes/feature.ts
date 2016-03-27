@@ -300,8 +300,8 @@ module csComp.Services {
          */
         propertyTypeKeys?:  string;
         languages?:         ILanguageData;
-        _isInitialized?:    boolean;
-        _resource : ITypesResource;
+        _isInitialized?:    boolean; 
+        _resource? : ITypesResource;
     }
 
     export interface IGeoJsonFile {

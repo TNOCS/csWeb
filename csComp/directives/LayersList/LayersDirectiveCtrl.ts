@@ -631,7 +631,7 @@ module LayersDirective {
             if (layer.isDynamic && layer.enabled) layer._gui["options"].push({ title : "Edit Layer", callback : (l,ls)=> this.editLayer(l)});      
             layer._gui["options"].push({ title : "Layer Settings", callback : (l,ls)=> this.layerSettings(l)}); 
             
-            $(event.target).next().dropdown('toggle'); 
+            (<any>$(event.target).next()).dropdown('toggle'); 
             
             //$(event.target).next().dropdown('toggle'); 
         }
