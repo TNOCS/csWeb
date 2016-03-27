@@ -14,6 +14,11 @@ module AreaFilter {
 
         addLayer(layer : csComp.Services.IProjectLayer) {}
         removeLayer(layer : csComp.Services.IProjectLayer) {}
+        
+        getLayerActions(layer : csComp.Services.IProjectLayer)
+        {
+            return null;
+        }
 
         getFeatureActions(feature: IFeature): IActionOption[] {
             if (!feature.geometry.type) return;

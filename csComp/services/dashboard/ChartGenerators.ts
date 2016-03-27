@@ -127,7 +127,7 @@ module csComp.Services {
                             }
                         ],
                         "axes": [
-                            { "type": "x", "scale": "x" },
+                            { "type": "x", "scale": "x","ticks" : 4  },
                             { "type": "y", "scale": "y" }
                         ],
                         "marks": [
@@ -298,7 +298,7 @@ module csComp.Services {
                             }
                         ],
                         "axes": [
-                            { "type": "x", "scale": "x" },
+                            { "type": "x", "scale": "x","ticks" : 4  },
                             { "type": "y", "scale": "y" }
                         ],
                         "marks": [

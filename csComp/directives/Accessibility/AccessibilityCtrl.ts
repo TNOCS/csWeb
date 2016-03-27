@@ -13,6 +13,11 @@ module Accessibility {
             console.log('accessibility:feature selected');
         }
         
+        getLayerActions(layer : csComp.Services.IProjectLayer)
+        {
+            return null;
+        }
+        
         addLayer(layer : csComp.Services.IProjectLayer) {}
         removeLayer(layer : csComp.Services.IProjectLayer) {}
 

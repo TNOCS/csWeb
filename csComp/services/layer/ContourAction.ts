@@ -17,6 +17,11 @@ module ContourAction {
         getFeatureActions(feature: IFeature): IActionOption[] {
             return [];
         }
+        
+        getLayerActions(layer : csComp.Services.IProjectLayer)
+        {
+            return null;
+        }
 
         getFeatureHoverActions(feature: IFeature): IActionOption[] {
             if (!feature) return [];

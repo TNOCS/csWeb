@@ -179,24 +179,26 @@ module csComp.Services {
                 }
         }
 
-        public updateLayerSensorLink(layer : ProjectLayer) {
+       public updateLayerSensorLink(layer : ProjectLayer)
+        {
             if (layer.sensorLink) {
                     // create sensorlink
+                     
                     var link = layer.sensorLink.url;
                     if (!this.project.activeDashboard.isLive)
                     {
-                      link+= "&tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
+                      link+= "?tbox=" + this.project.timeLine.start + "," + this.project.timeLine.end;
                       //if (layer._gui.hasOwnProperty('lastSensorLink') && layer._gui['lastSensorLink'] === link) return;  
                     }                     
                     else
                     {
-                        link+="&tbox=24h"
+                        link+="?tbox=24h"
                     }
                     layer._gui['lastSensorLink'] = link;
                     console.log('downloading ' + link);
-                    layer._gui['loadingSensorLink'] = true;
+                    layer._gui["loadingSensorLink"] = true;
                     this.$http.get(link)
-                        .success((data: ISensorLinkResult) => {
+                        .success((data: ISensorLinkResult) => {     
                             layer._gui["loadingSensorLink"] = false;
                             if (typeof data.kpis !== 'undefined')
                             {
@@ -208,41 +210,52 @@ module csComp.Services {
                                     data.properties.forEach(s => f.sensors[s] = []);
                                 });
                             var t = 0;
+                            
                             var featureLookup = []
-
+                            
                             data.features.forEach(f =>{
                                var index = _.findIndex(layer.data.features,((p : csComp.Services.IFeature)=> p.properties[layer.sensorLink.linkid] === f));
                                if (index!==-1) featureLookup.push(index);                               
                             });
-
-                            for (var s in data.data) {
+                            
+                            for (var s in data.data)
+                            {
                                 var sensordata = data.data[s];
-                                for (var ti = 0; ti < data.timestamps.length; ti++) {
-                                    for (var fi = 0; fi < sensordata[ti].length; fi++) {
+                                for (var ti =0; ti < data.timestamps.length;ti++)
+                                {
+                                    for (var fi = 0;fi < sensordata[ti].length; fi++)
+                                    {
                                         // get feature
                                         var findex = featureLookup[fi];
                                         if (findex>=0)
                                         {
                                         var f = layer.data.features[findex];
+                                        if (f)
+                                        {
                                             var value = sensordata[ti][fi];
                                         //if (value === -1) value = null;
                                             f.sensors[s].push(value);
                                         }
                                         }
-                                    }
+                                        
+                                    }                                    
                                 }
+                                
+                                
                             }
 
                            
                             this.throttleSensorDataUpdate();
+                            
                             this.$messageBusService.publish("timeline","sensorLinkUpdated");
                         })
                         .error((e) => {
-                            layer._gui['loadingSensorLink'] = false;
+                            layer._gui["loadingSensorLink"] = false;
                             console.log('error loading sensor data');
                         });
                 }
         }
+
 
         /**
          * Get external sensordata for loaded layers with sensor links enabled
@@ -1250,7 +1263,7 @@ module csComp.Services {
                 if (applyDigest) this.apply();
                 if (layer.timeAware && publishToTimeline) this.$messageBusService.publish('timeline', 'updateFeatures');
             }
-            return feature.type;
+            return feature.fType;
         }
 
         /** remove feature */
