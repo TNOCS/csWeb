@@ -2,16 +2,6 @@ sudo: false
 language: node_js
 node_js:
   - "5.5.0"
-cache:
-  directories:
-    - "travis-phantomjs"
-before_install:
-  - "phantomjs --version"
-  - "mkdir travis-phantomjs && PHANTOM_EXISTS=false"
-  - "if [ $PHANTOM_EXISTS = 'false' ]; then wget https://assets.membergetmember.co/software/phantomjs-2.1.1-linux-x86_64.tar.bz2 -O $PWD/travis-phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2; fi"
-  - "if [ $PHANTOM_EXISTS = 'false' ]; then tar -xvf $PWD/travis-phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2 -C $PWD/travis-phantomjs; fi"
-  - "export PATH=$PWD/travis-phantomjs/phantomjs-2.1.1-linux-x86_64/bin:$PATH"
-  - "phantomjs --version"
 install:
   - "npm install -g npm@3.8.3"
   - "npm install -g typescript@1.8.9"
