@@ -625,8 +625,12 @@ module LayersDirective {
             console.log('open layer menu');
             event.stopPropagation();
             layer._gui["options"] = [];
-            this.$layerService.actionServices.forEach(acs=>{   
-                if (_.isFunction(acs.getLayerActions)) acs.getLayerActions(layer).forEach(a=>layer._gui["options"].push(a));
+            this.$layerService.actionServices.forEach(acs=>{
+                   
+                if (_.isFunction(acs.getLayerActions)) {
+                    var actions = acs.getLayerActions(layer);
+                    if (_.isArray(actions)) actions.forEach(a=>layer._gui["options"].push(a));
+                }
             })
             if (layer.isDynamic && layer.enabled) layer._gui["options"].push({ title : "Edit Layer", callback : (l,ls)=> this.editLayer(l)});      
             layer._gui["options"].push({ title : "Layer Settings", callback : (l,ls)=> this.layerSettings(l)}); 
