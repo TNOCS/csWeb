@@ -38,48 +38,47 @@ module csComp.Services {
         /**
          * title of the widget
          */
-        title?: string;
-        elementId?: string;
-        enabled?: boolean;
-        style?: string;
-        customStyle?: WidgetStyle;
-        effectiveStyle?: WidgetStyle;
-        description?: string;
+        title?:           string;
+        elementId?:       string;
+        enabled?:         boolean;
+        style?:           string;
+        customStyle?:     WidgetStyle;
+        effectiveStyle?:  WidgetStyle;
+        description?:     string;
         parentDashboard?: csComp.Services.Dashboard;
-        renderer?: Function;
-        resize?: Function;
+        renderer?:        Function;
+        resize?:          Function;
 
-        init?: Function;
-        start?: Function;
-        stop?:Function;
-        left?: string;
-        right?: string;
-        top?: string;
-        bottom?: string;
+        init?:              Function;
+        start?:             Function;
+        stop?:              Function;
+        left?:              string;
+        right?:             string;
+        top?:               string;
+        bottom?:            string;
 
-        icon?: string;
+        icon?:              string;
 
-        name?: string; id: string;
-        timeDependent?: boolean;
-        properties?: {};
-        dataSets?: DataSet[];
-        range?: csComp.Services.DateRange;
-        updateDateRange?: Function;
-        collapse?: boolean;
-        canCollapse?: boolean;
-        width?: string;
-        height?: string;
-        allowFullscreen?: boolean;
-        hover?: boolean;
+        name?:              string; id: string;
+        timeDependent?:     boolean;
+        properties?:        {};
+        dataSets?:          DataSet[];
+        range?:             csComp.Services.DateRange;
+        updateDateRange?:   Function;
+        collapse?:          boolean;
+        canCollapse?:       boolean;
+        width?:             string;
+        height?:            string;
+        allowFullscreen?:   boolean;
+        hover?:             boolean;
         messageBusService?: csComp.Services.MessageBusService;
-        layerService?: csComp.Services.LayerService;
+        layerService?:      csComp.Services.LayerService;
 
-
-        _ctrl?: IWidgetCtrl;
-        _ijs?: any;
+        _ctrl?:        IWidgetCtrl;
+        _ijs?:         any;
         _initialized?: boolean;
         _interaction?: boolean;
-        _isMoving?: boolean;
+        _isMoving?:    boolean;
     }
 
     export class BaseWidget implements IWidget {
