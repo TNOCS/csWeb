@@ -76,7 +76,7 @@
         "csComp/directives/Heatmap/HeatMapModel.ts",
         "csComp/directives/Heatmap/HeatmapSettings.ts",
         "csComp/directives/Heatmap/HeatSpot.ts",
-        "csComp/directives/Heatmap/IdealityMeasure.ts",
+        "csComp/directives/Heatmap/IdealityMeasure.ts",        
         "csComp/directives/IdvHelper/IdvEdit.ts",
         "csComp/directives/IdvHelper/IdvHelper.ts",
         "csComp/directives/KanbanBoard/KanbanBoard-edit.ts",

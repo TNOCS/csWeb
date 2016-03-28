@@ -23,6 +23,9 @@ module Idv {
         ordering?: string;
         propertyTitle? : string;
         secondPropertyTitle? : string;
+        record? : string;
+        layer? : string;
+        featureproperty? : string;
     } 
 
     export interface ScanConfig {
@@ -53,6 +56,38 @@ module Idv {
         public defaultWidth = 180;
         public DataLoaded: boolean;
         private scope: ng.IScope;
+        
+            public reduceAddSum(properties : string[]) {
+            return (p, v) => {
+                ++p.count
+                properties.forEach(pr=>{
+                    var t = parseFloat(v[pr]);
+                    if (t>p.max) p.max = t;
+                    p[pr] += t;
+                })                
+                return p;
+            };
+        }
+        public reduceRemoveSum(properties : string[]) {
+            return (p, v) => {
+                --p.count
+                properties.forEach(pr=>{
+                    var t = parseFloat(v[pr]);
+                    if (t>p.max) p.max = t;
+                    p[pr] -= t;
+                })                
+                //p.avg = p.sum / p.count;
+                return p;
+            };
+        }
+        public reduceInitSum(properties : string[]) {
+            var r = {};
+            properties.forEach(pr=>{
+                r[pr] = 0;
+            });
+            return r;            
+        }
+
         
    
         public reduceAddAvg(attr) {
@@ -112,7 +147,7 @@ module Idv {
 
             this.gridster = (<any>$("#" + this.config.containerId)).gridster({
                 widget_margins: [5, 5],
-                widget_base_dimensions: [this.defaultWidth - 20, 250],
+                widget_base_dimensions: [this.defaultWidth - 20, 125],
                 min_cols: 6,
                 resize: {
                     enabled: false
@@ -160,6 +195,8 @@ module Idv {
             this.scope = scope;
             var store = 'records3';
             this.state = "Laden configuratie";
+            
+         
             
           $(window).resize(()=> {
               this.resize();
@@ -277,8 +314,8 @@ module Idv {
             this.DataLoaded = true;
             prepare(this.enums, data);
 
-            this.updateCharts();
-            done();
+            this.updateCharts(); 
+            done(); 
         }
         
         public reset(id)
@@ -309,33 +346,54 @@ module Idv {
             if (!config.title) config.title = config.property; 
             
             if (!config.type) config.type = "row";
+            var w = this.layerService.$compile("<li style='padding:4px'><header class='chart-title'><div class='fa fa-filter' style='float:right;cursor:pointer' ng-click='vm.scan.reset(\"" + config.elementId + "\")'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>")(this.scope);
+            this.gridster.add_widget(w,config.width,config.height); //"<li><header class='chart-title'><div class='fa fa-times' style='float:right' ng-click='vm.reset()'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>",config.width,config.height);
             if (config.type === "search")
             {
+                config.dimension = this.ndx.dimension(d => {
+                if (d.hasOwnProperty(config.property)) {
+                    return d[config.property];
+                } else return null;});
+                
+                var searchHtml = "<input class='searchbutton' id='#" + config.id + "'></input><div id='data-count'><span class='filter-count'></span> geselecteerd van de <span class='total-count'></span> " + config.record + "</div>";                
+                 $("#" + config.elementId).html(searchHtml);
                  
+                 
+                    $(".searchbutton").keyup(e=>{
+                        var id = e.target.id.replace('#','');
+                        var filterString = (<any>e.target).value;
+                        if (_.isUndefined(filterString)) return;
+                        
+                        var chart = <ChartConfig>_.findWhere(this.config.charts, { id : id});
+                        if (!_.isUndefined(chart))
+                        {
+                             chart.dimension.filterFunction((d: string) => {
+                                if (d != null && typeof d.toLowerCase === 'function') return (d.toLowerCase().indexOf(filterString.toLowerCase()) > -1);
+                                    return false;
+                                });
+                                chart.dimension.top(Infinity);
+                                dc.redrawAll();                            
+                        }                                                
+                     
+                });
+                var all = this.ndx.groupAll();
+                (<any>dc).dataCount("#data-count").dimension(this.ndx).group(all); // set group to ndx.groupAll()  
             }
             else
-            {
-                                
-                // var chartScope = this.scope.$new(true);
-                // (<any>chartScope).config = config;                
-                var w = this.layerService.$compile("<li><header class='chart-title'><div class='fa fa-filter' style='float:right;cursor:pointer' ng-click='vm.scan.reset(\"" + config.elementId + "\")'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>")(this.scope);
-            this.gridster.add_widget(w,config.width,config.height); //"<li><header class='chart-title'><div class='fa fa-times' style='float:right' ng-click='vm.reset()'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>",config.width,config.height);
-            //$("#" + config.containerId).append(newChart);
-            
+            {                                               
          
             if (!config.stat) config.stat = "count";
             switch (config.stat) {
                 case "sum" :
                  config.dimension = this.ndx.dimension((d)=> { return d[config.property] });
-                 config.group = config.dimension.group().reduceSum((d)=> {
-                     
-                     return +d[config.property];
+                 config.group = config.dimension.group().reduceSum((d)=> {                     
+                     return {totaal_mensen_auto : +d[config.property] };
                     });
                     switch (config.type)
                     {
-                        case "pie":
-                           
-                       
+                        case "pie": 
+                            config.dimension = this.ndx.dimension(function(d) { return d; });
+                            config.group = config.dimension.group().reduce(this.reduceAddSum(config.properties), this.reduceRemoveSum(config.properties), this.reduceInitSum(config.properties));
                             break;                        
                     } 
                     break;
@@ -358,7 +416,7 @@ module Idv {
                     break;
                 case "pie" :
                     config.dimension = config.dimension;
-                    config.group = config.dimension; 
+                    config.group = config.group; 
                     break;
                 case "scatter" :
                     config.dimension = this.ndx.dimension((d)=> {
@@ -388,12 +446,12 @@ module Idv {
 
 
             var width = config.width * this.defaultWidth;
-            var height = config.height * 220;
+            var height = (config.height * 125)-25;
             
             
 
             switch (config.type) {
-               
+                
                 case "table":
                     var c = [];
                     config.columns.forEach((ci : any)=>{
