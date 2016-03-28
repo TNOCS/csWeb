@@ -3,7 +3,7 @@ import WorldState = require('./WorldState');
 import Utils = require('../helpers/Utils')
 import ApiManager = require('../api/ApiManager');
 import Feature = ApiManager.Feature;
-import DynamicLayer = require("../dynamic/DynamicLayer");
+import DynamicLayer = require('../dynamic/DynamicLayer');
 
 export interface IRule {
     /** Identifier */
@@ -47,7 +47,7 @@ export interface IRule {
     actions?: [[string | number | boolean]];
 
     /** Evaluate the rule and execute all actions, is applicable. */
-    process?: (worldState: WorldState, service: RuleEngine.IRuleEngineService) => void;
+    process?: (worldState: WorldState.WorldState, service: RuleEngine.IRuleEngineService) => void;
 }
 
 /**
@@ -104,7 +104,7 @@ export class Rule implements IRule {
     }
 
     /** Evaluate the rule and execute all actions, is applicable. */
-    process(worldState: WorldState, service: RuleEngine.IRuleEngineService) {
+    process(worldState: WorldState.WorldState, service: RuleEngine.IRuleEngineService) {
         // Check if we need to do anything.
         if (!this.isActive || this.recurrence === 0) return;
         // Check if we are dealing with a rule that belongs to a feature, and that feature is being processed.
@@ -118,7 +118,7 @@ export class Rule implements IRule {
     }
 
     /** Evaluate the conditions and check whether all of them are true (AND). */
-    private evaluateConditions(worldState: WorldState) {
+    private evaluateConditions(worldState: WorldState.WorldState) {
         for (let i = 0; i < this.conditions.length; i++) {
             var c = this.conditions[i];
             var check = c[0];
@@ -240,7 +240,7 @@ export class Rule implements IRule {
         return false;
     }
 
-    private executeActions(worldState: WorldState, service: RuleEngine.IRuleEngineService) {
+    private executeActions(worldState: WorldState.WorldState, service: RuleEngine.IRuleEngineService) {
         for (let i = 0; i < this.actions.length; i++) {
             var a = this.actions[i];
             var action = a[0];
@@ -248,7 +248,7 @@ export class Rule implements IRule {
             if (typeof action === 'string') {
                 var length = a.length;
                 switch (action.toLowerCase()) {
-                    case "add":
+                    case 'add':
                         // add feature
                         var id = service.timer.setTimeout(function(f, fid, service) {
                             return () => {
@@ -263,14 +263,14 @@ export class Rule implements IRule {
                                 }
                                 console.log('Add feature ' + feature.id);
                                 if (!feature.properties.hasOwnProperty('date')) feature.properties['date'] = new Date();
-                                if (!feature.properties.hasOwnProperty('roles')) feature.properties['roles'] = ["rti"];
+                                if (!feature.properties.hasOwnProperty('roles')) feature.properties['roles'] = ['rti'];
                                 service.addFeature(feature)
                             }
-                        } (this.feature, length > 1 ? <string>a[1] : "", service), this.getDelay(a, length - 1));
+                        } (this.feature, length > 1 ? <string>a[1] : '', service), this.getDelay(a, length - 1));
                         console.log(`Timer ${id}: Add feature ${this.isGenericRule ? a[1] : this.feature.id}`)
                         break;
-                    case "answer":
-                    case "set":
+                    case 'answer':
+                    case 'set':
                         // Anwer, property, value [, delay], as set, but also sets answered to true and removes the action tag.
                         // Set, property, value [, delay] sets value and updated.
                         if (length < 3) {
@@ -282,26 +282,27 @@ export class Rule implements IRule {
                             this.setTimerForProperty(service, key, a[2], this.getDelay(a, 3), action === 'answer');
                         }
                         break;
-                    case "push":
+                    case 'push':
                         // push property value [, delay]
                         if (length < 3) {
                             console.warn(`Rule ${this.id} contains an invalid action (ignored): ${a}!`);
                             return;
                         }
-                        var key = a[1];
-                        if (typeof key === 'string') {
+                        var key2 = a[1];
+                        if (typeof key2 === 'string') {
                             var valp = a[2];
                             var id = service.timer.setTimeout(function(f, k, v, service, updateProperty) {
                                 return () => {
                                     console.log(`Feature ${f.id}. Pushing ${k}: ${v}`);
-                                    if (!f.properties.hasOwnProperty(k))
+                                    if (!f.properties.hasOwnProperty(k)) {
                                         f.properties[k] = [v];
-                                    else
+                                    } else {
                                         f.properties[k].push(v);
+                                    }
                                     updateProperty(f, service, k, f.properties[k]);
                                 }
-                            } (this.feature, key, valp, service, this.updateProperty), this.getDelay(a, 3));
-                            console.log(`Timer ${id}: push ${key}: ${valp}`)
+                            } (this.feature, key2, valp, service, this.updateProperty), this.getDelay(a, 3));
+                            console.log(`Timer ${id}: push ${key2}: ${valp}`)
                         }
                         break;
                 }
@@ -325,9 +326,9 @@ export class Rule implements IRule {
     private static updateLog(f: Feature, logs: { [prop: string]: DynamicLayer.IPropertyUpdate[] }, key: string, now: number, value: string | number | boolean) {
         if (!f.logs.hasOwnProperty(key)) f.logs[key] = [];
         var log: DynamicLayer.IPropertyUpdate = {
-            "prop": key,
-            "ts": now,
-            "value": value
+            'prop': key,
+            'ts': now,
+            'value': value
         };
         f.logs[key].push(log);
         if (logs) logs[key] = f.logs[key];
@@ -338,12 +339,12 @@ export class Rule implements IRule {
         if (!f.hasOwnProperty('logs')) f.logs = {};
         var logs: { [prop: string]: DynamicLayer.IPropertyUpdate[] } = {};
         Rule.updateLog(f, logs, key, now, value);
-        Rule.updateLog(f, null, "updated", now, now);
+        Rule.updateLog(f, null, 'updated', now, now);
 
         if (isAnswer) {
-            Rule.updateLog(f, logs, "answered", now, true);
+            Rule.updateLog(f, logs, 'answered', now, true);
 
-            key = "tags";
+            key = 'tags';
             if (f.properties.hasOwnProperty(key)) {
                 let index = f.properties[key].indexOf('action');
                 if (index >= 0) {

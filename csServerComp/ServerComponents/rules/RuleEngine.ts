@@ -3,7 +3,7 @@ import path = require('path');
 import HyperTimer = require('hypertimer');
 import WorldState = require('./WorldState');
 import Rule = require('./Rule');
-import DynamicLayer = require("../dynamic/DynamicLayer");
+import DynamicLayer = require('../dynamic/DynamicLayer');
 import Api = require('../api/ApiManager');
 import Layer = Api.Layer;
 import Feature = Api.Feature;
@@ -29,7 +29,7 @@ export interface IRuleEngineService {
 
 export class RuleEngine {
     private loadedScripts: string[] = []; // needed to restart
-    private worldState: WorldState = new WorldState();
+    private worldState: WorldState.WorldState = new WorldState.WorldState();
     /** A set of rules that are active but have not yet fired. */
     private activeRules: Rule.IRule[] = [];
     /** A set of rules that are inactive and may become activated. */
