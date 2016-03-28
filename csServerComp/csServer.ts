@@ -25,12 +25,12 @@ export class csServer {
 
     public start(started: Function) {
         var favicon = require('serve-favicon');
-        var bodyParser = require('body-parser')
+        var bodyParser = require('body-parser');
         this.httpServer = require('http').Server(this.server);
         this.cm = new csweb.ConnectionManager(this.httpServer);
         this.messageBus = new csweb.MessageBusService();
         this.config = new csweb.ConfigurationService('./configuration.json');
-        
+
         // all environments 
         this.server.set('port', this.options.port);
         this.server.use(favicon(this.dir + '/public/favicon.ico'));
@@ -42,11 +42,10 @@ export class csServer {
 
         if (this.options.swagger === true) this.server.use('/swagger', express.static(path.join(this.dir, 'swagger')));
         this.server.use(express.static(path.join(this.dir, 'public')));
-        if (!this.options.hasOwnProperty('connectors')) this.options.connectors = {};        
-        var c = this.options.connectors;        
+        if (!this.options.hasOwnProperty('connectors')) this.options.connectors = {};
+        var c = this.options.connectors;
         if (!c.hasOwnProperty('file')) c['file'] = { path: path.join(path.resolve(this.dir), 'public/data/api/') };
         var fs = new csweb.FileStorage(c['file'].path);
-        
 
         this.httpServer.listen(this.server.get('port'), () => {
             Winston.info('Express server listening on port ' + this.server.get('port'));
@@ -56,7 +55,7 @@ export class csServer {
             this.api = new csweb.ApiManager('cs', 'cs');
             this.api.init(path.join(path.resolve(this.dir), 'public/data/api'), () => {
                 //api.authService = new csweb.AuthAPI(api, server, '/api');
-               
+
                 var connectors: { key: string, s: csweb.IConnector, options: any }[] = [{ key: 'rest', s: new csweb.RestAPI(this.server), options: {} },
                     { key: 'file', s: fs, options: {} },
                     { key: 'socketio', s: new csweb.SocketIOAPI(this.cm), options: {} }
@@ -64,11 +63,10 @@ export class csServer {
 
                 if (c.hasOwnProperty('mqtt')) connectors.push({ key: 'mqtt', s: new csweb.MqttAPI(c['mqtt'].server, c['mqtt'].port), options: {} });
                 //if (c.hasOwnProperty('mongo')) connectors.push({ key: 'mongo', s: new csweb.MongoDBStorage(c['mongo'].server, c['mongo'].port), options: {} });                
-                
+
                 this.api.addConnectors(connectors, () => {
                     started();
                 });
-
             });
         });
     }

@@ -341,7 +341,7 @@ module Dashboard {
                 w.title = 'Legend';
                 w.data = { mode: 'lastSelectedStyle' };
                 w.left = '10px';
-                w.customStyle = <csComp.Services.WidgetStyle>{ background : "White", borderColor : "Black", borderWidth : "1px"};                
+                w.customStyle = <csComp.Services.WidgetStyle>{ background : 'White', borderColor : 'Black', borderWidth : '1px'};
                 w.top = '20px';
                 w.width = '150px';
                 w.enabled = true;
