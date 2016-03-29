@@ -595,7 +595,8 @@ module csComp.Helpers {
         }
 
         var html: string,
-            content: string;
+            content: string,
+            closeImageTag: string = '';
 
         if (effectiveStyle.innerTextProperty != null && feature.properties.hasOwnProperty(effectiveStyle.innerTextProperty)) {
             var textSize = effectiveStyle.innerTextSize || 12;
@@ -603,10 +604,9 @@ module csComp.Helpers {
         } else if (iconUri != null) {
             // Must the iconUri be formatted?
             if (iconUri != null && iconUri.indexOf('{') >= 0) iconUri = Helpers.convertStringFormat(feature, iconUri);
-
             content = `<img src="${iconUri}" style="width:${effectiveStyle.iconWidth}px;height:${effectiveStyle.iconHeight}px;display:block;`;
             if (effectiveStyle.rotate && effectiveStyle.rotate > 0) content += `;transform:rotate(${effectiveStyle.rotate}deg)`;
-            //content += '" />';
+            closeImageTag = '" />';
         }
 
         switch (effectiveStyle.marker) {
@@ -639,7 +639,7 @@ module csComp.Helpers {
                     + `border-width:${effectiveStyle.strokeWidth}px;`
                     + `opacity:${effectiveStyle.opacity};`
                     + '">'
-                    + content + '" />';
+                    + content + closeImageTag
                     + '</div>';
                 break;
         }
