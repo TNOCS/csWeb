@@ -69,7 +69,7 @@
                         </div>
                     </div>
 
-                     <span ng-repeat="t in feature.properties['tags'] track by $index">[{{t}}]</span> 
+                    <span ng-if="vm.column.showFeatureTags" ng-repeat="t in feature.properties['tags'] track by $index">[{{t}}]</span> 
 
                     <span style="margin-left:25px;color:gray;opacity:0.75">
                         <span class="fa fa-clock-o" /> {{feature._gui.relativeTime}}

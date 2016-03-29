@@ -795,7 +795,7 @@ export class ApiManager extends events.EventEmitter {
      */
     public findStorageForLayerId(layerId: string): IConnector {
         var layer = this.findLayer(layerId);
-        Winston.error('find layer ' + JSON.stringify(layer));
+        Winston.info('Find layer ' + JSON.stringify(layer));
         return this.findStorage(layer);
     }
 
@@ -814,7 +814,7 @@ export class ApiManager extends events.EventEmitter {
         var key = this.findKey(keyId);
         return this.findStorage(key);
     }
-    
+
     /**
      * Make sure the project has an unique project id
      */
@@ -1152,11 +1152,8 @@ export class ApiManager extends events.EventEmitter {
         Winston.error('saving feature: ' + layerId);
         var s = this.findStorageForLayerId(layerId);
         if (s) {
-            
             s.updateFeature(layerId, feature, true, meta, (result) => callback(result));
-        }
-        else
-        {
+        } else {
             Winston.error('error saving feature');
         }
         this.getInterfaces(meta).forEach((i: IConnector) => {
@@ -1164,7 +1161,7 @@ export class ApiManager extends events.EventEmitter {
         });
         this.emit(Event[Event.FeatureChanged], <IChangeEvent>{ id: layerId, type: ChangeType.Update, value: feature });
     }
-    
+
     /** Similar to updateFeature, but with an array of updated features instead of one feature.
      * 
      */

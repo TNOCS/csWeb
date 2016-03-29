@@ -1296,6 +1296,7 @@ module csComp.Services {
             var properties = feature.properties;
             if (style) {
                 if (style.nameLabel) s.nameLabel = style.nameLabel;
+                if (style.marker) s.marker = style.marker;
                 if (style.iconUri) s.iconUri = style.iconUri;
                 if (style.fillOpacity >= 0) s.fillOpacity = style.fillOpacity;
                 if (style.opacity >= 0) s.opacity = style.opacity;
@@ -1344,12 +1345,11 @@ module csComp.Services {
             }
 
             feature._gui['style'] = {};
-            if (feature.layer)
-            {
+            if (feature.layer) {
                 s.opacity = (feature.layer.isTransparent) ? 0 : s.opacity * (feature.layer.opacity / 100);
                 s.fillOpacity = (feature.layer.isTransparent) ? 0 : s.fillOpacity * (feature.layer.opacity / 100);    
-            } 
-            
+            }
+
             if (feature.layer && feature.layer.group && feature.layer.group.styles) {
                 feature.layer.group.styles.forEach((gs: GroupStyle) => {
                     if (gs.enabled && feature.properties.hasOwnProperty(gs.property)) {

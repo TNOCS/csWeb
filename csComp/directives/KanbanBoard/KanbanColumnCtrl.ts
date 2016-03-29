@@ -24,6 +24,8 @@ module KanbanColumn {
 
     export class Column {
         title: string;
+        /** If true (default false), show the tags in the kanban card. */
+        showFeatureTags: boolean;
         id: string;
         filters: ColumnFilter;
         propertyTags: string[];
