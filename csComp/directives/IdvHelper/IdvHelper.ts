@@ -25,7 +25,9 @@ module Idv {
         secondPropertyTitle? : string;
         record? : string;
         layer? : string;
-        featureproperty? : string;
+        featureProperty? : string;
+        featureTargetProperty? : string;
+        filtered? : Function;
     } 
 
     export interface ScanConfig {
@@ -332,25 +334,11 @@ module Idv {
         {
             return true;
         }
-
         
-        public addChart(config: Idv.ChartConfig) {
-            
-            if (typeof config.enabled === 'undefined') config.enabled = true;
-            
-            if (!config.enabled) return;
-
-            if (!config.id) config.id = csComp.Helpers.getGuid();
-            if (!config.containerId) config.containerId = this.config.containerId;
-            config.elementId = "ddchart-" + config.id;
-            if (!config.title) config.title = config.property; 
-            
-            if (!config.type) config.type = "row";
-            var w = this.layerService.$compile("<li style='padding:4px'><header class='chart-title'><div class='fa fa-filter' style='float:right;cursor:pointer' ng-click='vm.scan.reset(\"" + config.elementId + "\")'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>")(this.scope);
-            this.gridster.add_widget(w,config.width,config.height); //"<li><header class='chart-title'><div class='fa fa-times' style='float:right' ng-click='vm.reset()'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>",config.width,config.height);
-            if (config.type === "search")
-            {
-                config.dimension = this.ndx.dimension(d => {
+        private addSearchWidget(config:Idv.ChartConfig)
+        {
+            this.createGridsterItem(config);
+            config.dimension = this.ndx.dimension(d => {
                 if (d.hasOwnProperty(config.property)) {
                     return d[config.property];
                 } else return null;});
@@ -378,10 +366,48 @@ module Idv {
                 });
                 var all = this.ndx.groupAll();
                 (<any>dc).dataCount("#data-count").dimension(this.ndx).group(all); // set group to ndx.groupAll()  
-            }
-            else
-            {                                               
-         
+        }
+        
+        public addLayerLink(config : Idv.ChartConfig)
+        {
+            config.dimension = this.ndx.dimension((d)=> { return d[config.property] });
+            config.group = config.dimension.group().reduceCount();
+                    
+            config.filtered = (result)=>{   
+                if (!_.isUndefined(config.layer))
+                {
+                    var l = this.layerService.findLayer(config.layer);
+                    if (!_.isUndefined(l) && l.enabled)
+                    {
+                        var mapping = {};
+                        l.data.features.forEach(f=>{
+                            if (f.properties.hasOwnProperty(config.featureProperty)) mapping[f.properties[config.featureProperty]] = f;
+                            delete f.properties[config.featureTargetProperty]; 
+                        }); 
+                                        
+                    
+                        var res = config.group.all();
+                        res.forEach(r=>{
+                            if (mapping.hasOwnProperty(r.key))
+                            {
+                                var f = mapping[r.key];
+                                f.properties[config.featureTargetProperty] = r.value;                                
+                            }                           
+                        });
+                        this.layerService.updateLayerFeatures(l);
+                        l.group.styles.forEach(s=>{
+                            this.layerService.removeStyle(s);
+                        })
+                        this.layerService.setStyleForProperty(l,config.featureTargetProperty);
+                    }
+                }                              
+                console.log('do filter with result');
+            };
+        }
+        
+        private addChartItem(config : Idv.ChartConfig)
+        {
+            this.createGridsterItem(config);
             if (!config.stat) config.stat = "count";
             switch (config.stat) {
                 case "sum" :
@@ -601,7 +627,6 @@ module Idv {
                             config.chart.ordering(function(d) {
                                 return -d.value;
                             });
-
                             break;
                     }
                     
@@ -610,6 +635,17 @@ module Idv {
                     if (config.cap) config.chart.cap(config.cap);
                     break;
             }
+            
+            config.chart.on("filtered", (chart, filter)=>{
+                var gall = config.group.all();
+                var res = config.dimension.top(Infinity);
+                 this.config.charts.forEach(c=> {
+                     if (!_.isUndefined(c.filtered) && _.isFunction(c.filtered)){
+                         c.filtered(res);
+                     } 
+                    //this.addChart(c)
+                });                  
+            })
             
             if (config.stat === "average")
                     {
@@ -621,6 +657,38 @@ module Idv {
 
             console.log("Add chart " + config.title);
         }
+        
+        private createGridsterItem(config: Idv.ChartConfig)
+        {
+            var w = this.layerService.$compile("<li style='padding:4px'><header class='chart-title'><div class='fa fa-filter' style='float:right;cursor:pointer' ng-click='vm.scan.reset(\"" + config.elementId + "\")'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>")(this.scope);
+            this.gridster.add_widget(w,config.width,config.height); //"<li><header class='chart-title'><div class='fa fa-times' style='float:right' ng-click='vm.reset()'></div>" + config.title + "</header><div id='" + config.elementId + "'></li>",config.width,config.height);
+        }
+
+        
+        public addChart(config: Idv.ChartConfig) {
+            
+            if (typeof config.enabled === 'undefined') config.enabled = true;
+            
+            if (!config.enabled) return;
+
+            if (!config.id) config.id = csComp.Helpers.getGuid();
+            if (!config.containerId) config.containerId = this.config.containerId;
+            config.elementId = "ddchart-" + config.id;
+            if (!config.title) config.title = config.property;             
+            if (!config.type) config.type = "row";
+            
+            switch (config.type)
+            {
+                case "search":
+                    this.addSearchWidget(config);
+                    break;
+                case "layer":
+                    this.addLayerLink(config);
+                    break;
+                default:
+                    this.addChartItem(config);
+                break;
+            }            
         }
 
     }
