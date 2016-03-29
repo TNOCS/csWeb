@@ -1,16 +1,17 @@
-<div>
+<div style="box-shadow: 0 1px 7px rgba(0, 0, 0, 0.4);height:100%;background:white">
     <div class="fa fa-clock-o" style="float:left;font-size:50px;margin:5px" />
-    <div ng-show="vm.time">
-        <div class="focustime-widget-date">{{vm.time | date:vm.dateFormat}}</div>
-        <div class="focustime-widget-time">{{vm.time | date:vm.timeFormat}}</div>
-        <div ng-show="vm.layer._gui.loadingSensorLink" class="spinner" style="position:absolute;right:3px">
-            <div class="bounce1"></div>
-            <div class="bounce2"></div>
-            <div class="bounce3"></div>
+    <div ng-show="vm.layer._gui.loadingSensorLink">
+        <span>Loading sensor data</span>
+    </div>
+    <div ng-hide="vm.layer._gui.loadingSensorLink">
+        <div ng-show="vm.time">
+            <div class="focustime-widget-date">{{vm.time | date:vm.dateFormat}}</div>
+            <div class="focustime-widget-time">{{vm.time | date:vm.timeFormat}}</div>
+
         </div>
+        <div ng-hide="vm.time">
+            <span>No sensor data available for this moment</span>
+        </div>
+
     </div>
-    <div ng-hide="vm.time">
-        <span>No sensor data available for this moment</span>
-    </div>
-    
 </div>
