@@ -162,7 +162,7 @@ module ChartsWidget {
         public startChart() {
             var d = this.$scope.data;
             
-            console.log(d);
+            //console.log(d);
 
             // if a chart generator is specified, find it and start it
             if (d.generator) {

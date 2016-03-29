@@ -499,9 +499,7 @@ module csComp.Services {
                                 ]
                             }
                         ]
-                    };
-                    console.log('kpi');
-                    console.log(JSON.stringify(spec));
+                    };                    
                     this.ctrl.$scope.data._spec = spec;
                     this.ctrl.updateChart();
                 }
